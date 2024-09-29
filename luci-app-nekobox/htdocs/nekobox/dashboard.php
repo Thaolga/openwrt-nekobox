@@ -32,13 +32,15 @@ $dashboard_link = $neko_cfg['ctrl_host'] . ':' . $neko_cfg['ctrl_port'] . '/ui/d
     <script type="text/javascript" src="./assets/js/jquery-2.1.3.min.js"></script>
   </head>
   <body>
+<head>
     <div class="container-sm container-bg text-center callout border border-3 rounded-4 col-11">
-      <div class="row">
-            <a href="./" class="col btn btn-lg">🏠 Home</a>
-            <a href="#" class="col btn btn-lg">📊 Panel</a>
-            <a href="./configs.php" class="col btn btn-lg">⚙️ Configs</a>
-            <a href="/nekobox/mon.php" class="col btn btn-lg d-flex align-items-center justify-content-center"></i>📦 Document</a> 
-            <a href="./settings.php" class="col btn btn-lg">🛠️ Settings</a>
+        <div class="row">
+            <a href="./" class="col btn btn-lg">🏠 首页</a>
+            <a href="#" class="col btn btn-lg">📊 面板</a>
+            <a href="./configs.php" class="col btn btn-lg">⚙️ 配置</a>
+            <a href="/nekobox/mon.php" class="col btn btn-lg d-flex align-items-center justify-content-center"></i>📦 订阅</a> 
+            <a href="./settings.php" class="col btn btn-lg">🛠️ 设定</a>
+
 <!DOCTYPE html>
 <html lang="zh">
 <head>
@@ -135,14 +137,14 @@ $dashboard_link = $neko_cfg['ctrl_host'] . ':' . $neko_cfg['ctrl_port'] . '/ui/d
     </style>
 </head>
 <body>
-     <h2 class="text-center p-2">Meta Panel</h2>
+        <h2 class="text-center p-2">Meta面板</h2>
         <div class="container h-100 mb-5">
             <iframe class="border border-3 rounded-4 w-100" height="700" src="http://<?=$yacd_link ?>" title="yacd" allowfullscreen></iframe>
         </div>
         <div class="btn-container">
-        <a class="btn btn-outline-info btn-yacd" target="_blank" href="http://<?=$yacd_link ?>">Open YACD-META Panel</a>
-        <a class="btn btn-outline-info btn-dashboard" target="_blank" href="http://<?=$dashboard_link ?>">Open DASHBOARD Panel</a>
-        <a class="btn btn-outline-info btn-meta" target="_blank" href="http://<?=$meta_link ?>">Open METACUBEXD Panel</a>
+            <a class="btn btn-outline-info btn-yacd" target="_blank" href="http://<?=$yacd_link ?>">打开YACD-META面板</a>
+            <a class="btn btn-outline-info btn-dashboard" target="_blank" href="http://<?=$dashboard_link ?>">打开DASHBOARD面板</a>
+            <a class="btn btn-outline-info btn-meta" target="_blank" href="http://<?=$meta_link ?>">打开METACUBEXD面板</a>
         </div>
     </div>
     <footer class="text-center">
@@ -150,4 +152,3 @@ $dashboard_link = $neko_cfg['ctrl_host'] . ':' . $neko_cfg['ctrl_port'] . '/ui/d
     </footer>
 </body>
 </html>
-

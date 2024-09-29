@@ -6,6 +6,7 @@ include './cfg.php';
 <html lang="zh-CN" data-bs-theme="<?php echo substr($neko_theme, 0, -4) ?>">
 <head>
     <meta charset="UTF-8">
+    <title>订阅转换模板</title>
     <link rel="stylesheet" href="./assets/bootstrap/bulma.min.css">
     <link rel="icon" href="./assets/img/favicon.png">
     <link href="./assets/css/bootstrap.min.css" rel="stylesheet">
@@ -67,62 +68,62 @@ include './cfg.php';
 <body>
   <div class="outer-container">
         <div class="container">
-            <h1 class="title is-1 has-text-centered">Sing-box Subscription Conversion Template</h1>
+            <h1 class="title is-1 has-text-centered">Sing-box 订阅转换模板</h1>
             <div class="notification is-info">
-                <h4 class="heading">Help Information</h4>
-                <p>Please select a template to generate the configuration file: choose the corresponding template based on the subscription node information, otherwise, it will not start.</p>
+                <h4 class="heading">帮助信息</h4>
+                <p>请选择一个模板以生成配置文件：根据订阅节点信息选择对应模板，否则启动不了。</p>
                 <ul>
-                    <li><strong>Default Template 1</strong>：Hong Kong, Taiwan, Singapore, Japan, United States, South Korea.</li>
-                    <li><strong>Default Template 2</strong>：Singapore, Japan, United States, South Korea.</li>
-                    <li><strong>Default Template 3</strong>：Hong Kong, Singapore, Japan, United States</li>
-                    <li><strong>Default Template 4</strong>：Hong Kong, Japan, United States.</li>
-                    <li><strong>Default Template 5</strong>：No region, universal.</li>
+                    <li><strong>默认模板 1</strong>：香港 台湾 新加坡 日本 美国 韩国。</li>
+                    <li><strong>默认模板 2</strong>：新加坡 日本 美国 韩国。</li>
+                    <li><strong>默认模板 3</strong>：香港 新加坡 日本 美国。</li>
+                    <li><strong>默认模板 4</strong>：香港 日本 美国。</li>
+                    <li><strong>默认模板 5</strong>：无地区 通用。</li>
                 </ul>
             </div>
             <form method="post" action="">
                 <div class="field">
-                    <label for="subscribeUrl" class="label">Subscription Link Address:</label>
+                    <label for="subscribeUrl" class="label">订阅链接地址:</label>
                     <div class="control">
                         <input type="text" class="input" id="subscribeUrl" name="subscribeUrl" required>
                     </div>
                 </div>
                 <fieldset class="field">
-                    <legend class="label">Select a template</legend>
+                    <legend class="label">选择模板</legend>
                     <div class="form-check">
                         <input type="radio" class="form-check-input" id="useDefaultTemplate" name="templateOption" value="default" checked>
-                        <label class="form-check-label" for="useDefaultTemplate">Use default template</label>
+                        <label class="form-check-label" for="useDefaultTemplate">使用默认模板</label>
                     </div>
                     <div class="columns">
                         <div class="column">
                             <input type="radio" class="form-check-input" id="useDefaultTemplate1" name="defaultTemplate" value="mixed" checked>
-                            <label class="form-check-label" for="useDefaultTemplate1">Default template 1</label>
+                            <label class="form-check-label" for="useDefaultTemplate1">默认模板 1</label>
                         </div>
                         <div class="column">
                             <input type="radio" class="form-check-input" id="useDefaultTemplate2" name="defaultTemplate" value="second">
-                            <label class="form-check-label" for="useDefaultTemplate2">Default template 2</label>
+                            <label class="form-check-label" for="useDefaultTemplate2">默认模板 2</label>
                         </div>
                         <div class="column">
                             <input type="radio" class="form-check-input" id="useDefaultTemplate3" name="defaultTemplate" value="fakeip">
-                            <label class="form-check-label" for="useDefaultTemplate3">Default template 3</label>
+                            <label class="form-check-label" for="useDefaultTemplate3">默认模板 3</label>
                         </div>
                         <div class="column">
                             <input type="radio" class="form-check-input" id="useDefaultTemplate4" name="defaultTemplate" value="tun">
-                            <label class="form-check-label" for="useDefaultTemplate4">Default template 4</label>
+                            <label class="form-check-label" for="useDefaultTemplate4">默认模板 4</label>
                         </div>
                         <div class="column">
                             <input type="radio" class="form-check-input" id="useDefaultTemplate5" name="defaultTemplate" value="ip">
-                            <label class="form-check-label" for="useDefaultTemplate5">Default template 5</label>
+                            <label class="form-check-label" for="useDefaultTemplate5">默认模板 5</label>
                         </div>
                     </div>
                     <div class="field">
                         <input type="radio" class="form-check-input" id="useCustomTemplate" name="templateOption" value="custom">
-                        <label class="form-check-label" for="useCustomTemplate">Use Custom Template URL:</label>
-                        <input type="text" class="input" id="customTemplateUrl" name="customTemplateUrl" placeholder="Enter Custom Template URL">
+                        <label class="form-check-label" for="useCustomTemplate">使用自定义模板URL:</label>
+                        <input type="text" class="input" id="customTemplateUrl" name="customTemplateUrl" placeholder="输入自定义模板URL">
                     </div>
                 </fieldset>
                 <div class="field is-grouped">
                     <div class="control">
-                        <button type="submit" name="generateConfig" class="button is-info">Generate Configuration File</button>
+                        <button type="submit" name="generateConfig" class="button is-info">生成配置文件</button>
                     </div>
                 </div>
             </form>
@@ -135,7 +136,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['generateConfig'])) {
     $subscribeUrl = trim($_POST['subscribeUrl']);
     $customTemplateUrl = trim($_POST['customTemplateUrl']);
 
-    $dataContent = "Subscription Link Address: " . $subscribeUrl . "\n" . "Custom Template URL: " . $customTemplateUrl . "\n";
+    $dataContent = "订阅链接地址: " . $subscribeUrl . "\n" . "自定义模板URL: " . $customTemplateUrl . "\n";
     file_put_contents($dataFilePath, $dataContent, FILE_APPEND);
 
     $subscribeUrlEncoded = urlencode($subscribeUrl);
@@ -174,17 +175,17 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['generateConfig'])) {
     $logMessages = [];
 
     if ($returnVar !== 0) {
-        $logMessages[] = "Unable to download content: " . htmlspecialchars($completeSubscribeUrl);
+        $logMessages[] = "无法下载内容: " . htmlspecialchars($completeSubscribeUrl);
     } else {
         $downloadedContent = file_get_contents($tempFilePath);
         if ($downloadedContent === false) {
-            $logMessages[] = "Unable to read the downloaded file content";
+            $logMessages[] = "无法读取下载的文件内容";
         } else {
             if (file_put_contents($configFilePath, $downloadedContent) === false) {
-                $logMessages[] = "Unable to save the modified content to: " . $configFilePath;
+                $logMessages[] = "无法保存修改后的内容到: " . $configFilePath;
             } else {
-                $logMessages[] = "Configuration file generated and saved successfully: " . $configFilePath;
-                $logMessages[] = "Generated and downloaded subscription URL: <a href='" . htmlspecialchars($completeSubscribeUrl) . "' target='_blank'>" . htmlspecialchars($completeSubscribeUrl) . "</a>";
+                $logMessages[] = "配置文件生成并保存成功: " . $configFilePath;
+                $logMessages[] = "生成并下载的订阅URL: <a href='" . htmlspecialchars($completeSubscribeUrl) . "' target='_blank'>" . htmlspecialchars($completeSubscribeUrl) . "</a>";
             }
         }
     }
@@ -195,9 +196,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['generateConfig'])) {
     echo "<textarea id='configContent' name='configContent' class='form-control'>" . htmlspecialchars($downloadedContent) . "</textarea>";
     echo "</div>";
     echo "<div class='form-group text-center'>";
-    echo "<button class='btn btn-info' type='button' onclick='copyToClipboard()'><i class='fas fa-copy'></i> Copy to Clipboard</button>";
+    echo "<button class='btn btn-info' type='button' onclick='copyToClipboard()'><i class='fas fa-copy'></i> 复制到剪贴</button>";
     echo "<input type='hidden' name='saveContent' value='1'>";
-    echo "<button class='btn btn-success' type='submit'>Save Changes</button>";
+    echo "<button class='btn btn-success' type='submit'>保存修改</button>";
     echo "</div>";
     echo "</form>";
     echo "</div>";
@@ -213,9 +214,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['saveContent'])) {
     if (isset($_POST['configContent'])) {
         $editedContent = trim($_POST['configContent']);
         if (file_put_contents($configFilePath, $editedContent) === false) {
-            echo "<div class='log-container alert alert-danger'>Unable to save the modified content to: " . htmlspecialchars($configFilePath) . "</div>";
+            echo "<div class='log-container alert alert-danger'>无法保存修改后的内容到: " . htmlspecialchars($configFilePath) . "</div>";
         } else {
-            echo "<div class='log-container alert alert-success'>Content successfully saved to: " . htmlspecialchars($configFilePath) . "</div>";
+            echo "<div class='log-container alert alert-success'>内容已成功保存到: " . htmlspecialchars($configFilePath) . "</div>";
         }
     }
 }
@@ -223,7 +224,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['saveContent'])) {
 if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['clearData'])) {
     if (file_exists($dataFilePath)) {
         file_put_contents($dataFilePath, '');
-        echo "<div class='log-container alert alert-success'>Saved data has been cleared.</div>";
+        echo "<div class='log-container alert alert-success'>保存的数据已清空。</div>";
     }
 }
 
@@ -231,10 +232,10 @@ if (file_exists($dataFilePath)) {
     $savedData = file_get_contents($dataFilePath);
     echo "<div class='card saved-data-container'>";
     echo "<div class='card-body'>";
-    echo "<h2 class='card-title'>Saved data</h2>";
+    echo "<h2 class='card-title'>保存的数据</h2>";
     echo "<pre>" . htmlspecialchars($savedData) . "</pre>";
     echo "<form method='post' action=''>";
-    echo "<button class='btn clear-button' type='submit' name='clearData'>Clear data</button>";
+    echo "<button class='btn clear-button' type='submit' name='clearData'>清空数据</button>";
     echo "</form>";
     echo "</div>";
     echo "</div>";
@@ -249,7 +250,7 @@ if (file_exists($dataFilePath)) {
             const copyText = document.getElementById("configContent");
             copyText.select();
             document.execCommand("copy");
-            alert("Copied to clipboard");
+            alert("已复制到剪贴板");
         }
     </script>
 </body>

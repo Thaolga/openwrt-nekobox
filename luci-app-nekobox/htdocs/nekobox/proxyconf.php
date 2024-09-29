@@ -43,12 +43,12 @@ if (isset($_POST['newproxycfg'])) {
             <div class="row justify-content-md-center">
                 <div class="col input-group mb-3 justify-content-md-center">
                     <select class="form-select" name="proxycfg" aria-label="themex">
-                        <option selected>Select Proxy</option>
+                        <option selected>选择代理</option>
                         <?php foreach ($arrFiles as $file): ?>
                             <option value="<?php echo htmlspecialchars($file); ?>"><?php echo htmlspecialchars($file); ?></option>
                         <?php endforeach; ?>
                     </select>
-                    <input class="btn btn-info" type="submit" value="Select">
+                    <input class="btn btn-info" type="submit" value="选择">
                 </div>
             </div>
         </div>
@@ -68,12 +68,12 @@ if (isset($_POST['newproxycfg'])) {
                 </div>
                 <div class="row justify-content-md-center">
                     <div class="col input-group mb-3 justify-content-md-center">
-                        <input class="btn btn-info" type="submit" value="💾 Save Proxy">
+                        <input class="btn btn-info" type="submit" value="💾 保存代理">
                     </div>
                 </div>
                 <div class="row justify-content-md-center">
                     <div class="col input-group mb-3 justify-content-md-center">
-                        <?php if (!empty($strNewProxy)) echo "<h5>Proxy modified successfully</h5>"; ?>
+                        <?php if (!empty($strNewProxy)) echo "<h5>代理修改成功</h5>"; ?>
                     </div>
                 </div>
             </div>

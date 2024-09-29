@@ -1,7 +1,5 @@
 #!/bin/bash
 
-# Copyright (C) 2024 nosignal
-
 neko_status=$(uci -q get neko.cfg.enabled)
 neko_new_interface=$(uci -q get neko.cfg.new_interface)
 neko_delay=$(uci -q get neko.cfg.delay)
@@ -11,6 +9,19 @@ neko_pid="$neko_dir/tmp/neko_pid.txt"
 log="$neko_dir/tmp/log.txt"
 firewall="/etc/init.d/firewall"
 neko_version=$1
+
+neko_checknewver(){
+    new_version=$(curl -m 5 -f -s https://raw.githubusercontent.com/Thaolga/openwrt-nekobox/main/nekobox_version)
+    if [ -z "$new_version" ] || [ "$(printf '%s\n' "$neko_version" "$new_version" | sort -V | head -n1)" = "$new_version" ]; then
+        strversion="- Latest"
+    else
+        strversion="- New v.$new_version"
+        if [ "$1" == "log" ]; then
+            echo "[ `date +%T` ] New Version detected. v.$new_version" >> "$log"
+        fi
+    fi
+}
+
 
 neko_reload(){
     echo "Checking New Interfaces."

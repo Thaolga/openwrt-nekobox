@@ -9,7 +9,7 @@ $allowed_files = [
 
 $file = $_GET['file'] ?? '';
 $max_lines = 10; 
-$max_chars = 1000000; 
+$max_chars = 100000; 
 
 if (array_key_exists($file, $allowed_files)) {
     $file_path = $allowed_files[$file];
@@ -20,7 +20,7 @@ if (array_key_exists($file, $allowed_files)) {
         $content = implode(PHP_EOL, $lines);
         if (strlen($content) > $max_chars) {
             file_put_contents($file_path, ''); 
-            echo "Log file has been cleared, exceeding the character limit.";
+            echo "日志文件已清空，超过字符数限制。";
             return;
         }
         

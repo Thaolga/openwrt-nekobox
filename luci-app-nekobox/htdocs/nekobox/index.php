@@ -29,19 +29,109 @@ $neko_status=exec("uci -q get neko.cfg.enabled");
     <script type="text/javascript" src="./assets/js/neko.js"></script>
   </head>
   <body>
-        <div class="container-sm container-bg  callout border border-3 rounded-4 col-11">
-        <div class="row">
-            <a href="#" class="col btn btn-lg">🏠 Home</a>
-            <a href="./dashboard.php" class="col btn btn-lg">📊 Panel</a>
-            <a href="./configs.php" class="col btn btn-lg">⚙️ Configs</a>
-            <a href="/nekobox/mon.php" class="col btn btn-lg d-flex align-items-center justify-content-center"></i>📦 Document</a> 
-            <a href="./settings.php" class="col btn btn-lg">🛠️ Settings</a>
-<h2 class="text-center p-2">NekoClash</h2>
+<div class="container-sm container-bg callout border border-3 rounded-4 col-11">
+    <div class="row">
+        <a href="#" class="col btn btn-lg">🏠 首页</a>
+        <a href="./dashboard.php" class="col btn btn-lg">📊 面板</a>
+        <a href="./configs.php" class="col btn btn-lg">⚙️ 配置</a>
+        <a href="/nekobox/mon.php" class="col btn btn-lg d-flex align-items-center justify-content-center"></i>📦 订阅</a> 
+        <a href="./settings.php" class="col btn btn-lg">🛠️ 设定</a>
+<h2 class="text-center p-2">NekoBox</h2>
  <div style="border: 1px solid black; padding: 10px; ">
    <br>
 <?php
 $translate = [
-
+    'United States' => '美国',
+    'China' => '中国',
+    'ISP' => '互联网服务提供商',
+    'Japan' => '日本',
+    'South Korea' => '韩国',
+    'Germany' => '德国',
+    'France' => '法国',
+    'United Kingdom' => '英国',
+    'Canada' => '加拿大',
+    'Australia' => '澳大利亚',
+    'Russia' => '俄罗斯',
+    'India' => '印度',
+    'Brazil' => '巴西',
+    'Netherlands' => '荷兰',
+    'Singapore' => '新加坡',
+    'Hong Kong' => '香港',
+    'Saudi Arabia' => '沙特阿拉伯',
+    'Turkey' => '土耳其',
+    'Italy' => '意大利',
+    'Spain' => '西班牙',
+    'Thailand' => '泰国',
+    'Malaysia' => '马来西亚',
+    'Indonesia' => '印度尼西亚',
+    'South Africa' => '南非',
+    'Mexico' => '墨西哥',
+    'Israel' => '以色列',
+    'Sweden' => '瑞典',
+    'Switzerland' => '瑞士',
+    'Norway' => '挪威',
+    'Denmark' => '丹麦',
+    'Belgium' => '比利时',
+    'Finland' => '芬兰',
+    'Poland' => '波兰',
+    'Austria' => '奥地利',
+    'Greece' => '希腊',
+    'Portugal' => '葡萄牙',
+    'Ireland' => '爱尔兰',
+    'New Zealand' => '新西兰',
+    'United Arab Emirates' => '阿拉伯联合酋长国',
+    'Argentina' => '阿根廷',
+    'Chile' => '智利',
+    'Colombia' => '哥伦比亚',
+    'Philippines' => '菲律宾',
+    'Vietnam' => '越南',
+    'Pakistan' => '巴基斯坦',
+    'Egypt' => '埃及',
+    'Nigeria' => '尼日利亚',
+    'Kenya' => '肯尼亚',
+    'Morocco' => '摩洛哥',
+    'Google' => '谷歌',
+    'Amazon' => '亚马逊',
+    'Microsoft' => '微软',
+    'Facebook' => '脸书',
+    'Apple' => '苹果',
+    'IBM' => 'IBM',
+    'Alibaba' => '阿里巴巴',
+    'Tencent' => '腾讯',
+    'Baidu' => '百度',
+    'Verizon' => '威瑞森',
+    'AT&T' => '美国电话电报公司',
+    'T-Mobile' => 'T-移动',
+    'Vodafone' => '沃达丰',
+    'China Telecom' => '中国电信',
+    'China Unicom' => '中国联通',
+    'China Mobile' => '中国移动', 
+    'Chunghwa Telecom' => '中华电信',   
+    'Amazon Web Services (AWS)' => '亚马逊网络服务 (AWS)',
+    'Google Cloud Platform (GCP)' => '谷歌云平台 (GCP)',
+    'Microsoft Azure' => '微软Azure',
+    'Oracle Cloud' => '甲骨文云',
+    'Alibaba Cloud' => '阿里云',
+    'Tencent Cloud' => '腾讯云',
+    'DigitalOcean' => '数字海洋',
+    'Linode' => '林诺德',
+    'OVHcloud' => 'OVH 云',
+    'Hetzner' => '赫兹纳',
+    'Vultr' => '沃尔特',
+    'OVH' => 'OVH',
+    'DreamHost' => '梦想主机',
+    'InMotion Hosting' => '动态主机',
+    'HostGator' => '主机鳄鱼',
+    'Bluehost' => '蓝主机',
+    'A2 Hosting' => 'A2主机',
+    'SiteGround' => '站点地',
+    'Liquid Web' => '液态网络',
+    'Kamatera' => '卡玛特拉',
+    'IONOS' => 'IONOS',
+    'InterServer' => '互联服务器',
+    'Hostwinds' => '主机之风',
+    'ScalaHosting' => '斯卡拉主机',
+    'GreenGeeks' => '绿色极客'
 ];
 $lang = $_GET['lang'] ?? 'en';
 ?>
@@ -111,7 +201,7 @@ $lang = $_GET['lang'] ?? 'en';
     <fieldset class="cbi-section">
         <div class="status">
             <div class="img-con">
-                <img src="/nekobox/assets/neko/img/loading.svg" id="flag" class="pure-img" title="National Fla">
+                <img src="/nekobox/assets/neko/img/loading.svg" id="flag" class="pure-img" title="国旗">
             </div>
             <div class="block">
                 <p id="d-ip" class="green ip-address">Checking...</p>
@@ -168,7 +258,7 @@ $lang = $_GET['lang'] ?? 'en';
             let asnOrganization = translate[data.asn_organization] || data.asn_organization;
 
             if (data.country === 'Taiwan') {
-                country = (navigator.language === 'en') ? 'China Taiwan' : 'China Taiwan';
+                country = (navigator.language === 'en') ? 'China Taiwan' : '中国台湾';
             }
 
             document.getElementById(elID).innerHTML = `${country} ${isp} ${asnOrganization}`;
@@ -382,6 +472,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 
+
 function rotateLogFile($filePath) {
     $backupPath = $filePath . '-' . date('Y-m-d-H-i-s') . '.bak';
     rename($filePath, $backupPath);  
@@ -449,7 +540,7 @@ if ($singbox_status == 1) {
     if ($runningConfigFile) {
         $str_cfg = htmlspecialchars(basename($runningConfigFile));
     } else {
-        $str_cfg = 'Sing-box configuration file: No running configuration file found';
+        $str_cfg = 'Sing-box 配置文件：未找到运行中的配置文件';
     }
 }
 
@@ -559,12 +650,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     if (isset($_POST['clear_singbox_log'])) {
         file_put_contents($singBoxLogFile, ''); 
-        $message = 'Sing-box runtime log cleared';
+        $message = 'Sing-box运行日志已清空';
     }
 
     if (isset($_POST['clear_plugin_log'])) {
         file_put_contents($logFile, ''); 
-        $message = 'Plugin log cleared';
+        $message = '插件日志已清空';
     }
 }
 
@@ -572,7 +663,7 @@ function readLogFile($filePath) {
     if (file_exists($filePath)) {
         return nl2br(htmlspecialchars(readRecentLogLines($filePath, 1000), ENT_NOQUOTES));
     } else {
-         return 'Log file does not exist.';
+        return '日志文件不存在。';
     }
 }
 
@@ -588,31 +679,31 @@ $singboxStartLogContent = readLogFile($singboxStartLogFile);
             width: 100%; 
         }
     </style>
-            <td>Status</td>
+            <td>状态</td>
                 <td class="d-grid">
                     <div class="btn-group" role="group" aria-label="ctrl">
                         <?php
-                            if($neko_status==1) echo "<button type=\"button\" class=\"btn btn-success\">Mihomo Running</button>\n";
+                            if($neko_status==1) echo "<button type=\"button\" class=\"btn btn-success\">Mihomo 运行中</button>\n";
 
-                            else echo "<button type=\"button\" class=\"btn btn-outline-danger\">Mihomo Not Running</button>\n";
+                            else echo "<button type=\"button\" class=\"btn btn-outline-danger\">Mihomo 未运行</button>\n";
 
                             echo "<button type=\"button\" class=\"btn btn-deepskyblue\">$str_cfg</button>\n";
 
-                            if ($singbox_status == 1) echo "<button type=\"button\" class=\"btn btn-success\">Sing-box Running</button>\n";
+                            if ($singbox_status == 1) echo "<button type=\"button\" class=\"btn btn-success\">Sing-box 运行中</button>\n";
 
-                            else  echo "<button type=\"button\" class=\"btn btn-outline-danger\">Sing-box Not Running</button>\n";
+                            else  echo "<button type=\"button\" class=\"btn btn-outline-danger\">Sing-box 未运行</button>\n";
                         ?>
                     </div>
                 </td>
             </tr>
             <tr>
-            <td>Control</td>
+            <td>控制</td>
                 <form action="index.php" method="post">
                     <td class="d-grid">
                         <div class="btn-group col" role="group" aria-label="ctrl">
-                            <button type="submit" name="neko" value="start" class="btn btn<?php if ($neko_status == 1) echo "-outline" ?>-success <?php if ($neko_status == 1) echo "disabled" ?> d-grid">Enable Mihomo</button>
-                            <button type="submit" name="neko" value="disable" class="btn btn<?php if ($neko_status == 0) echo "-outline" ?>-danger <?php if ($neko_status == 0) echo "disabled" ?> d-grid">Disable Mihomo</button>
-                            <button type="submit" name="neko" value="restart" class="btn btn<?php if ($neko_status == 0) echo "-outline" ?>-warning <?php if ($neko_status == 0) echo "disabled" ?> d-grid">Restart Mihomo</button>
+                            <button type="submit" name="neko" value="start" class="btn btn<?php if ($neko_status == 1) echo "-outline" ?>-success <?php if ($neko_status == 1) echo "disabled" ?> d-grid">启用 Mihomo</button>
+                            <button type="submit" name="neko" value="disable" class="btn btn<?php if ($neko_status == 0) echo "-outline" ?>-danger <?php if ($neko_status == 0) echo "disabled" ?> d-grid">停用 Mihomo</button>
+                            <button type="submit" name="neko" value="restart" class="btn btn<?php if ($neko_status == 0) echo "-outline" ?>-warning <?php if ($neko_status == 0) echo "disabled" ?> d-grid">重启 Mihomo</button>
                         </div>
                     </td>
                 </form>
@@ -627,24 +718,24 @@ $singboxStartLogContent = readLogFile($singboxStartLogFile);
                             <?php endforeach; ?>
                         </select>
                         <div class="btn-group col" role="group" aria-label="ctrl">
-                            <button type="submit" name="singbox" value="start" class="btn btn<?php echo ($singbox_status == 1) ? "-outline" : "" ?>-info <?php echo ($singbox_status == 1) ? "disabled" : "" ?> d-grid">Enable Sing-box</button>
-                            <button type="submit" name="singbox" value="disable" class="btn btn<?php echo ($singbox_status == 0) ? "-outline" : "" ?>-danger <?php echo ($singbox_status == 0) ? "disabled" : "" ?> d-grid">Disable Sing-box</button>
-                            <button type="submit" name="singbox" value="restart" class="btn btn<?php echo ($singbox_status == 0) ? "-outline" : "" ?>-warning <?php echo ($singbox_status == 0) ? "disabled" : "" ?> d-grid">Restart Sing-box</button>
+                            <button type="submit" name="singbox" value="start" class="btn btn<?php echo ($singbox_status == 1) ? "-outline" : "" ?>-success <?php echo ($singbox_status == 1) ? "disabled" : "" ?> d-grid">启用 Sing-box</button>
+                            <button type="submit" name="singbox" value="disable" class="btn btn<?php echo ($singbox_status == 0) ? "-outline" : "" ?>-danger <?php echo ($singbox_status == 0) ? "disabled" : "" ?> d-grid">停用 Sing-box</button>
+                            <button type="submit" name="singbox" value="restart" class="btn btn<?php echo ($singbox_status == 0) ? "-outline" : "" ?>-warning <?php echo ($singbox_status == 0) ? "disabled" : "" ?> d-grid">重启 Sing-box</button>
                         </div>
                     </td>
                 </form>
             </tr>
             <tr>
-                <td>Running Mode</td>
+                <td>运行模式</td>
                 <td class="d-grid">
                     <?php
                     $mode_placeholder = '';
                     if ($neko_status == 1) {
                         $mode_placeholder = $neko_cfg['echanced'] . " | " . $neko_cfg['mode'];
                     } elseif ($singbox_status == 1) {
-                        $mode_placeholder = "Rule Mode";
+                        $mode_placeholder = "Rule 模式";
                     } else {
-                        $mode_placeholder = "Not Running";
+                        $mode_placeholder = "未运行";
                     }
                     ?>
                     <input class="form-control text-center" name="mode" type="text" placeholder="<?php echo $mode_placeholder; ?>" disabled>
@@ -652,43 +743,42 @@ $singboxStartLogContent = readLogFile($singboxStartLogFile);
             </tr>
        </tbody>
     </table>
-   <h2 class="text-center p-2" >System Information</h2>
-    <table class="table table-borderless mb-2">
+    <h2 class="text-center p-2" >系统信息</h2>
+    <table class="table table-borderless rounded-4 mb-2">
         <tbody>
             <tr>
-                <td>Devices</td>
+                <td>型号</td>
                 <td class="col-7"><?php echo $devices ?></td>
             </tr>
             <tr>
-                <td>RAM</td>
+                <td>内存</td>
                 <td class="col-7"><?php echo "$ramUsage/$ramTotal MB" ?></td>
             </tr>
             <tr>
-                <td>OS Version</td>
+                <td>固件版本</td>
                 <td class="col-7"><?php echo $OSVer ?></td>
             </tr>
             <tr>
-                <td>Kernel Version</td>
+                <td>内核版本</td>
                 <td class="col-7"><?php echo $kernelv ?></td>
             </tr>
             <tr>
-                <td>Average Load</td>
+                <td>平均负载</td>
                 <td class="col-7"><?php echo "$cpuLoadAvg1Min $cpuLoadAvg5Min $cpuLoadAvg15Min" ?></td>
             </tr>
             <tr>
-                <td>Uptime</td>
-              <td class="col-7"><?php echo "{$days} days {$hours} hours  {$minutes} minutes  {$seconds} seconds"; ?></td>
+                <td>运行时间</td>
+                <td class="col-7"><?php echo "{$days}天 {$hours}小时 {$minutes}分钟 {$seconds}秒" ?></td>
             </tr>
         </tbody>
     </table>
   <br>
-
 <div style="border: 1px solid black; padding: 10px; text-align: center;">
     <table style="width: 100%;">
         <tbody>
             <tr>
-                <td style="width: 50%;">D-Total</td>
-                <td style="width: 50%;">U-Total</td>
+                <td style="width: 50%;">下载-总计</td>
+                <td style="width: 50%;">上传-总计</td>
             </tr>
             <tr>
                 <td><span id="downtotal">-</span></td>
@@ -697,9 +787,8 @@ $singboxStartLogContent = readLogFile($singboxStartLogFile);
         </tbody>
     </table>
 </div>
-
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -717,19 +806,19 @@ $singboxStartLogContent = readLogFile($singboxStartLogFile);
     </style>
 </head>
 <body>
-    <h2 class="text-center my-4">Logs</h2>
+    <h2 class="text-center my-4">日志</h2>
     <div class="row">
         <div class="col-md-4">
             <div class="card log-card">
                 <div class="card-header">
-                    <h4 class="card-title text-center mb-0">NeKo Logs</h4>
+                    <h4 class="card-title text-center mb-0">NeKoBox 日志</h4>
                 </div>
                 <div class="card-body">
                     <pre id="plugin_log" class="log-container form-control"></pre>
                 </div>
                 <div class="card-footer text-center">
                     <form action="index.php" method="post">
-                        <button type="submit" name="clear_plugin_log" class="btn btn-danger">🗑️ Clear Log</button>
+                        <button type="submit" name="clear_plugin_log" class="btn btn-danger">🗑️ 清空日志</button>
                     </form>
                 </div>
             </div>
@@ -737,14 +826,14 @@ $singboxStartLogContent = readLogFile($singboxStartLogFile);
         <div class="col-md-4">
             <div class="card log-card">
                 <div class="card-header">
-                    <h4 class="card-title text-center mb-0">Mihomo Logs</h4>
+                    <h4 class="card-title text-center mb-0">Mihomo 日志</h4>
                 </div>
                 <div class="card-body">
                     <pre id="bin_logs" class="log-container form-control"></pre>
                 </div>
                 <div class="card-footer text-center">
                     <form action="index.php" method="post">
-                        <button type="submit" name="neko" value="clear" class="btn btn-danger">🗑️ Clear Log</button>
+                        <button type="submit" name="neko" value="clear" class="btn btn-danger">🗑️ 清空日志</button>
                     </form>
                 </div>
             </div>
@@ -752,14 +841,14 @@ $singboxStartLogContent = readLogFile($singboxStartLogFile);
         <div class="col-md-4">
             <div class="card log-card">
                 <div class="card-header">
-                    <h4 class="card-title text-center mb-0">Sing-box Logs</h4>
+                    <h4 class="card-title text-center mb-0">Sing-box 日志</h4>
                 </div>
                 <div class="card-body">
                     <pre id="singbox_log" class="log-container form-control"></pre>
                 </div>
                 <div class="card-footer text-center">
                     <form action="index.php" method="post">
-                        <button type="submit" name="clear_singbox_log" class="btn btn-danger">🗑️ Clear Log</button>
+                        <button type="submit" name="clear_singbox_log" class="btn btn-danger">🗑️ 清空日志</button>
                     </form>
                 </div>
             </div>

@@ -21,17 +21,17 @@ $curl_command = "curl -s -H 'User-Agent: PHP' --connect-timeout 10 " . escapeshe
 $response = shell_exec($curl_command);
 
 if ($response === false || empty($response)) {
-    logMessage("GitHub API request failed, possibly due to network issues or GitHub API restrictions.");
-    die("GitHub API request failed. Please check your network connection or try again later.");
+    logMessage("GitHub API 请求失败，可能是网络问题或 GitHub API 限制。");
+    die("GitHub API 请求失败。请检查网络连接或稍后重试。");
 }
 
-logMessage("GitHub API response: " . substr($response, 0, 200) . "...");  
+logMessage("GitHub API 响应: " . substr($response, 0, 200) . "...");  
 
 $data = json_decode($response, true);
 
 if (json_last_error() !== JSON_ERROR_NONE) {
-    logMessage("Error parsing GitHub API response: " . json_last_error_msg());
-    die("Error parsing GitHub API response: " . json_last_error_msg());
+    logMessage("解析 GitHub API 响应时出错: " . json_last_error_msg());
+    die("解析 GitHub API 响应时出错: " . json_last_error_msg());
 }
 
 $latest_beta_version = '';
@@ -45,8 +45,8 @@ if (is_array($data)) {
 }
 
 if (empty($latest_beta_version)) {
-    logMessage("No beta version information found.");
-    die("No beta version information found.");
+    logMessage("未找到 beta 版本信息。");
+    die("未找到 beta 版本信息。");
 }
 
 $current_version = ''; 
@@ -70,16 +70,16 @@ switch ($current_arch) {
         $download_url = "https://github.com/SagerNet/sing-box/releases/download/$latest_beta_version/sing-box-$base_version-linux-amd64.tar.gz";
         break;
     default:
-        die("No suitable download link found for architecture: $current_arch");
+        die("未找到适合架构的下载链接: $current_arch");
 }
 
 if (trim($current_version) === trim($latest_beta_version)) {
-    die("The current version is already up to date.");
+    die("当前版本已是最新版本。");
 }
 
 exec("wget -O '$temp_file' '$download_url'", $output, $return_var);
 if ($return_var !== 0) {
-    die("Download failed!");
+    die("下载失败！");
 }
 
 if (!is_dir($temp_dir)) {
@@ -88,7 +88,7 @@ if (!is_dir($temp_dir)) {
 
 exec("tar -xzf '$temp_file' -C '$temp_dir'", $output, $return_var);
 if ($return_var !== 0) {
-    die("Extraction failed!");
+    die("解压失败！");
 }
 
 $extracted_file = glob("$temp_dir/sing-box-*/*sing-box")[0] ?? '';
@@ -96,9 +96,9 @@ if ($extracted_file && file_exists($extracted_file)) {
     exec("cp -f '$extracted_file' '$install_path'");
     exec("chmod 0755 '$install_path'");
     writeVersionToFile($latest_beta_version); 
-    echo "Update completed! Current version: $latest_beta_version";
+    echo "更新完成！当前版本: $latest_beta_version";
 } else {
-    die("Extracted file 'sing-box' does not exist.");
+    die("解压后的文件 'sing-box' 不存在。");
 }
 
 unlink($temp_file);

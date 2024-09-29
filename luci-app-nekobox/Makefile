@@ -4,10 +4,10 @@
 
 include $(TOPDIR)/rules.mk
 
-PKG_MAINTAINER:=Thaolga <https://github.com/Thaolga/luci-app-nekoclash>
+PKG_MAINTAINER:=Thaolga <https://github.com/Thaolga/luci-app-nekobox>
 PKG_NAME:=luci-app-nekobox
 PKG_VERSION:=1.4.0
-PKG_RELEASE:=en
+PKG_RELEASE:=cn
 
 PKG_BUILD_DIR:=$(BUILD_DIR)/$(PKG_NAME)
 
@@ -16,7 +16,7 @@ define Package/$(PKG_NAME)
 	SUBMENU:=3. Applications
 	TITLE:=LuCI support for mihomo
 	PKGARCH:=all
-	DEPENDS:=+kmod-tun +bash +curl +jq +php8  +php8-cgi +php8-mod-curl 
+	DEPENDS:=+kmod-tun +bash +curl +jq +php8 +php8-cgi +php8-mod-curl 
 endef
 
 define Package/$(PKG_NAME)/description
@@ -30,7 +30,7 @@ define Build/Prepare
 	$(CP) $(CURDIR)/root $(PKG_BUILD_DIR)
 	$(CP) $(CURDIR)/luasrc $(PKG_BUILD_DIR)
 	$(CP) $(CURDIR)/htdocs $(PKG_BUILD_DIR)
-	chmod 0755 $(PKG_BUILD_DIR)/root/usr/bin/nekoclash
+	chmod 0755 $(PKG_BUILD_DIR)/root/usr/bin/nekobox
 	chmod 0755 $(PKG_BUILD_DIR)/root/etc/init.d/neko
 	chmod 0755 $(PKG_BUILD_DIR)/root/etc/neko/core/*
 	chmod 0755 $(PKG_BUILD_DIR)/root/etc/uci-defaults/99_neko
@@ -52,7 +52,7 @@ define Package/$(PKG_NAME)/preinst
 		cp -rf "/etc/neko/" "/tmp/neko/"
 
 		rm -rf /etc/neko/core/* >/dev/null 2>&1
-		rm -rf /www/nekoclash/ >/dev/null 2>&1
+		rm -rf /www/nekobox/ >/dev/null 2>&1
 	fi
 	exit 0
 endef
@@ -77,7 +77,7 @@ define Package/$(PKG_NAME)/prerm
 	/etc/neko/core/neko -k
 
 	cp -rf "/etc/neko/" "/tmp/neko/"
-	cp -rf "/www/nekoclash/" "/tmp/neko/nekoclash/"
+	cp -rf "/www/nekobox/" "/tmp/neko/nekobox/"
 	cp -f "/etc/config/neko" "/tmp/neko/neko.bak"
 	exit 0
 endef
@@ -85,14 +85,14 @@ endef
 define Package/$(PKG_NAME)/postrm
 #!/bin/sh
 	rm -rf /etc/neko/ >/dev/null 2>&1
-	rm -rf /www/nekoclash/ >/dev/null 2>&1
+	rm -rf /www/nekobox/ >/dev/null 2>&1
 	exit 0
 endef
 
 define Package/$(PKG_NAME)/install
 	$(INSTALL_DIR) $(1)/etc/neko
 	$(INSTALL_DIR) $(1)/usr/lib/lua/luci
-	$(INSTALL_DIR) $(1)/www/nekoclash
+	$(INSTALL_DIR) $(1)/www/nekobox
 	$(CP) $(PKG_BUILD_DIR)/root/* $(1)/
 	$(CP) $(PKG_BUILD_DIR)/luasrc/* $(1)/usr/lib/lua/luci/
 	$(CP) $(PKG_BUILD_DIR)/htdocs/* $(1)/www/
