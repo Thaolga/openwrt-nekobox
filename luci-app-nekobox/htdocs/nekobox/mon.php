@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"> 
     <style>
         html, body {
             margin: 0;
@@ -19,15 +20,15 @@
 
         nav {
             background: linear-gradient(145deg, #6a5acd, #87ceeb);
-            padding: 5px 20px;
+            height: 70px; 
             position: sticky;
             top: 0;
             width: 100%;
             z-index: 1000;
             box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
-            border-radius: 0;
-            box-sizing: border-box;
-            transition: all 0.3s ease;
+            display: flex;
+            justify-content: center;
+            align-items: center; 
         }
 
         nav:hover {
@@ -59,24 +60,7 @@
             display: block;
             position: relative;
             overflow: hidden;
-        }
-
-        nav ul li a::before {
-            content: '';
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            width: 300%;
-            height: 300%;
-            background: radial-gradient(circle, rgba(255, 255, 255, 0.2) 20%, transparent 50%);
-            transition: transform 0.3s;
-            transform: translate(-50%, -50%) scale(0);
-            border-radius: 50%;
-            z-index: 0;
-        }
-
-        nav ul li a:hover::before {
-            transform: translate(-50%, -50%) scale(1);
+            white-space: nowrap;
         }
 
         nav ul li a:hover {
@@ -100,9 +84,13 @@
             box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
             border-radius: 0;
             padding: 5px 0;
-            width: auto;
             min-width: 160px;
             box-sizing: border-box;
+            white-space: nowrap;
+        }
+
+        nav ul li:hover .submenu {
+            display: block;
         }
 
         .submenu li {
@@ -113,41 +101,17 @@
         .submenu li a {
             font-size: 14px;
             padding: 8px 15px;
-            width: 100%;
-            display: block;
-            white-space: nowrap;
             color: #ffffff;
             transition: background-color 0.3s, color 0.3s;
             position: relative;
             overflow: hidden;
             box-sizing: border-box;
-        }
-
-        .submenu li a::before {
-            content: '';
-            position: absolute;
-            top: 50%;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: radial-gradient(circle, rgba(255, 255, 255, 0.3) 20%, transparent 50%);
-            transition: transform 0.3s;
-            transform: scaleX(0);
-            transform-origin: left center;
-            z-index: 0;
-        }
-
-        .submenu li a:hover::before {
-            transform: scaleX(1);
+            white-space: nowrap;
         }
 
         .submenu li a:hover {
             background-color: rgba(255, 255, 255, 0.2);
             color: #6a5acd;
-        }
-
-        nav ul li:hover .submenu {
-            display: block;
         }
 
         .content {
@@ -176,60 +140,71 @@
         }
 
         .config-menu-button {
-            height: 40px;
-            width: 40px;
-            border-radius: 50%;
-            background-color: transparent;
-            border: 5px solid;
-            color: #ffcc00;
             position: absolute;
-            right: 20px; 
-            text-align: center;
-            text-decoration: none;
-            transition: opacity 0.3s;
-            animation: borderAnimation 3s linear infinite;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            top: 20px; 
-         }
-
-        .config-menu-button {
-            right: 50px; 
+            left: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 24px;
+            background-color: #87ceeb; 
+            color: #fff;
+            border-radius: 50%;
+            padding: 10px;
+            cursor: pointer;
+            transition: background-color 0.3s, transform 0.3s;
         }
 
-        .button-top-60 {
-            top: 60px; 
+        .config-menu-button:hover {
+            background-color: #6a5acd;
+            transform: translateY(-50%) scale(1.1);
+        }
 
-         }
+        @media (max-width: 768px) {
+            nav ul {
+                flex-wrap: nowrap;
+            }
 
+            nav ul li {
+                margin: 0 10px; 
+            }
+
+            nav ul li a {
+                font-size: 14px;
+                padding: 8px 10px;
+            }
+
+            .config-menu-button {
+                left: 10px; 
+                padding: 10px; 
+                font-size: 20px; 
+            }
+        }
     </style>
 </head>
 <body>
 <nav>
-    <a href="/nekobox" class="config-menu-button button-top-60">
-        <i> 🏠</i>
+    <a href="/nekobox" class="config-menu-button ">
+        <i>🏠</i>
     </a>
     <ul>
-    <li><a href="?page=upload" class="<?= (!isset($_GET['page']) || $_GET['page'] == 'upload') ? 'active' : '' ?>">Mihomo</a></li>
-            <li><a href="?page=upload_sb" class="<?= (isset($_GET['page']) && $_GET['page'] == 'upload_sb') ? 'active' : '' ?>">Sing-box</a></li>
-            <li>
-                <a href="#" class="<?= (isset($_GET['page']) && in_array($_GET['page'], ['box', 'personal', 'video'])) ? 'active' : '' ?>">Template</a>
-                <ul class="submenu">
-                    <li><a href="?page=box" class="<?= (isset($_GET['page']) && $_GET['page'] == 'box') ? 'active' : '' ?>">Box</a></li>
-                    <li><a href="?page=personal" class="<?= (isset($_GET['page']) && $_GET['page'] == 'personal') ? 'active' : '' ?>">Personal</a></li>
-                    <li><a href="?page=video" class="<?= (isset($_GET['page']) && $_GET['page'] == 'video') ? 'active' : '' ?>">Video</a></li>
-                </ul>
-            </li>
-            <li>
-                <a href="#" class="<?= (isset($_GET['page']) && in_array($_GET['page'], ['neko_yacd', 'neko_meta'])) ? 'active' : '' ?>">Panel</a>
-                <ul class="submenu">
-                    <li><a href="?page=neko_yacd" class="<?= (isset($_GET['page']) && $_GET['page'] == 'neko_yacd') ? 'active' : '' ?>">Meta-Yacd</a></li>
-                    <li><a href="?page=neko_meta" class="<?= (isset($_GET['page']) && $_GET['page'] == 'neko_meta') ? 'active' : '' ?>">MetaCubeXD</a></li>
-                </ul>
-            </li>
-        </ul>
-    </nav>
+        <li><a href="?page=upload" class="<?= (!isset($_GET['page']) || $_GET['page'] == 'upload') ? 'active' : '' ?>">📂 Mihomo</a></li>
+        <li><a href="?page=upload_sb" class="<?= (isset($_GET['page']) && $_GET['page'] == 'upload_sb') ? 'active' : '' ?>">🗂️ Sing-box</a></li>
+        <li>
+            <a href="#" class="<?= (isset($_GET['page']) && in_array($_GET['page'], ['box', 'personal', 'video'])) ? 'active' : '' ?>">💹 Template</a>
+            <ul class="submenu">
+                <li><a href="?page=box" class="<?= (isset($_GET['page']) && $_GET['page'] == 'box') ? 'active' : '' ?>">Box</a></li>
+                <li><a href="?page=personal" class="<?= (isset($_GET['page']) && $_GET['page'] == 'personal') ? 'active' : '' ?>">Personal</a></li>
+                <li><a href="?page=video" class="<?= (isset($_GET['page']) && $_GET['page'] == 'video') ? 'active' : '' ?>">Video</a></li>
+            </ul>
+        </li>
+        <li>
+            <a href="#" class="<?= (isset($_GET['page']) && in_array($_GET['page'], ['neko_yacd', 'neko_meta'])) ? 'active' : '' ?>">📊 Panel</a>
+            <ul class="submenu">
+                <li><a href="?page=neko_yacd" class="<?= (isset($_GET['page']) && $_GET['page'] == 'neko_yacd') ? 'active' : '' ?>">Meta-Yacd</a></li>
+                <li><a href="?page=neko_meta" class="<?= (isset($_GET['page']) && $_GET['page'] == 'neko_meta') ? 'active' : '' ?>">MetaCubeXD</a></li>
+            </ul>
+        </li>
+    </ul>
+</nav>
 
 <div class="content">
     <?php
