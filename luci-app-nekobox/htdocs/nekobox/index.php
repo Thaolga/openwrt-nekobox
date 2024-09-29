@@ -36,7 +36,7 @@ $neko_status=exec("uci -q get neko.cfg.enabled");
             <a href="./configs.php" class="col btn btn-lg">⚙️ Configs</a>
             <a href="/nekobox/mon.php" class="col btn btn-lg d-flex align-items-center justify-content-center"></i>📦 Document</a> 
             <a href="./settings.php" class="col btn btn-lg">🛠️ Settings</a>
-<h2 class="text-center p-2">NekoClash</h2>
+<h2 class="text-center p-2">NekoBox</h2>
  <div style="border: 1px solid black; padding: 10px; ">
    <br>
 <?php
@@ -722,7 +722,7 @@ $singboxStartLogContent = readLogFile($singboxStartLogFile);
         <div class="col-md-4">
             <div class="card log-card">
                 <div class="card-header">
-                    <h4 class="card-title text-center mb-0">NeKo Logs</h4>
+                    <h4 class="card-title text-center mb-0">NeKobox Logs</h4>
                 </div>
                 <div class="card-body">
                     <pre id="plugin_log" class="log-container form-control"></pre>
