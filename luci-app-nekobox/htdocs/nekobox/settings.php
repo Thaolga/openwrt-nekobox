@@ -359,7 +359,7 @@ $singBoxVersion = getSingboxVersion();
 </head>
 <body>
     <div class="container mt-4">
-        <h2 class="text-center mb-4">About NekoClash</h2>
+        <h2 class="text-center mb-4">About NekoBox</h2>
         <div class="feature-box text-center">
             <h5>NekoBox</h5>
             <p>NekoBox is a thoughtfully designed Sing-box proxy tool, created specifically for home users, aimed at providing a simple yet powerful proxy solution. Built on PHP and BASH technologies, NekoBox simplifies complex proxy configurations into an intuitive experience, allowing every user to easily enjoy an efficient and secure network environment.</p>
