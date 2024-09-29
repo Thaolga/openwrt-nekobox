@@ -1,0 +1,118 @@
+[data-bs-theme=transparent] {
+  color-scheme: dark;
+  --bs-body-color: #ffffff;
+  --bs-body-color-rgb: 255, 255, 255;
+  --bs-body-bg: #087990;
+  --bs-body-bg-rgb: 8, 121, 144;
+  --bs-emphasis-color: #ffffff;
+  --bs-emphasis-color-rgb: 255, 255, 255;
+  --bs-secondary-color: rgba(255, 255, 255, 0.75);
+  --bs-secondary-color-rgb: 255, 255, 255;
+  --bs-secondary-bg: #087990;
+  --bs-secondary-bg-rgb: 8, 121, 144;
+  --bs-tertiary-color: rgba(255, 255, 255, 0.5);
+  --bs-tertiary-color-rgb: 255, 255, 255;
+  --bs-tertiary-bg: #087990;
+  --bs-tertiary-bg-rgb: 8, 121, 144;
+  --bs-primary-text-emphasis: #ffffff;
+  --bs-secondary-text-emphasis: #ffffff;
+  --bs-success-text-emphasis: #ffffff;
+  --bs-info-text-emphasis: #ffffff;
+  --bs-warning-text-emphasis: #ffffff;
+  --bs-danger-text-emphasis: #ffffff;
+  --bs-light-text-emphasis: #ffffff;
+  --bs-dark-text-emphasis: #ffffff;
+  --bs-primary-bg-subtle: #087990;
+  --bs-secondary-bg-subtle: #087990;
+  --bs-success-bg-subtle: #1b0516;
+  --bs-info-bg-subtle: #300328;
+  --bs-warning-bg-subtle: #332701;
+  --bs-danger-bg-subtle: #087990;
+  --bs-light-bg-subtle: #087990;
+  --bs-dark-bg-subtle: #087990;
+  --bs-primary-border-subtle: #084298;
+  --bs-secondary-border-subtle: #41464b;
+  --bs-success-border-subtle: #0f5132;
+  --bs-info-border-subtle: #087990;
+  --bs-warning-border-subtle: #997404;
+  --bs-danger-border-subtle: #087990;
+  --bs-light-border-subtle: #495057;
+  --bs-dark-border-subtle: #b34187;
+  --bs-heading-color: #ffffff;
+  --bs-body-font-family: "Avant Garde", Avantgarde, "Century Gothic", CenturyGothic, AppleGothic, sans-serif;
+  --bs-body-font-weight: 700;
+}
+
+body {
+  background-image: url("/nekoclash/assets/img/4.jpg");
+  background-repeat: no-repeat;
+  background-position: center center;
+  background-attachment: fixed;
+  background-size: cover;
+  perspective: 1000px;
+  background-color: transparent;
+  color: #ffffff;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+.table, .form-control, .card, button, label, li, td, th, blockquote, q, code, pre {
+  background-color: transparent;
+  color: #ffffff;
+}
+
+.form-control {
+  background-color: transparent;
+  border-color: #000000;
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.2), 0 4px 6px rgba(0, 0, 0, 0.1);
+  color: #ffffff;
+}
+
+.table {
+  --bs-table-bg: transparent;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5), 0 6px 20px rgba(0, 0, 0, 0.3);
+  transform: translateZ(0);
+  color: #ffffff;
+}
+
+button {
+  background-color: rgba(0, 123, 255, 1); 
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1), 0 1px 3px rgba(0, 0, 0, 0.08);
+  transform: translateY(0);
+  transition: transform 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease;
+  color: #ffffff;
+}
+
+button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 8px rgba(0, 0, 0, 0.15), 0 3px 6px rgba(0, 0, 0, 0.1);
+  background-color: rgba(0, 123, 255, 1);
+}
+
+button:disabled {
+  background-color: rgba(128, 128, 128, 0.5);
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.card {
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1), 0 6px 20px rgba(0, 0, 0, 0.1);
+  transform: translateZ(0);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  color: #ffffff;
+}
+
+.card:hover {
+  transform: translateY(-10px);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2), 0 12px 40px rgba(0, 0, 0, 0.15);
+}
+
+::placeholder {
+  color: #ffffff;
+}
+
+* {
+  background-color: transparent;
+  color: #ffffff;
+}

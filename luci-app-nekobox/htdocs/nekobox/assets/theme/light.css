@@ -1,0 +1,164 @@
+[data-bs-theme=light] {
+  color-scheme: light;
+  --bs-body-color: #000;
+  --bs-body-bg: #FFFFFF;
+  --bs-emphasis-color: #000;
+  --bs-secondary-color: rgba(0, 0, 0, 0.75);
+  --bs-tertiary-color: rgba(0, 0, 0, 0.5);
+
+  --bs-primary-bg: #FFFFFF;
+  --bs-secondary-bg: #FFFFFF;
+  --bs-success-bg: #1b0516;
+  --bs-info-bg: #300328;
+  --bs-warning-bg: #332701;
+  --bs-danger-bg: #FFFFFF; 
+  --bs-light-bg: #FFFFFF;
+  --bs-dark-bg: #FFFFFF;
+
+  --bs-primary-border: #084298;
+  --bs-secondary-border: #41464b;
+  --bs-success-border: #0f5132;
+  --bs-info-border: #087990;
+  --bs-warning-border: #997404;
+  --bs-danger-border: #FFFFFF; 
+  --bs-light-border: #495057;
+  --bs-dark-border: #b34187;
+
+  --bs-heading-color: #000;
+  --bs-primary-text-emphasis: #000;
+  --bs-secondary-text-emphasis: #000;
+  --bs-success-text-emphasis: #000;
+  --bs-info-text-emphasis: #000;
+  --bs-warning-text-emphasis: #000;
+  --bs-danger-text-emphasis: #000;
+  --bs-light-text-emphasis: #000;
+  --bs-dark-text-emphasis: #000;
+
+  --bs-body-font-family: "Avant Garde", Avantgarde, "Century Gothic", CenturyGothic, AppleGothic, sans-serif;
+  --bs-body-font-weight: 700;
+  --bs-heading-font-family: "Georgia", serif;
+  --bs-heading-font-weight: 600;
+
+  --bs-shadow-light: 0 4px 8px rgba(0, 0, 0, 0.2);
+  --bs-shadow-medium: 0 6px 12px rgba(0, 0, 0, 0.3);
+  --bs-shadow-heavy: 0 10px 30px rgba(0, 0, 0, 0.25);
+
+  --bs-transition-speed: 0.2s;
+
+  --btn-secondary-bg: #6c757d;
+  --btn-secondary-color: #fff;
+  --btn-success-bg: #28a745;
+  --btn-success-color: #fff;
+  --btn-info-bg: #17a2b8;
+  --btn-info-color: #fff;
+  --btn-warning-bg: #ffc107;
+  --btn-warning-color: #fff;
+  --btn-danger-bg: #dc3545;
+  --btn-danger-color: #fff;
+}
+
+body {
+  color: var(--bs-body-color);
+  background-color: var(--bs-body-bg);
+  font-family: var(--bs-body-font-family);
+  font-weight: var(--bs-body-font-weight);
+}
+
+h1, h2, h3, h4, h5, h6 {
+  color: var(--bs-heading-color);
+  font-family: var(--bs-heading-font-family);
+  font-weight: var(--bs-heading-font-weight);
+}
+
+.container-bg {
+  background: var(--bs-dark-bg);
+}
+
+.table {
+  background: var(--bs-dark-bg);
+  border: 1px solid var(--bs-secondary-border);
+}
+
+.form-control {
+  font-family: Andale Mono, monospace;
+  background-color: var(--bs-light-bg);
+  border: 1px solid var(--bs-dark-border);
+  color: var(--bs-body-color);
+  box-shadow: var(--bs-shadow-light);
+  transition: transform var(--bs-transition-speed), box-shadow var(--bs-transition-speed);
+}
+
+.form-control:hover {
+  transform: translateY(-2px) scale(1.02);
+  box-shadow: var(--bs-shadow-medium);
+}
+
+.form-control:focus {
+  border-color: var(--bs-primary-border);
+  box-shadow: var(--bs-shadow-heavy);
+}
+
+.btn {
+  border: 1px solid var(--bs-primary-border);
+  box-shadow: var(--bs-shadow-light);
+  transition: transform var(--bs-transition-speed), box-shadow var(--bs-transition-speed);
+}
+
+.btn-secondary {
+  background-color: var(--btn-secondary-bg);
+  color: var(--btn-secondary-color);
+}
+
+.btn-success {
+  background-color: var(--btn-success-bg);
+  color: var(--btn-success-color);
+}
+
+.btn-info {
+  background-color: var(--btn-info-bg);
+  color: var(--btn-info-color);
+}
+
+.btn-warning {
+  background-color: var(--btn-warning-bg);
+  color: var(--btn-warning-color);
+}
+
+.btn-warning:hover {
+  color: var(--btn-warning-color);
+}
+
+.btn-danger {
+  background-color: var(--btn-danger-bg);
+  color: var(--btn-danger-color);
+}
+
+.btn-outline-success {
+  border-color: var(--btn-success-bg);
+  color: var(--btn-success-bg);
+}
+
+.btn-outline-danger {
+  border-color: var(--btn-danger-bg);
+  color: var(--btn-danger-bg);
+}
+
+.btn-outline-warning {
+  border-color: var(--btn-warning-bg);
+  color: var(--btn-warning-bg);
+}
+
+.btn-outline-dark {
+  border-color: var(--bs-dark-bg);
+  color: var(--bs-dark-bg);
+}
+
+.btn:hover {
+  transform: translateY(-2px) scale(1.02);
+  box-shadow: var(--bs-shadow-medium);
+}
+
+.btn:active {
+  transform: translateY(1px) scale(0.98);
+  box-shadow: var(--bs-shadow-light);
+}
