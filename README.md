@@ -46,7 +46,7 @@ Depedencies
 ---
 
 ```bash
-bash -c "$(wget -qO - 'https://cdn.jsdelivr.net/gh/Thaolga/openwrt-nekobox/nekobox.sh')"
+bash -c "$(wget -qO - 'https://cdn.jsdelivr.net/gh/Thaolga/openwrt-nekobox@main/nekobox.sh')"
 
 ```
 
