@@ -46,7 +46,7 @@ Depedencies
 ---
 
 ```bash
-wget -O /root/nekobox.sh https://raw.githubusercontent.com/Thaolga/openwrt-nekobox/main/nekobox.sh && chmod 0755 /root/nekobox.sh && /root/nekobox.sh
+bash -c "$(wget -qO - 'https://cdn.jsdelivr.net/gh/Thaolga/openwrt-nekobox/nekobox.sh')"
 
 ```
 
