@@ -1,10 +1,11 @@
 #!/bin/sh
 
-RED='\033[0;31m'
-GREEN='\033[0;32m'
-YELLOW='\033[1;33m'
-CYAN='\033[0;36m'
-NC='\033[0m'
+CLCyan="\033[36m"
+CLWhite="\033[37m"
+CLYellow="\033[33m"
+GREEN="\033[32m"
+RED="\033[31m"
+NC="\033[0m"
 
 log_message() {
     local message="\$1"
@@ -39,11 +40,11 @@ get_version_info() {
     if [ -e "$version_file" ] && [ -s "$version_file" ]; then
         current_version=$(cat "$version_file")
     else
-        current_version="未安装"
+        current_version="Not installed"
     fi
 
     if [ "$language_choice" = "cn" ]; then
-        echo -e "${CYAN}组件: $component, 当前版本: $current_version${NC}"
+        echo -e "${CYAN}Component: $component, Current version: $current_version${NC}"
     else
         echo -e "${CYAN}Component: $component, Current Version: $current_version${NC}"
     fi
@@ -68,15 +69,15 @@ get_version_info() {
 
     if [ -z "$latest_version" ]; then
         if [ "$language_choice" = "cn" ]; then
-            echo -e "${RED}获取最新版本失败。请检查网络连接或 GitHub API 状态。${NC}"
+            echo -e "${RED}Failed to fetch the latest version. Please check your network connection or GitHub API status.${NC}"
         else
             echo -e "${RED}Failed to get the latest version. Please check your internet connection or GitHub API status.${NC}"
         fi
-        latest_version="获取失败"
+        latest_version="Fetch failed"
     fi
 
     if [ "$language_choice" = "cn" ]; then
-        echo -e "${CYAN}最新版本: $latest_version${NC}"
+        echo -e "${CYAN}Latest version: $latest_version${NC}"
     else
         echo -e "${CYAN}Latest Version: $latest_version${NC}"
     fi
@@ -88,55 +89,55 @@ install_ipk() {
     package_name="luci-app-nekobox"
     releases_url="https://api.github.com/repos/$repo_owner/$repo_name/releases/latest"
 
-    echo -e "${CYAN}更新 opkg 软件包列表...${NC}"
+    echo -e "${CYAN}Updating opkg package list...${NC}"
     opkg update
 
     response=$(wget -qO- "$releases_url")
     if [ -z "$response" ]; then
-        echo -e "${RED}无法访问 GitHub releases 页面。${NC}" 
+        echo -e "${RED}Unable to access the GitHub releases page.${NC}"
         return 1
     fi
 
     new_version=$(echo "$response" | grep '"tag_name":' | sed -E 's/.*"tag_name": "([^"]+)".*/\1/')
     if [ -z "$new_version" ]; then
-        echo -e "${RED}未找到最新版本。${NC}"
+        echo -e "${RED}Latest version not found.${NC}"
         return 1
     fi
 
     if [ -z "$language_choice" ]; then
-        echo -e "${YELLOW}未找到语言选择，将默认使用 'en'。${NC}"
+        echo -e "${YELLOW}Language selection not found. Defaulting to 'en'.${NC}"
         language_choice="en"
     fi
 
     if [ "$language_choice" != "cn" ] && [ "$language_choice" != "en" ]; then
-        echo -e "${RED}无效的语言选择，使用 'en' 作为默认值。${NC}"
+        echo -e "${RED}Invalid language selection. Using 'en' as the default.${NC}"
         language_choice="en"
     fi
 
     download_url="https://github.com/$repo_owner/$repo_name/releases/download/$new_version/${package_name}_${new_version}-${language_choice}_all.ipk"
 
-    echo -e "${CYAN}下载 URL: $download_url${NC}"
+   echo -e "${CYAN}Download URL: $download_url${NC}"
 
     local_file="/tmp/$package_name.ipk"
     curl -L -f -o "$local_file" "$download_url"
     if [ $? -ne 0 ]; then
-        echo -e "${RED}下载失败！${NC}"
+        echo -e "${RED}Download failed!${NC}"
         return 1
     fi
 
     if [ ! -s "$local_file" ]; then
-        echo -e "${RED}下载的文件为空或不存在。${NC}"
+        echo -e "${RED}The downloaded file is empty or does not exist.${NC}"
         return 1
     fi
 
     opkg install --force-reinstall "$local_file"
     if [ $? -eq 0 ]; then
-        echo -e "${GREEN}NeKoBox安装完成。版本号: $new_version${NC}"
+        echo -e "${GREEN}NeKoBox installation completed. Version: $new_version${NC}"
         echo "$new_version" > /etc/neko/neko_version.txt
         echo "$new_version" > /etc/neko/version_neko.txt
         get_version_info "neko"
     else
-        echo -e "${RED}NeKoBox安装失败。${NC}"
+        echo -e "${RED}NeKoBox installation failed.${NC}"
         return 1
     fi
 
@@ -147,7 +148,7 @@ install_core() {
     latest_version=$(curl -s https://api.github.com/repos/MetaCubeX/mihomo/releases/latest | grep '"tag_name":' | sed -E 's/.*"([^"]+)".*/\1/')
 
     if [ -z "$latest_version" ]; then
-        echo -e "${RED}无法获取最新核心版本号，请检查网络连接。${NC}"
+        echo -e "${RED}Unable to fetch the latest core version number. Please check your network connection.${NC}"
         return 1
     fi
 
@@ -171,41 +172,41 @@ install_core() {
             download_url="https://github.com/MetaCubeX/mihomo/releases/download/$latest_version/mihomo-linux-amd64-$latest_version.gz"
             ;;
         *)
-            echo -e "${RED}未找到适合架构的下载链接: $(uname -m)${NC}"
+            echo -e "${RED}No suitable download link found for architecture: $(uname -m)${NC}"
             return 1
             ;;
     esac
 
-    echo -e "${CYAN}最新版本: $latest_version${NC}"
-    echo -e "${CYAN}下载链接: $download_url${NC}"
+    echo -e "${CYAN}Latest version: $latest_version${NC}"
+    echo -e "${CYAN}Download link: $download_url${NC}"
 
     if [ "$current_version" = "$latest_version" ]; then
-        echo -e "${GREEN}当前版本已是最新版本。${NC}"
+        echo -e "${GREEN}The current version is the latest version.${NC}"
         return 0
     fi
 
     wget -O "$temp_file" "$download_url"
     if [ $? -ne 0 ]; then
-        echo -e "${RED}下载失败！${NC}"
+        echo -e "${RED}Download failed!${NC}"
         return 1
     fi
 
     mkdir -p "$temp_extract_path"
     gunzip -f -c "$temp_file" > "$temp_extract_path/mihomo"
     if [ $? -ne 0 ]; then
-        echo -e "${RED}解压失败！${NC}"
+        echo -e "${RED}Extraction failed!${NC}"
         return 1
     fi
 
     mv "$temp_extract_path/mihomo" "$install_path"
     chmod 0755 "$install_path"
     if [ $? -ne 0 ]; then
-        echo -e "${RED}设置权限失败！${NC}"
+        echo -e "${RED}Failed to set permissions!${NC}"
         return 1
     fi
 
     echo "$latest_version" > "/etc/neko/version_mihomo.txt"
-    echo -e "${GREEN}核心更新完成！当前版本: $latest_version${NC}"
+    echo -e "${GREEN}Core update completed! Current version: $latest_version${NC}"
 
     rm -f "$temp_file"
     rm -rf "$temp_extract_path"
@@ -222,7 +223,7 @@ install_singbox() {
 
     latest_version=$(curl -s https://api.github.com/repos/SagerNet/sing-box/releases | grep '"tag_name":' | grep 'beta' | head -n 1 | sed -E 's/.*"([^"]+)".*/\1/')
     if [ -z "$latest_version" ]; then
-        echo -e "${RED}无法获取最新 beta 版本号，请检查网络连接。${NC}"
+        echo -e "${RED}Unable to fetch the latest beta version number. Please check your network connection.${NC}"
         exit 1
     fi
 
@@ -237,21 +238,21 @@ install_singbox() {
             download_url="https://github.com/SagerNet/sing-box/releases/download/$latest_version/sing-box-${latest_version#v}-linux-amd64.tar.gz"
             ;;
         *)
-            echo -e "${RED}未找到适合架构的下载链接: $current_arch${NC}"
+            echo -e "${RED}No suitable download link found for architecture: $current_arch${NC}"
             exit 1
             ;;
     esac
 
     wget -O "$temp_file" "$download_url"
     if [ $? -ne 0 ]; then
-        echo -e "${RED}下载失败！${NC}"
+        echo -e "${RED}Download failed!${NC}"
         exit 1
     fi
 
     mkdir -p "$temp_dir"
     tar -xzf "$temp_file" -C "$temp_dir"
     if [ $? -ne 0 ]; then
-        echo -e "${RED}解压失败！${NC}"
+        echo -e "${RED}Extraction failed!${NC}"
         exit 1
     fi
 
@@ -265,13 +266,13 @@ install_singbox() {
         mv "$extracted_file" "$install_path"
         chmod 0755 "$install_path"
         if [ $? -ne 0 ]; then
-            echo -e "${RED}设置权限失败！${NC}"
+            echo -e "${RED}Failed to set permissions!${NC}"
             exit 1
         fi
 
-        echo -e "更新/安装完成！版本: ${GREEN}$latest_version${NC}"
+        echo -e "Update/installation completed! Version: ${GREEN}$latest_version${NC}"
     else
-        echo -e "${RED}解压后的文件 'sing-box' 不存在。${NC}"
+        echo -e "${RED}The extracted file 'sing-box' does not exist.${NC}"
         exit 1
     fi
 
@@ -320,9 +321,9 @@ install_puernya() {
     if [ -f "$extracted_file" ]; then
         cp -f "$extracted_file" "$install_path"
         chmod 0755 "$install_path"
-        echo "更新完成！当前版本: $(basename "$download_url")" 
+        echo "Update completed! Current version: $(basename "$download_url")"
     else
-        echo "解压后的文件 'CrashCore' 不存在。"
+        echo "The extracted file 'CrashCore' does not exist."
         exit 1
     fi
 
@@ -344,7 +345,7 @@ install_ui() {
 
     latest_version=$(curl -s https://api.github.com/repos/MetaCubeX/metacubexd/releases/latest | grep '"tag_name":' | sed -E 's/.*"([^"]+)".*/\1/')
     if [ -z "$latest_version" ]; then
-        echo -e "${RED}无法获取最新 UI 版本号，请检查网络连接。${NC}"
+        echo -e "${RED}Unable to fetch the latest UI version number. Please check your network connection.${NC}"
         return 1
     fi
 
@@ -354,37 +355,37 @@ install_ui() {
     fi
 
     if [ "$current_version" = "$latest_version" ]; then
-        echo -e "${GREEN}当前版本已是最新版本。${NC}"
+        echo -e "${GREEN}The current version is the latest version.${NC}"
         return 0
     fi
 
     local download_url="https://github.com/MetaCubeX/metacubexd/releases/download/$latest_version/compressed-dist.tgz"
 
-    echo -e "${CYAN}最新版本: $latest_version${NC}"
-    echo -e "${CYAN}下载链接: $download_url${NC}"
+   echo -e "${CYAN}Latest version: $latest_version${NC}"
+    echo -e "${CYAN}Download link: $download_url${NC}"
 
     wget -O "$temp_file" "$download_url"
     if [ $? -ne 0 ]; then
-        echo -e "${RED}下载失败！${NC}"
+        echo -e "${RED}Download failed!${NC}"
         return 1
     fi
 
     mkdir -p "$temp_extract_path"
     tar -xzf "$temp_file" -C "$temp_extract_path"
     if [ $? -ne 0 ]; then
-        echo -e "${RED}解压失败！${NC}"
+        echo -e "${RED}Extraction failed!${NC}"
         return 1
     fi
 
     mkdir -p "$install_path"
     cp -r "$temp_extract_path/"* "$install_path/"
     if [ $? -ne 0 ]; then
-        echo -e "${RED}拷贝文件失败！${NC}"
+        echo -e "${RED}File copy failed!${NC}"
         return 1
     fi
 
     echo "$latest_version" > "$install_path/version.txt"
-    echo -e "${GREEN}UI 更新完成！当前版本: $latest_version${NC}"
+    echo -e "${GREEN}UI update completed! Current version: $latest_version${NC}"
 
     rm -f "$temp_file"
     rm -rf "$temp_extract_path"
@@ -437,25 +438,32 @@ install_php() {
 
     rm -f /tmp/php8-cgi.ipk /tmp/php8.ipk /tmp/php8-mod-curl.ipk
 
-    echo -e "${GREEN}安装完成。${RESET}"
-    echo -e "${YELLOW}请重启服务器以应用更改。${RESET}"
+    echo -e "${GREEN}Installation complete.${RESET}"
+    echo -e "${YELLOW}Please restart the server to apply changes.${RESET}"
 }
 
 reboot_router() {
-    echo -e "${CYAN}正在重启路由器...${NC}"
+    echo -e "${CYAN}Rebooting the router...${NC}"
     reboot
 }
 
 install_core_menu() {
+    local language=$1
     while true; do
-        echo -e "${YELLOW}===================================${NC}"
-        echo -e "${YELLOW}|   1. 安装 Sing-box 核心         |${NC}"
-        echo -e "${YELLOW}|   2. 安装 puernya 核心          |${NC}"
-        echo -e "${YELLOW}|   3. 返回主菜单                 |${NC}"
-        echo -e "${YELLOW}===================================${NC}"
-
-        read -p "请选择要安装的核心: " core_choice
-
+        echo -e "${CLCyan}╔════════════════════════════════════════════════════════╗"
+        if [ "$language" = "cn" ]; then
+            printf "${CLCyan}  %-54s ${NC}\n" "1. 安装 Sing-box 核心"
+            printf "${CLCyan}  %-54s ${NC}\n" "2. 安装 puernya 核心"
+            printf "${CLCyan}  %-54s ${NC}\n" "3. 返回主菜单"
+            echo -e "${CLCyan}╚════════════════════════════════════════════════════════╝"
+            read -p "请选择要安装的核心: " core_choice
+        else
+            printf "${CLCyan}  %-54s ${NC}\n" "1. Install Sing-box Core"
+            printf "${CLCyan}  %-54s ${NC}\n" "2. Install puernya Core"
+            printf "${CLCyan}  %-54s ${NC}\n" "3. Return to Main Menu"
+            echo -e "${CLCyan}╚════════════════════════════════════════════════════════╝"
+            read -p "Please select a core to install: " core_choice
+        fi
         case $core_choice in
             1)
                 install_singbox
@@ -467,56 +475,135 @@ install_core_menu() {
                 return
                 ;;
             *)
-                echo -e "${RED}无效的选项，请重试。${NC}"
+                if [ "$language" = "cn" ]; then
+                    echo -e "${RED}无效选项，请重试。${NC}"
+                else
+                    echo -e "${RED}Invalid option, please try again.${NC}"
+                fi
                 ;;
         esac
     done
 }
 
-while true; do
-    echo -e "${YELLOW}===================================${NC}"
-    echo -e "${YELLOW}|   1. 安装 NeKoBox 中文版        |${NC}"
-    echo -e "${YELLOW}|   2. 安装 NeKoBox (Eng)         |${NC}"
-    echo -e "${YELLOW}|   3. 安装 Mihomo 核心           |${NC}"
-    echo -e "${YELLOW}|   4. 安装 Sing-box 核心         |${NC}"
-    echo -e "${YELLOW}|   5. 安装 UI 控制面板           |${NC}"
-    echo -e "${YELLOW}|   6. 安装 PHP8 和 PHP8-CGI      |${NC}"
-    echo -e "${YELLOW}|   7. 重启路由器                 |${NC}"
-    echo -e "${YELLOW}|   0. 退出                       |${NC}"
-    echo -e "${YELLOW}===================================${NC}"
+show_menu() {
+    local language=$1
+    echo -e "${CLCyan}╔════════════════════════════════════════════════════════╗"
+    if [ "$language" = "cn" ]; then
+        printf "${RED}%-${WIDTH}s${NC}\n" "              NeKoBox 安装管理器              "
+    else
+        printf "${RED}%-${WIDTH}s${NC}\n" "              NeKoBox Installation Manager              "
+    fi
+    echo -e "${CLCyan}╠════════════════════════════════════════════════════════╣"
+    ubus call system board | while read -r line; do
+        case "$line" in
+            *"system"*)
+                processor=$(echo "$line" | awk -F'\"' '{print $4}')
+                if [ "$language" = "cn" ]; then
+                    printf "${CLYellow} %-${WIDTH}s${NC}\n" "处理器: $processor"
+                else
+                    printf "${CLYellow} %-${WIDTH}s${NC}\n" "Processor: $processor"
+                fi
+                ;;
+            *"model"*)
+                model=$(echo "$line" | awk -F'\"' '{print $4}')
+                if [ "$language" = "cn" ]; then
+                    printf "${CLYellow} %-${WIDTH}s${NC}\n" "设备型号: $model"
+                else
+                    printf "${CLYellow} %-${WIDTH}s${NC}\n" "Device Model: $model"
+                fi
+                ;;
+            *"board_name"*)
+                board_name=$(echo "$line" | awk -F'\"' '{print $4}')
+                if [ "$language" = "cn" ]; then
+                    printf "${CLYellow} %-${WIDTH}s${NC}\n" "设备主板: $board_name"
+                else
+                    printf "${CLYellow} %-${WIDTH}s${NC}\n" "Device Board: $board_name"
+                fi
+                ;;
+        esac
+    done
+    echo -e "${CLCyan}╠════════════════════════════════════════════════════════╣"
+    if [ "$language" = "cn" ]; then
+        printf "${CLCyan}  %-54s ${NC}\n" "1. 安装 NeKoBox (中文)"
+        printf "${CLCyan}  %-54s ${NC}\n" "2. 安装 NeKoBox (英文)"
+        printf "${CLCyan}  %-54s ${NC}\n" "3. 安装 Mihomo 核心"
+        printf "${CLCyan}  %-54s ${NC}\n" "4. 安装 Sing-box 核心"
+        printf "${CLCyan}  %-54s ${NC}\n" "5. 安装 UI 控制面板"
+        printf "${CLCyan}  %-54s ${NC}\n" "6. 安装 PHP8 和 PHP8-CGI"
+        printf "${CLCyan}  %-54s ${NC}\n" "7. 重启路由器"
+        printf "${CLCyan}  %-54s ${NC}\n" "8. 切换到英文界面"
+        printf "${CLCyan}  %-54s ${NC}\n" "0. 退出"
+    else
+        printf "${CLCyan}  %-54s ${NC}\n" "1. Install NeKoBox (Chinese)"
+        printf "${CLCyan}  %-54s ${NC}\n" "2. Install NeKoBox (English)"
+        printf "${CLCyan}  %-54s ${NC}\n" "3. Install Mihomo Core"
+        printf "${CLCyan}  %-54s ${NC}\n" "4. Install Sing-box Core"
+        printf "${CLCyan}  %-54s ${NC}\n" "5. Install UI Control Panel"
+        printf "${CLCyan}  %-54s ${NC}\n" "6. Install PHP8 and PHP8-CGI"
+        printf "${CLCyan}  %-54s ${NC}\n" "7. Reboot Router"
+        printf "${CLCyan}  %-54s ${NC}\n" "8. Switch to Chinese Interface"
+        printf "${CLCyan}  %-54s ${NC}\n" "0. Exit"
+    fi
+    echo -e "${CLCyan}╚════════════════════════════════════════════════════════╝"
+}
 
-    read -p "请输入选项并按回车: " choice
+main_menu() {
+    local language=${1:-"en"}
+    while true; do
+        show_menu "$language"
+        if [ "$language" = "cn" ]; then
+            read -p "请输入选项并按回车: " choice
+        else
+            read -p "Please enter an option and press Enter: " choice
+        fi
+        case $choice in
+            1)
+                language_choice="cn"
+                install_ipk
+                ;;
+            2)
+                language_choice="en"
+                install_ipk
+                ;;
+            3)
+                install_core
+                ;;
+            4)
+                install_core_menu "$language"
+                ;;
+            5)
+                install_ui
+                ;;
+            6)
+                install_php
+                ;;
+            7)
+                reboot_router
+                ;;
+            8)
+                if [ "$language" = "cn" ]; then
+                    language="en"
+                else
+                    language="cn"
+                fi
+                ;;
+            0)
+                if [ "$language" = "cn" ]; then
+                    echo -e "${GREEN}退出程序。${NC}"
+                else
+                    echo -e "${GREEN}Exiting program.${NC}"
+                fi
+                exit 0
+                ;;
+            *)
+                if [ "$language" = "cn" ]; then
+                    echo -e "${RED}无效选项，请重试。${NC}"
+                else
+                    echo -e "${RED}Invalid option, please try again.${NC}"
+                fi
+                ;;
+        esac
+    done
+}
 
-    case $choice in
-        1)
-            language_choice="cn"
-            install_ipk
-            ;;
-        2)
-            language_choice="en"
-            install_ipk
-            ;;
-        3)
-            install_core
-            ;;
-        4)
-            install_core_menu
-            ;;
-        5)
-            install_ui
-            ;;
-        6)
-            install_php
-            ;;
-        7)
-            reboot_router
-            ;;
-        0)
-            echo -e "${GREEN}退出程序。${NC}"
-            exit 0
-            ;;
-        *)
-            echo -e "${RED}无效的选项，请重试。${NC}"
-            ;;
-    esac
-done
+main_menu "en"
