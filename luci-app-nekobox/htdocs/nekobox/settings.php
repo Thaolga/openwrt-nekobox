@@ -46,7 +46,7 @@ $singBoxVersion = getSingboxVersion();
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Settings - Neko</title>
-    <link rel="icon" href="./assets/img/favicon.png">
+    <link rel="icon" href="./assets/img/nekobox.png">
     <link href="./assets/css/bootstrap.min.css" rel="stylesheet">
     <link href="./assets/theme/<?php echo $neko_theme ?>" rel="stylesheet">
     <link href="./assets/css/custom.css" rel="stylesheet">

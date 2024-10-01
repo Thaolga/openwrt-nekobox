@@ -20,7 +20,7 @@ $neko_status=exec("uci -q get neko.cfg.enabled");
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Home - Neko</title>
-    <link rel="icon" href="./assets/img/favicon.png">
+    <link rel="icon" href="./assets/img/nekobox.png">
     <link href="./assets/css/bootstrap.min.css" rel="stylesheet">
     <link href="./assets/css/custom.css" rel="stylesheet">
     <link href="./assets/theme/<?php echo $neko_theme ?>" rel="stylesheet">
@@ -36,6 +36,36 @@ $neko_status=exec("uci -q get neko.cfg.enabled");
             <a href="./configs.php" class="col btn btn-lg">⚙️ Configs</a>
             <a href="/nekobox/mon.php" class="col btn btn-lg d-flex align-items-center justify-content-center"></i>📦 Document</a> 
             <a href="./settings.php" class="col btn btn-lg">🛠️ Settings</a>
+    <div class="container-sm text-center col-8">
+  <img src="./assets/img/nekobox.png">
+<div id="version-info">
+    <a id="version-link" href="https://github.com/Thaolga/openwrt-nekobox/releases" target="_blank">
+        <img id="current-version" src="./assets/img/curent.svg" alt="Current Version" style="max-width: 100%; height: auto;" />
+    </a>
+</div>
+</div>
+<script>
+$(document).ready(function() {
+    $.ajax({
+        url: 'check_update.php',
+        method: 'GET',
+        dataType: 'json',
+        success: function(data) {
+            if (data.hasUpdate) {
+                $('#current-version').attr('src', 'https://raw.githubusercontent.com/Thaolga/neko/refs/heads/main/Latest.svg');
+            }
+
+            console.log('Current Version:', data.currentVersion);
+            console.log('Latest Version:', data.latestVersion);
+            console.log('Has Update:', data.hasUpdate);
+        },
+        error: function(jqXHR, textStatus, errorThrown) {
+            $('#version-info').text('Error fetching version information');
+            console.error('AJAX Error:', textStatus, errorThrown);
+        }
+    });
+});
+</script>
 <h2 class="text-center p-2">NekoBox</h2>
  <div style="border: 1px solid black; padding: 10px; ">
    <br>
