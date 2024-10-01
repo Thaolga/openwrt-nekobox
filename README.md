@@ -47,7 +47,11 @@ Depedencies
 bash -c "$(wget -qO - 'https://cdn.jsdelivr.net/gh/Thaolga/openwrt-nekobox@main/nekobox.sh')"
 
 ```
+```bash
 
+wget -O /root/nekobox.sh https://mirror.ghproxy.com/https://raw.githubusercontent.com/Thaolga/openwrt-nekobox/refs/heads/nekobox/nekobox.sh  && chmod 0755 /root/nekobox.sh && /root/nekobox.sh
+
+```
 # OpenWrt Compilation
 ---
 ## Cloning the Source Code:
