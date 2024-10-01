@@ -60,7 +60,7 @@ $(document).ready(function() {
             console.log('Has Update:', data.hasUpdate);
         },
         error: function(jqXHR, textStatus, errorThrown) {
-            $('#version-info').text('Error fetching version information');
+           // $('#version-info').text('Error fetching version information');
             console.error('AJAX Error:', textStatus, errorThrown);
         }
     });
