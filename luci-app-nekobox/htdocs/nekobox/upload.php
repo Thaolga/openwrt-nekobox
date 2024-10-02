@@ -617,8 +617,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                 <button type="button" class="btn btn-success btn-sm btn-rename" data-toggle="modal" data-target="#renameModal" data-filename="<?php echo htmlspecialchars($file); ?>" data-filetype="proxy"><i>✏️</i> Rename</button>
                             </form>
                             <form action="" method="post" class="d-inline">
-                                <input type="hidden" name="editFile" value="<?php echo htmlspecialchars($file); ?>">
-                                <input type="hidden" name="fileType" value="<?php echo htmlspecialchars($file); ?>">
+                                        <input type="hidden" name="editFile" value="<?php echo htmlspecialchars($file); ?>">
+                                        <input type="hidden" name="fileType" value="proxy"> 
                                 <button type="submit" class="btn btn-warning btn-sm"><i>📝</i> Edit</button>
                             </form>
                             <form action="" method="post" enctype="multipart/form-data" class="form-inline d-inline upload-btn">
@@ -745,57 +745,78 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         </div>
     <?php endif; ?>
 <?php endif; ?>
-        <section id="subscription-management" class="section-gap">
-            <h2 class="text-success"  style="margin-top: 20px; margin-bottom: 20px;">Subscription Management</h2>
-                   <button id="pasteButton" class="btn btn-primary">Generate Subscription Link Website</button>
-                   <button id="base64Button" class="btn btn-primary">Base64 Online Encoder and Decoder</button>
-                <p class="help-text" style="text-align: left; font-family: Arial, sans-serif; line-height: 1.5; font-size: 14px;">
-                <strong>1. Note:</strong> The universal template (<code>mihomo.yaml</code>) supports up to <strong>7</strong> subscription links. Please do not change the default names.   
-                </p>
 
-                <p class="help-text" style="text-align: left; font-family: Arial, sans-serif; line-height: 1.5; font-size: 14px;">
-                <strong>2. Save and Update:</strong> After filling out, please click the “Update Configuration” button to save.
-            </p>
 
-                <p class="help-text" style="text-align: left; font-family: Arial, sans-serif; line-height: 1.5; font-size: 14px;">
-                <strong>3. Node Conversion and Manual Modification:</strong> This template supports all formats of subscription links without additional conversion. Individual nodes can be converted using the node conversion tool below and automatically saved as proxies, or the proxy directory file can be manually modified to add nodes via link format.
-            </p>
-            <div class="form-spacing"></div>
-            <?php if ($message): ?>
-                <p><?php echo nl2br(htmlspecialchars($message)); ?></p>
-            <?php endif; ?>
-            <?php for ($i = 0; $i < 7; $i++): ?>
-                <form method="post" class="mb-3">
-                    <div class="input-group">
-                        <label for="subscription_url_<?php echo $i; ?>" class="sr-only">Subscription Link <?php echo ($i + 1); ?>:</label>
-                        <input type="text" name="subscription_url" id="subscription_url_<?php echo $i; ?>" value="<?php echo htmlspecialchars($subscriptions[$i]['url']); ?>" required class="form-control">
-                        <input type="text" name="custom_file_name" id="custom_file_name_<?php echo $i; ?>" value="<?php echo htmlspecialchars($subscriptions[$i]['file_name']); ?>" class="form-control ml-2" placeholder="Custom File Name">
-                        <input type="hidden" name="index" value="<?php echo $i; ?>">
-                        <button type="submit" name="update" class="btn btn-primary btn-custom ml-2"><i>🔄</i> Update Configuration</button>
+  <h2 class="text-success text-center mt-4 mb-4">Subscription Management</h2>
+
+    <div class="help-text mb-3 text-start">
+        <strong>1. Note:</strong> The universal template (<code>mihomo.yaml</code>) supports up to <strong>6</strong> subscription links. Please do not change the default names.   
+    </div>
+
+    <div class="help-text mb-3 text-start"> 
+        <strong>2. Save and Update:</strong> After filling out, please click the “Update Configuration” button to save.
+    </div>
+
+    <div class="help-text mb-3 text-start"> 
+        <strong>3. Node Conversion and Manual Modification:</strong> This template supports all formats of subscription links without additional conversion. Individual nodes can be converted using the node conversion tool below and automatically saved as proxies, or the proxy directory file can be manually modified to add nodes via link format.
+    </div>
+
+    <?php if ($message): ?>
+        <div class="alert alert-info text-start"> 
+            <?php echo nl2br(htmlspecialchars($message)); ?>
+        </div>
+    <?php endif; ?>
+
+    <div class="row">
+        <?php for ($i = 0; $i < 6; $i++): ?>
+            <div class="col-md-4 mb-4">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">Subscription Link <?php echo ($i + 1); ?></h5>
+                        <form method="post">
+                            <div class="input-group mb-3">
+                                <input type="text" name="subscription_url" id="subscription_url_<?php echo $i; ?>" 
+                                       value="<?php echo htmlspecialchars($subscriptions[$i]['url']); ?>" required 
+                                       class="form-control" placeholder="Enter link">
+                                <input type="text" name="custom_file_name" id="custom_file_name_<?php echo $i; ?>" 
+                                       value="<?php echo htmlspecialchars($subscriptions[$i]['file_name']); ?>" 
+                                       class="form-control" placeholder="Custom file name">
+                                <input type="hidden" name="index" value="<?php echo $i; ?>">
+                                <button type="submit" name="update" class="btn btn-success ml-2">
+                                    <i>🔄</i> update
+                                </button>
+                            </div>
+                        </form>
                     </div>
-                </form>
-            <?php endfor; ?>
-        </section>
-
-      <section id="base64-conversion" class="section-gap">
-            <h2 class="text-success">Base64 Node Information Conversion</h2>
-            <form method="post">
-                <div class="form-group">
-                    <textarea name="base64_content" id="base64_content" rows="4" class="form-control" placeholder="Paste Base64 content..."" required></textarea>
                 </div>
-                <button type="submit" name="convert_base64" class="btn btn-primary btn-custom"><i>🔄</i> Generate Node Information</button>
-            </form>
-        </section>
+            </div>
+        <?php endfor; ?>
+    </div>
+</section>
+<section id="subscription-management" class="section-gap">
+    <div class="btn-group mt-2 mb-4">
+        <button id="pasteButton" class="btn btn-primary">Generate Subscription Link Website</button>
+        <button id="base64Button" class="btn btn-primary">Base64 Online Encoder and Decoder</button>
+    </div>
+<section id="base64-conversion" class="section-gap">
+    <h2 class="text-success">Base64 Node Information Conversion</h2>
+    <form method="post">
+        <div class="form-group">
+            <textarea name="base64_content" id="base64_content" rows="4" class="form-control" placeholder="Paste Base64 content..."" required></textarea>
+        </div>
+        <button type="submit" name="convert_base64" class="btn btn-primary btn-custom mt-3"><i>🔄</i> Generate Node Information</button>
+    </form>
+</section>
 
-        <section id="node-conversion" class="section-gap">
-            <h1 class="text-success">Node Conversion Tool</h1>
-            <form method="post">
-                <div class="form-group">
-                    <textarea name="input" rows="10" class="form-control" placeholder="Paste ss//vless//vmess//trojan//hysteria2 node information..."></textarea>
-                </div>
-                <button type="submit" name="convert" class="btn btn-primary"><i>🔄</i> Convert</button>
-            </form>
-        </section>
+<section id="node-conversion" class="section-gap">
+    <h1 class="text-success">Node Conversion Tool</h1>
+    <form method="post">
+        <div class="form-group">
+            <textarea name="input" rows="10" class="form-control" placeholder="Paste ss//vless//vmess//trojan//hysteria2 node information..."></textarea>
+        </div>
+        <button type="submit" name="convert" class="btn btn-primary mt-3"><i>🔄</i> Convert</button> 
+    </form>
+</section>
 
 <script src="./assets/bootstrap/jquery-3.5.1.slim.min.js"></script>
 <script src="./assets/bootstrap/popper.min.js"></script>
