@@ -387,13 +387,17 @@ if (isset($_POST['update'])) {
         gap: 10px; 
         justify-content: center; 
     }
-
     .btn {
-        margin: 0;
-.table {
-    width: 100%;
-}
+        margin: 0; 
+    }
 
+    .table-dark {
+        background-color: #6f42c1; 
+        color: white; 
+    }
+    .table-dark th, .table-dark td {
+        background-color: #5a32a3; 
+    }
 </style>
 <div class="text-center">
 <table class="table table-dark table-bordered">
