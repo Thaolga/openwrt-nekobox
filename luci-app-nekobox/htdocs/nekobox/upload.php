@@ -568,7 +568,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             margin: 0; 
         }
     </style>
-
+  <div class="text-center">
     <table class="table table-dark table-bordered">
         <thead>
             <tr>
