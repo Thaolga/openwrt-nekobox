@@ -333,188 +333,30 @@ if (isset($_POST['update'])) {
 }
 ?>
 
-<!DOCTYPE html>
-<html lang="zh-CN" data-bs-theme="<?php echo substr($neko_theme, 0, -4) ?>">
+<!doctype html>
+<html lang="en" data-bs-theme="<?php echo substr($neko_theme, 0, -4) ?>">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sing-box文件管理器</title>
-    <link rel="icon" href="./assets/img/favicon.png">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Sing-box - Neko</title>
+    <link rel="icon" href="./assets/img/nekobox.png">
     <link href="./assets/css/bootstrap.min.css" rel="stylesheet">
+    <link href="./assets/css/custom.css" rel="stylesheet">
     <link href="./assets/theme/<?php echo $neko_theme ?>" rel="stylesheet">
-    <link href="./assets/css/custom.css" rel="stylesheet"> 
-    <style>
-        body {
-            background-size: cover;
-            color: #E0E0E0;
-        }
-
-        .container {
-            background: rgba(30, 30, 30, 0.8);
-            border-radius: 10px;
-            padding: 20px;
-            margin-top: 50px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
-        }
-
-        h1,
-        h2 {
-            color: #00FF7F;
-        }
-
-        .table th,
-        .table td {
-            text-align: center;
-            vertical-align: middle;
-        }
-
-        .editor {
-            height: 300px;
-            width: 100%;
-            background-color: #2C2C2C;
-            color: #E0E0E0;
-            padding: 15px;
-            border: 1px solid #444;
-            border-radius: 5px;
-            font-family: monospace;
-            margin-top: 20px;
-            overflow: auto;
-        }
-
-        .btn-warning {
-            background-color: #F4B400;
-            color: #FFFFFF !important;
-        }
-
-        .btn-warning:hover {
-            background-color: #C79400;
-            color: #FFFFFF !important;
-        }
-
-        .modal-header,
-        .modal-body,
-        .modal-footer {
-            background: #f8f9fa;
-            color: #333;
-        }
-
-        .modal-content {
-            background: #ffffff;
-            border: 1px solid #ced4da;
-        }
-
-        .modal-body {
-            overflow-y: auto;
-        }
-
-        .form-control {
-            background-color: #2C2C2C;
-            color: #E0E0E0;
-            border: 1px solid #444;
-        }
-
-        .form-control:focus {
-            border-color: #03DAC6;
-            box-shadow: 0 0 0 0.2rem rgba(3, 218, 198, 0.25);
-        }
-
-        .log-output {
-            background-color: #2C2C2C;
-            border: 1px solid #444;
-            border-radius: 5px;
-            color: #E0E0E0;
-            padding: 10px;
-            margin-top: 20px;
-            height: 200px;
-            overflow-y: scroll;
-            white-space: pre-wrap;
-        }
-
-        .subscription-card {
-            background: #3C3C3C;
-            border: 1px solid #444;
-            color: #E0E0E0;
-            margin-bottom: 20px;
-        }
-
-        .subscription-card .card-body {
-            padding: 10px;
-        }
-
-        .custom-file-name {
-            background-color: #2C2C2C;
-            color: #E0E0E0;
-            border: 1px solid #444;
-        }
-
-        .card .form-control {
-            background-color: #2C2C2C;
-            color: #E0E0E0;
-            border: 1px solid #444;
-        }
-
-        .card .form-control:focus {
-            border-color: #03DAC6;
-            box-shadow: 0 0 0 0.2rem rgba(3, 218, 198, 0.25);
-        }
-
-        .form-inline .form-control-file {
-            display: none;
-        }
-
-        .btn-group {
-            display: flex;
-            justify-content: center;
-            gap: 10px;
-        }
-
-        .btn-group .btn {
-            height: 38px;
-            line-height: 1.5;
-            padding: 0 10px;
-            text-align: center;
-        }
-
-        .upload-btn {
-            cursor: pointer;
-        }
-
-        .btn-group .btn-rename {
-            max-width: 80px;
-            padding: 2px 6px;
-            font-size: 0.875rem;
-            width: auto;
-            white-space: nowrap;
-            border-radius: 4px !important;
-            color: #FFFFFF;
-        }
-
-        @media (max-width: 768px) {
-            .btn-group {
-                flex-direction: column;
-            }
-
-            .btn-group .btn {
-                width: 100%;
-                margin-bottom: 5px;
-            }
-
-            .nav-buttons {
-                display: flex;
-                flex-direction: column;
-                align-items: center;
-            }
-
-            .nav-buttons .btn {
-                width: 100%;
-                margin-bottom: 10px;
-            }
-        }
-    </style>
+    <script src="./assets/js/feather.min.js"></script>
+    <script src="./assets/js/jquery-2.1.3.min.js"></script>
+    <script src="./assets/js/neko.js"></script>
 </head>
 <body>
-<div class="container text-center">
-        <h1 style="margin-top: 40px; margin-bottom: 20px;">Sing-box 文件管理</h1>
+<div class="container-sm container-bg callout border border-3 rounded-4 col-11">
+    <div class="row">
+        <a href="./index.php" class="col btn btn-lg">🏠 首页</a>
+        <a href="./upload.php" class="col btn btn-lg">📂 Mihomo</a>
+        <a href="./upload_sb.php" class="col btn btn-lg">🗂️ Sing-box</a>
+        <a href="./box.php" class="col btn btn-lg">💹 转换</a>
+        <a href="./personal.php" class="col btn btn-lg">📦 订阅</a>
+    <div class="text-center">
+      <h1 style="margin-top: 40px; margin-bottom: 20px;">Sing-box 文件管理</h1>
         <h2>配置文件管理</h2>
         <form action="upload_sb.php" method="get" onsubmit="saveSettings()">
         <label for="enable_timezone">启用时区设置:</label>
@@ -539,7 +381,22 @@ if (isset($_POST['update'])) {
 
         window.onload = loadSettings;
     </script>
-      <table class="table table-dark table-bordered">
+<style>
+    .btn-group {
+        display: flex;
+        gap: 10px; 
+        justify-content: center; 
+    }
+
+    .btn {
+        margin: 0;
+.table {
+    width: 100%;
+}
+
+</style>
+
+<table class="table table-dark table-bordered">
     <thead>
         <tr>
             <th>文件名</th>
@@ -561,15 +418,19 @@ if (isset($_POST['update'])) {
                             <input type="hidden" name="deleteConfigFile" value="<?php echo htmlspecialchars($file); ?>">
                             <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('确定要删除这个文件吗？');"><i>🗑️</i> 删除</button>
                         </form>
-                        <button type="button" class="btn btn-success btn-sm btn-rename" data-toggle="modal" data-target="#renameModal" data-filename="<?php echo htmlspecialchars($file); ?>"><i>✏️</i> 重命名</button>
                         <form action="" method="post" class="d-inline">
                             <input type="hidden" name="editFile" value="<?php echo htmlspecialchars($file); ?>">
                             <input type="hidden" name="fileType" value="config">
+                            <button type="button" class="btn btn-success btn-sm btn-rename" data-toggle="modal" data-target="#renameModal" data-filename="<?php echo htmlspecialchars($file); ?>"><i>✏️</i> 重命名</button>
+                        </form>
+                        <form action="" method="post" class="d-inline">
+                            <input type="hidden" name="editFile" value="<?php echo htmlspecialchars($file); ?>">
+                            <input type="hidden" name="fileType" value="<?php echo htmlspecialchars($file); ?>">
                             <button type="submit" class="btn btn-warning btn-sm"><i>📝</i> 编辑</button>
                         </form>
                         <form action="" method="post" enctype="multipart/form-data" class="form-inline d-inline upload-btn">
-                            <input type="file" name="configFileInput" class="form-control-file" required id="fileInput-<?php echo htmlspecialchars($file); ?>" onchange="this.form.submit()">
-                            <button type="button" class="btn btn-info" onclick="document.getElementById('fileInput-<?php echo htmlspecialchars($file); ?>').click();"><i>📤</i> 上传</button>
+                            <input type="file" name="configFileInput" class="form-control-file" required id="fileInput-<?php echo htmlspecialchars($file); ?>" style="display: none;" onchange="this.form.submit()">
+                            <button type="button" class="btn btn-info btn-sm" onclick="document.getElementById('fileInput-<?php echo htmlspecialchars($file); ?>').click();"><i>📤</i> 上传</button>
                         </form>
                     </div>
                 </td>
@@ -649,12 +510,12 @@ if (isset($_POST['update'])) {
             <div class="col-md-4 mb-3">
                 <div class="card subscription-card p-2">
                     <div class="card-body p-2">
-                        <h6 class="card-title text-white">订阅链接 <?php echo $i + 1; ?></h6>
+                        <h6 class="card-title text-primary">订阅链接 <?php echo $i + 1; ?></h6>
                         <div class="form-group mb-2">
                             <input type="text" name="subscription_url_<?php echo $i; ?>" id="subscription_url_<?php echo $i; ?>" class="form-control form-control-sm white-text" placeholder="订阅链接" value="<?php echo htmlspecialchars($subscriptionData['subscriptions'][$i]['url'] ?? ''); ?>">
                         </div>
                         <div class="form-group mb-2">
-                            <label for="custom_file_name_<?php echo $i; ?>" class="text-white">自定义文件名 <?php echo ($i === 0) ? '(固定为 config.json)' : ''; ?></label>
+                            <label for="custom_file_name_<?php echo $i; ?>" class="text-primary">自定义文件名 <?php echo ($i === 0) ? '(固定为 config.json)' : ''; ?></label>
                             <input type="text" name="custom_file_name_<?php echo $i; ?>" id="custom_file_name_<?php echo $i; ?>" class="form-control form-control-sm white-text" value="<?php echo htmlspecialchars($subscriptionData['subscriptions'][$i]['file_name'] ?? ($i === 0 ? 'config.json' : '')); ?>" <?php echo ($i === 0) ? 'readonly' : ''; ?>>
                         </div>
                         <button type="submit" name="update_index" value="<?php echo $i; ?>" class="btn btn-info btn-sm"><i>🔄</i> 更新订阅 <?php echo $i + 1; ?></button>
@@ -664,7 +525,6 @@ if (isset($_POST['update'])) {
         <?php endfor; ?>
     </div>
 </form>
-
 <style>
     .white-text {
         color: white !important; 
@@ -674,6 +534,7 @@ if (isset($_POST['update'])) {
         color: white !important; 
     }
 </style>
+
 <div class="modal fade" id="renameModal" tabindex="-1" role="dialog" aria-labelledby="renameModalLabel" aria-hidden="true">
     <div class="modal-dialog" role="document">
         <div class="modal-content">
@@ -931,6 +792,9 @@ if (isset($_POST['update'])) {
 
     textarea.editor {
         font-size: 20px;
+        width: 100%; 
+        height: 400px; 
+        resize: both; 
     }
 
     .ace_editor {
@@ -938,3 +802,4 @@ if (isset($_POST['update'])) {
     }
 </style>
 </body>
+

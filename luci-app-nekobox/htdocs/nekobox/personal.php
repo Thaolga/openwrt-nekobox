@@ -316,143 +316,84 @@ function getSubscriptionUrlFromFile($file) {
 
 $current_subscription_url = getSubscriptionUrlFromFile($subscription_file);
 ?>
-<!DOCTYPE html>
-<html lang="zh-CN" data-bs-theme="<?php echo substr($neko_theme, 0, -4) ?>">
+<!doctype html>
+<html lang="en" data-bs-theme="<?php echo substr($neko_theme, 0, -4) ?>">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mihomo 订阅程序</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Personal - Neko</title>
+    <link rel="icon" href="./assets/img/nekobox.png">
     <link href="./assets/css/bootstrap.min.css" rel="stylesheet">
+    <link href="./assets/css/custom.css" rel="stylesheet">
     <link href="./assets/theme/<?php echo $neko_theme ?>" rel="stylesheet">
-    <link href="./assets/css/custom.css" rel="stylesheet"> 
-    <link rel="stylesheet" href="./assets/bootstrap/bulma.min.css">
-    <style>
-        body {
-            padding: 20px;
-        }
-
-        .container {
-            background: #fff;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
-            max-width: 1300px; 
-            margin: 20px auto; 
-            box-sizing: border-box;
-        }
-
-        h1 {
-            text-align: center;
-            color: #333;
-        }
-
-        .button.is-primary {
-            background-color: #3273dc; 
-            color: #fff;
-        }
-
-        .button.is-primary:hover {
-            background-color: #205ab7; 
-        }
-
-        .button.is-secondary {
-            background-color: #6c757d;
-        }
-
-        .button.is-secondary:hover {
-            background-color: #5a6268;
-        }
-
-        .result {
-            background-color: #f8f9fa;
-            padding: 10px;
-            border-radius: 5px;
-            margin-top: 20px;
-            font-size: 14px;
-            color: #333;
-        }
-
-        .help {
-            color: #004085; 
-        }
-
-        .help h2 {
-            color: #0056b3; 
-        }
-
-        .help p {
-            color: #28a745; 
-        }
-
-        .help ul li {
-            color: #17a2b8; 
-        }
-    </style>
+    <script type="text/javascript" src="./assets/js/feather.min.js"></script>
+    <script type="text/javascript" src="./assets/js/jquery-2.1.3.min.js"></script>
+    <script type="text/javascript" src="./assets/js/neko.js"></script>
 </head>
 <body>
-    <div class="container">
-        <h1 class="title">Mihomo 订阅程序（个人版）</h1>
+<div class="container-sm container-bg callout border border-3 rounded-4 col-11">
+    <div class="row">
+        <a href="./index.php" class="col btn btn-lg">🏠 首页</a>
+        <a href="./upload.php" class="col btn btn-lg">📂 Mihomo</a>
+        <a href="./upload_sb.php" class="col btn btn-lg">🗂️ Sing-box</a>
+        <a href="./box.php" class="col btn btn-lg">💹 转换</a>
+        <a href="./personal.php" class="col btn btn-lg">📦 订阅</a>
+        <h1 class="text-center p-2">Mihomo 订阅程序（个人版）</h1>
 
-        <div class="form-section">
-            <form method="post">
-                <div class="field">
-                    <label for="subscription_url" class="label">输入订阅链接:</label>
-                    <div class="control">
-                        <input type="text" class="input" id="subscription_url" name="subscription_url" 
-                               value="<?php echo htmlspecialchars($current_subscription_url); ?>" 
-                               required>
+        <div class="col-12">
+            <div class="form-section">
+                <form method="post">
+                    <div class="mb-3">
+                        <label for="subscription_url" class="form-label">输入订阅链接:</label>
+                        <input type="text" class="form-control" id="subscription_url" name="subscription_url"
+                               value="<?php echo htmlspecialchars($current_subscription_url); ?>" required>
                     </div>
-                </div>
-                <div class="field">
-                    <label for="filename" class="label">输入保存文件名 (默认: config.yaml):</label>
-                    <div class="control">
-                        <input type="text" class="input" id="filename" name="filename" 
-                               value="<?php echo htmlspecialchars(isset($_POST['filename']) ? $_POST['filename'] : ''); ?>" 
+                    <div class="mb-3">
+                        <label for="filename" class="form-label">输入保存文件名 (默认: config.yaml):</label>
+                        <input type="text" class="form-control" id="filename" name="filename"
+                               value="<?php echo htmlspecialchars(isset($_POST['filename']) ? $_POST['filename'] : ''); ?>"
                                placeholder="config.yaml">
                     </div>
-                </div>
-                <div class="control">
-                    <button type="submit" class="button is-primary" name="action" value="update_subscription">更新订阅</button>
-                </div>
-            </form>
-        </div>
+                    <button type="submit" class="btn btn-primary" name="action" value="update_subscription">更新订阅</button>
+                </form>
+            </div>
 
-        <div class="form-section">
-            <form method="post">
-                <div class="field">
-                    <label for="cron_time" class="label">设置 Cron 时间 (例如: 0 3 * * *):</label>
-                    <div class="control">
-                        <input type="text" class="input" id="cron_time" name="cron_time" 
-                               value="<?php echo htmlspecialchars(isset($_POST['cron_time']) ? $_POST['cron_time'] : '0 3 * * *'); ?>" 
+            <div class="form-section mt-4">
+                <form method="post">
+                    <div class="mb-3">
+                        <label for="cron_time" class="form-label">设置 Cron 时间 (例如: 0 3 * * *):</label>
+                        <input type="text" class="form-control" id="cron_time" name="cron_time"
+                               value="<?php echo htmlspecialchars(isset($_POST['cron_time']) ? $_POST['cron_time'] : '0 3 * * *'); ?>"
                                placeholder="0 3 * * *">
                     </div>
-                </div>
-                <div class="control">
-                    <button type="submit" class="button is-primary" name="action" value="update_cron">更新 Cron 作业</button>
-                </div>
-            </form>
+                    <button type="submit" class="btn btn-primary" name="action" value="update_cron">更新 Cron 作业</button>
+                </form>
+            </div>
         </div>
 
-        <div class="help">
-            <h2 class="subtitle">帮助说明</h2>
+        <div class="help mt-4">
+            <h2 class="text-center">帮助说明</h2>
             <p>欢迎使用 Mihomo 订阅程序！请按照以下步骤进行操作：</p>
-            <ul class="list">
-                <li><strong>输入订阅链接:</strong> 在文本框中输入您的 Clash 订阅链接。</li>
-                <li><strong>输入保存文件名:</strong> 指定保存配置文件的文件名，默认为 "config.yaml"。</li>
-                <li>点击 "更新订阅" 按钮，系统将下载订阅内容，并进行转换和保存。</li>
-                <li><strong>设置 Cron 时间:</strong> 指定 Cron 作业的执行时间。</li>
-                <li>点击 "更新 Cron 作业" 按钮，系统将设置或更新 Cron 作业。</li>
+            <ul class="list-group">
+                <li class="list-group-item"><strong>输入订阅链接:</strong> 在文本框中输入您的 Clash 订阅链接。</li>
+                <li class="list-group-item"><strong>输入保存文件名:</strong> 指定保存配置文件的文件名，默认为 "config.yaml"。</li>
+                <li class="list-group-item">点击 "更新订阅" 按钮，系统将下载订阅内容，并进行转换和保存。</li>
+                <li class="list-group-item"><strong>设置 Cron 时间:</strong> 指定 Cron 作业的执行时间。</li>
+                <li class="list-group-item">点击 "更新 Cron 作业" 按钮，系统将设置或更新 Cron 作业。</li>
             </ul>
         </div>
 
-        <div class="result">
+        <div class="result mt-4">
             <?php echo nl2br(htmlspecialchars($result)); ?>
         </div>
-        <div class="result">
+        <div class="result mt-2">
             <?php echo nl2br(htmlspecialchars($cron_result)); ?>
         </div>
 
-        <button class="button is-secondary" onclick="history.back()">返回上一级</button>
+        <div class="mt-4 text-center">
+            <button class="btn btn-secondary" onclick="history.back()">返回上一级</button>
+        </div>
     </div>
+</div>
 </body>
 </html>

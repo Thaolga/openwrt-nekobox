@@ -1,1 +1,1 @@
-NavajoWhite.css
+pink.css

@@ -506,352 +506,40 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 ?>
-<!DOCTYPE html>
-<html lang="zh-CN" data-bs-theme="<?php echo substr($neko_theme, 0, -4) ?>">
+<!doctype html>
+<html lang="en" data-bs-theme="<?php echo substr($neko_theme, 0, -4) ?>">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mihomo 文件管理</title>
-    <link rel="icon" href="./assets/img/favicon.png">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Mihomo - Neko</title>
+    <link rel="icon" href="./assets/img/nekobox.png">
     <link href="./assets/css/bootstrap.min.css" rel="stylesheet">
+    <link href="./assets/css/custom.css" rel="stylesheet">
     <link href="./assets/theme/<?php echo $neko_theme ?>" rel="stylesheet">
-    <link href="./assets/css/custom.css" rel="stylesheet"> 
-    <style>
-        body {
-            background-size: cover;
-            color: #E0E0E0;
-        }
-
-        .container {
-            background: rgba(30, 30, 30, 0.8);
-            border-radius: 10px;
-            padding: 20px;
-            margin-top: 50px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
-        }
-
-        h1,
-        h2 {
-            color: #00FF7F;
-        }
-
-        .table th,
-        .table td {
-            text-align: center;
-            vertical-align: middle;
-        }
-
-        .editor {
-            height: 300px;
-            width: 100%;
-            background-color: #2C2C2C;
-            color: #E0E0E0;
-            padding: 15px;
-            border: 1px solid #444;
-            border-radius: 5px;
-            font-family: monospace;
-            margin-top: 20px;
-            overflow: auto;
-        }
-
-        .btn-warning {
-            background-color: #F4B400;
-            color: #FFFFFF !important;
-        }
-
-        .btn-warning:hover {
-            background-color: #C79400;
-            color: #FFFFFF !important;
-        }
-
-        .table-custom th,
-        .table-custom td {
-            padding: 10px;
-        }
-
-        .table-custom .file-name-col {
-            width: 40%;
-        }
-
-        .table-custom .size-col {
-            width: 20%;
-        }
-
-        .table-custom .date-col {
-            width: 20%;
-        }
-
-        .table-custom .actions-col {
-            width: 20%;
-            display: flex;
-            flex-direction: column;
-            gap: 5px;
-            align-items: center;
-        }
-
-        .btn-group {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 5px;
-        }
-
-        .btn-group .btn {
-            flex: 1;
-        }
-
-        .table-custom {
-            width: 100%;
-            table-layout: fixed;
-        }
-
-        .size-column {
-            width: 100px;
-            text-align: center;
-        }
-
-        .action-column {
-            width: 400px;
-        }
-
-        .btn-group {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 5px;
-        }
-
-        .btn-group form,
-        .btn-group button {
-            margin: 0;
-        }
-
-        .table-wrapper {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 0 15px;
-            margin-bottom: 40px;
-        }
-
-        .modal-header,
-        .modal-body,
-        .modal-footer {
-            background: #f8f9fa;
-            color: #333;
-        }
-
-        .modal-content {
-            background: #ffffff;
-            border: 1px solid #ced4da;
-        }
-
-        .modal-body {
-            overflow-y: auto;
-        }
-
-        .form-control {
-            background-color: #2C2C2C;
-            color: #E0E0E0;
-            border: 1px solid #444;
-        }
-
-        .form-control:focus {
-            border-color: #03DAC6;
-            box-shadow: 0 0 0 0.2rem rgba(3, 218, 198, 0.25);
-        }
-
-        .log-output {
-            background-color: #2C2C2C;
-            border: 1px solid #444;
-            border-radius: 5px;
-            color: #E0E0E0;
-            padding: 10px;
-            margin-top: 20px;
-            height: 200px;
-            overflow-y: scroll;
-            white-space: pre-wrap;
-        }
-
-        .subscription-card {
-            background: #3C3C3C;
-            border: 1px solid #444;
-            color: #E0E0E0;
-            margin-bottom: 20px;
-        }
-
-        .subscription-card .card-body {
-            padding: 10px;
-        }
-
-        .custom-file-name {
-            background-color: #2C2C2C;
-            color: #E0E0E0;
-            border: 1px solid #444;
-        }
-
-        .card .form-control {
-            background-color: #2C2C2C;
-            color: #E0E0E0;
-            border: 1px solid #444;
-        }
-
-        .card .form-control:focus {
-            border-color: #03DAC6;
-            box-shadow: 0 0 0 0.2rem rgba(3, 218, 198, 0.25);
-        }
-
-        .form-inline .form-control-file {
-            display: none;
-        }
-
-        .btn-group {
-            display: flex;
-            justify-content: center;
-            gap: 10px;
-        }
-
-        .btn-group .btn {
-            height: 38px;
-            line-height: 1.5;
-            padding: 0 10px;
-            text-align: center;
-        }
-
-        .upload-btn {
-            cursor: pointer;
-        }
-
-        .btn-group .btn-rename {
-            max-width: 80px;
-            padding: 2px 6px;
-            font-size: 0.875rem;
-            width: auto;
-            white-space: nowrap;
-            border-radius: 4px !important;
-            color: #FFFFFF;
-        }
-
-        @media (max-width: 768px) {
-            .btn-group {
-                flex-direction: column;
-            }
-
-            .btn-group .btn {
-                width: 100%;
-                margin-bottom: 5px;
-            }
-
-            .nav-buttons {
-                display: flex;
-                flex-direction: column;
-                align-items: center;
-            }
-
-            .nav-buttons .btn {
-                width: 100%;
-                margin-bottom: 10px;
-            }
-        }
-
-        @media (max-width: 768px) {
-            .btn-group {
-                flex-direction: column;
-            }
-
-            .btn-group .btn {
-                width: 100%;
-                margin-bottom: 5px;
-            }
-
-            .table-wrapper {
-                overflow-x: auto;
-            }
-
-            .table-custom .file-name-col {
-                width: auto;
-            }
-
-            .table-custom {
-                width: 100%;
-                table-layout: auto;
-            }
-
-            .nav-buttons {
-                display: flex;
-                flex-direction: column;
-                align-items: center;
-            }
-
-            .nav-buttons .btn {
-                width: 100%;
-                margin-bottom: 10px;
-            }
-
-            body {
-                font-size: 14px;
-            }
-
-            .modal-content {
-                padding: 10px;
-            }
-
-            .editor {
-                height: 200px;
-            }
-        }
-
-        .navigation {
-            display: flex;
-            flex-wrap: wrap; 
-            gap: 10px; 
-            justify-content: center; 
-        }
-        .navigation a {
-            text-decoration: none;
-            padding: 10px 20px;
-            background-color: #28a745; 
-            color: white;
-            border-radius: 5px;
-            font-size: 16px;
-            text-align: center;
-        }
-        .navigation a:hover {
-            background-color: #218838;
-        }
-
-        @media (max-width: 600px) {
-            .navigation a {
-                flex: 1 1 100%; 
-                box-sizing: border-box; 
-            }
-        }
-
-        @media (max-width: 576px) {
-            .form-inline {
-                display: flex;
-                flex-direction: column;
-                align-items: stretch;
-            }
-
-            .form-inline .form-control {
-                width: 100%;
-                margin-bottom: 10px;
-            }
-
-            .btn-group .btn {
-                padding: 10px 0;
-            }
-        }
-    </style>
+    <script src="./assets/js/feather.min.js"></script>
+    <script src="./assets/js/jquery-2.1.3.min.js"></script>
+    <script src="./assets/js/neko.js"></script>
 </head>
 <body>
-    <div class="container text-center">
+<div class="container-sm container-bg callout border border-3 rounded-4 col-11">
+    <div class="row">
+        <a href="./index.php" class="col btn btn-lg">🏠 首页</a>
+        <a href="./upload.php" class="col btn btn-lg">📂 Mihomo</a>
+        <a href="./upload_sb.php" class="col btn btn-lg">🗂️ Sing-box</a>
+        <a href="./box.php" class="col btn btn-lg">💹 转换</a>
+        <a href="./personal.php" class="col btn btn-lg">📦 订阅</a>
+    </div>
+    <div class="text-center">
         <h1 style="margin-top: 40px; margin-bottom: 20px;">Mihomo 文件管理</h1>
         <div class="table-wrapper">
             <h2>代理文件管理</h2>
-    <form action="upload.php" method="get" onsubmit="saveSettings()">
-        <label for="enable_timezone">启用时区设置:</label>
-        <input type="checkbox" id="enable_timezone" name="enable_timezone" value="1">
-        <button type="submit" style="background-color: #4CAF50; color: white; border: none; cursor: pointer;"> 提交 </button>
-       </form>
+            <form action="upload.php" method="get" onsubmit="saveSettings()">
+                <label for="enable_timezone">启用时区设置:</label>
+                <input type="checkbox" id="enable_timezone" name="enable_timezone" value="1">
+                <button type="submit" style="background-color: #4CAF50; color: white; border: none; cursor: pointer;">提交</button>
+            </form>
+        </div>
+    </div>
     <script>
         function saveSettings() {
             const enableTimezone = document.getElementById('enable_timezone').checked;
@@ -870,56 +558,59 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         window.onload = loadSettings;
     </script>
-            <table class="table table-dark table-bordered table-custom">
-                <thead>
-                    <tr>
-                        <th>文件名</th>
-                        <th class="size-column">大小</th>
-                        <th>修改时间</th>
-                        <th class="action-column">执行操作</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <?php foreach ($proxyFiles as $file): ?>
-                        <?php $filePath = $uploadDir . $file; ?>
-                        <tr>
-                            <td><a href="download.php?file=<?php echo urlencode($file); ?>"><?php echo htmlspecialchars($file); ?></a></td>
-                            <td class="size-column"><?php echo file_exists($filePath) ? formatSize(filesize($filePath)) : '文件不存在'; ?></td>
-                            <td><?php echo htmlspecialchars(date('Y-m-d H:i:s', filemtime($filePath))); ?></td>
-                            <td class="action-column">
-                                <div class="btn-group">
-                                    <form action="" method="post" class="d-inline">
-                                        <input type="hidden" name="deleteFile" value="<?php echo htmlspecialchars($file); ?>">
-                                        <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('确定要删除这个文件吗？');">
-                                            <i>🗑️</i> 删除
-                                        </button>
-                                    </form>
-                                    
-                                    <button type="button" class="btn btn-success btn-sm btn-rename" data-toggle="modal" data-target="#renameModal" data-filename="<?php echo htmlspecialchars($file); ?>" data-filetype="proxy">
-                                        <i>✏️</i> 重命名
-                                    </button>
-                                    
-                                    <form action="" method="post" class="d-inline">
-                                        <input type="hidden" name="editFile" value="<?php echo htmlspecialchars($file); ?>">
-                                        <input type="hidden" name="fileType" value="proxy"> 
-                                        <button type="submit" class="btn btn-warning btn-sm">
-                                            <i>📝</i> 编辑
-                                        </button>
-                                    </form>
+    <style>
+        .btn-group {
+            display: flex;
+            gap: 10px; 
+            justify-content: center; 
+        }
+        .btn {
+            margin: 0; 
+        }
+    </style>
 
-                                    <form action="" method="post" enctype="multipart/form-data" class="form-inline d-inline upload-btn">
-                                        <input type="file" name="fileInput" class="form-control-file" required id="fileInput-<?php echo htmlspecialchars($file); ?>" onchange="this.form.submit()">
-                                        <button type="button" class="btn btn-info" onclick="document.getElementById('fileInput-<?php echo htmlspecialchars($file); ?>').click();">
-                                            <i>📤</i> 上传
-                                        </button>  
-                                    </form>
-                                </div>
-                            </td>
-                        </tr>
-                    <?php endforeach; ?>
-                </tbody>
-            </table>
-        </div>
+    <table class="table table-dark table-bordered">
+        <thead>
+            <tr>
+                <th style="width: 30%;">文件名</th>
+                <th style="width: 10%;">大小</th>
+                <th style="width: 20%;">修改时间</th>
+                <th style="width: 40%;">执行操作</th>
+            </tr>
+        </thead>
+        <tbody>
+            <?php foreach ($proxyFiles as $file): ?>
+                <?php $filePath = $uploadDir . $file; ?>
+                <tr>
+                    <td><a href="download.php?file=<?php echo urlencode($file); ?>"><?php echo htmlspecialchars($file); ?></a></td>
+                    <td><?php echo file_exists($filePath) ? formatSize(filesize($filePath)) : '文件不存在'; ?></td>
+                    <td><?php echo htmlspecialchars(date('Y-m-d H:i:s', filemtime($filePath))); ?></td>
+                    <td>
+                        <div class="btn-group">
+                            <form action="" method="post" class="d-inline">
+                                <input type="hidden" name="deleteFile" value="<?php echo htmlspecialchars($file); ?>">
+                                <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('确定要删除这个文件吗？');"><i>🗑️</i> 删除</button>
+                            </form>
+                            <form action="" method="post" class="d-inline">
+                                <input type="hidden" name="editFile" value="<?php echo htmlspecialchars($file); ?>">
+                                <input type="hidden" name="fileType" value="proxy">
+                                <button type="button" class="btn btn-success btn-sm btn-rename" data-toggle="modal" data-target="#renameModal" data-filename="<?php echo htmlspecialchars($file); ?>" data-filetype="proxy"><i>✏️</i> 重命名</button>
+                            </form>
+                            <form action="" method="post" class="d-inline">
+                                <input type="hidden" name="editFile" value="<?php echo htmlspecialchars($file); ?>">
+                                <input type="hidden" name="fileType" value="<?php echo htmlspecialchars($file); ?>">
+                                <button type="submit" class="btn btn-warning btn-sm"><i>📝</i> 编辑</button>
+                            </form>
+                            <form action="" method="post" enctype="multipart/form-data" class="form-inline d-inline upload-btn">
+                                <input type="file" name="fileInput" class="form-control-file" required id="fileInput-<?php echo htmlspecialchars($file); ?>" style="display: none;" onchange="this.form.submit()">
+                                <button type="button" class="btn btn-info" onclick="document.getElementById('fileInput-<?php echo htmlspecialchars($file); ?>').click();"><i>📤</i> 上传</button>
+                            </form>
+                        </div>
+                    </td>
+                </tr>
+            <?php endforeach; ?>
+        </tbody>
+    </table>
 
         <div class="modal fade" id="renameModal" tabindex="-1" role="dialog" aria-labelledby="renameModalLabel" aria-hidden="true">
             <div class="modal-dialog" role="document">
@@ -949,47 +640,51 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             </div>
         </div>
 
-        <div class="table-wrapper">
-            <h2>配置文件管理</h2>
-            <table class="table table-dark table-bordered table-custom">
-                <thead>
-                    <tr>
-                        <th>文件名</th>
-                        <th class="size-column">大小</th>
-                        <th>修改时间</th>
-                        <th class="action-column">执行操作</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <?php foreach ($configFiles as $file): ?>
-                        <?php $filePath = $configDir . $file; ?>
-                        <tr>
-                            <td><a href="download.php?file=<?php echo urlencode($file); ?>"><?php echo htmlspecialchars($file); ?></a></td>
-                            <td class="size-column"><?php echo file_exists($filePath) ? formatSize(filesize($filePath)) : '文件不存在'; ?></td>
-                            <td><?php echo htmlspecialchars(date('Y-m-d H:i:s', filemtime($filePath))); ?></td>
-                            <td class="action-column">
-                                <div class="btn-group">
-                                    <form action="" method="post" class="d-inline">
-                                        <input type="hidden" name="deleteConfigFile" value="<?php echo htmlspecialchars($file); ?>">
-                                        <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('确定要删除这个文件吗？');"><i>🗑️</i> 删除</button>                                     
-                                    </form>
-                                    <button type="button" class="btn btn-success btn-sm btn-rename" data-toggle="modal" data-target="#renameModal" data-filename="<?php echo htmlspecialchars($file); ?>" data-filetype="config"><i>✏️</i> 重命名</button>
-                                   
-                                    <form action="" method="post" class="d-inline">
-                                        <input type="hidden" name="editFile" value="<?php echo htmlspecialchars($file); ?>">
-                                        <input type="hidden" name="fileType" value="config">
-                                        <button type="submit" class="btn btn-warning btn-sm"><i>📝</i> 编辑</button>    
-                                    </form>
-                                    <form action="" method="post" enctype="multipart/form-data" class="form-inline d-inline upload-btn">
-                                        <input type="file" name="configFileInput" class="form-control-file" required id="fileInput-<?php echo htmlspecialchars($file); ?>" onchange="this.form.submit()">
-                                        <button type="button" class="btn btn-info" onclick="document.getElementById('fileInput-<?php echo htmlspecialchars($file); ?>').click();"><i>📤</i> 上传</button>                                  
-                                    </form>
-                                </div>
-                            </td>
-                        </tr>
-                    <?php endforeach; ?>
-                </tbody>
-            </table>
+<div class="table-wrapper">
+    <h2>配置文件管理</h2>
+    <table class="table table-dark table-bordered">
+        <thead>
+            <tr>
+                <th style="width: 30%;">文件名</th>
+                <th style="width: 10%;">大小</th>
+                <th style="width: 20%;">修改时间</th>
+                <th style="width: 40%;">执行操作</th>
+            </tr>
+        </thead>
+        <tbody>
+            <?php foreach ($configFiles as $file): ?>
+                <?php $filePath = $configDir . $file; ?>
+                <tr>
+                    <td><a href="download.php?file=<?php echo urlencode($file); ?>"><?php echo htmlspecialchars($file); ?></a></td>
+                    <td><?php echo file_exists($filePath) ? formatSize(filesize($filePath)) : '文件不存在'; ?></td>
+                    <td><?php echo htmlspecialchars(date('Y-m-d H:i:s', filemtime($filePath))); ?></td>
+                    <td>
+                        <div class="btn-group">
+                            <form action="" method="post" class="d-inline">
+                                <input type="hidden" name="deleteConfigFile" value="<?php echo htmlspecialchars($file); ?>">
+                                <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('确定要删除这个文件吗？');"><i>🗑️</i> 删除</button>
+                            </form>
+                            <form action="" method="post" class="d-inline">
+                                <input type="hidden" name="editFile" value="<?php echo htmlspecialchars($file); ?>">
+                                <button type="button" class="btn btn-success btn-sm btn-rename" data-toggle="modal" data-target="#renameModal" data-filename="<?php echo htmlspecialchars($file); ?>" data-filetype="config"><i>✏️</i> 重命名</button>
+                            </form>
+                            <form action="" method="post" class="d-inline">
+                                <input type="hidden" name="editFile" value="<?php echo htmlspecialchars($file); ?>">
+                                <input type="hidden" name="fileType" value="<?php echo htmlspecialchars($file); ?>">
+                                <button type="submit" class="btn btn-warning btn-sm"><i>📝</i> 编辑</button>
+                            </form>
+                            <form action="" method="post" enctype="multipart/form-data" class="form-inline d-inline upload-btn">
+                                <input type="file" name="configFileInput" class="form-control-file" required id="fileInput-<?php echo htmlspecialchars($file); ?>" style="display: none;" onchange="this.form.submit()">
+                                <button type="button" class="btn btn-info btn-sm" onclick="document.getElementById('fileInput-<?php echo htmlspecialchars($file); ?>').click();"><i>📤</i> 上传</button>
+                            </form>
+                        </div>
+                    </td>
+                </tr>
+            <?php endforeach; ?>
+        </tbody>
+    </table>
+</div>
+
 <?php if (isset($fileContent)): ?>
     <?php if (isset($_POST['editFile'])): ?>
         <?php $fileToEdit = ($_POST['fileType'] === 'proxy') ? $uploadDir . basename($_POST['editFile']) : $configDir . basename($_POST['editFile']); ?>
@@ -1030,6 +725,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         </div>
     <?php endif; ?>
 <?php endif; ?>
+
         <section id="subscription-management" class="section-gap">
             <h2 class="text-success"  style="margin-top: 20px; margin-bottom: 20px;">订阅管理</h2>
                 <p class="help-text" style="text-align: left; font-family: Arial, sans-serif; line-height: 1.5; font-size: 14px;">
@@ -1081,18 +777,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <button type="submit" name="convert" class="btn btn-primary"><i>🔄</i> 转换</button>
     </form>
 </section>
-
-<style>
-    textarea::placeholder {
-        color: white !important; 
-        opacity: 1 !important; 
-    }
-    textarea {
-        background-color: #333; 
-        color: white; 
-    }
-</style>
-
 
 <script src="./assets/bootstrap/jquery-3.5.1.slim.min.js"></script>
 <script src="./assets/bootstrap/popper.min.js"></script>
@@ -1334,7 +1018,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
     textarea.editor {
-            font-size: 20px;
+        font-size: 20px;
+        width: 100%; 
+        height: 400px; 
+        resize: both; 
     }
 
     .ace_editor {
