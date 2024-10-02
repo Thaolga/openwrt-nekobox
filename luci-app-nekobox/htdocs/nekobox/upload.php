@@ -558,6 +558,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         window.onload = loadSettings;
     </script>
+
     <style>
         .btn-group {
             display: flex;
@@ -569,48 +570,51 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
     </style>
   <div class="text-center">
-    <table class="table table-dark table-bordered">
-        <thead>
-            <tr>
+            <table class="table table-dark table-bordered">
+                <thead>
+                    <tr>
                 <th style="width: 30%;">文件名</th>
                 <th style="width: 10%;">大小</th>
                 <th style="width: 20%;">修改时间</th>
                 <th style="width: 40%;">执行操作</th>
-            </tr>
-        </thead>
-        <tbody>
-            <?php foreach ($proxyFiles as $file): ?>
-                <?php $filePath = $uploadDir . $file; ?>
-                <tr>
-                    <td><a href="download.php?file=<?php echo urlencode($file); ?>"><?php echo htmlspecialchars($file); ?></a></td>
-                    <td><?php echo file_exists($filePath) ? formatSize(filesize($filePath)) : '文件不存在'; ?></td>
-                    <td><?php echo htmlspecialchars(date('Y-m-d H:i:s', filemtime($filePath))); ?></td>
-                    <td>
-                        <div class="btn-group">
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php foreach ($proxyFiles as $file): ?>
+                        <?php $filePath = $uploadDir . $file; ?>
+                        <tr>
+                            <td><a href="download.php?file=<?php echo urlencode($file); ?>"><?php echo htmlspecialchars($file); ?></a></td>
+                            <td class="size-column"><?php echo file_exists($filePath) ? formatSize(filesize($filePath)) : '文件不存在'; ?></td>
+                            <td><?php echo htmlspecialchars(date('Y-m-d H:i:s', filemtime($filePath))); ?></td>
+                            <td class="action-column">
+                                <div class="btn-group">
+                                    <form action="" method="post" class="d-inline">
                             <form action="" method="post" class="d-inline">
                                 <input type="hidden" name="deleteFile" value="<?php echo htmlspecialchars($file); ?>">
                                 <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('确定要删除这个文件吗？');"><i>🗑️</i> 删除</button>
                             </form>
+                                    
                             <form action="" method="post" class="d-inline">
                                 <input type="hidden" name="editFile" value="<?php echo htmlspecialchars($file); ?>">
                                 <input type="hidden" name="fileType" value="proxy">
                                 <button type="button" class="btn btn-success btn-sm btn-rename" data-toggle="modal" data-target="#renameModal" data-filename="<?php echo htmlspecialchars($file); ?>" data-filetype="proxy"><i>✏️</i> 重命名</button>
                             </form>
-                            <form action="" method="post" class="d-inline">
-                                <input type="hidden" name="editFile" value="<?php echo htmlspecialchars($file); ?>">
-                                <input type="hidden" name="fileType" value="<?php echo htmlspecialchars($file); ?>">
-                                <button type="submit" class="btn btn-warning btn-sm"><i>📝</i> 编辑</button>
-                            </form>
+                                    <form action="" method="post" class="d-inline">
+                                        <input type="hidden" name="editFile" value="<?php echo htmlspecialchars($file); ?>">
+                                        <input type="hidden" name="fileType" value="proxy"> 
+                                        <button type="submit" class="btn btn-warning btn-sm"> <i>📝</i> 编辑 </button>
+                                    </form>
+
                             <form action="" method="post" enctype="multipart/form-data" class="form-inline d-inline upload-btn">
                                 <input type="file" name="fileInput" class="form-control-file" required id="fileInput-<?php echo htmlspecialchars($file); ?>" style="display: none;" onchange="this.form.submit()">
                                 <button type="button" class="btn btn-info" onclick="document.getElementById('fileInput-<?php echo htmlspecialchars($file); ?>').click();"><i>📤</i> 上传</button>
                             </form>
-                        </div>
-                    </td>
-                </tr>
-            <?php endforeach; ?>
-        </tbody>
-    </table>
+                                </div>
+                            </td>
+                        </tr>
+                    <?php endforeach; ?>
+                </tbody>
+            </table>
 
         <div class="modal fade" id="renameModal" tabindex="-1" role="dialog" aria-labelledby="renameModalLabel" aria-hidden="true">
             <div class="modal-dialog" role="document">
@@ -726,45 +730,65 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <?php endif; ?>
 <?php endif; ?>
 
-        <section id="subscription-management" class="section-gap">
-            <h2 class="text-success"  style="margin-top: 20px; margin-bottom: 20px;">订阅管理</h2>
-                <p class="help-text" style="text-align: left; font-family: Arial, sans-serif; line-height: 1.5; font-size: 14px;">
-                    <strong>1. 注意：</strong> 通用模板（<code>mihomo.yaml</code>）最多支持<strong>7个</strong>订阅链接，请勿更改默认名称。
-                   <button id="pasteButton" class="btn btn-primary">生成订阅链接网站</button>
-                   <button id="base64Button" class="btn btn-primary">Base64 在线编码解码</button>
-                </p>
 
-                <p class="help-text" style="text-align: left; font-family: Arial, sans-serif; line-height: 1.5; font-size: 14px;">
-                    <strong>2. 保存与更新：</strong> 填写完毕后，请点击“更新配置”按钮进行保存。
-                </p>
+  <h2 class="text-success text-center mt-4 mb-4">订阅管理</h2>
 
-                <p class="help-text" style="text-align: left; font-family: Arial, sans-serif; line-height: 1.5; font-size: 14px;">
-                    <strong>3. 节点转换与手动修改：</strong> 该模板支持所有格式的订阅链接，无需进行额外转换。单个节点可通过下方的节点转换工具进行转换，并自动保存为代理，也可手动修改代理目录文件，支持通过节点链接形式添加。
-                </p>
-            <div class="form-spacing"></div>
-            <?php if ($message): ?>
-                <p><?php echo nl2br(htmlspecialchars($message)); ?></p>
-            <?php endif; ?>
-            <?php for ($i = 0; $i < 7; $i++): ?>
-                <form method="post" class="mb-3">
-                    <div class="input-group">
-                        <label for="subscription_url_<?php echo $i; ?>" class="sr-only">订阅链接 <?php echo ($i + 1); ?>:</label>
-                        <input type="text" name="subscription_url" id="subscription_url_<?php echo $i; ?>" value="<?php echo htmlspecialchars($subscriptions[$i]['url']); ?>" required class="form-control">
-                        <input type="text" name="custom_file_name" id="custom_file_name_<?php echo $i; ?>" value="<?php echo htmlspecialchars($subscriptions[$i]['file_name']); ?>" class="form-control ml-2" placeholder="自定义文件名">
-                        <input type="hidden" name="index" value="<?php echo $i; ?>">
-                        <button type="submit" name="update" class="btn btn-primary btn-custom ml-2"><i>🔄</i> 更新配置</button>
+    <div class="help-text mb-3 text-start">
+        <strong>1. 注意：</strong> 通用模板（<code>mihomo.yaml</code>）最多支持<strong>7个</strong>订阅链接，请勿更改默认名称。
+    </div>
+
+    <div class="help-text mb-3 text-start"> 
+        <strong>2. 保存与更新：</strong> 填写完毕后，请点击“更新配置”按钮进行保存。
+    </div>
+
+    <div class="help-text mb-3 text-start"> 
+        <strong>3. 节点转换与手动修改：</strong> 该模板支持所有格式的订阅链接，无需进行额外转换。
+    </div>
+
+    <?php if ($message): ?>
+        <div class="alert alert-info text-start"> 
+            <?php echo nl2br(htmlspecialchars($message)); ?>
+        </div>
+    <?php endif; ?>
+
+    <div class="row">
+        <?php for ($i = 0; $i < 6; $i++): ?>
+            <div class="col-md-4 mb-4">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">订阅链接 <?php echo ($i + 1); ?></h5>
+                        <form method="post">
+                            <div class="input-group mb-3">
+                                <input type="text" name="subscription_url" id="subscription_url_<?php echo $i; ?>" 
+                                       value="<?php echo htmlspecialchars($subscriptions[$i]['url']); ?>" required 
+                                       class="form-control" placeholder="输入链接">
+                                <input type="text" name="custom_file_name" id="custom_file_name_<?php echo $i; ?>" 
+                                       value="<?php echo htmlspecialchars($subscriptions[$i]['file_name']); ?>" 
+                                       class="form-control" placeholder="自定义文件名">
+                                <input type="hidden" name="index" value="<?php echo $i; ?>">
+                                <button type="submit" name="update" class="btn btn-success ml-2">
+                                    <i>🔄</i> 更新
+                                </button>
+                            </div>
+                        </form>
                     </div>
-                </form>
-            <?php endfor; ?>
-        </section>
-
+                </div>
+            </div>
+        <?php endfor; ?>
+    </div>
+</section>
+<section id="subscription-management" class="section-gap">
+    <div class="btn-group mt-2 mb-4">
+        <button id="pasteButton" class="btn btn-primary">生成订阅链接网站</button>
+        <button id="base64Button" class="btn btn-primary">Base64 在线编码解码</button>
+    </div>
 <section id="base64-conversion" class="section-gap">
     <h2 class="text-success">Base64 节点信息转换</h2>
     <form method="post">
         <div class="form-group">
             <textarea name="base64_content" id="base64_content" rows="4" class="form-control" placeholder="粘贴 Base64 内容..." required></textarea>
         </div>
-        <button type="submit" name="convert_base64" class="btn btn-primary btn-custom"><i>🔄</i> 生成节点信息</button>
+        <button type="submit" name="convert_base64" class="btn btn-primary btn-custom mt-3"><i>🔄</i> 生成节点信息</button> 
     </form>
 </section>
 
@@ -772,9 +796,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <h1 class="text-success">节点转换工具</h1>
     <form method="post">
         <div class="form-group">
-            <textarea name="input" rows="10" class="form-control" placeholder="粘贴 ss//vless//vmess//trojan//hysteria2 节点信息..."></textarea>
+            <textarea name="input" rows="10" class="form-control" placeholder="粘贴 ss//vless//vmess//trojan//hysteria2 节点信息..." required></textarea>
         </div>
-        <button type="submit" name="convert" class="btn btn-primary"><i>🔄</i> 转换</button>
+        <button type="submit" name="convert" class="btn btn-primary mt-3"><i>🔄</i> 转换</button> 
     </form>
 </section>
 
