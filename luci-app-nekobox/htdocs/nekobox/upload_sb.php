@@ -395,7 +395,7 @@ if (isset($_POST['update'])) {
 }
 
 </style>
-
+<div class="text-center">
 <table class="table table-dark table-bordered">
     <thead>
         <tr>
