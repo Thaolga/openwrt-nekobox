@@ -734,7 +734,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   <h2 class="text-success text-center mt-4 mb-4">订阅管理</h2>
 
     <div class="help-text mb-3 text-start">
-        <strong>1. 注意：</strong> 通用模板（<code>mihomo.yaml</code>）最多支持<strong>7个</strong>订阅链接，请勿更改默认名称。
+        <strong>1. 注意：</strong> 通用模板（<code>mihomo.yaml</code>）最多支持<strong>6个</strong>订阅链接，请勿更改默认名称。
     </div>
 
     <div class="help-text mb-3 text-start"> 
