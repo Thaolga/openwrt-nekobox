@@ -333,187 +333,29 @@ if (isset($_POST['update'])) {
 }
 ?>
 
- <!DOCTYPE html>
+<!doctype html>
 <html lang="en" data-bs-theme="<?php echo substr($neko_theme, 0, -4) ?>">
 <head>
-    <meta charset="UTF-8" data-bs-theme="<?php echo substr($neko_theme, 0, -4) ?>">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sing-box File Manager</title>
-    <link rel="icon" href="./assets/img/favicon.png">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Sing-box - Neko</title>
+    <link rel="icon" href="./assets/img/nekobox.png">
     <link href="./assets/css/bootstrap.min.css" rel="stylesheet">
+    <link href="./assets/css/custom.css" rel="stylesheet">
     <link href="./assets/theme/<?php echo $neko_theme ?>" rel="stylesheet">
-    <link href="./assets/css/custom.css" rel="stylesheet"> 
-    <style>
-        body {
-            background-size: cover;
-            color: #E0E0E0;
-        }
-
-        .container {
-            background: rgba(30, 30, 30, 0.8);
-            border-radius: 10px;
-            padding: 20px;
-            margin-top: 50px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
-        }
-
-        h1,
-        h2 {
-            color: #00FF7F;
-        }
-
-        .table th,
-        .table td {
-            text-align: center;
-            vertical-align: middle;
-        }
-
-        .editor {
-            height: 300px;
-            width: 100%;
-            background-color: #2C2C2C;
-            color: #E0E0E0;
-            padding: 15px;
-            border: 1px solid #444;
-            border-radius: 5px;
-            font-family: monospace;
-            margin-top: 20px;
-            overflow: auto;
-        }
-
-        .btn-warning {
-            background-color: #F4B400;
-            color: #FFFFFF !important;
-        }
-
-        .btn-warning:hover {
-            background-color: #C79400;
-            color: #FFFFFF !important;
-        }
-
-        .modal-header,
-        .modal-body,
-        .modal-footer {
-            background: #f8f9fa;
-            color: #333;
-        }
-
-        .modal-content {
-            background: #ffffff;
-            border: 1px solid #ced4da;
-        }
-
-        .modal-body {
-            overflow-y: auto;
-        }
-
-        .form-control {
-            background-color: #2C2C2C;
-            color: #E0E0E0;
-            border: 1px solid #444;
-        }
-
-        .form-control:focus {
-            border-color: #03DAC6;
-            box-shadow: 0 0 0 0.2rem rgba(3, 218, 198, 0.25);
-        }
-
-        .log-output {
-            background-color: #2C2C2C;
-            border: 1px solid #444;
-            border-radius: 5px;
-            color: #E0E0E0;
-            padding: 10px;
-            margin-top: 20px;
-            height: 200px;
-            overflow-y: scroll;
-            white-space: pre-wrap;
-        }
-
-        .subscription-card {
-            background: #3C3C3C;
-            border: 1px solid #444;
-            color: #E0E0E0;
-            margin-bottom: 20px;
-        }
-
-        .subscription-card .card-body {
-            padding: 10px;
-        }
-
-        .custom-file-name {
-            background-color: #2C2C2C;
-            color: #E0E0E0;
-            border: 1px solid #444;
-        }
-
-        .card .form-control {
-            background-color: #2C2C2C;
-            color: #E0E0E0;
-            border: 1px solid #444;
-        }
-
-        .card .form-control:focus {
-            border-color: #03DAC6;
-            box-shadow: 0 0 0 0.2rem rgba(3, 218, 198, 0.25);
-        }
-
-        .form-inline .form-control-file {
-            display: none;
-        }
-
-        .btn-group {
-            display: flex;
-            justify-content: center;
-            gap: 10px;
-        }
-
-        .btn-group .btn {
-            height: 38px;
-            line-height: 1.5;
-            padding: 0 10px;
-            text-align: center;
-        }
-
-        .upload-btn {
-            cursor: pointer;
-        }
-
-        .btn-group .btn-rename {
-            max-width: 100px;
-            padding: 2px 6px;
-            font-size: 0.875rem;
-            width: auto;
-            white-space: nowrap;
-            border-radius: 4px !important;
-            color: #FFFFFF;
-        }
-
-        @media (max-width: 768px) {
-            .btn-group {
-                flex-direction: column;
-            }
-
-            .btn-group .btn {
-                width: 100%;
-                margin-bottom: 5px;
-            }
-
-            .nav-buttons {
-                display: flex;
-                flex-direction: column;
-                align-items: center;
-            }
-
-            .nav-buttons .btn {
-                width: 100%;
-                margin-bottom: 10px;
-            }
-        }
-    </style>
+    <script src="./assets/js/feather.min.js"></script>
+    <script src="./assets/js/jquery-2.1.3.min.js"></script>
+    <script src="./assets/js/neko.js"></script>
 </head>
 <body>
-    <div class="container text-center">
+<div class="container-sm container-bg callout border border-3 rounded-4 col-11">
+    <div class="row">
+        <a href="./index.php" class="col btn btn-lg">🏠 Home</a>
+        <a href="./upload.php" class="col btn btn-lg">📂 Mihomo</a>
+        <a href="./upload_sb.php" class="col btn btn-lg">🗂️ Sing-box</a>
+        <a href="./box.php" class="col btn btn-lg">💹 Template</a>
+        <a href="./personal.php" class="col btn btn-lg">📦 Personal</a>
+    <div class="text-center">
         <h1 style="margin-top: 40px; margin-bottom: 20px;">Sing-box File Manager</h1>
         <h2>Configuration File Management</h2>
         <form action="upload.php" method="get" onsubmit="saveSettings()">
@@ -562,6 +404,20 @@ if (isset($_POST['update'])) {
 
         window.onload = loadSettings;
     </script>
+<style>
+    .btn-group {
+        display: flex;
+        gap: 10px; 
+        justify-content: center; 
+    }
+
+    .btn {
+        margin: 0;
+.table {
+    width: 100%;
+}
+
+</style>
        <table class="table table-dark table-bordered">
     <thead>
         <tr>
@@ -584,15 +440,19 @@ if (isset($_POST['update'])) {
                             <input type="hidden" name="deleteConfigFile" value="<?php echo htmlspecialchars($file); ?>">
                             <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Are you sure you want to delete this file?');"><i>🗑️</i> Delete</button>
                         </form>
-                        <button type="button" class="btn btn-success btn-sm btn-rename" data-toggle="modal" data-target="#renameModal" data-filename="<?php echo htmlspecialchars($file); ?>"><i>✏️</i> Rename</button>
                         <form action="" method="post" class="d-inline">
                             <input type="hidden" name="editFile" value="<?php echo htmlspecialchars($file); ?>">
                             <input type="hidden" name="fileType" value="config">
+                            <button type="button" class="btn btn-success btn-sm btn-rename" data-toggle="modal" data-target="#renameModal" data-filename="<?php echo htmlspecialchars($file); ?>"><i>✏️</i> Rename</button>
+                        </form>
+                        <form action="" method="post" class="d-inline">
+                            <input type="hidden" name="editFile" value="<?php echo htmlspecialchars($file); ?>">
+                            <input type="hidden" name="fileType" value="<?php echo htmlspecialchars($file); ?>">
                             <button type="submit" class="btn btn-warning btn-sm"><i>📝</i> Edit</button>
                         </form>
                         <form action="" method="post" enctype="multipart/form-data" class="form-inline d-inline upload-btn">
-                            <input type="file" name="configFileInput" class="form-control-file" required id="fileInput-<?php echo htmlspecialchars($file); ?>" onchange="this.form.submit()">
-                            <button type="button" class="btn btn-info" onclick="document.getElementById('fileInput-<?php echo htmlspecialchars($file); ?>').click();"><i>📤</i> Upload</button>
+                            <input type="file" name="configFileInput" class="form-control-file" required id="fileInput-<?php echo htmlspecialchars($file); ?>" style="display: none;" onchange="this.form.submit()">
+                            <button type="button" class="btn btn-info btn-sm" onclick="document.getElementById('fileInput-<?php echo htmlspecialchars($file); ?>').click();"><i>📤</i> Upload</button>
                         </form>
                     </div>
                 </td>
@@ -642,6 +502,27 @@ if (isset($_POST['update'])) {
     <?php endif; ?>
 <?php endif; ?>
         <h1 style="margin-top: 20px; margin-bottom: 20px;">Sing-box Subscription</h1>
+    <style>
+        button {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        button:hover {
+            background-color: #45a049;
+        }
+    </style>
+</head>
+<body>
+    <form method="post">
+        <button type="submit" name="update">🔄 Update Rules</button>
+    </form>
+</body>
+     </br>
         <?php if ($message): ?>
             <p><?php echo nl2br(htmlspecialchars($message)); ?></p>
         <?php endif; ?>
@@ -651,12 +532,12 @@ if (isset($_POST['update'])) {
                     <div class="col-md-4 mb-3">
                         <div class="card subscription-card p-2">
                             <div class="card-body p-2">
-                                <h6 class="card-title text-white">Subscription Link <?php echo $i + 1; ?></h6>
+                                <h6 class="card-title text-primary">Subscription Link <?php echo $i + 1; ?></h6>
                                 <div class="form-group mb-2">
                                     <input type="text" name="subscription_url_<?php echo $i; ?>" id="subscription_url_<?php echo $i; ?>" class="form-control form-control-sm white-text" placeholder="Subscription Link" value="<?php echo htmlspecialchars($subscriptionData['subscriptions'][$i]['url'] ?? ''); ?>">
                                 </div>
                                 <div class="form-group mb-2">
-                                    <label for="custom_file_name_<?php echo $i; ?>">Custom File Name <?php echo ($i === 0) ? '(Fixed as config.json)' : ''; ?></label>
+                                    <label for="custom_file_name_<?php echo $i; ?>" class="text-primary">Custom File Name <?php echo ($i === 0) ? '(Fixed as config.json)' : ''; ?></label>
                                     <input type="text" name="custom_file_name_<?php echo $i; ?>" id="custom_file_name_<?php echo $i; ?>" class="form-control form-control-sm" value="<?php echo htmlspecialchars($subscriptionData['subscriptions'][$i]['file_name'] ?? ($i === 0 ? 'config.json' : '')); ?>" <?php echo ($i === 0) ? 'readonly' : ''; ?> >
                                 </div>
                                 <button type="submit" name="update_index" value="<?php echo $i; ?>" class="btn btn-info btn-sm"><i>🔄</i> Update Subscription <?php echo $i + 1; ?></button>
@@ -675,33 +556,6 @@ if (isset($_POST['update'])) {
         color: white !important; 
     }
 </style>
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <style>
-        button {
-            background-color: #4CAF50;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 16px;
-        }
-
-        button:hover {
-            background-color: #45a049;
-        }
-    </style>
-</head>
-<body>
-<h2>Update Sing-box Rule Set "Puernya Core Rule"</h2>
-<form method="post">
-    <button type="submit" name="update">🔄 Update Rules</button>
-    </form>
-</body>
-</html>
 
 <div class="modal fade" id="renameModal" tabindex="-1" role="dialog" aria-labelledby="renameModalLabel" aria-hidden="true">
     <div class="modal-dialog" role="document">
@@ -960,6 +814,9 @@ if (isset($_POST['update'])) {
 
     textarea.editor {
         font-size: 20px;
+        width: 100%; 
+        height: 400px; 
+        resize: both; 
     }
 
     .ace_editor {
