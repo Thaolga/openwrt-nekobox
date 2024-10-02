@@ -1,16 +1,14 @@
 <h1 align="center">
-  <img src="https://raw.githubusercontent.com/Thaolga/neko/main/img/neko.png" alt="neko" width="500">
+<img src="https://raw.githubusercontent.com/Thaolga/neko/refs/heads/main/nekobox.png" alt="nekobox" width="200"> <br>NeKoBox<br>
 </h1>
 
 <div align="center">
- <a target="_blank" href="https://github.com/Thaolga/luci-app-nekoclash/releases"><img src="https://img.shields.io/github/downloads/nosignals/neko/total?label=Total%20Download&labelColor=blue&style=for-the-badge"></a>
- <a target="_blank" href="https://dbai.team/discord"><img src="https://img.shields.io/discord/1127928183824597032?style=for-the-badge&logo=discord&label=%20"></a>
+ <a target="_blank" href="https://github.com/Thaolga/openwrt-nekobox/releases"><img src="https://raw.githubusercontent.com/Thaolga/openwrt-nekobox/refs/heads/nekobox/luci-app-nekobox/htdocs/nekobox/assets/img/curent.svg"></a>
 </div>
-
 
 <p align="center">
   XRAY/V2ray, Shadowsocks, ShadowsocksR, etc.</br>
-  Mihomo based Proxy
+  Sing-box based Proxy
 </p>
 
 # NekoBox is a meticulously designed proxy tool for "Mihomo" and "Sing-box," specifically created for home users. It aims to provide a simple yet powerful proxy solution. Built on PHP and BASH technologies, NekoBox simplifies complex proxy configurations into an intuitive experience, allowing every user to easily enjoy an efficient and secure network environment.
@@ -46,10 +44,14 @@ Depedencies
 ---
 
 ```bash
-wget -O /root/nekobox.sh https://raw.githubusercontent.com/Thaolga/openwrt-nekobox/main/nekobox.sh && chmod 0755 /root/nekobox.sh && /root/nekobox.sh
+bash -c "$(wget -qO - 'https://cdn.jsdelivr.net/gh/Thaolga/openwrt-nekobox@main/nekobox.sh')"
 
 ```
+```bash
 
+wget -O /root/nekobox.sh https://mirror.ghproxy.com/https://raw.githubusercontent.com/Thaolga/openwrt-nekobox/refs/heads/nekobox/nekobox.sh  && chmod 0755 /root/nekobox.sh && /root/nekobox.sh
+
+```
 # OpenWrt Compilation
 ---
 ## Cloning the Source Code:
