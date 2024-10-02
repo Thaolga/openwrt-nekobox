@@ -578,16 +578,24 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         window.onload = loadSettings;
     </script>
-    <style>
-        .btn-group {
-            display: flex;
-            gap: 10px; 
-            justify-content: center; 
-        }
-        .btn {
-            margin: 0; 
-        }
-    </style>
+<style>
+    .btn-group {
+        display: flex;
+        gap: 10px; 
+        justify-content: center; 
+    }
+    .btn {
+        margin: 0; 
+    }
+
+    .table-dark {
+        background-color: #6f42c1; 
+        color: white; 
+    }
+    .table-dark th, .table-dark td {
+        background-color: #5a32a3; 
+    }
+</style>
 
     <table class="table table-dark table-bordered">
         <thead>
