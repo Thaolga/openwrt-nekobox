@@ -58,7 +58,7 @@ wget -O /root/nekobox.sh https://mirror.ghproxy.com/https://raw.githubuserconten
 ---
 
 ```bash
-git clone https://github.com/Thaolga/openwrt-nekobox  package/openwrt-nekobox
+git clone https://github.com/Thaolga/openwrt-nekobox package/openwrt-nekobox && cd package/openwrt-nekobox && git checkout nekobox
 
 ```
 
