@@ -145,13 +145,9 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .form-control {
-  background-color: #fff;
   border: 2px solid var(--bs-secondary);
-  padding: 6px 10px; 
-  color: #333;
   border-radius: 8px;
   box-shadow: var(--bs-shadow-light);
-  transition: all var(--bs-transition-speed);
 }
 
 .form-control:hover {
@@ -163,7 +159,6 @@ h1, h2, h3, h4, h5, h6 {
   border-color: var(--bs-primary);
   box-shadow: 0 0 0 3px rgba(255, 105, 180, 0.25);
 }
-
 .btn {
    padding: 6px 10px;
   border-radius: 8px;
@@ -330,4 +325,32 @@ h6 {
 h1:hover, h2:hover, h3:hover, h4:hover, h5:hover, h6:hover {
   text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
   transition: all 0.3s ease;
+}
+
+.text-3d {
+  display: inline-block;
+  transition: transform 0.5s, text-shadow 0.5s;
+  text-shadow: 
+    1px 1px 1px rgba(0, 0, 0, 0.2),
+    2px 2px 1px rgba(0, 0, 0, 0.15),
+    3px 3px 1px rgba(0, 0, 0, 0.1);
+}
+
+.text-3d:hover {
+  transform: rotateY(15deg) rotateX(15deg);
+  text-shadow: 
+    3px 3px 1px rgba(0, 0, 0, 0.3),
+    4px 4px 2px rgba(0, 0, 0, 0.25),
+    5px 5px 3px rgba(0, 0, 0, 0.2);
+}
+
+.card {
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: var(--bs-shadow-medium);
+}
+
+.card-header {
+  background-color: var(--bs-primary);
+  color: #fff;
 }
