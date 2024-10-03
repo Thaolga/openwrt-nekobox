@@ -7,10 +7,10 @@
   --bs-body-font-weight: 400;
   --bs-body-color: #333;
   --bs-body-bg: #ffffff;
-  --bs-primary: #8B4513;
+  --bs-primary: #DEB887;
   --bs-secondary: #6c757d;
   --bs-success: #28a745;
-  --bs-info: #8B4513;
+
   --bs-warning: #ffc107;
   --bs-danger: #dc3545;
 
@@ -231,7 +231,6 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 
-
 .container-sm.container-bg.callout a {
   color: var(--bs-primary);
   font-weight: 500;
@@ -313,4 +312,6 @@ h1:hover, h2:hover, h3:hover, h4:hover, h5:hover, h6:hover {
   text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
   transition: all 0.3s ease;
 }
+
+
 

@@ -551,15 +551,6 @@ if (isset($_POST['update'])) {
                 <?php endfor; ?>
             </div>
         </form>
-<style>
-    .white-text {
-        color: white !important; 
-        background-color: #333; 
-    }
-    .white-text::placeholder {
-        color: white !important; 
-    }
-</style>
 
 <div class="modal fade" id="renameModal" tabindex="-1" role="dialog" aria-labelledby="renameModalLabel" aria-hidden="true">
     <div class="modal-dialog" role="document">
