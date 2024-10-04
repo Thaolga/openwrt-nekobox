@@ -1,6 +1,4 @@
 #!/bin/bash
-#
-# Copyright (C) 2024 nosignal
 
 neko_dir="/etc/neko"
 neko_tmp_dir="$neko_dir/tmp"
@@ -23,23 +21,42 @@ neko_status=`uci -q get neko.cfg.enabled`
 php_pid_path="$neko_tmp_dir/php_pid.txt"
 log="$neko_dir/tmp/log.txt"
 
+singbox_bin="/usr/bin/sing-box"
+singbox_log="/var/log/singbox_log.txt"
+singbox_config_dir="/etc/neko/config"
+singbox_pid_path="$neko_tmp_dir/singbox_pid.txt"
+
 core_ver="neko"
 url_core="https://github.com/Thaolga/neko/releases/download/core_neko"
 url_geo="https://github.com/MetaCubeX/meta-rules-dat/releases/download/latest"
 
 neko_ver(){
-    neko_version="1.4.2"
+    neko_version="1.4.3"
 }
 
 logs() {
     echo "[ `date +%T` ] $1"
-    if [ -z $2 ]; then
-        echo "[ `date +%T` ] $1" >> $log
-    elif [ $2 -eq 2 ]; then
-        echo "[ `date +%T` ] $1" > $log
-    elif [ $2 -eq 3 ]; then
-        echo "[ `date +%T` ] $1" >> $log
-        exit 1
+    echo "[ `date +%T` ] $1" >> $log
+}
+
+neko_logs() {
+    echo "[ `date +%T` ] $1" >> $neko_log
+}
+
+singbox_logs() {
+    local timestamp=$(date +"%T")
+    echo -e "[ $timestamp ] $1" >> "$neko_dir/tmp/log.txt"
+}
+
+neko_checknewver(){
+    new_version=$(curl -m 5 -f -s https://raw.githubusercontent.com/Thaolga/openwrt-nekobox/main/nekobox_version)
+    if [ -z "$new_version" ] || [ "$(printf '%s\n' "$neko_version" "$new_version" | sort -V | head -n1)" = "$new_version" ]; then
+        strversion="- Latest"
+    else
+        strversion="- New Version v.$new_version"
+        if [[ $1 == "log" ]]; then
+            logs "New Version v.$new_version"
+        fi
     fi
 }
 
@@ -187,6 +204,73 @@ files_check() {
     done
 }
 
+singbox_start(){
+    singbox_logs() {
+        local timestamp=$(date +"%T")
+        echo -e "[ $timestamp ] - $1" >> "$neko_dir/tmp/log.txt"
+    }
+    
+    singbox_logs "Starting Sing-box"
+    singbox_logs "- Auto Restart Firewall : ON"
+     
+    local config_file="$singbox_config_dir/config.json"
+    singbox_logs "Config file: $config_file"
+    singbox_logs "Creating start script"
+    create_start_script "$config_file"
+    
+    local singbox_version=$($singbox_bin version)
+    singbox_logs "Sing-box version: $singbox_version"
+    
+    (while true; do
+        $singbox_bin run -c $config_file 2>&1 | while read line; do
+            singbox_logs "$line"
+        done
+    done) &
+    
+    sleep 1
+    singbox_pid=$(pgrep sing-box)
+    if [[ -n $singbox_pid ]]; then
+        singbox_logs "- Sing-box Started. PID : $singbox_pid"
+        echo $singbox_pid > $singbox_pid_path
+        uci set neko.cfg.singbox_enabled='1'
+        uci commit neko
+    else
+        singbox_logs "- Failed to start Sing-box"
+    fi
+    singbox_logs "Done"
+    
+}
+
+singbox_stop(){
+    logs "Stopping Sing-box" 2
+    local pid=$(pgrep -f "$singbox_bin")
+    if [ -n "$pid" ] ; then
+        logs "- Killing Sing-box PID: $pid"
+        kill -15 $pid
+        pkill -f "while.*sing-box"  
+        sleep 2
+        if kill -0 $pid 2>/dev/null; then
+            logs "- Sing-box didn't stop gracefully. Forcing stop."
+            kill -9 $pid
+            pkill -9 -f "while.*sing-box"  
+        fi
+        rm -f $singbox_pid_path
+        uci set neko.cfg.singbox_enabled='0'
+        uci commit neko
+        logs "Sing-box has been stopped"
+    else
+        logs "Sing-box is not Running"
+    fi
+}
+
+singbox_restart(){
+    logs "Restarting Sing-box" 2
+    singbox_stop
+    sleep 1
+    singbox_start
+    logs "Restarting Sing-box - Done"
+}
+
 neko_start(){
     neko_ver
     logs "Starting Neko v.$neko_version" 2
@@ -317,11 +401,20 @@ while getopts ":skrpcvh" signal ; do
         s)
             neko_start
             ;;
+        S)
+            singbox_start
+            ;;
         k)
             neko_stop
             ;;
+        K)
+            singbox_stop
+            ;;
         r)
             neko_restart
+            ;;
+        R)
+            singbox_restart
             ;;
         p)
             php_start
@@ -336,11 +429,11 @@ while getopts ":skrpcvh" signal ; do
             ;;
         h)
             echo "Neko"
-            echo "      -s : Start Mihomo Proxy"
+            echo "      -s : Start Mihomo Proxy and Sing-box"
             echo "      -p : Start PHP Server"
-            echo "      -k : Kill/Stop Mihomo Proxy"
-            echo "      -r : Restarting Mihomo Proxy"
-            echo "      -c : cleanup (kill mihomo + php server)"
+            echo "      -k : Kill/Stop Mihomo Proxy and Sing-box"
+            echo "      -r : Restart Mihomo Proxy and Sing-box"
+            echo "      -c : cleanup (kill mihomo, sing-box, and php server)"
             echo "      -v : Version"
             echo "      -h : help (this text)"
             echo "Please Use ROOT User"
