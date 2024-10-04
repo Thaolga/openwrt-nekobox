@@ -24,7 +24,7 @@ if (empty($new_version)) {
 }
 
 $installed_package_info = shell_exec("opkg status " . escapeshellarg($package_name));
-$installed_lang = 'en';
+$installed_lang = 'cn';
 
 if (strpos($installed_package_info, '-cn') !== false) {
     $installed_lang = 'cn'; 
