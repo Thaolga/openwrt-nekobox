@@ -1,17 +1,454 @@
 <?php
-
 include './cfg.php';
 include './devinfo.php';
-$str_cfg=substr($selected_config, strlen("$neko_dir/config")+1);
+
+$str_cfg = substr($selected_config, strlen("$neko_dir/config") + 1);
 $_IMG = '/luci-static/ssr/';
-if(isset($_POST['neko'])){
-    $dt = $_POST['neko'];
-    if ($dt == 'start') shell_exec("$neko_dir/core/neko -s");
-    if ($dt == 'disable') shell_exec("$neko_dir/core/neko -k");
-    if ($dt == 'restart') shell_exec("$neko_dir/core/neko -r");
-    if ($dt == 'clear') shell_exec("echo \"Logs has been cleared...\" > $neko_dir/tmp/neko_log.txt");
+$singbox_bin = '/usr/bin/sing-box';
+$singbox_log = '/var/log/singbox_log.txt';
+$singbox_config_dir = '/etc/neko/config';
+$log = '/etc/neko/tmp/log.txt';
+$start_script_path = '/etc/neko/core/start.sh';
+
+$log_dir = dirname($log);
+if (!file_exists($log_dir)) {
+    mkdir($log_dir, 0755, true);
 }
-$neko_status=exec("uci -q get neko.cfg.enabled");
+
+$start_script_template = <<<'EOF'
+#!/bin/bash
+
+SINGBOX_LOG="%s"
+CONFIG_FILE="%s"
+SINGBOX_BIN="%s"
+
+mkdir -p "$(dirname "$SINGBOX_LOG")"
+touch "$SINGBOX_LOG"
+chmod 644 "$SINGBOX_LOG"
+
+exec >> "$SINGBOX_LOG" 2>&1
+
+echo "[$(date)] Starting Sing-box with config: $CONFIG_FILE"
+
+echo "Restarting firewall..."
+/etc/init.d/firewall restart
+sleep 2
+
+if command -v fw4 > /dev/null; then
+    echo "FW4 Detected."
+    echo "Starting nftables."
+
+    nft flush ruleset
+    
+    nft -f - <<'NFTABLES'
+flush ruleset
+
+table inet singbox {
+  set local_ipv4 {
+    type ipv4_addr
+    flags interval
+    elements = {
+      10.0.0.0/8,
+      127.0.0.0/8,
+      169.254.0.0/16,
+      172.16.0.0/12,
+      192.168.0.0/16,
+      240.0.0.0/4
+    }
+  }
+
+  set local_ipv6 {
+    type ipv6_addr
+    flags interval
+    elements = {
+      ::ffff:0.0.0.0/96,
+      64:ff9b::/96,
+      100::/64,
+      2001::/32,
+      2001:10::/28,
+      2001:20::/28,
+      2001:db8::/32,
+      2002::/16,
+      fc00::/7,
+      fe80::/10
+    }
+  }
+
+  chain singbox-tproxy {
+    fib daddr type { unspec, local, anycast, multicast } return
+    ip daddr @local_ipv4 return
+    ip6 daddr @local_ipv6 return
+    udp dport { 123 } return
+    meta l4proto { tcp, udp } meta mark set 1 tproxy to :9888 accept
+  }
+
+  chain singbox-mark {
+    fib daddr type { unspec, local, anycast, multicast } return
+    ip daddr @local_ipv4 return
+    ip6 daddr @local_ipv6 return
+    udp dport { 123 } return
+    meta mark set 1
+  }
+
+  chain mangle-output {
+    type route hook output priority mangle; policy accept;
+    meta l4proto { tcp, udp } skgid != 1 ct direction original goto singbox-mark
+  }
+
+  chain mangle-prerouting {
+    type filter hook prerouting priority mangle; policy accept;
+    iifname { lo, eth0 } meta l4proto { tcp, udp } ct direction original goto singbox-tproxy
+  }
+}
+NFTABLES
+
+elif command -v fw3 > /dev/null; then
+    echo "FW3 Detected."
+    echo "Starting iptables."
+
+    iptables -t mangle -F
+    iptables -t mangle -X
+    iptables -t mangle -N singbox-mark
+    iptables -t mangle -A singbox-mark -m addrtype --dst-type UNSPEC,LOCAL,ANYCAST,MULTICAST -j RETURN
+    iptables -t mangle -A singbox-mark -d 10.0.0.0/8 -j RETURN
+    iptables -t mangle -A singbox-mark -d 127.0.0.0/8 -j RETURN
+    iptables -t mangle -A singbox-mark -d 169.254.0.0/16 -j RETURN
+    iptables -t mangle -A singbox-mark -d 172.16.0.0/12 -j RETURN
+    iptables -t mangle -A singbox-mark -d 192.168.0.0/16 -j RETURN
+    iptables -t mangle -A singbox-mark -d 240.0.0.0/4 -j RETURN
+    iptables -t mangle -A singbox-mark -p udp --dport 123 -j RETURN
+    iptables -t mangle -A singbox-mark -j MARK --set-mark 1
+
+    iptables -t mangle -N singbox-tproxy
+    iptables -t mangle -A singbox-tproxy -m addrtype --dst-type UNSPEC,LOCAL,ANYCAST,MULTICAST -j RETURN
+    iptables -t mangle -A singbox-tproxy -d 10.0.0.0/8 -j RETURN
+    iptables -t mangle -A singbox-tproxy -d 127.0.0.0/8 -j RETURN
+    iptables -t mangle -A singbox-tproxy -d 169.254.0.0/16 -j RETURN
+    iptables -t mangle -A singbox-tproxy -d 172.16.0.0/12 -j RETURN
+    iptables -t mangle -A singbox-tproxy -d 192.168.0.0/16 -j RETURN
+    iptables -t mangle -A singbox-tproxy -d 240.0.0.0/4 -j RETURN
+    iptables -t mangle -A singbox-tproxy -p udp --dport 123 -j RETURN
+    iptables -t mangle -A singbox-tproxy -p tcp -j TPROXY --tproxy-mark 0x1/0x1 --on-port 9888
+    iptables -t mangle -A singbox-tproxy -p udp -j TPROXY --tproxy-mark 0x1/0x1 --on-port 9888
+
+    iptables -t mangle -A OUTPUT -p tcp -m cgroup ! --cgroup 1 -j singbox-mark
+    iptables -t mangle -A OUTPUT -p udp -m cgroup ! --cgroup 1 -j singbox-mark
+    iptables -t mangle -A PREROUTING -i lo -p tcp -j singbox-tproxy
+    iptables -t mangle -A PREROUTING -i lo -p udp -j singbox-tproxy
+    iptables -t mangle -A PREROUTING -i eth0 -p tcp -j singbox-tproxy
+    iptables -t mangle -A PREROUTING -i eth0 -p udp -j singbox-tproxy
+
+    ip6tables -t mangle -N singbox-mark
+    ip6tables -t mangle -A singbox-mark -m addrtype --dst-type UNSPEC,LOCAL,ANYCAST,MULTICAST -j RETURN
+    ip6tables -t mangle -A singbox-mark -d ::ffff:0.0.0.0/96 -j RETURN
+    ip6tables -t mangle -A singbox-mark -d 64:ff9b::/96 -j RETURN
+    ip6tables -t mangle -A singbox-mark -d 100::/64 -j RETURN
+    ip6tables -t mangle -A singbox-mark -d 2001::/32 -j RETURN
+    ip6tables -t mangle -A singbox-mark -d 2001:10::/28 -j RETURN
+    ip6tables -t mangle -A singbox-mark -d 2001:20::/28 -j RETURN
+    ip6tables -t mangle -A singbox-mark -d 2001:db8::/32 -j RETURN
+    ip6tables -t mangle -A singbox-mark -d 2002::/16 -j RETURN
+    ip6tables -t mangle -A singbox-mark -d fc00::/7 -j RETURN
+    ip6tables -t mangle -A singbox-mark -d fe80::/10 -j RETURN
+    ip6tables -t mangle -A singbox-mark -p udp --dport 123 -j RETURN
+    ip6tables -t mangle -A singbox-mark -j MARK --set-mark 1
+
+    ip6tables -t mangle -N singbox-tproxy
+    ip6tables -t mangle -A singbox-tproxy -m addrtype --dst-type UNSPEC,LOCAL,ANYCAST,MULTICAST -j RETURN
+    ip6tables -t mangle -A singbox-tproxy -d ::ffff:0.0.0.0/96 -j RETURN
+    ip6tables -t mangle -A singbox-tproxy -d 64:ff9b::/96 -j RETURN
+    ip6tables -t mangle -A singbox-tproxy -d 100::/64 -j RETURN
+    ip6tables -t mangle -A singbox-tproxy -d 2001::/32 -j RETURN
+    ip6tables -t mangle -A singbox-tproxy -d 2001:10::/28 -j RETURN
+    ip6tables -t mangle -A singbox-tproxy -d 2001:20::/28 -j RETURN
+    ip6tables -t mangle -A singbox-tproxy -d 2001:db8::/32 -j RETURN
+    ip6tables -t mangle -A singbox-tproxy -d 2002::/16 -j RETURN
+    ip6tables -t mangle -A singbox-tproxy -d fc00::/7 -j RETURN
+    ip6tables -t mangle -A singbox-tproxy -d fe80::/10 -j RETURN
+    ip6tables -t mangle -A singbox-tproxy -p udp --dport 123 -j RETURN
+    ip6tables -t mangle -A singbox-tproxy -p tcp -j TPROXY --tproxy-mark 0x1/0x1 --on-port 9888
+    ip6tables -t mangle -A singbox-tproxy -p udp -j TPROXY --tproxy-mark 0x1/0x1 --on-port 9888
+
+    ip6tables -t mangle -A OUTPUT -p tcp -m cgroup ! --cgroup 1 -j singbox-mark
+    ip6tables -t mangle -A OUTPUT -p udp -m cgroup ! --cgroup 1 -j singbox-mark
+    ip6tables -t mangle -A PREROUTING -i lo -p tcp -j singbox-tproxy
+    ip6tables -t mangle -A PREROUTING -i lo -p udp -j singbox-tproxy
+    ip6tables -t mangle -A PREROUTING -i eth0 -p tcp -j singbox-tproxy
+    ip6tables -t mangle -A PREROUTING -i eth0 -p udp -j singbox-tproxy
+
+else
+    echo "Neither fw3 nor fw4 detected, unable to configure firewall rules."
+    exit 1
+fi
+
+echo "Firewall rules applied successfully"
+echo "Starting sing-box with config: $CONFIG_FILE"
+exec "$SINGBOX_BIN" run -c "$CONFIG_FILE"
+EOF;
+
+function createStartScript($configFile) {
+    global $start_script_template, $singbox_bin, $singbox_log;
+    $script = sprintf($start_script_template, $singbox_log, $configFile, $singbox_bin);
+    
+    $dir = dirname('/etc/neko/core/start.sh');
+    if (!file_exists($dir)) {
+        mkdir($dir, 0755, true);
+    }
+    
+    file_put_contents('/etc/neko/core/start.sh', $script);
+    chmod('/etc/neko/core/start.sh', 0755);
+    
+    writeToLog("Created start script with config: $configFile");
+    writeToLog("Singbox binary: $singbox_bin");
+    writeToLog("Log file: $singbox_log");
+}
+
+function writeToLog($message) {
+   global $log;
+   $time = date('H:i:s');
+   $logMessage = "[ $time ] $message\n";
+   if (file_put_contents($log, $logMessage, FILE_APPEND) === false) {
+       error_log("Failed to write to log file: $log");
+   }
+}
+
+function rotateLogs($logFile, $maxSize = 1048576) {
+   if (file_exists($logFile) && filesize($logFile) > $maxSize) {
+       rename($logFile, $logFile . '.old');
+       touch($logFile);
+       chmod($logFile, 0644);
+   }
+}
+
+function isSingboxRunning() {
+   global $singbox_bin;
+   $command = "pgrep -f " . escapeshellarg($singbox_bin);
+   exec($command, $output);
+   return !empty($output);
+}
+
+function isNekoBoxRunning() {
+    global $neko_dir;
+    $pid = trim(shell_exec("cat $neko_dir/tmp/neko.pid 2>/dev/null"));
+    return !empty($pid) && file_exists("/proc/$pid");
+}
+
+function getSingboxPID() {
+   global $singbox_bin;
+   $command = "pgrep -f " . escapeshellarg($singbox_bin);
+   exec($command, $output);
+   return isset($output[0]) ? $output[0] : null;
+}
+
+function getRunningConfigFile() {
+   global $singbox_bin;
+   $command = "ps w | grep '$singbox_bin' | grep -v grep";
+   exec($command, $output);
+   foreach ($output as $line) {
+       if (strpos($line, '-c') !== false) {
+           $parts = explode('-c', $line);
+           if (isset($parts[1])) {
+               $configPath = trim(explode(' ', trim($parts[1]))[0]);
+               return $configPath;
+           }
+       }
+   }
+   return null;
+}
+
+function getAvailableConfigFiles() {
+   global $singbox_config_dir;
+   return glob("$singbox_config_dir/*.json");
+}
+
+$availableConfigs = getAvailableConfigFiles();
+
+writeToLog("Script started");
+
+if(isset($_POST['neko'])){
+   $dt = $_POST['neko'];
+   writeToLog("Received neko action: $dt");
+   if ($dt == 'start') {
+       if (isSingboxRunning()) {
+           writeToLog("Cannot start NekoBox: Sing-box is running");
+       } else {
+           shell_exec("$neko_dir/core/neko -s");
+           writeToLog("NekoBox started successfully");
+       }
+   }
+   if ($dt == 'disable') {
+       shell_exec("$neko_dir/core/neko -k");
+       writeToLog("NekoBox stopped");
+   }
+   if ($dt == 'restart') {
+       if (isSingboxRunning()) {
+           writeToLog("Cannot restart NekoBox: Sing-box is running");
+       } else {
+           shell_exec("$neko_dir/core/neko -r");
+           writeToLog("NekoBox restarted successfully");
+       }
+   }
+   if ($dt == 'clear') {
+       shell_exec("echo \"Logs has been cleared...\" > $neko_dir/tmp/neko_log.txt");
+       writeToLog("NekoBox logs cleared");
+   }
+   writeToLog("Neko action completed: $dt");
+}
+
+if (isset($_POST['singbox'])) {
+   $action = $_POST['singbox'];
+   $config_file = isset($_POST['config_file']) ? $_POST['config_file'] : '';
+   
+   writeToLog("Received singbox action: $action");
+   writeToLog("Config file: $config_file");
+   
+   switch ($action) {
+       case 'start':
+           if (isNekoBoxRunning()) {
+               writeToLog("Cannot start Sing-box: NekoBox is running");
+           } else {
+               writeToLog("Starting Sing-box");
+
+               $singbox_version = trim(shell_exec("$singbox_bin version"));
+               writeToLog("Sing-box version: $singbox_version");
+               
+               shell_exec("mkdir -p " . dirname($singbox_log));
+               shell_exec("touch $singbox_log && chmod 644 $singbox_log");
+               rotateLogs($singbox_log);
+               
+               createStartScript($config_file);
+               $output = shell_exec("sh $start_script_path >> $singbox_log 2>&1 &");
+               writeToLog("Shell output: " . ($output ?: "No output"));
+               
+               sleep(1);
+               $pid = getSingboxPID();
+               if ($pid) {
+                   writeToLog("Sing-box Started successfully. PID: $pid");
+               } else {
+                   writeToLog("Failed to start Sing-box");
+               }
+           }
+           break;
+           
+    case 'disable':
+        writeToLog("Stopping Sing-box");
+        $pid = getSingboxPID();
+        if ($pid) {
+            writeToLog("Killing Sing-box PID: $pid");
+            shell_exec("kill $pid");
+            if (file_exists('/usr/sbin/fw4')) {
+                shell_exec("nft flush ruleset");
+            } else {
+                shell_exec("iptables -t mangle -F");
+                shell_exec("iptables -t mangle -X");
+        }
+            shell_exec("/etc/init.d/firewall restart");
+            writeToLog("Cleared firewall rules and restarted firewall");
+            sleep(1);
+            if (!isSingboxRunning()) {
+                writeToLog("Sing-box has been stopped successfully");
+            } else {
+                writeToLog("Force killing Sing-box");
+                shell_exec("kill -9 $pid");
+                writeToLog("Sing-box has been force stopped");
+            }
+        } else {
+            writeToLog("Sing-box is not running");
+        }
+        break;
+           
+       case 'restart':
+           if (isNekoBoxRunning()) {
+               writeToLog("Cannot restart Sing-box: NekoBox is running");
+           } else {
+               writeToLog("Restarting Sing-box");
+               
+               $pid = getSingboxPID();
+               if ($pid) {
+                   writeToLog("Killing Sing-box PID: $pid");
+                   shell_exec("kill $pid");
+                   sleep(1);
+               }
+               
+               shell_exec("mkdir -p " . dirname($singbox_log));
+               shell_exec("touch $singbox_log && chmod 644 $singbox_log");
+               rotateLogs($singbox_log);
+               
+               createStartScript($config_file);
+               shell_exec("sh $start_script_path >> $singbox_log 2>&1 &");
+               
+               sleep(1);
+               $new_pid = getSingboxPID();
+               if ($new_pid) {
+                   writeToLog("Sing-box Restarted successfully. New PID: $new_pid");
+               } else {
+                   writeToLog("Failed to restart Sing-box");
+               }
+           }
+           break;
+   }
+   
+   sleep(2);
+   
+   $singbox_status = isSingboxRunning() ? '1' : '0';
+   exec("uci set neko.cfg.singbox_enabled='$singbox_status'");
+   exec("uci commit neko");
+   writeToLog("Singbox status set to: $singbox_status");
+}
+
+if (isset($_POST['clear_singbox_log'])) {
+   file_put_contents($singbox_log, '');
+   writeToLog("Singbox log cleared");
+}
+
+if (isset($_POST['clear_plugin_log'])) {
+    $plugin_log_file = "$neko_dir/tmp/log.txt";
+    file_put_contents($plugin_log_file, '');
+    writeToLog("NeKoBox log cleared");
+}
+
+
+$neko_status = exec("uci -q get neko.cfg.enabled");
+$singbox_status = isSingboxRunning() ? '1' : '0';
+exec("uci set neko.cfg.singbox_enabled='$singbox_status'");
+exec("uci commit neko");
+
+writeToLog("Final neko status: $neko_status");
+writeToLog("Final singbox status: $singbox_status");
+
+if ($singbox_status == '1') {
+   $runningConfigFile = getRunningConfigFile();
+   if ($runningConfigFile) {
+       $str_cfg = htmlspecialchars(basename($runningConfigFile));
+       writeToLog("Running config file: $str_cfg");
+   } else {
+       $str_cfg = 'Sing-box 配置文件：未找到运行中的配置文件';
+       writeToLog("No running config file found");
+   }
+}
+
+function readRecentLogLines($filePath, $lines = 1000) {
+   if (!file_exists($filePath)) {
+       return "日志文件不存在: $filePath";
+   }
+   if (!is_readable($filePath)) {
+       return "无法读取日志文件: $filePath";
+   }
+   $command = "tail -n $lines " . escapeshellarg($filePath);
+   $output = shell_exec($command);
+   return $output ?: "日志为空";
+}
+
+function readLogFile($filePath) {
+   if (file_exists($filePath)) {
+       return nl2br(htmlspecialchars(readRecentLogLines($filePath, 1000), ENT_NOQUOTES));
+   } else {
+       return '日志文件不存在。';
+   }
+}
+
+$neko_log_content = readLogFile("$neko_dir/tmp/neko_log.txt");
+$singbox_log_content = readLogFile($singbox_log);
 ?>
 
 <!doctype html>
@@ -326,454 +763,81 @@ $lang = $_GET['lang'] ?? 'en';
 <tbody>
     <tr>
    <br>
-<?php
-date_default_timezone_set('Asia/Shanghai'); 
-$singbox_status = 0;
 
-$logDir = '/etc/neko/tmp/';
-$logFile = $logDir . 'log.txt'; 
-$singBoxLogFile = '/var/log/singbox_log.txt'; 
-$singboxStartLogFile = $logDir . 'singbox_start_log.txt'; 
-
-$singBoxPath = '/usr/bin/sing-box';
-$configDir = '/etc/neko/config'; 
-
-$start_script_template = <<<EOF
-#!/bin/bash
-
-exec >> $logFile 2>&1  
-exec 2>> $singBoxLogFile  
-
-if command -v fw4 > /dev/null; then
-    echo "FW4 Detected."
-    echo "Starting nftables."
-
-    echo '#!/usr/sbin/nft -f
-
-flush ruleset
-
-table inet singbox {
-  set local_ipv4 {
-    type ipv4_addr
-    flags interval
-    elements = {
-      10.0.0.0/8,
-      127.0.0.0/8,
-      169.254.0.0/16,
-      172.16.0.0/12,
-      192.168.0.0/16,
-      240.0.0.0/4
-    }
-  }
-
-  set local_ipv6 {
-    type ipv6_addr
-    flags interval
-    elements = {
-      ::ffff:0.0.0.0/96,
-      64:ff9b::/96,
-      100::/64,
-      2001::/32,
-      2001:10::/28,
-      2001:20::/28,
-      2001:db8::/32,
-      2002::/16,
-      fc00::/7,
-      fe80::/10
-    }
-  }
-
-  chain singbox-tproxy {
-    fib daddr type { unspec, local, anycast, multicast } return
-    ip daddr @local_ipv4 return
-    ip6 daddr @local_ipv6 return
-    udp dport { 123 } return
-    meta l4proto { tcp, udp } meta mark set 1 tproxy to :9888 accept
-  }
-
-  chain singbox-mark {
-    fib daddr type { unspec, local, anycast, multicast } return
-    ip daddr @local_ipv4 return
-    ip6 daddr @local_ipv6 return
-    udp dport { 123 } return
-    meta mark set 1
-  }
-
-  chain mangle-output {
-    type route hook output priority mangle; policy accept;
-    meta l4proto { tcp, udp } skgid != 1 ct direction original goto singbox-mark
-  }
-
-  chain mangle-prerouting {
-    type filter hook prerouting priority mangle; policy accept;
-    iifname { lo, eth0 } meta l4proto { tcp, udp } ct direction original goto singbox-tproxy
-  }
-  }' > /etc/nftables.conf
-
-    nft -f /etc/nftables.conf
-
-    elif command -v fw3 > /dev/null; then
-    echo "FW3 Detected."
-    echo "Starting iptables."
-
-    iptables -t mangle -F
-    iptables -t mangle -X
-
-    iptables -t mangle -N singbox-mark
-    iptables -t mangle -A singbox-mark -m addrtype --dst-type UNSPEC,LOCAL,ANYCAST,MULTICAST -j RETURN
-    iptables -t mangle -A singbox-mark -d 10.0.0.0/8 -j RETURN
-    iptables -t mangle -A singbox-mark -d 127.0.0.0/8 -j RETURN
-    iptables -t mangle -A singbox-mark -d 169.254.0.0/16 -j RETURN
-    iptables -t mangle -A singbox-mark -d 172.16.0.0/12 -j RETURN
-    iptables -t mangle -A singbox-mark -d 192.168.0.0/16 -j RETURN
-    iptables -t mangle -A singbox-mark -d 240.0.0.0/4 -j RETURN
-    iptables -t mangle -A singbox-mark -p udp --dport 123 -j RETURN
-    iptables -t mangle -A singbox-mark -j MARK --set-mark 1
-
-    iptables -t mangle -N singbox-tproxy
-    iptables -t mangle -A singbox-tproxy -m addrtype --dst-type UNSPEC,LOCAL,ANYCAST,MULTICAST -j RETURN
-    iptables -t mangle -A singbox-tproxy -d 10.0.0.0/8 -j RETURN
-    iptables -t mangle -A singbox-tproxy -d 127.0.0.0/8 -j RETURN
-    iptables -t mangle -A singbox-tproxy -d 169.254.0.0/16 -j RETURN
-    iptables -t mangle -A singbox-tproxy -d 172.16.0.0/12 -j RETURN
-    iptables -t mangle -A singbox-tproxy -d 192.168.0.0/16 -j RETURN
-    iptables -t mangle -A singbox-tproxy -d 240.0.0.0/4 -j RETURN
-    iptables -t mangle -A singbox-tproxy -p udp --dport 123 -j RETURN
-    iptables -t mangle -A singbox-tproxy -p tcp -j TPROXY --tproxy-mark 0x1/0x1 --on-port 9888
-    iptables -t mangle -A singbox-tproxy -p udp -j TPROXY --tproxy-mark 0x1/0x1 --on-port 9888
-
-    iptables -t mangle -A OUTPUT -p tcp -m cgroup ! --cgroup 1 -j singbox-mark
-    iptables -t mangle -A OUTPUT -p udp -m cgroup ! --cgroup 1 -j singbox-mark
-    iptables -t mangle -A PREROUTING -i lo -p tcp -j singbox-tproxy
-    iptables -t mangle -A PREROUTING -i lo -p udp -j singbox-tproxy
-    iptables -t mangle -A PREROUTING -i eth0 -p tcp -j singbox-tproxy
-    iptables -t mangle -A PREROUTING -i eth0 -p udp -j singbox-tproxy
-
-else
-    echo "Neither fw3 nor fw4 detected, unable to configure firewall rules."
-    exit 1
-fi
-
-echo "Configs : %s"
-exec >> $singBoxLogFile 2>&1  
-/usr/bin/sing-box run -c %s
-EOF;
-
-$maxFileSize = 1024 * 1024 * 5; 
-$maxBackupFiles = 5; 
-
-function getAvailableConfigFiles() {
-    global $configDir;
-    return glob("$configDir/*.json");
-}
-
-function createStartScript($configFile) {
-    global $start_script_template;
-    $start_script = sprintf($start_script_template, $configFile, $configFile);
-    file_put_contents('/etc/neko/core/start.sh', $start_script);
-    chmod('/etc/neko/core/start.sh', 0755);
-}
-
-function createRestartFirewallScript() {
-    $scriptPath = '/etc/neko/core/restart_firewall.sh';
-    $scriptContent = <<<EOF
-#!/bin/bash
-
-service firewall restart
-if [ \$? -eq 0 ]; then
-    echo "[\$(date '+%H:%M:%S')] Restarting Firewall." >> /etc/neko/tmp/log.txt
-else
-    echo "[\$(date '+%H:%M:%S')] Firewall restart failed." >> /etc/neko/tmp/log.txt
-fi
-EOF;
-
-    $result = file_put_contents($scriptPath, $scriptContent);
-    if ($result === false) {
-        error_log("Failed to create script at $scriptPath");
-    } else {
-        chmod($scriptPath, 0755);
-    }
-}
-
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    if (isset($_POST['singbox'])) {
-        if ($_POST['singbox'] === 'start') {
-            createRestartFirewallScript(); 
-      }
-    }
-}
-
-
-function rotateLogFile($filePath) {
-    $backupPath = $filePath . '-' . date('Y-m-d-H-i-s') . '.bak';
-    rename($filePath, $backupPath);  
-    touch($filePath);  
-    cleanUpOldBackups(dirname($filePath), basename($filePath));
-}
-
-function cleanUpOldBackups($dir, $fileName) {
-    global $maxBackupFiles;
-    $pattern = preg_quote($fileName, '/');
-    $files = glob("$dir/$pattern-*.bak");
-
-    if (count($files) > $maxBackupFiles) {
-        usort($files, function ($a, $b) {
-            return filemtime($b) - filemtime($a);
-        });
-
-        $filesToDelete = array_slice($files, $maxBackupFiles);
-        foreach ($filesToDelete as $file) {
-            unlink($file);
-        }
-    }
-}
-
-function checkLogFileSize($filePath, $maxFileSize) {
-    if (file_exists($filePath)) {
-        $fileSize = filesize($filePath);
-        if ($fileSize > $maxFileSize) {
-            rotateLogFile($filePath);
-        }
-    }
-}
-
-function isSingboxRunning() {
-    global $singBoxPath;
-    $command = "ps w | grep '$singBoxPath' | grep -v grep";
-    exec($command, $output);
-    return !empty($output);
-}
-
-function getRunningConfigFile() {
-    global $singBoxPath;
-    $command = "ps w | grep '$singBoxPath' | grep -v grep";
-    exec($command, $output);
-    foreach ($output as $line) {
-        if (strpos($line, '-c') !== false) {
-            $parts = explode('-c', $line);
-            if (isset($parts[1])) {
-                $configPath = trim(explode(' ', trim($parts[1]))[0]);
-                return $configPath;
-            }
-        }
-    }
-    return null;
-}
-
-if (isSingboxRunning()) {
-    $singbox_status = 1; 
-} else {
-    $singbox_status = 0; 
-}
-
-if ($singbox_status == 1) {
-    $runningConfigFile = getRunningConfigFile();
-    if ($runningConfigFile) {
-        $str_cfg = htmlspecialchars(basename($runningConfigFile));
-    } else {
-        $str_cfg = 'Sing-box 配置文件：未找到运行中的配置文件';
-    }
-}
-
-function getSingboxVersion() {
-    global $singBoxPath;
-    $command = "$singBoxPath version 2>&1";
-    exec($command, $output, $returnVar);
-    if ($returnVar === 0) {
-        foreach ($output as $line) {
-            if (strpos($line, 'version') !== false) {
-                return trim(substr($line, strpos($line, 'version') + 8)); 
-            }
-        }
-    }
-    return 'Unknown version';
-}
-
-function getSingboxPID() {
-    global $singBoxPath;
-    $command = "ps w | grep '$singBoxPath' | grep -v grep | awk '{print \$1}'";
-    exec($command, $output);
-    return isset($output[0]) ? $output[0] : null;
-}
-
-function stopSingbox() {
-    $pid = getSingboxPID();
-    if ($pid) {
-        exec("kill -15 $pid", $output, $returnVar);
-        if ($returnVar !== 0) {
-            exec("kill -9 $pid", $output, $returnVar);
-        }
-        exec('/etc/neko/core/restart_firewall.sh', $output, $returnVar);
-
-        if ($returnVar === 0) {
-            logToFile('/etc/neko/tmp/log.txt', "Restarting Firewall.");
-            return true;
-        } else {
-            logToFile('/etc/neko/tmp/log.txt', "Firewall restart failed.");
-            error_log("Failed to stop Sing-box with PID $pid");
-        }
-    }
-    return false;
-}
-
-
-function logToFile($filePath, $message) {
-    $timestamp = date('H:i:s');
-    file_put_contents($filePath, "[$timestamp] $message\n", FILE_APPEND);
-}
-
-function applyFirewallRules() {
-    global $nftables_rules;
-    file_put_contents('/etc/nftables.conf', $nftables_rules);
-    exec('nft -f /etc/nftables.conf');
-}
-
-function readRecentLogLines($filePath, $lines = 1000) {
-    $command = "tail -n $lines " . escapeshellarg($filePath);
-    return shell_exec($command);
-}
-
-$availableConfigs = getAvailableConfigFiles();
-$currentConfigFile = isset($_POST['config_file']) ? $_POST['config_file'] : '';
-
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    if (isset($_POST['config_file']) && file_exists($_POST['config_file'])) {
-        $configFile = $_POST['config_file'];  
-
-        if ($_POST['singbox'] === 'start') {
-            checkLogFileSize($singBoxLogFile, $maxFileSize);
-            applyFirewallRules();
-            createStartScript($configFile); 
-            exec("/etc/neko/core/start.sh > $singBoxLogFile 2>&1 &", $output, $returnVar);
-            $version = getSingboxVersion();
-            $pid = getSingboxPID();
-            $currentTimestamp = date('H:i:s'); 
-            $logMessage = $returnVar === 0 
-                ? "Sing-box started\n[$currentTimestamp] Core Detected : $version" 
-                 : "Failed to start Sing-box\n[$currentTimestamp]";
-            logToFile($logFile, $logMessage); 
-            $singbox_status = $returnVar === 0 ? 1 : 0;
-        } elseif ($_POST['singbox'] === 'disable') {
-            $success = stopSingbox();
-            $logMessage = $success ? "Sing-box has been stopped" : "Failed to stop Sing-box";
-            logToFile($logFile, $logMessage); 
-            $singbox_status = $success ? 0 : $singbox_status;
-        } elseif ($_POST['singbox'] === 'restart') {
-            $success = stopSingbox();
-            if ($success) {
-                checkLogFileSize($singBoxLogFile, $maxFileSize); 
-                applyFirewallRules();
-                createStartScript($configFile);
-                exec("/etc/neko/core/start.sh > $singBoxLogFile 2>&1 &", $output, $returnVar);
-                exec('/etc/neko/core/restart_firewall.sh', $output, $returnVar); 
-                $version = getSingboxVersion();
-                $pid = getSingboxPID();
-                $logMessage = $returnVar === 0 
-                    ? "Sing-box has been restarted，version: $version, PID: $pid" 
-                    : "Failed to start Sing-box";    
-                logToFile($logFile, $logMessage); 
-                $singbox_status = $returnVar === 0 ? 1 : 0;
-            } else {
-                logToFile($logFile, "Failed to stop Sing-box"); 
-            }
-        }
-    }
-
-    if (isset($_POST['clear_singbox_log'])) {
-        file_put_contents($singBoxLogFile, ''); 
-        $message = 'Sing-box运行日志已清空';
-    }
-
-    if (isset($_POST['clear_plugin_log'])) {
-        file_put_contents($logFile, ''); 
-        $message = '插件日志已清空';
-    }
-}
-
-function readLogFile($filePath) {
-    if (file_exists($filePath)) {
-        return nl2br(htmlspecialchars(readRecentLogLines($filePath, 1000), ENT_NOQUOTES));
-    } else {
-        return '日志文件不存在。';
-    }
-}
-
-$logContent = readLogFile($logFile); 
-$singboxLogContent = readLogFile($singBoxLogFile); 
-$singboxStartLogContent = readLogFile($singboxStartLogFile); 
-?>
-    <table class="table table-borderless  mb-2">
-        <tbody>
-            <tr>
-    <style>
-        .btn-group .btn {
-            width: 100%; 
-        }
-    </style>
+<table class="table table-borderless mb-2">
+    <tbody>
+        <tr>
+            <style>
+                .btn-group .btn {
+                    width: 100%;
+                }
+            </style>
             <td>状态</td>
-                <td class="d-grid">
-                    <div class="btn-group" role="group" aria-label="ctrl">
-                        <?php
-                            if($neko_status==1) echo "<button type=\"button\" class=\"btn btn-success\">Mihomo 运行中</button>\n";
-
-                            else echo "<button type=\"button\" class=\"btn btn-outline-danger\">Mihomo 未运行</button>\n";
-
-                            echo "<button type=\"button\" class=\"btn btn-deepskyblue\">$str_cfg</button>\n";
-
-                            if ($singbox_status == 1) echo "<button type=\"button\" class=\"btn btn-success\">Sing-box 运行中</button>\n";
-
-                            else  echo "<button type=\"button\" class=\"btn btn-outline-danger\">Sing-box 未运行</button>\n";
-                        ?>
-                    </div>
-                </td>
-            </tr>
-            <tr>
-            <td>控制</td>
-                <form action="index.php" method="post">
-                    <td class="d-grid">
-                        <div class="btn-group col" role="group" aria-label="ctrl">
-                            <button type="submit" name="neko" value="start" class="btn btn<?php if ($neko_status == 1) echo "-outline" ?>-success <?php if ($neko_status == 1) echo "disabled" ?> d-grid">启用 Mihomo</button>
-                            <button type="submit" name="neko" value="disable" class="btn btn<?php if ($neko_status == 0) echo "-outline" ?>-danger <?php if ($neko_status == 0) echo "disabled" ?> d-grid">停用 Mihomo</button>
-                            <button type="submit" name="neko" value="restart" class="btn btn<?php if ($neko_status == 0) echo "-outline" ?>-warning <?php if ($neko_status == 0) echo "disabled" ?> d-grid">重启 Mihomo</button>
-                        </div>
-                    </td>
-                </form>
-
-                <form action="index.php" method="post">
-                    <td class="d-grid">   
-                        <select name="config_file" id="config_file" class="form-select">
-                            <?php foreach ($availableConfigs as $config): ?>
-                                <option value="<?= htmlspecialchars($config) ?>" <?= isset($_POST['config_file']) && $_POST['config_file'] === $config ? 'selected' : '' ?>>
-                                    <?= htmlspecialchars(basename($config)) ?>
-                                </option>
-                            <?php endforeach; ?>
-                        </select>
-                        <div class="btn-group col" role="group" aria-label="ctrl">
-                            <button type="submit" name="singbox" value="start" class="btn btn<?php echo ($singbox_status == 1) ? "-outline" : "" ?>-success <?php echo ($singbox_status == 1) ? "disabled" : "" ?> d-grid">启用 Sing-box</button>
-                            <button type="submit" name="singbox" value="disable" class="btn btn<?php echo ($singbox_status == 0) ? "-outline" : "" ?>-danger <?php echo ($singbox_status == 0) ? "disabled" : "" ?> d-grid">停用 Sing-box</button>
-                            <button type="submit" name="singbox" value="restart" class="btn btn<?php echo ($singbox_status == 0) ? "-outline" : "" ?>-warning <?php echo ($singbox_status == 0) ? "disabled" : "" ?> d-grid">重启 Sing-box</button>
-                        </div>
-                    </td>
-                </form>
-            </tr>
-            <tr>
-                <td>运行模式</td>
-                <td class="d-grid">
+            <td class="d-grid">
+                <div class="btn-group" role="group" aria-label="ctrl">
                     <?php
-                    $mode_placeholder = '';
                     if ($neko_status == 1) {
-                        $mode_placeholder = $neko_cfg['echanced'] . " | " . $neko_cfg['mode'];
-                    } elseif ($singbox_status == 1) {
-                        $mode_placeholder = "Rule 模式";
+                        echo "<button type=\"button\" class=\"btn btn-success\">Mihomo 运行中</button>\n";
                     } else {
-                        $mode_placeholder = "未运行";
+                        echo "<button type=\"button\" class=\"btn btn-outline-danger\">Mihomo 未运行</button>\n";
+                    }
+                    echo "<button type=\"button\" class=\"btn btn-deepskyblue\">$str_cfg</button>\n";
+                    if ($singbox_status == 1) {
+                        echo "<button type=\"button\" class=\"btn btn-success\">Sing-box 运行中</button>\n";
+                    } else {
+                        echo "<button type=\"button\" class=\"btn btn-outline-danger\">Sing-box 未运行</button>\n";
                     }
                     ?>
-                    <input class="form-control text-center" name="mode" type="text" placeholder="<?php echo $mode_placeholder; ?>" disabled>
+                </div>
+            </td>
+        </tr>
+        <tr>
+            <td>控制</td>
+            <form action="index.php" method="post">
+                <td class="d-grid">
+                    <div class="btn-group col" role="group" aria-label="ctrl">
+                        <button type="submit" name="neko" value="start" class="btn btn<?php if ($neko_status == 1) echo "-outline" ?>-success <?php if ($neko_status == 1) echo "disabled" ?> d-grid">启用 Mihomo</button>
+                        <button type="submit" name="neko" value="disable" class="btn btn<?php if ($neko_status == 0) echo "-outline" ?>-danger <?php if ($neko_status == 0) echo "disabled" ?> d-grid">停用 Mihomo</button>
+                        <button type="submit" name="neko" value="restart" class="btn btn<?php if ($neko_status == 0) echo "-outline" ?>-warning <?php if ($neko_status == 0) echo "disabled" ?> d-grid">重启 Mihomo</button>
+                    </div>
                 </td>
-            </tr>
-       </tbody>
-    </table>
+            </form>
+            <form action="index.php" method="post">
+                <td class="d-grid">
+                    <select name="config_file" id="config_file" class="form-select">
+                        <?php foreach ($availableConfigs as $config): ?>
+                            <option value="<?= htmlspecialchars($config) ?>" <?= isset($_POST['config_file']) && $_POST['config_file'] === $config ? 'selected' : '' ?>>
+                                <?= htmlspecialchars(basename($config)) ?>
+                            </option>
+                        <?php endforeach; ?>
+                    </select>
+                    <div class="btn-group col" role="group" aria-label="ctrl">
+                        <button type="submit" name="singbox" value="start" class="btn btn<?php echo ($singbox_status == 1) ? "-outline" : "" ?>-success <?php echo ($singbox_status == 1) ? "disabled" : "" ?> d-grid">启用 Sing-box</button>
+                        <button type="submit" name="singbox" value="disable" class="btn btn<?php echo ($singbox_status == 0) ? "-outline" : "" ?>-danger <?php echo ($singbox_status == 0) ? "disabled" : "" ?> d-grid">停用 Sing-box</button>
+                        <button type="submit" name="singbox" value="restart" class="btn btn<?php echo ($singbox_status == 0) ? "-outline" : "" ?>-warning <?php echo ($singbox_status == 0) ? "disabled" : "" ?> d-grid">重启 Sing-box</button>
+                    </div>
+                </td>
+            </form>
+        </tr>
+        <tr>
+            <td>运行模式</td>
+            <td class="d-grid">
+                <?php
+                $mode_placeholder = '';
+                if ($neko_status == 1) {
+                    $mode_placeholder = $neko_cfg['echanced'] . " | " . $neko_cfg['mode'];
+                } elseif ($singbox_status == 1) {
+                    $mode_placeholder = "Rule 模式";
+                } else {
+                    $mode_placeholder = "未运行";
+                }
+                ?>
+                <input class="form-control text-center" name="mode" type="text" placeholder="<?php echo $mode_placeholder; ?>" disabled>
+            </td>
+        </tr>
+    </tbody>
+</table>
+
     <h2 class="text-center p-2" >系统信息</h2>
     <table class="table table-borderless rounded-4 mb-2">
         <tbody>
