@@ -178,51 +178,68 @@ function formatSize($size) {
 <?php
 $subscriptionPath = '/www/nekobox/proxy/';
 $subscriptionFile = $subscriptionPath . 'subscriptions.json';
-$message = "";
 $subscriptions = [];
+
+while (ob_get_level() > 0) {
+    ob_end_flush();
+}
+
+function outputMessage($message) {
+    echo "<div class='alert alert-info text-start'>" . htmlspecialchars($message) . "</div>";
+    // Force flush immediately
+    ob_flush();
+    flush();
+}
 
 if (!file_exists($subscriptionPath)) {
     mkdir($subscriptionPath, 0755, true);
+    outputMessage("Created subscription path: $subscriptionPath");
 }
 
 if (!file_exists($subscriptionFile)) {
     file_put_contents($subscriptionFile, json_encode([]));
+    outputMessage("Created subscriptions file: $subscriptionFile");
 }
 
 $subscriptions = json_decode(file_get_contents($subscriptionFile), true);
-
 if (!$subscriptions) {
-    for ($i = 0; $i < 3; $i++) {  // 改为3
+    for ($i = 0; $i < 3; $i++) {
         $subscriptions[$i] = [
             'url' => '',
             'file_name' => "subscription_{$i}.yaml",
         ];
     }
+    outputMessage("Initialized default subscriptions");
 }
 
 if (isset($_POST['update'])) {
     $index = intval($_POST['index']);
-    if ($index >= 0 && $index < 3) {  // 确保索引在0-2之间
+    if ($index >= 0 && $index < 3) {
         $url = $_POST['subscription_url'] ?? '';
         $customFileName = $_POST['custom_file_name'] ?? "subscription_{$index}.yaml";
         $subscriptions[$index]['url'] = $url;
         $subscriptions[$index]['file_name'] = $customFileName;
 
+        outputMessage("Updating subscription $index: URL=$url, FileName=$customFileName");
+
         if (!empty($url)) {
             $finalPath = $subscriptionPath . $customFileName;
             $command = "curl -fsSL -o {$finalPath} {$url}";
+            outputMessage("Executing command: $command");
+
             exec($command . ' 2>&1', $output, $return_var);
-            
+
             if ($return_var === 0) {
-                $message = "订阅链接 {$url} 更新成功！文件已保存到: {$finalPath}";
+                outputMessage("订阅链接 {$url} 更新成功！文件已保存到: {$finalPath}");
             } else {
-                $message = "配置更新失败！错误信息: " . implode("\n", $output);
+                outputMessage("配置更新失败！错误信息: " . implode("\n", $output));
             }
         } else {
-            $message = "第" . ($index + 1) . "个订阅链接为空！";
+            outputMessage("第" . ($index + 1) . "个订阅链接为空！");
         }
-        
+
         file_put_contents($subscriptionFile, json_encode($subscriptions));
+        outputMessage("订阅信息已保存到文件。");
     }
 }
 ?>
@@ -681,29 +698,23 @@ if (isset($_POST['update'])) {
 <div class="help-text mb-3 text-start"> 
     <strong>3. 保存与更新：</strong> 填写完毕后，请点击"更新配置"按钮进行保存。
 </div>
-
-<?php if ($message): ?>
-    <div class="alert alert-info text-start"> 
-        <?php echo nl2br(htmlspecialchars($message)); ?>
-    </div>
-<?php endif; ?>
-<div class="row">
-    <?php for ($i = 0; $i < 3; $i++): ?>
-        <div class="col-md-4 mb-4">
-            <div class="card">
-                <div class="card-body">
-                    <h5 class="card-title">订阅链接 <?php echo ($i + 1); ?></h5>
-                    <form method="post">
-                        <div class="input-group mb-3">
-                            <input type="text" name="subscription_url" id="subscription_url_<?php echo $i; ?>" 
-                                   value="<?php echo htmlspecialchars($subscriptions[$i]['url']); ?>" required 
-                                   class="form-control" placeholder="输入链接">
-                            <input type="text" name="custom_file_name" id="custom_file_name_<?php echo $i; ?>" 
-                                   value="<?php echo htmlspecialchars($subscriptions[$i]['file_name']); ?>" 
-                                   class="form-control" placeholder="自定义文件名">
-                            <input type="hidden" name="index" value="<?php echo $i; ?>">
-                            <button type="submit" name="update" class="btn btn-success ml-2">
-                                <i>🔄</i> 更新
+        <div class="row">
+            <?php for ($i = 0; $i < 3; $i++): ?>
+                <div class="col-md-4 mb-4">
+                    <div class="card">
+                        <div class="card-body">
+                            <h5 class="card-title">订阅链接 <?php echo ($i + 1); ?></h5>
+                            <form method="post">
+                                <div class="input-group mb-3">
+                                    <input type="text" name="subscription_url" id="subscriptionurl<?php echo $i; ?>" 
+                                           value="<?php echo htmlspecialchars($subscriptions[$i]['url']); ?>" required 
+                                           class="form-control" placeholder="输入链接">
+                                    <input type="text" name="custom_file_name" id="custom_filename<?php echo $i; ?>" 
+                                           value="<?php echo htmlspecialchars($subscriptions[$i]['file_name']); ?>" 
+                                           class="form-control" placeholder="自定义文件名">
+                                    <input type="hidden" name="index" value="<?php echo $i; ?>">
+                                    <button type="submit" name="update" class="btn btn-success ml-2">
+                                        <i>🔄</i> 更新
                             </button>
                         </div>
                     </form>
@@ -712,7 +723,6 @@ if (isset($_POST['update'])) {
         </div>
     <?php endfor; ?>
 </div>
-
         <div class="modal fade" id="renameModal" tabindex="-1" role="dialog" aria-labelledby="renameModalLabel" aria-hidden="true">
             <div class="modal-dialog" role="document">
                 <div class="modal-content">
