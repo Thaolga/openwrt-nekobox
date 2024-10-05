@@ -520,7 +520,7 @@
             "tag": "🛫 ",
             "type": "remote",
             "download_url": "https://example.com/xxx/xxx&flag=clash",
-            "path": "./proxy/1.yaml",
+            "path": "./proxy/subscription_0.yaml",
             "download_interval": "24h",
             "download_ua": "clash.meta",
             "includes": [
@@ -534,7 +534,21 @@
             "tag": "🛫. ",
             "type": "remote",
             "download_url": "https://example.com/xxx/xxx&flag=clash",
-            "path": "./proxy/2.yaml",
+            "path": "./proxy/subscription_1.yaml",
+            "download_interval": "24h",
+            "download_ua": "clash.meta",
+            "includes": [
+
+            ],
+            "excludes": "(?i)网站|地址|剩余|过期|时间|有效|套餐|到期",
+            "healthcheck_url": "https://www.gstatic.com/generate_204",
+            "healthcheck_interval": "10m"
+        },
+        {
+            "tag": "🛫.. ",
+            "type": "remote",
+            "download_url": "https://example.com/xxx/xxx&flag=clash",
+            "path": "./proxy/subscription_2.yaml",
             "download_interval": "24h",
             "download_ua": "clash.meta",
             "includes": [
