@@ -179,28 +179,22 @@ function formatSize($size) {
 $subscriptionPath = '/www/nekobox/proxy/';
 $subscriptionFile = $subscriptionPath . 'subscriptions.json';
 $subscriptions = [];
-
 while (ob_get_level() > 0) {
     ob_end_flush();
 }
-
 function outputMessage($message) {
     echo "<div class='alert alert-info text-start'>" . htmlspecialchars($message) . "</div>";
-    // Force flush immediately
     ob_flush();
     flush();
 }
-
 if (!file_exists($subscriptionPath)) {
     mkdir($subscriptionPath, 0755, true);
     outputMessage("Created subscription path: $subscriptionPath");
 }
-
 if (!file_exists($subscriptionFile)) {
     file_put_contents($subscriptionFile, json_encode([]));
     outputMessage("Created subscriptions file: $subscriptionFile");
 }
-
 $subscriptions = json_decode(file_get_contents($subscriptionFile), true);
 if (!$subscriptions) {
     for ($i = 0; $i < 3; $i++) {
@@ -211,24 +205,23 @@ if (!$subscriptions) {
     }
     outputMessage("Initialized default subscriptions");
 }
-
-if (isset($_POST['update'])) {
+if (isset($_POST['saveSubscription'])) {
     $index = intval($_POST['index']);
     if ($index >= 0 && $index < 3) {
         $url = $_POST['subscription_url'] ?? '';
         $customFileName = $_POST['custom_file_name'] ?? "subscription_{$index}.yaml";
         $subscriptions[$index]['url'] = $url;
         $subscriptions[$index]['file_name'] = $customFileName;
-
-        outputMessage("Updating subscription $index: URL=$url, FileName=$customFileName");
-
+        
         if (!empty($url)) {
             $finalPath = $subscriptionPath . $customFileName;
-            $command = "curl -fsSL -o {$finalPath} {$url}";
-            outputMessage("Executing command: $command");
-
+            $command = sprintf("curl -fsSL -o %s %s", 
+                escapeshellarg($finalPath), 
+                escapeshellarg($url)
+            );
+            
             exec($command . ' 2>&1', $output, $return_var);
-
+            
             if ($return_var === 0) {
                 outputMessage("订阅链接 {$url} 更新成功！文件已保存到: {$finalPath}");
             } else {
@@ -237,11 +230,11 @@ if (isset($_POST['update'])) {
         } else {
             outputMessage("第" . ($index + 1) . "个订阅链接为空！");
         }
-
+        
         file_put_contents($subscriptionFile, json_encode($subscriptions));
-        outputMessage("订阅信息已保存到文件。");
     }
 }
+$updateCompleted = isset($_POST['saveSubscription']); 
 ?>
 
 <?php
@@ -713,7 +706,7 @@ if (isset($_POST['update'])) {
                                            value="<?php echo htmlspecialchars($subscriptions[$i]['file_name']); ?>" 
                                            class="form-control" placeholder="自定义文件名">
                                     <input type="hidden" name="index" value="<?php echo $i; ?>">
-                                    <button type="submit" name="update" class="btn btn-success ml-2">
+                                    <button type="submit" name="saveSubscription" class="btn btn-success ml-2">
                                         <i>🔄</i> 更新
                             </button>
                         </div>
@@ -723,6 +716,36 @@ if (isset($_POST['update'])) {
         </div>
     <?php endfor; ?>
 </div>
+
+    <script>
+        function showCompletionMessage() {
+            var messageDiv = document.createElement('div');
+            messageDiv.textContent = '更新完成';
+            messageDiv.style.position = 'fixed';
+            messageDiv.style.top = '20px';
+            messageDiv.style.left = '50%';
+            messageDiv.style.transform = 'translateX(-50%)';
+            messageDiv.style.padding = '10px 20px';
+            messageDiv.style.backgroundColor = '#4CAF50';
+            messageDiv.style.color = 'white';
+            messageDiv.style.borderRadius = '5px';
+            messageDiv.style.zIndex = '1000';
+            document.body.appendChild(messageDiv);
+
+            setTimeout(function() {
+                messageDiv.style.transition = 'opacity 0.5s';
+                messageDiv.style.opacity = '0';
+                setTimeout(function() {
+                    document.body.removeChild(messageDiv);
+                }, 500);
+            }, 3000);
+        }
+
+        <?php if ($updateCompleted): ?>
+        window.onload = showCompletionMessage;
+        <?php endif; ?>
+    </script>
+
         <div class="modal fade" id="renameModal" tabindex="-1" role="dialog" aria-labelledby="renameModalLabel" aria-hidden="true">
             <div class="modal-dialog" role="document">
                 <div class="modal-content">
