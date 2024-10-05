@@ -176,6 +176,58 @@ function formatSize($size) {
 ?>
 
 <?php
+$subscriptionPath = '/www/nekobox/proxy/';
+$subscriptionFile = $subscriptionPath . 'subscriptions.json';
+$message = "";
+$subscriptions = [];
+
+if (!file_exists($subscriptionPath)) {
+    mkdir($subscriptionPath, 0755, true);
+}
+
+if (!file_exists($subscriptionFile)) {
+    file_put_contents($subscriptionFile, json_encode([]));
+}
+
+$subscriptions = json_decode(file_get_contents($subscriptionFile), true);
+
+if (!$subscriptions) {
+    for ($i = 0; $i < 3; $i++) {  // 改为3
+        $subscriptions[$i] = [
+            'url' => '',
+            'file_name' => "subscription_{$i}.yaml",
+        ];
+    }
+}
+
+if (isset($_POST['update'])) {
+    $index = intval($_POST['index']);
+    if ($index >= 0 && $index < 3) {  // 确保索引在0-2之间
+        $url = $_POST['subscription_url'] ?? '';
+        $customFileName = $_POST['custom_file_name'] ?? "subscription_{$index}.yaml";
+        $subscriptions[$index]['url'] = $url;
+        $subscriptions[$index]['file_name'] = $customFileName;
+
+        if (!empty($url)) {
+            $finalPath = $subscriptionPath . $customFileName;
+            $command = "curl -fsSL -o {$finalPath} {$url}";
+            exec($command . ' 2>&1', $output, $return_var);
+            
+            if ($return_var === 0) {
+                $message = "订阅链接 {$url} 更新成功！文件已保存到: {$finalPath}";
+            } else {
+                $message = "配置更新失败！错误信息: " . implode("\n", $output);
+            }
+        } else {
+            $message = "第" . ($index + 1) . "个订阅链接为空！";
+        }
+        
+        file_put_contents($subscriptionFile, json_encode($subscriptions));
+    }
+}
+?>
+
+<?php
 $subscriptionPath = '/etc/neko/config/';
 $dataFile = $subscriptionPath . 'subscription_data.json';
 
@@ -618,6 +670,48 @@ if (isset($_POST['update'])) {
         <?php endfor; ?>
     </div>
 </form>
+
+<h2 class="text-success text-center mt-4 mb-4">订阅管理 ➤ p核专用</h2>
+<div class="help-text mb-3 text-start">
+    <strong>1. 注意：</strong> 通用模板（<code>puernya.json</code>）最多支持<strong>3个</strong>订阅链接，请勿更改默认名称。
+</div>
+ <div class="help-text mb-3 text-start"> 
+    <strong>2. 只支持Clash和Sing-box格式的订阅，不支持通用格式
+    </div>
+<div class="help-text mb-3 text-start"> 
+    <strong>3. 保存与更新：</strong> 填写完毕后，请点击"更新配置"按钮进行保存。
+</div>
+
+<?php if ($message): ?>
+    <div class="alert alert-info text-start"> 
+        <?php echo nl2br(htmlspecialchars($message)); ?>
+    </div>
+<?php endif; ?>
+<div class="row">
+    <?php for ($i = 0; $i < 3; $i++): ?>
+        <div class="col-md-4 mb-4">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">订阅链接 <?php echo ($i + 1); ?></h5>
+                    <form method="post">
+                        <div class="input-group mb-3">
+                            <input type="text" name="subscription_url" id="subscription_url_<?php echo $i; ?>" 
+                                   value="<?php echo htmlspecialchars($subscriptions[$i]['url']); ?>" required 
+                                   class="form-control" placeholder="输入链接">
+                            <input type="text" name="custom_file_name" id="custom_file_name_<?php echo $i; ?>" 
+                                   value="<?php echo htmlspecialchars($subscriptions[$i]['file_name']); ?>" 
+                                   class="form-control" placeholder="自定义文件名">
+                            <input type="hidden" name="index" value="<?php echo $i; ?>">
+                            <button type="submit" name="update" class="btn btn-success ml-2">
+                                <i>🔄</i> 更新
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    <?php endfor; ?>
+</div>
 
         <div class="modal fade" id="renameModal" tabindex="-1" role="dialog" aria-labelledby="renameModalLabel" aria-hidden="true">
             <div class="modal-dialog" role="document">
