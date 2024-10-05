@@ -616,7 +616,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                             <form action="" method="post" enctype="multipart/form-data" class="form-inline d-inline upload-btn">
                                 <input type="file" name="fileInput" class="form-control-file" required id="fileInput-<?php echo htmlspecialchars($file); ?>" style="display: none;" onchange="this.form.submit()">
-                                <button type="button" class="btn btn-info" onclick="document.getElementById('fileInput-<?php echo htmlspecialchars($file); ?>').click();"><i>📤</i> 上传</button>
+                                <button type="button" class="btn btn-info btn-sm" onclick="document.getElementById('fileInput-<?php echo htmlspecialchars($file); ?>').click();"><i>📤</i> 上传</button>
                             </form>
                                 </div>
                             </td>
