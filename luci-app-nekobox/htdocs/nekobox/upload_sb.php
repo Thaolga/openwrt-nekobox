@@ -189,11 +189,9 @@ function outputMessage($message) {
 }
 if (!file_exists($subscriptionPath)) {
     mkdir($subscriptionPath, 0755, true);
-    outputMessage("Created subscription path: $subscriptionPath");
 }
 if (!file_exists($subscriptionFile)) {
     file_put_contents($subscriptionFile, json_encode([]));
-    outputMessage("Created subscriptions file: $subscriptionFile");
 }
 $subscriptions = json_decode(file_get_contents($subscriptionFile), true);
 if (!$subscriptions) {
@@ -203,7 +201,6 @@ if (!$subscriptions) {
             'file_name' => "subscription_{$i}.yaml",
         ];
     }
-    outputMessage("Initialized default subscriptions");
 }
 if (isset($_POST['saveSubscription'])) {
     $index = intval($_POST['index']);
