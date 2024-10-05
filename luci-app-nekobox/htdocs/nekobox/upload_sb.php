@@ -1,6 +1,7 @@
 <?php
 ob_start();
 include './cfg.php';
+$uploadDir = '/www/nekobox/proxy/';
 $configDir = '/etc/neko/config/';
 
 ini_set('memory_limit', '256M');
@@ -12,18 +13,37 @@ if ($enable_timezone) {
     date_default_timezone_set($timezone);
 }
 
+if (!is_dir($uploadDir)) {
+    mkdir($uploadDir, 0755, true);
+}
+
 if (!is_dir($configDir)) {
     mkdir($configDir, 0755, true);
 }
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    if (isset($_FILES['fileInput'])) {
+        $file = $_FILES['fileInput'];
+        $uploadFilePath = $uploadDir . basename($file['name']);
+
+        if ($file['error'] === UPLOAD_ERR_OK) {
+            if (move_uploaded_file($file['tmp_name'], $uploadFilePath)) {
+                echo 'File upload successful: ' . htmlspecialchars(basename($file['name']));
+            } else {
+                echo 'File upload failed!';
+            }
+        } else {
+            echo 'Upload error: ' . $file['error'];
+        }
+    }
+
     if (isset($_FILES['configFileInput'])) {
         $file = $_FILES['configFileInput'];
         $uploadFilePath = $configDir . basename($file['name']);
 
         if ($file['error'] === UPLOAD_ERR_OK) {
             if (move_uploaded_file($file['tmp_name'], $uploadFilePath)) {
-                echo 'Configuration file uploaded successfully: ' . htmlspecialchars(basename($file['name']));
+                echo 'Configuration file upload successful: ' . htmlspecialchars(basename($file['name']));
             } else {
                 echo 'Configuration file upload failed!';
             }
@@ -32,10 +52,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
     }
 
+    if (isset($_POST['deleteFile'])) {
+        $fileToDelete = $uploadDir . basename($_POST['deleteFile']);
+        if (file_exists($fileToDelete) && unlink($fileToDelete)) {
+            echo 'File deletion successful: ' . htmlspecialchars(basename($_POST['deleteFile']));
+        } else {
+            echo 'File deletion failed!';
+        }
+    }
+
     if (isset($_POST['deleteConfigFile'])) {
         $fileToDelete = $configDir . basename($_POST['deleteConfigFile']);
         if (file_exists($fileToDelete) && unlink($fileToDelete)) {
-            echo 'Configuration file deleted successfully: ' . htmlspecialchars(basename($_POST['deleteConfigFile']));
+            echo 'Configuration file deletion successful: ' . htmlspecialchars(basename($_POST['deleteConfigFile']));
         } else {
             echo 'Configuration file deletion failed!';
         }
@@ -44,8 +73,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (isset($_POST['oldFileName'], $_POST['newFileName'], $_POST['fileType'])) {
         $oldFileName = basename($_POST['oldFileName']);
         $newFileName = basename($_POST['newFileName']);
-    
-        if ($_POST['fileType'] === 'config') {
+
+        if ($_POST['fileType'] === 'proxy') {
+            $oldFilePath = $uploadDir . $oldFileName;
+            $newFilePath = $uploadDir . $newFileName;
+        } elseif ($_POST['fileType'] === 'config') {
             $oldFilePath = $configDir . $oldFileName;
             $newFilePath = $configDir . $newFileName;
         } else {
@@ -55,17 +87,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         if (file_exists($oldFilePath) && !file_exists($newFilePath)) {
             if (rename($oldFilePath, $newFilePath)) {
-                echo 'File renamed successfully: ' . htmlspecialchars($oldFileName) . ' -> ' . htmlspecialchars($newFileName);
+                echo 'File rename successful: ' . htmlspecialchars($oldFileName) . ' -> ' . htmlspecialchars($newFileName);
             } else {
-                echo 'File renaming failed!';
+                echo 'File rename failed!';
             }
         } else {
-            echo 'File renaming failed; the file does not exist or the new file name already exists.';
+            echo 'File rename failed, file does not exist or new file name already exists.';
         }
     }
 
     if (isset($_POST['editFile']) && isset($_POST['fileType'])) {
-        $fileToEdit = $configDir . basename($_POST['editFile']);
+        $fileToEdit = ($_POST['fileType'] === 'proxy') ? $uploadDir . basename($_POST['editFile']) : $configDir . basename($_POST['editFile']);
         $fileContent = '';
         $editingFileName = htmlspecialchars($_POST['editFile']);
 
@@ -83,7 +115,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
     if (isset($_POST['saveContent'], $_POST['fileName'], $_POST['fileType'])) {
-        $fileToSave = $configDir . basename($_POST['fileName']);
+        $fileToSave = ($_POST['fileType'] === 'proxy') ? $uploadDir . basename($_POST['fileName']) : $configDir . basename($_POST['fileName']);
         $contentToSave = $_POST['saveContent'];
         file_put_contents($fileToSave, $contentToSave);
         echo '<p>File content updated: ' . htmlspecialchars(basename($fileToSave)) . '</p>';
@@ -117,7 +149,14 @@ function formatFileModificationTime($filePath) {
     }
 }
 
+$proxyFiles = scandir($uploadDir);
 $configFiles = scandir($configDir);
+
+if ($proxyFiles !== false) {
+    $proxyFiles = array_diff($proxyFiles, array('.', '..'));
+} else {
+    $proxyFiles = []; 
+}
 
 if ($configFiles !== false) {
     $configFiles = array_diff($configFiles, array('.', '..'));
@@ -135,7 +174,6 @@ function formatSize($size) {
     return round($size, 2) . ' ' . $units[$unit];
 }
 ?>
-
 <?php
 $subscriptionPath = '/etc/neko/config/';
 $dataFile = $subscriptionPath . 'subscription_data.json';
@@ -355,10 +393,12 @@ if (isset($_POST['update'])) {
         <a href="./upload_sb.php" class="col btn btn-lg">🗂️ Sing-box</a>
         <a href="./box.php" class="col btn btn-lg">💹 Template</a>
         <a href="./personal.php" class="col btn btn-lg">📦 Personal</a>
+    </div>
     <div class="text-center">
-        <h1 style="margin-top: 40px; margin-bottom: 20px;">Sing-box File Manager</h1>
-        <h2>Configuration File Management</h2>
-        <form action="upload.php" method="get" onsubmit="saveSettings()">
+        <h1 style="margin-top: 40px; margin-bottom: 20px;">Mihomo File Manager</h1>
+        <div class="table-wrapper">
+            <h2>Proxy File Management</h2>
+    <form action="upload.php" method="get" onsubmit="saveSettings()">
         <label for="enable_timezone">Enable time zone settings:</label>
         <input type="checkbox" id="enable_timezone" name="enable_timezone" value="1">
         
@@ -422,52 +462,124 @@ if (isset($_POST['update'])) {
         background-color: #5a32a3; 
     }
 </style>
-       <table class="table table-dark table-bordered">
-    <thead>
-        <tr>
-            <th>File Name</th>
-            <th>Size</th>
-            <th>Modification Time</th>
-            <th>Action</th>
-        </tr>
-    </thead>
-    <tbody>
-        <?php foreach ($configFiles as $file): ?>
-            <?php $filePath = $configDir . $file; ?>
+    <table class="table table-dark table-bordered">
+        <thead>
             <tr>
-                <td><a href="download.php?file=<?php echo urlencode($file); ?>"><?php echo htmlspecialchars($file); ?></a></td>
-                <td><?php echo file_exists($filePath) ? formatSize(filesize($filePath)) : 'File not found'; ?></td>
-                <td><?php echo htmlspecialchars(date('Y-m-d H:i:s', filemtime($filePath))); ?></td>
-                <td>
-                    <div class="btn-group">
-                        <form action="" method="post" class="d-inline">
-                            <input type="hidden" name="deleteConfigFile" value="<?php echo htmlspecialchars($file); ?>">
-                            <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Are you sure you want to delete this file?');"><i>🗑️</i> Delete</button>
-                        </form>
-                        <form action="" method="post" class="d-inline">
-                            <input type="hidden" name="editFile" value="<?php echo htmlspecialchars($file); ?>">
-                            <input type="hidden" name="fileType" value="config">
-                            <button type="button" class="btn btn-success btn-sm btn-rename" data-toggle="modal" data-target="#renameModal" data-filename="<?php echo htmlspecialchars($file); ?>"><i>✏️</i> Rename</button>
-                        </form>
-                        <form action="" method="post" class="d-inline">
-                            <input type="hidden" name="editFile" value="<?php echo htmlspecialchars($file); ?>">
-                            <input type="hidden" name="fileType" value="<?php echo htmlspecialchars($file); ?>">
-                            <button type="submit" class="btn btn-warning btn-sm"><i>📝</i> Edit</button>
-                        </form>
-                        <form action="" method="post" enctype="multipart/form-data" class="form-inline d-inline upload-btn">
-                            <input type="file" name="configFileInput" class="form-control-file" required id="fileInput-<?php echo htmlspecialchars($file); ?>" style="display: none;" onchange="this.form.submit()">
-                            <button type="button" class="btn btn-info btn-sm" onclick="document.getElementById('fileInput-<?php echo htmlspecialchars($file); ?>').click();"><i>📤</i> Upload</button>
+                <th style="width: 30%;">File Name</th>
+                <th style="width: 10%;">Size</th>
+                <th style="width: 20%;">Modification Time</th>
+                <th style="width: 40%;">Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            <?php foreach ($proxyFiles as $file): ?>
+                <?php $filePath = $uploadDir . $file; ?>
+                <tr>
+                    <td><a href="download.php?file=<?php echo urlencode($file); ?>"><?php echo htmlspecialchars($file); ?></a></td>
+                    <td><?php echo file_exists($filePath) ? formatSize(filesize($filePath)) : 'File not found'; ?></td>
+                    <td><?php echo htmlspecialchars(date('Y-m-d H:i:s', filemtime($filePath))); ?></td>
+                    <td>
+                        <div class="btn-group">
+                            <form action="" method="post" class="d-inline">
+                                <input type="hidden" name="deleteFile" value="<?php echo htmlspecialchars($file); ?>">
+                                <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Are you sure you want to delete this file?');"><i>🗑️</i> Delete</button>
+                            </form>
+                            <form action="" method="post" class="d-inline">
+                                <input type="hidden" name="editFile" value="<?php echo htmlspecialchars($file); ?>">
+                                <input type="hidden" name="fileType" value="proxy">
+                                <button type="button" class="btn btn-success btn-sm btn-rename" data-toggle="modal" data-target="#renameModal" data-filename="<?php echo htmlspecialchars($file); ?>" data-filetype="proxy"><i>✏️</i> Rename</button>
+                            </form>
+                            <form action="" method="post" class="d-inline">
+                                        <input type="hidden" name="editFile" value="<?php echo htmlspecialchars($file); ?>">
+                                        <input type="hidden" name="fileType" value="proxy"> 
+                                <button type="submit" class="btn btn-warning btn-sm"><i>📝</i> Edit</button>
+                            </form>
+                            <form action="" method="post" enctype="multipart/form-data" class="form-inline d-inline upload-btn">
+                                <input type="file" name="fileInput" class="form-control-file" required id="fileInput-<?php echo htmlspecialchars($file); ?>" style="display: none;" onchange="this.form.submit()">
+                                <button type="button" class="btn btn-info btn-sm" onclick="document.getElementById('fileInput-<?php echo htmlspecialchars($file); ?>').click();"><i>📤</i>  Upload</button>
+                            </form>
+                        </div>
+                    </td>
+                </tr>
+            <?php endforeach; ?>
+        </tbody>
+    </table>
+
+        <div class="modal fade" id="renameModal" tabindex="-1" role="dialog" aria-labelledby="renameModalLabel" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="renameModalLabel">Rename File</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <form id="renameForm" action="" method="post">
+                            <input type="hidden" name="oldFileName" id="oldFileName">
+                            <input type="hidden" name="fileType" id="fileType">
+                            <div class="form-group">
+                                <label for="newFileName">Rename File</label>
+                                <input type="text" class="form-control" id="newFileName" name="newFileName" required>
+                            </div>
+                            <p>Are you sure you want to rename this file?</p>
+                            <div class="form-group text-right">
+                                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                                <button type="submit" class="btn btn-primary">Confirm</button>
+                            </div>
                         </form>
                     </div>
-                </td>
-            </tr>
-        <?php endforeach; ?>
-    </tbody>
-</table>
+                </div>
+            </div>
+        </div>
 
+<div class="table-wrapper">
+    <h2>Configuration File Management</h2>
+    <table class="table table-dark table-bordered">
+        <thead>
+            <tr>
+                <th style="width: 30%;">File Name</th>
+                <th style="width: 10%;">Size</th>
+                <th style="width: 20%;">Modification Time</th>
+                <th style="width: 40%;">Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            <?php foreach ($configFiles as $file): ?>
+                <?php $filePath = $configDir . $file; ?>
+                <tr>
+                    <td><a href="download.php?file=<?php echo urlencode($file); ?>"><?php echo htmlspecialchars($file); ?></a></td>
+                    <td><?php echo file_exists($filePath) ? formatSize(filesize($filePath)) : 'File not found'; ?></td>
+                    <td><?php echo htmlspecialchars(date('Y-m-d H:i:s', filemtime($filePath))); ?></td>
+                    <td>
+                        <div class="btn-group">
+                            <form action="" method="post" class="d-inline">
+                                <input type="hidden" name="deleteConfigFile" value="<?php echo htmlspecialchars($file); ?>">
+                                <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Are you sure you want to delete this file?');"><i>🗑️</i> Delete</button>
+                            </form>
+                            <form action="" method="post" class="d-inline">
+                                <input type="hidden" name="editFile" value="<?php echo htmlspecialchars($file); ?>">
+                                <button type="button" class="btn btn-success btn-sm btn-rename" data-toggle="modal" data-target="#renameModal" data-filename="<?php echo htmlspecialchars($file); ?>" data-filetype="config"><i>✏️</i> Rename</button>
+                            </form>
+                            <form action="" method="post" class="d-inline">
+                                <input type="hidden" name="editFile" value="<?php echo htmlspecialchars($file); ?>">
+                                <input type="hidden" name="fileType" value="<?php echo htmlspecialchars($file); ?>">
+                                <button type="submit" class="btn btn-warning btn-sm"><i>📝</i> Edit</button>
+                            </form>
+                            <form action="" method="post" enctype="multipart/form-data" class="form-inline d-inline upload-btn">
+                                <input type="file" name="configFileInput" class="form-control-file" required id="fileInput-<?php echo htmlspecialchars($file); ?>" style="display: none;" onchange="this.form.submit()">
+                                <button type="button" class="btn btn-info btn-sm" onclick="document.getElementById('fileInput-<?php echo htmlspecialchars($file); ?>').click();"><i>📤</i> Upload</button>  
+                            </form>
+                        </div>
+                    </td>
+                </tr>
+            <?php endforeach; ?>
+        </tbody>
+    </table>
+</div>
 <?php if (isset($fileContent)): ?>
     <?php if (isset($_POST['editFile'])): ?>
-        <?php $fileToEdit = $configDir . basename($_POST['editFile']); ?>
+        <?php $fileToEdit = ($_POST['fileType'] === 'proxy') ? $uploadDir . basename($_POST['editFile']) : $configDir . basename($_POST['editFile']); ?>
         <h2 class="mt-5">Edit File: <?php echo $editingFileName; ?></h2>
         <p>Last Updated Date: <?php echo date('Y-m-d H:i:s', filemtime($fileToEdit)); ?></p>
 
@@ -552,34 +664,6 @@ if (isset($_POST['update'])) {
             </div>
         </form>
 
-<div class="modal fade" id="renameModal" tabindex="-1" role="dialog" aria-labelledby="renameModalLabel" aria-hidden="true">
-    <div class="modal-dialog" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="renameModalLabel">Rename File</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-            <div class="modal-body">
-                <form id="renameForm" action="" method="post">
-                    <input type="hidden" name="oldFileName" id="oldFileName">
-                    <div class="form-group">
-                        <label for="newFileName">New File Name</label>
-                        <input type="text" class="form-control" id="newFileName" name="newFileName" required>
-                    </div>
-                    <p>Are you sure you want to rename this file?</p>
-                    <input type="hidden" name="fileType" value="config">
-                    <div class="form-group text-right">
-                        <button type="button" class="btn btn-secondary" data-dismiss="modal">modal</button>
-                        <button type="submit" class="btn btn-primary">Confirm</button>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </div>
-</div>
-
 <script src="./assets/bootstrap/jquery-3.5.1.slim.min.js"></script>
 <script src="./assets/bootstrap/popper.min.js"></script>
 <script src="./assets/bootstrap/bootstrap.min.js"></script>
@@ -589,8 +673,10 @@ if (isset($_POST['update'])) {
     $('#renameModal').on('show.bs.modal', function (event) {
         var button = $(event.relatedTarget); 
         var oldFileName = button.data('filename'); 
+        var fileType = button.data('filetype');
         var modal = $(this);
         modal.find('#oldFileName').val(oldFileName); 
+        modal.find('#fileType').val(fileType);
         modal.find('#newFileName').val(oldFileName); 
     });
 
