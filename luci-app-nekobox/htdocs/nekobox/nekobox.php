@@ -416,8 +416,8 @@ function searchFiles($dir, $term) {
                     <i class="fas fa-sync-alt"></i>
                 </button>
                 <select id="languageSwitcher" class="btn btn-outline-secondary">
-                    <option value="zh">中文</option>
-                    <option value="en">English</option>
+                    <option value="en" selected>English</option>
+                    <option value="zh">中文</option>                 
                 </select>
                 <button type="button" class="btn btn-outline-secondary" onclick="showSearchModal()" id="searchBtn" title="搜索">
                     <i class="fas fa-search"></i>
@@ -1070,114 +1070,232 @@ document.addEventListener('DOMContentLoaded', function() {
     const pageTitle = document.getElementById('pageTitle');
     const uploadBtn = document.getElementById('uploadBtn');
 
-    const translations = {
-        zh: {
-            pageTitle: "NeKoBox文件助手",
-            uploadBtn: "上传文件",
-            rootDirectory: "根目录",
-            name: "名称",
-            type: "类型",
-            size: "大小",
-            permissions: "权限",
-            actions: "操作",
-            directory: "目录",
-            file: "文件",
-            rename: "重命名",
-            edit: "编辑",
-            download: "下载",
-            delete: "删除",
-            confirmDelete: "确定要删除 {0} 吗？这个操作不可撤销。",
-            newName: "新名称:",
-            save: "保存",
-            advancedEdit: "高级编辑",
-            close: "关闭",
-            setPermissions: "设置权限",
-            saveLanguage: "保存语言设置",
-            languageSaved: "语言设置已保存",
-            modifiedTime: "修改时间",
-            owner: "拥有者",
-            create: "新建",
-            newFolder: "新建文件夹",
-            newFile: "新建文件",
-            rename: "重命名",
-            newName: "新名称:",
-            folderName: "文件夹名称:"
-        },
-        en: {
-            pageTitle: "NeKoBox File Assistant",
-            uploadBtn: "Upload File",
-            rootDirectory: "Root Directory",
-            name: "Name",
-            type: "Type",
-            size: "Size",
-            permissions: "Permissions",
-            actions: "Actions",
-            directory: "Directory",
-            file: "File",
-            rename: "Rename",
-            edit: "Edit",
-            download: "Download",
-            delete: "Delete",
-            confirmDelete: "Are you sure you want to delete {0}? This action cannot be undone.",
-            newName: "New name:",
-            save: "Save",
-            advancedEdit: "Advanced Edit",
-            saveLanguage: "Save Language Setting",
-            languageSaved: "Language setting has been saved",
-            modifiedTime: "Modified Time",
-            owner: "Owner",
-            close: "Close",
-            setPermissions: "Set Permissions",
-            create: "Create",
-            newFolder: "New Folder",
-            newFile: "New File",
-            rename: "Rename",
-            newName: "New name:",
-            folderName: "Folder name:"
-        }
-    };
+const translations = {
+    zh: {
+        pageTitle: "NeKoBox文件助手",
+        uploadBtn: "上传文件",
+        rootDirectory: "根目录",
+        name: "名称",
+        type: "类型",
+        size: "大小",
+        permissions: "权限",
+        actions: "操作",
+        directory: "目录",
+        file: "文件",
+        rename: "重命名",
+        edit: "编辑",
+        download: "下载",
+        delete: "删除",
+        confirmDelete: "确定要删除 {0} 吗？这个操作不可撤销。",
+        newName: "新名称:",
+        save: "保存",
+        advancedEdit: "高级编辑",
+        close: "关闭",
+        setPermissions: "设置权限",
+        saveLanguage: "保存语言设置",
+        languageSaved: "语言设置已保存",
+        modifiedTime: "修改时间",
+        owner: "拥有者",
+        create: "新建",
+        newFolder: "新建文件夹",
+        newFile: "新建文件",
+        folderName: "文件夹名称:",
+        fileName: "文件名称:",
+        search: "搜索",
+        searchFiles: "搜索文件",
+        noMatchingFiles: "没有找到匹配的文件。",
+        moveTo: "移至",
+        cancel: "取消",
+        confirm: "确认",
+        goBack: "返回上一级",
+        refreshDirectory: "刷新目录内容",
+        switchTheme: "切换主题",
+        lightMode: "浅色模式",
+        darkMode: "深色模式",
+        filePreview: "文件预览",
+        unableToLoadImage: "无法加载图片:",
+        unableToLoadSVG: "无法加载SVG文件:",
+        unableToLoadAudio: "无法加载音频:",
+        unableToLoadVideo: "无法加载视频:",
+        home: "首页",
+        mihomo: "Mihomo",
+        singBox: "Sing-box",
+        convert: "转换",
+        fileAssistant: "文件助手",
+        returnToParentDirectory: "返回上一级",
+        returnToRootDirectory: "返回根目录",
+        returnToHomeDirectory: "返回主目录",
+        refreshDirectoryContent: "刷新目录内容",
+        createNew: "新建",
+        upload: "上传",
+        errorSavingFile: "错误: 无法保存文件。",
+        uploadFailed: "上传失败",
+        fileNotExistOrNotReadable: "文件不存在或不可读。",
+        inputFileName: "输入文件名",
+        search: "搜索",
+        permissionValue: "权限值（例如：0644）",
+        inputThreeOrFourDigits: "输入三位或四位数字，例如：0644 或 0755",
+        fontSizeL: "字体大小",
+        encodingL: "编码",
+        saveL: "保存",
+        closeL: "关闭",
+        confirmCloseEditor: "确定要关闭编辑器吗？请确保已保存更改。",
+        newNameCannotBeEmpty: "新名称不能为空",
+        fileNameCannotContainChars: "文件名不能包含以下字符: < > : \" / \\ | ? *",
+        folderNameCannotBeEmpty: "文件夹名称不能为空",
+        fileNameCannotBeEmpty: "文件名称不能为空",
+        searchError: "搜索时出错: ",
+        encodingChanged: "编码已更改为 {0}。实际转换将在保存时在服务器端进行。",
+        errorLoadingFileContent: "加载文件内容时出错: ",
+        inputValidPermissionValue: "请输入有效的权限值（三位或四位八进制数字，例如：644 或 0755）",
+        permissionValueCannotExceed: "权限值不能超过 0777",
+        goBackTitle: "返回上一级",
+        rootDirectoryTitle: "返回根目录",
+        homeDirectoryTitle: "返回主目录",
+        refreshDirectoryTitle: "刷新目录内容",
+        searchTitle: "搜索",
+        createTitle: "新建",
+        uploadTitle: "上传",
+        themeToggleTitle: "切换主题"
+    },
+    en: {
+        pageTitle: "NeKoBox File Assistant",
+        uploadBtn: "Upload File",
+        rootDirectory: "Root Directory",
+        name: "Name",
+        type: "Type",
+        size: "Size",
+        permissions: "Permissions",
+        actions: "Actions",
+        directory: "Directory",
+        file: "File",
+        rename: "Rename",
+        edit: "Edit",
+        download: "Download",
+        delete: "Delete",
+        confirmDelete: "Are you sure you want to delete {0}? This action cannot be undone.",
+        newName: "New name:",
+        save: "Save",
+        advancedEdit: "Advanced Edit",
+        close: "Close",
+        setPermissions: "Set Permissions",
+        saveLanguage: "Save Language Setting",
+        languageSaved: "Language setting has been saved",
+        modifiedTime: "Modified Time",
+        owner: "Owner",
+        create: "Create",
+        newFolder: "New Folder",
+        newFile: "New File",
+        folderName: "Folder name:",
+        fileName: "File name:",
+        search: "Search",
+        searchFiles: "Search Files",
+        noMatchingFiles: "No matching files found.",
+        moveTo: "Move to",
+        cancel: "Cancel",
+        confirm: "Confirm",
+        goBack: "Go Back",
+        refreshDirectory: "Refresh Directory",
+        switchTheme: "Switch Theme",
+        lightMode: "Light Mode",
+        darkMode: "Dark Mode",
+        filePreview: "File Preview",
+        unableToLoadImage: "Unable to load image:",
+        unableToLoadSVG: "Unable to load SVG file:",
+        unableToLoadAudio: "Unable to load audio:",
+        unableToLoadVideo: "Unable to load video:",
+        home: "Home",
+        mihomo: "Mihomo",
+        singBox: "Sing-box",
+        convert: "Convert",
+        fileAssistant: "File Assistant",
+        returnToParentDirectory: "Return to Parent Directory",
+        returnToRootDirectory: "Return to Root Directory",
+        returnToHomeDirectory: "Return to Home Directory",
+        refreshDirectoryContent: "Refresh Directory Content",
+        createNew: "Create New",
+        upload: "Upload",
+        errorSavingFile: "Error: Unable to save file.",
+        uploadFailed: "Upload failed",
+        fileNotExistOrNotReadable: "File does not exist or is not readable.",
+        inputFileName: "Input file name",
+        search: "Search",
+        permissionValue: "Permission value (e.g.: 0644)",
+        inputThreeOrFourDigits: "Enter three or four digits, e.g.: 0644 or 0755",
+        fontSizeL: "Font Size",
+        encodingL: "Encoding",
+        saveL: "Save",
+        closeL: "Close",
+        confirmCloseEditor: "Are you sure you want to close the editor? Please make sure you have saved your changes.",
+        newNameCannotBeEmpty: "New name cannot be empty",
+        fileNameCannotContainChars: "File name cannot contain the following characters: < > : \" / \\ | ? *",
+        folderNameCannotBeEmpty: "Folder name cannot be empty",
+        fileNameCannotBeEmpty: "File name cannot be empty",
+        searchError: "Error searching: ",
+        encodingChanged: "Encoding changed to {0}. Actual conversion will be done on the server side when saving.",
+        errorLoadingFileContent: "Error loading file content: ",
+        inputValidPermissionValue: "Please enter a valid permission value (three or four octal digits, e.g.: 644 or 0755)",
+        permissionValueCannotExceed: "Permission value cannot exceed 0777",
+        goBackTitle: "Go Back",
+        rootDirectoryTitle: "Return to Root Directory",
+        homeDirectoryTitle: "Return to Home Directory",
+        refreshDirectoryTitle: "Refresh Directory Content",
+        searchTitle: "Search",
+        createTitle: "Create New",
+        uploadTitle: "Upload",
+        themeToggleTitle: "Toggle Theme"
+    }
+};
+    let currentLang = localStorage.getItem('preferred_language') || 'en';
 
-     let currentLang = 'zh';
+    function updateLanguage(lang) {
+        document.documentElement.lang = lang;
+        pageTitle.textContent = translations[lang].pageTitle;
+        uploadBtn.title = translations[lang].uploadBtn;
 
-        function updateLanguage(lang) {
-            document.documentElement.lang = lang;
-            pageTitle.textContent = translations[lang].pageTitle;
-            uploadBtn.title = translations[lang].uploadBtn;
-
-            document.querySelectorAll('th').forEach((th, index) => {
-                th.textContent = translations[lang][th.getAttribute('data-translate')];
-            });
-
-            document.querySelectorAll('[data-translate]').forEach(el => {
-                el.textContent = translations[lang][el.getAttribute('data-translate')];
-            });
-
-            document.querySelector('.breadcrumb a').textContent = translations[lang].rootDirectory;
-
-            document.querySelector('#renameModal h2').textContent = translations[lang].rename;
-            document.querySelector('#editModal h2').textContent = translations[lang].edit;
-            document.querySelector('#chmodModal h2').textContent = translations[lang].setPermissions;
-        }
-
-        languageSwitcher.addEventListener('change', function() {
-            currentLang = this.value;
-            updateLanguage(currentLang);
+        document.querySelectorAll('th').forEach((th, index) => {
+            th.textContent = translations[lang][th.getAttribute('data-translate')];
         });
 
-        updateLanguage('zh');
+        document.querySelectorAll('[data-translate]').forEach(el => {
+            el.textContent = translations[lang][el.getAttribute('data-translate')];
+        });
 
-        window.confirmDelete = function(name) {
-            return confirm(translations[currentLang].confirmDelete.replace('{0}', name));
+    document.querySelectorAll('[data-translate-title]').forEach(el => {
+        const key = el.getAttribute('data-translate-title');
+        if (translations[lang][key]) {
+            el.title = translations[lang][key];
         }
-
-        window.showRenameModal = function(oldName, oldPath) {
-            document.getElementById('oldPath').value = oldPath;
-            document.getElementById('newPath').value = oldName;
-            document.querySelector('#renameModal label').textContent = translations[currentLang].newName;
-            showModal('renameModal');
-        }
-
     });
+
+        document.querySelector('.breadcrumb a').textContent = translations[lang].rootDirectory;
+
+        document.querySelector('#renameModal h2').textContent = translations[lang].rename;
+        document.querySelector('#editModal h2').textContent = translations[lang].edit;
+        document.querySelector('#chmodModal h2').textContent = translations[lang].setPermissions;
+
+        document.getElementById('languageSwitcher').value = lang;
+    }
+
+    updateLanguage(currentLang);
+
+    document.getElementById('languageSwitcher').addEventListener('change', function() {
+        currentLang = this.value;
+        updateLanguage(currentLang);
+        localStorage.setItem('preferred_language', currentLang);
+    });
+
+    window.confirmDelete = function(name) {
+        return confirm(translations[currentLang].confirmDelete.replace('{0}', name));
+    }
+
+    window.showRenameModal = function(oldName, oldPath) {
+        document.getElementById('oldPath').value = oldPath;
+        document.getElementById('newPath').value = oldName;
+        document.querySelector('#renameModal label').textContent = translations[currentLang].newName;
+        showModal('renameModal');
+    }
+});
 
 document.addEventListener('DOMContentLoaded', function() {
     const dropZone = document.getElementById('dropZone');
