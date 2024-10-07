@@ -29,8 +29,9 @@ if (isset($_GET['action']) && $_GET['action'] === 'refresh') {
 if (isset($_GET['action']) && $_GET['action'] === 'get_content' && isset($_GET['path'])) {
     $file_path = $current_path . $_GET['path'];
     if (file_exists($file_path) && is_readable($file_path)) {
-        $result = readFileWithEncoding($file_path);
-        echo json_encode($result);
+        $content = file_get_contents($file_path);
+        header('Content-Type: text/plain; charset=utf-8');
+        echo $content;
         exit;
     } else {
         http_response_code(404);
@@ -97,10 +98,10 @@ function deleteItem($path) {
 function readFileWithEncoding($path) {
     $content = file_get_contents($path);
     $encoding = mb_detect_encoding($content, ['UTF-8', 'ASCII', 'ISO-8859-1', 'Windows-1252', 'GBK', 'Big5', 'Shift_JIS', 'EUC-KR'], true);
-    return [
+    return json_encode([
         'content' => mb_convert_encoding($content, 'UTF-8', $encoding),
         'encoding' => $encoding
-    ];
+    ]);
 }
 
 function renameItem($old_path, $new_path) {
@@ -803,43 +804,54 @@ function closeModal(modalId) {
         aceEditor.setValue(content, -1);
     }
 
-    function showEditModal(path) {
-        document.getElementById('editPath').value = path;
+function showEditModal(path) {
+    document.getElementById('editPath').value = path;
 
-        fetch('?action=get_content&dir=' + encodeURIComponent('<?php echo $current_dir; ?>') + '&path=' + encodeURIComponent(path))
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error('无法获取文件内容: ' + response.statusText);
-                }
-                return response.json();
-            })
-            .then(data => {
-                document.getElementById('editContent').value = data.content;
+    fetch('?action=get_content&dir=' + encodeURIComponent('<?php echo $current_dir; ?>') + '&path=' + encodeURIComponent(path))
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('无法获取文件内容: ' + response.statusText);
+            }
+            return response.text();
+        })
+        .then(data => {
+            let content, encoding;
+            try {
+                const parsedData = JSON.parse(data);
+                content = parsedData.content;
+                encoding = parsedData.encoding;
+            } catch (e) {
+                content = data;
+                encoding = 'Unknown';
+            }
 
-                if (!aceEditor) {
-                    aceEditor = ace.edit("aceEditorContainer");
-                    aceEditor.setTheme("ace/theme/monokai");
-                    aceEditor.setFontSize(DEFAULT_FONT_SIZE);
-                } else {
-                    aceEditor.setFontSize(DEFAULT_FONT_SIZE);
-                }
+            document.getElementById('editContent').value = content;
+            document.getElementById('editEncoding').value = encoding;
 
-                aceEditor.setValue(data.content, -1);
+            if (!aceEditor) {
+                aceEditor = ace.edit("aceEditorContainer");
+                aceEditor.setTheme("ace/theme/monokai");
+                aceEditor.setFontSize(DEFAULT_FONT_SIZE);
+            } else {
+                aceEditor.setFontSize(DEFAULT_FONT_SIZE);
+            }
 
-                let fileExtension = path.split('.').pop().toLowerCase();
-                let mode = getAceMode(fileExtension);
-                aceEditor.session.setMode("ace/mode/" + mode);
+            aceEditor.setValue(content, -1);
 
-                document.getElementById('encoding').value = data.encoding;
-                document.getElementById('fontSize').value = DEFAULT_FONT_SIZE;
+            let fileExtension = path.split('.').pop().toLowerCase();
+            let mode = getAceMode(fileExtension);
+            aceEditor.session.setMode("ace/mode/" + mode);
 
-                showModal('editModal');
-            })
-            .catch(error => {
-                console.error('编辑文件时出错:', error);
-                alert('加载文件内容时出错: ' + error.message);
-            });
-    }
+            document.getElementById('encoding').value = encoding;
+            document.getElementById('fontSize').value = DEFAULT_FONT_SIZE;
+
+            showModal('editModal');
+        })
+        .catch(error => {
+            console.error('编辑文件时出错:', error);
+            alert('加载文件内容时出错: ' + error.message);
+        });
+}
 
     function setAceEditorTheme() {
         if (document.body.classList.contains('dark-mode')) {
@@ -942,6 +954,7 @@ function saveEdit() {
     }
     return false;
 }
+
 function showEditModal(path) {
     document.getElementById('editPath').value = path;
 
@@ -950,11 +963,10 @@ function showEditModal(path) {
             if (!response.ok) {
                 throw new Error('无法获取文件内容: ' + response.statusText);
             }
-            return response.json();
+            return response.text();
         })
-        .then(data => {
-            document.getElementById('editContent').value = data.content;
-            document.getElementById('editEncoding').value = data.encoding;
+        .then(content => {
+            document.getElementById('editContent').value = content;
 
             if (!aceEditor) {
                 aceEditor = ace.edit("aceEditorContainer");
@@ -964,13 +976,12 @@ function showEditModal(path) {
                 aceEditor.setFontSize(DEFAULT_FONT_SIZE);
             }
 
-            aceEditor.setValue(data.content, -1);
+            aceEditor.setValue(content, -1);
 
             let fileExtension = path.split('.').pop().toLowerCase();
             let mode = getAceMode(fileExtension);
             aceEditor.session.setMode("ace/mode/" + mode);
 
-            document.getElementById('encoding').value = data.encoding;
             document.getElementById('fontSize').value = DEFAULT_FONT_SIZE;
 
             showModal('editModal');
