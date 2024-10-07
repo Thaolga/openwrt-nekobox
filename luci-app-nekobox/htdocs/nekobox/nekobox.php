@@ -404,32 +404,32 @@ function searchFiles($dir, $term) {
     <div class="row">
         <div class="col-12">
             <div class="button-group d-flex justify-content-center flex-wrap">
-                <button type="button" class="btn btn-outline-secondary" onclick="goBack()" title="Go Back">
+                <button type="button" class="btn btn-outline-secondary" onclick="goBack()" title="返回上一级">
                     <i class="fas fa-arrow-left"></i>
                 </button>
-                <button type="button" class="btn btn-outline-secondary" onclick="location.href='?dir=/'" title="Return to Root Directory">
+                <button type="button" class="btn btn-outline-secondary" onclick="location.href='?dir=/'" title="返回根目录">
                     <i class="fas fa-home"></i>
                 </button>
-                <button type="button" class="btn btn-outline-secondary" onclick="location.href='?dir=/root'" title="Return to Home Directory">
+                <button type="button" class="btn btn-outline-secondary" onclick="location.href='?dir=/root'" title="返回主目录">
                     <i class="fas fa-user"></i>
                 </button>
-                <button type="button" class="btn btn-outline-secondary" onclick="location.reload()" title="Refresh Directory Content">
+                <button type="button" class="btn btn-outline-secondary" onclick="location.reload()" title="刷新目录内容">
                     <i class="fas fa-sync-alt"></i>
                 </button>
                 <select id="languageSwitcher" class="btn btn-outline-secondary">
                     <option value="en" selected>English</option>
                     <option value="zh">中文</option>                 
                 </select>
-                <button type="button" class="btn btn-outline-secondary" onclick="showSearchModal()" id="searchBtn" title="Search">
+                <button type="button" class="btn btn-outline-secondary" onclick="showSearchModal()" id="searchBtn" title="搜索">
                     <i class="fas fa-search"></i>
                 </button>
-                <button type="button" class="btn btn-outline-secondary" onclick="showCreateModal()" id="createBtn" title="Create New">
+                <button type="button" class="btn btn-outline-secondary" onclick="showCreateModal()" id="createBtn" title="新建">
                     <i class="fas fa-plus"></i>
                 </button>
-                <button type="button" class="btn btn-outline-secondary" onclick="showUploadArea()" id="uploadBtn" title="Upload">
+                <button type="button" class="btn btn-outline-secondary" onclick="showUploadArea()" id="uploadBtn" title="上传">
                     <i class="fas fa-upload"></i>
                 </button>
-                <button id="themeToggle" class="btn btn-outline-secondary" title="Toggle Theme">
+                <button id="themeToggle" class="btn btn-outline-secondary" title="切换主题">
                     <i class="fas fa-moon"></i>
                 </button>
             </div>
@@ -518,26 +518,26 @@ function searchFiles($dir, $term) {
 <div id="createModal" class="modal">
     <div class="modal-content">
         <span class="close" onclick="closeModal('createModal')">&times;</span>
-        <h2>Create New</h2>
-        <button onclick="showNewFolderModal()" class="btn btn-primary mb-2">New Folder</button>
-        <button onclick="showNewFileModal()" class="btn btn-primary">New File</button>
+        <h2>新建</h2>
+        <button onclick="showNewFolderModal()" class="btn btn-primary mb-2">新建文件夹</button>
+        <button onclick="showNewFileModal()" class="btn btn-primary">新建文件</button>
     </div>
 </div>
 
 <div id="renameModal" class="modal">
     <div class="modal-content">
         <span class="close" onclick="closeModal('renameModal')">&times;</span>
-        <h2>Rename</h2>
+        <h2>重命名</h2>
         <form method="post" onsubmit="return validateRename()">
             <input type="hidden" name="action" value="rename">
             <input type="hidden" name="old_path" id="oldPath">
             <div class="form-group">
-                <label for="newPath">New name</label>
+                <label for="newPath">新名称</label>
                 <input type="text" name="new_path" id="newPath" class="form-control" autocomplete="off">
             </div>
             <div class="btn-group">
-                <button type="button" class="btn btn-secondary" onclick="closeModal('renameModal')">Cancel</button>
-                <button type="submit" class="btn btn-primary">Confirm Rename</button>
+                <button type="button" class="btn btn-secondary" onclick="closeModal('renameModal')">取消</button>
+                <button type="submit" class="btn btn-primary">确认重命名</button>
             </div>
         </form>
     </div>
@@ -546,12 +546,12 @@ function searchFiles($dir, $term) {
 <div id="newFolderModal" class="modal">
     <div class="modal-content">
         <span class="close" onclick="closeModal('newFolderModal')">&times;</span>
-        <h2>New Folder</h2>
+        <h2>新建文件夹</h2>
         <form method="post" onsubmit="return createNewFolder()">
             <input type="hidden" name="action" value="create_folder">
-            <label for="newFolderName">Folder name:</label>
+            <label for="newFolderName">文件夹名称:</label>
             <input type="text" name="new_folder_name" id="newFolderName" required>
-            <input type="submit" value="Create" class="btn">
+            <input type="submit" value="创建" class="btn">
         </form>
     </div>
 </div>
@@ -559,12 +559,12 @@ function searchFiles($dir, $term) {
 <div id="newFileModal" class="modal">
     <div class="modal-content">
         <span class="close" onclick="closeModal('newFileModal')">&times;</span>
-        <h2>New File</h2>
+        <h2>新建文件</h2>
         <form method="post" onsubmit="return createNewFile()">
             <input type="hidden" name="action" value="create_file">
-            <label for="newFileName">File name:</label>
+            <label for="newFileName">文件名称:</label>
             <input type="text" name="new_file_name" id="newFileName" required>
-            <input type="submit" value="Create" class="btn">
+            <input type="submit" value="创建" class="btn">
         </form>
     </div>
 </div>
@@ -573,20 +573,21 @@ function searchFiles($dir, $term) {
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title">Search Files</h5>
+                <h5 class="modal-title">搜索文件</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
                 <form onsubmit="return searchFiles()">
                     <div class="input-group mb-3">
-                        <input type="text" id="searchInput" class="form-control" placeholder="Input file name" required>
-                        <button type="submit" class="btn btn-primary">Search</button>
+                        <input type="text" id="searchInput" class="form-control" placeholder="输入文件名" required>
+                        <button type="submit" class="btn btn-primary">搜索</button>
                     </div>
                 </form>
                 <div id="searchResults"></div>
             </div>
         </div>
-    </div
+    </div>
+</div>
 
 <div id="editModal" class="modal">
     <div class="modal-content">
@@ -597,8 +598,8 @@ function searchFiles($dir, $term) {
             <input type="hidden" name="path" id="editPath">
             <input type="hidden" name="encoding" id="editEncoding">
             <textarea name="content" id="editContent" rows="10" cols="50"></textarea>
-            <input type="submit" value="Save" class="btn">
-            <button type="button" onclick="openAceEditor()" class="btn">Advanced Edit</button>
+            <input type="submit" value="保存" class="btn">
+            <button type="button" onclick="openAceEditor()" class="btn">高级编辑</button>
         </form>
     </div>
 </div>
@@ -629,16 +630,16 @@ function searchFiles($dir, $term) {
             <option value="Shift_JIS">Shift_JIS (日文)</option>
             <option value="EUC-KR">EUC-KR (韩文)</option>
         </select>
-        <button onclick="saveAceContent()" class="btn">Save</button>
-        <button onclick="closeAceEditor()" class="btn">Close</button>
+        <button onclick="saveAceContent()" class="btn">保存</button>
+        <button onclick="closeAceEditor()" class="btn">关闭</button>
     </div>
 </div>
 
 <div id="aceEditor">
     <div id="aceEditorContainer"></div>
     <div style="position: absolute; top: 10px; right: 10px;">
-        <button onclick="saveAceContent()" class="btn">Save</button>
-        <button onclick="closeAceEditor()" class="btn" style="margin-left: 10px;">Close</button>
+        <button onclick="saveAceContent()" class="btn">保存</button>
+        <button onclick="closeAceEditor()" class="btn" style="margin-left: 10px;">关闭</button>
     </div>
 </div>
 
@@ -650,13 +651,13 @@ function searchFiles($dir, $term) {
             <input type="hidden" name="action" value="chmod">
             <input type="hidden" name="path" id="chmodPath">
             <div class="form-group">
-                <label for="permissions">Permission value (e.g.: 0644）</label>
+                <label for="permissions">权限值（例如：0644）</label>
                 <input type="text" name="permissions" id="permissions" class="form-control" maxlength="4" placeholder="0644" autocomplete="off">
-                <small class="form-text text-muted">Enter three or four digits, e.g.: 0644 or 0755</small>
+                <small class="form-text text-muted">输入三位或四位数字，例如：0644 或 0755</small>
             </div>
             <div class="btn-group">
-                <button type="button" class="btn btn-secondary" onclick="closeModal('chmodModal')">Cancel</button>
-                <button type="submit" class="btn btn-primary">Confirm Modify</button>
+                <button type="button" class="btn btn-secondary" onclick="closeModal('chmodModal')">取消</button>
+                <button type="submit" class="btn btn-primary">确认修改</button>
             </div>
         </form>
     </div>
@@ -748,7 +749,7 @@ function searchFiles() {
             resultsDiv.innerHTML = '';
 
             if (data.length === 0) {
-                resultsDiv.innerHTML = '<p>No matching files found</p>';
+                resultsDiv.innerHTML = '<p>没有找到匹配的文件。</p>';
             } else {
                 const ul = document.createElement('ul');
                 ul.className = 'list-group';
@@ -761,7 +762,7 @@ function searchFiles() {
 
                     const moveButton = document.createElement('button');
                     moveButton.className = 'btn btn-sm btn-primary';
-                    moveButton.textContent = 'Move to';
+                    moveButton.textContent = '移至';
                     moveButton.onclick = function() {
                         const targetDir = file.dir === '' ? '/' : file.dir;
                         window.location.href = `?dir=${encodeURIComponent(targetDir)}`;
@@ -1013,7 +1014,7 @@ function saveAceContent() {
 }
 
 function closeAceEditor() {
-    if (confirm('Are you sure you want to close the editor? Please make sure you have saved your changes.')) {
+    if (confirm('确定要关闭编辑器吗？请确保已保存更改。')) {
         document.getElementById('editContent').value = aceEditor.getValue();
         document.getElementById('aceEditor').style.display = 'none';
         showModal('editModal');
@@ -1166,9 +1167,6 @@ const translations = {
         searchTitle: "搜索",
         createTitle: "新建",
         uploadTitle: "上传",
-        create: "创建",
-        confirmRename: "确认重命名",
-        confirmModify: "确认修改",
         themeToggleTitle: "切换主题"
     },
     en: {
@@ -1256,9 +1254,6 @@ const translations = {
         searchTitle: "Search",
         createTitle: "Create New",
         uploadTitle: "Upload",
-        create: "Create",
-        confirmRename: "Confirm Rename",
-        confirmModify: "Confirm Modify",
         themeToggleTitle: "Toggle Theme"
     }
 };
