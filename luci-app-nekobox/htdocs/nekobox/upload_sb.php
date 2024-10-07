@@ -392,7 +392,7 @@ if (isset($_POST['update'])) {
         <a href="./upload.php" class="col btn btn-lg">📂 Mihomo</a>
         <a href="./upload_sb.php" class="col btn btn-lg">🗂️ Sing-box</a>
         <a href="./box.php" class="col btn btn-lg">💹 Template</a>
-        <a href="./personal.php" class="col btn btn-lg">📦 Personal</a>
+        <a href="./nekobox.php" class="col btn btn-lg">📦 File Assistant</a>
     </div>
     <div class="text-center">
         <h1 style="margin-top: 40px; margin-bottom: 20px;">Mihomo File Manager</h1>

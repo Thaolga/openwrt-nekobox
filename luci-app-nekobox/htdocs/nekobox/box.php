@@ -23,7 +23,7 @@ include './cfg.php';
         <a href="./upload.php" class="col btn btn-lg">📂 Mihomo</a>
         <a href="./upload_sb.php" class="col btn btn-lg">🗂️ Sing-box</a>
         <a href="./box.php" class="col btn btn-lg">💹 Template</a>
-        <a href="./personal.php" class="col btn btn-lg">📦 Personal</a>
+        <a href="./nekobox.php" class="col btn btn-lg">📦 File Assistant</a>
 <div class="outer-container">
     <div class="container">
         <h1 class="title text-center">Sing-box Subscription Conversion Template</h1>
