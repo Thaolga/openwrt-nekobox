@@ -116,11 +116,7 @@ function renameItem($old_path, $new_path) {
 
 function editFile($path, $content, $encoding) {
     if (file_exists($path) && is_writable($path)) {
-        $utf8_content = mb_convert_encoding($content, 'UTF-8', 'UTF-8');
-        
-        $encoded_content = mb_convert_encoding($utf8_content, $encoding, 'UTF-8');
-        
-        return file_put_contents($path, $encoded_content) !== false;
+        return file_put_contents($path, $content) !== false;
     }
     return false;
 }
