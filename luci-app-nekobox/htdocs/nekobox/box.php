@@ -23,7 +23,7 @@ include './cfg.php';
         <a href="./upload.php" class="col btn btn-lg">📂 Mihomo</a>
         <a href="./upload_sb.php" class="col btn btn-lg">🗂️ Sing-box</a>
         <a href="./box.php" class="col btn btn-lg">💹 转换</a>
-        <a href="./personal.php" class="col btn btn-lg">📦 订阅</a>
+        <a href="./nekobox.php" class="col btn btn-lg">📦 文件助手</a>
 <div class="outer-container">
     <div class="container">
         <h1 class="title text-center">Sing-box 订阅转换模板</h1>

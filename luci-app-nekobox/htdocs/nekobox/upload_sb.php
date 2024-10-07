@@ -453,7 +453,7 @@ if (isset($_POST['update'])) {
         <a href="./upload.php" class="col btn btn-lg">📂 Mihomo</a>
         <a href="./upload_sb.php" class="col btn btn-lg">🗂️ Sing-box</a>
         <a href="./box.php" class="col btn btn-lg">💹 转换</a>
-        <a href="./personal.php" class="col btn btn-lg">📦 订阅</a>
+        <a href="./nekobox.php" class="col btn btn-lg">📦 文件助手</a>
     <div class="text-center">
       <h1 style="margin-top: 40px; margin-bottom: 20px;">Sing-box 文件管理</h1>
         <h2>代理文件管理 ➤ p核专用</h2>
