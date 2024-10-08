@@ -262,7 +262,13 @@ function searchFiles($dir, $term) {
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
-    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/js-beautify/1.14.0/beautify.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/js-beautify/1.14.0/beautify-css.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/js-beautify/1.14.0/beautify-html.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/js-beautify/1.14.0/beautify.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/js-yaml/4.1.0/js-yaml.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.4.12/ext-language_tools.js"></script>
+
     <style>
         body { font-family: Arial, sans-serif; max-width: 1500px; margin: 0 auto; padding: 20px; }
         table { width: 100%; border-collapse: collapse; }
@@ -442,7 +448,7 @@ function searchFiles($dir, $term) {
         .nav-container,.container-bg{background:none!important;background-color:transparent!important;box-shadow:none!important;border:none!important;}
         .modal-content {background-color: #fff;margin: 5% auto;padding: 30px;border: none;width: 50%;max-width: 600px;box-shadow: 0 10px 30px rgba(0,0,0,0.2);border-radius: 15px;}
 
-</style>
+  </style>
        <div class="container container-bg border border-3 rounded-4 col-12 mb-4">
     <div class="nav-row">
         <a href="./index.php" class="nav-btn"><span>🏠</span>首页</a>
@@ -674,8 +680,12 @@ function searchFiles($dir, $term) {
     </div>
 </div>
 
-<div id="aceEditor">
+<div id="aceEditor" style="display: none;">
     <div id="aceEditorContainer"></div>
+    <div id="editorStatusBar">
+        <span id="cursorPosition">行: 1, 列: 1</span>
+        <span id="characterCount">字符数: 0</span>
+    </div>
     <div style="position: absolute; top: 10px; right: 10px;">
         <select id="fontSize" onchange="changeFontSize()">
             <option value="18px">18px</option>
@@ -700,6 +710,9 @@ function searchFiles($dir, $term) {
             <option value="Shift_JIS">Shift_JIS (日文)</option>
             <option value="EUC-KR">EUC-KR (韩文)</option>
         </select>
+        <button onclick="formatCode()" class="btn">格式化</button>
+        <button onclick="validateJSON()" class="btn" id="validateJSONBtn" style="display: none;">验证 JSON</button>
+        <button onclick="validateYAML()" class="btn" id="validateYAMLBtn" style="display: none;">验证 YAML</button>
         <button onclick="saveAceContent()" class="btn">保存</button>
         <button onclick="closeAceEditor()" class="btn">关闭</button>
     </div>
@@ -953,16 +966,6 @@ function formatCode() {
     beautify.beautify(session);
 }
 
-function openAceEditor() {
-    closeModal('editModal');
-    document.getElementById('aceEditor').style.display = 'block';
-    let content = document.getElementById('editContent').value;
-    aceEditor.setValue(content, -1);
-    aceEditor.resize();
-    aceEditor.setFontSize(DEFAULT_FONT_SIZE);
-    document.getElementById('fontSize').value = DEFAULT_FONT_SIZE;
-    aceEditor.focus();
-}
 
 function showChmodModal(path, currentPermissions) {
     document.getElementById('chmodPath').value = path;
@@ -1003,6 +1006,7 @@ document.getElementById('permissions').addEventListener('input', function(e) {
 function getAceMode(extension) {
     const modeMap = {
         'js': 'javascript',
+        'json': 'json',
         'py': 'python',
         'php': 'php',
         'html': 'html',
@@ -1085,6 +1089,107 @@ function saveAceContent() {
     encodingField.value = encoding;
     document.getElementById('editModal').querySelector('form').appendChild(encodingField);
     document.getElementById('editModal').querySelector('form').submit();
+}
+
+function openAceEditor() {
+    closeModal('editModal');
+    document.getElementById('aceEditor').style.display = 'block';
+    let content = document.getElementById('editContent').value;
+
+    let fileExtension = document.getElementById('editPath').value.split('.').pop().toLowerCase();
+    let mode = getAceMode(fileExtension);
+    let session = aceEditor.getSession();
+    session.setMode("ace/mode/" + mode);
+
+    aceEditor.setOptions({
+        enableBasicAutocompletion: true,
+        enableLiveAutocompletion: true,
+        enableSnippets: true
+    });
+
+    document.getElementById('validateJSONBtn').style.display = (mode === 'json') ? 'inline-block' : 'none';
+    document.getElementById('validateYAMLBtn').style.display = (mode === 'yaml') ? 'inline-block' : 'none';
+
+    if (mode === 'yaml') {
+        session.setTabSize(2);
+        session.setUseSoftTabs(true);
+    }
+
+    if (mode === 'json' || mode === 'yaml') {
+        session.setOption("useWorker", false);
+        if (session.$customWorker) {
+            session.$customWorker.terminate();
+        }
+        session.$customWorker = createCustomWorker(session, mode);
+        session.on("change", function() {
+            session.$customWorker.postMessage({
+                content: session.getValue(),
+                mode: mode
+            });
+        });
+        
+        setupCustomIndent(session, mode);
+    }
+    setupCustomCompletion(session, mode);
+    
+    if (!aceEditor) {
+        aceEditor = ace.edit("aceEditorContainer");
+        aceEditor.setTheme("ace/theme/monokai");
+        
+        aceEditor.getSession().selection.on('changeCursor', updateCursorPosition);
+        aceEditor.getSession().on('change', updateCharacterCount);
+    }
+    
+    aceEditor.setValue(content, -1);
+    aceEditor.resize();
+    aceEditor.setFontSize(DEFAULT_FONT_SIZE);
+    document.getElementById('fontSize').value = DEFAULT_FONT_SIZE;
+    aceEditor.focus();
+    
+    updateCursorPosition();
+    updateCharacterCount();
+    
+    if (!document.getElementById('editorStatusBar')) {
+        const statusBar = document.createElement('div');
+        statusBar.id = 'editorStatusBar';
+        statusBar.innerHTML = `
+            <span id="cursorPosition">行: 1, 列: 1</span>
+            <span id="characterCount">字符数: 0</span>
+        `;
+        document.getElementById('aceEditor').appendChild(statusBar);
+    }
+}
+
+function updateCursorPosition() {
+    var cursorPosition = aceEditor.getCursorPosition();
+    document.getElementById('cursorPosition').textContent = '行: ' + (cursorPosition.row + 1) + ', 列: ' + (cursorPosition.column + 1);
+}
+
+function updateCharacterCount() {
+    var characterCount = aceEditor.getValue().length;
+    document.getElementById('characterCount').textContent = '字符数: ' + characterCount;
+}
+
+function validateJSON() {
+    const editor = aceEditor;
+    const content = editor.getValue();
+    try {
+        JSON.parse(content);
+        alert('JSON 格式有效');
+    } catch (e) {
+        alert('无效的 JSON 格式: ' + e.message);
+    }
+}
+
+function addErrorMarker(session, line, message) {
+    var Range = ace.require("ace/range").Range;
+    var marker = session.addMarker(new Range(line, 0, line, 1), "ace_error-marker", "fullLine");
+    session.setAnnotations([{
+        row: line,
+        type: "error",
+        text: message
+    }]);
+    return marker;
 }
 
 function closeAceEditor() {
@@ -1176,6 +1281,42 @@ body.dark-mode .upload-drop-zone:hover .upload-icon { color: #0d6efd; }
     #searchResults .list-group-item span {
         word-break: break-all;
         margin-right: 10px;
+    }
+</style>
+
+
+<style>
+    #aceEditor {
+        position: fixed;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        left: 0;
+        z-index: 1000;
+    }
+    #aceEditorContainer {
+        position: absolute;
+        top: 0;
+        right: 0;
+        bottom: 30px;
+        left: 0;
+    }
+    #editorStatusBar {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        height: 30px;
+        background-color: #f0f0f0;
+        padding: 5px 10px;
+        font-size: 12px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    body.dark-mode #editorStatusBar {
+        background-color: #2d3238;
+        color: #e0e0e0;
     }
 </style>
 
@@ -1576,6 +1717,283 @@ function previewFile(path, extension) {
     }
     
     showModal('previewModal');
+}
+
+function setupCustomIndent(session, mode) {
+    session.setTabSize(2);
+    session.setUseSoftTabs(true);
+    session.on("change", function(delta) {
+        if (delta.action === "insert" && delta.lines.length === 1 && delta.lines[0] === "") {
+            var cursor = session.selection.getCursor();
+            var line = session.getLine(cursor.row - 1);
+            var indent = line.match(/^\s*/)[0];
+
+            if (mode === 'yaml') {
+                if (line.trim().endsWith(':')) {
+                    indent += "  ";
+                } else if (line.trim().startsWith('- ')) {
+                    indent = line.match(/^\s*/)[0];
+                }
+            } else if (mode === 'json') {
+                if (line.trim().endsWith('{') || line.trim().endsWith('[')) {
+                    indent += "  ";
+                }
+            }
+
+            session.insert({row: cursor.row, column: 0}, indent);
+        }
+    });
+}
+
+function setupCustomCompletion(session, mode) {
+    var langTools = ace.require("ace/ext/language_tools");
+    var customCompleter = {
+        getCompletions: function(editor, session, pos, prefix, callback) {
+            var line = session.getLine(pos.row);
+            var completions = [];
+
+            if (mode === 'json') {
+                if (line.trim().length === 0 || line.trim().endsWith(',')) {
+                    completions = [
+                        {caption: "\"\":", snippet: "\"${1:key}\": ${2:value}", meta: "key-value pair"},
+                        {caption: "{}", snippet: "{\n  $0\n}", meta: "object"},
+                        {caption: "[]", snippet: "[\n  $0\n]", meta: "array"}
+                    ];
+                }
+            } else if (mode === 'yaml') {
+                if (line.trim().length === 0) {
+                    completions = [
+                        {caption: "key:", snippet: "${1:key}: ${2:value}", meta: "key-value pair"},
+                        {caption: "- ", snippet: "- ${1:item}", meta: "list item"},
+                        {caption: "---", snippet: "---\n$0", meta: "document start"}
+                    ];
+                }
+            }
+
+            callback(null, completions);
+        }
+    };
+
+    langTools.addCompleter(customCompleter);
+}
+
+function createJsonWorker(session) {
+    var worker = new Worker(URL.createObjectURL(new Blob([`
+        self.onmessage = function(e) {
+            var value = e.data;
+            try {
+                JSON.parse(value);
+                self.postMessage({
+                    isValid: true
+                });
+            } catch (e) {
+                var match = e.message.match(/at position (\\d+)/);
+                var pos = match ? parseInt(match[1], 10) : 0;
+                var lines = value.split(/\\n/);
+                var total = 0;
+                var line = 0;
+                var ch;
+                for (var i = 0; i < lines.length; i++) {
+                    total += lines[i].length + 1;
+                    if (total > pos) {
+                        line = i;
+                        ch = pos - (total - lines[i].length - 1);
+                        break;
+                    }
+                }
+                self.postMessage({
+                    isValid: false,
+                    line: line,
+                    ch: ch,
+                    message: e.message
+                });
+            }
+        };
+    `], { type: "text/javascript" })));
+
+    worker.onmessage = function(e) {
+        session.clearAnnotations();
+        if (session.$errorMarker) {
+            session.removeMarker(session.$errorMarker);
+        }
+        if (!e.data.isValid) {
+            session.$errorMarker = addErrorMarker(session, e.data.line, e.data.message);
+        }
+    };
+
+    return worker;
+}
+
+function addErrorMarker(session, line, message) {
+    var Range = ace.require("ace/range").Range;
+    var marker = session.addMarker(new Range(line, 0, line, 1), "ace_error-marker", "fullLine");
+    session.setAnnotations([{
+        row: line,
+        column: 0,
+        text: message,
+        type: "error"
+    }]);
+    return marker;
+}
+
+function addErrorMarker(session, line, message) {
+    var Range = ace.require("ace/range").Range;
+    var marker = session.addMarker(new Range(line, 0, line, 1), "ace_error-marker", "fullLine");
+    session.setAnnotations([{
+        row: line,
+        column: 0,
+        text: message,
+        type: "error"
+    }]);
+    return marker;
+}
+
+function createCustomWorker(session, mode) {
+    var worker = new Worker(URL.createObjectURL(new Blob([`
+        importScripts('https://cdnjs.cloudflare.com/ajax/libs/js-yaml/4.1.0/js-yaml.min.js');
+        self.onmessage = function(e) {
+            var content = e.data.content;
+            var mode = e.data.mode;
+            try {
+                if (mode === 'json') {
+                    JSON.parse(content);
+                } else if (mode === 'yaml') {
+                    jsyaml.load(content);
+                }
+                self.postMessage({
+                    isValid: true
+                });
+            } catch (e) {
+                var line = 0;
+                var column = 0;
+                var message = e.message;
+
+                if (mode === 'json') {
+                    var match = e.message.match(/at position (\\d+)/);
+                    if (match) {
+                        var position = parseInt(match[1], 10);
+                        var lines = content.split('\\n');
+                        var currentLength = 0;
+                        for (var i = 0; i < lines.length; i++) {
+                            currentLength += lines[i].length + 1; // +1 for newline
+                            if (currentLength >= position) {
+                                line = i;
+                                column = position - (currentLength - lines[i].length - 1);
+                                break;
+                            }
+                        }
+                    }
+                } else if (mode === 'yaml') {
+                    if (e.mark) {
+                        line = e.mark.line;
+                        column = e.mark.column;
+                    }
+                }
+
+                self.postMessage({
+                    isValid: false,
+                    line: line,
+                    column: column,
+                    message: message
+                });
+            }
+        };
+    `], { type: "text/javascript" })));
+
+    worker.onmessage = function(e) {
+        session.clearAnnotations();
+        if (session.$errorMarker) {
+            session.removeMarker(session.$errorMarker);
+        }
+        if (!e.data.isValid) {
+            session.$errorMarker = addErrorMarker(session, e.data.line, e.data.column, e.data.message);
+        }
+    };
+
+    return worker;
+}
+
+function formatCode() {
+    const editor = aceEditor;
+    const session = editor.getSession();
+    const cursorPosition = editor.getCursorPosition();
+    
+    let content = editor.getValue();
+    let formatted;
+    
+    const mode = session.getMode().$id;
+    
+    try {
+        if (mode.includes('javascript')) {
+            formatted = js_beautify(content, {
+                indent_size: 2,
+                space_in_empty_paren: true
+            });
+        } else if (mode.includes('json')) {
+            JSON.parse(content); 
+            formatted = JSON.stringify(JSON.parse(content), null, 2);
+        } else if (mode.includes('yaml')) {
+            const obj = jsyaml.load(content); 
+            formatted = jsyaml.dump(obj, {
+                indent: 2,
+                lineWidth: -1,
+                noRefs: true,
+                sortKeys: false
+            });
+        } else {
+            formatted = js_beautify(content, {
+                indent_size: 2,
+                space_in_empty_paren: true
+            });
+        }
+
+        editor.setValue(formatted);
+        editor.clearSelection();
+        editor.moveCursorToPosition(cursorPosition);
+        editor.focus();
+
+        session.clearAnnotations();
+        if (session.$errorMarker) {
+            session.removeMarker(session.$errorMarker);
+        }
+
+        showNotification('代码已成功格式化', 'success');
+
+    } catch (e) {
+        let errorMessage;
+        if (mode.includes('json')) {
+            errorMessage = '无法格式化：无效的 JSON 格式';
+        } else if (mode.includes('yaml')) {
+            errorMessage = '无法格式化：无效的 YAML 格式';
+        } else {
+            errorMessage = '格式化时发生错误：' + e.message;
+        }
+        showNotification(errorMessage, 'error');
+
+        if (e.mark) {
+            session.$errorMarker = addErrorMarker(session, e.mark.line, e.message);
+        }
+    }
+}
+
+function addErrorMarker(session, line, column, message) {
+    var Range = ace.require("ace/range").Range;
+    var marker = session.addMarker(new Range(line, 0, line, 1), "ace_error-marker", "fullLine");
+    session.setAnnotations([{
+        row: line,
+        column: column,
+        text: message,
+        type: "error"
+    }]);
+    return marker;
+}
+
+function showNotification(message, type) {
+    if (type === 'error') {
+        alert('错误: ' + message);
+    } else {
+        alert(message);
+    }
 }
 </script>
 </body>
