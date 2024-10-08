@@ -699,6 +699,28 @@ function searchFiles($dir, $term) {
             <option value="ace/theme/github">GitHub</option>
             <option value="ace/theme/tomorrow">Tomorrow</option>
             <option value="ace/theme/twilight">Twilight</option>
+            <option value="ace/theme/solarized_dark">Solarized Dark</option>
+            <option value="ace/theme/solarized_light">Solarized Light</option>
+            <option value="ace/theme/textmate">TextMate</option>
+            <option value="ace/theme/terminal">Terminal</option>
+            <option value="ace/theme/chrome">Chrome</option>
+            <option value="ace/theme/eclipse">Eclipse</option>
+            <option value="ace/theme/dreamweaver">Dreamweaver</option>
+            <option value="ace/theme/xcode">Xcode</option>
+            <option value="ace/theme/kuroir">Kuroir</option>
+            <option value="ace/theme/katzenmilch">KatzenMilch</option>
+            <option value="ace/theme/sqlserver">SQL Server</option>
+            <option value="ace/theme/ambiance">Ambiance</option>
+            <option value="ace/theme/chaos">Chaos</option>
+            <option value="ace/theme/clouds_midnight">Clouds Midnight</option>
+            <option value="ace/theme/cobalt">Cobalt</option>
+            <option value="ace/theme/gruvbox">Gruvbox</option>
+            <option value="ace/theme/idle_fingers">Idle Fingers</option>
+            <option value="ace/theme/kr_theme">krTheme</option>
+            <option value="ace/theme/merbivore">Merbivore</option>
+            <option value="ace/theme/mono_industrial">Mono Industrial</option>
+            <option value="ace/theme/pastel_on_dark">Pastel on Dark</option>
+            <option value="ace/theme/vibrant_ink">Vibrant Ink</option>
         </select>
         <select id="encoding" onchange="changeEncoding()">
             <option value="UTF-8">UTF-8</option>
@@ -958,6 +980,7 @@ function showEditModal(path) {
     function changeEditorTheme() {
         let theme = document.getElementById('editorTheme').value;
         aceEditor.setTheme(theme);
+        localStorage.setItem('preferredAceTheme', theme); 
     }
 
 function formatCode() {
@@ -1131,6 +1154,12 @@ function openAceEditor() {
         setupCustomIndent(session, mode);
     }
     setupCustomCompletion(session, mode);
+
+    let savedTheme = localStorage.getItem('preferredAceTheme');
+    if (savedTheme) {
+        aceEditor.setTheme(savedTheme);
+        document.getElementById('editorTheme').value = savedTheme;
+    }
     
     if (!aceEditor) {
         aceEditor = ace.edit("aceEditorContainer");
