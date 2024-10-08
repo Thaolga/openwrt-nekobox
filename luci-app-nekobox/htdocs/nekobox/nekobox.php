@@ -639,15 +639,15 @@ function searchFiles($dir, $term) {
     </div>
 </div>
 
-<div id="searchModal" class="modal fade" tabindex="-1">
-    <div class="modal-dialog">
+<div id="searchModal" class="modal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title">搜索文件</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <form onsubmit="return searchFiles()">
+                <form id="searchForm">
                     <div class="input-group mb-3">
                         <input type="text" id="searchInput" class="form-control" placeholder="输入文件名" required>
                         <button type="submit" class="btn btn-primary">搜索</button>
@@ -805,10 +805,15 @@ function createNewFile() {
 }
 
 function showSearchModal() {
-    new bootstrap.Modal(document.getElementById('searchModal')).show();
+    const searchModal = new bootstrap.Modal(document.getElementById('searchModal'), {
+        backdrop: 'static',
+        keyboard: false
+    });
+    searchModal.show();
 }
 
-function searchFiles() {
+function searchFiles(event) {
+    event.preventDefault();
     const searchTerm = document.getElementById('searchInput').value;
     const currentDir = '<?php echo $current_dir; ?>';
 
@@ -827,7 +832,7 @@ function searchFiles() {
                     const li = document.createElement('li');
                     li.className = 'list-group-item d-flex justify-content-between align-items-center';
                     const fileSpan = document.createElement('span');
-                    fileSpan.textContent = file.path;
+                    fileSpan.textContent = `${file.name} (${file.path})`;
                     li.appendChild(fileSpan);
 
                     const moveButton = document.createElement('button');
@@ -836,6 +841,7 @@ function searchFiles() {
                     moveButton.onclick = function() {
                         const targetDir = file.dir === '' ? '/' : file.dir;
                         window.location.href = `?dir=${encodeURIComponent(targetDir)}`;
+                        bootstrap.Modal.getInstance(document.getElementById('searchModal')).hide();
                     };
                     li.appendChild(moveButton);
 
@@ -848,8 +854,6 @@ function searchFiles() {
             console.error('搜索出错:', error);
             alert('搜索时出错: ' + error.message);
         });
-
-    return false;
 }
 
 fileSpan.textContent = `${file.name} (${file.path})`;
@@ -1145,6 +1149,36 @@ body.dark-mode .upload-icon { color: #adb5bd; }
 body.dark-mode .upload-drop-zone:hover .upload-icon { color: #0d6efd; }
 </style>
 
+<style>
+    #searchModal {
+        z-index: 1060 !important;
+    }
+    .modal-backdrop {
+        z-index: 1050 !important;
+    }
+    .modal-content {
+        background-color: var(--bs-body-bg);
+        color: var(--bs-body-color);
+    }
+    #searchModal .modal-dialog {
+        max-width: 90% !important;
+        width: 800px !important;
+    }
+    #searchResults {
+        max-height: 400px;
+        overflow-y: auto;
+    }
+    #searchResults .list-group-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    #searchResults .list-group-item span {
+        word-break: break-all;
+        margin-right: 10px;
+    }
+</style>
+
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     const saveLanguageBtn = document.getElementById('saveLanguage');
@@ -1386,6 +1420,7 @@ document.addEventListener('DOMContentLoaded', function() {
     ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
         dropZone.addEventListener(eventName, preventDefaults, false);
         document.body.addEventListener(eventName, preventDefaults, false);
+        document.getElementById('searchForm').addEventListener('submit', searchFiles);
     });
 
     function preventDefaults(e) {
