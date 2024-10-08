@@ -327,7 +327,7 @@ function searchFiles($dir, $term) {
         @media (max-width: 768px) { .btn-group > * { min-width: 50px; } }
         .btn-chmod { background-color: #FFA500; color: #333; } 
         .btn-chmod:hover { background-color: #FF8C00; color: #fff; }
-        .nav-container { background-color: #f8f9fa; border-radius: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); padding: 10px; margin: 20px 0; }
+
         .nav-row { display: flex; justify-content: space-around; flex-wrap: wrap; }
         .nav-btn { display: flex; align-items: center; justify-content: center; padding: 10px 15px; margin: 5px; border-radius: 8px; text-decoration: none; color: #333; background-color: #fff; transition: all 0.3s ease; font-weight: 500; min-width: 100px; }
         .nav-btn:hover { background-color: #007bff; color: #fff; transform: translateY(-2px); }
@@ -375,6 +375,74 @@ function searchFiles($dir, $term) {
         .btn-outline-secondary, #languageSwitcher { width: 38px; height: 38px; padding: 0; font-size: 1rem; line-height: 1; border-radius: 0.25rem; display: flex; align-items: center; justify-content: center; }
         #languageSwitcher { width: auto; padding: 0 0.5rem; }
         @media (max-width: 768px) { .button-group { justify-content: center; } }
+        body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;color:var(--text-color);line-height:1.6;}
+        :root {--primary-color: #3498db;--secondary-color: #2ecc71;--text-color: #34495e;--border-color: #e0e6ed;}
+        table {width: 100%;border-collapse: separate;border-spacing: 0;background: #fff;border-radius: 10px;overflow: hidden;box-shadow: 0 5px 15px rgba(0,0,0,0.1);}
+        th {background-color: var(--primary-color);color: white;font-weight: 600;text-transform: uppercase;letter-spacing: 0.5px;}
+        tr:last-child td {border-bottom: none;}
+        tr:hover {background-color: #f8f9fa;}
+        .modal-content {background-color: #fff;border-radius: 10px;padding: 30px;box-shadow: 0 10px 30px rgba(0,0,0,0.2);}
+        .modal h2 {margin-bottom: 20px;color: var(--primary-color);}
+        .form-group {margin-bottom: 20px;}
+        .form-group label {display: block;margin-bottom: 5px;font-weight: 600;}
+        .form-group input[type="text"] {width: 100%;padding: 10px;border: 1px solid var(--border-color);border-radius: 5px;font-size: 16px;}
+        @media (max-width: 768px) {table {font-size: 14px;} .btn {padding: 6px 12px;font-size: 12px;} .nav-btn {padding: 8px 16px;font-size: 14px;}}
+        @keyframes fadeIn {from { opacity: 0; }to { opacity: 1; }}
+        .modal {animation: fadeIn 0.3s ease;}
+        .btn, .nav-btn {transition: all 0.3s ease;}
+        .btn:hover, .nav-btn:hover {transform: translateY(-2px);box-shadow: 0 5px 15px rgba(0,0,0,0.1);}
+        .modal {display: none;position: fixed;z-index: 1000;left: 0;top: 0;width: 100%;height: 100%;overflow: auto;background-color: rgba(0,0,0,0.4);backdrop-filter: blur(5px);}
+        .modal.show .modal-content {transform: translateY(0);opacity: 1;}
+        .close {color: #aaa;float: right;font-size: 28px;font-weight: bold;transition: color 0.3s ease;}
+        .close:hover,.close:focus {color: #000;text-decoration: none;cursor: pointer;}
+        .modal h2 {margin-top: 0;color: #333;font-size: 24px;font-weight: 600;margin-bottom: 20px;padding-bottom: 10px;border-bottom: 2px solid #f0f0f0;}
+        .modal form {margin-top: 20px;}
+        .modal .form-group {margin-bottom: 20px;}
+        .modal label {display: block;margin-bottom: 5px;font-weight: 500;color: #555;}
+        .modal input[type="text"],.modal input[type="password"],.modal textarea {width: 100%;padding: 10px;border: 1px solid #ddd;border-radius: 5px;font-size: 16px;transition: border-color 0.3s ease;}
+        .modal input[type="text"]:focus,.modal input[type="password"]:focus,.modal textarea:focus {border-color: #3498db;outline: none;box-shadow: 0 0 5px rgba(52, 152, 219, 0.5);}
+        .modal .btn {padding: 10px 20px;font-size: 16px;border: none;border-radius: 5px;cursor: pointer;transition: all 0.3s ease;}
+        .modal .btn-primary {background-color: #3498db;color: white;}
+        .modal .btn-primary:hover {background-color: #2980b9;}
+        .modal .btn-secondary {background-color: #95a5a6;color: white;}
+        .modal .btn-secondary:hover {background-color: #7f8c8d;}
+        body.dark-mode td.folder-icon a {color: #2ecc71;transition: color 0.3s ease;}
+        body.dark-mode td.folder-icon a:hover {color: #27ae60;text-decoration: underline;}
+        body.dark-mode .modal-content {background-color: #2c3e50;color: #ecf0f1;}
+        body.dark-mode .modal h2 {color: #3498db;border-bottom-color: #34495e;}
+        body.dark-mode .close {color: #bdc3c7;}
+        body.dark-mode .close:hover,body.dark-mode .close:focus {color: #ecf0f1;}
+        body.dark-mode .modal label {color: #ecf0f1;}
+        body.dark-mode .modal input[type="text"],body.dark-mode .modal input[type="password"],body.dark-mode .modal textarea {background-color: #34495e;border-color: #2c3e50;color: #ecf0f1;}
+        body.dark-mode .modal input[type="text"]:focus,body.dark-mode .modal input[type="password"]:focus,body.dark-mode .modal textarea:focus {border-color: #3498db;box-shadow: 0 0 5px rgba(52, 152, 219, 0.5);}
+        body.dark-mode #renameModal .modal-content,body.dark-mode #chmodModal .modal-content {color: #ecf0f1;}
+        body.dark-mode #renameModal label,body.dark-mode #chmodModal label {color: #ecf0f1;}
+        body.dark-mode #renameModal input[type="text"],body.dark-mode #chmodModal input[type="text"] {color: #ecf0f1;background-color: #34495e;border-color: #3498db;}
+        body.dark-mode #renameModal .btn,body.dark-mode #chmodModal .btn {color: #ecf0f1;}
+        body.dark-mode #renameModal .btn-primary,body.dark-mode #chmodModal .btn-primary {background-color: #3498db;}
+        body.dark-mode #renameModal .btn-secondary,body.dark-mode #chmodModal .btn-secondary {background-color: #95a5a6;}
+        body.dark-mode .modal-content {background-color: #2c3e50;color: #ecf0f1;}
+        body.dark-mode .modal h2 {color: #ecf0f1;border-bottom-color: #34495e;}
+        body.dark-mode .close {color: #bdc3c7;}
+        body.dark-mode .close:hover,body.dark-mode .close:focus {color: #ecf0f1;}
+        body.dark-mode .modal label {color: #ecf0f1;}
+        body.dark-mode .modal input[type="text"],body.dark-mode .modal input[type="password"],body.dark-mode .modal textarea {background-color: #34495e;border-color: #2c3e50;color: #ecf0f1;}
+        body.dark-mode .modal input[type="text"]:focus,body.dark-mode .modal input[type="password"]:focus,body.dark-mode .modal textarea:focus {border-color: #3498db;box-shadow: 0 0 5px rgba(52, 152, 219, 0.5);}
+        body.dark-mode #renameModal .modal-content,body.dark-mode #chmodModal .modal-content,body.dark-mode #editModal .modal-content,body.dark-mode #newFolderModal .modal-content,body.dark-mode #newFileModal .modal-content,body.dark-mode #searchModal .modal-content,body.dark-mode #previewModal .modal-content {color: #ecf0f1;}
+        body.dark-mode #renameModal h2,body.dark-mode #chmodModal h2,body.dark-mode #editModal h2,body.dark-mode #newFolderModal h2,body.dark-mode #newFileModal h2,body.dark-mode #searchModal h2,body.dark-mode #previewModal h2 {color: #ecf0f1;}
+        #editModal .modal-content,#previewModal .modal-content {width: 80%;max-width: 1000px;}
+        #searchModal .modal-dialog,#searchModal .modal-content {max-width: 90% !important;width: 800px !important;}
+        body.dark-mode td.folder-icon a,body.dark-mode td.file-icon a {text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);}
+        body.dark-mode .nav-container {background-color: transparent;box-shadow: none;}
+        body.dark-mode .nav-btn {color: #ecf0f1;background-color: rgba(52, 73, 94, 0.6);transition: all 0.3s ease;}
+        body.dark-mode .nav-btn:hover {background-color: rgba(52, 73, 94, 0.8);color: #3498db;transform: translateY(-2px);}
+        body.dark-mode .nav-btn span {color: #3498db;}
+        body.dark-mode .breadcrumb {background-color: transparent;color: #ecf0f1;}
+        body.dark-mode .breadcrumb a {color: #3498db;transition: color 0.3s ease;}
+        body.dark-mode .breadcrumb a:hover {color: #2980b9;text-decoration: underline;}
+        .nav-container,.container-bg{background:none!important;background-color:transparent!important;box-shadow:none!important;border:none!important;}
+        .modal-content {background-color: #fff;margin: 5% auto;padding: 30px;border: none;width: 50%;max-width: 600px;box-shadow: 0 10px 30px rgba(0,0,0,0.2);border-radius: 15px;}
+
 </style>
        <div class="container container-bg border border-3 rounded-4 col-12 mb-4">
     <div class="nav-row">
