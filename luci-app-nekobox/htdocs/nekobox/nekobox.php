@@ -732,6 +732,7 @@ function searchFiles($dir, $term) {
             <option value="Shift_JIS">Shift_JIS (日文)</option>
             <option value="EUC-KR">EUC-KR (韩文)</option>
         </select>
+        <button onclick="toggleSearch()" class="btn" title="搜索文件内容"> <i class="fas fa-search"></i></button>
         <button onclick="formatCode()" class="btn">格式化</button>
         <button onclick="validateJSON()" class="btn" id="validateJSONBtn" style="display: none;">验证 JSON</button>
         <button onclick="validateYAML()" class="btn" id="validateYAMLBtn" style="display: none;">验证 YAML</button>
@@ -1101,6 +1102,30 @@ function saveAceContent() {
     document.getElementById('editContent').value = content;
 }
 
+function toggleSearch() {
+    aceEditor.execCommand("find");
+}
+
+function setupSearchBox() {
+    var searchBox = document.querySelector('.ace_search');
+    if (!searchBox) return;
+
+    searchBox.style.fontFamily = 'Arial, sans-serif';
+    searchBox.style.fontSize = '14px';
+
+    var buttons = searchBox.querySelectorAll('.ace_button');
+    buttons.forEach(function(button) {
+        button.style.padding = '4px 8px';
+        button.style.marginLeft = '5px';
+    });
+
+    var inputs = searchBox.querySelectorAll('input');
+    inputs.forEach(function(input) {
+        input.style.padding = '4px';
+        input.style.marginRight = '5px';
+    });
+}
+
 function saveAceContent() {
     let content = aceEditor.getValue();
     let encoding = document.getElementById('encoding').value;
@@ -1160,6 +1185,18 @@ function openAceEditor() {
         aceEditor.setTheme(savedTheme);
         document.getElementById('editorTheme').value = savedTheme;
     }
+
+    aceEditor.setOptions({
+        enableBasicAutocompletion: true,
+        enableLiveAutocompletion: true,
+        enableSnippets: true,
+        showFoldWidgets: true,
+        foldStyle: 'markbegin'
+    });
+
+    aceEditor.on("changeSelection", function() {
+        setupSearchBox();
+    });
     
     if (!aceEditor) {
         aceEditor = ace.edit("aceEditorContainer");
@@ -1346,6 +1383,80 @@ body.dark-mode .upload-drop-zone:hover .upload-icon { color: #0d6efd; }
     body.dark-mode #editorStatusBar {
         background-color: #2d3238;
         color: #e0e0e0;
+    }
+</style>
+
+<style>
+    .ace_search {
+        background-color: #f8f9fa;
+        border: 1px solid #ced4da;
+        border-radius: 4px;
+        padding: 10px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    .ace_search_form, .ace_replace_form {
+        display: flex;
+        align-items: center;
+        margin-bottom: 5px;
+    }
+    .ace_search_field {
+        flex-grow: 1;
+        border: 1px solid #ced4da;
+        border-radius: 4px;
+        padding: 4px;
+    }
+    .ace_searchbtn, .ace_replacebtn {
+        background-color: #007bff;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        padding: 4px 8px;
+        margin-left: 5px;
+        cursor: pointer;
+    }
+    .ace_searchbtn:hover, .ace_replacebtn:hover {
+        background-color: #0056b3;
+    }
+    .ace_search_options {
+        margin-top: 5px;
+    }
+    .ace_button {
+        background-color: #6c757d;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        padding: 4px 8px;
+        margin-right: 5px;
+        cursor: pointer;
+    }
+    .ace_button:hover {
+        background-color: #5a6268;
+    }
+</style>
+
+<style>
+    body.dark-mode .ace_search {
+        background-color: #2d3238;
+        border-color: #495057;
+    }
+    body.dark-mode .ace_search_field {
+        background-color: #343a40;
+        color: #f8f9fa;
+        border-color: #495057;
+    }
+    body.dark-mode .ace_searchbtn, 
+    body.dark-mode .ace_replacebtn {
+        background-color: #0056b3;
+    }
+    body.dark-mode .ace_searchbtn:hover, 
+    body.dark-mode .ace_replacebtn:hover {
+        background-color: #004494;
+    }
+    body.dark-mode .ace_button {
+        background-color: #495057;
+    }
+    body.dark-mode .ace_button:hover {
+        background-color: #3d4349;
     }
 </style>
 
