@@ -270,8 +270,7 @@ function searchFiles($dir, $term) {
         th { background-color: #f2f2f2; }
         .btn { background-color: #4CAF50; color: white; border: none; padding: 5px 10px; cursor: pointer; margin-right: 5px; }
         .delete-btn { background-color: #f44336; }
-        .folder-icon::before { content: "📁 "; }
-        .file-icon::before { content: "📄 "; }
+        .folder-icon::before{content:"📁";}.file-icon::before{content:"📄";}.file-icon.file-pdf::before{content:"📕";}.file-icon.file-doc::before,.file-icon.file-docx::before{content:"📘";}.file-icon.file-xls::before,.file-icon.file-xlsx::before{content:"📗";}.file-icon.file-ppt::before,.file-icon.file-pptx::before{content:"📙";}.file-icon.file-zip::before,.file-icon.file-rar::before,.file-icon.file-7z::before{content:"🗜️";}.file-icon.file-mp3::before,.file-icon.file-wav::before,.file-icon.file-ogg::before,.file-icon.file-flac::before{content:"🎵";}.file-icon.file-mp4::before,.file-icon.file-avi::before,.file-icon.file-mov::before,.file-icon.file-wmv::before,.file-icon.file-flv::before{content:"🎞️";}.file-icon.file-jpg::before,.file-icon.file-jpeg::before,.file-icon.file-png::before,.file-icon.file-gif::before,.file-icon.file-bmp::before,.file-icon.file-tiff::before{content:"🖼️";}.file-icon.file-txt::before{content:"📝";}.file-icon.file-rtf::before{content:"📄";}.file-icon.file-md::before,.file-icon.file-markdown::before{content:"📑";}.file-icon.file-exe::before,.file-icon.file-msi::before{content:"⚙️";}.file-icon.file-bat::before,.file-icon.file-sh::before,.file-icon.file-command::before{content:"📜";}.file-icon.file-iso::before,.file-icon.file-img::before{content:"💿";}.file-icon.file-sql::before,.file-icon.file-db::before,.file-icon.file-dbf::before{content:"🗃️";}.file-icon.file-font::before,.file-icon.file-ttf::before,.file-icon.file-otf::before,.file-icon.file-woff::before,.file-icon.file-woff2::before{content:"🔤";}.file-icon.file-cfg::before,.file-icon.file-conf::before,.file-icon.file-ini::before{content:"🔧";}.file-icon.file-psd::before,.file-icon.file-ai::before,.file-icon.file-eps::before,.file-icon.file-svg::before{content:"🎨";}.file-icon.file-dll::before,.file-icon.file-so::before{content:"🧩";}.file-icon.file-css::before{content:"🎨";}.file-icon.file-js::before{content:"🟨";}.file-icon.file-php::before{content:"🐘";}.file-icon.file-json::before{content:"📊";}.file-icon.file-html::before,.file-icon.file-htm::before{content:"🌐";}.file-icon.file-bin::before{content:"👾";}
         .breadcrumb { margin-bottom: 20px; }
         .breadcrumb a { text-decoration: none; color: #0066cc; }
         .modal { display: none; position: fixed; z-index: 1; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.4); }
@@ -538,9 +537,16 @@ function searchFiles($dir, $term) {
     <td></td>
     </tr>
     <?php endif; ?>
-    <?php foreach ($contents as $item): ?>
-    <tr>
-<td class="<?php echo $item['is_dir'] ? 'folder-icon' : 'file-icon'; ?>">
+<?php foreach ($contents as $item): ?>
+<tr>
+    <?php
+    $icon_class = $item['is_dir'] ? 'folder-icon' : 'file-icon';
+    if (!$item['is_dir']) {
+        $ext = strtolower(pathinfo($item['name'], PATHINFO_EXTENSION));
+        $icon_class .= ' file-' . $ext;
+    }
+    ?>
+    <td class="<?php echo $icon_class; ?>">
     <?php if ($item['is_dir']): ?>
         <a href="?dir=<?php echo urlencode($current_dir . $item['path']); ?>"><?php echo htmlspecialchars($item['name']); ?></a>
     <?php else: ?>
@@ -549,12 +555,12 @@ function searchFiles($dir, $term) {
         if (in_array($ext, ['jpg', 'jpeg', 'png', 'gif', 'svg', 'mp3', 'mp4'])): 
             $clean_path = ltrim(str_replace('//', '/', $item['path']), '/');
         ?>
-            <a href="#" onclick="previewFile('<?php echo htmlspecialchars($clean_path); ?>', '<?php echo $ext; ?>')"><?php echo htmlspecialchars($item['name']); ?></a>
-        <?php else: ?>
-            <?php echo htmlspecialchars($item['name']); ?>
+                <a href="#" onclick="previewFile('<?php echo htmlspecialchars($clean_path); ?>', '<?php echo $ext; ?>')"><?php echo htmlspecialchars($item['name']); ?></a>
+            <?php else: ?>
+                <a href="#" onclick="showEditModal('<?php echo htmlspecialchars(addslashes($item['path'])); ?>')"><?php echo htmlspecialchars($item['name']); ?></a>
+            <?php endif; ?>
         <?php endif; ?>
-    <?php endif; ?>
-</td>
+    </td>
         <td data-translate="<?php echo $item['is_dir'] ? 'directory' : 'file'; ?>"><?php echo $item['is_dir'] ? '目录' : '文件'; ?></td>
         <td><?php echo $item['size']; ?></td>
         <td><?php echo $item['mtime']; ?></td>
@@ -564,7 +570,7 @@ function searchFiles($dir, $term) {
             <div style="display: flex; gap: 5px;">
                 <button onclick="showRenameModal('<?php echo htmlspecialchars($item['name']); ?>', '<?php echo htmlspecialchars($item['path']); ?>')" class="btn btn-rename" data-translate="rename">重命名</button>
                 <?php if (!$item['is_dir']): ?>
-                    <button onclick="showEditModal('<?php echo htmlspecialchars($item['path']); ?>')" class="btn btn-edit" data-translate="edit">编辑</button>
+                <!--<button onclick="showEditModal('<?php echo htmlspecialchars($item['path']); ?>')" class="btn btn-edit" data-translate="edit">编辑</button>-->
                     <a href="?dir=<?php echo urlencode($current_dir); ?>&download=<?php echo urlencode($item['path']); ?>" class="btn btn-download" data-translate="download">下载</a>
                 <?php endif; ?>
                 <button onclick="showChmodModal('<?php echo htmlspecialchars($item['path']); ?>', '<?php echo $item['permissions']; ?>')" class="btn btn-chmod" data-translate="setPermissions">权限</button>
