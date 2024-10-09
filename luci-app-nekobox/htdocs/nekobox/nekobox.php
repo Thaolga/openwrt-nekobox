@@ -611,6 +611,8 @@ function searchFiles($dir, $term) {
     <?php endforeach; ?>
 </table>
 
+
+
 <div id="createModal" class="modal">
     <div class="modal-content">
         <span class="close" onclick="closeModal('createModal')">&times;</span>
@@ -700,13 +702,13 @@ function searchFiles($dir, $term) {
     </div>
 </div>
 
-<div id="aceEditor" style="display: none;">
+<div id="aceEditor">
     <div id="aceEditorContainer"></div>
     <div id="editorStatusBar">
-        <span id="cursorPosition">行: 1, 列: 1</span>
-        <span id="characterCount">字符数: 0</span>
+        <span id="cursorPosition">行: <span id="currentLine">1</span>, 列: <span id="currentColumn">1</span></span>
+        <span id="characterCount">字符数: <span id="charCount">0</span></span>
     </div>
-    <div style="position: absolute; top: 10px; right: 10px;">
+    <div id="editorControls">
         <select id="fontSize" onchange="changeFontSize()">
             <option value="18px">18px</option>
             <option value="20px" selected>20px</option>
@@ -752,7 +754,7 @@ function searchFiles($dir, $term) {
             <option value="Shift_JIS">Shift_JIS (日文)</option>
             <option value="EUC-KR">EUC-KR (韩文)</option>
         </select>
-        <button onclick="toggleSearch()" class="btn" title="搜索文件内容"> <i class="fas fa-search"></i></button>
+        <button onclick="toggleSearch()" class="btn" title="搜索文件内容"><i class="fas fa-search"></i></button>
         <button onclick="formatCode()" class="btn">格式化</button>
         <button onclick="validateJSON()" class="btn" id="validateJSONBtn" style="display: none;">验证 JSON</button>
         <button onclick="validateYAML()" class="btn" id="validateYAMLBtn" style="display: none;">验证 YAML</button>
@@ -827,6 +829,26 @@ function showNewFolderModal() {
 function showNewFileModal() {
     closeModal('createModal');
     showModal('newFileModal');
+}
+
+window.addEventListener("load", function() {
+    aceEditor = ace.edit("aceEditorContainer");
+    aceEditor.setTheme("ace/theme/monokai");
+    aceEditor.setFontSize(20);
+
+    aceEditor.getSession().selection.on('changeCursor', updateCursorPosition);
+    aceEditor.getSession().on('change', updateCharacterCount);
+});
+
+function updateCursorPosition() {
+    var cursorPosition = aceEditor.getCursorPosition();
+    document.getElementById('currentLine').textContent = cursorPosition.row + 1;
+    document.getElementById('currentColumn').textContent = cursorPosition.column + 1;
+}
+
+function updateCharacterCount() {
+    var characterCount = aceEditor.getValue().length;
+    document.getElementById('charCount').textContent = characterCount;
 }
 
 function refreshDirectory() {
@@ -1246,15 +1268,25 @@ function openAceEditor() {
     }
 }
 
+function updateCharacterCount() {
+    var characterCount = aceEditor.getValue().length;
+    document.getElementById('characterCount').textContent = '字符数: ' + characterCount;
+}
+
+editor.on("change", function() {
+    updateCursorPosition();
+});
+
 function updateCursorPosition() {
     var cursorPosition = aceEditor.getCursorPosition();
     document.getElementById('cursorPosition').textContent = '行: ' + (cursorPosition.row + 1) + ', 列: ' + (cursorPosition.column + 1);
 }
 
-function updateCharacterCount() {
-    var characterCount = aceEditor.getValue().length;
-    document.getElementById('characterCount').textContent = '字符数: ' + characterCount;
-}
+
+aceEditor.getSession().on('change', updateCharacterCount);
+
+
+aceEditor.getSession().selection.on('changeCursor', updateCursorPosition);
 
 function validateJSON() {
     const editor = aceEditor;
@@ -1326,6 +1358,7 @@ function validateRename() {
 </script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.4.12/ext-beautify.min.js"></script>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.4.12/ext-spellcheck.min.js"></script>
 
 <style>
 .upload-container { margin-bottom: 20px; }
@@ -1339,6 +1372,7 @@ body.dark-mode .upload-drop-zone.drag-over { background: #343a40; border-color: 
 body.dark-mode .upload-icon { color: #adb5bd; }
 body.dark-mode .upload-drop-zone:hover .upload-icon { color: #0d6efd; }
 #searchModal{z-index:1060 !important;}.modal-backdrop{z-index:1050 !important;}.modal-content{background-color:var(--bs-body-bg);color:var(--bs-body-color);}#searchModal .modal-dialog{max-width:90% !important;width:800px !important;}#searchResults{max-height:400px;overflow-y:auto;}#searchResults .list-group-item{display:flex;justify-content:space-between;align-items:center;}#searchResults .list-group-item span{word-break:break-all;margin-right:10px;}#aceEditor{position:fixed;top:0;right:0;bottom:0;left:0;z-index:1000;}#aceEditorContainer{position:absolute;top:0;right:0;bottom:30px;left:0;}#editorStatusBar{position:absolute;bottom:0;left:0;right:0;height:30px;background-color:#f0f0f0;padding:5px 10px;font-size:12px;display:flex;justify-content:space-between;align-items:center;}body.dark-mode #editorStatusBar{background-color:#2d3238;color:#e0e0e0;}.ace_search{background-color:#f8f9fa;border:1px solid #ced4da;border-radius:4px;padding:10px;box-shadow:0 2px 4px rgba(0,0,0,0.1);}.ace_search_form,.ace_replace_form{display:flex;align-items:center;margin-bottom:5px;}.ace_search_field{flex-grow:1;border:1px solid #ced4da;border-radius:4px;padding:4px;}.ace_searchbtn,.ace_replacebtn{background-color:#007bff;color:white;border:none;border-radius:4px;padding:4px 8px;margin-left:5px;cursor:pointer;}.ace_searchbtn:hover,.ace_replacebtn:hover{background-color:#0056b3;}.ace_search_options{margin-top:5px;}.ace_button{background-color:#6c757d;color:white;border:none;border-radius:4px;padding:4px 8px;margin-right:5px;cursor:pointer;}.ace_button:hover{background-color:#5a6268;}body.dark-mode .ace_search{background-color:#2d3238;border-color:#495057;}body.dark-mode .ace_search_field{background-color:#343a40;color:#f8f9fa;border-color:#495057;}body.dark-mode .ace_searchbtn,body.dark-mode .ace_replacebtn{background-color:#0056b3;}body.dark-mode .ace_searchbtn:hover,body.dark-mode .ace_replacebtn:hover{background-color:#004494;}body.dark-mode .ace_button{background-color:#495057;}body.dark-mode .ace_button:hover{background-color:#3d4349;}#aceEditor .btn{background-color:#87ceeb;color:#fff;border:none;padding:8px 16px;border-radius:4px;font-size:14px;cursor:pointer;transition:background-color 0.3s ease;}#aceEditor .btn:hover{background-color:#4682b4;transform:translateY(-2px);box-shadow:0 4px 12px rgba(0,0,0,0.15);}#aceEditor .btn:focus{outline:none;}#aceEditor{color:#333;}#aceEditor .btn{background-color:#87ceeb;color:#fff;}#aceEditor .btn:hover{background-color:#4682b4;}
+#aceEditor{position:fixed;top:0;right:0;bottom:0;left:0;z-index:1000;display:none}#aceEditorContainer{position:absolute;top:40px;right:0;bottom:40px;left:0;overflow-x:auto}#editorStatusBar{position:absolute;left:50%;transform:translateX(-50%);bottom:0;height:30px;background-color:#000;color:#fff;display:flex;align-items:center;padding:0 10px;font-size:14px;z-index:1001;max-width:100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}#editorControls{position:absolute;left:0;right:0;top:0;height:40px;background-color:#000;color:#fff;display:flex;justify-content:center;align-items:center;padding:0 10px;overflow-x:auto}#editorControls select,#editorControls button{margin:0 10px;height:30px;padding:5px 10px;font-size:12px;background-color:#000;color:#fff;border:none;display:flex;justify-content:center;align-items:center}
 </style>
 
 <script>
@@ -2089,6 +2123,50 @@ function deleteSelected() {
         form.submit();
     }
 }
+
+window.addEventListener("load", function() {
+    aceEditor = ace.edit("aceEditorContainer");
+    aceEditor.setTheme("ace/theme/monokai");
+    aceEditor.setFontSize(20);
+
+    aceEditor.getSession().selection.on('changeCursor', updateCursorPosition);
+    aceEditor.getSession().on('change', updateCharacterCount);
+
+    aceEditor.spellcheck = true;
+    aceEditor.commands.addCommand({
+        name: "spellcheck",
+        bindKey: { win: "Ctrl-.", mac: "Command-." },
+        exec: function(editor) {
+            editor.execCommand("showSpellCheckDialog");
+        }
+    });
+});
+
+aceEditor.on("spell_check", function(errors) {
+    errors.forEach(function(error) {
+        var Range = ace.require("ace/range").Range;
+        var marker = aceEditor.getSession().addMarker(
+            new Range(error.line, error.column, error.line, error.column + error.length),
+            "ace_error-marker",
+            "typo"
+        );
+        aceEditor.getSession().setAnnotations([{
+            row: error.line,
+            column: error.column,
+            text: error.message,
+            type: "error"
+        }]);
+
+        var suggestions = error.suggestions;
+        if (suggestions.length > 0) {
+            var correctSpelling = suggestions[0];
+            aceEditor.getSession().replace(
+                new Range(error.line, error.column, error.line, error.column + error.length),
+                correctSpelling
+            );
+        }
+    });
+});
 </script>
 </body>
 </html>
