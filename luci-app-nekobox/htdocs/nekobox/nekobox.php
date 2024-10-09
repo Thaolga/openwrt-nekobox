@@ -81,6 +81,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     file_put_contents($new_file_path, '');
                 }
                 break;
+            case 'delete_selected':
+                if (isset($_POST['selected_paths']) && is_array($_POST['selected_paths'])) {
+                    foreach ($_POST['selected_paths'] as $path) {
+                        deleteItem($current_path . $path);
+                    }
+                }
+                break;
         }
     } elseif (isset($_FILES['upload'])) {
         uploadFile($current_path);
@@ -485,10 +492,16 @@ function searchFiles($dir, $term) {
                 <button type="button" class="btn btn-outline-secondary" onclick="location.reload()" title="刷新目录内容">
                     <i class="fas fa-sync-alt"></i>
                 </button>
-                <select id="languageSwitcher" class="btn btn-outline-secondary">
-                    <option value="en" selected>English</option>
-                    <option value="zh">中文</option>                 
-                </select>
+            <button type="button" class="btn btn-outline-secondary" onclick="selectAll()" id="selectAllBtn" title="全选">
+                <i class="fas fa-check-square"></i>
+            </button>
+            <button type="button" class="btn btn-outline-secondary" onclick="reverseSelection()" id="reverseSelectionBtn" title="反选">
+                <i class="fas fa-exchange-alt"></i>
+            </button>
+            <button type="button" class="btn btn-outline-secondary" onclick="deleteSelected()" id="deleteSelectedBtn" title="删除所选">
+                <i class="fas fa-trash-alt"></i>
+            </button>
+
                 <button type="button" class="btn btn-outline-secondary" onclick="showSearchModal()" id="searchBtn" title="搜索">
                     <i class="fas fa-search"></i>
                 </button>
@@ -498,6 +511,10 @@ function searchFiles($dir, $term) {
                 <button type="button" class="btn btn-outline-secondary" onclick="showUploadArea()" id="uploadBtn" title="上传">
                     <i class="fas fa-upload"></i>
                 </button>
+                <select id="languageSwitcher" class="btn btn-outline-secondary">
+                    <option value="en" selected>English</option>
+                    <option value="zh">中文</option>                 
+                </select>
                 <button id="themeToggle" class="btn btn-outline-secondary" title="切换主题">
                     <i class="fas fa-moon"></i>
                 </button>
@@ -524,6 +541,7 @@ function searchFiles($dir, $term) {
         </div>
 <table>
     <tr>
+        <th><input type="checkbox" id="selectAllCheckbox"></th>
         <th data-translate="name">名称</th>
         <th data-translate="type">类型</th>
         <th data-translate="size">大小</th>
@@ -532,62 +550,64 @@ function searchFiles($dir, $term) {
         <th data-translate="owner">拥有者</th>
         <th data-translate="actions">操作</th>
     </tr>
-<?php if ($current_dir != ''): ?>
-<tr>
-    <td class="folder-icon"><a href="?dir=<?php echo urlencode(dirname($current_dir)); ?>">..</a></td>
-    <td>目录</td>
-    <td>-</td>
-    <td>-</td>
-    <td>-</td>
-    <td>-</td>
-    <td></td>
-    </tr>
+    <?php if ($current_dir != ''): ?>
+        <tr>
+            <td></td>
+            <td class="folder-icon"><a href="?dir=<?php echo urlencode(dirname($current_dir)); ?>">..</a></td>
+            <td>目录</td>
+            <td>-</td>
+            <td>-</td>
+            <td>-</td>
+            <td>-</td>
+            <td></td>
+        </tr>
     <?php endif; ?>
-<?php foreach ($contents as $item): ?>
-<tr>
-    <?php
-    $icon_class = $item['is_dir'] ? 'folder-icon' : 'file-icon';
-    if (!$item['is_dir']) {
-        $ext = strtolower(pathinfo($item['name'], PATHINFO_EXTENSION));
-        $icon_class .= ' file-' . $ext;
-    }
-    ?>
-    <td class="<?php echo $icon_class; ?>">
-    <?php if ($item['is_dir']): ?>
-        <a href="?dir=<?php echo urlencode($current_dir . $item['path']); ?>"><?php echo htmlspecialchars($item['name']); ?></a>
-    <?php else: ?>
-        <?php 
-        $ext = strtolower(pathinfo($item['name'], PATHINFO_EXTENSION));
-        if (in_array($ext, ['jpg', 'jpeg', 'png', 'gif', 'svg', 'mp3', 'mp4'])): 
-            $clean_path = ltrim(str_replace('//', '/', $item['path']), '/');
-        ?>
-                <a href="#" onclick="previewFile('<?php echo htmlspecialchars($clean_path); ?>', '<?php echo $ext; ?>')"><?php echo htmlspecialchars($item['name']); ?></a>
-            <?php else: ?>
-                <a href="#" onclick="showEditModal('<?php echo htmlspecialchars(addslashes($item['path'])); ?>')"><?php echo htmlspecialchars($item['name']); ?></a>
-            <?php endif; ?>
-        <?php endif; ?>
-    </td>
-        <td data-translate="<?php echo $item['is_dir'] ? 'directory' : 'file'; ?>"><?php echo $item['is_dir'] ? '目录' : '文件'; ?></td>
-        <td><?php echo $item['size']; ?></td>
-        <td><?php echo $item['mtime']; ?></td>
-        <td><?php echo $item['permissions']; ?></td>
-        <td><?php echo htmlspecialchars($item['owner']); ?></td>
-        <td>
-            <div style="display: flex; gap: 5px;">
-                <button onclick="showRenameModal('<?php echo htmlspecialchars($item['name']); ?>', '<?php echo htmlspecialchars($item['path']); ?>')" class="btn btn-rename" data-translate="rename">重命名</button>
-                <?php if (!$item['is_dir']): ?>
-                <!--<button onclick="showEditModal('<?php echo htmlspecialchars($item['path']); ?>')" class="btn btn-edit" data-translate="edit">编辑</button>-->
-                    <a href="?dir=<?php echo urlencode($current_dir); ?>&download=<?php echo urlencode($item['path']); ?>" class="btn btn-download" data-translate="download">下载</a>
+    <?php foreach ($contents as $item): ?>
+        <tr>
+            <td><input type="checkbox" class="file-checkbox" data-path="<?php echo htmlspecialchars($item['path']); ?>"></td>
+            <?php
+            $icon_class = $item['is_dir'] ? 'folder-icon' : 'file-icon';
+            if (!$item['is_dir']) {
+                $ext = strtolower(pathinfo($item['name'], PATHINFO_EXTENSION));
+                $icon_class .= ' file-' . $ext;
+            }
+            ?>
+            <td class="<?php echo $icon_class; ?>">
+                <?php if ($item['is_dir']): ?>
+                    <a href="?dir=<?php echo urlencode($current_dir . $item['path']); ?>"><?php echo htmlspecialchars($item['name']); ?></a>
+                <?php else: ?>
+                    <?php 
+                    $ext = strtolower(pathinfo($item['name'], PATHINFO_EXTENSION));
+                    if (in_array($ext, ['jpg', 'jpeg', 'png', 'gif', 'svg', 'mp3', 'mp4'])): 
+                        $clean_path = ltrim(str_replace('//', '/', $item['path']), '/');
+                    ?>
+                        <a href="#" onclick="previewFile('<?php echo htmlspecialchars($clean_path); ?>', '<?php echo $ext; ?>')"><?php echo htmlspecialchars($item['name']); ?></a>
+                    <?php else: ?>
+                        <a href="#" onclick="showEditModal('<?php echo htmlspecialchars(addslashes($item['path'])); ?>')"><?php echo htmlspecialchars($item['name']); ?></a>
+                    <?php endif; ?>
                 <?php endif; ?>
-                <button onclick="showChmodModal('<?php echo htmlspecialchars($item['path']); ?>', '<?php echo $item['permissions']; ?>')" class="btn btn-chmod" data-translate="setPermissions">权限</button>
-                <form method="post" style="display:inline;" onsubmit="return confirmDelete('<?php echo htmlspecialchars($item['name']); ?>');">
-                    <input type="hidden" name="action" value="delete">
-                    <input type="hidden" name="path" value="<?php echo htmlspecialchars($item['path']); ?>">
-                    <button type="submit" class="btn delete-btn" data-translate="delete">删除</button> 
-                </form>
-            </div>
-        </td>
-    </tr>
+            </td>
+            <td data-translate="<?php echo $item['is_dir'] ? 'directory' : 'file'; ?>"><?php echo $item['is_dir'] ? '目录' : '文件'; ?></td>
+            <td><?php echo $item['size']; ?></td>
+            <td><?php echo $item['mtime']; ?></td>
+            <td><?php echo $item['permissions']; ?></td>
+            <td><?php echo htmlspecialchars($item['owner']); ?></td>
+            <td>
+                <div style="display: flex; gap: 5px;">
+                    <button onclick="showRenameModal('<?php echo htmlspecialchars($item['name']); ?>', '<?php echo htmlspecialchars($item['path']); ?>')" class="btn btn-rename" data-translate="rename">重命名</button>
+                    <?php if (!$item['is_dir']): ?>
+                        <!--<button onclick="showEditModal('<?php echo htmlspecialchars($item['path']); ?>')" class="btn btn-edit" data-translate="edit">编辑</button>-->
+                        <a href="?dir=<?php echo urlencode($current_dir); ?>&download=<?php echo urlencode($item['path']); ?>" class="btn btn-download" data-translate="download">下载</a>
+                    <?php endif; ?>
+                    <button onclick="showChmodModal('<?php echo htmlspecialchars($item['path']); ?>', '<?php echo $item['permissions']; ?>')" class="btn btn-chmod" data-translate="setPermissions">权限</button>
+                    <form method="post" style="display:inline;" onsubmit="return confirmDelete('<?php echo htmlspecialchars($item['name']); ?>');">
+                        <input type="hidden" name="action" value="delete">
+                        <input type="hidden" name="path" value="<?php echo htmlspecialchars($item['path']); ?>">
+                        <button type="submit" class="btn delete-btn" data-translate="delete">删除</button> 
+                    </form>
+                </div>
+            </td>
+        </tr>
     <?php endforeach; ?>
 </table>
 
@@ -695,6 +715,7 @@ function searchFiles($dir, $term) {
             <option value="26px">26px</option>
         </select>
         <select id="editorTheme" onchange="changeEditorTheme()">
+            <option value="ace/theme/vibrant_ink">Vibrant Ink</option>
             <option value="ace/theme/monokai">Monokai</option>
             <option value="ace/theme/github">GitHub</option>
             <option value="ace/theme/tomorrow">Tomorrow</option>
@@ -720,7 +741,6 @@ function searchFiles($dir, $term) {
             <option value="ace/theme/merbivore">Merbivore</option>
             <option value="ace/theme/mono_industrial">Mono Industrial</option>
             <option value="ace/theme/pastel_on_dark">Pastel on Dark</option>
-            <option value="ace/theme/vibrant_ink">Vibrant Ink</option>
         </select>
         <select id="encoding" onchange="changeEncoding()">
             <option value="UTF-8">UTF-8</option>
@@ -1318,146 +1338,7 @@ body.dark-mode .upload-drop-zone { background: #2d3238; border-color: #495057; }
 body.dark-mode .upload-drop-zone.drag-over { background: #343a40; border-color: #0d6efd; }
 body.dark-mode .upload-icon { color: #adb5bd; }
 body.dark-mode .upload-drop-zone:hover .upload-icon { color: #0d6efd; }
-</style>
-
-<style>
-    #searchModal {
-        z-index: 1060 !important;
-    }
-    .modal-backdrop {
-        z-index: 1050 !important;
-    }
-    .modal-content {
-        background-color: var(--bs-body-bg);
-        color: var(--bs-body-color);
-    }
-    #searchModal .modal-dialog {
-        max-width: 90% !important;
-        width: 800px !important;
-    }
-    #searchResults {
-        max-height: 400px;
-        overflow-y: auto;
-    }
-    #searchResults .list-group-item {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-    }
-    #searchResults .list-group-item span {
-        word-break: break-all;
-        margin-right: 10px;
-    }
-</style>
-
-
-<style>
-    #aceEditor {
-        position: fixed;
-        top: 0;
-        right: 0;
-        bottom: 0;
-        left: 0;
-        z-index: 1000;
-    }
-    #aceEditorContainer {
-        position: absolute;
-        top: 0;
-        right: 0;
-        bottom: 30px;
-        left: 0;
-    }
-    #editorStatusBar {
-        position: absolute;
-        bottom: 0;
-        left: 0;
-        right: 0;
-        height: 30px;
-        background-color: #f0f0f0;
-        padding: 5px 10px;
-        font-size: 12px;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-    }
-    body.dark-mode #editorStatusBar {
-        background-color: #2d3238;
-        color: #e0e0e0;
-    }
-</style>
-
-<style>
-    .ace_search {
-        background-color: #f8f9fa;
-        border: 1px solid #ced4da;
-        border-radius: 4px;
-        padding: 10px;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-    }
-    .ace_search_form, .ace_replace_form {
-        display: flex;
-        align-items: center;
-        margin-bottom: 5px;
-    }
-    .ace_search_field {
-        flex-grow: 1;
-        border: 1px solid #ced4da;
-        border-radius: 4px;
-        padding: 4px;
-    }
-    .ace_searchbtn, .ace_replacebtn {
-        background-color: #007bff;
-        color: white;
-        border: none;
-        border-radius: 4px;
-        padding: 4px 8px;
-        margin-left: 5px;
-        cursor: pointer;
-    }
-    .ace_searchbtn:hover, .ace_replacebtn:hover {
-        background-color: #0056b3;
-    }
-    .ace_search_options {
-        margin-top: 5px;
-    }
-    .ace_button {
-        background-color: #6c757d;
-        color: white;
-        border: none;
-        border-radius: 4px;
-        padding: 4px 8px;
-        margin-right: 5px;
-        cursor: pointer;
-    }
-    .ace_button:hover {
-        background-color: #5a6268;
-    }
-</style>
-
-<style>
-    body.dark-mode .ace_search {
-        background-color: #2d3238;
-        border-color: #495057;
-    }
-    body.dark-mode .ace_search_field {
-        background-color: #343a40;
-        color: #f8f9fa;
-        border-color: #495057;
-    }
-    body.dark-mode .ace_searchbtn, 
-    body.dark-mode .ace_replacebtn {
-        background-color: #0056b3;
-    }
-    body.dark-mode .ace_searchbtn:hover, 
-    body.dark-mode .ace_replacebtn:hover {
-        background-color: #004494;
-    }
-    body.dark-mode .ace_button {
-        background-color: #495057;
-    }
-    body.dark-mode .ace_button:hover {
-        background-color: #3d4349;
-    }
+#searchModal{z-index:1060 !important;}.modal-backdrop{z-index:1050 !important;}.modal-content{background-color:var(--bs-body-bg);color:var(--bs-body-color);}#searchModal .modal-dialog{max-width:90% !important;width:800px !important;}#searchResults{max-height:400px;overflow-y:auto;}#searchResults .list-group-item{display:flex;justify-content:space-between;align-items:center;}#searchResults .list-group-item span{word-break:break-all;margin-right:10px;}#aceEditor{position:fixed;top:0;right:0;bottom:0;left:0;z-index:1000;}#aceEditorContainer{position:absolute;top:0;right:0;bottom:30px;left:0;}#editorStatusBar{position:absolute;bottom:0;left:0;right:0;height:30px;background-color:#f0f0f0;padding:5px 10px;font-size:12px;display:flex;justify-content:space-between;align-items:center;}body.dark-mode #editorStatusBar{background-color:#2d3238;color:#e0e0e0;}.ace_search{background-color:#f8f9fa;border:1px solid #ced4da;border-radius:4px;padding:10px;box-shadow:0 2px 4px rgba(0,0,0,0.1);}.ace_search_form,.ace_replace_form{display:flex;align-items:center;margin-bottom:5px;}.ace_search_field{flex-grow:1;border:1px solid #ced4da;border-radius:4px;padding:4px;}.ace_searchbtn,.ace_replacebtn{background-color:#007bff;color:white;border:none;border-radius:4px;padding:4px 8px;margin-left:5px;cursor:pointer;}.ace_searchbtn:hover,.ace_replacebtn:hover{background-color:#0056b3;}.ace_search_options{margin-top:5px;}.ace_button{background-color:#6c757d;color:white;border:none;border-radius:4px;padding:4px 8px;margin-right:5px;cursor:pointer;}.ace_button:hover{background-color:#5a6268;}body.dark-mode .ace_search{background-color:#2d3238;border-color:#495057;}body.dark-mode .ace_search_field{background-color:#343a40;color:#f8f9fa;border-color:#495057;}body.dark-mode .ace_searchbtn,body.dark-mode .ace_replacebtn{background-color:#0056b3;}body.dark-mode .ace_searchbtn:hover,body.dark-mode .ace_replacebtn:hover{background-color:#004494;}body.dark-mode .ace_button{background-color:#495057;}body.dark-mode .ace_button:hover{background-color:#3d4349;}#aceEditor .btn{background-color:#87ceeb;color:#fff;border:none;padding:8px 16px;border-radius:4px;font-size:14px;cursor:pointer;transition:background-color 0.3s ease;}#aceEditor .btn:hover{background-color:#4682b4;transform:translateY(-2px);box-shadow:0 4px 12px rgba(0,0,0,0.15);}#aceEditor .btn:focus{outline:none;}#aceEditor{color:#333;}#aceEditor .btn{background-color:#87ceeb;color:#fff;}#aceEditor .btn:hover{background-color:#4682b4;}
 </style>
 
 <script>
@@ -1557,7 +1438,7 @@ const translations = {
     en: {
         pageTitle: "NeKoBox File Assistant",
         uploadBtn: "Upload File",
-        rootDirectory: "Root Directory",
+        rootDirectory: "root",
         name: "Name",
         type: "Type",
         size: "Size",
@@ -2133,6 +2014,79 @@ function showNotification(message, type) {
         alert('错误: ' + message);
     } else {
         alert(message);
+    }
+}
+
+document.getElementById('selectAllCheckbox').addEventListener('change', function() {
+    var checkboxes = document.getElementsByClassName('file-checkbox');
+    for (var i = 0; i < checkboxes.length; i++) {
+        checkboxes[i].checked = this.checked;
+    }
+});
+
+function selectAll() {
+    var checkboxes = document.getElementsByClassName('file-checkbox');
+    for (var i = 0; i < checkboxes.length; i++) {
+        checkboxes[i].checked = true;
+    }
+    document.getElementById('selectAllCheckbox').checked = true;
+}
+
+function reverseSelection() {
+    var checkboxes = document.getElementsByClassName('file-checkbox');
+    for (var i = 0; i < checkboxes.length; i++) {
+        checkboxes[i].checked = !checkboxes[i].checked;
+    }
+    updateSelectAllCheckbox();
+}
+
+function updateSelectAllCheckbox() {
+    var checkboxes = document.getElementsByClassName('file-checkbox');
+    var allChecked = true;
+    for (var i = 0; i < checkboxes.length; i++) {
+        if (!checkboxes[i].checked) {
+            allChecked = false;
+            break;
+        }
+    }
+    document.getElementById('selectAllCheckbox').checked = allChecked;
+}
+
+function deleteSelected() {
+    var selectedPaths = [];
+    var checkboxes = document.getElementsByClassName('file-checkbox');
+    for (var i = 0; i < checkboxes.length; i++) {
+        if (checkboxes[i].checked) {
+            selectedPaths.push(checkboxes[i].dataset.path);
+        }
+    }
+
+    if (selectedPaths.length === 0) {
+        alert('请至少选择一个文件或文件夹进行删除。');
+        return;
+    }
+
+    if (confirm('确定要删除选中的 ' + selectedPaths.length + ' 个文件或文件夹吗？这个操作不可撤销。')) {
+        var form = document.createElement('form');
+        form.method = 'post';
+        form.style.display = 'none';
+
+        var actionInput = document.createElement('input');
+        actionInput.type = 'hidden';
+        actionInput.name = 'action';
+        actionInput.value = 'delete_selected';
+        form.appendChild(actionInput);
+
+        for (var i = 0; i < selectedPaths.length; i++) {
+            var pathInput = document.createElement('input');
+            pathInput.type = 'hidden';
+            pathInput.name = 'selected_paths[]';
+            pathInput.value = selectedPaths[i];
+            form.appendChild(pathInput);
+        }
+
+        document.body.appendChild(form);
+        form.submit();
     }
 }
 </script>
