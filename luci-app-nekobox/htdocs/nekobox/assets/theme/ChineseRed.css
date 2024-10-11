@@ -1,5 +1,5 @@
 @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;700&family=Noto+Serif+SC:wght@400;700&display=swap');
-
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&family=Roboto:wght@400;700&family=Cinzel+Decorative:wght@700;900&display=swap');
 :root {
   --bs-shadow-light: 0 4px 8px rgba(0, 0, 0, 0.2);
   --bs-shadow-medium: 0 6px 12px rgba(0, 0, 0, 0.3);
@@ -169,4 +169,23 @@ a:hover {
 
 .table th {
   color: #FFFF00;
+}
+
+.royal-style { 
+    font-family: 'Cinzel Decorative', cursive;
+    font-weight: 900;
+    font-size: 80px;
+    color: var(--bs-primary);
+    text-shadow: 
+        2px 2px 4px rgba(142, 68, 173, 0.7),
+        0 0 20px rgba(142, 68, 173, 0.3);
+    letter-spacing: 4px;
+    text-align: center;
+    margin-top: 20px;
+    transition: all var(--bs-transition-speed);
+}
+
+.royal-style:hover {
+    transform: skew(-5deg);
+    text-shadow: 3px 3px 6px rgba(0,0,0,0.2);
 }
