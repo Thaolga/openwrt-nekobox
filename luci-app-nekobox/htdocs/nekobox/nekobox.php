@@ -1,4 +1,6 @@
 <?php
+ob_start();
+include './cfg.php';
 $root_dir = "/";
 $current_dir = isset($_GET['dir']) ? $_GET['dir'] : '';
 $current_path = $root_dir . $current_dir;
@@ -259,16 +261,16 @@ function searchFiles($dir, $term) {
     <link rel="icon" href="./assets/img/nekobox.png">
     <link href="./assets/css/bootstrap.min.css" rel="stylesheet">
     <link href="./assets/css/custom.css" rel="stylesheet">
-    <script type="text/javascript" src="./assets/js/jquery-2.1.3.min.js"></script>
-    <script type="text/javascript" src="./assets/js/bootstrap.min.js"></script>
-    <script type="text/javascript" src="./assets/js/feather.min.js"></script>
-    <script type="text/javascript" src="./assets/js/neko.js"></script>
+    <link href="./assets/theme/<?php echo $neko_theme ?>" rel="stylesheet">
+    <script src="./assets/js/feather.min.js"></script>
+    <script src="./assets/js/jquery-2.1.3.min.js"></script>
+    <script src="./assets/js/neko.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.4.12/ace.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.4.12/mode-json.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.4.12/mode-yaml.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/js/bootstrap.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/js-beautify/1.14.0/beautify.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/js-beautify/1.14.0/beautify-css.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/js-beautify/1.14.0/beautify-html.min.js"></script>
@@ -277,12 +279,6 @@ function searchFiles($dir, $term) {
     <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.4.12/ext-language_tools.js"></script>
 
     <style>
-        body { font-family: Arial, sans-serif; max-width: 1500px; margin: 0 auto; padding: 20px; }
-        table { width: 100%; border-collapse: collapse; }
-        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
-        th { background-color: #f2f2f2; }
-        .btn { background-color: #4CAF50; color: white; border: none; padding: 5px 10px; cursor: pointer; margin-right: 5px; }
-        .delete-btn { background-color: #f44336; }
         .folder-icon::before{content:"📁";}.file-icon::before{content:"📄";}.file-icon.file-pdf::before{content:"📕";}.file-icon.file-doc::before,.file-icon.file-docx::before{content:"📘";}.file-icon.file-xls::before,.file-icon.file-xlsx::before{content:"📗";}.file-icon.file-ppt::before,.file-icon.file-pptx::before{content:"📙";}.file-icon.file-zip::before,.file-icon.file-rar::before,.file-icon.file-7z::before{content:"🗜️";}.file-icon.file-mp3::before,.file-icon.file-wav::before,.file-icon.file-ogg::before,.file-icon.file-flac::before{content:"🎵";}.file-icon.file-mp4::before,.file-icon.file-avi::before,.file-icon.file-mov::before,.file-icon.file-wmv::before,.file-icon.file-flv::before{content:"🎞️";}.file-icon.file-jpg::before,.file-icon.file-jpeg::before,.file-icon.file-png::before,.file-icon.file-gif::before,.file-icon.file-bmp::before,.file-icon.file-tiff::before{content:"🖼️";}.file-icon.file-txt::before{content:"📝";}.file-icon.file-rtf::before{content:"📄";}.file-icon.file-md::before,.file-icon.file-markdown::before{content:"📑";}.file-icon.file-exe::before,.file-icon.file-msi::before{content:"⚙️";}.file-icon.file-bat::before,.file-icon.file-sh::before,.file-icon.file-command::before{content:"📜";}.file-icon.file-iso::before,.file-icon.file-img::before{content:"💿";}.file-icon.file-sql::before,.file-icon.file-db::before,.file-icon.file-dbf::before{content:"🗃️";}.file-icon.file-font::before,.file-icon.file-ttf::before,.file-icon.file-otf::before,.file-icon.file-woff::before,.file-icon.file-woff2::before{content:"🔤";}.file-icon.file-cfg::before,.file-icon.file-conf::before,.file-icon.file-ini::before{content:"🔧";}.file-icon.file-psd::before,.file-icon.file-ai::before,.file-icon.file-eps::before,.file-icon.file-svg::before{content:"🎨";}.file-icon.file-dll::before,.file-icon.file-so::before{content:"🧩";}.file-icon.file-css::before{content:"🎨";}.file-icon.file-js::before{content:"🟨";}.file-icon.file-php::before{content:"🐘";}.file-icon.file-json::before{content:"📊";}.file-icon.file-html::before,.file-icon.file-htm::before{content:"🌐";}.file-icon.file-bin::before{content:"👾";}
         .breadcrumb { margin-bottom: 20px; }
         .breadcrumb a { text-decoration: none; color: #0066cc; }
@@ -440,7 +436,7 @@ function searchFiles($dir, $term) {
         body.dark-mode .modal label {color: #ecf0f1;}
         body.dark-mode .modal input[type="text"],body.dark-mode .modal input[type="password"],body.dark-mode .modal textarea {background-color: #34495e;border-color: #2c3e50;color: #ecf0f1;}
         body.dark-mode .modal input[type="text"]:focus,body.dark-mode .modal input[type="password"]:focus,body.dark-mode .modal textarea:focus {border-color: #3498db;box-shadow: 0 0 5px rgba(52, 152, 219, 0.5);}
-        body.dark-mode #renameModal .modal-content,body.dark-mode #chmodModal .modal-content,body.dark-mode #editModal .modal-content,body.dark-mode #newFolderModal .modal-content,body.dark-mode #newFileModal .modal-content,body.dark-mode #searchModal .modal-content,body.dark-mode #previewModal .modal-content {color: #ecf0f1;}
+        body.dark-mode #renameModal .modal-content,body.dark-mode #chmodModal .modal-content,body.dark-mode #editModal .modal-content,body.dark-mode #newFolderModal .modal-content,body.dark-mode #newFileModal .modal-content,body.dark-mode               #searchModal .modal-content,body.dark-mode #previewModal .modal-content {color: #ecf0f1;}
         body.dark-mode #renameModal h2,body.dark-mode #chmodModal h2,body.dark-mode #editModal h2,body.dark-mode #newFolderModal h2,body.dark-mode #newFileModal h2,body.dark-mode #searchModal h2,body.dark-mode #previewModal h2 {color: #ecf0f1;}
         #editModal .modal-content,#previewModal .modal-content {width: 80%;max-width: 1000px;}
         #searchModal .modal-dialog,#searchModal .modal-content {max-width: 90% !important;width: 800px !important;}
@@ -452,350 +448,363 @@ function searchFiles($dir, $term) {
         body.dark-mode .breadcrumb {background-color: transparent;color: #ecf0f1;}
         body.dark-mode .breadcrumb a {color: #3498db;transition: color 0.3s ease;}
         body.dark-mode .breadcrumb a:hover {color: #2980b9;text-decoration: underline;}
-        .nav-container,.container-bg{background:none!important;background-color:transparent!important;box-shadow:none!important;border:none!important;}
         .modal-content {background-color: #fff;margin: 5% auto;padding: 30px;border: none;width: 50%;max-width: 600px;box-shadow: 0 10px 30px rgba(0,0,0,0.2);border-radius: 15px;}
-
+        #languageSwitcher {width: 120px; padding: 5px 25px 5px 10px;}
+        body {overflow-x: hidden;}
   </style>
-       <div class="container container-bg border border-3 rounded-4 col-12 mb-4">
-    <div class="nav-row">
-        <a href="./index.php" class="nav-btn"><span>🏠</span>首页</a>
-        <a href="./upload.php" class="nav-btn"><span>📂</span>Mihomo</a>
-        <a href="./upload_sb.php" class="nav-btn"><span>🗂️</span>Sing-box</a>
-        <a href="./box.php" class="nav-btn"><span>💹</span>转换</a>
-        <a href="./nekobox.php" class="nav-btn"><span>📦</span>文件助手</a>
+</head>
+<body>
+<div class="container-sm callout border border-3 rounded-4 col-11">
+    <div class="row">
+        <a href="./index.php" class="col btn btn-sm custom-btn-color" data-translate="home">🏠 首页</a>
+        <a href="./upload.php" class="col btn btn-sm custom-btn-color">📂 Mihomo</a>
+        <a href="./upload_sb.php" class="col btn btn-sm custom-btn-color">🗂️ Sing-box</a>
+        <a href="./box.php" class="col btn btn-sm custom-btn-color" data-translate="convert">💹 转换</a>
+        <a href="./nekobox.php" class="col btn btn-sm custom-btn-color" data-translate="fileAssistant">📦 文件助手</a>
     </div>
 </div>
-    <div class="container text-left p-3">
-<div class="container container-bg border border-3 rounded-4 col-12 mb-4">
-    <div class="row align-items-center mb-3">
-        <div class="col-md-3 text-center text-md-start">
-            <img src="./assets/img/nekobox.png" alt="Neko Box" class="img-fluid" style="max-height: 100px;">
-        </div>
-        <div class="col-md-6 text-center">
-            <h1 class="mb-0" id="pageTitle">NeKoBox文件助手</h1>
-        </div>
-        <div class="col-md-3">
-        </div>
-    </div>
-    <div class="row">
-        <div class="col-12">
-            <div class="button-group d-flex justify-content-center flex-wrap">
-                <button type="button" class="btn btn-outline-secondary" onclick="goBack()" title="返回上一级">
-                    <i class="fas fa-arrow-left"></i>
-                </button>
-                <button type="button" class="btn btn-outline-secondary" onclick="location.href='?dir=/'" title="返回根目录">
-                    <i class="fas fa-home"></i>
-                </button>
-                <button type="button" class="btn btn-outline-secondary" onclick="location.href='?dir=/root'" title="返回主目录">
-                    <i class="fas fa-user"></i>
-                </button>
-                <button type="button" class="btn btn-outline-secondary" onclick="location.reload()" title="刷新目录内容">
-                    <i class="fas fa-sync-alt"></i>
-                </button>
-            <button type="button" class="btn btn-outline-secondary" onclick="selectAll()" id="selectAllBtn" title="全选">
-                <i class="fas fa-check-square"></i>
-            </button>
-            <button type="button" class="btn btn-outline-secondary" onclick="reverseSelection()" id="reverseSelectionBtn" title="反选">
-                <i class="fas fa-exchange-alt"></i>
-            </button>
-            <button type="button" class="btn btn-outline-secondary" onclick="deleteSelected()" id="deleteSelectedBtn" title="删除所选">
-                <i class="fas fa-trash-alt"></i>
-            </button>
 
-                <button type="button" class="btn btn-outline-secondary" onclick="showSearchModal()" id="searchBtn" title="搜索">
-                    <i class="fas fa-search"></i>
-                </button>
-                <button type="button" class="btn btn-outline-secondary" onclick="showCreateModal()" id="createBtn" title="新建">
-                    <i class="fas fa-plus"></i>
-                </button>
-                <button type="button" class="btn btn-outline-secondary" onclick="showUploadArea()" id="uploadBtn" title="上传">
-                    <i class="fas fa-upload"></i>
-                </button>
-                <select id="languageSwitcher" class="btn btn-outline-secondary">
-                    <option value="en" selected>English</option>
-                    <option value="zh">中文</option>                 
-                </select>
-                <button id="themeToggle" class="btn btn-outline-secondary" title="切换主题">
-                    <i class="fas fa-moon"></i>
-                </button>
+<div class="row">
+    <div class="col-12">  
+        <div class="container container-bg border border-3 rounded-4 p-3">
+            <div class="row align-items-center mb-3">
+                <div class="col-md-3 text-center text-md-start">
+                    <img src="./assets/img/nekobox.png" alt="Neko Box" class="img-fluid" style="max-height: 100px;">
+                </div>
+                <div class="col-md-6 text-center"> 
+                    <h1 class="mb-0" id="pageTitle">NeKoBox文件助手</h1>
+                </div>
+                <div class="col-md-3">
+                </div>
             </div>
-        </div>
-    </div>
-        <div class="breadcrumb">
-            <a href="?dir=">根目录</a> /
-            <?php foreach ($breadcrumbs as $index => $crumb): ?>
-                <a href="?dir=<?php echo urlencode($crumb['path']); ?>"><?php echo htmlspecialchars($crumb['name']); ?></a>
-                <?php if ($index < count($breadcrumbs) - 1) echo " / "; ?>
-            <?php endforeach; ?>
-        </div>
-        <div class="upload-container">
-            <div class="upload-area" id="uploadArea" style="display: none;">
-                <form action="" method="post" enctype="multipart/form-data" id="uploadForm">
-                    <input type="file" name="upload" id="fileInput" style="display: none;" required>
-                    <div class="upload-drop-zone" id="dropZone">
-                        <i class="fas fa-cloud-upload-alt upload-icon"></i>
+            
+            <div class="row mb-3">
+                <div class="col-12">
+                    <div class="btn-toolbar justify-content-between">
+                        <div class="btn-group">
+                            <button type="button" class="btn btn-outline-secondary" onclick="goBack()" title="返回上一级" data-translate-title="goBackTitle">
+                                <i class="fas fa-arrow-left"></i>
+                            </button>
+                            <button type="button" class="btn btn-outline-secondary" onclick="location.href='?dir=/'" title="返回根目录"  data-translate-title="rootDirectoryTitle">
+                                <i class="fas fa-home"></i> 
+                            </button>
+                            <button type="button" class="btn btn-outline-secondary" onclick="location.href='?dir=/root'" title="返回主目录"  data-translate-title="homeDirectoryTitle">
+                                <i class="fas fa-user"></i>
+                            </button>
+                            <button type="button" class="btn btn-outline-secondary" onclick="location.reload()" title="刷新目录内容"  data-translate-title="refreshDirectoryTitle">
+                                <i class="fas fa-sync-alt"></i>
+                            </button>
+                        </div>
+                        
+                        <div class="btn-group">
+                            <button type="button" class="btn btn-outline-secondary" onclick="selectAll()" id="selectAllBtn" title="全选"  data-translate-title="selectAll">
+                                <i class="fas fa-check-square"></i>
+                            </button>
+                            <button type="button" class="btn btn-outline-secondary" onclick="reverseSelection()" id="reverseSelectionBtn" title="反选"  data-translate-title="invertSelection">
+                                <i class="fas fa-exchange-alt"></i>
+                            </button>
+                            <button type="button" class="btn btn-outline-secondary" onclick="deleteSelected()" id="deleteSelectedBtn" title="删除所选"  data-translate-title="deleteSelected">
+                                <i class="fas fa-trash-alt"></i>
+                            </button>
+                        </div>
+                        
+                        <div class="btn-group">
+                            <button type="button" class="btn btn-outline-secondary" onclick="showSearchModal()" id="searchBtn" title="搜索" data-translate-title="searchTitle">
+                                <i class="fas fa-search"></i>
+                            </button>
+                            <button type="button" class="btn btn-outline-secondary" onclick="showCreateModal()" id="createBtn" title="新建"  data-translate-title="createTitle">    
+                                <i class="fas fa-plus"></i> 
+                            </button>
+                            <button type="button" class="btn btn-outline-secondary" onclick="showUploadArea()" id="uploadBtn" title="上传"  data-translate-title="uploadTitle">
+                                <i class="fas fa-upload"></i>
+                            </button>
+                        </div>
+                        <div class="btn-group">
+                            <select id="languageSwitcher" class="form-select">
+                                <option value="en">English</option>
+                                <option value="zh">中文</option>                  
+                            </select>
+                            <button id="themeToggle" class="btn btn-outline-secondary" title="切换主题"  data-translate-title="themeToggleTitle">
+                                <i class="fas fa-moon"></i>
+                            </button>
+                        </div>
                     </div>
-                </form>
-                <button type="button" class="btn btn-secondary mt-2" onclick="hideUploadArea()">取消</button>
+                </div>
             </div>
-        </div>
-<table>
-    <tr>
-        <th><input type="checkbox" id="selectAllCheckbox"></th>
-        <th data-translate="name">名称</th>
-        <th data-translate="type">类型</th>
-        <th data-translate="size">大小</th>
-        <th data-translate="modifiedTime">修改时间</th>
-        <th data-translate="permissions">权限</th>
-        <th data-translate="owner">拥有者</th>
-        <th data-translate="actions">操作</th>
-    </tr>
-    <?php if ($current_dir != ''): ?>
-        <tr>
-            <td></td>
-            <td class="folder-icon"><a href="?dir=<?php echo urlencode(dirname($current_dir)); ?>">..</a></td>
-            <td>目录</td>
-            <td>-</td>
-            <td>-</td>
-            <td>-</td>
-            <td>-</td>
-            <td></td>
-        </tr>
-    <?php endif; ?>
-    <?php foreach ($contents as $item): ?>
-        <tr>
-            <td><input type="checkbox" class="file-checkbox" data-path="<?php echo htmlspecialchars($item['path']); ?>"></td>
-            <?php
-            $icon_class = $item['is_dir'] ? 'folder-icon' : 'file-icon';
-            if (!$item['is_dir']) {
-                $ext = strtolower(pathinfo($item['name'], PATHINFO_EXTENSION));
-                $icon_class .= ' file-' . $ext;
-            }
-            ?>
-            <td class="<?php echo $icon_class; ?>">
-                <?php if ($item['is_dir']): ?>
-                    <a href="?dir=<?php echo urlencode($current_dir . $item['path']); ?>"><?php echo htmlspecialchars($item['name']); ?></a>
-                <?php else: ?>
-                    <?php 
-                    $ext = strtolower(pathinfo($item['name'], PATHINFO_EXTENSION));
-                    if (in_array($ext, ['jpg', 'jpeg', 'png', 'gif', 'svg', 'mp3', 'mp4'])): 
-                        $clean_path = ltrim(str_replace('//', '/', $item['path']), '/');
-                    ?>
-                        <a href="#" onclick="previewFile('<?php echo htmlspecialchars($clean_path); ?>', '<?php echo $ext; ?>')"><?php echo htmlspecialchars($item['name']); ?></a>
-                    <?php else: ?>
-                        <a href="#" onclick="showEditModal('<?php echo htmlspecialchars(addslashes($item['path'])); ?>')"><?php echo htmlspecialchars($item['name']); ?></a>
-                    <?php endif; ?>
+            <div class="breadcrumb">
+                <a href="?dir=">根目录</a> /
+                <?php foreach ($breadcrumbs as $index => $crumb): ?>
+                    <a href="?dir=<?php echo urlencode($crumb['path']); ?>"><?php echo htmlspecialchars($crumb['name']); ?></a>
+                    <?php if ($index < count($breadcrumbs) - 1) echo " / "; ?>
+                <?php endforeach; ?>
+            </div>
+            <div class="upload-container">
+                <div class="upload-area" id="uploadArea" style="display: none;">
+                    <form action="" method="post" enctype="multipart/form-data" id="uploadForm">
+                        <input type="file" name="upload" id="fileInput" style="display: none;" required>
+                        <div class="upload-drop-zone" id="dropZone">
+                            <i class="fas fa-cloud-upload-alt upload-icon"></i>
+                        </div>
+                    </form>
+                    <button type="button" class="btn btn-secondary mt-2" onclick="hideUploadArea()">取消</button>
+                </div>
+            </div>
+            <table>
+                <tr>
+                    <th><input type="checkbox" id="selectAllCheckbox"></th>
+                    <th data-translate="name">名称</th>
+                    <th data-translate="type">类型</th>
+                    <th data-translate="size">大小</th>
+                    <th data-translate="modifiedTime">修改时间</th>
+                    <th data-translate="permissions">权限</th>
+                    <th data-translate="owner">拥有者</th>
+                    <th data-translate="actions">操作</th>
+                </tr>
+                <?php if ($current_dir != ''): ?>
+                    <tr>
+                        <td></td>
+                        <td class="folder-icon"><a href="?dir=<?php echo urlencode(dirname($current_dir)); ?>">..</a></td>
+                        <td>目录</td>
+                        <td>-</td>
+                        <td>-</td>
+                        <td>-</td>
+                        <td>-</td>
+                        <td></td>
+                    </tr>
                 <?php endif; ?>
-            </td>
-            <td data-translate="<?php echo $item['is_dir'] ? 'directory' : 'file'; ?>"><?php echo $item['is_dir'] ? '目录' : '文件'; ?></td>
-            <td><?php echo $item['size']; ?></td>
-            <td><?php echo $item['mtime']; ?></td>
-            <td><?php echo $item['permissions']; ?></td>
-            <td><?php echo htmlspecialchars($item['owner']); ?></td>
-            <td>
-                <div style="display: flex; gap: 5px;">
-                    <button onclick="showRenameModal('<?php echo htmlspecialchars($item['name']); ?>', '<?php echo htmlspecialchars($item['path']); ?>')" class="btn btn-rename" data-translate="rename">重命名</button>
-                    <?php if (!$item['is_dir']): ?>
-                        <!--<button onclick="showEditModal('<?php echo htmlspecialchars($item['path']); ?>')" class="btn btn-edit" data-translate="edit">编辑</button>-->
-                        <a href="?dir=<?php echo urlencode($current_dir); ?>&download=<?php echo urlencode($item['path']); ?>" class="btn btn-download" data-translate="download">下载</a>
-                    <?php endif; ?>
-                    <button onclick="showChmodModal('<?php echo htmlspecialchars($item['path']); ?>', '<?php echo $item['permissions']; ?>')" class="btn btn-chmod" data-translate="setPermissions">权限</button>
-                    <form method="post" style="display:inline;" onsubmit="return confirmDelete('<?php echo htmlspecialchars($item['name']); ?>');">
-                        <input type="hidden" name="action" value="delete">
-                        <input type="hidden" name="path" value="<?php echo htmlspecialchars($item['path']); ?>">
-                        <button type="submit" class="btn delete-btn" data-translate="delete">删除</button> 
+                <?php foreach ($contents as $item): ?>
+                    <tr>
+                        <td><input type="checkbox" class="file-checkbox" data-path="<?php echo htmlspecialchars($item['path']); ?>"></td>
+                        <?php
+                        $icon_class = $item['is_dir'] ? 'folder-icon' : 'file-icon';
+                        if (!$item['is_dir']) {
+                            $ext = strtolower(pathinfo($item['name'], PATHINFO_EXTENSION));
+                            $icon_class .= ' file-' . $ext;
+                        }
+                        ?>
+                        <td class="<?php echo $icon_class; ?>">
+                            <?php if ($item['is_dir']): ?>
+                                <a href="?dir=<?php echo urlencode($current_dir . $item['path']); ?>"><?php echo htmlspecialchars($item['name']); ?></a>
+                            <?php else: ?>
+                                <?php 
+                                $ext = strtolower(pathinfo($item['name'], PATHINFO_EXTENSION));
+                                if (in_array($ext, ['jpg', 'jpeg', 'png', 'gif', 'svg', 'mp3', 'mp4'])): 
+                                    $clean_path = ltrim(str_replace('//', '/', $item['path']), '/');
+                                ?>
+                                    <a href="#" onclick="previewFile('<?php echo htmlspecialchars($clean_path); ?>', '<?php echo $ext; ?>')"><?php echo htmlspecialchars($item['name']); ?></a>
+                                <?php else: ?>
+                                    <a href="#" onclick="showEditModal('<?php echo htmlspecialchars(addslashes($item['path'])); ?>')"><?php echo htmlspecialchars($item['name']); ?></a>
+                                <?php endif; ?>
+                            <?php endif; ?>
+                        </td>
+                        <td data-translate="<?php echo $item['is_dir'] ? 'directory' : 'file'; ?>"><?php echo $item['is_dir'] ? '目录' : '文件'; ?></td>
+                        <td><?php echo $item['size']; ?></td>
+                        <td><?php echo $item['mtime']; ?></td>
+                        <td><?php echo $item['permissions']; ?></td>
+                        <td><?php echo htmlspecialchars($item['owner']); ?></td>
+                        <td>
+                            <div style="display: flex; gap: 5px;">
+                                <button onclick="showRenameModal('<?php echo htmlspecialchars($item['name']); ?>', '<?php echo htmlspecialchars($item['path']); ?>')" class="btn btn-rename" data-translate="rename">✏️ 重命名</button>
+                                <?php if (!$item['is_dir']): ?>
+                                    <a href="?dir=<?php echo urlencode($current_dir); ?>&download=<?php echo urlencode($item['path']); ?>" class="btn btn-download" data-translate="download">⬇️ 下载</a>
+                                <?php endif; ?>
+                                <button onclick="showChmodModal('<?php echo htmlspecialchars($item['path']); ?>', '<?php echo $item['permissions']; ?>')" class="btn btn-chmod" data-translate="setPermissions">🔒 权限</button>
+                                <form method="post" style="display:inline;" onsubmit="return confirmDelete('<?php echo htmlspecialchars($item['name']); ?>');">
+                                    <input type="hidden" name="action" value="delete">
+                                    <input type="hidden" name="path" value="<?php echo htmlspecialchars($item['path']); ?>">
+                                    <button type="submit" class="btn delete-btn" data-translate="delete">🗑️ 删除</button> 
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                <?php endforeach; ?>
+            </table>
+
+            <div id="renameModal" class="modal">
+                <div class="modal-content">
+                    <span class="close" onclick="closeModal('renameModal')">&times;</span>
+                    <h2 data-translate="rename">重命名</h2>
+                    <form method="post" onsubmit="return validateRename()">
+                        <input type="hidden" name="action" value="rename">
+                        <input type="hidden" name="old_path" id="oldPath">
+                        <div class="form-group">
+                            <label for="newPath" data-translate="newName">新名称</label>
+                            <input type="text" name="new_path" id="newPath" class="form-control" autocomplete="off" data-translate-placeholder="enterNewName">
+                        </div>
+                        <div class="btn-group">
+                            <button type="button" class="btn btn-secondary" onclick="closeModal('renameModal')" data-translate="cancel">取消</button>
+                            <button type="submit" class="btn btn-primary" data-translate="confirmRename">确认重命名</button>
+                        </div>
                     </form>
                 </div>
-            </td>
-        </tr>
-    <?php endforeach; ?>
-</table>
-
-
-
-<div id="createModal" class="modal">
-    <div class="modal-content">
-        <span class="close" onclick="closeModal('createModal')">&times;</span>
-        <h2>新建</h2>
-        <button onclick="showNewFolderModal()" class="btn btn-primary mb-2">新建文件夹</button>
-        <button onclick="showNewFileModal()" class="btn btn-primary">新建文件</button>
-    </div>
-</div>
-
-<div id="renameModal" class="modal">
-    <div class="modal-content">
-        <span class="close" onclick="closeModal('renameModal')">&times;</span>
-        <h2>重命名</h2>
-        <form method="post" onsubmit="return validateRename()">
-            <input type="hidden" name="action" value="rename">
-            <input type="hidden" name="old_path" id="oldPath">
-            <div class="form-group">
-                <label for="newPath">新名称</label>
-                <input type="text" name="new_path" id="newPath" class="form-control" autocomplete="off">
             </div>
-            <div class="btn-group">
-                <button type="button" class="btn btn-secondary" onclick="closeModal('renameModal')">取消</button>
-                <button type="submit" class="btn btn-primary">确认重命名</button>
+
+            <div id="createModal" class="modal">
+                <div class="modal-content">
+                    <span class="close" onclick="closeModal('createModal')">&times;</span>
+                    <h2 data-translate="create">新建</h2>
+                    <button onclick="showNewFolderModal()" class="btn btn-primary mb-2" data-translate="newFolder">新建文件夹</button>
+                    <button onclick="showNewFileModal()" class="btn btn-primary" data-translate="newFile">新建文件</button>
+                </div>
             </div>
-        </form>
-    </div>
-</div>
 
-<div id="newFolderModal" class="modal">
-    <div class="modal-content">
-        <span class="close" onclick="closeModal('newFolderModal')">&times;</span>
-        <h2>新建文件夹</h2>
-        <form method="post" onsubmit="return createNewFolder()">
-            <input type="hidden" name="action" value="create_folder">
-            <label for="newFolderName">文件夹名称:</label>
-            <input type="text" name="new_folder_name" id="newFolderName" required>
-            <input type="submit" value="创建" class="btn">
-        </form>
-    </div>
-</div>
-
-<div id="newFileModal" class="modal">
-    <div class="modal-content">
-        <span class="close" onclick="closeModal('newFileModal')">&times;</span>
-        <h2>新建文件</h2>
-        <form method="post" onsubmit="return createNewFile()">
-            <input type="hidden" name="action" value="create_file">
-            <label for="newFileName">文件名称:</label>
-            <input type="text" name="new_file_name" id="newFileName" required>
-            <input type="submit" value="创建" class="btn">
-        </form>
-    </div>
-</div>
-
-<div id="searchModal" class="modal" tabindex="-1">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">搜索文件</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            <div id="newFolderModal" class="modal">
+                <div class="modal-content">
+                    <span class="close" onclick="closeModal('newFolderModal')">&times;</span>
+                    <h2 data-translate="newFolder">新建文件夹</h2>
+                    <form method="post" onsubmit="return createNewFolder()">
+                        <input type="hidden" name="action" value="create_folder">
+                        <label for="newFolderName" data-translate="folderName">文件夹名称:</label>
+                        <input type="text" name="new_folder_name" id="newFolderName" required data-translate-placeholder="enterFolderName">
+                        <input type="submit" value="创建" class="btn" data-translate="create">
+                    </form>
+                </div>
             </div>
-            <div class="modal-body">
-                <form id="searchForm">
-                    <div class="input-group mb-3">
-                        <input type="text" id="searchInput" class="form-control" placeholder="输入文件名" required>
-                        <button type="submit" class="btn btn-primary">搜索</button>
+
+            <div id="newFileModal" class="modal">
+                <div class="modal-content">
+                    <span class="close" onclick="closeModal('newFileModal')">&times;</span>
+                    <h2 data-translate="newFile">新建文件</h2>
+                    <form method="post" onsubmit="return createNewFile()">
+                        <input type="hidden" name="action" value="create_file">
+                        <label for="newFileName" data-translate="fileName">文件名称:</label>
+                        <input type="text" name="new_file_name" id="newFileName" required data-translate-placeholder="enterFileName">
+                        <input type="submit" value="创建" class="btn" data-translate="create">
+                    </form>
+                </div>
+            </div>
+        <div id="searchModal" class="modal" tabindex="-1">
+                <div class="modal-dialog modal-lg">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" data-translate="searchFiles">搜索文件</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            <form id="searchForm">
+                                <div class="input-group mb-3">
+                                    <input type="text" id="searchInput" class="form-control" data-translate="searchInputPlaceholder" data-translate-placeholder="searchInputPlaceholder" placeholder="输入文件名" required>
+                                    <button type="submit" class="btn btn-primary" data-translate="search">搜索</button>
+                                </div>
+                            </form>
+                            <div id="searchResults"></div>
+                        </div>
                     </div>
-                </form>
-                <div id="searchResults"></div>
+                </div>
             </div>
-        </div>
-    </div>
-</div>
 
-<div id="editModal" class="modal">
-    <div class="modal-content">
-        <span class="close" onclick="closeModal('editModal')">&times;</span>
-        <h2>编辑文件</h2>
-        <form method="post" id="editForm" onsubmit="return saveEdit()">
-            <input type="hidden" name="action" value="edit">
-            <input type="hidden" name="path" id="editPath">
-            <input type="hidden" name="encoding" id="editEncoding">
-            <textarea name="content" id="editContent" rows="10" cols="50"></textarea>
-            <input type="submit" value="保存" class="btn">
-            <button type="button" onclick="openAceEditor()" class="btn">高级编辑</button>
-        </form>
-    </div>
-</div>
-
-<div id="aceEditor">
-    <div id="aceEditorContainer"></div>
-    <div id="editorStatusBar">
-        <span id="cursorPosition">行: <span id="currentLine">1</span>, 列: <span id="currentColumn">1</span></span>
-        <span id="characterCount">字符数: <span id="charCount">0</span></span>
-    </div>
-    <div id="editorControls">
-        <select id="fontSize" onchange="changeFontSize()">
-            <option value="18px">18px</option>
-            <option value="20px" selected>20px</option>
-            <option value="22px">22px</option>
-            <option value="24px">24px</option>
-            <option value="26px">26px</option>
-        </select>
-        <select id="editorTheme" onchange="changeEditorTheme()">
-            <option value="ace/theme/vibrant_ink">Vibrant Ink</option>
-            <option value="ace/theme/monokai">Monokai</option>
-            <option value="ace/theme/github">GitHub</option>
-            <option value="ace/theme/tomorrow">Tomorrow</option>
-            <option value="ace/theme/twilight">Twilight</option>
-            <option value="ace/theme/solarized_dark">Solarized Dark</option>
-            <option value="ace/theme/solarized_light">Solarized Light</option>
-            <option value="ace/theme/textmate">TextMate</option>
-            <option value="ace/theme/terminal">Terminal</option>
-            <option value="ace/theme/chrome">Chrome</option>
-            <option value="ace/theme/eclipse">Eclipse</option>
-            <option value="ace/theme/dreamweaver">Dreamweaver</option>
-            <option value="ace/theme/xcode">Xcode</option>
-            <option value="ace/theme/kuroir">Kuroir</option>
-            <option value="ace/theme/katzenmilch">KatzenMilch</option>
-            <option value="ace/theme/sqlserver">SQL Server</option>
-            <option value="ace/theme/ambiance">Ambiance</option>
-            <option value="ace/theme/chaos">Chaos</option>
-            <option value="ace/theme/clouds_midnight">Clouds Midnight</option>
-            <option value="ace/theme/cobalt">Cobalt</option>
-            <option value="ace/theme/gruvbox">Gruvbox</option>
-            <option value="ace/theme/idle_fingers">Idle Fingers</option>
-            <option value="ace/theme/kr_theme">krTheme</option>
-            <option value="ace/theme/merbivore">Merbivore</option>
-            <option value="ace/theme/mono_industrial">Mono Industrial</option>
-            <option value="ace/theme/pastel_on_dark">Pastel on Dark</option>
-        </select>
-        <select id="encoding" onchange="changeEncoding()">
-            <option value="UTF-8">UTF-8</option>
-            <option value="ASCII">ASCII</option>
-            <option value="ISO-8859-1">ISO-8859-1 (Latin-1)</option>
-            <option value="Windows-1252">Windows-1252</option>
-            <option value="GBK">GBK (简体中文)</option>
-            <option value="Big5">Big5 (繁体中文)</option>
-            <option value="Shift_JIS">Shift_JIS (日文)</option>
-            <option value="EUC-KR">EUC-KR (韩文)</option>
-        </select>
-        <button onclick="toggleSearch()" class="btn" title="搜索文件内容"><i class="fas fa-search"></i></button>
-        <button onclick="formatCode()" class="btn">格式化</button>
-        <button onclick="validateJSON()" class="btn" id="validateJSONBtn" style="display: none;">验证 JSON</button>
-        <button onclick="validateYAML()" class="btn" id="validateYAMLBtn" style="display: none;">验证 YAML</button>
-        <button onclick="saveAceContent()" class="btn">保存</button>
-        <button onclick="closeAceEditor()" class="btn">关闭</button>
-    </div>
-</div>
-
-<div id="aceEditor">
-    <div id="aceEditorContainer"></div>
-    <div style="position: absolute; top: 10px; right: 10px;">
-        <button onclick="saveAceContent()" class="btn">保存</button>
-        <button onclick="closeAceEditor()" class="btn" style="margin-left: 10px;">关闭</button>
-    </div>
-</div>
-
-<div id="chmodModal" class="modal">
-    <div class="modal-content">
-        <span class="close" onclick="closeModal('chmodModal')">&times;</span>
-        <h2>设置权限</h2>
-        <form method="post" onsubmit="return validateChmod()">
-            <input type="hidden" name="action" value="chmod">
-            <input type="hidden" name="path" id="chmodPath">
-            <div class="form-group">
-                <label for="permissions">权限值（例如：0644）</label>
-                <input type="text" name="permissions" id="permissions" class="form-control" maxlength="4" placeholder="0644" autocomplete="off">
-                <small class="form-text text-muted">输入三位或四位数字，例如：0644 或 0755</small>
+            <div id="editModal" class="modal">
+                <div class="modal-content">
+                    <span class="close" onclick="closeModal('editModal')">&times;</span>
+                    <h2 data-translate="editFile">编辑文件</h2>
+                    <form method="post" id="editForm" onsubmit="return saveEdit()">
+                        <input type="hidden" name="action" value="edit">
+                        <input type="hidden" name="path" id="editPath">
+                        <input type="hidden" name="encoding" id="editEncoding">
+                        <textarea name="content" id="editContent" rows="10" cols="50"></textarea>
+                        <input type="submit" value="保存" class="btn" data-translate="save">
+                        <button type="button" onclick="openAceEditor()" class="btn" data-translate="advancedEdit">高级编辑</button>
+                    </form>
+                </div>
             </div>
-            <div class="btn-group">
-                <button type="button" class="btn btn-secondary" onclick="closeModal('chmodModal')">取消</button>
-                <button type="submit" class="btn btn-primary">确认修改</button>
-            </div>
-        </form>
-    </div>
-</div>
 
-<div id="previewModal" class="modal">
-    <div class="modal-content">
-        <span class="close" onclick="closeModal('previewModal')">&times;</span>
-        <h2>文件预览</h2>
-        <div id="previewContainer">
+            <div id="aceEditor">
+                <div id="aceEditorContainer"></div>
+                <div id="editorStatusBar">
+                    <span id="cursorPosition"><span data-translate="line">行</span>: <span id="currentLine">1</span>, <span data-translate="column">列</span>: <span id="currentColumn">1</span></span>
+                    <span id="characterCount"><span data-translate="characterCount">字符数</span>: <span id="charCount">0</span></span>
+                </div>
+                <div id="editorControls">
+                    <select id="fontSize" onchange="changeFontSize()">
+                        <option value="18px">18px</option>
+                        <option value="20px" selected>20px</option>
+                        <option value="22px">22px</option>
+                        <option value="24px">24px</option>
+                        <option value="26px">26px</option>
+                    </select>
+                    <select id="editorTheme" onchange="changeEditorTheme()">
+                        <option value="ace/theme/vibrant_ink">Vibrant Ink</option>
+                        <option value="ace/theme/monokai">Monokai</option>
+                        <option value="ace/theme/github">GitHub</option>
+                        <option value="ace/theme/tomorrow">Tomorrow</option>
+                        <option value="ace/theme/twilight">Twilight</option>
+                        <option value="ace/theme/solarized_dark">Solarized Dark</option>
+                        <option value="ace/theme/solarized_light">Solarized Light</option>
+                        <option value="ace/theme/textmate">TextMate</option>
+                        <option value="ace/theme/terminal">Terminal</option>
+                        <option value="ace/theme/chrome">Chrome</option>
+                        <option value="ace/theme/eclipse">Eclipse</option>
+                        <option value="ace/theme/dreamweaver">Dreamweaver</option>
+                        <option value="ace/theme/xcode">Xcode</option>
+                        <option value="ace/theme/kuroir">Kuroir</option>
+                        <option value="ace/theme/katzenmilch">KatzenMilch</option>
+                        <option value="ace/theme/sqlserver">SQL Server</option>
+                        <option value="ace/theme/ambiance">Ambiance</option>
+                        <option value="ace/theme/chaos">Chaos</option>
+                        <option value="ace/theme/clouds_midnight">Clouds Midnight</option>
+                        <option value="ace/theme/cobalt">Cobalt</option>
+                        <option value="ace/theme/gruvbox">Gruvbox</option>
+                        <option value="ace/theme/idle_fingers">Idle Fingers</option>
+                        <option value="ace/theme/kr_theme">krTheme</option>
+                        <option value="ace/theme/merbivore">Merbivore</option>
+                        <option value="ace/theme/mono_industrial">Mono Industrial</option>
+                        <option value="ace/theme/pastel_on_dark">Pastel on Dark</option>
+                    </select>
+                    <select id="encoding" onchange="changeEncoding()">
+                        <option value="UTF-8">UTF-8</option>
+                        <option value="ASCII">ASCII</option>
+                        <option value="ISO-8859-1">ISO-8859-1 (Latin-1)</option>
+                        <option value="Windows-1252">Windows-1252</option>
+                        <option value="GBK">GBK (简体中文)</option>
+                        <option value="Big5">Big5 (繁体中文)</option>
+                        <option value="Shift_JIS">Shift_JIS (日文)</option>
+                        <option value="EUC-KR">EUC-KR (韩文)</option>
+                    </select>
+                    <button onclick="toggleSearch()" class="btn" title="搜索文件内容" data-translate="search"><i class="fas fa-search"></i></button>
+                    <button onclick="formatCode()" class="btn" data-translate="format">格式化</button>
+                    <button onclick="validateJSON()" class="btn" id="validateJSONBtn" style="display: none;" data-translate="validateJSON">验证 JSON</button>
+                    <button onclick="validateYAML()" class="btn" id="validateYAMLBtn" style="display: none;" data-translate="validateYAML">验证 YAML</button>
+                    <button onclick="saveAceContent()" class="btn" data-translate="save">保存</button>
+                    <button onclick="closeAceEditor()" class="btn" data-translate="close">关闭</button>
+                </div>
+            </div>
+
+            <div id="aceEditor">
+                <div id="aceEditorContainer"></div>
+                <div style="position: absolute; top: 10px; right: 10px;">
+                    <button onclick="saveAceContent()" class="btn" data-translate="save">保存</button>
+                    <button onclick="closeAceEditor()" class="btn" style="margin-left: 10px;" data-translate="close">关闭</button>
+                </div>
+            </div>
+
+            <div id="chmodModal" class="modal">
+                <div class="modal-content">
+                    <span class="close" onclick="closeModal('chmodModal')">&times;</span>
+                    <h2 data-translate="setPermissions">设置权限</h2>
+                    <form method="post" onsubmit="return validateChmod()">
+                        <input type="hidden" name="action" value="chmod">
+                        <input type="hidden" name="path" id="chmodPath">
+                        <div class="form-group">
+                            <label for="permissions" data-translate="permissionValue">权限值（例如：0644）</label>
+                            <input type="text" name="permissions" id="permissions" class="form-control" maxlength="4" data-translate-placeholder="permissionPlaceholder" placeholder="0644" autocomplete="off">
+                            <small class="form-text text-muted" data-translate="permissionHelp">输入三位或四位数字，例如：0644 或 0755</small>
+                        </div>
+                        <div class="btn-group">
+                            <button type="button" class="btn btn-secondary" onclick="closeModal('chmodModal')" data-translate="cancel">取消</button>
+                            <button type="submit" class="btn btn-primary" data-translate="confirmChange">确认修改</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <div id="previewModal" class="modal">
+                <div class="modal-content">
+                    <span class="close" onclick="closeModal('previewModal')">&times;</span>
+                    <h2 data-translate="filePreview">文件预览</h2>
+                    <div id="previewContainer">
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 </div>
@@ -1179,6 +1188,7 @@ function saveAceContent() {
     encodingField.value = encoding;
     document.getElementById('editModal').querySelector('form').appendChild(encodingField);
     document.getElementById('editModal').querySelector('form').submit();
+
 }
 
 function openAceEditor() {
@@ -1359,7 +1369,7 @@ function validateRename() {
 <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.4.12/ext-beautify.min.js"></script>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.4.12/ext-spellcheck.min.js"></script>
-
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/js/bootstrap.bundle.min.js"></script>
 <style>
 .upload-container { margin-bottom: 20px; }
 .upload-area { margin-top: 10px; }
@@ -1371,8 +1381,7 @@ body.dark-mode .upload-drop-zone { background: #2d3238; border-color: #495057; }
 body.dark-mode .upload-drop-zone.drag-over { background: #343a40; border-color: #0d6efd; }
 body.dark-mode .upload-icon { color: #adb5bd; }
 body.dark-mode .upload-drop-zone:hover .upload-icon { color: #0d6efd; }
-#searchModal{z-index:1060 !important;}.modal-backdrop{z-index:1050 !important;}.modal-content{background-color:var(--bs-body-bg);color:var(--bs-body-color);}#searchModal .modal-dialog{max-width:90% !important;width:800px !important;}#searchResults{max-height:400px;overflow-y:auto;}#searchResults .list-group-item{display:flex;justify-content:space-between;align-items:center;}#searchResults .list-group-item span{word-break:break-all;margin-right:10px;}#aceEditor{position:fixed;top:0;right:0;bottom:0;left:0;z-index:1000;}#aceEditorContainer{position:absolute;top:0;right:0;bottom:30px;left:0;}#editorStatusBar{position:absolute;bottom:0;left:0;right:0;height:30px;background-color:#f0f0f0;padding:5px 10px;font-size:12px;display:flex;justify-content:space-between;align-items:center;}body.dark-mode #editorStatusBar{background-color:#2d3238;color:#e0e0e0;}.ace_search{background-color:#f8f9fa;border:1px solid #ced4da;border-radius:4px;padding:10px;box-shadow:0 2px 4px rgba(0,0,0,0.1);}.ace_search_form,.ace_replace_form{display:flex;align-items:center;margin-bottom:5px;}.ace_search_field{flex-grow:1;border:1px solid #ced4da;border-radius:4px;padding:4px;}.ace_searchbtn,.ace_replacebtn{background-color:#007bff;color:white;border:none;border-radius:4px;padding:4px 8px;margin-left:5px;cursor:pointer;}.ace_searchbtn:hover,.ace_replacebtn:hover{background-color:#0056b3;}.ace_search_options{margin-top:5px;}.ace_button{background-color:#6c757d;color:white;border:none;border-radius:4px;padding:4px 8px;margin-right:5px;cursor:pointer;}.ace_button:hover{background-color:#5a6268;}body.dark-mode .ace_search{background-color:#2d3238;border-color:#495057;}body.dark-mode .ace_search_field{background-color:#343a40;color:#f8f9fa;border-color:#495057;}body.dark-mode .ace_searchbtn,body.dark-mode .ace_replacebtn{background-color:#0056b3;}body.dark-mode .ace_searchbtn:hover,body.dark-mode .ace_replacebtn:hover{background-color:#004494;}body.dark-mode .ace_button{background-color:#495057;}body.dark-mode .ace_button:hover{background-color:#3d4349;}#aceEditor .btn{background-color:#87ceeb;color:#fff;border:none;padding:8px 16px;border-radius:4px;font-size:14px;cursor:pointer;transition:background-color 0.3s ease;}#aceEditor .btn:hover{background-color:#4682b4;transform:translateY(-2px);box-shadow:0 4px 12px rgba(0,0,0,0.15);}#aceEditor .btn:focus{outline:none;}#aceEditor{color:#333;}#aceEditor .btn{background-color:#87ceeb;color:#fff;}#aceEditor .btn:hover{background-color:#4682b4;}
-#aceEditor{position:fixed;top:0;right:0;bottom:0;left:0;z-index:1000;display:none}#aceEditorContainer{position:absolute;top:40px;right:0;bottom:40px;left:0;overflow-x:auto}#editorStatusBar{position:absolute;left:50%;transform:translateX(-50%);bottom:0;height:30px;background-color:#000;color:#fff;display:flex;align-items:center;padding:0 10px;font-size:14px;z-index:1001;max-width:100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}#editorControls{position:absolute;left:0;right:0;top:0;height:40px;background-color:#000;color:#fff;display:flex;justify-content:center;align-items:center;padding:0 10px;overflow-x:auto}#editorControls select,#editorControls button{margin:0 10px;height:30px;padding:5px 10px;font-size:12px;background-color:#000;color:#fff;border:none;display:flex;justify-content:center;align-items:center}
+#searchModal{z-index:1060 !important;}.modal-backdrop{z-index:1050 !important;}.modal-content{background-color:var(--bs-body-bg);color:var(--bs-body-color);}#searchModal .modal-dialog{max-width:90% !important;width:800px !important;}#searchResults{max-height:400px;overflow-y:auto;}#searchResults .list-group-item{display:flex;justify-content:space-between;align-items:center;}#searchResults .list-group-item span{word-break:break-all;margin-right:10px;}#aceEditor{position:fixed;top:0;right:0;bottom:0;left:0;z-index:1000;}#aceEditorContainer{position:absolute;top:0;right:0;bottom:30px;left:0;}#editorStatusBar{position:absolute;bottom:0;left:0;right:0;height:30px;background-color:#f0f0f0;padding:5px 10px;font-size:12px;display:flex;justify-content:space-between;align-items:center;}body.dark-mode #editorStatusBar{background-color:#2d3238;color:#e0e0e0;}.ace_search{background-color:#f8f9fa;border:1px solid #ced4da;border-radius:4px;padding:10px;box-shadow:0 2px 4px rgba(0,0,0,0.1);}.ace_search_form,.ace_replace_form{display:flex;align-items:center;margin-bottom:5px;}.ace_search_field{flex-grow:1;border:1px solid #ced4da;border-radius:4px;padding:4px;}.ace_searchbtn,.ace_replacebtn{background-color:#007bff;color:white;border:none;border-radius:4px;padding:4px 8px;margin-left:5px;cursor:pointer;}.ace_searchbtn:hover,.ace_replacebtn:hover{background-color:#0056b3;}.ace_search_options{margin-top:5px;}.ace_button{background-color:#6c757d;color:white;border:none;border-radius:4px;padding:4px 8px;margin-right:5px;cursor:pointer;}.ace_button:hover{background-color:#5a6268;}body.dark-mode .ace_search{background-color:#2d3238;border-color:#495057;}body.dark-mode .ace_search_field{background-color:#343a40;color:#f8f9fa;border-color:#495057;}body.dark-mode .ace_searchbtn,body.dark-mode .ace_replacebtn{background-color:#0056b3;}body.dark-mode .ace_searchbtn:hover,body.dark-mode .ace_replacebtn:hover{background-color:#004494;}body.dark-mode .ace_button{background-color:#495057;}body.dark-mode .ace_button:hover{background-color:#3d4349;}#aceEditor .btn:hover{background-color:#4682b4;transform:translateY(-2px);box-shadow:0 4px 12px rgba(0,0,0,0.15);}#aceEditor .btn:focus{outline:none;}#aceEditor{color:#333;}#aceEditor{position:fixed;top:0;right:0;bottom:0;left:0;z-index:1000;display:none}#aceEditorContainer{position:absolute;top:40px;right:0;bottom:40px;left:0;overflow-x:auto}#editorStatusBar{position:absolute;left:50%;transform:translateX(-50%);bottom:0;height:30px;background-color:#000;color:#fff;display:flex;align-items:center;padding:0 10px;font-size:14px;z-index:1001;max-width:100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}#editorControls{position:absolute;left:0;right:0;top:0;height:40px;background-color:#000;color:#fff;display:flex;justify-content:center;align-items:center;padding:0 10px;overflow-x:auto}#editorControls select,#editorControls button{margin:0 10px;height:30px;padding:5px 10px;font-size:12px;background-color:#000;color:#fff;border:none;display:flex;justify-content:center;align-items:center}
 </style>
 
 <script>
@@ -1393,16 +1402,14 @@ const translations = {
         actions: "操作",
         directory: "目录",
         file: "文件",
-        rename: "重命名",
-        edit: "编辑",
-        download: "下载",
-        delete: "删除",
+        rename: "✏️ 重命名",
+        edit: "📝 编辑",
+        download: "📥 下载",
+        delete: "🗑️ 删除",
         confirmDelete: "确定要删除 {0} 吗？这个操作不可撤销。",
         newName: "新名称:",
-        save: "保存",
-        advancedEdit: "高级编辑",
         close: "关闭",
-        setPermissions: "设置权限",
+        setPermissions: "🔒 设置权限",
         saveLanguage: "保存语言设置",
         languageSaved: "语言设置已保存",
         modifiedTime: "修改时间",
@@ -1431,14 +1438,8 @@ const translations = {
         home: "首页",
         mihomo: "Mihomo",
         singBox: "Sing-box",
-        convert: "转换",
+        convert: "订阅转换",
         fileAssistant: "文件助手",
-        returnToParentDirectory: "返回上一级",
-        returnToRootDirectory: "返回根目录",
-        returnToHomeDirectory: "返回主目录",
-        refreshDirectoryContent: "刷新目录内容",
-        createNew: "新建",
-        upload: "上传",
         errorSavingFile: "错误: 无法保存文件。",
         uploadFailed: "上传失败",
         fileNotExistOrNotReadable: "文件不存在或不可读。",
@@ -1448,8 +1449,6 @@ const translations = {
         inputThreeOrFourDigits: "输入三位或四位数字，例如：0644 或 0755",
         fontSizeL: "字体大小",
         encodingL: "编码",
-        saveL: "保存",
-        closeL: "关闭",
         confirmCloseEditor: "确定要关闭编辑器吗？请确保已保存更改。",
         newNameCannotBeEmpty: "新名称不能为空",
         fileNameCannotContainChars: "文件名不能包含以下字符: < > : \" / \\ | ? *",
@@ -1464,10 +1463,35 @@ const translations = {
         rootDirectoryTitle: "返回根目录",
         homeDirectoryTitle: "返回主目录",
         refreshDirectoryTitle: "刷新目录内容",
+        selectAll: "全选",
+        invertSelection: "反选",
+        deleteSelected: "删除所选",
         searchTitle: "搜索",
         createTitle: "新建",
         uploadTitle: "上传",
-        themeToggleTitle: "切换主题"
+        searchInputPlaceholder: "输入文件名",
+        moveTo: "移至",
+        confirmRename: "确认重命名",
+        create: "创建",
+        confirmChange: "确认修改",
+        themeToggleTitle: "切换主题",
+        editFile: "编辑文件",
+        save: "保存",
+        advancedEdit: "高级编辑",
+        line: "行",
+        column: "列",
+        characterCount: "字符数",
+        fontSizeL: "字体大小",
+        encodingL: "编码",
+        gbk: "GBK (简体中文)",
+        big5: "Big5 (繁体中文)",
+        shiftJIS: "Shift_JIS (日文)",
+        eucKR: "EUC-KR (韩文)",
+        search: "搜索",
+        format: "格式化",
+        validateJSON: "验证 JSON",
+        validateYAML: "验证 YAML",
+        close: "关闭"
     },
     en: {
         pageTitle: "NeKoBox File Assistant",
@@ -1480,16 +1504,14 @@ const translations = {
         actions: "Actions",
         directory: "Directory",
         file: "File",
-        rename: "Rename",
-        edit: "Edit",
-        download: "Download",
-        delete: "Delete",
+        rename: "✏️ Rename",
+        edit: "📝 Edit",
+        download: "📥 Download",
+        delete: "🗑️ Delete",
         confirmDelete: "Are you sure you want to delete {0}? This action cannot be undone.",
         newName: "New name:",
-        save: "Save",
-        advancedEdit: "Advanced Edit",
         close: "Close",
-        setPermissions: "Set Permissions",
+        setPermissions: "🔒 Set Permissions",
         saveLanguage: "Save Language Setting",
         languageSaved: "Language setting has been saved",
         modifiedTime: "Modified Time",
@@ -1520,12 +1542,6 @@ const translations = {
         singBox: "Sing-box",
         convert: "Convert",
         fileAssistant: "File Assistant",
-        returnToParentDirectory: "Return to Parent Directory",
-        returnToRootDirectory: "Return to Root Directory",
-        returnToHomeDirectory: "Return to Home Directory",
-        refreshDirectoryContent: "Refresh Directory Content",
-        createNew: "Create New",
-        upload: "Upload",
         errorSavingFile: "Error: Unable to save file.",
         uploadFailed: "Upload failed",
         fileNotExistOrNotReadable: "File does not exist or is not readable.",
@@ -1535,7 +1551,7 @@ const translations = {
         inputThreeOrFourDigits: "Enter three or four digits, e.g.: 0644 or 0755",
         fontSizeL: "Font Size",
         encodingL: "Encoding",
-        saveL: "Save",
+        save: "Save",
         closeL: "Close",
         confirmCloseEditor: "Are you sure you want to close the editor? Please make sure you have saved your changes.",
         newNameCannotBeEmpty: "New name cannot be empty",
@@ -1551,44 +1567,82 @@ const translations = {
         rootDirectoryTitle: "Return to Root Directory",
         homeDirectoryTitle: "Return to Home Directory",
         refreshDirectoryTitle: "Refresh Directory Content",
+        selectAll: "Select All",
+        invertSelection: "Invert Selection",
+        deleteSelected: "Delete Selected",
         searchTitle: "Search",
         createTitle: "Create New",
         uploadTitle: "Upload",
-        themeToggleTitle: "Toggle Theme"
+        searchInputPlaceholder: "Enter file name",
+        confirmRename: "Confirm Rename",
+        create: "Create",
+        moveTo: "Move to",
+        confirmChange: "Confirm Change",
+        themeToggleTitle: "Toggle Theme",
+        editFile: "Edit File",
+        save: "Save",
+        advancedEdit: "Advanced Edit",
+        line: "Line",
+        column: "Column",
+        characterCount: "Character Count",
+        fontSizeL: "Font Size",
+        encodingL: "Encoding",
+        gbk: "GBK (Simplified Chinese)",
+        big5: "Big5 (Traditional Chinese)",
+        shiftJIS: "Shift_JIS (Japanese)",
+        eucKR: "EUC-KR (Korean)",
+        search: "Search",
+        format: "Format",
+        validateJSON: "Validate JSON",
+        validateYAML: "Validate YAML",
+        close: "Close"
     }
 };
     let currentLang = localStorage.getItem('preferred_language') || 'en';
 
-    function updateLanguage(lang) {
-        document.documentElement.lang = lang;
-        pageTitle.textContent = translations[lang].pageTitle;
-        uploadBtn.title = translations[lang].uploadBtn;
+function updateLanguage(lang) {
+    document.documentElement.lang = lang;
+    pageTitle.textContent = translations[lang].pageTitle;
+    uploadBtn.title = translations[lang].uploadBtn;
 
-        document.querySelectorAll('th').forEach((th, index) => {
-            th.textContent = translations[lang][th.getAttribute('data-translate')];
-        });
-
-        document.querySelectorAll('[data-translate]').forEach(el => {
-            el.textContent = translations[lang][el.getAttribute('data-translate')];
-        });
-
-    document.querySelectorAll('[data-translate-title]').forEach(el => {
-        const key = el.getAttribute('data-translate-title');
-        if (translations[lang][key]) {
-            el.title = translations[lang][key];
+    document.querySelectorAll('th').forEach((th) => {
+        const key = th.getAttribute('data-translate');
+        if (key && translations[lang][key]) {
+            th.textContent = translations[lang][key];
         }
     });
 
-        document.querySelector('.breadcrumb a').textContent = translations[lang].rootDirectory;
+    document.querySelectorAll('[data-translate], [data-translate-title], [data-translate-placeholder]').forEach(el => {
+        const translateKey = el.getAttribute('data-translate');
+        const titleKey = el.getAttribute('data-translate-title');
+        const placeholderKey = el.getAttribute('data-translate-placeholder');
 
-        document.querySelector('#renameModal h2').textContent = translations[lang].rename;
-        document.querySelector('#editModal h2').textContent = translations[lang].edit;
-        document.querySelector('#chmodModal h2').textContent = translations[lang].setPermissions;
+        if (translateKey && translations[lang][translateKey]) {
+            if (el.tagName === 'INPUT' && el.type === 'text') {
+                el.placeholder = translations[lang][translateKey];
+            } else {
+                el.textContent = translations[lang][translateKey];
+            }
+        }
 
-        document.getElementById('languageSwitcher').value = lang;
-    }
+        if (titleKey && translations[lang][titleKey]) {
+            el.title = translations[lang][titleKey];
+        }
 
-    updateLanguage(currentLang);
+        if (placeholderKey && translations[lang][placeholderKey]) {
+            el.placeholder = translations[lang][placeholderKey];
+        }
+    });
+
+    document.querySelector('.breadcrumb a').textContent = translations[lang].rootDirectory;
+    document.querySelector('#renameModal h2').textContent = translations[lang].rename;
+    document.querySelector('#editModal h2').textContent = translations[lang].edit;
+    document.querySelector('#chmodModal h2').textContent = translations[lang].setPermissions;
+
+    document.getElementById('languageSwitcher').value = lang;
+}
+
+updateLanguage(currentLang);
 
     document.getElementById('languageSwitcher').addEventListener('change', function() {
         currentLang = this.value;
@@ -2166,6 +2220,40 @@ aceEditor.on("spell_check", function(errors) {
             );
         }
     });
+});
+
+</script>
+<style>
+#fullscreenToggle {
+    position: fixed;
+    top: 10px;
+    right: 10px;
+    z-index: 1000;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    padding: 3px 10px;
+    border-radius: 5px;
+    cursor: pointer;
+}
+</style>
+
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    const fullscreenToggle = document.createElement('button');
+    fullscreenToggle.id = 'fullscreenToggle';
+    fullscreenToggle.textContent = '全屏';
+    document.body.appendChild(fullscreenToggle);
+
+    fullscreenToggle.onclick = function() {
+        if (!document.fullscreenElement) {
+            document.documentElement.requestFullscreen();
+        } else {
+            if (document.exitFullscreen) {
+                document.exitFullscreen();
+            }
+        }
+    };
 });
 </script>
 </body>

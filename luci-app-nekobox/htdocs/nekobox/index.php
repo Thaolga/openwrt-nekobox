@@ -1,6 +1,5 @@
 <?php
 include './cfg.php';
-include './devinfo.php';
 
 $str_cfg = substr($selected_config, strlen("$neko_dir/config") + 1);
 $_IMG = '/luci-static/ssr/';
@@ -451,6 +450,43 @@ $neko_log_content = readLogFile("$neko_dir/tmp/neko_log.txt");
 $singbox_log_content = readLogFile($singbox_log);
 ?>
 
+<?php
+$systemIP = $_SERVER['SERVER_ADDR'];
+$dt=json_decode((shell_exec("ubus call system board")), true);
+$devices=$dt['model'];
+
+$kernelv = exec("cat /proc/sys/kernel/ostype"); 
+$osrelease = exec("cat /proc/sys/kernel/osrelease"); 
+$OSVer = $dt['release']['distribution'] . ' ' . $dt['release']['version']; 
+$kernelParts = explode('.', $osrelease, 3);
+$kernelv = 'Linux ' . 
+           (isset($kernelParts[0]) ? $kernelParts[0] : '') . '.' . 
+           (isset($kernelParts[1]) ? $kernelParts[1] : '') . '.' . 
+           (isset($kernelParts[2]) ? $kernelParts[2] : '');
+$kernelv = strstr($kernelv, '-', true) ?: $kernelv;
+$fullOSInfo = $kernelv . ' ' . $OSVer;
+
+
+$tmpramTotal=exec("cat /proc/meminfo | grep MemTotal | awk '{print $2}'");
+$tmpramAvailable=exec("cat /proc/meminfo | grep MemAvailable | awk '{print $2}'");
+
+$ramTotal=number_format(($tmpramTotal/1000),1);
+$ramAvailable=number_format(($tmpramAvailable/1000),1);
+$ramUsage=number_format((($tmpramTotal-$tmpramAvailable)/1000),1);
+
+$raw_uptime = exec("cat /proc/uptime | awk '{print $1}'");
+$days = floor($raw_uptime / 86400);
+$hours = floor(($raw_uptime / 3600) % 24);
+$minutes = floor(($raw_uptime / 60) % 60);
+$seconds = $raw_uptime % 60;
+
+$cpuLoad = shell_exec("cat /proc/loadavg");
+$cpuLoad = explode(' ', $cpuLoad);
+$cpuLoadAvg1Min = round($cpuLoad[0], 2);
+$cpuLoadAvg5Min = round($cpuLoad[1], 2);
+$cpuLoadAvg15Min = round($cpuLoad[2], 2);
+?>
+
 <!doctype html>
 <html lang="en" data-bs-theme="<?php echo substr($neko_theme,0,-4) ?>">
   <head>
@@ -466,6 +502,7 @@ $singbox_log_content = readLogFile($singbox_log);
     <script type="text/javascript" src="./assets/js/neko.js"></script>
   </head>
   <body>
+
 <div class="container-sm container-bg callout border border-3 rounded-4 col-11">
     <div class="row">
         <a href="#" class="col btn btn-lg">🏠 首页</a>
@@ -473,6 +510,7 @@ $singbox_log_content = readLogFile($singbox_log);
         <a href="./configs.php" class="col btn btn-lg">⚙️ 配置</a>
         <a href="/nekobox/mon.php" class="col btn btn-lg d-flex align-items-center justify-content-center"></i>📦 订阅</a> 
         <a href="./settings.php" class="col btn btn-lg">🛠️ 设定</a>
+
     <div class="container-sm text-center col-8">
   <img src="./assets/img/nekobox.png">
 <div id="version-info">
@@ -503,8 +541,44 @@ $(document).ready(function() {
     });
 });
 </script>
+    <style>
+        .modern-title {
+            font-family: Arial, sans-serif;
+            font-size: 72px;
+            font-weight: bold;
+            background: linear-gradient(45deg, #12c2e9, #c471ed, #f64f59);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            animation: gradient 5s ease infinite;
+            background-size: 300% 300%;
+            text-transform: uppercase;
+            letter-spacing: 5px;
+            text-align: center;
+            margin: 20px 0;
+        }
 
-<h2 class="text-center p-2">NekoBox</h2>
+        @keyframes gradient {
+            0% {
+                background-position: 0% 50%;
+            }
+            50% {
+                background-position: 100% 50%;
+            }
+            100% {
+                background-position: 0% 50%;
+            }
+        }
+
+        .subtitle {
+            font-family: Arial, sans-serif;
+            font-size: 24px;
+            color: #333;
+            text-align: center;
+            margin-top: 10px;
+        }
+    </style>
+ <h2 class="modern-title">NekoBox</h2>
  <div style="border: 1px solid black; padding: 10px; ">  
    <br>
 <?php
@@ -838,24 +912,22 @@ $lang = $_GET['lang'] ?? 'en';
     </tbody>
 </table>
 
-    <h2 class="text-center p-2" >系统信息</h2>
+    <style>
+        .icon-container { display: flex; justify-content: space-between; margin-top: 20px; }
+        .icon { text-align: center; width: 30%; }
+        .icon i { font-size: 48px; }
+    </style>
+    <link rel="stylesheet" href="./assets/bootstrap/all.min.css">
+    <div class="container">
+    <h2 class="text-center p-2" >系统状态</h2>
     <table class="table table-borderless rounded-4 mb-2">
         <tbody>
-            <tr>
-                <td>型号</td>
-                <td class="col-7"><?php echo $devices ?></td>
+                <td>系统信息</td>
+                <td class="col-7"><?php echo  $devices . ' - ' . $fullOSInfo; ?></td>
             </tr>
             <tr>
                 <td>内存</td>
                 <td class="col-7"><?php echo "$ramUsage/$ramTotal MB" ?></td>
-            </tr>
-            <tr>
-                <td>固件版本</td>
-                <td class="col-7"><?php echo $OSVer ?></td>
-            </tr>
-            <tr>
-                <td>内核版本</td>
-                <td class="col-7"><?php echo $kernelv ?></td>
             </tr>
             <tr>
                 <td>平均负载</td>
@@ -867,22 +939,41 @@ $lang = $_GET['lang'] ?? 'en';
             </tr>
         </tbody>
     </table>
-  <br>
-<div style="border: 1px solid black; padding: 10px; text-align: center;">
-    <table style="width: 100%;">
-        <tbody>
-            <tr>
-                <td style="width: 50%;">下载-总计</td>
-                <td style="width: 50%;">上传-总计</td>
-            </tr>
-            <tr>
-                <td><span id="downtotal">-</span></td>
-                <td><span id="uptotal">-</span></td>
-            </tr>
-        </tbody>
-    </table>
-</div>
-<!DOCTYPE html>
+
+        <div class="icon-container">
+            <div class="icon">
+                <i class="fas fa-microchip"></i>
+                <p>CPU</p>
+                <p><?php echo isset($cpuLoadAvg1Min) ? $cpuLoadAvg1Min : 'N/A'; ?></p>
+            </div>
+            <div class="icon">
+                <i class="fas fa-memory"></i>
+                <p>内存</p>
+                <p><?php echo (isset($ramUsage) && isset($ramTotal)) ? $ramUsage . ' / ' . $ramTotal . ' MB' : 'N/A'; ?></p>
+            </div>
+            <div class="icon">
+                <i class="fas fa-exchange-alt"></i>
+                <p>交换空间</p>
+                <p>N/A</p>
+            </div>
+        </div>
+    </div>
+
+    <div style="border: 1px solid black; padding: 10px; text-align: center;">
+        <table style="width: 100%;">
+            <tbody>
+                <tr>
+                    <td style="width: 50%;">下载-总计</td>
+                    <td style="width: 50%;">上传-总计</td>
+                </tr>
+                <tr>
+                    <td><span id="downtotal">-</span></td>
+                    <td><span id="uptotal">-</span></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
 <html lang="zh">
 <head>
     <meta charset="UTF-8">
