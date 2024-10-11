@@ -540,45 +540,9 @@ $(document).ready(function() {
         }
     });
 });
+
 </script>
-    <style>
-        .modern-title {
-            font-family: Arial, sans-serif;
-            font-size: 72px;
-            font-weight: bold;
-            background: linear-gradient(45deg, #12c2e9, #c471ed, #f64f59);
-            -webkit-background-clip: text;
-            background-clip: text;
-            color: transparent;
-            animation: gradient 5s ease infinite;
-            background-size: 300% 300%;
-            text-transform: uppercase;
-            letter-spacing: 5px;
-            text-align: center;
-            margin: 20px 0;
-        }
-
-        @keyframes gradient {
-            0% {
-                background-position: 0% 50%;
-            }
-            50% {
-                background-position: 100% 50%;
-            }
-            100% {
-                background-position: 0% 50%;
-            }
-        }
-
-        .subtitle {
-            font-family: Arial, sans-serif;
-            font-size: 24px;
-            color: #333;
-            text-align: center;
-            margin-top: 10px;
-        }
-    </style>
- <h2 class="modern-title">NekoBox</h2>
+ <h2 class="royal-style">NekoBox</h2>
  <div style="border: 1px solid black; padding: 10px; ">  
    <br>
 <?php
