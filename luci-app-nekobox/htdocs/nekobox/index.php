@@ -1,7 +1,6 @@
 <?php
 include './cfg.php';
-include './devinfo.php';
-date_default_timezone_set('Asia/Shanghai'); 
+
 $str_cfg = substr($selected_config, strlen("$neko_dir/config") + 1);
 $_IMG = '/luci-static/ssr/';
 $singbox_bin = '/usr/bin/sing-box';
@@ -436,19 +435,56 @@ function readRecentLogLines($filePath, $lines = 1000) {
    }
    $command = "tail -n $lines " . escapeshellarg($filePath);
    $output = shell_exec($command);
-   return $output ?: "The log is empty.";
+   return $output ?: "The log is empty";
 }
 
 function readLogFile($filePath) {
    if (file_exists($filePath)) {
        return nl2br(htmlspecialchars(readRecentLogLines($filePath, 1000), ENT_NOQUOTES));
-   } else { 
-       return 'The log file does not exist.';
+   } else {
+       return 'The log file does not exist';
    }
 }
 
 $neko_log_content = readLogFile("$neko_dir/tmp/neko_log.txt");
 $singbox_log_content = readLogFile($singbox_log);
+?>
+
+<?php
+$systemIP = $_SERVER['SERVER_ADDR'];
+$dt=json_decode((shell_exec("ubus call system board")), true);
+$devices=$dt['model'];
+
+$kernelv = exec("cat /proc/sys/kernel/ostype"); 
+$osrelease = exec("cat /proc/sys/kernel/osrelease"); 
+$OSVer = $dt['release']['distribution'] . ' ' . $dt['release']['version']; 
+$kernelParts = explode('.', $osrelease, 3);
+$kernelv = 'Linux ' . 
+           (isset($kernelParts[0]) ? $kernelParts[0] : '') . '.' . 
+           (isset($kernelParts[1]) ? $kernelParts[1] : '') . '.' . 
+           (isset($kernelParts[2]) ? $kernelParts[2] : '');
+$kernelv = strstr($kernelv, '-', true) ?: $kernelv;
+$fullOSInfo = $kernelv . ' ' . $OSVer;
+
+
+$tmpramTotal=exec("cat /proc/meminfo | grep MemTotal | awk '{print $2}'");
+$tmpramAvailable=exec("cat /proc/meminfo | grep MemAvailable | awk '{print $2}'");
+
+$ramTotal=number_format(($tmpramTotal/1000),1);
+$ramAvailable=number_format(($tmpramAvailable/1000),1);
+$ramUsage=number_format((($tmpramTotal-$tmpramAvailable)/1000),1);
+
+$raw_uptime = exec("cat /proc/uptime | awk '{print $1}'");
+$days = floor($raw_uptime / 86400);
+$hours = floor(($raw_uptime / 3600) % 24);
+$minutes = floor(($raw_uptime / 60) % 60);
+$seconds = $raw_uptime % 60;
+
+$cpuLoad = shell_exec("cat /proc/loadavg");
+$cpuLoad = explode(' ', $cpuLoad);
+$cpuLoadAvg1Min = round($cpuLoad[0], 2);
+$cpuLoadAvg5Min = round($cpuLoad[1], 2);
+$cpuLoadAvg15Min = round($cpuLoad[2], 2);
 ?>
 
 <!doctype html>
@@ -466,6 +502,7 @@ $singbox_log_content = readLogFile($singbox_log);
     <script type="text/javascript" src="./assets/js/neko.js"></script>
   </head>
   <body>
+
         <div class="container-sm container-bg  callout border border-3 rounded-4 col-11">
         <div class="row">
             <a href="#" class="col btn btn-lg">🏠 Home</a>
@@ -473,6 +510,7 @@ $singbox_log_content = readLogFile($singbox_log);
             <a href="./configs.php" class="col btn btn-lg">⚙️ Configs</a>
             <a href="/nekobox/mon.php" class="col btn btn-lg d-flex align-items-center justify-content-center"></i>📦 Document</a> 
             <a href="./settings.php" class="col btn btn-lg">🛠️ Settings</a>
+
     <div class="container-sm text-center col-8">
   <img src="./assets/img/nekobox.png">
 <div id="version-info">
@@ -497,13 +535,50 @@ $(document).ready(function() {
             console.log('Has Update:', data.hasUpdate);
         },
         error: function(jqXHR, textStatus, errorThrown) {
-           // $('#version-info').text('Error fetching version information');
+            //$('#version-info').text('Error fetching version information');
             console.error('AJAX Error:', textStatus, errorThrown);
         }
     });
 });
 </script>
-<h2 class="text-center p-2">NekoBox</h2>
+    <style>
+        .modern-title {
+            font-family: Arial, sans-serif;
+            font-size: 72px;
+            font-weight: bold;
+            background: linear-gradient(45deg, #12c2e9, #c471ed, #f64f59);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            animation: gradient 5s ease infinite;
+            background-size: 300% 300%;
+            text-transform: uppercase;
+            letter-spacing: 5px;
+            text-align: center;
+            margin: 20px 0;
+        }
+
+        @keyframes gradient {
+            0% {
+                background-position: 0% 50%;
+            }
+            50% {
+                background-position: 100% 50%;
+            }
+            100% {
+                background-position: 0% 50%;
+            }
+        }
+
+        .subtitle {
+            font-family: Arial, sans-serif;
+            font-size: 24px;
+            color: #333;
+            text-align: center;
+            margin-top: 10px;
+        }
+    </style>
+ <h2 class="modern-title">NekoBox</h2>
  <div style="border: 1px solid black; padding: 10px; ">
    <br>
 <?php
