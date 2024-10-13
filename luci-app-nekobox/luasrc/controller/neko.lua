@@ -1,10 +1,10 @@
 module("luci.controller.neko", package.seeall)
 
 function index()
-    entry({"admin", "services", "neko"}, firstchild(), _("NekoBox"), 1).leaf = false
-    entry({"admin", "services", "neko", "neko"}, template("neko"), _("Home"), 2).leaf = true
-    entry({"admin", "services", "neko", "mon"}, template("neko_mon"), _("File Manager"), 3).leaf = true
-    entry({"admin", "services", "neko", "logs"}, call("render_logs"), _("Log"), 4).leaf = true   
+    entry({"admin","services","neko"}, template("neko"), _("NekoBox"), 1).leaf=true
+    entry({"admin", "services", "neko", "mon"}, template("neko_mon"), nil, 2).leaf = true
+    entry({"admin", "services", "neko", "logs"}, call("render_logs"), nil, 3).leaf = true
+    
     entry({"admin", "services", "neko", "fetch_plugin_log"}, call("fetch_plugin_log")).leaf = true
     entry({"admin", "services", "neko", "fetch_mihomo_log"}, call("fetch_mihomo_log")).leaf = true
     entry({"admin", "services", "neko", "fetch_singbox_log"}, call("fetch_singbox_log")).leaf = true
