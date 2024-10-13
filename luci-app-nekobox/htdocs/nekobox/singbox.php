@@ -1,106 +1,85 @@
 <?php
-
 ini_set('memory_limit', '128M'); 
-
 function logMessage($message) {
     $logFile = '/var/log/sing-box_update.log'; 
     $timestamp = date('Y-m-d H:i:s');
     file_put_contents($logFile, "[$timestamp] $message\n", FILE_APPEND);
 }
-
 function writeVersionToFile($version) {
     $versionFile = '/etc/neko/core/version.txt';
     file_put_contents($versionFile, $version);
 }
-
 $repo_owner = "SagerNet";
 $repo_name = "sing-box";
 $api_url = "https://api.github.com/repos/$repo_owner/$repo_name/releases";
-
 $curl_command = "curl -s -H 'User-Agent: PHP' --connect-timeout 10 " . escapeshellarg($api_url);
 $response = shell_exec($curl_command);
-
 if ($response === false || empty($response)) {
-    logMessage("GitHub API 请求失败，可能是网络问题或 GitHub API 限制。");
-    die("GitHub API 请求失败。请检查网络连接或稍后重试。");
+    logMessage("GitHub API request failed, possibly due to network issues or GitHub API restrictions.");
+    die("GitHub API request failed. Please check your network connection or try again later.");
 }
-
-logMessage("GitHub API 响应: " . substr($response, 0, 200) . "...");  
-
+logMessage("GitHub API response: " . substr($response, 0, 200) . "...");  
 $data = json_decode($response, true);
-
 if (json_last_error() !== JSON_ERROR_NONE) {
-    logMessage("解析 GitHub API 响应时出错: " . json_last_error_msg());
-    die("解析 GitHub API 响应时出错: " . json_last_error_msg());
+    logMessage("Error parsing GitHub API response: " . json_last_error_msg());
+    die("Error parsing GitHub API response: " . json_last_error_msg());
 }
-
-$latest_beta_version = '';
+$latest_rc_version = '';
 if (is_array($data)) {
     foreach ($data as $release) {
-        if (isset($release['tag_name']) && strpos($release['tag_name'], 'beta') !== false) {
-            $latest_beta_version = $release['tag_name'];
+        if (isset($release['tag_name']) && strpos($release['tag_name'], 'rc') !== false) {
+            $latest_rc_version = $release['tag_name'];
             break;
         }
     }
 }
-
-if (empty($latest_beta_version)) {
-    logMessage("未找到 beta 版本信息。");
-    die("未找到 beta 版本信息。");
+if (empty($latest_rc_version)) {
+    logMessage("No rc version information found.");
+    die("No rc version information found.");
 }
-
 $current_version = ''; 
 $install_path = '/usr/bin/sing-box'; 
 $temp_file = '/tmp/sing-box.tar.gz'; 
 $temp_dir = '/tmp/singbox_temp'; 
-
 if (file_exists($install_path)) {
     $current_version = trim(shell_exec("{$install_path} --version"));
 }
-
 $current_arch = trim(shell_exec("uname -m"));
-$base_version = ltrim($latest_beta_version, 'v');
+$base_version = ltrim($latest_rc_version, 'v');
 $download_url = '';
-
 switch ($current_arch) {
     case 'aarch64':
-        $download_url = "https://github.com/SagerNet/sing-box/releases/download/$latest_beta_version/sing-box-$base_version-linux-arm64.tar.gz";
+        $download_url = "https://github.com/SagerNet/sing-box/releases/download/$latest_rc_version/sing-box-$base_version-linux-arm64.tar.gz";
         break;
     case 'x86_64':
-        $download_url = "https://github.com/SagerNet/sing-box/releases/download/$latest_beta_version/sing-box-$base_version-linux-amd64.tar.gz";
+        $download_url = "https://github.com/SagerNet/sing-box/releases/download/$latest_rc_version/sing-box-$base_version-linux-amd64.tar.gz";
         break;
     default:
-        die("未找到适合架构的下载链接: $current_arch");
+        die("No download link found for architecture: $current_arch");
 }
-
-if (trim($current_version) === trim($latest_beta_version)) {
-    die("当前版本已是最新版本。");
+if (trim($current_version) === trim($latest_rc_version)) {
+    die("Current version is already the latest.");
 }
-
 exec("wget -O '$temp_file' '$download_url'", $output, $return_var);
 if ($return_var !== 0) {
-    die("下载失败！");
+    die("Download failed!");
 }
-
 if (!is_dir($temp_dir)) {
     mkdir($temp_dir, 0755, true);
 }
-
 exec("tar -xzf '$temp_file' -C '$temp_dir'", $output, $return_var);
 if ($return_var !== 0) {
-    die("解压失败！");
+    die("Extraction failed!");
 }
-
 $extracted_file = glob("$temp_dir/sing-box-*/*sing-box")[0] ?? '';
 if ($extracted_file && file_exists($extracted_file)) {
     exec("cp -f '$extracted_file' '$install_path'");
     exec("chmod 0755 '$install_path'");
-    writeVersionToFile($latest_beta_version); 
-    echo "更新完成！当前版本: $latest_beta_version";
+    writeVersionToFile($latest_rc_version); 
+    echo "Update completed! Current version: $latest_rc_version";
 } else {
-    die("解压后的文件 'sing-box' 不存在。");
+    die("Extracted file 'sing-box' does not exist.");
 }
-
 unlink($temp_file);
 exec("rm -r '$temp_dir'");
 ?>
