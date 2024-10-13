@@ -221,9 +221,9 @@ install_singbox() {
     local temp_dir='/tmp/singbox_temp'
     local temp_file='/tmp/sing-box.tar.gz'
 
-    latest_version=$(curl -s https://api.github.com/repos/SagerNet/sing-box/releases | grep '"tag_name":' | grep 'beta' | head -n 1 | sed -E 's/.*"([^"]+)".*/\1/')
+    latest_version=$(curl -s https://api.github.com/repos/SagerNet/sing-box/releases | grep '"tag_name":' | grep 'rc' | head -n 1 | sed -E 's/.*"([^"]+)".*/\1/')
     if [ -z "$latest_version" ]; then
-        echo -e "${RED}Unable to fetch the latest beta version number. Please check your network connection.${NC}"
+        echo -e "${RED}Unable to fetch the latest rc version number. Please check your network connection.${NC}"
         exit 1
     fi
 
