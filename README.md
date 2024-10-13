@@ -22,6 +22,10 @@
 - Sing-box Support: Sing-box has been integrated and requires the use of firewall4 + nftables, offering you a smarter and more efficient traffic management solution.
 - Introducing an intelligent conversion template to completely solve the configuration difficulties of Sing-box. Our goal is to enable zero-threshold use of Sing-box.
 
+> [!WARNING]
+>
+> - NekoBox's default web server is Uhttpd. If you are using Nginx, please do not attempt to use this plugin.
+
 Depedencies
 ---
 - Mihomo
