@@ -24,7 +24,7 @@ if (array_key_exists($file, $allowed_files)) {
         
         if (strlen($content) > $max_chars) {
             file_put_contents($file_path, ''); 
-            echo "日志文件已清空，超过字符数限制。";
+            echo "Log file has been cleared, exceeding the character limit.";
             return;
         }
 
@@ -33,14 +33,12 @@ if (array_key_exists($file, $allowed_files)) {
             file_put_contents($file_path, implode(PHP_EOL, $lines)); 
         }
 
-        foreach ($lines as $line) {
-            echo htmlspecialchars($line) . PHP_EOL; 
-        }
+        echo htmlspecialchars(implode(PHP_EOL, $lines));
     } else {
         http_response_code(404);
-        echo "文件未找到。";
+        echo "File not found.";
     }
 } else {
     http_response_code(403);
-    echo "禁止访问。";
+    echo "Forbidden.";
 }
