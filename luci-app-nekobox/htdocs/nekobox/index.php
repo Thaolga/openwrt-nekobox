@@ -4,7 +4,7 @@ include './cfg.php';
 $str_cfg = substr($selected_config, strlen("$neko_dir/config") + 1);
 $_IMG = '/luci-static/ssr/';
 $singbox_bin = '/usr/bin/sing-box';
-$singbox_log = '/var/log/singbox_log.txt';
+$singbox_log = '/etc/neko/tmp/neko_log.txt';
 $singbox_config_dir = '/etc/neko/config';
 $log = '/etc/neko/tmp/log.txt';
 $start_script_path = '/etc/neko/core/start.sh';
@@ -203,12 +203,14 @@ function createStartScript($configFile) {
 }
 
 function writeToLog($message) {
-   global $log;
-   $time = date('H:i:s');
-   $logMessage = "[ $time ] $message\n";
-   if (file_put_contents($log, $logMessage, FILE_APPEND) === false) {
-       error_log("Failed to write to log file: $log");
-   }
+    global $log;
+    $dateTime = new DateTime();
+    $dateTime->modify('+8 hours');  
+    $time = $dateTime->format('H:i:s');
+    $logMessage = "[ $time ] $message\n";
+    if (file_put_contents($log, $logMessage, FILE_APPEND) === false) {
+        error_log("Failed to write to log file: $log");
+    }
 }
 
 function rotateLogs($logFile, $maxSize = 1048576) {
@@ -958,10 +960,10 @@ $lang = $_GET['lang'] ?? 'en';
 <body>
     <h2 class="text-center my-4">日志</h2>
     <div class="row">
-        <div class="col-md-4">
+        <div class="col-md-12"> 
             <div class="card log-card">
                 <div class="card-header">
-                    <h4 class="card-title text-center mb-0">NeKoBox 日志</h4>
+                    <h4 class="card-title text-center mb-0">插件日志</h4>
                 </div>
                 <div class="card-body">
                     <pre id="plugin_log" class="log-container form-control"></pre>
@@ -973,63 +975,82 @@ $lang = $_GET['lang'] ?? 'en';
                 </div>
             </div>
         </div>
-        <div class="col-md-4">
-            <div class="card log-card">
-                <div class="card-header">
-                    <h4 class="card-title text-center mb-0">Mihomo 日志</h4>
-                </div>
-                <div class="card-body">
-                    <pre id="bin_logs" class="log-container form-control"></pre>
-                </div>
-                <div class="card-footer text-center">
-                    <form action="index.php" method="post">
-                        <button type="submit" name="neko" value="clear" class="btn btn-danger">🗑️ 清空日志</button>
-                    </form>
-                </div>
+    </div>
+    
+<div class="row"> 
+    <div class="col-md-12"> 
+        <div class="card log-card">
+            <div class="card-header">
+                <h4 class="card-title text-center mb-0">内核日志</h4>
             </div>
-        </div>
-        <div class="col-md-4">
-            <div class="card log-card">
-                <div class="card-header">
-                    <h4 class="card-title text-center mb-0">Sing-box 日志</h4>
-                </div>
-                <div class="card-body">
-                    <pre id="singbox_log" class="log-container form-control"></pre>
-                </div>
-                <div class="card-footer text-center">
-                    <form action="index.php" method="post">
-                        <button type="submit" name="clear_singbox_log" class="btn btn-danger">🗑️ 清空日志</button>
-                    </form>
-                </div>
+            <div class="card-body">
+                <pre id="bin_logs" class="log-container form-control"></pre>
+            </div>
+            <div class="card-footer text-center">
+                <form action="index.php" method="post">
+                    <button type="submit" name="neko" value="clear" class="btn btn-danger">🗑️ 清空日志</button>
+                    <button type="submit" name="update_log" value="update" class="btn btn-primary">🔄 更新时区</button>
+                </form>
             </div>
         </div>
     </div>
-    <script src="./assets/js/bootstrap.bundle.min.js"></script>
-    <script>
-        function scrollToBottom(elementId) {
-            var logElement = document.getElementById(elementId);
-            logElement.scrollTop = logElement.scrollHeight;
+</div>
+
+<?php
+if (isset($_POST['update_log'])) {
+    $logFilePath = '/www/nekobox/lib/log.php'; 
+    $url = 'https://raw.githubusercontent.com/Thaolga/neko/main/log.php'; 
+    $ch = curl_init($url);
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);     
+    $newLogContent = curl_exec($ch);
+    curl_close($ch);
+
+    if ($newLogContent !== false) {
+        file_put_contents($logFilePath, $newLogContent);
+        echo "<script>alert('时区已更新成功！');</script>";
+    } else {
+        echo "<script>alert('更新时区失败！');</script>";
+    }
+}
+?>
+
+<script src="./assets/js/bootstrap.bundle.min.js"></script>
+<script>
+function scrollToBottom(elementId) {
+    var logElement = document.getElementById(elementId);
+    logElement.scrollTop = logElement.scrollHeight; 
+}
+
+function fetchLogs() {
+    Promise.all([
+        fetch('fetch_logs.php?file=plugin_log'),
+        fetch('fetch_logs.php?file=mihomo_log'),
+        fetch('fetch_logs.php?file=singbox_log')
+    ])
+    .then(responses => Promise.all(responses.map(res => res.text())))
+    .then(data => {
+        const pluginLogElement = document.getElementById('plugin_log');
+        const binLogsElement = document.getElementById('bin_logs');
+        const previousPluginLog = pluginLogElement.textContent;
+        const previousBinLogs = binLogsElement.textContent;
+
+        pluginLogElement.textContent = data[0];
+        binLogsElement.textContent = data[1];
+
+        if (pluginLogElement.textContent !== previousPluginLog) {
+            scrollToBottom('plugin_log');
         }
-        function fetchLogs() {
-            Promise.all([
-                fetch('fetch_logs.php?file=plugin_log'),
-                fetch('fetch_logs.php?file=mihomo_log'),
-                fetch('fetch_logs.php?file=singbox_log')
-            ])
-            .then(responses => Promise.all(responses.map(res => res.text())))
-            .then(data => {
-                document.getElementById('plugin_log').textContent = data[0];
-                document.getElementById('bin_logs').textContent = data[1];
-                document.getElementById('singbox_log').textContent = data[2];
-                scrollToBottom('plugin_log');
-                scrollToBottom('bin_logs');
-                scrollToBottom('singbox_log');
-            })
-            .catch(err => console.error('Error fetching logs:', err));
+        if (binLogsElement.textContent !== previousBinLogs) {
+            scrollToBottom('bin_logs');
         }
-        fetchLogs();
-        setInterval(fetchLogs, 5000);
-    </script>
+    })
+    .catch(err => console.error('获取日志时出错:', err));
+}
+
+fetchLogs();
+setInterval(fetchLogs, 5000); 
+</script>
 </body>
 </html>
     <footer class="text-center">

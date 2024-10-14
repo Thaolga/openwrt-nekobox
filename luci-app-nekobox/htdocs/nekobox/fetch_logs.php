@@ -33,12 +33,14 @@ if (array_key_exists($file, $allowed_files)) {
             file_put_contents($file_path, implode(PHP_EOL, $lines)); 
         }
 
-        echo htmlspecialchars(implode(PHP_EOL, $lines));
+        foreach ($lines as $line) {
+            echo htmlspecialchars($line) . PHP_EOL; 
+        }
     } else {
         http_response_code(404);
-        echo "File not found.";
+        echo "文件未找到。";
     }
 } else {
     http_response_code(403);
-    echo "Forbidden.";
+    echo "禁止访问。";
 }
