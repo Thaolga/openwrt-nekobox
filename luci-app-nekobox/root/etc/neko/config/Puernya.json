@@ -1,6 +1,6 @@
 {
     "log": {
-        "level": "error",
+        "level": "info",
         "timestamp": true
     },
     "dns": {
