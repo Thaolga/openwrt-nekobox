@@ -174,6 +174,66 @@ function formatSize($size) {
     return round($size, 2) . ' ' . $units[$unit];
 }
 ?>
+
+<?php
+$subscriptionPath = '/www/nekobox/proxy/';
+$subscriptionFile = $subscriptionPath . 'subscriptions.json';
+$subscriptions = [];
+while (ob_get_level() > 0) {
+    ob_end_flush();
+}
+function outputMessage($message) {
+    echo "<div class='alert alert-info text-start'>" . htmlspecialchars($message) . "</div>";
+    ob_flush();
+    flush();
+}
+if (!file_exists($subscriptionPath)) {
+    mkdir($subscriptionPath, 0755, true);
+}
+if (!file_exists($subscriptionFile)) {
+    file_put_contents($subscriptionFile, json_encode([]));
+}
+$subscriptions = json_decode(file_get_contents($subscriptionFile), true);
+if (!$subscriptions) {
+    for ($i = 0; $i < 3; $i++) {
+        $subscriptions[$i] = [
+            'url' => '',
+            'file_name' => "subscription_{$i}.yaml",
+        ];
+    }
+}
+if (isset($_POST['saveSubscription'])) {
+    $index = intval($_POST['index']);
+    if ($index >= 0 && $index < 3) {
+        $url = $_POST['subscription_url'] ?? '';
+        $customFileName = $_POST['custom_file_name'] ?? "subscription_{$index}.yaml";
+        $subscriptions[$index]['url'] = $url;
+        $subscriptions[$index]['file_name'] = $customFileName;
+        
+        if (!empty($url)) {
+            $finalPath = $subscriptionPath . $customFileName;
+            $command = sprintf("curl -fsSL -o %s %s", 
+                escapeshellarg($finalPath), 
+                escapeshellarg($url)
+            );
+            
+            exec($command . ' 2>&1', $output, $return_var);
+            
+            if ($return_var === 0) {
+               outputMessage("Subscription link {$url} updated successfully! File saved to: {$finalPath}");
+            } else {
+                outputMessage("Configuration update failed! Error message: " . implode("\n", $output));
+            }
+        } else {
+            outputMessage("The " . ($index + 1) . "th subscription link is empty!");
+        }
+        
+        file_put_contents($subscriptionFile, json_encode($subscriptions));
+    }
+}
+$updateCompleted = isset($_POST['saveSubscription']); 
+?>
+
 <?php
 $subscriptionPath = '/etc/neko/config/';
 $dataFile = $subscriptionPath . 'subscription_data.json';
@@ -663,7 +723,73 @@ if (isset($_POST['update'])) {
                 <?php endfor; ?>
             </div>
         </form>
+<h2 class="text-success text-center mt-4 mb-4">Subscription Management ➤ Exclusively for P Core</h2>
+<div class="help-text mb-3 text-start">
+    <strong>1. For first-time Sing-box users, it's essential to update the core to version v1.10.0 or above. We recommend using P core. Make sure to set both outbound and inbound firewall rules to "accept" and enable them.</strong>
+</div>
+<div class="help-text mb-3 text-start">
+    <strong>2. Note:</strong> The general template (<code>puernya.json</code>) supports a maximum of <strong>3</strong> subscription links. Please do not change the default name.
+</div>
+ <div class="help-text mb-3 text-start"> 
+    <strong>3. Only Clash and Sing-box subscription formats are supported. Universal format is not supported.</strong>
+    </div>
+<div class="help-text mb-3 text-start"> 
+    <strong>4. Save and Update:</strong> After filling in the information, please click the "Update Configuration" button to save.
+</div>
+        <div class="row">
+            <?php for ($i = 0; $i < 3; $i++): ?>
+                <div class="col-md-4 mb-4">
+                    <div class="card">
+                        <div class="card-body">
+                            <h5 class="card-title">Subscription Link <?php echo ($i + 1); ?></h5>
+                            <form method="post">
+                                <div class="input-group mb-3">
+                                    <input type="text" name="subscription_url" id="subscriptionurl<?php echo $i; ?>" 
+                                           value="<?php echo htmlspecialchars($subscriptions[$i]['url']); ?>" required 
+                                           class="form-control" placeholder="Enter link">
+                                    <input type="text" name="custom_file_name" id="custom_filename<?php echo $i; ?>" 
+                                           value="<?php echo htmlspecialchars($subscriptions[$i]['file_name']); ?>" 
+                                           class="form-control" placeholder="Custom file name">
+                                    <input type="hidden" name="index" value="<?php echo $i; ?>">
+                                    <button type="submit" name="saveSubscription" class="btn btn-success ml-2">
+                                        <i>🔄</i> Update
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    <?php endfor; ?>
+</div>
 
+    <script>
+        function showCompletionMessage() {
+            var messageDiv = document.createElement('div');
+            messageDiv.textContent = 'Update completed';
+            messageDiv.style.position = 'fixed';
+            messageDiv.style.top = '20px';
+            messageDiv.style.left = '50%';
+            messageDiv.style.transform = 'translateX(-50%)';
+            messageDiv.style.padding = '10px 20px';
+            messageDiv.style.backgroundColor = '#4CAF50';
+            messageDiv.style.color = 'white';
+            messageDiv.style.borderRadius = '5px';
+            messageDiv.style.zIndex = '1000';
+            document.body.appendChild(messageDiv);
+
+            setTimeout(function() {
+                messageDiv.style.transition = 'opacity 0.5s';
+                messageDiv.style.opacity = '0';
+                setTimeout(function() {
+                    document.body.removeChild(messageDiv);
+                }, 500);
+            }, 3000);
+        }
+
+        <?php if ($updateCompleted): ?>
+        window.onload = showCompletionMessage;
+        <?php endif; ?>
+    </script>
 <script src="./assets/bootstrap/jquery-3.5.1.slim.min.js"></script>
 <script src="./assets/bootstrap/popper.min.js"></script>
 <script src="./assets/bootstrap/bootstrap.min.js"></script>

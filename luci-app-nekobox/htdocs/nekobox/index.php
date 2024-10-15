@@ -20,22 +20,29 @@ $start_script_template = <<<'EOF'
 SINGBOX_LOG="%s"
 CONFIG_FILE="%s"
 SINGBOX_BIN="%s"
+FIREWALL_LOG="%s"
 
 mkdir -p "$(dirname "$SINGBOX_LOG")"
+mkdir -p "$(dirname "$FIREWALL_LOG")"
 touch "$SINGBOX_LOG"
+touch "$FIREWALL_LOG"
 chmod 644 "$SINGBOX_LOG"
+chmod 644 "$FIREWALL_LOG"
 
 exec >> "$SINGBOX_LOG" 2>&1
 
-echo "[$(date)] Starting Sing-box with config: $CONFIG_FILE"
+log() {
+    echo "[$(date)] $1" >> "$FIREWALL_LOG"
+}
 
-echo "Restarting firewall..."
+log "Starting Sing-box with config: $CONFIG_FILE"
+
+log "Restarting firewall..."
 /etc/init.d/firewall restart
 sleep 2
 
 if command -v fw4 > /dev/null; then
-    echo "FW4 Detected."
-    echo "Starting nftables."
+    log "FW4 Detected. Starting nftables."
 
     nft flush ruleset
     
@@ -102,8 +109,7 @@ table inet singbox {
 NFTABLES
 
 elif command -v fw3 > /dev/null; then
-    echo "FW3 Detected."
-    echo "Starting iptables."
+    log "FW3 Detected. Starting iptables."
 
     iptables -t mangle -F
     iptables -t mangle -X
@@ -176,18 +182,18 @@ elif command -v fw3 > /dev/null; then
     ip6tables -t mangle -A PREROUTING -i eth0 -p udp -j singbox-tproxy
 
 else
-    echo "Neither fw3 nor fw4 detected, unable to configure firewall rules."
+    log "Neither fw3 nor fw4 detected, unable to configure firewall rules."
     exit 1
 fi
 
-echo "Firewall rules applied successfully"
-echo "Starting sing-box with config: $CONFIG_FILE"
+log "Firewall rules applied successfully"
+log "Starting sing-box with config: $CONFIG_FILE"
 exec "$SINGBOX_BIN" run -c "$CONFIG_FILE"
 EOF;
 
 function createStartScript($configFile) {
-    global $start_script_template, $singbox_bin, $singbox_log;
-    $script = sprintf($start_script_template, $singbox_log, $configFile, $singbox_bin);
+    global $start_script_template, $singbox_bin, $singbox_log, $log; 
+    $script = sprintf($start_script_template, $singbox_log, $configFile, $singbox_bin, $log);
     
     $dir = dirname('/etc/neko/core/start.sh');
     if (!file_exists($dir)) {
@@ -199,7 +205,8 @@ function createStartScript($configFile) {
     
     writeToLog("Created start script with config: $configFile");
     writeToLog("Singbox binary: $singbox_bin");
-    writeToLog("Log file: $singbox_log");
+    writeToLog("Log file: $singbox_log"); 
+    writeToLog("Firewall log file: $log");
 }
 
 function writeToLog($message) {
@@ -784,24 +791,23 @@ $lang = $_GET['lang'] ?? 'en';
         </tr>
     </tbody>
 </table>
+    <style>
+        .icon-container { display: flex; justify-content: space-between; margin-top: 20px; }
+        .icon { text-align: center; width: 30%; }
+        .icon i { font-size: 48px; }
+    </style>
+    <link rel="stylesheet" href="./assets/bootstrap/all.min.css">
+    <div class="container">
    <h2 class="text-center p-2" >System Information</h2>
-    <table class="table table-borderless mb-2">
+    <table class="table table-borderless rounded-4 mb-2">
         <tbody>
             <tr>
                 <td>Devices</td>
-                <td class="col-7"><?php echo $devices ?></td>
+                <td class="col-7"><?php echo  $devices . ' - ' . $fullOSInfo; ?></td>
             </tr>
             <tr>
                 <td>RAM</td>
                 <td class="col-7"><?php echo "$ramUsage/$ramTotal MB" ?></td>
-            </tr>
-            <tr>
-                <td>OS Version</td>
-                <td class="col-7"><?php echo $OSVer ?></td>
-            </tr>
-            <tr>
-                <td>Kernel Version</td>
-                <td class="col-7"><?php echo $kernelv ?></td>
             </tr>
             <tr>
                 <td>Average Load</td>
@@ -813,7 +819,24 @@ $lang = $_GET['lang'] ?? 'en';
             </tr>
         </tbody>
     </table>
-  <br>
+        <div class="icon-container">
+            <div class="icon">
+                <i class="fas fa-microchip"></i>
+                <p>CPU</p>
+                <p><?php echo isset($cpuLoadAvg1Min) ? $cpuLoadAvg1Min : 'N/A'; ?></p>
+            </div>
+            <div class="icon">
+                <i class="fas fa-memory"></i>
+                <p>RAM</p>
+                <p><?php echo (isset($ramUsage) && isset($ramTotal)) ? $ramUsage . ' / ' . $ramTotal . ' MB' : 'N/A'; ?></p>
+            </div>
+            <div class="icon">
+                <i class="fas fa-exchange-alt"></i>
+                <p>Swap Space</p>
+                <p>N/A</p>
+            </div>
+        </div>
+    </div>
 
 <div style="border: 1px solid black; padding: 10px; text-align: center;">
     <table style="width: 100%;">
@@ -831,13 +854,13 @@ $lang = $_GET['lang'] ?? 'en';
 </div>
 
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <style>
         .log-container {
-            height: 300px;
+            height: 270px; 
             overflow-y: auto;
             overflow-x: hidden;
             white-space: pre-wrap;
@@ -851,10 +874,10 @@ $lang = $_GET['lang'] ?? 'en';
 <body>
     <h2 class="text-center my-4">Logs</h2>
     <div class="row">
-        <div class="col-md-4">
+        <div class="col-12"> 
             <div class="card log-card">
                 <div class="card-header">
-                    <h4 class="card-title text-center mb-0">NeKobox Logs</h4>
+                    <h4 class="card-title text-center mb-0">NeKoBox Logs</h4>
                 </div>
                 <div class="card-body">
                     <pre id="plugin_log" class="log-container form-control"></pre>
@@ -866,7 +889,9 @@ $lang = $_GET['lang'] ?? 'en';
                 </div>
             </div>
         </div>
-        <div class="col-md-4">
+    </div>
+    <div class="row">
+        <div class="col-12">
             <div class="card log-card">
                 <div class="card-header">
                     <h4 class="card-title text-center mb-0">Mihomo Logs</h4>
@@ -881,48 +906,86 @@ $lang = $_GET['lang'] ?? 'en';
                 </div>
             </div>
         </div>
-        <div class="col-md-4">
-            <div class="card log-card">
-                <div class="card-header">
-                    <h4 class="card-title text-center mb-0">Sing-box Logs</h4>
-                </div>
-                <div class="card-body">
-                    <pre id="singbox_log" class="log-container form-control"></pre>
-                </div>
-                <div class="card-footer text-center">
-                    <form action="index.php" method="post">
-                        <button type="submit" name="clear_singbox_log" class="btn btn-danger">🗑️ Clear Log</button>
-                    </form>
-                </div>
+    </div>
+<div class="row">
+    <div class="col-12">
+        <div class="card log-card">
+            <div class="card-header">
+                <h4 class="card-title text-center mb-0">Sing-box Logs</h4>
+            </div>
+            <div class="card-body">
+                <pre id="singbox_log" class="log-container form-control"></pre>
+            </div>
+            <div class="card-footer text-center">
+                <form action="index.php" method="post" class="d-inline-block">
+                    <div class="form-check form-check-inline mb-2">
+                        <input class="form-check-input" type="checkbox" id="autoRefresh" checked>
+                        <label class="form-check-label" for="autoRefresh">Auto Refresh</label>
+                    </div>
+                    <button type="submit" name="clear_singbox_log" class="btn btn-danger">🗑️ Clear Log</button>
+                </form>
             </div>
         </div>
     </div>
-    <script src="./assets/js/bootstrap.bundle.min.js"></script>
-    <script>
-        function scrollToBottom(elementId) {
-            var logElement = document.getElementById(elementId);
-            logElement.scrollTop = logElement.scrollHeight;
+</div>
+
+<?php
+if (isset($_POST['update_log'])) {
+    $logFilePath = '/www/nekobox/lib/log.php'; 
+    $url = 'https://raw.githubusercontent.com/Thaolga/neko/main/log.php'; 
+    $ch = curl_init($url);
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);     
+    $newLogContent = curl_exec($ch);
+    curl_close($ch);
+    if ($newLogContent !== false) {
+        file_put_contents($logFilePath, $newLogContent);
+        echo "<script>alert('时区已更新成功！');</script>";
+    } else {
+        echo "<script>alert('更新时区失败！');</script>";
+    }
+}
+?>
+
+<script src="./assets/js/bootstrap.bundle.min.js"></script>
+<script>
+    function scrollToBottom(elementId) {
+        var logElement = document.getElementById(elementId);
+        logElement.scrollTop = logElement.scrollHeight;
+    }
+
+    function fetchLogs() {
+        if (!document.getElementById('autoRefresh').checked) {
+            return;
         }
-        function fetchLogs() {
-            Promise.all([
-                fetch('fetch_logs.php?file=plugin_log'),
-                fetch('fetch_logs.php?file=mihomo_log'),
-                fetch('fetch_logs.php?file=singbox_log')
-            ])
-            .then(responses => Promise.all(responses.map(res => res.text())))
-            .then(data => {
-                document.getElementById('plugin_log').textContent = data[0];
-                document.getElementById('bin_logs').textContent = data[1];
-                document.getElementById('singbox_log').textContent = data[2];
-                scrollToBottom('plugin_log');
-                scrollToBottom('bin_logs');
-                scrollToBottom('singbox_log');
-            })
-            .catch(err => console.error('Error fetching logs:', err));
+        Promise.all([
+            fetch('fetch_logs.php?file=plugin_log'),
+            fetch('fetch_logs.php?file=mihomo_log'),
+            fetch('fetch_logs.php?file=singbox_log')
+        ])
+        .then(responses => Promise.all(responses.map(res => res.text())))
+        .then(data => {
+            document.getElementById('plugin_log').textContent = data[0];
+            document.getElementById('bin_logs').textContent = data[1];
+            document.getElementById('singbox_log').textContent = data[2];
+            scrollToBottom('plugin_log');
+            scrollToBottom('bin_logs');
+            scrollToBottom('singbox_log');
+        })
+        .catch(err => console.error('Error fetching logs:', err));
+    }
+
+    fetchLogs();
+    let intervalId = setInterval(fetchLogs, 5000);
+
+    document.getElementById('autoRefresh').addEventListener('change', function() {
+        if (this.checked) {
+            intervalId = setInterval(fetchLogs, 5000);
+        } else {
+            clearInterval(intervalId);
         }
-        fetchLogs();
-        setInterval(fetchLogs, 5000);
-    </script>
+    });
+</script>
 </body>
 </html>
     <footer class="text-center">

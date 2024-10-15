@@ -31,6 +31,11 @@
   --bs-shadow-medium: 0 8px 16px rgba(0, 0, 0, 0.15);
   --bs-shadow-heavy: 0 12px 24px rgba(0, 0, 0, 0.2);
   --bs-transition-speed: 0.3s;
+
+  --bs-btn-color: #fff;
+  --bs-btn-hover-color: #fff;
+  --bs-btn-active-color: #fff;
+  --bs-btn-disabled-color: #fff;
 }
 
 body {
@@ -332,3 +337,17 @@ h1:hover, h2:hover, h3:hover, h4:hover, h5:hover, h6:hover {
     text-shadow: 3px 3px 6px rgba(0,0,0,0.2);
 }
 
+.btn-outline-info.btn-yacd,
+.btn-outline-info.btn-dashboard,
+.btn-outline-info.btn-meta {
+  color: #fff !important;
+}
+
+.btn-outline-info.btn-yacd:hover,
+.btn-outline-info.btn-dashboard:hover,
+.btn-outline-info.btn-meta:hover,
+.btn-outline-info.btn-yacd:focus,
+.btn-outline-info.btn-dashboard:focus,
+.btn-outline-info.btn-meta:focus {
+  color: #fff !important;
+}
