@@ -5,7 +5,7 @@ port: 7890
 socks-port: 7891
 mixed-port: 7893
 mode: rule
-log-level: silent
+log-level: info
 allow-lan: true
 unified-delay: true
 external-controller: 0.0.0.0:9090
