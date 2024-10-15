@@ -135,17 +135,34 @@ function chmodItem($path, $permissions) {
 }
 
 function uploadFile($destination) {
-    $filename = basename($_FILES["upload"]["name"]);
-    
-    $target_file = rtrim($destination, '/') . '/' . $filename;
-    
-    if (move_uploaded_file($_FILES["upload"]["tmp_name"], $target_file)) {
-        return true;
-    } else {
-        die('上传失败');
-    }
-}
+    $uploaded_files = [];
+    $errors = [];
 
+    foreach ($_FILES["upload"]["error"] as $key => $error) {
+        if ($error == UPLOAD_ERR_OK) {
+            $tmp_name = $_FILES["upload"]["tmp_name"][$key];
+            $name = basename($_FILES["upload"]["name"][$key]);
+            $target_file = rtrim($destination, '/') . '/' . $name;
+            
+            if (move_uploaded_file($tmp_name, $target_file)) {
+                $uploaded_files[] = $name;
+            } else {
+                $errors[] = "上传 $name 失败";
+            }
+        } else {
+            $errors[] = "文件 $key 上传错误: " . $error;
+        }
+    }
+
+    if (!empty($errors)) {
+        echo "<script>alert('发生错误: " . implode("\\n", $errors) . "');</script>";
+    }
+    if (!empty($uploaded_files)) {
+        echo "<script>alert('成功上传: " . implode(", ", $uploaded_files) . "');</script>";
+    }
+
+    return !empty($uploaded_files);
+}
 
 function deleteDirectory($dir) {
     if (!file_exists($dir)) return true;
@@ -541,7 +558,7 @@ function searchFiles($dir, $term) {
             <div class="upload-container">
                 <div class="upload-area" id="uploadArea" style="display: none;">
                     <form action="" method="post" enctype="multipart/form-data" id="uploadForm">
-                        <input type="file" name="upload" id="fileInput" style="display: none;" required>
+                        <input type="file" name="upload[]" id="fileInput" style="display: none;" multiple required>
                         <div class="upload-drop-zone" id="dropZone">
                             <i class="fas fa-cloud-upload-alt upload-icon"></i>
                         </div>
