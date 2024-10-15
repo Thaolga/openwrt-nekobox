@@ -131,7 +131,7 @@ include './cfg.php';
             echo "<div class='result-container'>";
             echo "<form method='post' action=''>";
             echo "<div class='mb-3'>";
-            echo "<textarea id='configContent' name='configContent' class='form-control'>" . htmlspecialchars($downloadedContent) . "</textarea>";
+            echo "<textarea id='configContent' name='configContent' class='form-control' style='height: 300px;'>" . htmlspecialchars($downloadedContent) . "</textarea>";
             echo "</div>";
             echo "<div class='text-center'>";
             echo "<button class='btn btn-info' type='button' onclick='copyToClipboard()'><i class='fas fa-copy'></i> 复制到剪贴</button>";
@@ -140,10 +140,9 @@ include './cfg.php';
             echo "</div>";
             echo "</form>";
             echo "</div>";
-
-            echo "<div class='alert alert-info'>";
+            echo "<div class='alert alert-info' style='word-wrap: break-word; overflow-wrap: break-word;'>";
             foreach ($logMessages as $message) {
-                echo $message . "<br>";
+            echo $message . "<br>";
             }
             echo "</div>";
         }
