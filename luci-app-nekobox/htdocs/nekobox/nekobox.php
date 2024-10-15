@@ -563,7 +563,7 @@ function searchFiles($dir, $term) {
                             <i class="fas fa-cloud-upload-alt upload-icon"></i>
                         </div>
                     </form>
-                    <button type="button" class="btn btn-secondary mt-2" onclick="hideUploadArea()">取消</button>
+                    <button type="button" class="btn btn-secondary mt-2" onclick="hideUploadArea()">cancel</button>
                 </div>
             </div>
             <table>
@@ -673,7 +673,7 @@ function searchFiles($dir, $term) {
                         <input type="hidden" name="action" value="create_folder">
                         <label for="newFolderName" data-translate="folderName">文件夹名称:</label>
                         <input type="text" name="new_folder_name" id="newFolderName" required data-translate-placeholder="enterFolderName">
-                        <input type="submit" value="创建" class="btn" data-translate="create">
+                        <input type="submit" value="create" class="btn" data-translate="create">
                     </form>
                 </div>
             </div>
@@ -686,7 +686,7 @@ function searchFiles($dir, $term) {
                         <input type="hidden" name="action" value="create_file">
                         <label for="newFileName" data-translate="fileName">文件名称:</label>
                         <input type="text" name="new_file_name" id="newFileName" required data-translate-placeholder="enterFileName">
-                        <input type="submit" value="创建" class="btn" data-translate="create">
+                        <input type="submit" value="create" class="btn" data-translate="create">
                     </form>
                 </div>
             </div>
@@ -719,7 +719,7 @@ function searchFiles($dir, $term) {
                         <input type="hidden" name="path" id="editPath">
                         <input type="hidden" name="encoding" id="editEncoding">
                         <textarea name="content" id="editContent" rows="10" cols="50"></textarea>
-                        <input type="submit" value="保存" class="btn" data-translate="save">
+                        <input type="submit" value="Save" class="btn" data-translate="save">
                         <button type="button" onclick="openAceEditor()" class="btn" data-translate="advancedEdit">高级编辑</button>
                     </form>
                 </div>
@@ -777,7 +777,7 @@ function searchFiles($dir, $term) {
                         <option value="Shift_JIS">Shift_JIS (日文)</option>
                         <option value="EUC-KR">EUC-KR (韩文)</option>
                     </select>
-                    <button onclick="toggleSearch()" class="btn" title="搜索文件内容" data-translate="search"><i class="fas fa-search"></i></button>
+                    <button onclick="toggleSearch()" class="btn" title="Search file contents" data-translate="search"><i class="fas fa-search"></i></button>
                     <button onclick="formatCode()" class="btn" data-translate="format">格式化</button>
                     <button onclick="validateJSON()" class="btn" id="validateJSONBtn" style="display: none;" data-translate="validateJSON">验证 JSON</button>
                     <button onclick="validateYAML()" class="btn" id="validateYAMLBtn" style="display: none;" data-translate="validateYAML">验证 YAML</button>
@@ -804,7 +804,7 @@ function searchFiles($dir, $term) {
                         <div class="form-group">
                             <label for="permissions" data-translate="permissionValue">权限值（例如：0644）</label>
                             <input type="text" name="permissions" id="permissions" class="form-control" maxlength="4" data-translate-placeholder="permissionPlaceholder" placeholder="0644" autocomplete="off">
-                            <small class="form-text text-muted" data-translate="permissionHelp">输入三位或四位数字，例如：0644 或 0755</small>
+                            <small class="form-text text-muted" data-translate="permissionHelp">Enter three or four digits, e.g.: 0644 or 0755</small>
                         </div>
                         <div class="btn-group">
                             <button type="button" class="btn btn-secondary" onclick="closeModal('chmodModal')" data-translate="cancel">取消</button>
@@ -928,7 +928,7 @@ function searchFiles(event) {
             resultsDiv.innerHTML = '';
 
             if (data.length === 0) {
-                resultsDiv.innerHTML = '<p>没有找到匹配的文件。</p>';
+                resultsDiv.innerHTML = '<p>No matching files found.</p>';
             } else {
                 const ul = document.createElement('ul');
                 ul.className = 'list-group';
@@ -941,7 +941,7 @@ function searchFiles(event) {
 
                     const moveButton = document.createElement('button');
                     moveButton.className = 'btn btn-sm btn-primary';
-                    moveButton.textContent = '移至';
+                    moveButton.textContent = 'moveTo';
                     moveButton.onclick = function() {
                         const targetDir = file.dir === '' ? '/' : file.dir;
                         window.location.href = `?dir=${encodeURIComponent(targetDir)}`;
@@ -976,7 +976,7 @@ function closeModal(modalId) {
         if (encoding === 'ASCII') {
             content = content.replace(/[^\x00-\x7F]/g, "");
         } else if (encoding !== 'UTF-8') {
-            alert('编码已更改为 ' + encoding + '。实际转换将在保存时在服务器端进行。');
+            alert('Encoding has been changed to ' + encoding + '. Actual conversion will be performed on the server side when saving.');
         }
 
         aceEditor.setValue(content, -1);
@@ -1288,8 +1288,8 @@ function openAceEditor() {
         const statusBar = document.createElement('div');
         statusBar.id = 'editorStatusBar';
         statusBar.innerHTML = `
-            <span id="cursorPosition">行: 1, 列: 1</span>
-            <span id="characterCount">字符数: 0</span>
+            <span id="cursorPosition">Row: 1, Column: 1</span>
+            <span id="characterCount">Character count: 0</span>
         `;
         document.getElementById('aceEditor').appendChild(statusBar);
     }
@@ -1297,7 +1297,7 @@ function openAceEditor() {
 
 function updateCharacterCount() {
     var characterCount = aceEditor.getValue().length;
-    document.getElementById('characterCount').textContent = '字符数: ' + characterCount;
+    document.getElementById('characterCount').textContent = 'Character count: ' + characterCount;
 }
 
 editor.on("change", function() {
@@ -1306,7 +1306,7 @@ editor.on("change", function() {
 
 function updateCursorPosition() {
     var cursorPosition = aceEditor.getCursorPosition();
-    document.getElementById('cursorPosition').textContent = '行: ' + (cursorPosition.row + 1) + ', 列: ' + (cursorPosition.column + 1);
+    document.getElementById('cursorPosition').textContent = 'Row: ' + (cursorPosition.row + 1) + ', Column: ' + (cursorPosition.column + 1);
 }
 
 
@@ -1320,9 +1320,9 @@ function validateJSON() {
     const content = editor.getValue();
     try {
         JSON.parse(content);
-        alert('JSON 格式有效');
+        alert('JSON format is valid');
     } catch (e) {
-        alert('无效的 JSON 格式: ' + e.message);
+        alert('Invalid JSON format: ' + e.message);
     }
 }
 
@@ -1338,7 +1338,7 @@ function addErrorMarker(session, line, message) {
 }
 
 function closeAceEditor() {
-    if (confirm('确定要关闭编辑器吗？请确保已保存更改。')) {
+    if (confirm('Are you sure you want to close the editor? Please make sure you have saved your changes.')) {
         document.getElementById('editContent').value = aceEditor.getValue();
         document.getElementById('aceEditor').style.display = 'none';
         showModal('editModal');
@@ -2083,7 +2083,7 @@ function formatCode() {
             session.removeMarker(session.$errorMarker);
         }
 
-        showNotification('代码已成功格式化', 'success');
+        showNotification('Code has been successfully formatted', 'success');
 
     } catch (e) {
         let errorMessage;
@@ -2167,11 +2167,11 @@ function deleteSelected() {
     }
 
     if (selectedPaths.length === 0) {
-        alert('请至少选择一个文件或文件夹进行删除。');
+        alert('Please select at least one file or folder to delete.');
         return;
     }
 
-    if (confirm('确定要删除选中的 ' + selectedPaths.length + ' 个文件或文件夹吗？这个操作不可撤销。')) {
+    if (confirm('Are you sure you want to delete the selected ' + selectedPaths.length + ' file(s) or folder(s)? This action cannot be undone.')) {
         var form = document.createElement('form');
         form.method = 'post';
         form.style.display = 'none';
@@ -2259,7 +2259,7 @@ aceEditor.on("spell_check", function(errors) {
 document.addEventListener("DOMContentLoaded", function() {
     const fullscreenToggle = document.createElement('button');
     fullscreenToggle.id = 'fullscreenToggle';
-    fullscreenToggle.textContent = '全屏';
+    fullscreenToggle.textContent = 'Fullscreen';
     document.body.appendChild(fullscreenToggle);
 
     fullscreenToggle.onclick = function() {
