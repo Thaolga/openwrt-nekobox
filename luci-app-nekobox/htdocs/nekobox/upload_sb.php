@@ -460,7 +460,7 @@ if (isset($_POST['update'])) {
         <form action="upload_sb.php" method="get" onsubmit="saveSettings()">
         <label for="enable_timezone">启用时区设置:</label>
         <input type="checkbox" id="enable_timezone" name="enable_timezone" value="1">
-        <button type="submit" style="background-color: #4CAF50; color: white; border: none; cursor: pointer;"> 提交 </button>
+        <button type="submit" style="background-color: #4CAF50; color: white; border: none; cursor: pointer;" title="确保你的系统支持时区设置否则会出错点取消可以恢复正常"> 提交 </button>
        </form>
     <script>
         function saveSettings() {
@@ -631,27 +631,28 @@ if (isset($_POST['update'])) {
         </div>
     <?php endif; ?>
 <?php endif; ?>
-        <h1 style="margin-top: 20px; margin-bottom: 20px;">Sing-box 订阅</h1>
-    <style>
-        button {
-            background-color: #4CAF50;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 16px;
-        }
-
-        button:hover {
-            background-color: #45a049;
-        }
-    </style>
+        <h1 style="margin-top: 20px; margin-bottom: 20px;" title="只支持Sing-box格式的订阅">Sing-box 订阅</h1>
+<style>
+    button, .button {
+        background-color: #4CAF50;
+        color: white;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        font-size: 16px;
+    }
+    button:hover, .button:hover {
+        background-color: #45a049;
+    }
+</style>
 </head>
 <body>
-    <form method="post">
-        <button type="submit" name="update">🔄 更新规则集</button>
+    <form method="post" style="display: inline;">
+        <button type="submit" name="update" title="更新需要安装php8-mod-zip">🔄 更新规则集</button>
     </form>
+    <a href="https://github.com/Thaolga/neko/releases/download/1.2.0/nekobox.zip" class="button" style="text-decoration: none; padding: 1.2px 12px; display: inline-block; color: white;" title="下载文件解压通过文件助手上传到/www/nekobox/对应目录，包含Sing-box和P核的所有规则">📥 下载规则集</a>
 </body>
+     </br>
      </br>
         <?php if ($message): ?>
             <p><?php echo nl2br(htmlspecialchars($message)); ?></p>
@@ -680,13 +681,16 @@ if (isset($_POST['update'])) {
 
 <h2 class="text-success text-center mt-4 mb-4">订阅管理 ➤ p核专用</h2>
 <div class="help-text mb-3 text-start">
-    <strong>1. 注意：</strong> 通用模板（<code>puernya.json</code>）最多支持<strong>3个</strong>订阅链接，请勿更改默认名称。
+    <strong>1. 对于首次使用 Sing-box 的用户，必须将核心更新至版本 v1.10.0 或更高版本。我们建议使用 P 核心。确保将出站和入站防火墙规则都设置为“接受”并启用它们。
+</div>
+<div class="help-text mb-3 text-start">
+    <strong>2. 注意：</strong> 通用模板（<code>puernya.json</code>）最多支持<strong>3个</strong>订阅链接，请勿更改默认名称。
 </div>
  <div class="help-text mb-3 text-start"> 
-    <strong>2. 只支持Clash和Sing-box格式的订阅，不支持通用格式
+    <strong>3. 只支持Clash和Sing-box格式的订阅，不支持通用格式
     </div>
 <div class="help-text mb-3 text-start"> 
-    <strong>3. 保存与更新：</strong> 填写完毕后，请点击"更新配置"按钮进行保存。
+    <strong>4. 保存与更新：</strong> 填写完毕后，请点击"更新配置"按钮进行保存。
 </div>
         <div class="row">
             <?php for ($i = 0; $i < 3; $i++): ?>

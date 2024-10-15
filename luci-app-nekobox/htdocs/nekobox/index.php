@@ -4,7 +4,7 @@ include './cfg.php';
 $str_cfg = substr($selected_config, strlen("$neko_dir/config") + 1);
 $_IMG = '/luci-static/ssr/';
 $singbox_bin = '/usr/bin/sing-box';
-$singbox_log = '/etc/neko/tmp/neko_log.txt';
+$singbox_log = '/var/log/singbox_log.txt';
 $singbox_config_dir = '/etc/neko/config';
 $log = '/etc/neko/tmp/log.txt';
 $start_script_path = '/etc/neko/core/start.sh';
@@ -20,22 +20,29 @@ $start_script_template = <<<'EOF'
 SINGBOX_LOG="%s"
 CONFIG_FILE="%s"
 SINGBOX_BIN="%s"
+FIREWALL_LOG="%s"
 
 mkdir -p "$(dirname "$SINGBOX_LOG")"
+mkdir -p "$(dirname "$FIREWALL_LOG")"
 touch "$SINGBOX_LOG"
+touch "$FIREWALL_LOG"
 chmod 644 "$SINGBOX_LOG"
+chmod 644 "$FIREWALL_LOG"
 
 exec >> "$SINGBOX_LOG" 2>&1
 
-echo "[$(date)] Starting Sing-box with config: $CONFIG_FILE"
+log() {
+    echo "[$(date)] $1" >> "$FIREWALL_LOG"
+}
 
-echo "Restarting firewall..."
+log "Starting Sing-box with config: $CONFIG_FILE"
+
+log "Restarting firewall..."
 /etc/init.d/firewall restart
 sleep 2
 
 if command -v fw4 > /dev/null; then
-    echo "FW4 Detected."
-    echo "Starting nftables."
+    log "FW4 Detected. Starting nftables."
 
     nft flush ruleset
     
@@ -102,8 +109,7 @@ table inet singbox {
 NFTABLES
 
 elif command -v fw3 > /dev/null; then
-    echo "FW3 Detected."
-    echo "Starting iptables."
+    log "FW3 Detected. Starting iptables."
 
     iptables -t mangle -F
     iptables -t mangle -X
@@ -176,18 +182,18 @@ elif command -v fw3 > /dev/null; then
     ip6tables -t mangle -A PREROUTING -i eth0 -p udp -j singbox-tproxy
 
 else
-    echo "Neither fw3 nor fw4 detected, unable to configure firewall rules."
+    log "Neither fw3 nor fw4 detected, unable to configure firewall rules."
     exit 1
 fi
 
-echo "Firewall rules applied successfully"
-echo "Starting sing-box with config: $CONFIG_FILE"
+log "Firewall rules applied successfully"
+log "Starting sing-box with config: $CONFIG_FILE"
 exec "$SINGBOX_BIN" run -c "$CONFIG_FILE"
 EOF;
 
 function createStartScript($configFile) {
-    global $start_script_template, $singbox_bin, $singbox_log;
-    $script = sprintf($start_script_template, $singbox_log, $configFile, $singbox_bin);
+    global $start_script_template, $singbox_bin, $singbox_log, $log; 
+    $script = sprintf($start_script_template, $singbox_log, $configFile, $singbox_bin, $log);
     
     $dir = dirname('/etc/neko/core/start.sh');
     if (!file_exists($dir)) {
@@ -199,7 +205,8 @@ function createStartScript($configFile) {
     
     writeToLog("Created start script with config: $configFile");
     writeToLog("Singbox binary: $singbox_bin");
-    writeToLog("Log file: $singbox_log");
+    writeToLog("Log file: $singbox_log"); 
+    writeToLog("Firewall log file: $log");
 }
 
 function writeToLog($message) {
@@ -504,7 +511,6 @@ $cpuLoadAvg15Min = round($cpuLoad[2], 2);
     <script type="text/javascript" src="./assets/js/neko.js"></script>
   </head>
   <body>
-
 <div class="container-sm container-bg callout border border-3 rounded-4 col-11">
     <div class="row">
         <a href="#" class="col btn btn-lg">🏠 首页</a>
@@ -512,7 +518,6 @@ $cpuLoadAvg15Min = round($cpuLoad[2], 2);
         <a href="./configs.php" class="col btn btn-lg">⚙️ 配置</a>
         <a href="/nekobox/mon.php" class="col btn btn-lg d-flex align-items-center justify-content-center"></i>📦 订阅</a> 
         <a href="./settings.php" class="col btn btn-lg">🛠️ 设定</a>
-
     <div class="container-sm text-center col-8">
   <img src="./assets/img/nekobox.png">
 <div id="version-info">
@@ -542,9 +547,9 @@ $(document).ready(function() {
         }
     });
 });
-
 </script>
- <h2 class="royal-style">NekoBox</h2>
+
+<h2 class="royal-style">NekoBox</h2>
  <div style="border: 1px solid black; padding: 10px; ">  
    <br>
 <?php
@@ -925,28 +930,28 @@ $lang = $_GET['lang'] ?? 'en';
         </div>
     </div>
 
-    <div style="border: 1px solid black; padding: 10px; text-align: center;">
-        <table style="width: 100%;">
-            <tbody>
-                <tr>
-                    <td style="width: 50%;">下载-总计</td>
-                    <td style="width: 50%;">上传-总计</td>
-                </tr>
-                <tr>
-                    <td><span id="downtotal">-</span></td>
-                    <td><span id="uptotal">-</span></td>
-                </tr>
-            </tbody>
-        </table>
-    </div>
-
+<div style="border: 1px solid black; padding: 10px; text-align: center;">
+    <table style="width: 100%;">
+        <tbody>
+            <tr>
+                <td style="width: 50%;">下载-总计</td>
+                <td style="width: 50%;">上传-总计</td>
+            </tr>
+            <tr>
+                <td><span id="downtotal">-</span></td>
+                <td><span id="uptotal">-</span></td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+<!DOCTYPE html>
 <html lang="zh">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <style>
         .log-container {
-            height: 300px;
+            height: 270px; 
             overflow-y: auto;
             overflow-x: hidden;
             white-space: pre-wrap;
@@ -960,10 +965,10 @@ $lang = $_GET['lang'] ?? 'en';
 <body>
     <h2 class="text-center my-4">日志</h2>
     <div class="row">
-        <div class="col-md-12"> 
+        <div class="col-12"> 
             <div class="card log-card">
                 <div class="card-header">
-                    <h4 class="card-title text-center mb-0">插件日志</h4>
+                    <h4 class="card-title text-center mb-0">NeKoBox 日志</h4>
                 </div>
                 <div class="card-body">
                     <pre id="plugin_log" class="log-container form-control"></pre>
@@ -976,19 +981,39 @@ $lang = $_GET['lang'] ?? 'en';
             </div>
         </div>
     </div>
-    
-<div class="row"> 
-    <div class="col-md-12"> 
+    <div class="row">
+        <div class="col-12">
+            <div class="card log-card">
+                <div class="card-header">
+                    <h4 class="card-title text-center mb-0">Mihomo 日志</h4>
+                </div>
+                <div class="card-body">
+                    <pre id="bin_logs" class="log-container form-control"></pre>
+                </div>
+                <div class="card-footer text-center">
+                    <form action="index.php" method="post">
+                        <button type="submit" name="neko" value="clear" class="btn btn-danger">🗑️ 清空日志</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+<div class="row">
+    <div class="col-12">
         <div class="card log-card">
             <div class="card-header">
-                <h4 class="card-title text-center mb-0">内核日志</h4>
+                <h4 class="card-title text-center mb-0">Sing-box 日志</h4>
             </div>
             <div class="card-body">
-                <pre id="bin_logs" class="log-container form-control"></pre>
+                <pre id="singbox_log" class="log-container form-control"></pre>
             </div>
             <div class="card-footer text-center">
-                <form action="index.php" method="post">
-                    <button type="submit" name="neko" value="clear" class="btn btn-danger">🗑️ 清空日志</button>
+                <form action="index.php" method="post" class="d-inline-block">
+                    <div class="form-check form-check-inline mb-2">
+                        <input class="form-check-input" type="checkbox" id="autoRefresh" checked>
+                        <label class="form-check-label" for="autoRefresh">自动刷新</label>
+                    </div>
+                    <button type="submit" name="clear_singbox_log" class="btn btn-danger">🗑️ 清空日志</button>
                     <button type="submit" name="update_log" value="update" class="btn btn-primary">🔄 更新时区</button>
                 </form>
             </div>
@@ -1005,7 +1030,6 @@ if (isset($_POST['update_log'])) {
     curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);     
     $newLogContent = curl_exec($ch);
     curl_close($ch);
-
     if ($newLogContent !== false) {
         file_put_contents($logFilePath, $newLogContent);
         echo "<script>alert('时区已更新成功！');</script>";
@@ -1017,39 +1041,42 @@ if (isset($_POST['update_log'])) {
 
 <script src="./assets/js/bootstrap.bundle.min.js"></script>
 <script>
-function scrollToBottom(elementId) {
-    var logElement = document.getElementById(elementId);
-    logElement.scrollTop = logElement.scrollHeight; 
-}
+    function scrollToBottom(elementId) {
+        var logElement = document.getElementById(elementId);
+        logElement.scrollTop = logElement.scrollHeight;
+    }
 
-function fetchLogs() {
-    Promise.all([
-        fetch('fetch_logs.php?file=plugin_log'),
-        fetch('fetch_logs.php?file=mihomo_log'),
-        fetch('fetch_logs.php?file=singbox_log')
-    ])
-    .then(responses => Promise.all(responses.map(res => res.text())))
-    .then(data => {
-        const pluginLogElement = document.getElementById('plugin_log');
-        const binLogsElement = document.getElementById('bin_logs');
-        const previousPluginLog = pluginLogElement.textContent;
-        const previousBinLogs = binLogsElement.textContent;
-
-        pluginLogElement.textContent = data[0];
-        binLogsElement.textContent = data[1];
-
-        if (pluginLogElement.textContent !== previousPluginLog) {
+    function fetchLogs() {
+        if (!document.getElementById('autoRefresh').checked) {
+            return;
+        }
+        Promise.all([
+            fetch('fetch_logs.php?file=plugin_log'),
+            fetch('fetch_logs.php?file=mihomo_log'),
+            fetch('fetch_logs.php?file=singbox_log')
+        ])
+        .then(responses => Promise.all(responses.map(res => res.text())))
+        .then(data => {
+            document.getElementById('plugin_log').textContent = data[0];
+            document.getElementById('bin_logs').textContent = data[1];
+            document.getElementById('singbox_log').textContent = data[2];
             scrollToBottom('plugin_log');
-        }
-        if (binLogsElement.textContent !== previousBinLogs) {
             scrollToBottom('bin_logs');
-        }
-    })
-    .catch(err => console.error('获取日志时出错:', err));
-}
+            scrollToBottom('singbox_log');
+        })
+        .catch(err => console.error('Error fetching logs:', err));
+    }
 
-fetchLogs();
-setInterval(fetchLogs, 5000); 
+    fetchLogs();
+    let intervalId = setInterval(fetchLogs, 5000);
+
+    document.getElementById('autoRefresh').addEventListener('change', function() {
+        if (this.checked) {
+            intervalId = setInterval(fetchLogs, 5000);
+        } else {
+            clearInterval(intervalId);
+        }
+    });
 </script>
 </body>
 </html>
