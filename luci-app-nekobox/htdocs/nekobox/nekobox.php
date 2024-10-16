@@ -97,13 +97,36 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 }
 
 function deleteItem($path) {
+    $path = rtrim(str_replace('//', '/', $path), '/');
+    
+    if (!file_exists($path)) {
+        error_log("Attempted to delete non-existent item: $path");
+        return false; 
+    }
+
     if (is_dir($path)) {
-        deleteDirectory($path);
+        return deleteDirectory($path);
     } else {
-        unlink($path);
+        if (@unlink($path)) {
+            return true;
+        } else {
+            error_log("Failed to delete file: $path");
+            return false;
+        }
     }
 }
 
+function deleteDirectory($dir) {
+    if (!is_dir($dir)) {
+        return false;
+    }
+    $files = array_diff(scandir($dir), array('.', '..'));
+    foreach ($files as $file) {
+        $path = $dir . '/' . $file;
+        is_dir($path) ? deleteDirectory($path) : @unlink($path);
+    }
+    return @rmdir($dir);
+}
 function readFileWithEncoding($path) {
     $content = file_get_contents($path);
     $encoding = mb_detect_encoding($content, ['UTF-8', 'ASCII', 'ISO-8859-1', 'Windows-1252', 'GBK', 'Big5', 'Shift_JIS', 'EUC-KR'], true);
@@ -114,13 +137,45 @@ function readFileWithEncoding($path) {
 }
 
 function renameItem($old_path, $new_path) {
+    $old_path = rtrim(str_replace('//', '/', $old_path), '/');
+    $new_path = rtrim(str_replace('//', '/', $new_path), '/');
+
     $new_name = basename($new_path);
-    
     $dir = dirname($old_path);
-    
     $new_full_path = $dir . '/' . $new_name;
     
-    return rename($old_path, $new_full_path);
+    if (!file_exists($old_path)) {
+        error_log("Source file does not exist before rename: $old_path");
+        if (file_exists($new_full_path)) {
+            error_log("But new file already exists: $new_full_path. Rename might have succeeded.");
+            return true;
+        }
+        return false;
+    }
+    
+    $result = rename($old_path, $new_full_path);
+    
+    if (!$result) {
+        error_log("Rename function returned false for: $old_path to $new_full_path");
+        if (file_exists($new_full_path) && !file_exists($old_path)) {
+            error_log("However, new file exists and old file doesn't. Consider rename successful.");
+            return true;
+        }
+    }
+    
+    if (file_exists($new_full_path)) {
+        error_log("New file exists after rename: $new_full_path");
+    } else {
+        error_log("New file does not exist after rename attempt: $new_full_path");
+    }
+    
+    if (file_exists($old_path)) {
+        error_log("Old file still exists after rename attempt: $old_path");
+    } else {
+        error_log("Old file no longer exists after rename attempt: $old_path");
+    }
+    
+    return $result;
 }
 
 function editFile($path, $content, $encoding) {
@@ -164,14 +219,16 @@ function uploadFile($destination) {
     return !empty($uploaded_files);
 }
 
-function deleteDirectory($dir) {
-    if (!file_exists($dir)) return true;
-    if (!is_dir($dir)) return unlink($dir);
-    foreach (scandir($dir) as $item) {
-        if ($item == '.' || $item == '..') continue;
-        if (!deleteDirectory($dir . DIRECTORY_SEPARATOR . $item)) return false;
+if (!function_exists('deleteDirectory')) {
+    function deleteDirectory($dir) {
+        if (!file_exists($dir)) return true;
+        if (!is_dir($dir)) return unlink($dir);
+        foreach (scandir($dir) as $item) {
+            if ($item == '.' || $item == '..') continue;
+            if (!deleteDirectory($dir . DIRECTORY_SEPARATOR . $item)) return false;
+        }
+        return rmdir($dir);
     }
-    return rmdir($dir);
 }
 
 function downloadFile($file) {
@@ -499,7 +556,7 @@ function searchFiles($dir, $term) {
                 <div class="col-12">
                     <div class="btn-toolbar justify-content-between">
                         <div class="btn-group">
-                            <button type="button" class="btn btn-outline-secondary" onclick="goBack()" title="返回上一级" data-translate-title="goBackTitle">
+                            <button type="button" class="btn btn-outline-secondary" onclick="goToParentDirectory()" title="返回上一级目录" data-translate-title="goToParentDirectoryTitle">
                                 <i class="fas fa-arrow-left"></i>
                             </button>
                             <button type="button" class="btn btn-outline-secondary" onclick="location.href='?dir=/'" title="返回根目录"  data-translate-title="rootDirectoryTitle">
@@ -620,16 +677,23 @@ function searchFiles($dir, $term) {
                         <td><?php echo $item['permissions']; ?></td>
                         <td><?php echo htmlspecialchars($item['owner']); ?></td>
                         <td>
-                            <div style="display: flex; gap: 5px;">
-                                <button onclick="showRenameModal('<?php echo htmlspecialchars($item['name']); ?>', '<?php echo htmlspecialchars($item['path']); ?>')" class="btn btn-rename" data-translate="rename">✏️ 重命名</button>
-                                <?php if (!$item['is_dir']): ?>
-                                    <a href="?dir=<?php echo urlencode($current_dir); ?>&download=<?php echo urlencode($item['path']); ?>" class="btn btn-download" data-translate="download">⬇️ 下载</a>
-                                <?php endif; ?>
-                                <button onclick="showChmodModal('<?php echo htmlspecialchars($item['path']); ?>', '<?php echo $item['permissions']; ?>')" class="btn btn-chmod" data-translate="setPermissions">🔒 权限</button>
-                                <form method="post" style="display:inline;" onsubmit="return confirmDelete('<?php echo htmlspecialchars($item['name']); ?>');">
-                                    <input type="hidden" name="action" value="delete">
-                                    <input type="hidden" name="path" value="<?php echo htmlspecialchars($item['path']); ?>">
-                                    <button type="submit" class="btn delete-btn" data-translate="delete">🗑️ 删除</button> 
+                        <div style="display: flex; gap: 5px;">
+                          <button onclick="showRenameModal('<?php echo htmlspecialchars($item['name']); ?>', '<?php echo htmlspecialchars($item['path']); ?>')" class="btn btn-rename" title="✏️ 重命名" data-translate-title="rename">
+                            <i class="fas fa-edit"></i>
+                              </button>
+                                 <?php if (!$item['is_dir']): ?>
+                                    <a href="?dir=<?php echo urlencode($current_dir); ?>&download=<?php echo urlencode($item['path']); ?>" class="btn btn-download" title="⬇️ 下载" data-translate-title="download">
+                                      <i class="fas fa-download"></i>
+                                    </a>
+                                    <?php endif; ?>
+                                    <button onclick="showChmodModal('<?php echo htmlspecialchars($item['path']); ?>', '<?php echo $item['permissions']; ?>')" class="btn btn-chmod" title="🔒 权限" data-translate-title="setPermissions">
+                                      <i class="fas fa-lock"></i>
+                                      </button>
+                                      <form method="post" style="display:inline;" onsubmit="return confirmDelete('<?php echo htmlspecialchars($item['name']); ?>');">
+                                         <input type="hidden" name="action" value="delete">
+                                         <input type="hidden" name="path" value="<?php echo htmlspecialchars($item['path']); ?>">
+                                         <button type="submit" class="btn delete-btn" title="🗑️ 删除" data-translate-title="delete">
+                                     <i class="fas fa-trash-alt"></i>
                                 </form>
                             </div>
                         </td>
@@ -855,6 +919,18 @@ function showNewFolderModal() {
 function showNewFileModal() {
     closeModal('createModal');
     showModal('newFileModal');
+}
+
+function goToParentDirectory() {
+    const currentPath = '<?php echo $current_dir; ?>';
+    const parentPath = currentPath.split('/').slice(0, -1).join('/');
+    
+    if (parentPath === '') {
+        alert('Already at the root directory, cannot go back.');
+        return;
+    }
+    
+    window.location.href = '?dir=' + encodeURIComponent(parentPath);
 }
 
 window.addEventListener("load", function() {
@@ -1326,6 +1402,20 @@ function validateJSON() {
     }
 }
 
+function validateYAML() {
+    if (aceEditor) {
+        const content = aceEditor.getValue();
+        try {
+            jsyaml.load(content);
+            alert('YAML format is valid');
+        } catch (e) {
+            alert('Invalid YAML format: ' + e.message);
+        }
+    } else {
+        alert('Editor not initialized');
+    }
+}
+
 function addErrorMarker(session, line, message) {
     var Range = ace.require("ace/range").Range;
     var marker = session.addMarker(new Range(line, 0, line, 1), "ace_error-marker", "fullLine");
@@ -1508,6 +1598,8 @@ const translations = {
         format: "格式化",
         validateJSON: "验证 JSON",
         validateYAML: "验证 YAML",
+        goToParentDirectoryTitle: "返回上一级目录",
+        alreadyAtRootDirectory: "已经在根目录，无法返回上一级。",
         close: "关闭"
     },
     en: {
@@ -1612,6 +1704,8 @@ const translations = {
         format: "Format",
         validateJSON: "Validate JSON",
         validateYAML: "Validate YAML",
+        goToParentDirectoryTitle: "Go to parent directory",
+        alreadyAtRootDirectory: "Already at the root directory, cannot go back.",
         close: "Close"
     }
 };
