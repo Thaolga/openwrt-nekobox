@@ -368,17 +368,18 @@ h1:hover, h2:hover, h3:hover, h4:hover, h5:hover, h6:hover {
     transition: background-color 0.3s ease;
 }
 
-.container-sm.callout .btn:hover {
-    color: #000 !important;
-    background-color: #FFDEAD !important;  
-    transition: all 0.3s ease;
+@media (max-width: 767px) {
+    .row.justify-content-md-center .col.input-group.mb-3.justify-content-md-center {
+        display: flex;
+        justify-content: center;
+    }
+
+    .row.justify-content-md-center .col.input-group.mb-3.justify-content-md-center .btn-info {
+        width: auto;
+        min-width: 200px;
+    }
 }
 
-.container-sm.callout .custom-btn-color:hover {
-    color: #000 !important;
-    background-color: #FFDEAD !important;
-    transition: all 0.3s ease;
-}
 
 @media (max-width: 767px) {
   body {
@@ -416,11 +417,6 @@ h1:hover, h2:hover, h3:hover, h4:hover, h5:hover, h6:hover {
     margin-bottom: 1rem;
   }
 
-  .form-control {
-    font-size: 14px;
-  }
-}
-
 @media (max-width: 575px) {
   .container-sm.container-bg.callout {
     flex-direction: column;
@@ -432,6 +428,18 @@ h1:hover, h2:hover, h3:hover, h4:hover, h5:hover, h6:hover {
     display: block;
     text-align: center;
   }
+}
+
+.container-sm.callout .btn:hover {
+    color: #000 !important;
+    background-color: #FFDEAD !important;  
+    transition: all 0.3s ease;
+}
+
+.container-sm.callout .custom-btn-color:hover {
+    color: #000 !important;
+    background-color: #FFDEAD !important;
+    transition: all 0.3s ease;
 }
 
 @media (min-width: 992px) {
@@ -446,14 +454,5 @@ h1:hover, h2:hover, h3:hover, h4:hover, h5:hover, h6:hover {
   }
 }
 
-@media (max-width: 767px) {
-    .row.justify-content-md-center .col.input-group.mb-3.justify-content-md-center {
-        display: flex;
-        justify-content: center;
-    }
 
-    .row.justify-content-md-center .col.input-group.mb-3.justify-content-md-center .btn-info {
-        width: auto;
-        min-width: 200px;
-    }
-}
+
