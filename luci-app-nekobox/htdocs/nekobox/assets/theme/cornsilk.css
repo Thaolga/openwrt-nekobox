@@ -4,11 +4,32 @@
 
 [data-bs-theme=cornsilk] {
  color-scheme: light;
-}
+  --bs-body-font-family: "Avant Garde", Avantgarde, "Century Gothic", CenturyGothic, AppleGothic, sans-serif;
+  --bs-body-font-weight: 700;
+  --bs-body-color: #333;
+  --bs-body-bg: #ffffff; 
+  --bs-primary: #0056b3;
+  --bs-secondary: #004080;
+  --bs-success: #28a745;
+  --bs-info: #17a2b8;
+  --bs-warning: #ffc107;
+  --bs-danger: #dc3545;
 
+  --bs-heading-font-family: 'Montserrat', sans-serif;
+  --bs-heading-font-weight: 700;
+  --bs-heading-letter-spacing: 0.05em;
+  --bs-heading-text-transform: uppercase;
+
+  --bs-card-bg: #87ceeb;
+  --bs-card-border-color: transparent;
+  
+  --bs-shadow-light: 0 4px 8px rgba(0, 86, 179, 0.1);
+  --bs-shadow-medium: 0 8px 16px rgba(0, 86, 179, 0.15);
+  --bs-transition-speed: 0.3s;
+}
 body {
    font-family: 'Roboto', sans-serif;
-   background-color: #f0f2f5;
+   background-color: #ffffff;  
    color: #2c3e50;
    line-height: 1.8;
    font-size: 16px;
@@ -411,6 +432,27 @@ h2.text-center {
     letter-spacing: 2px;
     text-transform: uppercase;
     margin-bottom: 30px;
+}
+
+.table-dark td a {
+    color: #fff !important;
+    text-decoration: none;
+}
+
+.table-dark td a:hover {
+    color: #fff !important;
+    text-decoration: underline;
+}
+
+.table-dark thead th {
+    background-color: #A0522D !important;  
+    color: #fff !important;
+    font-weight: bold;
+}
+
+.table-dark thead th:hover {
+    background-color: #A0522D !important; 
+    transition: background-color 0.3s ease;
 }
 
 @media (max-width: 767px) {
