@@ -431,11 +431,6 @@ h1:hover, h2:hover, h3:hover, h4:hover, h5:hover, h6:hover {
     margin-bottom: 1rem;
   }
 
-  .form-control {
-    font-size: 14px;
-  }
-}
-
 @media (max-width: 575px) {
   .container-sm.container-bg.callout {
     flex-direction: column;
