@@ -261,6 +261,18 @@ h6 { color: #FF6B6B; }
    transform: translateZ(-1px);
 }
 
+.btn-warning {
+   color: #ffffff !important;
+}
+
+.btn-info {
+    color: #ffffff;
+}
+
+.btn-info:hover {
+    color: #ffffff;
+}
+
 .btn:hover {
    transform: perspective(1000px) translateY(-5px) rotateX(10deg);
 }
