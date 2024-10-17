@@ -126,7 +126,7 @@ $dashboard_link = $neko_cfg['ctrl_host'] . ':' . $neko_cfg['ctrl_port'] . '/ui/d
             border: 3px solid #ddd;
             width: 100%;
             height: auto;
-            min-height: 700px;
+            min-height: 1000px;
         }
 
         footer {

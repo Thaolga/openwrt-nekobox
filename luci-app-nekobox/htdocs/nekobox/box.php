@@ -26,7 +26,7 @@ include './cfg.php';
         <a href="./nekobox.php" class="col btn btn-lg">📦 File Assistant</a>
 <div class="outer-container">
     <div class="container">
-        <h1 class="title text-center">Sing-box Subscription Conversion Template</h1>
+        <h1 class="title text-center" style="margin-top: 3rem; margin-bottom: 2rem;">Sing-box Subscription Conversion Template</h1>
         <div class="alert alert-info">
             <h4 class="alert-heading">Help Information</h4>
                 <p>Please select a template to generate the configuration file: choose the corresponding template based on the subscription node information, otherwise, it will not start.</p>
