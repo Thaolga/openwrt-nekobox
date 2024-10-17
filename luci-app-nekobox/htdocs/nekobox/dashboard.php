@@ -128,7 +128,7 @@ $dashboard_link = $neko_cfg['ctrl_host'] . ':' . $neko_cfg['ctrl_port'] . '/ui/d
             border: 3px solid #ddd;
             width: 100%;
             height: auto;
-            min-height: 700px;
+            min-height: 1100px;
         }
 
         footer {
@@ -137,7 +137,7 @@ $dashboard_link = $neko_cfg['ctrl_host'] . ':' . $neko_cfg['ctrl_port'] . '/ui/d
     </style>
 </head>
 <body>
-        <h2 class="text-center p-2">Meta面板</h2>
+        <h2 class="text-center p-2" style="margin-top: 1rem; margin-bottom: 1rem;">Meta面板</h2>
         <div class="container h-100 mb-5">
             <iframe class="border border-3 rounded-4 w-100" height="700" src="http://<?=$yacd_link ?>" title="yacd" allowfullscreen></iframe>
         </div>

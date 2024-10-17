@@ -345,3 +345,15 @@ h1:hover, h2:hover, h3:hover, h4:hover, h5:hover, h6:hover {
 .btn-outline-info.btn-meta:focus {
   color: #fff !important;
 }
+
+@media (max-width: 767px) {
+    .row.justify-content-md-center .col.input-group.mb-3.justify-content-md-center {
+        display: flex;
+        justify-content: center;
+    }
+
+    .row.justify-content-md-center .col.input-group.mb-3.justify-content-md-center .btn-info {
+        width: auto;
+        min-width: 200px;
+    }
+}

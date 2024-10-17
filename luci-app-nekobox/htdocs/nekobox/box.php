@@ -26,7 +26,7 @@ include './cfg.php';
         <a href="./nekobox.php" class="col btn btn-lg">📦 文件助手</a>
 <div class="outer-container">
     <div class="container">
-        <h1 class="title text-center">Sing-box 订阅转换模板</h1>
+        <h1 class="title text-center" style="margin-top: 3rem; margin-bottom: 2rem;">Sing-box 订阅转换模板</h1>
         <div class="alert alert-info">
             <h4 class="alert-heading">帮助信息</h4>
             <p>请选择一个模板以生成配置文件：根据订阅节点信息选择对应模板，否则启动不了。</p>

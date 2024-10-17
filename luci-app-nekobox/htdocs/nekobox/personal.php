@@ -338,7 +338,7 @@ $current_subscription_url = getSubscriptionUrlFromFile($subscription_file);
         <a href="./upload_sb.php" class="col btn btn-lg">🗂️ Sing-box</a>
         <a href="./box.php" class="col btn btn-lg">💹 转换</a>
         <a href="./personal.php" class="col btn btn-lg">📦 订阅</a>
-        <h1 class="text-center p-2">Mihomo 订阅程序（个人版）</h1>
+        <h1 class="text-center p-2" style="margin-top: 2rem; margin-bottom: 1rem;">Mihomo 订阅程序（个人版）</h1>
 
         <div class="col-12">
             <div class="form-section">
@@ -389,9 +389,6 @@ $current_subscription_url = getSubscriptionUrlFromFile($subscription_file);
         <div class="result mt-2">
             <?php echo nl2br(htmlspecialchars($cron_result)); ?>
         </div>
-
-        <div class="mt-4 text-center">
-            <button class="btn btn-secondary" onclick="history.back()">返回上一级</button>
         </div>
     </div>
 </div>
