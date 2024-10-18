@@ -23,6 +23,11 @@ if (empty($new_version)) {
     die("No latest version found or version information is empty.");
 }
 
+if (isset($_GET['check_version'])) {
+    echo "Latest version: V" . $new_version;
+    exit;
+}
+
 $installed_package_info = shell_exec("opkg status " . escapeshellarg($package_name));
 $installed_lang = 'en';
 

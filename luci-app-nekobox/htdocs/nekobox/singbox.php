@@ -70,6 +70,15 @@ switch ($current_arch) {
         die("No download link found for architecture: $current_arch");
 }
 
+if (isset($_GET['check_version'])) {
+    if (trim($current_version) === trim($latest_version)) {
+        echo "Current version is already the latest: v$current_version";
+    } else {
+        echo "Latest version: $latest_version";
+    }
+    exit; 
+}
+
 if (trim($current_version) === trim($latest_version)) {
     die("Current version is already the latest.");
 }

@@ -104,10 +104,11 @@ $singBoxVersion = getSingboxVersion();
                                 <div class="text-center">
                                     <h3>Client Version</h3>
                                     <div class="form-control text-center" style="font-family: monospace; text-align: center;">
-                                        <div id="cliver"></div>
+                                        <span id="cliver"></span>&nbsp;<span id="NewCliver"> </span>
                                     </div>
                                     <div class="text-center mt-2">
-                                        <button class="btn btn-primary" id="updateButton">🔄 Update to Latest Version</button>
+                                        <button class="btn btn-cyan" id="checkCliverButton">🔍 Detect</button>
+                                        <button class="btn btn-info" id="updateButton" title="Update to Latest Version">🔄 Update</button>
                                     </div>
                                 </div>
                             </div>
@@ -116,12 +117,13 @@ $singBoxVersion = getSingboxVersion();
                                     <h3>Sing-box Core Version</h3>
                                     <div class="form-control text-center">
                                         <div id="singBoxCorever">
-                                            <?php echo htmlspecialchars($singBoxVersion); ?>
+                                            <?php echo htmlspecialchars($singBoxVersion); ?>&nbsp;<span id="NewSingbox"></span>
                                         </div>
                                     </div>
                                     <div class="text-center mt-2">
-                                        <button class="btn btn-pink" id="updateSingboxButton">🔄 Update Singbox Core</button>
-                                         <button class="btn btn-info" id="updatePuernyaButton">🔄 Switch to Puernya Core</button>
+                                        <button class="btn btn-cyan" id="checkSingboxButton">🔍 Detect</button>
+                                        <button class="btn btn-pink" id="updateSingboxButton" title="Update Singbox Core">🔄 Update</button>
+                                        <button class="btn btn-info" id="updatePuernyaButton" title="Switch to Puernya Core">🔄 Switch</button>
                                     </div>
                                 </div>
                             </div>
@@ -129,10 +131,11 @@ $singBoxVersion = getSingboxVersion();
                                 <div class="text-center">
                                     <h3>Mihomo Core Version</h3>
                                     <div class="form-control text-center">
-                                        <div id="corever">-</div>
+                                        <span id="corever"></span>&nbsp;<span id="NewMihomo"> </span>
                                     </div>
                                     <div class="text-center mt-2">
-                                        <button class="btn btn-success" id="updateCoreButton">🔄 Update Mihomo Core</button>
+                                        <button class="btn btn-cyan" id="checkMihomoButton">🔍 Detect</button> 
+                                        <button class="btn btn-success" id="updateCoreButton" title="Update Mihomo Core">🔄 Update</button>
                                     </div>
                                 </div>
                             </div>
@@ -201,84 +204,143 @@ $singBoxVersion = getSingboxVersion();
             }
         </style>
 
-        <script>
-            document.getElementById('updateButton').addEventListener('click', function() {
-                const xhr = new XMLHttpRequest();
-                xhr.open('POST', 'update_script.php', true);
-                xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+<script>
+    document.getElementById('updateButton').addEventListener('click', function() {
+        const xhr = new XMLHttpRequest();
+        xhr.open('POST', 'update_script.php', true);
+        xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
 
-                document.getElementById('logOutput').innerHTML = 'Starting to download updates...';
+        document.getElementById('logOutput').innerHTML = 'Starting to download updates...';
 
-                xhr.onload = function() {
-                    if (xhr.status === 200) {
-                        document.getElementById('logOutput').innerHTML += '\nUpdate completed!';
-                        document.getElementById('logOutput').innerHTML += '\n' + xhr.responseText;
-                    } else {
-                        document.getElementById('logOutput').innerHTML += '\nError occurred：' + xhr.statusText;
-                    }
-                };
+        xhr.onload = function() {
+            if (xhr.status === 200) {
+                document.getElementById('logOutput').innerHTML += '\nUpdate completed!';
+                document.getElementById('logOutput').innerHTML += '\n' + xhr.responseText;
+            } else {
+                document.getElementById('logOutput').innerHTML += '\nError occurred：' + xhr.statusText;
+            }
+        };
 
-                xhr.send();
-            });
+        xhr.send();
+    });
 
-            document.getElementById('updateSingboxButton').addEventListener('click', function() {
-                const xhr = new XMLHttpRequest();
-                xhr.open('POST', 'singbox.php', true);
-                xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+    document.getElementById('updateSingboxButton').addEventListener('click', function() {
+        const xhr = new XMLHttpRequest();
+        xhr.open('POST', 'singbox.php', true);
+        xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
 
-                document.getElementById('logOutput').innerHTML = 'Starting to download core update...';
+        document.getElementById('logOutput').innerHTML = 'Starting to download core update...';
 
-                xhr.onload = function() {
-                    if (xhr.status === 200) {
-                        document.getElementById('logOutput').innerHTML += '\nCore update completed!';
-                        document.getElementById('logOutput').innerHTML += '\n' + xhr.responseText;
-                    } else {
-                        document.getElementById('logOutput').innerHTML += '\\nError occurred: ' + xhr.statusText;
-                    }
-                };
+        xhr.onload = function() {
+            if (xhr.status === 200) {
+                document.getElementById('logOutput').innerHTML += '\nCore update completed!';
+                document.getElementById('logOutput').innerHTML += '\n' + xhr.responseText;
+            } else {
+                document.getElementById('logOutput').innerHTML += '\\nError occurred: ' + xhr.statusText;
+            }
+        };
 
-                xhr.send();
-            });
+        xhr.send();
+    });
 
-            document.getElementById('updatePuernyaButton').addEventListener('click', function() {
-                const xhr = new XMLHttpRequest();
-                xhr.open('POST', 'puernya.php', true);
-                xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+    document.getElementById('updatePuernyaButton').addEventListener('click', function() {
+        const xhr = new XMLHttpRequest();
+        xhr.open('POST', 'puernya.php', true);
+        xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
 
-                document.getElementById('logOutput').innerHTML = 'Starting to download core update...';
+        document.getElementById('logOutput').innerHTML = 'Starting to download core update...';
 
-                xhr.onload = function() {
-                    if (xhr.status === 200) {
-                        document.getElementById('logOutput').innerHTML += '\nCore update completed!';
-                        document.getElementById('logOutput').innerHTML += '\n' + xhr.responseText;
-                    } else {
-                        document.getElementById('logOutput').innerHTML += '\\nError occurred: ' + xhr.statusText;
-                    }
-                };
+        xhr.onload = function() {
+            if (xhr.status === 200) {
+                document.getElementById('logOutput').innerHTML += '\nCore update completed!';
+                document.getElementById('logOutput').innerHTML += '\n' + xhr.responseText;
+            } else {
+                document.getElementById('logOutput').innerHTML += '\\nError occurred: ' + xhr.statusText;
+            }
+        };
 
-                xhr.send();
-            });
+        xhr.send();
+    });
 
-            document.getElementById('updateCoreButton').addEventListener('click', function() {
-                const xhr = new XMLHttpRequest();
-                xhr.open('POST', 'core.php', true);
-                xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+    document.getElementById('updateCoreButton').addEventListener('click', function() {
+        const xhr = new XMLHttpRequest();
+        xhr.open('POST', 'core.php', true);
+        xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
 
-                document.getElementById('logOutput').innerHTML = 'Starting to download core update...';
+        document.getElementById('logOutput').innerHTML = 'Starting to download core update...';
 
-                xhr.onload = function() {
-                    if (xhr.status === 200) {
-                        document.getElementById('logOutput').innerHTML += '\nCore update completed!';
-                        document.getElementById('logOutput').innerHTML += '\n' + xhr.responseText;
-                    } else {
-                        document.getElementById('logOutput').innerHTML += '\nError occurred: ' + xhr.statusText;
-                    }
-                };
+        xhr.onload = function() {
+            if (xhr.status === 200) {
+                document.getElementById('logOutput').innerHTML += '\nCore update completed!';
+                document.getElementById('logOutput').innerHTML += '\n' + xhr.responseText;
+            } else {
+                document.getElementById('logOutput').innerHTML += '\\nError occurred: ' + xhr.statusText;
+            }
+        };
 
-                xhr.send();
-            });
+        xhr.send();
+    });
+</script>
 
-        </script>
+<script>
+    document.getElementById('checkCliverButton').addEventListener('click', function() {
+        document.getElementById('NewCliver').innerHTML = 'Checking for a new version...';
+        
+        var xhr = new XMLHttpRequest();
+        xhr.open('GET', 'update_script.php?check_version=true', true);
+        xhr.onload = function() {
+            if (xhr.status === 200) {
+                document.getElementById('NewCliver').innerHTML = xhr.responseText;
+            } else {
+                document.getElementById('NewCliver').innerHTML = 'Version check failed, please try again later.';
+            }
+        };
+        xhr.onerror = function() {
+            document.getElementById('NewCliver').innerHTML = 'Network error, please try again later';
+        };
+        xhr.send();
+    });
+</script>
+
+<script>
+    document.getElementById('checkMihomoButton').addEventListener('click', function() {
+        document.getElementById('NewMihomo').innerHTML = 'Checking for a new version...';
+        
+        var xhr = new XMLHttpRequest();
+        xhr.open('GET', 'core.php?check_version=true', true);
+        xhr.onload = function() {
+            if (xhr.status === 200) {
+                document.getElementById('NewMihomo').innerHTML = xhr.responseText;
+            } else {
+                document.getElementById('NewMihomo').innerHTML = 'Version check failed, please try again later.';
+            }
+        };
+        xhr.onerror = function() {
+            document.getElementById('NewMihomo').innerHTML = 'Network error, please try again later';
+        };
+        xhr.send();
+    });
+</script>
+
+<script>
+    document.getElementById('checkSingboxButton').addEventListener('click', function() {
+        document.getElementById('NewSingbox').innerHTML = 'Checking for a new version...';
+        
+        var xhr = new XMLHttpRequest();
+        xhr.open('GET', 'singbox.php?check_version=true', true);
+        xhr.onload = function() {
+            if (xhr.status === 200) {
+                document.getElementById('NewSingbox').innerHTML = xhr.responseText;
+            } else {
+                document.getElementById('NewSingbox').innerHTML = 'Version check failed, please try again later.';
+            }
+        };
+        xhr.onerror = function() {
+            document.getElementById('NewSingbox').innerHTML = 'Network error, please try again later';
+        };
+        xhr.send();
+    });
+</script>
 <!DOCTYPE html>
 <html lang="zh">
 <head>
