@@ -313,10 +313,21 @@ function searchFiles($dir, $term) {
         RecursiveIteratorIterator::SELF_FIRST
     );
 
+    $webRoot = $_SERVER['DOCUMENT_ROOT'];
+    $tmpDir = sys_get_temp_dir();
+
     foreach ($files as $file) {
         if ($file->isDir()) continue;
         if (stripos($file->getFilename(), $term) !== false) {
-            $relativePath = str_replace($dir, '', $file->getPathname());
+            $fullPath = $file->getPathname();
+            if (strpos($fullPath, $webRoot) === 0) {
+                $relativePath = substr($fullPath, strlen($webRoot));
+            } elseif (strpos($fullPath, $tmpDir) === 0) {
+                $relativePath = 'tmp' . substr($fullPath, strlen($tmpDir));
+            } else {
+                $relativePath = $fullPath;
+            }
+            $relativePath = ltrim($relativePath, '/');
             $results[] = array(
                 'path' => $relativePath,
                 'dir' => dirname($relativePath),
@@ -1301,7 +1312,7 @@ function searchFiles(event) {
                     moveButton.className = 'btn btn-sm btn-primary';
                     moveButton.textContent = '移至';
                     moveButton.onclick = function() {
-                        const targetDir = file.dir === '' ? '/' : file.dir;
+                        let targetDir = file.dir || '/';
                         window.location.href = `?dir=${encodeURIComponent(targetDir)}`;
                         bootstrap.Modal.getInstance(document.getElementById('searchModal')).hide();
                     };
