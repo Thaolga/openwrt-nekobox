@@ -31,7 +31,7 @@ url_core="https://github.com/Thaolga/neko/releases/download/core_neko"
 url_geo="https://github.com/MetaCubeX/meta-rules-dat/releases/download/latest"
 
 neko_ver(){
-    neko_version="1.4.6"
+    neko_version="1.4.7"
 }
 
 logs() {
@@ -46,18 +46,6 @@ neko_logs() {
 singbox_logs() {
     local timestamp=$(date +"%T")
     echo -e "[ $timestamp ] $1" >> "$neko_dir/tmp/log.txt"
-}
-
-neko_checknewver(){
-    new_version=$(curl -m 5 -f -s https://raw.githubusercontent.com/Thaolga/openwrt-nekobox/main/nekobox_version)
-    if [ -z "$new_version" ] || [ "$(printf '%s\n' "$neko_version" "$new_version" | sort -V | head -n1)" = "$new_version" ]; then
-        strversion="- Latest"
-    else
-        strversion="- New Version v.$new_version"
-        if [[ $1 == "log" ]]; then
-            logs "New Version v.$new_version"
-        fi
-    fi
 }
 
 check_depedency() {

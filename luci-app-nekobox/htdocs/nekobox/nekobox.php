@@ -3,10 +3,12 @@ ob_start();
 include './cfg.php';
 $root_dir = "/";
 $current_dir = isset($_GET['dir']) ? $_GET['dir'] : '';
-$current_path = $root_dir . $current_dir;
+$current_dir = '/' . trim($current_dir, '/') . '/';
+if ($current_dir == '//') $current_dir = '/';
+$current_path = $root_dir . ltrim($current_dir, '/');
 
 if (strpos(realpath($current_path), realpath($root_dir)) !== 0) {
-    $current_dir = '';
+    $current_dir = '/';
     $current_path = $root_dir;
 }
 
@@ -354,181 +356,441 @@ function searchFiles($dir, $term) {
     <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.4.12/ext-language_tools.js"></script>
 
     <style>
-        .folder-icon::before{content:"📁";}.file-icon::before{content:"📄";}.file-icon.file-pdf::before{content:"📕";}.file-icon.file-doc::before,.file-icon.file-docx::before{content:"📘";}.file-icon.file-xls::before,.file-icon.file-xlsx::before{content:"📗";}.file-icon.file-ppt::before,.file-icon.file-pptx::before{content:"📙";}.file-icon.file-zip::before,.file-icon.file-rar::before,.file-icon.file-7z::before{content:"🗜️";}.file-icon.file-mp3::before,.file-icon.file-wav::before,.file-icon.file-ogg::before,.file-icon.file-flac::before{content:"🎵";}.file-icon.file-mp4::before,.file-icon.file-avi::before,.file-icon.file-mov::before,.file-icon.file-wmv::before,.file-icon.file-flv::before{content:"🎞️";}.file-icon.file-jpg::before,.file-icon.file-jpeg::before,.file-icon.file-png::before,.file-icon.file-gif::before,.file-icon.file-bmp::before,.file-icon.file-tiff::before{content:"🖼️";}.file-icon.file-txt::before{content:"📝";}.file-icon.file-rtf::before{content:"📄";}.file-icon.file-md::before,.file-icon.file-markdown::before{content:"📑";}.file-icon.file-exe::before,.file-icon.file-msi::before{content:"⚙️";}.file-icon.file-bat::before,.file-icon.file-sh::before,.file-icon.file-command::before{content:"📜";}.file-icon.file-iso::before,.file-icon.file-img::before{content:"💿";}.file-icon.file-sql::before,.file-icon.file-db::before,.file-icon.file-dbf::before{content:"🗃️";}.file-icon.file-font::before,.file-icon.file-ttf::before,.file-icon.file-otf::before,.file-icon.file-woff::before,.file-icon.file-woff2::before{content:"🔤";}.file-icon.file-cfg::before,.file-icon.file-conf::before,.file-icon.file-ini::before{content:"🔧";}.file-icon.file-psd::before,.file-icon.file-ai::before,.file-icon.file-eps::before,.file-icon.file-svg::before{content:"🎨";}.file-icon.file-dll::before,.file-icon.file-so::before{content:"🧩";}.file-icon.file-css::before{content:"🎨";}.file-icon.file-js::before{content:"🟨";}.file-icon.file-php::before{content:"🐘";}.file-icon.file-json::before{content:"📊";}.file-icon.file-html::before,.file-icon.file-htm::before{content:"🌐";}.file-icon.file-bin::before{content:"👾";}
-        .breadcrumb { margin-bottom: 20px; }
-        .breadcrumb a { text-decoration: none; color: #0066cc; }
-        .modal { display: none; position: fixed; z-index: 1; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.4); }
-        .modal-content { background-color: #fefefe; margin: 15% auto; padding: 20px; border: 1px solid #888; width: 90%; max-width: 1200px; }
-        .close { color: #aaa; float: right; font-size: 28px; font-weight: bold; cursor: pointer; }
-        #editContent { width: 100%; min-height: 400px; margin-bottom: 10px; }
-        #aceEditor { position: fixed; top: 0; right: 0; bottom: 0; left: 0; display: none; }
-        #aceEditorContainer { width: 100%; height: 100%; }
-        .theme-toggle { position: absolute; top: 20px; right: 20px; }
-        #themeToggle { background: none; border: none; font-size: 24px; cursor: pointer; transition: color 0.3s ease; }
-        #themeToggle:hover { color: #007bff; }
-        body.dark-mode { background-color: #333; color: #fff; }
-        body.dark-mode table { color: #fff; }
-        body.dark-mode th { background-color: #444; }
-        body.dark-mode td { background-color: #555; }
-        body.dark-mode .modal-content { background-color: #444; color: #fff; }
-        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
-        .header img { height: 100px; }
-        .theme-toggle { position: absolute; top: 20px; right: 20px; }
-        #themeToggle { color: #333; background-color: #f8f9fa; border: 1px solid #dee2e6; padding: 5px 10px; border-radius: 5px; }
-        #themeToggle:hover { background-color: #e9ecef; }
-        .header { display: flex; justify-content: space-between; align-items: center; }
-        .header img { height: 100px; margin-left: -20px; margin-top: 20px; }
-        .btn { padding: 5px 10px; border-radius: 4px; border: none; cursor: pointer; font-size: 14px; min-width: 70px; margin: 2px; }
-        .btn-rename { background-color: #0d6efd; color: white; }
-        .btn-rename:hover { background-color: #0a58ca; }
-        .btn-edit { background-color: #198754; color: white; }
-        .btn-edit:hover { background-color: #157347; }
-        .btn-download { background-color: #0dcaf0; color: white; }
-        .btn-download:hover { background-color: #0abaf0; }
-        .btn-chmod { background-color: #6c757d; color: white; }
-        .btn-chmod:hover { background-color: #5c636a; }
-        .delete-btn { background-color: #dc3545; color: white; }
-        .delete-btn:hover { background-color: #c82333; }
-         table { width: 100%; border-collapse: collapse; }
-         th, td { border: 1px solid #ddd; padding: 8px; text-align: center; }
-         th { background-color: #f2f2f2; }
-         td:first-child { text-align: left; }
-        .top-left-controls { position: absolute; top: 20px; left: 20px; display: flex; gap: 10px; }
-        .language-switcher { background-color: #f8f9fa; border: 1px solid #dee2e6; padding: 5px 10px; border-radius: 5px; cursor: pointer; }
-        .language-switcher:hover { background-color: #e9ecef; }
-        .modal-content { background-color: #fefefe; margin: 15% auto; padding: 20px; border: 1px solid #888; width: 80%; max-width: 1200px; }
-        .form-group { margin-bottom: 15px; }
-        .form-group label { display: block; margin-bottom: 5px; }
-        .form-group input[type="text"] { width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px; }
-        .form-group input[type="radio"] { margin-right: 5px; }
-        .btn-primary { background-color: #007bff; color: white; padding: 10px 15px; border: none; border-radius: 4px; cursor: pointer; }
-        .btn-primary:hover { background-color: #0056b3; }
-        .btn-group { display: flex; gap: 10px; }
-        .btn-group > * { flex: 1; height: 38px; padding: 0.375rem 0.75rem; font-size: 1rem; line-height: 1.5; border-radius: 0.25rem; text-align: center; }
-        .btn-group button { display: flex; justify-content: center; align-items: center; }
-        #languageSwitcher { padding-right: 2rem; }
-        @media (max-width: 768px) { .btn-group > * { min-width: 50px; } }
-        .btn-chmod { background-color: #FFA500; color: #333; } 
-        .btn-chmod:hover { background-color: #FF8C00; color: #fff; }
+    .theme-toggle {
+          position: absolute;
+          top: 20px;
+          right: 20px;
+      }
+      #themeToggle {
+          background: none;
+          border: none;
+          cursor: pointer;
+          transition: color 0.3s ease;
+      }
 
-        .nav-row { display: flex; justify-content: space-around; flex-wrap: wrap; }
-        .nav-btn { display: flex; align-items: center; justify-content: center; padding: 10px 15px; margin: 5px; border-radius: 8px; text-decoration: none; color: #333; background-color: #fff; transition: all 0.3s ease; font-weight: 500; min-width: 100px; }
-        .nav-btn:hover { background-color: #007bff; color: #fff; transform: translateY(-2px); }
-        .nav-btn span { margin-right: 8px; font-size: 1.2em; }
-        @media (max-width: 768px) { .nav-btn { font-size: 0.9rem; padding: 8px 12px; min-width: 80px; } }
-        #renameModal .modal-content { background-color: var(--bs-body-bg); border-radius: 15px; padding: 25px; box-shadow: 0 5px 15px rgba(0,0,0,0.2); max-width: 500px; margin: 10% auto; }
-        #renameModal h2 { color: var(--bs-body-color); font-size: 24px; margin-bottom: 20px; text-align: center; }
-        #renameModal form { display: flex; flex-direction: column; gap: 15px; }
-        #renameModal label { color: var(--bs-body-color); font-size: 16px; font-weight: 500; }
-        #renameModal input[type="text"] { width: 100%; padding: 10px 15px; border: 1px solid var(--bs-border-color); border-radius: 8px; font-size: 16px; background: var(--bs-body-bg); color: var(--bs-body-color); transition: border-color 0.3s ease; }
-        #renameModal input[type="text"]:focus { outline: none; border-color: #0d6efd; box-shadow: 0 0 0 3px rgba(13, 110, 253, 0.25); }
-        #renameModal .btn-group { display: flex; gap: 10px; margin-top: 20px; }
-        #renameModal .btn { flex: 1; padding: 10px; border-radius: 8px; font-size: 16px; font-weight: 500; transition: all 0.3s ease; }
-        #renameModal .btn-primary { background-color: #0d6efd; border: none; color: white; }
-        #renameModal .btn-secondary { background-color: #6c757d; border: none; color: white; }
-        #renameModal .btn:hover { transform: translateY(-2px); box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
-        body.dark-mode #renameModal .modal-content { background-color: #2d3238; border-color: #495057; }
-        body.dark-mode #renameModal input[type="text"] { background-color: #343a40; border-color: #495057; color: #fff; }
-        #chmodModal .modal-content { background-color: var(--bs-body-bg); border-radius: 15px; padding: 25px; box-shadow: 0 5px 15px rgba(0,0,0,0.2); max-width: 500px; margin: 10% auto; }
-        #chmodModal h2 { color: var(--bs-body-color); font-size: 24px; margin-bottom: 20px; text-align: center; }
-        #chmodModal form { display: flex; flex-direction: column; gap: 15px; }
-        #chmodModal .permission-group { display: flex; gap: 20px; margin-bottom: 15px; }
-        #chmodModal .permission-section { flex: 1; }
-        #chmodModal .permission-section h3 { font-size: 16px; margin-bottom: 10px; color: var(--bs-body-color); }
-        #chmodModal .checkbox-group { display: flex; flex-direction: column; gap: 8px; }
-        #chmodModal label { color: var(--bs-body-color); font-size: 16px; font-weight: 500; display: flex; align-items: center; gap: 8px; }
-        #chmodModal input[type="text"] { width: 100%; padding: 10px 15px; border: 1px solid var(--bs-border-color); border-radius: 8px; font-size: 16px; background: var(--bs-body-bg); color: var(--bs-body-color); transition: border-color 0.3s ease; text-align: center; letter-spacing: 1px; }
-        #chmodModal input[type="text"]:focus { outline: none; border-color: #0d6efd; box-shadow: 0 0 0 3px rgba(13, 110, 253, 0.25); }
-        #chmodModal .btn-group { display: flex; gap: 10px; margin-top: 20px; }
-        #chmodModal .btn { flex: 1; padding: 10px; border-radius: 8px; font-size: 16px; font-weight: 500; transition: all 0.3s ease; }
-        #chmodModal .btn-primary { background-color: #0d6efd; border: none; color: white; }
-        #chmodModal .btn-secondary { background-color: #6c757d; border: none; color: white; }
-        #chmodModal .btn:hover { transform: translateY(-2px); box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
-        body.dark-mode #chmodModal .modal-content { background-color: #2d3238; border-color: #495057; }
-        body.dark-mode #chmodModal input[type="text"] { background-color: #343a40; border-color: #495057; color: #fff; }
+      body.dark-mode {
+          background-color: #333;
+          color: #fff;
+      }
+      body.dark-mode table,
+      body.dark-mode th,
+      body.dark-mode td,
+      body.dark-mode .modal,
+      body.dark-mode .modal-content,
+      body.dark-mode .modal h2,
+      body.dark-mode .modal label,
+      body.dark-mode .modal input[type="text"] {
+          color: #fff;
+      }
+      .header {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          margin-bottom: 20px;
+      }
+      .header img {
+          height: 100px;
+      }
+      body.dark-mode th {
+          background-color: #444;
+      }
+      body.dark-mode td {
+          background-color: #555;
+      }
+      body.dark-mode .modal-content {
+          background-color: #444;
+      }
+        .folder-icon::before{content:"📁";}.file-icon::before{content:"📄";}.file-icon.file-pdf::before{content:"📕";}.file-icon.file-doc::before,.file-icon.file-docx::before{content:"📘";}.file-icon.file-xls::before,.file-icon.file-xlsx::before{content:"📗";}.file-icon.file-ppt::before,.file-icon.file-pptx::before{content:"📙";}.file-icon.file-zip::before,.file-icon.file-rar::before,.file-icon.file-7z::before{content:"🗜️";}.file-icon.file-mp3::before,.file-icon.file-wav::before,.file-icon.file-ogg::before,.file-icon.file-flac::before{content:"🎵";}.file-icon.file-mp4::before,.file-icon.file-avi::before,.file-icon.file-mov::before,.file-icon.file-wmv::before,.file-icon.file-flv::before{content:"🎞️";}.file-icon.file-jpg::before,.file-icon.file-jpeg::before,.file-icon.file-png::before,.file-icon.file-gif::before,.file-icon.file-bmp::before,.file-icon.file-tiff::before{content:"🖼️";}.file-icon.file-txt::before{content:"📝";}.file-icon.file-rtf::before{content:"📄";}.file-icon.file-md::before,.file-icon.file-markdown::before{content:"📑";}.file-icon.file-exe::before,.file-icon.file-msi::before{content:"⚙️";}.file-icon.file-bat::before,.file-icon.file-sh::before,.file-icon.file-command::before{content:"📜";}.file-icon.file-iso::before,.file-icon.file-img::before{content:"💿";}.file-icon.file-sql::before,.file-icon.file-db::before,.file-icon.file-dbf::before{content:"🗃️";}.file-icon.file-font::before,.file-icon.file-ttf::before,.file-icon.file-otf::before,.file-icon.file-woff::before,.file-icon.file-woff2::before{content:"🔤";}.file-icon.file-cfg::before,.file-icon.file-conf::before,.file-icon.file-ini::before{content:"🔧";}.file-icon.file-psd::before,.file-icon.file-ai::before,.file-icon.file-eps::before,.file-icon.file-svg::before{content:"🎨";}.file-icon.file-dll::before,.file-icon.file-so::before{content:"🧩";}.file-icon.file-css::before{content:"🎨";}.file-icon.file-js::before{content:"🟨";}.file-icon.file-php::before{content:"🐘";}.file-icon.file-json::before{content:"📊";}.file-icon.file-html::before,.file-icon.file-htm::before{content:"🌐";}.file-icon.file-bin::before{content:"👾";}
         #previewModal .modal-content { width: 90%; max-width: 1200px; height: 90vh; overflow: auto; }
         #previewContainer { text-align: center; padding: 20px; }
         #previewContainer img { max-width: 100%; max-height: 70vh; object-fit: contain; }
         #previewContainer audio, #previewContainer video { max-width: 100%; }
         #previewContainer svg { max-width: 100%; max-height: 70vh; }
-        .modal-content { background-color: var(--bs-body-bg); border-radius: 15px; padding: 25px; box-shadow: 0 5px 15px rgba(0,0,0,0.2); position: relative; }
-        .modal .close { position: absolute; right: 20px; top: 20px; font-size: 28px; font-weight: bold; cursor: pointer; z-index: 1; }
-        body.dark-mode #previewModal .modal-content { background-color: #2d3238; color: #fff; }
-        .button-group { display: flex; justify-content: center; flex-wrap: wrap; gap: 5px; }
-        .btn-outline-secondary, #languageSwitcher { width: 38px; height: 38px; padding: 0; font-size: 1rem; line-height: 1; border-radius: 0.25rem; display: flex; align-items: center; justify-content: center; }
-        #languageSwitcher { width: auto; padding: 0 0.5rem; }
-        @media (max-width: 768px) { .button-group { justify-content: center; } }
-        body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;color:var(--text-color);line-height:1.6;}
-        :root {--primary-color: #3498db;--secondary-color: #2ecc71;--text-color: #34495e;--border-color: #e0e6ed;}
-        table {width: 100%;border-collapse: separate;border-spacing: 0;background: #fff;border-radius: 10px;overflow: hidden;box-shadow: 0 5px 15px rgba(0,0,0,0.1);}
-        th {background-color: var(--primary-color);color: white;font-weight: 600;text-transform: uppercase;letter-spacing: 0.5px;}
-        tr:last-child td {border-bottom: none;}
-        tr:hover {background-color: #f8f9fa;}
-        .modal-content {background-color: #fff;border-radius: 10px;padding: 30px;box-shadow: 0 10px 30px rgba(0,0,0,0.2);}
-        .modal h2 {margin-bottom: 20px;color: var(--primary-color);}
-        .form-group {margin-bottom: 20px;}
-        .form-group label {display: block;margin-bottom: 5px;font-weight: 600;}
-        .form-group input[type="text"] {width: 100%;padding: 10px;border: 1px solid var(--border-color);border-radius: 5px;font-size: 16px;}
-        @media (max-width: 768px) {table {font-size: 14px;} .btn {padding: 6px 12px;font-size: 12px;} .nav-btn {padding: 8px 16px;font-size: 14px;}}
-        @keyframes fadeIn {from { opacity: 0; }to { opacity: 1; }}
-        .modal {animation: fadeIn 0.3s ease;}
-        .btn, .nav-btn {transition: all 0.3s ease;}
-        .btn:hover, .nav-btn:hover {transform: translateY(-2px);box-shadow: 0 5px 15px rgba(0,0,0,0.1);}
-        .modal {display: none;position: fixed;z-index: 1000;left: 0;top: 0;width: 100%;height: 100%;overflow: auto;background-color: rgba(0,0,0,0.4);backdrop-filter: blur(5px);}
-        .modal.show .modal-content {transform: translateY(0);opacity: 1;}
-        .close {color: #aaa;float: right;font-size: 28px;font-weight: bold;transition: color 0.3s ease;}
-        .close:hover,.close:focus {color: #000;text-decoration: none;cursor: pointer;}
-        .modal h2 {margin-top: 0;color: #333;font-size: 24px;font-weight: 600;margin-bottom: 20px;padding-bottom: 10px;border-bottom: 2px solid #f0f0f0;}
-        .modal form {margin-top: 20px;}
-        .modal .form-group {margin-bottom: 20px;}
-        .modal label {display: block;margin-bottom: 5px;font-weight: 500;color: #555;}
-        .modal input[type="text"],.modal input[type="password"],.modal textarea {width: 100%;padding: 10px;border: 1px solid #ddd;border-radius: 5px;font-size: 16px;transition: border-color 0.3s ease;}
-        .modal input[type="text"]:focus,.modal input[type="password"]:focus,.modal textarea:focus {border-color: #3498db;outline: none;box-shadow: 0 0 5px rgba(52, 152, 219, 0.5);}
-        .modal .btn {padding: 10px 20px;font-size: 16px;border: none;border-radius: 5px;cursor: pointer;transition: all 0.3s ease;}
-        .modal .btn-primary {background-color: #3498db;color: white;}
-        .modal .btn-primary:hover {background-color: #2980b9;}
-        .modal .btn-secondary {background-color: #95a5a6;color: white;}
-        .modal .btn-secondary:hover {background-color: #7f8c8d;}
-        body.dark-mode td.folder-icon a {color: #2ecc71;transition: color 0.3s ease;}
-        body.dark-mode td.folder-icon a:hover {color: #27ae60;text-decoration: underline;}
-        body.dark-mode .modal-content {background-color: #2c3e50;color: #ecf0f1;}
-        body.dark-mode .modal h2 {color: #3498db;border-bottom-color: #34495e;}
-        body.dark-mode .close {color: #bdc3c7;}
-        body.dark-mode .close:hover,body.dark-mode .close:focus {color: #ecf0f1;}
-        body.dark-mode .modal label {color: #ecf0f1;}
-        body.dark-mode .modal input[type="text"],body.dark-mode .modal input[type="password"],body.dark-mode .modal textarea {background-color: #34495e;border-color: #2c3e50;color: #ecf0f1;}
-        body.dark-mode .modal input[type="text"]:focus,body.dark-mode .modal input[type="password"]:focus,body.dark-mode .modal textarea:focus {border-color: #3498db;box-shadow: 0 0 5px rgba(52, 152, 219, 0.5);}
-        body.dark-mode #renameModal .modal-content,body.dark-mode #chmodModal .modal-content {color: #ecf0f1;}
-        body.dark-mode #renameModal label,body.dark-mode #chmodModal label {color: #ecf0f1;}
-        body.dark-mode #renameModal input[type="text"],body.dark-mode #chmodModal input[type="text"] {color: #ecf0f1;background-color: #34495e;border-color: #3498db;}
-        body.dark-mode #renameModal .btn,body.dark-mode #chmodModal .btn {color: #ecf0f1;}
-        body.dark-mode #renameModal .btn-primary,body.dark-mode #chmodModal .btn-primary {background-color: #3498db;}
-        body.dark-mode #renameModal .btn-secondary,body.dark-mode #chmodModal .btn-secondary {background-color: #95a5a6;}
-        body.dark-mode .modal-content {background-color: #2c3e50;color: #ecf0f1;}
-        body.dark-mode .modal h2 {color: #ecf0f1;border-bottom-color: #34495e;}
-        body.dark-mode .close {color: #bdc3c7;}
-        body.dark-mode .close:hover,body.dark-mode .close:focus {color: #ecf0f1;}
-        body.dark-mode .modal label {color: #ecf0f1;}
-        body.dark-mode .modal input[type="text"],body.dark-mode .modal input[type="password"],body.dark-mode .modal textarea {background-color: #34495e;border-color: #2c3e50;color: #ecf0f1;}
-        body.dark-mode .modal input[type="text"]:focus,body.dark-mode .modal input[type="password"]:focus,body.dark-mode .modal textarea:focus {border-color: #3498db;box-shadow: 0 0 5px rgba(52, 152, 219, 0.5);}
-        body.dark-mode #renameModal .modal-content,body.dark-mode #chmodModal .modal-content,body.dark-mode #editModal .modal-content,body.dark-mode #newFolderModal .modal-content,body.dark-mode #newFileModal .modal-content,body.dark-mode               #searchModal .modal-content,body.dark-mode #previewModal .modal-content {color: #ecf0f1;}
-        body.dark-mode #renameModal h2,body.dark-mode #chmodModal h2,body.dark-mode #editModal h2,body.dark-mode #newFolderModal h2,body.dark-mode #newFileModal h2,body.dark-mode #searchModal h2,body.dark-mode #previewModal h2 {color: #ecf0f1;}
-        #editModal .modal-content,#previewModal .modal-content {width: 80%;max-width: 1000px;}
-        #searchModal .modal-dialog,#searchModal .modal-content {max-width: 90% !important;width: 800px !important;}
-        body.dark-mode td.folder-icon a,body.dark-mode td.file-icon a {text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);}
-        body.dark-mode .nav-container {background-color: transparent;box-shadow: none;}
-        body.dark-mode .nav-btn {color: #ecf0f1;background-color: rgba(52, 73, 94, 0.6);transition: all 0.3s ease;}
-        body.dark-mode .nav-btn:hover {background-color: rgba(52, 73, 94, 0.8);color: #3498db;transform: translateY(-2px);}
-        body.dark-mode .nav-btn span {color: #3498db;}
-        body.dark-mode .breadcrumb {background-color: transparent;color: #ecf0f1;}
-        body.dark-mode .breadcrumb a {color: #3498db;transition: color 0.3s ease;}
-        body.dark-mode .breadcrumb a:hover {color: #2980b9;text-decoration: underline;}
-        .modal-content {background-color: #fff;margin: 5% auto;padding: 30px;border: none;width: 50%;max-width: 600px;box-shadow: 0 10px 30px rgba(0,0,0,0.2);border-radius: 15px;}
-        #languageSwitcher {width: 120px; padding: 5px 25px 5px 10px;}
-        body {overflow-x: hidden;}
- 
-  </style>
-</head>
+         .modal {
+              display: none;
+              position: fixed;
+              z-index: 1000;
+              left: 0;
+              top: 0;
+              width: 100%;
+              height: 100%;
+              overflow: auto;
+              background-color: rgba(0,0,0,0.4);
+          }
+          .modal-content {
+              background-color: #fefefe;
+              margin: 15% auto;
+              padding: 20px;
+              border: 1px solid #888;
+              width: 80%;
+              max-width: 500px;
+              border-radius: 10px;
+              box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+          }
+          .close {
+              color: #aaa;
+              float: right;
+              font-size: 28px;
+              font-weight: bold;
+              cursor: pointer;
+              transition: 0.3s;
+          }
+          .close:hover,
+          .close:focus {
+              color: #000;
+              text-decoration: none;
+              cursor: pointer;
+          }
+          .modal h2 {
+              margin-top: 0;
+              color: #333;
+          }
+          .modal form {
+              margin-top: 20px;
+          }
+          .modal label {
+              display: block;
+              margin-bottom: 5px;
+              color: #666;
+          }
+          .modal input[type="text"] {
+              width: 100%;
+              padding: 8px;
+              margin-bottom: 20px;
+              border: 1px solid #ddd;
+              border-radius: 4px;
+          }
+          .btn {
+              padding: 10px 20px;
+              border: none;
+              border-radius: 4px;
+              cursor: pointer;
+              font-size: 16px;
+              transition: background-color 0.3s;
+          }
+          .btn-primary {
+              background-color: #007bff;
+              color: white;
+          }
+          .btn-primary:hover {
+              background-color: #0056b3;
+          }
+          .btn-secondary {
+              background-color: #6c757d;
+              color: white;
+          }
+          .btn-secondary:hover {
+              background-color: #545b62;
+          }
+          .mb-2 {
+              margin-bottom: 10px;
+          }
+          .btn-group {
+              display: flex;
+              justify-content: space-between;
+          }
+          #editModal {
+              display: none;
+              position: fixed;
+              z-index: 1000;
+              left: 0;
+              top: 0;
+              width: 100%;
+              height: 100%;
+              overflow: auto;
+              background-color: rgba(0, 0, 0, 0.5);
+          }
+          .modal-content {
+              background-color: #fefefe;
+              margin: 15% auto;
+              padding: 20px;
+              position: relative;
+              border: 1px solid #888;
+              width: 80%;
+              max-width: 1000px;
+              border-radius: 8px;
+              box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+          }
+          textarea {
+              width: 100%;
+              height: 500px;
+              padding: 10px;
+              border: 1px solid #ccc;
+              border-radius: 4px;
+              resize: vertical;
+              font-family: monospace;
+          }
+          .close {
+              color: #aaa;
+              position: absolute;
+              right: 20px;
+              top: 15px;
+              font-size: 28px;
+              font-weight: bold;
+              cursor: pointer;
+          }
+          .close:hover,
+          .close:focus {
+              color: black;
+              text-decoration: none;
+          }
+          body {
+              overflow-x: hidden;
+          }
+         #searchModal {
+              z-index: 1060 !important;
+          }
+          .modal-backdrop {
+              z-index: 1050 !important;
+          }
+          .modal-content {
+              background-color: var(--bs-body-bg);
+              color: var(--bs-body-color);
+          }
+          #searchModal .modal-dialog {
+              max-width: 90% !important;
+              width: 800px !important;
+          }
+          #searchResults {
+              max-height: 400px;
+              overflow-y: auto;
+          }
+          #searchResults .list-group-item {
+              display: flex;
+              justify-content: space-between;
+              align-items: center;
+          }
+          #searchResults .list-group-item span {
+              word-break: break-all;
+              margin-right: 10px;
+          }
+          #aceEditor {
+              position: fixed;
+              top: 0;
+              right: 0;
+              bottom: 0;
+              left: 0;
+              z-index: 1000;
+              display: none;
+              color: #333;
+          }
+          #aceEditorContainer {
+              position: absolute;
+              top: 40px;
+              right: 0;
+              bottom: 40px;
+              left: 0;
+              overflow-x: auto;
+          }
+          #editorStatusBar {
+              position: absolute;
+              left: 0;
+              right: 0;
+              bottom: 0;
+              height: 40px;
+              background-color: #000;
+              color: #fff;
+              display: flex;
+              justify-content: space-between;
+              align-items: center;
+              padding: 0 20px;
+              font-size: 16px;
+              z-index: 1001;
+              white-space: nowrap;
+              overflow: hidden;
+              text-overflow: ellipsis;
+          }
+          #editorControls {
+              position: absolute;
+              left: 0;
+              right: 0;
+              top: 0;
+              height: 40px;
+              background-color: #000;
+              color: #fff;
+              display: flex;
+              justify-content: center;
+              align-items: center;
+              padding: 0 10px;
+              overflow-x: auto;
+          }
+          #editorControls select,
+          #editorControls button {
+              margin: 0 10px;
+              height: 30px;
+              padding: 5px 10px;
+              font-size: 12px;
+              background-color: #000;
+              color: #fff;
+              border: none;
+              display: flex;
+              justify-content: center;
+              align-items: center;
+          }
+          .ace_search {
+              background-color: #f8f9fa;
+              border: 1px solid #ced4da;
+              border-radius: 4px;
+              padding: 10px;
+              box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+          }
+          .ace_search_form,
+          .ace_replace_form {
+              display: flex;
+              align-items: center;
+              margin-bottom: 5px;
+          }
+          .ace_search_field {
+              flex-grow: 1;
+              border: 1px solid #ced4da;
+              border-radius: 4px;
+              padding: 4px;
+          }
+          .ace_searchbtn,
+          .ace_replacebtn {
+              background-color: #007bff;
+              color: white;
+              border: none;
+              border-radius: 4px;
+              padding: 4px 8px;
+              margin-left: 5px;
+              cursor: pointer;
+          }
+          .ace_searchbtn:hover,
+          .ace_replacebtn:hover {
+              background-color: #0056b3;
+          }
+          .ace_search_options {
+              margin-top: 5px;
+          }
+          .ace_button {
+              background-color: #6c757d;
+              color: white;
+              border: none;
+              border-radius: 4px;
+              padding: 4px 8px;
+              margin-right: 5px;
+              cursor: pointer;
+          }
+          .ace_button:hover {
+              background-color: #5a6268;
+          }
+          body.dark-mode #editorStatusBar {
+              background-color: #2d3238;
+              color: #e0e0e0;
+          }
+          body.dark-mode .ace_search {
+              background-color: #2d3238;
+              border-color: #495057;
+          }
+          body.dark-mode .ace_search_field {
+              background-color: #343a40;
+              color: #f8f9fa;
+              border-color: #495057;
+          }
+          body.dark-mode .ace_searchbtn,
+          body.dark-mode .ace_replacebtn {
+              background-color: #0056b3;
+          }
+          body.dark-mode .ace_searchbtn:hover,
+          body.dark-mode .ace_replacebtn:hover {
+              background-color: #004494;
+          }
+          body.dark-mode .ace_button {
+              background-color: #495057;
+          }
+          body.dark-mode .ace_button:hover {
+              background-color: #3d4349;
+          }
+
+          #aceEditor .btn:hover {
+              background-color: #4682b4;
+              transform: translateY(-2px);
+              box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+          }
+          #aceEditor .btn:focus {
+              outline: none;
+          }
+          #editorStatusBar {
+              position: absolute;
+              left: 0;
+              right: 0;
+              bottom: 0;
+              height: 40px;
+              background-color: #000;
+              color: #fff;
+              display: flex;
+              justify-content: space-between;
+              align-items: center;
+              padding: 0 20px;
+              font-size: 16px;
+          }
+          #cursorPosition {
+              margin-right: 20px;
+          }
+
+          #characterCount {
+              margin-left: auto;
+          }
+          ::-webkit-scrollbar {
+              width: 12px;
+              height: 12px;
+          }
+          ::-webkit-scrollbar-track {
+              background-color: #f1f1f1;
+          }
+          ::-webkit-scrollbar-thumb {
+              background-color: #888;
+              border-radius: 6px;
+          }
+          ::-webkit-scrollbar-thumb:hover {
+              background-color: #555;
+          }
+
+          .upload-container {
+              margin-bottom: 20px;
+          }
+
+          .upload-area {
+              margin-top: 10px;
+          }
+
+          .upload-drop-zone {
+              border: 2px dashed #ccc;
+              border-radius: 8px;
+              padding: 25px;
+              text-align: center;
+              background: #f8f9fa;
+              transition: all 0.3s ease;
+              cursor: pointer;
+              min-height: 150px;
+              display: flex;
+              align-items: center;
+              justify-content: center;
+                        
+          }
+
+          .upload-drop-zone.drag-over {
+              background: #e9ecef;
+              border-color: #0d6efd;
+          }
+
+          .upload-icon {
+              font-size: 50px;
+              color: #6c757d;
+              transition: all 0.3s ease;
+          }
+
+          .upload-drop-zone:hover .upload-icon {
+              color: #0d6efd;
+              transform: scale(1.1);
+          }
+
+          td {
+              vertical-align: middle;
+          }
+     </style>
+  </head>
 <body>
 <div class="container-sm callout border border-3 rounded-4 col-11">
     <div class="row">
@@ -604,109 +866,125 @@ function searchFiles($dir, $term) {
                                 <i class="fas fa-moon"></i>
                             </button>
                         </div>
-                    </div>
-                </div>
+                  </div>
             </div>
-            <div class="breadcrumb">
-                <a href="?dir=">根目录</a> /
-                <?php foreach ($breadcrumbs as $index => $crumb): ?>
-                    <a href="?dir=<?php echo urlencode($crumb['path']); ?>"><?php echo htmlspecialchars($crumb['name']); ?></a>
-                    <?php if ($index < count($breadcrumbs) - 1) echo " / "; ?>
-                <?php endforeach; ?>
-            </div>
-            <div class="upload-container">
-                <div class="upload-area" id="uploadArea" style="display: none;">
-                    <form action="" method="post" enctype="multipart/form-data" id="uploadForm">
-                        <input type="file" name="upload[]" id="fileInput" style="display: none;" multiple required>
-                        <div class="upload-drop-zone" id="dropZone">
-                            <i class="fas fa-cloud-upload-alt upload-icon"></i>
-                        </div>
-                    </form>
-                    <button type="button" class="btn btn-secondary mt-2" onclick="hideUploadArea()">取消</button>
-                </div>
-            </div>
-            <table>
-                <tr>
-                    <th><input type="checkbox" id="selectAllCheckbox"></th>
-                    <th data-translate="name">名称</th>
-                    <th data-translate="type">类型</th>
-                    <th data-translate="size">大小</th>
-                    <th data-translate="modifiedTime">修改时间</th>
-                    <th data-translate="permissions">权限</th>
-                    <th data-translate="owner">拥有者</th>
-                    <th data-translate="actions">操作</th>
-                </tr>
-                <?php if ($current_dir != ''): ?>
-                    <tr>
-                        <td></td>
-                        <td class="folder-icon"><a href="?dir=<?php echo urlencode(dirname($current_dir)); ?>">..</a></td>
-                        <td>目录</td>
-                        <td>-</td>
-                        <td>-</td>
-                        <td>-</td>
-                        <td>-</td>
-                        <td></td>
-                    </tr>
-                <?php endif; ?>
-                <?php foreach ($contents as $item): ?>
-                    <tr>
-                        <td><input type="checkbox" class="file-checkbox" data-path="<?php echo htmlspecialchars($item['path']); ?>"></td>
-                        <?php
-                        $icon_class = $item['is_dir'] ? 'folder-icon' : 'file-icon';
-                        if (!$item['is_dir']) {
-                            $ext = strtolower(pathinfo($item['name'], PATHINFO_EXTENSION));
-                            $icon_class .= ' file-' . $ext;
-                        }
-                        ?>
-                        <td class="<?php echo $icon_class; ?>">
-                            <?php if ($item['is_dir']): ?>
-                                <a href="?dir=<?php echo urlencode($current_dir . $item['path']); ?>"><?php echo htmlspecialchars($item['name']); ?></a>
-                            <?php else: ?>
-                                <?php 
-                                $ext = strtolower(pathinfo($item['name'], PATHINFO_EXTENSION));
-                                if (in_array($ext, ['jpg', 'jpeg', 'png', 'gif', 'svg', 'mp3', 'mp4'])): 
-                                    $clean_path = ltrim(str_replace('//', '/', $item['path']), '/');
-                                ?>
-                                    <a href="#" onclick="previewFile('<?php echo htmlspecialchars($clean_path); ?>', '<?php echo $ext; ?>')"><?php echo htmlspecialchars($item['name']); ?></a>
-                                <?php else: ?>
-                                    <a href="#" onclick="showEditModal('<?php echo htmlspecialchars(addslashes($item['path'])); ?>')"><?php echo htmlspecialchars($item['name']); ?></a>
-                                <?php endif; ?>
-                            <?php endif; ?>
-                        </td>
-                        <td data-translate="<?php echo $item['is_dir'] ? 'directory' : 'file'; ?>"><?php echo $item['is_dir'] ? '目录' : '文件'; ?></td>
-                        <td><?php echo $item['size']; ?></td>
-                        <td><?php echo $item['mtime']; ?></td>
-                        <td><?php echo $item['permissions']; ?></td>
-                        <td><?php echo htmlspecialchars($item['owner']); ?></td>
-                        <td>
-                        <div style="display: flex; gap: 5px;">
-                          <button onclick="showRenameModal('<?php echo htmlspecialchars($item['name']); ?>', '<?php echo htmlspecialchars($item['path']); ?>')" class="btn btn-rename" title="✏️ 重命名" data-translate-title="rename">
-                            <i class="fas fa-edit"></i>
-                              </button>
-                                 <?php if (!$item['is_dir']): ?>
-                                    <a href="?dir=<?php echo urlencode($current_dir); ?>&download=<?php echo urlencode($item['path']); ?>" class="btn btn-download" title="⬇️ 下载" data-translate-title="download">
-                                      <i class="fas fa-download"></i>
-                                    </a>
-                                    <?php endif; ?>
-                                    <button onclick="showChmodModal('<?php echo htmlspecialchars($item['path']); ?>', '<?php echo $item['permissions']; ?>')" class="btn btn-chmod" title="🔒 权限" data-translate-title="setPermissions">
-                                      <i class="fas fa-lock"></i>
-                                      </button>
-                                      <form method="post" style="display:inline;" onsubmit="return confirmDelete('<?php echo htmlspecialchars($item['name']); ?>');">
-                                         <input type="hidden" name="action" value="delete">
-                                         <input type="hidden" name="path" value="<?php echo htmlspecialchars($item['path']); ?>">
-                                         <button type="submit" class="btn delete-btn" title="🗑️ 删除" data-translate-title="delete">
-                                     <i class="fas fa-trash-alt"></i>
-                                </form>
-                            </div>
-                        </td>
-                    </tr>
-                <?php endforeach; ?>
-            </table>
+     </div>
+ <nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="?dir=">根目录</a></li>
+        <?php
+        $path = '';
+        $breadcrumbs = explode('/', trim($current_dir, '/'));
+        foreach ($breadcrumbs as $crumb) {
+            if (!empty($crumb)) {
+                $path .= '/' . $crumb;
+                echo '<li class="breadcrumb-item"><a href="?dir=' . urlencode($path) . '">' . htmlspecialchars($crumb) . '</a></li>';
+            }
+        }
+        ?>
+    </ol>
+</nav>
 
-            <div id="renameModal" class="modal">
-                <div class="modal-content">
-                    <span class="close" onclick="closeModal('renameModal')">&times;</span>
-                    <h2 data-translate="rename">重命名</h2>
+<div class="upload-container">
+    <div class="upload-area" id="uploadArea" style="display: none;">
+        <form action="" method="post" enctype="multipart/form-data" id="uploadForm">
+            <input type="file" name="upload[]" id="fileInput" style="display: none;" multiple required>
+            <div class="upload-drop-zone" id="dropZone">
+                <i class="fas fa-cloud-upload-alt upload-icon"></i>
+            </div>
+        </form>
+        <button type="button" class="btn btn-secondary mt-2" onclick="hideUploadArea()">取消</button>
+    </div>
+</div>
+
+<div class="table-responsive">
+    <table class="table table-striped table-hover">
+        <thead>
+            <tr>
+                <th><input type="checkbox" id="selectAllCheckbox"></th>
+                <th data-translate="name">名称</th>
+                <th data-translate="type">类型</th>
+                <th data-translate="size">大小</th>
+                <th data-translate="modifiedTime">修改时间</th>
+                <th data-translate="permissions">权限</th>
+                <th data-translate="owner">拥有者</th>
+                <th data-translate="actions">操作</th>
+            </tr>
+        </thead>
+        <tbody>
+            <?php if ($current_dir != ''): ?>
+                <tr>
+                    <td></td>
+                    <td class="folder-icon"><a href="?dir=<?php echo urlencode(dirname($current_dir)); ?>">..</a></td>
+                    <td>目录</td>
+                    <td>-</td>
+                    <td>-</td>
+                    <td>-</td>
+                    <td>-</td>
+                    <td></td>
+                </tr>
+            <?php endif; ?>
+            <?php foreach ($contents as $item): ?>
+                <tr>
+                    <td><input type="checkbox" class="file-checkbox" data-path="<?php echo htmlspecialchars($item['path']); ?>"></td>
+                    <?php
+                    $icon_class = $item['is_dir'] ? 'folder-icon' : 'file-icon';
+                    if (!$item['is_dir']) {
+                        $ext = strtolower(pathinfo($item['name'], PATHINFO_EXTENSION));
+                        $icon_class .= ' file-' . $ext;
+                    }
+                    ?>
+                    <td class="<?php echo $icon_class; ?>">
+                        <?php if ($item['is_dir']): ?>
+                            <a href="?dir=<?php echo urlencode($current_dir . $item['path']); ?>"><?php echo htmlspecialchars($item['name']); ?></a>
+                        <?php else: ?>
+                            <?php 
+                            $ext = strtolower(pathinfo($item['name'], PATHINFO_EXTENSION));
+                            if (in_array($ext, ['jpg', 'jpeg', 'png', 'gif', 'svg', 'mp3', 'mp4'])): 
+                                $clean_path = ltrim(str_replace('//', '/', $item['path']), '/');
+                            ?>
+                                <a href="#" onclick="previewFile('<?php echo htmlspecialchars($clean_path); ?>', '<?php echo $ext; ?>')"><?php echo htmlspecialchars($item['name']); ?></a>
+                            <?php else: ?>
+                                <a href="#" onclick="showEditModal('<?php echo htmlspecialchars(addslashes($item['path'])); ?>')"><?php echo htmlspecialchars($item['name']); ?></a>
+                            <?php endif; ?>
+                        <?php endif; ?>
+                    </td>
+                    <td data-translate="<?php echo $item['is_dir'] ? 'directory' : 'file'; ?>"><?php echo $item['is_dir'] ? '目录' : '文件'; ?></td>
+                    <td><?php echo $item['size']; ?></td>
+                    <td><?php echo $item['mtime']; ?></td>
+                    <td><?php echo $item['permissions']; ?></td>
+                    <td><?php echo htmlspecialchars($item['owner']); ?></td>
+                    <td>
+                        <div style="display: flex; gap: 5px;">
+                            <button onclick="showRenameModal('<?php echo htmlspecialchars($item['name']); ?>', '<?php echo htmlspecialchars($item['path']); ?>')" class="btn btn-outline-primary btn-sm" title="✏️ 重命名" data-translate-title="rename">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <?php if (!$item['is_dir']): ?>
+                                <a href="?dir=<?php echo urlencode($current_dir); ?>&download=<?php echo urlencode($item['path']); ?>" class="btn btn-outline-info btn-sm" title="⬇️ 下载" data-translate-title="download">
+                                    <i class="fas fa-download"></i>
+                                </a>
+                            <?php endif; ?>
+                            <button onclick="showChmodModal('<?php echo htmlspecialchars($item['path']); ?>', '<?php echo $item['permissions']; ?>')" class="btn btn-outline-warning btn-sm" title="🔒 权限" data-translate-title="setPermissions">
+                                <i class="fas fa-lock"></i>
+                            </button>
+                            <form method="post" style="display:inline;" onsubmit="return confirmDelete('<?php echo htmlspecialchars($item['name']); ?>');">
+                                <input type="hidden" name="action" value="delete">
+                                <input type="hidden" name="path" value="<?php echo htmlspecialchars($item['path']); ?>">
+                                <button type="submit" class="btn btn-outline-danger btn-sm" title="🗑️ 删除" data-translate-title="delete">
+                                    <i class="fas fa-trash-alt"></i>
+                                </button>
+                            </form>
+                        </div>
+                    </td>
+                </tr>
+            <?php endforeach; ?>
+        </tbody>
+    </table>
+</div>
+    <div id="renameModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('renameModal')">&times;</span>
+                <h2 data-translate="rename">重命名</h2>
                     <form method="post" onsubmit="return validateRename()">
                         <input type="hidden" name="action" value="rename">
                         <input type="hidden" name="old_path" id="oldPath">
@@ -926,11 +1204,12 @@ function showNewFileModal() {
 
 function goToParentDirectory() {
     const currentPath = '<?php echo $current_dir; ?>';
-    const parentPath = currentPath.split('/').slice(0, -1).join('/');
-    
+    let parentPath = currentPath.split('/').filter(Boolean);
+    parentPath.pop();
+    parentPath = '/' + parentPath.join('/');
+
     if (parentPath === '') {
-        alert('已经在根目录，无法返回上一级。');
-        return;
+        parentPath = '/';
     }
     
     window.location.href = '?dir=' + encodeURIComponent(parentPath);
@@ -1361,8 +1640,7 @@ function openAceEditor() {
         aceEditor.setOption("wrap", true);
         aceEditor.getSession().setUseWrapMode(true);
 
-        aceEditor.setOption("hScrollBarAlwaysVisible", true);
-        aceEditor.renderer.setHScrollBarAlwaysVisible(true);
+
         
         aceEditor.getSession().selection.on('changeCursor', updateCursorPosition);
         aceEditor.getSession().on('change', updateCharacterCount);
@@ -1494,19 +1772,7 @@ function validateRename() {
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.4.12/ext-spellcheck.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/js/bootstrap.bundle.min.js"></script>
-<style>
-.upload-container { margin-bottom: 20px; }
-.upload-area { margin-top: 10px; }
-.upload-drop-zone { border: 2px dashed #ccc; border-radius: 8px; padding: 25px; text-align: center; background: #f8f9fa; transition: all 0.3s ease; cursor: pointer; min-height: 150px; display: flex; align-items: center; justify-content: center; }
-.upload-drop-zone.drag-over { background: #e9ecef; border-color: #0d6efd; }
-.upload-icon { font-size: 50px; color: #6c757d; transition: all 0.3s ease; }
-.upload-drop-zone:hover .upload-icon { color: #0d6efd; transform: scale(1.1); }
-body.dark-mode .upload-drop-zone { background: #2d3238; border-color: #495057; }
-body.dark-mode .upload-drop-zone.drag-over { background: #343a40; border-color: #0d6efd; }
-body.dark-mode .upload-icon { color: #adb5bd; }
-body.dark-mode .upload-drop-zone:hover .upload-icon { color: #0d6efd; }
-#searchModal{z-index:1060 !important;}.modal-backdrop{z-index:1050 !important;}.modal-content{background-color:var(--bs-body-bg);color:var(--bs-body-color);}#searchModal .modal-dialog{max-width:90% !important;width:800px !important;}#searchResults{max-height:400px;overflow-y:auto;}#searchResults .list-group-item{display:flex;justify-content:space-between;align-items:center;}#searchResults .list-group-item span{word-break:break-all;margin-right:10px;}#aceEditor{position:fixed;top:0;right:0;bottom:0;left:0;z-index:1000;}#aceEditorContainer{position:absolute;top:0;right:0;bottom:30px;left:0;}#editorStatusBar{position:absolute;bottom:0;left:0;right:0;height:30px;background-color:#f0f0f0;padding:5px 10px;font-size:12px;display:flex;justify-content:space-between;align-items:center;}body.dark-mode #editorStatusBar{background-color:#2d3238;color:#e0e0e0;}.ace_search{background-color:#f8f9fa;border:1px solid #ced4da;border-radius:4px;padding:10px;box-shadow:0 2px 4px rgba(0,0,0,0.1);}.ace_search_form,.ace_replace_form{display:flex;align-items:center;margin-bottom:5px;}.ace_search_field{flex-grow:1;border:1px solid #ced4da;border-radius:4px;padding:4px;}.ace_searchbtn,.ace_replacebtn{background-color:#007bff;color:white;border:none;border-radius:4px;padding:4px 8px;margin-left:5px;cursor:pointer;}.ace_searchbtn:hover,.ace_replacebtn:hover{background-color:#0056b3;}.ace_search_options{margin-top:5px;}.ace_button{background-color:#6c757d;color:white;border:none;border-radius:4px;padding:4px 8px;margin-right:5px;cursor:pointer;}.ace_button:hover{background-color:#5a6268;}body.dark-mode .ace_search{background-color:#2d3238;border-color:#495057;}body.dark-mode .ace_search_field{background-color:#343a40;color:#f8f9fa;border-color:#495057;}body.dark-mode .ace_searchbtn,body.dark-mode .ace_replacebtn{background-color:#0056b3;}body.dark-mode .ace_searchbtn:hover,body.dark-mode .ace_replacebtn:hover{background-color:#004494;}body.dark-mode .ace_button{background-color:#495057;}body.dark-mode .ace_button:hover{background-color:#3d4349;}#aceEditor .btn:hover{background-color:#4682b4;transform:translateY(-2px);box-shadow:0 4px 12px rgba(0,0,0,0.15);}#aceEditor .btn:focus{outline:none;}#aceEditor{color:#333;}#aceEditor{position:fixed;top:0;right:0;bottom:0;left:0;z-index:1000;display:none}#aceEditorContainer{position:absolute;top:40px;right:0;bottom:40px;left:0;overflow-x:auto}#editorStatusBar{position:absolute;left:50%;transform:translateX(-50%);bottom:0;height:30px;background-color:#000;color:#fff;display:flex;align-items:center;padding:0 10px;font-size:14px;z-index:1001;max-width:100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}#editorControls{position:absolute;left:0;right:0;top:0;height:40px;background-color:#000;color:#fff;display:flex;justify-content:center;align-items:center;padding:0 10px;overflow-x:auto}#editorControls select,#editorControls button{margin:0 10px;height:30px;padding:5px 10px;font-size:12px;background-color:#000;color:#fff;border:none;display:flex;justify-content:center;align-items:center}
-</style>
+
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
@@ -1898,7 +2164,7 @@ function previewFile(path, extension) {
         cleanPath = cleanPath.substring(1);
     }
     
-    const fullPath = `?preview=1&path=${encodeURIComponent(path)}`;
+    const fullPath = `?preview=1&path=${encodeURIComponent(cleanPath)}`;
     console.log('Original path:', path);
     console.log('Cleaned path:', cleanPath);
     console.log('Full path:', fullPath);
@@ -2388,7 +2654,6 @@ function formatJSON() {
         }
     }
 }
-
 </script>
 <style>
 #fullscreenToggle {

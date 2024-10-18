@@ -23,6 +23,11 @@ if (empty($new_version)) {
     die("未找到最新版本或版本信息为空。");
 }
 
+if (isset($_GET['check_version'])) {
+    echo "最新版本: V" . $new_version; 
+    exit;
+}
+
 $installed_package_info = shell_exec("opkg status " . escapeshellarg($package_name));
 $installed_lang = 'cn';
 
