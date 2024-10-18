@@ -690,7 +690,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         </tbody>
     </table>
 </div>
-
+<div class="container text-center">
 <?php if (isset($fileContent)): ?>
     <?php if (isset($_POST['editFile'])): ?>
         <?php $fileToEdit = ($_POST['fileType'] === 'proxy') ? $uploadDir . basename($_POST['editFile']) : $configDir . basename($_POST['editFile']); ?>
@@ -731,7 +731,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         </div>
     <?php endif; ?>
 <?php endif; ?>
-
 
   <h2 class="text-success text-center mt-4 mb-4">订阅管理</h2>
 
