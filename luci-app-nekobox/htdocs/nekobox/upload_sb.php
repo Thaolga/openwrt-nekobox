@@ -491,65 +491,59 @@ if (isset($_POST['update'])) {
         margin: 0; 
     }
 
-    .table-dark {
-        background-color: #6f42c1; 
-        color: white; 
-    }
-    .table-dark th, .table-dark td {
-        background-color: #5a32a3; 
+    td {
+        vertical-align: middle;
     }
 </style>
-  <div class="text-center">
-            <table class="table table-dark table-bordered">
-                <thead>
-                    <tr>
+<div class="container text-center">
+    <table class="table table-striped table-bordered">
+        <thead class="thead-dark">
+            <tr>
                 <th style="width: 30%;">文件名</th>
                 <th style="width: 10%;">大小</th>
                 <th style="width: 20%;">修改时间</th>
                 <th style="width: 40%;">执行操作</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <?php foreach ($proxyFiles as $file): ?>
-                        <?php $filePath = $uploadDir . $file; ?>
-                        <tr>
-                            <td><a href="download.php?file=<?php echo urlencode($file); ?>"><?php echo htmlspecialchars($file); ?></a></td>
-                            <td class="size-column"><?php echo file_exists($filePath) ? formatSize(filesize($filePath)) : '文件不存在'; ?></td>
-                            <td><?php echo htmlspecialchars(date('Y-m-d H:i:s', filemtime($filePath))); ?></td>
-                            <td class="action-column">
-                                <div class="btn-group">
-                                    <form action="" method="post" class="d-inline">
+            </tr>
+        </thead>
+        <tbody>
+            <?php foreach ($proxyFiles as $file): ?>
+                <?php $filePath = $uploadDir . $file; ?>
+                <tr>
+                    <td><a href="download.php?file=<?php echo urlencode($file); ?>"><?php echo htmlspecialchars($file); ?></a></td>
+                    <td class="size-column"><?php echo file_exists($filePath) ? formatSize(filesize($filePath)) : '文件不存在'; ?></td>
+                    <td><?php echo htmlspecialchars(date('Y-m-d H:i:s', filemtime($filePath))); ?></td>
+                    <td class="action-column">
+                        <div class="btn-group">
                             <form action="" method="post" class="d-inline">
                                 <input type="hidden" name="deleteFile" value="<?php echo htmlspecialchars($file); ?>">
                                 <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('确定要删除这个文件吗？');"><i>🗑️</i> 删除</button>
                             </form>
-                                    
                             <form action="" method="post" class="d-inline">
                                 <input type="hidden" name="editFile" value="<?php echo htmlspecialchars($file); ?>">
                                 <input type="hidden" name="fileType" value="proxy">
                                 <button type="button" class="btn btn-success btn-sm btn-rename" data-toggle="modal" data-target="#renameModal" data-filename="<?php echo htmlspecialchars($file); ?>" data-filetype="proxy"><i>✏️</i> 重命名</button>
                             </form>
-                                    <form action="" method="post" class="d-inline">
-                                        <input type="hidden" name="editFile" value="<?php echo htmlspecialchars($file); ?>">
-                                        <input type="hidden" name="fileType" value="proxy"> 
-                                        <button type="submit" class="btn btn-warning btn-sm"> <i>📝</i> 编辑 </button>
-                                    </form>
-
+                            <form action="" method="post" class="d-inline">
+                                <input type="hidden" name="editFile" value="<?php echo htmlspecialchars($file); ?>">
+                                <input type="hidden" name="fileType" value="proxy"> 
+                                <button type="submit" class="btn btn-warning btn-sm"><i>📝</i> 编辑</button>
+                            </form>
                             <form action="" method="post" enctype="multipart/form-data" class="form-inline d-inline upload-btn">
                                 <input type="file" name="fileInput" class="form-control-file" required id="fileInput-<?php echo htmlspecialchars($file); ?>" style="display: none;" onchange="this.form.submit()">
                                 <button type="button" class="btn btn-info btn-sm" onclick="document.getElementById('fileInput-<?php echo htmlspecialchars($file); ?>').click();"><i>📤</i> 上传</button>
                             </form>
-                                </div>
-                            </td>
-                        </tr>
-                    <?php endforeach; ?>
-                </tbody>
-            </table>
+                        </div>
+                    </td>
+                </tr>
+            <?php endforeach; ?>
+        </tbody>
+    </table>
+</div>
 
-<div class="table-wrapper">
+<div class="container text-center">
     <h2>配置文件管理</h2>
-    <table class="table table-dark table-bordered">
-        <thead>
+    <table class="table table-striped table-bordered">
+        <thead class="thead-dark">
             <tr>
                 <th style="width: 30%;">文件名</th>
                 <th style="width: 10%;">大小</th>

@@ -908,9 +908,9 @@ function searchFiles($dir, $term) {
     </div>
 </div>
 
-<div class="table-responsive">
-    <table class="table table-striped table-hover">
-        <thead>
+<div class="container text-center">
+    <table class="table table-striped table-bordered">
+        <thead class="thead-dark">
             <tr>
                 <th><input type="checkbox" id="selectAllCheckbox"></th>
                 <th data-translate="name">名称</th>
