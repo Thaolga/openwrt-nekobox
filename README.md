@@ -6,9 +6,10 @@
  <a target="_blank" href="https://github.com/Thaolga/openwrt-nekobox/releases"><img src="https://raw.githubusercontent.com/Thaolga/openwrt-nekobox/refs/heads/nekobox/luci-app-nekobox/htdocs/nekobox/assets/img/curent.svg"></a>
 </div>
 
-<h1 align="center">
-NeKo for OpenWRT
-</h1>
+<p align="center">
+  XRAY/V2ray, Shadowsocks, ShadowsocksR, etc.</br>
+  Sing-box based Proxy
+</p>
 
 # NekoBox is a meticulously designed proxy tool for "Mihomo" and "Sing-box," specifically created for home users. It aims to provide a simple yet powerful proxy solution. Built on PHP and BASH technologies, NekoBox simplifies complex proxy configurations into an intuitive experience, allowing every user to easily enjoy an efficient and secure network environment.
 ---
