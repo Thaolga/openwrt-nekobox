@@ -216,6 +216,8 @@ $singBoxVersion = getSingboxVersion();
             if (xhr.status === 200) {
                 document.getElementById('logOutput').innerHTML += '\nUpdate completed!';
                 document.getElementById('logOutput').innerHTML += '\n' + xhr.responseText;
+                    location.reload(); 
+                }, 3000);
             } else {
                 document.getElementById('logOutput').innerHTML += '\nError occurred：' + xhr.statusText;
             }
@@ -235,6 +237,8 @@ $singBoxVersion = getSingboxVersion();
             if (xhr.status === 200) {
                 document.getElementById('logOutput').innerHTML += '\nCore update completed!';
                 document.getElementById('logOutput').innerHTML += '\n' + xhr.responseText;
+                    location.reload(); 
+                }, 3000);
             } else {
                 document.getElementById('logOutput').innerHTML += '\\nError occurred: ' + xhr.statusText;
             }
@@ -254,6 +258,8 @@ $singBoxVersion = getSingboxVersion();
             if (xhr.status === 200) {
                 document.getElementById('logOutput').innerHTML += '\nCore update completed!';
                 document.getElementById('logOutput').innerHTML += '\n' + xhr.responseText;
+                    location.reload(); 
+                }, 3000);
             } else {
                 document.getElementById('logOutput').innerHTML += '\\nError occurred: ' + xhr.statusText;
             }
@@ -273,6 +279,8 @@ $singBoxVersion = getSingboxVersion();
             if (xhr.status === 200) {
                 document.getElementById('logOutput').innerHTML += '\nCore update completed!';
                 document.getElementById('logOutput').innerHTML += '\n' + xhr.responseText;
+                    location.reload(); 
+                }, 3000);
             } else {
                 document.getElementById('logOutput').innerHTML += '\\nError occurred: ' + xhr.statusText;
             }
