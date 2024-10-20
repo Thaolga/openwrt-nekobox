@@ -334,8 +334,8 @@ $current_subscription_url = getSubscriptionUrlFromFile($subscription_file);
 <div class="container-sm container-bg callout border border-3 rounded-4 col-11">
     <div class="row">
         <a href="./index.php" class="col btn btn-lg">🏠 Home</a>
-        <a href="./upload.php" class="col btn btn-lg">📂 Mihomo</a>
-        <a href="./upload_sb.php" class="col btn btn-lg">🗂️ Sing-box</a>
+        <a href="./mihomo_manager.php" class="col btn btn-lg">📂 Mihomo</a>
+        <a href="./singbox_manager.php" class="col btn btn-lg">🗂️ Sing-box</a>
         <a href="./box.php" class="col btn btn-lg">💹 Template</a>
         <a href="./personal.php" class="col btn btn-lg">📦 Personal</a>
        <h1 class="text-center p-2" style="margin-top: 2rem; margin-bottom: 1rem;">Mihomo Subscription Program (Personal Edition)</h1>

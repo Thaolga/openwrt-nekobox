@@ -213,11 +213,11 @@
         
         switch ($page) {
             case 'upload':
-                include 'upload.php';
+                include 'mihomo_manager.php';
                 break;
 
             case 'upload_sb':
-                include 'upload_sb.php';
+                include 'singbox_manager.php';
                 break;
 
             case 'box':
@@ -265,11 +265,11 @@
                 break;
 
             default:
-                include 'upload.php';
+                include 'mihomo_manager.php';
                 break;
         }
     } else {
-        include 'upload.php';
+        include 'mihomo_manager.php';
     }
     ?>
 </div>

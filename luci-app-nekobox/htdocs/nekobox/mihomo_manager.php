@@ -523,16 +523,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <div class="container-sm container-bg callout border border-3 rounded-4 col-11">
     <div class="row">
         <a href="./index.php" class="col btn btn-lg">🏠 Home</a>
-        <a href="./upload.php" class="col btn btn-lg">📂 Mihomo</a>
-        <a href="./upload_sb.php" class="col btn btn-lg">🗂️ Sing-box</a>
+        <a href="./mihomo_manager.php" class="col btn btn-lg">📂 Mihomo</a>
+        <a href="./singbox_manager.php" class="col btn btn-lg">🗂️ Sing-box</a>
         <a href="./box.php" class="col btn btn-lg">💹 Template</a>
-        <a href="./nekobox.php" class="col btn btn-lg">📦 File Assistant</a>
+        <a href="./filekit.php" class="col btn btn-lg">📦 File Assistant</a>
     </div>
     <div class="text-center">
         <h1 style="margin-top: 40px; margin-bottom: 20px;">Mihomo File Manager</h1>
         <div class="table-wrapper">
             <h2>Proxy File Management</h2>
-    <form action="upload.php" method="get" onsubmit="saveSettings()">
+    <form action="mihomo_manager.php" method="get" onsubmit="saveSettings()">
         <label for="enable_timezone">Enable time zone settings:</label>
         <input type="checkbox" id="enable_timezone" name="enable_timezone" value="1">
         
@@ -596,9 +596,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         background-color: #5a32a3; 
     }
 </style>
-
-    <table class="table table-dark table-bordered">
-        <thead>
+<div class="container text-center">
+    <table class="table table-striped table-bordered">
+        <thead class="thead-dark">
             <tr>
                 <th style="width: 30%;">File Name</th>
                 <th style="width: 10%;">Size</th>
@@ -611,9 +611,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <?php $filePath = $uploadDir . $file; ?>
                 <tr>
                     <td><a href="download.php?file=<?php echo urlencode($file); ?>"><?php echo htmlspecialchars($file); ?></a></td>
-                    <td><?php echo file_exists($filePath) ? formatSize(filesize($filePath)) : 'File not found'; ?></td>
+                    <td class="size-column"><?php echo file_exists($filePath) ? formatSize(filesize($filePath)) : 'File not found'; ?></td>
                     <td><?php echo htmlspecialchars(date('Y-m-d H:i:s', filemtime($filePath))); ?></td>
-                    <td>
+                    <td class="action-column">
                         <div class="btn-group">
                             <form action="" method="post" class="d-inline">
                                 <input type="hidden" name="deleteFile" value="<?php echo htmlspecialchars($file); ?>">
@@ -625,13 +625,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                 <button type="button" class="btn btn-success btn-sm btn-rename" data-toggle="modal" data-target="#renameModal" data-filename="<?php echo htmlspecialchars($file); ?>" data-filetype="proxy"><i>✏️</i> Rename</button>
                             </form>
                             <form action="" method="post" class="d-inline">
-                                        <input type="hidden" name="editFile" value="<?php echo htmlspecialchars($file); ?>">
-                                        <input type="hidden" name="fileType" value="proxy"> 
+                                <input type="hidden" name="editFile" value="<?php echo htmlspecialchars($file); ?>">
+                                <input type="hidden" name="fileType" value="proxy"> 
                                 <button type="submit" class="btn btn-warning btn-sm"><i>📝</i> Edit</button>
                             </form>
                             <form action="" method="post" enctype="multipart/form-data" class="form-inline d-inline upload-btn">
                                 <input type="file" name="fileInput" class="form-control-file" required id="fileInput-<?php echo htmlspecialchars($file); ?>" style="display: none;" onchange="this.form.submit()">
-                                <button type="button" class="btn btn-info btn-sm" onclick="document.getElementById('fileInput-<?php echo htmlspecialchars($file); ?>').click();"><i>📤</i>  Upload</button>
+                                <button type="button" class="btn btn-info btn-sm" onclick="document.getElementById('fileInput-<?php echo htmlspecialchars($file); ?>').click();"><i>📤</i> Upload</button>
                             </form>
                         </div>
                     </td>
@@ -639,6 +639,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <?php endforeach; ?>
         </tbody>
     </table>
+</div>
 
         <div class="modal fade" id="renameModal" tabindex="-1" role="dialog" aria-labelledby="renameModalLabel" aria-hidden="true">
             <div class="modal-dialog" role="document">
@@ -668,10 +669,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             </div>
         </div>
 
-<div class="table-wrapper">
+<div class="container text-center">
     <h2>Configuration File Management</h2>
-    <table class="table table-dark table-bordered">
-        <thead>
+    <table class="table table-striped table-bordered">
+        <thead class="thead-dark">
             <tr>
                 <th style="width: 30%;">File Name</th>
                 <th style="width: 10%;">Size</th>
@@ -712,7 +713,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         </tbody>
     </table>
 </div>
-
+<div class="container text-center">
 <?php if (isset($fileContent)): ?>
     <?php if (isset($_POST['editFile'])): ?>
         <?php $fileToEdit = ($_POST['fileType'] === 'proxy') ? $uploadDir . basename($_POST['editFile']) : $configDir . basename($_POST['editFile']); ?>

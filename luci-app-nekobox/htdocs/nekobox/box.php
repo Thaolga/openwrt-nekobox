@@ -20,10 +20,10 @@ include './cfg.php';
 <div class="container-sm container-bg callout border border-3 rounded-4 col-11">
     <div class="row">
         <a href="./index.php" class="col btn btn-lg">🏠 Home</a>
-        <a href="./upload.php" class="col btn btn-lg">📂 Mihomo</a>
-        <a href="./upload_sb.php" class="col btn btn-lg">🗂️ Sing-box</a>
+        <a href="./mihomo_manager.php" class="col btn btn-lg">📂 Mihomo</a>
+        <a href="./singbox_manager.php" class="col btn btn-lg">🗂️ Sing-box</a>
         <a href="./box.php" class="col btn btn-lg">💹 Template</a>
-        <a href="./nekobox.php" class="col btn btn-lg">📦 File Assistant</a>
+        <a href="./filekit.php" class="col btn btn-lg">📦 File Assistant</a>
 <div class="outer-container">
     <div class="container">
         <h1 class="title text-center" style="margin-top: 3rem; margin-bottom: 2rem;">Sing-box Subscription Conversion Template</h1>
