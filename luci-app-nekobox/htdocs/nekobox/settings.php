@@ -216,6 +216,9 @@ $singBoxVersion = getSingboxVersion();
             if (xhr.status === 200) {
                 document.getElementById('logOutput').innerHTML += '\n更新完成！';
                 document.getElementById('logOutput').innerHTML += '\n' + xhr.responseText;
+                setTimeout(function() {
+                    location.reload(); 
+                }, 3000);
             } else {
                 document.getElementById('logOutput').innerHTML += '\n发生错误：' + xhr.statusText;
             }
@@ -235,6 +238,9 @@ $singBoxVersion = getSingboxVersion();
             if (xhr.status === 200) {
                 document.getElementById('logOutput').innerHTML += '\n核心更新完成！';
                 document.getElementById('logOutput').innerHTML += '\n' + xhr.responseText;
+                setTimeout(function() {
+                    location.reload(); 
+                }, 3000);
             } else {
                 document.getElementById('logOutput').innerHTML += '\n发生错误：' + xhr.statusText;
             }
@@ -254,6 +260,9 @@ $singBoxVersion = getSingboxVersion();
             if (xhr.status === 200) {
                 document.getElementById('logOutput').innerHTML += '\n核心更新完成！';
                 document.getElementById('logOutput').innerHTML += '\n' + xhr.responseText;
+                setTimeout(function() {
+                    location.reload(); 
+                }, 3000);
             } else {
                 document.getElementById('logOutput').innerHTML += '\n发生错误：' + xhr.statusText;
             }
@@ -273,6 +282,9 @@ $singBoxVersion = getSingboxVersion();
             if (xhr.status === 200) {
                 document.getElementById('logOutput').innerHTML += '\n核心更新完成！';
                 document.getElementById('logOutput').innerHTML += '\n' + xhr.responseText;
+                setTimeout(function() {
+                    location.reload(); 
+                }, 3000);
             } else {
                 document.getElementById('logOutput').innerHTML += '\n发生错误：' + xhr.statusText;
             }
