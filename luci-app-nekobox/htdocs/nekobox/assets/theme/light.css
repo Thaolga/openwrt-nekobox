@@ -7,12 +7,6 @@
   --bs-body-font-weight: 400;
   --bs-body-color: #333;
   --bs-body-bg: #ffff;
-  --bs-primary: #8B4513;
-  --bs-secondary: #6c757d;
-  --bs-success: #28a745;
-
-  --bs-warning: #ffc107;
-  --bs-danger: #dc3545;
 
   --bs-heading-font-family: 'Montserrat', sans-serif;
   --bs-heading-1: #8B4513; 
@@ -31,7 +25,6 @@
   --bs-shadow-medium: 0 8px 16px rgba(0, 0, 0, 0.15);
   --bs-shadow-heavy: 0 12px 24px rgba(0, 0, 0, 0.2);
   --bs-transition-speed: 0.3s;
-
   --bs-btn-color: #fff;
   --bs-btn-hover-color: #fff;
   --bs-btn-active-color: #fff;
@@ -175,7 +168,6 @@ h1, h2, h3, h4, h5, h6 {
   box-shadow: var(--bs-shadow-light);
 }
 
-
 .btn:hover {
   transform: translateY(-3px);
   box-shadow: var(--bs-shadow-medium);
@@ -201,13 +193,17 @@ h1, h2, h3, h4, h5, h6 {
 .btn-success {
   background-color: var(--bs-success);
   border-color: var(--bs-success);
-  color: #fff;
+  color: #FFFFFF;
 }
 
 .btn-info {
   background-color: var(--bs-info);
   border-color: var(--bs-info);
-  color: #fff;
+  color: #FFFFFF;
+}
+
+.btn-info:hover {
+  color: #FFFFFF;
 }
 
 .btn-warning {
@@ -235,9 +231,17 @@ h1, h2, h3, h4, h5, h6 {
   margin-bottom: 2rem;
 }
 
+.container-bg {
+  background: var(--bs-dark-bg);
+}
+
+.table {
+  background: var(--bs-dark-bg);
+  border: 1px solid var(--bs-secondary-border);
+}
 
 .container-sm.container-bg.callout a {
-  color: var(--bs-primary);
+  color: #8B4513;
   font-weight: 500;
   text-transform: uppercase;
   letter-spacing: 0.5px;
@@ -255,7 +259,7 @@ h1, h2, h3, h4, h5, h6 {
   left: 0;
   width: 100%;
   height: 2px;
-  background-color: var(--bs-primary);
+  background-color: #8B4513; 
   transform: scaleX(0);
   transition: transform var(--bs-transition-speed);
 }
@@ -263,7 +267,7 @@ h1, h2, h3, h4, h5, h6 {
 .container-sm.container-bg.callout a:hover,
 .container-sm.container-bg.callout a:focus,
 .container-sm.container-bg.callout a.active {
-  color: var(--bs-secondary);
+  color: #8B4513;
 }
 
 .container-sm.container-bg.callout a:hover::after,
@@ -330,42 +334,6 @@ h1:hover, h2:hover, h3:hover, h4:hover, h5:hover, h6:hover {
 
 .royal-style:hover {
     transform: skew(-5deg);
-}
-
-.btn-outline-info.btn-yacd,
-.btn-outline-info.btn-dashboard,
-.btn-outline-info.btn-meta {
-  color: #fff !important;
-}
-
-.btn-outline-info.btn-yacd:hover,
-.btn-outline-info.btn-dashboard:hover,
-.btn-outline-info.btn-meta:hover,
-.btn-outline-info.btn-yacd:focus,
-.btn-outline-info.btn-dashboard:focus,
-.btn-outline-info.btn-meta:focus {
-  color: #fff !important;
-}
-
-.table-dark td a {
-    color: #fff !important;
-    text-decoration: none;
-}
-
-.table-dark td a:hover {
-    color: #fff !important;
-    text-decoration: underline;
-}
-
-.table-dark thead th {
-    background-color: #A0522D !important;  
-    color: #fff !important;
-    font-weight: bold;
-}
-
-.table-dark thead th:hover {
-    background-color: #A0522D !important; 
-    transition: background-color 0.3s ease;
 }
 
 @media (max-width: 767px) {
@@ -453,6 +421,4 @@ h1:hover, h2:hover, h3:hover, h4:hover, h5:hover, h6:hover {
     margin: 0 0.5rem;
   }
 }
-
-
 

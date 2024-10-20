@@ -20,10 +20,10 @@ include './cfg.php';
 <div class="container-sm container-bg callout border border-3 rounded-4 col-11">
     <div class="row">
         <a href="./index.php" class="col btn btn-lg">🏠 首页</a>
-        <a href="./upload.php" class="col btn btn-lg">📂 Mihomo</a>
-        <a href="./upload_sb.php" class="col btn btn-lg">🗂️ Sing-box</a>
-        <a href="./box.php" class="col btn btn-lg">💹 转换</a>
-        <a href="./nekobox.php" class="col btn btn-lg">📦 文件助手</a>
+        <a href="./mihomo_manager.php" class="col btn btn-lg">📂 Mihomo</a>
+        <a href="./singbox_manager.php" class="col btn btn-lg">🗂️ Sing-box</a>
+        <a href="./box.php" class="col btn btn-lg">💹 订阅转换</a>
+        <a href="./filekit.php" class="col btn btn-lg">📦 文件助手</a>
 <div class="outer-container">
     <div class="container">
         <h1 class="title text-center" style="margin-top: 3rem; margin-bottom: 2rem;">Sing-box 订阅转换模板</h1>

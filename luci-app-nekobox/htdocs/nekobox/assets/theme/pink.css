@@ -11,7 +11,7 @@
   --bs-primary: #ff69b4;
   --bs-secondary: #f06292;
   --bs-success: #4caf50;
-  --bs-info: #03a9f4;
+
   --bs-warning: #ffc107;
   --bs-danger: #f44336;
 
@@ -380,20 +380,7 @@ h1:hover, h2:hover, h3:hover, h4:hover, h5:hover, h6:hover {
     text-shadow: 3px 3px 6px rgba(0,0,0,0.2);
 }
 
-.btn-outline-info.btn-yacd,
-.btn-outline-info.btn-dashboard,
-.btn-outline-info.btn-meta {
-  color: #fff !important;
-}
 
-.btn-outline-info.btn-yacd:hover,
-.btn-outline-info.btn-dashboard:hover,
-.btn-outline-info.btn-meta:hover,
-.btn-outline-info.btn-yacd:focus,
-.btn-outline-info.btn-dashboard:focus,
-.btn-outline-info.btn-meta:focus {
-  color: #fff !important;
-}
 
 @media (max-width: 767px) {
   body {
@@ -467,3 +454,20 @@ h1:hover, h2:hover, h3:hover, h4:hover, h5:hover, h6:hover {
         min-width: 200px;
     }
 }
+
+.btn-info,
+.btn-success,
+.btn-danger {
+  color: #fff !important;
+}
+
+.btn-info:hover,
+.btn-success:hover,
+.btn-danger:hover,
+.btn-info:focus,
+.btn-success:focus,
+.btn-danger:focus {
+  color: #fff !important;
+}
+
+

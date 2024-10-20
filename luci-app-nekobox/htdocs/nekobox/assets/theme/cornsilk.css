@@ -415,29 +415,6 @@ h6 { color: #FF6B6B; }
     color: #fff;
 }
 
-.btn-info {
-    background: linear-gradient(45deg, #3498db, #2980b9);
-    border: none;
-    color: #ffffff;
-    padding: 12px 25px;
-    border-radius: 25px;
-    font-weight: 600;
-    letter-spacing: 1px;
-    transition: all 0.3s ease;
-    box-shadow: 0 4px 15px rgba(52, 152, 219, 0.3);
-}
-
-.btn-info:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(52, 152, 219, 0.4);
-    background: linear-gradient(45deg, #2980b9, #3498db);
-}
-
-.btn-info:active {
-    transform: translateY(1px);
-    box-shadow: 0 2px 10px rgba(52, 152, 219, 0.3);
-}
-
 h2.text-center {
     color: #3498db;
     font-weight: 700;

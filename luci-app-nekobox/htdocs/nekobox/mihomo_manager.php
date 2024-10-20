@@ -1,7 +1,7 @@
 <?php
 ob_start();
 include './cfg.php';
-$uploadDir = '/www/nekobox/proxy/';
+$uploadDir = '/etc/neko/proxy_provider/';
 $configDir = '/etc/neko/config/';
 
 ini_set('memory_limit', '256M');
@@ -176,268 +176,342 @@ function formatSize($size) {
 ?>
 
 <?php
-$subscriptionPath = '/www/nekobox/proxy/';
+$subscriptionPath = '/etc/neko/proxy_provider/';
 $subscriptionFile = $subscriptionPath . 'subscriptions.json';
+$clashFile = $subscriptionPath . 'subscription_6.yaml';
+
+$message = "";
+$decodedContent = ""; 
 $subscriptions = [];
-while (ob_get_level() > 0) {
-    ob_end_flush();
-}
-function outputMessage($message) {
-    echo "<div class='alert alert-info text-start'>" . htmlspecialchars($message) . "</div>";
-    ob_flush();
-    flush();
-}
+
 if (!file_exists($subscriptionPath)) {
     mkdir($subscriptionPath, 0755, true);
 }
+
 if (!file_exists($subscriptionFile)) {
     file_put_contents($subscriptionFile, json_encode([]));
 }
+
 $subscriptions = json_decode(file_get_contents($subscriptionFile), true);
 if (!$subscriptions) {
-    for ($i = 0; $i < 3; $i++) {
+    for ($i = 0; $i < 7; $i++) {
         $subscriptions[$i] = [
             'url' => '',
             'file_name' => "subscription_{$i}.yaml",
         ];
     }
 }
-if (isset($_POST['saveSubscription'])) {
-    $index = intval($_POST['index']);
-    if ($index >= 0 && $index < 3) {
-        $url = $_POST['subscription_url'] ?? '';
-        $customFileName = $_POST['custom_file_name'] ?? "subscription_{$index}.yaml";
-        $subscriptions[$index]['url'] = $url;
-        $subscriptions[$index]['file_name'] = $customFileName;
-        
-        if (!empty($url)) {
-            $finalPath = $subscriptionPath . $customFileName;
-            $command = sprintf("curl -fsSL -o %s %s", 
-                escapeshellarg($finalPath), 
-                escapeshellarg($url)
-            );
-            
-            exec($command . ' 2>&1', $output, $return_var);
-            
-            if ($return_var === 0) {
-                outputMessage("订阅链接 {$url} 更新成功！文件已保存到: {$finalPath}");
-            } else {
-                outputMessage("配置更新失败！错误信息: " . implode("\n", $output));
-            }
-        } else {
-            outputMessage("第" . ($index + 1) . "个订阅链接为空！");
-        }
-        
-        file_put_contents($subscriptionFile, json_encode($subscriptions));
-    }
-}
-$updateCompleted = isset($_POST['saveSubscription']); 
-?>
-
-<?php
-$subscriptionPath = '/etc/neko/config/';
-$dataFile = $subscriptionPath . 'subscription_data.json';
-
-$message = "";
-$defaultSubscriptions = [
-    [
-        'url' => '',
-        'file_name' => 'config.json',
-    ],
-    [
-        'url' => '',
-        'file_name' => '',
-    ],
-    [
-        'url' => '',
-        'file_name' => '',
-    ]
-];
-
-if (!file_exists($subscriptionPath)) {
-    mkdir($subscriptionPath, 0755, true);
-}
-
-if (!file_exists($dataFile)) {
-    file_put_contents($dataFile, json_encode(['subscriptions' => $defaultSubscriptions], JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES));
-}
-
-$subscriptionData = json_decode(file_get_contents($dataFile), true);
-
-if (!isset($subscriptionData['subscriptions']) || !is_array($subscriptionData['subscriptions'])) {
-    $subscriptionData['subscriptions'] = $defaultSubscriptions;
-}
-
-if (isset($_POST['update_index'])) {
-    $index = intval($_POST['update_index']);
-    $subscriptionUrl = $_POST["subscription_url_$index"] ?? '';
-    $customFileName = ($_POST["custom_file_name_$index"] ?? '') ?: 'config.json';
-
-    if ($index < 0 || $index >= count($subscriptionData['subscriptions'])) {
-        $message = "无效的订阅索引！";
-    } elseif (empty($subscriptionUrl)) {
-        $message = "订阅 $index 的链接为空！";
-    } else {
-        $subscriptionData['subscriptions'][$index]['url'] = $subscriptionUrl;
-        $subscriptionData['subscriptions'][$index]['file_name'] = $customFileName;
-        $finalPath = $subscriptionPath . $customFileName;
-
-        $originalContent = file_exists($finalPath) ? file_get_contents($finalPath) : '';
-
-        $ch = curl_init($subscriptionUrl);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
-        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-        curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
-        $fileContent = curl_exec($ch);
-        $error = curl_error($ch);
-        curl_close($ch);
-
-        if ($fileContent === false) {
-            $message = "订阅 $index 无法下载文件。cURL 错误信息: " . $error;
-        } else {
-            $fileContent = str_replace("\xEF\xBB\xBF", '', $fileContent);
-
-            $parsedData = json_decode($fileContent, true);
-            if ($parsedData === null && json_last_error() !== JSON_ERROR_NONE) {
-                file_put_contents($finalPath, $originalContent);
-                $message = "订阅 $index 解析 JSON 数据失败！错误信息: " . json_last_error_msg();
-            } else {
-                if (isset($parsedData['inbounds'])) {
-                    $newInbounds = [];
-
-                    foreach ($parsedData['inbounds'] as $inbound) {
-                        if (isset($inbound['type']) && $inbound['type'] === 'mixed' && $inbound['tag'] === 'mixed-in') {
-                            $newInbounds[] = $inbound;
-                        } elseif (isset($inbound['type']) && $inbound['type'] === 'tun') {
-                            continue;
-                        }
-                    }
-
-                    $newInbounds[] = [
-                      "tag" => "tun",
-                      "type" => "tun",
-                      "inet4_address" => "172.19.0.0/30",
-                      "inet6_address" => "fdfe:dcba:9876::0/126",
-                      "stack" => "system",
-                      "auto_route" => true,
-                      "strict_route" => true,
-                      "sniff" => true,
-                      "platform" => [
-                        "http_proxy" => [
-                          "enabled" => true,
-                          "server" => "0.0.0.0",
-                          "server_port" => 7890
-                        ]
-                      ]
-                    ];
-
-                    $newInbounds[] = [
-                      "tag" => "mixed",
-                      "type" => "mixed",
-                      "listen" => "0.0.0.0",
-                      "listen_port" => 7890,
-                      "sniff" => true
-                    ];
-
-                    $parsedData['inbounds'] = $newInbounds;
-                }
-
-                if (isset($parsedData['experimental']['clash_api'])) {
-                    $parsedData['experimental']['clash_api'] = [
-                        "external_ui" => "/etc/neko/ui/",
-                        "external_controller" => "0.0.0.0:9090",
-                        "secret" => "Akun"
-                    ];
-                }
-
-                $fileContent = json_encode($parsedData, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
-
-                if (file_put_contents($finalPath, $fileContent) === false) {
-                    $message = "订阅 $index 无法保存文件到: $finalPath";
-                } else {
-                    $message = "订阅 $index 更新成功！文件已保存到: {$finalPath}，并成功解析和替换 JSON 数据。";
-                }
-            }
-        }
-
-        file_put_contents($dataFile, json_encode($subscriptionData, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE));
-    }
-}
-?>
-
-
-<?php
-$url = "https://github.com/Thaolga/neko/releases/download/1.2.0/nekoclash.zip";
-$zipFile = "/tmp/nekoclash.zip";
-$extractPath = "/www/nekobox";
-$logFile = "/tmp/update_log.txt";
-
-function logMessage($message) {
-    global $logFile;
-    $timestamp = date("Y-m-d H:i:s");
-    file_put_contents($logFile, "[$timestamp] $message\n", FILE_APPEND);
-}
-
-function downloadFile($url, $path) {
-    $fp = fopen($path, 'w+');
-    $ch = curl_init($url);
-    curl_setopt($ch, CURLOPT_TIMEOUT, 50);
-    curl_setopt($ch, CURLOPT_FILE, $fp);
-    curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
-    curl_exec($ch);
-    curl_close($ch);
-    fclose($fp);
-    logMessage("文件下载成功，保存到: $path");
-}
-
-function unzipFile($zipFile, $extractPath) {
-    $zip = new ZipArchive;
-    if ($zip->open($zipFile) === TRUE) {
-        if (!is_dir($extractPath)) {
-            mkdir($extractPath, 0755, true);
-        }
-
-        for ($i = 0; $i < $zip->numFiles; $i++) {
-            $filename = $zip->getNameIndex($i);
-            $filePath = $extractPath . '/' . preg_replace('/^nekoclash\//', '', $filename);
-
-            if (substr($filename, -1) == '/') {
-                if (!is_dir($filePath)) {
-                    mkdir($filePath, 0755, true);
-                }
-            } else {
-                copy("zip://".$zipFile."#".$filename, $filePath);
-            }
-        }
-
-        $zip->close();
-        logMessage("文件解压成功");
-        return true;
-    } else {
-        return false;
-    }
-}
 
 if (isset($_POST['update'])) {
-    downloadFile($url, $zipFile);
-    
-    if (unzipFile($zipFile, $extractPath)) {
-        echo "规则集更新成功！";
-        logMessage("规则集更新成功");
+    $index = intval($_POST['index']);
+    $url = $_POST['subscription_url'] ?? '';
+    $customFileName = $_POST['custom_file_name'] ?? "subscription_{$index}.yaml";
+
+    $subscriptions[$index]['url'] = $url;
+    $subscriptions[$index]['file_name'] = $customFileName;
+
+    if (!empty($url)) {
+        $finalPath = $subscriptionPath . $customFileName;
+        $command = "curl -fsSL -o {$finalPath} {$url}";
+        exec($command . ' 2>&1', $output, $return_var);
+
+        if ($return_var === 0) {
+            $message = "订阅链接 {$url} 更新成功！文件已保存到: {$finalPath}";
+        } else {
+            $message = "配置更新失败！错误信息: " . implode("\n", $output);
+        }
     } else {
-        echo "解压失败！";
-        logMessage("规则集更新失败");
+        $message = "第" . ($index + 1) . "个订阅链接为空！";
+    }
+
+    file_put_contents($subscriptionFile, json_encode($subscriptions));
+}
+
+if (isset($_POST['convert_base64'])) {
+    $base64Content = $_POST['base64_content'] ?? '';
+
+    if (!empty($base64Content)) {
+        $decodedContent = base64_decode($base64Content); 
+
+        if ($decodedContent === false) {
+            $message = "Base64 解码失败，请检查输入！";
+        } else {
+            $clashConfig = "# Clash Meta Config\n\n";
+            $clashConfig .= $decodedContent;
+            file_put_contents($clashFile, $clashConfig);
+            $message = "Clash 配置文件已生成并保存到: {$clashFile}";
+        }
+    } else {
+        $message = "Base64 内容为空！";
     }
 }
 ?>
+<?php
 
+function parseVmess($base) {
+    $decoded = base64_decode($base['host']);
+    $arrjs = json_decode($decoded, true);
+
+    if (json_last_error() !== JSON_ERROR_NONE || empty($arrjs['v'])) {
+        return "DECODING FAILED! PLEASE CHECK YOUR URL!";
+    }
+
+    return [
+        'cfgtype' => $base['scheme'] ?? '',
+        'name' => $arrjs['ps'] ?? '',
+        'host' => $arrjs['add'] ?? '',
+        'port' => $arrjs['port'] ?? '',
+        'uuid' => $arrjs['id'] ?? '',
+        'alterId' => $arrjs['aid'] ?? '',
+        'type' => $arrjs['net'] ?? '',
+        'path' => $arrjs['path'] ?? '',
+        'security' => $arrjs['type'] ?? '',
+        'sni' => $arrjs['host'] ?? '',
+        'tls' => $arrjs['tls'] ?? ''
+    ];
+}
+
+function parseShadowsocks($basebuff, &$urlparsed) {
+    $urlparsed['uuid'] = $basebuff['user'] ?? '';
+    $basedata = explode(":", base64_decode($urlparsed['uuid']));
+    if (count($basedata) == 2) {
+        $urlparsed['cipher'] = $basedata[0];
+        $urlparsed['uuid'] = $basedata[1];
+    }
+}
+
+function parseUrl($basebuff) {
+    $urlparsed = [
+        'cfgtype' => $basebuff['scheme'] ?? '',
+        'name' => $basebuff['fragment'] ?? '',
+        'host' => $basebuff['host'] ?? '',
+        'port' => $basebuff['port'] ?? ''
+    ];
+
+    if ($urlparsed['cfgtype'] == 'ss') {
+        parseShadowsocks($basebuff, $urlparsed);
+    } else {
+        $urlparsed['uuid'] = $basebuff['user'] ?? '';
+    }
+
+    $querybuff = [];
+    $tmpquery = $basebuff['query'] ?? '';
+
+    if ($urlparsed['cfgtype'] == 'ss') {
+        parse_str(str_replace(";", "&", $tmpquery), $querybuff);
+        $urlparsed['mux'] = $querybuff['mux'] ?? '';
+        $urlparsed['host2'] = $querybuff['host2'] ?? '';
+    } else {
+        parse_str($tmpquery, $querybuff);
+    }
+
+    $urlparsed['type'] = $querybuff['type'] ?? '';
+    $urlparsed['path'] = $querybuff['path'] ?? '';
+    $urlparsed['mode'] = $querybuff['mode'] ?? '';
+    $urlparsed['plugin'] = $querybuff['plugin'] ?? '';
+    $urlparsed['security'] = $querybuff['security'] ?? '';
+    $urlparsed['encryption'] = $querybuff['encryption'] ?? '';
+    $urlparsed['serviceName'] = $querybuff['serviceName'] ?? '';
+    $urlparsed['sni'] = $querybuff['sni'] ?? '';
+
+    return $urlparsed;
+}
+
+function generateConfig($data) {
+    $outcfg = "";
+
+    if (empty($GLOBALS['isProxiesPrinted'])) {
+        $outcfg .= "proxies:\n";
+        $GLOBALS['isProxiesPrinted'] = true;
+    }
+
+    switch ($data['cfgtype']) {
+        case 'vless':
+            $outcfg .= generateVlessConfig($data);
+            break;
+        case 'trojan':
+            $outcfg .= generateTrojanConfig($data);
+            break;
+        case 'hysteria2':
+        case 'hy2':
+            $outcfg .= generateHysteria2Config($data);
+            break;
+        case 'ss':
+            $outcfg .= generateShadowsocksConfig($data);
+            break;
+        case 'vmess':
+            $outcfg .= generateVmessConfig($data);
+            break;
+    }
+
+    return $outcfg;
+}
+
+function generateVlessConfig($data) {
+    $config = "    - name: " . ($data['name'] ?: "VLESS") . "\n";
+    $config .= "      type: {$data['cfgtype']}\n";
+    $config .= "      server: {$data['host']}\n";
+    $config .= "      port: {$data['port']}\n";
+    $config .= "      uuid: {$data['uuid']}\n";
+    $config .= "      cipher: auto\n";
+    $config .= "      tls: true\n";
+    if ($data['type'] == "ws") {
+        $config .= "      network: ws\n";
+        $config .= "      ws-opts:\n";
+        $config .= "        path: {$data['path']}\n";
+        $config .= "        Headers:\n";
+        $config .= "          Host: {$data['host']}\n";
+        $config .= "        flow:\n";
+        $config .= "          client-fingerprint: chrome\n";
+    } elseif ($data['type'] == "grpc") {
+        $config .= "      network: grpc\n";
+        $config .= "      grpc-opts:\n";
+        $config .= "        grpc-service-name: {$data['serviceName']}\n";
+    }
+    $config .= "      udp: true\n";
+    $config .= "      skip-cert-verify: true\n";
+    return $config;
+}
+
+function generateTrojanConfig($data) {
+    $config = "    - name: " . ($data['name'] ?: "TROJAN") . "\n";
+    $config .= "      type: {$data['cfgtype']}\n";
+    $config .= "      server: {$data['host']}\n";
+    $config .= "      port: {$data['port']}\n";
+    $config .= "      password: {$data['uuid']}\n";
+    $config .= "      sni: " . (!empty($data['sni']) ? $data['sni'] : $data['host']) . "\n";
+    if ($data['type'] == "ws") {
+        $config .= "      network: ws\n";
+        $config .= "      ws-opts:\n";
+        $config .= "        path: {$data['path']}\n";
+        $config .= "        Headers:\n";
+        $config .= "          Host: {$data['sni']}\n";
+    } elseif ($data['type'] == "grpc") {
+        $config .= "      network: grpc\n";
+        $config .= "      grpc-opts:\n";
+        $config .= "        grpc-service-name: {$data['serviceName']}\n";
+    }
+    $config .= "      udp: true\n";
+    $config .= "      skip-cert-verify: true\n";
+    return $config;
+}
+
+function generateHysteria2Config($data) {
+    return "    - name: " . ($data['name'] ?: "HYSTERIA2") . "\n" .
+           "      server: {$data['host']}\n" .
+           "      port: {$data['port']}\n" .
+           "      type: {$data['cfgtype']}\n" .
+           "      password: {$data['uuid']}\n" .
+           "      udp: true\n" .
+           "      ports: 20000-55000\n" .
+           "      mport: 20000-55000\n" .
+           "      skip-cert-verify: true\n" .
+           "      sni: " . (!empty($data['sni']) ? $data['sni'] : $data['host']) . "\n";
+}
+
+function generateShadowsocksConfig($data) {
+    $config = "    - name: " . ($data['name'] ?: "SHADOWSOCKS") . "\n";
+    $config .= "      type: {$data['cfgtype']}\n";
+    $config .= "      server: {$data['host']}\n";
+    $config .= "      port: {$data['port']}\n";
+    $config .= "      cipher: {$data['cipher']}\n";
+    $config .= "      password: {$data['uuid']}\n";
+    if (!empty($data['plugin'])) {
+        $config .= "      plugin: {$data['plugin']}\n";
+        $config .= "      plugin-opts:\n";
+        if ($data['plugin'] == "v2ray-plugin" || $data['plugin'] == "xray-plugin") {
+            $config .= "        mode: websocket\n";
+            $config .= "        mux: {$data['mux']}\n";
+        } elseif ($data['plugin'] == "obfs") {
+            $config .= "        mode: tls\n";
+        }
+    }
+    $config .= "      udp: true\n";
+    $config .= "      skip-cert-verify: true\n";
+    return $config;
+}
+
+function generateVmessConfig($data) {
+    $config = "    - name: " . ($data['name'] ?: "VMESS") . "\n";
+    $config .= "      type: {$data['cfgtype']}\n";
+    $config .= "      server: {$data['host']}\n";
+    $config .= "      port: {$data['port']}\n";
+    $config .= "      uuid: {$data['uuid']}\n";
+    $config .= "      alterId: {$data['alterId']}\n";
+    $config .= "      cipher: auto\n";
+    $config .= "      tls: " . ($data['tls'] === "tls" ? "true" : "false") . "\n";
+    $config .= "      servername: " . (!empty($data['sni']) ? $data['sni'] : $data['host']) . "\n";
+    $config .= "      network: {$data['type']}\n";
+    if ($data['type'] == "ws") {
+        $config .= "      ws-opts:\n";
+        $config .= "        path: {$data['path']}\n";
+        $config .= "        Headers:\n";
+        $config .= "          Host: {$data['sni']}\n";
+    } elseif ($data['type'] == "grpc") {
+        $config .= "      grpc-opts:\n";
+        $config .= "        grpc-service-name: {$data['serviceName']}\n";
+    }
+    $config .= "      udp: true\n";
+    $config .= "      skip-cert-verify: true\n";
+    return $config;
+}
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $input = $_POST['input'] ?? '';
+
+    if (empty($input)) {
+        echo ".";
+    } else {
+        $lines = explode("\n", trim($input));
+        $allcfgs = "";
+        $GLOBALS['isProxiesPrinted'] = false;
+
+        foreach ($lines as $line) {
+            $base64url = parse_url($line);
+            if ($base64url === false) {
+                $allcfgs .= "Invalid URL provided.\n";
+                continue;
+            }
+
+            $base64url = array_map('urldecode', $base64url);
+
+            if (isset($base64url['scheme']) && $base64url['scheme'] === 'vmess') {
+                $parsedData = parseVmess($base64url);
+            } else {
+                $parsedData = parseUrl($base64url);
+            }
+
+            if (is_array($parsedData)) {
+                $allcfgs .= generateConfig($parsedData);
+            } else {
+                $allcfgs .= $parsedData . "\n";
+            }
+        }
+
+        $file_path = '/etc/neko/proxy_provider/subscription_7.json';
+        file_put_contents($file_path, $allcfgs);
+
+        echo "<h2 style=\"color: #00FFFF;\">转换完成</h2>";
+        echo "<p>配置文件已经成功保存到 <strong>$file_path</strong></p>";
+        echo "<textarea id='output' readonly style='width:100%;height:400px;'>$allcfgs</textarea>";
+        echo "<button onclick='copyToClipboard()'>复制</button>";
+        echo "<script>
+            function copyToClipboard() {
+                var output = document.getElementById('output');
+                output.select();
+                document.execCommand('copy');
+                alert('复制成功');
+            }
+        </script>";
+    }
+}
+?>
 <!doctype html>
 <html lang="en" data-bs-theme="<?php echo substr($neko_theme, 0, -4) ?>">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Sing-box - Neko</title>
+    <title>Mihomo - Neko</title>
     <link rel="icon" href="./assets/img/nekobox.png">
     <link href="./assets/css/bootstrap.min.css" rel="stylesheet">
     <link href="./assets/css/custom.css" rel="stylesheet">
@@ -450,18 +524,22 @@ if (isset($_POST['update'])) {
 <div class="container-sm container-bg callout border border-3 rounded-4 col-11">
     <div class="row">
         <a href="./index.php" class="col btn btn-lg">🏠 首页</a>
-        <a href="./upload.php" class="col btn btn-lg">📂 Mihomo</a>
-        <a href="./upload_sb.php" class="col btn btn-lg">🗂️ Sing-box</a>
-        <a href="./box.php" class="col btn btn-lg">💹 转换</a>
-        <a href="./nekobox.php" class="col btn btn-lg">📦 文件助手</a>
+        <a href="./mihomo_manager.php" class="col btn btn-lg">📂 Mihomo</a>
+        <a href="./singbox_manager.php" class="col btn btn-lg">🗂️ Sing-box</a>
+        <a href="./box.php" class="col btn btn-lg">💹 订阅转换</a>
+        <a href="./filekit.php" class="col btn btn-lg">📦 文件助手</a>
+    </div>
     <div class="text-center">
-      <h1 style="margin-top: 40px; margin-bottom: 20px;">Sing-box 文件管理</h1>
-        <h2>代理文件管理 ➤ p核专用</h2>
-        <form action="upload_sb.php" method="get" onsubmit="saveSettings()">
-        <label for="enable_timezone">启用时区设置:</label>
-        <input type="checkbox" id="enable_timezone" name="enable_timezone" value="1">
-        <button type="submit" style="background-color: #4CAF50; color: white; border: none; cursor: pointer;" title="确保你的系统支持时区设置否则会出错点取消可以恢复正常"> 提交 </button>
-       </form>
+        <h1 style="margin-top: 40px; margin-bottom: 20px;">Mihomo 文件管理</h1>
+        <div class="table-wrapper">
+            <h2>代理文件管理</h2>
+            <form action="mihomo_manager.php" method="get" onsubmit="saveSettings()">
+                <label for="enable_timezone">启用时区设置:</label>
+                <input type="checkbox" id="enable_timezone" name="enable_timezone" value="1">
+                <button type="submit" style="background-color: #4CAF50; color: white; border: none; cursor: pointer;">提交</button>
+            </form>
+        </div>
+    </div>
     <script>
         function saveSettings() {
             const enableTimezone = document.getElementById('enable_timezone').checked;
@@ -540,6 +618,34 @@ if (isset($_POST['update'])) {
     </table>
 </div>
 
+        <div class="modal fade" id="renameModal" tabindex="-1" role="dialog" aria-labelledby="renameModalLabel" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="renameModalLabel">重命名文件</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <form id="renameForm" action="" method="post">
+                            <input type="hidden" name="oldFileName" id="oldFileName">
+                            <input type="hidden" name="fileType" id="fileType">
+                            <div class="form-group">
+                                <label for="newFileName">新文件名</label>
+                                <input type="text" class="form-control" id="newFileName" name="newFileName" required>
+                            </div>
+                            <p>是否确定要重命名这个文件?</p>
+                            <div class="form-group text-right">
+                                <button type="button" class="btn btn-secondary" data-dismiss="modal">取消</button>
+                                <button type="submit" class="btn btn-primary">确定</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
 <div class="container text-center">
     <h2>配置文件管理</h2>
     <table class="table table-striped table-bordered">
@@ -584,7 +690,7 @@ if (isset($_POST['update'])) {
         </tbody>
     </table>
 </div>
-
+<div class="container text-center">
 <?php if (isset($fileContent)): ?>
     <?php if (isset($_POST['editFile'])): ?>
         <?php $fileToEdit = ($_POST['fileType'] === 'proxy') ? $uploadDir . basename($_POST['editFile']) : $configDir . basename($_POST['editFile']); ?>
@@ -625,154 +731,92 @@ if (isset($_POST['update'])) {
         </div>
     <?php endif; ?>
 <?php endif; ?>
-        <h1 style="margin-top: 20px; margin-bottom: 20px;" title="只支持Sing-box格式的订阅">Sing-box 订阅</h1>
-<style>
-    button, .button {
-        background-color: #4CAF50;
-        color: white;
-        border: none;
-        border-radius: 5px;
-        cursor: pointer;
-        font-size: 16px;
-    }
-    button:hover, .button:hover {
-        background-color: #45a049;
-    }
-</style>
-</head>
-<body>
-    <form method="post" style="display: inline;">
-        <button type="submit" name="update" title="更新需要安装php8-mod-zip">🔄 更新规则集</button>
-    </form>
-    <a href="https://github.com/Thaolga/neko/releases/download/1.2.0/nekobox.zip" class="button" style="text-decoration: none; padding: 1.2px 12px; display: inline-block; color: white;" title="下载文件解压通过文件助手上传到/www/nekobox/对应目录，包含Sing-box和P核的所有规则">📥 下载规则集</a>
-</body>
-     </br>
-     </br>
-        <?php if ($message): ?>
-            <p><?php echo nl2br(htmlspecialchars($message)); ?></p>
-        <?php endif; ?>
-<form method="post">
-    <div class="row">
-        <?php for ($i = 0; $i < 3; $i++): ?>
-            <div class="col-md-4 mb-3">
-                <div class="card subscription-card p-2">
-                    <div class="card-body p-2">
-                        <h6 class="card-title text-primary">订阅链接 <?php echo $i + 1; ?></h6>
-                        <div class="form-group mb-2">
-                            <input type="text" name="subscription_url_<?php echo $i; ?>" id="subscription_url_<?php echo $i; ?>" class="form-control form-control-sm white-text" placeholder="订阅链接" value="<?php echo htmlspecialchars($subscriptionData['subscriptions'][$i]['url'] ?? ''); ?>">
-                        </div>
-                        <div class="form-group mb-2">
-                            <label for="custom_file_name_<?php echo $i; ?>" class="text-primary">自定义文件名 <?php echo ($i === 0) ? '(固定为 config.json)' : ''; ?></label>
-                            <input type="text" name="custom_file_name_<?php echo $i; ?>" id="custom_file_name_<?php echo $i; ?>" class="form-control form-control-sm white-text" value="<?php echo htmlspecialchars($subscriptionData['subscriptions'][$i]['file_name'] ?? ($i === 0 ? 'config.json' : '')); ?>" <?php echo ($i === 0) ? 'readonly' : ''; ?>>
-                        </div>
-                        <button type="submit" name="update_index" value="<?php echo $i; ?>" class="btn btn-info btn-sm"><i>🔄</i> 更新订阅 <?php echo $i + 1; ?></button>
-                    </div>
-                </div>
-            </div>
-        <?php endfor; ?>
-    </div>
-</form>
 
-<h2 class="text-success text-center mt-4 mb-4">订阅管理 ➤ p核专用</h2>
-<div class="help-text mb-3 text-start">
-    <strong>1. 对于首次使用 Sing-box 的用户，必须将核心更新至版本 v1.10.0 或更高版本。我们建议使用 P 核心。确保将出站和入站防火墙规则都设置为“接受”并启用它们。
-</div>
-<div class="help-text mb-3 text-start">
-    <strong>2. 注意：</strong> 通用模板（<code>puernya.json</code>）最多支持<strong>3个</strong>订阅链接，请勿更改默认名称。
-</div>
- <div class="help-text mb-3 text-start"> 
-    <strong>3. 只支持Clash和Sing-box格式的订阅，不支持通用格式
+  <h2 class="text-success text-center mt-4 mb-4">订阅管理</h2>
+
+    <div class="help-text mb-3 text-start">
+        <strong>1. 注意：</strong> 通用模板（<code>mihomo.yaml</code>）最多支持<strong>6个</strong>订阅链接，请勿更改默认名称。
     </div>
-<div class="help-text mb-3 text-start"> 
-    <strong>4. 保存与更新：</strong> 填写完毕后，请点击"更新配置"按钮进行保存。
-</div>
-        <div class="row">
-            <?php for ($i = 0; $i < 3; $i++): ?>
-                <div class="col-md-4 mb-4">
-                    <div class="card">
-                        <div class="card-body">
-                            <h5 class="card-title">订阅链接 <?php echo ($i + 1); ?></h5>
-                            <form method="post">
-                                <div class="input-group mb-3">
-                                    <input type="text" name="subscription_url" id="subscriptionurl<?php echo $i; ?>" 
-                                           value="<?php echo htmlspecialchars($subscriptions[$i]['url']); ?>" required 
-                                           class="form-control" placeholder="输入链接">
-                                    <input type="text" name="custom_file_name" id="custom_filename<?php echo $i; ?>" 
-                                           value="<?php echo htmlspecialchars($subscriptions[$i]['file_name']); ?>" 
-                                           class="form-control" placeholder="自定义文件名">
-                                    <input type="hidden" name="index" value="<?php echo $i; ?>">
-                                    <button type="submit" name="saveSubscription" class="btn btn-success ml-2">
-                                        <i>🔄</i> 更新
-                            </button>
-                        </div>
-                    </form>
-                </div>
-            </div>
+
+    <div class="help-text mb-3 text-start"> 
+        <strong>2. 保存与更新：</strong> 填写完毕后，请点击“更新配置”按钮进行保存。
+    </div>
+
+    <div class="help-text mb-3 text-start"> 
+        <strong>3. 节点转换与手动修改：</strong> 该模板支持所有格式的订阅链接，无需进行额外转换。
+    </div>
+
+    <?php if ($message): ?>
+        <div class="alert alert-info text-start"> 
+            <?php echo nl2br(htmlspecialchars($message)); ?>
         </div>
-    <?php endfor; ?>
-</div>
+    <?php endif; ?>
 
-    <script>
-        function showCompletionMessage() {
-            var messageDiv = document.createElement('div');
-            messageDiv.textContent = '更新完成';
-            messageDiv.style.position = 'fixed';
-            messageDiv.style.top = '20px';
-            messageDiv.style.left = '50%';
-            messageDiv.style.transform = 'translateX(-50%)';
-            messageDiv.style.padding = '10px 20px';
-            messageDiv.style.backgroundColor = '#4CAF50';
-            messageDiv.style.color = 'white';
-            messageDiv.style.borderRadius = '5px';
-            messageDiv.style.zIndex = '1000';
-            document.body.appendChild(messageDiv);
-
-            setTimeout(function() {
-                messageDiv.style.transition = 'opacity 0.5s';
-                messageDiv.style.opacity = '0';
-                setTimeout(function() {
-                    document.body.removeChild(messageDiv);
-                }, 500);
-            }, 3000);
-        }
-
-        <?php if ($updateCompleted): ?>
-        window.onload = showCompletionMessage;
-        <?php endif; ?>
-    </script>
-
-        <div class="modal fade" id="renameModal" tabindex="-1" role="dialog" aria-labelledby="renameModalLabel" aria-hidden="true">
-            <div class="modal-dialog" role="document">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title" id="renameModalLabel">重命名文件</h5>
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                            <span aria-hidden="true">&times;</span>
-                        </button>
-                    </div>
-                    <div class="modal-body">
-                        <form id="renameForm" action="" method="post">
-                            <input type="hidden" name="oldFileName" id="oldFileName">
-                            <input type="hidden" name="fileType" id="fileType">
-                            <div class="form-group">
-                                <label for="newFileName">新文件名</label>
-                                <input type="text" class="form-control" id="newFileName" name="newFileName" required>
-                            </div>
-                            <p>是否确定要重命名这个文件?</p>
-                            <div class="form-group text-right">
-                                <button type="button" class="btn btn-secondary" data-dismiss="modal">取消</button>
-                                <button type="submit" class="btn btn-primary">确定</button>
+    <div class="row">
+        <?php for ($i = 0; $i < 6; $i++): ?>
+            <div class="col-md-4 mb-4">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">订阅链接 <?php echo ($i + 1); ?></h5>
+                        <form method="post">
+                            <div class="input-group mb-3">
+                                <input type="text" name="subscription_url" id="subscription_url_<?php echo $i; ?>" 
+                                       value="<?php echo htmlspecialchars($subscriptions[$i]['url']); ?>" required 
+                                       class="form-control" placeholder="输入链接">
+                                <input type="text" name="custom_file_name" id="custom_file_name_<?php echo $i; ?>" 
+                                       value="<?php echo htmlspecialchars($subscriptions[$i]['file_name']); ?>" 
+                                       class="form-control" placeholder="自定义文件名">
+                                <input type="hidden" name="index" value="<?php echo $i; ?>">
+                                <button type="submit" name="update" class="btn btn-success ml-2">
+                                    <i>🔄</i> 更新
+                                </button>
                             </div>
                         </form>
                     </div>
                 </div>
             </div>
+        <?php endfor; ?>
+    </div>
+</section>
+<section id="subscription-management" class="section-gap">
+    <div class="btn-group mt-2 mb-4">
+        <button id="pasteButton" class="btn btn-primary">生成订阅链接网站</button>
+        <button id="base64Button" class="btn btn-primary">Base64 在线编码解码</button>
+    </div>
+<section id="base64-conversion" class="section-gap">
+    <h2 class="text-success">Base64 节点信息转换</h2>
+    <form method="post">
+        <div class="form-group">
+            <textarea name="base64_content" id="base64_content" rows="4" class="form-control" placeholder="粘贴 Base64 内容..." required></textarea>
         </div>
+        <button type="submit" name="convert_base64" class="btn btn-primary btn-custom mt-3"><i>🔄</i> 生成节点信息</button> 
+    </form>
+</section>
+
+<section id="node-conversion" class="section-gap">
+    <h1 class="text-success">节点转换工具</h1>
+    <form method="post">
+        <div class="form-group">
+            <textarea name="input" rows="10" class="form-control" placeholder="粘贴 ss//vless//vmess//trojan//hysteria2 节点信息..." required></textarea>
+        </div>
+        <button type="submit" name="convert" class="btn btn-primary mt-3"><i>🔄</i> 转换</button> 
+    </form>
+</section>
 
 <script src="./assets/bootstrap/jquery-3.5.1.slim.min.js"></script>
 <script src="./assets/bootstrap/popper.min.js"></script>
 <script src="./assets/bootstrap/bootstrap.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.4.12/ace.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/js-yaml/4.1.0/js-yaml.min.js"></script>
+
+<script>
+    document.getElementById('pasteButton').onclick = function() {
+        window.open('https://paste.gg', '_blank');
+    }
+    document.getElementById('base64Button').onclick = function() {
+        window.open('https://base64.us', '_blank');
+    }
+</script>
 
 <script>
     $('#renameModal').on('show.bs.modal', function (event) {
@@ -784,16 +828,16 @@ if (isset($_POST['update'])) {
         modal.find('#fileType').val(fileType);
         modal.find('#newFileName').val(oldFileName); 
     });
+</script>
 
+<script>
     function closeEditor() {
         window.location.href = window.location.href; 
     }
 
     var aceEditor = ace.edit("aceEditorContainer");
     aceEditor.setTheme("ace/theme/monokai");
-    aceEditor.session.setMode("ace/mode/json");
-    aceEditor.session.setUseWorker(true);
-    aceEditor.getSession().setUseWrapMode(true);
+    aceEditor.session.setMode("ace/mode/yaml");
 
     function setDefaultFontSize() {
         var defaultFontSize = '20px';
@@ -805,28 +849,27 @@ if (isset($_POST['update'])) {
 
     aceEditor.setValue(document.getElementById('basicEditor').value);
 
-    aceEditor.session.on('changeAnnotation', function() {
-        var annotations = aceEditor.getSession().getAnnotations();
-        if (annotations.length > 0) {
-            var errorMessage = annotations[0].text;
-            var errorLine = annotations[0].row + 1;
-            showErrorPopup('JSON 语法错误: 行 ' + errorLine + ': ' + errorMessage);
-        } else {
+    aceEditor.session.on('change', function() {
+        try {
+            jsyaml.load(aceEditor.getValue());
             hideErrorPopup();
+        } catch (e) {
+            var errorLine = e.mark ? e.mark.line + 1 : '未知';
+            showErrorPopup('YAML 语法错误 (行 ' + errorLine + '): ' + e.message);
         }
     });
 
     document.getElementById('toggleBasicEditor').addEventListener('click', function() {
         document.getElementById('basicEditor').classList.remove('d-none');
         document.getElementById('aceEditorContainer').classList.add('d-none');
-        document.getElementById('fontSizeContainer').classList.remove('d-none');
+        document.getElementById('fontSizeContainer').classList.remove('d-none'); 
     });
 
     document.getElementById('toggleAceEditor').addEventListener('click', function() {
         document.getElementById('basicEditor').classList.add('d-none');
         document.getElementById('aceEditorContainer').classList.remove('d-none');
-        document.getElementById('fontSizeContainer').classList.remove('d-none');
-        aceEditor.setValue(document.getElementById('basicEditor').value);
+        document.getElementById('fontSizeContainer').classList.remove('d-none'); 
+        aceEditor.setValue(document.getElementById('basicEditor').value); 
     });
 
     document.getElementById('toggleFullScreenEditor').addEventListener('click', function() {
@@ -846,9 +889,9 @@ if (isset($_POST['update'])) {
 
     function syncEditorContent() {
         if (!document.getElementById('basicEditor').classList.contains('d-none')) {
-            aceEditor.setValue(document.getElementById('basicEditor').value);
+            aceEditor.setValue(document.getElementById('basicEditor').value); 
         } else {
-            document.getElementById('basicEditor').value = aceEditor.getValue();
+            document.getElementById('basicEditor').value = aceEditor.getValue(); 
         }
     }
 
@@ -886,10 +929,11 @@ if (isset($_POST['update'])) {
         hideErrorPopup();
     });
 
+
     (function() {
         const resizable = document.querySelector('.resizable');
         if (!resizable) return;
-
+        
         const handle = document.createElement('div');
         handle.className = 'resize-handle';
         resizable.appendChild(handle);
@@ -1010,4 +1054,4 @@ if (isset($_POST['update'])) {
     }
 </style>
 </body>
-
+</html> 

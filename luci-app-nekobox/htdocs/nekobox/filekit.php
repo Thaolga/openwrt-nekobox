@@ -1,4 +1,5 @@
 <?php
+ini_set('memory_limit', '256M');
 ob_start();
 include './cfg.php';
 $root_dir = "/";
@@ -338,6 +339,7 @@ function searchFiles($dir, $term) {
 
     return $results;
 }
+
 ?>
 
 <!DOCTYPE html>
@@ -367,57 +369,148 @@ function searchFiles($dir, $term) {
     <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.4.12/ext-language_tools.js"></script>
 
     <style>
-    .theme-toggle {
-          position: absolute;
-          top: 20px;
-          right: 20px;
-      }
-      #themeToggle {
-          background: none;
-          border: none;
-          cursor: pointer;
-          transition: color 0.3s ease;
-      }
-
-      body.dark-mode {
-          background-color: #333;
-          color: #fff;
-      }
-      body.dark-mode table,
-      body.dark-mode th,
-      body.dark-mode td,
-      body.dark-mode .modal,
-      body.dark-mode .modal-content,
-      body.dark-mode .modal h2,
-      body.dark-mode .modal label,
-      body.dark-mode .modal input[type="text"] {
-          color: #fff;
-      }
-      .header {
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-          margin-bottom: 20px;
-      }
-      .header img {
-          height: 100px;
-      }
-      body.dark-mode th {
-          background-color: #444;
-      }
-      body.dark-mode td {
-          background-color: #555;
-      }
-      body.dark-mode .modal-content {
-          background-color: #444;
-      }
         .folder-icon::before{content:"📁";}.file-icon::before{content:"📄";}.file-icon.file-pdf::before{content:"📕";}.file-icon.file-doc::before,.file-icon.file-docx::before{content:"📘";}.file-icon.file-xls::before,.file-icon.file-xlsx::before{content:"📗";}.file-icon.file-ppt::before,.file-icon.file-pptx::before{content:"📙";}.file-icon.file-zip::before,.file-icon.file-rar::before,.file-icon.file-7z::before{content:"🗜️";}.file-icon.file-mp3::before,.file-icon.file-wav::before,.file-icon.file-ogg::before,.file-icon.file-flac::before{content:"🎵";}.file-icon.file-mp4::before,.file-icon.file-avi::before,.file-icon.file-mov::before,.file-icon.file-wmv::before,.file-icon.file-flv::before{content:"🎞️";}.file-icon.file-jpg::before,.file-icon.file-jpeg::before,.file-icon.file-png::before,.file-icon.file-gif::before,.file-icon.file-bmp::before,.file-icon.file-tiff::before{content:"🖼️";}.file-icon.file-txt::before{content:"📝";}.file-icon.file-rtf::before{content:"📄";}.file-icon.file-md::before,.file-icon.file-markdown::before{content:"📑";}.file-icon.file-exe::before,.file-icon.file-msi::before{content:"⚙️";}.file-icon.file-bat::before,.file-icon.file-sh::before,.file-icon.file-command::before{content:"📜";}.file-icon.file-iso::before,.file-icon.file-img::before{content:"💿";}.file-icon.file-sql::before,.file-icon.file-db::before,.file-icon.file-dbf::before{content:"🗃️";}.file-icon.file-font::before,.file-icon.file-ttf::before,.file-icon.file-otf::before,.file-icon.file-woff::before,.file-icon.file-woff2::before{content:"🔤";}.file-icon.file-cfg::before,.file-icon.file-conf::before,.file-icon.file-ini::before{content:"🔧";}.file-icon.file-psd::before,.file-icon.file-ai::before,.file-icon.file-eps::before,.file-icon.file-svg::before{content:"🎨";}.file-icon.file-dll::before,.file-icon.file-so::before{content:"🧩";}.file-icon.file-css::before{content:"🎨";}.file-icon.file-js::before{content:"🟨";}.file-icon.file-php::before{content:"🐘";}.file-icon.file-json::before{content:"📊";}.file-icon.file-html::before,.file-icon.file-htm::before{content:"🌐";}.file-icon.file-bin::before{content:"👾";}
         #previewModal .modal-content { width: 90%; max-width: 1200px; height: 90vh; overflow: auto; }
         #previewContainer { text-align: center; padding: 20px; }
         #previewContainer img { max-width: 100%; max-height: 70vh; object-fit: contain; }
         #previewContainer audio, #previewContainer video { max-width: 100%; }
         #previewContainer svg { max-width: 100%; max-height: 70vh; }
-         .modal {
+        .theme-toggle {
+              position: absolute;
+              top: 20px;
+              right: 20px;
+          }
+          
+        #themeToggle {
+              background: none;
+              border: none;
+              cursor: pointer;
+              transition: color 0.3s ease;
+          }
+              
+        body.dark-mode {
+              background-color: #333;
+              color: #fff;
+          }
+              body.dark-mode table,
+              body.dark-mode th,
+              body.dark-mode td,
+              body.dark-mode .modal,
+              body.dark-mode .modal-content,
+              body.dark-mode .modal h2,
+              body.dark-mode .modal label,
+              body.dark-mode .modal input[type="text"] {
+              color: #fff;
+          }
+          
+        .header {
+              display: flex;
+              justify-content: space-between;
+              align-items: center;
+              margin-bottom: 20px;
+          }
+
+        .header img {
+              height: 100px;
+          }
+          
+        body.dark-mode th {
+              background-color: #444;
+          }
+          
+        body.dark-mode td {
+              background-color: #555;
+          }
+        body.dark-mode .modal-content {
+              background-color: #444;
+          }
+
+        body.dark-mode #editModal .btn {
+              color: #ffffff;
+              background-color: #555;
+              border-color: #555;
+          }
+
+        body.dark-mode #editModal .btn:hover {
+              background-color: #666;
+              border-color: #666;
+          }
+
+        .table tbody tr:nth-child(odd) {
+              background-color: #444;
+          }
+          
+        .table tbody tr:nth-child(even) {
+              background-color: #333;
+          }
+
+        .table tbody tr:hover {
+              background-color: #555;
+          }
+
+        .btn:hover {
+              background-color: #555;
+              transition: background-color 0.3s ease;
+          }
+
+        .table {
+              color: #ddd;
+          }
+
+        body.dark-mode .container-sm.callout .row a.btn.custom-btn-color {
+              color: white !important;
+          }
+
+        body.dark-mode .container-sm.callout .row a.btn.custom-btn-color * {
+              color: white !important;
+          }
+
+        body.dark-mode .container-sm.callout .row a.btn.custom-btn-color {
+              filter: invert(1) hue-rotate(180deg);
+          }
+        body.dark-mode .container-sm.callout .row a.btn.custom-btn-color i {
+              color: white !important;
+          }
+
+        body.dark-mode .container-sm.callout .row a.btn.custom-btn-color span {
+              color: white !important;
+          }
+
+        body.dark-mode .navbar .fas,
+        body.dark-mode .navbar .far,
+        body.dark-mode .navbar .fab {
+              color: white; 
+          }
+
+        body.dark-mode .btn-outline-secondary {
+              color: white;
+              border-color: white;
+          }
+
+        body.dark-mode .btn-outline-secondary:hover {
+              background-color: white;
+              color: #333;
+          }
+
+        body.dark-mode .form-select {
+              background-color: #444;
+              color: white;
+              border-color: #666;
+          }
+
+        body.dark-mode table {
+              color: white;
+          }
+
+        body.dark-mode th {
+              background-color: #444;
+          }
+
+        body.dark-mode td {
+              background-color: #333;
+          }
+
+        .modal {
               display: none;
               position: fixed;
               z-index: 1000;
@@ -428,7 +521,8 @@ function searchFiles($dir, $term) {
               overflow: auto;
               background-color: rgba(0,0,0,0.4);
           }
-          .modal-content {
+          
+        .modal-content {
               background-color: #fefefe;
               margin: 15% auto;
               padding: 20px;
@@ -438,7 +532,8 @@ function searchFiles($dir, $term) {
               border-radius: 10px;
               box-shadow: 0 4px 8px rgba(0,0,0,0.1);
           }
-          .close {
+          
+        .close {
               color: #aaa;
               float: right;
               font-size: 28px;
@@ -446,32 +541,38 @@ function searchFiles($dir, $term) {
               cursor: pointer;
               transition: 0.3s;
           }
-          .close:hover,
-          .close:focus {
+          
+        .close:hover,
+        .close:focus {
               color: #000;
               text-decoration: none;
               cursor: pointer;
           }
-          .modal h2 {
+          
+        .modal h2 {
               margin-top: 0;
               color: #333;
           }
-          .modal form {
+          
+        .modal form {
               margin-top: 20px;
           }
-          .modal label {
+          
+        .modal label {
               display: block;
               margin-bottom: 5px;
               color: #666;
           }
-          .modal input[type="text"] {
+          
+        .modal input[type="text"] {
               width: 100%;
               padding: 8px;
               margin-bottom: 20px;
               border: 1px solid #ddd;
               border-radius: 4px;
           }
-          .btn {
+          
+        .btn {
               padding: 10px 20px;
               border: none;
               border-radius: 4px;
@@ -479,28 +580,35 @@ function searchFiles($dir, $term) {
               font-size: 16px;
               transition: background-color 0.3s;
           }
-          .btn-primary {
+          
+        .btn-primary {
               background-color: #007bff;
               color: white;
           }
-          .btn-primary:hover {
+          
+        .btn-primary:hover {
               background-color: #0056b3;
           }
-          .btn-secondary {
+          
+        .btn-secondary {
               background-color: #6c757d;
               color: white;
           }
-          .btn-secondary:hover {
+          
+        .btn-secondary:hover {
               background-color: #545b62;
           }
-          .mb-2 {
+          
+        .mb-2 {
               margin-bottom: 10px;
           }
-          .btn-group {
+          
+        .btn-group {
               display: flex;
               justify-content: space-between;
           }
-          #editModal {
+          
+        #editModal {
               display: none;
               position: fixed;
               z-index: 1000;
@@ -511,7 +619,8 @@ function searchFiles($dir, $term) {
               overflow: auto;
               background-color: rgba(0, 0, 0, 0.5);
           }
-          .modal-content {
+          
+        .modal-content {
               background-color: #fefefe;
               margin: 15% auto;
               padding: 20px;
@@ -522,7 +631,8 @@ function searchFiles($dir, $term) {
               border-radius: 8px;
               box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
           }
-          textarea {
+          
+        textarea {
               width: 100%;
               height: 500px;
               padding: 10px;
@@ -531,7 +641,8 @@ function searchFiles($dir, $term) {
               resize: vertical;
               font-family: monospace;
           }
-          .close {
+          
+        .close {
               color: #aaa;
               position: absolute;
               right: 20px;
@@ -540,42 +651,52 @@ function searchFiles($dir, $term) {
               font-weight: bold;
               cursor: pointer;
           }
-          .close:hover,
-          .close:focus {
+          
+        .close:hover,
+        .close:focus {
               color: black;
               text-decoration: none;
           }
-          body {
+          
+        body {
               overflow-x: hidden;
           }
-         #searchModal {
+          
+        #searchModal {
               z-index: 1060 !important;
           }
-          .modal-backdrop {
+          
+        .modal-backdrop {
               z-index: 1050 !important;
-          }
-          .modal-content {
+          } 
+          
+        .modal-content {
               background-color: var(--bs-body-bg);
               color: var(--bs-body-color);
           }
-          #searchModal .modal-dialog {
+          
+        #searchModal .modal-dialog {
               max-width: 90% !important;
               width: 800px !important;
           }
-          #searchResults {
+          
+        #searchResults {
               max-height: 400px;
               overflow-y: auto;
           }
-          #searchResults .list-group-item {
+          
+        #searchResults .list-group-item {
               display: flex;
               justify-content: space-between;
               align-items: center;
           }
-          #searchResults .list-group-item span {
+          
+        #searchResults .list-group-item span {
               word-break: break-all;
               margin-right: 10px;
           }
-          #aceEditor {
+          
+        #aceEditor {
               position: fixed;
               top: 0;
               right: 0;
@@ -585,7 +706,8 @@ function searchFiles($dir, $term) {
               display: none;
               color: #333;
           }
-          #aceEditorContainer {
+          
+        #aceEditorContainer {
               position: absolute;
               top: 40px;
               right: 0;
@@ -593,7 +715,8 @@ function searchFiles($dir, $term) {
               left: 0;
               overflow-x: auto;
           }
-          #editorStatusBar {
+          
+        #editorStatusBar {
               position: absolute;
               left: 0;
               right: 0;
@@ -611,7 +734,8 @@ function searchFiles($dir, $term) {
               overflow: hidden;
               text-overflow: ellipsis;
           }
-          #editorControls {
+          
+        #editorControls {
               position: absolute;
               left: 0;
               right: 0;
@@ -624,7 +748,8 @@ function searchFiles($dir, $term) {
               align-items: center;
               padding: 0 10px;
               overflow-x: auto;
-          }
+        }
+          
           #editorControls select,
           #editorControls button {
               margin: 0 10px;
@@ -638,27 +763,71 @@ function searchFiles($dir, $term) {
               justify-content: center;
               align-items: center;
           }
-          .ace_search {
+          
+        body.editing {
+              overflow: hidden;
+          }
+
+        #aceEditor {
+              position: fixed;
+              top: 0;
+              left: 0;
+              right: 0;
+              bottom: 0;
+              z-index: 1000;
+          }
+
+        #aceEditorContainer {
+              position: absolute;
+              top: 40px; 
+              left: 0;
+              right: 0;
+              bottom: 40px; 
+              overflow: auto;
+          }
+
+        #editorControls {
+              position: fixed;
+              top: 0;
+              left: 0;
+              right: 0;
+              height: 40px;
+              z-index: 1001;
+          }
+
+        #editorStatusBar {
+              position: fixed;
+              bottom: 0;
+              left: 0;
+              right: 0;
+              height: 40px;
+              z-index: 1001;
+          }
+          
+        .ace_search {
               background-color: #f8f9fa;
               border: 1px solid #ced4da;
               border-radius: 4px;
               padding: 10px;
               box-shadow: 0 2px 4px rgba(0,0,0,0.1);
           }
-          .ace_search_form,
-          .ace_replace_form {
+          
+        .ace_search_form,
+        .ace_replace_form {
               display: flex;
               align-items: center;
               margin-bottom: 5px;
           }
-          .ace_search_field {
+          
+        .ace_search_field {
               flex-grow: 1;
               border: 1px solid #ced4da;
               border-radius: 4px;
               padding: 4px;
           }
-          .ace_searchbtn,
-          .ace_replacebtn {
+          
+        .ace_searchbtn,
+        .ace_replacebtn {
               background-color: #007bff;
               color: white;
               border: none;
@@ -667,14 +836,17 @@ function searchFiles($dir, $term) {
               margin-left: 5px;
               cursor: pointer;
           }
-          .ace_searchbtn:hover,
-          .ace_replacebtn:hover {
+          
+        .ace_searchbtn:hover,
+        .ace_replacebtn:hover {
               background-color: #0056b3;
           }
-          .ace_search_options {
+          
+        .ace_search_options {
               margin-top: 5px;
           }
-          .ace_button {
+          
+        .ace_button {
               background-color: #6c757d;
               color: white;
               border: none;
@@ -683,46 +855,56 @@ function searchFiles($dir, $term) {
               margin-right: 5px;
               cursor: pointer;
           }
-          .ace_button:hover {
+          
+        .ace_button:hover {
               background-color: #5a6268;
           }
-          body.dark-mode #editorStatusBar {
+          
+        body.dark-mode #editorStatusBar {
               background-color: #2d3238;
               color: #e0e0e0;
           }
-          body.dark-mode .ace_search {
+          
+        body.dark-mode .ace_search {
               background-color: #2d3238;
               border-color: #495057;
           }
-          body.dark-mode .ace_search_field {
+          
+        body.dark-mode .ace_search_field {
               background-color: #343a40;
               color: #f8f9fa;
               border-color: #495057;
           }
-          body.dark-mode .ace_searchbtn,
-          body.dark-mode .ace_replacebtn {
+          
+        body.dark-mode .ace_searchbtn,
+        body.dark-mode .ace_replacebtn {
               background-color: #0056b3;
           }
-          body.dark-mode .ace_searchbtn:hover,
-          body.dark-mode .ace_replacebtn:hover {
+          
+        body.dark-mode .ace_searchbtn:hover,
+        body.dark-mode .ace_replacebtn:hover {
               background-color: #004494;
           }
-          body.dark-mode .ace_button {
+          
+        body.dark-mode .ace_button {
               background-color: #495057;
           }
-          body.dark-mode .ace_button:hover {
+          
+        body.dark-mode .ace_button:hover {
               background-color: #3d4349;
           }
 
-          #aceEditor .btn:hover {
+        #aceEditor .btn:hover {
               background-color: #4682b4;
               transform: translateY(-2px);
               box-shadow: 0 4px 12px rgba(0,0,0,0.15);
           }
-          #aceEditor .btn:focus {
+          
+        #aceEditor .btn:focus {
               outline: none;
           }
-          #editorStatusBar {
+          
+        #editorStatusBar {
               position: absolute;
               left: 0;
               right: 0;
@@ -736,37 +918,42 @@ function searchFiles($dir, $term) {
               padding: 0 20px;
               font-size: 16px;
           }
-          #cursorPosition {
+          
+        #cursorPosition {
               margin-right: 20px;
           }
 
-          #characterCount {
+        #characterCount {
               margin-left: auto;
           }
-          ::-webkit-scrollbar {
+          
+        ::-webkit-scrollbar {
               width: 12px;
               height: 12px;
           }
-          ::-webkit-scrollbar-track {
+          
+        ::-webkit-scrollbar-track {
               background-color: #f1f1f1;
           }
-          ::-webkit-scrollbar-thumb {
+          
+        ::-webkit-scrollbar-thumb {
               background-color: #888;
               border-radius: 6px;
           }
-          ::-webkit-scrollbar-thumb:hover {
+          
+        ::-webkit-scrollbar-thumb:hover {
               background-color: #555;
           }
 
-          .upload-container {
+        .upload-container {
               margin-bottom: 20px;
           }
 
-          .upload-area {
+        .upload-area {
               margin-top: 10px;
           }
 
-          .upload-drop-zone {
+        .upload-drop-zone {
               border: 2px dashed #ccc;
               border-radius: 8px;
               padding: 25px;
@@ -781,18 +968,18 @@ function searchFiles($dir, $term) {
                         
           }
 
-          .upload-drop-zone.drag-over {
+        .upload-drop-zone.drag-over {
               background: #e9ecef;
               border-color: #0d6efd;
           }
 
-          .upload-icon {
+        .upload-icon {
               font-size: 50px;
               color: #6c757d;
               transition: all 0.3s ease;
           }
 
-          .upload-drop-zone:hover .upload-icon {
+        .upload-drop-zone:hover .upload-icon {
               color: #0d6efd;
               transform: scale(1.1);
           }
@@ -800,19 +987,148 @@ function searchFiles($dir, $term) {
           td {
               vertical-align: middle;
           }
+
+        .btn-outline-primary:hover i,
+        .btn-outline-info:hover i,
+        .btn-outline-warning:hover i,
+        .btn-outline-danger:hover i {
+              color: #fff; 
+         }
+
+        .table tbody tr {
+              transition: all 0.2s ease;
+              position: relative;
+              cursor: pointer;
+          }
+
+        .table tbody tr:hover {
+              transform: translateY(-2px);
+              box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+              z-index: 2;
+              background-color: rgba(0, 123, 255, 0.05);
+          }
+
+        .table tbody tr:hover td {
+              color: #007bff;
+          }
+
+        body.dark-mode .table tbody tr:hover {
+              background-color: rgba(0, 123, 255, 0.1);
+          }
+
+        body.dark-mode .table tbody tr:hover td {
+              color: #4da3ff;
+          }
+
+        .close {
+              position: absolute;
+              right: 15px;
+              top: 15px;
+              width: 32px;
+              height: 32px;
+              opacity: 0.7;
+              cursor: pointer;
+              transition: all 0.3s ease;
+              border: 2px solid rgba(0, 0, 0, 0.3);
+              border-radius: 50%;
+              display: flex;
+              align-items: center;
+              justify-content: center;
+              font-size: 20px;
+              color: #333;
+              text-decoration: none;
+        }
+
+        .close:hover {
+              opacity: 1;
+              transform: rotate(90deg);
+              border-color: rgba(0, 0, 0, 0.5);
+              color: #007bff;
+        }
+
+        body.dark-mode .close {
+              border-color: rgba(255, 255, 255, 0.3);
+              color: #fff;
+        }
+
+        body.dark-mode .close:hover {
+              border-color: rgba(255, 255, 255, 0.5);
+              color: #4da3ff;
+        }
+
+        #searchModal .modal-dialog.modal-lg {
+              max-width: 90% !important;
+              width: 1200px !important;
+        }
+
+        .container-sm.callout .row a.btn.custom-btn-color {
+              color: #000000; 
+              background-color: transparent; 
+              border-color: #ced4da;
+              margin: 5px;
+              transition: all 0.3s ease;
+        }
+
+        .container-sm.callout .row a.btn.custom-btn-color:hover {
+              color: #007bff;
+              background-color: rgba(0, 123, 255, 0.1); 
+        }
+
+        body.dark-mode .container-sm.callout .row a.btn.custom-btn-color {
+              color: #ffffff; 
+              background-color: #495057;
+              border-color: #6c757d;
+        }
+
+        body.dark-mode .container-sm.callout .row a.btn.custom-btn-color:hover {
+              color: #ffffff;
+              background-color: #007bff;
+              border-color: #007bff;
+        }
+
+        body.dark-mode .container-sm.callout .row a.btn.custom-btn-color i,
+              body.dark-mode .container-sm.callout .row a.btn.custom-btn-color span {
+              color: #ffffff; 
+        }
+        
+        .custom-btn-color, .custom-btn-color i {
+              color: #000000;
+              background-color: transparent;
+              border-color: #ced4da;
+              margin: 5px;
+              transition: all 0.3s ease;
+        }
+
+        .custom-btn-color:hover, .custom-btn-color:hover i {
+              color: #007bff;
+              background-color: rgba(0, 123, 255, 0.1);
+        }
+
+        body.dark-mode .custom-btn-color, 
+        body.dark-mode .custom-btn-color i {
+              color: #ffffff;
+              background-color: #495057;
+              border-color: #6c757d;
+        }
+
+        body.dark-mode .custom-btn-color:hover, 
+        body.dark-mode .custom-btn-color:hover i {
+              color: #ffffff;
+              background-color: #007bff;
+              border-color: #007bff;
+        }
      </style>
   </head>
 <body>
 <div class="container-sm callout border border-3 rounded-4 col-11">
     <div class="row">
-        <a href="./index.php" class="col btn btn-sm custom-btn-color" data-translate="home">🏠 首页</a>
-        <a href="./upload.php" class="col btn btn-sm custom-btn-color">📂 Mihomo</a>
-        <a href="./upload_sb.php" class="col btn btn-sm custom-btn-color">🗂️ Sing-box</a>
-        <a href="./box.php" class="col btn btn-sm custom-btn-color" data-translate="convert">💹 转换</a>
-        <a href="./nekobox.php" class="col btn btn-sm custom-btn-color" data-translate="fileAssistant">📦 文件助手</a>
+        <a href="./index.php" class="col btn btn-sm custom-btn-color" data-translate="home"><i class="fas fa-home"></i> Home</a>
+        <a href="./mihomo_manager.php" class="col btn btn-sm custom-btn-color"><i class="fas fa-folder"></i> Mihomo</a>
+        <a href="./singbox_manager.php" class="col btn btn-sm custom-btn-color"><i class="fas fa-folder-open"></i> Sing-box</a>
+        <a href="./box.php" class="col btn btn-sm custom-btn-color" data-translate="convert"><i class="fas fa-exchange-alt"></i> Convert</a>
+        <a href="./nekobox.php" class="col btn btn-sm custom-btn-color" data-translate="fileAssistant"><i class="fas fa-file-alt"></i> File Assistant</a>
     </div>
 </div>
-
 <div class="row">
     <div class="col-12">  
         <div class="container container-bg border border-3 rounded-4 p-3">
@@ -821,7 +1137,7 @@ function searchFiles($dir, $term) {
                     <img src="./assets/img/nekobox.png" alt="Neko Box" class="img-fluid" style="max-height: 100px;">
                 </div>
                 <div class="col-md-6 text-center"> 
-                    <h1 class="mb-0" id="pageTitle">NeKoBox文件助手</h1>
+                    <h1 class="mb-0" id="pageTitle">NeKoBox File Assistant</h1>
                 </div>
                 <div class="col-md-3">
                 </div>
@@ -831,40 +1147,40 @@ function searchFiles($dir, $term) {
                 <div class="col-12">
                     <div class="btn-toolbar justify-content-between">
                         <div class="btn-group">
-                            <button type="button" class="btn btn-outline-secondary" onclick="goToParentDirectory()" title="返回上一级目录" data-translate-title="goToParentDirectoryTitle">
+                            <button type="button" class="btn btn-outline-secondary" onclick="goToParentDirectory()" title="Go Back" data-translate-title="goToParentDirectoryTitle">
                                 <i class="fas fa-arrow-left"></i>
                             </button>
-                            <button type="button" class="btn btn-outline-secondary" onclick="location.href='?dir=/'" title="返回根目录"  data-translate-title="rootDirectoryTitle">
+                            <button type="button" class="btn btn-outline-secondary" onclick="location.href='?dir=/'" title="Return to Root Directory"  data-translate-title="rootDirectoryTitle">
                                 <i class="fas fa-home"></i> 
                             </button>
-                            <button type="button" class="btn btn-outline-secondary" onclick="location.href='?dir=/root'" title="返回主目录"  data-translate-title="homeDirectoryTitle">
+                            <button type="button" class="btn btn-outline-secondary" onclick="location.href='?dir=/root'" title="Return to Home Directory"  data-translate-title="homeDirectoryTitle">
                                 <i class="fas fa-user"></i>
                             </button>
-                            <button type="button" class="btn btn-outline-secondary" onclick="location.reload()" title="刷新目录内容"  data-translate-title="refreshDirectoryTitle">
+                            <button type="button" class="btn btn-outline-secondary" onclick="location.reload()" title="Refresh Directory Content"  data-translate-title="refreshDirectoryTitle">
                                 <i class="fas fa-sync-alt"></i>
                             </button>
                         </div>
                         
                         <div class="btn-group">
-                            <button type="button" class="btn btn-outline-secondary" onclick="selectAll()" id="selectAllBtn" title="全选"  data-translate-title="selectAll">
+                            <button type="button" class="btn btn-outline-secondary" onclick="selectAll()" id="selectAllBtn" title="Select All"  data-translate-title="selectAll">
                                 <i class="fas fa-check-square"></i>
                             </button>
-                            <button type="button" class="btn btn-outline-secondary" onclick="reverseSelection()" id="reverseSelectionBtn" title="反选"  data-translate-title="invertSelection">
+                            <button type="button" class="btn btn-outline-secondary" onclick="reverseSelection()" id="reverseSelectionBtn" title="Invert Selection"  data-translate-title="invertSelection">
                                 <i class="fas fa-exchange-alt"></i>
                             </button>
-                            <button type="button" class="btn btn-outline-secondary" onclick="deleteSelected()" id="deleteSelectedBtn" title="删除所选"  data-translate-title="deleteSelected">
+                            <button type="button" class="btn btn-outline-secondary" onclick="deleteSelected()" id="deleteSelectedBtn" title="Delete Selected"  data-translate-title="deleteSelected">
                                 <i class="fas fa-trash-alt"></i>
                             </button>
                         </div>
                         
                         <div class="btn-group">
-                            <button type="button" class="btn btn-outline-secondary" onclick="showSearchModal()" id="searchBtn" title="搜索" data-translate-title="searchTitle">
+                            <button type="button" class="btn btn-outline-secondary" onclick="showSearchModal()" id="searchBtn" title="Search" data-translate-title="searchTitle">
                                 <i class="fas fa-search"></i>
                             </button>
-                            <button type="button" class="btn btn-outline-secondary" onclick="showCreateModal()" id="createBtn" title="新建"  data-translate-title="createTitle">    
+                            <button type="button" class="btn btn-outline-secondary" onclick="showCreateModal()" id="createBtn" title="Create New"  data-translate-title="createTitle">    
                                 <i class="fas fa-plus"></i> 
                             </button>
-                            <button type="button" class="btn btn-outline-secondary" onclick="showUploadArea()" id="uploadBtn" title="上传"  data-translate-title="uploadTitle">
+                            <button type="button" class="btn btn-outline-secondary" onclick="showUploadArea()" id="uploadBtn" title="Upload"  data-translate-title="uploadTitle">
                                 <i class="fas fa-upload"></i>
                             </button>
                         </div>
@@ -873,7 +1189,7 @@ function searchFiles($dir, $term) {
                                 <option value="en">English</option>
                                 <option value="zh">中文</option>                  
                             </select>
-                            <button id="themeToggle" class="btn btn-outline-secondary" title="切换主题"  data-translate-title="themeToggleTitle">
+                            <button id="themeToggle" class="btn btn-outline-secondary" title="Toggle Theme"  data-translate-title="themeToggleTitle">
                                 <i class="fas fa-moon"></i>
                             </button>
                         </div>
@@ -882,7 +1198,7 @@ function searchFiles($dir, $term) {
      </div>
  <nav aria-label="breadcrumb">
     <ol class="breadcrumb">
-        <li class="breadcrumb-item"><a href="?dir=">根目录</a></li>
+        <li class="breadcrumb-item"><a href="?dir=">root</a></li>
         <?php
         $path = '';
         $breadcrumbs = explode('/', trim($current_dir, '/'));
@@ -904,7 +1220,7 @@ function searchFiles($dir, $term) {
                 <i class="fas fa-cloud-upload-alt upload-icon"></i>
             </div>
         </form>
-        <button type="button" class="btn btn-secondary mt-2" onclick="hideUploadArea()">取消</button>
+        <button type="button" class="btn btn-secondary mt-2" onclick="hideUploadArea()" data-translate="cancel">Cancel</button>
     </div>
 </div>
 
@@ -913,13 +1229,13 @@ function searchFiles($dir, $term) {
         <thead class="thead-dark">
             <tr>
                 <th><input type="checkbox" id="selectAllCheckbox"></th>
-                <th data-translate="name">名称</th>
-                <th data-translate="type">类型</th>
-                <th data-translate="size">大小</th>
-                <th data-translate="modifiedTime">修改时间</th>
-                <th data-translate="permissions">权限</th>
-                <th data-translate="owner">拥有者</th>
-                <th data-translate="actions">操作</th>
+                <th data-translate="name">Name</th>
+                <th data-translate="type">Type</th>
+                <th data-translate="size">Size</th>
+                <th data-translate="modifiedTime">Modified Time</th>
+                <th data-translate="permissions">Permissions</th>
+                <th data-translate="owner">Owner</th>
+                <th data-translate="actions">Actions</th>
             </tr>
         </thead>
         <tbody>
@@ -927,7 +1243,7 @@ function searchFiles($dir, $term) {
                 <tr>
                     <td></td>
                     <td class="folder-icon"><a href="?dir=<?php echo urlencode(dirname($current_dir)); ?>">..</a></td>
-                    <td>目录</td>
+                    <td data-translate="directory">Directory</td>
                     <td>-</td>
                     <td>-</td>
                     <td>-</td>
@@ -960,28 +1276,28 @@ function searchFiles($dir, $term) {
                             <?php endif; ?>
                         <?php endif; ?>
                     </td>
-                    <td data-translate="<?php echo $item['is_dir'] ? 'directory' : 'file'; ?>"><?php echo $item['is_dir'] ? '目录' : '文件'; ?></td>
+                    <td data-translate="<?php echo $item['is_dir'] ? 'directory' : 'file'; ?>"><?php echo $item['is_dir'] ? 'Directory' : 'File'; ?></td>
                     <td><?php echo $item['size']; ?></td>
                     <td><?php echo $item['mtime']; ?></td>
                     <td><?php echo $item['permissions']; ?></td>
                     <td><?php echo htmlspecialchars($item['owner']); ?></td>
                     <td>
                         <div style="display: flex; gap: 5px;">
-                            <button onclick="showRenameModal('<?php echo htmlspecialchars($item['name']); ?>', '<?php echo htmlspecialchars($item['path']); ?>')" class="btn btn-outline-primary btn-sm" title="✏️ 重命名" data-translate-title="rename">
+                            <button onclick="showRenameModal('<?php echo htmlspecialchars($item['name']); ?>', '<?php echo htmlspecialchars($item['path']); ?>')" class="btn btn-outline-primary btn-sm" title="✏️ Rename" data-translate-title="rename">
                                 <i class="fas fa-edit"></i>
                             </button>
                             <?php if (!$item['is_dir']): ?>
-                                <a href="?dir=<?php echo urlencode($current_dir); ?>&download=<?php echo urlencode($item['path']); ?>" class="btn btn-outline-info btn-sm" title="⬇️ 下载" data-translate-title="download">
+                                <a href="?dir=<?php echo urlencode($current_dir); ?>&download=<?php echo urlencode($item['path']); ?>" class="btn btn-outline-info btn-sm" title="⬇️ Download" data-translate-title="download">
                                     <i class="fas fa-download"></i>
                                 </a>
                             <?php endif; ?>
-                            <button onclick="showChmodModal('<?php echo htmlspecialchars($item['path']); ?>', '<?php echo $item['permissions']; ?>')" class="btn btn-outline-warning btn-sm" title="🔒 权限" data-translate-title="setPermissions">
+                            <button onclick="showChmodModal('<?php echo htmlspecialchars($item['path']); ?>', '<?php echo $item['permissions']; ?>')" class="btn btn-outline-warning btn-sm" title="🔒 Set Permissions" data-translate-title="setPermissions">
                                 <i class="fas fa-lock"></i>
                             </button>
                             <form method="post" style="display:inline;" onsubmit="return confirmDelete('<?php echo htmlspecialchars($item['name']); ?>');">
                                 <input type="hidden" name="action" value="delete">
                                 <input type="hidden" name="path" value="<?php echo htmlspecialchars($item['path']); ?>">
-                                <button type="submit" class="btn btn-outline-danger btn-sm" title="🗑️ 删除" data-translate-title="delete">
+                                <button type="submit" class="btn btn-outline-danger btn-sm" title="🗑️ Delete" data-translate-title="delete">
                                     <i class="fas fa-trash-alt"></i>
                                 </button>
                             </form>
@@ -995,17 +1311,17 @@ function searchFiles($dir, $term) {
     <div id="renameModal" class="modal">
         <div class="modal-content">
             <span class="close" onclick="closeModal('renameModal')">&times;</span>
-                <h2 data-translate="rename">重命名</h2>
+                <h2 data-translate="rename">✏️ Rename</h2>
                     <form method="post" onsubmit="return validateRename()">
                         <input type="hidden" name="action" value="rename">
                         <input type="hidden" name="old_path" id="oldPath">
                         <div class="form-group">
-                            <label for="newPath" data-translate="newName">新名称</label>
+                            <label for="newPath" data-translate="newName">New name</label>
                             <input type="text" name="new_path" id="newPath" class="form-control" autocomplete="off" data-translate-placeholder="enterNewName">
                         </div>
                         <div class="btn-group">
-                            <button type="button" class="btn btn-secondary" onclick="closeModal('renameModal')" data-translate="cancel">取消</button>
-                            <button type="submit" class="btn btn-primary" data-translate="confirmRename">确认重命名</button>
+                            <button type="button" class="btn btn-secondary" onclick="closeModal('renameModal')" data-translate="cancel">Close</button>
+                            <button type="submit" class="btn btn-primary" data-translate="confirmRename">Confirm Rename</button>
                         </div>
                     </form>
                 </div>
@@ -1014,21 +1330,21 @@ function searchFiles($dir, $term) {
             <div id="createModal" class="modal">
                 <div class="modal-content">
                     <span class="close" onclick="closeModal('createModal')">&times;</span>
-                    <h2 data-translate="create">新建</h2>
-                    <button onclick="showNewFolderModal()" class="btn btn-primary mb-2" data-translate="newFolder">新建文件夹</button>
-                    <button onclick="showNewFileModal()" class="btn btn-primary" data-translate="newFile">新建文件</button>
+                    <h2 data-translate="create">Create</h2>
+                    <button onclick="showNewFolderModal()" class="btn btn-primary mb-2" data-translate="newFolder">New Folder</button>
+                    <button onclick="showNewFileModal()" class="btn btn-primary" data-translate="newFile">New File</button>
                 </div>
             </div>
 
             <div id="newFolderModal" class="modal">
                 <div class="modal-content">
                     <span class="close" onclick="closeModal('newFolderModal')">&times;</span>
-                    <h2 data-translate="newFolder">新建文件夹</h2>
+                    <h2 data-translate="newFolder">New Folder</h2>
                     <form method="post" onsubmit="return createNewFolder()">
                         <input type="hidden" name="action" value="create_folder">
-                        <label for="newFolderName" data-translate="folderName">文件夹名称:</label>
+                        <label for="newFolderName" data-translate="folderName">Folder name:</label>
                         <input type="text" name="new_folder_name" id="newFolderName" required data-translate-placeholder="enterFolderName">
-                        <input type="submit" value="创建" class="btn" data-translate="create">
+                        <input type="submit" class="btn" data-translate="create" data-translate-value="create">
                     </form>
                 </div>
             </div>
@@ -1036,12 +1352,12 @@ function searchFiles($dir, $term) {
             <div id="newFileModal" class="modal">
                 <div class="modal-content">
                     <span class="close" onclick="closeModal('newFileModal')">&times;</span>
-                    <h2 data-translate="newFile">新建文件</h2>
+                    <h2 data-translate="newFile">New File</h2>
                     <form method="post" onsubmit="return createNewFile()">
                         <input type="hidden" name="action" value="create_file">
-                        <label for="newFileName" data-translate="fileName">文件名称:</label>
+                        <label for="newFileName" data-translate="fileName">File name:</label>
                         <input type="text" name="new_file_name" id="newFileName" required data-translate-placeholder="enterFileName">
-                        <input type="submit" value="创建" class="btn" data-translate="create">
+                        <input type="submit" class="btn" data-translate="create" data-translate-value="create">
                     </form>
                 </div>
             </div>
@@ -1049,14 +1365,14 @@ function searchFiles($dir, $term) {
                 <div class="modal-dialog modal-lg">
                     <div class="modal-content">
                         <div class="modal-header">
-                            <h5 class="modal-title" data-translate="searchFiles">搜索文件</h5>
+                            <h5 class="modal-title" data-translate="searchFiles">Search Files</h5>
                             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                         </div>
                         <div class="modal-body">
                             <form id="searchForm">
                                 <div class="input-group mb-3">
-                                    <input type="text" id="searchInput" class="form-control" data-translate="searchInputPlaceholder" data-translate-placeholder="searchInputPlaceholder" placeholder="输入文件名" required>
-                                    <button type="submit" class="btn btn-primary" data-translate="search">搜索</button>
+                                    <input type="text" id="searchInput" class="form-control" data-translate="searchInputPlaceholder" data-translate-placeholder="searchInputPlaceholder" placeholder="Enter file name" required>
+                                    <button type="submit" class="btn btn-primary" data-translate="search">Search</button>
                                 </div>
                             </form>
                             <div id="searchResults"></div>
@@ -1068,14 +1384,14 @@ function searchFiles($dir, $term) {
             <div id="editModal" class="modal">
                 <div class="modal-content">
                     <span class="close" onclick="closeModal('editModal')">&times;</span>
-                    <h2 data-translate="editFile">编辑文件</h2>
+                    <h2 data-translate="editFile">Edit File</h2>
                     <form method="post" id="editForm" onsubmit="return saveEdit()">
                         <input type="hidden" name="action" value="edit">
                         <input type="hidden" name="path" id="editPath">
                         <input type="hidden" name="encoding" id="editEncoding">
                         <textarea name="content" id="editContent" rows="10" cols="50"></textarea>
-                        <input type="submit" value="保存" class="btn" data-translate="save">
-                        <button type="button" onclick="openAceEditor()" class="btn" data-translate="advancedEdit">高级编辑</button>
+                        <input type="submit" class="btn" data-translate="save" data-translate-value="save">
+                        <button type="button" onclick="openAceEditor()" class="btn" data-translate="advancedEdit">Advanced Edit</button>
                     </form>
                 </div>
             </div>
@@ -1083,8 +1399,8 @@ function searchFiles($dir, $term) {
             <div id="aceEditor">
                 <div id="aceEditorContainer"></div>
                 <div id="editorStatusBar">
-                    <span id="cursorPosition"><span data-translate="line">行</span>: <span id="currentLine">1</span>, <span data-translate="column">列</span>: <span id="currentColumn">1</span></span>
-                    <span id="characterCount"><span data-translate="characterCount">字符数</span>: <span id="charCount">0</span></span>
+                    <span id="cursorPosition"><span data-translate="line">Line</span>: <span id="currentLine">1</span>, <span data-translate="column">Column</span>: <span id="currentColumn">1</span></span>
+                    <span id="characterCount"><span data-translate="characterCount">Character Count</span>: <span id="charCount">0</span></span>
                 </div>
                 <div id="editorControls">
                     <select id="fontSize" onchange="changeFontSize()">
@@ -1132,39 +1448,39 @@ function searchFiles($dir, $term) {
                         <option value="Shift_JIS">Shift_JIS (日文)</option>
                         <option value="EUC-KR">EUC-KR (韩文)</option>
                     </select>
-                    <button onclick="toggleSearch()" class="btn" title="搜索文件内容" data-translate="search"><i class="fas fa-search"></i></button>
-                    <button onclick="formatCode()" class="btn" data-translate="format">格式化</button>
-                    <button onclick="formatJSON()" class="btn" id="formatJSONBtn" style="display: none;" data-translate="formatJSON">格式化 JSON</button>
-                    <button onclick="validateJSON()" class="btn" id="validateJSONBtn" style="display: none;" data-translate="validateJSON">验证 JSON</button>
-                    <button onclick="validateYAML()" class="btn" id="validateYAMLBtn" style="display: none;" data-translate="validateYAML">验证 YAML</button>
-                    <button onclick="saveAceContent()" class="btn" data-translate="save">保存</button>
-                    <button onclick="closeAceEditor()" class="btn" data-translate="close">关闭</button>
+                    <button onclick="toggleSearch()" class="btn" title="搜索文件内容" data-translate="search" data-translate-title="search_title"><i class="fas fa-search"></i></button>
+                    <button onclick="formatCode()" class="btn" data-translate="format">Format</button>
+                    <button onclick="formatJSON()" class="btn" id="formatJSONBtn" style="display: none;" data-translate="formatJSON">Format JSON</button>
+                    <button onclick="validateJSON()" class="btn" id="validateJSONBtn" style="display: none;" data-translate="validateJSON">Validate JSON</button>
+                    <button onclick="validateYAML()" class="btn" id="validateYAMLBtn" style="display: none;" data-translate="validateYAML">Validate YAML</button>
+                    <button onclick="saveAceContent()" class="btn" data-translate="save">Save</button>
+                    <button onclick="closeAceEditor()" class="btn" data-translate="close">Close</button>
                 </div>
             </div>
 
             <div id="aceEditor">
                 <div id="aceEditorContainer"></div>
                 <div style="position: absolute; top: 10px; right: 10px;">
-                    <button onclick="saveAceContent()" class="btn" data-translate="save">保存</button>
-                    <button onclick="closeAceEditor()" class="btn" style="margin-left: 10px;" data-translate="close">关闭</button>
+                    <button onclick="saveAceContent()" class="btn" data-translate="save">Save</button>
+                    <button onclick="closeAceEditor()" class="btn" style="margin-left: 10px;" data-translate="close">Close</button>
                 </div>
             </div>
 
             <div id="chmodModal" class="modal">
                 <div class="modal-content">
                     <span class="close" onclick="closeModal('chmodModal')">&times;</span>
-                    <h2 data-translate="setPermissions">设置权限</h2>
+                    <h2 data-translate="setPermissions">🔒 Set Permissions</h2>
                     <form method="post" onsubmit="return validateChmod()">
                         <input type="hidden" name="action" value="chmod">
                         <input type="hidden" name="path" id="chmodPath">
                         <div class="form-group">
-                            <label for="permissions" data-translate="permissionValue">权限值（例如：0644）</label>
+                            <label for="permissions" data-translate="permissionValue">Permission value (e.g.: 0644)</label>
                             <input type="text" name="permissions" id="permissions" class="form-control" maxlength="4" data-translate-placeholder="permissionPlaceholder" placeholder="0644" autocomplete="off">
-                            <small class="form-text text-muted" data-translate="permissionHelp">输入三位或四位数字，例如：0644 或 0755</small>
+                            <small class="form-text text-muted" data-translate="permissionHelp">Please enter a valid permission value (three or four octal digits, e.g.: 644 or 0755)</small>
                         </div>
                         <div class="btn-group">
-                            <button type="button" class="btn btn-secondary" onclick="closeModal('chmodModal')" data-translate="cancel">取消</button>
-                            <button type="submit" class="btn btn-primary" data-translate="confirmChange">确认修改</button>
+                            <button type="button" class="btn btn-secondary" onclick="closeModal('chmodModal')" data-translate="cancel">Cancel</button>
+                            <button type="submit" class="btn btn-primary" data-translate="confirmChange">Confirm Change</button>
                         </div>
                     </form>
                 </div>
@@ -1173,7 +1489,7 @@ function searchFiles($dir, $term) {
             <div id="previewModal" class="modal">
                 <div class="modal-content">
                     <span class="close" onclick="closeModal('previewModal')">&times;</span>
-                    <h2 data-translate="filePreview">文件预览</h2>
+                    <h2 data-translate="filePreview">File Preview</h2>
                     <div id="previewContainer">
                     </div>
                 </div>
@@ -1183,13 +1499,323 @@ function searchFiles($dir, $term) {
 </div>
 
 <script>
-    const DEFAULT_FONT_SIZE = '20px';
+document.addEventListener('DOMContentLoaded', function() {
+    const saveLanguageBtn = document.getElementById('saveLanguage');
+    const pageTitle = document.getElementById('pageTitle');
+    const uploadBtn = document.getElementById('uploadBtn');
 
-    let aceEditor;
-
-    function showModal(modalId) {
-        document.getElementById(modalId).style.display = "block";
+const translations = {
+    zh: {
+        pageTitle: "NeKoBox 文件助手",
+        uploadBtn: "上传文件",
+        rootDirectory: "根目录",
+        name: "名称",
+        type: "类型",
+        size: "大小",
+        permissions: "权限",
+        actions: "操作",
+        directory: "目录",
+        file: "文件",
+        rename: "✏️ 重命名",
+        edit: "📝 编辑",
+        download: "📥 下载",
+        delete: "🗑️ 删除",
+        confirmDelete: "确定要删除 {0} 吗？这个操作不可撤销。",
+        newName: "新名称:",
+        close: "关闭",
+        setPermissions: "🔒 设置权限",
+        saveLanguage: "保存语言设置",
+        languageSaved: "语言设置已保存",
+        modifiedTime: "修改时间",
+        owner: "拥有者",
+        create: "新建",
+        newFolder: "新建文件夹",
+        newFile: "新建文件",
+        folderName: "文件夹名称:",
+        fileName: "文件名称:",
+        search: "搜索",
+        searchFiles: "搜索文件",
+        noMatchingFiles: "没有找到匹配的文件。",
+        moveTo: "移至",
+        cancel: "取消",
+        confirm: "确认",
+        goBack: "返回上一级",
+        refreshDirectory: "刷新目录内容",
+        switchTheme: "切换主题",
+        lightMode: "浅色模式",
+        darkMode: "深色模式",
+        filePreview: "文件预览",
+        unableToLoadImage: "无法加载图片:",
+        unableToLoadSVG: "无法加载SVG文件:",
+        unableToLoadAudio: "无法加载音频:",
+        unableToLoadVideo: "无法加载视频:",
+        home: "🏠 首页",
+        mihomo: "Mihomo",
+        singBox: "Sing-box",
+        convert: "💹 订阅转换",
+        fileAssistant: "📦 文件助手",
+        errorSavingFile: "错误: 无法保存文件。",
+        uploadFailed: "上传失败",
+        fileNotExistOrNotReadable: "文件不存在或不可读。",
+        inputFileName: "输入文件名",
+        search: "搜索",
+        permissionValue: "权限值（例如：0644）",
+        inputThreeOrFourDigits: "输入三位或四位数字，例如：0644 或 0755",
+        fontSizeL: "字体大小",
+        encodingL: "编码",
+        confirmCloseEditor: "确定要关闭编辑器吗？请确保已保存更改。",
+        newNameCannotBeEmpty: "新名称不能为空",
+        fileNameCannotContainChars: "文件名不能包含以下字符: < > : \" / \\ | ? *",
+        folderNameCannotBeEmpty: "文件夹名称不能为空",
+        fileNameCannotBeEmpty: "文件名称不能为空",
+        searchError: "搜索时出错: ",
+        encodingChanged: "编码已更改为 {0}。实际转换将在保存时在服务器端进行。",
+        errorLoadingFileContent: "加载文件内容时出错: ",
+        permissionHelp: "请输入有效的权限值（三位或四位八进制数字，例如：644 或 0755）",
+        permissionValueCannotExceed: "权限值不能超过 0777",
+        goBackTitle: "返回上一级",
+        rootDirectoryTitle: "返回根目录",
+        homeDirectoryTitle: "返回主目录",
+        refreshDirectoryTitle: "刷新目录内容",
+        selectAll: "全选",
+        invertSelection: "反选",
+        deleteSelected: "删除所选",
+        searchTitle: "搜索",
+        createTitle: "新建",
+        uploadTitle: "上传",
+        searchInputPlaceholder: "输入文件名",
+        moveTo: "移至",
+        confirmRename: "确认重命名",
+        create: "创建",
+        confirmChange: "确认修改",
+        themeToggleTitle: "切换主题",
+        editFile: "编辑文件",
+        save: "保存",
+        advancedEdit: "高级编辑",
+        line: "行",
+        column: "列",
+        characterCount: "字符数",
+        fontSizeL: "字体大小",
+        encodingL: "编码",
+        gbk: "GBK (简体中文)",
+        big5: "Big5 (繁体中文)",
+        shiftJIS: "Shift_JIS (日文)",
+        eucKR: "EUC-KR (韩文)",
+        search: "搜索",
+        format: "格式化",
+        validateJSON: "验证 JSON",
+        validateYAML: "验证 YAML",
+        formatJSON: "格式化 JSON",
+        goToParentDirectoryTitle: "返回上一级目录",
+        alreadyAtRootDirectory: "已经在根目录，无法返回上一级。",
+        close: "关闭",
+        fullscreen: "全屏",
+        exitFullscreen: "退出全屏",
+        search_title: "搜索文件内容",
+        jsonFormatSuccess: "JSON 已成功格式化",
+        unableToFormatJSON: "无法格式化：无效的 JSON 格式",
+        codeFormatSuccess: "代码已成功格式化",
+        errorFormattingCode: "格式化时发生错误：",
+        selectAtLeastOneFile: "请至少选择一个文件或文件夹进行删除。",
+        confirmDeleteSelected: "确定要删除选中的 {0} 个文件或文件夹吗？这个操作不可撤销。"
+    },
+    en: {
+        pageTitle: "NeKoBox File Assistant",
+        uploadBtn: "Upload File",
+        rootDirectory: "root",
+        name: "Name",
+        type: "Type",
+        size: "Size",
+        permissions: "Permissions",
+        actions: "Actions",
+        directory: "Directory",
+        file: "File",
+        rename: "✏️ Rename",
+        edit: "📝 Edit",
+        download: "📥 Download",
+        delete: "🗑️ Delete",
+        confirmDelete: "Are you sure you want to delete {0}? This action cannot be undone.",
+        newName: "New name:",
+        close: "Close",
+        setPermissions: "🔒 Set Permissions",
+        saveLanguage: "Save Language Setting",
+        languageSaved: "Language setting has been saved",
+        modifiedTime: "Modified Time",
+        owner: "Owner",
+        create: "Create",
+        newFolder: "New Folder",
+        newFile: "New File",
+        folderName: "Folder name:",
+        fileName: "File name:",
+        search: "Search",
+        searchFiles: "Search Files",
+        noMatchingFiles: "No matching files found.",
+        moveTo: "Move to",
+        cancel: "Cancel",
+        confirm: "Confirm",
+        goBack: "Go Back",
+        refreshDirectory: "Refresh Directory",
+        switchTheme: "Switch Theme",
+        lightMode: "Light Mode",
+        darkMode: "Dark Mode",
+        filePreview: "File Preview",
+        unableToLoadImage: "Unable to load image:",
+        unableToLoadSVG: "Unable to load SVG file:",
+        unableToLoadAudio: "Unable to load audio:",
+        unableToLoadVideo: "Unable to load video:",
+        home: "🏠 Home",
+        mihomo: "Mihomo",
+        singBox: "Sing-box",
+        convert: "💹 Convert",
+        fileAssistant: "📦 File Assistant",
+        errorSavingFile: "Error: Unable to save file.",
+        uploadFailed: "Upload failed",
+        fileNotExistOrNotReadable: "File does not exist or is not readable.",
+        inputFileName: "Input file name",
+        search: "Search",
+        permissionValue: "Permission value (e.g.: 0644)",
+        inputThreeOrFourDigits: "Enter three or four digits, e.g.: 0644 or 0755",
+        fontSizeL: "Font Size",
+        encodingL: "Encoding",
+        save: "Save",
+        closeL: "Close",
+        confirmCloseEditor: "Are you sure you want to close the editor? Please make sure you have saved your changes.",
+        newNameCannotBeEmpty: "New name cannot be empty",
+        fileNameCannotContainChars: "File name cannot contain the following characters: < > : \" / \\ | ? *",
+        folderNameCannotBeEmpty: "Folder name cannot be empty",
+        fileNameCannotBeEmpty: "File name cannot be empty",
+        searchError: "Error searching: ",
+        encodingChanged: "Encoding changed to {0}. Actual conversion will be done on the server side when saving.",
+        errorLoadingFileContent: "Error loading file content: ",
+        permissionHelp: "Please enter a valid permission value (three or four octal digits, e.g.: 644 or 0755)",
+        permissionValueCannotExceed: "Permission value cannot exceed 0777",
+        goBackTitle: "Go Back",
+        rootDirectoryTitle: "Return to Root Directory",
+        homeDirectoryTitle: "Return to Home Directory",
+        refreshDirectoryTitle: "Refresh Directory Content",
+        selectAll: "Select All",
+        invertSelection: "Invert Selection",
+        deleteSelected: "Delete Selected",
+        searchTitle: "Search",
+        createTitle: "Create New",
+        uploadTitle: "Upload",
+        searchInputPlaceholder: "Enter file name",
+        confirmRename: "Confirm Rename",
+        create: "Create",
+        moveTo: "Move to",
+        confirmChange: "Confirm Change",
+        themeToggleTitle: "Toggle Theme",
+        editFile: "Edit File",
+        save: "Save",
+        advancedEdit: "Advanced Edit",
+        line: "Line",
+        column: "Column",
+        characterCount: "Character Count",
+        fontSizeL: "Font Size",
+        encodingL: "Encoding",
+        gbk: "GBK (Simplified Chinese)",
+        big5: "Big5 (Traditional Chinese)",
+        shiftJIS: "Shift_JIS (Japanese)",
+        eucKR: "EUC-KR (Korean)",
+        search: "Search",
+        format: "Format",
+        validateJSON: "Validate JSON",
+        validateYAML: "Validate YAML",
+        formatJSON: "Format JSON",
+        goToParentDirectoryTitle: "Go to parent directory",
+        alreadyAtRootDirectory: "Already at the root directory, cannot go back.",
+        close: "Close",
+        search_title: "Search File Content",
+        fullscreen: "Fullscreen",
+        exitFullscreen: "Exit Fullscreen",
+        jsonFormatSuccess: "JSON has been successfully formatted",
+        unableToFormatJSON: "Unable to format: Invalid JSON format",
+        codeFormatSuccess: "Code has been successfully formatted",
+        errorFormattingCode: "Error formatting code: ",
+        selectAtLeastOneFile: "Please select at least one file or folder to delete.",
+        confirmDeleteSelected: "Are you sure you want to delete the selected {0} files or folders? This action cannot be undone."
     }
+};
+    let currentLang = localStorage.getItem('preferred_language') || 'en';
+
+function updateLanguage(lang) {
+    document.documentElement.lang = lang;
+    pageTitle.textContent = translations[lang].pageTitle;
+    uploadBtn.title = translations[lang].uploadBtn;
+
+    document.querySelectorAll('th').forEach((th) => {
+        const key = th.getAttribute('data-translate');
+        if (key && translations[lang][key]) {
+            th.textContent = translations[lang][key];
+        }
+    });
+
+    document.querySelectorAll('[data-translate-value]').forEach(el => {
+        const key = el.getAttribute('data-translate-value');
+        if (translations[lang][key]) {
+            el.value = translations[lang][key];
+        }
+    });
+
+
+    document.querySelectorAll('[data-translate], [data-translate-title], [data-translate-placeholder]').forEach(el => {
+        const translateKey = el.getAttribute('data-translate');
+        const titleKey = el.getAttribute('data-translate-title');
+        const placeholderKey = el.getAttribute('data-translate-placeholder');
+
+        if (translateKey && translations[lang][translateKey]) {
+            if (el.tagName === 'INPUT' && el.type === 'text') {
+                el.placeholder = translations[lang][translateKey];
+            } else {
+                el.textContent = translations[lang][translateKey];
+            }
+        }
+
+        if (titleKey && translations[lang][titleKey]) {
+            el.title = translations[lang][titleKey];
+        }
+
+        if (placeholderKey && translations[lang][placeholderKey]) {
+            el.placeholder = translations[lang][placeholderKey];
+        }
+    });
+
+    document.querySelector('.breadcrumb a').textContent = translations[lang].rootDirectory;
+    document.querySelector('#renameModal h2').textContent = translations[lang].rename;
+    document.querySelector('#editModal h2').textContent = translations[lang].edit;
+    document.querySelector('#chmodModal h2').textContent = translations[lang].setPermissions;
+
+    document.getElementById('languageSwitcher').value = lang;
+    }
+
+    updateLanguage(currentLang);
+
+    document.getElementById('languageSwitcher').addEventListener('change', function() {
+        currentLang = this.value;
+        updateLanguage(currentLang);
+        localStorage.setItem('preferred_language', currentLang);
+    });
+
+    window.confirmDelete = function(name) {
+        return confirm(translations[currentLang].confirmDelete.replace('{0}', name));
+    }
+
+    window.showRenameModal = function(oldName, oldPath) {
+        document.getElementById('oldPath').value = oldPath;
+        document.getElementById('newPath').value = oldName;
+        document.querySelector('#renameModal label').textContent = translations[currentLang].newName;
+        showModal('renameModal');
+    }
+    });
+    
+
+const DEFAULT_FONT_SIZE = '20px';
+
+let aceEditor;
+
+function showModal(modalId) {
+    document.getElementById(modalId).style.display = "block";
+}
 
 function goBack() {
     window.history.back();
@@ -1329,8 +1955,6 @@ function searchFiles(event) {
         });
 }
 
-fileSpan.textContent = `${file.name} (${file.path})`;
-
 function closeModal(modalId) {
     if (modalId === 'editModal' && document.getElementById('aceEditor').style.display === 'block') {
         return;
@@ -1400,25 +2024,25 @@ function showEditModal(path) {
         });
 }
 
-    function setAceEditorTheme() {
-        if (document.body.classList.contains('dark-mode')) {
-            aceEditor.setTheme("ace/theme/monokai");
-            document.getElementById('editorTheme').value = "ace/theme/monokai";
-        } else {
-            aceEditor.setTheme("ace/theme/github");
-            document.getElementById('editorTheme').value = "ace/theme/github";
+function setAceEditorTheme() {
+    if (document.body.classList.contains('dark-mode')) {
+        aceEditor.setTheme("ace/theme/monokai");
+        document.getElementById('editorTheme').value = "ace/theme/monokai";
+    } else {
+        aceEditor.setTheme("ace/theme/github");
+        document.getElementById('editorTheme').value = "ace/theme/github";
         }
     }
 
-    function changeFontSize() {
-        let fontSize = document.getElementById('fontSize').value;
-        aceEditor.setFontSize(fontSize);
+function changeFontSize() {
+    let fontSize = document.getElementById('fontSize').value;
+    aceEditor.setFontSize(fontSize);
     }
 
-    function changeEditorTheme() {
-        let theme = document.getElementById('editorTheme').value;
-        aceEditor.setTheme(theme);
-        localStorage.setItem('preferredAceTheme', theme); 
+function changeEditorTheme() {
+    let theme = document.getElementById('editorTheme').value;
+    aceEditor.setTheme(theme);
+    localStorage.setItem('preferredAceTheme', theme); 
     }
 
 function formatCode() {
@@ -1586,6 +2210,7 @@ function saveAceContent() {
 
 function openAceEditor() {
     closeModal('editModal');
+    document.body.classList.add('editing');
     document.getElementById('aceEditor').style.display = 'block';
     let content = document.getElementById('editContent').value;
 
@@ -1735,6 +2360,7 @@ function addErrorMarker(session, line, message) {
 
 function closeAceEditor() {
     if (confirm('确定要关闭编辑器吗？请确保已保存更改。')) {
+        document.body.classList.remove('editing');
         document.getElementById('editContent').value = aceEditor.getValue();
         document.getElementById('aceEditor').style.display = 'none';
         showModal('editModal');
@@ -1784,291 +2410,7 @@ function validateRename() {
 <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.4.12/ext-spellcheck.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/js/bootstrap.bundle.min.js"></script>
 
-
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-    const saveLanguageBtn = document.getElementById('saveLanguage');
-    const pageTitle = document.getElementById('pageTitle');
-    const uploadBtn = document.getElementById('uploadBtn');
-
-const translations = {
-    zh: {
-        pageTitle: "NeKoBox文件助手",
-        uploadBtn: "上传文件",
-        rootDirectory: "根目录",
-        name: "名称",
-        type: "类型",
-        size: "大小",
-        permissions: "权限",
-        actions: "操作",
-        directory: "目录",
-        file: "文件",
-        rename: "✏️ 重命名",
-        edit: "📝 编辑",
-        download: "📥 下载",
-        delete: "🗑️ 删除",
-        confirmDelete: "确定要删除 {0} 吗？这个操作不可撤销。",
-        newName: "新名称:",
-        close: "关闭",
-        setPermissions: "🔒 设置权限",
-        saveLanguage: "保存语言设置",
-        languageSaved: "语言设置已保存",
-        modifiedTime: "修改时间",
-        owner: "拥有者",
-        create: "新建",
-        newFolder: "新建文件夹",
-        newFile: "新建文件",
-        folderName: "文件夹名称:",
-        fileName: "文件名称:",
-        search: "搜索",
-        searchFiles: "搜索文件",
-        noMatchingFiles: "没有找到匹配的文件。",
-        moveTo: "移至",
-        cancel: "取消",
-        confirm: "确认",
-        goBack: "返回上一级",
-        refreshDirectory: "刷新目录内容",
-        switchTheme: "切换主题",
-        lightMode: "浅色模式",
-        darkMode: "深色模式",
-        filePreview: "文件预览",
-        unableToLoadImage: "无法加载图片:",
-        unableToLoadSVG: "无法加载SVG文件:",
-        unableToLoadAudio: "无法加载音频:",
-        unableToLoadVideo: "无法加载视频:",
-        home: "首页",
-        mihomo: "Mihomo",
-        singBox: "Sing-box",
-        convert: "订阅转换",
-        fileAssistant: "文件助手",
-        errorSavingFile: "错误: 无法保存文件。",
-        uploadFailed: "上传失败",
-        fileNotExistOrNotReadable: "文件不存在或不可读。",
-        inputFileName: "输入文件名",
-        search: "搜索",
-        permissionValue: "权限值（例如：0644）",
-        inputThreeOrFourDigits: "输入三位或四位数字，例如：0644 或 0755",
-        fontSizeL: "字体大小",
-        encodingL: "编码",
-        confirmCloseEditor: "确定要关闭编辑器吗？请确保已保存更改。",
-        newNameCannotBeEmpty: "新名称不能为空",
-        fileNameCannotContainChars: "文件名不能包含以下字符: < > : \" / \\ | ? *",
-        folderNameCannotBeEmpty: "文件夹名称不能为空",
-        fileNameCannotBeEmpty: "文件名称不能为空",
-        searchError: "搜索时出错: ",
-        encodingChanged: "编码已更改为 {0}。实际转换将在保存时在服务器端进行。",
-        errorLoadingFileContent: "加载文件内容时出错: ",
-        inputValidPermissionValue: "请输入有效的权限值（三位或四位八进制数字，例如：644 或 0755）",
-        permissionValueCannotExceed: "权限值不能超过 0777",
-        goBackTitle: "返回上一级",
-        rootDirectoryTitle: "返回根目录",
-        homeDirectoryTitle: "返回主目录",
-        refreshDirectoryTitle: "刷新目录内容",
-        selectAll: "全选",
-        invertSelection: "反选",
-        deleteSelected: "删除所选",
-        searchTitle: "搜索",
-        createTitle: "新建",
-        uploadTitle: "上传",
-        searchInputPlaceholder: "输入文件名",
-        moveTo: "移至",
-        confirmRename: "确认重命名",
-        create: "创建",
-        confirmChange: "确认修改",
-        themeToggleTitle: "切换主题",
-        editFile: "编辑文件",
-        save: "保存",
-        advancedEdit: "高级编辑",
-        line: "行",
-        column: "列",
-        characterCount: "字符数",
-        fontSizeL: "字体大小",
-        encodingL: "编码",
-        gbk: "GBK (简体中文)",
-        big5: "Big5 (繁体中文)",
-        shiftJIS: "Shift_JIS (日文)",
-        eucKR: "EUC-KR (韩文)",
-        search: "搜索",
-        format: "格式化",
-        validateJSON: "验证 JSON",
-        validateYAML: "验证 YAML",
-        formatJSON: "格式化 JSON",
-        goToParentDirectoryTitle: "返回上一级目录",
-        alreadyAtRootDirectory: "已经在根目录，无法返回上一级。",
-        close: "关闭"
-    },
-    en: {
-        pageTitle: "NeKoBox File Assistant",
-        uploadBtn: "Upload File",
-        rootDirectory: "root",
-        name: "Name",
-        type: "Type",
-        size: "Size",
-        permissions: "Permissions",
-        actions: "Actions",
-        directory: "Directory",
-        file: "File",
-        rename: "✏️ Rename",
-        edit: "📝 Edit",
-        download: "📥 Download",
-        delete: "🗑️ Delete",
-        confirmDelete: "Are you sure you want to delete {0}? This action cannot be undone.",
-        newName: "New name:",
-        close: "Close",
-        setPermissions: "🔒 Set Permissions",
-        saveLanguage: "Save Language Setting",
-        languageSaved: "Language setting has been saved",
-        modifiedTime: "Modified Time",
-        owner: "Owner",
-        create: "Create",
-        newFolder: "New Folder",
-        newFile: "New File",
-        folderName: "Folder name:",
-        fileName: "File name:",
-        search: "Search",
-        searchFiles: "Search Files",
-        noMatchingFiles: "No matching files found.",
-        moveTo: "Move to",
-        cancel: "Cancel",
-        confirm: "Confirm",
-        goBack: "Go Back",
-        refreshDirectory: "Refresh Directory",
-        switchTheme: "Switch Theme",
-        lightMode: "Light Mode",
-        darkMode: "Dark Mode",
-        filePreview: "File Preview",
-        unableToLoadImage: "Unable to load image:",
-        unableToLoadSVG: "Unable to load SVG file:",
-        unableToLoadAudio: "Unable to load audio:",
-        unableToLoadVideo: "Unable to load video:",
-        home: "Home",
-        mihomo: "Mihomo",
-        singBox: "Sing-box",
-        convert: "Convert",
-        fileAssistant: "File Assistant",
-        errorSavingFile: "Error: Unable to save file.",
-        uploadFailed: "Upload failed",
-        fileNotExistOrNotReadable: "File does not exist or is not readable.",
-        inputFileName: "Input file name",
-        search: "Search",
-        permissionValue: "Permission value (e.g.: 0644)",
-        inputThreeOrFourDigits: "Enter three or four digits, e.g.: 0644 or 0755",
-        fontSizeL: "Font Size",
-        encodingL: "Encoding",
-        save: "Save",
-        closeL: "Close",
-        confirmCloseEditor: "Are you sure you want to close the editor? Please make sure you have saved your changes.",
-        newNameCannotBeEmpty: "New name cannot be empty",
-        fileNameCannotContainChars: "File name cannot contain the following characters: < > : \" / \\ | ? *",
-        folderNameCannotBeEmpty: "Folder name cannot be empty",
-        fileNameCannotBeEmpty: "File name cannot be empty",
-        searchError: "Error searching: ",
-        encodingChanged: "Encoding changed to {0}. Actual conversion will be done on the server side when saving.",
-        errorLoadingFileContent: "Error loading file content: ",
-        inputValidPermissionValue: "Please enter a valid permission value (three or four octal digits, e.g.: 644 or 0755)",
-        permissionValueCannotExceed: "Permission value cannot exceed 0777",
-        goBackTitle: "Go Back",
-        rootDirectoryTitle: "Return to Root Directory",
-        homeDirectoryTitle: "Return to Home Directory",
-        refreshDirectoryTitle: "Refresh Directory Content",
-        selectAll: "Select All",
-        invertSelection: "Invert Selection",
-        deleteSelected: "Delete Selected",
-        searchTitle: "Search",
-        createTitle: "Create New",
-        uploadTitle: "Upload",
-        searchInputPlaceholder: "Enter file name",
-        confirmRename: "Confirm Rename",
-        create: "Create",
-        moveTo: "Move to",
-        confirmChange: "Confirm Change",
-        themeToggleTitle: "Toggle Theme",
-        editFile: "Edit File",
-        save: "Save",
-        advancedEdit: "Advanced Edit",
-        line: "Line",
-        column: "Column",
-        characterCount: "Character Count",
-        fontSizeL: "Font Size",
-        encodingL: "Encoding",
-        gbk: "GBK (Simplified Chinese)",
-        big5: "Big5 (Traditional Chinese)",
-        shiftJIS: "Shift_JIS (Japanese)",
-        eucKR: "EUC-KR (Korean)",
-        search: "Search",
-        format: "Format",
-        validateJSON: "Validate JSON",
-        validateYAML: "Validate YAML",
-        formatJSON: "Format JSON",
-        goToParentDirectoryTitle: "Go to parent directory",
-        alreadyAtRootDirectory: "Already at the root directory, cannot go back.",
-        close: "Close"
-    }
-};
-    let currentLang = localStorage.getItem('preferred_language') || 'en';
-
-function updateLanguage(lang) {
-    document.documentElement.lang = lang;
-    pageTitle.textContent = translations[lang].pageTitle;
-    uploadBtn.title = translations[lang].uploadBtn;
-
-    document.querySelectorAll('th').forEach((th) => {
-        const key = th.getAttribute('data-translate');
-        if (key && translations[lang][key]) {
-            th.textContent = translations[lang][key];
-        }
-    });
-
-    document.querySelectorAll('[data-translate], [data-translate-title], [data-translate-placeholder]').forEach(el => {
-        const translateKey = el.getAttribute('data-translate');
-        const titleKey = el.getAttribute('data-translate-title');
-        const placeholderKey = el.getAttribute('data-translate-placeholder');
-
-        if (translateKey && translations[lang][translateKey]) {
-            if (el.tagName === 'INPUT' && el.type === 'text') {
-                el.placeholder = translations[lang][translateKey];
-            } else {
-                el.textContent = translations[lang][translateKey];
-            }
-        }
-
-        if (titleKey && translations[lang][titleKey]) {
-            el.title = translations[lang][titleKey];
-        }
-
-        if (placeholderKey && translations[lang][placeholderKey]) {
-            el.placeholder = translations[lang][placeholderKey];
-        }
-    });
-
-    document.querySelector('.breadcrumb a').textContent = translations[lang].rootDirectory;
-    document.querySelector('#renameModal h2').textContent = translations[lang].rename;
-    document.querySelector('#editModal h2').textContent = translations[lang].edit;
-    document.querySelector('#chmodModal h2').textContent = translations[lang].setPermissions;
-
-    document.getElementById('languageSwitcher').value = lang;
-}
-
-updateLanguage(currentLang);
-
-    document.getElementById('languageSwitcher').addEventListener('change', function() {
-        currentLang = this.value;
-        updateLanguage(currentLang);
-        localStorage.setItem('preferred_language', currentLang);
-    });
-
-    window.confirmDelete = function(name) {
-        return confirm(translations[currentLang].confirmDelete.replace('{0}', name));
-    }
-
-    window.showRenameModal = function(oldName, oldPath) {
-        document.getElementById('oldPath').value = oldPath;
-        document.getElementById('newPath').value = oldName;
-        document.querySelector('#renameModal label').textContent = translations[currentLang].newName;
-        showModal('renameModal');
-    }
-});
-
 document.addEventListener('DOMContentLoaded', function() {
     const dropZone = document.getElementById('dropZone');
     const fileInput = document.getElementById('fileInput');
@@ -2080,47 +2422,45 @@ document.addEventListener('DOMContentLoaded', function() {
         document.getElementById('searchForm').addEventListener('submit', searchFiles);
     });
 
-    function preventDefaults(e) {
-        e.preventDefault();
-        e.stopPropagation();
-    }
-
+function preventDefaults(e) {
+    e.preventDefault();
+    e.stopPropagation();
+}
     ['dragenter', 'dragover'].forEach(eventName => {
         dropZone.addEventListener(eventName, highlight, false);
-    });
+});
 
     ['dragleave', 'drop'].forEach(eventName => {
         dropZone.addEventListener(eventName, unhighlight, false);
-    });
+});
 
-    function highlight(e) {
-        dropZone.classList.add('drag-over');
-    }
+function highlight(e) {
+    dropZone.classList.add('drag-over');
+}
 
-    function unhighlight(e) {
-        dropZone.classList.remove('drag-over');
-    }
-
+function unhighlight(e) {
+    dropZone.classList.remove('drag-over');
+}
     dropZone.addEventListener('drop', handleDrop, false);
 
-    function handleDrop(e) {
-        const dt = e.dataTransfer;
-        const files = dt.files;
+function handleDrop(e) {
+    const dt = e.dataTransfer;
+    const files = dt.files;
 
-        if (files.length > 0) {
-            fileInput.files = files;
-            uploadForm.submit();
-        }
+    if (files.length > 0) {
+        fileInput.files = files;
+        uploadForm.submit();
     }
+}
 
-    fileInput.addEventListener('change', function() {
-        if (this.files.length > 0) {
-            uploadForm.submit();
-        }
-    });
+fileInput.addEventListener('change', function() {
+    if (this.files.length > 0) {
+        uploadForm.submit();
+    }
+});
 
-    dropZone.addEventListener('click', function() {
-        fileInput.click();
+dropZone.addEventListener('click', function() {
+    fileInput.click();
     });
 });
 
@@ -2157,14 +2497,6 @@ document.addEventListener('DOMContentLoaded', (event) => {
         }
     });
 });
-
-if (body.classList.contains('dark-mode')) {
-    icon.classList.replace('fa-moon', 'fa-sun');
-    themeToggle.style.color = '#fff';
-} else {
-    icon.classList.replace('fa-sun', 'fa-moon');
-    themeToggle.style.color = '#333';
-}
 
 function previewFile(path, extension) {
     const previewContainer = document.getElementById('previewContainer');
