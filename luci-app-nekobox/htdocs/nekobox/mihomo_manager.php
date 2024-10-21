@@ -6,13 +6,6 @@ $configDir = '/etc/neko/config/';
 
 ini_set('memory_limit', '256M');
 
-$enable_timezone = isset($_COOKIE['enable_timezone']) && $_COOKIE['enable_timezone'] == '1';
-$timezone = isset($_COOKIE['timezone']) ? $_COOKIE['timezone'] : 'Asia/Singapore';
-
-if ($enable_timezone) {
-    date_default_timezone_set($timezone);
-}
-
 if (!is_dir($uploadDir)) {
     mkdir($uploadDir, 0755, true);
 }
@@ -531,53 +524,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <div class="text-center">
         <h1 style="margin-top: 40px; margin-bottom: 20px;">Mihomo File Manager</h1>
         <div class="table-wrapper">
-            <h2>Proxy File Management</h2>
-    <form action="mihomo_manager.php" method="get" onsubmit="saveSettings()">
-        <label for="enable_timezone">Enable time zone settings:</label>
-        <input type="checkbox" id="enable_timezone" name="enable_timezone" value="1">
-        
-        <label for="timezone">Select time zone:</label>
-        <select id="timezone" name="timezone">
-            <option value="Asia/Singapore" selected>Singapore</option>
-            <option value="Asia/Shanghai">Shanghai</option>
-            <option value="America/New_York">New York</option>
-            <option value="Asia/Tokyo">Tokyo</option>
-            <option value="America/Los_Angeles">Los Angeles</option>
-            <option value="America/Chicago">Chicago</option>
-            <option value="Asia/Hong_Kong">Hong Kong</option>
-            <option value="Asia/Seoul">Seoul</option>
-            <option value="Asia/Bangkok">Bangkok</option>
-            <option value="America/Sao_Paulo">Sao Paulo</option>
-        </select>
-        
-        <button type="submit" style="background-color: #4CAF50; color: white; border: none; cursor: pointer;">Submit</button>
-    </form>
-
-    <script>
-        function saveSettings() {
-            const enableTimezone = document.getElementById('enable_timezone').checked;
-            const timezone = document.getElementById('timezone').value;
-            document.cookie = "enable_timezone=" + (enableTimezone ? '1' : '0') + "; path=/";
-            document.cookie = "timezone=" + timezone + "; path=/";
-        }
-
-        function loadSettings() {
-            const cookies = document.cookie.split('; ');
-            let enableTimezone = '0';
-            let timezone = 'Asia/Singapore'; 
-
-            cookies.forEach(cookie => {
-                const [name, value] = cookie.split('=');
-                if (name === 'enable_timezone') enableTimezone = value;
-                if (name === 'timezone') timezone = value;
-            });
-
-            document.getElementById('enable_timezone').checked = (enableTimezone === '1');
-            document.getElementById('timezone').value = timezone;
-        }
-
-        window.onload = loadSettings;
-    </script>
+            <h5>Proxy File Management</h5>
 <style>
     .btn-group {
         display: flex;
@@ -596,8 +543,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         background-color: #5a32a3; 
     }
 </style>
-<div class="container text-center">
-    <table class="table table-striped table-bordered">
+<div class="container">
+    <table class="table table-striped table-bordered text-center">
         <thead class="thead-dark">
             <tr>
                 <th style="width: 30%;">File Name</th>
@@ -610,10 +557,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <?php foreach ($proxyFiles as $file): ?>
                 <?php $filePath = $uploadDir . $file; ?>
                 <tr>
-                    <td><a href="download.php?file=<?php echo urlencode($file); ?>"><?php echo htmlspecialchars($file); ?></a></td>
-                    <td class="size-column"><?php echo file_exists($filePath) ? formatSize(filesize($filePath)) : 'File not found'; ?></td>
+                    <td class="align-middle"><a href="download.php?file=<?php echo urlencode($file); ?>"><?php echo htmlspecialchars($file); ?></a></td>
+                    <td class="align-middle"><?php echo file_exists($filePath) ? formatSize(filesize($filePath)) : 'File not found'; ?></td>
                     <td><?php echo htmlspecialchars(date('Y-m-d H:i:s', filemtime($filePath))); ?></td>
-                    <td class="action-column">
+                    <td class="align-middle">
                         <div class="btn-group">
                             <form action="" method="post" class="d-inline">
                                 <input type="hidden" name="deleteFile" value="<?php echo htmlspecialchars($file); ?>">
@@ -669,9 +616,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             </div>
         </div>
 
-<div class="container text-center">
-    <h2>Configuration File Management</h2>
-    <table class="table table-striped table-bordered">
+<div class="container">
+    <h5>Configuration File Management</h5>
+    <table class="table table-striped table-bordered text-center">
         <thead class="thead-dark">
             <tr>
                 <th style="width: 30%;">File Name</th>
@@ -684,9 +631,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <?php foreach ($configFiles as $file): ?>
                 <?php $filePath = $configDir . $file; ?>
                 <tr>
-                    <td><a href="download.php?file=<?php echo urlencode($file); ?>"><?php echo htmlspecialchars($file); ?></a></td>
-                    <td><?php echo file_exists($filePath) ? formatSize(filesize($filePath)) : 'File not found'; ?></td>
-                    <td><?php echo htmlspecialchars(date('Y-m-d H:i:s', filemtime($filePath))); ?></td>
+                    <td class="align-middle"><a href="download.php?file=<?php echo urlencode($file); ?>"><?php echo htmlspecialchars($file); ?></a></td>
+                    <td class="align-middle"><?php echo file_exists($filePath) ? formatSize(filesize($filePath)) : 'File not found'; ?></td>
+                    <td class="align-middle"><?php echo htmlspecialchars(date('Y-m-d H:i:s', filemtime($filePath))); ?></td>
                     <td>
                         <div class="btn-group">
                             <form action="" method="post" class="d-inline">
