@@ -704,19 +704,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   <h2 class="text-success text-center mt-4 mb-4">订阅管理</h2>
 
     <div class="help-text mb-3 text-start">
-       <strong>1. 说明：</strong> <span style="font-size: 120%;"><code>本插件不支持Nginx请用Uhttpd构建固件。</code></span>
-    </div>
-
-    <div class="help-text mb-3 text-start">
-        <strong>2. 注意：</strong> 通用模板（<code>mihomo.yaml</code>）最多支持<strong>6个</strong>订阅链接，请勿更改默认名称。
+        <strong>1. 注意：</strong> 通用模板（<code>mihomo.yaml</code>）最多支持<strong>6个</strong>订阅链接，请勿更改默认名称。
     </div>
 
     <div class="help-text mb-3 text-start"> 
-        <strong>3. 保存与更新：</strong> 填写完毕后，请点击“更新配置”按钮进行保存。
+        <strong>2. 保存与更新：</strong> 填写完毕后，请点击“更新配置”按钮进行保存。
     </div>
 
     <div class="help-text mb-3 text-start"> 
-        <strong>4. 节点转换与手动修改：</strong> 该模板支持所有格式的订阅链接，无需进行额外转换。
+        <strong>3. 节点转换与手动修改：</strong> 该模板支持所有格式的订阅链接，无需进行额外转换。
     </div>
 
     <?php if ($message): ?>
