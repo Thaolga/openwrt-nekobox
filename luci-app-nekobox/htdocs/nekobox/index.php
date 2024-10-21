@@ -460,6 +460,13 @@ $singbox_log_content = readLogFile($singbox_log);
 ?>
 
 <?php
+$isNginx = false;
+if (isset($_SERVER['SERVER_SOFTWARE']) && strpos($_SERVER['SERVER_SOFTWARE'], 'nginx') !== false) {
+    $isNginx = true;
+}
+?>
+
+<?php
 $systemIP = $_SERVER['SERVER_ADDR'];
 $dt=json_decode((shell_exec("ubus call system board")), true);
 $devices=$dt['model'];
@@ -510,7 +517,24 @@ $cpuLoadAvg15Min = round($cpuLoad[2], 2);
     <script type="text/javascript" src="./assets/js/jquery-2.1.3.min.js"></script>
     <script type="text/javascript" src="./assets/js/neko.js"></script>
   </head>
-  <body>
+<body>
+    <?php if ($isNginx): ?>
+    <div id="nginxWarning" class="alert alert-warning alert-dismissible fade show" role="alert" style="position: fixed; top: 20px; left: 50%; transform: translateX(-50%); z-index: 1050;">
+        <strong>警告！</strong> 检测到您正在使用Nginx。本插件不支持Nginx，请使用Uhttpd构建固件。
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+    <script>
+    setTimeout(function() {
+        var warningAlert = document.getElementById('nginxWarning');
+        if (warningAlert) {
+            warningAlert.classList.remove('show');
+            setTimeout(function() {
+                warningAlert.remove();
+            }, 300);
+        }
+    }, 5000);
+    </script>
+    <?php endif; ?>
 <div class="container-sm container-bg callout border border-3 rounded-4 col-11">
     <div class="row">
         <a href="#" class="col btn btn-lg">🏠 首页</a>
