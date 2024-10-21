@@ -525,7 +525,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <div class="text-center">
         <h1 style="margin-top: 40px; margin-bottom: 20px;">Mihomo 文件管理</h1>
         <div class="table-wrapper">
-            <h2>代理文件管理</h2>
+            <h5>代理文件管理</h5>
 <style>
     .btn-group {
         display: flex;
@@ -615,7 +615,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         </div>
 
 <div class="container">
-    <h2 class="text-center">配置文件管理</h2>
+    <h5 class="text-center">配置文件管理</h5>
     <div class="table-responsive">
         <table class="table table-striped table-bordered text-center">
             <thead class="thead-dark">
