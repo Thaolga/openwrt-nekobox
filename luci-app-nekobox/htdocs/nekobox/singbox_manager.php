@@ -6,12 +6,6 @@ $configDir = '/etc/neko/config/';
 
 ini_set('memory_limit', '256M');
 
-$enable_timezone = isset($_COOKIE['enable_timezone']) && $_COOKIE['enable_timezone'] == '1';
-
-if ($enable_timezone) {
-    date_default_timezone_set('Asia/Shanghai');
-}
-
 if (!is_dir($uploadDir)) {
     mkdir($uploadDir, 0755, true);
 }
@@ -19,7 +13,6 @@ if (!is_dir($uploadDir)) {
 if (!is_dir($configDir)) {
     mkdir($configDir, 0755, true);
 }
-
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (isset($_FILES['fileInput'])) {
@@ -457,30 +450,6 @@ if (isset($_POST['update'])) {
     <div class="text-center">
       <h1 style="margin-top: 40px; margin-bottom: 20px;">Sing-box 文件管理</h1>
         <h2>代理文件管理 ➤ p核专用</h2>
-        <form action="singbox_manager.php" method="get" onsubmit="saveSettings()">
-        <label for="enable_timezone">启用时区设置:</label>
-        <input type="checkbox" id="enable_timezone" name="enable_timezone" value="1">
-        <button type="submit" style="background-color: #4CAF50; color: white; border: none; cursor: pointer;" title="确保你的系统支持时区设置否则会出错点取消可以恢复正常"> 提交 </button>
-       </form>
-    <script>
-        function saveSettings() {
-            const enableTimezone = document.getElementById('enable_timezone').checked;
-            document.cookie = "enable_timezone=" + (enableTimezone ? '1' : '0') + "; path=/";
-        }
-
-        function loadSettings() {
-            const cookies = document.cookie.split('; ');
-            let enableTimezone = '0';
-            cookies.forEach(cookie => {
-                const [name, value] = cookie.split('=');
-                if (name === 'enable_timezone') enableTimezone = value;
-            });
-            document.getElementById('enable_timezone').checked = (enableTimezone === '1');
-        }
-
-        window.onload = loadSettings;
-    </script>
-
 <style>
     .btn-group {
         display: flex;
@@ -495,94 +464,98 @@ if (isset($_POST['update'])) {
         vertical-align: middle;
     }
 </style>
-<div class="container text-center">
-    <table class="table table-striped table-bordered">
-        <thead class="thead-dark">
-            <tr>
-                <th style="width: 30%;">文件名</th>
-                <th style="width: 10%;">大小</th>
-                <th style="width: 20%;">修改时间</th>
-                <th style="width: 40%;">执行操作</th>
-            </tr>
-        </thead>
-        <tbody>
-            <?php foreach ($proxyFiles as $file): ?>
-                <?php $filePath = $uploadDir . $file; ?>
+<div class="container">
+    <div class="table-responsive">
+        <table class="table table-striped table-bordered text-center">
+            <thead class="thead-dark">
                 <tr>
-                    <td><a href="download.php?file=<?php echo urlencode($file); ?>"><?php echo htmlspecialchars($file); ?></a></td>
-                    <td class="size-column"><?php echo file_exists($filePath) ? formatSize(filesize($filePath)) : '文件不存在'; ?></td>
-                    <td><?php echo htmlspecialchars(date('Y-m-d H:i:s', filemtime($filePath))); ?></td>
-                    <td class="action-column">
-                        <div class="btn-group">
-                            <form action="" method="post" class="d-inline">
-                                <input type="hidden" name="deleteFile" value="<?php echo htmlspecialchars($file); ?>">
-                                <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('确定要删除这个文件吗？');"><i>🗑️</i> 删除</button>
-                            </form>
-                            <form action="" method="post" class="d-inline">
-                                <input type="hidden" name="editFile" value="<?php echo htmlspecialchars($file); ?>">
-                                <input type="hidden" name="fileType" value="proxy">
-                                <button type="button" class="btn btn-success btn-sm btn-rename" data-toggle="modal" data-target="#renameModal" data-filename="<?php echo htmlspecialchars($file); ?>" data-filetype="proxy"><i>✏️</i> 重命名</button>
-                            </form>
-                            <form action="" method="post" class="d-inline">
-                                <input type="hidden" name="editFile" value="<?php echo htmlspecialchars($file); ?>">
-                                <input type="hidden" name="fileType" value="proxy"> 
-                                <button type="submit" class="btn btn-warning btn-sm"><i>📝</i> 编辑</button>
-                            </form>
-                            <form action="" method="post" enctype="multipart/form-data" class="form-inline d-inline upload-btn">
-                                <input type="file" name="fileInput" class="form-control-file" required id="fileInput-<?php echo htmlspecialchars($file); ?>" style="display: none;" onchange="this.form.submit()">
-                                <button type="button" class="btn btn-info btn-sm" onclick="document.getElementById('fileInput-<?php echo htmlspecialchars($file); ?>').click();"><i>📤</i> 上传</button>
-                            </form>
-                        </div>
-                    </td>
+                    <th style="width: 30%;">文件名</th>
+                    <th style="width: 10%;">大小</th>
+                    <th style="width: 20%;">修改时间</th>
+                    <th style="width: 40%;">执行操作</th>
                 </tr>
-            <?php endforeach; ?>
-        </tbody>
-    </table>
+            </thead>
+            <tbody>
+                <?php foreach ($proxyFiles as $file): ?>
+                    <?php $filePath = $uploadDir . $file; ?>
+                    <tr>
+                        <td class="align-middle"><a href="download.php?file=<?php echo urlencode($file); ?>"><?php echo htmlspecialchars($file); ?></a></td>
+                        <td class="align-middle"><?php echo file_exists($filePath) ? formatSize(filesize($filePath)) : '文件不存在'; ?></td>
+                        <td class="align-middle"><?php echo htmlspecialchars(date('Y-m-d H:i:s', filemtime($filePath))); ?></td>
+                        <td>
+                            <div class="btn-group">
+                                <form action="" method="post" class="d-inline">
+                                    <input type="hidden" name="deleteFile" value="<?php echo htmlspecialchars($file); ?>">
+                                    <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('确定要删除这个文件吗？');"><i>🗑️</i> 删除</button>
+                                </form>
+                                <form action="" method="post" class="d-inline">
+                                    <input type="hidden" name="editFile" value="<?php echo htmlspecialchars($file); ?>">
+                                    <input type="hidden" name="fileType" value="proxy">
+                                    <button type="button" class="btn btn-success btn-sm btn-rename" data-toggle="modal" data-target="#renameModal" data-filename="<?php echo htmlspecialchars($file); ?>" data-filetype="proxy"><i>✏️</i> 重命名</button>
+                                </form>
+                                <form action="" method="post" class="d-inline">
+                                    <input type="hidden" name="editFile" value="<?php echo htmlspecialchars($file); ?>">
+                                    <input type="hidden" name="fileType" value="proxy"> 
+                                    <button type="submit" class="btn btn-warning btn-sm"><i>📝</i> 编辑</button>
+                                </form>
+                                <form action="" method="post" enctype="multipart/form-data" class="d-inline upload-btn">
+                                    <input type="file" name="fileInput" class="form-control-file" required id="fileInput-<?php echo htmlspecialchars($file); ?>" style="display: none;" onchange="this.form.submit()">
+                                    <button type="button" class="btn btn-info btn-sm" onclick="document.getElementById('fileInput-<?php echo htmlspecialchars($file); ?>').click();"><i>📤</i> 上传</button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                <?php endforeach; ?>
+            </tbody>
+        </table>
+    </div>
 </div>
 
-<div class="container text-center">
-    <h2>配置文件管理</h2>
-    <table class="table table-striped table-bordered">
-        <thead class="thead-dark">
-            <tr>
-                <th style="width: 30%;">文件名</th>
-                <th style="width: 10%;">大小</th>
-                <th style="width: 20%;">修改时间</th>
-                <th style="width: 40%;">执行操作</th>
-            </tr>
-        </thead>
-        <tbody>
-            <?php foreach ($configFiles as $file): ?>
-                <?php $filePath = $configDir . $file; ?>
+<div class="container">
+    <h2 class="text-center">配置文件管理</h2>
+    <div class="table-responsive">
+        <table class="table table-striped table-bordered text-center">
+            <thead class="thead-dark">
                 <tr>
-                    <td><a href="download.php?file=<?php echo urlencode($file); ?>"><?php echo htmlspecialchars($file); ?></a></td>
-                    <td><?php echo file_exists($filePath) ? formatSize(filesize($filePath)) : '文件不存在'; ?></td>
-                    <td><?php echo htmlspecialchars(date('Y-m-d H:i:s', filemtime($filePath))); ?></td>
-                    <td>
-                        <div class="btn-group">
-                            <form action="" method="post" class="d-inline">
-                                <input type="hidden" name="deleteConfigFile" value="<?php echo htmlspecialchars($file); ?>">
-                                <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('确定要删除这个文件吗？');"><i>🗑️</i> 删除</button>
-                            </form>
-                            <form action="" method="post" class="d-inline">
-                                <input type="hidden" name="editFile" value="<?php echo htmlspecialchars($file); ?>">
-                                <button type="button" class="btn btn-success btn-sm btn-rename" data-toggle="modal" data-target="#renameModal" data-filename="<?php echo htmlspecialchars($file); ?>" data-filetype="config"><i>✏️</i> 重命名</button>
-                            </form>
-                            <form action="" method="post" class="d-inline">
-                                <input type="hidden" name="editFile" value="<?php echo htmlspecialchars($file); ?>">
-                                <input type="hidden" name="fileType" value="<?php echo htmlspecialchars($file); ?>">
-                                <button type="submit" class="btn btn-warning btn-sm"><i>📝</i> 编辑</button>
-                            </form>
-                            <form action="" method="post" enctype="multipart/form-data" class="form-inline d-inline upload-btn">
-                                <input type="file" name="configFileInput" class="form-control-file" required id="fileInput-<?php echo htmlspecialchars($file); ?>" style="display: none;" onchange="this.form.submit()">
-                                <button type="button" class="btn btn-info btn-sm" onclick="document.getElementById('fileInput-<?php echo htmlspecialchars($file); ?>').click();"><i>📤</i> 上传</button>
-                            </form>
-                        </div>
-                    </td>
+                    <th style="width: 30%;">文件名</th>
+                    <th style="width: 10%;">大小</th>
+                    <th style="width: 20%;">修改时间</th>
+                    <th style="width: 40%;">执行操作</th>
                 </tr>
-            <?php endforeach; ?>
-        </tbody>
-    </table>
+            </thead>
+            <tbody>
+                <?php foreach ($configFiles as $file): ?>
+                    <?php $filePath = $configDir . $file; ?>
+                    <tr>
+                        <td class="align-middle"><a href="download.php?file=<?php echo urlencode($file); ?>"><?php echo htmlspecialchars($file); ?></a></td>
+                        <td class="align-middle"><?php echo file_exists($filePath) ? formatSize(filesize($filePath)) : '文件不存在'; ?></td>
+                        <td class="align-middle"><?php echo htmlspecialchars(date('Y-m-d H:i:s', filemtime($filePath))); ?></td>
+                        <td>
+                            <div class="btn-group">
+                                <form action="" method="post" class="d-inline">
+                                    <input type="hidden" name="deleteConfigFile" value="<?php echo htmlspecialchars($file); ?>">
+                                    <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('确定要删除这个文件吗？');"><i>🗑️</i> 删除</button>
+                                </form>
+                                <form action="" method="post" class="d-inline">
+                                    <input type="hidden" name="editFile" value="<?php echo htmlspecialchars($file); ?>">
+                                    <button type="button" class="btn btn-success btn-sm btn-rename" data-toggle="modal" data-target="#renameModal" data-filename="<?php echo htmlspecialchars($file); ?>" data-filetype="config"><i>✏️</i> 重命名</button>
+                                </form>
+                                <form action="" method="post" class="d-inline">
+                                    <input type="hidden" name="editFile" value="<?php echo htmlspecialchars($file); ?>">
+                                    <input type="hidden" name="fileType" value="<?php echo htmlspecialchars($file); ?>">
+                                    <button type="submit" class="btn btn-warning btn-sm"><i>📝</i> 编辑</button>
+                                </form>
+                                <form action="" method="post" enctype="multipart/form-data" class="d-inline upload-btn">
+                                    <input type="file" name="configFileInput" class="form-control-file" required id="fileInput-<?php echo htmlspecialchars($file); ?>" style="display: none;" onchange="this.form.submit()">
+                                    <button type="button" class="btn btn-info btn-sm" onclick="document.getElementById('fileInput-<?php echo htmlspecialchars($file); ?>').click();"><i>📤</i> 上传</button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                <?php endforeach; ?>
+            </tbody>
+        </table>
+    </div>
 </div>
 
 <?php if (isset($fileContent)): ?>

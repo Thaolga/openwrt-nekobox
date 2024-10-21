@@ -6,12 +6,6 @@ $configDir = '/etc/neko/config/';
 
 ini_set('memory_limit', '256M');
 
-$enable_timezone = isset($_COOKIE['enable_timezone']) && $_COOKIE['enable_timezone'] == '1';
-
-if ($enable_timezone) {
-    date_default_timezone_set('Asia/Shanghai');
-}
-
 if (!is_dir($uploadDir)) {
     mkdir($uploadDir, 0755, true);
 }
@@ -19,7 +13,6 @@ if (!is_dir($uploadDir)) {
 if (!is_dir($configDir)) {
     mkdir($configDir, 0755, true);
 }
-
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (isset($_FILES['fileInput'])) {
@@ -533,32 +526,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <h1 style="margin-top: 40px; margin-bottom: 20px;">Mihomo 文件管理</h1>
         <div class="table-wrapper">
             <h2>代理文件管理</h2>
-            <form action="mihomo_manager.php" method="get" onsubmit="saveSettings()">
-                <label for="enable_timezone">启用时区设置:</label>
-                <input type="checkbox" id="enable_timezone" name="enable_timezone" value="1">
-                <button type="submit" style="background-color: #4CAF50; color: white; border: none; cursor: pointer;">提交</button>
-            </form>
-        </div>
-    </div>
-    <script>
-        function saveSettings() {
-            const enableTimezone = document.getElementById('enable_timezone').checked;
-            document.cookie = "enable_timezone=" + (enableTimezone ? '1' : '0') + "; path=/";
-        }
-
-        function loadSettings() {
-            const cookies = document.cookie.split('; ');
-            let enableTimezone = '0';
-            cookies.forEach(cookie => {
-                const [name, value] = cookie.split('=');
-                if (name === 'enable_timezone') enableTimezone = value;
-            });
-            document.getElementById('enable_timezone').checked = (enableTimezone === '1');
-        }
-
-        window.onload = loadSettings;
-    </script>
-
 <style>
     .btn-group {
         display: flex;
@@ -573,24 +540,25 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         vertical-align: middle;
     }
 </style>
-<div class="container text-center">
-    <table class="table table-striped table-bordered">
-        <thead class="thead-dark">
-            <tr>
-                <th style="width: 30%;">文件名</th>
-                <th style="width: 10%;">大小</th>
-                <th style="width: 20%;">修改时间</th>
-                <th style="width: 40%;">执行操作</th>
-            </tr>
-        </thead>
-        <tbody>
+<div class="container">
+    <div class="table-responsive">
+        <table class="table table-striped table-bordered text-center">
+            <thead class="thead-dark">
+                <tr>
+                    <th style="width: 30%;">文件名</th>
+                    <th style="width: 10%;">大小</th>
+                    <th style="width: 20%;">修改时间</th>
+                    <th style="width: 40%;">执行操作</th>
+                </tr>
+            </thead>
+            <tbody>
             <?php foreach ($proxyFiles as $file): ?>
                 <?php $filePath = $uploadDir . $file; ?>
                 <tr>
-                    <td><a href="download.php?file=<?php echo urlencode($file); ?>"><?php echo htmlspecialchars($file); ?></a></td>
-                    <td class="size-column"><?php echo file_exists($filePath) ? formatSize(filesize($filePath)) : '文件不存在'; ?></td>
-                    <td><?php echo htmlspecialchars(date('Y-m-d H:i:s', filemtime($filePath))); ?></td>
-                    <td class="action-column">
+                    <td class="align-middle"><a href="download.php?file=<?php echo urlencode($file); ?>"><?php echo htmlspecialchars($file); ?></a></td>
+                    <td class="align-middle"><?php echo file_exists($filePath) ? formatSize(filesize($filePath)) : '文件不存在'; ?></td>
+                    <td class="align-middle"><?php echo htmlspecialchars(date('Y-m-d H:i:s', filemtime($filePath))); ?></td>
+                    <td>
                         <div class="btn-group">
                             <form action="" method="post" class="d-inline">
                                 <input type="hidden" name="deleteFile" value="<?php echo htmlspecialchars($file); ?>">
@@ -646,24 +614,25 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             </div>
         </div>
 
-<div class="container text-center">
-    <h2>配置文件管理</h2>
-    <table class="table table-striped table-bordered">
-        <thead class="thead-dark">
-            <tr>
-                <th style="width: 30%;">文件名</th>
-                <th style="width: 10%;">大小</th>
-                <th style="width: 20%;">修改时间</th>
-                <th style="width: 40%;">执行操作</th>
-            </tr>
-        </thead>
-        <tbody>
+<div class="container">
+    <h2 class="text-center">配置文件管理</h2>
+    <div class="table-responsive">
+        <table class="table table-striped table-bordered text-center">
+            <thead class="thead-dark">
+                <tr>
+                    <th style="width: 30%;">文件名</th>
+                    <th style="width: 10%;">大小</th>
+                    <th style="width: 20%;">修改时间</th>
+                    <th style="width: 40%;">执行操作</th>
+                </tr>
+            </thead>
+            <tbody>
             <?php foreach ($configFiles as $file): ?>
                 <?php $filePath = $configDir . $file; ?>
                 <tr>
-                    <td><a href="download.php?file=<?php echo urlencode($file); ?>"><?php echo htmlspecialchars($file); ?></a></td>
-                    <td><?php echo file_exists($filePath) ? formatSize(filesize($filePath)) : '文件不存在'; ?></td>
-                    <td><?php echo htmlspecialchars(date('Y-m-d H:i:s', filemtime($filePath))); ?></td>
+                    <td class="align-middle"><a href="download.php?file=<?php echo urlencode($file); ?>"><?php echo htmlspecialchars($file); ?></a></td>
+                    <td class="align-middle"><?php echo file_exists($filePath) ? formatSize(filesize($filePath)) : '文件不存在'; ?></td>
+                    <td class="align-middle"><?php echo htmlspecialchars(date('Y-m-d H:i:s', filemtime($filePath))); ?></td>
                     <td>
                         <div class="btn-group">
                             <form action="" method="post" class="d-inline">
