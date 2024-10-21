@@ -354,6 +354,65 @@ $singBoxVersion = getSingboxVersion();
     });
 </script>
 
+<script>
+function compareVersions(v1, v2) {
+    const v1parts = v1.split('.').map(Number);
+    const v2parts = v2.split('.').map(Number);
+    
+    for (let i = 0; i < v1parts.length; ++i) {
+        if (v2parts.length == i) {
+            return 1;
+        }
+        if (v1parts[i] == v2parts[i]) {
+            continue;
+        }
+        if (v1parts[i] > v2parts[i]) {
+            return 1;
+        }
+        return -1;
+    }
+    
+    if (v1parts.length != v2parts.length) {
+        return -1;
+    }
+    
+    return 0;
+}
+
+function checkSingboxVersion() {
+    var currentVersion = '<?php echo getSingboxVersion(); ?>';
+    var minVersion = '1.10.0';
+    
+    if (compareVersions(currentVersion, minVersion) < 0) {
+        var modalHtml = `
+            <div class="modal fade" id="versionWarningModal" tabindex="-1" aria-labelledby="versionWarningModalLabel" aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="versionWarningModalLabel">版本警告</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            <p>您的 Sing-box 版本 (${currentVersion}) 低于推荐的最低版本 (v1.10.0)。</p>
+                            <p>请考虑升级到更高版本以获得最佳性能。</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+        document.body.insertAdjacentHTML('beforeend', modalHtml);
+        var modal = new bootstrap.Modal(document.getElementById('versionWarningModal'));
+        modal.show();
+        
+        setTimeout(function() {
+            modal.hide();
+        }, 5000);
+    }
+}
+
+document.addEventListener('DOMContentLoaded', checkSingboxVersion);
+</script>
+
 <!DOCTYPE html>
 <html lang="zh">
 <head>
