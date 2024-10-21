@@ -449,7 +449,7 @@ if (isset($_POST['update'])) {
         <a href="./filekit.php" class="col btn btn-lg">📦 文件助手</a>
     <div class="text-center">
       <h1 style="margin-top: 40px; margin-bottom: 20px;">Sing-box 文件管理</h1>
-        <h2>代理文件管理 ➤ p核专用</h2>
+        <h5>代理文件管理 ➤ p核专用</h5>
 <style>
     .btn-group {
         display: flex;
@@ -512,7 +512,7 @@ if (isset($_POST['update'])) {
 </div>
 
 <div class="container">
-    <h2 class="text-center">配置文件管理</h2>
+    <h5 class="text-center">配置文件管理</h5>
     <div class="table-responsive">
         <table class="table table-striped table-bordered text-center">
             <thead class="thead-dark">
