@@ -1,24 +1,19 @@
 <?php
 include './cfg.php';
-
 $dirPath = "$neko_dir/config";
 $tmpPath = "$neko_www/lib/selected_config.txt";
 $arrFiles = array();
-$arrFiles = array_merge(glob("$dirPath/*.yaml"), glob("$dirPath/*.json")); 
-
+$arrFiles = glob("$dirPath/*.yaml"); 
 $error = "";
 
 if (isset($_POST['clashconfig'])) {
     $dt = $_POST['clashconfig'];
     
-    $fileContent = file_get_contents($dt);
-
-    json_decode($fileContent);
-    if (json_last_error() === JSON_ERROR_NONE || pathinfo($dt, PATHINFO_EXTENSION) === 'yaml') {
+    if (pathinfo($dt, PATHINFO_EXTENSION) === 'yaml') {
         shell_exec("echo $dt > $tmpPath");
         $selected_config = $dt;
     } else {
-        $error = "选择的文件内容不是有效的 JSON 格式，请选择另一个配置文件。"; 
+        $error = "请选择一个 YAML 格式的配置文件。"; 
     }
 }
 
