@@ -20,13 +20,50 @@ function saveSubscriptionUrlToFile($url, $file) {
 }
 
 function transformContent($content) {
-    $additional_config = "
-redir-port: 7892
+    $new_config_start = "redir-port: 7892
+port: 7890
+socks-port: 7891
 mixed-port: 7893
-tproxy-port: 7895
+mode: rule
+log-level: info
+allow-lan: true
+unified-delay: true
+external-controller: 0.0.0.0:9090
 secret: Akun
+bind-address: 0.0.0.0
 external-ui: ui
-
+tproxy-port: 7895
+tcp-concurrent: true	
+enable-process: true
+find-process-mode: always
+ipv6: true
+experimental:
+  ignore-resolve-fail: true
+  sniff-tls-sni: true
+  tracing: true
+hosts:
+  \"localhost\": 127.0.0.1
+profile:
+  store-selected: true
+  store-fake-ip: true
+sniffer:
+  enable: true
+  sniff:
+    http: { ports: [1-442, 444-8442, 8444-65535], override-destination: true }
+    tls: { ports: [1-79, 81-8079, 8081-65535], override-destination: true }
+  force-domain:
+      - \"+.v2ex.com\"
+      - www.google.com
+      - google.com
+  skip-domain:
+      - Mijia Cloud
+      - dlg.io.mi.com
+  sniffing:
+    - tls
+    - http
+  port-whitelist:
+    - \"80\"
+    - \"443\"
 tun:
   enable: true
   prefer-h3: true
@@ -38,12 +75,6 @@ tun:
   auto-redir: true
   auto-route: true
   auto-detect-interface: true
-  enhanced-mode: fake-ip"; 
-
-    $search = 'external-controller: :9090';
-    $replace = 'external-controller: 0.0.0.0:9090';
-
-    $dns_config = <<<EOD
 dns:
   enable: true
   ipv6: true
@@ -107,58 +138,25 @@ dns:
     - 'DC._msDCS.*.*'
     - 'PDC._msDCS.*.*'
   use-hosts: true
-
   nameserver:
     - '8.8.4.4'
     - '1.0.0.1'
-    - "https://1.0.0.1/dns-query"
-    - "https://8.8.4.4/dns-query"
-EOD;
+    - \"https://1.0.0.1/dns-query\"
+    - \"https://8.8.4.4/dns-query\"
+";
 
-    $lines = explode("\n", $content);
-    $new_lines = [];
-    $dns_section = false;
-    $added = false;
-
-    foreach ($lines as $line) {
-        if (strpos($line, 'dns:') !== false) {
-            $dns_section = true;
-            $new_lines[] = $dns_config;
-            continue;
-        }
-
-        if ($dns_section) {
-            if (strpos($line, 'proxies:') !== false) {
-                $dns_section = false;
-            } else {
-                continue;
-            }
-        }
-
-        $line = str_replace('secret', 'bbc', $line);
-
-        if (trim($line) === $search) {
-            $new_lines[] = $replace;
-            $new_lines[] = $additional_config;
-            $added = true;
-        } else {
-            $new_lines[] = $line;
-        }
+    $parts = explode('proxies:', $content, 2);
+    if (count($parts) == 2) {
+        return $new_config_start . "\nproxies:" . $parts[1];
+    } else {
+        return $content;
     }
-
-    if (!$added) {
-        $new_lines[] = $replace;
-        $new_lines[] = $additional_config;
-    }
-
-    return implode("\n", $new_lines);
 }
-
 
 function saveSubscriptionContentToYaml($url, $filename) {
     global $download_path;
 
-    if (preg_match('/[^A-Za-z0-9._-]/', $filename)) {
+    if (strpbrk($filename, "!@#$%^&*()+=[]\\\';,/{}|\":<>?") !== false) {
         $message = "文件名包含非法字符，请使用字母、数字、点、下划线或横杠。";
         logMessage($message);
         return $message;
@@ -338,7 +336,7 @@ $current_subscription_url = getSubscriptionUrlFromFile($subscription_file);
         <a href="./singbox_manager.php" class="col btn btn-lg">🗂️ Sing-box</a>
         <a href="./box.php" class="col btn btn-lg">💹 订阅转换</a>
         <a href="./personal.php" class="col btn btn-lg">📦 订阅</a>
-        <h1 class="text-center p-2" style="margin-top: 2rem; margin-bottom: 1rem;">Mihomo 订阅程序（个人版）</h1>
+        <h1 class="text-center p-2" style="margin-top: 2rem; margin-bottom: 1rem;">Mihomo 订阅（Clash版）</h1>
 
         <div class="col-12">
             <div class="form-section">
@@ -378,8 +376,7 @@ $current_subscription_url = getSubscriptionUrlFromFile($subscription_file);
                 <li class="list-group-item"><strong>输入订阅链接:</strong> 在文本框中输入您的 Clash 订阅链接。</li>
                 <li class="list-group-item"><strong>输入保存文件名:</strong> 指定保存配置文件的文件名，默认为 "config.yaml"。</li>
                 <li class="list-group-item">点击 "更新订阅" 按钮，系统将下载订阅内容，并进行转换和保存。</li>
-                <li class="list-group-item"><strong>设置 Cron 时间:</strong> 指定 Cron 作业的执行时间。</li>
-                <li class="list-group-item">点击 "更新 Cron 作业" 按钮，系统将设置或更新 Cron 作业。</li>
+                <li class="list-group-item"><strong>只支持Clash格式的订阅。</li>
             </ul>
         </div>
 
