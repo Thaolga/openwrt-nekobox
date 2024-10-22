@@ -349,6 +349,58 @@ $singBoxVersion = getSingboxVersion();
         xhr.send();
     });
 </script>
+
+<script>
+function compareVersions(v1, v2) {
+    const v1parts = v1.split(/[-.]/).filter(x => x !== 'alpha' && x !== 'beta');
+    const v2parts = v2.split(/[-.]/).filter(x => x !== 'alpha' && x !== 'beta');
+    
+    for (let i = 0; i < Math.max(v1parts.length, v2parts.length); ++i) {
+        const v1part = parseInt(v1parts[i]) || 0;
+        const v2part = parseInt(v2parts[i]) || 0;
+        
+        if (v1part > v2part) return 1;
+        if (v1part < v2part) return -1;
+    }
+    
+    return 0;
+}
+
+function checkSingboxVersion() {
+    var currentVersion = '<?php echo getSingboxVersion(); ?>';
+    var minVersion = '1.10.0';
+    
+    if (compareVersions(currentVersion, minVersion) >= 0) {
+        return;
+    }
+
+    var modalHtml = `
+        <div class="modal fade" id="versionWarningModal" tabindex="-1" aria-labelledby="versionWarningModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="versionWarningModalLabel">Version Warning</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <p>Your Sing-box version (${currentVersion}) is lower than the recommended minimum version (v1.10.0).</p>
+                        <p>Please consider upgrading to a higher version for optimal performance.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+    document.body.insertAdjacentHTML('beforeend', modalHtml);
+    var modal = new bootstrap.Modal(document.getElementById('versionWarningModal'));
+    modal.show();
+    
+    setTimeout(function() {
+        modal.hide();
+    }, 5000);
+}
+
+document.addEventListener('DOMContentLoaded', checkSingboxVersion);
+</script>
 <!DOCTYPE html>
 <html lang="zh">
 <head>
@@ -421,9 +473,6 @@ $singBoxVersion = getSingboxVersion();
             padding: 10px;
             text-decoration: none;
             color: #000000;
-        }
-        .link-box:hover {
-            background-color: #EE82EE; 
         }
     </style>
 </head>
