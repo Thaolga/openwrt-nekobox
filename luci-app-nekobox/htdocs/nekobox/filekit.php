@@ -1117,16 +1117,30 @@ function searchFiles($dir, $term) {
               background-color: #007bff;
               border-color: #007bff;
         }
+        .container-sm {
+              padding-top: 10px;    
+              padding-bottom: 10px; 
+              margin-bottom: 15px;
+        }
+
+        .btn {
+              background: transparent !important;
+              border: none;
+        }
+
+        .btn:hover {
+              background: rgba(0, 0, 0, 0.05) !important;  
+        }
      </style>
   </head>
 <body>
-<div class="container-sm callout border border-3 rounded-4 col-11">
+<div class="container-sm container-bg callout  border border-3 rounded-4 col-11">
     <div class="row">
-        <a href="./index.php" class="col btn btn-sm custom-btn-color" data-translate="home"><i class="fas fa-home"></i> Home</a>
-        <a href="./mihomo_manager.php" class="col btn btn-sm custom-btn-color"><i class="fas fa-folder"></i> Mihomo</a>
-        <a href="./singbox_manager.php" class="col btn btn-sm custom-btn-color"><i class="fas fa-folder-open"></i> Sing-box</a>
-        <a href="./box.php" class="col btn btn-sm custom-btn-color" data-translate="convert"><i class="fas fa-exchange-alt"></i> Convert</a>
-        <a href="./nekobox.php" class="col btn btn-sm custom-btn-color" data-translate="fileAssistant"><i class="fas fa-file-alt"></i> File Assistant</a>
+        <a href="./index.php" class="col btn btn-lg" data-translate="home"><i class="fas fa-home"></i> Home</a>
+        <a href="./mihomo_manager.php" class="col btn btn-lg"><i class="fas fa-folder"></i> Mihomo</a>
+        <a href="./singbox_manager.php" class="col btn btn-lg"><i class="fas fa-folder-open"></i> Sing-box</a>
+        <a href="./box.php" class="col btn btn-lg" data-translate="convert"><i class="fas fa-exchange-alt"></i> Convert</a>
+        <a href="./nekobox.php" class="col btn btn-lg" data-translate="fileAssistant"><i class="fas fa-file-alt"></i> File Assistant</a>
     </div>
 </div>
 <div class="row">
