@@ -479,9 +479,6 @@ document.addEventListener('DOMContentLoaded', checkSingboxVersion);
             text-decoration: none;
             color: #000000;
         }
-        .link-box:hover {
-            background-color: #EE82EE; 
-        }
     </style>
 </head>
 <body>
