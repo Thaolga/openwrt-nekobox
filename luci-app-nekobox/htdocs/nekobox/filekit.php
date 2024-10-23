@@ -1137,7 +1137,7 @@ function searchFiles($dir, $term) {
         <a href="./mihomo_manager.php" class="col btn btn-lg"><i class="fas fa-folder"></i> Mihomo</a>
         <a href="./singbox_manager.php" class="col btn btn-lg"><i class="fas fa-folder-open"></i> Sing-box</a>
         <a href="./box.php" class="col btn btn-lg" data-translate="convert"><i class="fas fa-exchange-alt"></i> Convert</a>
-        <a href="./nekobox.php" class="col btn btn-lg" data-translate="fileAssistant"><i class="fas fa-file-alt"></i> File Assistant</a>
+        <a href="./filekit.php" class="col btn btn-lg" data-translate="fileAssistant"><i class="fas fa-file-alt"></i> File Assistant</a>
     </div>
 </div>
 <div class="row">
