@@ -1123,14 +1123,11 @@ function searchFiles($dir, $term) {
               margin-bottom: 15px;
         }
 
-        .btn {
-              background: transparent !important;
-              border: none;
+       .container-sm.container-bg .row .btn:hover {
+              transform: scale(1.05);
+              background-color: transparent !important;
         }
 
-        .btn:hover {
-              background: rgba(0, 0, 0, 0.05) !important;  
-        }
      </style>
   </head>
 <body>
@@ -1322,7 +1319,8 @@ function searchFiles($dir, $term) {
         </tbody>
     </table>
 </div>
-    <div id="renameModal" class="modal">
+
+<div id="renameModal" class="modal">
         <div class="modal-content">
             <span class="close" onclick="closeModal('renameModal')">&times;</span>
                 <h2 data-translate="rename">✏️ Rename</h2>
@@ -1341,40 +1339,61 @@ function searchFiles($dir, $term) {
                 </div>
             </div>
 
-            <div id="createModal" class="modal">
+        <div id="createModal" class="modal">
                 <div class="modal-content">
                     <span class="close" onclick="closeModal('createModal')">&times;</span>
                     <h2 data-translate="create">Create</h2>
-                    <button onclick="showNewFolderModal()" class="btn btn-primary mb-2" data-translate="newFolder">New Folder</button>
-                    <button onclick="showNewFileModal()" class="btn btn-primary" data-translate="newFile">New File</button>
+                    <div class="d-grid gap-2">
+                    <button onclick="showNewFolderModal()" class="btn btn-primary mb-2" data-translate="newFolder">
+                        <i class="fas fa-folder-plus"></i> New Folder
+                    </button>
+                    <button onclick="showNewFileModal()" class="btn btn-primary" data-translate="newFile">
+                        <i class="fas fa-file-plus"></i> New File
+                    </button>
                 </div>
             </div>
+        </div>
 
-            <div id="newFolderModal" class="modal">
+        <div id="newFolderModal" class="modal">
                 <div class="modal-content">
                     <span class="close" onclick="closeModal('newFolderModal')">&times;</span>
                     <h2 data-translate="newFolder">New Folder</h2>
                     <form method="post" onsubmit="return createNewFolder()">
                         <input type="hidden" name="action" value="create_folder">
-                        <label for="newFolderName" data-translate="folderName">Folder name:</label>
-                        <input type="text" name="new_folder_name" id="newFolderName" required data-translate-placeholder="enterFolderName">
-                        <input type="submit" class="btn" data-translate="create" data-translate-value="create">
-                    </form>
+                        <div class="form-group mb-3">
+                        <label for="newFolderName" class="form-label" data-translate="folderName">Folder name:</label>
+                        <input type="text" name="new_folder_name" id="newFolderName" 
+                           class="form-control" required 
+                           data-translate-placeholder="enterFolderName">
+                    </div>
+                <div class="text-end mt-3">
+                    <button type="button" class="btn btn-secondary me-2" onclick="closeModal('newFolderModal')" data-translate="cancel">Cancel</button>
+                    <input type="submit" class="btn btn-primary" data-translate="create" data-translate-value="create">
                 </div>
-            </div>
-
-            <div id="newFileModal" class="modal">
+            </form>
+         </div>
+      </div>
+      
+        <div id="newFileModal" class="modal">
                 <div class="modal-content">
                     <span class="close" onclick="closeModal('newFileModal')">&times;</span>
                     <h2 data-translate="newFile">New File</h2>
                     <form method="post" onsubmit="return createNewFile()">
                         <input type="hidden" name="action" value="create_file">
-                        <label for="newFileName" data-translate="fileName">File name:</label>
-                        <input type="text" name="new_file_name" id="newFileName" required data-translate-placeholder="enterFileName">
-                        <input type="submit" class="btn" data-translate="create" data-translate-value="create">
-                    </form>
+                        <div class="form-group mb-3">
+                        <label for="newFileName" class="form-label" data-translate="fileName">File name:</label>
+                        <input type="text" name="new_file_name" id="newFileName" 
+                           class="form-control" required 
+                           data-translate-placeholder="enterFileName">
+                        </div>
+                <div class="text-end mt-3">
+                    <button type="button" class="btn btn-secondary me-2" onclick="closeModal('newFileModal')" data-translate="cancel">Cancel</button>
+                    <input type="submit" class="btn btn-primary" data-translate="create" data-translate-value="create">
                 </div>
-            </div>
+            </form>
+         </div>
+      </div>
+      
         <div id="searchModal" class="modal" tabindex="-1">
                 <div class="modal-dialog modal-lg">
                     <div class="modal-content">
@@ -1404,12 +1423,13 @@ function searchFiles($dir, $term) {
                         <input type="hidden" name="path" id="editPath">
                         <input type="hidden" name="encoding" id="editEncoding">
                         <textarea name="content" id="editContent" rows="10" cols="50"></textarea>
-                        <input type="submit" class="btn" data-translate="save" data-translate-value="save">
-                        <button type="button" onclick="openAceEditor()" class="btn" data-translate="advancedEdit">Advanced Edit</button>
-                    </form>
-                </div>
+                    <div class="mt-3">
+                        <input type="submit" class="btn btn-primary" data-translate="save" data-translate-value="save">
+                        <button type="button" onclick="openAceEditor()" class="btn btn-secondary" data-translate="advancedEdit">Advanced Edit</button>
+                    </div>
+               </form>
             </div>
-
+       </div>
             <div id="aceEditor">
                 <div id="aceEditorContainer"></div>
                 <div id="editorStatusBar">
@@ -1479,27 +1499,42 @@ function searchFiles($dir, $term) {
                     <button onclick="closeAceEditor()" class="btn" style="margin-left: 10px;" data-translate="close">Close</button>
                 </div>
             </div>
-
+            
             <div id="chmodModal" class="modal">
-                <div class="modal-content">
-                    <span class="close" onclick="closeModal('chmodModal')">&times;</span>
-                    <h2 data-translate="setPermissions">🔒 Set Permissions</h2>
-                    <form method="post" onsubmit="return validateChmod()">
-                        <input type="hidden" name="action" value="chmod">
-                        <input type="hidden" name="path" id="chmodPath">
-                        <div class="form-group">
-                            <label for="permissions" data-translate="permissionValue">Permission value (e.g.: 0644)</label>
-                            <input type="text" name="permissions" id="permissions" class="form-control" maxlength="4" data-translate-placeholder="permissionPlaceholder" placeholder="0644" autocomplete="off">
-                            <small class="form-text text-muted" data-translate="permissionHelp">Please enter a valid permission value (three or four octal digits, e.g.: 644 or 0755)</small>
-                        </div>
-                        <div class="btn-group">
-                            <button type="button" class="btn btn-secondary" onclick="closeModal('chmodModal')" data-translate="cancel">Cancel</button>
-                            <button type="submit" class="btn btn-primary" data-translate="confirmChange">Confirm Change</button>
+                 <div class="modal-content">
+                     <span class="close" onclick="closeModal('chmodModal')">&times;</span>
+                     <h2 data-translate="setPermissions">🔒 Set Permissions</h2>
+                     <form method="post" onsubmit="return validateChmod()">
+                       <input type="hidden" name="action" value="chmod">
+                       <input type="hidden" name="path" id="chmodPath">
+                       <div class="form-group mb-3">
+                         <label for="permissions" class="form-label" data-translate="permissionValue">
+                         Permission value (e.g.: 0644)
+                </label>
+                <input type="text" 
+                       name="permissions" 
+                       id="permissions" 
+                       class="form-control" 
+                       maxlength="4" 
+                       data-translate-placeholder="permissionPlaceholder" 
+                       placeholder="0644" 
+                       autocomplete="off">
+                <small class="form-text text-muted mt-2" data-translate="permissionHelp">
+                    Please enter a valid permission value (three or four octal digits, e.g.: 644 or 0755)
+                </small>
+            </div>
+            <div class="text-end mt-3">
+                <button type="button" 
+                        class="btn btn-secondary me-2" 
+                        onclick="closeModal('chmodModal')" 
+                        data-translate="cancel">Cancel</button>
+                <button type="submit" 
+                        class="btn btn-primary" 
+                        data-translate="confirmChange">Confirm Change</button>
                         </div>
                     </form>
                 </div>
             </div>
-
             <div id="previewModal" class="modal">
                 <div class="modal-content">
                     <span class="close" onclick="closeModal('previewModal')">&times;</span>
