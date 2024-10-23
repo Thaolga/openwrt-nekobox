@@ -552,38 +552,39 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 </tr>
             </thead>
             <tbody>
-            <?php foreach ($proxyFiles as $file): ?>
-                <?php $filePath = $uploadDir . $file; ?>
-                <tr>
-                    <td class="align-middle"><a href="download.php?file=<?php echo urlencode($file); ?>"><?php echo htmlspecialchars($file); ?></a></td>
-                    <td class="align-middle"><?php echo file_exists($filePath) ? formatSize(filesize($filePath)) : '文件不存在'; ?></td>
-                    <td class="align-middle"><?php echo htmlspecialchars(date('Y-m-d H:i:s', filemtime($filePath))); ?></td>
-                    <td>
-                        <div class="btn-group">
-                            <form action="" method="post" class="d-inline">
-                                <input type="hidden" name="deleteFile" value="<?php echo htmlspecialchars($file); ?>">
-                                <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('确定要删除这个文件吗？');"><i>🗑️</i> 删除</button>
-                            </form>
-                            <form action="" method="post" class="d-inline">
-                                <input type="hidden" name="editFile" value="<?php echo htmlspecialchars($file); ?>">
-                                <input type="hidden" name="fileType" value="proxy">
-                                <button type="button" class="btn btn-success btn-sm btn-rename" data-toggle="modal" data-target="#renameModal" data-filename="<?php echo htmlspecialchars($file); ?>" data-filetype="proxy"><i>✏️</i> 重命名</button>
-                            </form>
-                            <form action="" method="post" class="d-inline">
-                                <input type="hidden" name="editFile" value="<?php echo htmlspecialchars($file); ?>">
-                                <input type="hidden" name="fileType" value="proxy"> 
-                                <button type="submit" class="btn btn-warning btn-sm"><i>📝</i> 编辑</button>
-                            </form>
-                            <form action="" method="post" enctype="multipart/form-data" class="form-inline d-inline upload-btn">
-                                <input type="file" name="fileInput" class="form-control-file" required id="fileInput-<?php echo htmlspecialchars($file); ?>" style="display: none;" onchange="this.form.submit()">
-                                <button type="button" class="btn btn-info btn-sm" onclick="document.getElementById('fileInput-<?php echo htmlspecialchars($file); ?>').click();"><i>📤</i> 上传</button>
-                            </form>
-                        </div>
-                    </td>
-                </tr>
-            <?php endforeach; ?>
-        </tbody>
-    </table>
+                <?php foreach ($proxyFiles as $file): ?>
+                    <?php $filePath = $uploadDir . $file; ?>
+                    <tr>
+                        <td class="align-middle"><a href="download.php?file=<?php echo urlencode($file); ?>"><?php echo htmlspecialchars($file); ?></a></td>
+                        <td class="align-middle"><?php echo file_exists($filePath) ? formatSize(filesize($filePath)) : '文件不存在'; ?></td>
+                        <td class="align-middle"><?php echo htmlspecialchars(date('Y-m-d H:i:s', filemtime($filePath))); ?></td>
+                        <td>
+                            <div class="btn-group">
+                                <form action="" method="post" class="d-inline">
+                                    <input type="hidden" name="deleteFile" value="<?php echo htmlspecialchars($file); ?>">
+                                    <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('确定要删除这个文件吗？');"><i>🗑️</i> 删除</button>
+                                </form>
+                                <form action="" method="post" class="d-inline">
+                                    <input type="hidden" name="editFile" value="<?php echo htmlspecialchars($file); ?>">
+                                    <input type="hidden" name="fileType" value="proxy">
+                                    <button type="button" class="btn btn-success btn-sm btn-rename" data-toggle="modal" data-target="#renameModal" data-filename="<?php echo htmlspecialchars($file); ?>" data-filetype="proxy"><i>✏️</i> 重命名</button>
+                                </form>
+                                <form action="" method="post" class="d-inline">
+                                    <input type="hidden" name="editFile" value="<?php echo htmlspecialchars($file); ?>">
+                                    <input type="hidden" name="fileType" value="proxy"> 
+                                    <button type="submit" class="btn btn-warning btn-sm"><i>📝</i> 编辑</button>
+                                </form>
+                                <form action="" method="post" enctype="multipart/form-data" class="d-inline upload-btn">
+                                    <input type="file" name="fileInput" class="form-control-file" required id="fileInput-<?php echo htmlspecialchars($file); ?>" style="display: none;" onchange="this.form.submit()">
+                                    <button type="button" class="btn btn-info btn-sm" onclick="document.getElementById('fileInput-<?php echo htmlspecialchars($file); ?>').click();"><i>📤</i> 上传</button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                <?php endforeach; ?>
+            </tbody>
+        </table>
+    </div>
 </div>
 
         <div class="modal fade" id="renameModal" tabindex="-1" role="dialog" aria-labelledby="renameModalLabel" aria-hidden="true">
