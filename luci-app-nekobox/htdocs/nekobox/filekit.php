@@ -1128,6 +1128,15 @@ function searchFiles($dir, $term) {
               background-color: transparent !important;
         }
 
+       body #themeToggle:hover {
+              background-color: black !important;
+              color: white !important;
+        }
+
+        body.dark-mode #themeToggle:hover {
+              background-color: white !important;
+              color: black !important;
+        }
      </style>
   </head>
 <body>
@@ -1194,15 +1203,17 @@ function searchFiles($dir, $term) {
                             <button type="button" class="btn btn-outline-secondary" onclick="showUploadArea()" id="uploadBtn" title="Upload"  data-translate-title="uploadTitle">
                                 <i class="fas fa-upload"></i>
                             </button>
-                        </div>
-                        <div class="btn-group">
-                            <select id="languageSwitcher" class="form-select">
-                                <option value="en">English</option>
-                                <option value="zh">中文</option>                  
-                            </select>
                             <button id="themeToggle" class="btn btn-outline-secondary" title="Toggle Theme"  data-translate-title="themeToggleTitle">
                                 <i class="fas fa-moon"></i>
                             </button>
+                        </div>
+                        <div class="btn-group">
+                            <select id="languageSwitcher" class="form-select">
+                                <option value="en" data-translate="english">English</option>
+                                <option value="zh" data-translate="chinese">chinese</option>
+                                <option value="zh-tw" data-translate="traditionalChinese">traditionalChinese</option>                   
+                            </select>
+
                         </div>
                   </div>
             </div>
@@ -1225,6 +1236,9 @@ function searchFiles($dir, $term) {
 
 <div class="upload-container">
     <div class="upload-area" id="uploadArea" style="display: none;">
+        <p class="upload-instructions">
+            <span data-translate="dragHint">请将文件拖拽至此处或点击选择文件上传</span>
+        </p>
         <form action="" method="post" enctype="multipart/form-data" id="uploadForm">
             <input type="file" name="upload[]" id="fileInput" style="display: none;" multiple required>
             <div class="upload-drop-zone" id="dropZone">
@@ -1443,6 +1457,13 @@ function searchFiles($dir, $term) {
                         <option value="22px">22px</option>
                         <option value="24px">24px</option>
                         <option value="26px">26px</option>
+                        <option value="28px">28px</option>
+                        <option value="30px">30px</option>
+                        <option value="32px">32px</option>
+                        <option value="34px">34px</option>
+                        <option value="36px">36px</option>
+                        <option value="38px">38px</option>
+                        <option value="40px">40px</option>
                     </select>
                     <select id="editorTheme" onchange="changeEditorTheme()">
                         <option value="ace/theme/vibrant_ink">Vibrant Ink</option>
@@ -1477,12 +1498,12 @@ function searchFiles($dir, $term) {
                         <option value="ASCII">ASCII</option>
                         <option value="ISO-8859-1">ISO-8859-1 (Latin-1)</option>
                         <option value="Windows-1252">Windows-1252</option>
-                        <option value="GBK">GBK (简体中文)</option>
-                        <option value="Big5">Big5 (繁体中文)</option>
-                        <option value="Shift_JIS">Shift_JIS (日文)</option>
-                        <option value="EUC-KR">EUC-KR (韩文)</option>
+                        <option value="GBK" data-translate="gbk">GBK (Simplified Chinese)</option>
+                        <option value="Big5" data-translate="big5">Big5 (Traditional Chinese)</option>
+                        <option value="Shift_JIS" data-translate="shiftJIS">Shift_JIS (Japanese)</option>
+                        <option value="EUC-KR" data-translate="eucKR">EUC-KR (Korean)</option>
                     </select>
-                    <button onclick="toggleSearch()" class="btn" title="搜索文件内容" data-translate="search" data-translate-title="search_title"><i class="fas fa-search"></i></button>
+                    <button onclick="toggleSearch()" class="btn" data-translate="search" data-translate-title="search_title"><i class="fas fa-search"></i></button>
                     <button onclick="formatCode()" class="btn" data-translate="format">Format</button>
                     <button onclick="formatJSON()" class="btn" id="formatJSONBtn" style="display: none;" data-translate="formatJSON">Format JSON</button>
                     <button onclick="validateJSON()" class="btn" id="validateJSONBtn" style="display: none;" data-translate="validateJSON">Validate JSON</button>
@@ -1556,6 +1577,9 @@ document.addEventListener('DOMContentLoaded', function() {
 const translations = {
     zh: {
         pageTitle: "NeKoBox 文件助手",
+        chinese: '简体中文',
+        traditionalChinese: '繁體中文',
+        english: 'English',
         uploadBtn: "上传文件",
         rootDirectory: "根目录",
         name: "名称",
@@ -1632,6 +1656,7 @@ const translations = {
         searchTitle: "搜索",
         createTitle: "新建",
         uploadTitle: "上传",
+        dragHint: "请将文件拖拽至此处或点击选择文件上传",
         searchInputPlaceholder: "输入文件名",
         moveTo: "移至",
         confirmRename: "确认重命名",
@@ -1670,6 +1695,9 @@ const translations = {
     },
     en: {
         pageTitle: "NeKoBox File Assistant",
+        chinese: 'Simplified Chinese',
+        traditionalChinese: 'Traditional Chinese',
+        english: 'English',
         uploadBtn: "Upload File",
         rootDirectory: "root",
         name: "Name",
@@ -1719,6 +1747,7 @@ const translations = {
         fileAssistant: "📦 File Assistant",
         errorSavingFile: "Error: Unable to save file.",
         uploadFailed: "Upload failed",
+        dragHint: "Drag and drop files here or click to upload",
         fileNotExistOrNotReadable: "File does not exist or is not readable.",
         inputFileName: "Input file name",
         search: "Search",
@@ -1783,9 +1812,124 @@ const translations = {
         errorFormattingCode: "Error formatting code: ",
         selectAtLeastOneFile: "Please select at least one file or folder to delete.",
         confirmDeleteSelected: "Are you sure you want to delete the selected {0} files or folders? This action cannot be undone."
+    },
+    "zh-tw": {
+        pageTitle: "NeKoBox 檔案助手",
+        chinese: '简體中文',
+        traditionalChinese: '繁體中文',
+        english: 'English',
+        uploadBtn: "上傳檔案",
+        rootDirectory: "根目錄",
+        name: "名稱",
+        type: "類型", 
+        size: "大小",
+        permissions: "權限",
+        actions: "操作",
+        directory: "目錄",
+        file: "檔案",
+        rename: "✏️ 重新命名",
+        edit: "📝 編輯",
+        download: "📥 下載",
+        delete: "🗑️ 刪除",
+        confirmDelete: "確定要刪除 {0} 嗎？此操作無法撤銷。",
+        newName: "新名稱:",
+        close: "關閉",
+        setPermissions: "🔒 設定權限",
+        saveLanguage: "儲存語言設定",
+        languageSaved: "語言設定已儲存",
+        modifiedTime: "修改時間",
+        owner: "擁有者",
+        create: "新建",
+        newFolder: "新建資料夾",
+        newFile: "新建檔案",
+        folderName: "資料夾名稱:",
+        fileName: "檔案名稱:", 
+        search: "搜尋",
+        searchFiles: "搜尋檔案",
+        noMatchingFiles: "沒有找到符合的檔案。",
+        moveTo: "移至",
+        cancel: "取消",
+        confirm: "確認",
+        goBack: "返回上一層",
+        refreshDirectory: "重新整理目錄內容",
+        switchTheme: "切換主題",
+        lightMode: "淺色模式",
+        darkMode: "深色模式",
+        filePreview: "檔案預覽",
+        unableToLoadImage: "無法載入圖片:",
+        unableToLoadSVG: "無法載入SVG檔案:",
+        unableToLoadAudio: "無法載入音訊:",
+        unableToLoadVideo: "無法載入視訊:",
+        home: "🏠 首頁",
+        mihomo: "Mihomo",
+        singBox: "Sing-box", 
+        convert: "💹 訂閱轉換",
+        fileAssistant: "📦 檔案助手",
+        errorSavingFile: "錯誤: 無法儲存檔案。",
+        uploadFailed: "上傳失敗",
+        fileNotExistOrNotReadable: "檔案不存在或無法讀取。",
+        inputFileName: "輸入檔案名稱",
+        permissionValue: "權限值（例如：0644）",
+        inputThreeOrFourDigits: "輸入三位或四位數字，例如：0644 或 0755",
+        fontSizeL: "字型大小",
+        encodingL: "編碼",
+        save: "儲存",
+        closeL: "關閉",
+        confirmCloseEditor: "確定要關閉編輯器嗎？請確保已儲存更改。",
+        newNameCannotBeEmpty: "新名稱不能為空",
+        fileNameCannotContainChars: "檔案名稱不能包含以下字元: < > : \" / \\ | ? *",
+        folderNameCannotBeEmpty: "資料夾名稱不能為空",
+        fileNameCannotBeEmpty: "檔案名稱不能為空",
+        searchError: "搜尋時出錯: ",
+        encodingChanged: "編碼已更改為 {0}。實際轉換將在儲存時在伺服器端進行。",
+        errorLoadingFileContent: "載入檔案內容時出錯: ",
+        permissionHelp: "請輸入有效的權限值（三位或四位八進位數字，例如：644 或 0755）",
+        permissionValueCannotExceed: "權限值不能超過 0777",
+        goBackTitle: "返回上一層",
+        rootDirectoryTitle: "返回根目錄",
+        homeDirectoryTitle: "返回主目錄", 
+        refreshDirectoryTitle: "重新整理目錄內容",
+        selectAll: "全選",
+        invertSelection: "反選",
+        deleteSelected: "刪除所選",
+        searchTitle: "搜尋",
+        createTitle: "新建",
+        uploadTitle: "上傳",
+        dragHint: "請將文件拖曳至此處或點擊選擇文件上傳",
+        searchInputPlaceholder: "輸入檔案名稱",
+        confirmRename: "確認重新命名",
+        create: "建立",
+        confirmChange: "確認修改",
+        themeToggleTitle: "切換主題",
+        editFile: "編輯檔案",
+        advancedEdit: "進階編輯",
+        line: "行",
+        column: "列",
+        characterCount: "字元數",
+        gbk: "GBK (簡體中文)",
+        big5: "Big5 (繁體中文)",
+        shiftJIS: "Shift_JIS (日文)",
+        eucKR: "EUC-KR (韓文)",
+        format: "格式化",
+        validateJSON: "驗證 JSON",
+        validateYAML: "驗證 YAML", 
+        formatJSON: "格式化 JSON",
+        goToParentDirectoryTitle: "返回上一層目錄",
+        alreadyAtRootDirectory: "已在根目錄，無法返回上一層。",
+        close: "關閉",
+        fullscreen: "全螢幕",
+        exitFullscreen: "退出全螢幕",
+        search_title: "搜尋檔案內容",
+        jsonFormatSuccess: "JSON 已成功格式化",
+        unableToFormatJSON: "無法格式化：無效的 JSON 格式",
+        codeFormatSuccess: "程式碼已成功格式化",
+        errorFormattingCode: "格式化時發生錯誤：",
+        selectAtLeastOneFile: "請至少選擇一個檔案或資料夾進行刪除。",
+        confirmDeleteSelected: "確定要刪除選中的 {0} 個檔案或資料夾嗎？此操作無法撤銷。"
     }
 };
-    let currentLang = localStorage.getItem('preferred_language') || 'en';
+
+let currentLang = localStorage.getItem('preferred_language') || 'en';
 
 function updateLanguage(lang) {
     document.documentElement.lang = lang;
@@ -1805,7 +1949,6 @@ function updateLanguage(lang) {
             el.value = translations[lang][key];
         }
     });
-
 
     document.querySelectorAll('[data-translate], [data-translate-title], [data-translate-placeholder]').forEach(el => {
         const translateKey = el.getAttribute('data-translate');
@@ -1857,7 +2000,6 @@ function updateLanguage(lang) {
     }
     });
     
-
 const DEFAULT_FONT_SIZE = '20px';
 
 let aceEditor;
@@ -1961,47 +2103,65 @@ function showSearchModal() {
 }
 
 function searchFiles(event) {
-    event.preventDefault();
-    const searchTerm = document.getElementById('searchInput').value;
-    const currentDir = '<?php echo $current_dir; ?>';
+   event.preventDefault();
+   const currentLang = localStorage.getItem('preferred_language') || 'en';
+   
+   let noResultsMessage = '没有找到匹配的文件。';
+   let moveButtonText = '移至';
+   let searchErrorText = '搜索出错:';
+   let errorMessage = '搜索时出错: ';
+   
+   if (currentLang === 'en') {
+       noResultsMessage = 'No matching files found.';
+       moveButtonText = 'Move to';
+       searchErrorText = 'Search error:';
+       errorMessage = 'Error searching: ';
+   } else if (currentLang === 'zh-tw') {
+       noResultsMessage = '沒有找到匹配的檔案。';
+       moveButtonText = '移至';
+       searchErrorText = '搜尋出錯:';
+       errorMessage = '搜尋時出錯: ';
+   }
 
-    fetch(`?action=search&dir=${encodeURIComponent(currentDir)}&term=${encodeURIComponent(searchTerm)}`)
-        .then(response => response.json())
-        .then(data => {
-            const resultsDiv = document.getElementById('searchResults');
-            resultsDiv.innerHTML = '';
+   const searchTerm = document.getElementById('searchInput').value;
+   const currentDir = '<?php echo $current_dir; ?>';
 
-            if (data.length === 0) {
-                resultsDiv.innerHTML = '<p>没有找到匹配的文件。</p>';
-            } else {
-                const ul = document.createElement('ul');
-                ul.className = 'list-group';
-                data.forEach(file => {
-                    const li = document.createElement('li');
-                    li.className = 'list-group-item d-flex justify-content-between align-items-center';
-                    const fileSpan = document.createElement('span');
-                    fileSpan.textContent = `${file.name} (${file.path})`;
-                    li.appendChild(fileSpan);
+   fetch(`?action=search&dir=${encodeURIComponent(currentDir)}&term=${encodeURIComponent(searchTerm)}`)
+       .then(response => response.json())
+       .then(data => {
+           const resultsDiv = document.getElementById('searchResults');
+           resultsDiv.innerHTML = '';
 
-                    const moveButton = document.createElement('button');
-                    moveButton.className = 'btn btn-sm btn-primary';
-                    moveButton.textContent = '移至';
-                    moveButton.onclick = function() {
-                        let targetDir = file.dir || '/';
-                        window.location.href = `?dir=${encodeURIComponent(targetDir)}`;
-                        bootstrap.Modal.getInstance(document.getElementById('searchModal')).hide();
-                    };
-                    li.appendChild(moveButton);
+           if (data.length === 0) {
+               resultsDiv.innerHTML = `<p>${noResultsMessage}</p>`;
+           } else {
+               const ul = document.createElement('ul');
+               ul.className = 'list-group';
+               data.forEach(file => {
+                   const li = document.createElement('li');
+                   li.className = 'list-group-item d-flex justify-content-between align-items-center';
+                   const fileSpan = document.createElement('span');
+                   fileSpan.textContent = `${file.name} (${file.path})`;
+                   li.appendChild(fileSpan);
 
-                    ul.appendChild(li);
-                });
-                resultsDiv.appendChild(ul);
-            }
-        })
-        .catch(error => {
-            console.error('搜索出错:', error);
-            alert('搜索时出错: ' + error.message);
-        });
+                   const moveButton = document.createElement('button');
+                   moveButton.className = 'btn btn-sm btn-primary';
+                   moveButton.textContent = moveButtonText;
+                   moveButton.onclick = function() {
+                       let targetDir = file.dir || '/';
+                       window.location.href = `?dir=${encodeURIComponent(targetDir)}`;
+                       bootstrap.Modal.getInstance(document.getElementById('searchModal')).hide();
+                   };
+                   li.appendChild(moveButton);
+                   ul.appendChild(li);
+               });
+               resultsDiv.appendChild(ul);
+           }
+       })
+       .catch(error => {
+           console.error(searchErrorText, error);
+           alert(errorMessage + error.message);
+       });
 }
 
 function closeModal(modalId) {
@@ -2011,18 +2171,28 @@ function closeModal(modalId) {
     document.getElementById(modalId).style.display = "none";
 }
 
-    function changeEncoding() {
-        let encoding = document.getElementById('encoding').value;
-        let content = aceEditor.getValue();
+function changeEncoding() {
+   const currentLang = localStorage.getItem('preferred_language') || 'en';
+   let encoding = document.getElementById('encoding').value;
+   let content = aceEditor.getValue();
+ 
+   let encodingChangeMessage = '编码已更改为 {encoding}。实际转换将在保存时在服务器端进行。';
 
-        if (encoding === 'ASCII') {
-            content = content.replace(/[^\x00-\x7F]/g, "");
-        } else if (encoding !== 'UTF-8') {
-            alert('编码已更改为 ' + encoding + '。实际转换将在保存时在服务器端进行。');
-        }
+   if (currentLang === 'en') {
+       encodingChangeMessage = 'Encoding changed to {encoding}. Actual conversion will be done on the server side when saving.';
+   } else if (currentLang === 'zh-tw') {
+       encodingChangeMessage = '編碼已更改為 {encoding}。實際轉換將在儲存時在伺服器端進行。';
+   }
 
-        aceEditor.setValue(content, -1);
-    }
+   if (encoding === 'ASCII') {
+       content = content.replace(/[^\x00-\x7F]/g, "");
+   } else if (encoding !== 'UTF-8') {
+       let message = encodingChangeMessage.replace('{encoding}', encoding);
+       alert(message);
+   }
+
+   aceEditor.setValue(content, -1);
+}
 
 function showEditModal(path) {
     document.getElementById('editPath').value = path;
@@ -2071,7 +2241,7 @@ function showEditModal(path) {
             console.error('编辑文件时出错:', error);
             alert('加载文件内容时出错: ' + error.message);
         });
-}
+    }
 
 function setAceEditorTheme() {
     if (document.body.classList.contains('dark-mode')) {
@@ -2324,11 +2494,7 @@ function openAceEditor() {
         aceEditor.session.setUseWrapMode(true);
         aceEditor.setOption("wrap", true);
         aceEditor.getSession().setUseWrapMode(true);
-
-
-        
-        aceEditor.getSession().selection.on('changeCursor', updateCursorPosition);
-        aceEditor.getSession().on('change', updateCharacterCount);
+       
     }
     
     aceEditor.setValue(content, -1);
@@ -2365,34 +2531,57 @@ function updateCursorPosition() {
     document.getElementById('cursorPosition').textContent = '行: ' + (cursorPosition.row + 1) + ', 列: ' + (cursorPosition.column + 1);
 }
 
-
-aceEditor.getSession().on('change', updateCharacterCount);
-
-
-aceEditor.getSession().selection.on('changeCursor', updateCursorPosition);
-
 function validateJSON() {
+    const currentLang = localStorage.getItem('preferred_language') || 'en';
     const editor = aceEditor;
     const content = editor.getValue();
+    
+    let validMessage = 'JSON 格式有效';
+    let invalidMessage = '无效的 JSON 格式: ';
+    
+    if (currentLang === 'en') {
+        validMessage = 'JSON format is valid';
+        invalidMessage = 'Invalid JSON format: ';
+    } else if (currentLang === 'zh-tw') {
+        validMessage = 'JSON 格式有效';
+        invalidMessage = '無效的 JSON 格式: ';
+    }
+
     try {
         JSON.parse(content);
-        alert('JSON 格式有效');
+        alert(validMessage);
     } catch (e) {
-        alert('无效的 JSON 格式: ' + e.message);
+        alert(invalidMessage + e.message);
     }
 }
 
 function validateYAML() {
+    const currentLang = localStorage.getItem('preferred_language') || 'en';
+    
+    let validMessage = 'YAML 格式有效';
+    let invalidMessage = '无效的 YAML 格式: ';
+    let editorNotInitMessage = '编辑器未初始化';
+    
+    if (currentLang === 'en') {
+        validMessage = 'YAML format is valid';
+        invalidMessage = 'Invalid YAML format: ';
+        editorNotInitMessage = 'Editor not initialized';
+    } else if (currentLang === 'zh-tw') {
+        validMessage = 'YAML 格式有效';
+        invalidMessage = '無效的 YAML 格式: ';
+        editorNotInitMessage = '編輯器未初始化';
+    }
+
     if (aceEditor) {
         const content = aceEditor.getValue();
         try {
             jsyaml.load(content);
-            alert('YAML 格式有效');
+            alert(validMessage);
         } catch (e) {
-            alert('无效的 YAML 格式: ' + e.message);
+            alert(invalidMessage + e.message);
         }
     } else {
-        alert('编辑器未初始化');
+        alert(editorNotInitMessage);
     }
 }
 
@@ -2408,7 +2597,16 @@ function addErrorMarker(session, line, message) {
 }
 
 function closeAceEditor() {
-    if (confirm('确定要关闭编辑器吗？请确保已保存更改。')) {
+    const currentLang = localStorage.getItem('preferred_language') || 'en';
+    
+    let confirmMessage = '确定要关闭编辑器吗？请确保已保存更改。'; 
+    if (currentLang === 'en') {
+        confirmMessage = 'Are you sure you want to close the editor? Please make sure you have saved your changes.';
+    } else if (currentLang === 'zh-tw') {
+        confirmMessage = '確定要關閉編輯器嗎？請確保已儲存更改。';
+    }
+    
+    if (confirm(confirmMessage)) {
         document.body.classList.remove('editing');
         document.getElementById('editContent').value = aceEditor.getValue();
         document.getElementById('aceEditor').style.display = 'none';
@@ -2617,29 +2815,89 @@ function previewFile(path, extension) {
 }
 
 function setupCustomIndent(session, mode) {
-    session.setTabSize(2);
-    session.setUseSoftTabs(true);
-    session.on("change", function(delta) {
-        if (delta.action === "insert" && delta.lines.length === 1 && delta.lines[0] === "") {
-            var cursor = session.selection.getCursor();
-            var line = session.getLine(cursor.row - 1);
-            var indent = line.match(/^\s*/)[0];
+   session.setTabSize(2);
+   session.setUseSoftTabs(true);
+   
+   session.on("change", function(delta) {
+       if (delta.action === "insert" && delta.lines.length === 1 && delta.lines[0] === "") {
+           var cursor = session.selection.getCursor();
+           var line = session.getLine(cursor.row - 1);
+           var indent = line.match(/^\s*/)[0];
 
-            if (mode === 'yaml') {
-                if (line.trim().endsWith(':')) {
-                    indent += "  ";
-                } else if (line.trim().startsWith('- ')) {
-                    indent = line.match(/^\s*/)[0];
-                }
-            } else if (mode === 'json') {
-                if (line.trim().endsWith('{') || line.trim().endsWith('[')) {
-                    indent += "  ";
-                }
-            }
+           if (mode === 'yaml') {
+               if (line.trim().startsWith('- ')) {
+                   setTimeout(function() {
+                       session.insert({row: cursor.row, column: 0}, indent + "- ");
+                   }, 0);
+                   return;
+               } else if (line.trim().endsWith(':')) {
+                   indent += "  ";
+               } else if (line.trim().match(/^-\s*\w+/)) {
+                   indent = line.match(/^\s*/)[0];
+               }
+           } else if (mode === 'json') {
+               if (line.trim().endsWith('{') || line.trim().endsWith('[')) {
+                   indent += "  ";
+               }
+           }
 
-            session.insert({row: cursor.row, column: 0}, indent);
-        }
-    });
+           session.insert({row: cursor.row, column: 0}, indent);
+
+           if (mode === 'yaml' && line.trim().startsWith('- ')) {
+               var newPosition = session.selection.getCursor();
+               session.selection.moveTo(newPosition.row, indent.length + 2);
+           }
+       }
+   });
+
+   if (mode === 'yaml') {
+       var langTools = ace.require("ace/ext/language_tools");
+       var yamlCompleter = {
+           getCompletions: function(editor, session, pos, prefix, callback) {
+               var line = session.getLine(pos.row);
+               var completions = [];
+
+               if (line.trim().length === 0) {
+                   completions = [
+                       {
+                           caption: "- list item",
+                           snippet: "- ",
+                           meta: "list item"
+                       },
+                       {
+                           caption: "key: value",
+                           snippet: "${1:key}: ${2:value}",
+                           meta: "key value"
+                       }
+                   ];
+               }
+
+               callback(null, completions);
+           }
+       };
+       langTools.addCompleter(yamlCompleter);
+   }
+}
+
+if (!aceEditor) {
+   aceEditor = ace.edit("aceEditorContainer");
+   aceEditor.setTheme("ace/theme/monokai");
+   aceEditor.setFontSize(DEFAULT_FONT_SIZE);-
+
+   aceEditor.setOptions({
+       enableBasicAutocompletion: true,
+       enableLiveAutocompletion: true,
+       enableSnippets: true
+   });
+
+   var session = aceEditor.getSession();
+   var mode = session.getMode().$id;
+   
+   if (mode.includes('yaml')) {
+       setupCustomIndent(session, 'yaml');
+   } else if (mode.includes('json')) {
+       setupCustomIndent(session, 'json');
+   }
 }
 
 function setupCustomCompletion(session, mode) {
@@ -2811,66 +3069,83 @@ function createCustomWorker(session, mode) {
 }
 
 function formatCode() {
-    const editor = aceEditor;
-    const session = editor.getSession();
-    const cursorPosition = editor.getCursorPosition();
-    
-    let content = editor.getValue();
-    let formatted;
-    
-    const mode = session.getMode().$id;
-    
-    try {
-        if (mode.includes('javascript')) {
-            formatted = js_beautify(content, {
-                indent_size: 2,
-                space_in_empty_paren: true
-            });
-        } else if (mode.includes('json')) {
-            JSON.parse(content); 
-            formatted = JSON.stringify(JSON.parse(content), null, 2);
-        } else if (mode.includes('yaml')) {
-            const obj = jsyaml.load(content); 
-            formatted = jsyaml.dump(obj, {
-                indent: 2,
-                lineWidth: -1,
-                noRefs: true,
-                sortKeys: false
-            });
-        } else {
-            formatted = js_beautify(content, {
-                indent_size: 2,
-                space_in_empty_paren: true
-            });
-        }
+   const currentLang = localStorage.getItem('preferred_language') || 'en';
+   const editor = aceEditor;
+   const session = editor.getSession();
+   const cursorPosition = editor.getCursorPosition();
+   
+   let content = editor.getValue();
+   let formatted;
+   
+   const mode = session.getMode().$id;
+   
+   let successMessage = '代码已成功格式化';
+   let jsonErrorMessage = '无法格式化：无效的 JSON 格式';
+   let yamlErrorMessage = '无法格式化：无效的 YAML 格式'; 
+   let formatErrorMessage = '格式化时发生错误：';
 
-        editor.setValue(formatted);
-        editor.clearSelection();
-        editor.moveCursorToPosition(cursorPosition);
-        editor.focus();
+   if (currentLang === 'en') {
+       successMessage = 'Code has been successfully formatted';
+       jsonErrorMessage = 'Unable to format: Invalid JSON format';
+       yamlErrorMessage = 'Unable to format: Invalid YAML format';
+       formatErrorMessage = 'Error formatting code: ';
+   } else if (currentLang === 'zh-tw') {
+       successMessage = '程式碼已成功格式化';
+       jsonErrorMessage = '無法格式化：無效的 JSON 格式';
+       yamlErrorMessage = '無法格式化：無效的 YAML 格式';
+       formatErrorMessage = '格式化時發生錯誤：';
+   }
 
-        session.clearAnnotations();
-        if (session.$errorMarker) {
-            session.removeMarker(session.$errorMarker);
-        }
-
-        showNotification('代码已成功格式化', 'success');
-
-    } catch (e) {
-        let errorMessage;
-        if (mode.includes('json')) {
-            errorMessage = '无法格式化：无效的 JSON 格式';
-        } else if (mode.includes('yaml')) {
-            errorMessage = '无法格式化：无效的 YAML 格式';
-        } else {
-            errorMessage = '格式化时发生错误：' + e.message;
-        }
-        showNotification(errorMessage, 'error');
-
-        if (e.mark) {
-            session.$errorMarker = addErrorMarker(session, e.mark.line, e.message);
-        }
-    }
+   try {
+       if (mode.includes('javascript')) {
+           formatted = js_beautify(content, {
+               indent_size: 2,
+               space_in_empty_paren: true
+           });
+       } else if (mode.includes('json')) {
+           JSON.parse(content); 
+           formatted = JSON.stringify(JSON.parse(content), null, 2);
+       } else if (mode.includes('yaml')) {
+           const obj = jsyaml.load(content); 
+           formatted = jsyaml.dump(obj, {
+               indent: 2,
+               lineWidth: -1,
+               noRefs: true,
+               sortKeys: false
+           });
+       } else {
+           formatted = js_beautify(content, {
+               indent_size: 2,
+               space_in_empty_paren: true
+           });
+       }
+       
+       editor.setValue(formatted);
+       editor.clearSelection();
+       editor.moveCursorToPosition(cursorPosition);
+       editor.focus();
+       
+       session.clearAnnotations();
+       if (session.$errorMarker) {
+           session.removeMarker(session.$errorMarker);
+       }
+       
+       showNotification(successMessage, 'success');
+   } catch (e) {
+       let errorMessage;
+       if (mode.includes('json')) {
+           errorMessage = jsonErrorMessage;
+       } else if (mode.includes('yaml')) {
+           errorMessage = yamlErrorMessage;
+       } else {
+           errorMessage = formatErrorMessage + e.message;
+       }
+       showNotification(errorMessage, 'error');
+       
+       if (e.mark) {
+           session.$errorMarker = addErrorMarker(session, e.mark.line, e.message);
+       }
+   }
 }
 
 function addErrorMarker(session, line, column, message) {
@@ -2886,11 +3161,21 @@ function addErrorMarker(session, line, column, message) {
 }
 
 function showNotification(message, type) {
-    if (type === 'error') {
-        alert('错误: ' + message);
-    } else {
-        alert(message);
-    }
+   const currentLang = localStorage.getItem('preferred_language') || 'en';
+   
+   let errorPrefix = '错误: ';
+   
+   if (currentLang === 'en') {
+       errorPrefix = 'Error: ';
+   } else if (currentLang === 'zh-tw') {
+       errorPrefix = '錯誤: ';
+   }
+   
+   if (type === 'error') {
+       alert(errorPrefix + message);
+   } else {
+       alert(message);
+   }
 }
 
 document.getElementById('selectAllCheckbox').addEventListener('change', function() {
@@ -2929,41 +3214,56 @@ function updateSelectAllCheckbox() {
 }
 
 function deleteSelected() {
-    var selectedPaths = [];
-    var checkboxes = document.getElementsByClassName('file-checkbox');
-    for (var i = 0; i < checkboxes.length; i++) {
-        if (checkboxes[i].checked) {
-            selectedPaths.push(checkboxes[i].dataset.path);
-        }
-    }
+   const currentLang = localStorage.getItem('preferred_language') || 'en';
+   
+   let selectMessage = '请至少选择一个文件或文件夹进行删除。';
+   let confirmMessage = '确定要删除选中的 {count} 个文件或文件夹吗？这个操作不可撤销。';
+   
+   if (currentLang === 'en') {
+       selectMessage = 'Please select at least one file or folder to delete.';
+       confirmMessage = 'Are you sure you want to delete the selected {count} files or folders? This action cannot be undone.';
+   } else if (currentLang === 'zh-tw') {
+       selectMessage = '請至少選擇一個檔案或資料夾進行刪除。';
+       confirmMessage = '確定要刪除選中的 {count} 個檔案或資料夾嗎？此操作無法撤銷。';
+   }
 
-    if (selectedPaths.length === 0) {
-        alert('请至少选择一个文件或文件夹进行删除。');
-        return;
-    }
+   var selectedPaths = [];
+   var checkboxes = document.getElementsByClassName('file-checkbox');
+   for (var i = 0; i < checkboxes.length; i++) {
+       if (checkboxes[i].checked) {
+           selectedPaths.push(checkboxes[i].dataset.path);
+       }
+   }
 
-    if (confirm('确定要删除选中的 ' + selectedPaths.length + ' 个文件或文件夹吗？这个操作不可撤销。')) {
-        var form = document.createElement('form');
-        form.method = 'post';
-        form.style.display = 'none';
+   if (selectedPaths.length === 0) {
+       alert(selectMessage);
+       return;
+   }
 
-        var actionInput = document.createElement('input');
-        actionInput.type = 'hidden';
-        actionInput.name = 'action';
-        actionInput.value = 'delete_selected';
-        form.appendChild(actionInput);
+   confirmMessage = confirmMessage.replace('{count}', selectedPaths.length);
 
-        for (var i = 0; i < selectedPaths.length; i++) {
-            var pathInput = document.createElement('input');
-            pathInput.type = 'hidden';
-            pathInput.name = 'selected_paths[]';
-            pathInput.value = selectedPaths[i];
-            form.appendChild(pathInput);
-        }
+   if (confirm(confirmMessage)) {
+       var form = document.createElement('form');
+       form.method = 'post';
+       form.style.display = 'none';
 
-        document.body.appendChild(form);
-        form.submit();
-    }
+       var actionInput = document.createElement('input');
+       actionInput.type = 'hidden';
+       actionInput.name = 'action';
+       actionInput.value = 'delete_selected';
+       form.appendChild(actionInput);
+
+       for (var i = 0; i < selectedPaths.length; i++) {
+           var pathInput = document.createElement('input');
+           pathInput.type = 'hidden';
+           pathInput.name = 'selected_paths[]';
+           pathInput.value = selectedPaths[i];
+           form.appendChild(pathInput);
+       }
+
+       document.body.appendChild(form);
+       form.submit();
+   }
 }
 
 window.addEventListener("load", function() {
@@ -3046,6 +3346,43 @@ function formatJSON() {
         }
     }
 }
+
+aceEditor.getSession().on("change", function(delta) {
+    if (delta.action === "insert" && delta.lines.length === 1 && delta.lines[0] === "") {
+        var cursor = aceEditor.getCursorPosition();
+        var line = aceEditor.getSession().getLine(cursor.row - 1);
+        var indent = line.match(/^\s*/)[0];
+        aceEditor.getSession().insert({ row: cursor.row, column: 0 }, indent);
+    }
+});
+
+aceEditor.on("copy", function() {
+    var selectedText = aceEditor.getSelectedText();
+    if (selectedText) {
+        var formattedText = formatAllText(aceEditor.getValue());
+        navigator.clipboard.writeText(formattedText);
+    }
+});
+
+function formatAllText(text) {
+    var lines = text.split("\n");
+    var longestLine = 0;
+    for (var i = 0; i < lines.length; i++) {
+        if (lines[i].length > longestLine) {
+            longestLine = lines[i].length;
+        }
+    }
+
+    var formattedLines = [];
+    for (var i = 0; i < lines.length; i++) {
+        var line = lines[i];
+        var padding = longestLine - line.length;
+        formattedLines.push(" ".repeat(padding) + line);
+    }
+
+    return formattedLines.join("\n");
+}
+
 </script>
 <style>
 #fullscreenToggle {
@@ -3064,20 +3401,48 @@ function formatJSON() {
 
 <script>
 document.addEventListener("DOMContentLoaded", function() {
-    const fullscreenToggle = document.createElement('button');
-    fullscreenToggle.id = 'fullscreenToggle';
-    fullscreenToggle.textContent = '全屏';
-    document.body.appendChild(fullscreenToggle);
+   const fullscreenToggle = document.createElement('button');
+   fullscreenToggle.id = 'fullscreenToggle';
+   
+   const currentLang = localStorage.getItem('preferred_language') || 'en';
+   
+   if(currentLang === 'zh') {
+       fullscreenToggle.textContent = '全屏';
+   } else if(currentLang === 'zh-tw') {
+       fullscreenToggle.textContent = '全螢幕';
+   } else {
+       fullscreenToggle.textContent = 'Fullscreen';
+   }
+   
+   document.body.appendChild(fullscreenToggle);
 
-    fullscreenToggle.onclick = function() {
-        if (!document.fullscreenElement) {
-            document.documentElement.requestFullscreen();
-        } else {
-            if (document.exitFullscreen) {
-                document.exitFullscreen();
-            }
-        }
-    };
+   fullscreenToggle.onclick = function() {
+       if (!document.fullscreenElement) {
+           document.documentElement.requestFullscreen();
+       } else {
+           if (document.exitFullscreen) {
+               document.exitFullscreen();
+           }
+       }
+   };
+
+   const languageSwitcher = document.getElementById('languageSwitcher');
+   if(languageSwitcher) {
+       languageSwitcher.value = currentLang;
+       
+       languageSwitcher.addEventListener('change', function() {
+           const lang = this.value;
+           localStorage.setItem('preferred_language', lang);
+           
+           if(lang === 'zh') {
+               fullscreenToggle.textContent = '全屏';
+           } else if(lang === 'zh-tw') {
+               fullscreenToggle.textContent = '全螢幕';
+           } else {
+               fullscreenToggle.textContent = 'Fullscreen';
+           }
+       });
+   }
 });
 </script>
 
