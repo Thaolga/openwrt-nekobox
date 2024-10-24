@@ -177,6 +177,14 @@ $message = "";
 $decodedContent = ""; 
 $subscriptions = [];
 
+function outputMessage($message) {
+    if (!isset($_SESSION['update_messages'])) {
+        $_SESSION['update_messages'] = array();
+    }
+
+    $_SESSION['update_messages'][] = $message;
+}
+
 if (!file_exists($subscriptionPath)) {
     mkdir($subscriptionPath, 0755, true);
 }
@@ -203,21 +211,36 @@ if (isset($_POST['update'])) {
     $subscriptions[$index]['url'] = $url;
     $subscriptions[$index]['file_name'] = $customFileName;
 
-    if (!empty($url)) {
-        $finalPath = $subscriptionPath . $customFileName;
-        $command = "curl -fsSL -o {$finalPath} {$url}";
-        exec($command . ' 2>&1', $output, $return_var);
 
-        if ($return_var === 0) {
-            $message = "订阅链接 {$url} 更新成功！文件已保存到: {$finalPath}";
-        } else {
-            $message = "配置更新失败！错误信息: " . implode("\n", $output);
-        }
+if (!empty($url)) {
+    $finalPath = $subscriptionPath . $customFileName;
+    $command = "curl -fsSL -o {$finalPath} {$url}";
+    exec($command . ' 2>&1', $output, $return_var);
+
+    if ($return_var === 0) {
+        $_SESSION['update_messages'] = array();
+        $_SESSION['update_messages'][] = '<div class="alert alert-warning" style="margin-bottom: 8px;">
+            <strong>⚠️ 使用说明：</strong>
+            <ul class="mb-0 pl-3">
+                <li>通用模板（mihomo.yaml）最多支持<strong>6个</strong>订阅链接</li>
+                <li>请勿更改默认文件名称</li>
+                <li>该模板支持所有格式订阅链接，无需额外转换</li>
+            </ul>
+        </div>';
+        $_SESSION['update_messages'][] = "订阅链接 {$url} 更新成功！文件已保存到: {$finalPath}";
+        $message = '更新成功';
     } else {
-        $message = "第" . ($index + 1) . "个订阅链接为空！";
+        $_SESSION['update_messages'] = array();
+        $_SESSION['update_messages'][] = "配置更新失败！错误信息: " . implode("\n", $output);
+        $message = '更新失败';
     }
+} else {
+    $_SESSION['update_messages'] = array();
+    $_SESSION['update_messages'][] = "第" . ($index + 1) . "个订阅链接为空！";
+    $message = '更新失败';
+}
 
-    file_put_contents($subscriptionFile, json_encode($subscriptions));
+file_put_contents($subscriptionFile, json_encode($subscriptions));
 }
 
 if (isset($_POST['convert_base64'])) {
@@ -514,6 +537,123 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <script src="./assets/js/neko.js"></script>
 </head>
 <body>
+<div class="position-fixed w-100 d-flex justify-content-center" style="top: 20px; z-index: 1050">
+    <div id="updateAlert" class="alert alert-success alert-dismissible fade" role="alert" style="display: none; min-width: 300px; max-width: 600px;">
+        <div class="d-flex align-items-center">
+            <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+            <strong>更新完成</strong>
+        </div>
+        <div id="updateMessages" class="small">
+        </div>
+        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+            <span aria-hidden="true">×</span>
+        </button>
+    </div>
+</div>
+<style>
+.alert-success {
+    background-color: #2b3035 !important;
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+    border-radius: 8px !important;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3) !important;
+    padding: 16px 20px !important;
+    position: relative;
+    color: #fff !important;
+    backdrop-filter: blur(10px);
+    margin-top: 15px !important;
+}
+
+.alert .close {
+    position: absolute !important;
+    right: 10px !important;   
+    top: 10px !important;     
+    background-color: #dc3545 !important;
+    opacity: 1 !important;
+    width: 20px !important;
+    height: 20px !important;
+    border-radius: 50% !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    font-size: 14px !important;
+    color: #fff !important;
+    border: none !important;    
+    padding: 0 !important;
+    margin: 0 !important;
+    transition: all 0.2s ease !important;
+    text-shadow: none !important;
+    line-height: 1 !important;
+}
+
+.alert .close:hover {
+    background-color: #bd2130 !important;
+    transform: rotate(90deg);
+}
+
+#updateMessages {
+    margin-top: 12px;
+    padding-right: 20px;
+    font-size: 14px;
+    line-height: 1.5;
+    color: rgba(255, 255, 255, 0.9);
+}
+
+#updateMessages .alert-warning {
+    background-color: rgba(255, 193, 7, 0.1) !important;
+    border-radius: 6px;
+    padding: 12px 15px;
+    border: 1px solid rgba(255, 193, 7, 0.2);
+}
+
+#updateMessages ul {
+    margin-bottom: 0;
+    padding-left: 20px;
+}
+
+#updateMessages li {
+    margin-bottom: 6px;
+    color: rgba(255, 255, 255, 0.9);
+}
+
+.spinner-border-sm {
+    margin-right: 10px;
+    border-color: #fff;
+    border-right-color: transparent;
+}
+
+#updateMessages > div:not(.alert-warning) {
+    padding: 8px 0;
+    color: #00ff9d; 
+}
+</style>
+
+<script>
+function showUpdateAlert() {
+    const alert = $('#updateAlert');
+    const messages = <?php echo json_encode($_SESSION['update_messages'] ?? []); ?>;
+    
+    if (messages.length > 0) {
+        const messagesHtml = messages.map(msg => `<div>${msg}</div>`).join('');
+        $('#updateMessages').html(messagesHtml);
+    }
+    
+    alert.show().addClass('show');
+    
+    setTimeout(function() {
+        alert.removeClass('show');
+        setTimeout(function() {
+            alert.hide();
+            $('#updateMessages').html('');
+        }, 150);
+    }, 18000);
+}
+
+<?php if (!empty($message)): ?>
+    $(document).ready(function() {
+        showUpdateAlert();
+    });
+<?php endif; ?>
+</script>
 <div class="container-sm container-bg callout border border-3 rounded-4 col-11">
     <div class="row">
         <a href="./index.php" class="col btn btn-lg">🏠 首页</a>
@@ -703,18 +843,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <?php endif; ?>
 
   <h2 class="text-success text-center mt-4 mb-4">订阅管理</h2>
-
-    <div class="help-text mb-3 text-start">
-        <strong>1. 注意：</strong> 通用模板（<code>mihomo.yaml</code>）最多支持<strong>6个</strong>订阅链接，请勿更改默认名称。
-    </div>
-
-    <div class="help-text mb-3 text-start"> 
-        <strong>2. 保存与更新：</strong> 填写完毕后，请点击“更新配置”按钮进行保存。
-    </div>
-
-    <div class="help-text mb-3 text-start"> 
-        <strong>3. 节点转换与手动修改：</strong> 该模板支持所有格式的订阅链接，无需进行额外转换。
-    </div>
 
     <?php if ($message): ?>
         <div class="alert alert-info text-start"> 

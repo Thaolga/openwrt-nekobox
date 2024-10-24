@@ -175,11 +175,19 @@ $subscriptions = [];
 while (ob_get_level() > 0) {
     ob_end_flush();
 }
+
 function outputMessage($message) {
-    echo "<div class='alert alert-info text-start'>" . htmlspecialchars($message) . "</div>";
-    ob_flush();
-    flush();
+    if (!isset($_SESSION['update_messages'])) {
+        $_SESSION['update_messages'] = array();
+    }
+
+    if (empty($_SESSION['update_messages'])) {
+        $_SESSION['update_messages'][] = '<div class="text-warning" style="margin-bottom: 8px;"><strong>⚠️ 注意：</strong> 当前配置文件必须配合 <strong>Puernya</strong> 内核使用，不支持其他内核！</div>';
+    }
+    $_SESSION['update_messages'][] = $message;
 }
+
+
 if (!file_exists($subscriptionPath)) {
     mkdir($subscriptionPath, 0755, true);
 }
@@ -440,6 +448,114 @@ if (isset($_POST['update'])) {
     <script src="./assets/js/neko.js"></script>
 </head>
 <body>
+<div class="position-fixed w-100 d-flex justify-content-center" style="top: 20px; z-index: 1050">
+    <div id="updateAlert" class="alert alert-success alert-dismissible fade" role="alert" style="display: none; min-width: 300px; max-width: 600px; box-shadow: 0 2px 8px rgba(0,0,0,0.2);">
+        <div class="d-flex align-items-center mb-2">
+            <span class="spinner-border spinner-border-sm mr-2" role="status" aria-hidden="true"></span>
+            <strong>更新完成</strong>
+        </div>
+        <div id="updateMessages" class="small" style="word-break: break-all;">
+        </div>
+        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+            <span aria-hidden="true">×</span>
+        </button>
+    </div>
+</div>
+
+<div class="position-fixed w-100 d-flex justify-content-center" style="top: 60px; z-index: 1050">
+    <div id="updateAlertSub" class="alert alert-success alert-dismissible fade" role="alert" style="display: none; min-width: 300px; max-width: 600px; box-shadow: 0 2px 8px rgba(0,0,0,0.2);">
+        <div class="d-flex align-items-center mb-2">
+            <span class="spinner-border spinner-border-sm mr-2" role="status" aria-hidden="true"></span>
+            <strong>订阅更新完成</strong>
+        </div>
+        <div id="updateMessagesSub" class="small" style="word-break: break-all;">
+        </div>
+        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+            <span aria-hidden="true">×</span>
+        </button>
+    </div>
+</div>
+
+<script>
+function showUpdateAlert() {
+    const alert = $('#updateAlert');
+    const messages = <?php echo json_encode($_SESSION['update_messages'] ?? []); ?>;
+    
+    if (messages.length > 0) {
+        const messagesHtml = messages.map(msg => `<div>${msg}</div>`).join('');
+        $('#updateMessages').html(messagesHtml);
+    }
+    
+    alert.show().addClass('show');
+    
+    setTimeout(function() {
+        alert.removeClass('show');
+        setTimeout(function() {
+            alert.hide();
+            $('#updateMessages').html('');
+        }, 150);
+    }, 18000); 
+}
+
+function showUpdateAlertSub(message) {
+    const alert = $('#updateAlertSub');
+    $('#updateMessagesSub').html(`<div>${message}</div>`);
+    alert.show().addClass('show');
+    
+    setTimeout(function() {
+        alert.removeClass('show');
+        setTimeout(function() {
+            alert.hide();
+            $('#updateMessagesSub').html('');
+        }, 150);
+    }, 18000); 
+}
+
+<?php if ($updateCompleted): ?>
+    $(document).ready(function() {
+        showUpdateAlert();
+    });
+<?php endif; ?>
+
+<?php if ($message): ?>
+    $(document).ready(function() {
+        showUpdateAlertSub(`<?php echo str_replace(["\r", "\n"], '', addslashes($message)); ?>`);
+    });
+<?php endif; ?>
+</script>
+
+<style>
+#updateAlert .close {
+    color: white;
+    opacity: 0.8;
+    text-shadow: none;
+    padding: 0;
+    margin: 0;
+    position: absolute;
+    right: 10px;
+    top: 10px;
+    font-size: 1.2rem;
+    width: 24px;
+    height: 24px;
+    line-height: 24px;
+    text-align: center;
+    border-radius: 50%;
+    background-color: rgba(255, 255, 255, 0.2);
+    transition: all 0.2s ease;
+}
+
+#updateAlert .close:hover {
+    opacity: 1;
+    background-color: rgba(255, 255, 255, 0.3);
+    transform: rotate(90deg);
+}
+
+#updateAlert .close span {
+    position: relative;
+    top: -1px;
+}
+
+</style>
 <div class="container-sm container-bg callout border border-3 rounded-4 col-11">
     <div class="row">
         <a href="./index.php" class="col btn btn-lg">🏠 首页</a>
@@ -598,7 +714,9 @@ if (isset($_POST['update'])) {
         </div>
     <?php endif; ?>
 <?php endif; ?>
-        <h1 style="margin-top: 20px; margin-bottom: 20px;" title="只支持Sing-box格式的订阅">Sing-box 订阅</h1>
+
+    <h1 style="margin-top: 20px; margin-bottom: 20px;" title="只支持Sing-box格式的订阅">Sing-box 订阅</h1>
+
 <style>
     button, .button {
         background-color: #4CAF50;
@@ -608,10 +726,45 @@ if (isset($_POST['update'])) {
         cursor: pointer;
         font-size: 16px;
     }
+    
     button:hover, .button:hover {
         background-color: #45a049;
     }
-</style>
+
+    #updateAlert .close,
+    #updateAlertSub .close {
+        color: white;
+        opacity: 0.8;
+        text-shadow: none;
+        padding: 0;
+        margin: 0;
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        font-size: 1.2rem;
+        width: 24px;
+        height: 24px;
+        line-height: 24px;
+        text-align: center;
+        border-radius: 50%;
+        background-color: rgba(255, 255, 255, 0.2);
+        transition: all 0.2s ease;
+    }
+
+    #updateAlert .close:hover,
+    #updateAlertSub .close:hover {
+        opacity: 1;
+        background-color: rgba(255, 255, 255, 0.3);
+        transform: rotate(90deg);
+    }
+
+    #updateAlert .close span,
+    #updateAlertSub .close span {
+        position: relative;
+        top: -1px;
+    }
+    
+ </style>
 </head>
 <body>
     <form method="post" style="display: inline;">
@@ -684,35 +837,6 @@ if (isset($_POST['update'])) {
         </div>
     <?php endfor; ?>
 </div>
-
-    <script>
-        function showCompletionMessage() {
-            var messageDiv = document.createElement('div');
-            messageDiv.textContent = '更新完成';
-            messageDiv.style.position = 'fixed';
-            messageDiv.style.top = '20px';
-            messageDiv.style.left = '50%';
-            messageDiv.style.transform = 'translateX(-50%)';
-            messageDiv.style.padding = '10px 20px';
-            messageDiv.style.backgroundColor = '#4CAF50';
-            messageDiv.style.color = 'white';
-            messageDiv.style.borderRadius = '5px';
-            messageDiv.style.zIndex = '1000';
-            document.body.appendChild(messageDiv);
-
-            setTimeout(function() {
-                messageDiv.style.transition = 'opacity 0.5s';
-                messageDiv.style.opacity = '0';
-                setTimeout(function() {
-                    document.body.removeChild(messageDiv);
-                }, 500);
-            }, 3000);
-        }
-
-        <?php if ($updateCompleted): ?>
-        window.onload = showCompletionMessage;
-        <?php endif; ?>
-    </script>
 
         <div class="modal fade" id="renameModal" tabindex="-1" role="dialog" aria-labelledby="renameModalLabel" aria-hidden="true">
             <div class="modal-dialog" role="document">
