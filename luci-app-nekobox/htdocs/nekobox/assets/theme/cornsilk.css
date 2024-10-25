@@ -455,3 +455,9 @@ h2.text-center {
         min-width: 200px;
     }
 }
+
+@media (max-width: 767px) {
+    .btn {
+        font-size: 10px; 
+    }
+}

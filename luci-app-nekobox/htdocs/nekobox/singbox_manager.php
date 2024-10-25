@@ -555,6 +555,60 @@ function showUpdateAlertSub(message) {
     top: -1px;
 }
 
+@media (max-width: 767px) {
+    .row a {
+        font-size: 9px; 
+    }
+}
+
+.table-responsive {
+    width: 100%;
+}
+
+@media (max-width: 767px) {
+    .table th,
+    .table td {
+        padding: 6px 8px; 
+        font-size: 14px; 
+    }
+
+    .table th:nth-child(1), .table td:nth-child(1) {
+        width: 10%; 
+    }
+    .table th:nth-child(2), .table td:nth-child(2) {
+        width: 20%; 
+    }
+    .table th:nth-child(3), .table td:nth-child(3) {
+        width: 25%; 
+    }
+    .table th:nth-child(4), .table td:nth-child(4) {
+        width: 45%; 
+        white-space: nowrap;
+    }
+
+    .btn-group {
+        display: flex;
+        flex-wrap: wrap; 
+        justify-content: space-between; 
+    }
+
+    .btn-group .btn {
+        flex: 1 1 22%; 
+        margin-bottom: 5px; 
+        margin-right: 5px; 
+        text-align: center; 
+        font-size: 9px; 
+    }
+
+    .btn-group .btn-rename {
+        width: 70px; 
+        font-size: 9px; 
+    }
+
+    .btn-group .btn:last-child {
+        margin-right: 0;
+    }
+}
 </style>
 <div class="container-sm container-bg callout border border-3 rounded-4 col-11">
     <div class="row">
