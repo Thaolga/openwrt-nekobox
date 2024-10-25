@@ -1,6 +1,7 @@
 <?php
 ob_start();
 include './cfg.php';
+ini_set('memory_limit', '256M');
 $subscription_file = '/etc/neko/config/subscription.txt'; 
 $download_path = '/etc/neko/config/'; 
 $php_script_path = '/www/nekobox/personal.php'; 
