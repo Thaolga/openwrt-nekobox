@@ -381,7 +381,6 @@ h1:hover, h2:hover, h3:hover, h4:hover, h5:hover, h6:hover {
 }
 
 
-
 @media (max-width: 767px) {
   body {
     font-size: 14px;
@@ -468,6 +467,12 @@ h1:hover, h2:hover, h3:hover, h4:hover, h5:hover, h6:hover {
 .btn-success:focus,
 .btn-danger:focus {
   color: #fff !important;
+}
+
+@media (max-width: 767px) {
+    .btn {
+        font-size: 10px; 
+    }
 }
 
 

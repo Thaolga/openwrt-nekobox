@@ -175,17 +175,26 @@ $subscriptions = [];
 while (ob_get_level() > 0) {
     ob_end_flush();
 }
+
 function outputMessage($message) {
-    echo "<div class='alert alert-info text-start'>" . htmlspecialchars($message) . "</div>";
-    ob_flush();
-    flush();
+    if (!isset($_SESSION['update_messages'])) {
+        $_SESSION['update_messages'] = array();
+    }
+
+    if (empty($_SESSION['update_messages'])) {
+        $_SESSION['update_messages'][] = '<div class="text-warning" style="margin-bottom: 8px;"><strong>⚠️ Note:</strong> The current configuration file must be used with the <strong>Puernya</strong> kernel and does not support other kernels!</div>';
+    }
+    $_SESSION['update_messages'][] = $message;
 }
+
 if (!file_exists($subscriptionPath)) {
     mkdir($subscriptionPath, 0755, true);
 }
+
 if (!file_exists($subscriptionFile)) {
     file_put_contents($subscriptionFile, json_encode([]));
 }
+
 $subscriptions = json_decode(file_get_contents($subscriptionFile), true);
 if (!$subscriptions) {
     for ($i = 0; $i < 3; $i++) {
@@ -439,6 +448,158 @@ if (isset($_POST['update'])) {
     <script src="./assets/js/neko.js"></script>
 </head>
 <body>
+<div class="position-fixed w-100 d-flex justify-content-center" style="top: 20px; z-index: 1050">
+    <div id="updateAlert" class="alert alert-success alert-dismissible fade" role="alert" style="display: none; min-width: 300px; max-width: 600px; box-shadow: 0 2px 8px rgba(0,0,0,0.2);">
+        <div class="d-flex align-items-center mb-2">
+            <span class="spinner-border spinner-border-sm mr-2" role="status" aria-hidden="true"></span>
+            <strong>Update Complete</strong>
+        </div>
+        <div id="updateMessages" class="small" style="word-break: break-all;">
+        </div>
+        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+            <span aria-hidden="true">×</span>
+        </button>
+    </div>
+</div>
+
+<div class="position-fixed w-100 d-flex justify-content-center" style="top: 60px; z-index: 1050">
+    <div id="updateAlertSub" class="alert alert-success alert-dismissible fade" role="alert" style="display: none; min-width: 300px; max-width: 600px; box-shadow: 0 2px 8px rgba(0,0,0,0.2);">
+        <div class="d-flex align-items-center mb-2">
+            <span class="spinner-border spinner-border-sm mr-2" role="status" aria-hidden="true"></span>
+            <strong>Update Complete</strong>
+        </div>
+        <div id="updateMessagesSub" class="small" style="word-break: break-all;">
+        </div>
+        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+            <span aria-hidden="true">×</span>
+        </button>
+    </div>
+</div>
+
+<script>
+function showUpdateAlert() {
+    const alert = $('#updateAlert');
+    const messages = <?php echo json_encode($_SESSION['update_messages'] ?? []); ?>;
+    
+    if (messages.length > 0) {
+        const messagesHtml = messages.map(msg => `<div>${msg}</div>`).join('');
+        $('#updateMessages').html(messagesHtml);
+    }
+    
+    alert.show().addClass('show');
+    
+    setTimeout(function() {
+        alert.removeClass('show');
+        setTimeout(function() {
+            alert.hide();
+            $('#updateMessages').html('');
+        }, 150);
+    }, 18000); 
+}
+
+function showUpdateAlertSub(message) {
+    const alert = $('#updateAlertSub');
+    $('#updateMessagesSub').html(`<div>${message}</div>`);
+    alert.show().addClass('show');
+    
+    setTimeout(function() {
+        alert.removeClass('show');
+        setTimeout(function() {
+            alert.hide();
+            $('#updateMessagesSub').html('');
+        }, 150);
+    }, 18000); 
+}
+
+<?php if ($updateCompleted): ?>
+    $(document).ready(function() {
+        showUpdateAlert();
+    });
+<?php endif; ?>
+
+<?php if ($message): ?>
+    $(document).ready(function() {
+        showUpdateAlertSub(`<?php echo str_replace(["\r", "\n"], '', addslashes($message)); ?>`);
+    });
+<?php endif; ?>
+</script>
+
+<style>
+#updateAlert .close {
+    color: white;
+    opacity: 0.8;
+    text-shadow: none;
+    padding: 0;
+    margin: 0;
+    position: absolute;
+    right: 10px;
+    top: 10px;
+    font-size: 1.2rem;
+    width: 24px;
+    height: 24px;
+    line-height: 24px;
+    text-align: center;
+    border-radius: 50%;
+    background-color: rgba(255, 255, 255, 0.2);
+    transition: all 0.2s ease;
+}
+
+#updateAlert .close:hover {
+    opacity: 1;
+    background-color: rgba(255, 255, 255, 0.3);
+    transform: rotate(90deg);
+}
+
+#updateAlert .close span {
+    position: relative;
+    top: -1px;
+}
+
+@media (max-width: 767px) {
+    .row a {
+        font-size: 9px; 
+    }
+}
+
+.table-responsive {
+    width: 100%;
+}
+
+@media (max-width: 767px) {
+    .table th,
+    .table td {
+        padding: 6px 8px; 
+        font-size: 14px; 
+    }
+
+    .table th:nth-child(1), .table td:nth-child(1) {
+        width: 10%; 
+    }
+    .table th:nth-child(2), .table td:nth-child(2) {
+        width: 20%; 
+    }
+    .table th:nth-child(3), .table td:nth-child(3) {
+        width: 25%; 
+    }
+    .table th:nth-child(4), .table td:nth-child(4) {
+        width: 45%; 
+        white-space: nowrap;
+    }
+
+    .btn-group {
+        display: flex;
+        flex-wrap: wrap; 
+        justify-content: space-between; 
+    }
+
+    .btn-group .btn {
+        flex: 1 1 22%; 
+        margin-bottom: 5px; 
+        margin-right: 5px; 
+        text-align: center; 
+        font-size: 9px; 
+    }
+</style>
 <div class="container-sm container-bg callout border border-3 rounded-4 col-11">
     <div class="row">
         <a href="./index.php" class="col btn btn-lg">🏠 Home</a>

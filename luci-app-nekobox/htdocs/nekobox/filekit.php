@@ -1137,6 +1137,19 @@ function searchFiles($dir, $term) {
               background-color: white !important;
               color: black !important;
         }
+
+        @media (max-width: 767px) {
+              .row a {
+              font-size: 9px; 
+        }
+      }
+        .table-responsive {
+              width: 100%;
+        }
+
+        .btn-outline-info i {
+              font-size: 15px; 
+        }
      </style>
   </head>
 <body>
@@ -1211,9 +1224,13 @@ function searchFiles($dir, $term) {
                             <select id="languageSwitcher" class="form-select">
                                 <option value="en" data-translate="english">English</option>
                                 <option value="zh" data-translate="chinese">chinese</option>
-                                <option value="zh-tw" data-translate="traditionalChinese">traditionalChinese</option>                   
+                                <option value="zh-tw" data-translate="traditionalChinese">traditionalChinese</option>
+                                <option value="vi" data-translate="vietnamese">Tiếng Việt</option> 
+                                <option value="ko" data-translate="korean">한국어</option> 
+                                <option value="ar" data-translate="arabic">العربية</option>   
+                                <option value="ru" data-translate="russian">Русский</option>
+                                <option value="de" data-translate="german">Deutsch</option>         
                             </select>
-
                         </div>
                   </div>
             </div>
@@ -1693,6 +1710,592 @@ const translations = {
         selectAtLeastOneFile: "请至少选择一个文件或文件夹进行删除。",
         confirmDeleteSelected: "确定要删除选中的 {0} 个文件或文件夹吗？这个操作不可撤销。"
     },
+
+    "vi": {
+        "pageTitle": "NeKoBox Trợ lý tệp",
+        "chinese": "Tiếng Trung giản thể",
+        "traditionalChinese": "Tiếng Trung phồn thể",
+        "english": "Tiếng Anh",
+        "uploadBtn": "Tải tệp lên",
+        "rootDirectory": "Thư mục gốc",
+        "name": "Tên",
+        "type": "Loại",
+        "size": "Kích thước",
+        "permissions": "Quyền",
+        "actions": "Hành động",
+        "directory": "Thư mục",
+        "file": "Tệp",
+        "rename": "✏️ Đổi tên",
+        "edit": "📝 Chỉnh sửa",
+        "download": "📥 Tải xuống",
+        "delete": "🗑️ Xóa",
+        "confirmDelete": "Bạn có chắc chắn muốn xóa {0}? Hành động này không thể hoàn tác.",
+        "newName": "Tên mới:",
+        "close": "Đóng",
+        "setPermissions": "🔒 Cài đặt quyền",
+        "saveLanguage": "Lưu cài đặt ngôn ngữ",
+        "languageSaved": "Cài đặt ngôn ngữ đã được lưu",
+        "modifiedTime": "Thời gian sửa đổi",
+        "owner": "Chủ sở hữu",
+        "create": "Tạo mới",
+        "newFolder": "Thư mục mới",
+        "newFile": "Tệp mới",
+        "folderName": "Tên thư mục:",
+        "fileName": "Tên tệp:",
+        "search": "Tìm kiếm",
+        "searchFiles": "Tìm kiếm tệp",
+        "noMatchingFiles": "Không tìm thấy tệp phù hợp.",
+        "moveTo": "Di chuyển tới",
+        "cancel": "Hủy",
+        "confirm": "Xác nhận",
+        "goBack": "Quay lại",
+        "refreshDirectory": "Làm mới nội dung thư mục",
+        "switchTheme": "Chuyển đổi chủ đề",
+        "lightMode": "Chế độ sáng",
+        "darkMode": "Chế độ tối",
+        "filePreview": "Xem trước tệp",
+        "unableToLoadImage": "Không thể tải hình ảnh:",
+        "unableToLoadSVG": "Không thể tải tệp SVG:",
+        "unableToLoadAudio": "Không thể tải âm thanh:",
+        "unableToLoadVideo": "Không thể tải video:",
+        "home": "🏠 Trang chủ",
+        "mihomo": "Mihomo",
+        "singBox": "Sing-box",
+        "convert": "💹 Chuyển đổi đăng ký",
+        "fileAssistant": "📦 Trợ lý tệp",
+        "errorSavingFile": "Lỗi: Không thể lưu tệp.",
+        "uploadFailed": "Tải lên thất bại",
+        "fileNotExistOrNotReadable": "Tệp không tồn tại hoặc không thể đọc.",
+        "inputFileName": "Nhập tên tệp",
+        "permissionValue": "Giá trị quyền (ví dụ: 0644)",
+        "inputThreeOrFourDigits": "Nhập ba hoặc bốn chữ số, ví dụ: 0644 hoặc 0755",
+        "fontSizeL": "Kích thước phông chữ",
+        "encodingL": "Mã hóa",
+        "confirmCloseEditor": "Bạn có chắc chắn muốn đóng trình chỉnh sửa không? Hãy chắc chắn rằng bạn đã lưu các thay đổi.",
+        "newNameCannotBeEmpty": "Tên mới không được để trống",
+        "fileNameCannotContainChars": "Tên tệp không được chứa các ký tự sau: < > : \" / \\ | ? *",
+        "folderNameCannotBeEmpty": "Tên thư mục không được để trống",
+        "fileNameCannotBeEmpty": "Tên tệp không được để trống",
+        "searchError": "Lỗi khi tìm kiếm: ",
+        "encodingChanged": "Mã hóa đã được thay đổi thành {0}. Việc chuyển đổi thực tế sẽ được thực hiện khi lưu trên máy chủ.",
+        "errorLoadingFileContent": "Lỗi khi tải nội dung tệp: ",
+        "permissionHelp": "Vui lòng nhập giá trị quyền hợp lệ (ba hoặc bốn chữ số bát phân, ví dụ: 644 hoặc 0755)",
+        "permissionValueCannotExceed": "Giá trị quyền không được vượt quá 0777",
+        "goBackTitle": "Quay lại cấp trên",
+        "rootDirectoryTitle": "Quay lại thư mục gốc",
+        "homeDirectoryTitle": "Quay lại thư mục chính",
+        "refreshDirectoryTitle": "Làm mới nội dung thư mục",
+        "selectAll": "Chọn tất cả",
+        "invertSelection": "Đảo ngược lựa chọn",
+        "deleteSelected": "Xóa đã chọn",
+        "searchTitle": "Tìm kiếm",
+        "createTitle": "Tạo mới",
+        "uploadTitle": "Tải lên",
+        "dragHint": "Kéo tệp vào đây hoặc nhấp để chọn tệp để tải lên",
+        "searchInputPlaceholder": "Nhập tên tệp",
+        "confirmRename": "Xác nhận đổi tên",
+        "create": "Tạo",
+        "confirmChange": "Xác nhận thay đổi",
+        "themeToggleTitle": "Chuyển đổi chủ đề",
+        "editFile": "Chỉnh sửa tệp",
+        "save": "Lưu",
+        "advancedEdit": "Chỉnh sửa nâng cao",
+        "line": "Dòng",
+        "column": "Cột",
+        "characterCount": "Số ký tự",
+        "fontSizeL": "Kích thước phông chữ",
+        "encodingL": "Mã hóa",
+        "gbk": "GBK (Tiếng Trung giản thể)",
+        "big5": "Big5 (Tiếng Trung phồn thể)",
+        "shiftJIS": "Shift_JIS (Tiếng Nhật)",
+        "eucKR": "EUC-KR (Tiếng Hàn)",
+        "search": "Tìm kiếm",
+        "format": "Định dạng",
+        "validateJSON": "Xác nhận JSON",
+        "validateYAML": "Xác nhận YAML",
+        "formatJSON": "Định dạng JSON",
+        "goToParentDirectoryTitle": "Quay lại thư mục cha",
+        "alreadyAtRootDirectory": "Đã ở thư mục gốc, không thể quay lại.",
+        "close": "Đóng",
+        "fullscreen": "Toàn màn hình",
+        "exitFullscreen": "Thoát toàn màn hình",
+        "search_title": "Tìm kiếm nội dung tệp",
+        "jsonFormatSuccess": "JSON đã được định dạng thành công",
+        "unableToFormatJSON": "Không thể định dạng: JSON không hợp lệ",
+        "codeFormatSuccess": "Mã đã được định dạng thành công",
+        "errorFormattingCode": "Đã xảy ra lỗi khi định dạng mã:",
+        "selectAtLeastOneFile": "Vui lòng chọn ít nhất một tệp hoặc thư mục để xóa.",
+        "confirmDeleteSelected": "Bạn có chắc chắn muốn xóa {0} tệp hoặc thư mục đã chọn không? Hành động này không thể hoàn tác."
+    },
+
+    "ko": {
+        "pageTitle": "NeKoBox 파일 도우미",
+        "chinese": "중국어 간체",
+        "traditionalChinese": "중국어 번체",
+        "english": "영어",
+        "uploadBtn": "파일 업로드",
+        "rootDirectory": "루트 디렉토리",
+        "name": "이름",
+        "type": "유형",
+        "size": "크기",
+        "permissions": "권한",
+        "actions": "작업",
+        "directory": "디렉토리",
+        "file": "파일",
+        "rename": "✏️ 이름 변경",
+        "edit": "📝 편집",
+        "download": "📥 다운로드",
+        "delete": "🗑️ 삭제",
+        "confirmDelete": "{0}을(를) 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.",
+        "newName": "새 이름:",
+        "close": "닫기",
+        "setPermissions": "🔒 권한 설정",
+        "saveLanguage": "언어 설정 저장",
+        "languageSaved": "언어 설정이 저장되었습니다",
+        "modifiedTime": "수정 시간",
+        "owner": "소유자",
+        "create": "생성",
+        "newFolder": "새 폴더",
+        "newFile": "새 파일",
+        "folderName": "폴더 이름:",
+        "fileName": "파일 이름:",
+        "search": "검색",
+        "searchFiles": "파일 검색",
+        "noMatchingFiles": "일치하는 파일을 찾을 수 없습니다.",
+        "moveTo": "이동",
+        "cancel": "취소",
+        "confirm": "확인",
+        "goBack": "뒤로가기",
+        "refreshDirectory": "디렉토리 새로고침",
+        "switchTheme": "테마 전환",
+        "lightMode": "라이트 모드",
+        "darkMode": "다크 모드",
+        "filePreview": "파일 미리보기",
+        "unableToLoadImage": "이미지를 불러올 수 없습니다:",
+        "unableToLoadSVG": "SVG 파일을 불러올 수 없습니다:",
+        "unableToLoadAudio": "오디오를 불러올 수 없습니다:",
+        "unableToLoadVideo": "비디오를 불러올 수 없습니다:",
+        "home": "🏠 홈",
+        "mihomo": "Mihomo",
+        "singBox": "Sing-box",
+        "convert": "💹 구독 변환",
+        "fileAssistant": "📦 파일 도우미",
+        "errorSavingFile": "오류: 파일을 저장할 수 없습니다.",
+        "uploadFailed": "업로드 실패",
+        "fileNotExistOrNotReadable": "파일이 없거나 읽을 수 없습니다.",
+        "inputFileName": "파일 이름 입력",
+        "permissionValue": "권한 값 (예: 0644)",
+        "inputThreeOrFourDigits": "세 자리 또는 네 자리 숫자를 입력하세요, 예: 0644 또는 0755",
+        "fontSizeL": "글꼴 크기",
+        "encodingL": "인코딩",
+        "confirmCloseEditor": "편집기를 닫으시겠습니까? 변경 사항이 저장되었는지 확인하세요.",
+        "newNameCannotBeEmpty": "새 이름은 비워둘 수 없습니다",
+        "fileNameCannotContainChars": "파일 이름에는 다음 문자를 포함할 수 없습니다: < > : \" / \\ | ? *",
+        "folderNameCannotBeEmpty": "폴더 이름은 비워둘 수 없습니다",
+        "fileNameCannotBeEmpty": "파일 이름은 비워둘 수 없습니다",
+        "searchError": "검색 중 오류 발생: ",
+        "encodingChanged": "인코딩이 {0}으로 변경되었습니다. 실제 변환은 저장 시 서버에서 이루어집니다.",
+        "errorLoadingFileContent": "파일 내용을 로드하는 중 오류 발생: ",
+        "permissionHelp": "유효한 권한 값을 입력하세요 (세 자리 또는 네 자리 8진수 숫자, 예: 644 또는 0755)",
+        "permissionValueCannotExceed": "권한 값은 0777을 초과할 수 없습니다",
+        "goBackTitle": "상위 디렉토리로 돌아가기",
+        "rootDirectoryTitle": "루트 디렉토리로 돌아가기",
+        "homeDirectoryTitle": "홈 디렉토리로 돌아가기",
+        "refreshDirectoryTitle": "디렉토리 새로고침",
+        "selectAll": "모두 선택",
+        "invertSelection": "선택 반전",
+        "deleteSelected": "선택된 항목 삭제",
+        "searchTitle": "검색",
+        "createTitle": "생성",
+        "uploadTitle": "업로드",
+        "dragHint": "파일을 여기에 드래그하거나 클릭하여 업로드할 파일을 선택하세요",
+        "searchInputPlaceholder": "파일 이름 입력",
+        "confirmRename": "이름 변경 확인",
+        "create": "생성",
+        "confirmChange": "변경 확인",
+        "themeToggleTitle": "테마 전환",
+        "editFile": "파일 편집",
+        "save": "저장",
+        "advancedEdit": "고급 편집",
+        "line": "라인",
+        "column": "열",
+        "characterCount": "문자 수",
+        "fontSizeL": "글꼴 크기",
+        "encodingL": "인코딩",
+        "gbk": "GBK (중국어 간체)",
+        "big5": "Big5 (중국어 번체)",
+        "shiftJIS": "Shift_JIS (일본어)",
+        "eucKR": "EUC-KR (한국어)",
+        "search": "검색",
+        "format": "포맷",
+        "validateJSON": "JSON 유효성 검사",
+        "validateYAML": "YAML 유효성 검사",
+        "formatJSON": "JSON 포맷",
+        "goToParentDirectoryTitle": "상위 디렉토리로 이동",
+        "alreadyAtRootDirectory": "이미 루트 디렉토리에 있습니다, 상위로 이동할 수 없습니다.",
+        "close": "닫기",
+        "fullscreen": "전체 화면",
+        "exitFullscreen": "전체 화면 종료",
+        "search_title": "파일 내용 검색",
+        "jsonFormatSuccess": "JSON이 성공적으로 포맷되었습니다",
+        "unableToFormatJSON": "포맷할 수 없습니다: 잘못된 JSON 형식",
+        "codeFormatSuccess": "코드가 성공적으로 포맷되었습니다",
+        "errorFormattingCode": "코드 포맷 중 오류 발생:",
+        "selectAtLeastOneFile": "삭제할 파일이나 폴더를 최소 하나 선택하세요.",
+        "confirmDeleteSelected": "선택한 {0}개의 파일이나 폴더를 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다."
+    },
+
+    "ar": {
+        "pageTitle": "مساعد الملفات NeKoBox",
+        "chinese": "الصينية المبسطة",
+        "traditionalChinese": "الصينية التقليدية",
+        "english": "الإنجليزية",
+        "uploadBtn": "تحميل الملفات",
+        "rootDirectory": "الدليل الرئيسي",
+        "name": "الاسم",
+        "type": "النوع",
+        "size": "الحجم",
+        "permissions": "الأذونات",
+        "actions": "الإجراءات",
+        "directory": "دليل",
+        "file": "ملف",
+        "rename": "✏️ إعادة تسمية",
+        "edit": "📝 تحرير",
+        "download": "📥 تحميل",
+        "delete": "🗑️ حذف",
+        "confirmDelete": "هل أنت متأكد من حذف {0}؟ هذا الإجراء لا يمكن التراجع عنه.",
+        "newName": "الاسم الجديد:",
+        "close": "إغلاق",
+        "setPermissions": "🔒 تعيين الأذونات",
+        "saveLanguage": "حفظ إعدادات اللغة",
+        "languageSaved": "تم حفظ إعدادات اللغة",
+        "modifiedTime": "وقت التعديل",
+        "owner": "المالك",
+        "create": "إنشاء",
+        "newFolder": "مجلد جديد",
+        "newFile": "ملف جديد",
+        "folderName": "اسم المجلد:",
+        "fileName": "اسم الملف:",
+        "search": "بحث",
+        "searchFiles": "بحث في الملفات",
+        "noMatchingFiles": "لم يتم العثور على ملفات مطابقة.",
+        "moveTo": "نقل إلى",
+        "cancel": "إلغاء",
+        "confirm": "تأكيد",
+        "goBack": "العودة",
+        "refreshDirectory": "تحديث محتويات الدليل",
+        "switchTheme": "تبديل المظهر",
+        "lightMode": "الوضع الفاتح",
+        "darkMode": "الوضع الداكن",
+        "filePreview": "معاينة الملف",
+        "unableToLoadImage": "تعذر تحميل الصورة:",
+        "unableToLoadSVG": "تعذر تحميل ملف SVG:",
+        "unableToLoadAudio": "تعذر تحميل الصوت:",
+        "unableToLoadVideo": "تعذر تحميل الفيديو:",
+        "home": "🏠 الصفحة الرئيسية",
+        "mihomo": "Mihomo",
+        "singBox": "Sing-box",
+        "convert": "💹 تحويل الاشتراك",
+        "fileAssistant": "📦 مساعد الملفات",
+        "errorSavingFile": "خطأ: تعذر حفظ الملف.",
+        "uploadFailed": "فشل التحميل",
+        "fileNotExistOrNotReadable": "الملف غير موجود أو غير قابل للقراءة.",
+        "inputFileName": "أدخل اسم الملف",
+        "permissionValue": "قيمة الأذونات (مثال: 0644)",
+        "inputThreeOrFourDigits": "أدخل ثلاث أو أربع أرقام، مثال: 0644 أو 0755",
+        "fontSizeL": "حجم الخط",
+        "encodingL": "الترميز",
+        "confirmCloseEditor": "هل أنت متأكد أنك تريد إغلاق المحرر؟ تأكد من حفظ التغييرات.",
+        "newNameCannotBeEmpty": "الاسم الجديد لا يمكن أن يكون فارغًا",
+        "fileNameCannotContainChars": "اسم الملف لا يمكن أن يحتوي على الأحرف التالية: < > : \" / \\ | ? *",
+        "folderNameCannotBeEmpty": "اسم المجلد لا يمكن أن يكون فارغًا",
+        "fileNameCannotBeEmpty": "اسم الملف لا يمكن أن يكون فارغًا",
+        "searchError": "حدث خطأ أثناء البحث: ",
+        "encodingChanged": "تم تغيير الترميز إلى {0}. سيتم تطبيق التغيير فعليًا عند الحفظ على الخادم.",
+        "errorLoadingFileContent": "حدث خطأ أثناء تحميل محتويات الملف: ",
+        "permissionHelp": "الرجاء إدخال قيمة أذونات صالحة (ثلاث أو أربع أرقام بنظام الأوكتال، مثال: 644 أو 0755)",
+        "permissionValueCannotExceed": "قيمة الأذونات لا يمكن أن تتجاوز 0777",
+        "goBackTitle": "العودة إلى الدليل العلوي",
+        "rootDirectoryTitle": "العودة إلى الدليل الرئيسي",
+        "homeDirectoryTitle": "العودة إلى الدليل الشخصي",
+        "refreshDirectoryTitle": "تحديث محتويات الدليل",
+        "selectAll": "تحديد الكل",
+        "invertSelection": "عكس التحديد",
+        "deleteSelected": "حذف المحدد",
+        "searchTitle": "بحث",
+        "createTitle": "إنشاء",
+        "uploadTitle": "تحميل",
+        "dragHint": "اسحب الملفات هنا أو انقر لاختيار الملفات لتحميلها",
+        "searchInputPlaceholder": "أدخل اسم الملف",
+        "confirmRename": "تأكيد إعادة التسمية",
+        "create": "إنشاء",
+        "confirmChange": "تأكيد التغيير",
+        "themeToggleTitle": "تبديل المظهر",
+        "editFile": "تحرير الملف",
+        "save": "حفظ",
+        "advancedEdit": "تحرير متقدم",
+        "line": "سطر",
+        "column": "عمود",
+        "characterCount": "عدد الأحرف",
+        "fontSizeL": "حجم الخط",
+        "encodingL": "الترميز",
+        "gbk": "GBK (الصينية المبسطة)",
+        "big5": "Big5 (الصينية التقليدية)",
+        "shiftJIS": "Shift_JIS (اليابانية)",
+        "eucKR": "EUC-KR (الكورية)",
+        "search": "بحث",
+        "format": "تنسيق",
+        "validateJSON": "التحقق من صحة JSON",
+        "validateYAML": "التحقق من صحة YAML",
+        "formatJSON": "تنسيق JSON",
+        "goToParentDirectoryTitle": "الانتقال إلى الدليل العلوي",
+        "alreadyAtRootDirectory": "أنت بالفعل في الدليل الرئيسي، لا يمكنك الرجوع.",
+        "close": "إغلاق",
+        "fullscreen": "ملء الشاشة",
+        "exitFullscreen": "الخروج من ملء الشاشة",
+        "search_title": "بحث في محتويات الملف",
+        "jsonFormatSuccess": "تم تنسيق JSON بنجاح",
+        "unableToFormatJSON": "تعذر التنسيق: JSON غير صالح",
+        "codeFormatSuccess": "تم تنسيق الكود بنجاح",
+        "errorFormattingCode": "حدث خطأ أثناء تنسيق الكود:",
+        "selectAtLeastOneFile": "الرجاء تحديد ملف أو مجلد واحد على الأقل للحذف.",
+        "confirmDeleteSelected": "هل أنت متأكد أنك تريد حذف {0} ملف أو مجلد محدد؟ لا يمكن التراجع عن هذا الإجراء."
+    },
+
+    "ru": {
+        "pageTitle": "Помощник файлов NeKoBox",
+        "chinese": "Упрощённый китайский",
+        "traditionalChinese": "Традиционный китайский",
+        "english": "Английский",
+        "uploadBtn": "Загрузить файл",
+        "rootDirectory": "Корневой каталог",
+        "name": "Имя",
+        "type": "Тип",
+        "size": "Размер",
+        "permissions": "Разрешения",
+        "actions": "Действия",
+        "directory": "Каталог",
+        "file": "Файл",
+        "rename": "✏️ Переименовать",
+        "edit": "📝 Редактировать",
+        "download": "📥 Скачать",
+        "delete": "🗑️ Удалить",
+        "confirmDelete": "Вы уверены, что хотите удалить {0}? Это действие невозможно отменить.",
+        "newName": "Новое имя:",
+        "close": "Закрыть",
+        "setPermissions": "🔒 Установить разрешения",
+        "saveLanguage": "Сохранить настройки языка",
+        "languageSaved": "Настройки языка сохранены",
+        "modifiedTime": "Время изменения",
+        "owner": "Владелец",
+        "create": "Создать",
+        "newFolder": "Новая папка",
+        "newFile": "Новый файл",
+        "folderName": "Имя папки:",
+        "fileName": "Имя файла:",
+        "search": "Поиск",
+        "searchFiles": "Поиск файлов",
+        "noMatchingFiles": "Совпадающие файлы не найдены.",
+        "moveTo": "Переместить в",
+        "cancel": "Отменить",
+        "confirm": "Подтвердить",
+        "goBack": "Вернуться назад",
+        "refreshDirectory": "Обновить содержимое каталога",
+        "switchTheme": "Сменить тему",
+        "lightMode": "Светлый режим",
+        "darkMode": "Тёмный режим",
+        "filePreview": "Предварительный просмотр файла",
+        "unableToLoadImage": "Не удалось загрузить изображение:",
+        "unableToLoadSVG": "Не удалось загрузить SVG файл:",
+        "unableToLoadAudio": "Не удалось загрузить аудио:",
+        "unableToLoadVideo": "Не удалось загрузить видео:",
+        "home": "🏠 Домашняя страница",
+        "mihomo": "Mihomo",
+        "singBox": "Sing-box",
+        "convert": "💹 Конвертация подписки",
+        "fileAssistant": "📦 Помощник файлов",
+        "errorSavingFile": "Ошибка: не удалось сохранить файл.",
+        "uploadFailed": "Не удалось загрузить",
+        "fileNotExistOrNotReadable": "Файл не существует или недоступен для чтения.",
+        "inputFileName": "Введите имя файла",
+        "permissionValue": "Значение разрешений (например: 0644)",
+        "inputThreeOrFourDigits": "Введите три или четыре цифры, например: 0644 или 0755",
+        "fontSizeL": "Размер шрифта",
+        "encodingL": "Кодировка",
+        "confirmCloseEditor": "Вы уверены, что хотите закрыть редактор? Убедитесь, что изменения сохранены.",
+        "newNameCannotBeEmpty": "Новое имя не может быть пустым",
+        "fileNameCannotContainChars": "Имя файла не может содержать следующие символы: < > : \" / \\ | ? *",
+        "folderNameCannotBeEmpty": "Имя папки не может быть пустым",
+        "fileNameCannotBeEmpty": "Имя файла не может быть пустым",
+        "searchError": "Ошибка при поиске: ",
+        "encodingChanged": "Кодировка изменена на {0}. Преобразование будет выполнено при сохранении на сервере.",
+        "errorLoadingFileContent": "Ошибка при загрузке содержимого файла: ",
+        "permissionHelp": "Введите допустимое значение разрешений (три или четыре восьмеричные цифры, например: 644 или 0755)",
+        "permissionValueCannotExceed": "Значение разрешений не может превышать 0777",
+        "goBackTitle": "Вернуться в родительский каталог",
+        "rootDirectoryTitle": "Вернуться в корневой каталог",
+        "homeDirectoryTitle": "Вернуться в домашний каталог",
+        "refreshDirectoryTitle": "Обновить содержимое каталога",
+        "selectAll": "Выбрать всё",
+        "invertSelection": "Инвертировать выбор",
+        "deleteSelected": "Удалить выбранное",
+        "searchTitle": "Поиск",
+        "createTitle": "Создать",
+        "uploadTitle": "Загрузить",
+        "dragHint": "Перетащите файлы сюда или нажмите, чтобы выбрать файлы для загрузки",
+        "searchInputPlaceholder": "Введите имя файла",
+        "confirmRename": "Подтвердить переименование",
+        "create": "Создать",
+        "confirmChange": "Подтвердить изменение",
+        "themeToggleTitle": "Сменить тему",
+        "editFile": "Редактировать файл",
+        "save": "Сохранить",
+        "advancedEdit": "Расширенное редактирование",
+        "line": "Строка",
+        "column": "Колонка",
+        "characterCount": "Количество символов",
+        "fontSizeL": "Размер шрифта",
+        "encodingL": "Кодировка",
+        "gbk": "GBK (упрощённый китайский)",
+        "big5": "Big5 (традиционный китайский)",
+        "shiftJIS": "Shift_JIS (японский)",
+        "eucKR": "EUC-KR (корейский)",
+        "search": "Поиск",
+        "format": "Формат",
+        "validateJSON": "Проверить JSON",
+        "validateYAML": "Проверить YAML",
+        "formatJSON": "Форматировать JSON",
+        "goToParentDirectoryTitle": "Перейти в родительский каталог",
+        "alreadyAtRootDirectory": "Вы уже находитесь в корневом каталоге, возврат невозможен.",
+        "close": "Закрыть",
+        "fullscreen": "Полноэкранный режим",
+        "exitFullscreen": "Выйти из полноэкранного режима",
+        "search_title": "Поиск по содержимому файла",
+        "jsonFormatSuccess": "JSON успешно отформатирован",
+        "unableToFormatJSON": "Не удалось отформатировать: неверный формат JSON",
+        "codeFormatSuccess": "Код успешно отформатирован",
+        "errorFormattingCode": "Ошибка при форматировании кода:",
+        "selectAtLeastOneFile": "Выберите хотя бы один файл или папку для удаления.",
+        "confirmDeleteSelected": "Вы уверены, что хотите удалить выбранные {0} файлов или папок? Это действие невозможно отменить."
+    },
+
+    "de": {
+        "pageTitle": "NeKoBox Dateimanager",
+        "chinese": "Vereinfachtes Chinesisch",
+        "traditionalChinese": "Traditionelles Chinesisch",
+        "english": "Englisch",
+        "uploadBtn": "Datei hochladen",
+        "rootDirectory": "Stammverzeichnis",
+        "name": "Name",
+        "type": "Typ",
+        "size": "Größe",
+        "permissions": "Berechtigungen",
+        "actions": "Aktionen",
+        "directory": "Verzeichnis",
+        "file": "Datei",
+        "rename": "✏️ Umbenennen",
+        "edit": "📝 Bearbeiten",
+        "download": "📥 Herunterladen",
+        "delete": "🗑️ Löschen",
+        "confirmDelete": "Möchten Sie {0} wirklich löschen? Diese Aktion kann nicht rückgängig gemacht werden.",
+        "newName": "Neuer Name:",
+        "close": "Schließen",
+        "setPermissions": "🔒 Berechtigungen festlegen",
+        "saveLanguage": "Spracheinstellungen speichern",
+        "languageSaved": "Spracheinstellungen wurden gespeichert",
+        "modifiedTime": "Geänderte Zeit",
+        "owner": "Eigentümer",
+        "create": "Erstellen",
+        "newFolder": "Neuer Ordner",
+        "newFile": "Neue Datei",
+        "folderName": "Ordnername:",
+        "fileName": "Dateiname:",
+        "search": "Suche",
+        "searchFiles": "Dateien durchsuchen",
+        "noMatchingFiles": "Keine passenden Dateien gefunden.",
+        "moveTo": "Verschieben nach",
+        "cancel": "Abbrechen",
+        "confirm": "Bestätigen",
+        "goBack": "Zurück",
+        "refreshDirectory": "Verzeichnisinhalt aktualisieren",
+        "switchTheme": "Thema wechseln",
+        "lightMode": "Heller Modus",
+        "darkMode": "Dunkler Modus",
+        "filePreview": "Dateivorschau",
+        "unableToLoadImage": "Bild konnte nicht geladen werden:",
+        "unableToLoadSVG": "SVG-Datei konnte nicht geladen werden:",
+        "unableToLoadAudio": "Audio konnte nicht geladen werden:",
+        "unableToLoadVideo": "Video konnte nicht geladen werden:",
+        "home": "🏠 Startseite",
+        "mihomo": "Mihomo",
+        "singBox": "Sing-box",
+        "convert": "💹 Abonnement konvertieren",
+        "fileAssistant": "📦 Dateimanager",
+        "errorSavingFile": "Fehler: Datei konnte nicht gespeichert werden.",
+        "uploadFailed": "Upload fehlgeschlagen",
+        "fileNotExistOrNotReadable": "Datei existiert nicht oder ist nicht lesbar.",
+        "inputFileName": "Dateinamen eingeben",
+        "permissionValue": "Berechtigungswert (z.B. 0644)",
+        "inputThreeOrFourDigits": "Geben Sie drei oder vier Ziffern ein, z.B. 0644 oder 0755",
+        "fontSizeL": "Schriftgröße",
+        "encodingL": "Kodierung",
+        "confirmCloseEditor": "Möchten Sie den Editor wirklich schließen? Stellen Sie sicher, dass Ihre Änderungen gespeichert wurden.",
+        "newNameCannotBeEmpty": "Neuer Name darf nicht leer sein",
+        "fileNameCannotContainChars": "Der Dateiname darf die folgenden Zeichen nicht enthalten: < > : \" / \\ | ? *",
+        "folderNameCannotBeEmpty": "Der Ordnername darf nicht leer sein",
+        "fileNameCannotBeEmpty": "Der Dateiname darf nicht leer sein",
+        "searchError": "Fehler bei der Suche: ",
+        "encodingChanged": "Die Kodierung wurde auf {0} geändert. Die tatsächliche Umwandlung erfolgt beim Speichern auf dem Server.",
+        "errorLoadingFileContent": "Fehler beim Laden des Dateiinhalts: ",
+        "permissionHelp": "Bitte geben Sie einen gültigen Berechtigungswert ein (drei oder vier Ziffern im Oktalsystem, z.B. 644 oder 0755)",
+        "permissionValueCannotExceed": "Berechtigungswert darf 0777 nicht überschreiten",
+        "goBackTitle": "Zurück zum übergeordneten Verzeichnis",
+        "rootDirectoryTitle": "Zurück zum Stammverzeichnis",
+        "homeDirectoryTitle": "Zurück zum Home-Verzeichnis",
+        "refreshDirectoryTitle": "Verzeichnisinhalt aktualisieren",
+        "selectAll": "Alles auswählen",
+        "invertSelection": "Auswahl umkehren",
+        "deleteSelected": "Ausgewählte löschen",
+        "searchTitle": "Suche",
+        "createTitle": "Erstellen",
+        "uploadTitle": "Hochladen",
+        "dragHint": "Ziehen Sie Dateien hierher oder klicken Sie, um Dateien zum Hochladen auszuwählen",
+        "searchInputPlaceholder": "Dateinamen eingeben",
+        "confirmRename": "Umbenennung bestätigen",
+        "create": "Erstellen",
+        "confirmChange": "Änderung bestätigen",
+        "themeToggleTitle": "Thema wechseln",
+        "editFile": "Datei bearbeiten",
+        "save": "Speichern",
+        "advancedEdit": "Erweiterte Bearbeitung",
+        "line": "Zeile",
+        "column": "Spalte",
+        "characterCount": "Anzahl der Zeichen",
+        "fontSizeL": "Schriftgröße",
+        "encodingL": "Kodierung",
+        "gbk": "GBK (Vereinfachtes Chinesisch)",
+        "big5": "Big5 (Traditionelles Chinesisch)",
+        "shiftJIS": "Shift_JIS (Japanisch)",
+        "eucKR": "EUC-KR (Koreanisch)",
+        "search": "Suche",
+        "format": "Formatieren",
+        "validateJSON": "JSON validieren",
+        "validateYAML": "YAML validieren",
+        "formatJSON": "JSON formatieren",
+        "goToParentDirectoryTitle": "Zum übergeordneten Verzeichnis wechseln",
+        "alreadyAtRootDirectory": "Sie befinden sich bereits im Stammverzeichnis, ein Zurückgehen ist nicht möglich.",
+        "close": "Schließen",
+        "fullscreen": "Vollbild",
+        "exitFullscreen": "Vollbildmodus beenden",
+        "search_title": "Dateiinhalte durchsuchen",
+        "jsonFormatSuccess": "JSON erfolgreich formatiert",
+        "unableToFormatJSON": "Formatierung nicht möglich: Ungültiges JSON-Format",
+        "codeFormatSuccess": "Code erfolgreich formatiert",
+        "errorFormattingCode": "Fehler beim Formatieren des Codes:",
+        "selectAtLeastOneFile": "Bitte wählen Sie mindestens eine Datei oder einen Ordner zum Löschen aus.",
+        "confirmDeleteSelected": "Möchten Sie die ausgewählten {0} Dateien oder Ordner wirklich löschen? Diese Aktion kann nicht rückgängig gemacht werden."
+    },
+
     en: {
         pageTitle: "NeKoBox File Assistant",
         chinese: 'Simplified Chinese',
@@ -2604,6 +3207,16 @@ function closeAceEditor() {
         confirmMessage = 'Are you sure you want to close the editor? Please make sure you have saved your changes.';
     } else if (currentLang === 'zh-tw') {
         confirmMessage = '確定要關閉編輯器嗎？請確保已儲存更改。';
+    } else if (currentLang === 'ko') {
+        confirmMessage = '편집기를 닫으시겠습니까? 변경 사항이 저장되었는지 확인하세요.';
+    } else if (currentLang === 'ar') {
+        confirmMessage = 'هل أنت متأكد أنك تريد إغلاق المحرر؟ يرجى التأكد من حفظ التغييرات.';
+    } else if (currentLang === 'ru') {
+        confirmMessage = 'Вы уверены, что хотите закрыть редактор? Убедитесь, что вы сохранили изменения.';
+    } else if (currentLang === 'de') {
+        confirmMessage = 'Möchten Sie den Editor wirklich schließen? Bitte stellen Sie sicher, dass Sie Ihre Änderungen gespeichert haben.';
+    } else if (currentLang === 'vi') {
+        confirmMessage = 'Bạn có chắc chắn muốn đóng trình chỉnh sửa không? Hãy chắc chắn rằng bạn đã lưu các thay đổi của mình.';
     }
     
     if (confirm(confirmMessage)) {
@@ -3401,48 +4014,68 @@ function formatAllText(text) {
 
 <script>
 document.addEventListener("DOMContentLoaded", function() {
-   const fullscreenToggle = document.createElement('button');
-   fullscreenToggle.id = 'fullscreenToggle';
+    const fullscreenToggle = document.createElement('button');
+    fullscreenToggle.id = 'fullscreenToggle';
    
-   const currentLang = localStorage.getItem('preferred_language') || 'en';
+    const currentLang = localStorage.getItem('preferred_language') || 'en';
    
-   if(currentLang === 'zh') {
-       fullscreenToggle.textContent = '全屏';
-   } else if(currentLang === 'zh-tw') {
-       fullscreenToggle.textContent = '全螢幕';
-   } else {
-       fullscreenToggle.textContent = 'Fullscreen';
-   }
+    if(currentLang === 'zh') {
+        fullscreenToggle.textContent = '全屏';
+    } else if(currentLang === 'zh-tw') {
+        fullscreenToggle.textContent = '全螢幕';
+    } else if(currentLang === 'ko') {
+        fullscreenToggle.textContent = '전체 화면';
+    } else if(currentLang === 'ar') {
+        fullscreenToggle.textContent = 'شاشة كاملة';
+    } else if(currentLang === 'ru') {
+        fullscreenToggle.textContent = 'Полный экран';
+    } else if(currentLang === 'de') {
+        fullscreenToggle.textContent = 'Vollbild';
+    } else if(currentLang === 'vi') {
+        fullscreenToggle.textContent = 'Toàn màn hình';
+    } else {
+        fullscreenToggle.textContent = 'Fullscreen';
+    }
    
-   document.body.appendChild(fullscreenToggle);
+    document.body.appendChild(fullscreenToggle);
 
-   fullscreenToggle.onclick = function() {
-       if (!document.fullscreenElement) {
-           document.documentElement.requestFullscreen();
-       } else {
-           if (document.exitFullscreen) {
-               document.exitFullscreen();
-           }
-       }
-   };
+    fullscreenToggle.onclick = function() {
+        if (!document.fullscreenElement) {
+            document.documentElement.requestFullscreen();
+        } else {
+            if (document.exitFullscreen) {
+                document.exitFullscreen();
+            }
+        }
+    };
 
-   const languageSwitcher = document.getElementById('languageSwitcher');
-   if(languageSwitcher) {
-       languageSwitcher.value = currentLang;
+    const languageSwitcher = document.getElementById('languageSwitcher');
+    if(languageSwitcher) {
+        languageSwitcher.value = currentLang;
        
-       languageSwitcher.addEventListener('change', function() {
-           const lang = this.value;
-           localStorage.setItem('preferred_language', lang);
+        languageSwitcher.addEventListener('change', function() {
+            const lang = this.value;
+            localStorage.setItem('preferred_language', lang);
            
-           if(lang === 'zh') {
-               fullscreenToggle.textContent = '全屏';
-           } else if(lang === 'zh-tw') {
-               fullscreenToggle.textContent = '全螢幕';
-           } else {
-               fullscreenToggle.textContent = 'Fullscreen';
-           }
-       });
-   }
+            if(lang === 'zh') {
+                fullscreenToggle.textContent = '全屏';
+            } else if(lang === 'zh-tw') {
+                fullscreenToggle.textContent = '全螢幕';
+            } else if(lang === 'ko') {
+                fullscreenToggle.textContent = '전체 화면';
+            } else if(lang === 'ar') {
+                fullscreenToggle.textContent = 'شاشة كاملة';
+            } else if(lang === 'ru') {
+                fullscreenToggle.textContent = 'Полный экран';
+            } else if(lang === 'de') {
+                fullscreenToggle.textContent = 'Vollbild';
+            } else if(lang === 'vi') {
+                fullscreenToggle.textContent = 'Toàn màn hình';
+            } else {
+                fullscreenToggle.textContent = 'Fullscreen';
+            }
+        });
+    }
 });
 </script>
 

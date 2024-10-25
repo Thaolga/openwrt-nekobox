@@ -424,3 +424,9 @@ h1:hover, h2:hover, h3:hover, h4:hover, h5:hover, h6:hover {
     margin: 0 0.5rem;
   }
 }
+
+@media (max-width: 767px) {
+    .btn {
+        font-size: 10px; 
+    }
+}

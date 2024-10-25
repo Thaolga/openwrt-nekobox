@@ -202,21 +202,35 @@ if (isset($_POST['update'])) {
     $subscriptions[$index]['url'] = $url;
     $subscriptions[$index]['file_name'] = $customFileName;
 
-    if (!empty($url)) {
-        $finalPath = $subscriptionPath . $customFileName;
-        $command = "curl -fsSL -o {$finalPath} {$url}";
-        exec($command . ' 2>&1', $output, $return_var);
+if (!empty($url)) {
+    $finalPath = $subscriptionPath . $customFileName;
+    $command = "curl -fsSL -o {$finalPath} {$url}";
+    exec($command . ' 2>&1', $output, $return_var);
 
-        if ($return_var === 0) {
-            $message = "Subscription link {$url} updated successfully! File saved to: {$finalPath}";
-        } else {
-            $message = "Configuration update failed! Error message: " . implode("\n", $output);
-        }
-    } else {
-        $message = "The {$index} subscription link is empty!";
-    }
+if ($return_var === 0) {
+    $_SESSION['update_messages'] = array();
+    $_SESSION['update_messages'][] = '<div class="alert alert-warning" style="margin-bottom: 8px;">
+        <strong>⚠️ Instructions:</strong>
+        <ul class="mb-0 pl-3">
+            <li>The general template (mihomo.yaml) supports up to <strong>6</strong> subscription links</li>
+            <li>Please do not change the default file name</li>
+            <li>This template supports all format subscription links, no additional conversion is required</li>
+        </ul>
+    </div>';
+    $_SESSION['update_messages'][] = "Subscription link {$url} updated successfully! File has been saved to: {$finalPath}";
+    $message = 'Update successful';
+} else {
+    $_SESSION['update_messages'] = array();
+    $_SESSION['update_messages'][] = "Configuration update failed! Error information: " . implode("\n", $output);
+    $message = 'Update failed';
+}
+} else {
+    $_SESSION['update_messages'] = array();
+    $_SESSION['update_messages'][] = "Subscription link " . ($index + 1) . " is empty!";
+    $message = 'Update failed';
+}
 
-    file_put_contents($subscriptionFile, json_encode($subscriptions));
+file_put_contents($subscriptionFile, json_encode($subscriptions));
 }
 
 if (isset($_POST['convert_base64'])) {
@@ -513,6 +527,169 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <script src="./assets/js/neko.js"></script>
 </head>
 <body>
+<div class="position-fixed w-100 d-flex justify-content-center" style="top: 20px; z-index: 1050">
+    <div id="updateAlert" class="alert alert-success alert-dismissible fade" role="alert" style="display: none; min-width: 300px; max-width: 600px;">
+        <div class="d-flex align-items-center">
+            <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+            <strong>Update Complete</strong>
+        </div>
+        <div id="updateMessages" class="small">
+        </div>
+        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+            <span aria-hidden="true">×</span>
+        </button>
+    </div>
+</div>
+<style>
+.alert-success {
+    background-color: #2b3035 !important;
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+    border-radius: 8px !important;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3) !important;
+    padding: 16px 20px !important;
+    position: relative;
+    color: #fff !important;
+    backdrop-filter: blur(10px);
+    margin-top: 15px !important;
+}
+
+.alert .close {
+    position: absolute !important;
+    right: 10px !important;   
+    top: 10px !important;     
+    background-color: #dc3545 !important;
+    opacity: 1 !important;
+    width: 20px !important;
+    height: 20px !important;
+    border-radius: 50% !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    font-size: 14px !important;
+    color: #fff !important;
+    border: none !important;    
+    padding: 0 !important;
+    margin: 0 !important;
+    transition: all 0.2s ease !important;
+    text-shadow: none !important;
+    line-height: 1 !important;
+}
+
+.alert .close:hover {
+    background-color: #bd2130 !important;
+    transform: rotate(90deg);
+}
+
+#updateMessages {
+    margin-top: 12px;
+    padding-right: 20px;
+    font-size: 14px;
+    line-height: 1.5;
+    color: rgba(255, 255, 255, 0.9);
+}
+
+#updateMessages .alert-warning {
+    background-color: rgba(255, 193, 7, 0.1) !important;
+    border-radius: 6px;
+    padding: 12px 15px;
+    border: 1px solid rgba(255, 193, 7, 0.2);
+}
+
+#updateMessages ul {
+    margin-bottom: 0;
+    padding-left: 20px;
+}
+
+#updateMessages li {
+    margin-bottom: 6px;
+    color: rgba(255, 255, 255, 0.9);
+}
+
+.spinner-border-sm {
+    margin-right: 10px;
+    border-color: #fff;
+    border-right-color: transparent;
+}
+
+#updateMessages > div:not(.alert-warning) {
+    padding: 8px 0;
+    color: #00ff9d; 
+}
+
+@media (max-width: 767px) {
+    .row a {
+        font-size: 9px; 
+    }
+}
+
+.table-responsive {
+    width: 100%;
+}
+
+@media (max-width: 767px) {
+    .table th,
+    .table td {
+        padding: 6px 8px; 
+        font-size: 14px; 
+    }
+
+    .table th:nth-child(1), .table td:nth-child(1) {
+        width: 10%; 
+    }
+    .table th:nth-child(2), .table td:nth-child(2) {
+        width: 20%; 
+    }
+    .table th:nth-child(3), .table td:nth-child(3) {
+        width: 25%; 
+    }
+    .table th:nth-child(4), .table td:nth-child(4) {
+        width: 45%; 
+        white-space: nowrap;
+    }
+
+    .btn-group {
+        display: flex;
+        flex-wrap: wrap; 
+        justify-content: space-between; 
+    }
+
+    .btn-group .btn {
+        flex: 1 1 22%; 
+        margin-bottom: 5px; 
+        margin-right: 5px; 
+        text-align: center; 
+        font-size: 9px; 
+    }
+
+</style>
+
+<script>
+function showUpdateAlert() {
+    const alert = $('#updateAlert');
+    const messages = <?php echo json_encode($_SESSION['update_messages'] ?? []); ?>;
+    
+    if (messages.length > 0) {
+        const messagesHtml = messages.map(msg => `<div>${msg}</div>`).join('');
+        $('#updateMessages').html(messagesHtml);
+    }
+    
+    alert.show().addClass('show');
+    
+    setTimeout(function() {
+        alert.removeClass('show');
+        setTimeout(function() {
+            alert.hide();
+            $('#updateMessages').html('');
+        }, 150);
+    }, 18000);
+}
+
+<?php if (!empty($message)): ?>
+    $(document).ready(function() {
+        showUpdateAlert();
+    });
+<?php endif; ?>
+</script>
 <div class="container-sm container-bg callout border border-3 rounded-4 col-11">
     <div class="row">
         <a href="./index.php" class="col btn btn-lg">🏠 Home</a>
@@ -701,22 +878,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         </div>
     <?php endif; ?>
 <?php endif; ?>
-
-
   <h2 class="text-success text-center mt-4 mb-4">Subscription Management</h2>
-
-    <div class="help-text mb-3 text-start">
-        <strong>1. Note:</strong> The universal template (<code>mihomo.yaml</code>) supports up to <strong>6</strong> subscription links. Please do not change the default names.   
-    </div>
-
-    <div class="help-text mb-3 text-start"> 
-        <strong>2. Save and Update:</strong> After filling out, please click the “Update Configuration” button to save.
-    </div>
-
-    <div class="help-text mb-3 text-start"> 
-        <strong>3. Node Conversion and Manual Modification:</strong> This template supports all formats of subscription links without additional conversion. Individual nodes can be converted using the node conversion tool below and automatically saved as proxies, or the proxy directory file can be manually modified to add nodes via link format.
-    </div>
-
     <?php if ($message): ?>
         <div class="alert alert-info text-start"> 
             <?php echo nl2br(htmlspecialchars($message)); ?>
