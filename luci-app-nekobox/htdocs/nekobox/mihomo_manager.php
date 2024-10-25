@@ -921,7 +921,7 @@ function showUpdateAlert() {
                                 </div>
                                 <input type="hidden" name="index" value="<?php echo $i; ?>">
                                 <div class="text-center mt-3"> 
-                                    <button type="submit" name="update" class="btn btn-primary">更新配置</button>
+                                    <button type="submit" name="update" class="btn btn-info">🔄 更新订阅 <?php echo $i + 1; ?></button>
                                 </div>
                             </div>
                         </form>
