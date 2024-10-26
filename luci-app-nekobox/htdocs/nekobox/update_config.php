@@ -1,24 +1,27 @@
 <?php
-if (isset($_POST['action']) && $_POST['action'] === 'update_config') {
-    $configFilePath = '/etc/neko/config/mihomo.yaml'; 
-    $url = 'https://raw.githubusercontent.com/Thaolga/openwrt-nekobox/nekobox/luci-app-nekobox/root/etc/neko/config/mihomo.yaml';
 
-    $ch = curl_init($url);
-    $fp = fopen($configFilePath, 'w');
+ini_set('memory_limit', '128M'); 
 
-    curl_setopt($ch, CURLOPT_FILE, $fp);
-    curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false); 
-
-    $success = curl_exec($ch);
-    curl_close($ch);
-    fclose($fp);
-
-    if ($success) {
-        echo "<script>alert('Mihomo 配置文件已更新成功！');</script>";
-        error_log("Mihomo 配置文件已更新成功！");
-    } else {
-        echo "<script>alert('配置文件更新失败！');</script>";
-        error_log("配置文件更新失败！");
-    }
+function logMessage($message) {
+    $logFile = '/var/log/config_update.log'; 
+    $timestamp = date('Y-m-d H:i:s');
+    file_put_contents($logFile, "[$timestamp] $message\n", FILE_APPEND);
 }
+
+$download_url = "https://raw.githubusercontent.com/Thaolga/openwrt-nekobox/nekobox/luci-app-nekobox/root/etc/neko/config/mihomo.yaml";
+$destination_path = "/etc/neko/config/mihomo.yaml";
+
+if (!is_dir(dirname($destination_path))) {
+    mkdir(dirname($destination_path), 0755, true);
+}
+
+exec("wget -O '$destination_path' '$download_url'", $output, $return_var);
+if ($return_var !== 0) {
+    logMessage("下载失败！");
+    die("下载失败！");
+}
+
+logMessage("mihomo.yaml 文件已成功更新！");
+echo "文件已成功更新！";
+
 ?>
