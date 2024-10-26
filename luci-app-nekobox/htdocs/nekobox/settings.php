@@ -298,21 +298,9 @@ $uiVersion = getUiVersion();
     document.getElementById('updateUiButton').addEventListener('click', function() {
         initiateUpdate('ui.php', 'Starting download UI panel update...');
     });
-</script>
 
-<script>
     document.getElementById('updateConfigButton').addEventListener('click', function() {
-        const xhr = new XMLHttpRequest();
-        xhr.open('POST', 'update_config.php', true);
-        xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
-        xhr.onload = function() {
-            if (xhr.status === 200) {
-                alert(xhr.responseText); 
-            } else {
-                alert('Update failed, please try again later.');
-            }
-        };
-        xhr.send('action=update_config'); 
+        initiateUpdate('update_config.php', 'Starting to download Mihomo configuration file update...');
     });
 </script>
 
