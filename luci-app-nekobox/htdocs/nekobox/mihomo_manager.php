@@ -186,7 +186,7 @@ if (!file_exists($subscriptionFile)) {
 
 $subscriptions = json_decode(file_get_contents($subscriptionFile), true);
 if (!$subscriptions) {
-    for ($i = 0; $i < 7; $i++) {
+    for ($i = 0; $i < 6; $i++) {
         $subscriptions[$i] = [
             'url' => '',
             'file_name' => "subscription_{$i}.yaml",
@@ -879,36 +879,43 @@ function showUpdateAlert() {
     <?php endif; ?>
 <?php endif; ?>
   <h2 class="text-success text-center mt-4 mb-4">Subscription Management</h2>
-    <?php if ($message): ?>
-        <div class="alert alert-info text-start"> 
-            <?php echo nl2br(htmlspecialchars($message)); ?>
-        </div>
-    <?php endif; ?>
+<?php if (isset($message) && $message): ?>
+    <div class="alert alert-info">
+        <?php echo nl2br(htmlspecialchars($message)); ?>
+    </div>
+<?php endif; ?>
 
+<?php if (isset($subscriptions) && is_array($subscriptions)): ?>
     <div class="row">
         <?php for ($i = 0; $i < 6; $i++): ?>
-            <div class="col-md-4 mb-4">
-                <div class="card">
+            <div class="col-md-4 mb-3">
+                <form method="post" class="card">
                     <div class="card-body">
-                        <h5 class="card-title">Subscription Link <?php echo ($i + 1); ?></h5>
-                        <form method="post">
-                            <div class="input-group mb-3">
-                                <input type="text" name="subscription_url" id="subscription_url_<?php echo $i; ?>" 
-                                       value="<?php echo htmlspecialchars($subscriptions[$i]['url']); ?>" required 
-                                       class="form-control" placeholder="Enter link">
-                                <input type="text" name="custom_file_name" id="custom_file_name_<?php echo $i; ?>" 
-                                       value="<?php echo htmlspecialchars($subscriptions[$i]['file_name']); ?>" 
-                                       class="form-control" placeholder="Custom file name">
-                                <input type="hidden" name="index" value="<?php echo $i; ?>">
-                                <button type="submit" name="update" class="btn btn-success ml-2">
-                                    <i>🔄</i> update
-                                </button>
-                            </div>
-                        </form>
+                        <div class="form-group">
+                            <h5 for="subscription_url_<?php echo $i; ?>" class="mb-2">Subscription Link <?php echo ($i + 1); ?></h5>
+                            <input type="text" name="subscription_url" id="subscription_url_<?php echo $i; ?>" value="<?php echo htmlspecialchars($subscriptions[$i]['url'] ?? ''); ?>" required class="form-control">
+                        </div>
+                        <div class="form-group">
+                            <label for="custom_file_name_<?php echo $i; ?>">Customize File Name</label>
+                            <input type="text" name="custom_file_name" id="custom_file_name_<?php echo $i; ?>" value="subscription_<?php echo ($i + 1); ?>.yaml" class="form-control">
+                        </div>
+                        <input type="hidden" name="index" value="<?php echo $i; ?>">
+                        <div class="text-center mt-3"> 
+                            <button type="submit" name="update" class="btn btn-info">🔄 Update <?php echo ($i + 1); ?></button>
+                        </div>
                     </div>
-                </div>
+                </form>
             </div>
+
+            <?php if (($i + 1) % 3 == 0 && $i < 5): ?>
+                </div><div class="row">
+            <?php endif; ?>
+            
         <?php endfor; ?>
+    </div>
+<?php else: ?>
+    <p>No subscription information found.</p>
+<?php endif; ?>
     </div>
 </section>
 <section id="subscription-management" class="section-gap">

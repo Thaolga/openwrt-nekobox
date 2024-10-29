@@ -2,27 +2,33 @@
 
 ini_set('memory_limit', '128M'); 
 
+$logMessages = [];
+
 function logMessage($message) {
-    $logFile = '/var/log/config_update.log'; 
-    $timestamp = date('Y-m-d H:i:s');
-    file_put_contents($logFile, "[$timestamp] $message\n", FILE_APPEND);
+    global $logMessages;
+    $timestamp = date('H:i:s');
+    $logMessages[] = "[$timestamp] $message";
 }
 
-$download_url = "https://raw.githubusercontent.com/Thaolga/openwrt-nekobox/refs/heads/main/luci-app-nekobox/root/etc/neko/config/mihomo.yaml";
-$destination_path = "/etc/neko/config/mihomo.yaml";
+$urls = [
+    "https://mirror.ghproxy.com/https://raw.githubusercontent.com/Thaolga/openwrt-nekobox/nekobox/luci-app-nekobox/root/etc/neko/config/mihomo.yaml" => "/etc/neko/config/mihomo.yaml",
+    "https://mirror.ghproxy.com/https://raw.githubusercontent.com/Thaolga/openwrt-nekobox/nekobox/luci-app-nekobox/root/etc/neko/config/Puernya.json" => "/etc/neko/config/Puernya.json"
+];
 
-if (!is_dir(dirname($destination_path))) {
-    mkdir(dirname($destination_path), 0755, true);
+foreach ($urls as $download_url => $destination_path) {
+    if (!is_dir(dirname($destination_path))) {
+        mkdir(dirname($destination_path), 0755, true);
+    }
+
+    exec("wget -O '$destination_path' '$download_url'", $output, $return_var);
+    if ($return_var !== 0) {
+        logMessage("Download failed: $destination_path");
+        die("Download failed: $destination_path");
+    }
+
+    logMessage(basename($destination_path) . " file has been successfully updated!");
 }
 
-exec("wget -O '$destination_path' '$download_url'", $output, $return_var);
-if ($return_var !== 0) {
-    logMessage("Download failed!");
-    die("Download failed!");
-}
-
-logMessage("mihomo.yaml file has been successfully updated!");
-echo "The file has been successfully updated!";
-
+echo implode("\n", $logMessages);
 
 ?>

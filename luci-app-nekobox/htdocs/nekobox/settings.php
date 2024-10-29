@@ -123,7 +123,7 @@ $uiVersion = getUiVersion();
                                         <span id="cliver"></span>&nbsp;<span id="NewCliver"> </span>
                                     </div>
                                     <div class="text-center mt-2">
-                                        <button class="btn btn-cyan" id="checkCliverButton">🔍 Detect</button>
+                                        <button class="btn btn-pink" id="checkCliverButton">🔍 Detect</button>
                                         <button class="btn btn-info" id="updateButton" title="Update to Latest Version">🔄 Update</button>
                                     </div>
                                 </div>
@@ -135,7 +135,7 @@ $uiVersion = getUiVersion();
                                         <?php echo htmlspecialchars($uiVersion); ?>&nbsp;<span id="NewUi"> </span>
                                     </div>
                                     <div class="text-center mt-2">
-                                        <button class="btn btn-cyan" id="checkUiButton">🔍 Detect</button> 
+                                        <button class="btn btn-pink" id="checkUiButton">🔍 Detect</button> 
                                         <button class="btn btn-info" id="updateUiButton" title="Update Metacubexd Panel">🔄 Update</button>
                                     </div>
                                 </div>
@@ -149,8 +149,9 @@ $uiVersion = getUiVersion();
                                         </div>
                                     </div>
                                     <div class="text-center mt-2">
-                                        <button class="btn btn-cyan" id="checkSingboxButton">🔍 Detect</button>
-                                        <button class="btn btn-pink" id="updatePuernyaButton" title="Switch to Puernya Core">🔄 Switch</button>
+                                        <button class="btn btn-pink" id="checkSingboxButton">🔍 Detect</button>
+                                        <button class="btn btn-success" id="updatePuernyaButton" title="Switch to Puernya Core">🔄 Switch</button>
+                                        <button class="btn btn-primary" id="updateRuleButton" title="Update Singbox rule set <With Puernya core, you can use Singbox's configuration files and local rule sets>">🔄 Update</button>
                                         <button class="btn btn-info" id="updateSingboxButton" title="Update Singbox Core">🔄 Update</button>
                                     </div>
                                 </div>
@@ -162,7 +163,7 @@ $uiVersion = getUiVersion();
                                         <span id="corever"></span>&nbsp;<span id="NewMihomo"> </span>
                                     </div>
                                     <div class="text-center mt-2">
-                                        <button class="btn btn-cyan" id="checkMihomoButton">🔍 Detect</button> 
+                                        <button class="btn btn-pink" id="checkMihomoButton">🔍 Detect</button> 
                                         <button id="updateConfigButton" class="btn btn-primary" title="Update Mihomo Configuration File">🔄 Update</button>
                                         <button class="btn btn-info" id="updateCoreButton" title="Update Mihomo Core">🔄 Update</button>
                                     </div>
@@ -174,11 +175,11 @@ $uiVersion = getUiVersion();
             </tbody>
         </table>
    <div class="modal fade" id="updateModal" tabindex="-1" role="dialog" aria-labelledby="updateModalLabel" aria-hidden="true">
-       <div class="modal-dialog modal-dialog-centered" role="document">
+       <div class="modal-dialog  role="document">
            <div class="modal-content">
                <div class="modal-header">
                    <h5 class="modal-title" id="updateModalLabel">Update Status</h5>
-                   <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                   <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
                        <span aria-hidden="true">&times;</span>
                    </button>
                </div>
@@ -245,6 +246,12 @@ $uiVersion = getUiVersion();
     #updatePuernyaButton:hover {
         background-color: #87CEFA;
     }
+
+    #updateModal #logOutput {
+        font-family: 'Courier New', monospace;
+        font-size: 1rem;
+        color: #333;
+    }
 </style>
 
 <script>
@@ -301,6 +308,10 @@ $uiVersion = getUiVersion();
 
     document.getElementById('updateConfigButton').addEventListener('click', function() {
         initiateUpdate('update_config.php', 'Starting to download Mihomo configuration file update...');
+    });
+
+    document.getElementById('updateRuleButton').addEventListener('click', function() {
+        initiateUpdate('update_rule.php', 'Starting to download Singbox rule set update...');
     });
 </script>
 

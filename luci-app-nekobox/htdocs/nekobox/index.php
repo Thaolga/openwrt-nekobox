@@ -622,6 +622,7 @@ $lang = $_GET['lang'] ?? 'en';
         .img-con img {
             width: 80px;
             height: auto;
+            border-radius: 5px; 
         }
         .block {
             display: flex;
@@ -666,6 +667,22 @@ $lang = $_GET['lang'] ?? 'en';
     let random = parseInt(Math.random() * 100000000);
 
     let IP = {
+        fetchIP: async () => {
+            try {
+                const [ipifyResp, ipsbResp] = await Promise.all([
+                    IP.get('https://api.ipify.org?format=json', 'json'),
+                    IP.get('https://api-ipv4.ip.sb/geoip', 'json')
+                ]);
+
+                const ipData = ipifyResp.data.ip || ipsbResp.data.ip;
+                cachedIP = ipData;
+                document.getElementById('d-ip').innerHTML = ipData;
+                return ipData;
+            } catch (error) {
+                console.error("Error fetching IP:", error);
+                throw error;
+            }
+        },
         get: (url, type) =>
             fetch(url, { method: 'GET' }).then((resp) => {
                 if (type === 'text')
@@ -682,20 +699,19 @@ $lang = $_GET['lang'] ?? 'en';
                 console.error("Error fetching data:", error);
                 throw error;
             }),
-        Ipip: (ip, elID) => {
+        Ipip: async (ip, elID) => {
             if (ip === cachedIP && cachedInfo) {
                 console.log("Using cached IP info");
                 IP.updateUI(cachedInfo, elID);
             } else {
-                IP.get(`https://api.ip.sb/geoip/${ip}`, 'json')
-                    .then(resp => {
-                        cachedIP = ip;  
-                        cachedInfo = resp.data;  
-                        IP.updateUI(resp.data, elID);
-                    })
-                    .catch(error => {
-                        console.error("Error in Ipip function:", error);
-                    });
+                try {
+                    const resp = await IP.get(`https://api.ip.sb/geoip/${ip}`, 'json');
+                    cachedIP = ip;
+                    cachedInfo = resp.data;
+                    IP.updateUI(resp.data, elID);
+                } catch (error) {
+                    console.error("Error in Ipip function:", error);
+                }
             }
         },
         updateUI: (data, elID) => {
@@ -706,32 +722,21 @@ $lang = $_GET['lang'] ?? 'en';
             if (data.country === 'Taiwan') {
                 country = (navigator.language === 'en') ? 'China Taiwan' : 'China Taiwan';
             }
+            const countryAbbr = data.country_code.toLowerCase();
 
             document.getElementById(elID).innerHTML = `${country} ${isp} ${asnOrganization}`;
-            $("#flag").attr("src", _IMG + "flags/" + data.country + ".png");
+            $("#flag").attr("src", _IMG + "flags/" + countryAbbr + ".png");
             document.getElementById(elID).style.color = '#FF00FF';
         },
-        getIpipnetIP: () => {
-            if (cachedIP) {
-                document.getElementById('d-ip').innerHTML = cachedIP;
-                IP.updateUI(cachedInfo, 'ipip');
-            } else {
-                IP.get(`https://api.ipify.org?format=json&z=${random}`, 'json')
-                    .then((resp) => {
-                        let ip = resp.data.ip;
-                        cachedIP = ip; 
-                        document.getElementById('d-ip').innerHTML = ip;
-                        return ip;
-                    })
-                    .then(ip => {
-                        IP.Ipip(ip, 'ipip');
-                    })
-                    .catch(error => {
-                        console.error("Error in getIpipnetIP function:", error);
-                    });
+        getIpipnetIP: async () => {
+            try {
+                const ip = await IP.fetchIP();
+                await IP.Ipip(ip, 'ipip');
+            } catch (error) {
+                console.error("Error in getIpipnetIP function:", error);
             }
         }
-    }
+    };
 
     IP.getIpipnetIP();
     setInterval(IP.getIpipnetIP, 5000);
@@ -781,7 +786,7 @@ $lang = $_GET['lang'] ?? 'en';
             </form>
             <form action="index.php" method="post">
                 <td class="d-grid">
-                    <select name="config_file" id="config_file" class="form-select">
+                    <select name="config_file" id="config_file" class="form-select" onchange="saveConfigSelection()">
                         <?php foreach ($availableConfigs as $config): ?>
                             <option value="<?= htmlspecialchars($config) ?>" <?= isset($_POST['config_file']) && $_POST['config_file'] === $config ? 'selected' : '' ?>>
                                 <?= htmlspecialchars(basename($config)) ?>
@@ -814,6 +819,19 @@ $lang = $_GET['lang'] ?? 'en';
         </tr>
     </tbody>
 </table>
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        const savedConfig = localStorage.getItem("configSelection");
+        if (savedConfig) {
+            document.getElementById("config_file").value = savedConfig;
+        }
+    });
+
+    function saveConfigSelection() {
+        const selectedConfig = document.getElementById("config_file").value;
+        localStorage.setItem("configSelection", selectedConfig);
+    }
+</script>
     <style>
         .icon-container { display: flex; justify-content: space-between; margin-top: 20px; }
         .icon { text-align: center; width: 30%; }
