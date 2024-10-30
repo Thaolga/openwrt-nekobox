@@ -61,29 +61,33 @@ $urls = [
 
 $maxConnections = 5;
 $retries = 3;
+$downloadedFiles = []; 
 
 function parallelDownload($urls, $retries, $maxConnections) {
     $multiCurl = curl_multi_init();
     $handles = [];
-    $failedUrls = [];  
-
+    $failedUrls = [];
+    
+    global $downloadedFiles; 
     foreach ($urls as $url => $path) {
-        for ($attempt = 0; $attempt < $retries; $attempt++) {
-            $ch = curl_init();
-            curl_setopt($ch, CURLOPT_URL, $url);
-            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-            curl_setopt($ch, CURLOPT_FAILONERROR, true);
-            curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
-            curl_setopt($ch, CURLOPT_WRITEFUNCTION, function($curl, $data) use ($path) {
-                $fp = fopen($path, 'a');
-                fwrite($fp, $data);
-                fclose($fp);
-                return strlen($data);
-            });
-
-            curl_multi_add_handle($multiCurl, $ch);
-            $handles[] = ['handle' => $ch, 'path' => $path, 'url' => $url, 'attempt' => $attempt];
+        if (in_array($path, $downloadedFiles)) {
+            continue;
         }
+
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_URL, $url);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_FAILONERROR, true);
+        curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
+        curl_setopt($ch, CURLOPT_WRITEFUNCTION, function($curl, $data) use ($path) {
+            $fp = fopen($path, 'a');
+            fwrite($fp, $data);
+            fclose($fp);
+            return strlen($data);
+        });
+
+        curl_multi_add_handle($multiCurl, $ch);
+        $handles[] = ['handle' => $ch, 'path' => $path, 'url' => $url];
     }
 
     do {
@@ -94,12 +98,13 @@ function parallelDownload($urls, $retries, $maxConnections) {
     foreach ($handles as $data) {
         $ch = $data['handle'];
         $path = $data['path'];
-        $url = $data['url'];
+
         if (curl_errno($ch) === 0) {
             logMessage(basename($path) . " 文件已成功更新！");
+            $downloadedFiles[] = $path;
         } else {
-            $failedUrls[$url] = $path;  
-            logMessage("下载失败：{$url}，重试次数：{$data['attempt']}！");
+            $failedUrls[$data['url']] = $path;
+            logMessage("下载失败：{$data['url']}，重试中...");
         }
         curl_multi_remove_handle($multiCurl, $ch);
         curl_close($ch);
