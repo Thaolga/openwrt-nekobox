@@ -939,7 +939,7 @@ let aceEditorInstance;
 
 function initializeAceEditor() {
     aceEditorInstance = ace.edit("aceEditorContainer");
-    const savedTheme = localStorage.getItem("editorTheme") || "ace/theme/Vibrant Ink";
+    const savedTheme = localStorage.getItem("editorTheme") || "ace/theme/vibrant_ink";
     aceEditorInstance.setTheme(savedTheme);
     aceEditorInstance.session.setMode("ace/mode/javascript"); 
     aceEditorInstance.setOptions({
