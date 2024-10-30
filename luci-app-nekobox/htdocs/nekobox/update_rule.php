@@ -59,76 +59,28 @@ $urls = [
     "https://raw.githubusercontent.com/Thaolga/neko/luci-app-neko/nekobox/geosite.db" => "/www/nekobox/geosite.db"
 ];
 
-$maxConnections = 5;
-$retries = 3;
-$downloadedFiles = []; 
+function downloadFile($url, $path, $retries = 3) {
+    for ($i = 0; $i < $retries; $i++) {
+        $command = "curl -L --fail -o '$path' '$url'";
+        exec($command, $output, $return_var);
 
-function parallelDownload($urls, $retries, $maxConnections) {
-    $multiCurl = curl_multi_init();
-    $handles = [];
-    $failedUrls = [];
-    
-    global $downloadedFiles;
-
-    foreach ($urls as $url => $path) {
-        if (in_array($path, $downloadedFiles)) {
-            continue;
-        }
-
-        $dir = dirname($path);
-        if (!is_dir($dir)) {
-            mkdir($dir, 0755, true);
-        }
-
-        $ch = curl_init();
-        curl_setopt($ch, CURLOPT_URL, $url);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_FAILONERROR, true);
-        curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
-        curl_setopt($ch, CURLOPT_WRITEFUNCTION, function($curl, $data) use ($path) {
-            $fp = fopen($path, 'a'); 
-            if ($fp === false) {
-                return -1; 
-            }
-            fwrite($fp, $data);
-            fclose($fp);
-            return strlen($data);
-        });
-
-        curl_multi_add_handle($multiCurl, $ch);
-        $handles[] = ['handle' => $ch, 'path' => $path, 'url' => $url];
-    }
-
-    do {
-        curl_multi_exec($multiCurl, $running);
-        curl_multi_select($multiCurl);
-    } while ($running > 0);
-
-    foreach ($handles as $data) {
-        $ch = $data['handle'];
-        $path = $data['path'];
-
-        if (curl_errno($ch) === 0) {
+        if ($return_var === 0) {
             logMessage(basename($path) . " 文件已成功更新！");
-            $downloadedFiles[] = $path;
+            return true;
         } else {
-            $failedUrls[$data['url']] = $path;
-            logMessage("下载失败：{$data['url']}，重试中...");
+            logMessage("下载失败：$path，重试中（" . ($i + 1) . "/$retries）...");
+            sleep(2);  
         }
-        curl_multi_remove_handle($multiCurl, $ch);
-        curl_close($ch);
     }
-
-    curl_multi_close($multiCurl);
-
-    return $failedUrls;
+    logMessage("下载失败：$path，已超过最大重试次数！");
+    return false;
 }
 
-$failedUrls = parallelDownload($urls, $retries, $maxConnections);
-
-if (!empty($failedUrls)) {
-    logMessage("重试下载失败的文件...");
-    parallelDownload($failedUrls, $retries, $maxConnections);
+foreach ($urls as $download_url => $destination_path) {
+    if (!is_dir(dirname($destination_path))) {
+        mkdir(dirname($destination_path), 0755, true);
+    }
+    downloadFile($download_url, $destination_path);
 }
 
 echo implode("\n", $logMessages);
