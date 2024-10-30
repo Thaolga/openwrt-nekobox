@@ -174,8 +174,8 @@ $uiVersion = getUiVersion();
                 </tr>
             </tbody>
         </table>
-   <div class="modal fade" id="updateModal" tabindex="-1" role="dialog" aria-labelledby="updateModalLabel" aria-hidden="true">
-       <div class="modal-dialog  role="document">
+   <div class="modal fade" id="updateModal" tabindex="-1" role="dialog" aria-labelledby="updateModalLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+       <div class="modal-dialog modal-lg" role="document">
            <div class="modal-content">
                <div class="modal-header">
                    <h5 class="modal-title" id="updateModalLabel">Update Status</h5>
@@ -183,8 +183,8 @@ $uiVersion = getUiVersion();
                        <span aria-hidden="true">&times;</span>
                    </button>
                </div>
-               <div class="modal-body">
-                   <pre id="logOutput">Starting download update...</pre>
+               <div class="modal-body text-center"> 
+                   <pre id="logOutput" style="white-space: pre-wrap; word-wrap: break-word; text-align: left; display: inline-block;">Starting download update...</pre>
                </div>
            </div>
        </div>

@@ -146,71 +146,77 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['editFile'], $_GET['file
 ?>
 
 <?php
-$subscriptionPath = '/www/nekobox/proxy/';
-$subscriptionFile = $subscriptionPath . 'subscriptions.json';
-$subscriptions = [];
+$configPath = '/www/nekobox/proxy/';
+$configFile = $configPath . 'subscriptions.json';
+$subscriptionList = [];
+
 while (ob_get_level() > 0) {
     ob_end_flush();
 }
 
 function outputMessage($message) {
-    if (!isset($_SESSION['update_messages'])) {
-        $_SESSION['update_messages'] = array();
+    if (!isset($_SESSION['notification_messages'])) {
+        $_SESSION['notification_messages'] = [];
     }
-
-    if (empty($_SESSION['update_messages'])) {
-        $_SESSION['update_messages'][] = '<div class="text-warning" style="margin-bottom: 8px;"><strong>⚠️ Note:</strong> The current configuration file must be used with the <strong>Puernya</strong> kernel and does not support other kernels!</div>';
-    }
-    $_SESSION['update_messages'][] = $message;
+    $_SESSION['notification_messages'][] = $message;
 }
 
-if (!file_exists($subscriptionPath)) {
-    mkdir($subscriptionPath, 0755, true);
+if (!isset($_SESSION['help_message'])) {
+    $_SESSION['help_message'] = '<div class="text-warning" style="margin-bottom: 8px;">
+        <strong>⚠️ Note：</strong> The current configuration file must be used with the <strong>Puernya</strong> kernel and does not support other kernels!
+    </div>';
 }
 
-if (!file_exists($subscriptionFile)) {
-    file_put_contents($subscriptionFile, json_encode([]));
+if (!file_exists($configPath)) {
+    mkdir($configPath, 0755, true);
 }
 
-$subscriptions = json_decode(file_get_contents($subscriptionFile), true);
-if (!$subscriptions) {
-    for ($i = 0; $i < 3; $i++) {
-        $subscriptions[$i] = [
+if (!file_exists($configFile)) {
+    file_put_contents($configFile, json_encode([]));
+}
+
+$subscriptionList = json_decode(file_get_contents($configFile), true);
+if (!$subscriptionList || !is_array($subscriptionList)) {
+    $subscriptionList = [];
+    for ($i = 1; $i <= 3; $i++) {
+        $subscriptionList[$i - 1] = [
             'url' => '',
             'file_name' => "subscription_{$i}.yaml",
         ];
     }
 }
+
 if (isset($_POST['saveSubscription'])) {
     $index = intval($_POST['index']);
     if ($index >= 0 && $index < 3) {
         $url = $_POST['subscription_url'] ?? '';
         $customFileName = $_POST['custom_file_name'] ?? "subscription_{$index}.yaml";
-        $subscriptions[$index]['url'] = $url;
-        $subscriptions[$index]['file_name'] = $customFileName;
-        
+        $subscriptionList[$index]['url'] = $url;
+        $subscriptionList[$index]['file_name'] = $customFileName;
+
         if (!empty($url)) {
-            $finalPath = $subscriptionPath . $customFileName;
-            $command = sprintf("curl -fsSL -o %s %s", 
-                escapeshellarg($finalPath), 
+            $finalPath = $configPath . $customFileName;
+            $command = sprintf(
+                "curl -fsSL -o %s %s",
+                escapeshellarg($finalPath),
                 escapeshellarg($url)
             );
-            
+
             exec($command . ' 2>&1', $output, $return_var);
-            
+
             if ($return_var === 0) {
-               outputMessage("Subscription link {$url} updated successfully! File saved to: {$finalPath}");
+                outputMessage("Subscription link {$url} has been updated successfully! The file has been saved to: {$finalPath}");
             } else {
                 outputMessage("Configuration update failed! Error message: " . implode("\n", $output));
             }
         } else {
-            outputMessage("The " . ($index + 1) . "th subscription link is empty!");
+            outputMessage("The subscription link for item " . ($index + 1) . " is empty!");
         }
-        
-        file_put_contents($subscriptionFile, json_encode($subscriptions));
+
+        file_put_contents($configFile, json_encode($subscriptionList));
     }
 }
-$updateCompleted = isset($_POST['saveSubscription']); 
+$updateCompleted = isset($_POST['saveSubscription']);
 ?>
 
 <?php
@@ -361,15 +367,27 @@ if (isset($_POST['update_index'])) {
     <script src="./assets/bootstrap/popper.min.js"></script>
     <script src="./assets/bootstrap/bootstrap.min.js"></script>
 </head>
+<?php if ($updateCompleted): ?>
+    <script>
+        if (!sessionStorage.getItem('refreshed')) {
+            sessionStorage.setItem('refreshed', 'true');
+            window.location.reload();
+        } else {
+            sessionStorage.removeItem('refreshed'); 
+        }
+    </script>
+<?php endif; ?>
+
 <body>
 <div class="position-fixed w-100 d-flex justify-content-center" style="top: 20px; z-index: 1050">
-    <div id="updateAlert" class="alert alert-success alert-dismissible fade" role="alert" style="display: none; min-width: 300px; max-width: 600px; box-shadow: 0 2px 8px rgba(0,0,0,0.2);">
+    <div id="updateAlert" class="alert alert-success alert-dismissible fade" role="alert" 
+         style="display: none; min-width: 300px; max-width: 600px; box-shadow: 0 2px 8px rgba(0,0,0,0.2);">
         <div class="d-flex align-items-center mb-2">
             <span class="spinner-border spinner-border-sm mr-2" role="status" aria-hidden="true"></span>
-            <strong>Update Complete</strong>
+            <strong>更新完成</strong>
         </div>
-        <div id="updateMessages" class="small" style="word-break: break-all;">
-        </div>
+        <div id="helpMessage" class="small" style="word-break: break-all;"></div>
+        <div id="updateMessages" class="small mt-2" style="word-break: break-all;"></div>
         <button type="button" class="close" data-dismiss="alert" aria-label="Close">
             <span aria-hidden="true">×</span>
         </button>
@@ -393,47 +411,28 @@ if (isset($_POST['update_index'])) {
 <script>
 function showUpdateAlert() {
     const alert = $('#updateAlert');
-    const messages = <?php echo json_encode($_SESSION['update_messages'] ?? []); ?>;
-    
+    const helpMessage = <?php echo json_encode($_SESSION['help_message'] ?? ''); ?>;
+    const messages = <?php echo json_encode($_SESSION['notification_messages'] ?? []); ?>;
+    $('#helpMessage').html(helpMessage);
+
     if (messages.length > 0) {
         const messagesHtml = messages.map(msg => `<div>${msg}</div>`).join('');
         $('#updateMessages').html(messagesHtml);
     }
-    
+
     alert.show().addClass('show');
-    
-    setTimeout(function() {
+    setTimeout(function () {
         alert.removeClass('show');
-        setTimeout(function() {
+        setTimeout(function () {
             alert.hide();
             $('#updateMessages').html('');
         }, 150);
-    }, 18000); 
-}
-
-function showUpdateAlertSub(message) {
-    const alert = $('#updateAlertSub');
-    $('#updateMessagesSub').html(`<div>${message}</div>`);
-    alert.show().addClass('show');
-    
-    setTimeout(function() {
-        alert.removeClass('show');
-        setTimeout(function() {
-            alert.hide();
-            $('#updateMessagesSub').html('');
-        }, 150);
-    }, 18000); 
+    }, 18000);
 }
 
 <?php if ($updateCompleted): ?>
-    $(document).ready(function() {
+    $(document).ready(function () {
         showUpdateAlert();
-    });
-<?php endif; ?>
-
-<?php if ($message): ?>
-    $(document).ready(function() {
-        showUpdateAlertSub(`<?php echo str_replace(["\r", "\n"], '', addslashes($message)); ?>`);
     });
 <?php endif; ?>
 </script>
@@ -572,8 +571,9 @@ td {
         <a href="./box.php" class="col btn btn-lg">💹 Template</a>
         <a href="./filekit.php" class="col btn btn-lg">📦 File Assistant</a>
     <div class="text-center">
-      <h1 style="margin-top: 40px; margin-bottom: 20px;">Sing-box File Management</h1>
-        
+      <h1 style="margin-top: 40px; margin-bottom: 20px;">Sing-box File Management</h1>     
+       <div class="card mb-4">
+    <div class="card-body"> 
 <div class="container">
     <h5>Proxy File Management ➤ Dedicated to P-Core</h5>
     <div class="table-responsive">
@@ -1081,23 +1081,23 @@ function initializeAceEditor() {
 <div class="help-text mb-3 text-start"> 
     <strong>4. Save and Update:</strong> After filling in the information, please click the "Update Configuration" button to save.
 </div>
-        <div class="row">
-            <?php for ($i = 0; $i < 3; $i++): ?>
-                <div class="col-md-4 mb-4">
-                    <div class="card">
-                        <div class="card-body">
-                            <h5 class="card-title">Subscription Link <?php echo ($i + 1); ?></h5>
-                            <form method="post">
-                                <div class="input-group mb-3">
-                                    <input type="text" name="subscription_url" id="subscriptionurl<?php echo $i; ?>" 
-                                           value="<?php echo htmlspecialchars($subscriptions[$i]['url']); ?>" required 
-                                           class="form-control" placeholder="Enter Link">
-                                    <input type="text" name="custom_file_name" id="custom_filename<?php echo $i; ?>" 
-                                           value="<?php echo htmlspecialchars($subscriptions[$i]['file_name']); ?>" 
-                                           class="form-control" placeholder="Customize File Name">
-                                    <input type="hidden" name="index" value="<?php echo $i; ?>">
-                                    <button type="submit" name="saveSubscription" class="btn btn-success ml-2">
-                                        <i>🔄</i> Update
+<div class="row">
+    <?php for ($i = 0; $i < 3; $i++): ?>
+        <div class="col-md-4 mb-4">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Subscription link <?php echo ($i + 1); ?></h5>
+                    <form method="post">
+                        <div class="input-group mb-3">
+                            <input type="text" name="subscription_url" id="subscriptionurl<?php echo $i; ?>" 
+                                   value="<?php echo htmlspecialchars($subscriptionList[$i]['url']); ?>" 
+                                   required class="form-control" placeholder="Input link">
+                            <input type="text" name="custom_file_name" id="custom_filename<?php echo $i; ?>" 
+                                   value="<?php echo htmlspecialchars($subscriptionList[$i]['file_name']); ?>" 
+                                   class="form-control" placeholder="Custom file name">
+                            <input type="hidden" name="index" value="<?php echo $i; ?>">
+                            <button type="submit" name="saveSubscription" class="btn btn-success ml-2">
+                                <i>🔄</i> Update
                             </button>
                         </div>
                     </form>

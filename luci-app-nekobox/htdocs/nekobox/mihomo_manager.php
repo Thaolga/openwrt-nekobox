@@ -21,7 +21,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         if ($file['error'] === UPLOAD_ERR_OK) {
             if (move_uploaded_file($file['tmp_name'], $uploadFilePath)) {
-                echo 'File upload successful: ' . htmlspecialchars(basename($file['name']));
+               echo 'File upload successful: ' . htmlspecialchars(basename($file['name']));
             } else {
                 echo 'File upload failed!';
             }
@@ -36,19 +36,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         if ($file['error'] === UPLOAD_ERR_OK) {
             if (move_uploaded_file($file['tmp_name'], $uploadFilePath)) {
-                echo 'Configuration file upload successful: ' . htmlspecialchars(basename($file['name']));
+                echo 'Configuration file uploaded successfully.：' . htmlspecialchars(basename($file['name']));
             } else {
                 echo 'Configuration file upload failed!';
             }
         } else {
-            echo 'Upload error: ' . $file['error'];
+            echo 'Upload error:' . $file['error'];
         }
     }
 
     if (isset($_POST['deleteFile'])) {
         $fileToDelete = $uploadDir . basename($_POST['deleteFile']);
         if (file_exists($fileToDelete) && unlink($fileToDelete)) {
-            echo 'File deletion successful: ' . htmlspecialchars(basename($_POST['deleteFile']));
+            echo 'File deleted successfully.：' . htmlspecialchars(basename($_POST['deleteFile']));
         } else {
             echo 'File deletion failed!';
         }
@@ -57,7 +57,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (isset($_POST['deleteConfigFile'])) {
         $fileToDelete = $configDir . basename($_POST['deleteConfigFile']);
         if (file_exists($fileToDelete) && unlink($fileToDelete)) {
-            echo 'Configuration file deletion successful: ' . htmlspecialchars(basename($_POST['deleteConfigFile']));
+            echo 'Configuration file deleted successfully:' . htmlspecialchars(basename($_POST['deleteConfigFile']));
         } else {
             echo 'Configuration file deletion failed!';
         }
@@ -66,70 +66,35 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (isset($_POST['oldFileName'], $_POST['newFileName'], $_POST['fileType'])) {
         $oldFileName = basename($_POST['oldFileName']);
         $newFileName = basename($_POST['newFileName']);
+        $fileType = $_POST['fileType'];
 
-        if ($_POST['fileType'] === 'proxy') {
-            $oldFilePath = $uploadDir . $oldFileName;
-            $newFilePath = $uploadDir . $newFileName;
-        } elseif ($_POST['fileType'] === 'config') {
+        if ($fileType === 'proxy') {
+            $oldFilePath = $uploadDir. $oldFileName;
+            $newFilePath = $uploadDir. $newFileName;
+        } elseif ($fileType === 'config') {
             $oldFilePath = $configDir . $oldFileName;
             $newFilePath = $configDir . $newFileName;
         } else {
-            echo 'Invalid file type';
+        echo 'Invalid file type';
             exit;
         }
 
-        if (file_exists($oldFilePath) && !file_exists($newFilePath)) {
-            if (rename($oldFilePath, $newFilePath)) {
-                echo 'File rename successful: ' . htmlspecialchars($oldFileName) . ' -> ' . htmlspecialchars($newFileName);
-            } else {
-                echo 'File rename failed!';
-            }
+    if (file_exists($oldFilePath) && !file_exists($newFilePath)) {
+        if (rename($oldFilePath, $newFilePath)) {
+            echo 'File renamed successfully：' . htmlspecialchars($oldFileName) . ' -> ' . htmlspecialchars($newFileName);
         } else {
-            echo 'File rename failed, file does not exist or new file name already exists.';
+            echo 'File renaming failed!';
         }
+    } else {
+        echo 'File renaming failed, the file does not exist or the new file name already exists.';
     }
-
-    if (isset($_POST['editFile']) && isset($_POST['fileType'])) {
-        $fileToEdit = ($_POST['fileType'] === 'proxy') ? $uploadDir . basename($_POST['editFile']) : $configDir . basename($_POST['editFile']);
-        $fileContent = '';
-        $editingFileName = htmlspecialchars($_POST['editFile']);
-
-        if (file_exists($fileToEdit)) {
-            $handle = fopen($fileToEdit, 'r');
-            if ($handle) {
-                while (($line = fgets($handle)) !== false) {
-                    $fileContent .= htmlspecialchars($line);
-                }
-                fclose($handle);
-            } else {
-                echo 'Unable to open file';
-            }
-        }
-    }
+}
 
     if (isset($_POST['saveContent'], $_POST['fileName'], $_POST['fileType'])) {
-        $fileToSave = ($_POST['fileType'] === 'proxy') ? $uploadDir . basename($_POST['fileName']) : $configDir . basename($_POST['fileName']);
-        $contentToSave = $_POST['saveContent'];
-        file_put_contents($fileToSave, $contentToSave);
-        echo '<p>File content updated: ' . htmlspecialchars(basename($fileToSave)) . '</p>';
-    }
-
-    if (isset($_GET['customFile'])) {
-        $customDir = rtrim($_GET['customDir'], '/') . '/';
-        $customFilePath = $customDir . basename($_GET['customFile']);
-        if (file_exists($customFilePath)) {
-            header('Content-Description: File Transfer');
-            header('Content-Type: application/octet-stream');
-            header('Content-Disposition: attachment; filename="' . basename($customFilePath) . '"');
-            header('Expires: 0');
-            header('Cache-Control: must-revalidate');
-            header('Pragma: public');
-            header('Content-Length: ' . filesize($customFilePath));
-            readfile($customFilePath);
-            exit;
-        } else {
-            echo 'File does not exist!';
-        }
+            $fileToSave = ($_POST['fileType'] === 'proxy') ? $uploadDir . basename($_POST['fileName']) : $configDir . basename($_POST['fileName']);
+            $contentToSave = $_POST['saveContent'];
+            file_put_contents($fileToSave, $contentToSave);
+        echo '<p>File content has been updated：' . htmlspecialchars(basename($fileToSave)) . '</p>';
     }
 }
 
@@ -138,7 +103,7 @@ function formatFileModificationTime($filePath) {
         $fileModTime = filemtime($filePath);
         return date('Y-m-d H:i:s', $fileModTime);
     } else {
-        return 'File does not exist';
+        return 'File does not exist.';
     }
 }
 
@@ -166,7 +131,20 @@ function formatSize($size) {
     }
     return round($size, 2) . ' ' . $units[$unit];
 }
+
+if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['editFile'], $_GET['fileType'])) {
+    $filePath = ($_GET['fileType'] === 'proxy') ? $uploadDir. basename($_GET['editFile']) : $configDir . basename($_GET['editFile']);
+    if (file_exists($filePath)) {
+        header('Content-Type: text/plain');
+        echo file_get_contents($filePath);
+        exit;
+    } else {
+        echo 'File does not exist.';
+        exit;
+    }
+}
 ?>
+
 <?php
 $subscriptionPath = '/etc/neko/proxy_provider/';
 $subscriptionFile = $subscriptionPath . 'subscriptions.json';
@@ -499,16 +477,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         echo "<h2 style=\"color: #00FFFF;\">Conversion Complete</h2>";
         echo "<p>Configuration file has been successfully saved to <strong>$file_path</strong></p>";
-        echo "<textarea id='output' readonly style='width:100%;height:400px;'>$allcfgs</textarea>";
-        echo "<button onclick='copyToClipboard()'>Copy</button>";
-        echo "<script>
-            function copyToClipboard() {
-                var output = document.getElementById('output');
-                output.select();
-                document.execCommand('copy');
-                alert('Copy successful');
-            }
-        </script>";
     }
 }
 ?>
@@ -525,6 +493,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <script src="./assets/js/feather.min.js"></script>
     <script src="./assets/js/jquery-2.1.3.min.js"></script>
     <script src="./assets/js/neko.js"></script>
+    <script src="./assets/bootstrap/popper.min.js"></script>
+    <script src="./assets/bootstrap/bootstrap.min.js"></script>
 </head>
 <body>
 <div class="position-fixed w-100 d-flex justify-content-center" style="top: 20px; z-index: 1050">
@@ -700,184 +670,439 @@ function showUpdateAlert() {
     </div>
     <div class="text-center">
         <h1 style="margin-top: 40px; margin-bottom: 20px;">Mihomo File Manager</h1>
-        <div class="table-wrapper">
-            <h5>Proxy File Management</h5>
-<style>
-    .btn-group {
-        display: flex;
-        gap: 10px; 
-        justify-content: center; 
-    }
-    .btn {
-        margin: 0; 
-    }
-
-    .table-dark {
-        background-color: #6f42c1; 
-        color: white; 
-    }
-    .table-dark th, .table-dark td {
-        background-color: #5a32a3; 
-    }
-</style>
-<div class="container">
-    <table class="table table-striped table-bordered text-center">
-        <thead class="thead-dark">
-            <tr>
-                <th style="width: 30%;">File Name</th>
-                <th style="width: 10%;">Size</th>
-                <th style="width: 20%;">Modification Time</th>
-                <th style="width: 40%;">Action</th>
-            </tr>
-        </thead>
-        <tbody>
-            <?php foreach ($proxyFiles as $file): ?>
-                <?php $filePath = $uploadDir . $file; ?>
+       <div class="card mb-4">
+    <div class="card-body">
+    <div class="container">
+    <h5>Proxy File Management</h5>
+    <div class="table-responsive">
+        <table class="table table-striped table-bordered text-center">
+            <thead class="thead-dark">
                 <tr>
-                    <td class="align-middle"><a href="download.php?file=<?php echo urlencode($file); ?>"><?php echo htmlspecialchars($file); ?></a></td>
-                    <td class="align-middle"><?php echo file_exists($filePath) ? formatSize(filesize($filePath)) : 'File not found'; ?></td>
-                    <td><?php echo htmlspecialchars(date('Y-m-d H:i:s', filemtime($filePath))); ?></td>
-                    <td class="align-middle">
-                        <div class="btn-group">
-                            <form action="" method="post" class="d-inline">
-                                <input type="hidden" name="deleteFile" value="<?php echo htmlspecialchars($file); ?>">
-                                <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Are you sure you want to delete this file?');"><i>🗑️</i> Delete</button>
-                            </form>
-                            <form action="" method="post" class="d-inline">
-                                <input type="hidden" name="editFile" value="<?php echo htmlspecialchars($file); ?>">
-                                <input type="hidden" name="fileType" value="proxy">
-                                <button type="button" class="btn btn-success btn-sm btn-rename" data-toggle="modal" data-target="#renameModal" data-filename="<?php echo htmlspecialchars($file); ?>" data-filetype="proxy"><i>✏️</i> Rename</button>
-                            </form>
-                            <form action="" method="post" class="d-inline">
-                                <input type="hidden" name="editFile" value="<?php echo htmlspecialchars($file); ?>">
-                                <input type="hidden" name="fileType" value="proxy"> 
-                                <button type="submit" class="btn btn-warning btn-sm"><i>📝</i> Edit</button>
-                            </form>
-                            <form action="" method="post" enctype="multipart/form-data" class="form-inline d-inline upload-btn">
-                                <input type="file" name="fileInput" class="form-control-file" required id="fileInput-<?php echo htmlspecialchars($file); ?>" style="display: none;" onchange="this.form.submit()">
-                                <button type="button" class="btn btn-info btn-sm" onclick="document.getElementById('fileInput-<?php echo htmlspecialchars($file); ?>').click();"><i>📤</i> Upload</button>
-                            </form>
-                        </div>
-                    </td>
+                    <th style="width: 30%;">File Name</th>
+                    <th style="width: 10%;">Size</th>
+                    <th style="width: 20%;">Modification Time</th>
+                    <th style="width: 40%;">Action</th>
                 </tr>
-            <?php endforeach; ?>
-        </tbody>
-    </table>
+            </thead>
+            <tbody>
+                <?php foreach ($proxyFiles as $file): ?>
+                    <?php $filePath = $uploadDir. $file; ?>
+                    <tr>
+                        <td class="align-middle"><a href="download.php?file=<?php echo urlencode($file); ?>"><?php echo htmlspecialchars($file); ?></a></td>
+                        <td class="align-middle"><?php echo file_exists($filePath) ? formatSize(filesize($filePath)) : 'File not found'; ?></td>
+                        <td class="align-middle"><?php echo htmlspecialchars(date('Y-m-d H:i:s', filemtime($filePath))); ?></td>
+                        <td>
+                            <div class="d-flex justify-content-center">
+                                <form action="" method="post" class="d-inline">
+                                    <input type="hidden" name="deleteFile" value="<?php echo htmlspecialchars($file); ?>">
+                                    <button type="submit" class="btn btn-danger btn-sm mx-1" onclick="return confirm('Are you sure you want to delete this file？');"><i>🗑️</i> Delete</button>
+                                </form>
+                                <form action="" method="post" class="d-inline">
+                                    <input type="hidden" name="oldFileName" value="<?php echo htmlspecialchars($file); ?>">
+                                    <input type="hidden" name="fileType" value="proxy">
+                                    <button type="button" class="btn btn-success btn-sm mx-1 btn-rename" data-toggle="modal" data-target="#renameModal" data-filename="<?php echo htmlspecialchars($file); ?>" data-filetype="proxy"><i>✏️</i> Rename</button>
+                                </form>
+                                 <form action="" method="post" class="d-inline">
+                                    <button type="button" class="btn btn-warning btn-sm mx-1" onclick="openEditModal('<?php echo htmlspecialchars($file); ?>', 'proxy')"><i>📝</i> Edit</button>
+                                </form>
+                                <form action="" method="post" enctype="multipart/form-data" class="d-inline upload-btn">
+                                    <input type="file" name="fileInput" class="form-control-file" required id="fileInput-<?php echo htmlspecialchars($file); ?>" style="display: none;" onchange="this.form.submit()">
+                                    <button type="button" class="btn btn-info btn-sm mx-1" onclick="document.getElementById('fileInput-<?php echo htmlspecialchars($file); ?>').click();"><i>📤</i> Upload</button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                <?php endforeach; ?>
+            </tbody>
+        </table>
+    </div>
 </div>
 
-        <div class="modal fade" id="renameModal" tabindex="-1" role="dialog" aria-labelledby="renameModalLabel" aria-hidden="true">
-            <div class="modal-dialog" role="document">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title" id="renameModalLabel">Rename File</h5>
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                            <span aria-hidden="true">&times;</span>
-                        </button>
-                    </div>
-                    <div class="modal-body">
-                        <form id="renameForm" action="" method="post">
-                            <input type="hidden" name="oldFileName" id="oldFileName">
-                            <input type="hidden" name="fileType" id="fileType">
-                            <div class="form-group">
-                                <label for="newFileName">Rename File</label>
-                                <input type="text" class="form-control" id="newFileName" name="newFileName" required>
+<div class="container">
+    <h5 class="text-center">Configuration File Management</h5>
+    <div class="table-responsive">
+        <table class="table table-striped table-bordered text-center">
+            <thead class="thead-dark">
+                <tr>
+                    <th style="width: 30%;">File Name</th>
+                    <th style="width: 10%;">Size</th>
+                    <th style="width: 20%;">Modification Time</th>
+                    <th style="width: 40%;">Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                <?php foreach ($configFiles as $file): ?>
+                    <?php $filePath = $configDir . $file; ?>
+                    <tr>
+                        <td class="align-middle"><a href="download.php?file=<?php echo urlencode($file); ?>"><?php echo htmlspecialchars($file); ?></a></td>
+                        <td class="align-middle"><?php echo file_exists($filePath) ? formatSize(filesize($filePath)) : 'File not found'; ?></td>
+                        <td class="align-middle"><?php echo htmlspecialchars(date('Y-m-d H:i:s', filemtime($filePath))); ?></td>
+                        <td>
+                            <div class="d-flex justify-content-center">
+                                <form action="" method="post" class="d-inline">
+                                    <input type="hidden" name="deleteConfigFile" value="<?php echo htmlspecialchars($file); ?>">
+                                    <button type="submit" class="btn btn-danger btn-sm mx-1" onclick="return confirm('Are you sure you want to delete this file？');"><i>🗑️</i> Delete</button>
+                                </form>
+                                <form action="" method="post" class="d-inline">
+                                    <input type="hidden" name="oldFileName" value="<?php echo htmlspecialchars($file); ?>">
+                                    <input type="hidden" name="fileType" value="config">
+                                    <button type="button" class="btn btn-success btn-sm mx-1 btn-rename" data-toggle="modal" data-target="#renameModal" data-filename="<?php echo htmlspecialchars($file); ?>" data-filetype="config"><i>✏️</i> Rename</button>
+                                </form>
+                                <form action="" method="post" class="d-inline">
+                                   <button type="button" class="btn btn-warning btn-sm mx-1" onclick="openEditModal('<?php echo htmlspecialchars($file); ?>', 'config')"><i>📝</i> Edit</button>
+                                   </form>
+                                <form action="" method="post" enctype="multipart/form-data" class="d-inline upload-btn">
+                                    <input type="file" name="configFileInput" class="form-control-file" required id="fileInput-<?php echo htmlspecialchars($file); ?>" style="display: none;" onchange="this.form.submit()">
+                                    <button type="button" class="btn btn-info btn-sm mx-1" onclick="document.getElementById('fileInput-<?php echo htmlspecialchars($file); ?>').click();"><i>📤</i> Upload</button>
+                                </form>
                             </div>
-                            <p>Are you sure you want to rename this file?</p>
-                            <div class="form-group text-right">
-                                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
-                                <button type="submit" class="btn btn-primary">Confirm</button>
-                            </div>
-                        </form>
+                        </td>
+                    </tr>
+                <?php endforeach; ?>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<div class="modal fade" id="renameModal" tabindex="-1" role="dialog" aria-labelledby="renameModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="renameModalLabel">Rename File</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="renameForm" action="" method="post">
+                    <input type="hidden" name="oldFileName" id="oldFileName">
+                    <input type="hidden" name="fileType" id="fileType">
+                    <div class="form-group">
+                        <label for="newFileName">New File Name</label>
+                        <input type="text" class="form-control" id="newFileName" name="newFileName" required>
                     </div>
-                </div>
+                    <div class="form-group text-right">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn btn-primary">Confirm</button>
+                    </div>
+                </form>
             </div>
         </div>
-
-<div class="container">
-    <h5>Configuration File Management</h5>
-    <table class="table table-striped table-bordered text-center">
-        <thead class="thead-dark">
-            <tr>
-                <th style="width: 30%;">File Name</th>
-                <th style="width: 10%;">Size</th>
-                <th style="width: 20%;">Modification Time</th>
-                <th style="width: 40%;">Action</th>
-            </tr>
-        </thead>
-        <tbody>
-            <?php foreach ($configFiles as $file): ?>
-                <?php $filePath = $configDir . $file; ?>
-                <tr>
-                    <td class="align-middle"><a href="download.php?file=<?php echo urlencode($file); ?>"><?php echo htmlspecialchars($file); ?></a></td>
-                    <td class="align-middle"><?php echo file_exists($filePath) ? formatSize(filesize($filePath)) : 'File not found'; ?></td>
-                    <td class="align-middle"><?php echo htmlspecialchars(date('Y-m-d H:i:s', filemtime($filePath))); ?></td>
-                    <td>
-                        <div class="btn-group">
-                            <form action="" method="post" class="d-inline">
-                                <input type="hidden" name="deleteConfigFile" value="<?php echo htmlspecialchars($file); ?>">
-                                <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Are you sure you want to delete this file?');"><i>🗑️</i> Delete</button>
-                            </form>
-                            <form action="" method="post" class="d-inline">
-                                <input type="hidden" name="editFile" value="<?php echo htmlspecialchars($file); ?>">
-                                <button type="button" class="btn btn-success btn-sm btn-rename" data-toggle="modal" data-target="#renameModal" data-filename="<?php echo htmlspecialchars($file); ?>" data-filetype="config"><i>✏️</i> Rename</button>
-                            </form>
-                            <form action="" method="post" class="d-inline">
-                                <input type="hidden" name="editFile" value="<?php echo htmlspecialchars($file); ?>">
-                                <input type="hidden" name="fileType" value="<?php echo htmlspecialchars($file); ?>">
-                                <button type="submit" class="btn btn-warning btn-sm"><i>📝</i> Edit</button>
-                            </form>
-                            <form action="" method="post" enctype="multipart/form-data" class="form-inline d-inline upload-btn">
-                                <input type="file" name="configFileInput" class="form-control-file" required id="fileInput-<?php echo htmlspecialchars($file); ?>" style="display: none;" onchange="this.form.submit()">
-                                <button type="button" class="btn btn-info btn-sm" onclick="document.getElementById('fileInput-<?php echo htmlspecialchars($file); ?>').click();"><i>📤</i> Upload</button>  
-                            </form>
-                        </div>
-                    </td>
-                </tr>
-            <?php endforeach; ?>
-        </tbody>
-    </table>
+    </div>
 </div>
-<div class="container text-center">
-<?php if (isset($fileContent)): ?>
-    <?php if (isset($_POST['editFile'])): ?>
-        <?php $fileToEdit = ($_POST['fileType'] === 'proxy') ? $uploadDir . basename($_POST['editFile']) : $configDir . basename($_POST['editFile']); ?>
-        <h2 class="mt-5">Edit File: <?php echo $editingFileName; ?></h2>
-        <p>Last Updated Date: <?php echo date('Y-m-d H:i:s', filemtime($fileToEdit)); ?></p>
 
-        <div class="btn-group mb-3">
-            <button type="button" class="btn btn-primary" id="toggleBasicEditor">Standard Edito</button>
-            <button type="button" class="btn btn-warning" id="toggleAceEditor">Advanced Editor</button>
-            <button type="button" class="btn btn-info" id="toggleFullScreenEditor">Full Screen Editing</button>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.4.12/ace.js" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/js-beautify/1.14.0/beautify.min.js"></script> 
+<script src="https://cdn.jsdelivr.net/npm/js-yaml@4.1.0/dist/js-yaml.min.js"></script>
+
+<div class="modal fade" id="editModal" tabindex="-1" role="dialog" aria-labelledby="editModalLabel" aria-hidden="true" data-backdrop="static" data-keyboard="false">
+    <div class="modal-dialog modal-xl" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="editModalLabel">Edit File: <span id="editingFileName"></span></h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="editForm" action="" method="post" onsubmit="syncEditorContent()">
+                    <textarea name="saveContent" id="fileContent" class="form-control" style="height: 500px;"></textarea>
+                    <input type="hidden" name="fileName" id="hiddenFileName">
+                    <input type="hidden" name="fileType" id="hiddenFileType">
+                    <div class="mt-3">
+                        <button type="submit" class="btn btn-primary">Save</button>
+                        <button type="button" class="btn btn-pink" onclick="openFullScreenEditor()">Advanced Edit</button>
+                    </div>
+                </form>
+            </div>
         </div>
+    </div>
+</div>
 
-        <div class="editor-container">
-            <form action="" method="post">
-                <textarea name="saveContent" id="basicEditor" class="editor"><?php echo $fileContent; ?></textarea><br>
-
-                <div id="aceEditorContainer" class="d-none resizable" style="height: 400px; width: 100%;"></div>
-
-                <div id="fontSizeContainer" class="d-none mb-3">
-                    <label for="fontSizeSelector">Font Size:</label>
-                    <select id="fontSizeSelector" class="form-control" style="width: auto; display: inline-block;">
+<div class="modal fade" id="fullScreenEditorModal" tabindex="-1" role="dialog" aria-hidden="true" data-backdrop="static" data-keyboard="false">
+    <div class="modal-dialog modal-fullscreen" role="document">
+        <div class="modal-content" style="border: none;">
+            <div class="modal-header d-flex justify-content-between align-items-center" style="border-bottom: none;">
+                <div class="d-flex align-items-center">
+                    <h5 class="modal-title mr-3">Advanced Edit - Fullscreen Mode</h5>
+                    <select id="fontSize" onchange="changeFontSize()" class="form-select mx-1" style="width: auto; font-size: 0.8rem;">
                         <option value="18px">18px</option>
-                        <option value="20px">20px</option>
+                        <option value="20px" selected>20px</option>
+                        <option value="22px">22px</option>
                         <option value="24px">24px</option>
                         <option value="26px">26px</option>
+                        <option value="28px">28px</option>
+                        <option value="30px">30px</option>
+                        <option value="32px">32px</option>
+                        <option value="34px">34px</option>
+                        <option value="36px">36px</option>
+                        <option value="38px">38px</option>
+                        <option value="40px">40px</option>
                     </select>
+
+                    <select id="editorTheme" onchange="changeEditorTheme()" class="form-select mx-1" style="width: auto; font-size: 0.9rem;">
+                        <option value="ace/theme/vibrant_ink">Vibrant Ink</option>
+                        <option value="ace/theme/monokai">Monokai</option>
+                        <option value="ace/theme/github">GitHub</option>
+                        <option value="ace/theme/tomorrow">Tomorrow</option>
+                        <option value="ace/theme/twilight">Twilight</option>
+                        <option value="ace/theme/solarized_dark">Solarized Dark</option>
+                        <option value="ace/theme/solarized_light">Solarized Light</option>
+                        <option value="ace/theme/textmate">TextMate</option>
+                        <option value="ace/theme/terminal">Terminal</option>
+                        <option value="ace/theme/chrome">Chrome</option>
+                        <option value="ace/theme/eclipse">Eclipse</option>
+                        <option value="ace/theme/dreamweaver">Dreamweaver</option>
+                        <option value="ace/theme/xcode">Xcode</option>
+                        <option value="ace/theme/kuroir">Kuroir</option>
+                        <option value="ace/theme/katzenmilch">KatzenMilch</option>
+                        <option value="ace/theme/sqlserver">SQL Server</option>
+                        <option value="ace/theme/ambiance">Ambiance</option>
+                        <option value="ace/theme/chaos">Chaos</option>
+                        <option value="ace/theme/clouds_midnight">Clouds Midnight</option>
+                        <option value="ace/theme/cobalt">Cobalt</option>
+                        <option value="ace/theme/gruvbox">Gruvbox</option>
+                        <option value="ace/theme/idle_fingers">Idle Fingers</option>
+                        <option value="ace/theme/kr_theme">krTheme</option>
+                        <option value="ace/theme/merbivore">Merbivore</option>
+                        <option value="ace/theme/mono_industrial">Mono Industrial</option>
+                        <option value="ace/theme/pastel_on_dark">Pastel on Dark</option>
+                    </select>
+
+                    <button type="button" class="btn btn-success btn-sm mx-1" onclick="formatContent()">Format</button>
+                    <button type="button" class="btn btn-info btn-sm mx-1" id="jsonValidationBtn" onclick="validateJsonSyntax()">Validate JSON Syntax</button>
+                    <button type="button" class="btn btn-info btn-sm mx-1" id="yamlValidationBtn" onclick="validateYamlSyntax()" style="display: none;">Validate YAML Syntax</button>
+                    <button type="button" class="btn btn-primary btn-sm mx-1" onclick="saveFullScreenContent()">Save and Close</button>
+                    <button type="button" class="btn btn-primary btn-sm mx-1" onclick="openSearch()">Search</button>
+                    <button type="button" class="btn btn-primary btn-sm mx-1" onclick="closeFullScreenEditor()">Cancel</button>
+                    <button type="button" class="btn btn-warning btn-sm mx-1" id="toggleFullscreenBtn" onclick="toggleFullscreen()">Fullscreen</button>
                 </div>
 
-                <input type="hidden" name="fileName" value="<?php echo htmlspecialchars($_POST['editFile']); ?>">
-                <input type="hidden" name="fileType" value="<?php echo htmlspecialchars($_POST['fileType']); ?>">
-                <button type="submit" class="btn btn-primary mt-2" onclick="syncEditorContent()"><i>💾</i>  Save Content</button>
-            </form>
-            <button id="closeEditorButton" class="close-fullscreen" onclick="closeEditor()">X</button>
-            <div id="aceEditorError" class="error-popup d-none">
-                <span id="aceEditorErrorMessage"></span>
-                <button id="closeErrorPopup">Close</button>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close" onclick="closeFullScreenEditor()">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+
+            <div class="d-flex justify-content-center align-items-center my-1" id="editorStatus" style="font-weight: bold; font-size: 0.9rem;">
+                    <span id="lineColumnDisplay" style="color: blue; font-size: 1.1rem;">Lines: 1, Columns: 1</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span id="charCountDisplay" style="color: blue; font-size: 1.1rem;">Character Count: 0</span>
+                </div>
+                    <div class="modal-body" style="padding: 0; height: 100%;">
+                <div id="aceEditorContainer" style="height: 100%; width: 100%;"></div>
             </div>
         </div>
-    <?php endif; ?>
-<?php endif; ?>
+    </div>
+</div>
+
+<script>
+let isJsonDetected = false;
+
+let aceEditorInstance;
+
+function initializeAceEditor() {
+    aceEditorInstance = ace.edit("aceEditorContainer");
+    const savedTheme = localStorage.getItem("editorTheme") || "ace/theme/Vibrant Ink";
+    aceEditorInstance.setTheme(savedTheme);
+    aceEditorInstance.session.setMode("ace/mode/javascript"); 
+    aceEditorInstance.setOptions({
+        fontSize: "20px",
+        wrap: true
+    });
+
+    document.getElementById("editorTheme").value = savedTheme;
+    aceEditorInstance.getSession().on('change', () => {
+        updateEditorStatus();
+        detectContentFormat();
+    });
+    aceEditorInstance.selection.on('changeCursor', updateEditorStatus);
+    detectContentFormat(); 
+    }
+
+    function openFullScreenEditor() {
+        aceEditorInstance.setValue(document.getElementById('fileContent').value, -1); 
+        $('#fullScreenEditorModal').modal('show'); 
+        updateEditorStatus(); 
+    }
+
+    function saveFullScreenContent() {
+        document.getElementById('fileContent').value = aceEditorInstance.getValue();
+        $('#fullScreenEditorModal').modal('hide'); 
+        $('#editModal').modal('hide'); 
+        document.getElementById('editForm').submit(); 
+    }
+
+    function closeFullScreenEditor() {
+        $('#fullScreenEditorModal').modal('hide');
+    }
+
+    function changeFontSize() {
+        const fontSize = document.getElementById("fontSize").value;
+        aceEditorInstance.setFontSize(fontSize);
+    }
+
+    function changeEditorTheme() {
+        const theme = document.getElementById("editorTheme").value;
+        aceEditorInstance.setTheme(theme);
+        localStorage.setItem("editorTheme", theme); 
+    }
+
+    function openSearch() {
+        aceEditorInstance.execCommand("find");
+    }
+
+    function detectContentFormat() {
+        const content = aceEditorInstance.getValue().trim();
+
+        if (isJsonDetected) {
+            document.getElementById("jsonValidationBtn").style.display = "inline-block";
+            document.getElementById("yamlValidationBtn").style.display = "none";
+            return;
+        }
+
+        try {
+            JSON.parse(content);
+            document.getElementById("jsonValidationBtn").style.display = "inline-block";
+            document.getElementById("yamlValidationBtn").style.display = "none";
+            isJsonDetected = true; 
+        } catch {
+        if (isYamlFormat(content)) {
+            document.getElementById("jsonValidationBtn").style.display = "none";
+            document.getElementById("yamlValidationBtn").style.display = "inline-block";
+        } else {
+            document.getElementById("jsonValidationBtn").style.display = "none";
+            document.getElementById("yamlValidationBtn").style.display = "none";
+            }
+        }
+    }
+
+    function isYamlFormat(content) {
+            const yamlPattern = /^(---|\w+:\s)/m;
+            return yamlPattern.test(content);
+    }
+
+    function validateJsonSyntax() {
+            const content = aceEditorInstance.getValue();
+            let annotations = [];
+        try {
+            JSON.parse(content);
+            alert("JSON syntax is correct");
+        } catch (e) {
+            const line = e.lineNumber ? e.lineNumber - 1 : 0;
+            annotations.push({
+            row: line,
+            column: 0,
+            text: e.message,
+            type: "error"
+        });
+        aceEditorInstance.session.setAnnotations(annotations);
+        alert("JSON syntax error: " + e.message);
+        }
+    }
+
+    function validateYamlSyntax() {
+            const content = aceEditorInstance.getValue();
+            let annotations = [];
+        try {
+            jsyaml.load(content); 
+            alert("YAML syntax is correct");
+        } catch (e) {
+            const line = e.mark ? e.mark.line : 0;
+            annotations.push({
+            row: line,
+            column: 0,
+            text: e.message,
+            type: "error"
+        });
+        aceEditorInstance.session.setAnnotations(annotations);
+        alert("YAML syntax error: " + e.message);
+        }
+    }
+
+    function formatContent() {
+        const content = aceEditorInstance.getValue();
+        const mode = aceEditorInstance.session.$modeId;
+        let formattedContent;
+
+        try {
+            if (mode === "ace/mode/json") {
+                formattedContent = JSON.stringify(JSON.parse(content), null, 4);
+                aceEditorInstance.setValue(formattedContent, -1);
+                alert("JSON formatted successfully");
+            } else if (mode === "ace/mode/javascript") {
+                formattedContent = js_beautify(content, { indent_size: 4 });
+                aceEditorInstance.setValue(formattedContent, -1);
+                alert("JavaScript formatted successfully");
+            } else {
+                alert("Current mode does not support formatting indentation");
+            }
+        } catch (e) {
+            alert("Formatting error: " + e.message);
+        }
+    }
+
+    function openEditModal(fileName, fileType) {
+        document.getElementById('editingFileName').textContent = fileName;
+        document.getElementById('hiddenFileName').value = fileName;
+        document.getElementById('hiddenFileType').value = fileType;
+
+        fetch(`?editFile=${encodeURIComponent(fileName)}&fileType=${fileType}`)
+            .then(response => response.text())
+            .then(data => {
+                document.getElementById('fileContent').value = data; 
+                $('#editModal').modal('show');
+            })
+            .catch(error => console.error('Failed to retrieve file content:', error));
+    }
+
+    function syncEditorContent() {
+        document.getElementById('fileContent').value = document.getElementById('fileContent').value;
+    }
+
+    function updateEditorStatus() {
+        const cursor = aceEditorInstance.getCursorPosition();
+        const line = cursor.row + 1;
+        const column = cursor.column + 1;
+        const charCount = aceEditorInstance.getValue().length;
+
+        document.getElementById('lineColumnDisplay').textContent = `Line: ${line}, Column: ${column}`;
+        document.getElementById('charCountDisplay').textContent = `Character Count: ${charCount}`;
+    }
+
+    $(document).ready(function() {
+        initializeAceEditor();
+    });
+
+    document.addEventListener("DOMContentLoaded", function() {
+        const renameButtons = document.querySelectorAll(".btn-rename");
+        renameButtons.forEach(button => {
+            button.addEventListener("click", function() {
+                const oldFileName = this.getAttribute("data-filename");
+                const fileType = this.getAttribute("data-filetype");
+                document.getElementById("oldFileName").value = oldFileName;
+                document.getElementById("fileType").value = fileType;
+                document.getElementById("newFileName").value = oldFileName;
+                $('#renameModal').modal('show');
+            });
+        });
+    });
+
+    function toggleFullscreen() {
+        const modal = document.getElementById('fullScreenEditorModal');
+    
+        if (!document.fullscreenElement) {
+            modal.requestFullscreen()
+                .then(() => {
+                    document.getElementById('toggleFullscreenBtn').textContent = 'Exit Fullscreen';
+                })
+                .catch((err) => console.error(`Error attempting to enable full-screen mode: ${err.message}`));
+        } else {
+            document.exitFullscreen()
+                .then(() => {
+                    document.getElementById('toggleFullscreenBtn').textContent = 'Fullscreen';
+                })
+                .catch((err) => console.error(`Error attempting to exit full-screen mode: ${err.message}`));
+            }
+       }
+</script>
   <h2 class="text-success text-center mt-4 mb-4">Subscription Management</h2>
 <?php if (isset($message) && $message): ?>
     <div class="alert alert-info">
@@ -943,12 +1168,6 @@ function showUpdateAlert() {
     </form>
 </section>
 
-<script src="./assets/bootstrap/jquery-3.5.1.slim.min.js"></script>
-<script src="./assets/bootstrap/popper.min.js"></script>
-<script src="./assets/bootstrap/bootstrap.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.4.12/ace.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/js-yaml/4.1.0/js-yaml.min.js"></script>
-
 <script>
     document.getElementById('pasteButton').onclick = function() {
         window.open('https://paste.gg', '_blank');
@@ -958,239 +1177,21 @@ function showUpdateAlert() {
     }
 </script>
 
-<script>
-    $('#renameModal').on('show.bs.modal', function (event) {
-        var button = $(event.relatedTarget); 
-        var oldFileName = button.data('filename'); 
-        var fileType = button.data('filetype');
-        var modal = $(this);
-        modal.find('#oldFileName').val(oldFileName); 
-        modal.find('#fileType').val(fileType);
-        modal.find('#newFileName').val(oldFileName); 
-    });
-</script>
-
-<script>
-    function closeEditor() {
-        window.location.href = window.location.href; 
-    }
-
-    var aceEditor = ace.edit("aceEditorContainer");
-    aceEditor.setTheme("ace/theme/monokai");
-    aceEditor.session.setMode("ace/mode/yaml");
-
-    function setDefaultFontSize() {
-        var defaultFontSize = '20px';
-        document.getElementById('basicEditor').style.fontSize = defaultFontSize;
-        aceEditor.setFontSize(defaultFontSize);
-    }
-
-    document.addEventListener('DOMContentLoaded', setDefaultFontSize);
-
-    aceEditor.setValue(document.getElementById('basicEditor').value);
-
-    aceEditor.session.on('change', function() {
-        try {
-            jsyaml.load(aceEditor.getValue());
-            hideErrorPopup();
-        } catch (e) {
-            var errorLine = e.mark ? e.mark.line + 1 : 'unknown';
-            showErrorPopup('YAML syntax error (line ' + errorLine + '): ' + e.message);
-        }
-    });
-
-    document.getElementById('toggleBasicEditor').addEventListener('click', function() {
-        document.getElementById('basicEditor').classList.remove('d-none');
-        document.getElementById('aceEditorContainer').classList.add('d-none');
-        document.getElementById('fontSizeContainer').classList.remove('d-none'); 
-    });
-
-    document.getElementById('toggleAceEditor').addEventListener('click', function() {
-        document.getElementById('basicEditor').classList.add('d-none');
-        document.getElementById('aceEditorContainer').classList.remove('d-none');
-        document.getElementById('fontSizeContainer').classList.remove('d-none'); 
-        aceEditor.setValue(document.getElementById('basicEditor').value); 
-    });
-
-    document.getElementById('toggleFullScreenEditor').addEventListener('click', function() {
-        var editorContainer = document.getElementById('aceEditorContainer');
-        if (!document.fullscreenElement) {
-            editorContainer.requestFullscreen().then(function() {
-                aceEditor.resize();
-                enableFullScreenMode();
-            });
-        } else {
-            document.exitFullscreen().then(function() {
-                aceEditor.resize();
-                disableFullScreenMode();
-            });
-        }
-    });
-
-    function syncEditorContent() {
-        if (!document.getElementById('basicEditor').classList.contains('d-none')) {
-            aceEditor.setValue(document.getElementById('basicEditor').value); 
-        } else {
-            document.getElementById('basicEditor').value = aceEditor.getValue(); 
-        }
-    }
-
-    document.getElementById('fontSizeSelector').addEventListener('change', function() {
-        var newFontSize = this.value;
-        aceEditor.setFontSize(newFontSize);
-        document.getElementById('basicEditor').style.fontSize = newFontSize;
-    });
-
-    function enableFullScreenMode() {
-        document.getElementById('aceEditorContainer').classList.add('fullscreen');
-        document.getElementById('aceEditorError').classList.add('fullscreen-popup');
-        document.getElementById('fullscreenCancelButton').classList.remove('d-none');
-    }
-
-    function disableFullScreenMode() {
-        document.getElementById('aceEditorContainer').classList.remove('fullscreen');
-        document.getElementById('aceEditorError').classList.remove('fullscreen-popup');
-        document.getElementById('fullscreenCancelButton').classList.add('d-none');
-    }
-
-    function showErrorPopup(message) {
-        var errorPopup = document.getElementById('aceEditorError');
-        var errorMessage = document.getElementById('aceEditorErrorMessage');
-        errorMessage.innerText = message;
-        errorPopup.classList.remove('d-none');
-    }
-
-    function hideErrorPopup() {
-        var errorPopup = document.getElementById('aceEditorError');
-        errorPopup.classList.add('d-none');
-    }
-
-    document.getElementById('closeErrorPopup').addEventListener('click', function() {
-        hideErrorPopup();
-    });
-
-
-    (function() {
-        const resizable = document.querySelector('.resizable');
-        if (!resizable) return;
-        
-        const handle = document.createElement('div');
-        handle.className = 'resize-handle';
-        resizable.appendChild(handle);
-
-        handle.addEventListener('mousedown', function(e) {
-            e.preventDefault();
-            document.addEventListener('mousemove', onMouseMove);
-            document.addEventListener('mouseup', onMouseUp);
-        });
-
-        function onMouseMove(e) {
-            resizable.style.width = e.clientX - resizable.getBoundingClientRect().left + 'px';
-            resizable.style.height = e.clientY - resizable.getBoundingClientRect().top + 'px';
-            aceEditor.resize();
-        }
-
-        function onMouseUp() {
-            document.removeEventListener('mousemove', onMouseMove);
-            document.removeEventListener('mouseup', onMouseUp);
-        }
-    })();
-</script>
-
 <style>
-    .btn--warning {
-        background-color: #ff9800;
-        color: white !important; 
-        border: none; 
-        padding: 10px 20px; 
-        border-radius: 5px; 
-        cursor: pointer; 
-        font-family: Arial, sans-serif; 
-        font-weight: bold; 
-    }
-
-    .resizable {
-        position: relative;
-        overflow: hidden;
-    }
-
-    .resizable .resize-handle {
-        width: 10px;
-        height: 10px;
-        background: #ddd;
-        position: absolute;
-        bottom: 0;
-        right: 0;
-        cursor: nwse-resize;
-        z-index: 10;
-    }
-
-    .fullscreen {
-        position: fixed;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        z-index: 9999;
-        background-color: #1a1a1a;
-    }
-
-    #aceEditorError {
-        color: red;
-        font-weight: bold;
-        margin-top: 10px;
-    }
-
-    .fullscreen-popup {
-        position: fixed;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        background: rgba(0, 0, 0, 0.8);
-        color: white;
+    .btn-group {
         display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 18px;
-        z-index: 9999;
+        gap: 10px; 
+        justify-content: center; 
+    }
+    .btn {
+        margin: 0; 
     }
 
-    .close-fullscreen {
-        position: fixed;
-        top: 10px;
-        right: 10px;
-        z-index: 10000;
-        background-color: red;
-        color: white;
-        border: none;
-        border-radius: 50%;
-        width: 40px;
-        height: 40px;
-        font-size: 24px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        cursor: pointer;
+    .table-dark {
+        background-color: #6f42c1; 
+        color: white; 
     }
-
-    #aceEditorError button {
-        margin-top: 10px;
-        padding: 5px 10px;
-        background-color: #ff6666;
-        border: none;
-        cursor: pointer;
-    }
-
-    textarea.editor {
-        font-size: 20px;
-        width: 100%; 
-        height: 400px; 
-        resize: both; 
-    }
-    .ace_editor {
-        font-size: 20px;
+    .table-dark th, .table-dark td {
+        background-color: #5a32a3; 
     }
 </style>
-</body>
-</html> 
