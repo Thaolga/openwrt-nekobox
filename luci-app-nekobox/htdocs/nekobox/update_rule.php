@@ -68,10 +68,16 @@ function parallelDownload($urls, $retries, $maxConnections) {
     $handles = [];
     $failedUrls = [];
     
-    global $downloadedFiles; 
+    global $downloadedFiles;
+
     foreach ($urls as $url => $path) {
         if (in_array($path, $downloadedFiles)) {
             continue;
+        }
+
+        $dir = dirname($path);
+        if (!is_dir($dir)) {
+            mkdir($dir, 0755, true);
         }
 
         $ch = curl_init();
@@ -80,7 +86,10 @@ function parallelDownload($urls, $retries, $maxConnections) {
         curl_setopt($ch, CURLOPT_FAILONERROR, true);
         curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
         curl_setopt($ch, CURLOPT_WRITEFUNCTION, function($curl, $data) use ($path) {
-            $fp = fopen($path, 'a');
+            $fp = fopen($path, 'a'); 
+            if ($fp === false) {
+                return -1; 
+            }
             fwrite($fp, $data);
             fclose($fp);
             return strlen($data);
