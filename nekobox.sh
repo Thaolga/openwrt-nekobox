@@ -346,7 +346,7 @@ download_ruleset() {
 
     echo "正在解压规则集到 $extract_dir..."
     mkdir -p "$extract_dir"
-    unzip -o -j "$temp_file" -d "$extract_dir"
+    unzip -o "$temp_file" -d "$extract_dir"
     if [ $? -ne 0 ]; then
         echo -e "${RED}解压失败！${NC}"
         exit 1
@@ -355,6 +355,7 @@ download_ruleset() {
     echo "规则集下载和解压完成！"
     rm -f "$temp_file"
 }
+
 install_ui() {
     GREEN='\033[0;32m'
     RED='\033[0;31m'
