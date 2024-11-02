@@ -202,6 +202,20 @@ $lang = $_GET['lang'] ?? 'en';
    transform: scale(1.1);
 }
 
+.ping-status {
+    text-align: center;
+    margin: 10px 0;
+    padding: 5px;
+}
+#ping-result {
+    margin: 0;
+    color: #666;
+    font-size: 14px;
+}
+.site-icon {
+    cursor: pointer;
+}
+
 @media (max-width: 768px) {
    .cbi-section {
        padding: 0 10px;
@@ -295,23 +309,26 @@ $lang = $_GET['lang'] ?? 'en';
                     <p id="d-ip" class="ip-address">Checking...</p>
                     <p id="ipip" class="info"></p>
                 </div>
-            </div>          
+            </div>  
+                <div class="ping-status">
+                    <p id="ping-result"></p>
+                </div>         
             <div class="status-icons">
                 <div class="site-icon">
-                    <img src="./assets/neko/img/site_icon_01.png" id="baidu-normal" class="status-icon" style="display: none;">
-                    <img src="./assets/neko/img/site_icon1_01.png" id="baidu-gray" class="status-icon">
+                    <img src="./assets/neko/img/site_icon_01.png" id="baidu-normal" class="status-icon" style="display: none;" onclick="pingHost('baidu', 'Baidu')">
+                    <img src="./assets/neko/img/site_icon1_01.png" id="baidu-gray" class="status-icon" onclick="pingHost('baidu', 'Baidu')">
                 </div>
                 <div class="site-icon">
-                    <img src="./assets/neko/img/site_icon_02.png" id="taobao-normal" class="status-icon" style="display: none;">
-                    <img src="./assets/neko/img/site_icon1_02.png" id="taobao-gray" class="status-icon">
+                    <img src="./assets/neko/img/site_icon_02.png" id="taobao-normal" class="status-icon" style="display: none;" onclick="pingHost('taobao', '淘宝')">
+                    <img src="./assets/neko/img/site_icon1_02.png" id="taobao-gray" class="status-icon" onclick="pingHost('taobao', '淘宝')">
                 </div>
                 <div class="site-icon">
-                    <img src="./assets/neko/img/site_icon_03.png" id="google-normal" class="status-icon" style="display: none;">
-                    <img src="./assets/neko/img/site_icon1_03.png" id="google-gray" class="status-icon">
+                    <img src="./assets/neko/img/site_icon_03.png" id="google-normal" class="status-icon" style="display: none;" onclick="pingHost('google', 'Google')">
+                    <img src="./assets/neko/img/site_icon1_03.png" id="google-gray" class="status-icon" onclick="pingHost('google', 'Google')">
                 </div>
                 <div class="site-icon">
-                    <img src="./assets/neko/img/site_icon_04.png" id="youtube-normal" class="status-icon" style="display: none;">
-                    <img src="./assets/neko/img/site_icon1_04.png" id="youtube-gray" class="status-icon">
+                    <img src="./assets/neko/img/site_icon_04.png" id="youtube-normal" class="status-icon" style="display: none;" onclick="pingHost('youtube', 'YouTube')">
+                    <img src="./assets/neko/img/site_icon1_04.png" id="youtube-gray" class="status-icon" onclick="pingHost('youtube', 'YouTube')">
                 </div>
             </div>
         </div>
@@ -350,6 +367,28 @@ $lang = $_GET['lang'] ?? 'en';
             }
         }
     };
+
+    async function pingHost(site, siteName) {
+        const url = checkSiteStatus.sites[site];
+        const resultElement = document.getElementById('ping-result');
+    
+        try {
+            resultElement.innerHTML = `正在测试 ${siteName} 的连接延迟...`;
+            resultElement.style.color = '#666';        
+            const startTime = performance.now();
+            await fetch(url, {
+                mode: 'no-cors',
+                cache: 'no-cache'
+            });
+            const endTime = performance.now();
+            const pingTime = Math.round(endTime - startTime);      
+            resultElement.innerHTML = `<span style="font-size: 20px">${siteName} 连接延迟: ${pingTime}ms</span>`;
+            resultElement.style.color = pingTime > 200 ? '#ff6b6b' : '#20c997';
+        } catch (error) {
+            resultElement.innerHTML = `${siteName} 连接超时`;
+            resultElement.style.color = '#ff6b6b';
+        }
+    }
 
     let IP = {
         fetchIP: async () => {
