@@ -173,10 +173,16 @@ $lang = $_GET['lang'] ?? 'en';
    }
 
    .info {
-       color: #fb6340;
        font-style: italic;
-       font-size: 1rem;
+       color: #fb6340;
+       font-weight: 520; 
+       font-size: 1.1rem;
        margin: 0;
+       letter-spacing: 0.02em; 
+       font-style: normal; 
+       -webkit-font-smoothing: antialiased;
+       -moz-osx-font-smoothing: grayscale;
+       text-rendering: optimizeLegibility;
    }
 
    .site-status {
