@@ -216,6 +216,10 @@ $lang = $_GET['lang'] ?? 'en';
     cursor: pointer;
 }
 
+#flag {
+    cursor: pointer;  
+}
+
 @media (max-width: 768px) {
    .cbi-section {
        padding: 0 10px;
@@ -303,7 +307,7 @@ $lang = $_GET['lang'] ?? 'en';
         <div class="status">
             <div class="site-status">
                 <div class="img-con">
-                    <img src="./assets/neko/img/loading.svg" id="flag" class="pure-img" title="国旗">
+                    <img src="./assets/neko/img/loading.svg" id="flag" class="pure-img" title="国旗" onclick="IP.getIpipnetIP()">
                 </div>
                 <div class="block">
                     <p id="d-ip" class="ip-address">Checking...</p>
@@ -391,6 +395,7 @@ $lang = $_GET['lang'] ?? 'en';
     }
 
     let IP = {
+        isRefreshing: false,
         fetchIP: async () => {
             try {
                 const [ipifyResp, ipsbResp] = await Promise.all([
@@ -407,8 +412,12 @@ $lang = $_GET['lang'] ?? 'en';
                 throw error;
             }
         },
+
         get: (url, type) =>
-            fetch(url, { method: 'GET' }).then((resp) => {
+            fetch(url, { 
+                method: 'GET',
+                cache: 'no-store'
+            }).then((resp) => {
                 if (type === 'text')
                     return Promise.all([resp.ok, resp.status, resp.text(), resp.headers]);
                 else
@@ -423,21 +432,18 @@ $lang = $_GET['lang'] ?? 'en';
                 console.error("Error fetching data:", error);
                 throw error;
             }),
+
         Ipip: async (ip, elID) => {
-            if (ip === cachedIP && cachedInfo) {
-                console.log("Using cached IP info");
-                IP.updateUI(cachedInfo, elID);
-            } else {
-                try {
-                    const resp = await IP.get(`https://api.ip.sb/geoip/${ip}`, 'json');
-                    cachedIP = ip;
-                    cachedInfo = resp.data;
-                    IP.updateUI(resp.data, elID);
-                } catch (error) {
-                    console.error("Error in Ipip function:", error);
-                }
+            try {
+                const resp = await IP.get(`https://api.ip.sb/geoip/${ip}`, 'json');
+                cachedIP = ip;
+                cachedInfo = resp.data;
+                IP.updateUI(resp.data, elID);
+            } catch (error) {
+                console.error("Error in Ipip function:", error);
             }
         },
+
         updateUI: (data, elID) => {
             let country = translate[data.country] || data.country;
             let isp = translate[data.isp] || data.isp;
@@ -452,20 +458,30 @@ $lang = $_GET['lang'] ?? 'en';
             $("#flag").attr("src", _IMG + "flags/" + countryAbbr + ".png");
             document.getElementById(elID).style.color = '#FF00FF';
         },
+
         getIpipnetIP: async () => {
+            if(IP.isRefreshing) return;
+        
             try {
+                IP.isRefreshing = true;
+                document.getElementById('d-ip').innerHTML = "Checking...";
+                document.getElementById('ipip').innerHTML = "Loading...";
+                $("#flag").attr("src", _IMG + "img/loading.svg");
+            
                 const ip = await IP.fetchIP();
                 await IP.Ipip(ip, 'ipip');
             } catch (error) {
                 console.error("Error in getIpipnetIP function:", error);
+            } finally {
+                IP.isRefreshing = false;
             }
         }
     };
 
     IP.getIpipnetIP();
     checkSiteStatus.check();
-    setInterval(IP.getIpipnetIP, 5000);
-    setInterval(() => checkSiteStatus.check(), 30000);
+    setInterval(() => checkSiteStatus.check(), 30000);  
+    setInterval(IP.getIpipnetIP, 180000);  
 </script>
 </body>
 </html>
