@@ -186,10 +186,13 @@ $uiVersion = getUiVersion();
                </div>
                <div class="modal-body text-center"> 
                    <pre id="logOutput" style="white-space: pre-wrap; word-wrap: break-word; text-align: left; display: inline-block;">开始下载更新...</pre>
+                <div class="alert alert-info mt-3" role="alert">
+                    提示: 如遇到更新失败，请在终端输入 <code>nokobox</code> 进行更新！
                </div>
            </div>
        </div>
    </div>
+</div>
 <div id="logOutput" class="mt-3"></div>
 
 <style>
