@@ -1,4 +1,6 @@
 <?php
+ob_start();
+include './cfg.php';
 $translate = [
     'United States' => '美国',
     'China' => '中国',
@@ -116,343 +118,396 @@ $lang = $_GET['lang'] ?? 'en';
     <link rel="preconnect" href="https://qqwry.api.skk.moe">
     <link rel="preconnect" href="https://d.skk.moe">
 <style>
-   body {
-       font-family: 'Montserrat', sans-serif;
-       line-height: 1.6;
-   }
-   
-   .cbi-section {
-       position: fixed;
-       bottom: 60px;
-       left: 50%;
-       transform: translateX(-50%);
-       width: 100%;
-       max-width: 1300px;
-       margin: 0 auto;
-       padding: 0 15px;
-       z-index: 1030;
-   }
+.img-con {
+ width: 55px;  
+ height: 55px; 
+ display: flex;
+ justify-content: center; 
+ align-items: center;     
+ overflow: visible; 
+}
 
-   .status {
-       display: flex;
-       align-items: center;
-       justify-content: space-between;
-       background-color: #E6E6FA;
-       color: var(--bs-btn-color);
-       text-align: left;
-       border-radius: 8px;
-       height: 65px;
-       letter-spacing: 0.5px;
-       box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-       padding: 0 30px;
-       width: 100%;
-   }
+#flag {
+ width: auto;
+ height: auto;
+ max-width: 100%;
+ max-height: 100%;  
+}
 
-   .img-con {
-       margin-right: 1.5rem;
-   }
+.status-icon {
+ width: auto;
+ height: auto;
+ max-width: 50px;
+ max-height: 50px;
+}
 
-   .img-con img {
-       width: 65px;
-       height: auto;
-       border-radius: 5px; 
-   }
+.container-sm.container-bg.callout.border {
+ padding-top: 0.5rem;
+ padding-bottom: 0.5rem;
+}
 
-   .block {
-       display: flex;
-       flex-direction: column;
-       justify-content: center;
-       min-width: 200px;
-   }
+.row.align-items-center {
+ display: flex;
+ justify-content: space-between;
+ align-items: center;
+}
 
-   .ip-address {
-       color: #2dce89;
-       font-weight: bold;
-       font-size: 1.1rem;
-       margin: 0;
-   }
+.col.text-center {
+  position: static; 
+  left: auto;
+  transform: none;
+}
 
-   .info {
-       font-style: italic;
-       color: #fb6340;
-       font-weight: 520; 
-       font-size: 1.1rem;
-       margin: 0;
-       letter-spacing: 0.02em; 
-       font-style: normal; 
-       -webkit-font-smoothing: antialiased;
-       -moz-osx-font-smoothing: grayscale;
-       text-rendering: optimizeLegibility;
-   }
+.container-sm .row .col-4 {
+  position: static !important;
+  order: 2 !important; 
+  width: 100% !important;
+  padding-left: 54px !important;
+  margin-top: 5px !important;
+  text-align: left !important;
+}
 
-   .site-status {
-       display: flex;
-       align-items: center;
-       min-width: 300px;
-   }
+#ping-result {
+  font-size: 18px !important;
+  margin: 0 !important;
+  white-space: nowrap !important;
+  font-weight: bold !important;
+  text-align: left !important;
+}
 
-   .status-icons {
-       display: flex;
-       align-items: center;
-       gap: 25px;
-       margin-left: auto;
-       height: 100%;
-   }
+#d-ip {
+  color: #09B63F;
+  font-weight: 700 !important;
+}
 
-   .site-icon {
-       display: flex;
-       align-items: center;
-       height: 100%;
-   }
+.info.small {
+ color: #ff69b4;
+ font-weight: 600;
+ white-space: nowrap;
+}
 
-   .status-icon {
-       width: auto;
-       height: 48px;
-       max-height: 48px;
-       cursor: pointer;
-       transition: all 0.3s ease;
-       object-fit: contain;
-       vertical-align: middle;
-   }
+.site-icon, .img-con {
+ cursor: pointer !important;
+ transition: all 0.2s ease !important;
+ position: relative !important;
+ user-select: none !important;
+}
 
-   .status-icon:hover {
-       transform: scale(1.1);
-   }
+.site-icon:hover, .img-con:hover {
+ transform: translateY(-2px) !important;
+}
 
-   .ping-status {
-       flex-grow: 1;
-       text-align: center;
-       margin: 0 20px;
-   }
+.site-icon:active, .img-con:active {
+ transform: translateY(1px) !important;
+ opacity: 0.8 !important;
+}
 
-   #ping-result {
-       margin: 0;
-       color: #666;
-       font-size: 14px;
-   }
+@media (min-width: 769px) and (max-width: 1024px) {
+ .container-sm.container-bg.callout.border {
+   width: 100% !important;
+ }
+ 
+ .row.align-items-center {
+   display: flex !important;
+   flex-wrap: wrap !important;
+   width: 100% !important;
+   gap: 8px !important;
+ }
+ 
+ .col-auto {
+   flex: 0 0 30px !important;
+   width: 30px !important;
+   min-width: 30px !important;
+ }
+ 
+ .img-con, #flag {
+   width: 30px !important;
+   height: 30px !important;
+   object-fit: contain !important;
+ }
+ 
+ .col-3 {
+   flex: 1 1 auto !important;
+   width: auto !important;
+   min-width: 0 !important;
+ }
+ 
+ #d-ip, .info.small {
+   font-size: 14px !important;
+   margin: 0 !important;
+   overflow: hidden !important;
+   text-overflow: ellipsis !important;
+   white-space: nowrap !important;
+ }
+ 
+ .col-4 {
+   flex: 0 1 auto !important;
+   padding: 0 !important;
+   order: 3 !important;
+ }
+ 
+ #ping-result {
+   font-size: 14px !important;
+   margin: 0 !important;
+ }
+ 
+ .status-icons {
+   display: flex !important;
+   flex: 0 0 auto !important;
+   margin-left: auto !important;
+   order: 2 !important;
+ }
+ 
+ .status-icon {
+   width: 30px !important;
+   height: 30px !important;
+   object-fit: contain !important;
+ }
+}
 
-   .site-icon {
-       cursor: pointer;
-   }
-
-   #flag {
-       cursor: pointer;  
-   }
-
-   @media screen and (max-width: 480px) {
-       .status-icons {
-           gap: 4px;
-       }
-       
-       .status-icon {
-           width: 24px;
-           height: 24px;  
-       }
-
-       .status {  
-           padding: 0 8px;
-           height: auto;
-           margin-bottom: 4px;
-       }
-
-       .img-con img {
-           width: 32px;
-       }
-
-       .ip-address {
-           font-size: 0.5rem;
-       }
-       
-       .info {
-           font-size: 0.7rem;
-       }
-
-       .ping-status {
-           margin-top: 0;
-       }
-   }
+@media screen and (max-width: 768px) {
+  #status-bar-component {
+    display: none !important;
+  }
+}
 </style>
-
 <?php if (in_array($lang, ['zh-cn', 'en', 'auto'])): ?>
-    <fieldset class="cbi-section">
-        <div class="status">
-            <div class="site-status">
+    <div id="status-bar-component" class="container-sm container-bg callout border">
+        <div class="row align-items-center">
+            <div class="col-auto">
                 <div class="img-con">
-                    <img src="./assets/neko/img/loading.svg" id="flag" class="pure-img" title="国旗" onclick="IP.getIpipnetIP()">
+                    <img src="./assets/neko/img/loading.svg" id="flag" title="国旗" onclick="IP.getIpipnetIP()">
                 </div>
-                <div class="block">
-                    <p id="d-ip" class="ip-address">Checking...</p>
-                    <p id="ipip" class="info"></p>
-                </div>
-            </div>  
-                <div class="ping-status">
-                    <p id="ping-result"></p>
-                </div>         
-            <div class="status-icons">
-                <div class="site-icon">
-                    <img src="./assets/neko/img/site_icon_01.png" id="baidu-normal" class="status-icon" style="display: none;" onclick="pingHost('baidu', 'Baidu')">
-                    <img src="./assets/neko/img/site_icon1_01.png" id="baidu-gray" class="status-icon" onclick="pingHost('baidu', 'Baidu')">
-                </div>
-                <div class="site-icon">
-                    <img src="./assets/neko/img/site_icon_02.png" id="taobao-normal" class="status-icon" style="display: none;" onclick="pingHost('taobao', '淘宝')">
-                    <img src="./assets/neko/img/site_icon1_02.png" id="taobao-gray" class="status-icon" onclick="pingHost('taobao', '淘宝')">
-                </div>
-                <div class="site-icon">
-                    <img src="./assets/neko/img/site_icon_03.png" id="google-normal" class="status-icon" style="display: none;" onclick="pingHost('google', 'Google')">
-                    <img src="./assets/neko/img/site_icon1_03.png" id="google-gray" class="status-icon" onclick="pingHost('google', 'Google')">
-                </div>
-                <div class="site-icon">
-                    <img src="./assets/neko/img/site_icon_04.png" id="youtube-normal" class="status-icon" style="display: none;" onclick="pingHost('youtube', 'YouTube')">
-                    <img src="./assets/neko/img/site_icon1_04.png" id="youtube-gray" class="status-icon" onclick="pingHost('youtube', 'YouTube')">
+            </div>
+            <div class="col-3">
+                <p id="d-ip" class="ip-address mb-0">Checking...</p>
+                <p id="ipip" class="info small mb-0"></p>
+            </div>
+            <div class="col-4 d-flex justify-content-center">
+                <p id="ping-result" class="mb-0"></p>
+            </div>
+            <div class="col-auto ms-auto">
+                <div class="status-icons d-flex">
+                    <div class="site-icon mx-1" onclick="pingHost('baidu', 'Baidu')">
+                        <img src="./assets/neko/img/site_icon_01.png" id="baidu-normal" class="status-icon" style="display: none;">
+                        <img src="./assets/neko/img/site_icon1_01.png" id="baidu-gray" class="status-icon">
+                    </div>
+                    <div class="site-icon mx-1" onclick="pingHost('taobao', '淘宝')">
+                        <img src="./assets/neko/img/site_icon_02.png" id="taobao-normal" class="status-icon" style="display: none;">
+                        <img src="./assets/neko/img/site_icon1_02.png" id="taobao-gray" class="status-icon">
+                    </div>
+                    <div class="site-icon mx-1" onclick="pingHost('google', 'Google')">
+                        <img src="./assets/neko/img/site_icon_03.png" id="google-normal" class="status-icon" style="display: none;">
+                        <img src="./assets/neko/img/site_icon1_03.png" id="google-gray" class="status-icon">
+                    </div>
+                    <div class="site-icon mx-1" onclick="pingHost('youtube', 'YouTube')">
+                        <img src="./assets/neko/img/site_icon_04.png" id="youtube-normal" class="status-icon" style="display: none;">
+                        <img src="./assets/neko/img/site_icon1_04.png" id="youtube-gray" class="status-icon">
+                    </div>
                 </div>
             </div>
         </div>
-    </fieldset>
+    </div>
 <?php endif; ?>
 <script src="./assets/neko/js/jquery.min.js"></script>
 <script type="text/javascript">
-    const _IMG = './assets/neko/';
-    const translate = <?php echo json_encode($translate, JSON_UNESCAPED_UNICODE); ?>;
-    let cachedIP = null;
-    let cachedInfo = null;
-    let random = parseInt(Math.random() * 100000000);
+const _IMG = './assets/neko/';
+const translate = <?php echo json_encode($translate, JSON_UNESCAPED_UNICODE); ?>;
+let cachedIP = null;
+let cachedInfo = null;
+let random = parseInt(Math.random() * 100000000);
 
-    const checkSiteStatus = {
-        sites: {
-            baidu: 'https://www.baidu.com',
-            taobao: 'https://www.taobao.com',
-            google: 'https://www.google.com',
-            youtube: 'https://www.youtube.com'
-        },
-        
-        check: async function() {
-            for (let [site, url] of Object.entries(this.sites)) {
-                try {
-                    const response = await fetch(url, {
-                        mode: 'no-cors',
-                        cache: 'no-cache'
-                    });
-                    
-                    document.getElementById(`${site}-normal`).style.display = 'inline';
-                    document.getElementById(`${site}-gray`).style.display = 'none';
-                } catch (error) {
-                    document.getElementById(`${site}-normal`).style.display = 'none';
-                    document.getElementById(`${site}-gray`).style.display = 'inline';
-                }
-            }
-        }
-    };
-
-    async function pingHost(site, siteName) {
-        const url = checkSiteStatus.sites[site];
-        const resultElement = document.getElementById('ping-result');
+const checkSiteStatus = {
+    sites: {
+        baidu: 'https://www.baidu.com',
+        taobao: 'https://www.taobao.com',
+        google: 'https://www.google.com',
+        youtube: 'https://www.youtube.com'
+    },
     
-        try {
-            resultElement.innerHTML = `<span style="font-size: 20px">正在测试 ${siteName} 的连接延迟...`;
-            resultElement.style.color = '#666';        
-            const startTime = performance.now();
-            await fetch(url, {
-                mode: 'no-cors',
-                cache: 'no-cache'
-            });
-            const endTime = performance.now();
-            const pingTime = Math.round(endTime - startTime);      
-            resultElement.innerHTML = `<span style="font-size: 20px">${siteName} 连接延迟: ${pingTime}ms</span>`;
-            resultElement.style.color = pingTime > 200 ? '#ff6b6b' : '#20c997';
-        } catch (error) {
-            resultElement.innerHTML = `${siteName} 连接超时`;
-            resultElement.style.color = '#ff6b6b';
+    check: async function() {
+        for (let [site, url] of Object.entries(this.sites)) {
+            try {
+                const response = await fetch(url, {
+                    mode: 'no-cors',
+                    cache: 'no-cache'
+                });
+                
+                document.getElementById(`${site}-normal`).style.display = 'inline';
+                document.getElementById(`${site}-gray`).style.display = 'none';
+            } catch (error) {
+                document.getElementById(`${site}-normal`).style.display = 'none';
+                document.getElementById(`${site}-gray`).style.display = 'inline';
+            }
         }
     }
+};
 
-    let IP = {
-        isRefreshing: false,
-        fetchIP: async () => {
-            try {
-                const [ipifyResp, ipsbResp] = await Promise.all([
-                    IP.get('https://api.ipify.org?format=json', 'json'),
-                    IP.get('https://api-ipv4.ip.sb/geoip', 'json')
-                ]);
+async function pingHost(site, siteName) {
+    const url = checkSiteStatus.sites[site];
+    const resultElement = document.getElementById('ping-result');
 
-                const ipData = ipifyResp.data.ip || ipsbResp.data.ip;
-                cachedIP = ipData;
-                document.getElementById('d-ip').innerHTML = ipData;
-                return ipData;
-            } catch (error) {
-                console.error("Error fetching IP:", error);
-                throw error;
+    try {
+        resultElement.innerHTML = `<span style="font-size: 18px">正在测试 ${siteName} 的连接延迟...`;
+        resultElement.style.color = '#87CEFA';        
+        const startTime = performance.now();
+        await fetch(url, {
+            mode: 'no-cors',
+            cache: 'no-cache'
+        });
+        const endTime = performance.now();
+        const pingTime = Math.round(endTime - startTime);      
+        resultElement.innerHTML = `<span style="font-size: 18px">${siteName} 连接延迟: ${pingTime}ms</span>`;
+        if(pingTime <= 100) {
+                resultElement.style.color = '#09B63F'; 
+        } else if(pingTime <= 200) {
+                resultElement.style.color = '#FFA500'; 
+        } else {
+                resultElement.style.color = '#ff6b6b'; 
+        }
+    } catch (error) {
+        resultElement.innerHTML = `<span style="font-size: 18px">${siteName} 连接超时`;
+        resultElement.style.color = '#ff6b6b';
+    }
+}
+
+let IP = {
+    isRefreshing: false,
+    fetchIP: async () => {
+        try {
+            const [ipifyResp, ipsbResp, chinaIpResp] = await Promise.all([
+                IP.get('https://api.ipify.org?format=json', 'json'),
+                IP.get('https://api-ipv4.ip.sb/geoip', 'json'),
+                IP.get('https://myip.ipip.net', 'text')  
+            ]);
+
+            const ipData = ipifyResp.data.ip || ipsbResp.data.ip;
+            cachedIP = ipData;
+            document.getElementById('d-ip').innerHTML = ipData;
+            return ipData;
+        } catch (error) {
+            console.error("Error fetching IP:", error);
+            throw error;
+        }
+    },
+
+    get: (url, type) =>
+        fetch(url, { 
+            method: 'GET',
+            cache: 'no-store'
+        }).then((resp) => {
+            if (type === 'text')
+                return Promise.all([resp.ok, resp.status, resp.text(), resp.headers]);
+            else
+                return Promise.all([resp.ok, resp.status, resp.json(), resp.headers]);
+        }).then(([ok, status, data, headers]) => {
+            if (ok) {
+                return { ok, status, data, headers };
+            } else {
+                throw new Error(JSON.stringify(data.error));
             }
-        },
+        }).catch(error => {
+            console.error("Error fetching data:", error);
+            throw error;
+        }),
 
-        get: (url, type) =>
-            fetch(url, { 
-                method: 'GET',
-                cache: 'no-store'
-            }).then((resp) => {
-                if (type === 'text')
-                    return Promise.all([resp.ok, resp.status, resp.text(), resp.headers]);
-                else
-                    return Promise.all([resp.ok, resp.status, resp.json(), resp.headers]);
-            }).then(([ok, status, data, headers]) => {
-                if (ok) {
-                    return { ok, status, data, headers };
-                } else {
-                    throw new Error(JSON.stringify(data.error));
+    Ipip: async (ip, elID) => {
+        try {
+            const [ipsbResp, chinaIpResp] = await Promise.all([
+                IP.get(`https://api.ip.sb/geoip/${ip}`, 'json'),
+                IP.get(`https://myip.ipip.net`, 'text')
+            ]);
+            
+            cachedIP = ip;
+            cachedInfo = ipsbResp.data;
+
+            let chinaIpInfo = null;
+            try {
+                if(chinaIpResp.data) {
+                    chinaIpInfo = chinaIpResp.data;
                 }
-            }).catch(error => {
-                console.error("Error fetching data:", error);
-                throw error;
-            }),
-
-        Ipip: async (ip, elID) => {
-            try {
-                const resp = await IP.get(`https://api.ip.sb/geoip/${ip}`, 'json');
-                cachedIP = ip;
-                cachedInfo = resp.data;
-                IP.updateUI(resp.data, elID);
-            } catch (error) {
-                console.error("Error in Ipip function:", error);
+            } catch(e) {
+                console.error("Error parsing China IP info:", e);
             }
-        },
+            
+            const mergedData = {
+                ...ipsbResp.data,
+                chinaIpInfo: chinaIpInfo
+            };
+            
+            IP.updateUI(mergedData, elID);
+        } catch (error) {
+            console.error("Error in Ipip function:", error);
+            document.getElementById(elID).innerHTML = "获取IP信息失败";
+        }
+    },
 
-        updateUI: (data, elID) => {
-            let country = translate[data.country] || data.country;
-            let isp = translate[data.isp] || data.isp;
-            let asnOrganization = translate[data.asn_organization] || data.asn_organization;
+    updateUI: (data, elID) => {
+        try {
+            if (!data || !data.country_code) {
+                document.getElementById('d-ip').innerHTML = "无法获取IP信息";
+                return;
+            }
+
+            let country = translate[data.country] || data.country || "未知";
+            let isp = translate[data.isp] || data.isp || "";
+            let asnOrganization = translate[data.asn_organization] || data.asn_organization || "";
 
             if (data.country === 'Taiwan') {
                 country = (navigator.language === 'en') ? 'China Taiwan' : '中国台湾';
             }
+
             const countryAbbr = data.country_code.toLowerCase();
-
-            document.getElementById(elID).innerHTML = `${country} ${isp} ${asnOrganization}`;
-            $("#flag").attr("src", _IMG + "flags/" + countryAbbr + ".png");
-            document.getElementById(elID).style.color = '#FF00FF';
-        },
-
-        getIpipnetIP: async () => {
-            if(IP.isRefreshing) return;
+            const isChinaIP = ['cn', 'hk', 'mo', 'tw'].includes(countryAbbr);
         
-            try {
-                IP.isRefreshing = true;
-                document.getElementById('d-ip').innerHTML = "Checking...";
-                document.getElementById('ipip').innerHTML = "Loading...";
-                $("#flag").attr("src", _IMG + "img/loading.svg");
-            
-                const ip = await IP.fetchIP();
-                await IP.Ipip(ip, 'ipip');
-            } catch (error) {
-                console.error("Error in getIpipnetIP function:", error);
-            } finally {
-                IP.isRefreshing = false;
+            let firstLineInfo = `<div style="white-space: nowrap;">`;
+        
+            firstLineInfo += cachedIP + ' ';
+        
+            let ipLocation = isChinaIP ? 
+                '<span style="color: #00FF00;">[国内 IP]</span> ' : 
+                '<span style="color: #FF0000;">[境外 IP]</span> ';
+            firstLineInfo += ipLocation;
+        
+            if (data.chinaIpInfo) {
+                firstLineInfo += `[${data.chinaIpInfo}]`;
             }
+            firstLineInfo += `</div>`;
+        
+            document.getElementById('d-ip').innerHTML = firstLineInfo;
+            document.getElementById('ipip').innerHTML = `${country} ${isp} ${asnOrganization}`;
+            document.getElementById('ipip').style.color = '#FF00FF';
+            $("#flag").attr("src", _IMG + "flags/" + countryAbbr + ".png");
+        } catch (error) {
+            console.error("Error in updateUI:", error);
+            document.getElementById('d-ip').innerHTML = "更新IP信息显示失败";
         }
-    };
+    },
 
-    IP.getIpipnetIP();
-    checkSiteStatus.check();
-    setInterval(() => checkSiteStatus.check(), 30000);  
-    setInterval(IP.getIpipnetIP, 180000);  
+    getIpipnetIP: async () => {
+        if(IP.isRefreshing) return;
+    
+        try {
+            IP.isRefreshing = true;
+            document.getElementById('d-ip').innerHTML = "Checking...";
+            document.getElementById('ipip').innerHTML = "Loading...";
+            $("#flag").attr("src", _IMG + "img/loading.svg");
+        
+            const ip = await IP.fetchIP();
+            await IP.Ipip(ip, 'ipip');
+        } catch (error) {
+            console.error("Error in getIpipnetIP function:", error);
+            document.getElementById('ipip').innerHTML = "获取IP信息失败";
+        } finally {
+            IP.isRefreshing = false;
+        }
+    }
+};
+
+IP.getIpipnetIP();
+checkSiteStatus.check();
+setInterval(() => checkSiteStatus.check(), 30000);  
+setInterval(IP.getIpipnetIP, 180000);
 </script>
 </body>
 </html>
