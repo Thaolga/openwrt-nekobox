@@ -587,24 +587,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 }
 
 @media (max-width: 767px) {
-    .row a {
-        font-size: 9px; 
-    }
-}
-
-.table-responsive {
-    width: 100%;
-}
-
-@media (max-width: 767px) {
     .table th,
     .table td {
         padding: 6px 8px; 
-        font-size: 14px; 
+        font-size: 14px;
     }
 
     .table th:nth-child(1), .table td:nth-child(1) {
-        width: 10%; 
+        width: 25%; 
     }
     .table th:nth-child(2), .table td:nth-child(2) {
         width: 20%; 
@@ -613,24 +603,61 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         width: 25%; 
     }
     .table th:nth-child(4), .table td:nth-child(4) {
-        width: 45%; 
-        white-space: nowrap;
+        width: 100%; 
     }
 
-    .btn-group {
-        display: flex;
-        flex-wrap: wrap; 
-        justify-content: space-between; 
-    }
+.btn-group, .d-flex {
+    display: flex;
+    flex-wrap: wrap; 
+    justify-content: center;
+    gap: 5px;
+}
 
-    .btn-group .btn {
-        flex: 1 1 22%; 
-        margin-bottom: 5px; 
-        margin-right: 5px; 
-        text-align: center; 
-        font-size: 9px; 
-    }
+.btn-group .btn {
+    flex: 1 1 auto; 
+    font-size: 12px;
+    padding: 6px 8px;
+}
 
+.btn-group .btn:last-child {
+    margin-right: 0;
+  }
+}
+
+@media (max-width: 767px) {
+    .btn-rename {
+    width: 70px !important; 
+    font-size: 0.6rem; 
+    white-space: nowrap; 
+    overflow: hidden; 
+    text-overflow: ellipsis; 
+    display: inline-block;
+    text-align: center; 
+}
+
+.btn-group {
+    display: flex;
+    gap: 10px; 
+    justify-content: center; 
+}
+
+.btn {
+    margin: 0; 
+}
+
+td {
+    vertical-align: middle;
+}
+
+.action-btn {
+    padding: 6px 12px; 
+    font-size: 0.85rem; 
+    display: inline-block;
+}
+
+.btn-group.d-flex {
+    flex-wrap: wrap;
+}
 </style>
 
 <script>

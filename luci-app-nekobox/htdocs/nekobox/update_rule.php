@@ -1,15 +1,129 @@
 <?php
-
 ini_set('memory_limit', '128M');
+ini_set('max_execution_time', 300);
 
 $logMessages = [];
 
-function logMessage($message) {
+function logMessage($filename, $message) {
     global $logMessages;
-    $timestamp = date('H:i:s');
-    $logMessages[] = "[$timestamp] $message";
+    $timestamp = date('H:i:s', strtotime('+8 hours'));
+    $logMessages[] = "[$timestamp] $filename: $message";
 }
 
+class MultiDownloader {
+    private $urls = [];
+    private $maxConcurrent;
+    private $running = false;
+    private $mh;
+    private $handles = [];
+    private $retries = [];
+    private $maxRetries = 3;
+    
+    public function __construct($maxConcurrent = 8) {
+        $this->maxConcurrent = $maxConcurrent;
+        $this->mh = curl_multi_init();
+    }
+    
+    public function addDownload($url, $destination) {
+        $this->urls[] = [
+            'url' => $url,
+            'destination' => $destination,
+            'attempts' => 0
+        ];
+    }
+    
+    private function createHandle($url, $destination) {
+        $ch = curl_init($url);
+        curl_setopt_array($ch, [
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_FOLLOWLOCATION => true,
+            CURLOPT_TIMEOUT => 30,
+            CURLOPT_SSL_VERIFYPEER => false,
+            CURLOPT_USERAGENT => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
+        ]);
+        
+        $this->handles[(int)$ch] = [
+            'ch' => $ch,
+            'url' => $url,
+            'destination' => $destination
+        ];
+        
+        curl_multi_add_handle($this->mh, $ch);
+        return $ch;
+    }
+    
+    public function start() {
+        $urlCount = count($this->urls);
+        $processed = 0;
+        $batch = 0;
+        
+        while ($processed < $urlCount) {
+            while (count($this->handles) < $this->maxConcurrent && !empty($this->urls)) {
+                $download = array_shift($this->urls);
+                $dir = dirname($download['destination']);
+                if (!is_dir($dir)) {
+                    mkdir($dir, 0755, true);
+                }
+                logMessage(basename($download['destination']), "Start downloadin");
+                $this->createHandle($download['url'], $download['destination']);
+            }
+            
+            do {
+                $status = curl_multi_exec($this->mh, $running);
+            } while ($status === CURLM_CALL_MULTI_PERFORM);
+            
+            if ($running) {
+                curl_multi_select($this->mh);
+            }
+            
+            while ($completed = curl_multi_info_read($this->mh)) {
+                $ch = $completed['handle'];
+                $chId = (int)$ch;
+                $info = $this->handles[$chId];
+                
+                $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+                $content = curl_multi_getcontent($ch);
+                
+                if ($httpCode === 200 && $content !== false) {
+                    if (file_put_contents($info['destination'], $content) !== false) {
+                        logMessage(basename($info['destination']), "Download successful");
+                    } else {
+                        logMessage(basename($info['destination']), "Save failed");
+                        if (!isset($this->retries[$info['url']]) || $this->retries[$info['url']] < $this->maxRetries) {
+                            $this->retries[$info['url']] = isset($this->retries[$info['url']]) ? $this->retries[$info['url']] + 1 : 1;
+                            $this->urls[] = [
+                                'url' => $info['url'],
+                                'destination' => $info['destination'],
+                                'attempts' => $this->retries[$info['url']]
+                            ];
+                        }
+                    }
+                } else {
+                    logMessage(basename($info['destination']), "Download failed (HTTP $httpCode)");
+                    if (!isset($this->retries[$info['url']]) || $this->retries[$info['url']] < $this->maxRetries) {
+                        $this->retries[$info['url']] = isset($this->retries[$info['url']]) ? $this->retries[$info['url']] + 1 : 1;
+                        $this->urls[] = [
+                            'url' => $info['url'],
+                            'destination' => $info['destination'],
+                            'attempts' => $this->retries[$info['url']]
+                        ];
+                    }
+                }
+                
+                curl_multi_remove_handle($this->mh, $ch);
+                curl_close($ch);
+                unset($this->handles[$chId]);
+                $processed++;
+            }
+        }
+    }
+    
+    public function __destruct() {
+        curl_multi_close($this->mh);
+    }
+}
+
+echo "Start updating the rule set...\n";
 $urls = [
     "https://raw.githubusercontent.com/Thaolga/neko/luci-app-neko/nekobox/rules/ads.srs" => "/www/nekobox/rules/ads.srs",
     "https://raw.githubusercontent.com/Thaolga/neko/luci-app-neko/nekobox/rules/ai.srs" => "/www/nekobox/rules/ai.srs",
@@ -59,20 +173,17 @@ $urls = [
     "https://raw.githubusercontent.com/Thaolga/neko/luci-app-neko/nekobox/geosite.db" => "/www/nekobox/geosite.db"
 ];
 
-foreach ($urls as $download_url => $destination_path) {
-    if (!is_dir(dirname($destination_path))) {
-        mkdir(dirname($destination_path), 0755, true);
-    }
+$downloader = new MultiDownloader(8);
 
-    exec("wget -O '$destination_path' '$download_url'", $output, $return_var);
-    if ($return_var !== 0) {
-        logMessage("Download failed: $destination_path");
-        die("Download failed: $destination_path");
-    }
-
-    logMessage(basename($destination_path) . " file has been successfully updated!");
+foreach ($urls as $url => $destination) {
+    $downloader->addDownload($url, $destination);
 }
 
-echo implode("\n", $logMessages);
+$downloader->start();
 
+echo "\nRule set update completed！\n\n";
+
+foreach ($logMessages as $message) {
+    echo $message . "\n";
+}
 ?>
