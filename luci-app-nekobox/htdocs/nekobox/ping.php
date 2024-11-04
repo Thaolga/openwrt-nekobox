@@ -285,7 +285,7 @@ $lang = $_GET['lang'] ?? 'en';
                         <img src="./assets/neko/img/site_icon1_04.png" id="youtube-gray" class="status-icon">
                     </div>
                     <div class="site-icon mx-1" onclick="pingHost('github', 'GitHub')">
-                        <img src="./assets/neko/img/site_icon_05.png" id="github-normal" class="status-icon" style="display: none;">
+                        <img src="./assets/neko/img/site_icon_05.png" id="github-normal" title="测试 GitHub 延迟"  class="status-icon" style="display: none;">
                         <img src="./assets/neko/img/site_icon1_05.png" id="github-gray" class="status-icon">
                     </div>
                 </div>
