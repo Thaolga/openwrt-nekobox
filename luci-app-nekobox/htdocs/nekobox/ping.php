@@ -208,12 +208,7 @@ $lang = $_GET['lang'] ?? 'en';
 }
 
 #ping-result {
-  margin: 0 15px; 
-  font-weight: 500;
-  white-space: nowrap; 
-  text-align: center; 
   font-weight: bold;
-  flex-grow: 1; 
 }
 
 #d-ip {
