@@ -206,7 +206,7 @@ let random = parseInt(Math.random() * 100000000);
 const checkSiteStatus = {
     sites: {
         baidu: 'https://www.baidu.com',
-        taobao: 'https://www.taobao.com',
+        //taobao: 'https://www.taobao.com',
         google: 'https://www.google.com',
         youtube: 'https://www.youtube.com',
         github: 'https://www.github.com'
