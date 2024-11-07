@@ -412,6 +412,31 @@ let cachedIP = null;
 let cachedInfo = null;
 let random = parseInt(Math.random() * 100000000);
 
+const sitesToPing = {
+    baidu: { url: 'https://www.baidu.com', name: 'Baidu' },
+    taobao: { url: 'https://www.taobao.com', name: 'Taobao' },
+    google: { url: 'https://www.google.com', name: 'Google' },
+    youtube: { url: 'https://www.youtube.com', name: 'YouTube' },
+    github: { url: 'https://www.github.com', name: 'GitHub' }
+};
+
+async function checkAllPings() {
+    const pingResults = {};
+    for (const [key, site] of Object.entries(sitesToPing)) {
+        const { url, name } = site;
+        try {
+            const startTime = performance.now();
+            await fetch(url, { mode: 'no-cors', cache: 'no-cache' });
+            const endTime = performance.now();
+            const pingTime = Math.round(endTime - startTime);
+            pingResults[key] = { name, pingTime };
+        } catch (error) {
+            pingResults[key] = { name, pingTime: '超时' };
+        }
+    }
+    return pingResults;
+}
+
 const checkSiteStatus = {
     sites: {
         baidu: 'https://www.baidu.com',
@@ -709,6 +734,14 @@ let IP = {
             ipSupport = '未检测到 IPv4 或 IPv6 支持';
         }
 
+        const pingResults = await checkAllPings();
+        const delayInfoHTML = Object.entries(pingResults).map(([key, { name, pingTime }]) => {
+            let color = '#ff6b6b'; 
+            if (typeof pingTime === 'number') {
+                color = pingTime <= 100 ? '#09B63F' : pingTime <= 200 ? '#FFA500' : '#ff6b6b';
+            }
+            return `<span style="margin-right: 20px; font-size: 18px; color: ${color};">${name}: ${pingTime === '超时' ? '超时' : `${pingTime}ms`}</span>`;
+        }).join('');
         const modalHTML = `
             <div class="modal fade custom-modal" id="ipDetailModal" tabindex="-1" role="dialog" aria-labelledby="ipDetailModalLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
                 <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
@@ -750,6 +783,10 @@ let IP = {
                                     <span class="detail-label">经纬度:</span>
                                     <span class="detail-value">${data.latitude}, ${data.longitude}</span>
                                 </div>` : ''}
+                                <h5 style="margin-top: 15px;">延迟信息:</h5>
+                                <div class="detail-row" style="display: flex; flex-wrap: wrap;">
+                                    ${delayInfoHTML}
+                                </div>
                             </div>
                         </div>
                         <div class="modal-footer">
