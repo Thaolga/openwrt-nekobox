@@ -125,6 +125,14 @@ $lang = $_GET['lang'] ?? 'en';
   font-weight: 700 !important;
 }
 
+#d-ip > .ip-main {
+    font-size: 15px !important;
+}
+
+#d-ip .badge-primary {
+    font-size: 13px !important;
+}
+
 .info.small {
  color: #ff69b4;
  font-weight: 600;
@@ -157,6 +165,7 @@ $lang = $_GET['lang'] ?? 'en';
  }
 }
 </style>
+
 <?php if (in_array($lang, ['zh-cn', 'en', 'auto'])): ?>
     <div id="status-bar-component" class="container-sm container-bg callout border">
         <div class="row align-items-center">
@@ -203,10 +212,33 @@ let cachedIP = null;
 let cachedInfo = null;
 let random = parseInt(Math.random() * 100000000);
 
+const sitesToPing = {
+    baidu: { url: 'https://www.baidu.com', name: 'Baidu' },
+    google: { url: 'https://www.google.com', name: 'Google' },
+    youtube: { url: 'https://www.youtube.com', name: 'YouTube' },
+    github: { url: 'https://www.github.com', name: 'GitHub' }
+};
+
+async function checkAllPings() {
+    const pingResults = {};
+    for (const [key, site] of Object.entries(sitesToPing)) {
+        const { url, name } = site;
+        try {
+            const startTime = performance.now();
+            await fetch(url, { mode: 'no-cors', cache: 'no-cache' });
+            const endTime = performance.now();
+            const pingTime = Math.round(endTime - startTime);
+            pingResults[key] = { name, pingTime };
+        } catch (error) {
+            pingResults[key] = { name, pingTime: 'Timeout' };
+        }
+    }
+    return pingResults;
+}
+
 const checkSiteStatus = {
     sites: {
         baidu: 'https://www.baidu.com',
-        //taobao: 'https://www.taobao.com',
         google: 'https://www.google.com',
         youtube: 'https://www.youtube.com',
         github: 'https://www.github.com'
@@ -258,24 +290,45 @@ async function pingHost(site, siteName) {
     }
 }
 
+
 let IP = {
     isRefreshing: false,
-    fetchIP: async () => {
-        try {
-            const [ipifyResp, ipsbResp, chinaIpResp] = await Promise.all([
-                IP.get('https://api.ipify.org?format=json', 'json'),
-                IP.get('https://api-ipv4.ip.sb/geoip', 'json'),
-                IP.get('https://myip.ipip.net', 'text')  
-            ]);
+    lastGeoData: null, 
+    ipApis: [
+        {url: 'https://api.ipify.org?format=json', type: 'json', key: 'ip'},
+        {url: 'https://api-ipv4.ip.sb/geoip', type: 'json', key: 'ip'},
+        {url: 'https://myip.ipip.net', type: 'text'},
+        {url: 'http://pv.sohu.com/cityjson', type: 'text'},
+        {url: 'https://ipinfo.io/json', type: 'json', key: 'ip'},
+        {url: 'https://ipapi.co/json/', type: 'json'},
+        {url: 'https://freegeoip.app/json/', type: 'json'}
+    ],
 
-            const ipData = ipifyResp.data.ip || ipsbResp.data.ip;
-            cachedIP = ipData;
-            document.getElementById('d-ip').innerHTML = ipData;
-            return ipData;
-        } catch (error) {
-            console.error("Error fetching IP:", error);
-            throw error;
+    fetchIP: async () => {
+        let error;
+        for(let api of IP.ipApis) {
+            try {
+                const response = await IP.get(api.url, api.type);
+                if(api.type === 'json') {
+                    const ipData = api.key ? response.data[api.key] : response.data;
+                    cachedIP = ipData;
+                    document.getElementById('d-ip').innerHTML = ipData;
+                    return ipData;
+                } else {
+                    const ipData = response.data.match(/\d+\.\d+\.\d+\.\d+/)?.[0];
+                    if(ipData) {
+                        cachedIP = ipData;
+                        document.getElementById('d-ip').innerHTML = ipData;
+                        return ipData;
+                    }
+                }
+            } catch(e) {
+                error = e;
+                console.error(`Error with ${api.url}:`, e);
+                continue;
+            }
         }
+        throw error || new Error("All IP APIs failed");
     },
 
     get: (url, type) =>
@@ -299,76 +352,156 @@ let IP = {
         }),
 
     Ipip: async (ip, elID) => {
-        try {
-            const [ipsbResp, chinaIpResp] = await Promise.all([
-                IP.get(`https://api.ip.sb/geoip/${ip}`, 'json'),
-                IP.get(`https://myip.ipip.net`, 'text')
-            ]);
-            
-            cachedIP = ip;
-            cachedInfo = ipsbResp.data;
+        const geoApis = [
+            {url: `https://api.ip.sb/geoip/${ip}`, type: 'json'},
+            {url: 'https://myip.ipip.net', type: 'text'},
+            {url: `http://ip-api.com/json/${ip}`, type: 'json'},
+            {url: `https://ipinfo.io/${ip}/json`, type: 'json'},
+            {url: `https://ipapi.co/${ip}/json/`, type: 'json'},
+            {url: `https://freegeoip.app/json/${ip}`, type: 'json'}
+        ];
 
-            let chinaIpInfo = null;
+        let geoData = null;
+        let error;
+
+        for(let api of geoApis) {
             try {
-                if(chinaIpResp.data) {
-                    chinaIpInfo = chinaIpResp.data;
-                }
+                const response = await IP.get(api.url, api.type);
+                geoData = response.data;
+                break;
             } catch(e) {
-                console.error("Error parsing China IP info:", e);
+                error = e;
+                console.error(`Error with ${api.url}:`, e);
+                continue;
             }
-            
-            const mergedData = {
-                ...ipsbResp.data,
-               // chinaIpInfo: chinaIpInfo
-            };
-            
-            IP.updateUI(mergedData, elID);
+        }
+
+        if(!geoData) {
+            throw error || new Error("All Geo APIs failed");
+        }
+
+        cachedIP = ip;
+        IP.lastGeoData = geoData; 
+        
+        IP.updateUI(geoData, elID);
+    },
+
+    updateUI: async (data, elID) => {
+        try {
+            const country = data.country || "Unknown";
+            const region = data.region || "";
+            const city = data.city || "";
+            const isp = data.isp || "";
+            const asnOrganization = data.asn_organization || "";
+
+            let location = `${region && city && region !== city ? `${region} ${city}` : region || city || ''}`;
+            let simpleDisplay = `
+                <div class="ip-main" style="cursor: pointer;" onclick="IP.showDetailModal()">
+                    ${cachedIP} <span class="badge badge-primary" style="color: #333;">${country}</span>
+                </div>`;
+
+            let locationInfo = `<span style="margin-left: 8px;">${location} ${isp} ${data.asn || ''} ${asnOrganization}</span>`;
+
+            document.getElementById('d-ip').innerHTML = simpleDisplay;
+            document.getElementById('ipip').innerHTML = locationInfo;
+            $("#flag").attr("src", _IMG + "flags/" + (data.country_code || 'unknown').toLowerCase() + ".png");
+
         } catch (error) {
-            console.error("Error in Ipip function:", error);
-            document.getElementById(elID).innerHTML = "Failed to obtain IP information";
+            console.error("Error in updateUI:", error);
+            document.getElementById('d-ip').innerHTML = "The IP information update failed";
         }
     },
 
-    updateUI: (data, elID) => {
-        try {
-            if (!data || !data.country_code) {
-                document.getElementById('d-ip').innerHTML = "Unable to obtain IP information";
-                return;
-            }
+    showDetailModal: async () => {
+        const data = IP.lastGeoData;
+        if (!data) return;
 
-            let country = translate[data.country] || data.country || "Unknown";
-            let isp = translate[data.isp] || data.isp || "";
-            let asnOrganization = translate[data.asn_organization] || data.asn_organization || "";
+        let country = data.country || "Unknown";
+        let region = data.region || "";
+        let city = data.city || "";
+        let isp = data.isp || "";
+        let asnOrganization = data.asn_organization || "";
+        let timezone = data.timezone || "";
+        let asn = data.asn || "";
 
-            if (data.country === 'Taiwan') {
-                country = (navigator.language === 'en') ? 'China Taiwan' : 'China Taiwan';
-            }
+        let ipSupport;
+        const ipv4Regex = /^(\d{1,3}\.){3}\d{1,3}$/;
+        const ipv6Regex = /^[a-fA-F0-9:]+$/;
 
-            const countryAbbr = data.country_code.toLowerCase();
-            const isChinaIP = ['cn', 'hk', 'mo', 'tw'].includes(countryAbbr);
-        
-            let firstLineInfo = `<div style="white-space: nowrap;">`;
-        
-            firstLineInfo += cachedIP + ' ';
-        
-            let ipLocation = isChinaIP ? 
-                '<span style="color: #00FF00;">[国内 IP]</span> ' : 
-                '<span style="color: #FF0000;">[境外 IP]</span> ';
-           // firstLineInfo += ipLocation;
-        
-            if (data.chinaIpInfo) {
-                firstLineInfo += `[${data.chinaIpInfo}]`;
-            }
-            firstLineInfo += `</div>`;
-        
-            document.getElementById('d-ip').innerHTML = firstLineInfo;
-            document.getElementById('ipip').innerHTML = `${country} ${isp} ${asnOrganization}`;
-            document.getElementById('ipip').style.color = '#FF00FF';
-            $("#flag").attr("src", _IMG + "flags/" + countryAbbr + ".png");
-        } catch (error) {
-            console.error("Error in updateUI:", error);
-            document.getElementById('d-ip').innerHTML = "Update IP information failed";
+        if (ipv4Regex.test(cachedIP)) {
+            ipSupport = 'IPv4 Support';
+        } else if (ipv6Regex.test(cachedIP)) {
+            ipSupport = 'IPv6 Support';
+        } else {
+            ipSupport = 'IPv4 or IPv6 support not detected';
         }
+
+        const pingResults = await checkAllPings();
+        const delayInfoHTML = Object.entries(pingResults).map(([key, { name, pingTime }]) => {
+            let color = '#ff6b6b'; 
+            if (typeof pingTime === 'number') {
+                color = pingTime <= 100 ? '#09B63F' : pingTime <= 200 ? '#FFA500' : '#ff6b6b';
+            }
+            return `<span style="margin-right: 20px; font-size: 18px; color: ${color};">${name}: ${pingTime === 'Timeout' ? 'Timeout' : `${pingTime}ms`}</span>`;
+        }).join('');
+        const modalHTML = `
+            <div class="modal fade custom-modal" id="ipDetailModal" tabindex="-1" role="dialog" aria-labelledby="ipDetailModalLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+                <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="ipDetailModalLabel">IP Detailed Information</h5>
+                            <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        <div class="modal-body">
+                            <div class="ip-details">
+                                <div class="detail-row">
+                                    <span class="detail-label">IP Support:</span>
+                                    <span class="detail-value">${ipSupport}</span>
+                            </div>
+                                <div class="detail-row">
+                                    <span class="detail-label">IP Address:</span>
+                                    <span class="detail-value">${cachedIP}</span>
+                                </div>
+                                <div class="detail-row">
+                                    <span class="detail-label">Region:</span>
+                                    <span class="detail-value">${country} ${region} ${city}</span>
+                                </div>
+                                <div class="detail-row">
+                                    <span class="detail-label">Carrier:</span>
+                                    <span class="detail-value">${isp}</span>
+                                </div>
+                                <div class="detail-row">
+                                    <span class="detail-label">ASN:</span>
+                                    <span class="detail-value">${asn} ${asnOrganization}</span>
+                                </div>
+                                <div class="detail-row">
+                                    <span class="detail-label">Time Zone:</span>
+                                    <span class="detail-value">${timezone}</span>
+                                </div>
+                                ${data.latitude && data.longitude ? `
+                                <div class="detail-row">
+                                    <span class="detail-label">Latitude and Longitude:</span>
+                                    <span class="detail-value">${data.latitude}, ${data.longitude}</span>
+                                </div>` : ''}
+                                <h5 style="margin-top: 15px; display: inline-block; white-space: nowrap;">Latency Information:</h5>
+                                <div class="detail-row" style="display: flex; flex-wrap: wrap;">
+                                    ${delayInfoHTML}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+
+        $('#ipDetailModal').remove();
+        $('body').append(modalHTML);
+        $('#ipDetailModal').modal('show');
     },
 
     getIpipnetIP: async () => {
@@ -376,25 +509,161 @@ let IP = {
     
         try {
             IP.isRefreshing = true;
-            document.getElementById('d-ip').innerHTML = "Checking...";
-            document.getElementById('ipip').innerHTML = "Loading...";
+            document.getElementById('d-ip').innerHTML = `
+                <div class="ip-main">
+                    <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                    Checking...
+                </div>
+            `;
+            document.getElementById('ipip').innerHTML = "";
             $("#flag").attr("src", _IMG + "img/loading.svg");
         
             const ip = await IP.fetchIP();
             await IP.Ipip(ip, 'ipip');
         } catch (error) {
             console.error("Error in getIpipnetIP function:", error);
-            document.getElementById('ipip').innerHTML = "Failed to get IP information";
+            document.getElementById('ipip').innerHTML = "The IP information retrieval failed";
         } finally {
             IP.isRefreshing = false;
         }
     }
 };
 
+const style = document.createElement('style');
+style.textContent = `
+.ip-main {
+    font-size: 14px;
+    padding: 5px;
+    transition: all 0.3s;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.badge-primary {
+    color: #ff69b4 !important;
+    background-color: #f8f9fa !important;
+    border: 1px solid #dee2e6;
+}
+
+#ipip {
+    margin-left: -3px;
+}
+
+.ip-main:hover {
+    background: #f0f0f0;
+    border-radius: 4px;
+}
+
+.ip-details {
+    font-size: 18px !important;
+    line-height: 1.6;
+}
+
+.detail-row {
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center; 
+}
+
+.detail-label {
+    font-weight: bold;
+    margin-right: 10px;  
+    white-space: nowrap;
+}
+
+.detail-value {
+    color: #333;
+    flex: 1;
+    white-space: nowrap; 
+}
+
+.modal-content {
+    border-radius: 8px;
+}
+
+.modal-header {
+    background: #f8f9fa;
+    border-radius: 8px 8px 0 0;
+}
+
+.modal-body {
+    padding: 20px;
+}
+.custom-modal .modal-header {
+    background-color: #007bff;
+    color: #fff;
+    padding: 16px 20px;
+    border-bottom: 1px solid #ddd;
+    border-top-left-radius: 8px;
+    border-top-right-radius: 8px;
+}
+
+.custom-modal .custom-close {
+    color: #fff;
+    font-size: 1.5rem;
+    opacity: 0.7;
+}
+
+.custom-modal .custom-close:hover {
+    color: #ddd;
+    opacity: 1;
+}
+
+.custom-modal .modal-body {
+    padding: 20px;
+    font-size: 1rem;
+    color: #333;
+    line-height: 1.6;
+}
+
+.custom-modal .detail-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 8px 0;
+    border-bottom: 1px solid #eee;
+}
+
+.custom-modal .detail-label {
+    font-weight: 600;
+    color: #555;
+}
+
+.custom-modal .detail-value {
+    font-weight: 400;
+    color: #333;
+}
+
+.custom-modal .modal-footer {
+    background-color: #f7f7f7;
+    padding: 12px 16px;
+    display: flex;
+    justify-content: flex-end;
+    border-top: 1px solid #ddd;
+}
+
+.custom-modal .custom-close-btn {
+    background-color: #007bff;
+    color: #fff;
+    border: none;
+    padding: 8px 16px;
+    font-size: 1rem;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.custom-modal .custom-close-btn:hover {
+    background-color: #0056b3;
+}
+
+`;
+document.head.appendChild(style);
 IP.getIpipnetIP();
-checkSiteStatus.check();
-setInterval(() => checkSiteStatus.check(), 30000);  
+if(typeof checkSiteStatus !== 'undefined') {
+    checkSiteStatus.check();
+    setInterval(() => checkSiteStatus.check(), 30000);
+}
+
 setInterval(IP.getIpipnetIP, 180000);
 </script>
-</body>
-</html>

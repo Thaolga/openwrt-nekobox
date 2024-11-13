@@ -353,8 +353,8 @@ $uiVersion = getUiVersion();
 
 <script>
 function compareVersions(v1, v2) {
-    const v1parts = v1.split(/[-.]/).filter(x => x !== 'alpha' && x !== 'beta');
-    const v2parts = v2.split(/[-.]/).filter(x => x !== 'alpha' && x !== 'beta');
+    const v1parts = v1.split(/[-.]/).filter(x => !isNaN(x)); 
+    const v2parts = v2.split(/[-.]/).filter(x => !isNaN(x)); 
     
     for (let i = 0; i < Math.max(v1parts.length, v2parts.length); ++i) {
         const v1part = parseInt(v1parts[i]) || 0;
