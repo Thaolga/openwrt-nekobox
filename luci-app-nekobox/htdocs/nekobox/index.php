@@ -222,12 +222,79 @@ function writeToLog($message) {
     }
 }
 
-function rotateLogs($logFile, $maxSize = 1048576) {
-   if (file_exists($logFile) && filesize($logFile) > $maxSize) {
-       rename($logFile, $logFile . '.old');
-       touch($logFile);
-       chmod($logFile, 0644);
-   }
+function createCronScript() {
+    $log_file = '/var/log/singbox_log.txt';
+    $max_size = 1048576;  
+    $max_old_logs = 2;    
+    $cron_schedule = "0 1 * * * /bin/bash /etc/neko/core/set_cron.sh";
+
+    $cronScriptContent = <<<EOL
+#!/bin/bash
+
+LOG_FILE="$log_file"
+MAX_SIZE=$max_size
+MAX_OLD_LOGS=$max_old_logs
+
+CRON_SCHEDULE="0 1 * * * /bin/bash /etc/neko/core/set_cron.sh"
+
+crontab -l | grep -q "/etc/neko/core/set_cron.sh"
+if [ $? -ne 0 ]; then
+    (crontab -l 2>/dev/null; echo "\$CRON_SCHEDULE") | crontab -
+    echo "Cron job added to run log rotation daily at 1 AM."
+else
+    echo "Cron job already exists."
+fi
+
+if [ -f "\$LOG_FILE" ] && [ \$(stat -c %s "\$LOG_FILE") -gt \$MAX_SIZE ]; then
+    echo "Log file size exceeds \$MAX_SIZE bytes. Rotating logs..."
+    mv "\$LOG_FILE" "\$LOG_FILE.old"
+    gzip "\$LOG_FILE.old"    
+    touch "\$LOG_FILE"
+    chmod 644 "\$LOG_FILE"
+    
+    echo "Log file rotated and compressed."
+else
+    echo "Log file is within the size limit, no rotation needed."
+fi
+
+OLD_LOGS=\$(ls -t /var/log/singbox_log*.gz)
+COUNT=0
+for LOG in \$OLD_LOGS; do
+    if [ \$COUNT -ge \$MAX_OLD_LOGS ]; then
+        echo "Deleting old log: \$LOG"
+        rm "\$LOG"
+    fi
+    COUNT=\$((COUNT + 1))
+done
+
+echo "Log rotation completed."
+EOL;
+
+    $cronScriptPath = '/etc/neko/core/set_cron.sh';
+    file_put_contents($cronScriptPath, $cronScriptContent);
+    chmod($cronScriptPath, 0755);
+    shell_exec("sh $cronScriptPath");
+    writeToLog("Cron job setup script created and executed to add a daily log rotation task.");
+}
+
+function rotateLogs($logFile, $maxSize = 1048576, $maxOldLogs = 2) {
+    if (file_exists($logFile) && filesize($logFile) > $maxSize) {
+        $oldLogFile = $logFile . '.old';
+        rename($logFile, $oldLogFile);
+        shell_exec("gzip $oldLogFile");
+        $oldLogs = glob($logFile . '.old.gz');
+        if (count($oldLogs) > $maxOldLogs) {
+            array_multisort(array_map('filemtime', $oldLogs), SORT_ASC, $oldLogs);  
+            $logsToDelete = array_slice($oldLogs, 0, count($oldLogs) - $maxOldLogs);
+            foreach ($logsToDelete as $logToDelete) {
+                unlink($logToDelete);  
+            }
+        }
+
+        touch($logFile);
+        chmod($logFile, 0644);
+        file_put_contents($logFile, '');
+    }
 }
 
 function isSingboxRunning() {
@@ -327,6 +394,7 @@ if (isset($_POST['singbox'])) {
                rotateLogs($singbox_log);
                
                createStartScript($config_file);
+               createCronScript();
                $output = shell_exec("sh $start_script_path >> $singbox_log 2>&1 &");
                writeToLog("Shell output: " . ($output ?: "No output"));
                
