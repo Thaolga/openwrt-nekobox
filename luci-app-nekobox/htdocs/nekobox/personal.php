@@ -1,6 +1,7 @@
 <?php
 ob_start();
 include './cfg.php';
+ini_set('memory_limit', '256M');
 $subscription_file = '/etc/neko/config/subscription.txt'; 
 $download_path = '/etc/neko/config/'; 
 $php_script_path = '/www/nekobox/personal.php'; 
@@ -162,7 +163,6 @@ function saveSubscriptionContentToYaml($url, $filename) {
         return $message;
     }
 
-
     if (!is_dir($download_path)) {
         if (!mkdir($download_path, 0755, true)) {
             $message = "Unable to create directory: $download_path";
@@ -170,6 +170,7 @@ function saveSubscriptionContentToYaml($url, $filename) {
             return $message;
         }
     }
+
     $ch = curl_init();
     curl_setopt($ch, CURLOPT_URL, $url);
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
@@ -178,20 +179,20 @@ function saveSubscriptionContentToYaml($url, $filename) {
     curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
     $subscription_data = curl_exec($ch);
 
-   if (curl_errno($ch)) {
-    $error_msg = curl_error($ch);
+    if (curl_errno($ch)) {
+        $error_msg = curl_error($ch);
+        curl_close($ch);
+        $message = "cURL Error: $error_msg";
+        logMessage($message);
+        return $message;
+    }
     curl_close($ch);
-    $message = "cURL Error: $error_msg";
-    logMessage($message);
-    return $message;
-}
-curl_close($ch);
 
-if ($subscription_data === false || empty($subscription_data)) {
-    $message = "Unable to retrieve subscription content. Please check if the link is correct.";
-    logMessage($message);
-    return $message;
-}
+    if ($subscription_data === false || empty($subscription_data)) {
+        $message = "Unable to retrieve subscription content. Please check if the link is correct.";
+        logMessage($message);
+        return $message;
+    }
 
     if (base64_decode($subscription_data, true) !== false) {
         $decoded_data = base64_decode($subscription_data);
@@ -201,11 +202,11 @@ if ($subscription_data === false || empty($subscription_data)) {
 
     $transformed_data = transformContent($decoded_data);
 
-$file_path = $download_path . $filename;
-$success = file_put_contents($file_path, $transformed_data) !== false;
-$message = $success ? "Content successfully saved to: $file_path" : "File save failed.";
-logMessage($message);
-return $message;
+    $file_path = $download_path . $filename;
+    $success = file_put_contents($file_path, $transformed_data) !== false;
+    $message = $success ? "Content successfully saved to: $file_path" : "File save failed.";
+    logMessage($message);
+    return $message;
 }
 
 function generateShellScript() {
@@ -248,12 +249,12 @@ else
 fi
 EOD;
 
-$success = file_put_contents($sh_script_path, $sh_script_content) !== false;
-logMessage($success ? "Shell script successfully created and given execute permission." : "Unable to create shell script file.");
-if ($success) {
-    shell_exec("chmod +x $sh_script_path");
-}
-return $success ? "Shell script successfully created and given execute permission." : "Unable to create shell script file.";
+    $success = file_put_contents($sh_script_path, $sh_script_content) !== false;
+    logMessage($success ? "Shell script successfully created and given execute permission." : "Unable to create shell script file.");
+    if ($success) {
+        shell_exec("chmod +x $sh_script_path");
+    }
+    return $success ? "Shell script successfully created and given execute permission." : "Unable to create shell script file.";
 }
 
 function setupCronJob($cron_time) {
@@ -269,14 +270,14 @@ function setupCronJob($cron_time) {
     }
 
     $success = file_put_contents('/tmp/cron.txt', $updated_cron) !== false;
-if ($success) {
-    shell_exec('crontab /tmp/cron.txt');
+    if ($success) {
+        shell_exec('crontab /tmp/cron.txt');
     logMessage("Cron job successfully set to run at $cron_time.");
     return "Cron job successfully set to run at $cron_time.";
 } else {
     logMessage("Unable to write to temporary Cron file.");
     return "Unable to write to temporary Cron file.";
-}
+    }
 }
 
 $result = '';
@@ -295,7 +296,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $result .= saveSubscriptionContentToYaml($subscription_url, $filename) . "<br>";
             $result .= generateShellScript() . "<br>";
         } else {
-            $result = "Failed to save subscription link.";
+        return file_get_contents($file);
         }
     }
 
@@ -314,7 +315,6 @@ function getSubscriptionUrlFromFile($file) {
 
 $current_subscription_url = getSubscriptionUrlFromFile($subscription_file);
 ?>
-
 <!doctype html>
 <html lang="en" data-bs-theme="<?php echo substr($neko_theme, 0, -4) ?>">
 <head>
@@ -325,11 +325,22 @@ $current_subscription_url = getSubscriptionUrlFromFile($subscription_file);
     <link href="./assets/css/bootstrap.min.css" rel="stylesheet">
     <link href="./assets/css/custom.css" rel="stylesheet">
     <link href="./assets/theme/<?php echo $neko_theme ?>" rel="stylesheet">
-    <script src="./assets/js/feather.min.js"></script>
-    <script src="./assets/js/jquery-2.1.3.min.js"></script>
-    <script src="./assets/js/neko.js"></script>
+    <script type="text/javascript" src="./assets/js/feather.min.js"></script>
+    <script type="text/javascript" src="./assets/js/jquery-2.1.3.min.js"></script>
+    <script type="text/javascript" src="./assets/js/neko.js"></script>
 </head>
 <body>
+<style>
+@media (max-width: 767px) {
+    .row a {
+        font-size: 9px; 
+    }
+}
+
+.table-responsive {
+    width: 100%;
+}
+</style>
 <div class="container-sm container-bg callout border border-3 rounded-4 col-11">
     <div class="row">
         <a href="./index.php" class="col btn btn-lg">🏠 Home</a>
@@ -337,7 +348,7 @@ $current_subscription_url = getSubscriptionUrlFromFile($subscription_file);
         <a href="./singbox_manager.php" class="col btn btn-lg">🗂️ Sing-box</a>
         <a href="./box.php" class="col btn btn-lg">💹 Template</a>
         <a href="./personal.php" class="col btn btn-lg">📦 Personal</a>
-       <h1 class="text-center p-2" style="margin-top: 2rem; margin-bottom: 1rem;">Mihomo Subscription Program (Personal Edition)</h1>
+        <h1 class="text-center p-2" style="margin-top: 2rem; margin-bottom: 1rem;">Mihomo Subscription Program（Clash）</h1>
 
         <div class="col-12">
             <div class="form-section">
@@ -377,8 +388,6 @@ $current_subscription_url = getSubscriptionUrlFromFile($subscription_file);
                 <li class="list-group-item"><strong>Enter Subscription URL:</strong> Enter your Clash subscription URL in the text box.</li>
                 <li class="list-group-item"><strong>Enter Save Filename:</strong> Specify the filename to save the configuration file, default is "config.yaml".</li>
                 <li class="list-group-item">Click the "Update Subscription" button, the system will download the subscription content, convert it, and save it.</li>
-                <li class="list-group-item"><strong>Set Cron Time:</strong> Specify the execution time for the Cron job.</li>
-                <li class="list-group-item">Click the "Update Cron Job" button, the system will set or update the Cron job.</li>
             </ul>
         </div>
 
@@ -388,9 +397,6 @@ $current_subscription_url = getSubscriptionUrlFromFile($subscription_file);
         <div class="result mt-2">
             <?php echo nl2br(htmlspecialchars($cron_result)); ?>
         </div>
-
-        <div class="mt-4 text-center">
-            <button class="btn btn-secondary" onclick="history.back()">Go Back</button>
         </div>
     </div>
 </div>
