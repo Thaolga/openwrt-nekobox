@@ -68,8 +68,10 @@ $uiVersion = getUiVersion();
     <link href="./assets/css/custom.css" rel="stylesheet">
     <script type="text/javascript" src="./assets/js/bootstrap.min.js"></script>
     <script type="text/javascript" src="./assets/js/feather.min.js"></script>
+    <script type="text/javascript" src="./assets/bootstrap/bootstrap.bundle.min.js"></script>
     <script type="text/javascript" src="./assets/js/jquery-2.1.3.min.js"></script>
     <script type="text/javascript" src="./assets/js/neko.js"></script>
+    <?php include './ping.php'; ?>
   </head>
   <body>
 
@@ -114,20 +116,20 @@ $uiVersion = getUiVersion();
                     </td>
                 </tr>
                 <tr>
-                    <td colspan="2">
-                        <div class="row">
-                            <div class="col-md-6 mb-3">
-                                <div class="text-center">
-                                    <h3>Client Version</h3>
-                                    <div class="form-control text-center" style="font-family: monospace; text-align: center;">
-                                        <span id="cliver"></span>&nbsp;<span id="NewCliver"> </span>
-                                    </div>
-                                    <div class="text-center mt-2">
-                                        <button class="btn btn-pink" id="checkCliverButton">🔍 Detect</button>
-                                        <button class="btn btn-info" id="updateButton" title="Update to Latest Version">🔄 Update</button>
-                                    </div>
+                <td colspan="2">
+                    <div class="row g-4">
+                        <div class="col-md-6 mb-3">
+                            <div class="text-center">
+                                <h3>Client Version</h3>
+                                <div class="form-control text-center" style="font-family: monospace; text-align: center;">
+                                    <span id="cliver"></span>&nbsp;<span id="NewCliver"> </span>
+                                </div>
+                                <div class="text-center mt-2">
+                                    <button class="btn btn-pink" id="checkCliverButton">🔍 Detect</button>
+                                    <button class="btn btn-info" id="updateButton" title="Update to Latest Version">🔄 Update</button>
                                 </div>
                             </div>
+                        </div>
                             <div class="col-md-6 mb-3">
                                 <div class="text-center">
                                     <h3>Metacubexd Panel</h3>
@@ -140,55 +142,106 @@ $uiVersion = getUiVersion();
                                     </div>
                                 </div>
                             </div>
-                            <div class="col-md-6 mb-3">
-                                <div class="text-center">
-                                    <h3>Sing-box Core Version</h3>
-                                    <div class="form-control text-center">
-                                        <div id="singBoxCorever">
-                                            <?php echo htmlspecialchars($singBoxVersion); ?>&nbsp;<span id="NewSingbox"></span>
-                                        </div>
-                                    </div>
-                                    <div class="text-center mt-2">
-                                        <button class="btn btn-pink" id="checkSingboxButton">🔍 Detect</button>
-                                        <button class="btn btn-success" id="updatePuernyaButton" title="Switch to Puernya Core">🔄 Switch</button>
-                                        <button class="btn btn-primary" id="updateRuleButton" title="Update Singbox rule set <With Puernya core, you can use Singbox's configuration files and local rule sets>">🔄 Update</button>
-                                        <button class="btn btn-info" id="updateSingboxButton" title="Update Singbox Core">🔄 Update</button>
+                        <div class="col-md-6 mb-3">
+                            <div class="text-center">
+                                <h3>Sing-box Core Version</h3>
+                                <div class="form-control text-center">
+                                    <div id="singBoxCorever">
+                                        <?php echo htmlspecialchars($singBoxVersion); ?>&nbsp;<span id="NewSingbox"></span>
                                     </div>
                                 </div>
-                            </div>
-                            <div class="col-md-6 mb-3">
-                                <div class="text-center">
-                                    <h3>Mihomo Core Version</h3>
-                                    <div class="form-control text-center">
-                                        <span id="corever"></span>&nbsp;<span id="NewMihomo"> </span>
-                                    </div>
-                                    <div class="text-center mt-2">
-                                        <button class="btn btn-pink" id="checkMihomoButton">🔍 Detect</button> 
-                                        <button id="updateConfigButton" class="btn btn-primary" title="Update Mihomo Configuration File">🔄 Update</button>
-                                        <button class="btn btn-info" id="updateCoreButton" title="Update Mihomo Core">🔄 Update</button>
-                                    </div>
+                                <div class="text-center mt-2">
+                                    <button class="btn btn-pink" id="checkSingboxButton">🔍 Detect</button>
+                                    <button class="btn btn-info" id="singboxOptionsButton" title="Singbox Related Operations">🔄 Update</button>
                                 </div>
                             </div>
                         </div>
-                    </td>
-                </tr>
-            </tbody>
-        </table>
-   <div class="modal fade" id="updateModal" tabindex="-1" role="dialog" aria-labelledby="updateModalLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
-       <div class="modal-dialog modal-lg" role="document">
-           <div class="modal-content">
-               <div class="modal-header">
-                   <h5 class="modal-title" id="updateModalLabel">Update Status</h5>
-                   <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
-                       <span aria-hidden="true">&times;</span>
-                   </button>
-               </div>
-               <div class="modal-body text-center"> 
-                   <pre id="logOutput" style="white-space: pre-wrap; word-wrap: break-word; text-align: left; display: inline-block;">Starting download update...</pre>
-               </div>
-           </div>
-       </div>
-   </div>
+                        <div class="col-md-6 mb-3">
+                            <div class="text-center">
+                                <h3>Mihomo Core Version</h3>
+                                <div class="form-control text-center">
+                                    <span id="corever"></span>&nbsp;<span id="NewMihomo"> </span>
+                                </div>
+                                <div class="text-center mt-2">
+                                    <button class="btn btn-pink" id="checkMihomoButton">🔍 Detect</button> 
+                                    <button class="btn btn-info" id="updateCoreButton" title="Update Mihomo Core">🔄 Update</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+
+<div class="modal fade" id="optionsModal" tabindex="-1" aria-labelledby="optionsModalLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="optionsModalLabel">Select Operation</h5>
+                <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="d-grid gap-2">
+                    <button class="btn btn-info" onclick="showSingboxVersionSelector()">Update Singbox Core (Channel One)</button>
+                    <button class="btn btn-success" onclick="selectOperation('sing-box')">Update Singbox Core (Channel Two)</button>
+                    <button class="btn btn-success" onclick="selectOperation('puernya')">Switch to Puernya Core</button>
+                    <button class="btn btn-primary" onclick="selectOperation('rule')">Update Singbox Rule Set</button>
+                    <button class="btn btn-primary" onclick="selectOperation('config')">Update Mihomo Configuration File</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="versionSelectionModal" tabindex="-1" aria-labelledby="versionSelectionModalLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="versionSelectionModalLabel">Select Singbox core version</h5>
+                <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <select id="singboxVersionSelect" class="form-select">
+                    <option value="v1.11.0-alpha.6">v1.11.0-alpha.6</option>
+                    <option value="v1.11.0-alpha.7">v1.11.0-alpha.7</option>
+                    <option value="v1.11.0-alpha.8">v1.11.0-alpha.8</option>
+                    <option value="v1.11.0-alpha.9">v1.11.0-alpha.9</option>
+                    <option value="v1.11.0-alpha.10">v1.11.0-alpha.10</option>
+                </select>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">cancel</button>
+                <button type="button" class="btn btn-primary" onclick="confirmSingboxVersion()">confirm</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="updateModal" tabindex="-1" aria-labelledby="updateModalLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="updateModalLabel">Update status</h5>
+                <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body text-center">
+                <div id="updateDescription" class="alert alert-info mb-3"></div>
+                <pre id="logOutput" style="white-space: pre-wrap; word-wrap: break-word; text-align: left; display: inline-block;">Waiting for the operation to begin...</pre>
+                <div class="alert alert-info mt-3" role="alert">
+                   Prompt: If the update fails, please enter <code>nekobox</code> in the terminal to update!
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
 <div id="logOutput" class="mt-3"></div>
 
 <style>
@@ -231,141 +284,186 @@ $uiVersion = getUiVersion();
         }
     }
 
-    #updateButton:hover {
-        background-color: #20B2AA;
-    }
-
-    #updateSingboxButton:hover {
-        background-color: #FF69B4;
-    }
-
-    #updateCoreButton:hover {
-        background-color: #90EE90;
-    }
-
-    #updatePuernyaButton:hover {
-        background-color: #87CEFA;
-    }
-
-    #updateModal #logOutput {
-        font-family: 'Courier New', monospace;
-        font-size: 1rem;
-        color: #333;
-    }
 </style>
 
 <script>
-    function initiateUpdate(url, logMessage) {
-        const xhr = new XMLHttpRequest();
-        xhr.open('POST', url, true);
-        xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+let selectedSingboxVersion = 'v1.11.0-alpha.6';  
 
-        $('#updateModal').modal('show');
-        document.getElementById('logOutput').textContent = logMessage;
+function showSingboxVersionSelector() {
+    $('#optionsModal').modal('hide');  
+    $('#versionSelectionModal').modal('show');  
+}
 
-        xhr.onload = function() {
-            if (xhr.status === 200) {
-                document.getElementById('logOutput').textContent += '\nUpdate complete!';
-                document.getElementById('logOutput').textContent += '\n' + xhr.responseText;
+function confirmSingboxVersion() {
+    selectedSingboxVersion = document.getElementById('singboxVersionSelect').value;
+    $('#versionSelectionModal').modal('hide');  
 
-                setTimeout(function() {
-                    $('#updateModal').modal('hide');
-                    setTimeout(function() {
-                        location.reload();
-                    }, 500); 
-                }, 10000);
-            } else {
-                document.getElementById('logOutput').textContent += '\nAn error occurred: ' + xhr.statusText;
-            }
-        };
+    selectOperation('singbox');
+}
 
-        xhr.onerror = function() {
-            document.getElementById('logOutput').textContent += '\nNetwork error, please try again later.';
-        };
+document.getElementById('singboxOptionsButton').addEventListener('click', function() {
+    $('#optionsModal').modal('show');
+});
 
-        xhr.send();
+function selectOperation(type) {
+    $('#optionsModal').modal('hide'); 
+
+    const operations = {
+        'singbox': {
+            url: 'update_singbox_core.php?version=' + selectedSingboxVersion,  
+            message: 'Starting to download Singbox core update...',
+            description: 'Updating Singbox core to the latest version'
+        },
+        'sing-box': {
+            url: 'singbox.php',
+            message: 'Starting to download Singbox core update...',
+            description: 'Updating Singbox core to the latest version'
+        },
+        'puernya': {
+            url: 'puernya.php',
+            message: 'Starting to switch to Puernya core...',
+            description: 'Switching to Puernya core, this action will replace the current Singbox core'
+        },
+        'rule': {
+            url: 'update_rule.php',
+            message: 'Starting to download Singbox rule set...',
+            description: 'Updating Singbox rule set'
+        },
+        'config': {
+            url: 'update_config.php',
+            message: 'Starting to download Mihomo configuration file...',
+            description: 'Updating Mihomo configuration file to the latest version'
+        }
+    };
+
+    const operation = operations[type];
+    if (operation) {
+        setTimeout(function() {
+            initiateUpdate(operation.url, operation.message, operation.description);
+        }, 500);
     }
+}
+
+
+function initiateUpdate(url, logMessage, description) {
+    const xhr = new XMLHttpRequest();
+    xhr.open('POST', url, true);
+    xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+    $('#updateModal').modal('show');
+    document.getElementById('updateDescription').textContent = description;
+    document.getElementById('logOutput').textContent = logMessage;
+    xhr.onload = function() {
+        if (xhr.status === 200) {
+            document.getElementById('logOutput').textContent += '\nUpdate completed!';
+            document.getElementById('logOutput').textContent += '\n' + xhr.responseText;
+            setTimeout(function() {
+                $('#updateModal').modal('hide');
+                setTimeout(function() {
+                    location.reload();
+                }, 500);
+            }, 10000);
+        } else {
+            document.getElementById('logOutput').textContent += '\nError occurred: ' + xhr.statusText;
+        } 
+    };
+
+    xhr.onerror = function() {
+        document.getElementById('logOutput').textContent += '\nNetwork error, please try again later.';
+    };
+
+    xhr.send();
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    document.getElementById('singboxOptionsButton').addEventListener('click', function() {
+        $('#optionsModal').modal('show');
+    });
 
     document.getElementById('updateButton').addEventListener('click', function() {
-        initiateUpdate('update_script.php', 'Starting download update...');
-    });
-
-    document.getElementById('updateSingboxButton').addEventListener('click', function() {
-       initiateUpdate('singbox.php', 'Starting download Singbox core update...');
-    });
-
-    document.getElementById('updatePuernyaButton').addEventListener('click', function() {
-        initiateUpdate('puernya.php', 'Starting download Puernya core update...');
-    });
-
-    document.getElementById('updateCoreButton').addEventListener('click', function() {
-        initiateUpdate('core.php', 'Starting download Mihomo core update...');
+        initiateUpdate('update_script.php', 'Starting to download client update...', 'Updating client to the latest version');
     });
 
     document.getElementById('updateUiButton').addEventListener('click', function() {
         initiateUpdate('ui.php', 'Starting download UI panel update...');
     });
 
-    document.getElementById('updateConfigButton').addEventListener('click', function() {
-        initiateUpdate('update_config.php', 'Starting to download Mihomo configuration file update...');
+    document.getElementById('updateCoreButton').addEventListener('click', function() {
+        initiateUpdate('core.php', 'Starting to download Mihomo core update...', 'Updating Mihomo core to the latest version');
     });
-
-    document.getElementById('updateRuleButton').addEventListener('click', function() {
-        initiateUpdate('update_rule.php', 'Starting to download Singbox rule set update...');
-    });
+});
 </script>
 
 <script>
-    function checkVersion(buttonId, outputId, url) {
-        document.getElementById(outputId).innerHTML = 'Checking for new version...';
+function checkVersion(buttonId, outputId, url) {
+    document.getElementById(outputId).innerHTML = 'Checking for new version...';
 
-        var xhr = new XMLHttpRequest();
-        xhr.open('GET', url + '?check_version=true', true);
-        xhr.onload = function() {
-            if (xhr.status === 200) {
-                document.getElementById(outputId).innerHTML = xhr.responseText;
+    var xhr = new XMLHttpRequest();
+    xhr.open('GET', url + '?check_version=true', true);
+    xhr.onload = function() {
+        if (xhr.status === 200) {
+            let responseText = xhr.responseText.trim();
+            const versionMatch = responseText.match(/Latest version:\s*([^\s]+)/);
+
+            if (versionMatch && versionMatch[1]) {
+                const newVersion = versionMatch[1];
+                document.getElementById(outputId).innerHTML = `Latest version: ${newVersion}`;
+
+                if (buttonId === 'checkSingboxButton') {
+                    const select = document.getElementById('singboxVersionSelect');
+                    let versionExists = Array.from(select.options).some(option => option.value === newVersion);
+
+                    if (!versionExists) {
+                        const newOption = document.createElement('option');
+                        newOption.value = newVersion;
+                        newOption.textContent = newVersion;
+                        select.appendChild(newOption);
+                    }
+                }
             } else {
-                document.getElementById(outputId).innerHTML = 'Version check failed, please try again later.';
+                document.getElementById(outputId).innerHTML = 'Unable to parse version information, please retry later';
             }
-        };
-        xhr.onerror = function() {
-            document.getElementById(outputId).innerHTML = 'Network error, please try again later.';
-        };
-        xhr.send();
-    }
+        } else {
+            document.getElementById(outputId).innerHTML = 'Version check failed, please retry later';
+        }
+    };
+    xhr.onerror = function() {
+        document.getElementById(outputId).innerHTML = 'Network error, please try again later';
+    };
+    xhr.send();
+}
 
-    document.getElementById('checkCliverButton').addEventListener('click', function() {
-        checkVersion('checkCliverButton', 'NewCliver', 'update_script.php');
-    });
+document.getElementById('checkSingboxButton').addEventListener('click', function() {
+    checkVersion('checkSingboxButton', 'NewSingbox', 'singbox.php');
+});
 
-    document.getElementById('checkMihomoButton').addEventListener('click', function() {
-        checkVersion('checkMihomoButton', 'NewMihomo', 'core.php');
-    });
+document.getElementById('checkCliverButton').addEventListener('click', function() {
+    checkVersion('checkCliverButton', 'NewCliver', 'update_script.php');
+});
 
-    document.getElementById('checkSingboxButton').addEventListener('click', function() {
-        checkVersion('checkSingboxButton', 'NewSingbox', 'singbox.php');
-    });
+document.getElementById('checkMihomoButton').addEventListener('click', function() {
+    checkVersion('checkMihomoButton', 'NewMihomo', 'core.php');
+});
 
-    document.getElementById('checkUiButton').addEventListener('click', function() {
-        checkVersion('checkUiButton', 'NewUi', 'ui.php');
-    });
+document.getElementById('checkUiButton').addEventListener('click', function() {
+    checkVersion('checkUiButton', 'NewUi', 'ui.php');
+});
 </script>
 
 <script>
-function compareVersions(v1, v2) {
-    const v1parts = v1.split(/[-.]/).filter(x => !isNaN(x)); 
-    const v2parts = v2.split(/[-.]/).filter(x => !isNaN(x)); 
-    
-    for (let i = 0; i < Math.max(v1parts.length, v2parts.length); ++i) {
-        const v1part = parseInt(v1parts[i]) || 0;
-        const v2part = parseInt(v2parts[i]) || 0;
+    function compareVersions(v1, v2) {
+        const v1parts = v1.split(/[-.]/).filter(x => !isNaN(x)); 
+        const v2parts = v2.split(/[-.]/).filter(x => !isNaN(x)); 
         
-        if (v1part > v2part) return 1;
-        if (v1part < v2part) return -1;
+        for (let i = 0; i < Math.max(v1parts.length, v2parts.length); ++i) {
+            const v1part = parseInt(v1parts[i]) || 0;  
+            const v2part = parseInt(v2parts[i]) || 0;  
+            
+            if (v1part > v2part) return 1;
+            if (v1part < v2part) return -1;
+        }
+        
+        return 0; 
     }
-    
-    return 0;
-}
 
 function checkSingboxVersion() {
     var currentVersion = '<?php echo getSingboxVersion(); ?>';
@@ -408,7 +506,6 @@ document.addEventListener('DOMContentLoaded', checkSingboxVersion);
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>NekoClash</title>
-    <link rel="stylesheet" href="/www/nekobox/assets/css/bootstrap.min.css">
     <style>
         body {
             margin: 0;
@@ -575,6 +672,5 @@ document.addEventListener('DOMContentLoaded', checkSingboxVersion);
             <p><?php echo $footer ?></p>
         </footer>
     </div>
-    <script src="/www/nekobox/assets/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
