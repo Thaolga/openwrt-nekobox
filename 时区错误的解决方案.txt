@@ -1,0 +1,17 @@
+关于时区错误的解决方案
+#确保系统时区正确。检查时区文件是否存在：
+
+ls /usr/share/zoneinfo/Asia/Shanghai
+
+#如果不存在，需要安装：
+
+opkg update
+opkg install zoneinfo-asia
+
+#然后设置时区：
+
+ln -sf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime
+
+#确认系统时区是否已正确应用：
+
+date
