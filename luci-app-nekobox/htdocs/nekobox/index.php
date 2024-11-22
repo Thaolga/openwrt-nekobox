@@ -448,6 +448,45 @@ if (isset($_POST['singbox'])) {
    writeToLog("Singbox status set to: $singbox_status");
 }
 
+if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['cronTime'])) {
+    $cronTime = $_POST['cronTime'];
+
+    if (empty($cronTime)) {
+        echo "Please provide a valid Cron time format";
+        exit;
+    }
+
+    $startScriptPath = '/etc/neko/core/start.sh';  
+
+    $restartScriptContent = <<<EOL
+#!/bin/bash
+if pgrep -x "singbox" > /dev/null
+then
+    echo "Sing-box is running, restarting..."
+    kill $(pgrep -x "singbox")
+    sleep 2
+    sh $startScriptPath  
+    echo "Sing-box restart successful."
+else
+    echo "Sing-box is not running, starting Sing-box..."
+    sh $startScriptPath  
+    echo "Sing-box started successfully."
+fi
+EOL;
+
+    $scriptPath = '/etc/neko/core/restart_singbox.sh';
+    file_put_contents($scriptPath, $restartScriptContent);
+    chmod($scriptPath, 0755);  
+
+    $cronSchedule = $cronTime . " /bin/bash $scriptPath"; 
+    exec("crontab -l | grep -v '$scriptPath' | crontab -");  
+    exec("(crontab -l 2>/dev/null; echo \"$cronSchedule\") | crontab -");  
+
+    error_log("Scheduled task has been successfully set，Sing-box will automatically restart at $cronTime。");
+    echo json_encode(['success' => true, 'message' => 'Scheduled task has been successfully set']);
+    exit;
+}
+
 if (isset($_POST['clear_singbox_log'])) {
    file_put_contents($singbox_log, '');
    writeToLog("Singbox log cleared");
@@ -570,6 +609,7 @@ if (isset($_GET['ajax'])) {
     <script type="text/javascript" src="./assets/js/feather.min.js"></script>
     <script type="text/javascript" src="./assets/js/jquery-2.1.3.min.js"></script>
     <script type="text/javascript" src="./assets/js/neko.js"></script>
+    <script type="text/javascript" src="./assets/bootstrap/bootstrap.min.js"></script>
     <?php include './ping.php'; ?>
   </head>
 <body>
@@ -809,7 +849,7 @@ $(document).ready(function() {
         <h4 class="card-title text-center mb-0">NeKoBox Logs</h4>
     </div>
     <div class="card-body">
-        <pre id="plugin_log" class="log-container form-control"></pre>
+        <pre id="plugin_log" class="log-container form-control" style="resize: vertical; overflow: auto; height: 245px; white-space: pre-wrap;" contenteditable="true"></pre>
     </div>
     <div class="card-footer text-center">
         <form action="index.php" method="post">
@@ -823,7 +863,7 @@ $(document).ready(function() {
         <h4 class="card-title text-center mb-0">Mihomo Logs</h4>
     </div>
     <div class="card-body">
-        <pre id="bin_logs" class="log-container form-control"></pre>
+        <pre id="bin_logs" class="log-container form-control" style="resize: vertical; overflow: auto; height: 245px; white-space: pre-wrap;" contenteditable="true"></pre>
     </div>
     <div class="card-footer text-center">
         <form action="index.php" method="post">
@@ -837,7 +877,7 @@ $(document).ready(function() {
         <h4 class="card-title text-center mb-0">Sing-box Logs</h4>
     </div>
     <div class="card-body">
-        <pre id="singbox_log" class="log-container form-control"></pre>
+        <pre id="singbox_log" class="log-container form-control" style="resize: vertical; overflow: auto; height: 245px; white-space: pre-wrap;" contenteditable="true"></pre>
     </div>
     <div class="card-footer text-center">
         <form action="index.php" method="post" class="d-inline-block">
@@ -846,9 +886,66 @@ $(document).ready(function() {
                 <label class="form-check-label" for="autoRefresh">Auto Refresh</label>
             </div>
             <button type="submit" name="clear_singbox_log" class="btn btn-danger">🗑️ Clear Log</button>
+            <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#cronModal">⏰ Scheduled restart</button>
         </form>
     </div>
 </div>
+<div class="modal fade" id="cronModal" tabindex="-1" role="dialog" aria-labelledby="cronModalLabel" aria-hidden="true" data-backdrop="static" data-keyboard="false">
+  <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="cronModalLabel">Set Cron job schedule</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <form id="cronForm" method="POST">
+          <div class="form-group ">
+            <label for="cronTime">Set Sing-box restart time</label>
+            <input type="text" class="form-control mt-3" id="cronTime" name="cronTime" placeholder="For example: 0 3 * * * (Every day at 3 AM)" required>
+          </div>
+          <div class="alert alert-info mt-3">
+            <strong>Hint:</strong> Cron expression format：
+            <ul>
+              <li><code>Minute Hour Day Month Weekday</code></li>
+              <li>Example: Every day at 2 AM: <code>0 2 * * *</code></li>
+              <li>Every Monday at 3 AM: <code>0 3 * * 1</code></li>
+            </ul>
+          </div>
+        </form>
+        <div id="resultMessage" class="mt-3"></div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+        <button type="submit" class="btn btn-primary" form="cronForm">Save</button>
+      </div>
+    </div>
+  </div>
+</div>
+<script>
+    $('#cronForm').submit(function(event) {
+        event.preventDefault(); 
+        var cronTime = $('#cronTime').val(); 
+        $.ajax({
+            type: 'POST',
+            url: '',  
+            data: { cronTime: cronTime },
+            dataType: 'json',
+            success: function(response) {
+                if (response.success) {
+                    $('#resultMessage').html('<div class="alert alert-success">' + response.message + '</div>');
+                    setTimeout(function() {
+                        $('#cronModal').modal('hide'); 
+                    }, 2000);
+                }
+            },
+            error: function() {
+                $('#resultMessage').html('<div class="alert alert-danger">Failed to set Cron job. Please try again!</div>');
+            }
+        });
+    });
+</script>
 <script src="./assets/js/bootstrap.bundle.min.js"></script>
 <script>
     function scrollToBottom(elementId) {

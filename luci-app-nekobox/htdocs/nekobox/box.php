@@ -129,10 +129,8 @@ if (file_exists($dataFilePath)) {
             $subscribeUrl = trim($_POST['subscribeUrl']);
             $customTemplateUrl = trim($_POST['customTemplateUrl']);
             $templateOption = $_POST['templateOption'] ?? 'default';
-            $dataContent = "Subscription Link Address: " . $subscribeUrl . "\n" . "Custom Template URL: " . $customTemplateUrl . "\n";
-            file_put_contents($dataFilePath, $dataContent, FILE_APPEND);
-            $subscribeUrlEncoded = urlencode($subscribeUrl);
-            
+            $currentTime = date('Y-m-d H:i:s');
+            $dataContent = $currentTime . " | Subscription Link Address: " . $subscribeUrl . "\n" ;
             $customFileName = trim($_POST['customFileName']);
             if (empty($customFileName)) {
                $customFileName = 'sing-box';  
@@ -142,6 +140,19 @@ if (file_exists($dataFilePath)) {
                 $customFileName .= '.json';
             }
 
+            $currentData = file_exists($dataFilePath) ? file_get_contents($dataFilePath) : '';
+            $logEntries = array_filter(explode("\n\n", trim($currentData)));
+            if (!in_array(trim($dataContent), $logEntries)) {
+                $logEntries[] = trim($dataContent);
+            }
+
+            while (count($logEntries) > 10) {
+                array_shift($logEntries);
+            }
+
+            file_put_contents($dataFilePath, implode("\n\n", $logEntries) . "\n\n");
+
+            $subscribeUrlEncoded = urlencode($subscribeUrl);
             if ($templateOption === 'custom' && !empty($customTemplateUrl)) {
                 $templateUrlEncoded = urlencode($customTemplateUrl);
             } else {
@@ -185,14 +196,14 @@ if (file_exists($dataFilePath)) {
             echo "<div class='mb-3'>";
             echo "<textarea id='configContent' name='configContent' class='form-control' style='height: 300px;'>" . htmlspecialchars($downloadedContent) . "</textarea>";
             echo "</div>";
-            echo "<div class='text-center'>";
-            echo "<button class='btn btn-info' type='button' onclick='copyToClipboard()'><i class='fas fa-copy'></i> Copy to Clipboard</button>";
+            echo "<div class='text-center' mt-3>";
+            echo "<button class='btn btn-info me-3' type='button' onclick='copyToClipboard()'><i class='fas fa-copy'></i> Copy to Clipboard</button>";
             echo "<input type='hidden' name='saveContent' value='1'>";
             echo "<button class='btn btn-success' type='submit'>Save Changes</button>";
             echo "</div>";
             echo "</form>";
             echo "</div>";
-            echo "<div class='alert alert-info' style='word-wrap: break-word; overflow-wrap: break-word;'>";
+            echo "<div class='alert alert-info mt-3' style='word-wrap: break-word; overflow-wrap: break-word;'>";
             foreach ($logMessages as $message) {
             echo $message . "<br>";
             }
