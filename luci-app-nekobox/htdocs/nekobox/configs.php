@@ -1,35 +1,47 @@
 <?php
 include './cfg.php';
-
 $dirPath = "$neko_dir/config";
 $tmpPath = "$neko_www/lib/selected_config.txt";
 $arrFiles = array();
-$arrFiles = array_merge(glob("$dirPath/*.yaml"), glob("$dirPath/*.json")); 
-
-
+$arrFiles = glob("$dirPath/*.yaml"); 
 $error = "";
+$logMessage = "";  
+$selected_config = trim(file_get_contents($tmpPath));
+
+if (empty($selected_config) || !file_exists($selected_config)) {
+    $selected_config = "$dirPath/default_config.yaml";
+    if (!file_exists($selected_config)) {
+        $default_config_content = "external-controller: 0.0.0.0:9090\n";
+        $default_config_content .= "secret: Akun\n";
+        $default_config_content .= "external-ui: ui\n";
+        $default_config_content .= "# Please edit this file as needed\n";
+        file_put_contents($selected_config, $default_config_content);
+        $logMessage = "Configuration file is missing. A default configuration file has been created.";
+    }
+
+    file_put_contents($tmpPath, $selected_config);
+}
 
 if (isset($_POST['clashconfig'])) {
     $dt = $_POST['clashconfig'];
-    
-    $fileContent = file_get_contents($dt);
-
-    json_decode($fileContent);
-    if (json_last_error() === JSON_ERROR_NONE || pathinfo($dt, PATHINFO_EXTENSION) === 'yaml') {
-        shell_exec("echo $dt > $tmpPath");
-        $selected_config = $dt;
+    $full_path = "$dirPath/$dt";
+    if (pathinfo($dt, PATHINFO_EXTENSION) === 'yaml' && file_exists($full_path)) {
+        shell_exec("echo $full_path > $tmpPath");  
+        $selected_config = $full_path;
     } else {
-        $error = "The selected file content is not a valid JSON format. Please choose another configuration file.。"; 
+        $error = "Please select a valid YAML configuration file"; 
     }
 }
-if(isset($_POST['neko'])){
+
+if (isset($_POST['neko'])) {
     $dt = $_POST['neko'];
     if ($dt == 'apply') shell_exec("$neko_dir/core/neko -r");
 }
+
 include './cfg.php';
 ?>
 <!doctype html>
-<html lang="en" data-bs-theme="<?php echo substr($neko_theme,0,-4) ?>">
+<html lang="en" data-bs-theme="<?php echo substr($neko_theme, 0, -4); ?>">
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -41,6 +53,7 @@ include './cfg.php';
     <script type="text/javascript" src="./assets/js/feather.min.js"></script>
     <script type="text/javascript" src="./assets/js/jquery-2.1.3.min.js"></script>
     <script type="text/javascript" src="./assets/js/bootstrap.min.js"></script>
+    <?php include './ping.php'; ?>
   </head>
   <body>
     <div class="container-sm container-bg text-center callout border border-3 rounded-4 col-11">
@@ -50,25 +63,32 @@ include './cfg.php';
             <a href="#" class="col btn btn-lg">⚙️ Configs</a>
             <a href="/nekobox/mon.php" class="col btn btn-lg d-flex align-items-center justify-content-center"></i>📦 Document</a> 
             <a href="./settings.php" class="col btn btn-lg">🛠️ Settings</a>
-            <h2 class="text-center p-2">Configs</h2>
-            <form action="configs.php" method="post">
-                <div class="container text-center justify-content-md-center">
-                    <div class="row justify-content-md-center">
-                        <div class="col input-group mb-3 justify-content-md-center">
-                          <select class="form-select" name="clashconfig" aria-label="themex">
-                            <option selected><?php echo $selected_config ?></option>
-                            <?php foreach ($arrFiles as $file) echo "<option value=\"".$file.'">'.$file."</option>" ?>
-                          </select>
-                        </div>
-                        <div class="row justify-content-md-center">
-                            <div class="btn-group d-grid d-md-flex justify-content-md-center mb-5" role="group">
-                              <input class="btn btn-info" type="submit" value="Change Configs">
-                              <button name="neko" type="submit" value="apply" class="btn btn-warning d-grid">Apply</button>
-                            </div>
-                        </div>
+    <h2 class="text-center p-2">Configs</h2>
+    <form action="configs.php" method="post">
+        <div class="container text-center justify-content-md-center">
+            <div class="row justify-content-md-center">
+                <div class="col input-group mb-3 justify-content-md-center">
+                    <select class="form-select" name="clashconfig" aria-label="themex">
+                        <option selected><?php echo basename($selected_config); ?></option>
+                        <?php foreach ($arrFiles as $file) echo "<option value=\"" . basename($file) . '">' . basename($file) . "</option>"; ?>
+                    </select>
+                </div>
+                <div class="row justify-content-md-center">
+                    <div class="btn-group d-grid d-md-flex justify-content-md-center mb-5" role="group">
+                        <input class="btn btn-info" type="submit" value="Change Configs">
+                        <button name="neko" type="submit" value="apply" class="btn btn-warning d-grid">Apply</button>
                     </div>
                 </div>
-            </form>
+            </div>
+        </div>
+    </form>
+    <div class="container mt-4">
+        <?php if ($logMessage): ?>
+            <div class="alert alert-info" role="alert">
+                <?php echo htmlspecialchars($logMessage); ?>
+            </div>
+        <?php endif; ?>
+    </div>
 <div class="container   rounded-4 col-12 mb-4">
     <ul class="nav d-flex justify-content-between w-100 text-center">
         <li class="nav-item flex-grow-1">
