@@ -6,12 +6,12 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=sing-box
-PKG_VERSION:=1.11.0-alpha.6
+PKG_VERSION:=1.11.0-alpha.20
 PKG_RELEASE:=1
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
 PKG_SOURCE_URL:=https://codeload.github.com/SagerNet/sing-box/tar.gz/v$(PKG_VERSION)?
-PKG_HASH:=3f6d12f1aeadf61bf0bbd0a71e6a6e19c5f8b5676fc0348b6fc39c25ba906d6e
+PKG_HASH:=4b72b7c7ea394a6f5150102e6ea475828396bdb3630e974e19a2a7ce35541c40
 
 PKG_LICENSE:=GPL-3.0-or-later
 PKG_LICENSE_FILES:=LICENSE
@@ -54,7 +54,7 @@ define Package/$(PKG_NAME)/config
 
     config SING_BOX_WITH_ACME
       bool "Build with ACME TLS certificate issuer support"
-      default n
+      default y
 
     config SING_BOX_WITH_CLASH_API
       bool "Build with Clash API support (EXPERIMENTAL!!!)"
@@ -70,7 +70,7 @@ define Package/$(PKG_NAME)/config
 
     config SING_BOX_WITH_GRPC
       bool "Build with standard gRPC support"
-      default n
+      default y
       help
       sing-box has better performance gun-lite gRPC built-in by default.
       This standard gRPC has better compatibility but poor performance.
@@ -88,7 +88,7 @@ define Package/$(PKG_NAME)/config
 
     config SING_BOX_WITH_REALITY_SERVER
       bool "Build with reality TLS server support"
-      default n
+      default y
 
     config SING_BOX_WITH_UTLS
       bool "Build with uTLS support"
@@ -96,7 +96,7 @@ define Package/$(PKG_NAME)/config
 
     config SING_BOX_WITH_V2RAY_API
       bool "Build with V2Ray API support (EXPERIMENTAL!!!)"
-      default n
+      default y
 
     config SING_BOX_WITH_WIREGUARD
       bool "Build with WireGuard support"
@@ -122,6 +122,7 @@ GO_PKG_TAGS:=with_quic,with_clash_api,with_dhcp,with_ech,with_gvisor,with_utls,w
 
 define Build/Compile
 	@echo "Build tags: $(GO_PKG_TAGS)"
+	export ENABLE_DEPRECATED_TUN_ADDRESS_X=true
 	$(call GoPackage/Build/Compile)
 endef
 
