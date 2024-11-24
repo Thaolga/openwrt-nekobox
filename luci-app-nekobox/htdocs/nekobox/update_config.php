@@ -41,7 +41,6 @@ function downloadFile($url, $destination, $retries = 3, $timeout = 30) {
             
         } catch (Exception $e) {
             logMessage(basename($destination), "Attempt $attempt failed: " . $e->getMessage());
-            curl_close($ch);
             
             if ($attempt === $retries) {
                 logMessage(basename($destination), "All download attempts failed");
