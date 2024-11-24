@@ -28,13 +28,10 @@ if (isset($_GET['check_version'])) {
     exit;
 }
 
-$installed_package_info = shell_exec("opkg status " . escapeshellarg($package_name));
-$installed_lang = 'en';
+$installed_lang = isset($_GET['lang']) ? $_GET['lang'] : 'en'; 
 
-if (strpos($installed_package_info, '-cn') !== false) {
-    $installed_lang = 'cn'; 
-} elseif (strpos($installed_package_info, '-en') !== false) {
-    $installed_lang = 'en';
+if ($installed_lang !== 'cn' && $installed_lang !== 'en') {
+    die("Invalid language selection. Please choose 'cn' or 'en'.");
 }
 
 $download_url = "https://github.com/$repo_owner/$repo_name/releases/download/$new_version/{$package_name}_{$new_version}-{$installed_lang}_all.ipk";

@@ -126,7 +126,7 @@ $uiVersion = getUiVersion();
                                 </div>
                                 <div class="text-center mt-2">
                                     <button class="btn btn-pink" id="checkCliverButton">🔍 Detect</button>
-                                    <button class="btn btn-info" id="updateButton" title="Update to Latest Version">🔄 Update</button>
+                                    <button class="btn btn-info" id="updateButton" title="Update to Latest Version" onclick="showUpdateVersionModal()">🔄 Update</button>
                                 </div>
                             </div>
                         </div>
@@ -164,7 +164,7 @@ $uiVersion = getUiVersion();
                                 </div>
                                 <div class="text-center mt-2">
                                     <button class="btn btn-pink" id="checkMihomoButton">🔍 Detect</button> 
-                                    <button class="btn btn-info" id="updateCoreButton" title="Update Mihomo Core">🔄 Update</button>
+                                    <button class="btn btn-info" id="updateCoreButton" title="Update Mihomo Core" onclick="showMihomoVersionSelector()">🔄 Update</button>
                                 </div>
                             </div>
                         </div>
@@ -173,7 +173,54 @@ $uiVersion = getUiVersion();
             </tr>
         </tbody>
     </table>
+<div class="modal fade" id="updateVersionModal" tabindex="-1" aria-labelledby="updateVersionModalLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="updateVersionModalLabel">Select the updated version of the language</h5>
+                <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label for="languageSelect">Select Language</label>
+                    <select id="languageSelect" class="form-select">
+                        <option value="en">English</option>
+                        <option value="cn">Chinese</option>
+                    </select>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">cancel</button>
+                <button type="button" class="btn btn-primary" onclick="confirmUpdateVersion()">confirm</button>
+            </div>
+        </div>
+    </div>
+</div>
 
+<div class="modal fade" id="mihomoVersionSelectionModal" tabindex="-1" aria-labelledby="mihomoVersionSelectionModalLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="mihomoVersionSelectionModalLabel">Select Mihomo Kernel Version</h5>
+                <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <select id="mihomoVersionSelect" class="form-select">
+                    <option value="stable">Stable</option>
+                    <option value="preview">Preview</option>
+                </select>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">cancel</button>
+                <button type="button" class="btn btn-primary" onclick="confirmMihomoVersion()">confirm</button>
+            </div>
+        </div>
+    </div>
+</div>
 <div class="modal fade" id="optionsModal" tabindex="-1" aria-labelledby="optionsModalLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
@@ -288,10 +335,32 @@ $uiVersion = getUiVersion();
 
 <script>
 let selectedSingboxVersion = 'v1.11.0-alpha.6';  
+let selectedMihomoVersion = 'stable';  
+let selectedLanguage = 'en';  
+
+function showUpdateVersionModal() {
+    $('#updateVersionModal').modal('show');  
+}
+
+function confirmUpdateVersion() {
+    selectedLanguage = document.getElementById('languageSelect').value;  
+    $('#updateVersionModal').modal('hide');  
+    selectOperation('client'); 
+}
 
 function showSingboxVersionSelector() {
     $('#optionsModal').modal('hide');  
     $('#versionSelectionModal').modal('show');  
+}
+
+function showMihomoVersionSelector() {
+    $('#mihomoVersionSelectionModal').modal('show');
+}
+
+function confirmMihomoVersion() {
+    selectedMihomoVersion = document.getElementById('mihomoVersionSelect').value;
+    $('#mihomoVersionSelectionModal').modal('hide');  
+    selectOperation('mihomo');
 }
 
 function confirmSingboxVersion() {
@@ -333,6 +402,18 @@ function selectOperation(type) {
             url: 'update_config.php',
             message: 'Starting to download Mihomo configuration file...',
             description: 'Updating Mihomo configuration file to the latest version'
+        },
+        'mihomo': {
+            url: selectedMihomoVersion === 'stable' 
+                ? 'update_mihomo_stable.php' 
+                : 'update_mihomo_preview.php',  
+            message: 'Starting to download Mihomo Kernel updates...',
+            description: 'Updating Mihomo Kernel to the latest version (' + selectedMihomoVersion + ')'
+        },
+        'client': {
+            url: 'update_script.php?lang=' + selectedLanguage,  
+            message: 'Starting to download client updates...',
+            description: 'Updating the client to the latest version'
         }
     };
 
@@ -343,7 +424,6 @@ function selectOperation(type) {
         }, 500);
     }
 }
-
 
 function initiateUpdate(url, logMessage, description) {
     const xhr = new XMLHttpRequest();
@@ -379,16 +459,8 @@ document.addEventListener('DOMContentLoaded', function() {
         $('#optionsModal').modal('show');
     });
 
-    document.getElementById('updateButton').addEventListener('click', function() {
-        initiateUpdate('update_script.php', 'Starting to download client update...', 'Updating client to the latest version');
-    });
-
     document.getElementById('updateUiButton').addEventListener('click', function() {
         initiateUpdate('ui.php', 'Starting download UI panel update...');
-    });
-
-    document.getElementById('updateCoreButton').addEventListener('click', function() {
-        initiateUpdate('core.php', 'Starting to download Mihomo core update...', 'Updating Mihomo core to the latest version');
     });
 });
 </script>
@@ -441,7 +513,7 @@ document.getElementById('checkCliverButton').addEventListener('click', function(
 });
 
 document.getElementById('checkMihomoButton').addEventListener('click', function() {
-    checkVersion('checkMihomoButton', 'NewMihomo', 'core.php');
+    checkVersion('checkMihomoButton', 'NewMihomo', 'update_mihomo_stable.php');
 });
 
 document.getElementById('checkUiButton').addEventListener('click', function() {
