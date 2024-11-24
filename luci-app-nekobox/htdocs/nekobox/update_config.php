@@ -20,31 +20,22 @@ function downloadFile($url, $destination, $retries = 3, $timeout = 30) {
                 mkdir($dir, 0755, true);
             }
 
-            $ch = curl_init($url);
-            curl_setopt_array($ch, [
-                CURLOPT_RETURNTRANSFER => true,
-                CURLOPT_FOLLOWLOCATION => true,
-                CURLOPT_TIMEOUT => $timeout,
-                CURLOPT_SSL_VERIFYPEER => false,
-                CURLOPT_USERAGENT => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
-            ]);
+            $command = sprintf(
+                "wget -q --timeout=%d --tries=%d --header='Accept-Charset: utf-8' -O %s %s",
+                $timeout, 
+                $retries, 
+                escapeshellarg($destination),
+                escapeshellarg($url)
+            );
 
-            $content = curl_exec($ch);
-            $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+            $output = [];
+            $return_var = null;
+            exec($command, $output, $return_var);
             
-            if ($content === false) {
-                throw new Exception("Download failed: " . curl_error($ch));
+            if ($return_var !== 0) {
+                throw new Exception("wget error message: " . implode("\n", $output));
             }
             
-            if ($httpCode !== 200) {
-                throw new Exception("HTTP response code error: $httpCode");
-            }
-            
-            if (file_put_contents($destination, $content) === false) {
-                throw new Exception("Unable to save file to $destination");
-            }
-            
-            curl_close($ch);
             logMessage(basename($destination), "Download and save successful");
             return true;
             

@@ -6,7 +6,7 @@ include $(TOPDIR)/rules.mk
 
 PKG_MAINTAINER:=Thaolga <https://github.com/Thaolga/luci-app-nekobox>
 PKG_NAME:=luci-app-nekobox
-PKG_VERSION:=1.5.4
+PKG_VERSION:=1.5.5
 PKG_RELEASE:=en
 
 PKG_BUILD_DIR:=$(BUILD_DIR)/$(PKG_NAME)
@@ -14,13 +14,13 @@ PKG_BUILD_DIR:=$(BUILD_DIR)/$(PKG_NAME)
 define Package/$(PKG_NAME)
 	CATEGORY:=LuCI
 	SUBMENU:=3. Applications
-	TITLE:=LuCI support for mihomo
+	TITLE:=LuCI support for mihomo & sing-box
 	PKGARCH:=all
-	DEPENDS:=+kmod-tun +bash +curl +jq +php8 +php8-cgi +php8-mod-curl +php8-mod-zip
+	DEPENDS:=+kmod-tun +bash +curl +jq +php8 +php8-cgi +php8-mod-curl +php8-mod-zip 
 endef
 
 define Package/$(PKG_NAME)/description
-    A LuCI support for mihomo
+    A LuCI support for mihomo & sing-box
 endef
 
 include $(INCLUDE_DIR)/package.mk
@@ -60,8 +60,6 @@ endef
 define Package/$(PKG_NAME)/postinst
 #!/bin/sh
 	if [ -f "/tmp/neko/neko.bak" ]; then
-		cp -rf "/tmp/neko/core/mihomo" "/etc/neko/core/mihomo"
-		chmod 0755 /etc/neko/core/mihomo
 		cp -rf "/tmp/neko/geoip.metadb" "/etc/neko/geoip.metadb"
 		cp -rf "/tmp/neko/geosite.db" "/etc/neko/geosite.db"
 
