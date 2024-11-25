@@ -583,7 +583,6 @@ show_menu() {
     done
     echo -e "${CLCyan}╠════════════════════════════════════════════════════════╣"
     if [ "$language" = "cn" ]; then
-        echo -e "${CLGreen}注意: 执行 1. 安装 NeKoBox 后，正常情况下无需单独安装 UI 控制面板和 PHP8，只有缺少依赖时才需要安装。${NC}"
         printf "${CLCyan}  %-54s ${NC}\n" "1. 安装 NeKoBox (中文)"
         printf "${CLCyan}  %-54s ${NC}\n" "2. 安装 NeKoBox (英文)"
         printf "${CLCyan}  %-54s ${NC}\n" "3. 安装 Mihomo 核心"
@@ -594,7 +593,6 @@ show_menu() {
         printf "${CLCyan}  %-54s ${NC}\n" "8. 切换到英文界面"
         printf "${CLCyan}  %-54s ${NC}\n" "0. 退出"
     else
-        echo -e "${CLGreen}Note: After executing 1. Install NeKoBox, you generally do not need to install UI Control Panel and PHP8, unless dependencies are missing.${NC}"
         printf "${CLCyan}  %-54s ${NC}\n" "1. Install NeKoBox (Chinese)"
         printf "${CLCyan}  %-54s ${NC}\n" "2. Install NeKoBox (English)"
         printf "${CLCyan}  %-54s ${NC}\n" "3. Install Mihomo Core"
@@ -612,6 +610,15 @@ main_menu() {
     local language=${1:-"en"}
     while true; do
         show_menu "$language"
+
+        if [ "$language" = "cn" ]; then
+            echo -e "${CLGreen}注意: 执行 1. 安装 NeKoBox 后，正常情况下无需单独安装 UI 控制面板和 PHP8，只有缺少依赖时才需要安装。${NC}"
+        else
+            echo -e "${CLGreen}Note: After executing 1. Install NeKoBox, you generally do not need to install UI Control Panel and PHP8, unless dependencies are missing.${NC}"
+        fi
+
+        echo -e "${CLCyan}╠════════════════════════════════════════════════════════╣"
+        
         if [ "$language" = "cn" ]; then
             read -p "请输入选项并按回车: " choice
         else
