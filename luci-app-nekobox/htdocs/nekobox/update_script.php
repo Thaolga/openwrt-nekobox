@@ -59,6 +59,12 @@ if ($return_var !== 0 || !file_exists($local_file)) {
 
 echo "<script>appendLog('Download complete.');</script>";
 
+echo "<script>appendLog('Updating package list...');</script>";
+$output = shell_exec("opkg update");
+echo "<pre>$output</pre>";
+
+echo "<script>appendLog('Starting installation...');</script>";
+
 $output = shell_exec("opkg install --force-reinstall " . escapeshellarg($local_file));
 echo "<pre>$output</pre>";
 echo "<script>appendLog('Installation complete.');</script>";
