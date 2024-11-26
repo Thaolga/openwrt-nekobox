@@ -213,9 +213,8 @@ function createStartScript($configFile) {
 
 function writeToLog($message) {
     global $log;
-    $dateTime = new DateTime();
-    $dateTime->modify('+8 hours');  
-    $time = $dateTime->format('H:i:s');
+    $dateTime = new DateTime();  
+    $time = $dateTime->format('H:i:s'); 
     $logMessage = "[ $time ] $message\n";
     if (file_put_contents($log, $logMessage, FILE_APPEND) === false) {
         error_log("Failed to write to log file: $log");

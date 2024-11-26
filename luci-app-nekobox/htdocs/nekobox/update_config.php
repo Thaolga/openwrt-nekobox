@@ -6,7 +6,7 @@ $logMessages = [];
 
 function logMessage($filename, $message) {
     global $logMessages;
-    $timestamp = date('H:i:s', strtotime('+8 hours'));
+    $timestamp = date('H:i:s');
     $logMessages[] = "[$timestamp] $filename: $message";
 }
 

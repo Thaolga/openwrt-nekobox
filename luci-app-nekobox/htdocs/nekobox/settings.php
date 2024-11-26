@@ -233,7 +233,7 @@ $uiVersion = getUiVersion();
             <div class="modal-body">
                 <div class="d-grid gap-2">
                     <button class="btn btn-info" onclick="showSingboxVersionSelector()">Update Singbox Core (Channel One)</button>
-                    <button class="btn btn-success" onclick="selectOperation('sing-box')">Update Singbox Core (Channel Two)</button>
+                    <button class="btn btn-success" onclick="showSingboxVersionSelectorForChannelTwo()">Update Singbox Core (Channel Two)</button>
                     <button class="btn btn-success" onclick="selectOperation('puernya')">Switch to Puernya Core</button>
                     <button class="btn btn-primary" onclick="selectOperation('rule')">Update Singbox Rule Set</button>
                     <button class="btn btn-primary" onclick="selectOperation('config')">Update Mihomo Configuration File</button>
@@ -264,6 +264,30 @@ $uiVersion = getUiVersion();
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">cancel</button>
                 <button type="button" class="btn btn-primary" onclick="confirmSingboxVersion()">confirm</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="singboxVersionModal" tabindex="-1" aria-labelledby="singboxVersionModalLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="singboxVersionModalLabel">Select Singbox core version (Channel 2)</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label for="singboxVersionSelectForChannelTwo">Select version</label>
+                    <select id="singboxVersionSelectForChannelTwo" class="form-control">
+                        <option value="preview" selected>Preview</option>  
+                        <option value="stable">Stable</option>
+                    </select>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">cancel</button>
+                <button type="button" class="btn btn-primary" onclick="confirmSingboxVersionForChannelTwo()">confirm</button>
             </div>
         </div>
     </div>
@@ -337,6 +361,7 @@ $uiVersion = getUiVersion();
 let selectedSingboxVersion = 'v1.11.0-alpha.6';  
 let selectedMihomoVersion = 'stable';  
 let selectedLanguage = 'en';  
+let selectedSingboxVersionForChannelTwo = 'preview'; 
 
 function showUpdateVersionModal() {
     $('#updateVersionModal').modal('show');  
@@ -352,6 +377,17 @@ function showSingboxVersionSelector() {
     $('#optionsModal').modal('hide');  
     $('#versionSelectionModal').modal('show');  
 }
+
+function showSingboxVersionSelectorForChannelTwo() {
+    $('#optionsModal').modal('hide');  
+    $('#singboxVersionModal').modal('show');  
+}
+
+function confirmSingboxVersionForChannelTwo() {
+    selectedSingboxVersionForChannelTwo = document.getElementById('singboxVersionSelectForChannelTwo').value; 
+    $('#singboxVersionModal').modal('hide'); 
+    selectOperation('sing-box');
+} 
 
 function showMihomoVersionSelector() {
     $('#mihomoVersionSelectionModal').modal('show');
@@ -384,9 +420,11 @@ function selectOperation(type) {
             description: 'Updating Singbox core to the latest version'
         },
         'sing-box': {
-            url: 'singbox.php',
+            url: selectedSingboxVersionForChannelTwo === 'stable'  
+                ? 'update_singbox_stable.php'  
+                : 'update_singbox_preview.php', 
             message: 'Starting to download Singbox core update...',
-            description: 'Updating Singbox core to the latest version'
+            description: 'Updating Singbox core to ' + selectedSingboxVersionForChannelTwo + ' version'
         },
         'puernya': {
             url: 'puernya.php',
@@ -505,7 +543,7 @@ function checkVersion(buttonId, outputId, url) {
 }
 
 document.getElementById('checkSingboxButton').addEventListener('click', function() {
-    checkVersion('checkSingboxButton', 'NewSingbox', 'singbox.php');
+    checkVersion('checkSingboxButton', 'NewSingbox', 'update_singbox_preview.php');
 });
 
 document.getElementById('checkCliverButton').addEventListener('click', function() {

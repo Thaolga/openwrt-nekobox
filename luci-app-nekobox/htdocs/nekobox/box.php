@@ -21,6 +21,98 @@ if (file_exists($dataFilePath)) {
         }
     }
 }
+
+if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['setCron'])) {
+    $cronExpression = trim($_POST['cronExpression']);
+    $shellScriptPath = '/etc/neko/core/update_subscription.sh'; 
+
+    if (preg_match('/^(\*|\d+)( (\*|\d+)){4}$/', $cronExpression)) {
+        $cronJob = "$cronExpression $shellScriptPath";
+        $currentCrons = shell_exec('crontab -l 2>/dev/null'); 
+        $updatedCrons = preg_replace(
+            "/^.*".preg_quote($shellScriptPath, '/').".*$/m",
+            '', 
+            $currentCrons
+        ); 
+
+        $updatedCrons = trim($updatedCrons) . "\n" . $cronJob . "\n"; 
+
+        $tempCronFile = tempnam(sys_get_temp_dir(), 'cron');
+        file_put_contents($tempCronFile, $updatedCrons);
+        exec("crontab $tempCronFile"); 
+        unlink($tempCronFile); 
+
+        echo "<div class='alert alert-success'>Scheduled task has been set: $cronExpression</div>";
+    } else {
+        echo "<div class='alert alert-danger'>Invalid Cron expression. Please check the format</div>";
+    }
+}
+
+?>
+
+<?php
+$shellScriptPath = '/etc/neko/core/update_subscription.sh';
+$DATA_FILE = '/tmp/subscription_data.txt'; 
+$LOG_FILE = '/tmp/update_subscription.log'; 
+$SUBSCRIBE_URL = '';
+
+if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+    if (isset($_POST['subscribeUrl'])) {
+        $SUBSCRIBE_URL = trim($_POST['subscribeUrl']);
+        
+        if (empty($SUBSCRIBE_URL)) {
+            echo "<div class='alert alert-warning'>The subscription link cannot be empty</div>";
+            exit;
+        }
+        
+        echo "<div class='alert alert-success'>Submission successful: The subscription link has been saved as $SUBSCRIBE_URL</div>";
+    }
+
+    if (isset($_POST['createShellScript'])) {
+        $shellScriptContent = <<<EOL
+#!/bin/sh
+
+DATA_FILE="/tmp/subscription_data.txt"
+CONFIG_DIR="/etc/neko/config"
+LOG_FILE="/tmp/update_subscription.log"
+TEMPLATE_URL="https://raw.githubusercontent.com/Thaolga/Rules/main/Clash/json/config_8.json"
+SUBSCRIBE_URL=$(grep "Subscription link address:" "$DATA_FILE" | tail -1 | sed 's/^[^|]*| //g' | cut -d ':' -f2- | tr -d '\n\r' | xargs)
+
+if [ -z "\$SUBSCRIBE_URL" ]; then
+  echo "\$(date): The subscription link is empty or extraction failed" >> "\$LOG_FILE"
+  exit 1
+fi
+
+COMPLETE_URL="https://sing-box-subscribe-doraemon.vercel.app/config/\${SUBSCRIBE_URL}&file=\${TEMPLATE_URL}"
+echo "\$(date): Generated subscription link: \$COMPLETE_URL" >> "\$LOG_FILE"
+
+if [ ! -d "\$CONFIG_DIR" ]; then
+  mkdir -p "\$CONFIG_DIR"
+  if [ \$? -ne 0 ]; then
+    echo "\$(date): Unable to create the configuration directory: \$CONFIG_DIR" >> "\$LOG_FILE"
+    exit 1
+  fi
+fi
+
+CONFIG_FILE="\$CONFIG_DIR/sing-box.json"
+wget -O "\$CONFIG_FILE" "\$COMPLETE_URL" >> "\$LOG_FILE" 2>&1
+
+if [ \$? -eq 0 ]; then
+  echo "\$(date): Configuration file updated successfully. Save path: \$CONFIG_FILE" >> "\$LOG_FILE"
+else
+  echo "\$(date): Configuration file update failed. Please check the link or network" >> "\$LOG_FILE"
+  exit 1
+fi
+EOL;
+
+        if (file_put_contents($shellScriptPath, $shellScriptContent) !== false) {
+            chmod($shellScriptPath, 0755);
+            echo "<div class='alert alert-success'>The Shell script has been successfully created! Path: $shellScriptPath</div>";
+        } else {
+            echo "<div class='alert alert-danger'>Unable to create the Shell script. Please check the permissions</div>";
+        }
+    }
+}
 ?>
 
 <!doctype html>
@@ -38,6 +130,7 @@ if (file_exists($dataFilePath)) {
     <script type="text/javascript" src="./assets/bootstrap/bootstrap.bundle.min.js"></script>
     <script type="text/javascript" src="./assets/js/jquery-2.1.3.min.js"></script>
     <script type="text/javascript" src="./assets/js/neko.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
 </head>
 <body>
 <style>
@@ -63,7 +156,10 @@ if (file_exists($dataFilePath)) {
         <h1 class="title text-center" style="margin-top: 3rem; margin-bottom: 2rem;">Sing-box Subscription Conversion Template</h1>
         <div class="alert alert-info">
             <h4 class="alert-heading">Help Information</h4>
-            <p>Please select a template to generate the configuration file: Choose the corresponding template based on the subscription node information. If you select a template with regional grouping, please ensure that your nodes include the following lines</p>
+            <p>
+                  Please select a template to generate the configuration file: Choose the corresponding template based on the subscription node information. If you select a template with regional grouping, please ensure that your nodes include the following lines</p>
+                  <strong>Explanation</strong>: The scheduled task is an automatic update operation, and by default, it uses template number 6 to generate the configuration file, with the file name <strong>sing-box.json</strong>。
+            </p>
             <ul>
                 <li><strong>Default template 1</strong>：No region, no grouping, general</li>
                 <li><strong>Default template 2</strong>：No region, with routing rules, general</li>
@@ -76,7 +172,7 @@ if (file_exists($dataFilePath)) {
         <form method="post" action="">
             <div class="mb-3">
                 <label for="subscribeUrl" class="form-label">Subscription Link Address:</label>
-                <input type="text" class="form-control" id="subscribeUrl" name="subscribeUrl" value="<?php echo htmlspecialchars($lastSubscribeUrl); ?>" required>
+                <input type="text" class="form-control" id="subscribeUrl" name="subscribeUrl" value="<?php echo htmlspecialchars($lastSubscribeUrl); ?>" placeholder="Enter the subscription link" required>
             </div>
             <div class="mb-3">
                 <label for="customFileName" class="form-label">Custom filename (no extension needed)</label>
@@ -116,10 +212,57 @@ if (file_exists($dataFilePath)) {
                     <input type="text" class="form-control" id="customTemplateUrl" name="customTemplateUrl" placeholder="Enter Custom Template URL">
                 </div>
             </fieldset>
-            <div class="mb-3">
-                <button type="submit" name="generateConfig" class="btn btn-info">Generate Configuration File</button>
+            <div class="row mb-4"> 
+                <div class="col-auto">
+                    <form method="post" action="">
+                        <button type="submit" name="generateConfig" class="btn btn-info">
+                            <i class="bi bi-file-earmark-text"></i> Generate a configuration file
+                        </button>
+                    </form>
+                </div>
+                <div class="col-auto">
+                    <button type="button" class="btn btn-secondary" data-bs-toggle="modal" data-bs-target="#cronModal">
+                        <i class="bi bi-clock"></i> Set up a scheduled task
+                    </button>
+                </div>
+                <div class="col-auto">
+                    <form method="post" action="">
+                        <button type="submit" name="createShellScript" class="btn btn-primary">
+                            <i class="bi bi-terminal"></i> Generate an update script
+                        </button>
+                    </form>
+                </div>
             </div>
-        </form>
+        <div class="modal fade" id="cronModal" tabindex="-1" aria-labelledby="cronModalLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+          <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h5 class="modal-title" id="cronModalLabel">Set up a scheduled task</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+              </div>
+              <form method="post" action="">
+                <div class="modal-body">
+                  <div class="mb-3">
+                    <label for="cronExpression" class="form-label">Cron expression</label>
+                    <input type="text" class="form-control" id="cronExpression" name="cronExpression" placeholder="For example: 0 3 * * * (Every day at 3 AM)" required>
+                  </div>
+                  <div class="alert alert-info">
+                    <strong>Hint:</strong> Cron expression format：
+                    <ul>
+                      <li><code>Minute Hour Day Month Weekday</code></li>
+                      <li>Example: Every day at 2 AM: <code>0 2 * * *</code></li>
+                      <li>Every Monday at 3 AM: <code>0 3 * * 1</code></li>
+                    </ul>
+                  </div>
+                </div>
+                <div class="modal-footer">
+                  <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                  <button type="submit" name="setCron" class="btn btn-primary">Save</button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
         <?php
         $dataFilePath = '/tmp/subscription_data.txt';
         $configFilePath = '/etc/neko/config/sing-box.json';
@@ -130,7 +273,7 @@ if (file_exists($dataFilePath)) {
             $customTemplateUrl = trim($_POST['customTemplateUrl']);
             $templateOption = $_POST['templateOption'] ?? 'default';
             $currentTime = date('Y-m-d H:i:s');
-            $dataContent = $currentTime . " | Subscription Link Address: " . $subscribeUrl . "\n" ;
+            $dataContent = $currentTime . " | Subscription Link Address: " . $subscribeUrl . "\n";            
             $customFileName = trim($_POST['customFileName']);
             if (empty($customFileName)) {
                $customFileName = 'sing-box';  
@@ -196,10 +339,10 @@ if (file_exists($dataFilePath)) {
             echo "<div class='mb-3'>";
             echo "<textarea id='configContent' name='configContent' class='form-control' style='height: 300px;'>" . htmlspecialchars($downloadedContent) . "</textarea>";
             echo "</div>";
-            echo "<div class='text-center' mt-3>";
-            echo "<button class='btn btn-info me-3' type='button' onclick='copyToClipboard()'><i class='fas fa-copy'></i> Copy to Clipboard</button>";
+            echo "<div class='text-center' mb-3>";
+            echo "<button class='btn btn-info me-3' type='button' onclick='copyToClipboard()'><i class='bi bi-clipboard'></i> Copy to Clipboard</button>";
             echo "<input type='hidden' name='saveContent' value='1'>";
-            echo "<button class='btn btn-success' type='submit'>Save Changes</button>";
+            echo "<button class='btn btn-success' type='submit'><i class='bi bi-save'></i>Save Changes</button>";
             echo "</div>";
             echo "</form>";
             echo "</div>";
