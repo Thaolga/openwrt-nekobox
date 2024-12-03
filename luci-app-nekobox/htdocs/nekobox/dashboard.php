@@ -46,14 +46,15 @@ $dash_link = $neko_cfg['ctrl_host'] . ':' . $neko_cfg['ctrl_port'] . '/ui/dashbo
 <div class="container text-left p-3">
         <div class="container h-100 mb-5">
             <h2 class="text-center p-2">Meta Panel</h2>
+            <button id="fullscreenToggle" class="btn btn-primary mb-2">Fullscreen</button>
             <iframe class="border border-3 rounded-4 w-100" style="height: 70vh;" src="http://<?php echo $yacd_link; ?>" title="yacd" allowfullscreen></iframe>
             <table class="table table-borderless callout mb-2">
                 <tbody>
                     <tr class="text-center d-flex flex-wrap justify-content-center">
-                        <td><a class="btn btn-info btn-sm text-white" target="_blank" href="http://<?php echo $yacd_link; ?>">YACD-META 面板</a></td>
-                        <td><a class="btn btn-info btn-sm text-white" target="_blank" href="http://<?php echo $zash_link; ?>">ZASHBOARD 面板</a></td>
-                        <td><a class="btn btn-info btn-sm text-white" target="_blank" href="http://<?php echo $dash_link; ?>">DASHBOARD 面板</a></td>
-                        <td><a class="btn btn-info btn-sm text-white" target="_blank" href="http://<?php echo $meta_link; ?>">METACUBEXD 面板</a></td>
+                        <td><a class="btn btn-info btn-sm text-white" target="_blank" href="http://<?php echo $yacd_link; ?>">YACD-META Panel</a></td>
+                        <td><a class="btn btn-info btn-sm text-white" target="_blank" href="http://<?php echo $zash_link; ?>">ZASHBOARD Panel</a></td>
+                        <td><a class="btn btn-info btn-sm text-white" target="_blank" href="http://<?php echo $dash_link; ?>">DASHBOARD Panel</a></td>
+                        <td><a class="btn btn-info btn-sm text-white" target="_blank" href="http://<?php echo $meta_link; ?>">METACUBEXD Panel</a></td>
                     </tr>
                 </tbody>
             </table>
@@ -63,6 +64,40 @@ $dash_link = $neko_cfg['ctrl_host'] . ':' . $neko_cfg['ctrl_port'] . '/ui/dashbo
         <p><?php echo $footer; ?></p>
     </footer>
 </div>
-</body>
+    <script>
+    document.addEventListener("DOMContentLoaded", function() {
+        const fullscreenToggle = document.getElementById('fullscreenToggle');
+        const iframe = document.getElementById('iframeMeta');
+        const iframeContainer = iframe.closest('div'); 
+        let isFullscreen = false; 
+        fullscreenToggle.addEventListener('click', function() {
+            if (!isFullscreen) {
+                if (iframeContainer.requestFullscreen) {
+                    iframeContainer.requestFullscreen();
+                } else if (iframeContainer.mozRequestFullScreen) { 
+                    iframeContainer.mozRequestFullScreen();
+                } else if (iframeContainer.webkitRequestFullscreen) {
+                    iframeContainer.webkitRequestFullscreen();
+                } else if (iframeContainer.msRequestFullscreen) {
+                    iframeContainer.msRequestFullscreen();
+                }
+                fullscreenToggle.textContent = 'Exit Fullscreen';  
+                isFullscreen = true;  
+            } else {
+                if (document.exitFullscreen) {
+                    document.exitFullscreen();
+                } else if (document.mozCancelFullScreen) { 
+                    document.mozCancelFullScreen();
+                } else if (document.webkitExitFullscreen) { 
+                    document.webkitExitFullscreen();
+                } else if (document.msExitFullscreen) {
+                    document.msExitFullscreen();
+                }
+                fullscreenToggle.textContent = 'Fullscreen'; 
+                isFullscreen = false;  
+                }
+            });
+        });
+    </script>
+  </body>
 </html>
-
