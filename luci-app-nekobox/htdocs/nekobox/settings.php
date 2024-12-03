@@ -132,13 +132,13 @@ $uiVersion = getUiVersion();
                         </div>
                             <div class="col-md-6 mb-3">
                                 <div class="text-center">
-                                    <h3>Metacubexd Panel</h3>
+                                    <h3>Ui Panel</h3>
                                     <div class="form-control text-center">
                                         <?php echo htmlspecialchars($uiVersion); ?>&nbsp;<span id="NewUi"> </span>
                                     </div>
                                     <div class="text-center mt-2">
                                         <button class="btn btn-pink" id="checkUiButton">🔍 Detect</button> 
-                                        <button class="btn btn-info" id="updateUiButton" title="Update Metacubexd Panel">🔄 Update</button>
+                                        <button class="btn btn-info" id="updateUiButton" title="Update Metacubexd Panel" onclick="showPanelSelector()">🔄 Update</button>
                                     </div>
                                 </div>
                             </div>
@@ -293,6 +293,30 @@ $uiVersion = getUiVersion();
     </div>
 </div>
 
+<div id="panelSelectionModal" class="modal fade" tabindex="-1" aria-labelledby="panelSelectionModalLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="panelSelectionModalLabel">Selection Panel</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label for="panelSelect">Select a Panel</label>
+                    <select id="panelSelect" class="form-select">
+                        <option value="metacubexd">Metacubexd Panel</option>
+                        <option value="zashboard">Zashboard Panel</option>
+                    </select>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">cancel</button>
+                <button type="button" class="btn btn-primary" onclick="confirmPanelSelection()">confirm</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <div class="modal fade" id="updateModal" tabindex="-1" aria-labelledby="updateModalLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
@@ -362,6 +386,17 @@ let selectedSingboxVersion = 'v1.11.0-alpha.6';
 let selectedMihomoVersion = 'stable';  
 let selectedLanguage = 'en';  
 let selectedSingboxVersionForChannelTwo = 'preview'; 
+let selectedPanel = 'metacubexd';
+
+function showPanelSelector() {
+    $('#panelSelectionModal').modal('show');
+}
+
+function confirmPanelSelection() {
+    selectedPanel = document.getElementById('panelSelect').value;
+    $('#panelSelectionModal').modal('hide'); 
+    selectOperation('panel');
+}
 
 function showUpdateVersionModal() {
     $('#updateVersionModal').modal('show');  
@@ -452,9 +487,20 @@ function selectOperation(type) {
             url: 'update_script.php?lang=' + selectedLanguage,  
             message: 'Starting to download client updates...',
             description: 'Updating the client to the latest version'
+        },
+
+        'panel': { 
+            url: selectedPanel === 'metacubexd' 
+                ? 'update_metacubexd.php' 
+                : 'update_zashboard.php', 
+            message: selectedPanel === 'metacubexd' 
+                ? 'Start downloading the Metacubexd panel update...' 
+                : 'Start downloading the Zashboard panel update...', 
+            description: selectedPanel === 'metacubexd' 
+                ? 'Updating Metacubexd panel to the latest version' 
+                : 'Updating Zashboard panel to the latest version' 
         }
     };
-
     const operation = operations[type];
     if (operation) {
         setTimeout(function() {
@@ -498,7 +544,7 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     document.getElementById('updateUiButton').addEventListener('click', function() {
-        initiateUpdate('ui.php', 'Starting download UI panel update...');
+        showPanelSelector();  
     });
 });
 </script>
@@ -555,7 +601,7 @@ document.getElementById('checkMihomoButton').addEventListener('click', function(
 });
 
 document.getElementById('checkUiButton').addEventListener('click', function() {
-    checkVersion('checkUiButton', 'NewUi', 'ui.php');
+    checkVersion('checkUiButton', 'NewUi', 'update_metacubexd.php');
 });
 </script>
 
