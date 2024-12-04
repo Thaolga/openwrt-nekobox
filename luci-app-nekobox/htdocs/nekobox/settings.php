@@ -123,7 +123,7 @@ $uiVersion = getUiVersion();
                             <div class="text-center">
                                 <h3>客户端版本</h3>
                                 <div class="form-control text-center" style="font-family: monospace; text-align: center;">
-                                    <span id="cliver"></span>&nbsp;<span id="NewCliver"> </span>
+                                    <span id="cliver"></span><span id="NewCliver"> </span>
                                 </div>
                                 <div class="text-center mt-2">
                                     <button class="btn btn-pink" id="checkCliverButton">🔍 检测版本</button>
@@ -135,7 +135,7 @@ $uiVersion = getUiVersion();
                             <div class="text-center">
                                 <h3>Ui 控制面板</h3>
                                 <div class="form-control text-center">
-                                    <?php echo htmlspecialchars($uiVersion); ?>&nbsp;<span id="NewUi"> </span>
+                                    <?php echo htmlspecialchars($uiVersion); ?><span id="NewUi"> </span>
                                 </div>
                                 <div class="text-center mt-2">
                                     <button class="btn btn-pink" id="checkUiButton">🔍 检测版本</button> 
@@ -148,7 +148,7 @@ $uiVersion = getUiVersion();
                                 <h3>Sing-box 核心版本</h3>
                                 <div class="form-control text-center">
                                     <div id="singBoxCorever">
-                                        <?php echo htmlspecialchars($singBoxVersion); ?>&nbsp;<span id="NewSingbox"></span>
+                                        <?php echo htmlspecialchars($singBoxVersion); ?><span id="NewSingbox"></span>
                                     </div>
                                 </div>
                                 <div class="text-center mt-2">
@@ -161,7 +161,7 @@ $uiVersion = getUiVersion();
                             <div class="text-center">
                                 <h3>Mihomo 核心版本</h3>
                                 <div class="form-control text-center">
-                                    <span id="corever"></span>&nbsp;<span id="NewMihomo"> </span>
+                                    <span id="corever"></span><span id="NewMihomo"> </span>
                                 </div>
                                 <div class="text-center mt-2">
                                     <button class="btn btn-pink" id="checkMihomoButton">🔍 检测版本</button> 
@@ -264,6 +264,7 @@ $uiVersion = getUiVersion();
                     <option value="v1.11.0-alpha.10">v1.11.0-alpha.10</option>
                     <option value="v1.11.0-alpha.15">v1.11.0-alpha.15</option>
                     <option value="v1.11.0-alpha.20">v1.11.0-alpha.20</option>
+                    <option value="v1.11.0-beta.5">v1.11.0-beta.5</option>
                 </select>
             </div>
             <div class="modal-footer">
