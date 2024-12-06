@@ -47,7 +47,7 @@ $dash_link = $neko_cfg['ctrl_host'] . ':' . $neko_cfg['ctrl_port'] . '/ui/dashbo
         <div class="container h-100 mb-5">
             <h2 class="text-center p-2">Meta Panel</h2>
             <button id="fullscreenToggle" class="btn btn-primary mb-2">Fullscreen</button>
-            <iframe id="iframeMeta" class="border border-3 rounded-4 w-100" style="height: 75vh;" src="http://<?php echo $yacd_link; ?>" title="yacd" allowfullscreen></iframe>
+            <iframe id="iframeMeta" class="border border-3 rounded-4 w-100" style="height: 75vh;" src="http://<?php echo $zash_link; ?>" title="zash" allowfullscreen></iframe>
             <table class="table table-borderless callout mb-2">
                 <tbody>
                     <tr class="text-center d-flex flex-wrap justify-content-center">
