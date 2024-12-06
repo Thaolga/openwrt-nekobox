@@ -72,6 +72,13 @@ if ($return_var !== 0) {
 }
 echo "Extraction successful \n";
 
+exec("chown -R root:root '$install_path' 2>&1", $output, $return_var);
+if ($return_var !== 0) {
+    echo "Failed to change file owner, error message: " . implode("\n", $output) . "\n";
+    die();
+}
+echo "The file owner has been changed to root.\n";
+
 writeVersionToFile($latest_version); 
 echo "Update complete! Current version: $latest_version";
 

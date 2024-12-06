@@ -1076,7 +1076,7 @@ function initializeAceEditor() {
         <?php endfor; ?>
     </div>
 </form>
-<h2 class="text-success text-center mt-4 mb-4">Subscription Management ➤ Exclusively for P Core</h2>
+<h2 class="text-center mt-4 mb-4">Subscription Management ➤ Exclusively for P Core</h2>
 <div class="help-text mb-3 text-start">
     <strong>1. For first-time Sing-box users, it's essential to update the core to version v1.10.0 or above. We recommend using P core. Make sure to set both outbound and inbound firewall rules to "accept" and enable them.</strong>
 </div>

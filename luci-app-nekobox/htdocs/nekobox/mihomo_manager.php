@@ -1130,7 +1130,7 @@ function initializeAceEditor() {
             }
        }
 </script>
-  <h2 class="text-success text-center mt-4 mb-4">Subscription Management</h2>
+  <h2 class="text-center mt-4 mb-4">Subscription Management</h2>
 <?php if (isset($message) && $message): ?>
     <div class="alert alert-info">
         <?php echo nl2br(htmlspecialchars($message)); ?>
@@ -1176,7 +1176,7 @@ function initializeAceEditor() {
         <button id="base64Button" class="btn btn-primary">Base64 Online Encoder and Decoder</button>
     </div>
 <section id="base64-conversion" class="section-gap">
-    <h2 class="text-success">Base64 Node Information Conversion</h2>
+    <h2>Base64 Node Information Conversion</h2>
     <form method="post">
         <div class="form-group">
             <textarea name="base64_content" id="base64_content" rows="4" class="form-control" placeholder="Paste Base64 content..."" required></textarea>
@@ -1185,8 +1185,8 @@ function initializeAceEditor() {
     </form>
 </section>
 
-<section id="node-conversion" class="section-gap">
-    <h1 class="text-success">Node Conversion Tool</h1>
+<section id="node-conversion" class="section-gap"  style="margin-top: 20px;">
+    <h2>Node Conversion Tool</h2>
     <form method="post">
         <div class="form-group">
             <textarea name="input" rows="10" class="form-control" placeholder="Paste ss//vless//vmess//trojan//hysteria2 node information..."></textarea>

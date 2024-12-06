@@ -15,24 +15,7 @@ function writeVersionToFile($version) {
 
 $repo_owner = "Thaolga";
 $repo_name = "luci-app-nekoclash";
-$api_url = "https://api.github.com/repos/$repo_owner/$repo_name/releases/latest";
-
-$curl_command = "curl -s -H 'User-Agent: PHP' --connect-timeout 10 " . escapeshellarg($api_url);
-$response = shell_exec($curl_command);
-
-if ($response === false || empty($response)) {
-    logMessage("GitHub API request failed, possibly due to network issues or GitHub API limitations.");
-    die("GitHub API request failed. Please check your network connection or try again later.");
-}
-
-$data = json_decode($response, true);
-
-if (json_last_error() !== JSON_ERROR_NONE) {
-    logMessage("Error parsing GitHub API response: " . json_last_error_msg());
-    die("Error parsing GitHub API response: " . json_last_error_msg());
-}
-
-$latest_version = $data['tag_name'] ?? '';
+$latest_version = "1.10.0-alpha.29-067c81a7"; 
 $current_version = ''; 
 $install_path = '/usr/bin/sing-box'; 
 $temp_file = '/tmp/sing-box.tar.gz'; 
@@ -40,6 +23,11 @@ $temp_dir = '/tmp/singbox_temp';
 
 if (file_exists($install_path)) {
     $current_version = trim(shell_exec("{$install_path} --version"));
+}
+
+if (isset($_GET['check_version'])) {
+    echo "Latest version: $latest_version\n";
+    exit;
 }
 
 $current_arch = trim(shell_exec("uname -m"));
@@ -78,7 +66,6 @@ $extracted_file = glob("$temp_dir/CrashCore")[0] ?? '';
 if ($extracted_file && file_exists($extracted_file)) {
     exec("cp -f '$extracted_file' '$install_path'");
     exec("chmod 0755 '$install_path'");
-    $latest_version = "1.10.0-alpha.29-067c81a7";
     writeVersionToFile($latest_version); 
     echo "Update complete! Current version: $latest_version";
 } else {

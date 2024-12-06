@@ -44,7 +44,7 @@ $singBoxVersion = getSingboxVersion();
 <?php
 
 function getUiVersion() {
-    $versionFile = '/etc/neko/ui/metacubexd/version.txt';
+    $versionFile = '/etc/neko/ui/zashboard/version.txt';
     
     if (file_exists($versionFile)) {
         return trim(file_get_contents($versionFile));
@@ -80,7 +80,7 @@ $uiVersion = getUiVersion();
         <a href="./" class="col btn btn-lg">🏠 Home</a>
         <a href="./dashboard.php" class="col btn btn-lg">📊 Panel</a>
         <a href="./configs.php" class="col btn btn-lg">⚙️ Configs</a>
-        <a href="/nekobox/mon.php" class="col btn btn-lg d-flex align-items-center justify-content-center"></i>📦 Document</a> 
+        <a href="./mon.php" class="col btn btn-lg"></i>📦 Document</a> 
         <a href="#" class="col btn btn-lg">🛠️ Settings</a>
         <h2 class="text-center p-2 mb-3">Theme Settings</h2>
         <form action="settings.php" method="post">
@@ -134,7 +134,7 @@ $uiVersion = getUiVersion();
                                 <div class="text-center">
                                     <h3>Ui Panel</h3>
                                     <div class="form-control text-center">
-                                        <?php echo htmlspecialchars($uiVersion); ?>&nbsp;<span id="NewUi"> </span>
+                                        <?php echo htmlspecialchars($uiVersion); ?><span id="NewUi"> </span>
                                     </div>
                                     <div class="text-center mt-2">
                                         <button class="btn btn-pink" id="checkUiButton">🔍 Detect</button> 
@@ -147,7 +147,7 @@ $uiVersion = getUiVersion();
                                 <h3>Sing-box Core Version</h3>
                                 <div class="form-control text-center">
                                     <div id="singBoxCorever">
-                                        <?php echo htmlspecialchars($singBoxVersion); ?>&nbsp;<span id="NewSingbox"></span>
+                                        <?php echo htmlspecialchars($singBoxVersion); ?><span id="NewSingbox"></span>
                                     </div>
                                 </div>
                                 <div class="text-center mt-2">
@@ -160,7 +160,7 @@ $uiVersion = getUiVersion();
                             <div class="text-center">
                                 <h3>Mihomo Core Version</h3>
                                 <div class="form-control text-center">
-                                    <span id="corever"></span>&nbsp;<span id="NewMihomo"> </span>
+                                    <span id="corever"></span><span id="NewMihomo"> </span>
                                 </div>
                                 <div class="text-center mt-2">
                                     <button class="btn btn-pink" id="checkMihomoButton">🔍 Detect</button> 
@@ -304,14 +304,34 @@ $uiVersion = getUiVersion();
                 <div class="form-group">
                     <label for="panelSelect">Select a Panel</label>
                     <select id="panelSelect" class="form-select">
-                        <option value="metacubexd">Metacubexd Panel</option>
                         <option value="zashboard">Zashboard Panel</option>
+                        <option value="metacubexd">Metacubexd Panel</option>
+                        <option value="yacd-meat">Yacd-Meat Panel</option>
                     </select>
                 </div>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">cancel</button>
                 <button type="button" class="btn btn-primary" onclick="confirmPanelSelection()">confirm</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="versionModal" tabindex="-1" aria-labelledby="versionModalLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="versionModalLabel">Version check results</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div id="modalContent">
+                    <p>Loading...</p>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
             </div>
         </div>
     </div>
@@ -386,7 +406,7 @@ let selectedSingboxVersion = 'v1.11.0-alpha.6';
 let selectedMihomoVersion = 'stable';  
 let selectedLanguage = 'en';  
 let selectedSingboxVersionForChannelTwo = 'preview'; 
-let selectedPanel = 'metacubexd';
+let selectedPanel = 'zashboard';
 
 function showPanelSelector() {
     $('#panelSelectionModal').modal('show');
@@ -488,17 +508,28 @@ function selectOperation(type) {
             message: 'Starting to download client updates...',
             description: 'Updating the client to the latest version'
         },
-
         'panel': { 
-            url: selectedPanel === 'metacubexd' 
-                ? 'update_metacubexd.php' 
-                : 'update_zashboard.php', 
-            message: selectedPanel === 'metacubexd' 
-                ? 'Start downloading the Metacubexd panel update...' 
-                : 'Start downloading the Zashboard panel update...', 
-            description: selectedPanel === 'metacubexd' 
-                ? 'Updating Metacubexd panel to the latest version' 
-                : 'Updating Zashboard panel to the latest version' 
+            url: selectedPanel === 'zashboard' 
+                ? 'update_zashboard.php' 
+                : selectedPanel === 'yacd-meat' 
+                    ? 'update_meta.php' 
+                    : selectedPanel === 'metacubexd' 
+                        ? 'update_metacubexd.php' 
+                        : 'unknown_panel.php', 
+            message: selectedPanel === 'zashboard' 
+                ? 'Starting to download Zashboard panel update...' 
+                : selectedPanel === 'yacd-meat' 
+                    ? 'Starting to download Yacd-Meat panel update...' 
+                    : selectedPanel === 'metacubexd' 
+                        ? 'Starting to download Metacubexd panel update...' 
+                        : 'Unknown panel update type...',
+            description: selectedPanel === 'zashboard' 
+                ? 'Updating Zashboard panel to the latest version' 
+                : selectedPanel === 'yacd-meat' 
+                    ? 'Updating Yacd-Meat panel to the latest version' 
+                    : selectedPanel === 'metacubexd' 
+                        ? 'Updating Metacubexd panel to the latest version' 
+                        : 'Unrecognized panel type, unable to update.'
         }
     };
     const operation = operations[type];
@@ -550,58 +581,108 @@ document.addEventListener('DOMContentLoaded', function() {
 </script>
 
 <script>
-function checkVersion(buttonId, outputId, url) {
-    document.getElementById(outputId).innerHTML = 'Checking for new version...';
+function checkVersion(outputId, updateFiles) {
+    const modalContent = document.getElementById('modalContent');
+    const versionModal = new bootstrap.Modal(document.getElementById('versionModal'));
+    modalContent.innerHTML = '<p>Checking for new version...</p>';
+    let results = [];
 
-    var xhr = new XMLHttpRequest();
-    xhr.open('GET', url + '?check_version=true', true);
-    xhr.onload = function() {
-        if (xhr.status === 200) {
-            let responseText = xhr.responseText.trim();
-            const versionMatch = responseText.match(/Latest version:\s*([^\s]+)/);
-
-            if (versionMatch && versionMatch[1]) {
-                const newVersion = versionMatch[1];
-                document.getElementById(outputId).innerHTML = `Latest version: ${newVersion}`;
-
-                if (buttonId === 'checkSingboxButton') {
-                    const select = document.getElementById('singboxVersionSelect');
-                    let versionExists = Array.from(select.options).some(option => option.value === newVersion);
-
-                    if (!versionExists) {
-                        const newOption = document.createElement('option');
-                        newOption.value = newVersion;
-                        newOption.textContent = newVersion;
-                        select.appendChild(newOption);
-                    }
+    const requests = updateFiles.map((file) => {
+        return fetch(file.url + '?check_version=true')
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`Request failed: ${file.name}`);
                 }
-            } else {
-                document.getElementById(outputId).innerHTML = 'Unable to parse version information, please retry later';
-            }
-        } else {
-            document.getElementById(outputId).innerHTML = 'Version check failed, please retry later';
-        }
-    };
-    xhr.onerror = function() {
-        document.getElementById(outputId).innerHTML = 'Network error, please try again later';
-    };
-    xhr.send();
+                return response.text();
+            })
+            .then(responseText => {
+                const versionMatch = responseText.trim().match(/Latest version:\s*([^\s]+)/);
+                if (versionMatch && versionMatch[1]) {
+                    const newVersion = versionMatch[1];
+                    results.push(`
+                        <tr class="table-success">
+                            <td>${file.name}</td>
+                            <td>${newVersion}</td>
+                        </tr>
+                    `);
+
+                    if (file.url === 'update_singbox_preview.php') {
+                        const select = document.getElementById('singboxVersionSelect');
+                        let versionExists = Array.from(select.options).some(option => option.value === newVersion);
+
+                        if (!versionExists) {
+                            const newOption = document.createElement('option');
+                            newOption.value = newVersion;
+                            newOption.textContent = newVersion;
+                            select.appendChild(newOption);
+                        }
+                    }
+                } else {
+                    results.push(`
+                        <tr class="table-warning">
+                            <td>${file.name}</td>
+                            <td>Unable to parse version information</td>
+                        </tr>
+                    `);
+                }
+            })
+            .catch(error => {
+                results.push(`
+                    <tr class="table-danger">
+                        <td>${file.name}</td>
+                        <td>Network Error</td>
+                    </tr>
+                `);
+            });
+    });
+
+    Promise.all(requests).then(() => {
+        modalContent.innerHTML = `
+            <table class="table table-striped table-bordered">
+                <thead>
+                    <tr>
+                        <th class="text-center">Component Name</th>
+                        <th class="text-center">Latest version</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    ${results.join('')}
+                </tbody>
+            </table>
+        `;
+        versionModal.show(); 
+    });
 }
 
-document.getElementById('checkSingboxButton').addEventListener('click', function() {
-    checkVersion('checkSingboxButton', 'NewSingbox', 'update_singbox_preview.php');
+document.getElementById('checkSingboxButton').addEventListener('click', function () {
+    const updateFiles = [
+        { name: 'Singbox Stable', url: 'update_singbox_stable.php' },
+        { name: 'Singbox Preview', url: 'update_singbox_preview.php' },
+        { name: 'Puernya Preview', url: 'puernya.php' }
+    ];
+    checkVersion('NewSingbox', updateFiles);
 });
 
-document.getElementById('checkCliverButton').addEventListener('click', function() {
-    checkVersion('checkCliverButton', 'NewCliver', 'update_script.php');
+document.getElementById('checkMihomoButton').addEventListener('click', function () {
+    const updateFiles = [
+        { name: 'Mihomo Stable', url: 'update_mihomo_stable.php' },
+        { name: 'Mihomo Preview', url: 'update_mihomo_preview.php' }
+    ];
+    checkVersion('NewMihomo', updateFiles);
 });
 
-document.getElementById('checkMihomoButton').addEventListener('click', function() {
-    checkVersion('checkMihomoButton', 'NewMihomo', 'update_mihomo_stable.php');
+document.getElementById('checkUiButton').addEventListener('click', function () {
+    const updateFiles = [
+        { name: 'MetaCube', url: 'update_metacubexd.php' },
+        { name: 'Zashboard', url: 'update_zashboard.php' },
+        { name: 'Yacd-Meat', url: 'update_meta.php' }
+    ];
+    checkVersion('NewUi', updateFiles);
 });
 
-document.getElementById('checkUiButton').addEventListener('click', function() {
-    checkVersion('checkUiButton', 'NewUi', 'update_metacubexd.php');
+document.getElementById('checkCliverButton').addEventListener('click', function () {
+    const updateFiles = [{ name: 'Client', url: 'update_script.php' }];
+    checkVersion('NewCliver', updateFiles);
 });
 </script>
 
