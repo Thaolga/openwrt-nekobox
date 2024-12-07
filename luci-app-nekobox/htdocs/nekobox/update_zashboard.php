@@ -1,10 +1,10 @@
 <?php
 
-ini_set('memory_limit', '128M'); 
+ini_set('memory_limit', '128M');
 
 function getUiVersion() {
-    $versionFile = '/etc/neko/ui/zashboard/version.txt'; 
-    
+    $versionFile = '/etc/neko/ui/zashboard/version.txt';
+
     if (file_exists($versionFile)) {
         return trim(file_get_contents($versionFile));
     } else {
@@ -13,12 +13,12 @@ function getUiVersion() {
 }
 
 function writeVersionToFile($version) {
-    $versionFile = '/etc/neko/ui/zashboard/version.txt';  
+    $versionFile = '/etc/neko/ui/zashboard/version.txt';
     file_put_contents($versionFile, $version);
 }
 
-$repo_owner = "Thaolga";
-$repo_name = "neko";
+$repo_owner = "Zephyruso";
+$repo_name = "zashboard";
 $api_url = "https://api.github.com/repos/$repo_owner/$repo_name/releases/latest";
 
 $curl_command = "curl -s -H 'User-Agent: PHP' --connect-timeout 10 " . escapeshellarg($api_url);
@@ -35,8 +35,8 @@ if (json_last_error() !== JSON_ERROR_NONE) {
 }
 
 $latest_version = $data['tag_name'] ?? '';
-$install_path = '/etc/neko/ui/zashboard';  
-$temp_file = '/tmp/compressed-dist.tgz';
+$install_path = '/etc/neko/ui/zashboard';
+$temp_file = '/tmp/dist.zip';
 
 if (!is_dir($install_path)) {
     mkdir($install_path, 0755, true);
@@ -45,11 +45,11 @@ if (!is_dir($install_path)) {
 $current_version = getUiVersion();
 
 if (isset($_GET['check_version'])) {
-    echo "Latest version: $latest_version";  
+    echo "Latest version: $latest_version";
     exit;
 }
 
-$download_url = 'https://github.com/Thaolga/neko/releases/download/v1.10.0/artifact.tar';  
+$download_url = $data['assets'][0]['browser_download_url'] ?? '';
 
 if (empty($download_url)) {
     die("Download link not found. Please check the resources for the release version.");
@@ -65,12 +65,31 @@ if (!file_exists($temp_file)) {
 }
 
 echo "Start extracting the file...\n";
-exec("tar -xf '$temp_file' -C '$install_path'", $output, $return_var);
+
+$temp_extract_dir = '/tmp/dist_extract';
+exec("unzip '$temp_file' -d '$temp_extract_dir'", $output, $return_var);
 if ($return_var !== 0) {
     echo "Decompression failed, error message: " . implode("\n", $output);
     die("Decompression failed");
 }
-echo "Extraction successful \n";
+echo "Extraction successful\n";
+
+$extracted_dir = "$temp_extract_dir/dist"; 
+if (is_dir($extracted_dir)) {
+    exec("mv $extracted_dir/* $install_path/", $output, $return_var);
+    if ($return_var !== 0) {
+        echo "Failed to move extracted files, error message: " . implode("\n", $output);
+        die("Failed to move extracted files");
+    }
+    echo "Moved extracted files to the install path.\n";
+
+    exec("rm -rf $extracted_dir", $output, $return_var);
+    if ($return_var !== 0) {
+        echo "Failed to remove extra 'dist' directory, error message: " . implode("\n", $output);
+    }
+} else {
+    echo "No 'dist' directory found.\n";
+}
 
 exec("chown -R root:root '$install_path' 2>&1", $output, $return_var);
 if ($return_var !== 0) {
@@ -79,7 +98,7 @@ if ($return_var !== 0) {
 }
 echo "The file owner has been changed to root.\n";
 
-writeVersionToFile($latest_version); 
+writeVersionToFile($latest_version);
 echo "Update complete! Current version: $latest_version";
 
 unlink($temp_file);
