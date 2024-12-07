@@ -30,18 +30,38 @@ function getSingboxVersion() {
         foreach ($output as $line) {
             if (strpos($line, 'version') !== false) {
                 $parts = explode(' ', $line);
-                return end($parts);
+                $version = end($parts);
+                
+                if (strpos($version, 'alpha') !== false || strpos($version, 'beta') !== false) {
+                    if (strpos($version, '1.10.0-alpha.29-067c81a7') !== false) {
+                        return ['version' => $version, 'type' => 'Puernya Preview'];
+                    }
+                    return ['version' => $version, 'type' => 'Singbox Preview'];
+                } else {
+                    return ['version' => $version, 'type' => 'Singbox Stable'];
+                }
             }
         }
     }
     
-    return 'Unknown version';
+    return ['version' => 'Not installed', 'type' => 'Unknown'];
 }
 
-$singBoxVersion = getSingboxVersion();
-?>
+function getMihomoVersion() {
+    $versionFile = '/etc/neko/core/mihomo_version.txt';
 
-<?php
+    if (file_exists($versionFile)) {
+        $content = trim(file_get_contents($versionFile));
+
+        if (strpos($content, 'alpha') !== false) {
+            return ['version' => $content, 'type' => 'Preview'];
+        }
+
+        return ['version' => $content, 'type' => 'Stable'];
+    } else {
+        return ['version' => 'Not installed', 'type' => 'Unknown'];
+    }
+}
 
 function getUiVersion() {
     $versionFile = '/etc/neko/ui/zashboard/version.txt';
@@ -49,11 +69,52 @@ function getUiVersion() {
     if (file_exists($versionFile)) {
         return trim(file_get_contents($versionFile));
     } else {
-        return "Unknown version";
+        return "Not installed";
     }
 }
 
+function getMetaCubexdVersion() {
+    $versionFile = '/etc/neko/ui/metacubexd/version.txt';
+    
+    if (file_exists($versionFile)) {
+        return trim(file_get_contents($versionFile));
+    } else {
+        return "Not installed";
+    }
+}
+
+function getMetaVersion() {
+    $versionFile = '/etc/neko/ui/meta/version.txt';
+    
+    if (file_exists($versionFile)) {
+        return trim(file_get_contents($versionFile));
+    } else {
+        return "Not installed";
+    }
+}
+
+function getRazordVersion() {
+    $versionFile = '/etc/neko/ui/dashboard/version.txt';
+    
+    if (file_exists($versionFile)) {
+        return trim(file_get_contents($versionFile));
+    } else {
+        return "Not installed";
+    }
+}
+$singBoxVersionInfo = getSingboxVersion();
+$singBoxVersion = $singBoxVersionInfo['version'];
+$singBoxType = $singBoxVersionInfo['type'];
+$puernyaVersion = ($singBoxType === 'Puernya Preview') ? $singBoxVersion : 'Not installed';
+$singboxPreviewVersion = ($singBoxType === 'Singbox Preview') ? $singBoxVersion : 'Not installed';
+$mihomoVersionInfo = getMihomoVersion();
+$mihomoVersion = $mihomoVersionInfo['version'];
+$mihomoType = $mihomoVersionInfo['type'];
 $uiVersion = getUiVersion();
+$metaCubexdVersion = getMetaCubexdVersion();
+$metaVersion = getMetaVersion();
+$razordVersion = getRazordVersion();
+
 ?>
 
 <!doctype html>
@@ -307,6 +368,7 @@ $uiVersion = getUiVersion();
                         <option value="zashboard">Zashboard Panel</option>
                         <option value="metacubexd">Metacubexd Panel</option>
                         <option value="yacd-meat">Yacd-Meat Panel</option>
+                        <option value="dashboard">Dashboard Panel</option>
                     </select>
                 </div>
             </div>
@@ -515,21 +577,27 @@ function selectOperation(type) {
                     ? 'update_meta.php' 
                     : selectedPanel === 'metacubexd' 
                         ? 'update_metacubexd.php' 
-                        : 'unknown_panel.php', 
+                        : selectedPanel === 'dashboard'  
+                            ? 'update_dashboard.php'  
+                            : 'unknown_panel.php', 
             message: selectedPanel === 'zashboard' 
                 ? 'Starting to download Zashboard panel update...' 
                 : selectedPanel === 'yacd-meat' 
                     ? 'Starting to download Yacd-Meat panel update...' 
                     : selectedPanel === 'metacubexd' 
                         ? 'Starting to download Metacubexd panel update...' 
-                        : 'Unknown panel update type...',
+                         : selectedPanel === 'dashboard'  
+                            ? 'Starting to download Dashboard panel update...' 
+                            : 'Unknown panel update type...',
             description: selectedPanel === 'zashboard' 
                 ? 'Updating Zashboard panel to the latest version' 
                 : selectedPanel === 'yacd-meat' 
                     ? 'Updating Yacd-Meat panel to the latest version' 
                     : selectedPanel === 'metacubexd' 
                         ? 'Updating Metacubexd panel to the latest version' 
-                        : 'Unrecognized panel type, unable to update.'
+                        : selectedPanel === 'dashboard'  
+                            ? 'Updating Dashboard panel to the latest version'  
+                            : 'Unrecognized panel type, unable to update.'
         }
     };
     const operation = operations[type];
@@ -581,7 +649,7 @@ document.addEventListener('DOMContentLoaded', function() {
 </script>
 
 <script>
-function checkVersion(outputId, updateFiles) {
+function checkVersion(outputId, updateFiles, currentVersions) {
     const modalContent = document.getElementById('modalContent');
     const versionModal = new bootstrap.Modal(document.getElementById('versionModal'));
     modalContent.innerHTML = '<p>Checking for new version...</p>';
@@ -602,6 +670,7 @@ function checkVersion(outputId, updateFiles) {
                     results.push(`
                         <tr class="table-success">
                             <td>${file.name}</td>
+                            <td>${currentVersions[file.name] || 'Unknown'}</td>
                             <td>${newVersion}</td>
                         </tr>
                     `);
@@ -621,6 +690,7 @@ function checkVersion(outputId, updateFiles) {
                     results.push(`
                         <tr class="table-warning">
                             <td>${file.name}</td>
+                            <td>${currentVersions[file.name] || 'Unknown'}</td>
                             <td>Unable to parse version information</td>
                         </tr>
                     `);
@@ -630,6 +700,7 @@ function checkVersion(outputId, updateFiles) {
                 results.push(`
                     <tr class="table-danger">
                         <td>${file.name}</td>
+                        <td>${currentVersions[file.name] || 'Unknown'}</td>
                         <td>Network Error</td>
                     </tr>
                 `);
@@ -642,6 +713,7 @@ function checkVersion(outputId, updateFiles) {
                 <thead>
                     <tr>
                         <th class="text-center">Component Name</th>
+                        <th class="text-center">Current version</th>
                         <th class="text-center">Latest version</th>
                     </tr>
                 </thead>
@@ -650,40 +722,69 @@ function checkVersion(outputId, updateFiles) {
                 </tbody>
             </table>
         `;
-        versionModal.show(); 
+        versionModal.show();
     });
 }
 
 document.getElementById('checkSingboxButton').addEventListener('click', function () {
+    const singBoxVersion = "<?php echo htmlspecialchars($singBoxVersion); ?>";
+    const singBoxType = "<?php echo htmlspecialchars($singBoxType); ?>";
+    const puernyaVersion = "<?php echo htmlspecialchars($puernyaVersion); ?>";
+    const singboxPreviewVersion = "<?php echo htmlspecialchars($singboxPreviewVersion); ?>";
+    const currentVersions = {
+        'Singbox Stable': singBoxType === 'Singbox Stable' ? singBoxVersion : 'Not installed',
+        'Singbox Preview': singboxPreviewVersion,
+        'Puernya Preview': puernyaVersion 
+    };
     const updateFiles = [
         { name: 'Singbox Stable', url: 'update_singbox_stable.php' },
         { name: 'Singbox Preview', url: 'update_singbox_preview.php' },
         { name: 'Puernya Preview', url: 'puernya.php' }
     ];
-    checkVersion('NewSingbox', updateFiles);
+    checkVersion('NewSingbox', updateFiles, currentVersions);
 });
 
 document.getElementById('checkMihomoButton').addEventListener('click', function () {
+    const mihomoVersion = "<?php echo htmlspecialchars($mihomoVersion); ?>";
+    const mihomoType = "<?php echo htmlspecialchars($mihomoType); ?>";
+
+    const currentVersions = {
+        'Mihomo Stable': mihomoType === 'Stable' ? mihomoVersion : 'Not installed',
+        'Mihomo Preview': mihomoType === 'Preview' ? mihomoVersion : 'Not installed',
+    };
+
     const updateFiles = [
         { name: 'Mihomo Stable', url: 'update_mihomo_stable.php' },
         { name: 'Mihomo Preview', url: 'update_mihomo_preview.php' }
     ];
-    checkVersion('NewMihomo', updateFiles);
+
+    checkVersion('NewMihomo', updateFiles, currentVersions);
 });
 
 document.getElementById('checkUiButton').addEventListener('click', function () {
+    const currentVersions = {
+        'MetaCube': '<?php echo htmlspecialchars($metaCubexdVersion); ?>',
+        'Zashboard': '<?php echo htmlspecialchars($uiVersion); ?>',
+        'Yacd-Meat': '<?php echo htmlspecialchars($metaVersion); ?>',
+        'Dashboard': '<?php echo htmlspecialchars($razordVersion); ?>',
+    };
     const updateFiles = [
         { name: 'MetaCube', url: 'update_metacubexd.php' },
         { name: 'Zashboard', url: 'update_zashboard.php' },
-        { name: 'Yacd-Meat', url: 'update_meta.php' }
+        { name: 'Yacd-Meat', url: 'update_meta.php' },
+        { name: 'Dashboard', url: 'update_dashboard.php' }
     ];
-    checkVersion('NewUi', updateFiles);
+    checkVersion('NewUi', updateFiles, currentVersions);
 });
 
 document.getElementById('checkCliverButton').addEventListener('click', function () {
+    const currentVersions = {
+        'Client': document.getElementById('cliver').textContent,
+    };
     const updateFiles = [{ name: 'Client', url: 'update_script.php' }];
-    checkVersion('NewCliver', updateFiles);
+    checkVersion('NewCliver', updateFiles, currentVersions);
 });
+
 </script>
 
 <script>
