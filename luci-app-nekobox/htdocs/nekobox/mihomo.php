@@ -4,7 +4,7 @@ include './cfg.php';
 ini_set('memory_limit', '256M');
 $subscription_file = '/etc/neko/subscription.txt'; 
 $download_path = '/etc/neko/config/'; 
-$sh_script_path = '/etc/neko/update_config.sh'; 
+$sh_script_path = '/etc/neko/core/update_config.sh'; 
 $log_file = '/var/log/neko_update.log'; 
 
 function logMessage($message) {
@@ -385,12 +385,16 @@ function setupCronJob($cron_time) {
     global $sh_script_path;
 
     $cron_entry = "$cron_time $sh_script_path\n";
-    $current_cron = shell_exec('crontab -l 2>/dev/null');
     
-    if (strpos($current_cron, $sh_script_path) !== false) {
-        $updated_cron = preg_replace('/.*' . preg_quote($sh_script_path, '/') . '/', $cron_entry, $current_cron);
+    $current_cron = shell_exec('crontab -l 2>/dev/null');
+
+    if (empty($current_cron)) {
+        $updated_cron = $cron_entry;
     } else {
-        $updated_cron = $current_cron . $cron_entry;
+        $updated_cron = preg_replace('/.*' . preg_quote($sh_script_path, '/') . '/', $cron_entry, $current_cron);
+        if ($updated_cron == $current_cron) {
+            $updated_cron .= $cron_entry;
+        }
     }
 
     $success = file_put_contents('/tmp/cron.txt', $updated_cron) !== false;
