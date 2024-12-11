@@ -156,6 +156,10 @@ dns:
 function saveSubscriptionContentToYaml($url, $filename) {
     global $download_path;
 
+    if (pathinfo($filename, PATHINFO_EXTENSION) !== 'yaml') {
+        $filename .= '.yaml';
+    }
+
     if (strpbrk($filename, "!@#$%^&*()+=[]\\\';,/{}|\":<>?") !== false) {
         $message = "文件名包含非法字符，请使用字母、数字、点、下划线或横杠。";
         logMessage($message);
@@ -478,7 +482,7 @@ $current_subscription_url = getSubscriptionUrlFromFile($subscription_file);
                                value="<?php echo htmlspecialchars($current_subscription_url); ?>" required>
                     </div>
                     <div class="mb-3">
-                        <label for="filename" class="form-label">输入保存文件名 (默认: config.yaml):</label>
+                        <label for="filename" class="form-label">自定义文件名 (默认: config.yaml):</label>
                         <input type="text" class="form-control" id="filename" name="filename"
                                value="<?php echo htmlspecialchars(isset($_POST['filename']) ? $_POST['filename'] : ''); ?>"
                                placeholder="config.yaml">
@@ -505,7 +509,7 @@ $current_subscription_url = getSubscriptionUrlFromFile($subscription_file);
             <p>欢迎使用 Mihomo 订阅程序！请按照以下步骤进行操作：</p>
             <ul class="list-group">
                 <li class="list-group-item"><strong>输入订阅链接:</strong> 在文本框中输入您的 Clash 订阅链接。</li>
-                <li class="list-group-item"><strong>输入保存文件名:</strong> 指定保存配置文件的文件名，默认为 "config.yaml"。</li>
+                <li class="list-group-item"><strong>输入保存文件名:</strong> 指定保存配置文件的文件名，默认为 "config.yaml"，无需添加后缀。</li>
                 <li class="list-group-item">点击 "更新订阅" 按钮，系统将下载订阅内容，并进行转换和保存。</li>
                 <li class="list-group-item"><strong>只支持Clash格式的订阅。</li>
             </ul>
