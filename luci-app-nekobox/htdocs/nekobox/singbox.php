@@ -52,9 +52,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['setCron'])) {
 
 <?php
 $shellScriptPath = '/etc/neko/core/update_subscription.sh';
-$DATA_FILE = '/tmp/subscription_data.txt'; 
 $LOG_FILE = '/tmp/update_subscription.log'; 
-$SUBSCRIBE_URL = '';
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     if (isset($_POST['subscribeUrl'])) {
@@ -72,20 +70,17 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         $shellScriptContent = <<<EOL
 #!/bin/sh
 
-DATA_FILE="/tmp/subscription_data.txt"
-CONFIG_DIR="/etc/neko/config"
 LOG_FILE="/tmp/update_subscription.log"
-TEMPLATE_URL="https://raw.githubusercontent.com/Thaolga/Rules/main/Clash/json/config_8.json"
-SUBSCRIBE_URL=$(grep "Subscription link address:" "$DATA_FILE" | tail -1 | sed 's/^[^|]*| //g' | cut -d ':' -f2- | tr -d '\n\r' | xargs)
+SUBSCRIBE_URL=$(cat /etc/neko/tmp/subscription.txt | tr -d '\n\r')
 
 if [ -z "\$SUBSCRIBE_URL" ]; then
   echo "\$(date): The subscription link is empty or extraction failed" >> "\$LOG_FILE"
   exit 1
 fi
 
-COMPLETE_URL="https://sing-box-subscribe-doraemon.vercel.app/config/\${SUBSCRIBE_URL}&file=\${TEMPLATE_URL}"
-echo "\$(date): Generated subscription link: \$COMPLETE_URL" >> "\$LOG_FILE"
+echo "$(date): Subscription link used: $SUBSCRIBE_URL" >> "$LOG_FILE"
 
+CONFIG_DIR="/etc/neko/config"
 if [ ! -d "\$CONFIG_DIR" ]; then
   mkdir -p "\$CONFIG_DIR"
   if [ \$? -ne 0 ]; then
@@ -95,7 +90,7 @@ if [ ! -d "\$CONFIG_DIR" ]; then
 fi
 
 CONFIG_FILE="\$CONFIG_DIR/sing-box.json"
-wget -O "\$CONFIG_FILE" "\$COMPLETE_URL" >> "\$LOG_FILE" 2>&1
+wget -O "\$CONFIG_FILE" "\$SUBSCRIBE_URL" >> "\$LOG_FILE" 2>&1
 
 if [ \$? -eq 0 ]; then
   echo "\$(date): Configuration file updated successfully. Save path: \$CONFIG_FILE" >> "\$LOG_FILE"
@@ -147,10 +142,10 @@ EOL;
 <div class="container-sm container-bg callout border border-3 rounded-4 col-11">
     <div class="row">
         <a href="./index.php" class="col btn btn-lg">🏠 Home</a>
-        <a href="./mihomo_manager.php" class="col btn btn-lg">📂 Mihomo</a>
-        <a href="./singbox_manager.php" class="col btn btn-lg">🗂️ Sing-box</a>
-        <a href="./box.php" class="col btn btn-lg">💹 Template</a>
-        <a href="./filekit.php" class="col btn btn-lg">📦 File Assistant</a>
+        <a href="./mihomo_manager.php" class="col btn btn-lg">📂 Manager</a>
+        <a href="./mihomo.php" class="col btn btn-lg">🗂️ Mihomo</a>
+        <a href="./singbox.php" class="col btn btn-lg">💹 Sing-box</a>
+        <a href="./subscription.php" class="col btn btn-lg">💹 Singbox</a>
 <div class="outer-container">
     <div class="container">
         <h1 class="title text-center" style="margin-top: 3rem; margin-bottom: 2rem;">Sing-box Subscription Conversion Template</h1>
@@ -158,7 +153,7 @@ EOL;
             <h4 class="alert-heading">Help Information</h4>
             <p>
                   Please select a template to generate the configuration file: Choose the corresponding template based on the subscription node information. If you select a template with regional grouping, please ensure that your nodes include the following lines</p>
-                  <strong>Explanation</strong>: The scheduled task is an automatic update operation, and by default, it uses template number 6 to generate the configuration file, with the file name <strong>sing-box.json</strong>。
+                  <strong>Explanation:</strong> The scheduled task is for automatic updates, and the file name is <strong>sing-box.json</strong>.
             </p>
             <ul>
                 <li><strong>Default template 1</strong>：No region, no grouping, general</li>
@@ -195,15 +190,15 @@ EOL;
                     </div>
                     <div class="col">
                         <input type="radio" class="form-check-input" id="useDefaultTemplate4" name="defaultTemplate" value="4">
-                        <label class="form-check-label" for="useDefaultTemplate3">Default template 4</label>
+                        <label class="form-check-label" for="useDefaultTemplate4">Default template 4</label>
                     </div>
                     <div class="col">
                         <input type="radio" class="form-check-input" id="useDefaultTemplate5" name="defaultTemplate" value="5">
-                        <label class="form-check-label" for="useDefaultTemplate3">Default template 5</label>
+                        <label class="form-check-label" for="useDefaultTemplate5">Default template 5</label>
                     </div>
                     <div class="col">
                         <input type="radio" class="form-check-input" id="useDefaultTemplate6" name="defaultTemplate" value="6">
-                        <label class="form-check-label" for="useDefaultTemplate3">Default template 6</label>
+                        <label class="form-check-label" for="useDefaultTemplate6">Default template 6</label>
                     </div>
                 </div>
                 <div class="mt-3">
@@ -267,6 +262,7 @@ EOL;
         $dataFilePath = '/tmp/subscription_data.txt';
         $configFilePath = '/etc/neko/config/sing-box.json';
         $downloadedContent = ''; 
+        $fixedFileName = 'subscription.txt';
 
         if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['generateConfig'])) {
             $subscribeUrl = trim($_POST['subscribeUrl']);
@@ -324,12 +320,18 @@ EOL;
                 if ($downloadedContent === false) {
                     $logMessages[] = "Unable to read the downloaded file content";
                 } else {
+                    $tmpFileSavePath = '/etc/neko/tmp/' . $fixedFileName;  
+                    if (file_put_contents($tmpFileSavePath, $completeSubscribeUrl) === false) {
+                        $logMessages[] = "Unable to save subscription URL to file: " . $tmpFileSavePath;
+                    } else {
+                        $logMessages[] = "The subscription URL has been successfully saved to the file: " . $tmpFileSavePath;
+                    }
+
                     $configFilePath = '/etc/neko/config/' . $customFileName; 
                     if (file_put_contents($configFilePath, $downloadedContent) === false) {
                         $logMessages[] = "Unable to save the modified content to: " . $configFilePath;
                     } else {
                         $logMessages[] = "Configuration file generated and saved successfully: " . $configFilePath;
-                        $logMessages[] = "Generated and downloaded subscription URL: <a href='" . htmlspecialchars($completeSubscribeUrl) . "' target='_blank'>" . htmlspecialchars($completeSubscribeUrl) . "</a>";
                     }
                 }
             }

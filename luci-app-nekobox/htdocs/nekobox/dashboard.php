@@ -39,7 +39,7 @@ $dash_link = $neko_cfg['ctrl_host'] . ':' . $neko_cfg['ctrl_port'] . '/ui/dashbo
         <a href="./" class="col btn btn-lg">🏠 Home</a>
         <a href="#" class="col btn btn-lg">📊 Panel</a>
         <a href="./configs.php" class="col btn btn-lg">⚙️ Configs</a>
-        <a href="/nekobox/mon.php" class="col btn btn-lg d-flex align-items-center justify-content-center">📦 Document</a> 
+        <a href="./singbox.php" class="col btn btn-lg">📦 Document</a> 
         <a href="./settings.php" class="col btn btn-lg">🛠️ Settings</a>
     </div>
 
@@ -52,9 +52,9 @@ $dash_link = $neko_cfg['ctrl_host'] . ':' . $neko_cfg['ctrl_port'] . '/ui/dashbo
                 <tbody>
                     <tr class="text-center d-flex flex-wrap justify-content-center">
                         <td><a class="btn btn-info btn-sm text-white" target="_blank" href="http://<?php echo $yacd_link; ?>">YACD-META Panel</a></td>
-                        <td><a class="btn btn-info btn-sm text-white" target="_blank" href="http://<?php echo $zash_link; ?>">ZASHBOARD Panel</a></td>
                         <td><a class="btn btn-info btn-sm text-white" target="_blank" href="http://<?php echo $dash_link; ?>">DASHBOARD Panel</a></td>
                         <td><a class="btn btn-info btn-sm text-white" target="_blank" href="http://<?php echo $meta_link; ?>">METACUBEXD Panel</a></td>
+                        <td><a class="btn btn-info btn-sm text-white" target="_blank" href="http://<?php echo $zash_link; ?>">ZASHBOARD Panel</a></td>
                     </tr>
                 </tbody>
             </table>

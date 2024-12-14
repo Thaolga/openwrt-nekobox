@@ -61,7 +61,7 @@ include './cfg.php';
             <a href="./" class="col btn btn-lg">🏠 Home</a>
             <a href="./dashboard.php" class="col btn btn-lg">📊 Panel</a>
             <a href="#" class="col btn btn-lg">⚙️ Configs</a>
-            <a href="/nekobox/mon.php" class="col btn btn-lg d-flex align-items-center justify-content-center"></i>📦 Document</a> 
+            <a href="./singbox.php" class="col btn btn-lg"></i>📦 Document</a> 
             <a href="./settings.php" class="col btn btn-lg">🛠️ Settings</a>
     <h2 class="text-center p-2">Configs</h2>
     <form action="configs.php" method="post">

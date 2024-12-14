@@ -634,7 +634,7 @@ if (isset($_GET['ajax'])) {
         <a href="#" class="col btn btn-lg">🏠 Home</a>
         <a href="./dashboard.php" class="col btn btn-lg">📊 Panel</a>
         <a href="./configs.php" class="col btn btn-lg">⚙️ Configs</a>
-        <a href="./mon.php" class="col btn btn-lg"></i>📦 Document</a> 
+        <a href="./singbox.php" class="col btn btn-lg"></i>📦 Document</a> 
         <a href="./settings.php" class="col btn btn-lg">🛠️ Settings</a>
     <div class="container-sm text-center col-8">
   <img src="./assets/img/nekobox.png">

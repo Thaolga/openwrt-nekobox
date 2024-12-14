@@ -148,11 +148,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['editFile'], $_GET['file
 <?php
 $subscriptionPath = '/etc/neko/proxy_provider/';
 $subscriptionFile = $subscriptionPath . 'subscriptions.json';
-$clashFile = $subscriptionPath . 'subscription_6.yaml';
-
 $message = "";
-$decodedContent = ""; 
 $subscriptions = [];
+$updateCompleted = false;
+
+function outputMessage($message) {
+    if (!isset($_SESSION['update_messages'])) {
+        $_SESSION['update_messages'] = [];
+    }
+    $_SESSION['update_messages'][] = $message;
+}
 
 if (!file_exists($subscriptionPath)) {
     mkdir($subscriptionPath, 0755, true);
@@ -167,7 +172,7 @@ if (!$subscriptions) {
     for ($i = 0; $i < 6; $i++) {
         $subscriptions[$i] = [
             'url' => '',
-            'file_name' => "subscription_{$i}.yaml",
+            'file_name' => "subscription_" . ($i + 1) . ".yaml",  
         ];
     }
 }
@@ -175,311 +180,59 @@ if (!$subscriptions) {
 if (isset($_POST['update'])) {
     $index = intval($_POST['index']);
     $url = $_POST['subscription_url'] ?? '';
-    $customFileName = $_POST['custom_file_name'] ?? "subscription_{$index}.yaml";
+    $customFileName = $_POST['custom_file_name'] ?? "subscription_" . ($index + 1) . ".yaml";  
 
     $subscriptions[$index]['url'] = $url;
     $subscriptions[$index]['file_name'] = $customFileName;
 
-if (!empty($url)) {
-    $finalPath = $subscriptionPath . $customFileName;
-    $command = "wget -q --show-progress -O {$finalPath} {$url}";
-    exec($command . ' 2>&1', $output, $return_var);
+    if (!empty($url)) {
+        $finalPath = $subscriptionPath . $customFileName;
 
-if ($return_var === 0) {
-    $_SESSION['update_messages'] = array();
-    $_SESSION['update_messages'][] = '<div class="alert alert-warning" style="margin-bottom: 8px;">
-        <strong>⚠️ Instructions:</strong>
-        <ul class="mb-0 pl-3">
-            <li>The general template (mihomo.yaml) supports up to <strong>6</strong> subscription links</li>
-            <li>Please do not change the default file name</li>
-            <li>This template supports all format subscription links, no additional conversion is required</li>
-        </ul>
-    </div>';
-    $_SESSION['update_messages'][] = "Subscription link {$url} updated successfully! File has been saved to: {$finalPath}";
-    $message = 'Update successful';
-} else {
-    $_SESSION['update_messages'] = array();
-    $_SESSION['update_messages'][] = "Configuration update failed! Error information: " . implode("\n", $output);
-    $message = 'Update failed';
-}
-} else {
-    $_SESSION['update_messages'] = array();
-    $_SESSION['update_messages'][] = "Subscription link " . ($index + 1) . " is empty!";
-    $message = 'Update failed';
-}
+        $command = "wget -q --show-progress -O {$finalPath} {$url}";
+        exec($command . ' 2>&1', $output, $return_var);
 
-file_put_contents($subscriptionFile, json_encode($subscriptions));
-}
+        if ($return_var !== 0) {
+            $command = "curl -s -o {$finalPath} {$url}";
+            exec($command . ' 2>&1', $output, $return_var);
+        }
 
-if (isset($_POST['convert_base64'])) {
-    $base64Content = $_POST['base64_content'] ?? '';
+        if ($return_var === 0) {
+            $_SESSION['update_messages'] = array();
+            $_SESSION['update_messages'][] = '<div class="alert alert-warning" style="margin-bottom: 8px;">
+                <strong>⚠️ Instructions:</strong>
+                <ul class="mb-0 pl-3">
+                    <li>The general template (mihomo.yaml) supports up to <strong>6</strong> subscription links</li>
+                    <li>Please do not change the default file name</li>
+                    <li>This template supports all format subscription links, no additional conversion is required</li>
+                </ul>
+            </div>';
 
-    if (!empty($base64Content)) {
-        $decodedContent = base64_decode($base64Content); 
+            $fileContent = file_get_contents($finalPath);
+            $decodedContent = base64_decode($fileContent);
 
-        if ($decodedContent === false) {
-            $message = "Base64 decoding failed, please check the input!";
+            if ($decodedContent === false) {
+                $_SESSION['update_messages'][] = "Base64 decoding failed, please check if the downloaded file content is valid!";            
+                $message = "Base64 decoding failed";
+            } else {
+                $clashFile = $subscriptionPath . $customFileName;
+                file_put_contents($clashFile, "# Clash Meta Config\n\n" . $decodedContent);
+                $_SESSION['update_messages'][] = "Subscription link {$url} updated successfully, and the decoded content has been saved to: {$clashFile}";
+                $message = 'Update successful';
+                $updateCompleted = true;
+            }
         } else {
-            $clashConfig = "# Clash Meta Config\n\n";
-            $clashConfig .= $decodedContent;
-            file_put_contents($clashFile, $clashConfig);
-            $message = "Clash configuration file has been generated and saved to: {$clashFile}";
+            $_SESSION['update_messages'][] = "Configuration update failed! Error message: " . implode("\n", $output);
+            $message = 'Update failed';
         }
     } else {
-        $message = "Base64 content is empty!";
+        $_SESSION['update_messages'][] = "The subscription link at position " . ($index + 1) . " is empty!";
+        $message = 'Update failed';
     }
-}
+
+    file_put_contents($subscriptionFile, json_encode($subscriptions));
+    }
 ?>
-<?php
 
-function parseVmess($base) {
-    $decoded = base64_decode($base['host']);
-    $arrjs = json_decode($decoded, true);
-
-    if (json_last_error() !== JSON_ERROR_NONE || empty($arrjs['v'])) {
-        return "DECODING FAILED! PLEASE CHECK YOUR URL!";
-    }
-
-    return [
-        'cfgtype' => $base['scheme'] ?? '',
-        'name' => $arrjs['ps'] ?? '',
-        'host' => $arrjs['add'] ?? '',
-        'port' => $arrjs['port'] ?? '',
-        'uuid' => $arrjs['id'] ?? '',
-        'alterId' => $arrjs['aid'] ?? '',
-        'type' => $arrjs['net'] ?? '',
-        'path' => $arrjs['path'] ?? '',
-        'security' => $arrjs['type'] ?? '',
-        'sni' => $arrjs['host'] ?? '',
-        'tls' => $arrjs['tls'] ?? ''
-    ];
-}
-
-function parseShadowsocks($basebuff, &$urlparsed) {
-    $urlparsed['uuid'] = $basebuff['user'] ?? '';
-    $basedata = explode(":", base64_decode($urlparsed['uuid']));
-    if (count($basedata) == 2) {
-        $urlparsed['cipher'] = $basedata[0];
-        $urlparsed['uuid'] = $basedata[1];
-    }
-}
-
-function parseUrl($basebuff) {
-    $urlparsed = [
-        'cfgtype' => $basebuff['scheme'] ?? '',
-        'name' => $basebuff['fragment'] ?? '',
-        'host' => $basebuff['host'] ?? '',
-        'port' => $basebuff['port'] ?? ''
-    ];
-
-    if ($urlparsed['cfgtype'] == 'ss') {
-        parseShadowsocks($basebuff, $urlparsed);
-    } else {
-        $urlparsed['uuid'] = $basebuff['user'] ?? '';
-    }
-
-    $querybuff = [];
-    $tmpquery = $basebuff['query'] ?? '';
-
-    if ($urlparsed['cfgtype'] == 'ss') {
-        parse_str(str_replace(";", "&", $tmpquery), $querybuff);
-        $urlparsed['mux'] = $querybuff['mux'] ?? '';
-        $urlparsed['host2'] = $querybuff['host2'] ?? '';
-    } else {
-        parse_str($tmpquery, $querybuff);
-    }
-
-    $urlparsed['type'] = $querybuff['type'] ?? '';
-    $urlparsed['path'] = $querybuff['path'] ?? '';
-    $urlparsed['mode'] = $querybuff['mode'] ?? '';
-    $urlparsed['plugin'] = $querybuff['plugin'] ?? '';
-    $urlparsed['security'] = $querybuff['security'] ?? '';
-    $urlparsed['encryption'] = $querybuff['encryption'] ?? '';
-    $urlparsed['serviceName'] = $querybuff['serviceName'] ?? '';
-    $urlparsed['sni'] = $querybuff['sni'] ?? '';
-
-    return $urlparsed;
-}
-
-function generateConfig($data) {
-    $outcfg = "";
-
-    if (empty($GLOBALS['isProxiesPrinted'])) {
-        $outcfg .= "proxies:\n";
-        $GLOBALS['isProxiesPrinted'] = true;
-    }
-
-    switch ($data['cfgtype']) {
-        case 'vless':
-            $outcfg .= generateVlessConfig($data);
-            break;
-        case 'trojan':
-            $outcfg .= generateTrojanConfig($data);
-            break;
-        case 'hysteria2':
-        case 'hy2':
-            $outcfg .= generateHysteria2Config($data);
-            break;
-        case 'ss':
-            $outcfg .= generateShadowsocksConfig($data);
-            break;
-        case 'vmess':
-            $outcfg .= generateVmessConfig($data);
-            break;
-    }
-
-    return $outcfg;
-}
-
-function generateVlessConfig($data) {
-    $config = "    - name: " . ($data['name'] ?: "VLESS") . "\n";
-    $config .= "      type: {$data['cfgtype']}\n";
-    $config .= "      server: {$data['host']}\n";
-    $config .= "      port: {$data['port']}\n";
-    $config .= "      uuid: {$data['uuid']}\n";
-    $config .= "      cipher: auto\n";
-    $config .= "      tls: true\n";
-    if ($data['type'] == "ws") {
-        $config .= "      network: ws\n";
-        $config .= "      ws-opts:\n";
-        $config .= "        path: {$data['path']}\n";
-        $config .= "        Headers:\n";
-        $config .= "          Host: {$data['host']}\n";
-        $config .= "        flow:\n";
-        $config .= "          client-fingerprint: chrome\n";
-    } elseif ($data['type'] == "grpc") {
-        $config .= "      network: grpc\n";
-        $config .= "      grpc-opts:\n";
-        $config .= "        grpc-service-name: {$data['serviceName']}\n";
-    }
-    $config .= "      udp: true\n";
-    $config .= "      skip-cert-verify: true\n";
-    return $config;
-}
-
-function generateTrojanConfig($data) {
-    $config = "    - name: " . ($data['name'] ?: "TROJAN") . "\n";
-    $config .= "      type: {$data['cfgtype']}\n";
-    $config .= "      server: {$data['host']}\n";
-    $config .= "      port: {$data['port']}\n";
-    $config .= "      password: {$data['uuid']}\n";
-    $config .= "      sni: " . (!empty($data['sni']) ? $data['sni'] : $data['host']) . "\n";
-    if ($data['type'] == "ws") {
-        $config .= "      network: ws\n";
-        $config .= "      ws-opts:\n";
-        $config .= "        path: {$data['path']}\n";
-        $config .= "        Headers:\n";
-        $config .= "          Host: {$data['sni']}\n";
-    } elseif ($data['type'] == "grpc") {
-        $config .= "      network: grpc\n";
-        $config .= "      grpc-opts:\n";
-        $config .= "        grpc-service-name: {$data['serviceName']}\n";
-    }
-    $config .= "      udp: true\n";
-    $config .= "      skip-cert-verify: true\n";
-    return $config;
-}
-
-function generateHysteria2Config($data) {
-    return "    - name: " . ($data['name'] ?: "HYSTERIA2") . "\n" .
-           "      server: {$data['host']}\n" .
-           "      port: {$data['port']}\n" .
-           "      type: {$data['cfgtype']}\n" .
-           "      password: {$data['uuid']}\n" .
-           "      udp: true\n" .
-           "      ports: 20000-55000\n" .
-           "      mport: 20000-55000\n" .
-           "      skip-cert-verify: true\n" .
-           "      sni: " . (!empty($data['sni']) ? $data['sni'] : $data['host']) . "\n";
-}
-
-function generateShadowsocksConfig($data) {
-    $config = "    - name: " . ($data['name'] ?: "SHADOWSOCKS") . "\n";
-    $config .= "      type: {$data['cfgtype']}\n";
-    $config .= "      server: {$data['host']}\n";
-    $config .= "      port: {$data['port']}\n";
-    $config .= "      cipher: {$data['cipher']}\n";
-    $config .= "      password: {$data['uuid']}\n";
-    if (!empty($data['plugin'])) {
-        $config .= "      plugin: {$data['plugin']}\n";
-        $config .= "      plugin-opts:\n";
-        if ($data['plugin'] == "v2ray-plugin" || $data['plugin'] == "xray-plugin") {
-            $config .= "        mode: websocket\n";
-            $config .= "        mux: {$data['mux']}\n";
-        } elseif ($data['plugin'] == "obfs") {
-            $config .= "        mode: tls\n";
-        }
-    }
-    $config .= "      udp: true\n";
-    $config .= "      skip-cert-verify: true\n";
-    return $config;
-}
-
-function generateVmessConfig($data) {
-    $config = "    - name: " . ($data['name'] ?: "VMESS") . "\n";
-    $config .= "      type: {$data['cfgtype']}\n";
-    $config .= "      server: {$data['host']}\n";
-    $config .= "      port: {$data['port']}\n";
-    $config .= "      uuid: {$data['uuid']}\n";
-    $config .= "      alterId: {$data['alterId']}\n";
-    $config .= "      cipher: auto\n";
-    $config .= "      tls: " . ($data['tls'] === "tls" ? "true" : "false") . "\n";
-    $config .= "      servername: " . (!empty($data['sni']) ? $data['sni'] : $data['host']) . "\n";
-    $config .= "      network: {$data['type']}\n";
-    if ($data['type'] == "ws") {
-        $config .= "      ws-opts:\n";
-        $config .= "        path: {$data['path']}\n";
-        $config .= "        Headers:\n";
-        $config .= "          Host: {$data['sni']}\n";
-    } elseif ($data['type'] == "grpc") {
-        $config .= "      grpc-opts:\n";
-        $config .= "        grpc-service-name: {$data['serviceName']}\n";
-    }
-    $config .= "      udp: true\n";
-    $config .= "      skip-cert-verify: true\n";
-    return $config;
-}
-
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $input = $_POST['input'] ?? '';
-
-    if (empty($input)) {
-        echo ".";
-    } else {
-        $lines = explode("\n", trim($input));
-        $allcfgs = "";
-        $GLOBALS['isProxiesPrinted'] = false;
-
-        foreach ($lines as $line) {
-            $base64url = parse_url($line);
-            if ($base64url === false) {
-                $allcfgs .= "Invalid URL provided.\n";
-                continue;
-            }
-
-            $base64url = array_map('urldecode', $base64url);
-
-            if (isset($base64url['scheme']) && $base64url['scheme'] === 'vmess') {
-                $parsedData = parseVmess($base64url);
-            } else {
-                $parsedData = parseUrl($base64url);
-            }
-
-            if (is_array($parsedData)) {
-                $allcfgs .= generateConfig($parsedData);
-            } else {
-                $allcfgs .= $parsedData . "\n";
-            }
-        }
-
-        $file_path = '/etc/neko/proxy_provider/subscription_7.json';
-        file_put_contents($file_path, $allcfgs);
-
-        echo "<h2 style=\"color: #00FFFF;\">Conversion Complete</h2>";
-        echo "<p>Configuration file has been successfully saved to <strong>$file_path</strong></p>";
-    }
-}
-?>
 <!doctype html>
 <html lang="en" data-bs-theme="<?php echo substr($neko_theme, 0, -4) ?>">
 <head>
@@ -690,10 +443,10 @@ function showUpdateAlert() {
 <div class="container-sm container-bg callout border border-3 rounded-4 col-11">
     <div class="row">
         <a href="./index.php" class="col btn btn-lg">🏠 Home</a>
-        <a href="./mihomo_manager.php" class="col btn btn-lg">📂 Mihomo</a>
-        <a href="./singbox_manager.php" class="col btn btn-lg">🗂️ Sing-box</a>
-        <a href="./box.php" class="col btn btn-lg">💹 Template</a>
-        <a href="./filekit.php" class="col btn btn-lg">📦 File Assistant</a>
+        <a href="./mihomo_manager.php" class="col btn btn-lg">📂 Manager</a>
+        <a href="./mihomo.php" class="col btn btn-lg">🗂️ Mihomo</a>
+        <a href="./singbox.php" class="col btn btn-lg">💹 Sing-box</a>
+        <a href="./subscription.php" class="col btn btn-lg">💹 Singbox</a>
     </div>
     <div class="text-center">
         <h1 style="margin-top: 40px; margin-bottom: 20px;">Mihomo File Manager</h1>
@@ -1130,7 +883,8 @@ function initializeAceEditor() {
             }
        }
 </script>
-  <h2 class="text-center mt-4 mb-4">Subscription Management</h2>
+<h2 class="text-center mt-4 mb-4">Mihomo Subscription Management</h2>
+
 <?php if (isset($message) && $message): ?>
     <div class="alert alert-info">
         <?php echo nl2br(htmlspecialchars($message)); ?>
@@ -1139,71 +893,41 @@ function initializeAceEditor() {
 
 <?php if (isset($subscriptions) && is_array($subscriptions)): ?>
     <div class="row">
-        <?php for ($i = 0; $i < 6; $i++): ?>
+        <?php 
+        $maxSubscriptions = 6; 
+        for ($i = 0; $i < $maxSubscriptions; $i++): 
+            $displayIndex = $i + 1; 
+            $url = $subscriptions[$i]['url'] ?? '';
+            $fileName = $subscriptions[$i]['file_name'] ?? "subscription_" . ($displayIndex) . ".yaml"; 
+        ?>
             <div class="col-md-4 mb-3">
                 <form method="post" class="card">
                     <div class="card-body">
                         <div class="form-group">
-                            <h5 for="subscription_url_<?php echo $i; ?>" class="mb-2">Subscription Link <?php echo ($i + 1); ?></h5>
-                            <input type="text" name="subscription_url" id="subscription_url_<?php echo $i; ?>" value="<?php echo htmlspecialchars($subscriptions[$i]['url'] ?? ''); ?>" required class="form-control">
+                            <h5 for="subscription_url_<?php echo $displayIndex; ?>" class="mb-2">Subscription link <?php echo $displayIndex; ?></h5>
+                            <input type="text" name="subscription_url" id="subscription_url_<?php echo $displayIndex; ?>" value="<?php echo htmlspecialchars($url); ?>" class="form-control">
                         </div>
                         <div class="form-group">
-                            <label for="custom_file_name_<?php echo $i; ?>">Customize File Name</label>
-                            <input type="text" name="custom_file_name" id="custom_file_name_<?php echo $i; ?>" value="subscription_<?php echo ($i + 1); ?>.yaml" class="form-control">
+                            <label for="custom_file_name_<?php echo $displayIndex; ?>">Custom file name</label>
+                            <input type="text" name="custom_file_name" id="custom_file_name_<?php echo $displayIndex; ?>" value="<?php echo htmlspecialchars($fileName); ?>" class="form-control">
                         </div>
                         <input type="hidden" name="index" value="<?php echo $i; ?>">
                         <div class="text-center mt-3"> 
-                            <button type="submit" name="update" class="btn btn-info">🔄 Update <?php echo ($i + 1); ?></button>
+                            <button type="submit" name="update" class="btn btn-info">🔄 Update subscription <?php echo $displayIndex; ?></button>
                         </div>
                     </div>
                 </form>
             </div>
 
-            <?php if (($i + 1) % 3 == 0 && $i < 5): ?>
+            <?php if (($displayIndex) % 3 == 0 && $displayIndex < $maxSubscriptions): ?>
                 </div><div class="row">
             <?php endif; ?>
-            
+
         <?php endfor; ?>
     </div>
 <?php else: ?>
-    <p>No subscription information found.</p>
+    <p>No subscription information found</p>
 <?php endif; ?>
-    </div>
-</section>
-<section id="subscription-management" class="section-gap">
-    <div class="btn-group mt-2 mb-4">
-        <button id="pasteButton" class="btn btn-primary">Generate Subscription Link Website</button>
-        <button id="base64Button" class="btn btn-primary">Base64 Online Encoder and Decoder</button>
-    </div>
-<section id="base64-conversion" class="section-gap">
-    <h2>Base64 Node Information Conversion</h2>
-    <form method="post">
-        <div class="form-group">
-            <textarea name="base64_content" id="base64_content" rows="4" class="form-control" placeholder="Paste Base64 content..."" required></textarea>
-        </div>
-        <button type="submit" name="convert_base64" class="btn btn-primary btn-custom mt-3"><i>🔄</i> Generate Node Information</button>
-    </form>
-</section>
-
-<section id="node-conversion" class="section-gap"  style="margin-top: 20px;">
-    <h2>Node Conversion Tool</h2>
-    <form method="post">
-        <div class="form-group">
-            <textarea name="input" rows="10" class="form-control" placeholder="Paste ss//vless//vmess//trojan//hysteria2 node information..."></textarea>
-        </div>
-        <button type="submit" name="convert" class="btn btn-primary mt-3"><i>🔄</i> Convert</button> 
-    </form>
-</section>
-
-<script>
-    document.getElementById('pasteButton').onclick = function() {
-        window.open('https://paste.gg', '_blank');
-    }
-    document.getElementById('base64Button').onclick = function() {
-        window.open('https://base64.us', '_blank');
-    }
-</script>
-
 <style>
     .btn-group {
         display: flex;
@@ -1222,3 +946,12 @@ function initializeAceEditor() {
         background-color: #5a32a3; 
     }
 </style>
+<div class="help-text mb-3 text-start">
+    <strong>1. For first-time users of Sing-box, it is necessary to update the core to version v1.10.0 or higher. Ensure that both outbound and inbound/forwarding firewall rules are set to "accept" and enable them.
+</div>
+<div class="help-text mb-3 text-start">
+    <strong>2. Explanation: The puernya subscription has been merged into the Mihomo subscription, and it is ensured that the puernya core is used.
+</div>
+      <footer class="text-center">
+    <p><?php echo $footer ?></p>
+</footer>

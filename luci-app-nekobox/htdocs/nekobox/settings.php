@@ -141,7 +141,7 @@ $razordVersion = getRazordVersion();
         <a href="./" class="col btn btn-lg">🏠 Home</a>
         <a href="./dashboard.php" class="col btn btn-lg">📊 Panel</a>
         <a href="./configs.php" class="col btn btn-lg">⚙️ Configs</a>
-        <a href="./mon.php" class="col btn btn-lg"></i>📦 Document</a> 
+        <a href="./singbox.php" class="col btn btn-lg"></i>📦 Document</a> 
         <a href="#" class="col btn btn-lg">🛠️ Settings</a>
         <h2 class="text-center p-2 mb-3">Theme Settings</h2>
         <form action="settings.php" method="post">
@@ -315,11 +315,10 @@ $razordVersion = getRazordVersion();
             </div>
             <div class="modal-body">
                 <select id="singboxVersionSelect" class="form-select">
-                    <option value="v1.11.0-alpha.6">v1.11.0-alpha.6</option>
-                    <option value="v1.11.0-alpha.7">v1.11.0-alpha.7</option>
-                    <option value="v1.11.0-alpha.8">v1.11.0-alpha.8</option>
-                    <option value="v1.11.0-alpha.9">v1.11.0-alpha.9</option>
                     <option value="v1.11.0-alpha.10">v1.11.0-alpha.10</option>
+                    <option value="v1.11.0-alpha.15">v1.11.0-alpha.15</option>
+                    <option value="v1.11.0-alpha.20">v1.11.0-alpha.20</option>
+                    <option value="v1.11.0-beta.5">v1.11.0-beta.5</option>
                 </select>
             </div>
             <div class="modal-footer">
@@ -464,7 +463,7 @@ $razordVersion = getRazordVersion();
 </style>
 
 <script>
-let selectedSingboxVersion = 'v1.11.0-alpha.6';  
+let selectedSingboxVersion = 'v1.11.0-alpha.10';  
 let selectedMihomoVersion = 'stable';  
 let selectedLanguage = 'en';  
 let selectedSingboxVersionForChannelTwo = 'preview'; 
@@ -804,8 +803,13 @@ document.getElementById('checkCliverButton').addEventListener('click', function 
     }
 
 function checkSingboxVersion() {
-    var currentVersion = '<?php echo getSingboxVersion(); ?>';
+    var currentVersion = '<?php echo $singBoxVersion; ?>'; 
     var minVersion = '1.10.0';
+
+        if (currentVersion === 'Not installed') {
+            alert('No Sing-box detected. Please check your system configuration');
+            return;
+        }
     
     if (compareVersions(currentVersion, minVersion) >= 0) {
         return;
@@ -827,7 +831,11 @@ function checkSingboxVersion() {
             </div>
         </div>
     `;
-    document.body.insertAdjacentHTML('beforeend', modalHtml);
+
+    if (!document.getElementById('versionWarningModal')) {
+        document.body.insertAdjacentHTML('beforeend', modalHtml);
+    }
+
     var modal = new bootstrap.Modal(document.getElementById('versionWarningModal'));
     modal.show();
     
