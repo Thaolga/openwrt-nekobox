@@ -1,3 +1,261 @@
+<?php
+date_default_timezone_set('Asia/Shanghai'); 
+ob_start();
+include './cfg.php';
+?>
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="./assets/img/nekobox.png">
+    <link href="./assets/css/bootstrap.min.css" rel="stylesheet">
+    <link href="./assets/css/custom.css" rel="stylesheet">
+    <link href="./assets/theme/<?php echo $neko_theme ?>" rel="stylesheet">
+    <script type="text/javascript" src="./assets/js/feather.min.js"></script>
+    <script type="text/javascript" src="./assets/js/jquery-2.1.3.min.js"></script>
+    <script type="text/javascript" src="./assets/js/neko.js"></script>
+</head>
+<body>
+    <style>
+        .controls {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        .controls label {
+            margin-right: 10px;
+            font-weight: bold;
+            color: #FF5733;
+        }
+        .controls input {
+            margin-right: 20px;
+        }
+    </style>
+
+    <div class="container my-3 p-3 border border-3 rounded-4" style="background-color: #f8f9fa;">
+        <div class="controls">
+            <label for="main-toggle">System Toggle</label>
+            <input type="checkbox" id="main-toggle">
+            
+            <label for="website-toggle">Website Check</label>
+            <input type="checkbox" id="website-toggle">
+
+            <label for="timezone-select">Timezone</label>
+            <select id="timezone-select">
+                <option value="Asia/Shanghai">Shanghai (UTC+8)</option>
+                <option value="America/New_York">New York (UTC-5)</option>
+                <option value="Europe/London">London (UTC+0)</option>
+                <option value="Australia/Sydney">Sydney (UTC+10)</option>
+                <option value="Europe/Paris">Paris (UTC+1)</option>
+                <option value="Asia/Tokyo">Tokyo (UTC+9)</option>
+                <option value="America/Los_Angeles">Los Angeles (UTC-8)</option>
+                <option value="America/Chicago">Chicago (UTC-6)</option>
+                <option value="Africa/Johannesburg">Johannesburg (UTC+2)</option>
+                <option value="Asia/Dubai">Dubai (UTC+4)</option>
+                <option value="Europe/Moscow">Moscow (UTC+3)</option>
+                <option value="America/Chicago">Chicago (UTC-6)</option>
+                <option value="America/Denver">Denver (UTC-7)</option>
+                <option value="Asia/Kolkata">Kolkata (UTC+5:30)</option>
+                <option value="Asia/Singapore">Singapore (UTC+8)</option>
+                <option value="America/Argentina/Buenos_Aires">Buenos Aires (UTC-3)</option>
+                <option value="Africa/Nairobi">Nairobi (UTC+3)</option>
+                <option value="Pacific/Auckland">Auckland (UTC+13)</option>
+                <option value="Europe/Oslo">Oslo (UTC+1)</option>
+                <option value="Asia/Seoul">Seoul (UTC+9)</option>
+                <option value="Europe/Berlin">Berlin (UTC+1)</option>
+                <option value="America/Toronto">Toronto (UTC-5)</option>
+                <option value="Asia/Manila">Manila (UTC+8)</option>
+                <option value="Africa/Lagos">Lagos (UTC+1)</option>
+                <option value="Asia/Ho_Chi_Minh">Ho Chi Minh City (UTC+7)</option>
+                <option value="Pacific/Honolulu">Honolulu (UTC-10)</option>
+                <option value="America/Vancouver">Vancouver (UTC-8)</option>
+                <option value="Asia/Bangkok">Bangkok (UTC+7)</option>
+                <option value="Europe/Zurich">Zurich (UTC+1)</option>
+                <option value="Asia/Kuala_Lumpur">Kuala Lumpur (UTC+8)</option>
+                <option value="Africa/Accra">Accra (UTC+0)</option>
+                <option value="America/Sao_Paulo">São Paulo (UTC-3)</option>
+                <option value="Europe/Brussels">Brussels (UTC+1)</option>
+                <option value="America/Lima">Lima (UTC-5)</option>
+                <option value="Asia/Chennai">Chennai (UTC+5:30)</option>
+                <option value="Europe/Rome">Rome (UTC+1)</option>
+                <option value="Asia/Baghdad">Baghdad (UTC+3)</option>
+                <option value="Asia/Jakarta">Jakarta (UTC+7)</option>
+                <option value="America/Caracas">Caracas (UTC-4)</option>
+                <option value="Asia/Dhaka">Dhaka (UTC+6)</option>
+                <option value="Europe/Helsinki">Helsinki (UTC+2)</option>
+                <option value="Africa/Cairo">Cairo (UTC+2)</option>
+            </select>
+        </div>
+
+        <script>
+        let systemEnabled = true; 
+        let websiteCheckEnabled = true;
+        let lastHour = -1;
+        let selectedTimezone = 'Asia/Shanghai';
+
+        function speakMessage(message) {
+            const utterance = new SpeechSynthesisUtterance(message);
+            utterance.lang = 'en-US';
+            speechSynthesis.speak(utterance);
+        }
+
+        function getGreeting() {
+            const hours = new Date().getHours();
+            if (hours >= 5 && hours < 12) return 'Good morning!';
+            if (hours >= 12 && hours < 18) return 'Good afternoon!';
+            if (hours >= 18 && hours < 22) return 'Good evening!';
+            return 'It\'s late, take a rest!';
+        }
+
+        function speakCurrentTime() {
+            const now = new Date();
+            const hours = now.getHours();
+            const minutes = now.getMinutes().toString().padStart(2, '0');
+            const seconds = now.getSeconds().toString().padStart(2, '0');
+            const currentTime = `${hours}:${minutes}:${seconds}`;
+
+            const timeOfDay = (hours >= 5 && hours < 8) ? 'early morning'
+                              : (hours >= 8 && hours < 11) ? 'morning'
+                              : (hours >= 11 && hours < 13) ? 'noon'
+                              : (hours >= 13 && hours < 18) ? 'afternoon'
+                              : (hours >= 18 && hours < 20) ? 'evening'
+                              : (hours >= 20 && hours < 24) ? 'night'
+                              : 'midnight';
+
+            speakMessage(`${getGreeting()} The current time in ${selectedTimezone} is: ${timeOfDay} ${currentTime}`);
+        }
+
+        function updateHourlyTime() {
+            const now = new Date();
+            const hours = now.getHours();
+            const minutes = now.getMinutes();
+            const seconds = now.getSeconds();
+
+            if (minutes === 0 && seconds === 0 && hours !== lastHour) {
+                lastHour = hours;
+                const timeOfDay = (hours >= 5 && hours < 8) ? 'early morning'
+                                  : (hours >= 8 && hours < 11) ? 'morning'
+                                  : (hours >= 11 && hours < 13) ? 'noon'
+                                  : (hours >= 13 && hours < 18) ? 'afternoon'
+                                  : (hours >= 18 && hours < 20) ? 'evening'
+                                  : (hours >= 20 && hours < 24) ? 'night'
+                                  : 'midnight';
+                speakMessage(`It's the top of the hour, now it's ${timeOfDay} ${hours} o'clock.`);
+            }
+        }
+
+        const websites = [
+            'https://www.youtube.com/',
+            'https://www.google.com/',
+            'https://www.facebook.com/',
+            'https://www.twitter.com/',
+            'https://www.github.com/'
+        ];
+
+        function getWebsiteStatusMessage(url, status) {
+            const statusMessages = {
+                'https://www.youtube.com/': status ? 'YouTube is accessible.' : 'Unable to access YouTube, please check your network connection.',
+                'https://www.google.com/': status ? 'Google is accessible.' : 'Unable to access Google, please check your network connection.',
+                'https://www.facebook.com/': status ? 'Facebook is accessible.' : 'Unable to access Facebook, please check your network connection.',
+                'https://www.twitter.com/': status ? 'Twitter is accessible.' : 'Unable to access Twitter, please check your network connection.',
+                'https://www.github.com/': status ? 'GitHub is accessible.' : 'Unable to access GitHub, please check your network connection.',
+            };
+
+            return statusMessages[url] || (status ? `${url} is accessible.` : `Unable to access ${url}, please check your network connection.`);
+        }
+
+        function checkWebsiteAccess(urls) {
+            const statusMessages = [];
+            let requestsCompleted = 0;
+
+            urls.forEach(url => {
+                fetch(url, { mode: 'no-cors' })
+                    .then(response => {
+                        const isAccessible = response.type === 'opaque';
+                        statusMessages.push(getWebsiteStatusMessage(url, isAccessible));
+                        
+                        if (!isAccessible && url === 'https://www.youtube.com/') {
+                            speakMessage('Unable to access YouTube, please check your network connection.');
+                        }
+                    })
+                    .catch(() => {
+                        statusMessages.push(getWebsiteStatusMessage(url, false));
+                        
+                        if (url === 'https://www.youtube.com/') {
+                            speakMessage('Unable to access YouTube, please check your network connection.');
+                        }
+                    })
+                    .finally(() => {
+                        requestsCompleted++;
+                        if (requestsCompleted === urls.length) {
+                            speakMessage(statusMessages.join(' '));
+                        }
+                    });
+            });
+        }
+
+        document.getElementById('main-toggle').addEventListener('change', (event) => {
+            systemEnabled = event.target.checked;
+            localStorage.setItem('systemEnabled', systemEnabled); 
+            if (systemEnabled) {
+                speakMessage('System is enabled.');
+                speakCurrentTime();
+                if (websiteCheckEnabled) checkWebsiteAccess(websites); 
+            } else {
+                speakMessage('System is disabled.');
+            }
+        });
+
+        document.getElementById('website-toggle').addEventListener('change', (event) => {
+            websiteCheckEnabled = event.target.checked;
+            localStorage.setItem('websiteCheckEnabled', websiteCheckEnabled); 
+            if (systemEnabled && websiteCheckEnabled) {
+                speakMessage('Website check is enabled.');
+                checkWebsiteAccess(websites);
+            } else {
+                speakMessage('Website check is disabled.');
+            }
+        });
+
+        document.getElementById('timezone-select').addEventListener('change', (event) => {
+            selectedTimezone = event.target.value;
+            localStorage.setItem('selectedTimezone', selectedTimezone);
+            speakMessage(`Timezone is set to ${selectedTimezone}.`);
+            speakCurrentTime();
+        });
+
+        window.onload = function() {
+            const savedSystemState = localStorage.getItem('systemEnabled');
+            if (savedSystemState !== null) {
+                systemEnabled = JSON.parse(savedSystemState);
+                document.getElementById('main-toggle').checked = systemEnabled;
+            }
+
+            const savedWebsiteState = localStorage.getItem('websiteCheckEnabled');
+            if (savedWebsiteState !== null) {
+                websiteCheckEnabled = JSON.parse(savedWebsiteState);
+                document.getElementById('website-toggle').checked = websiteCheckEnabled;
+            }
+
+            const savedTimezone = localStorage.getItem('selectedTimezone');
+            if (savedTimezone !== null) {
+                selectedTimezone = savedTimezone;
+                document.getElementById('timezone-select').value = selectedTimezone;
+            }
+
+            if (systemEnabled) {
+                speakMessage('System is enabled.');
+                speakCurrentTime();
+                if (websiteCheckEnabled) checkWebsiteAccess(websites);
+            }
+        };
+        </script>
+    </div>
+</body>
+</html>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -161,9 +419,8 @@
 </head>
 <body>
   </div>
-
  <div id="player" onclick="toggleAnimation()">
-        <p id="hidePlayer">Mihomo</p>
+        <p id="hidePlayer">NekoBox</p>
         <p id="timeDisplay">00:00</p>
         <audio id="audioPlayer" controls>
             <source src="" type="audio/mpeg">
@@ -268,7 +525,7 @@
             applyGradient(displayString, 'timeDisplay');
         }
 
-        applyGradient('Mihomo', 'hidePlayer');
+        applyGradient('NekoBox', 'hidePlayer');
         updateTime();
         setInterval(updateTime, 1000);
 
@@ -304,7 +561,7 @@
                 showTooltip('Playback Disabled');
                 audioPlayer.pause();
                 playButton.textContent = 'Play';
-                speakMessage('Playback Disabled');
+                speakMessage('Playback Disabled. Press ESC to re-enable playback.');
             }
         }
 
@@ -325,7 +582,7 @@
                     speakMessage('Order Play');
                 }
             } else {
-                speakMessage('Playback Disabled');
+                speakMessage('Playback Disabled. Press ESC to re-enable playback.');
             }
         }
 
@@ -336,7 +593,7 @@
                         document.getElementById('prev').click();
                     } else {
                         showTooltip('Playback Disabled');
-                        speakMessage('Playback Disabled');
+                        speakMessage('Playback Disabled. Press ESC to re-enable playback.');
                     }
                     break;
                 case 'ArrowRight':
@@ -344,7 +601,7 @@
                         document.getElementById('next').click();
                     } else {
                         showTooltip('Playback Disabled');
-                        speakMessage('Playback Disabled');
+                        speakMessage('Playback Disabled. Press ESC to re-enable playback.');
                     }
                     break;
                 case ' ':
@@ -381,7 +638,7 @@
                 speakMessage('Next');
             } else {
                 showTooltip('Playback Disabled');
-                speakMessage('Playback Disabled');
+                speakMessage('Playback Disabled. Press ESC to re-enable playback.');
             }
         });
         document.getElementById('prev').addEventListener('click', function() {
@@ -392,7 +649,7 @@
                 speakMessage('Previous');
             } else {
                 showTooltip('Playback Disabled');
-                speakMessage('Playback Disabled');
+                speakMessage('Playback Disabled. Press ESC to re-enable playback.');
             }
         });
         document.getElementById('orderLoop').addEventListener('click', handleOrderLoop);

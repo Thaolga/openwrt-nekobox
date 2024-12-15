@@ -327,7 +327,7 @@ function downloadFileWithWget($url, $path) {
                     </div>
 
                     <div class="mb-3">
-                        <label for="filename" class="form-label">default: config: config.json)</label>
+                        <label for="filename" class="form-label">Custom file name (default: config: config.json)</label>
                         <input type="text" class="form-control" id="filename" name="filename"
                                value="<?php echo htmlspecialchars(isset($_POST['filename']) ? $_POST['filename'] : ''); ?>"
                                placeholder="config.json">
