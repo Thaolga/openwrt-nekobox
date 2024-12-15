@@ -606,7 +606,7 @@ function downloadFileWithWget($url, $path) {
         <div class="help mt-4">
             <p style="color: red;">注意：在线订阅转换存在隐私泄露风险，需下载geoip/geosite使用</p>
             <p>订阅转换由肥羊提供</p>
-            <a href="https://github.com/youshandefeiyang/sub-web-modify" target="_blank" style="display: inline-block; padding: 10px 20px; background-color: #007bff; color: #fff; text-decoration: none; border-radius: 5px; font-size: 16px;">
+            <a href="https://github.com/youshandefeiyang/sub-web-modify" target="_blank" class="btn btn-primary">
             点击访问
             </a>
         </div>
