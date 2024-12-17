@@ -232,7 +232,95 @@ if (isset($_POST['update'])) {
     file_put_contents($subscriptionFile, json_encode($subscriptions));
     }
 ?>
+<?php
+$shellScriptPath = '/etc/neko/core/update_mihomo.sh';
+$LOG_FILE = '/tmp/update_subscription.log';
+$JSON_FILE = '/etc/neko/proxy_provider/subscriptions.json';
+$SAVE_DIR = '/etc/neko/proxy_provider';
 
+if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+    if (isset($_POST['createShellScript'])) {
+        $shellScriptContent = <<<EOL
+#!/bin/bash
+
+LOG_FILE="$LOG_FILE"
+JSON_FILE="$JSON_FILE"
+SAVE_DIR="$SAVE_DIR"
+
+if [ ! -f "\$JSON_FILE" ]; then
+    echo "\$(date): Error: JSON file does not exist: \$JSON_FILE" >> "\$LOG_FILE"
+    exit 1
+fi
+
+echo "\$(date): Start processing subscription links..." >> "\$LOG_FILE"
+
+jq -c '.[]' "\$JSON_FILE" | while read -r ITEM; do
+    URL=\$(echo "\$ITEM" | jq -r '.url')         
+    FILE_NAME=\$(echo "\$ITEM" | jq -r '.file_name')  
+
+    if [ -z "\$URL" ] || [ "\$URL" == "null" ]; then
+        echo "\$(date): Skip empty URLs and filenames: \$FILE_NAME" >> "\$LOG_FILE"
+        continue
+    fi
+
+    if [ -z "\$FILE_NAME" ] || [ "\$FILE_NAME" == "null" ]; then
+        echo "\$(date): Error: Filename is empty, skip this link: \$URL" >> "\$LOG_FILE"
+        continue
+    fi
+
+    SAVE_PATH="\$SAVE_DIR/\$FILE_NAME"
+    TEMP_PATH="\$SAVE_PATH.temp"  
+    echo "\$(date): Downloading link: \$URL Saved to temporary file: \$TEMP_PATH" >> "\$LOG_FILE"
+
+    wget -q -O "\$TEMP_PATH" "\$URL"
+
+    if [ \$? -eq 0 ]; then
+        echo "\$(date): File download successful: \$TEMP_PATH" >> "\$LOG_FILE"
+        
+        base64 -d "\$TEMP_PATH" > "\$SAVE_PATH"
+
+        if [ \$? -eq 0 ]; then
+            echo "\$(date): File decoded successfully: \$SAVE_PATH" >> "\$LOG_FILE"
+        else
+            echo "\$(date): Error: File decoding failed: \$SAVE_PATH" >> "\$LOG_FILE"
+        fi
+
+        rm -f "\$TEMP_PATH"
+    else
+        echo "\$(date): Error: File download failed: \$URL" >> "\$LOG_FILE"
+    fi
+done
+
+echo "\$(date): All subscription links processed" >> "\$LOG_FILE"
+EOL;
+
+        if (file_put_contents($shellScriptPath, $shellScriptContent) !== false) {
+            chmod($shellScriptPath, 0755);
+            echo "<div class='alert alert-success'>Shell script has been created successfully! Path: $shellScriptPath</div>";
+        } else {
+            echo "<div class='alert alert-danger'>Unable to create Shell script, please check permissions</div>";
+        }
+    }
+}
+?>
+
+<?php
+if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+    if (isset($_POST['createCronJob'])) {
+        $cronExpression = trim($_POST['cronExpression']);
+
+        if (empty($cronExpression)) {
+            echo "<div class='alert alert-warning'>Cron expression cannot be empty</div>";
+            exit;
+        }
+
+        $cronJob = "$cronExpression /etc/neko/core/update_mihomo.sh > /dev/null 2>&1";
+        exec("crontab -l | grep -v '/etc/neko/core/update_mihomo.sh' | crontab -");
+        exec("(crontab -l; echo '$cronJob') | crontab -");
+        echo "<div class='alert alert-success'>Cron job has been successfully added or updated!</div>";
+    }
+}
+?>
 <!doctype html>
 <html lang="en" data-bs-theme="<?php echo substr($neko_theme, 0, -4) ?>">
 <head>
@@ -928,6 +1016,56 @@ function initializeAceEditor() {
 <?php else: ?>
     <p>No subscription information found</p>
 <?php endif; ?>
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body>
+    <div class="container">
+        <h4 class="mt-4 mb-4 text-center">Auto-update</h4>
+        <form method="post" class="text-center">
+            <button type="button" class="btn btn-primary mx-2" data-toggle="modal" data-target="#cronModal">
+                Set up a scheduled task
+            </button>
+            <button type="submit" name="createShellScript" value="true" class="btn btn-success mx-2">
+                Generate an update script
+            </button>
+        </form>
+    </div>
+
+<form method="POST">
+    <div class="modal fade" id="cronModal" tabindex="-1" role="dialog" aria-labelledby="cronModalLabel" aria-hidden="true" data-backdrop="static" data-keyboard="false">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="cronModalLabel">Set up a Cron scheduled task</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label for="cronExpression">Cron expression</label>
+                        <input type="text" class="form-control" id="cronExpression" name="cronExpression" placeholder="e.g., 0 2 * * *" required>
+                    </div>
+                    <div class="alert alert-info">
+                        <strong>Tip:</strong> Cron expression format:
+                        <ul>
+                            <li><code>Minutes Hours Day Month Weekday</code></li>
+                            <li>Example: Every day at 2 AM: <code>0 2 * * *</code></li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="modal-footer justify-content-center">
+                    <button type="button" class="btn btn-secondary mr-3" data-dismiss="modal">Cancel</button>
+                    <button type="submit" name="createCronJob" class="btn btn-primary">Save</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
 <style>
     .btn-group {
         display: flex;
@@ -946,11 +1084,6 @@ function initializeAceEditor() {
         background-color: #5a32a3; 
     }
 </style>
-<div class="help-text mb-3 text-start">
-    <strong>1. For first-time users of Sing-box, it is necessary to update the core to version v1.10.0 or higher. Ensure that both outbound and inbound/forwarding firewall rules are set to "accept" and enable them.
-</div>
-<div class="help-text mb-3 text-start">
-    <strong>2. Explanation: The puernya subscription has been merged into the Mihomo subscription, and it is ensured that the puernya core is used.
 </div>
       <footer class="text-center">
     <p><?php echo $footer ?></p>
