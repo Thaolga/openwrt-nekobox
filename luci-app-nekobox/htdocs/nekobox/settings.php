@@ -274,7 +274,7 @@ $razordVersion = getRazordVersion();
     </div>
 </div>
 
-<div class="modal fade" id="updateVersionModal" tabindex="-1" aria-labelledby="updateVersionModalLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+<div class="modal fade" id="updateLanguageModal" tabindex="-1" aria-labelledby="updateLanguageModalLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">
@@ -294,7 +294,7 @@ $razordVersion = getRazordVersion();
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">cancel</button>
-                <button type="button" class="btn btn-primary" onclick="confirmUpdateVersion()">confirm</button>
+                <button type="button" class="btn btn-primary" onclick="confirmLanguageSelection()">confirm</button>
             </div>
         </div>
     </div>
