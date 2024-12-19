@@ -613,8 +613,10 @@ main_menu() {
 
         if [ "$language" = "cn" ]; then
             echo -e "${CLGreen}注意: 执行 1. 安装 NeKoBox 后，正常情况下无需单独安装 UI 控制面板和 PHP8，只有缺少依赖时才需要安装。${NC}"
+            echo -e "${CLGreen}注意: Lean版本的 OpenWrt 安装后，无菜单界面。您可以通过在浏览器中输入 http://<路由器IP>/nekobox（将 <路由器IP> 替换为您的实际路由器地址）进入界面。${NC}"
         else
             echo -e "${CLGreen}Note: After executing 1. Install NeKoBox, you generally do not need to install UI Control Panel and PHP8, unless dependencies are missing.${NC}"
+            echo -e "${CLGreen}Note: After installing the Lean version of OpenWrt, there is no menu interface. You can access the interface by entering http://<router_IP>/nekobox in your browser (replace <router_IP> with your actual router address).${NC}"
         fi
 
         echo -e "${CLCyan}╠════════════════════════════════════════════════════════╣"
