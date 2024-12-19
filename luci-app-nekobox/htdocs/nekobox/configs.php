@@ -10,15 +10,6 @@ $selected_config = trim(file_get_contents($tmpPath));
 
 if (empty($selected_config) || !file_exists($selected_config)) {
     $selected_config = "$dirPath/default_config.yaml";
-    if (!file_exists($selected_config)) {
-        $default_config_content = "external-controller: 0.0.0.0:9090\n";
-        $default_config_content .= "secret: Akun\n";
-        $default_config_content .= "external-ui: ui\n";
-        $default_config_content .= "# Please edit this file as needed\n";
-        file_put_contents($selected_config, $default_config_content);
-        $logMessage = "Configuration file is missing. A default configuration file has been created.";
-    }
-
     file_put_contents($tmpPath, $selected_config);
 }
 
@@ -102,9 +93,6 @@ include './cfg.php';
         </li>
         <li class="nav-item flex-grow-1">
             <a class="btn btn-lg w-100" data-bs-toggle="tab" href="#converter">Converter</a>
-        </li>
-        <li class="nav-item flex-grow-1">
-            <a class="btn btn-lg w-100" data-bs-toggle="tab" href="#upload">Subscription</a>
         </li>
         <li class="nav-item flex-grow-1">
             <a class="btn btn-lg w-100" data-bs-toggle="tab" href="#tip">Tips</a>
@@ -191,12 +179,6 @@ include './cfg.php';
             <h2 class="text-center p-2 mb-5">Converter</h2>
             <div class="container h-100">
                 <iframe class="rounded-4 w-100" scrolling="no" height="700" src="./yamlconv.php" title="yacd" allowfullscreen></iframe>
-            </div>
-        </div>
-
-        <div id="upload" class="tab-pane fade">
-            <div class="container h-100">
-                <iframe class="rounded-4 w-100" scrolling="no" height="700" src="./mo.php" title="yacd" allowfullscreen></iframe>
             </div>
         </div>
 

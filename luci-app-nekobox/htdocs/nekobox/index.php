@@ -595,6 +595,63 @@ if (isset($_GET['ajax'])) {
     exit;
 }
 ?>
+
+<?php
+$default_config = '/etc/neko/config/mihomo.yaml';
+
+$current_config = file_exists('/www/nekobox/lib/selected_config.txt') 
+    ? file_get_contents('/www/nekobox/lib/selected_config.txt') 
+    : $default_config;
+
+if (!file_exists($current_config)) {
+    $default_config_content = "external-controller: 0.0.0.0:9090\n";
+    $default_config_content .= "secret: Akun\n";
+    $default_config_content .= "external-ui: ui\n";
+    $default_config_content .= "# Please edit this file as needed\n";
+    
+    file_put_contents($current_config, $default_config_content);
+    file_put_contents('/www/nekobox/lib/selected_config.txt', $current_config);
+    $logMessage = "The configuration file is missing; a default configuration file has been created.";
+} else {
+    $config_content = file_get_contents($current_config);
+
+    $missing_config = false;
+    $default_config_content = [
+        "external-controller" => "0.0.0.0:9090",
+        "secret" => "Akun",
+        "external-ui" => "ui"
+    ];
+
+    foreach ($default_config_content as $key => $value) {
+        if (strpos($config_content, "$key:") === false) {
+            $config_content .= "$key: $value\n";
+            $missing_config = true;
+        }
+    }
+
+    if ($missing_config) {
+        file_put_contents($current_config, $config_content);
+        $logMessage = "The configuration file is missing some options; the missing configuration items have been added automatically";
+    }
+}
+
+if (isset($logMessage)) {
+    echo "<script>alert('$logMessage');</script>";
+}
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['selected_config'])) {
+    $selected_file = $_POST['selected_config'];
+
+    $config_dir = '/etc/neko/config';
+    $selected_file_path = $config_dir . '/' . $selected_file;
+
+    if (file_exists($selected_file_path) && pathinfo($selected_file, PATHINFO_EXTENSION) == 'yaml') {
+        file_put_contents('/www/nekobox/lib/selected_config.txt', $selected_file_path);
+    } else {
+        echo "<script>alert('Invalid configuration file.');</script>";
+    }
+}
+?>
 <!doctype html>
 <html lang="en" data-bs-theme="<?php echo substr($neko_theme,0,-4) ?>">
   <head>
@@ -740,7 +797,24 @@ $(document).ready(function() {
            <tr>
                <td style="width:150px">Control</td>
                <td class="d-grid">
-                   <form action="index.php" method="post">
+                   <form action="index.php" method="post" style="display: inline-block; width: 100%; margin-bottom: 10px;">
+                       <div class="form-group">
+                           <select id="configSelect" class="form-select" name="selected_config" onchange="saveConfigToLocalStorage(); this.form.submit()">
+                               <option value="">Please select a configuration file</option> 
+                               <?php
+                                   $config_dir = '/etc/neko/config';
+                                   $files = array_diff(scandir($config_dir), array('..', '.')); 
+                                   foreach ($files as $file) {
+                                       if (pathinfo($file, PATHINFO_EXTENSION) == 'yaml') {
+                                           $selected = (realpath($config_dir . '/' . $file) == realpath($current_config)) ? 'selected' : '';  
+                                           echo "<option value='$file' $selected>$file</option>";
+                                       }
+                                   }
+                               ?>
+                           </select>
+                       </div>
+                    </form>
+                   <form action="index.php" method="post" style="display: inline-block; width: 100%;">
                        <div class="btn-group w-100">
                            <button type="submit" name="neko" value="start" class="btn btn<?php if ($neko_status == 1) echo "-outline" ?>-success <?php if ($neko_status == 1) echo "disabled" ?>">Enable Mihomo</button>
                            <button type="submit" name="neko" value="disable" class="btn btn<?php if ($neko_status == 0) echo "-outline" ?>-danger <?php if ($neko_status == 0) echo "disabled" ?>">Disable Mihomo</button>
@@ -755,6 +829,7 @@ $(document).ready(function() {
                    <form action="index.php" method="post">
                        <div class="input-group mb-2">
                            <select name="config_file" id="config_file" class="form-select" onchange="saveConfigSelection()">
+                               <option value="">Please select a configuration file</option> 
                                <?php foreach ($availableConfigs as $config): ?>
                                    <option value="<?= htmlspecialchars($config) ?>" <?= isset($_POST['config_file']) && $_POST['config_file'] === $config ? 'selected' : '' ?>>
                                        <?= htmlspecialchars(basename($config)) ?>
@@ -799,6 +874,23 @@ $(document).ready(function() {
         const selectedConfig = document.getElementById("config_file").value;
         localStorage.setItem("configSelection", selectedConfig);
     }
+</script>
+
+<script>
+    function saveConfigToLocalStorage() {
+        const selectedConfig = document.getElementById('configSelect').value;
+        if (selectedConfig) {
+            localStorage.setItem('selected_config', selectedConfig);
+        }
+    }
+
+    window.onload = function() {
+        const savedConfig = localStorage.getItem('selected_config');
+        if (savedConfig) {
+            const configSelect = document.getElementById('configSelect');
+            configSelect.value = savedConfig; 
+        }
+    };
 </script>
 <h2 class="text-center">System Information</h2>
 <table class="table table-borderless rounded-4 mb-2">

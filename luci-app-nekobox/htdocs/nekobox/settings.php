@@ -102,6 +102,28 @@ function getRazordVersion() {
         return "Not installed";
     }
 }
+
+function getCliverVersion() {
+    $versionFile = '/etc/neko/tmp/nekobox_version';
+    
+    if (file_exists($versionFile)) {
+        $version = trim(file_get_contents($versionFile));
+        
+        if (preg_match('/-cn$|en$/', $version)) {
+            return ['version' => $version, 'type' => 'Stable'];
+        } elseif (preg_match('/-preview$|beta$/', $version)) {
+            return ['version' => $version, 'type' => 'Preview'];
+        } else {
+            return ['version' => $version, 'type' => 'Unknown'];
+        }
+    } else {
+        return ['version' => 'Not installed', 'type' => 'Unknown'];
+    }
+}
+
+$cliverData = getCliverVersion();
+$cliverVersion = $cliverData['version']; 
+$cliverType = $cliverData['type']; 
 $singBoxVersionInfo = getSingboxVersion();
 $singBoxVersion = $singBoxVersionInfo['version'];
 $singBoxType = $singBoxVersionInfo['type'];
@@ -187,7 +209,7 @@ $razordVersion = getRazordVersion();
                                 </div>
                                 <div class="text-center mt-2">
                                     <button class="btn btn-pink" id="checkCliverButton">🔍 Detect</button>
-                                    <button class="btn btn-info" id="updateButton" title="Update to Latest Version" onclick="showUpdateVersionModal()">🔄 Update</button>
+                                    <button class="btn btn-info" id="updateButton" title="Update to Latest Version" onclick="showVersionTypeModal()">🔄 Update</button>
                                 </div>
                             </div>
                         </div>
@@ -234,6 +256,24 @@ $razordVersion = getRazordVersion();
             </tr>
         </tbody>
     </table>
+
+<div class="modal fade" id="updateVersionTypeModal" tabindex="-1" aria-labelledby="updateVersionTypeModalLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="updateVersionTypeModalLabel">Select the update version type</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group text-center">
+                    <button id="stableBtn" class="btn btn-success btn-lg" style="margin: 10px;" onclick="selectVersionType('stable')">Stable</button>
+                    <button id="previewBtn" class="btn btn-warning btn-lg" style="margin: 10px;" onclick="selectVersionType('preview')">Preview</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
 <div class="modal fade" id="updateVersionModal" tabindex="-1" aria-labelledby="updateVersionModalLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
@@ -319,6 +359,7 @@ $razordVersion = getRazordVersion();
                     <option value="v1.11.0-alpha.15">v1.11.0-alpha.15</option>
                     <option value="v1.11.0-alpha.20">v1.11.0-alpha.20</option>
                     <option value="v1.11.0-beta.5">v1.11.0-beta.5</option>
+                    <option value="v1.11.0-beta.10">v1.11.0-beta.10</option>
                 </select>
             </div>
             <div class="modal-footer">
@@ -468,6 +509,7 @@ let selectedMihomoVersion = 'stable';
 let selectedLanguage = 'en';  
 let selectedSingboxVersionForChannelTwo = 'preview'; 
 let selectedPanel = 'zashboard';
+let selectedVersionType = 'stable';
 
 function showPanelSelector() {
     $('#panelSelectionModal').modal('show');
@@ -479,14 +521,51 @@ function confirmPanelSelection() {
     selectOperation('panel');
 }
 
-function showUpdateVersionModal() {
-    $('#updateVersionModal').modal('show');  
+function showVersionTypeModal() {
+    $('#updateVersionTypeModal').modal('show');  
 }
 
-function confirmUpdateVersion() {
-    selectedLanguage = document.getElementById('languageSelect').value;  
-    $('#updateVersionModal').modal('hide');  
-    selectOperation('client'); 
+function confirmVersionTypeSelection() {
+    selectedVersionType = document.getElementById('versionTypeSelect').value;  
+    $('#updateVersionTypeModal').modal('hide');  
+
+    if (selectedVersionType === 'stable') {
+        $('#updateLanguageModal').modal('show');  
+    } else {
+        selectOperation('client');
+    }
+}
+
+function selectVersionType(type) {
+    selectedVersionType = type; 
+    
+    if (type === 'stable') {
+        document.getElementById('stableBtn').classList.add('btn-success');
+        document.getElementById('previewBtn').classList.remove('btn-warning');
+        document.getElementById('previewBtn').classList.add('btn-light');
+    } else {
+        document.getElementById('previewBtn').classList.add('btn-warning');
+        document.getElementById('stableBtn').classList.remove('btn-success');
+        document.getElementById('stableBtn').classList.add('btn-light');
+    }
+
+    handleVersionSelection();
+}
+
+function handleVersionSelection() {
+    $('#updateVersionTypeModal').modal('hide');  
+
+    if (selectedVersionType === 'stable') {
+        $('#updateLanguageModal').modal('show');  
+    } else {
+        selectOperation('client');
+    }
+}
+
+function confirmLanguageSelection() {
+    selectedLanguage = document.getElementById('languageSelect').value; 
+    $('#updateLanguageModal').modal('hide');  
+    selectOperation('client');  
 }
 
 function showSingboxVersionSelector() {
@@ -565,9 +644,15 @@ function selectOperation(type) {
             description: 'Updating Mihomo Kernel to the latest version (' + selectedMihomoVersion + ')'
         },
         'client': {
-            url: 'update_script.php?lang=' + selectedLanguage,  
-            message: 'Starting to download client updates...',
-            description: 'Updating the client to the latest version'
+            url: selectedVersionType === 'stable' 
+                ? 'update_script.php?lang=' + selectedLanguage  
+                : 'update_preview.php',  
+            message: selectedVersionType === 'stable' 
+                ? 'Starting to download client updates...' 
+                : 'Starting to download client preview version updates...',
+            description: selectedVersionType === 'stable' 
+                ? 'Updating the client to the latest official version' 
+                : 'Updating the client to the latest preview version'
         },
         'panel': { 
             url: selectedPanel === 'zashboard' 
@@ -777,10 +862,19 @@ document.getElementById('checkUiButton').addEventListener('click', function () {
 });
 
 document.getElementById('checkCliverButton').addEventListener('click', function () {
+    const cliverVersion = "<?php echo htmlspecialchars($cliverVersion); ?>";
+    const cliverType = "<?php echo htmlspecialchars($cliverType); ?>";
+
     const currentVersions = {
-        'Client': document.getElementById('cliver').textContent,
+        'Client [ Stable ]': cliverType === 'Stable' ? cliverVersion : 'Not installed',
+        'Client [ Preview ]': cliverType === 'Preview' ? cliverVersion : 'Not installed',
     };
-    const updateFiles = [{ name: 'Client', url: 'update_script.php' }];
+
+    const updateFiles = [
+        { name: 'Client [ Stable ]', url: 'update_script.php' },
+        { name: 'Client [ Preview ]', url: 'update_preview.php' }
+    ];
+
     checkVersion('NewCliver', updateFiles, currentVersions);
 });
 

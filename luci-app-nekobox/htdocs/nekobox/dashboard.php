@@ -33,8 +33,44 @@ $dash_link = $neko_cfg['ctrl_host'] . ':' . $neko_cfg['ctrl_port'] . '/ui/dashbo
     <script type="text/javascript" src="./assets/js/jquery-2.1.3.min.js"></script>
     <script type="text/javascript" src="./assets/js/bootstrap.min.js"></script>
     <?php include './ping.php'; ?>
+    <style>
+        #fullscreenToggle {
+            position: fixed;  
+            top: 10px;        
+            right: 10px;     
+            z-index: 1000;    
+            padding: 5px 15px; 
+            background-color: #007bff;
+            color: white;     
+            border: none;      
+            border-radius: 5px; 
+            font-size: 14px;    
+            cursor: pointer;  
+            transition: background-color 0.3s ease;
+        }
+
+        #fullscreenToggle:hover {
+            background-color: #0056b3; 
+        }
+
+        #iframeMeta {
+            transition: height 0.3s ease; 
+            height: 70vh; 
+        }
+
+        body.fullscreen #iframeMeta {
+            height: 100vh; 
+        }
+
+        @media (max-width: 767px) {
+            #fullscreenToggle {
+                display: none; 
+            }
+        }
+    </style>
   </head>
   <body>
+     <button id="fullscreenToggle" class="btn btn-primary mb-2">Fullscreen</button>
 <head>
 <div class="container-sm container-bg text-center callout border border-3 rounded-4 col-11">
     <div class="row">
@@ -48,8 +84,7 @@ $dash_link = $neko_cfg['ctrl_host'] . ':' . $neko_cfg['ctrl_port'] . '/ui/dashbo
 <div class="container text-left p-3">
         <div class="container h-100 mb-5">
             <h2 class="text-center p-2">Meta Panel</h2>
-            <button id="fullscreenToggle" class="btn btn-primary mb-2">Fullscreen</button>
-            <iframe id="iframeMeta" class="border border-3 rounded-4 w-100" style="height: 75vh;" src="http://<?php echo $zash_link; ?>" title="zash" allowfullscreen></iframe>
+            <iframe id="iframeMeta" class="border border-3 rounded-4 w-100" style="height: 70vh;" src="http://<?php echo $zash_link; ?>" title="zash" allowfullscreen></iframe>
             <table class="table table-borderless callout mb-2">
                 <tbody>
                     <tr class="text-center d-flex flex-wrap justify-content-center">
@@ -97,6 +132,14 @@ $dash_link = $neko_cfg['ctrl_host'] . ':' . $neko_cfg['ctrl_port'] . '/ui/dashbo
                 }
                 fullscreenToggle.textContent = 'Fullscreen'; 
                 isFullscreen = false;  
+                }
+            });
+
+            document.addEventListener('fullscreenchange', function() {
+                if (document.fullscreenElement) {
+                    iframeMeta.style.height = '100vh';
+                } else {
+                    iframeMeta.style.height = '70vh';
                 }
             });
         });
