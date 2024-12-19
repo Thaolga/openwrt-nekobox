@@ -54,12 +54,12 @@ git clone https://github.com/Thaolga/openwrt-nekobox package/openwrt-nekobox && 
 ---
 
 ```bash
-bash -c "$(wget -qO - 'https://mirror.ghproxy.com/https://raw.githubusercontent.com/Thaolga/openwrt-nekobox/nekobox/nekobox.sh')"
+bash -c "$(wget -qO - 'https://raw.githubusercontent.com/Thaolga/openwrt-nekobox/nekobox/nekobox.sh')"
 
 ```
 ```bash
 
-wget -O /root/nekobox.sh https://mirror.ghproxy.com/https://raw.githubusercontent.com/Thaolga/openwrt-nekobox/nekobox/nekobox.sh  && chmod 0755 /root/nekobox.sh && /root/nekobox.sh
+wget -O /root/nekobox.sh https://raw.githubusercontent.com/Thaolga/openwrt-nekobox/nekobox/nekobox.sh  && chmod 0755 /root/nekobox.sh && /root/nekobox.sh
 
 ```
 # OpenWrt Compilation
