@@ -36,7 +36,7 @@ include './cfg.php';
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Configs - Neko</title>
+    <title>Configs - Nekobox</title>
     <link rel="icon" href="./assets/img/nekobox.png">
     <link href="./assets/css/bootstrap.min.css" rel="stylesheet">
     <link href="./assets/css/custom.css" rel="stylesheet">
@@ -49,11 +49,11 @@ include './cfg.php';
   <body>
     <div class="container-sm container-bg text-center callout border border-3 rounded-4 col-11">
         <div class="row">
-            <a href="./" class="col btn btn-lg">🏠 Home</a>
-            <a href="./dashboard.php" class="col btn btn-lg">📊 Panel</a>
-            <a href="#" class="col btn btn-lg">⚙️ Configs</a>
-            <a href="./singbox.php" class="col btn btn-lg"></i>📦 Document</a> 
-            <a href="./settings.php" class="col btn btn-lg">🛠️ Settings</a>
+        <a href="./index.php" class="col btn btn-lg">🏠 Home</a>
+        <a href="./dashboard.php" class="col btn btn-lg">📊 Panel</a>
+        <a href="./configs.php" class="col btn btn-lg">⚙️ Configs</a>
+        <a href="./singbox.php" class="col btn btn-lg"></i>📦 Document</a> 
+        <a href="./settings.php" class="col btn btn-lg">🛠️ Settings</a>
     <h2 class="text-center p-2">Configs</h2>
     <form action="configs.php" method="post">
         <div class="container text-center justify-content-md-center">

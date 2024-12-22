@@ -595,12 +595,11 @@ if (isset($_GET['ajax'])) {
     exit;
 }
 ?>
-
 <?php
 $default_config = '/etc/neko/config/mihomo.yaml';
 
 $current_config = file_exists('/www/nekobox/lib/selected_config.txt') 
-    ? file_get_contents('/www/nekobox/lib/selected_config.txt') 
+    ? trim(file_get_contents('/www/nekobox/lib/selected_config.txt')) 
     : $default_config;
 
 if (!file_exists($current_config)) {
@@ -611,6 +610,7 @@ if (!file_exists($current_config)) {
     
     file_put_contents($current_config, $default_config_content);
     file_put_contents('/www/nekobox/lib/selected_config.txt', $current_config);
+
     $logMessage = "The configuration file is missing; a default configuration file has been created.";
 } else {
     $config_content = file_get_contents($current_config);
@@ -624,7 +624,7 @@ if (!file_exists($current_config)) {
 
     foreach ($default_config_content as $key => $value) {
         if (strpos($config_content, "$key:") === false) {
-            $config_content .= "$key: $value\n";
+            $config_content .= "$key: $value\n"; 
             $missing_config = true;
         }
     }
@@ -641,14 +641,13 @@ if (isset($logMessage)) {
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['selected_config'])) {
     $selected_file = $_POST['selected_config'];
-
     $config_dir = '/etc/neko/config';
     $selected_file_path = $config_dir . '/' . $selected_file;
 
     if (file_exists($selected_file_path) && pathinfo($selected_file, PATHINFO_EXTENSION) == 'yaml') {
         file_put_contents('/www/nekobox/lib/selected_config.txt', $selected_file_path);
     } else {
-        echo "<script>alert('Invalid configuration file.');</script>";
+        echo "<script>alert('Invalid configuration file');</script>";
     }
 }
 ?>
@@ -657,7 +656,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['selected_config'])) {
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Home - Neko</title>
+    <title>Home - Nekobox</title>
     <link rel="icon" href="./assets/img/nekobox.png">
     <link href="./assets/css/bootstrap.min.css" rel="stylesheet">
     <link href="./assets/css/custom.css" rel="stylesheet">
@@ -688,7 +687,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['selected_config'])) {
     <?php endif; ?>
 <div class="container-sm container-bg callout border border-3 rounded-4 col-11">
     <div class="row">
-        <a href="#" class="col btn btn-lg">🏠 Home</a>
+        <a href="./index.php" class="col btn btn-lg">🏠 Home</a>
         <a href="./dashboard.php" class="col btn btn-lg">📊 Panel</a>
         <a href="./configs.php" class="col btn btn-lg">⚙️ Configs</a>
         <a href="./singbox.php" class="col btn btn-lg"></i>📦 Document</a> 
@@ -709,7 +708,7 @@ $(document).ready(function() {
         dataType: 'json',
         success: function(data) {
             if (data.hasUpdate) {
-                $('#current-version').attr('src', 'https://raw.githubusercontent.com/Thaolga/neko/refs/heads/main/Latest.svg');
+                $('#current-version').attr('src', 'https://raw.githubusercontent.com/Thaolga/openwrt-nekobox/refs/heads/nekobox/luci-app-nekobox/htdocs/nekobox/assets/img/Latest.svg');
             }
 
             console.log('Current Version:', data.currentVersion);
@@ -795,7 +794,7 @@ $(document).ready(function() {
                </td>
            </tr>
            <tr>
-               <td style="width:150px">Control</td>
+               <td style="width:150px">Mihomo Control</td>
                <td class="d-grid">
                    <form action="index.php" method="post" style="display: inline-block; width: 100%; margin-bottom: 10px;">
                        <div class="form-group">
@@ -824,7 +823,7 @@ $(document).ready(function() {
                </td>
            </tr>
            <tr>
-               <td style="width:150px"></td>
+               <td style="width:150px">Singbox Control</td>
                <td class="d-grid">
                    <form action="index.php" method="post">
                        <div class="input-group mb-2">

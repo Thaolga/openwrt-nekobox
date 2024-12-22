@@ -115,7 +115,7 @@ EOL;
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Box - Neko</title>
+    <title>singbox - Nekobox</title>
     <link rel="icon" href="./assets/img/nekobox.png">
     <link href="./assets/css/bootstrap.min.css" rel="stylesheet">
     <link href="./assets/css/custom.css" rel="stylesheet">
@@ -126,6 +126,7 @@ EOL;
     <script type="text/javascript" src="./assets/js/jquery-2.1.3.min.js"></script>
     <script type="text/javascript" src="./assets/js/neko.js"></script>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
+    <?php include './ping.php'; ?>
 </head>
 <body>
 <style>
@@ -142,26 +143,25 @@ EOL;
 <div class="container-sm container-bg callout border border-3 rounded-4 col-11">
     <div class="row">
         <a href="./index.php" class="col btn btn-lg">🏠 Home</a>
-        <a href="./mihomo_manager.php" class="col btn btn-lg">📂 Manager</a>
-        <a href="./mihomo.php" class="col btn btn-lg">🗂️ Mihomo</a>
-        <a href="./singbox.php" class="col btn btn-lg">💹 Sing-box</a>
-        <a href="./subscription.php" class="col btn btn-lg">💹 Singbox</a>
+        <a href="./mihomo_manager.php" class="col btn btn-lg">🗃️ Manager</a>
+        <a href="./singbox.php" class="col btn btn-lg">🏦 Sing-box</a>
+        <a href="./subscription.php" class="col btn btn-lg">🏣 Singbox</a>
+        <a href="./mihomo.php" class="col btn btn-lg">🏪 Mihomo</a>
 <div class="outer-container">
     <div class="container">
-        <h1 class="title text-center" style="margin-top: 3rem; margin-bottom: 2rem;">Sing-box Subscription Conversion Template</h1>
+        <h1 class="title text-center" style="margin-top: 3rem; margin-bottom: 2rem;">Sing-box  Template I</h1>
         <div class="alert alert-info">
             <h4 class="alert-heading">Help Information</h4>
             <p>
                   Please select a template to generate the configuration file: Choose the corresponding template based on the subscription node information. If you select a template with regional grouping, please ensure that your nodes include the following lines</p>
-                  <strong>Explanation:</strong> The scheduled task is for automatic updates, and the file name is <strong>sing-box.json</strong>.
             </p>
             <ul>
-                <li><strong>Default template 1</strong>：No region, no grouping, general</li>
-                <li><strong>Default template 2</strong>：No region, with routing rules, general</li>
-                <li><strong>Default template 3</strong>：Hong Kong, Japan, United States, grouped with routing rules</li>
-                <li><strong>Default template 4</strong>：Hong Kong, Singapore, Japan, United States, grouped with routing rules</li>
-                <li><strong>Default template 5</strong>：Singapore, Japan, United States, South Korea, grouped with routing rules</li>
-                <li><strong>Default template 6</strong>：Hong Kong, Taiwan, Singapore, Japan, United States, South Korea, grouped with routing rules</li>
+                <li><strong>Template 1</strong>：No region, no grouping, general</li>
+                <li><strong>Template 2</strong>：No region, with routing rules, general</li>
+                <li><strong>Template 3</strong>：Hong Kong, Japan, United States, grouped with routing rules</li>
+                <li><strong>Template 4</strong>：Hong Kong, Singapore, Japan, United States, grouped with routing rules</li>
+                <li><strong>Template 5</strong>：Singapore, Japan, United States, South Korea, grouped with routing rules</li>
+                <li><strong>Template 6</strong>：Hong Kong, Taiwan, Singapore, Japan, United States, South Korea, grouped with routing rules</li>
             </ul>
         </div>
         <form method="post" action="">
@@ -170,40 +170,48 @@ EOL;
                 <input type="text" class="form-control" id="subscribeUrl" name="subscribeUrl" value="<?php echo htmlspecialchars($lastSubscribeUrl); ?>" placeholder="Enter the subscription link" required>
             </div>
             <div class="mb-3">
-                <label for="customFileName" class="form-label">Custom filename (no extension needed)</label>
-                <input type="text" class="form-control" id="customFileName" name="customFileName" placeholder="Enter custom filename">
+                <label for="customFileName" class="form-label">Custom filename (Default: sing-box.json)</label>
+                <input type="text" class="form-control" id="customFileName" name="customFileName" placeholder="sing-box.json">
             </div>
             <fieldset class="mb-3">
                 <legend class="form-label">Select a template</legend>
                 <div class="row">
                     <div class="col">
+                        <input type="radio" class="form-check-input" id="useDefaultTemplate0" name="defaultTemplate" value="0" checked>
+                        <label class="form-check-label" for="useDefaultTemplate0">Default</label>
+                    </div>
+                    <div class="col">
                         <input type="radio" class="form-check-input" id="useDefaultTemplate1" name="defaultTemplate" value="1" checked>
-                        <label class="form-check-label" for="useDefaultTemplate1">Default template 1</label>
+                        <label class="form-check-label" for="useDefaultTemplate1">Template 1</label>
                     </div>
                     <div class="col">
                         <input type="radio" class="form-check-input" id="useDefaultTemplate2" name="defaultTemplate" value="2">
-                        <label class="form-check-label" for="useDefaultTemplate2">Default template 2</label>
+                        <label class="form-check-label" for="useDefaultTemplate2">Template 2</label>
                     </div>
                     <div class="col">
                         <input type="radio" class="form-check-input" id="useDefaultTemplate3" name="defaultTemplate" value="3">
-                        <label class="form-check-label" for="useDefaultTemplate3">Default template 3</label>
+                        <label class="form-check-label" for="useDefaultTemplate3">Template 3</label>
                     </div>
                     <div class="col">
                         <input type="radio" class="form-check-input" id="useDefaultTemplate4" name="defaultTemplate" value="4">
-                        <label class="form-check-label" for="useDefaultTemplate4">Default template 4</label>
+                        <label class="form-check-label" for="useDefaultTemplate4">Template 4</label>
                     </div>
                     <div class="col">
                         <input type="radio" class="form-check-input" id="useDefaultTemplate5" name="defaultTemplate" value="5">
-                        <label class="form-check-label" for="useDefaultTemplate5">Default template 5</label>
+                        <label class="form-check-label" for="useDefaultTemplate5">Template 5</label>
                     </div>
                     <div class="col">
                         <input type="radio" class="form-check-input" id="useDefaultTemplate6" name="defaultTemplate" value="6">
-                        <label class="form-check-label" for="useDefaultTemplate6">Default template 6</label>
+                        <label class="form-check-label" for="useDefaultTemplate6">Template 6</label>
+                    </div>
+                    <div class="col">
+                        <input type="radio" class="form-check-input" id="useDefaultTemplate7" name="defaultTemplate" value="7">
+                        <label class="form-check-label" for="useDefaultTemplate7">Template 7</label>
                     </div>
                 </div>
                 <div class="mt-3">
                     <input type="radio" class="form-check-input" id="useCustomTemplate" name="templateOption" value="custom">
-                    <label class="form-check-label" for="useCustomTemplate">Use Custom Template URL:</label>
+                    <label class="form-check-label mb-3" for="useCustomTemplate">Use Custom Template URL:</label>
                     <input type="text" class="form-control" id="customTemplateUrl" name="customTemplateUrl" placeholder="Enter Custom Template URL">
                 </div>
             </fieldset>
@@ -258,6 +266,18 @@ EOL;
             </div>
           </div>
         </div>
+<script>
+    document.querySelectorAll('input[name="defaultTemplate"]').forEach((elem) => {
+        elem.addEventListener('change', function () {
+            const customTemplateDiv = document.getElementById('customTemplateUrlDiv');
+            if (this.value === 'custom') {
+                customTemplateDiv.style.display = 'block';
+            } else {
+                customTemplateDiv.style.display = 'none';
+            }
+        });
+    });
+</script>
         <?php
         $dataFilePath = '/tmp/subscription_data.txt';
         $configFilePath = '/etc/neko/config/sing-box.json';
@@ -301,25 +321,51 @@ EOL;
                     '3' => "https://raw.githubusercontent.com/Thaolga/Rules/main/Clash/json/config_9.json",
                     '4' => "https://raw.githubusercontent.com/Thaolga/Rules/main/Clash/json/config_10.json",
                     '5' => "https://raw.githubusercontent.com/Thaolga/Rules/main/Clash/json/config_11.json",
-                    '6' => "https://raw.githubusercontent.com/Thaolga/Rules/main/Clash/json/config_8.json"
+                    '6' => "https://raw.githubusercontent.com/Thaolga/Rules/main/Clash/json/config_8.json",
+                    '7' => "https://raw.githubusercontent.com/Thaolga/Rules/main/Clash/json/config_12.json"
                 ];
 
-                $templateUrlEncoded = urlencode($defaultTemplates[$_POST['defaultTemplate']] ?? $defaultTemplates['mixed']);
+                $templateUrlEncoded = urlencode($defaultTemplates[$_POST['defaultTemplate']] ?? '');
             }
 
-            $completeSubscribeUrl = "https://sing-box-subscribe-doraemon.vercel.app/config/{$subscribeUrlEncoded}&file={$templateUrlEncoded}";
-            $tempFilePath = '/tmp/' . $customFileName;
+            if (empty($templateUrlEncoded)) {
+                $completeSubscribeUrl = "https://sing-box-subscribe-doraemon.vercel.app/config/{$subscribeUrlEncoded}";
+            } else {
+                $completeSubscribeUrl = "https://sing-box-subscribe-doraemon.vercel.app/config/{$subscribeUrlEncoded}&file={$templateUrlEncoded}";
+            }
+
+            $tempFilePath = '/etc/neko/' . $customFileName;
+            $logMessages = [];
             $command = "wget -O " . escapeshellarg($tempFilePath) . " " . escapeshellarg($completeSubscribeUrl);
             exec($command, $output, $returnVar);
-            $logMessages = [];
+
+            if ($returnVar !== 0) {
+                $command = "curl -s -L -o " . escapeshellarg($tempFilePath) . " " . escapeshellarg($completeSubscribeUrl);
+                exec($command, $output, $returnVar);
 
             if ($returnVar !== 0) {
                 $logMessages[] = "Unable to download content: " . htmlspecialchars($completeSubscribeUrl);
-            } else {
+                }
+            }
+
+            if ($returnVar === 0) {
                 $downloadedContent = file_get_contents($tempFilePath);
                 if ($downloadedContent === false) {
                     $logMessages[] = "Unable to read the downloaded file content";
                 } else {
+
+                    if (isset($_POST['defaultTemplate']) && $_POST['defaultTemplate'] == '0') {
+                $replacement = '
+  "clash_api": {
+      "external_ui": "/etc/neko/ui/",
+      "external_controller": "0.0.0.0:9090",
+      "secret": "Akun",
+      "external_ui_download_url": ""
+    },';  
+
+                $downloadedContent = preg_replace('/"clash_api":\s*\{.*?\},/s', $replacement, $downloadedContent);
+            }
+
                     $tmpFileSavePath = '/etc/neko/tmp/' . $fixedFileName;  
                     if (file_put_contents($tmpFileSavePath, $completeSubscribeUrl) === false) {
                         $logMessages[] = "Unable to save subscription URL to file: " . $tmpFileSavePath;

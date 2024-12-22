@@ -5,27 +5,6 @@ $translate = [
 ];
 $lang = $_GET['lang'] ?? 'en';
 ?>
-
-<!DOCTYPE html>
-<html lang="<?php echo htmlspecialchars($lang); ?>">
-<head>
-    <meta charset="utf-8">
-    <meta http-equiv="x-dns-prefetch-control" content="on">
-    <link rel="dns-prefetch" href="//cdn.jsdelivr.net">
-    <link rel="dns-prefetch" href="//whois.pconline.com.cn">
-    <link rel="dns-prefetch" href="//forge.speedtest.cn">
-    <link rel="dns-prefetch" href="//api-ipv4.ip.sb">
-    <link rel="dns-prefetch" href="//api.ipify.org">
-    <link rel="dns-prefetch" href="//api.ttt.sh">
-    <link rel="dns-prefetch" href="//qqwry.api.skk.moe">
-    <link rel="dns-prefetch" href="//d.skk.moe">
-    <link rel="preconnect" href="https://forge.speedtest.cn">
-    <link rel="preconnect" href="https://whois.pconline.com.cn">
-    <link rel="preconnect" href="https://api-ipv4.ip.sb">
-    <link rel="preconnect" href="https://api.ipify.org">
-    <link rel="preconnect" href="https://api.ttt.sh">
-    <link rel="preconnect" href="https://qqwry.api.skk.moe">
-    <link rel="preconnect" href="https://d.skk.moe">
 <style>
 .img-con {
   width: 65px;  

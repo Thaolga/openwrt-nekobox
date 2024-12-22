@@ -48,19 +48,29 @@ function getSingboxVersion() {
 }
 
 function getMihomoVersion() {
-    $versionFile = '/etc/neko/core/mihomo_version.txt';
+    $mihomoPath = '/usr/bin/mihomo';
+    $command = "$mihomoPath -v 2>&1";  
+    exec($command, $output, $returnVar);
 
-    if (file_exists($versionFile)) {
-        $content = trim(file_get_contents($versionFile));
-
-        if (strpos($content, 'alpha') !== false) {
-            return ['version' => $content, 'type' => 'Preview'];
+    if ($returnVar === 0) {
+        foreach ($output as $line) {
+            if (strpos($line, 'Mihomo') !== false) {
+                preg_match('/alpha-[a-z0-9]+/', $line, $matches);
+                if (!empty($matches)) {
+                    $version = $matches[0];  
+                    return ['version' => $version, 'type' => 'Preview'];
+                }
+                
+                preg_match('/([0-9]+(\.[0-9]+)+)/', $line, $matches);
+                if (!empty($matches)) {
+                    $version = $matches[0];  
+                    return ['version' => $version, 'type' => 'Stable'];
+                }
+            }
         }
-
-        return ['version' => $content, 'type' => 'Stable'];
-    } else {
-        return ['version' => 'Not installed', 'type' => 'Unknown'];
     }
+
+    return ['version' => 'Not installed', 'type' => 'Unknown'];
 }
 
 function getUiVersion() {
@@ -144,7 +154,7 @@ $razordVersion = getRazordVersion();
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Settings - Neko</title>
+    <title>Settings - Nekobox</title>
     <link rel="icon" href="./assets/img/nekobox.png">
     <link href="./assets/css/bootstrap.min.css" rel="stylesheet">
     <link href="./assets/theme/<?php echo $neko_theme ?>" rel="stylesheet">
@@ -160,11 +170,11 @@ $razordVersion = getRazordVersion();
 
 <div class="container-sm container-bg text-center callout border border-3 rounded-4 col-11">
     <div class="row">
-        <a href="./" class="col btn btn-lg">🏠 Home</a>
+        <a href="./index.php" class="col btn btn-lg">🏠 Home</a>
         <a href="./dashboard.php" class="col btn btn-lg">📊 Panel</a>
         <a href="./configs.php" class="col btn btn-lg">⚙️ Configs</a>
         <a href="./singbox.php" class="col btn btn-lg"></i>📦 Document</a> 
-        <a href="#" class="col btn btn-lg">🛠️ Settings</a>
+        <a href="./settings.php" class="col btn btn-lg">🛠️ Settings</a>
         <h2 class="text-center p-2 mb-3">Theme Settings</h2>
         <form action="settings.php" method="post">
             <div class="container text-center justify-content-md-center">
@@ -278,23 +288,45 @@ $razordVersion = getRazordVersion();
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="updateVersionModalLabel">Select the updated version of the language</h5>
-                <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
+                <h5 class="modal-title" id="updateLanguageModalLabel">Select Language</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
                 <div class="form-group">
                     <label for="languageSelect">Select Language</label>
                     <select id="languageSelect" class="form-select">
-                        <option value="en">English</option>
-                        <option value="cn">Chinese</option>
+                        <option value="cn">English</option>
+                        <option value="en">Chinese</option> 
                     </select>
                 </div>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">cancel</button>
                 <button type="button" class="btn btn-primary" onclick="confirmLanguageSelection()">confirm</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="previewLanguageModal" tabindex="-1" aria-labelledby="previewLanguageModalLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="previewLanguageModalLabel">Choose Preview Language</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label for="previewLanguageSelect">Select Language</label>
+                    <select id="previewLanguageSelect" class="form-select">
+                        <option value="cn">Chinese Preview Version</option>
+                        <option value="en">English Preview Version</option>
+                    </select>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">cancel</button>
+                <button type="button" class="btn btn-primary" onclick="confirmPreviewLanguageSelection()">confirm</button>
             </div>
         </div>
     </div>
@@ -322,6 +354,7 @@ $razordVersion = getRazordVersion();
         </div>
     </div>
 </div>
+
 <div class="modal fade" id="optionsModal" tabindex="-1" aria-labelledby="optionsModalLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
@@ -332,12 +365,16 @@ $razordVersion = getRazordVersion();
                 </button>
             </div>
             <div class="modal-body">
+                <p class="text-warning">
+                    <strong>Note：</strong> Please prioritize selecting the Channel 1 version for updates to ensure compatibility. The system will first check and dynamically generate the latest version number for download. If the Channel 1 update is unavailable, you can try the Channel 2 version.
+                </p>
                 <div class="d-grid gap-2">
                     <button class="btn btn-info" onclick="showSingboxVersionSelector()">Update Singbox Core (Channel One)</button>
                     <button class="btn btn-success" onclick="showSingboxVersionSelectorForChannelTwo()">Update Singbox Core (Channel Two)</button>
                     <button class="btn btn-success" onclick="selectOperation('puernya')">Switch to Puernya Core</button>
                     <button class="btn btn-primary" onclick="selectOperation('rule')">Update Singbox Rule Set</button>
                     <button class="btn btn-primary" onclick="selectOperation('config')">Update Mihomo Configuration File</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
                 </div>
             </div>
         </div>
@@ -354,6 +391,9 @@ $razordVersion = getRazordVersion();
                 </button>
             </div>
             <div class="modal-body">
+                <div class="alert alert-info">
+                 <strong>Help:</strong> Please select an existing version or manually enter a version number, and click "Add Version" to add it to the dropdown list. 
+                </div>
                 <select id="singboxVersionSelect" class="form-select">
                     <option value="v1.11.0-alpha.10">v1.11.0-alpha.10</option>
                     <option value="v1.11.0-alpha.15">v1.11.0-alpha.15</option>
@@ -361,6 +401,8 @@ $razordVersion = getRazordVersion();
                     <option value="v1.11.0-beta.5">v1.11.0-beta.5</option>
                     <option value="v1.11.0-beta.10">v1.11.0-beta.10</option>
                 </select>
+                <input type="text" id="manualVersionInput" class="form-control mt-2" placeholder="For example: v1.11.0-beta.10">
+                <button type="button" class="btn btn-secondary mt-2" onclick="addManualVersion()">Add Version</button>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">cancel</button>
@@ -506,7 +548,7 @@ $razordVersion = getRazordVersion();
 <script>
 let selectedSingboxVersion = 'v1.11.0-alpha.10';  
 let selectedMihomoVersion = 'stable';  
-let selectedLanguage = 'en';  
+let selectedLanguage = 'cn';  
 let selectedSingboxVersionForChannelTwo = 'preview'; 
 let selectedPanel = 'zashboard';
 let selectedVersionType = 'stable';
@@ -558,13 +600,19 @@ function handleVersionSelection() {
     if (selectedVersionType === 'stable') {
         $('#updateLanguageModal').modal('show');  
     } else {
-        selectOperation('client');
+        $('#previewLanguageModal').modal('show');  
     }
 }
 
 function confirmLanguageSelection() {
     selectedLanguage = document.getElementById('languageSelect').value; 
     $('#updateLanguageModal').modal('hide');  
+    selectOperation('client');  
+}
+
+function confirmPreviewLanguageSelection() {
+    selectedLanguage = document.getElementById('previewLanguageSelect').value; 
+    $('#previewLanguageModal').modal('hide');  
     selectOperation('client');  
 }
 
@@ -592,6 +640,51 @@ function confirmMihomoVersion() {
     selectedMihomoVersion = document.getElementById('mihomoVersionSelect').value;
     $('#mihomoVersionSelectionModal').modal('hide');  
     selectOperation('mihomo');
+}
+
+function addManualVersion() {
+    var manualVersion = document.getElementById('manualVersionInput').value;
+
+    if (manualVersion.trim() === "") {
+        alert("Please enter a version number");
+        return;
+    }
+
+    var select = document.getElementById('singboxVersionSelect');
+
+    var versionExists = Array.from(select.options).some(function(option) {
+        return option.value === manualVersion;
+    });
+
+    if (versionExists) {
+        alert("This version already exists");
+        return;
+    }
+
+    var newOption = document.createElement("option");
+    newOption.value = manualVersion;
+    newOption.textContent = manualVersion;
+
+    select.innerHTML = '';
+
+    select.appendChild(newOption);
+
+    var options = [
+        "v1.11.0-alpha.10", 
+        "v1.11.0-alpha.15", 
+        "v1.11.0-alpha.20", 
+        "v1.11.0-beta.5", 
+        "v1.11.0-beta.10"
+    ];
+
+    options.forEach(function(version) {
+        var option = document.createElement("option");
+        option.value = version;
+        option.textContent = version;
+        select.appendChild(option);
+    });
+
+    document.getElementById('manualVersionInput').value = '';
 }
 
 function confirmSingboxVersion() {
@@ -646,7 +739,7 @@ function selectOperation(type) {
         'client': {
             url: selectedVersionType === 'stable' 
                 ? 'update_script.php?lang=' + selectedLanguage  
-                : 'update_preview.php',  
+                : 'update_preview.php?lang=' + selectedLanguage,
             message: selectedVersionType === 'stable' 
                 ? 'Starting to download client updates...' 
                 : 'Starting to download client preview version updates...',
@@ -831,6 +924,9 @@ document.getElementById('checkSingboxButton').addEventListener('click', function
 document.getElementById('checkMihomoButton').addEventListener('click', function () {
     const mihomoVersion = "<?php echo htmlspecialchars($mihomoVersion); ?>";
     const mihomoType = "<?php echo htmlspecialchars($mihomoType); ?>";
+
+    console.log('Mihomo Version:', mihomoVersion);  
+    console.log('Mihomo Type:', mihomoType);  
 
     const currentVersions = {
         'Mihomo Stable': mihomoType === 'Stable' ? mihomoVersion : 'Not installed',

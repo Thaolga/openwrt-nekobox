@@ -613,7 +613,7 @@ function getSubscriptionUrlFromFile($file) {
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Personal - Neko</title>
+    <title>mihomo - Nekobox</title>
     <link rel="icon" href="./assets/img/nekobox.png">
     <link href="./assets/css/bootstrap.min.css" rel="stylesheet">
     <link href="./assets/css/custom.css" rel="stylesheet">
@@ -624,9 +624,15 @@ function getSubscriptionUrlFromFile($file) {
     <script type="text/javascript" src="./assets/bootstrap/bootstrap.bundle.min.js"></script>
     <script type="text/javascript" src="./assets/js/jquery-2.1.3.min.js"></script>
     <script type="text/javascript" src="./assets/js/neko.js"></script>
+    <?php include './ping.php'; ?>
 </head>
 <body>
 <style>
+.custom-padding {
+    padding-left: 5ch;  
+    padding-right: 5ch;  
+}
+
 @media (max-width: 767px) {
     .row a {
         font-size: 9px; 
@@ -640,13 +646,13 @@ function getSubscriptionUrlFromFile($file) {
 <div class="container-sm container-bg callout border border-3 rounded-4 col-11">
     <div class="row">
         <a href="./index.php" class="col btn btn-lg">🏠 Home</a>
-        <a href="./mihomo_manager.php" class="col btn btn-lg">📂 Manager</a>
-        <a href="./mihomo.php" class="col btn btn-lg">🗂️ Mihomo</a>
-        <a href="./singbox.php" class="col btn btn-lg">💹 Sing-box</a>
-        <a href="./subscription.php" class="col btn btn-lg">💹 Singbox</a>
+        <a href="./mihomo_manager.php" class="col btn btn-lg">🗃️ Manager</a>
+        <a href="./singbox.php" class="col btn btn-lg">🏦 Sing-box</a>
+        <a href="./subscription.php" class="col btn btn-lg">🏣 Singbox</a>
+        <a href="./mihomo.php" class="col btn btn-lg">🏪 Mihomo</a>
         <h1 class="text-center p-2" style="margin-top: 2rem; margin-bottom: 1rem;">Mihomo Subscription Conversion Template</h1>
 
-        <div class="col-12">
+        <div class="col-12 custom-padding">
             <div class="form-section">
                 <form method="post">
                     <div class="mb-3">
@@ -876,7 +882,7 @@ function getSubscriptionUrlFromFile($file) {
             </div>
         </div>
 
-        <div class="form-section mt-4">
+        <div class="form-section mt-4 custom-padding">
             <form method="post">
                 <div class="mb-3">
                     <label for="cron_time" class="form-label">Set Cron Time (e.g., 0 3 * * *)</label>
@@ -888,14 +894,14 @@ function getSubscriptionUrlFromFile($file) {
             </form>
         </div>
 
-        <div class="help mt-4">
+        <div class="help mt-4 custom-padding">
             <p style="color: red;">Caution: Online subscription conversion poses privacy leakage risks</p>
         </div>
 
-        <div class="result mt-4">
+        <div class="result mt-4 custom-padding">
             <?php echo nl2br(htmlspecialchars($result)); ?>
         </div>
-        <div class="result mt-2">
+        <div class="result mt-2 custom-padding">
             <?php echo nl2br(htmlspecialchars($cron_result)); ?>
         </div>
     </div>

@@ -1,5 +1,5 @@
 <?php
-date_default_timezone_set('Asia/Shanghai'); 
+
 ob_start();
 include './cfg.php';
 ?>
@@ -33,15 +33,16 @@ include './cfg.php';
             margin-right: 20px;
         }
     </style>
+</head>
+<body>
 
-    <div class="container my-3 p-3 border border-3 rounded-4" style="background-color: #f8f9fa;">
-        <div class="controls">
-            <label for="main-toggle">System Toggle</label>
-            <input type="checkbox" id="main-toggle">
-            
-            <label for="website-toggle">Website Check</label>
-            <input type="checkbox" id="website-toggle">
-
+<div class="container my-3 p-3 border border-3 rounded-4" style="background-color: transparent;">
+    <div class="controls">
+        <label for="main-toggle">System Toggle</label>
+        <input type="checkbox" id="main-toggle">
+       
+        <label for="website-toggle">Website Check</label>
+        <input type="checkbox" id="website-toggle">     
             <label for="timezone-select">Timezone</label>
             <select id="timezone-select">
                 <option value="Asia/Shanghai">Shanghai (UTC+8)</option>
@@ -88,6 +89,30 @@ include './cfg.php';
                 <option value="Africa/Cairo">Cairo (UTC+2)</option>
             </select>
         </div>
+
+    <div id="player" onclick="toggleAnimation()" class="rounded-circle" style="background-color: transparent;">
+        <p id="hidePlayer">NeKoBox</p>
+        <p id="timeDisplay">00:00</p>
+        <audio id="audioPlayer" controls>
+            <source src="" type="audio/mpeg">
+        </audio>
+        <div id="controls">
+            <button id="prev" class="rounded-button">⏮️</button>
+            <button id="orderLoop" class="rounded-button">🔁</button>
+            <button id="play" class="rounded-button">⏸️</button>
+            <button id="next" class="rounded-button">⏭️</button>
+        </div>
+    </div>
+
+    <div id="mobile-controls" style="display: flex; justify-content: center; gap: 10px;">
+            <button id="togglePlay" class="rounded-button">Play/Pause</button>
+            <button id="prevMobile" class="rounded-button">Previous</button>
+            <button id="nextMobile" class="rounded-button">Next</button>
+            <button id="toggleEnable" class="rounded-button">Enable/Disable</button>
+    </div>
+
+    <div id="tooltip"></div>
+</div>
 
         <script>
         let systemEnabled = true; 
@@ -418,29 +443,6 @@ include './cfg.php';
     </style>
 </head>
 <body>
-  </div>
- <div id="player" onclick="toggleAnimation()">
-        <p id="hidePlayer">NekoBox</p>
-        <p id="timeDisplay">00:00</p>
-        <audio id="audioPlayer" controls>
-            <source src="" type="audio/mpeg">
-        </audio>
-        <br>
-        <div id="controls">
-            <button id="prev" class="rounded-button">⏮️</button>
-            <button id="orderLoop" class="rounded-button">🔁</button>
-            <button id="play" class="rounded-button">⏸️</button>
-            <button id="next" class="rounded-button">⏭️</button>
-      </div>
-    </div>
-    <div id="mobile-controls">
-        <button id="togglePlay" class="rounded-button">Play/Pause</button>
-        <button id="prevMobile" class="rounded-button">Previous</button>
-        <button id="nextMobile" class="rounded-button">Next</button>
-        <button id="toggleEnable" class="rounded-button">Enable/Disable</button>
-    </div>
-    <div id="tooltip"></div>
-
     <script>
         let colors = ['#FF0000', '#FF7F00', '#FFFF00', '#00FF00', '#0000FF', '#4B0082', '#9400D3'];
         let isPlayingAllowed = JSON.parse(localStorage.getItem('isPlayingAllowed')) || false;
@@ -561,7 +563,7 @@ include './cfg.php';
                 showTooltip('Playback Disabled');
                 audioPlayer.pause();
                 playButton.textContent = 'Play';
-                speakMessage('Playback Disabled. Press ESC to re-enable playback.');
+                speakMessage('Playback Disabled. ');
             }
         }
 
@@ -582,7 +584,7 @@ include './cfg.php';
                     speakMessage('Order Play');
                 }
             } else {
-                speakMessage('Playback Disabled. Press ESC to re-enable playback.');
+                speakMessage('Playback Disabled. ');
             }
         }
 
@@ -593,7 +595,7 @@ include './cfg.php';
                         document.getElementById('prev').click();
                     } else {
                         showTooltip('Playback Disabled');
-                        speakMessage('Playback Disabled. Press ESC to re-enable playback.');
+                        speakMessage('Playback Disabled. ');
                     }
                     break;
                 case 'ArrowRight':
@@ -601,7 +603,7 @@ include './cfg.php';
                         document.getElementById('next').click();
                     } else {
                         showTooltip('Playback Disabled');
-                        speakMessage('Playback Disabled. Press ESC to re-enable playback.');
+                        speakMessage('Playback Disabled. ');
                     }
                     break;
                 case ' ':
@@ -617,7 +619,7 @@ include './cfg.php';
                         audioPlayer.pause();
                         audioPlayer.src = '';
                         showTooltip('Playback Disabled');
-                        speakMessage('Playback Disabled. Press ESC to re-enable playback.');
+                        speakMessage('Playback Disabled. ');
                     } else {
                         showTooltip('Playback Enabled');
                         speakMessage('Playback Enabled.');
@@ -638,7 +640,7 @@ include './cfg.php';
                 speakMessage('Next');
             } else {
                 showTooltip('Playback Disabled');
-                speakMessage('Playback Disabled. Press ESC to re-enable playback.');
+                speakMessage('Playback Disabled. ');
             }
         });
         document.getElementById('prev').addEventListener('click', function() {
@@ -649,7 +651,7 @@ include './cfg.php';
                 speakMessage('Previous');
             } else {
                 showTooltip('Playback Disabled');
-                speakMessage('Playback Disabled. Press ESC to re-enable playback.');
+                speakMessage('Playback Disabled. ');
             }
         });
         document.getElementById('orderLoop').addEventListener('click', handleOrderLoop);
@@ -663,7 +665,7 @@ include './cfg.php';
                 speakMessage('Previous');
             } else {
                 showTooltip('Playback Disabled');
-                speakMessage('Playback Disabled. Press ESC to re-enable playback.');
+                speakMessage('Playback Disabled. ');
             }
         });
         document.getElementById('nextMobile').addEventListener('click', function() {
@@ -674,7 +676,7 @@ include './cfg.php';
                 speakMessage('Next');
             } else {
                 showTooltip('Playback Disabled');
-                speakMessage('Playback Disabled. Press ESC to re-enable playback.');
+                speakMessage('Playback Disabled. ');
             }
         });
         document.getElementById('toggleEnable').addEventListener('click', function() {
@@ -684,7 +686,7 @@ include './cfg.php';
                 audioPlayer.pause();
                 audioPlayer.src = '';
                 showTooltip('Playback Disabled');
-                speakMessage('Playback Disabled. Press ESC to re-enable playback.');
+                speakMessage('Playback Disabled. ');
             } else {
                 showTooltip('Playback Enabled');
                 speakMessage('Playback Enabled.');
