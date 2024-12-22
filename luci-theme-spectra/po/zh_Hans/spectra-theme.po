@@ -1,0 +1,11 @@
+msgid ""
+msgstr "Content-Type: text/plain; charset=UTF-8"
+
+msgid "Search Menu"
+msgstr "搜索菜单"
+
+msgid "Empty Input"
+msgstr "输入为空"
+
+msgid "Not Found"
+msgstr "未找到"

@@ -1,0 +1,940 @@
+
+
+<%#
+	Argon is a clean HTML5 theme for LuCI. It is based on luci-theme-material Argon Template
+
+	luci-theme-argon
+	Copyright 2020 Jerrykuku <jerrykuku@qq.com>
+
+	Have a bug? Please create an issue here on GitHub!
+	https://github.com/jerrykuku/luci-theme-argon/issues
+
+	luci-theme-material:
+	Copyright 2015 Lutty Yang <lutty@wcan.in>
+
+	Argon Theme
+	https://demos.creative-tim.com/argon-dashboard/index.html
+
+	Licensed to the public under the Apache License 2.0
+-%>
+
+<%
+	local sys = require "luci.sys"
+	local util = require "luci.util"
+	local http = require "luci.http"
+	local disp = require "luci.dispatcher"
+	local ver = require "luci.version"
+
+	local boardinfo = util.ubus("system", "board")
+
+	local node = disp.context.dispatched
+
+	local fs = require "nixio.fs"
+	local nutil = require "nixio.util"
+	local uci = require 'luci.model.uci'.cursor()
+
+	-- send as HTML5
+	http.prepare_content("text/html")
+
+	math.randomseed(os.time())
+
+	-- Custom settings
+	local mode = 'normal'
+	local dark_css = fs.readfile('/www/luci-static/spectra/css/dark.css')
+	local bar_color = '#5e72e4'
+	local primary, dark_primary, blur_radius, blur_radius_dark, blur_opacity
+	if fs.access('/etc/config/spectra') then
+		primary = uci:get_first('spectra', 'global', 'primary')
+		dark_primary = uci:get_first('spectra', 'global', 'dark_primary')
+		blur_radius = uci:get_first('spectra', 'global', 'blur')
+		blur_radius_dark = uci:get_first('spectra', 'global', 'blur_dark')
+		blur_opacity = uci:get_first('spectra', 'global', 'transparency')
+		blur_opacity_dark = uci:get_first('spectra', 'global', 'transparency_dark')
+		mode = uci:get_first('spectra', 'global', 'mode')
+		bar_color = mode == 'dark' and dark_primary or primary
+	end
+
+	-- Brand name
+	local brand_name = boardinfo.hostname or "?"
+-%>
+
+
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<meta http-equiv="x-dns-prefetch-control" content="on">
+	 <link rel="dns-prefetch" href="//cdn.jsdelivr.net">
+         <link rel="dns-prefetch" href="//whois.pconline.com.cn">
+        <link rel="dns-prefetch" href="//forge.speedtest.cn">
+        <link rel="dns-prefetch" href="//api-ipv4.ip.sb">
+        <link rel="dns-prefetch" href="//api.ipify.org">
+        <link rel="dns-prefetch" href="//api.ttt.sh">
+        <link rel="dns-prefetch" href="//qqwry.api.skk.moe">
+        <link rel="dns-prefetch" href="//d.skk.moe">
+        <link rel="preconnect" href="https://forge.speedtest.cn">
+        <link rel="preconnect" href="https://whois.pconline.com.cn">
+        <link rel="preconnect" href="https://api-ipv4.ip.sb">
+        <link rel="preconnect" href="https://api.ipify.org">
+        <link rel="preconnect" href="https://api.ttt.sh">
+        <link rel="preconnect" href="https://qqwry.api.skk.moe">
+        <link rel="preconnect" href="https://d.skk.moe">
+</head>
+</html>
+ <script src="/luci-static/ssr/js/jquery.min.js"></script>
+
+<html lang="<%=luci.i18n.context.lang%>">
+
+<head>
+    <style>
+        header {
+            background-color: transparent;
+            color: #fff;
+            padding: 20px;
+        }
+
+        .box {
+            width: 40px;
+            height: 40px;
+            background: transparent;
+            margin: 0 10px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 6px 6px 3px #00ffff9a;
+        }
+        .box img {
+            display: block;
+            margin: auto; /* Memposisikan gambar di tengah secara horizontal dan vertikal */
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            transition: filter 0.2s ease-in-out; /* Transisi saat hover */
+        }
+
+        .box:hover img {
+            filter: drop-shadow(0 0 5px cyan); /* Efek bayangan saat hover */
+        }
+        .box i {
+            z-index: 5;
+            font-size: 45px;
+            color: #fff;
+        }
+
+        .box-area {
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+        }
+       
+</style>
+   
+	<meta charset="utf-8">
+	<meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport" />
+	<meta name="format-detection" content="telephone=no, email=no" />
+	<meta name="apple-mobile-web-app-capable" content="yes">
+	<meta name="mobile-web-app-capable" content="yes">
+	<meta name="x5-fullscreen" content="true">
+	<meta name="full-screen" content="yes">
+	<meta name="x5-page-mode" content="app">
+	<meta name="browsermode" content="application">
+	<meta name="msapplication-tap-highlight" content="no">
+	<meta name="msapplication-TileColor" content="<%=bar_color%>">
+	<meta name="application-name" content="<%=striptags( (boardinfo.hostname or "?") ) %> - LuCI">
+	<meta name="apple-mobile-web-app-title" content="<%=striptags( (boardinfo.hostname or "?") ) %> - LuCI">
+	<link rel="apple-touch-icon" sizes="60x60" href="<%=media%>/icon/apple-icon-60x60.png">
+	<link rel="apple-touch-icon" sizes="72x72" href="<%=media%>/icon/apple-icon-72x72.png">
+	<link rel="apple-touch-icon" sizes="144x144" href="<%=media%>/icon/apple-icon-144x144.png">
+	<link rel="icon" type="image/png" sizes="192x192" href="<%=media%>/icon/android-icon-192x192.png">
+	<link rel="icon" type="image/png" sizes="32x32" href="<%=media%>/icon/favicon-32x32.png">
+	<link rel="icon" type="image/png" sizes="96x96" href="<%=media%>/icon/favicon-96x96.png">
+	<link rel="icon" type="image/png" sizes="16x16" href="<%=media%>/icon/favicon-16x16.png">
+	<link rel="manifest" href="<%=media%>/icon/manifest.json"  crossorigin="use-credentials">
+	<meta name="msapplication-TileColor" content="<%=bar_color%>">
+	<meta name="msapplication-TileImage" content="<%=media%>/icon/ms-icon-144x144.png">
+	<meta name="theme-color" content="<%=bar_color%>">
+	<link rel="stylesheet" href="<%=media%>/css/cascade.css?v=2.3.1">
+	<style title="text/css">
+		<% if mode ~= 'dark' then %>
+			@media (prefers-color-scheme: dark) {
+				<%=dark_css%>
+			}
+		<% if fs.access('/etc/config/spectra') then %>
+		:root {
+			--primary: <%=primary%>;
+			--dark-primary: <%=dark_primary%>;
+			--bar-bg: <%=primary%>;
+			--blur-radius:<%=blur_radius%>px;
+			--blur-opacity:<%=blur_opacity%>;
+			--blur-radius-dark:<%=blur_radius_dark%>px;
+			--blur-opacity-dark:<%=blur_opacity_dark%>;
+		}
+		<% end -%>
+		<% elseif mode == 'dark' then %>
+			<%=dark_css%>
+		<% if fs.access('/etc/config/spectra') then %>
+		:root {
+			--primary: <%=primary%>;
+			--dark-primary: <%=dark_primary%>;
+			--bar-bg: <%=dark_primary%>;
+			--blur-radius:<%=blur_radius%>px;
+			--blur-opacity:<%=blur_opacity%>;
+			--blur-radius-dark:<%=blur_radius_dark%>px;
+			--blur-opacity-dark:<%=blur_opacity_dark%>;
+		}
+		<% end -%>
+		<% end -%>
+	</style>
+	<link rel="shortcut icon" href="<%=media%>/favicon.ico">
+        <link rel="stylesheet" href="<%=resource%>/spectra/easeicon.css?v=2.4">
+	<% if node and node.css then %>
+	<link rel="stylesheet" href="<%=resource%>/<%=node.css%>">
+	<% end -%>
+	<% if css then %>
+	<style title="text/css">
+		<%=css %>
+	</style>
+	<% end -%>
+	<script src="<%=media%>/js/polyfill.min.js?v=2.3.1"></script>
+	<script src="<%=url('admin/translations', luci.i18n.context.lang)%>?v=<%=ver.luciversion%>"></script>
+	<script src="<%=resource%>/cbi.js?v=<%=ver.luciversion%>"></script>
+	<script src="<%=resource%>/luci.js?v=<%=ver.luciversion%>"></script>
+	<script src="<%=media%>/js/jquery.min.js?v=3.5.1"></script>
+</head>
+
+<body
+	class="lang_<%=luci.i18n.context.lang%> <% if node then %><%= striptags( node.title ) %><% end %> <% if luci.dispatcher.context.authsession then %>logged-in<% end %>"
+	data-page="<%= table.concat(disp.context.requestpath, "-") %>">
+<div class="wrapper">
+		<span></span>
+		<span></span>
+		<span></span>
+		<span></span>
+		<span></span>
+		<span></span>
+		<span></span>
+		<span></span>
+		<span></span>
+		<span></span>
+</div>
+<style>
+body {
+	background: #111;
+	height: 100vh;
+}
+.wrapper span {
+	position: fixed;
+	bottom: -180px;
+	height: 50px;
+	width: 50px;
+	z-index: -1;
+	background-color: #18191f;
+	box-shadow: 0 0 50px cyan, 0 0 100px cyan, 0 0 150px cyan, 0 0 200px cyan;
+	animation: animate 8s linear infinite;
+}
+
+.wrapper span:nth-child(1) {
+	left: 60px;
+	animation-delay: 0.6s;
+}
+.wrapper span:nth-child(2) {
+	left: 10%;
+	animation-delay: 3s;
+	width: 60px;
+	height: 60px;
+}
+.wrapper span:nth-child(3) {
+	left: 20%;
+	animation-delay: 2s;
+}
+.wrapper span:nth-child(4) {
+	left: 30%;
+	animation-delay: 5s;
+	width: 80px;
+	height: 80px;
+}
+.wrapper span:nth-child(5) {
+	left: 40%;
+	animation-delay: 1s;
+}
+.wrapper span:nth-child(6) {
+	left: 50%;
+	animation-delay: 7s;
+}
+.wrapper span:nth-child(7) {
+	left: 60%;
+	animation-delay: 6s;
+	width: 100px;
+	height: 100px;
+}
+.wrapper span:nth-child(8) {
+	left: 70%;
+	animation-delay: 8s;
+}
+.wrapper span:nth-child(9) {
+	left: 80%;
+	animation-delay: 6s;
+	width: 90px;
+	height: 90px;
+}
+.wrapper span:nth-child(10) {
+	left: 90%;
+	animation-delay: 4s;
+}
+@keyframes animate {
+	0% {
+		transform: translateY(0);
+		opacity: 1;
+	}
+	80% {
+		opacity: .7;
+	}
+	100% {
+		transform: translateY(-800px) rotate(360deg);
+		opacity: 0;
+	}
+}
+</style>
+<header>
+	<div class="fill">
+		<div class="container">
+			<a class="showSide"></span>
+		<a id="logo" href="<% if luci.dispatcher.context.authsession then %><%=url('admin/status/overview')%><% else %>#<% end %>"><img src="<%=media%>/brand.png" alt="OpenWrt"></a>
+			<tr>
+        <div class="box-area">
+            <div class="box">
+                <a id="oc" href='/cgi-bin/luci/admin/services/openclash'><img src="<%=media%>/navbar/clash.gif" width="35" height="35"></a>
+            </div>
+            <div class="box">
+                <a href='/nekobox' target='_blank'><img src="<%=media%>/navbar/yacd.gif" width="35" height="35"></a>
+            </div>
+            <div class="box">
+                <a href='/cgi-bin/luci/admin/nas/tinyfilemanager'><img src="<%=media%>/navbar/tinyfm.gif" width="35" height="35"></a>
+            </div>
+            <div class="box">
+                <a href='/cgi-bin/luci/admin/status/realtime'><img src="<%=media%>/navbar/netmon.gif" width="35" height="35"></a>
+            </div>
+            <div class="box">
+                <a href='/cgi-bin/luci/admin/services/ttyd'><img src="<%=media%>/navbar/terminal.gif" width="35" height="35"></a>
+            </div>
+            <div class="box">
+                <a href='/cgi-bin/luci/admin/services/homeproxy'><img src="<%=media%>/navbar/modem.gif" width="35" height="35"></a>
+            </div>
+            <div class="box">
+                <a href='/cgi-bin/luci/admin/network/network'><img src="<%=media%>/navbar/interface.gif" width="35" height="35"></a>
+            </div>
+        </div>
+    <fieldset class="cbi-section">
+        <div class="pure-g status">
+            <div class="siz">
+                <div class="block pure-g">
+                    <div class="pure-u-9-24">
+                        <div class="img-con">
+                            <img src="/luci-static/ssr/img/loading.svg" id="flag" class="pure-img" alt="IP Flag">
+                        </div>
+                    </div>
+                    <div class="pure-u-10-24">
+                        <h4><span id="d-ip" class="green"><%:Checking...%></span> <span class="green" id="ipip"></span></h4>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </fieldset>
+</header>
+<style>
+.pure-g.status {
+    display: flex;
+    align-items: center;     
+    justify-content: flex-start; 
+    gap: 10px;             
+    margin-top: 20px;  
+    background: transparent;    
+}
+
+.img-con {
+    display: flex;
+    align-items: center;     
+    justify-content: center; 
+    margin-left: 20px; 
+    transform: translateY(20px); 
+    background: transparent;
+
+}
+
+#d-ip, #ipip {
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    background: transparent;
+}
+
+.pure-img {
+    width: 60px;  
+    height: auto;  
+    background: transparent;
+}
+
+.pure-u-10-24 {
+    display: flex;
+    flex-direction: column;  
+    justify-content: center; 
+    align-items: center;
+    gap: 0;
+    margin-left: 50px;    
+    line-height: 1.5; 
+    background: transparent;
+}
+
+.green {
+    font-size: 16px;
+    color: #2dce89;   
+    background: transparent;
+
+}
+
+#ipip {
+    font-size: 14px;
+    color: #666;      
+    text-align: center;
+    background: transparent;
+}
+
+h4 {
+    margin: 0;
+    background: transparent;
+}
+
+#d-ip {
+    margin-bottom: 0;  
+    background: transparent;
+}
+
+.ip-info span {
+    transform: translateX(-17px);  
+    color: #FF00FF;
+    background: transparent;
+} 
+</style>
+
+<script type="text/javascript">
+    const _IMG = '/luci-static/ssr/';
+    const translate = {
+'Argentina': '阿根廷',
+'Australia': '澳大利亚',
+'Austria': '奥地利',
+'Belgium': '比利时',
+'Brazil': '巴西',
+'Canada': '加拿大',
+'Chile': '智利',
+'China': '中国',
+'Colombia': '哥伦比亚',
+'Denmark': '丹麦',
+'Egypt': '埃及',
+'Finland': '芬兰',
+'France': '法国',
+'Germany': '德国',
+'Greece': '希腊',
+'Hong Kong': '中国香港',
+'India': '印度',
+'Indonesia': '印度尼西亚',
+'Iran': '伊朗',
+'Ireland': '爱尔兰',
+'Israel': '以色列',
+'Italy': '意大利',
+'Japan': '日本',
+'Kazakhstan': '哈萨克斯坦',
+'Kenya': '肯尼亚',
+'Macao': '中国澳门',
+'Malaysia': '马来西亚',
+'Mexico': '墨西哥',
+'Morocco': '摩洛哥',
+'The Netherlands': '荷兰',
+'New Zealand': '新西兰',
+'Nigeria': '尼日利亚',
+'Norway': '挪威',
+'Pakistan': '巴基斯坦',
+'Philippines': '菲律宾',
+'Poland': '波兰',
+'Portugal': '葡萄牙',
+'Russia': '俄罗斯',
+'Saudi Arabia': '沙特阿拉伯',
+'Singapore': '新加坡',
+'South Africa': '南非',
+'South Korea': '韩国',
+'Spain': '西班牙',
+'Sweden': '瑞典',
+'Switzerland': '瑞士',
+'Taiwan': '中国台湾',
+'Thailand': '泰国',
+'Turkey': '土耳其',
+'United Arab Emirates': '阿拉伯联合酋长国',
+'United Kingdom': '英国',
+'United States': '美国',
+'Vietnam': '越南',
+'Afghanistan': '阿富汗',
+'Albania': '阿尔巴尼亚',
+'Armenia': '亚美尼亚',
+'Bahrain': '巴林',
+'Bangladesh': '孟加拉国',
+'Barbados': '巴巴多斯',
+'Belarus': '白俄罗斯',
+'Bhutan': '不丹',
+'Bolivia': '玻利维亚',
+'Bosnia and Herzegovina': '波斯尼亚和黑塞哥维那',
+'Botswana': '博茨瓦纳',
+'Brunei': '文莱',
+'Bulgaria': '保加利亚',
+'Burkina Faso': '布基纳法索',
+'Burundi': '布隆迪',
+'Cambodia': '柬埔寨',
+'Cameroon': '喀麦隆',
+'Central African Republic': '中非共和国',
+'Chad': '乍得',
+'Comoros': '科摩罗',
+'Congo': '刚果',
+'Czech Republic': '捷克共和国',
+'Dominica': '多米尼加',
+'Dominican Republic': '多米尼加共和国',
+'Ecuador': '厄瓜多尔',
+'El Salvador': '萨尔瓦多',
+'Equatorial Guinea': '赤道几内亚',
+'Ethiopia': '埃塞俄比亚',
+'Fiji': '斐济',
+'Gabon': '加蓬',
+'Gambia': '冈比亚',
+'Georgia': '格鲁吉亚',
+'Ghana': '加纳',
+'Grenada': '格林纳达',
+'Guatemala': '危地马拉',
+'Guinea': '几内亚',
+'Guinea-Bissau': '几内亚比绍',
+'Haiti': '海地',
+'Honduras': '洪都拉斯',
+'Hungary': '匈牙利',
+'Iceland': '冰岛',
+'Jamaica': '牙买加',
+'Jordan': '约旦',
+'Kazakhstan': '哈萨克斯坦',
+'Kuwait': '科威特',
+'Kyrgyzstan': '吉尔吉斯斯坦',
+'Laos': '老挝',
+'Latvia': '拉脱维亚',
+'Lebanon': '黎巴嫩',
+'Lesotho': '莱索托',
+'Liberia': '利比里亚',
+'Libya': '利比亚',
+'Liechtenstein': '列支敦士登',
+'Lithuania': '立陶宛',
+'Luxembourg': '卢森堡',
+'Madagascar': '马达加斯加',
+'Malawi': '马拉维',
+'Maldives': '马尔代夫',
+'Mali': '马里',
+'Malta': '马耳他',
+'Mauritania': '毛里塔尼亚',
+'Mauritius': '毛里求斯',
+'Moldova': '摩尔多瓦',
+'Monaco': '摩纳哥',
+'Mongolia': '蒙古',
+'Montenegro': '黑山',
+'Morocco': '摩洛哥',
+'Mozambique': '莫桑比克',
+'Myanmar': '缅甸',
+'Namibia': '纳米比亚',
+'Nauru': '瑙鲁',
+'Nepal': '尼泊尔',
+'Nicaragua': '尼加拉瓜',
+'Niger': '尼日尔',
+'Nigeria': '尼日利亚',
+'North Korea': '朝鲜',
+'North Macedonia': '北马其顿',
+'Norway': '挪威',
+'Oman': '阿曼',
+'Pakistan': '巴基斯坦',
+'Palau': '帕劳',
+'Panama': '巴拿马',
+'Papua New Guinea': '巴布亚新几内亚',
+'Paraguay': '巴拉圭',
+'Peru': '秘鲁',
+'Philippines': '菲律宾',
+'Poland': '波兰',
+'Portugal': '葡萄牙',
+'Qatar': '卡塔尔',
+'Romania': '罗马尼亚',
+'Russia': '俄罗斯',
+'Rwanda': '卢旺达',
+'Saint Kitts and Nevis': '圣基茨和尼维斯',
+'Saint Lucia': '圣卢西亚',
+'Saint Vincent and the Grenadines': '圣文森特和格林纳丁斯',
+'Samoa': '萨摩亚',
+'San Marino': '圣马力诺',
+'Sao Tome and Principe': '圣多美和普林西比',
+'Saudi Arabia': '沙特阿拉伯',
+'Senegal': '塞内加尔',
+'Serbia': '塞尔维亚',
+'Seychelles': '塞舌尔',
+'Sierra Leone': '塞拉利昂',
+'Singapore': '新加坡',
+'Slovakia': '斯洛伐克',
+'Slovenia': '斯洛文尼亚',
+'Solomon Islands': '所罗门群岛',
+'Somalia': '索马里',
+'South Africa': '南非',
+'South Korea': '韩国',
+'South Sudan': '南苏丹',
+'Spain': '西班牙',
+'Sri Lanka': '斯里兰卡',
+'Sudan': '苏丹',
+'Suriname': '苏里南',
+'Sweden': '瑞典',
+'Switzerland': '瑞士',
+'Syria': '叙利亚',
+'Taiwan': '中国台湾',
+'Tajikistan': '塔吉克斯坦',
+'Tanzania': '坦桑尼亚',
+'Thailand': '泰国',
+'Timor-Leste': '东帝汶',
+'Togo': '多哥',
+'Tonga': '汤加',
+'Trinidad and Tobago': '特立尼达和多巴哥',
+'Tunisia': '突尼斯',
+'Turkey': '土耳其',
+'Turkmenistan': '土库曼斯坦',
+'Tuvalu': '图瓦卢',
+'Uganda': '乌干达',
+'Ukraine': '乌克兰',
+'United Arab Emirates': '阿拉伯联合酋长国',
+'United Kingdom': '英国',
+'United States': '美国',
+'Uruguay': '乌拉圭',
+'Uzbekistan': '乌兹别克斯坦',
+'Vanuatu': '瓦努阿图',
+'Vatican City': '梵蒂冈',
+'Venezuela': '委内瑞拉',
+'Vietnam': '越南',
+'Yemen': '也门',
+'Zambia': '赞比亚',
+'Zimbabwe': '津巴布韦',
+    };  
+
+    let cachedIP = null;
+    let cachedInfo = null;
+
+    async function updateIP() {
+        await IP.getIpipnetIP();
+        document.getElementById('d-ip').style.display = 'none';
+        document.getElementById('d-ip').offsetHeight; 
+        document.getElementById('d-ip').style.display = 'flex';
+    }
+
+    async function onlineTranslate(text, targetLang = 'zh') {
+        if (!text || typeof text !== 'string' || text.trim() === '') {
+            return text;
+        }
+
+        const cacheKey = `trans_${text}_${targetLang}`;
+        const cachedTranslation = localStorage.getItem(cacheKey);
+        if (cachedTranslation) {
+            return cachedTranslation;
+        }
+
+        const apis = [
+            {
+                url: 'https://api.mymemory.translated.net/get?q=' + encodeURIComponent(text) + '&langpair=en|' + targetLang,
+                method: 'GET',
+                parseResponse: (data) => data.responseData.translatedText
+            },
+            {
+                url: 'https://libretranslate.com/translate',
+                method: 'POST',
+                body: JSON.stringify({
+                    q: text,
+                    source: 'en',
+                    target: targetLang,
+                    format: 'text'
+                }),
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                parseResponse: (data) => data.translatedText
+            },
+            {
+                url: `https://lingva.ml/api/v1/en/${targetLang}/${encodeURIComponent(text)}`,
+                method: 'GET',
+                parseResponse: (data) => data.translation
+            },
+            {
+                url: `https://simplytranslate.org/api/translate?engine=google&from=en&to=${targetLang}&text=${encodeURIComponent(text)}`,
+                method: 'GET',
+                parseResponse: (data) => data.translatedText
+            }
+        ];
+
+        for (const api of apis) {
+            try {
+                const response = await fetch(api.url, {
+                    method: api.method,
+                    headers: api.headers || {},
+                    body: api.body || null
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    const translatedText = api.parseResponse(data);
+                    
+                    try {
+                        localStorage.setItem(cacheKey, translatedText);
+                    } catch (e) {
+                        clearOldCache();
+                        localStorage.setItem(cacheKey, translatedText);
+                    }
+                    
+                    return translatedText;
+                }
+            } catch (error) {
+                continue;
+            }
+        }
+
+        return text;
+    }
+
+    function clearOldCache() {
+        const cachePrefix = 'trans_';
+        const cacheKeys = Object.keys(localStorage).filter(key => 
+            key.startsWith(cachePrefix)
+        );
+        
+        if (cacheKeys.length > 1000) {
+            console.log("Cleaning up localStorage cache");
+            const itemsToRemove = cacheKeys.slice(0, cacheKeys.length - 1000);
+            itemsToRemove.forEach(key => localStorage.removeItem(key));
+        }
+    }
+
+    async function translateText(text, targetLang = 'zh') {
+        if (translate[text]) {
+            return translate[text];
+        } 
+        return await onlineTranslate(text, targetLang);
+    }
+
+    let IP = {
+        isRefreshing: false,
+        lastGeoData: null, 
+        ipApis: [
+            {url: 'https://api.ipify.org?format=json', type: 'json', key: 'ip'},
+            {url: 'https://api-ipv4.ip.sb/geoip', type: 'json', key: 'ip'},
+            {url: 'https://myip.ipip.net', type: 'text'},
+            {url: 'http://pv.sohu.com/cityjson', type: 'text'},
+            {url: 'https://ipinfo.io/json', type: 'json', key: 'ip'},
+            {url: 'https://ipapi.co/json/', type: 'json'},
+            {url: 'https://freegeoip.app/json/', type: 'json'}
+        ],
+
+        fetchIP: async () => {
+            let error;
+            for(let api of IP.ipApis) {
+                try {
+                    const response = await IP.get(api.url, api.type);
+                    if(api.type === 'json') {
+                        const ipData = api.key ? response.data[api.key] : response.data;
+                        cachedIP = ipData;
+                        document.getElementById('d-ip').innerHTML = ipData;
+                        return ipData;
+                    } else {
+                        const ipData = response.data.match(/\d+\.\d+\.\d+\.\d+/)?.[0];
+                        if(ipData) {
+                            cachedIP = ipData;
+                            document.getElementById('d-ip').innerHTML = ipData;
+                            return ipData;
+                        }
+                    }
+                } catch(e) {
+                    error = e;
+                    console.error(`Error with ${api.url}:`, e);
+                    continue;
+                }
+            }
+            throw error || new Error("All IP APIs failed");
+        },
+
+        get: (url, type) =>
+            fetch(url, { 
+                method: 'GET',
+                cache: 'no-store'
+            }).then((resp) => {
+                if (type === 'text')
+                    return Promise.all([resp.ok, resp.status, resp.text(), resp.headers]);
+                else
+                    return Promise.all([resp.ok, resp.status, resp.json(), resp.headers]);
+            }).then(([ok, status, data, headers]) => {
+                if (ok) {
+                    return { ok, status, data, headers };
+                } else {
+                    throw new Error(JSON.stringify(data.error));
+                }
+            }).catch(error => {
+                console.error("Error fetching data:", error);
+                throw error;
+            }),
+
+        Ipip: async (ip, elID) => {
+            const geoApis = [
+                {url: `https://api.ip.sb/geoip/${ip}`, type: 'json'},
+                {url: 'https://myip.ipip.net', type: 'text'},
+                {url: `http://ip-api.com/json/${ip}`, type: 'json'},
+                {url: `https://ipinfo.io/${ip}/json`, type: 'json'},
+                {url: `https://ipapi.co/${ip}/json/`, type: 'json'},
+                {url: `https://freegeoip.app/json/${ip}`, type: 'json'}
+            ];
+
+            let geoData = null;
+            let error;
+
+            for(let api of geoApis) {
+                try {
+                    const response = await IP.get(api.url, api.type);
+                    geoData = response.data;
+                    break;
+                } catch(e) {
+                    error = e;
+                    console.error(`Error with ${api.url}:`, e);
+                    continue;
+                }
+            }
+
+            if(!geoData) {
+                throw error || new Error("All Geo APIs failed");
+            }
+
+            cachedIP = ip;
+            IP.lastGeoData = geoData; 
+            
+            IP.updateUI(geoData, elID);
+        },
+
+        updateUI: async (data, elID) => {
+            try {
+                const country = await translateText(data.country || "未知");
+                const region = await translateText(data.region || "");
+                const city = await translateText(data.city || "");
+                const isp = await translateText(data.isp || "");
+                const asnOrganization = await translateText(data.asn_organization || "");
+
+                let location = `${region && city && region !== city ? `${region} ${city}` : region || city || ''}`;
+        
+                let simpleDisplay = `
+                    <div class="ip-main" style="cursor: pointer;" onclick="IP.showDetailModal()">
+                        ${cachedIP}
+                    </div>`;
+        
+                let locationInfo = `
+                    <div class="ip-info">
+                        <span class="green">${country} ${location} ${isp} ${data.asn || ''} ${asnOrganization}</span>
+                    </div>`;
+        
+                document.getElementById('d-ip').innerHTML = simpleDisplay;
+                document.getElementById('ipip').innerHTML = locationInfo;
+        
+                $("#flag").attr("src", _IMG + "flags/" + (data.country_code || 'unknown').toLowerCase() + ".png");
+
+            } catch (error) {
+                console.error("Error in updateUI:", error);
+               document.getElementById('d-ip').innerHTML = `更新 IP 信息失败: ${error.message}`;
+            }
+        },
+
+        getIpipnetIP: async () => {
+            if(IP.isRefreshing) return;
+        
+            try {
+                IP.isRefreshing = true;
+                document.getElementById('d-ip').innerHTML = `
+                    <div class="ip-main">
+                        <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                        检查中...
+                    </div>
+                `;
+                document.getElementById('ipip').innerHTML = "";
+                $("#flag").attr("src", _IMG + "img/loading.svg");
+            
+                const ip = await IP.fetchIP();
+                await IP.Ipip(ip, 'ipip');
+            } catch (error) {
+                console.error("Error in getIpipnetIP function:", error);
+                document.getElementById('ipip').innerHTML = "获取IP信息失败";
+            } finally {
+                IP.isRefreshing = false;
+            }
+        }
+    };
+
+    document.getElementById('flag').addEventListener('click', () => {
+        IP.getIpipnetIP();
+    });
+
+    IP.getIpipnetIP();
+    if(typeof checkSiteStatus !== 'undefined') {
+        checkSiteStatus.check();
+        setInterval(() => checkSiteStatus.check(), 30000);
+    }
+
+    setInterval(IP.getIpipnetIP, 180000);
+</script>
+
+<script>
+function updatemenu(){1==document.getElementById("responsive-menu").checked?(document.getElementById("menu").style.borderBottomRightRadius="0",document.getElementById("menu").style.borderBottomLeftRadius="0"):document.getElementById("menu").style.borderRadius="0px"}
+</script>
+
+</header>
+
+	<div class="main">
+		<div class="main-left" id="mainmenu" style="display:none">
+			<div class="sidenav-header d-flex align-items-center">
+					
+				<div class="ml-auto">
+					<!-- Sidenav toggler -->
+					<div class="sidenav-toggler d-none d-xl-block active" data-action="sidenav-unpin"
+						data-target="#sidenav-main">
+						<div class="sidenav-toggler-inner">
+							<i class="sidenav-toggler-line"></i>
+							<i class="sidenav-toggler-line"></i>
+							<i class="sidenav-toggler-line"></i>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div class="main-right">
+			
+				
+			
+			<div class="darkMask"></div>
+			<div id="maincontent">
+				<div class="container">
+					<%- if luci.sys.process.info("uid") == 0 and luci.sys.user.getuser("root") and not luci.sys.user.getpasswd("root") then -%>
+					<div class="alert-message error">
+						<h4><%:No password set!%></h4>
+						<p><%:There is no password set on this router. Please configure a root password to protect the web interface.%>
+						</p>
+						<% if disp.lookup("admin/system/admin") then %>
+						<div class="right"><a class="btn"
+								href="<%=url("admin/system/admin")%>"><%:Go to password configuration...%></a></div>
+						<% end %>
+					</div>
+					<%- end -%>
+
+					<noscript>
+						<div class="alert-message error">
+							<h4><%:JavaScript required!%></h4>
+							<p><%:You must enable JavaScript in your browser or LuCI will not work properly.%></p>
+						</div>
+					</noscript>
+
+	<div id="tabmenu" style="display:none"></div>				
