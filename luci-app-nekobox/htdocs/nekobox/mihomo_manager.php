@@ -427,77 +427,13 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     color: rgba(255, 255, 255, 0.9);
 }
 
-@media (max-width: 767px) {
-    .table th,
-    .table td {
-        padding: 6px 8px; 
-        font-size: 14px;
-    }
-
-    .table th:nth-child(1), .table td:nth-child(1) {
-        width: 25%; 
-    }
-    .table th:nth-child(2), .table td:nth-child(2) {
-        width: 20%; 
-    }
-    .table th:nth-child(3), .table td:nth-child(3) {
-        width: 25%; 
-    }
-    .table th:nth-child(4), .table td:nth-child(4) {
-        width: 100%; 
-    }
-
-.btn-group, .d-flex {
-    display: flex;
-    flex-wrap: wrap; 
-    justify-content: center;
-    gap: 5px;
+html {
+    font-size: 16px;  
 }
 
-.btn-group .btn {
-    flex: 1 1 auto; 
-    font-size: 12px;
-    padding: 6px 8px;
-}
-
-.btn-group .btn:last-child {
-    margin-right: 0;
-  }
-}
-
-@media (max-width: 767px) {
-    .btn-rename {
-    width: 70px !important; 
-    font-size: 0.6rem; 
-    white-space: nowrap; 
-    overflow: hidden; 
-    text-overflow: ellipsis; 
-    display: inline-block;
-    text-align: center; 
-}
-
-.btn-group {
-    display: flex;
-    gap: 10px; 
-    justify-content: center; 
-}
-
-.btn {
-    margin: 0; 
-}
-
-td {
-    vertical-align: middle;
-}
-
-.action-btn {
-    padding: 6px 12px; 
-    font-size: 0.85rem; 
-    display: inline-block;
-}
-
-.btn-group.d-flex {
-    flex-wrap: wrap;
+.container {
+    padding-left: 2.4em;  
+    padding-right: 2.4em; 
 }
 </style>
 
@@ -538,16 +474,14 @@ function showUpdateAlert() {
     </div>
     <div class="text-center">
         <h2 style="margin-top: 40px; margin-bottom: 20px;">File Management</h2>
-       <div class="card mb-4">
-    <div class="card-body">
 <div class="container">
     <div class="table-responsive">
         <table class="table table-striped table-bordered text-center">
             <thead class="thead-dark">
                 <tr>
                     <th style="width: 18%;">File Name</th>
-                    <th style="width: 9%;">Size</th>
-                    <th style="width: 13%;">Modification Time</th>
+                    <th style="width: 8%;">Size</th>
+                    <th style="width: 14%;">Modification Time</th>
                     <th style="width: 13%;">File Type</th>
                     <th style="width: 37%;">Action</th>
                 </tr>
@@ -579,41 +513,41 @@ function showUpdateAlert() {
                         <td class="align-middle">
                             <?php echo htmlspecialchars($fileType); ?>
                         </td>
-                        <td>
-                            <div class="d-flex justify-content-center">
+                        <td class="align-middle">
+                            <div class="action-buttons">
                                 <?php if ($fileType == 'Proxy File'): ?>
-                                    <form action="" method="post" class="d-inline">
+                                    <form action="" method="post" class="d-inline mb-1">
                                         <input type="hidden" name="deleteFile" value="<?php echo htmlspecialchars($file); ?>">
-                                        <button type="submit" class="btn btn-danger btn-sm mx-1" onclick="return confirm('Are you sure you want to delete this file？');"><i>🗑️</i> Delete</button>
+                                        <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Are you sure you want to delete this file？');"><i>🗑️</i> Delete</button>
                                     </form>
-                                    <form action="" method="post" class="d-inline">
+                                    <form action="" method="post" class="d-inline mb-1">
                                         <input type="hidden" name="oldFileName" value="<?php echo htmlspecialchars($file); ?>">
                                         <input type="hidden" name="fileType" value="proxy">
-                                        <button type="button" class="btn btn-success btn-sm mx-1 btn-rename" data-toggle="modal" data-target="#renameModal" data-filename="<?php echo htmlspecialchars($file); ?>" data-filetype="proxy"><i>✏️</i> Rename</button>
+                                        <button type="button" class="btn btn-success btn-sm btn-rename" data-toggle="modal" data-target="#renameModal" data-filename="<?php echo htmlspecialchars($file); ?>" data-filetype="proxy"><i>✏️</i> Rename</button>
                                     </form>
-                                    <form action="" method="post" class="d-inline">
-                                        <button type="button" class="btn btn-warning btn-sm mx-1" onclick="openEditModal('<?php echo htmlspecialchars($file); ?>', 'proxy')"><i>📝</i> Rename</button>
+                                    <form action="" method="post" class="d-inline mb-1">
+                                        <button type="button" class="btn btn-warning btn-sm" onclick="openEditModal('<?php echo htmlspecialchars($file); ?>', 'proxy')"><i>📝</i> Edit</button>
                                     </form>
-                                    <form action="" method="post" enctype="multipart/form-data" class="d-inline upload-btn">
+                                    <form action="" method="post" enctype="multipart/form-data" class="d-inline upload-btn mb-1">
                                         <input type="file" name="fileInput" class="form-control-file" required id="fileInput-<?php echo htmlspecialchars($file); ?>" style="display: none;" onchange="this.form.submit()">
-                                        <button type="button" class="btn btn-info btn-sm mx-1" onclick="document.getElementById('fileInput-<?php echo htmlspecialchars($file); ?>').click();"><i>📤</i> Upload</button>
+                                        <button type="button" class="btn btn-info btn-sm" onclick="document.getElementById('fileInput-<?php echo htmlspecialchars($file); ?>').click();"><i>📤</i> Upload</button>
                                     </form>
                                 <?php else: ?>
-                                    <form action="" method="post" class="d-inline">
+                                    <form action="" method="post" class="d-inline mb-1">
                                         <input type="hidden" name="deleteConfigFile" value="<?php echo htmlspecialchars($file); ?>">
-                                        <button type="submit" class="btn btn-danger btn-sm mx-1" onclick="return confirm('Are you sure you want to delete this file？');"><i>🗑️</i> Delete</button>
+                                        <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Are you sure you want to delete this file？');"><i>🗑️</i> Delete</button>
                                     </form>
-                                    <form action="" method="post" class="d-inline">
+                                    <form action="" method="post" class="d-inline mb-1">
                                         <input type="hidden" name="oldFileName" value="<?php echo htmlspecialchars($file); ?>">
                                         <input type="hidden" name="fileType" value="config">
-                                        <button type="button" class="btn btn-success btn-sm mx-1 btn-rename" data-toggle="modal" data-target="#renameModal" data-filename="<?php echo htmlspecialchars($file); ?>" data-filetype="config"><i>✏️</i> Rename</button>
+                                        <button type="button" class="btn btn-success btn-sm btn-rename" data-toggle="modal" data-target="#renameModal" data-filename="<?php echo htmlspecialchars($file); ?>" data-filetype="config"><i>✏️</i> Rename</button>
                                     </form>
-                                    <form action="" method="post" class="d-inline">
-                                        <button type="button" class="btn btn-warning btn-sm mx-1" onclick="openEditModal('<?php echo htmlspecialchars($file); ?>', 'config')"><i>📝</i> Rename</button>
+                                    <form action="" method="post" class="d-inline mb-1">
+                                        <button type="button" class="btn btn-warning btn-sm" onclick="openEditModal('<?php echo htmlspecialchars($file); ?>', 'config')"><i>📝</i> Edit</button>
                                     </form>
-                                    <form action="" method="post" enctype="multipart/form-data" class="d-inline upload-btn">
+                                    <form action="" method="post" enctype="multipart/form-data" class="d-inline upload-btn mb-1">
                                         <input type="file" name="configFileInput" class="form-control-file" required id="fileInput-<?php echo htmlspecialchars($file); ?>" style="display: none;" onchange="this.form.submit()">
-                                        <button type="button" class="btn btn-info btn-sm mx-1" onclick="document.getElementById('fileInput-<?php echo htmlspecialchars($file); ?>').click();"><i>📤</i>  Upload</button>
+                                        <button type="button" class="btn btn-info btn-sm" onclick="document.getElementById('fileInput-<?php echo htmlspecialchars($file); ?>').click();"><i>📤</i> Upload</button>
                                     </form>
                                 <?php endif; ?>
                             </div>
@@ -963,7 +897,7 @@ function initializeAceEditor() {
             }
        }
 </script>
-<h2 class="text-center mt-4 mb-4">Mihomo Subscription Management</h2>
+<h2 class="text-center mt-4 mb-4">Mihomo Subscription</h2>
 
 <?php if (isset($message) && $message): ?>
     <div class="alert alert-info">
@@ -972,38 +906,40 @@ function initializeAceEditor() {
 <?php endif; ?>
 
 <?php if (isset($subscriptions) && is_array($subscriptions)): ?>
-    <div class="row">
-        <?php 
-        $maxSubscriptions = 6; 
-        for ($i = 0; $i < $maxSubscriptions; $i++): 
-            $displayIndex = $i + 1; 
-            $url = $subscriptions[$i]['url'] ?? '';
-            $fileName = $subscriptions[$i]['file_name'] ?? "subscription_" . ($displayIndex) . ".yaml"; 
-        ?>
-            <div class="col-md-4 mb-3 px-4">
-                <form method="post" class="card">
-                    <div class="card-body">
-                        <div class="form-group">
-                            <h5 for="subscription_url_<?php echo $displayIndex; ?>" class="mb-2">Subscription link <?php echo $displayIndex; ?></h5>
-                            <input type="text" name="subscription_url" id="subscription_url_<?php echo $displayIndex; ?>" value="<?php echo htmlspecialchars($url); ?>" class="form-control" placeholder="Please enter the subscription link">
+    <div class="container" style="padding-left: 2.4rem; padding-right: 2.4rem;">
+        <div class="row">
+            <?php 
+            $maxSubscriptions = 6; 
+            for ($i = 0; $i < $maxSubscriptions; $i++): 
+                $displayIndex = $i + 1; 
+                $url = $subscriptions[$i]['url'] ?? '';
+                $fileName = $subscriptions[$i]['file_name'] ?? "subscription_" . ($displayIndex) . ".yaml"; 
+            ?>
+                <div class="col-md-4 mb-3">
+                    <form method="post" class="card shadow-sm">
+                        <div class="card-body">
+                            <div class="form-group">
+                                <h5 for="subscription_url_<?php echo $displayIndex; ?>" class="mb-2">Subscription link  <?php echo $displayIndex; ?></h5>
+                                <input type="text" name="subscription_url" id="subscription_url_<?php echo $displayIndex; ?>" value="<?php echo htmlspecialchars($url); ?>" class="form-control" placeholder="Please enter the subscription link">
+                            </div>
+                            <div class="form-group">
+                                <label for="custom_file_name_<?php echo $displayIndex; ?>">Custom file name</label>
+                                <input type="text" name="custom_file_name" id="custom_file_name_<?php echo $displayIndex; ?>" value="<?php echo htmlspecialchars($fileName); ?>" class="form-control">
+                            </div>
+                            <input type="hidden" name="index" value="<?php echo $i; ?>">
+                            <div class="text-center mt-3"> 
+                                <button type="submit" name="update" class="btn btn-info btn-block">🔄 Update subscription <?php echo $displayIndex; ?></button>
+                            </div>
                         </div>
-                        <div class="form-group">
-                            <label for="custom_file_name_<?php echo $displayIndex; ?>">Custom file name</label>
-                            <input type="text" name="custom_file_name" id="custom_file_name_<?php echo $displayIndex; ?>" value="<?php echo htmlspecialchars($fileName); ?>" class="form-control">
-                        </div>
-                        <input type="hidden" name="index" value="<?php echo $i; ?>">
-                        <div class="text-center mt-3"> 
-                            <button type="submit" name="update" class="btn btn-info">🔄 Update subscription <?php echo $displayIndex; ?></button>
-                        </div>
-                    </div>
-                </form>
-            </div>
+                    </form>
+                </div>
 
-            <?php if (($displayIndex) % 3 == 0 && $displayIndex < $maxSubscriptions): ?>
-                </div><div class="row">
-            <?php endif; ?>
+                <?php if (($displayIndex) % 3 == 0 && $displayIndex < $maxSubscriptions): ?>
+                    </div><div class="row">
+                <?php endif; ?>
 
-        <?php endfor; ?>
+            <?php endfor; ?>
+        </div>
     </div>
 <?php else: ?>
     <p>No subscription information found</p>

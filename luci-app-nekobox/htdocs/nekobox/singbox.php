@@ -148,7 +148,7 @@ EOL;
         <a href="./subscription.php" class="col btn btn-lg">🏣 Singbox</a>
         <a href="./mihomo.php" class="col btn btn-lg">🏪 Mihomo</a>
 <div class="outer-container">
-    <div class="container">
+    <div class="container" style="padding-left: 2.4em; padding-right: 2.4em;">
         <h1 class="title text-center" style="margin-top: 3rem; margin-bottom: 2rem;">Sing-box  Template I</h1>
         <div class="alert alert-info">
             <h4 class="alert-heading">Help Information</h4>

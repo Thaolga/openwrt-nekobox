@@ -1153,6 +1153,7 @@ function searchFiles($dir, $term) {
      </style>
   </head>
 <body>
+
 <div class="row">
     <div class="col-12">  
         <div class="container container-bg border border-3 rounded-4 p-3">

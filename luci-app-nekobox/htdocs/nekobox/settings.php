@@ -175,97 +175,133 @@ $razordVersion = getRazordVersion();
         <a href="./configs.php" class="col btn btn-lg">⚙️ Configs</a>
         <a href="./singbox.php" class="col btn btn-lg"></i>📦 Document</a> 
         <a href="./settings.php" class="col btn btn-lg">🛠️ Settings</a>
-        <h2 class="text-center p-2 mb-3">Theme Settings</h2>
-        <form action="settings.php" method="post">
-            <div class="container text-center justify-content-md-center">
-                <div class="row justify-content-md-center">
-                    <div class="col mb-3 justify-content-md-center">
-                        <select class="form-select" name="themechange" aria-label="themex">
-                            <option selected>Change Theme (<?php echo $neko_theme ?>)</option>
-                            <?php foreach ($arrFiles as $file) echo "<option value=\"".$file.'">'.$file."</option>" ?>
-                        </select>
-                    </div>
-                    <div class="row justify-content-md-center">
-                        <div class="col justify-content-md-center mb-3">
-                            <input class="btn btn-info" type="submit" value="🖫 Change Theme">
-                        </div>
-                    </div>
+<div class="container px-4">
+    <h2 class="text-center p-2 mb-4">Theme Settings</h2>
+    <form action="settings.php" method="post">
+        <div class="row justify-content-center">
+            <div class="col-12 col-md-6 mb-3">
+                <select class="form-select" name="themechange" aria-label="themex style="text-indent: 5ch;">
+                    <option selected>Change Theme (<?php echo $neko_theme ?>)</option>
+                    <?php foreach ($arrFiles as $file) echo "<option value=\"".$file.'">'.$file."</option>" ?>
+                </select>
+            </div>
+            <div class="col-12 col-md-6 mb-3" style="padding-right: 1.3rem;" >
+                <div class="d-grid">
+                    <input class="btn btn-info" type="submit" value="🖫 Change Theme">
                 </div>
             </div>
-        </form>
-
-        <h2 class="text-center p-2 mb-3">Software Information</h2>
-        <table class="table table-borderless mb-3">
+        </div>
+    </form>
+    <table class="table table-borderless mb-3">
+        <tbody>
+            <tr>
+                <td colspan="2">
+                    <h2 class="text-center mb-3">Software Information</h2>
+                    <form action="settings.php" method="post">
+                        <div class="btn-group d-flex justify-content-center">
+                            <button type="submit" name="fw" value="enable" class="btn btn<?php if($fwstatus==1) echo "-outline" ?>-success <?php if($fwstatus==1) echo "disabled" ?>" style="margin-right: 20px;">Enable</button>
+                            <button type="submit" name="fw" value="disable" class="btn btn<?php if($fwstatus==0) echo "-outline" ?>-danger <?php if($fwstatus==0) echo "disabled" ?>">Disable</button>
+                         </div>
+                     </form>
+                 </td>
+             </tr>
+         <tr>
+     <tr>
+    <td>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Client Version</th>
+                </tr>
+            </thead>
             <tbody>
                 <tr>
-                    <td colspan="2">
-                        <h3 class="text-center mb-3">Auto Reload Firewall</h3>
-                        <form action="settings.php" method="post">
-                            <div class="btn-group d-flex justify-content-center">
-                                <button type="submit" name="fw" value="enable" class="btn btn<?php if($fwstatus==1) echo "-outline" ?>-success <?php if($fwstatus==1) echo "disabled" ?>">Enable</button>
-                                <button type="submit" name="fw" value="disable" class="btn btn<?php if($fwstatus==0) echo "-outline" ?>-danger <?php if($fwstatus==0) echo "disabled" ?>">Disable</button>
-                            </div>
-                        </form>
+                    <td class="text-center" style="font-family: monospace;">
+                        <span id="cliver"></span><span id="NewCliver"> </span>
                     </td>
                 </tr>
                 <tr>
-                <td colspan="2">
-                    <div class="row g-4">
-                        <div class="col-md-6 mb-3">
-                            <div class="text-center">
-                                <h3>Client Version</h3>
-                                <div class="form-control text-center" style="font-family: monospace; text-align: center;">
-                                    <span id="cliver"></span>&nbsp;<span id="NewCliver"> </span>
-                                </div>
-                                <div class="text-center mt-2">
-                                    <button class="btn btn-pink" id="checkCliverButton">🔍 Detect</button>
-                                    <button class="btn btn-info" id="updateButton" title="Update to Latest Version" onclick="showVersionTypeModal()">🔄 Update</button>
-                                </div>
-                            </div>
+                    <td class="text-center">
+                        <button class="btn btn-pink" id="checkCliverButton">🔍 Detect</button>
+                        <button class="btn btn-info" id="updateButton" title="Update to Latest Version" onclick="showVersionTypeModal()">🔄 Update</button>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </td>
+    <td>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Ui Panel</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td class="text-center">
+                        <?php echo htmlspecialchars($uiVersion); ?><span id="NewUi"> </span>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="text-center">
+                        <button class="btn btn-pink" id="checkUiButton">🔍 Detect</button>
+                        <button class="btn btn-info" id="updateUiButton" title="Update Panel" onclick="showPanelSelector()">🔄 Update</button>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </td>
+</tr>
+<tr>
+    <td>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Sing-box Core Version</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td class="text-center">
+                        <div id="singBoxCorever">
+                            <?php echo htmlspecialchars($singBoxVersion); ?><span id="NewSingbox"></span>
                         </div>
-                            <div class="col-md-6 mb-3">
-                                <div class="text-center">
-                                    <h3>Ui Panel</h3>
-                                    <div class="form-control text-center">
-                                        <?php echo htmlspecialchars($uiVersion); ?><span id="NewUi"> </span>
-                                    </div>
-                                    <div class="text-center mt-2">
-                                        <button class="btn btn-pink" id="checkUiButton">🔍 Detect</button> 
-                                        <button class="btn btn-info" id="updateUiButton" title="Update Metacubexd Panel" onclick="showPanelSelector()">🔄 Update</button>
-                                    </div>
-                                </div>
-                            </div>
-                        <div class="col-md-6 mb-3">
-                            <div class="text-center">
-                                <h3>Sing-box Core Version</h3>
-                                <div class="form-control text-center">
-                                    <div id="singBoxCorever">
-                                        <?php echo htmlspecialchars($singBoxVersion); ?><span id="NewSingbox"></span>
-                                    </div>
-                                </div>
-                                <div class="text-center mt-2">
-                                    <button class="btn btn-pink" id="checkSingboxButton">🔍 Detect</button>
-                                    <button class="btn btn-info" id="singboxOptionsButton" title="Singbox Related Operations">🔄 Update</button>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-md-6 mb-3">
-                            <div class="text-center">
-                                <h3>Mihomo Core Version</h3>
-                                <div class="form-control text-center">
-                                    <span id="corever"></span><span id="NewMihomo"> </span>
-                                </div>
-                                <div class="text-center mt-2">
-                                    <button class="btn btn-pink" id="checkMihomoButton">🔍 Detect</button> 
-                                    <button class="btn btn-info" id="updateCoreButton" title="Update Mihomo Core" onclick="showMihomoVersionSelector()">🔄 Update</button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </td>
-            </tr>
-        </tbody>
-    </table>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="text-center">
+                        <button class="btn btn-pink" id="checkSingboxButton">🔍 Detect</button>
+                        <button class="btn btn-info" id="singboxOptionsButton" title="Singbox Related Operations">🔄 Update</button>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </td>
+    <td>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Mihomo Core Version</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td class="text-center">
+                        <span id="corever"></span><span id="NewMihomo"> </span>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="text-center">
+                        <button class="btn btn-pink" id="checkMihomoButton">🔍 Detect</button>
+                        <button class="btn btn-info" id="updateCoreButton" title="Update Mihomo Core" onclick="showMihomoVersionSelector()">🔄 Update</button>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </td>
+</tr>
+</tbody>
+</table>
 
 <div class="modal fade" id="updateVersionTypeModal" tabindex="-1" aria-labelledby="updateVersionTypeModalLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
     <div class="modal-dialog modal-lg">
