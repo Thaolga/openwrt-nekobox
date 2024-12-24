@@ -331,8 +331,8 @@ $razordVersion = getRazordVersion();
                 <div class="form-group">
                     <label for="languageSelect">Select Language</label>
                     <select id="languageSelect" class="form-select">
-                        <option value="cn">English</option>
-                        <option value="en">Chinese</option> 
+                        <option value="en">English</option>
+                        <option value="cn">Chinese</option> 
                     </select>
                 </div>
             </div>
@@ -355,8 +355,8 @@ $razordVersion = getRazordVersion();
                 <div class="form-group">
                     <label for="previewLanguageSelect">Select Language</label>
                     <select id="previewLanguageSelect" class="form-select">
-                        <option value="cn">Chinese Preview Version</option>
                         <option value="en">English Preview Version</option>
+                        <option value="cn">Chinese Preview Version</option>
                     </select>
                 </div>
             </div>
@@ -584,7 +584,7 @@ $razordVersion = getRazordVersion();
 <script>
 let selectedSingboxVersion = 'v1.11.0-alpha.10';  
 let selectedMihomoVersion = 'stable';  
-let selectedLanguage = 'cn';  
+let selectedLanguage = 'en';  
 let selectedSingboxVersionForChannelTwo = 'preview'; 
 let selectedPanel = 'zashboard';
 let selectedVersionType = 'stable';
