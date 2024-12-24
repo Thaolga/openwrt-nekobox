@@ -479,10 +479,10 @@ function showUpdateAlert() {
         <table class="table table-striped table-bordered text-center">
             <thead class="thead-dark">
                 <tr>
-                    <th style="width: 18%;">File Name</th>
-                    <th style="width: 8%;">Size</th>
-                    <th style="width: 14%;">Modification Time</th>
-                    <th style="width: 13%;">File Type</th>
+                    <th style="width: 20%;">File Name</th>
+                    <th style="width: 9%;">Size</th>
+                    <th style="width: 15%;">Modification Time</th>
+                    <th style="width: 9%;">File Type</th>
                     <th style="width: 37%;">Action</th>
                 </tr>
             </thead>
