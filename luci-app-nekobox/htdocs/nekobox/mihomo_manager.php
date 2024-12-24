@@ -494,7 +494,7 @@ function showUpdateAlert() {
                 }, $proxyFiles), array_map(function($file) use ($configDir) {
                     return $configDir . $file;
                 }, $configFiles));
-                $fileTypes = array_merge(array_fill(0, count($proxyFiles), 'Proxy File'), array_fill(0, count($configFiles), 'Configuration File'));
+                $fileTypes = array_merge(array_fill(0, count($proxyFiles), 'Proxy File'), array_fill(0, count($configFiles), 'Config File'));
                 
                 foreach ($allFiles as $index => $file) {
                     $filePath = $allFilePaths[$index];
