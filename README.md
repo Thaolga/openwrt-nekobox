@@ -32,6 +32,9 @@ Depedencies
   - ` php8 `
   - ` php8-cgi `
   - `php8-mod-curl`
+  - ` php8-mod-intl `
+  - ` zoneinfo-asia  `
+  - ` coreutils-base64 ` 
   - ` firewall `
   - ` iptables `
    
@@ -39,6 +42,9 @@ Depedencies
   - ` php8 `
   - ` php8-cgi `
   - `php8-mod-curl`
+  - ` php8-mod-intl `
+  - ` zoneinfo-asia  `
+  - ` coreutils-base64 ` 
   - ` firewall `/` firewall4 `
   - ` kmod-tun `
   - ` iptables `/` xtables-nft `
