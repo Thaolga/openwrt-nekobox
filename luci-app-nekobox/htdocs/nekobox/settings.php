@@ -888,7 +888,7 @@ function checkVersion(outputId, updateFiles, currentVersions) {
                         </tr>
                     `);
 
-                    if (file.url === 'update_singbox_preview.php') {
+                    if (file.url === 'update_singbox_core.php') {
                         const select = document.getElementById('singboxVersionSelect');
                         let versionExists = Array.from(select.options).some(option => option.value === newVersion);
 
@@ -945,14 +945,16 @@ document.getElementById('checkSingboxButton').addEventListener('click', function
     const puernyaVersion = "<?php echo htmlspecialchars($puernyaVersion); ?>";
     const singboxPreviewVersion = "<?php echo htmlspecialchars($singboxPreviewVersion); ?>";
     const currentVersions = {
-        'Singbox Stable': singBoxType === 'Singbox Stable' ? singBoxVersion : 'Not installed',
-        'Singbox Preview': singboxPreviewVersion,
-        'Puernya Preview': puernyaVersion 
+        'Singbox [ Stable ]': singBoxType === 'Singbox Stable' ? singBoxVersion : 'Not installed',
+        'Singbox [ Preview ]': singboxPreviewVersion,
+        'Singbox [ Compiled ]': singboxPreviewVersion,
+        'Puernya [ Preview ]': puernyaVersion 
     };
     const updateFiles = [
-        { name: 'Singbox Stable', url: 'update_singbox_stable.php' },
-        { name: 'Singbox Preview', url: 'update_singbox_preview.php' },
-        { name: 'Puernya Preview', url: 'puernya.php' }
+        { name: 'Singbox [ Stable ]', url: 'update_singbox_stable.php' },
+        { name: 'Singbox [ Preview ]', url: 'update_singbox_preview.php' },
+        { name: 'Singbox [ Compiled ]', url: 'update_singbox_core.php' },
+        { name: 'Puernya [ Preview ]', url: 'puernya.php' }
     ];
     checkVersion('NewSingbox', updateFiles, currentVersions);
 });
@@ -965,13 +967,13 @@ document.getElementById('checkMihomoButton').addEventListener('click', function 
     console.log('Mihomo Type:', mihomoType);  
 
     const currentVersions = {
-        'Mihomo Stable': mihomoType === 'Stable' ? mihomoVersion : 'Not installed',
-        'Mihomo Preview': mihomoType === 'Preview' ? mihomoVersion : 'Not installed',
+        'Mihomo [ Stable ]': mihomoType === 'Stable' ? mihomoVersion : 'Not installed',
+        'Mihomo [ Preview ]': mihomoType === 'Preview' ? mihomoVersion : 'Not installed',
     };
 
     const updateFiles = [
-        { name: 'Mihomo Stable', url: 'update_mihomo_stable.php' },
-        { name: 'Mihomo Preview', url: 'update_mihomo_preview.php' }
+        { name: 'Mihomo [ Stable ]', url: 'update_mihomo_stable.php' },
+        { name: 'Mihomo [ Preview ]', url: 'update_mihomo_preview.php' }
     ];
 
     checkVersion('NewMihomo', updateFiles, currentVersions);

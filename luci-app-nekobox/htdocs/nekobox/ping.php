@@ -183,6 +183,8 @@ $lang = $_GET['lang'] ?? 'en';
     </div>
 <?php endif; ?>
 <script src="./assets/neko/js/jquery.min.js"></script>
+<link rel="stylesheet" href="./assets/bootstrap/leaflet.css" />
+<script src="./assets/bootstrap/leaflet.js"></script>
 <script type="text/javascript">
 const _IMG = './assets/neko/';
 const translate = <?php echo json_encode($translate, JSON_UNESCAPED_UNICODE); ?>;
@@ -430,6 +432,21 @@ let IP = {
             }
             return `<span style="margin-right: 20px; font-size: 18px; color: ${color};">${name}: ${pingTime === 'Timeout' ? 'Timeout' : `${pingTime}ms`}</span>`;
         }).join('');
+
+        let lat = data.latitude || null;
+        let lon = data.longitude || null;
+
+        if (!lat || !lon) {
+            try {
+                const response = await fetch(`https://ipapi.co/${cachedIP}/json/`);
+                const geoData = await response.json();
+                lat = geoData.latitude;
+                lon = geoData.longitude;
+            } catch (error) {
+                console.error("获取 IP 地理位置失败:", error);
+            }
+        }
+
         const modalHTML = `
             <div class="modal fade custom-modal" id="ipDetailModal" tabindex="-1" role="dialog" aria-labelledby="ipDetailModalLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
                 <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
@@ -471,6 +488,10 @@ let IP = {
                                     <span class="detail-label">Latitude and Longitude:</span>
                                     <span class="detail-value">${data.latitude}, ${data.longitude}</span>
                                 </div>` : ''}
+                                ${lat && lon ? `
+                                <div class="detail-row" style="height: 400px; margin-top: 20px;">
+                                    <div id="leafletMap" style="width: 100%; height: 100%;"></div>
+                                </div>` : ''}
                                 <h5 style="margin-top: 15px; display: inline-block; white-space: nowrap;">Latency Information:</h5>
                                 <div class="detail-row" style="display: flex; flex-wrap: wrap;">
                                     ${delayInfoHTML}
@@ -488,6 +509,19 @@ let IP = {
         $('#ipDetailModal').remove();
         $('body').append(modalHTML);
         $('#ipDetailModal').modal('show');
+
+        setTimeout(() => {
+            if (lat && lon) {
+                const map = L.map('leafletMap').setView([lat, lon], 10);
+
+                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+
+                const popupContent = city || region || "当前位置";
+                L.marker([lat, lon]).addTo(map)
+                    .bindPopup(popupContent)
+                    .openPopup();
+            }
+        }, 500); 
     },
 
     getIpipnetIP: async () => {
