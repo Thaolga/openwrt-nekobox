@@ -458,7 +458,7 @@ $razordVersion = getRazordVersion();
             <div class="modal-body">
                 <div class="form-group">
                     <label for="singboxVersionSelectForChannelTwo">Select version</label>
-                    <select id="singboxVersionSelectForChannelTwo" class="form-control">
+                    <select id="singboxVersionSelectForChannelTwo" class="form-select">
                         <option value="preview" selected>Preview</option>  
                         <option value="stable">Stable</option>
                     </select>
