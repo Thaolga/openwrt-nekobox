@@ -566,7 +566,21 @@ $razordVersion = getRazordVersion();
         </div>
     </div>
 </div>
-
+<style>
+    @media (max-width: 767px) {
+        .table td {
+            display: block;
+            width: 100%;
+        }
+        .form-control {
+            display: flex;
+            flex-direction: column;
+        }
+        .btn-group {
+            flex-direction: column;
+        }
+    }
+</style>
 <script>
 let selectedSingboxVersion = 'v1.11.0-alpha.10';  
 let selectedMihomoVersion = 'stable';  
