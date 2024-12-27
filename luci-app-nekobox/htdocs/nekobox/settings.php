@@ -407,9 +407,31 @@ $razordVersion = getRazordVersion();
                 <div class="d-grid gap-2">
                     <button class="btn btn-info" onclick="showSingboxVersionSelector()">Update Singbox Core (Channel One)</button>
                     <button class="btn btn-success" onclick="showSingboxVersionSelectorForChannelTwo()">Update Singbox Core (Channel Two)</button>
-                    <button class="btn btn-success" onclick="selectOperation('puernya')">Switch to Puernya Core</button>
-                    <button class="btn btn-primary" onclick="selectOperation('rule')">Update Singbox Rule Set</button>
-                    <button class="btn btn-primary" onclick="selectOperation('config')">Update Mihomo Configuration File</button>
+                    <button type="button" class="btn btn-warning" id="operationOptionsButton">Other operations</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="operationModal" tabindex="-1" aria-labelledby="operationModalLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="operationModalLabel">Select operation</h5>
+                <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <p class="text-warning">
+                    <strong>Note：</strong> Please select an operation based on your requirements
+                </p>
+                <div class="d-grid gap-2">
+                    <button class="btn btn-success" onclick="selectOperation('puernya')">Switch to Puernya kernel</button>
+                    <button class="btn btn-primary" onclick="selectOperation('rule')">Update P-core rule set</button>
+                    <button class="btn btn-primary" onclick="selectOperation('config')">Update config file (backup)</button>
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
                 </div>
             </div>
@@ -537,32 +559,7 @@ $razordVersion = getRazordVersion();
     </div>
 </div>
 
-<div id="logOutput" class="mt-3"></div>
-
 <style>
-    .table-container {
-        overflow-x: auto;
-    }
-
-    .table {
-        width: 100%;
-        border-collapse: collapse;
-    }
-
-    .table td {
-        padding: 10px;
-        word-wrap: break-word;
-    }
-
-    .form-control {
-        width: 100%;
-    }
-
-    .btn {
-        white-space: nowrap;
-        flex: 1;
-    }
-
     @media (max-width: 767px) {
         .table td {
             display: block;
@@ -852,7 +849,15 @@ function initiateUpdate(url, logMessage, description) {
 
 document.addEventListener('DOMContentLoaded', function() {
     document.getElementById('singboxOptionsButton').addEventListener('click', function() {
+        $('#optionsModal').modal('hide');
+        
         $('#optionsModal').modal('show');
+    });
+
+    document.getElementById('operationOptionsButton').addEventListener('click', function() {
+        $('#optionsModal').modal('hide');
+        
+        $('#operationModal').modal('show');
     });
 
     document.getElementById('updateUiButton').addEventListener('click', function() {
