@@ -139,6 +139,7 @@ $singBoxVersion = $singBoxVersionInfo['version'];
 $singBoxType = $singBoxVersionInfo['type'];
 $puernyaVersion = ($singBoxType === 'Puernya Preview') ? $singBoxVersion : 'Not installed';
 $singboxPreviewVersion = ($singBoxType === 'Singbox Preview') ? $singBoxVersion : 'Not installed';
+$singboxCompileVersion = ($singBoxType === 'Singbox Compiled') ? $singBoxVersion : 'Not installed';
 $mihomoVersionInfo = getMihomoVersion();
 $mihomoVersion = $mihomoVersionInfo['version'];
 $mihomoType = $mihomoVersionInfo['type'];
@@ -945,22 +946,47 @@ function checkVersion(outputId, updateFiles, currentVersions) {
 }
 
 document.getElementById('checkSingboxButton').addEventListener('click', function () {
-    const singBoxVersion = "<?php echo htmlspecialchars($singBoxVersion); ?>";
+    const singBoxVersion = "<?php echo htmlspecialchars(trim($singBoxVersion)); ?>";
     const singBoxType = "<?php echo htmlspecialchars($singBoxType); ?>";
     const puernyaVersion = "<?php echo htmlspecialchars($puernyaVersion); ?>";
     const singboxPreviewVersion = "<?php echo htmlspecialchars($singboxPreviewVersion); ?>";
+    const singboxCompileVersion = "<?php echo htmlspecialchars($singboxCompileVersion); ?>";
+
+    let finalPreviewVersion = 'Not installed';
+    let finalCompileVersion = 'Not installed';
+    let finalOfficialVersion = 'Not installed';
+    let finalPuernyaVersion = 'Not installed';
+
+    if (puernyaVersion === '1.10.0-alpha.29-067c81a7') {
+        finalPuernyaVersion = puernyaVersion; 
+    }
+
+    if (singBoxVersion && /^v/.test(singBoxVersion) && /alpha|beta/.test(singBoxVersion)) {
+        finalCompileVersion = singBoxVersion;
+    }
+
+    if (singBoxVersion && /alpha|beta/.test(singBoxVersion) && puernyaVersion !== '1.10.0-alpha.29-067c81a7' && !/^v/.test(singBoxVersion)) {
+        finalPreviewVersion = singBoxVersion;  
+    }
+
+    if (singBoxVersion && !/[a-zA-Z]/.test(singBoxVersion)) {
+        finalOfficialVersion = singBoxVersion;  
+    }
+
     const currentVersions = {
-        'Singbox [ Stable ]': singBoxType === 'Singbox Stable' ? singBoxVersion : 'Not installed',
-        'Singbox [ Preview ]': singboxPreviewVersion,
-        'Singbox [ Compiled ]': singboxPreviewVersion,
-        'Puernya [ Preview ]': puernyaVersion 
+        'Singbox [ Stable ]': finalOfficialVersion,
+        'Singbox [ Preview ]': finalPreviewVersion,
+        'Singbox [ Compiled ]': finalCompileVersion,
+        'Puernya [ Preview ]': finalPuernyaVersion
     };
+
     const updateFiles = [
         { name: 'Singbox [ Stable ]', url: 'update_singbox_stable.php' },
         { name: 'Singbox [ Preview ]', url: 'update_singbox_preview.php' },
         { name: 'Singbox [ Compiled ]', url: 'update_singbox_core.php' },
         { name: 'Puernya [ Preview ]', url: 'puernya.php' }
     ];
+
     checkVersion('NewSingbox', updateFiles, currentVersions);
 });
 
