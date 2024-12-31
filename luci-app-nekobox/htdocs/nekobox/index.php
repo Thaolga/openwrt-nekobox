@@ -661,6 +661,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['selected_config'])) {
     <link href="./assets/css/bootstrap.min.css" rel="stylesheet">
     <link href="./assets/css/custom.css" rel="stylesheet">
     <link href="./assets/theme/<?php echo $neko_theme ?>" rel="stylesheet">
+    <link href="./assets/bootstrap/bootstrap-icons.css" rel="stylesheet">
     <script type="text/javascript" src="./assets/js/feather.min.js"></script>
     <script type="text/javascript" src="./assets/js/jquery-2.1.3.min.js"></script>
     <script type="text/javascript" src="./assets/js/neko.js"></script>
@@ -690,7 +691,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['selected_config'])) {
         <a href="./index.php" class="col btn btn-lg">🏠 Home</a>
         <a href="./dashboard.php" class="col btn btn-lg">📊 Panel</a>
         <a href="./configs.php" class="col btn btn-lg">⚙️ Configs</a>
-        <a href="./singbox.php" class="col btn btn-lg"></i>📦 Document</a> 
+        <a href="./singbox.php" class="col btn btn-lg">📦 Document</a> 
         <a href="./settings.php" class="col btn btn-lg">🛠️ Settings</a>
     <div class="container-sm text-center col-8">
   <img src="./assets/img/nekobox.png">
@@ -724,6 +725,17 @@ $(document).ready(function() {
 </script>
 <h2 class="royal-style">NekoBox</h2>
 <style>
+    .nav-pills .nav-link {
+        background-color: transparent !important;
+        color: inherit;
+        font-size: 1.25rem; 
+    }
+
+    .nav-pills .nav-link.active {
+        background-color: transparent !important; 
+        font-size: 1.25rem; 
+    }
+
    .section-container {
        padding-left: 48px;  
        padding-right: 48px;
@@ -891,93 +903,133 @@ $(document).ready(function() {
         }
     };
 </script>
-<h2 class="text-center">System Information</h2>
-<table class="table table-borderless rounded-4 mb-2">
-   <tbody>
-       <tr>
-           <td style="width:150px">Devices</td>
-           <td id="systemInfo"></td>
-       </tr>
-       <tr>
-           <td style="width:150px">RAM</td>
-           <td id="ramUsage"></td>
-       </tr>
-       <tr>
-           <td style="width:150px">Average Load</td>
-           <td id="cpuLoad"></td>
-       </tr>
-       <tr>
-           <td style="width:150px">Uptime</td>
-           <td id="uptime"></td>
-       </tr>
-       <tr>
-           <td style="width:150px">Traffic Statistics</td>
-           <td>⬇️ <span id="downtotal"></span> | ⬆️ <span id="uptotal"></span></td>
-       </tr>
-   </tbody>
-</table>
-    <script>
-        function fetchSystemStatus() {
-            fetch('?ajax=1')
-                .then(response => response.json())
-                .then(data => {
-                    document.getElementById('systemInfo').innerText = data.systemInfo;
-                    document.getElementById('ramUsage').innerText = data.ramUsage;
-                    document.getElementById('cpuLoad').innerText = data.cpuLoad;
-                    document.getElementById('uptime').innerText = data.uptime;
-                    document.getElementById('cpuLoadAvg1Min').innerText = data.cpuLoadAvg1Min;
-                    document.getElementById('ramUsageOnly').innerText = data.ramUsageOnly + ' / ' + data.ramTotal + ' MB';
-                })
-                .catch(error => console.error('Error fetching data:', error));
+<div id="collapsibleHeader" style="cursor: pointer; display: flex; flex-direction: column; align-items: center; justify-content: center;">
+   <i id="toggleIcon" class="bi bi-chevron-down" style="font-size: 3rem; margin-bottom: 3px;"></i> 
+   <h2 id="systemTitle" class="text-center" style="display: none; margin-top: 0;">系统状态</h2> 
+</div>
+
+<div id="collapsible" style="display: none; margin-top: 5px;"> 
+   <table class="table table-borderless rounded-4 mb-2">
+       <tbody>
+           <tr>
+               <td style="width:150px">Devices</td>
+               <td id="systemInfo"></td>
+           </tr>
+           <tr>
+               <td style="width:150px">RAM</td>
+               <td id="ramUsage"></td>
+           </tr>
+           <tr>
+               <td style="width:150px">Average Load</td>
+               <td id="cpuLoad"></td>
+           </tr>
+           <tr>
+               <td style="width:150px">Uptime</td>
+               <td id="uptime"></td>
+           </tr>
+           <tr>
+               <td style="width:150px">Traffic Statistics</td>
+               <td>⬇️ <span id="downtotal"></span> | ⬆️ <span id="uptotal"></span></td>
+           </tr>
+       </tbody>
+   </table>
+</div>
+<script>
+    const collapsible = document.getElementById('collapsible');
+    const collapsibleHeader = document.getElementById('collapsibleHeader');
+    const toggleIcon = document.getElementById('toggleIcon');
+    const systemTitle = document.getElementById('systemTitle');
+    
+    let isCollapsed = true;
+    
+    collapsibleHeader.addEventListener('click', () => {
+        if (isCollapsed) {
+            collapsible.style.display = 'block'; 
+            systemTitle.style.display = 'block'; 
+            toggleIcon.classList.remove('bi-chevron-down'); 
+            toggleIcon.classList.add('bi-chevron-up');  
+        } else {
+            collapsible.style.display = 'none';   
+            systemTitle.style.display = 'none';  
+            toggleIcon.classList.remove('bi-chevron-up');  
+            toggleIcon.classList.add('bi-chevron-down');   
         }
-        setInterval(fetchSystemStatus, 1000);
-        fetchSystemStatus();
-    </script>
- <h2 class="text-center">Logs</h2>
-<div class="card log-card">
-    <div class="card-header">
-        <h4 class="card-title text-center mb-0">NeKoBox Logs</h4>
-    </div>
-    <div class="card-body">
-        <pre id="plugin_log" class="log-container form-control" style="resize: vertical; overflow: auto; height: 245px; white-space: pre-wrap;" contenteditable="true"></pre>
-    </div>
-    <div class="card-footer text-center">
-        <form action="index.php" method="post">
-            <button type="submit" name="clear_plugin_log" class="btn btn-danger">🗑️ Clear Log</button>
-        </form>
-    </div>
-</div>
+        isCollapsed = !isCollapsed;  
+    });
 
-<div class="card log-card">
-    <div class="card-header">
-        <h4 class="card-title text-center mb-0">Mihomo Logs</h4>
-    </div>
-    <div class="card-body">
-        <pre id="bin_logs" class="log-container form-control" style="resize: vertical; overflow: auto; height: 245px; white-space: pre-wrap;" contenteditable="true"></pre>
-    </div>
-    <div class="card-footer text-center">
-        <form action="index.php" method="post">
-            <button type="submit" name="neko" value="clear" class="btn btn-danger">🗑️ Clear Log</button>
-        </form>
-    </div>
-</div>
+    function fetchSystemStatus() {
+        fetch('?ajax=1')
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('systemInfo').innerText = data.systemInfo;
+                document.getElementById('ramUsage').innerText = data.ramUsage;
+                document.getElementById('cpuLoad').innerText = data.cpuLoad;
+                document.getElementById('uptime').innerText = data.uptime;
+                document.getElementById('cpuLoadAvg1Min').innerText = data.cpuLoadAvg1Min;
+                document.getElementById('ramUsageOnly').innerText = data.ramUsageOnly + ' / ' + data.ramTotal + ' MB';
+            })
+            .catch(error => console.error('Error fetching data:', error));
+    }
 
-<div class="card log-card">
-    <div class="card-header">
-        <h4 class="card-title text-center mb-0">Sing-box Logs</h4>
-    </div>
-    <div class="card-body">
-        <pre id="singbox_log" class="log-container form-control" style="resize: vertical; overflow: auto; height: 245px; white-space: pre-wrap;" contenteditable="true"></pre>
-    </div>
-    <div class="card-footer text-center">
-        <form action="index.php" method="post" class="d-inline-block">
-            <div class="form-check form-check-inline mb-2">
-                <input class="form-check-input" type="checkbox" id="autoRefresh" checked>
-                <label class="form-check-label" for="autoRefresh">Auto Refresh</label>
+    setInterval(fetchSystemStatus, 1000);
+    fetchSystemStatus();  
+</script>
+<h2 class="text-center">Logs</h2>
+<ul class="nav nav-pills mb-3" id="logTabs" role="tablist">
+    <li class="nav-item" role="presentation">
+        <a class="nav-link active" id="pluginLogTab" data-bs-toggle="pill" href="#pluginLog" role="tab" aria-controls="pluginLog" aria-selected="true">NeKoBox Logs</a>
+    </li>
+    <li class="nav-item" role="presentation">
+        <a class="nav-link" id="mihomoLogTab" data-bs-toggle="pill" href="#mihomoLog" role="tab" aria-controls="mihomoLog" aria-selected="false">Mihomo Logs</a>
+    </li>
+    <li class="nav-item" role="presentation">
+        <a class="nav-link" id="singboxLogTab" data-bs-toggle="pill" href="#singboxLog" role="tab" aria-controls="singboxLog" aria-selected="false">Sing-box Logs</a>
+    </li>
+</ul>
+
+<div class="tab-content" id="logTabsContent">
+    <div class="tab-pane fade show active" id="pluginLog" role="tabpanel" aria-labelledby="pluginLogTab">
+        <div class="card log-card">
+            <div class="card-body">
+                <pre id="plugin_log" class="log-container form-control" style="resize: vertical; overflow: auto; height: 350px; white-space: pre-wrap;" contenteditable="true"></pre>
             </div>
-            <button type="submit" name="clear_singbox_log" class="btn btn-danger">🗑️ Clear Log</button>
-            <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#cronModal">⏰ Scheduled restart</button>
-        </form>
+            <div class="card-footer text-center">
+                <form action="index.php" method="post">
+                    <button type="submit" name="clear_plugin_log" class="btn btn-danger">🗑️ Clear Log</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="tab-pane fade" id="mihomoLog" role="tabpanel" aria-labelledby="mihomoLogTab">
+        <div class="card log-card">
+            <div class="card-body">
+                <pre id="bin_logs" class="log-container form-control" style="resize: vertical; overflow: auto; height: 350px; white-space: pre-wrap;" contenteditable="true"></pre>
+            </div>
+            <div class="card-footer text-center">
+                <form action="index.php" method="post">
+                    <button type="submit" name="neko" value="clear" class="btn btn-danger">🗑️ Clear Log</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="tab-pane fade" id="singboxLog" role="tabpanel" aria-labelledby="singboxLogTab">
+        <div class="card log-card">
+            <div class="card-body">
+                <pre id="singbox_log" class="log-container form-control" style="resize: vertical; overflow: auto; height: 350px; white-space: pre-wrap;" contenteditable="true"></pre>
+            </div>
+            <div class="card-footer text-center">
+                <form action="index.php" method="post" class="d-inline-block">
+                    <div class="form-check form-check-inline mb-2">
+                        <input class="form-check-input" type="checkbox" id="autoRefresh" checked>
+                        <label class="form-check-label" for="autoRefresh">Auto Refresh</label>
+                    </div>
+                    <button type="submit" name="clear_singbox_log" class="btn btn-danger">🗑️ Clear Log</button>
+                    <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#cronModal">⏰ Scheduled restart</button>
+                </form>
+            </div>
+        </div>
     </div>
 </div>
 <div class="modal fade" id="cronModal" tabindex="-1" role="dialog" aria-labelledby="cronModalLabel" aria-hidden="true" data-backdrop="static" data-keyboard="false">

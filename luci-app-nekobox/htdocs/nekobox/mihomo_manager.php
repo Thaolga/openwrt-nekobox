@@ -330,7 +330,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     <link rel="icon" href="./assets/img/nekobox.png">
     <link href="./assets/css/bootstrap.min.css" rel="stylesheet">
     <link href="./assets/css/custom.css" rel="stylesheet">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
+    <link href="./assets/bootstrap/bootstrap-icons.css" rel="stylesheet">
     <link href="./assets/theme/<?php echo $neko_theme ?>" rel="stylesheet">
     <script type="text/javascript" src="./assets/js/bootstrap.min.js"></script>
     <script type="text/javascript" src="./assets/js/feather.min.js"></script>
@@ -955,14 +955,14 @@ function initializeAceEditor() {
         <h2 class="mt-4 mb-4 text-center">Auto-update</h2>
         <form method="post" class="text-center">
              <button type="button" class="btn btn-primary mx-2" data-bs-toggle="modal" data-bs-target="#cronModal">
-                Set up a scheduled task
+                <i class="bi bi-clock"></i> Set up a scheduled task
             </button>
             <button type="submit" name="createShellScript" value="true" class="btn btn-success mx-2">
-                Generate an update script
+                <i class="bi bi-terminal"></i> Generate an update script
             </button>
              <td>
             <a class="btn btn-info btn-sm text-white" target="_blank" href="./filekit.php" style="font-size: 14px; font-weight: bold;">
-                Open File Assistant
+                <i class="bi bi-file-earmark-text"></i> Open File Assistant
             </a>
         </td>
         </form>
