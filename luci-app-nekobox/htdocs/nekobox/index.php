@@ -915,7 +915,7 @@ window.onload = function() {
 };
 </script>
 <div id="collapsibleHeader" style="cursor: pointer; display: flex; flex-direction: column; align-items: center; justify-content: center;">
-   <i id="toggleIcon" class="bi bi-chevron-down" style="font-size: 3rem; margin-bottom: 3px;"></i> 
+   <i id="toggleIcon" class="bi bi-chevron-down" style="font-size: 2rem; margin-bottom: 3px;"></i> 
    <h2 id="systemTitle" class="text-center" style="display: none; margin-top: 0;">系统状态</h2> 
 </div>
 
@@ -953,6 +953,14 @@ window.onload = function() {
     
     let isCollapsed = true;
     
+    if (localStorage.getItem('isCollapsed') === 'false') {
+        isCollapsed = false;
+        collapsible.style.display = 'block';
+        systemTitle.style.display = 'block';
+        toggleIcon.classList.remove('bi-chevron-down');
+        toggleIcon.classList.add('bi-chevron-up');
+    }
+
     collapsibleHeader.addEventListener('click', () => {
         if (isCollapsed) {
             collapsible.style.display = 'block'; 
@@ -965,7 +973,9 @@ window.onload = function() {
             toggleIcon.classList.remove('bi-chevron-up');  
             toggleIcon.classList.add('bi-chevron-down');   
         }
+
         isCollapsed = !isCollapsed;  
+        localStorage.setItem('isCollapsed', isCollapsed); 
     });
 
     function fetchSystemStatus() {
