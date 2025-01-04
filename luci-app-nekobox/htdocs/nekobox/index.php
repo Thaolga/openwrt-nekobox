@@ -232,6 +232,7 @@ function createCronScript() {
 
 LOG_FILE="$log_file"
 TMP_LOG_FILE="$tmp_log_file"  
+ADDITIONAL_LOG_FILE="$additional_log_file"
 MAX_SIZE=$max_size
 
 crontab -l | grep -v "/etc/neko/core/set_cron.sh" | crontab - 
