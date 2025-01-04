@@ -232,6 +232,7 @@ function createCronScript() {
 
 LOG_FILE="$log_file"
 TMP_LOG_FILE="$tmp_log_file"  
+ADDITIONAL_LOG_FILE="$additional_log_file"
 MAX_SIZE=$max_size
 
 crontab -l | grep -v "/etc/neko/core/set_cron.sh" | crontab - 
@@ -913,8 +914,8 @@ $(document).ready(function() {
     };
 </script>
 <div id="collapsibleHeader" style="cursor: pointer; display: flex; flex-direction: column; align-items: center; justify-content: center;">
-   <i id="toggleIcon" class="bi bi-chevron-down" style="font-size: 3rem; margin-bottom: 3px;"></i> 
-   <h2 id="systemTitle" class="text-center" style="display: none; margin-top: 0;">系统状态</h2> 
+   <i id="toggleIcon" class="triangle-icon"></i> 
+   <h2 id="systemTitle" class="text-center" style="display: none; margin-top: 0;">System Status</h2> 
 </div>
 
 <div id="collapsible" style="display: none; margin-top: 5px;"> 
@@ -950,20 +951,26 @@ $(document).ready(function() {
     const systemTitle = document.getElementById('systemTitle');
     
     let isCollapsed = true;
-    
+
+    if (localStorage.getItem('isCollapsed') === 'false') {
+        isCollapsed = false;
+        collapsible.style.display = 'block';
+        systemTitle.style.display = 'block';
+        toggleIcon.classList.add('rotated'); 
+    }
+
     collapsibleHeader.addEventListener('click', () => {
         if (isCollapsed) {
             collapsible.style.display = 'block'; 
             systemTitle.style.display = 'block'; 
-            toggleIcon.classList.remove('bi-chevron-down'); 
-            toggleIcon.classList.add('bi-chevron-up');  
+            toggleIcon.classList.add('rotated'); 
         } else {
             collapsible.style.display = 'none';   
             systemTitle.style.display = 'none';  
-            toggleIcon.classList.remove('bi-chevron-up');  
-            toggleIcon.classList.add('bi-chevron-down');   
+            toggleIcon.classList.remove('rotated'); 
         }
         isCollapsed = !isCollapsed;  
+        localStorage.setItem('isCollapsed', isCollapsed); 
     });
 
     function fetchSystemStatus() {
@@ -983,6 +990,22 @@ $(document).ready(function() {
     setInterval(fetchSystemStatus, 1000);
     fetchSystemStatus();  
 </script>
+
+<style>
+    .triangle-icon {
+        width: 0;
+        height: 0;
+        border-left: 12px solid transparent;
+        border-right: 12px solid transparent;
+        border-top: 12px solid blue; 
+        display: inline-block;
+        transition: transform 0.3s ease-in-out;
+    }
+
+    .rotated {
+        transform: rotate(180deg); 
+    }
+</style>
 <h2 class="text-center">Logs</h2>
 <ul class="nav nav-pills mb-3" id="logTabs" role="tablist">
     <li class="nav-item" role="presentation">
