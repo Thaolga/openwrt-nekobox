@@ -141,6 +141,11 @@ h1:hover, h2:hover, h3:hover, h4:hover, h5:hover, h6:hover {
   color: #121212;
 }
 
+.table thead th {
+  color: #ffffff !important;  
+  background-color: #004080 !important;  
+}
+
 .form-control {
   background-color: #1a003d;
   border: 2px solid var(--bs-border-color);

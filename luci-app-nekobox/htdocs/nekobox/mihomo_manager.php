@@ -143,6 +143,26 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['editFile'], $_GET['file
         exit;
     }
 }
+
+if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['downloadFile'], $_GET['fileType'])) {
+    $fileType = $_GET['fileType'];
+    $fileName = basename($_GET['downloadFile']);
+    $filePath = ($fileType === 'proxy') ? $uploadDir . $fileName : $configDir . $fileName;
+
+    if (file_exists($filePath)) {
+        header('Content-Description: File Transfer');
+        header('Content-Type: application/octet-stream');
+        header('Content-Disposition: attachment; filename="' . $fileName . '"');
+        header('Expires: 0');
+        header('Cache-Control: must-revalidate');
+        header('Pragma: public');
+        header('Content-Length: ' . filesize($filePath));
+        readfile($filePath);
+        exit;
+    } else {
+        echo 'File does not exist';
+    }
+}
 ?>
 
 <?php
@@ -435,6 +455,25 @@ html {
     padding-left: 2.4em;  
     padding-right: 2.4em; 
 }
+
+#dropZone {
+    height: 150px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+#dropZone.bg-light {
+    background-color: #e9ecef;
+}
+
+#dropZone:hover {
+    background-color: #f8f9fa;
+    border-color: #0d6efd;
+}
+
+.upload-icon {
+    font-size: 1.5rem; 
+}
 </style>
 
 <script>
@@ -480,10 +519,10 @@ function showUpdateAlert() {
             <thead class="thead-dark">
                 <tr>
                     <th style="width: 20%;">File Name</th>
-                    <th style="width: 9%;">Size</th>
-                    <th style="width: 15%;">Modification Time</th>
-                    <th style="width: 9%;">File Type</th>
-                    <th style="width: 37%;">Action</th>
+                    <th style="width: 10%;">Size</th>
+                    <th style="width: 20%;">Modification Time</th>
+                    <th style="width: 10%;">File Type</th>
+                    <th style="width: 30%;">Action</th>
                 </tr>
             </thead>
             <tbody>
@@ -518,36 +557,46 @@ function showUpdateAlert() {
                                 <?php if ($fileType == 'Proxy File'): ?>
                                     <form action="" method="post" class="d-inline mb-1">
                                         <input type="hidden" name="deleteFile" value="<?php echo htmlspecialchars($file); ?>">
-                                        <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Are you sure you want to delete this file？');"><i>🗑️</i> Delete</button>
+                                        <button type="submit" class="btn btn-danger btn-sm" title="🗑️ Delete" onclick="return confirm('Are you sure you want to delete this file？');"><i class="bi bi-trash"></i></button>
                                     </form>
                                     <form action="" method="post" class="d-inline mb-1">
                                         <input type="hidden" name="oldFileName" value="<?php echo htmlspecialchars($file); ?>">
                                         <input type="hidden" name="fileType" value="proxy">
-                                        <button type="button" class="btn btn-success btn-sm btn-rename" data-toggle="modal" data-target="#renameModal" data-filename="<?php echo htmlspecialchars($file); ?>" data-filetype="proxy"><i>✏️</i> Rename</button>
+                                        <button type="button" class="btn btn-success btn-sm btn-rename" title="✏️ Rename" data-toggle="modal" data-target="#renameModal" data-filename="<?php echo htmlspecialchars($file); ?>" data-filetype="proxy"><i class="bi bi-pencil"></i></button>
                                     </form>
                                     <form action="" method="post" class="d-inline mb-1">
-                                        <button type="button" class="btn btn-warning btn-sm" onclick="openEditModal('<?php echo htmlspecialchars($file); ?>', 'proxy')"><i>📝</i> Edit</button>
+                                        <button type="button" class="btn btn-warning btn-sm" title="📝 Edit" onclick="openEditModal('<?php echo htmlspecialchars($file); ?>', 'proxy')"><i class="bi bi-pen"></i></button>
                                     </form>
                                     <form action="" method="post" enctype="multipart/form-data" class="d-inline upload-btn mb-1">
                                         <input type="file" name="fileInput" class="form-control-file" required id="fileInput-<?php echo htmlspecialchars($file); ?>" style="display: none;" onchange="this.form.submit()">
-                                        <button type="button" class="btn btn-info btn-sm" onclick="document.getElementById('fileInput-<?php echo htmlspecialchars($file); ?>').click();"><i>📤</i> Upload</button>
+                                        <button type="button" class="btn btn-info btn-sm" title="📤 Upload" onclick="openUploadModal('proxy')"><i class="bi bi-upload"></i></button>
+                                    </form>
+                                    <form action="" method="get" class="d-inline mb-1">
+                                        <input type="hidden" name="downloadFile" value="<?php echo htmlspecialchars($file); ?>">
+                                        <input type="hidden" name="fileType" value="proxy">
+                                        <button type="submit" class="btn btn-primary btn-sm" title="📥 Download" ><i class="bi bi-download"></i></button>
                                     </form>
                                 <?php else: ?>
                                     <form action="" method="post" class="d-inline mb-1">
                                         <input type="hidden" name="deleteConfigFile" value="<?php echo htmlspecialchars($file); ?>">
-                                        <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Are you sure you want to delete this file？');"><i>🗑️</i> Delete</button>
+                                        <button type="submit" class="btn btn-danger btn-sm" title="🗑️ Delete" onclick="return confirm('Are you sure you want to delete this file？');"><i class="bi bi-trash"></i></button>
                                     </form>
                                     <form action="" method="post" class="d-inline mb-1">
                                         <input type="hidden" name="oldFileName" value="<?php echo htmlspecialchars($file); ?>">
                                         <input type="hidden" name="fileType" value="config">
-                                        <button type="button" class="btn btn-success btn-sm btn-rename" data-toggle="modal" data-target="#renameModal" data-filename="<?php echo htmlspecialchars($file); ?>" data-filetype="config"><i>✏️</i> Rename</button>
+                                        <button type="button" class="btn btn-success btn-sm btn-rename" title="✏️ Rename" data-toggle="modal" data-target="#renameModal" data-filename="<?php echo htmlspecialchars($file); ?>" data-filetype="config"><i class="bi bi-pencil"></i></button>
                                     </form>
                                     <form action="" method="post" class="d-inline mb-1">
-                                        <button type="button" class="btn btn-warning btn-sm" onclick="openEditModal('<?php echo htmlspecialchars($file); ?>', 'config')"><i>📝</i> Edit</button>
+                                        <button type="button" class="btn btn-warning btn-sm" title="📝 Edit" onclick="openEditModal('<?php echo htmlspecialchars($file); ?>', 'config')"><i class="bi bi-pen"></i></button>
                                     </form>
                                     <form action="" method="post" enctype="multipart/form-data" class="d-inline upload-btn mb-1">
                                         <input type="file" name="configFileInput" class="form-control-file" required id="fileInput-<?php echo htmlspecialchars($file); ?>" style="display: none;" onchange="this.form.submit()">
-                                        <button type="button" class="btn btn-info btn-sm" onclick="document.getElementById('fileInput-<?php echo htmlspecialchars($file); ?>').click();"><i>📤</i> Upload</button>
+                                        <button type="button" class="btn btn-info btn-sm" title="📤 Upload" onclick="openUploadModal('config')"><i class="bi bi-upload"></i></button>
+                                    </form>
+                                    <form action="" method="get" class="d-inline mb-1">
+                                        <input type="hidden" name="downloadFile" value="<?php echo htmlspecialchars($file); ?>">
+                                        <input type="hidden" name="fileType" value="config">
+                                        <button type="submit" class="btn btn-primary btn-sm"  title="📥 Download" ><i class="bi bi-download"></i></button>
                                     </form>
                                 <?php endif; ?>
                             </div>
@@ -559,7 +608,29 @@ function showUpdateAlert() {
     </div>
 </div>
 
-<div class="modal fade" id="renameModal" tabindex="-1" aria-labelledby="renameModalLabel" aria-hidden="true">
+<div class="modal fade" id="uploadModal" tabindex="-1" aria-labelledby="uploadModalLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="uploadModalLabel">Upload File</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div id="dropZone" class="border border-primary rounded text-center py-4 position-relative">
+                    <i class="bi bi-cloud-upload-fill text-primary upload-icon"></i>
+                    <p class="mb-0 mt-3">Drag files to this area to upload<br>or click the button below to select files</p>
+                </div>
+                <input type="file" id="fileInputModal" class="form-control mt-3" hidden>
+                <button id="selectFileBtn" class="btn btn-primary btn-block mt-3 w-100">Select File</button>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="renameModal" tabindex="-1" aria-labelledby="renameModalLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
     <div class="modal-dialog modal-lg" role="document">
         <div class="modal-content">
             <div class="modal-header">
@@ -896,6 +967,61 @@ function initializeAceEditor() {
                 .catch((err) => console.error(`Error attempting to exit full-screen mode: ${err.message}`));
             }
        }
+
+    let fileType = ''; 
+    function openUploadModal(type) {
+        fileType = type;
+        const modal = new bootstrap.Modal(document.getElementById('uploadModal'));
+        modal.show();
+    }
+
+    const dropZone = document.getElementById('dropZone');
+    dropZone.addEventListener('dragover', (event) => {
+        event.preventDefault();
+        dropZone.classList.add('bg-light');
+    });
+
+    dropZone.addEventListener('dragleave', () => {
+        dropZone.classList.remove('bg-light');
+    });
+
+    dropZone.addEventListener('drop', (event) => {
+        event.preventDefault();
+        dropZone.classList.remove('bg-light');
+        const files = event.dataTransfer.files;
+        if (files.length > 0) {
+            handleFileUpload(files[0]);
+        }
+    });
+
+    document.getElementById('selectFileBtn').addEventListener('click', () => {
+        document.getElementById('fileInputModal').click();
+    });
+
+    document.getElementById('fileInputModal').addEventListener('change', (event) => {
+        const files = event.target.files;
+        if (files.length > 0) {
+            handleFileUpload(files[0]);
+        }
+    });
+
+    function handleFileUpload(file) {
+        const formData = new FormData();
+        formData.append(fileType === 'proxy' ? 'fileInput' : 'configFileInput', file);
+
+        fetch('', {
+            method: 'POST',
+            body: formData,
+        })
+            .then((response) => response.text())
+            .then((result) => {
+                alert(result);
+                location.reload(); 
+        })
+            .catch((error) => {
+                alert('Upload failed：' + error.message);
+        });
+    }
 </script>
 <h2 class="text-center mt-4 mb-4">Mihomo Subscription</h2>
 

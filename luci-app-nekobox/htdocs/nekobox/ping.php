@@ -58,6 +58,19 @@ $lang = $_GET['lang'] ?? 'en';
   justify-content: center;
 }
 
+.site-icon[onclick*="openai"] .status-icon {
+  width: 62px; 
+  height: 64px;
+  margin-top: -2px;
+}
+
+.site-icon[onclick*="openai"] {
+  width: 62px;
+  height: 64px;
+  display: flex;
+  justify-content: center;
+}
+
 .container-sm.container-bg.callout.border {
   padding: 12px 15px; 
   min-height: 70px; 
@@ -137,6 +150,7 @@ $lang = $_GET['lang'] ?? 'en';
  .site-icon[onclick*="baidu"],
  .site-icon[onclick*="taobao"], 
  .site-icon[onclick*="google"],
+ .site-icon[onclick*="openai"],
  .site-icon[onclick*="youtube"],
  .site-icon[onclick*="github"] {
    display: none !important;
@@ -149,7 +163,7 @@ $lang = $_GET['lang'] ?? 'en';
         <div class="row align-items-center">
             <div class="col-auto">
                 <div class="img-con">
-                    <img src="./assets/neko/img/loading.svg" id="flag" title="Flag" onclick="IP.getIpipnetIP()">
+                    <img src="./assets/neko/img/loading.svg" id="flag" title="Click to refresh the IP address" onclick="IP.getIpipnetIP()">
                 </div>
             </div>
             <div class="col-3">
@@ -161,16 +175,16 @@ $lang = $_GET['lang'] ?? 'en';
             </div>
             <div class="col-auto ms-auto">
                 <div class="status-icons d-flex">
-                    <div class="site-icon mx-1" onclick="pingHost('baidu', 'Baidu')">
-                        <img src="./assets/neko/img/site_icon_01.png" id="baidu-normal" class="status-icon" style="display: none;">
-                        <img src="./assets/neko/img/site_icon1_01.png" id="baidu-gray" class="status-icon">
-                    </div>
                     <div class="site-icon mx-1" onclick="pingHost('google', 'Google')">
-                        <img src="./assets/neko/img/site_icon_03.png" id="google-normal" class="status-icon" style="display: none;">
+                        <img src="./assets/neko/img/site_icon_03.png" id="google-normal" class="status-icon" title="Testing Google latency" style="display: none;">
                         <img src="./assets/neko/img/site_icon1_03.png" id="google-gray" class="status-icon">
                     </div>
+                    <div class="site-icon mx-1" onclick="pingHost('openai', 'OpenAI')">
+                        <img src="./assets/neko/img/site_icon_06.png" id="openai-normal" title="Testing OpenAI  latency"  class="status-icon" style="display: none;">
+                        <img src="./assets/neko/img/site_icon1_06.png" id="openai-gray" class="status-icon">
+                    </div>
                     <div class="site-icon mx-1" onclick="pingHost('youtube', 'YouTube')">
-                        <img src="./assets/neko/img/site_icon_04.png" id="youtube-normal" class="status-icon" style="display: none;">
+                        <img src="./assets/neko/img/site_icon_04.png" id="youtube-normal" class="status-icon" title="Testing YouTube latency" style="display: none;">
                         <img src="./assets/neko/img/site_icon1_04.png" id="youtube-gray" class="status-icon">
                     </div>
                     <div class="site-icon mx-1" onclick="pingHost('github', 'GitHub')">
@@ -228,11 +242,11 @@ let cachedInfo = null;
 let random = parseInt(Math.random() * 100000000);
 
 const sitesToPing = {
-    baidu: { url: 'https://www.baidu.com', name: 'Baidu' },
     google: { url: 'https://www.google.com', name: 'Google' },
     youtube: { url: 'https://www.youtube.com', name: 'YouTube' },
-    github: { url: 'https://www.github.com', name: 'GitHub' }
-};
+    github: { url: 'https://www.github.com', name: 'GitHub' },
+    openai : { url: 'https://www.openai.com', name: 'OpenAI' }
+}
 
 async function checkAllPings() {
     const pingResults = {};
@@ -253,10 +267,10 @@ async function checkAllPings() {
 
 const checkSiteStatus = {
     sites: {
-        baidu: 'https://www.baidu.com',
         google: 'https://www.google.com',
         youtube: 'https://www.youtube.com',
-        github: 'https://www.github.com'
+        github: 'https://www.github.com',
+        openai: 'https://www.openai.com'
     },
     
     check: async function() {
@@ -304,7 +318,6 @@ async function pingHost(site, siteName) {
         resultElement.style.color = '#ff6b6b';
     }
 }
-
 
 let IP = {
     isRefreshing: false,
@@ -410,17 +423,28 @@ let IP = {
             const asnOrganization = data.asn_organization || "";
 
             let location = `${region && city && region !== city ? `${region} ${city}` : region || city || ''}`;
+
+            let displayISP = isp;
+            let displayASN = asnOrganization;
+
+            if (isp && asnOrganization && asnOrganization.includes(isp)) {
+                displayISP = '';  
+            } else if (isp && asnOrganization && isp.includes(asnOrganization)) {
+                displayASN = '';  
+            }
+
+            let locationInfo = `<span style="margin-left: 8px;">${location} ${displayISP} ${data.asn || ''} ${displayASN}</span>`;
+
             let simpleDisplay = `
-                <div class="ip-main" style="cursor: pointer;" onclick="IP.showDetailModal()">
+                <div class="ip-main" style="cursor: pointer;" onclick="IP.showDetailModal()" title="Click to view IP details">
                     ${cachedIP} <span class="badge badge-primary" style="color: #333;">${country}</span>
                 </div>`;
 
-            let locationInfo = `<span style="margin-left: 8px;">${location} ${isp} ${data.asn || ''} ${asnOrganization}</span>`;
-
             document.getElementById('d-ip').innerHTML = simpleDisplay;
             document.getElementById('ipip').innerHTML = locationInfo;
+
             const countryCode = data.country_code || 'unknown';
-            const flagSrc = (countryCode !== 'unknown') ? _IMG + "flags/" + countryCode.toLowerCase() + ".png" : './assets/neko/flags/mo.png';
+            const flagSrc = (countryCode !== 'unknown') ? _IMG + "flags/" + countryCode.toLowerCase() + ".png" : './assets/neko/flags/cn.png';
             $("#flag").attr("src", flagSrc);
 
         } catch (error) {
@@ -484,7 +508,7 @@ let IP = {
 
         const modalHTML = `
             <div class="modal fade custom-modal" id="ipDetailModal" tabindex="-1" role="dialog" aria-labelledby="ipDetailModalLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
-                <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+                <div class="modal-dialog modal-dialog-centered modal-xl" role="document">
                     <div class="modal-content">
                         <div class="modal-header">
                             <h5 class="modal-title" id="ipDetailModalLabel">IP Detailed Information</h5>
