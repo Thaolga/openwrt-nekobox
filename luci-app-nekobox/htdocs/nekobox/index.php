@@ -997,8 +997,8 @@ window.onload = function() {
     .triangle-icon {
         width: 0;
         height: 0;
-        border-left: 6px solid transparent;
-        border-right: 6px solid transparent;
+        border-left: 12px solid transparent;
+        border-right: 12px solid transparent;
         border-top: 12px solid blue; 
         display: inline-block;
         transition: transform 0.3s ease-in-out;
