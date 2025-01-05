@@ -701,7 +701,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['selected_config'])) {
     <div class="row">
             <a href="./index.php" class="col btn btn-lg">🏠 首页</a>
             <a href="./dashboard.php" class="col btn btn-lg">📊 面板</a>
-            <a href="./configs.php" class="col btn btn-lg">⚙️ 配置</a>
             <a href="./singbox.php" class="col btn btn-lg"></i>📦 订阅</a> 
             <a href="./settings.php" class="col btn btn-lg">🛠️ 设定</a>
     <div class="container-sm text-center col-8">
