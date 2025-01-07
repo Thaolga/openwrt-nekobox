@@ -574,6 +574,7 @@ $razordVersion = getRazordVersion();
                 <div id="updateDescription" class="alert alert-info mb-3"></div>
                 <pre id="logOutput" style="white-space: pre-wrap; word-wrap: break-word; text-align: left; display: inline-block;">等待操作开始...</pre>
                 </div>
+                </div>
             </div>
         </div>
     </div>
