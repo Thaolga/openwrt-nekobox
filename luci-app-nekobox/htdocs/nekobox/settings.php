@@ -1236,7 +1236,7 @@ document.addEventListener('DOMContentLoaded', checkSingboxVersion);
                 <tbody>
                     <tr class="text-center">
                         <td>Github</td>
-                        <td>Github</td>
+                        <td>Thaolga</td>
                     </tr>
                     <tr class="text-center">
                         <td>
@@ -1246,13 +1246,13 @@ document.addEventListener('DOMContentLoaded', checkSingboxVersion);
                         </td>
                         <td>
                             <div class="link-box">
-                                <a href="https://github.com/Thaolga/openwrt-nekobox" target="_blank">Thaolga</a>
+                                <a href="https://github.com/Thaolga/openwrt-nekobox" target="_blank">NEKOBOX</a>
                             </div>
                         </td>
                     </tr>
                     <tr class="text-center">
                         <td>Telegram</td>
-                        <td>MetaCubeX</td>
+                        <td>Zephyruso</td>
                     </tr>
                     <tr class="text-center">
                         <td>
@@ -1262,7 +1262,7 @@ document.addEventListener('DOMContentLoaded', checkSingboxVersion);
                         </td>
                         <td>
                             <div class="link-box">
-                                <a href="https://github.com/MetaCubeX" target="_blank">METACUBEX</a>
+                                <a href="https://github.com/Zephyruso/zashboard" target="_blank">ZASHBOARD</a>
                             </div>
                         </td>
                     </tr>
