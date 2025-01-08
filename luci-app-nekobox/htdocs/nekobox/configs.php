@@ -44,16 +44,10 @@ include './cfg.php';
     <script type="text/javascript" src="./assets/js/feather.min.js"></script>
     <script type="text/javascript" src="./assets/js/jquery-2.1.3.min.js"></script>
     <script type="text/javascript" src="./assets/js/bootstrap.min.js"></script>
-    <?php include './ping.php'; ?>
   </head>
   <body>
     <div class="container-sm container-bg text-center callout border border-3 rounded-4 col-11">
         <div class="row">
-        <a href="./index.php" class="col btn btn-lg">🏠 Home</a>
-        <a href="./dashboard.php" class="col btn btn-lg">📊 Panel</a>
-        <a href="./configs.php" class="col btn btn-lg">⚙️ Configs</a>
-        <a href="./singbox.php" class="col btn btn-lg"></i>📦 Document</a> 
-        <a href="./settings.php" class="col btn btn-lg">🛠️ Settings</a>
     <h2 class="text-center p-2">Configs</h2>
     <form action="configs.php" method="post">
         <div class="container text-center justify-content-md-center">

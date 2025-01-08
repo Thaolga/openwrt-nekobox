@@ -173,7 +173,6 @@ $razordVersion = getRazordVersion();
     <div class="row">
         <a href="./index.php" class="col btn btn-lg">🏠 Home</a>
         <a href="./dashboard.php" class="col btn btn-lg">📊 Panel</a>
-        <a href="./configs.php" class="col btn btn-lg">⚙️ Configs</a>
         <a href="./singbox.php" class="col btn btn-lg"></i>📦 Document</a> 
         <a href="./settings.php" class="col btn btn-lg">🛠️ Settings</a>
 <div class="container px-4">
@@ -552,9 +551,6 @@ $razordVersion = getRazordVersion();
             <div class="modal-body text-center">
                 <div id="updateDescription" class="alert alert-info mb-3"></div>
                 <pre id="logOutput" style="white-space: pre-wrap; word-wrap: break-word; text-align: left; display: inline-block;">Waiting for the operation to begin...</pre>
-                <div class="alert alert-info mt-3" role="alert">
-                   Prompt: If the update fails, please enter <code>nekobox</code> in the terminal to update!
-                </div>
             </div>
         </div>
     </div>

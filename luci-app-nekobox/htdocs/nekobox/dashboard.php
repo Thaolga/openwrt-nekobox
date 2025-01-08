@@ -76,7 +76,6 @@ $dash_link = $neko_cfg['ctrl_host'] . ':' . $neko_cfg['ctrl_port'] . '/ui/dashbo
     <div class="row">
         <a href="./index.php" class="col btn btn-lg">🏠 Home</a>
         <a href="./dashboard.php" class="col btn btn-lg">📊 Panel</a>
-        <a href="./configs.php" class="col btn btn-lg">⚙️ Configs</a>
         <a href="./singbox.php" class="col btn btn-lg">📦 Document</a> 
         <a href="./settings.php" class="col btn btn-lg">🛠️ Settings</a>
     </div>
