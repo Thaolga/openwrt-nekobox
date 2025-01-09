@@ -552,11 +552,11 @@ function showUpdateAlert() {
 </script>
 <div class="container-sm container-bg callout border border-3 rounded-4 col-11">
     <div class="row">
-        <a href="./index.php" class="col btn btn-lg">🏠 Home</a>
-        <a href="./mihomo_manager.php" class="col btn btn-lg">🗃️ Manager</a>
-        <a href="./singbox.php" class="col btn btn-lg">🏦 Sing-box</a>
-        <a href="./subscription.php" class="col btn btn-lg">🏣 Singbox</a>
-        <a href="./mihomo.php" class="col btn btn-lg">🏪 Mihomo</a>
+        <a href="./index.php" class="col btn btn-lg"><i class="bi bi-house-door"></i> Home</a>
+        <a href="./mihomo_manager.php" class="col btn btn-lg"><i class="bi bi-folder"></i> Manager</a>
+        <a href="./singbox.php" class="col btn btn-lg"><i class="bi bi-shop"></i> Sing-box</a>
+        <a href="./subscription.php" class="col btn btn-lg"><i class="bi bi-bank"></i> Singbox</a>
+        <a href="./mihomo.php" class="col btn btn-lg"><i class="bi bi-building"></i> Mihomo</a>
     </div>
     <div class="text-center">
         <h2 style="margin-top: 40px; margin-bottom: 20px;">File Management</h2>

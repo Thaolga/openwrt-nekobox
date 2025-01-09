@@ -28,6 +28,7 @@ $dash_link = $neko_cfg['ctrl_host'] . ':' . $neko_cfg['ctrl_port'] . '/ui/dashbo
     <link rel="icon" href="./assets/img/nekobox.png">
     <link href="./assets/css/bootstrap.min.css" rel="stylesheet">
     <link href="./assets/css/custom.css" rel="stylesheet">
+    <link href="./assets/bootstrap/bootstrap-icons.css" rel="stylesheet">
     <link href="./assets/theme/<?php echo $neko_theme ?>" rel="stylesheet">
     <script type="text/javascript" src="./assets/js/feather.min.js"></script>
     <script type="text/javascript" src="./assets/js/jquery-2.1.3.min.js"></script>
@@ -74,10 +75,10 @@ $dash_link = $neko_cfg['ctrl_host'] . ':' . $neko_cfg['ctrl_port'] . '/ui/dashbo
 <head>
 <div class="container-sm container-bg text-center callout border border-3 rounded-4 col-11">
     <div class="row">
-        <a href="./index.php" class="col btn btn-lg">🏠 Home</a>
-        <a href="./dashboard.php" class="col btn btn-lg">📊 Panel</a>
-        <a href="./singbox.php" class="col btn btn-lg">📦 Document</a> 
-        <a href="./settings.php" class="col btn btn-lg">🛠️ Settings</a>
+        <a href="./index.php" class="col btn btn-lg"><i class="bi bi-house-door"></i> Home</a>
+        <a href="./dashboard.php" class="col btn btn-lg"><i class="bi bi-bar-chart"></i> Panel</a>
+        <a href="./singbox.php" class="col btn btn-lg"><i class="bi bi-box"></i> Document</a> 
+        <a href="./settings.php" class="col btn btn-lg"><i class="bi bi-gear"></i> Settings</a>
     </div>
 <div class="container text-left p-3">
         <div class="container h-100 mb-5">

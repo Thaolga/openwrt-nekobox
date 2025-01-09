@@ -151,11 +151,11 @@ EOL;
 </style>
 <div class="container-sm container-bg callout border border-3 rounded-4 col-11">
     <div class="row">
-        <a href="./index.php" class="col btn btn-lg">🏠 Home</a>
-        <a href="./mihomo_manager.php" class="col btn btn-lg">🗃️ Manager</a>
-        <a href="./singbox.php" class="col btn btn-lg">🏦 Sing-box</a>
-        <a href="./subscription.php" class="col btn btn-lg">🏣 Singbox</a>
-        <a href="./mihomo.php" class="col btn btn-lg">🏪 Mihomo</a>
+        <a href="./index.php" class="col btn btn-lg"><i class="bi bi-house-door"></i> Home</a>
+        <a href="./mihomo_manager.php" class="col btn btn-lg"><i class="bi bi-folder"></i> Manager</a>
+        <a href="./singbox.php" class="col btn btn-lg"><i class="bi bi-shop"></i> Sing-box</a>
+        <a href="./subscription.php" class="col btn btn-lg"><i class="bi bi-bank"></i> Singbox</a>
+        <a href="./mihomo.php" class="col btn btn-lg"><i class="bi bi-building"></i> Mihomo</a>
 <div class="outer-container">
     <div class="container" style="padding-left: 2.4em; padding-right: 2.4em;">
         <h1 class="title text-center" style="margin-top: 3rem; margin-bottom: 2rem;">Sing-box  Template I</h1>
