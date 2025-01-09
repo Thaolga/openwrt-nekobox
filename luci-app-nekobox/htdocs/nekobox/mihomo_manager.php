@@ -341,6 +341,53 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     }
 }
 ?>
+
+<?php
+$file_urls = [
+    'geoip' => 'https://github.com/MetaCubeX/meta-rules-dat/releases/download/latest/geoip.metadb',
+    'geosite' => 'https://github.com/MetaCubeX/meta-rules-dat/releases/download/latest/geosite.dat',
+    'cache' => 'https://github.com/Thaolga/neko/raw/main/cache.db' 
+];
+
+$download_directories = [
+    'geoip' => '/etc/neko/',
+    'geosite' => '/etc/neko/',
+    'cache' => '/www/nekobox/' 
+];
+
+if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['file'])) {
+    $file = $_GET['file'];
+
+    if (isset($file_urls[$file])) {
+        $file_url = $file_urls[$file];
+        $destination_directory = $download_directories[$file];
+        $destination_path = $destination_directory . basename($file_url);
+
+        if (download_file($file_url, $destination_path)) {
+            echo "<div class='alert alert-success'>The file was successfully downloaded to $destination_path</div>";
+        } else {
+            echo "<div class='alert alert-danger'>File download failed</div>";
+        }
+    } else {
+        echo "Invalid file request";
+    }
+}
+
+function download_file($url, $destination) {
+    $ch = curl_init($url);
+    $fp = fopen($destination, 'wb');
+
+    curl_setopt($ch, CURLOPT_FILE, $fp);
+    curl_setopt($ch, CURLOPT_HEADER, 0);
+    curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
+
+    $result = curl_exec($ch);
+    curl_close($ch);
+    fclose($fp);
+
+    return $result !== false;
+}
+?>
 <!doctype html>
 <html lang="en" data-bs-theme="<?php echo substr($neko_theme, 0, -4) ?>">
 <head>
@@ -1086,13 +1133,47 @@ function initializeAceEditor() {
             <button type="submit" name="createShellScript" value="true" class="btn btn-success mx-2">
                 <i class="bi bi-terminal"></i> Generate an update script
             </button>
+            <button type="button" class="btn btn-primary mx-2" data-bs-toggle="modal" data-bs-target="#downloadModal">
+                <i class="bi bi-download"></i> Update the database
+            </button>
              <td>
-            <a class="btn btn-info btn-sm text-white" target="_blank" href="./filekit.php" style="font-size: 14px; font-weight: bold;">
+            <a class="btn btn-info btn-sm text-white mx-2" target="_blank" href="./filekit.php" style="font-size: 14px; font-weight: bold;">
                 <i class="bi bi-file-earmark-text"></i> Open File Assistant
             </a>
         </td>
         </form>
     </div>
+
+    <div class="modal fade" id="downloadModal" tabindex="-1" aria-labelledby="downloadModalLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="downloadModalLabel">Select Database to Download/h5>
+                    <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                </div>
+                <div class="modal-body">
+                    <form method="GET" action="">
+                        <div class="mb-3">
+                            <label for="fileSelect" class="form-label">Select File</label>
+                            <select class="form-select" id="fileSelect" name="file">
+                                <option value="geoip">geoip.metadb</option>
+                                <option value="geosite">geosite.dat</option>
+                                <option value="cache">cache.db</option>
+                            </select>
+                        </div>
+                        <div class="d-flex justify-content-end">
+                            <button type="submit" class="btn btn-primary me-2">Download</button>
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
 <form method="POST">
     <div class="modal fade" id="cronModal" tabindex="-1" aria-labelledby="cronModalLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
         <div class="modal-dialog modal-lg" role="document">
@@ -1115,7 +1196,7 @@ function initializeAceEditor() {
                     </div>
                 </div>
                 <div class="modal-footer d-flex justify-content-end gap-3">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">modal</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
                     <button type="submit" name="createCronJob" class="btn btn-primary">Save</button>
                 </div>
             </div>
