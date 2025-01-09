@@ -94,6 +94,15 @@ wget -O "\$CONFIG_FILE" "\$SUBSCRIBE_URL" >> "\$LOG_FILE" 2>&1
 
 if [ \$? -eq 0 ]; then
   echo "\$(date): Configuration file updated successfully. Save path: \$CONFIG_FILE" >> "\$LOG_FILE"
+  sed -i 's/"outbounds":\s*\[\s*"Proxy"\s*\]/"outbounds": ["DIRECT"]/g' "\$CONFIG_FILE"
+
+  if [ \$? -eq 0 ]; then
+    echo "\$(date): The Proxy in the configuration file has been successfully replaced with DIRECT" >> "\$LOG_FILE"
+  else
+    echo "\$(date): Failed to replace Proxy with DIRECT. Please check the configuration file" >> "\$LOG_FILE"
+    exit 1
+  fi
+
 else
   echo "\$(date): Configuration file update failed. Please check the link or network" >> "\$LOG_FILE"
   exit 1
@@ -153,15 +162,12 @@ EOL;
         <div class="alert alert-info">
             <h4 class="alert-heading">Help Information</h4>
             <p>
-                  Please select a template to generate the configuration file: Choose the corresponding template based on the subscription node information. If you select a template with regional grouping, please ensure that your nodes include the following lines</p>
+                  Please select a template to generate the configuration file</p>
             </p>
             <ul>
-                <li><strong>Template 1</strong>：No region, no grouping, general</li>
-                <li><strong>Template 2</strong>：No region, with routing rules, general</li>
-                <li><strong>Template 3</strong>：Hong Kong, Japan, United States, grouped with routing rules</li>
-                <li><strong>Template 4</strong>：Hong Kong, Singapore, Japan, United States, grouped with routing rules</li>
-                <li><strong>Template 5</strong>：Singapore, Japan, United States, South Korea, grouped with routing rules</li>
-                <li><strong>Template 6</strong>：Hong Kong, Taiwan, Singapore, Japan, United States, South Korea, grouped with routing rules</li>
+                <li><strong>Template 1</strong>：No region, no grouping</li>
+                <li><strong>Template 2</strong>：No region, with routing rules</li>
+                <li><strong>Template 3</strong>：Hong Kong, Taiwan, Singapore, Japan, United States, South Korea, grouped with routing rules</li>
             </ul>
         </div>
         <form method="post" action="">
@@ -199,14 +205,6 @@ EOL;
                     <div class="col">
                         <input type="radio" class="form-check-input" id="useDefaultTemplate5" name="defaultTemplate" value="5">
                         <label class="form-check-label" for="useDefaultTemplate5">Template 5</label>
-                    </div>
-                    <div class="col">
-                        <input type="radio" class="form-check-input" id="useDefaultTemplate6" name="defaultTemplate" value="6">
-                        <label class="form-check-label" for="useDefaultTemplate6">Template 6</label>
-                    </div>
-                    <div class="col">
-                        <input type="radio" class="form-check-input" id="useDefaultTemplate7" name="defaultTemplate" value="7">
-                        <label class="form-check-label" for="useDefaultTemplate7">Template 7</label>
                     </div>
                 </div>
                 <div class="mt-3">
@@ -318,11 +316,9 @@ EOL;
                 $defaultTemplates = [
                     '1' => "https://raw.githubusercontent.com/Thaolga/Rules/main/Clash/json/config_7.json",
                     '2' => "https://raw.githubusercontent.com/Thaolga/Rules/main/Clash/json/config_6.json",
-                    '3' => "https://raw.githubusercontent.com/Thaolga/Rules/main/Clash/json/config_9.json",
-                    '4' => "https://raw.githubusercontent.com/Thaolga/Rules/main/Clash/json/config_10.json",
-                    '5' => "https://raw.githubusercontent.com/Thaolga/Rules/main/Clash/json/config_11.json",
-                    '6' => "https://raw.githubusercontent.com/Thaolga/Rules/main/Clash/json/config_8.json",
-                    '7' => "https://raw.githubusercontent.com/Thaolga/Rules/main/Clash/json/config_12.json"
+                    '3' => "https://raw.githubusercontent.com/Thaolga/Rules/main/Clash/json/config_8.json",
+                    '4' => "https://raw.githubusercontent.com/Thaolga/Rules/main/Clash/json/config_12.json",
+                    '5' => "https://raw.githubusercontent.com/Thaolga/Rules/main/Clash/json/config_2.json"
                 ];
 
                 $templateUrlEncoded = urlencode($defaultTemplates[$_POST['defaultTemplate']] ?? '');
@@ -353,6 +349,14 @@ EOL;
                 if ($downloadedContent === false) {
                     $logMessages[] = "Unable to read the downloaded file content";
                 } else {
+
+                    $downloadedContent = preg_replace_callback(
+                        '/\{\s*"tag":\s*"(.*?)",\s*"type":\s*"selector",\s*"outbounds":\s*\[\s*"Proxy"\s*\]\s*\}/s',
+                        function ($matches) {
+                            return str_replace('"Proxy"', '"DIRECT"', $matches[0]);
+                        },
+                        $downloadedContent
+                    );
 
                     if (isset($_POST['defaultTemplate']) && $_POST['defaultTemplate'] == '0') {
                 $replacement = '
