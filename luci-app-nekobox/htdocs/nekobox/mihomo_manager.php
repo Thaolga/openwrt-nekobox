@@ -1148,7 +1148,7 @@ function initializeAceEditor() {
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="downloadModalLabel">Select Database to Download/h5>
+                    <h5 class="modal-title" id="downloadModalLabel">Select Database to Download</h5>
                     <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
