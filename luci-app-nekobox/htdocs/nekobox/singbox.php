@@ -2,7 +2,7 @@
 ob_start();
 include './cfg.php';
 
-$dataFilePath = '/tmp/subscription_data.txt';
+$dataFilePath = '/etc/neko/proxy_provider/subscription_data.txt';
 $lastSubscribeUrl = '';
 
 if (file_exists($dataFilePath)) {
@@ -71,7 +71,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 #!/bin/sh
 
 LOG_FILE="/tmp/update_subscription.log"
-SUBSCRIBE_URL=$(cat /etc/neko/tmp/subscription.txt | tr -d '\n\r')
+SUBSCRIBE_URL=$(cat /etc/neko/proxy_provider/subscription.txt | tr -d '\n\r')
 
 if [ -z "\$SUBSCRIBE_URL" ]; then
   echo "\$(date): The subscription link is empty or extraction failed" >> "\$LOG_FILE"
@@ -94,7 +94,7 @@ wget -O "\$CONFIG_FILE" "\$SUBSCRIBE_URL" >> "\$LOG_FILE" 2>&1
 
 if [ \$? -eq 0 ]; then
   echo "\$(date): Configuration file updated successfully. Save path: \$CONFIG_FILE" >> "\$LOG_FILE"
-  sed -i 's/"outbounds":\s*\[\s*"Proxy"\s*\]/"outbounds": ["DIRECT"]/g' "\$CONFIG_FILE"
+  sed -i 's/"Proxy"/"DIRECT"/g' "\$CONFIG_FILE"
 
   if [ \$? -eq 0 ]; then
     echo "\$(date): The Proxy in the configuration file has been successfully replaced with DIRECT" >> "\$LOG_FILE"
@@ -277,7 +277,7 @@ EOL;
     });
 </script>
         <?php
-        $dataFilePath = '/tmp/subscription_data.txt';
+        $dataFilePath = '/etc/neko/proxy_provider/subscription_data.txt';
         $configFilePath = '/etc/neko/config/sing-box.json';
         $downloadedContent = ''; 
         $fixedFileName = 'subscription.txt';
@@ -370,7 +370,7 @@ EOL;
                 $downloadedContent = preg_replace('/"clash_api":\s*\{.*?\},/s', $replacement, $downloadedContent);
             }
 
-                    $tmpFileSavePath = '/etc/neko/tmp/' . $fixedFileName;  
+                    $tmpFileSavePath = '/etc/neko/proxy_provider/' . $fixedFileName;  
                     if (file_put_contents($tmpFileSavePath, $completeSubscribeUrl) === false) {
                         $logMessages[] = "Unable to save subscription URL to file: " . $tmpFileSavePath;
                     } else {
@@ -383,9 +383,15 @@ EOL;
                     } else {
                         $logMessages[] = "Configuration file generated and saved successfully: " . $configFilePath;
                     }
+
+                    if (file_exists($tempFilePath)) {
+                        unlink($tempFilePath); 
+                        $logMessages[] = "Temporary file has been cleaned: " . $tempFilePath;
+                    } else {
+                        $logMessages[] = "Temporary file not found for cleaning: " . $tempFilePath;
+                    }
                 }
             }
-
             echo "<div class='result-container'>";
             echo "<form method='post' action=''>";
             echo "<div class='mb-3'>";

@@ -58,6 +58,9 @@ function getMihomoVersion() {
                 preg_match('/alpha-[a-z0-9]+/', $line, $matches);
                 if (!empty($matches)) {
                     $version = $matches[0];  
+                    if (preg_match('/^\d/', $version)) {
+                        $version = 'v' . $version;
+                    }
                     return ['version' => $version, 'type' => 'Preview'];
                 }
                 
@@ -168,6 +171,27 @@ $razordVersion = getRazordVersion();
     <script type="text/javascript" src="./assets/js/neko.js"></script>
     <?php include './ping.php'; ?>
   </head>
+<style>
+    @media (max-width: 576px) {
+        .btn-custom {
+            width: 20%; 
+            margin: 0 auto; 
+            display: block; 
+    }
+
+        .btn-fw {
+            width: 100%; 
+            margin-right: 0; 
+            margin-bottom: 10px; 
+        }
+
+        .container .form-select {
+            margin-right: 6ch;
+            width: calc(100% - 1.8ch); 
+        }
+    }
+
+</style>
   <body>
 
 <div class="container-sm container-bg text-center callout border border-3 rounded-4 col-11">
@@ -188,7 +212,7 @@ $razordVersion = getRazordVersion();
             </div>
             <div class="col-12 col-md-6 mb-3" style="padding-right: 1.3rem;" >
                 <div class="d-grid">
-                    <input class="btn btn-info" type="submit" value="🖫 Change Theme">
+                    <input class="btn btn-info btn-custom" type="submit" value="🖫 Change Theme">
                 </div>
             </div>
         </div>
@@ -200,7 +224,7 @@ $razordVersion = getRazordVersion();
                     <h2 class="text-center mb-3">Software Information</h2>
                     <form action="settings.php" method="post">
                         <div class="btn-group d-flex justify-content-center">
-                            <button type="submit" name="fw" value="enable" class="btn btn<?php if($fwstatus==1) echo "-outline" ?>-success <?php if($fwstatus==1) echo "disabled" ?>" style="margin-right: 20px;">Enable</button>
+                            <button type="submit" name="fw" value="enable" class="btn btn<?php if($fwstatus==1) echo "-outline" ?>-success <?php if($fwstatus==1) echo "disabled" ?> btn-fw" style="margin-right: 20px;">Enable</button>
                             <button type="submit" name="fw" value="disable" class="btn btn<?php if($fwstatus==0) echo "-outline" ?>-danger <?php if($fwstatus==0) echo "disabled" ?>">Disable</button>
                          </div>
                      </form>
@@ -288,7 +312,7 @@ $razordVersion = getRazordVersion();
             <tbody>
                 <tr>
                     <td class="text-center">
-                        <span id="corever"></span><span id="NewMihomo"> </span>
+                        <?php echo htmlspecialchars($mihomoVersion); ?><span id="NewMihomo"> </span>
                     </td>
                 </tr>
                 <tr>
@@ -459,6 +483,8 @@ $razordVersion = getRazordVersion();
                     <option value="v1.11.0-alpha.20">v1.11.0-alpha.20</option>
                     <option value="v1.11.0-beta.5">v1.11.0-beta.5</option>
                     <option value="v1.11.0-beta.10">v1.11.0-beta.10</option>
+                    <option value="v1.11.0-beta.15">v1.11.0-beta.15</option>
+                    <option value="v1.11.0-beta.20">v1.11.0-beta.20</option>
                 </select>
                 <input type="text" id="manualVersionInput" class="form-control mt-2" placeholder="For example: v1.11.0-beta.10">
                 <button type="button" class="btn btn-secondary mt-2" onclick="addManualVersion()">Add Version</button>
