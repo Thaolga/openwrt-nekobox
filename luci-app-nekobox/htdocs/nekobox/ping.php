@@ -159,7 +159,7 @@ $lang = $_GET['lang'] ?? 'en';
 </style>
 
 <?php if (in_array($lang, ['zh-cn', 'en', 'auto'])): ?>
-    <div id="status-bar-component" class="container-sm container-bg callout border">
+    <div id="status-bar-component" class="container-sm container-bg callout border border-3 rounded-4 col-11">
         <div class="row align-items-center">
             <div class="col-auto">
                 <div class="img-con">

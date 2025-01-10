@@ -161,9 +161,6 @@ EOL;
         <h1 class="title text-center" style="margin-top: 3rem; margin-bottom: 2rem;">Sing-box  Template I</h1>
         <div class="alert alert-info">
             <h4 class="alert-heading">Help Information</h4>
-            <p>
-                  Please select a template to generate the configuration file</p>
-            </p>
             <ul>
                 <li><strong>Template 1</strong>：No region, no grouping</li>
                 <li><strong>Template 2</strong>：No region, with routing rules</li>
