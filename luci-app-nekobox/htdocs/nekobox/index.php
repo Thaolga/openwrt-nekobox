@@ -486,55 +486,30 @@ timestamp() {
     date "+%Y-%m-%d %H:%M:%S"
 }
 
-MAX_RETRIES=5
-RETRY_INTERVAL=5  
-
 start_singbox() {
     sh /etc/neko/core/start.sh  
 }
 
-check_singbox() {
-    pgrep -x "singbox" > /dev/null
-    return $?
-}
+echo "$(timestamp) Sing-box 正在重启..." >> \$LOG_PATH
+kill $(pgrep -x "singbox") 2>/dev/null  
+sleep 2
+start_singbox  
 
-if pgrep -x "singbox" > /dev/null
-then
-    echo "$(timestamp) Sing-box 正在运行，正在重启..." >> \$LOG_PATH
-    kill $(pgrep -x "singbox")
-    sleep 2
-    start_singbox  
+RETRY_COUNT=0
+MAX_RETRIES=5
+RETRY_INTERVAL=5  
 
-    RETRY_COUNT=0
-    while ! check_singbox && [ \$RETRY_COUNT -lt \$MAX_RETRIES ]; do
-        echo "$(timestamp) Sing-box 重启失败，正在尝试重新启动... (\$((RETRY_COUNT + 1))/\$MAX_RETRIES)" >> \$LOG_PATH
-        sleep \$RETRY_INTERVAL
-        start_singbox  
-        ((RETRY_COUNT++))
-    done
+while ! pgrep -x "singbox" > /dev/null && [ \$RETRY_COUNT -lt \$MAX_RETRIES ]; do
+    echo "$(timestamp) Sing-box 启动失败，正在尝试重新启动... (\$((RETRY_COUNT + 1))/\$MAX_RETRIES)" >> \$LOG_PATH
+    sleep \$RETRY_INTERVAL
+    start_singbox 
+    ((RETRY_COUNT++))
+done
 
-    if check_singbox; then
-        echo "$(timestamp) Sing-box 重启成功!" >> \$LOG_PATH
-    else
-        echo "$(timestamp) Sing-box 重启失败，已达到最大重试次数!" >> \$LOG_PATH
-    fi
+if pgrep -x "singbox" > /dev/null; then
+    echo "$(timestamp) Sing-box 启动成功!" >> \$LOG_PATH
 else
-    echo "$(timestamp) Sing-box 没有运行, 启动 Sing-box..." >> \$LOG_PATH
-    start_singbox  
-
-    RETRY_COUNT=0
-    while ! check_singbox && [ \$RETRY_COUNT -lt \$MAX_RETRIES ]; do
-        echo "$(timestamp) Sing-box 启动失败，正在尝试重新启动... (\$((RETRY_COUNT + 1))/\$MAX_RETRIES)" >> \$LOG_PATH
-        sleep \$RETRY_INTERVAL
-        start_singbox  
-        ((RETRY_COUNT++))
-    done
-
-    if check_singbox; then
-        echo "$(timestamp) Sing-box 启动成功!" >> \$LOG_PATH
-    else
-        echo "$(timestamp) Sing-box 启动失败，已达到最大重试次数!" >> \$LOG_PATH
-    fi
+    echo "$(timestamp) Sing-box 启动失败，已达到最大重试次数!" >> \$LOG_PATH
 fi
 EOL;
 
@@ -542,12 +517,13 @@ EOL;
     file_put_contents($scriptPath, $restartScriptContent);
     chmod($scriptPath, 0755);
 
-    $cronSchedule = $cronTime . " /bin/bash $scriptPath";
+    $cronSchedule = $cronTime . " /bin/bash $scriptPath"; 
     exec("crontab -l | grep -v '$scriptPath' | crontab -"); 
     exec("(crontab -l 2>/dev/null; echo \"$cronSchedule\") | crontab -");  
 
     $logMessage = "定时任务已设置成功，Sing-box 将在 $cronTime 自动重启。";
     file_put_contents('/etc/neko/tmp/log.txt', date('Y-m-d H:i:s') . " - INFO: $logMessage\n", FILE_APPEND);
+
     echo json_encode(['success' => true, 'message' => '定时任务已设置成功']);
     exit;
 }
