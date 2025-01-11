@@ -37,7 +37,7 @@ log() {
     echo "[$(date)] $1" >> "$FIREWALL_LOG"
 }
 
-//log "Starting Sing-box with config: $CONFIG_FILE"
+log "Starting Sing-box with config: $CONFIG_FILE"
 
 log "Restarting firewall..."
 /etc/init.d/firewall restart
@@ -234,6 +234,7 @@ LOG_FILE="$log_file"
 TMP_LOG_FILE="$tmp_log_file"  
 ADDITIONAL_LOG_FILE="$additional_log_file"
 MAX_SIZE=$max_size
+LOG_PATH="/etc/neko/tmp/log.txt" 
 
 crontab -l | grep -v "/etc/neko/core/set_cron.sh" | crontab - 
 (crontab -l 2>/dev/null; echo "$cron_schedule") | crontab -
@@ -243,37 +244,37 @@ timestamp() {
 }
 
 if [ -f "\$LOG_FILE" ] && [ \$(stat -c %s "\$LOG_FILE") -gt \$MAX_SIZE ]; then
-    echo "\$(timestamp) Log file (\$LOG_FILE) size exceeds \$MAX_SIZE bytes. Clearing logs..." >> /var/log/cron_debug.log 2>&1
+    echo "\$(timestamp) Sing-box 日志文件 (\$LOG_FILE) 超过 \$MAX_SIZE 字节. 清理日志..." >> \$LOG_PATH 2>&1
     > "\$LOG_FILE"  
-    echo "\$(timestamp) Log file (\$LOG_FILE) cleared." >> /var/log/cron_debug.log 2>&1
+    echo "\$(timestamp) Sing-box 日志文件 (\$LOG_FILE) 已清空." >> \$LOG_PATH 2>&1
 else
-    echo "\$(timestamp) Log file (\$LOG_FILE) is within the size limit, no action needed." >> /var/log/cron_debug.log 2>&1
+    echo "\$(timestamp) Sing-box 日志文件 (\$LOG_FILE) 在大小限制内, 无需操作." >> \$LOG_PATH 2>&1
 fi
 
 if [ -f "\$TMP_LOG_FILE" ] && [ \$(stat -c %s "\$TMP_LOG_FILE") -gt \$MAX_SIZE ]; then
-    echo "\$(timestamp) Temp log file (\$TMP_LOG_FILE) size exceeds \$MAX_SIZE bytes. Clearing logs..." >> /var/log/cron_debug.log 2>&1
+    echo "\$(timestamp) Mihomo 日志文件 (\$TMP_LOG_FILE) 超过 \$MAX_SIZE 字节. 清理日志..." >> \$LOG_PATH 2>&1
     > "\$TMP_LOG_FILE"  
-    echo "\$(timestamp) Temp log file (\$TMP_LOG_FILE) cleared." >> /var/log/cron_debug.log 2>&1
+    echo "\$(timestamp) Mihomo 日志文件 (\$TMP_LOG_FILE) 已清空." >> \$LOG_PATH 2>&1
 else
-    echo "\$(timestamp) Temp log file (\$TMP_LOG_FILE) is within the size limit, no action needed." >> /var/log/cron_debug.log 2>&1
+    echo "\$(timestamp) Mihomo 日志文件 (\$TMP_LOG_FILE) 在大小限制内, 无需操作." >> \$LOG_PATH 2>&1
 fi
 
 if [ -f "\$ADDITIONAL_LOG_FILE" ] && [ \$(stat -c %s "\$ADDITIONAL_LOG_FILE") -gt \$MAX_SIZE ]; then
-    echo "\$(timestamp) Additional log file (\$ADDITIONAL_LOG_FILE) size exceeds \$MAX_SIZE bytes. Clearing logs..." >> /var/log/cron_debug.log 2>&1
+    echo "\$(timestamp) NeKoBox 日志文件 (\$ADDITIONAL_LOG_FILE) 超过 \$MAX_SIZE 字节. 清理日志..." >> \$LOG_PATH 2>&1
     > "\$ADDITIONAL_LOG_FILE"
-    echo "\$(timestamp) Additional log file (\$ADDITIONAL_LOG_FILE) cleared." >> /var/log/cron_debug.log 2>&1
+    echo "\$(timestamp) NeKoBox 日志文件 (\$ADDITIONAL_LOG_FILE) 已清空." >> \$LOG_PATH 2>&1
 else
-    echo "\$(timestamp) Additional log file (\$ADDITIONAL_LOG_FILE) is within the size limit, no action needed." >> /var/log/cron_debug.log 2>&1
+    echo "\$(timestamp) NeKoBox 日志文件 (\$ADDITIONAL_LOG_FILE) 在大小限制内, 无需操作." >> \$LOG_PATH 2>&1
 fi
 
-echo "\$(timestamp) Log rotation completed." >> /var/log/cron_debug.log 2>&1
+echo "\$(timestamp) 日志轮换完成." >> \$LOG_PATH 2>&1
 EOL;
 
     $cronScriptPath = '/etc/neko/core/set_cron.sh';
     file_put_contents($cronScriptPath, $cronScriptContent);
     chmod($cronScriptPath, 0755);
     shell_exec("sh $cronScriptPath");
-    writeToLog("Cron job setup script created and executed to add or update the daily log clearing task for $log_file and $tmp_log_file.");
+    echo '<div class="alert alert-success">已创建并执行定时任务脚本，添加或更新日志清理任务，清理 $log_file 和 $tmp_log_file 的日志。</div>';
 }
 
 function rotateLogs($logFile, $maxSize = 1048576) {
