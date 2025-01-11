@@ -37,7 +37,7 @@ log() {
     echo "[$(date)] $1" >> "$FIREWALL_LOG"
 }
 
-//log "Starting Sing-box with config: $CONFIG_FILE"
+log "Starting Sing-box with config: $CONFIG_FILE"
 
 log "Restarting firewall..."
 /etc/init.d/firewall restart
@@ -495,8 +495,8 @@ EOL;
     exec("crontab -l | grep -v '$scriptPath' | crontab -");  
     exec("(crontab -l 2>/dev/null; echo \"$cronSchedule\") | crontab -");  
 
-    error_log("Scheduled task has been successfully set，Sing-box will automatically restart at $cronTime。");
-    echo json_encode(['success' => true, 'message' => 'Scheduled task has been successfully set']);
+    error_log("The scheduled task has been successfully set, and Sing-box will automatically restart at $cronTime.");
+    echo json_encode(['success' => true, 'message' => 'The scheduled task has been successfully set']);
     exit;
 }
 
