@@ -486,8 +486,6 @@ fi
 
 EOL;
 
-        echo "<pre>" . htmlspecialchars($shellScriptContent) . "</pre>";
-
         if (file_put_contents($shellScriptPath, $shellScriptContent) !== false) {
             chmod($shellScriptPath, 0755); 
             echo "<div class='alert alert-success'>Shell script created successfully! Path: $shellScriptPath</div>";
