@@ -389,7 +389,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
 LOG_FILE="/etc/neko/tmp/log.txt"
 LINK_FILE="/etc/neko/tmp/singbox.txt"
-CONFIG_FILE="/etc/neko/config.json"
+CONFIG_FILE="/etc/neko/config/config.json"
 
 log() {
   echo "[ \$(date +'%H:%M:%S') ] \$1" >> "\$LOG_FILE"
