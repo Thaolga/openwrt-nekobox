@@ -24,96 +24,100 @@ if (file_exists($dataFilePath)) {
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['setCron'])) {
     $cronExpression = trim($_POST['cronExpression']);
-    $shellScriptPath = '/etc/neko/core/update_subscription.sh'; 
+    $shellScriptPath = '/etc/neko/core/update_subscription.sh';
+    $logFile = '/etc/neko/tmp/log.txt'; 
 
     if (preg_match('/^(\*|\d+)( (\*|\d+)){4}$/', $cronExpression)) {
         $cronJob = "$cronExpression $shellScriptPath";
-        $currentCrons = shell_exec('crontab -l 2>/dev/null'); 
+        $currentCrons = shell_exec('crontab -l 2>/dev/null');
         $updatedCrons = preg_replace(
-            "/^.*".preg_quote($shellScriptPath, '/').".*$/m",
-            '', 
+            "/^.*" . preg_quote($shellScriptPath, '/') . ".*$/m",
+            '',
             $currentCrons
-        ); 
+        );
 
-        $updatedCrons = trim($updatedCrons) . "\n" . $cronJob . "\n"; 
+        $updatedCrons = trim($updatedCrons) . "\n" . $cronJob . "\n";
 
         $tempCronFile = tempnam(sys_get_temp_dir(), 'cron');
         file_put_contents($tempCronFile, $updatedCrons);
-        exec("crontab $tempCronFile"); 
-        unlink($tempCronFile); 
+        exec("crontab $tempCronFile");
+        unlink($tempCronFile);
 
-        echo "<div class='alert alert-success'>Scheduled task has been set: $cronExpression</div>";
+        $timestamp = date('[ H:i:s ]');
+        file_put_contents($logFile, "$timestamp Cron job successfully set. Sing-box will update at $cronExpression.\n", FILE_APPEND);
+        echo "<div class='alert alert-success'>Cron job set: $cronExpression</div>";
     } else {
-        echo "<div class='alert alert-danger'>Invalid Cron expression. Please check the format</div>";
+        $timestamp = date('[ H:i:s ]');
+        file_put_contents($logFile, "$timestamp Invalid Cron expression: $cronExpression\n", FILE_APPEND);
+        echo "<div class='alert alert-danger'>Invalid Cron expression. Please check the format.</div>";
     }
 }
-
 ?>
 
 <?php
 $shellScriptPath = '/etc/neko/core/update_subscription.sh';
-$LOG_FILE = '/tmp/update_subscription.log'; 
+$LOG_FILE = '/etc/neko/tmp/log.txt'; 
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     if (isset($_POST['subscribeUrl'])) {
         $SUBSCRIBE_URL = trim($_POST['subscribeUrl']);
         
         if (empty($SUBSCRIBE_URL)) {
-            echo "<div class='alert alert-warning'>The subscription link cannot be empty</div>";
+            echo "<div class='alert alert-warning'>Subscription URL cannot be empty.</div>";
             exit;
         }
         
-        echo "<div class='alert alert-success'>Submission successful: The subscription link has been saved as $SUBSCRIBE_URL</div>";
+        echo "<div class='alert alert-success'>Submitted successfully: Subscription URL saved as $SUBSCRIBE_URL</div>";
     }
 
     if (isset($_POST['createShellScript'])) {
         $shellScriptContent = <<<EOL
 #!/bin/sh
 
-LOG_FILE="/tmp/update_subscription.log"
-SUBSCRIBE_URL=$(cat /etc/neko/proxy_provider/subscription.txt | tr -d '\n\r')
+LOG_FILE="$LOG_FILE"
+SUBSCRIBE_URL=\$(cat /etc/neko/proxy_provider/subscription.txt | tr -d '\\n\\r')
 
 if [ -z "\$SUBSCRIBE_URL" ]; then
-  echo "\$(date): The subscription link is empty or extraction failed" >> "\$LOG_FILE"
+  echo "\$(date '+[ %H:%M:%S ]') Subscription URL is empty or extraction failed." >> "\$LOG_FILE"
   exit 1
 fi
 
-echo "$(date): Subscription link used: $SUBSCRIBE_URL" >> "$LOG_FILE"
+echo "\$(date '+[ %H:%M:%S ]') Using subscription URL: \$SUBSCRIBE_URL" >> "\$LOG_FILE"
 
 CONFIG_DIR="/etc/neko/config"
 if [ ! -d "\$CONFIG_DIR" ]; then
   mkdir -p "\$CONFIG_DIR"
   if [ \$? -ne 0 ]; then
-    echo "\$(date): Unable to create the configuration directory: \$CONFIG_DIR" >> "\$LOG_FILE"
+    echo "\$(date '+[ %H:%M:%S ]') Failed to create config directory: \$CONFIG_DIR" >> "\$LOG_FILE"
     exit 1
   fi
 fi
 
 CONFIG_FILE="\$CONFIG_DIR/sing-box.json"
-wget -O "\$CONFIG_FILE" "\$SUBSCRIBE_URL" >> "\$LOG_FILE" 2>&1
+wget -q -O "\$CONFIG_FILE" "\$SUBSCRIBE_URL" >/dev/null 2>&1
 
 if [ \$? -eq 0 ]; then
-  echo "\$(date): Configuration file updated successfully. Save path: \$CONFIG_FILE" >> "\$LOG_FILE"
+  echo "\$(date '+[ %H:%M:%S ]') Sing-box configuration file updated successfully. Saved to: \$CONFIG_FILE" >> "\$LOG_FILE"
+
   sed -i 's/"Proxy"/"DIRECT"/g' "\$CONFIG_FILE"
 
   if [ \$? -eq 0 ]; then
-    echo "\$(date): The Proxy in the configuration file has been successfully replaced with DIRECT" >> "\$LOG_FILE"
+    echo "\$(date '+[ %H:%M:%S ]') Successfully replaced 'Proxy' with 'DIRECT' in the configuration file." >> "\$LOG_FILE"
   else
-    echo "\$(date): Failed to replace Proxy with DIRECT. Please check the configuration file" >> "\$LOG_FILE"
+    echo "\$(date '+[ %H:%M:%S ]') Failed to replace 'Proxy' with 'DIRECT'. Please check the configuration file." >> "\$LOG_FILE"
     exit 1
   fi
-
 else
-  echo "\$(date): Configuration file update failed. Please check the link or network" >> "\$LOG_FILE"
+  echo "\$(date '+[ %H:%M:%S ]') Configuration file update failed. Please check the URL or network." >> "\$LOG_FILE"
   exit 1
 fi
 EOL;
 
         if (file_put_contents($shellScriptPath, $shellScriptContent) !== false) {
             chmod($shellScriptPath, 0755);
-            echo "<div class='alert alert-success'>The Shell script has been successfully created! Path: $shellScriptPath</div>";
+            echo "<div class='alert alert-success'>Shell script created successfully! Path: $shellScriptPath</div>";
         } else {
-            echo "<div class='alert alert-danger'>Unable to create the Shell script. Please check the permissions</div>";
+            echo "<div class='alert alert-danger'>Failed to create Shell script. Please check permissions.</div>";
         }
     }
 }
@@ -242,7 +246,7 @@ EOL;
                 <div class="modal-body">
                   <div class="mb-3">
                     <label for="cronExpression" class="form-label">Cron expression</label>
-                    <input type="text" class="form-control" id="cronExpression" name="cronExpression" placeholder="For example: 0 3 * * * (Every day at 3 AM)" required>
+                    <input type="text" class="form-control" id="cronExpression" name="cronExpression" value="0 2 * * *" required>
                   </div>
                   <div class="alert alert-info">
                     <strong>Hint:</strong> Cron expression format：

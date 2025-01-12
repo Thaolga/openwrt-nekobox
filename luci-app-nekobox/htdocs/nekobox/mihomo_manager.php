@@ -257,7 +257,7 @@ if (isset($_POST['update'])) {
 ?>
 <?php
 $shellScriptPath = '/etc/neko/core/update_mihomo.sh';
-$LOG_FILE = '/tmp/update_subscription.log';
+$LOG_FILE = '/etc/neko/tmp/log.txt'; 
 $JSON_FILE = '/etc/neko/proxy_provider/subscriptions.json';
 $SAVE_DIR = '/etc/neko/proxy_provider';
 
@@ -271,76 +271,92 @@ JSON_FILE="$JSON_FILE"
 SAVE_DIR="$SAVE_DIR"
 
 if [ ! -f "\$JSON_FILE" ]; then
-    echo "\$(date): Error: JSON file does not exist: \$JSON_FILE" >> "\$LOG_FILE"
+    echo "\$(date '+[ %H:%M:%S ]') Error: JSON file does not exist: \$JSON_FILE" >> "\$LOG_FILE"
     exit 1
 fi
 
-echo "\$(date): Start processing subscription links..." >> "\$LOG_FILE"
+echo "\$(date '+[ %H:%M:%S ]') Starting to process subscription links..." >> "\$LOG_FILE"
 
 jq -c '.[]' "\$JSON_FILE" | while read -r ITEM; do
     URL=\$(echo "\$ITEM" | jq -r '.url')         
     FILE_NAME=\$(echo "\$ITEM" | jq -r '.file_name')  
 
     if [ -z "\$URL" ] || [ "\$URL" == "null" ]; then
-        echo "\$(date): Skip empty URLs and filenames: \$FILE_NAME" >> "\$LOG_FILE"
+        echo "\$(date '+[ %H:%M:%S ]') Skipping empty URL. File name: \$FILE_NAME" >> "\$LOG_FILE"
         continue
     fi
 
     if [ -z "\$FILE_NAME" ] || [ "\$FILE_NAME" == "null" ]; then
-        echo "\$(date): Error: Filename is empty, skip this link: \$URL" >> "\$LOG_FILE"
+        echo "\$(date '+[ %H:%M:%S ]') Error: File name is empty. Skipping URL: \$URL" >> "\$LOG_FILE"
         continue
     fi
 
     SAVE_PATH="\$SAVE_DIR/\$FILE_NAME"
     TEMP_PATH="\$SAVE_PATH.temp"  
-    echo "\$(date): Downloading link: \$URL Saved to temporary file: \$TEMP_PATH" >> "\$LOG_FILE"
+    echo "\$(date '+[ %H:%M:%S ]') Downloading URL: \$URL to temporary file: \$TEMP_PATH" >> "\$LOG_FILE"
 
     wget -q -O "\$TEMP_PATH" "\$URL"
 
     if [ \$? -eq 0 ]; then
-        echo "\$(date): File download successful: \$TEMP_PATH" >> "\$LOG_FILE"
+        echo "\$(date '+[ %H:%M:%S ]') File downloaded successfully: \$TEMP_PATH" >> "\$LOG_FILE"
         
         base64 -d "\$TEMP_PATH" > "\$SAVE_PATH"
 
         if [ \$? -eq 0 ]; then
-            echo "\$(date): File decoded successfully: \$SAVE_PATH" >> "\$LOG_FILE"
+            echo "\$(date '+[ %H:%M:%S ]') File decoded successfully: \$SAVE_PATH" >> "\$LOG_FILE"
         else
-            echo "\$(date): Error: File decoding failed: \$SAVE_PATH" >> "\$LOG_FILE"
+            echo "\$(date '+[ %H:%M:%S ]') Error: File decoding failed: \$SAVE_PATH" >> "\$LOG_FILE"
         fi
 
         rm -f "\$TEMP_PATH"
     else
-        echo "\$(date): Error: File download failed: \$URL" >> "\$LOG_FILE"
+        echo "\$(date '+[ %H:%M:%S ]') Error: File download failed: \$URL" >> "\$LOG_FILE"
     fi
 done
 
-echo "\$(date): All subscription links processed" >> "\$LOG_FILE"
+echo "\$(date '+[ %H:%M:%S ]') All subscription links processed." >> "\$LOG_FILE"
 EOL;
 
         if (file_put_contents($shellScriptPath, $shellScriptContent) !== false) {
             chmod($shellScriptPath, 0755);
-            echo "<div class='alert alert-success'>Shell script has been created successfully! Path: $shellScriptPath</div>";
+            echo "<div class='alert alert-success'>Shell script created successfully! Path: $shellScriptPath</div>";
         } else {
-            echo "<div class='alert alert-danger'>Unable to create Shell script, please check permissions</div>";
+            echo "<div class='alert alert-danger'>Failed to create Shell script. Please check permissions.</div>";
         }
     }
 }
 ?>
 
 <?php
+$CRON_LOG_FILE = '/etc/neko/tmp/log.txt'; 
+
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     if (isset($_POST['createCronJob'])) {
         $cronExpression = trim($_POST['cronExpression']);
 
         if (empty($cronExpression)) {
-            echo "<div class='alert alert-warning'>Cron expression cannot be empty</div>";
+            file_put_contents($CRON_LOG_FILE, date('[ H:i:s ] ') . "Error: Cron expression cannot be empty.\n", FILE_APPEND);
+            echo "<div class='alert alert-warning'>Cron expression cannot be empty.</div>";
             exit;
         }
 
-        $cronJob = "$cronExpression /etc/neko/core/update_mihomo.sh > /dev/null 2>&1";
-        exec("crontab -l | grep -v '/etc/neko/core/update_mihomo.sh' | crontab -");
-        exec("(crontab -l; echo '$cronJob') | crontab -");
-        echo "<div class='alert alert-success'>Cron job has been successfully added or updated!</div>";
+        $cronJob = "$cronExpression /etc/neko/core/update_mihomo.sh";
+
+        exec("crontab -l | grep -v '/etc/neko/core/update_mihomo.sh' | crontab -", $output, $returnVarRemove);
+        if ($returnVarRemove === 0) {
+            file_put_contents($CRON_LOG_FILE, date('[ H:i:s ] ') . "Successfully removed old Cron job.\n", FILE_APPEND);
+        } else {
+            file_put_contents($CRON_LOG_FILE, date('[ H:i:s ] ') . "Failed to remove old Cron job.\n", FILE_APPEND);
+        }
+
+        exec("(crontab -l; echo '$cronJob') | crontab -", $output, $returnVarAdd);
+        if ($returnVarAdd === 0) {
+            file_put_contents($CRON_LOG_FILE, date('[ H:i:s ] ') . "Successfully added new Cron job: $cronJob\n", FILE_APPEND);
+            echo "<div class='alert alert-success'>Cron job successfully added or updated!</div>";
+        } else {
+            file_put_contents($CRON_LOG_FILE, date('[ H:i:s ] ') . "Failed to add new Cron job.\n", FILE_APPEND);
+            echo "<div class='alert alert-danger'>Failed to add or update Cron job. Please check server permissions.</div>";
+        }
     }
 }
 ?>
@@ -1188,7 +1204,7 @@ function initializeAceEditor() {
                 <div class="modal-body">
                     <div class="mb-3">
                         <label for="cronExpression" class="form-label">Cron expression</label>
-                        <input type="text" class="form-control" id="cronExpression" name="cronExpression" placeholder="e.g., 0 2 * * *" required>
+                        <input type="text" class="form-control" id="cronExpression" name="cronExpression" value="0 2 * * *" required>
                     </div>
                     <div class="alert alert-info">
                         <strong>Tip:</strong> Cron expression format:

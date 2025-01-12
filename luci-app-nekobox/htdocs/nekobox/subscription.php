@@ -366,74 +366,138 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         $cronExpression = trim($_POST['cronExpression']);
 
         if (empty($cronExpression)) {
-            echo "<div class='alert alert-warning'>Cron 表达式不能为空。</div>";
+            echo "<div class='alert alert-warning'>The cron expression cannot be empty</div>";
             exit;
         }
 
         $cronJob = "$cronExpression /etc/neko/core/update_singbox.sh > /dev/null 2>&1";
         exec("crontab -l | grep -v '/etc/neko/core/update_singbox.sh' | crontab -");
         exec("(crontab -l; echo '$cronJob') | crontab -");
-        echo "<div class='alert alert-success'>Cron 任务已成功添加或更新！</div>";
+        echo "<div class='alert alert-success'>The cron job has been successfully added or updated.</div>";
     }
 }
 ?>
 <?php
 $shellScriptPath = '/etc/neko/core/update_singbox.sh';
-$LOG_FILE = '/tmp/update_subscription.log';
-$CONFIG_FILE = '/etc/neko/config.json'; 
+$LOG_FILE = '/etc/neko/tmp/log.txt';
+$CONFIG_FILE = '/etc/neko/config/config.json';
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-
     if (isset($_POST['createShellScript'])) {
         $shellScriptContent = <<<EOL
 #!/bin/sh
 
-LOG_FILE="/tmp/update_subscription.log"
+LOG_FILE="/etc/neko/tmp/log.txt"
 LINK_FILE="/etc/neko/tmp/singbox.txt"
-CONFIG_FILE="$CONFIG_FILE" 
+CONFIG_FILE="/etc/neko/config.json"
 
-echo "Attempting to read subscription link file: \$LINK_FILE" >> "\$LOG_FILE"
+log() {
+  echo "[ \$(date +'%H:%M:%S') ] \$1" >> "\$LOG_FILE"
+}
+
+log "Starting the update script..."
+log "Attempting to read subscription link file: \$LINK_FILE"
+
 if [ ! -f "\$LINK_FILE" ]; then
-  echo "\$(date): Error: File \$LINK_FILE does not exist" >> "\$LOG_FILE"
+  log "Error: File \$LINK_FILE does not exist."
   exit 1
 fi
 
-SUBSCRIBE_URL=\$(awk 'NR==1 {print \$0}' "\$LINK_FILE" | tr -d '\n\r' | xargs)
+SUBSCRIBE_URL=\$(awk 'NR==1 {print \$0}' "\$LINK_FILE" | tr -d '\\n\\r' | xargs)
 
 if [ -z "\$SUBSCRIBE_URL" ]; then
-  echo "\$(date): Subscription link is empty or extraction failed" >> "\$LOG_FILE"
+  log "Error: Subscription link is empty or extraction failed."
   exit 1
 fi
 
-echo "\$(date): Used subscription link: \$SUBSCRIBE_URL" >> "\$LOG_FILE"
+log "Using subscription link: \$SUBSCRIBE_URL"
+log "Attempting to download and update the configuration file..."
 
-echo "\$(date): Attempting to download and update the configuration file..." >> "\$LOG_FILE"
 wget -q -O "\$CONFIG_FILE" "\$SUBSCRIBE_URL" >> "\$LOG_FILE" 2>&1
 
 if [ \$? -eq 0 ]; then
-  echo "\$(date): Configuration file updated successfully, save path: \$CONFIG_FILE" >> "\$LOG_FILE"
+  log "Configuration file updated successfully. Saved to: \$CONFIG_FILE"
 else
-  echo "\$(date): Configuration file update failed, please check the link or network." >> "\$LOG_FILE"
+  log "Configuration file update failed. Please check the link or network."
   exit 1
 fi
 
-sed -i '/"inbounds"/{N;s/"inbounds".*/"inbounds": [{"domain_strategy": "prefer_ipv4", "listen": "127.0.0.1", "listen_port": 2334, "sniff": true, "sniff_override_destination": true, "tag": "mixed-in", "type": "mixed", "users": []}, {"tag": "tun", "type": "tun", "address": ["172.19.0.1/30", "fdfe:dcba:9876::1/126"], "route_address": ["0.0.0.0/1", "128.0.0.0/1", "::/1", "8000::/1"], "route_exclude_address": ["192.168.0.0/16", "fc00::/7"], "stack": "system", "auto_route": true, "strict_route": true, "sniff": true, "platform": {"http_proxy": {"enabled": true, "server": "0.0.0.0", "server_port": 1082}}}, {"tag": "mixed", "type": "mixed", "listen": "0.0.0.0", "listen_port": 1082, "sniff": true}]}"/' "$CONFIG_FILE"
+jq '.inbounds = [
+  {
+    "domain_strategy": "prefer_ipv4",
+    "listen": "127.0.0.1",
+    "listen_port": 2334,
+    "sniff": true,
+    "sniff_override_destination": true,
+    "tag": "mixed-in",
+    "type": "mixed",
+    "users": []
+  },
+  {
+    "tag": "tun",
+    "type": "tun",
+    "address": [
+      "172.19.0.1/30",
+      "fdfe:dcba:9876::1/126"
+    ],
+    "route_address": [
+      "0.0.0.0/1",
+      "128.0.0.0/1",
+      "::/1",
+      "8000::/1"
+    ],
+    "route_exclude_address": [
+      "192.168.0.0/16",
+      "fc00::/7"
+    ],
+    "stack": "system",
+    "auto_route": true,
+    "strict_route": true,
+    "sniff": true,
+    "platform": {
+      "http_proxy": {
+        "enabled": true,
+        "server": "0.0.0.0",
+        "server_port": 1082
+      }
+    }
+  },
+  {
+    "tag": "mixed",
+    "type": "mixed",
+    "listen": "0.0.0.0",
+    "listen_port": 1082,
+    "sniff": true
+  }
+]' "\$CONFIG_FILE" > /tmp/config_temp.json && mv /tmp/config_temp.json "\$CONFIG_FILE"
 
-sed -i '/"experimental"/{N;s/"experimental".*/"experimental": {"clash_api": {"external_ui": "/etc/neko/ui/", "external_controller": "0.0.0.0:9090", "secret": "Akun"}}}/' "$CONFIG_FILE"
+jq '.experimental.clash_api = {
+  "external_ui": "/etc/neko/ui/",
+  "external_controller": "0.0.0.0:9090",
+  "secret": "Akun"
+}' "\$CONFIG_FILE" > /tmp/config_temp.json && mv /tmp/config_temp.json "\$CONFIG_FILE"
 
-echo "$(date): Configuration file content replaced successfully, save path: \$CONFIG_FILE" >> "\$LOG_FILE"
+if [ \$? -eq 0 ]; then
+  log "Configuration file modifications completed successfully."
+else
+  log "Error: Configuration file modification failed."
+  exit 1
+fi
 
 EOL;
 
+        echo "<pre>" . htmlspecialchars($shellScriptContent) . "</pre>";
+
         if (file_put_contents($shellScriptPath, $shellScriptContent) !== false) {
-            chmod($shellScriptPath, 0755);
-            echo "<div class='alert alert-success'>Shell script has been created successfully! Path: $shellScriptPath</div>";
+            chmod($shellScriptPath, 0755); 
+            echo "<div class='alert alert-success'>Shell script created successfully! Path: $shellScriptPath</div>";
         } else {
-            echo "<div class='alert alert-danger'>Unable to create Shell script, please check permissions</div>";
+            echo "<div class='alert alert-danger'>Failed to create Shell script. Please check permissions.</div>";
         }
     }
 }
 ?>
+
 <!doctype html>
 <html lang="en" data-bs-theme="<?php echo substr($neko_theme, 0, -4) ?>">
 <head>
@@ -739,7 +803,7 @@ EOL;
                         <form method="POST">
                             <div class="mb-3">
                                 <label for="cronExpression" class="form-label">Cron expression</label>
-                                <input type="text" class="form-control" id="cronExpression" name="cronExpression"  placeholder="e.g., 0 2 * * *" required>
+                                <input type="text" class="form-control" id="cronExpression" name="cronExpression"  value="0 2 * * *" required>
                             </div>
                             <div class="alert alert-info">
                               <strong>Tip:</strong> Cron expression format:
