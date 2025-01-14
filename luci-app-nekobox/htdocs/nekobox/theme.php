@@ -377,7 +377,7 @@ h1:hover, h2:hover, h3:hover, h4:hover, h5:hover, h6:hover {
     $filePath = $_SERVER['DOCUMENT_ROOT'] . '/nekobox/assets/theme/transparent.css';
     file_put_contents($filePath, $cssContent);
     echo "<script>
-            alert('自定义主题颜色已更新，名称为 transparent.css ，清除浏览器缓存已应用主题 ！');
+            alert('自定义主题已更新，名称为 transparent.css ！');
             window.location.href = 'settings.php';
           </script>";
 } else {
