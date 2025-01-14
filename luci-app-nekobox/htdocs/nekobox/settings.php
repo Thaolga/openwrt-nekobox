@@ -618,7 +618,7 @@ $razordVersion = getRazordVersion();
         <div class="modal-content">
           <div class="modal-header">
             <h5 class="modal-title" id="colorModalLabel">选择主题颜色</h5>
-            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
           </div>
           <div class="modal-body">
             <form method="POST" action="theme.php" id="themeForm" enctype="multipart/form-data">
@@ -678,20 +678,20 @@ $razordVersion = getRazordVersion();
                 <label for="heading6Color" class="form-label">标题颜色6：</label>
                 <input type="color" class="form-control" name="heading6Color" id="heading6Color" value="#00ffff">
               </div>
-              <button type="submit" class="btn btn-success">保存主题</button>
-              <button type="button" class="btn btn-info" id="resetButton">恢复默认值</button>
+              <button type="submit" class="btn btn-primary">保存主题</button>
+              <button type="button" class="btn btn-success" id="resetButton">恢复默认值</button>
             </form>
           </div>
         </div>
       </div>
     </div>
 
-<div class="modal fade" id="filesModal" tabindex="-1" aria-labelledby="filesModalLabel" aria-hidden="true">
+<div class="modal fade" id="filesModal" tabindex="-1" aria-labelledby="filesModalLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
   <div class="modal-dialog modal-xl">
     <div class="modal-content">
       <div class="modal-header">
         <h5 class="modal-title" id="filesModalLabel">上传并管理背景图片</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
       </div>
       
       <div class="modal-body">
