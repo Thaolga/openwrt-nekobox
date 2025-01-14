@@ -686,11 +686,12 @@ $razordVersion = getRazordVersion();
 </div>
 
 <h2>上传的图片文件</h2>
-<table class="table table-bordered">
+<table class="table table-bordered text-center">
   <thead>
     <tr>
       <th>文件名</th>
       <th>文件大小</th>
+      <th>预览</th>
       <th>操作</th>
     </tr>
   </thead>
@@ -703,10 +704,14 @@ $razordVersion = getRazordVersion();
             $filePath = $picturesDir . $file;
             if (is_file($filePath)) {
                 $fileSize = filesize($filePath);
+                $fileUrl = '/nekobox/assets/Pictures/' . $file;
                 echo "<tr>
-                        <td>$file</td>
-                        <td>" . formatSize($fileSize) . "</td>
-                        <td><a href='?delete=$file' class='btn btn-danger btn-sm'>删除</a></td>
+                        <td class='align-middle'>$file</td>
+                        <td class='align-middle'>" . formatSize($fileSize) . "</td> 
+                        <td class='align-middle'><img src='$fileUrl' alt='$file' style='width: 100px; height: auto;'></td> 
+                        <td class='align-middle'>
+                          <a href='?delete=$file' class='btn btn-danger btn-sm'>删除</a>
+                        </td> 
                       </tr>";
             }
         }
