@@ -135,6 +135,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       color: #ffffff;
     }
 
+    .container-bg {
+      border-radius: 12px;
+      box-shadow: var(--bs-shadow-medium);
+      padding: 2rem;
+      margin-top: 2rem;
+      margin-bottom: 2rem;
+    }
+
     button, .btn-warning, .btn-info, .card, .modal-content { transition: transform 0.2s ease, box-shadow 0.2s ease; }
     button:active, .btn-warning:active, .btn-info:active, .card:active, .modal-content:active { transform: translateY(-6px); box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2); }
     button:hover, .btn-warning:hover, .btn-info:hover, .card:hover, .modal-content:hover { transform: translateY(-6px); box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1); }
