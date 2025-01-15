@@ -211,8 +211,15 @@ $razordVersion = getRazordVersion();
                 </select>
             </div>
             <div class="col-12 col-md-6 mb-3" style="padding-right: 1.3rem;" >
-                <div class="d-grid">
+                <div class="d-flex justify-content-between gap-2">
                     <input class="btn btn-info btn-custom" type="submit" value="🖫 Change Theme">
+                    <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#colorModal">
+                        Theme Editor
+                    </button>
+                    
+                    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#filesModal">
+                        Upload Background Image
+                    </button>
                 </div>
             </div>
         </div>
@@ -247,7 +254,7 @@ $razordVersion = getRazordVersion();
                 </tr>
                 <tr>
                     <td class="text-center">
-                        <button class="btn btn-pink" id="checkCliverButton">🔍 Detect</button>
+                        <button class="btn btn-pink me-1" id="checkCliverButton">🔍 Detect</button>
                         <button class="btn btn-info" id="updateButton" title="Update to Latest Version" onclick="showVersionTypeModal()">🔄 Update</button>
                     </td>
                 </tr>
@@ -269,7 +276,7 @@ $razordVersion = getRazordVersion();
                 </tr>
                 <tr>
                     <td class="text-center">
-                        <button class="btn btn-pink" id="checkUiButton">🔍 Detect</button>
+                        <button class="btn btn-pink me-1" id="checkUiButton">🔍 Detect</button>
                         <button class="btn btn-info" id="updateUiButton" title="Update Panel" onclick="showPanelSelector()">🔄 Update</button>
                     </td>
                 </tr>
@@ -295,7 +302,7 @@ $razordVersion = getRazordVersion();
                 </tr>
                 <tr>
                     <td class="text-center">
-                        <button class="btn btn-pink" id="checkSingboxButton">🔍 Detect</button>
+                        <button class="btn btn-pink me-1" id="checkSingboxButton">🔍 Detect</button>
                         <button class="btn btn-info" id="singboxOptionsButton" title="Singbox Related Operations">🔄 Update</button>
                     </td>
                 </tr>
@@ -317,7 +324,7 @@ $razordVersion = getRazordVersion();
                 </tr>
                 <tr>
                     <td class="text-center">
-                        <button class="btn btn-pink" id="checkMihomoButton">🔍 Detect</button>
+                        <button class="btn btn-pink me-1" id="checkMihomoButton">🔍 Detect</button>
                         <button class="btn btn-info" id="updateCoreButton" title="Update Mihomo Core" onclick="showMihomoVersionSelector()">🔄 Update</button>
                     </td>
                 </tr>
@@ -582,7 +589,250 @@ $razordVersion = getRazordVersion();
         </div>
     </div>
 </div>
+<div class="modal fade" id="colorModal" tabindex="-1" aria-labelledby="colorModalLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+  <div class="modal-dialog modal-xl">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="colorModalLabel">Select Theme Color</h5>
+        <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+      </div>
+      <div class="modal-body">
+        <form method="POST" action="theme.php" id="themeForm" enctype="multipart/form-data">
+          <div class="row">
+            <div class="col-md-6 mb-3">
+              <label for="primaryColor" class="form-label">Primary Color</label>
+              <input type="color" class="form-control" name="primaryColor" id="primaryColor" value="#ffcc00">
+            </div>
+            <div class="col-md-6 mb-3">
+              <label for="secondaryColor" class="form-label">Secondary Color</label>
+              <input type="color" class="form-control" name="secondaryColor" id="secondaryColor" value="#00ffff">
+            </div>
+            <div class="col-md-6 mb-3">
+              <label for="bodyBgColor" class="form-label">Main Background Color</label>
+              <input type="color" class="form-control" name="bodyBgColor" id="bodyBgColor" value="#087990">
+            </div>
+            <div class="col-md-6 mb-3">
+              <label for="infoBgSubtle" class="form-label">Info Background Color</label>
+              <input type="color" class="form-control" name="infoBgSubtle" id="infoBgSubtle" value="#6a5acd">
+            </div>
+            <div class="col-md-6 mb-3">
+              <label for="primaryBorderSubtle" class="form-label">Primary Border Color</label>
+              <input type="color" class="form-control" name="primaryBorderSubtle" id="primaryBorderSubtle" value="#87ceeb">
+            </div>
+            <div class="col-md-6 mb-3">
+              <label for="bodyColor" class="form-label">Text Color 1</label>
+              <input type="color" class="form-control" name="bodyColor" id="bodyColor" value="#ffff00">
+            </div>
+            <div class="col-md-6 mb-3">
+              <label for="tertiaryColor" class="form-label">Text Color 2</label>
+              <input type="color" class="form-control" name="tertiaryColor" id="tertiaryColor" value="#00ff00">
+            </div>
+            <div class="col-md-6 mb-3">
+              <label for="tertiaryRgbColor" class="form-label">Text Color 3</label>
+              <input type="color" class="form-control" name="tertiaryRgbColor" id="tertiaryRgbColor" value="#1e90ff">
+            </div>
+            <div class="col-md-6 mb-3">
+              <label for="heading1Color" class="form-label">Heading 1</label>
+              <input type="color" class="form-control" name="heading1Color" id="heading1Color" value="#00a2e8">
+            </div>
+            <div class="col-md-6 mb-3">
+              <label for="heading2Color" class="form-label">Heading 2</label>
+              <input type="color" class="form-control" name="heading2Color" id="heading2Color" value="#00a2e8">
+            </div>
+            <div class="col-md-6 mb-3">
+              <label for="heading3Color" class="form-label">Heading 3</label>
+              <input type="color" class="form-control" name="heading3Color" id="heading3Color" value="#ffcc00">
+            </div>
+            <div class="col-md-6 mb-3">
+              <label for="heading4Color" class="form-label">Heading 4</label>
+              <input type="color" class="form-control" name="heading4Color" id="heading4Color" value="#ff4500">
+            </div>
+            <div class="col-md-6 mb-3">
+              <label for="heading5Color" class="form-label">Heading 5</label>
+              <input type="color" class="form-control" name="heading5Color" id="heading5Color" value="#7d5fff">
+            </div>
+            <div class="col-md-6 mb-3">
+              <label for="heading6Color" class="form-label">Heading 6</label>
+              <input type="color" class="form-control" name="heading6Color" id="heading6Color" value="#00ffff">
+            </div>
+          </div>
 
+          <div class="mb-3 form-check">
+            <input type="checkbox" class="form-check-input" id="useBackgroundImage" name="useBackgroundImage">
+            <label class="form-check-label" for="useBackgroundImage">Use Custom Background Image</label>
+          </div>
+
+          <div class="mb-3" id="backgroundImageContainer" style="display:none;">
+            <label for="backgroundImage" class="form-label">Select Background Image</label>
+            <select class="form-select" id="backgroundImage" name="backgroundImage">
+              <option value="">Please select an image</option>
+              <?php
+              $dir = $_SERVER['DOCUMENT_ROOT'] . '/nekobox/assets/Pictures/';
+              $files = array_diff(scandir($dir), array('..', '.')); 
+              foreach ($files as $file) {
+                  if (in_array(strtolower(pathinfo($file, PATHINFO_EXTENSION)), ['jpg', 'jpeg', 'png'])) {
+                      echo "<option value='/nekobox/assets/Pictures/$file'>$file</option>";
+                  }
+              }
+              ?>
+            </select>
+          </div>
+
+          <button type="submit" class="btn btn-primary  me-2">Save Theme</button>
+          <button type="button" class="btn btn-success  me-2" id="resetButton">Restore Default Values</button>
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+    document.getElementById('useBackgroundImage').addEventListener('change', function() {
+        const container = document.getElementById('backgroundImageContainer');
+        container.style.display = this.checked ? 'block' : 'none';
+    });
+</script>
+
+<div class="modal fade" id="filesModal" tabindex="-1" aria-labelledby="filesModalLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+  <div class="modal-dialog modal-xl">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="filesModalLabel">Upload and Manage Background Image</h5>
+        <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+      </div>
+      
+      <div class="modal-body">
+        <div class="mb-4">
+          <h2 class="mb-3">Upload Background Image</h2>
+          <form method="POST" action="theme.php" enctype="multipart/form-data">
+            <input type="file" class="form-control mb-3" name="imageFile" id="imageFile">
+            <button type="submit" class="btn btn-success" id="submitBtn">Upload Image</button>
+          </form>
+        </div>
+
+        <h2 class="mb-3">Uploaded Image Files</h2>
+        <table class="table table-bordered text-center">
+          <thead>
+            <tr>
+              <th>File Name</th>
+              <th>File Size</th>
+              <th>Preview</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <?php
+            $picturesDir = $_SERVER['DOCUMENT_ROOT'] . '/nekobox/assets/Pictures/';
+            if (is_dir($picturesDir)) {
+                $files = array_diff(scandir($picturesDir), array('..', '.'));
+                foreach ($files as $file) {
+                    $filePath = $picturesDir . $file;
+                    if (is_file($filePath)) {
+                        $fileSize = filesize($filePath);
+                        $fileUrl = '/nekobox/assets/Pictures/' . $file;
+                        echo "<tr>
+                                <td class='align-middle'>$file</td>
+                                <td class='align-middle'>" . formatSize($fileSize) . "</td>
+                                <td class='align-middle'><img src='$fileUrl' alt='$file' style='width: 100px; height: auto;'></td>
+                                <td class='align-middle'>
+                                  <a href='?delete=$file' class='btn btn-danger btn-sm'>Delete</a>
+                                </td>
+                              </tr>";
+                    }
+                }
+            }
+            ?>
+          </tbody>
+        </table>
+      </div>
+   <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+      </div>
+    </div>
+  </div>
+</div>
+<?php
+if (isset($_GET['delete'])) {
+    $fileToDelete = $_GET['delete'];
+    $filePath = $picturesDir . $fileToDelete;
+    if (file_exists($filePath)) {
+        unlink($filePath); 
+        echo '<script>window.location.href = "settings.php";</script>';
+        exit;
+    }
+}
+
+function formatSize($size) {
+    if ($size >= 1073741824) {
+        return number_format($size / 1073741824, 2) . ' GB';
+    } elseif ($size >= 1048576) {
+        return number_format($size / 1048576, 2) . ' MB';
+    } elseif ($size >= 1024) {
+        return number_format($size / 1024, 2) . ' KB';
+    } else {
+        return $size . ' bytes';
+    }
+}
+?>
+  </tbody>
+</table>
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+    const colorInputs = document.querySelectorAll('input[type="color"]');
+    
+    colorInputs.forEach(input => {
+      if (localStorage.getItem(input.name)) {
+        input.value = localStorage.getItem(input.name);
+      }
+
+      input.addEventListener('input', function() {
+        localStorage.setItem(input.name, input.value);
+      });
+    });
+
+    const useBackgroundImageCheckbox = document.getElementById('useBackgroundImage');
+    const backgroundImageContainer = document.getElementById('backgroundImageContainer');
+
+    const savedBackgroundImageState = localStorage.getItem('useBackgroundImage');
+    if (savedBackgroundImageState === 'true') {
+      useBackgroundImageCheckbox.checked = true;
+      backgroundImageContainer.style.display = 'block';
+    } else {
+      useBackgroundImageCheckbox.checked = false;
+      backgroundImageContainer.style.display = 'none';
+    }
+
+    useBackgroundImageCheckbox.addEventListener('change', function() {
+      if (useBackgroundImageCheckbox.checked) {
+        backgroundImageContainer.style.display = 'block';
+      } else {
+        backgroundImageContainer.style.display = 'none';
+      }
+
+      localStorage.setItem('useBackgroundImage', useBackgroundImageCheckbox.checked);
+    });
+
+    document.getElementById('resetButton').addEventListener('click', function() {
+      document.getElementById('primaryColor').value = '#ffcc00';
+      document.getElementById('secondaryColor').value = '#00ffff';
+      document.getElementById('bodyBgColor').value = '#087990';
+      document.getElementById('bodyColor').value = '#ffff00';
+      document.getElementById('infoBgSubtle').value = '#6a5acd';
+      document.getElementById('primaryBorderSubtle').value = '#87ceeb';
+      document.getElementById('tertiaryColor').value = '#00ff00';
+      document.getElementById('tertiaryRgbColor').value = '#1e90ff';
+      document.getElementById('heading1Color').value = '#00a2e8';
+      document.getElementById('heading2Color').value = '#00a2e8';
+      document.getElementById('heading3Color').value = '#ffcc00';
+      document.getElementById('heading4Color').value = '#ff4500';
+      document.getElementById('heading5Color').value = '#7d5fff';
+      document.getElementById('heading6Color').value = '#00ffff';
+      
+      localStorage.clear();
+    });
+  });
+</script>
 <style>
     @media (max-width: 767px) {
         .table td {
