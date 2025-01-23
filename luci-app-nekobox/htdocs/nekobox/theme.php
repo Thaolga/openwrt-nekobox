@@ -170,6 +170,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         color: white !important; 
     }
 
+    table.table tbody td:nth-child(2) a {
+        color: #FF00FF !important; 
+    }
+
     .btn-outline-secondary i {
         color: white; 
     }
