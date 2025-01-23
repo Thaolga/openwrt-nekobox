@@ -155,6 +155,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       color: #00FFFF !important; 
     }
 
+    table.table tbody td:nth-child(5), 
+    table.table tbody td:nth-child(6),
+    table.table tbody td:nth-child(7) 
+        color: white; 
+    }
+
+    .btn-outline-secondary i {
+        color: white; 
+    }
+
     button {
       background-color: var(--bs-primary);
       border: 1px solid rgba(255, 255, 255, 0.5);
