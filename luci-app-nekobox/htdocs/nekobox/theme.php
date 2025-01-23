@@ -155,11 +155,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       color: #00FFFF !important; 
     }
 
-    table.table,
-    table.table thead,
-    table.table tbody,
     table.table tr,
-    table.table th,
     table.table td {
         background-color: transparent !important; 
     }
