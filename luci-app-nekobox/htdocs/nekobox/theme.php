@@ -174,6 +174,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         color: white; 
     }
 
+    table.table tbody td:nth-child(2) a {
+        color: #FF00FF !important; 
+    }
+
     button {
       background-color: var(--bs-primary);
       border: 1px solid rgba(255, 255, 255, 0.5);
