@@ -1075,7 +1075,6 @@ if(typeof checkSiteStatus !== 'undefined') {
 setInterval(IP.getIpipnetIP, 180000);
 </script>
 
-<div id="snow-container"></div>  
 <script>
 window.addEventListener('load', function() {
     let snowContainer = document.querySelector('#snow-container');
