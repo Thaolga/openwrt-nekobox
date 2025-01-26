@@ -213,13 +213,15 @@ $razordVersion = getRazordVersion();
             </div>
             <div class="col-12 col-md-6 mb-3" style="padding-right: 1.3rem;" >
                 <div class="d-flex justify-content-between gap-2">
-                    <input class="btn btn-info btn-custom" type="submit" value="🖫 Change Theme">
+                    <button class="btn btn-info btn-custom" type="submit">
+                        <i class="bi bi-paint-bucket"></i> Change Theme
+                    </button>
                     <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#colorModal">
-                        Theme Editor
+                        <i class="bi-palette"></i> Theme Editor
                     </button>
                     
                     <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#filesModal">
-                        Upload Background Image
+                        <i class="bi-upload"></i> Upload Background Image
                     </button>
                 </div>
             </div>
