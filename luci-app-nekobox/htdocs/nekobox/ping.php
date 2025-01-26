@@ -815,22 +815,66 @@ window.addEventListener('load', function() {
     let songs = [];  
     let currentSongIndex = 0;  
     let isPlaying = false;  
-    let isReportingTime = false;  
+    let isReportingTime = false; 
+    let isLooping = false; 
+    let hasModalShown = false;
+
+    const logBox = document.createElement('div');
+    logBox.style.position = 'fixed';
+    logBox.style.top = '90%';  
+    logBox.style.left = '20px';
+    logBox.style.padding = '10px';
+    logBox.style.backgroundColor = 'green';
+    logBox.style.color = 'white';
+    logBox.style.borderRadius = '5px';
+    logBox.style.zIndex = '9999';
+    logBox.style.maxWidth = '250px'; 
+    logBox.style.fontSize = '14px';
+    logBox.style.display = 'none'; 
+    logBox.style.maxWidth = '300px';  
+    logBox.style.wordWrap = 'break-word'; 
+    document.body.appendChild(logBox);
+
+    function showLogMessage(message) {
+        logBox.textContent = message;
+        logBox.style.display = 'block';
+        logBox.style.animation = 'scrollUp 8s ease-out forwards'; 
+        logBox.style.width = 'auto'; 
+        logBox.style.maxWidth = '300px'; 
+
+        setTimeout(() => {
+            logBox.style.display = 'none';
+        }, 8000); 
+    }
+
+    const styleSheet = document.createElement('style');
+    styleSheet.innerHTML = `
+        @keyframes scrollUp {
+            0% {
+                top: 90%;
+            }
+            100% {
+                top: 50%;
+            }
+        }
+    `;
+    document.head.appendChild(styleSheet);
 
     function loadDefaultPlaylist() {
         fetch('https://raw.githubusercontent.com/Thaolga/Rules/main/Clash/songs.txt')
             .then(response => {
                 if (!response.ok) {
-                    throw new Error('Failed to load the playlist');
+                    throw new Error('Failed to load playlist');
                 }
                 return response.text();
             })
             .then(data => {
                 songs = data.split('\n').filter(url => url.trim() !== ''); 
                 if (songs.length === 0) {
-                    throw new Error('No valid songs');
+                    throw new Error('No valid songs in the playlist');
                 }
                 console.log('Playlist loaded:', songs);
+                restorePlayerState(); 
             })
             .catch(error => {
                 console.error('Error loading playlist:', error.message);
@@ -840,40 +884,110 @@ window.addEventListener('load', function() {
     function loadSong(index) {
         if (index >= 0 && index < songs.length) {
             audioPlayer.src = songs[index];  
+            audioPlayer.addEventListener('loadedmetadata', () => {
+                const savedState = JSON.parse(localStorage.getItem('playerState'));
+                if (savedState && savedState.currentSongIndex === index) {
+                    audioPlayer.currentTime = savedState.currentTime || 0; 
+                    if (savedState.isPlaying) {
+                        audioPlayer.play().catch(error => {
+                            console.error('Failed to resume playback:', error);
+                        });
+                    }
+                }
+            }, { once: true }); 
         }
     }
 
-    document.addEventListener('dblclick', function() {
+    document.addEventListener('dblclick', function () {
         if (!isPlaying) {
             loadSong(currentSongIndex);
             audioPlayer.play().then(() => {
                 isPlaying = true;
-                console.log('Started playing');
+                savePlayerState(); 
+                console.log('Playback started');
             }).catch(error => {
-                console.log('Failed to play:', error);
+                console.log('Playback failed:', error);
             });
         } else {
             audioPlayer.pause();
             isPlaying = false;
-            console.log('Paused playing');
+            savePlayerState(); 
+            console.log('Playback paused');
         }
     });
 
-    document.addEventListener('keydown', function(event) {
-        if (event.key === 'ArrowLeft') {
-            currentSongIndex = (currentSongIndex - 1 + songs.length) % songs.length;
+    window.addEventListener('keydown', function (event) {
+        if (event.key === 'ArrowUp') {
+            currentSongIndex = (currentSongIndex - 1 + songs.length) % songs.length; 
             loadSong(currentSongIndex);
+            savePlayerState(); 
             if (isPlaying) {
                 audioPlayer.play();  
             }
-        } else if (event.key === 'ArrowRight') {
-            currentSongIndex = (currentSongIndex + 1) % songs.length;
+            const songName = getSongName(songs[currentSongIndex]); 
+            showLogMessage(`Previous track：${songName}`);
+        } else if (event.key === 'ArrowDown') {
+            currentSongIndex = (currentSongIndex + 1) % songs.length; 
             loadSong(currentSongIndex);
+            savePlayerState();
             if (isPlaying) {
-                audioPlayer.play();  
+                audioPlayer.play();
+            }
+            const songName = getSongName(songs[currentSongIndex]); 
+            showLogMessage(`Next track：${songName}`);
+        } else if (event.key === 'ArrowLeft') {
+            audioPlayer.currentTime = Math.max(audioPlayer.currentTime - 10, 0); 
+            console.log('Rewind 10 seconds');
+            savePlayerState();
+            showLogMessage('Rewind 10 seconds');
+        } else if (event.key === 'ArrowRight') {
+            audioPlayer.currentTime = Math.min(audioPlayer.currentTime + 10, audioPlayer.duration || Infinity); 
+            console.log('Fast forward 10 seconds');
+            savePlayerState();
+            showLogMessage('Fast forward 10 seconds');
+        } else if (event.key === 'Escape') { 
+            localStorage.removeItem('playerState');
+            currentSongIndex = 0;
+            loadSong(currentSongIndex);
+            savePlayerState();
+            console.log('Reset to the first track');
+            showLogMessage('Reset to the first track');
+            if (isPlaying) {
+                audioPlayer.play();
+            }
+        } else if (event.key === ' ') { 
+            if (isPlaying) {
+                audioPlayer.pause();
+                isPlaying = false;
+                savePlayerState(); 
+                console.log('Playback paused');
+                showLogMessage('Playback paused');
+            } else {
+                audioPlayer.play().then(() => {
+                    isPlaying = true;
+                    savePlayerState(); 
+                    console.log('Playback started');
+                    showLogMessage('Playback started');
+                }).catch(error => {
+                    console.log('Playback failed:', error);
+                });
+            }
+        } else if (event.key === 'F2') { 
+            isLooping = !isLooping;
+            if (isLooping) {
+                console.log('Loop playback');
+                showLogMessage('Loop playback');
+            } else {
+                console.log('Sequential playback');
+                showLogMessage('Sequential playback');
             }
         }
     });
+
+    function getSongName(url) {
+        const pathParts = url.split('/');
+        return pathParts[pathParts.length - 1]; 
+    }
 
     function startHourlyAlert() {
         setInterval(() => {
@@ -896,18 +1010,101 @@ window.addEventListener('load', function() {
         }, 60000); 
     }
 
-    audioPlayer.addEventListener('ended', function() {
-        currentSongIndex = (currentSongIndex + 1) % songs.length;  
-        loadSong(currentSongIndex);  
-        audioPlayer.play(); 
+    audioPlayer.addEventListener('ended', function () {
+        if (isLooping) {
+            loadSong(currentSongIndex); 
+            savePlayerState();
+            audioPlayer.play();
+        } else {
+            currentSongIndex = (currentSongIndex + 1) % songs.length;  
+            loadSong(currentSongIndex);  
+            savePlayerState(); 
+            audioPlayer.play();
+        }
+    });
+
+    function savePlayerState() {
+        const state = {
+            currentSongIndex,       
+            currentTime: audioPlayer.currentTime,
+            isPlaying,
+            isLooping,
+            timestamp: Date.now()
+        };
+        localStorage.setItem('playerState', JSON.stringify(state));
+    }
+
+    function clearExpiredPlayerState() {
+        const state = JSON.parse(localStorage.getItem('playerState'));
+    
+        if (state) {
+            const currentTime = Date.now();
+            const stateAge = currentTime - state.timestamp;  
+
+            const expirationTime = 60 * 60 * 1000;  
+
+            if (stateAge > expirationTime) {
+                localStorage.removeItem('playerState');  
+                console.log('Playback state has expired and has been cleared');
+            }
+        }
+    }
+
+    setInterval(clearExpiredPlayerState, 10 * 60 * 1000);
+
+    function restorePlayerState() {
+        const state = JSON.parse(localStorage.getItem('playerState'));
+        if (state) {
+            currentSongIndex = state.currentSongIndex || 0;
+            isLooping = state.isLooping || false; 
+            loadSong(currentSongIndex);
+            if (state.isPlaying) {
+                isPlaying = true;
+                audioPlayer.currentTime = state.currentTime || 0;
+                audioPlayer.play().catch(error => {
+                    console.error('Failed to resume playback:', error);
+                });
+            }
+        }
+    }
+
+    document.addEventListener('dblclick', function () {
+        if (!hasModalShown) {  
+            const modal = new bootstrap.Modal(document.getElementById('keyHelpModal'));
+            modal.show();
+            hasModalShown = true;  
+        }
     });
 
     loadDefaultPlaylist();
     startHourlyAlert();
+    restorePlayerState(); 
 </script>
+
+<div class="modal fade" id="keyHelpModal" tabindex="-1" aria-labelledby="keyHelpModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="keyHelpModalLabel">Keyboard Shortcuts</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <ul>
+                    <li><strong>Spacebar:</strong> Play/Pause</li>
+                    <li><strong>Up/Down Arrow Keys:</strong> Switch to the previous/next track</li>
+                    <li><strong>Left/Right Arrow Keys:</strong> Fast forward/rewind 10 seconds</li>
+                    <li><strong>ESC Key:</strong> Return to the first track</li>
+                    <li><strong>F2 Key:</strong> Toggle between repeat and sequential play</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
 
 <script>
     const websites = [
+        'https://www.cloudflare.com/', 
+        'https://openai.com/',
         'https://www.youtube.com/',
         'https://www.google.com/',
         'https://www.facebook.com/',
@@ -923,6 +1120,8 @@ window.addEventListener('load', function() {
 
     function getWebsiteStatusMessage(url, status) {
         const statusMessages = {
+            'https://www.cloudflare.com/': status ? 'Cloudflare website is accessible.' : 'Unable to access Cloudflare website, please check the network connection.',
+            'https://openai.com/': status ? 'OpenAI website is accessible.' : 'Unable to access OpenAI website, please check the network connection.',
             'https://www.youtube.com/': status ? 'YouTube website is accessible.' : 'Unable to access YouTube website, please check the network connection.',
             'https://www.google.com/': status ? 'Google website is accessible.' : 'Unable to access Google website, please check the network connection.',
             'https://www.facebook.com/': status ? 'Facebook website is accessible.' : 'Unable to access Facebook website, please check the network connection.',
@@ -954,6 +1153,11 @@ window.addEventListener('load', function() {
                 });
         });
     }
+
+    setInterval(() => {
+        speakMessage('Starting website connectivity detection...');
+        checkWebsiteAccess(websites);  
+    }, 3600000);  
 
     let isDetectionStarted = false;
 
