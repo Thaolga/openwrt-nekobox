@@ -433,23 +433,51 @@ let IP = {
                 displayASN = '';  
             }
 
-            let locationInfo = `<span style="margin-left: 8px;">${location} ${displayISP} ${data.asn || ''} ${displayASN}</span>`;
+            let locationInfo = `<span style="margin-left: 8px; position: relative; top: -4px;">${location} ${displayISP} ${data.asn || ''} ${displayASN}</span>`;
+
+            const isHidden = localStorage.getItem("ipHidden") === "true";
 
             let simpleDisplay = `
-                <div class="ip-main" style="cursor: pointer;" onclick="IP.showDetailModal()" title="Click to view IP details">
-                    ${cachedIP} <span class="badge badge-primary" style="color: #333;">${country}</span>
-                </div>`;
+                <div class="ip-main" style="cursor: pointer; position: relative; top: -4px;" onclick="IP.showDetailModal()" title="Click to view IP details">
+                    <div style="display: flex; align-items: center; justify-content: flex-start; gap: 10px; ">
+                        <div style="display: flex; align-items: center; gap: 5px;">
+                            <span id="ip-address">${isHidden ? '***.***.***.***.***' : cachedIP}</span> 
+                            <span class="badge badge-primary" style="color: #333;">${country}</span>
+                        </div>
+                    </div>
+                </div>
+                <span id="toggle-ip" style="cursor: pointer; position: relative; top: -3px;  text-indent: 1ch; padding-top: 2px;" title="Click to hide/show IP">
+                    <i class="fa ${isHidden ? 'bi-eye-slash' : 'bi-eye'}"></i>  
+                </span>
+            `;
 
             document.getElementById('d-ip').innerHTML = simpleDisplay;
             document.getElementById('ipip').innerHTML = locationInfo;
 
             const countryCode = data.country_code || 'unknown';
-            const flagSrc = (countryCode !== 'unknown') ? _IMG + "flags/" + countryCode.toLowerCase() + ".png" : './assets/neko/flags/cn.png';
+            const flagSrc = (countryCode === 'TW') ? _IMG + "flags/cn.png"  : (countryCode !== 'unknown') ? _IMG + "flags/" + countryCode.toLowerCase() + ".png"  : './assets/neko/flags/cn.png';
             $("#flag").attr("src", flagSrc);
+
+            document.getElementById('toggle-ip').addEventListener('click', () => {
+                const ipElement = document.getElementById('ip-address');
+                const iconElement = document.getElementById('toggle-ip').querySelector('i');
+
+                if (ipElement.textContent === cachedIP) {
+                    ipElement.textContent = '***.***.***.***.***';
+                    iconElement.classList.remove('bi-eye');
+                    iconElement.classList.add('bi-eye-slash');  
+                    localStorage.setItem("ipHidden", "true");  
+                } else {
+                    ipElement.textContent = cachedIP;  
+                    iconElement.classList.remove('bi-eye-slash');
+                    iconElement.classList.add('bi-eye');  
+                    localStorage.setItem("ipHidden", "false");  
+                }
+            });
 
         } catch (error) {
             console.error("Error in updateUI:", error);
-            document.getElementById('d-ip').innerHTML = "The IP information update failed";
+            document.getElementById('d-ip').innerHTML = "Failed to update IP information";
             $("#flag").attr("src", "./assets/neko/flags/mo.png");
         }
     },
