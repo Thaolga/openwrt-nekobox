@@ -726,7 +726,7 @@ $razordVersion = getRazordVersion();
           </div>
             <div class="mb-3 form-check">
               <input type="checkbox" class="form-check-input" id="enableSnowEffect" name="enableSnowEffect" <?php echo $enableSnow ? 'checked' : ''; ?>>
-              <label class="form-check-label" for="enableSnowEffect">启用雪花动画（右上角会提示勾选状态有显示问题清除浏览器缓存）</label>
+              <label class="form-check-label" for="enableSnowEffect">启用雪花动画（启用会生成动画CSS，禁用必须二次勾选禁用开关，无需保存主题，右上角会提示勾选状态有显示问题清除浏览器缓存）</label>
           </div>
           <div class="mb-3 form-check">
             <input type="checkbox" class="form-check-input" id="useBackgroundImage" name="useBackgroundImage">
