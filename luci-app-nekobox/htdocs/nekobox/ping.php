@@ -732,20 +732,20 @@ let IP = {
                 displayASN = '';  
             }
 
-            let locationInfo = `<span style="margin-left: 8px;">${location} ${displayISP} ${data.asn || ''} ${displayASN}</span>`;
+            let locationInfo = `<span style="margin-left: 8px; position: relative; top: -4px;">${location} ${displayISP} ${data.asn || ''} ${displayASN}</span>`;
 
             const isHidden = localStorage.getItem("ipHidden") === "true";
 
             let simpleDisplay = `
-                <div class="ip-main" style="cursor: pointer;" onclick="IP.showDetailModal()" title="点击查看 IP 详细信息">
-                    <div style="display: flex; align-items: center; justify-content: flex-start; gap: 10px; margin-bottom: 5px;">
+                <div class="ip-main" style="cursor: pointer; position: relative; top: -4px;" onclick="IP.showDetailModal()" title="点击查看 IP 详细信息">
+                    <div style="display: flex; align-items: center; justify-content: flex-start; gap: 10px; ">
                         <div style="display: flex; align-items: center; gap: 5px;">
                             <span id="ip-address">${isHidden ? '***.***.***.***.***' : cachedIP}</span> 
                             <span class="badge badge-primary" style="color: #333;">${country}</span>
                         </div>
                     </div>
                 </div>
-                <span id="toggle-ip" style="cursor: pointer; position: relative; text-indent: 1ch;" title="点击隐藏/显示 IP">
+                <span id="toggle-ip" style="cursor: pointer; position: relative; top: -3px;  text-indent: 1ch; padding-top: 2px;" title="点击隐藏/显示 IP">
                     <i class="fa ${isHidden ? 'bi-eye-slash' : 'bi-eye'}"></i>  
                 </span>
             `;
