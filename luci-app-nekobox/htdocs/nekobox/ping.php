@@ -1287,7 +1287,7 @@ window.addEventListener('load', function() {
             if (isPlaying) {
                 audioPlayer.play();
             }
-        } else if (event.key === ' ') { 
+        } else if (event.key === 'F9 ') { 
             if (isPlaying) {
                 audioPlayer.pause();
                 isPlaying = false;
