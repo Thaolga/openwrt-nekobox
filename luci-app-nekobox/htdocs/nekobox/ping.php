@@ -744,7 +744,7 @@ let IP = {
                     </div>
 
                     <span id="toggle-ip" style="cursor: pointer;" title="点击隐藏/显示 IP">
-                        <i class="fa ${isHidden ? 'bi bi-eye-slash' : 'bi bi-eye'}"></i>  
+                        <i class="fa ${isHidden ? 'bi-eye-slash' : 'bi-eye'}"></i>  
                     </span>
                 </div>`;
 
@@ -761,13 +761,13 @@ let IP = {
 
                 if (ipElement.textContent === cachedIP) {
                     ipElement.textContent = '***.***.***.***.***';
-                    iconElement.classList.remove('bi bi-eye');
-                    iconElement.classList.add('bi bi-eye-slash');  
+                    iconElement.classList.remove('bi-eye');
+                    iconElement.classList.add('bi-eye-slash');  
                     localStorage.setItem("ipHidden", "true");  
                 } else {
                     ipElement.textContent = cachedIP;  
-                    iconElement.classList.remove('bi bi-eye-slash');
-                    iconElement.classList.add('bi bi-eye');  
+                    iconElement.classList.remove('bi-eye-slash');
+                    iconElement.classList.add('bi-eye');  
                     localStorage.setItem("ipHidden", "false");  
                 }
             });
