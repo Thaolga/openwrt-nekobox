@@ -1177,6 +1177,7 @@ window.addEventListener('load', function() {
                     requestsCompleted++;
                     if (requestsCompleted === urls.length) {
                         speakMessage(statusMessages.join(' '));  
+                        speakMessage('The website check is complete');  
                     }
                 });
         });
