@@ -737,16 +737,18 @@ let IP = {
             const isHidden = localStorage.getItem("ipHidden") === "true";
 
             let simpleDisplay = `
-                <div style="display: flex; align-items: center; justify-content: flex-start; gap: 10px; padding-left: 5px; margin-bottom: 5px;">
-                    <div style="display: flex; align-items: center; gap: 5px;">
-                        <span id="ip-address">${isHidden ? '***.***.***.***.***' : cachedIP}</span> 
-                        <span class="badge badge-primary" style="color: #333;">${country}</span>
+                <div class="ip-main" style="cursor: pointer;" onclick="IP.showDetailModal()" title="点击查看 IP 详细信息">
+                    <div style="display: flex; align-items: center; justify-content: flex-start; gap: 10px; margin-bottom: 5px;">
+                        <div style="display: flex; align-items: center; gap: 5px;">
+                            <span id="ip-address">${isHidden ? '***.***.***.***.***' : cachedIP}</span> 
+                            <span class="badge badge-primary" style="color: #333;">${country}</span>
+                        </div>
                     </div>
-
-                    <span id="toggle-ip" style="cursor: pointer;" title="点击隐藏/显示 IP">
-                        <i class="fa ${isHidden ? 'bi-eye-slash' : 'bi-eye'}"></i>  
-                    </span>
-                </div>`;
+                </div>
+                <span id="toggle-ip" style="cursor: pointer; position: relative; text-indent: 1ch;" title="点击隐藏/显示 IP">
+                    <i class="fa ${isHidden ? 'bi-eye-slash' : 'bi-eye'}"></i>  
+                </span>
+            `;
 
             document.getElementById('d-ip').innerHTML = simpleDisplay;
             document.getElementById('ipip').innerHTML = locationInfo;
