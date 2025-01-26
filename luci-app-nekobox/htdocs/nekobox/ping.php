@@ -1422,7 +1422,7 @@ window.addEventListener('load', function() {
             </div>
             <div class="modal-body">
                 <ul>
-                    <li><strong>空格键:</strong> 播放/暂停</li>
+                    <li><strong>F9键:</strong> 播放/暂停</li>
                     <li><strong>箭头上下键:</strong> 切换上一首/下一首</li>
                     <li><strong>箭头左右键:</strong> 快进/快退 10 秒</li>
                     <li><strong>ESC键:</strong> 恢复到第一首</li>
