@@ -742,7 +742,7 @@ let IP = {
             document.getElementById('ipip').innerHTML = locationInfo;
 
             const countryCode = data.country_code || 'unknown';
-            const flagSrc = (countryCode !== 'unknown') ? _IMG + "flags/" + countryCode.toLowerCase() + ".png" : './assets/neko/flags/cn.png';
+            const flagSrc = (countryCode === 'TW') ? _IMG + "flags/cn.png"  : (countryCode !== 'unknown') ? _IMG + "flags/" + countryCode.toLowerCase() + ".png"  : './assets/neko/flags/cn.png';
             $("#flag").attr("src", flagSrc);
 
         } catch (error) {
