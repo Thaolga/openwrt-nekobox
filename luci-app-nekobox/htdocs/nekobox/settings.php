@@ -792,29 +792,37 @@ $razordVersion = getRazordVersion();
 </script>
 
 <script>
-const tooltip = document.createElement('div');
-tooltip.style.position = 'fixed';
-tooltip.style.top = '10px';
-tooltip.style.left = '10px';
-tooltip.style.backgroundColor = 'rgba(0, 128, 0, 0.7)';  
-tooltip.style.color = 'white';
-tooltip.style.padding = '10px';
-tooltip.style.borderRadius = '5px';
-tooltip.style.zIndex = '9999';
-tooltip.style.display = 'none';  
-document.body.appendChild(tooltip);
+    const tooltip = document.createElement('div');
+    tooltip.style.position = 'fixed';
+    tooltip.style.top = '10px';
+    tooltip.style.left = '10px';
+    tooltip.style.backgroundColor = 'rgba(0, 128, 0, 0.7)';
+    tooltip.style.color = 'white';
+    tooltip.style.padding = '10px';
+    tooltip.style.borderRadius = '5px';
+    tooltip.style.zIndex = '9999';
+    tooltip.style.display = 'none';
+    document.body.appendChild(tooltip);
 
-function showTooltip(message) {
-    tooltip.textContent = message;
-    tooltip.style.display = 'block'; 
-    setTimeout(() => {
-        tooltip.style.display = 'none';  
-    }, 5000);  
-}
+    function showTooltip(message) {
+        tooltip.textContent = message;
+        tooltip.style.display = 'block';
 
-window.onload = function() {
-    showTooltip('双击左键打开播放器，F8键开启网站连通性检测');
-};
+        setTimeout(() => {
+            tooltip.style.display = 'none';
+        }, 5000); 
+    }
+
+    window.onload = function() {
+        const lastShownTime = localStorage.getItem('lastTooltipShownTime'); 
+        const currentTime = new Date().getTime(); 
+
+        if (!lastShownTime || (currentTime - lastShownTime) > 4 * 60 * 60 * 1000) {
+            showTooltip('双击左键打开播放器，F8键开启网站连通性检测');
+
+            localStorage.setItem('lastTooltipShownTime', currentTime);
+        }
+    };
 </script>
 
 <script>
