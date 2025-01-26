@@ -1287,7 +1287,7 @@ window.addEventListener('load', function() {
             if (isPlaying) {
                 audioPlayer.play();
             }
-        } else if (event.key === 'F9 ') { 
+        } else if (event.key === 'F9') { 
             if (isPlaying) {
                 audioPlayer.pause();
                 isPlaying = false;
@@ -1401,10 +1401,17 @@ window.addEventListener('load', function() {
     }
 
     document.addEventListener('dblclick', function () {
-        if (!hasModalShown) {  
-            const modal = new bootstrap.Modal(document.getElementById('keyHelpModal'));
-            modal.show();
-            hasModalShown = true;  
+        const lastShownTime = localStorage.getItem('lastModalShownTime'); 
+        const currentTime = new Date().getTime(); 
+
+        if (!lastShownTime || (currentTime - lastShownTime) > 4 * 60 * 60 * 1000) { 
+            if (!hasModalShown) {  
+                const modal = new bootstrap.Modal(document.getElementById('keyHelpModal'));
+                modal.show();
+                hasModalShown = true;
+
+                localStorage.setItem('lastModalShownTime', currentTime);
+            }
         }
     });
 
@@ -1506,7 +1513,6 @@ window.addEventListener('load', function() {
     });
 
 </script>
-
 
 
 
