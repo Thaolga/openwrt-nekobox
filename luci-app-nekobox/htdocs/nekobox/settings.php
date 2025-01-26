@@ -800,6 +800,26 @@ document.getElementById('enableSnowEffect').addEventListener('change', function(
     xhr.open('POST', 'save_snow_status.php', true);
     xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
     xhr.send('enableSnowEffect=' + (isChecked ? '1' : '0'));
+    
+    var message = isChecked ? 'Enabled' : 'Disabled';
+    console.log(message);
+    
+    var notification = document.createElement('div');
+    notification.style.position = 'fixed';
+    notification.style.top = '10px';
+    notification.style.right = '30px';
+    notification.style.backgroundColor = '#4CAF50';
+    notification.style.color = '#fff';
+    notification.style.padding = '10px';
+    notification.style.borderRadius = '5px';
+    notification.style.zIndex = '9999';
+    notification.innerText = message;
+    
+    document.body.appendChild(notification);
+    
+    setTimeout(function() {
+        notification.style.display = 'none';
+    }, 5000);
 });
 </script>
 
