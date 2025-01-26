@@ -789,7 +789,7 @@ function showTooltip(message) {
 }
 
 window.onload = function() {
-    showTooltip('Double-click the left mouse button to open the player, double-click the right mouse button to start the website connectivity test.');
+    showTooltip('Double-click the left mouse button to open the player, and press F8 to start website connectivity testing.');
 };
 </script>
 
