@@ -117,6 +117,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         font-weight: bold; 
     }
 
+    #lineColumnDisplay, #charCountDisplay {
+        color: white !important; 
+    }
+
     .alert-info {
         color: #FF00FF; 
     }
