@@ -1534,7 +1534,7 @@ document.getElementById('checkSingboxButton').addEventListener('click', function
         finalCompileVersion = singBoxVersion;
     }
 
-    if (singBoxVersion && /alpha|beta/.test(singBoxVersion) && puernyaVersion !== '1.10.0-alpha.29-067c81a7' && !/^v/.test(singBoxVersion)) {
+    if (singBoxVersion && /-.+/.test(singBoxVersion) && puernyaVersion !== '1.10.0-alpha.29-067c81a7' && !/^v/.test(singBoxVersion)) {
         finalPreviewVersion = singBoxVersion;  
     }
 
