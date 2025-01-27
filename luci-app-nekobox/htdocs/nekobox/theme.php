@@ -121,6 +121,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         color: white !important; 
     }
 
+    label[for="newPath"], label[for="permissions"], .form-text {
+        color: white !important;
+    }
+
     .alert-info {
         color: #FF00FF; 
     }
