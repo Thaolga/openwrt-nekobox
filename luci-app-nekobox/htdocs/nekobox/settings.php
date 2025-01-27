@@ -508,7 +508,7 @@ $razordVersion = getRazordVersion();
                         <option value="v1.11.0-beta.10">v1.11.0-beta.10</option>
                         <option value="v1.11.0-beta.15">v1.11.0-beta.15</option>
                         <option value="v1.11.0-beta.20">v1.11.0-beta.20</option>
-                        <option value="v1.11.0-beta.20">v1.11.0-rc.1</option>
+                        <option value="v1.11.0-rc.1">v1.11.0-rc.1</option>
                     </select>
                 </div>
                 <div class="mb-3">
