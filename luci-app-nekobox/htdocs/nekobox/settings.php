@@ -1529,7 +1529,7 @@ document.getElementById('checkSingboxButton').addEventListener('click', function
         finalPuernyaVersion = puernyaVersion; 
     }
 
-    if (singBoxVersion && /^v/.test(singBoxVersion) && /alpha|beta/.test(singBoxVersion)) {
+    if (singBoxVersion && /^v/.test(singBoxVersion) && /-.+/.test(singBoxVersion)) {
         finalCompileVersion = singBoxVersion;
     }
 
