@@ -229,6 +229,13 @@ $lang = $_GET['lang'] ?? 'en';
 
     .exit-fullscreen-btn {
         display: none;
+    } 
+
+    #d-ip {
+        display: flex;
+        align-items: center;
+        gap: 5px;  
+        flex-wrap: nowrap;  
     }
 </style>
 <script src="./assets/neko/js/jquery.min.js"></script>
@@ -800,6 +807,53 @@ if(typeof checkSiteStatus !== 'undefined') {
 
 setInterval(IP.getIpipnetIP, 180000);
 </script>
+
+<script>
+document.addEventListener('keydown', function(event) {
+    if (event.ctrlKey && event.shiftKey && event.code === 'KeyC') {
+        clearCache();
+        event.preventDefault();  
+    }
+});
+
+function clearCache() {
+    location.reload(true); 
+
+    localStorage.clear();
+    sessionStorage.clear();
+
+    sessionStorage.setItem('cacheCleared', 'true');
+
+    showNotification('Cache has been cleared');
+}
+
+function showNotification(message) {
+    var notification = document.createElement('div');
+    notification.style.position = 'fixed';
+    notification.style.top = '10px';
+    notification.style.right = '30px';
+    notification.style.backgroundColor = '#4CAF50';
+    notification.style.color = '#fff';
+    notification.style.padding = '10px';
+    notification.style.borderRadius = '5px';
+    notification.style.zIndex = '9999';
+    notification.innerText = message;
+
+    document.body.appendChild(notification);
+
+    setTimeout(function() {
+        notification.style.display = 'none';
+    }, 5000); 
+}
+
+window.addEventListener('load', function() {
+    if (sessionStorage.getItem('cacheCleared') === 'true') {
+        showNotification('Cache has been cleared');
+        sessionStorage.removeItem('cacheCleared'); 
+    }
+});
+</script>
+
 <script>
 window.addEventListener('load', function() {
     let snowContainer = document.querySelector('#snow-container');
@@ -1109,8 +1163,8 @@ window.addEventListener('load', function() {
     restorePlayerState(); 
 </script>
 
-<div class="modal fade" id="keyHelpModal" tabindex="-1" aria-labelledby="keyHelpModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
+<div class="modal fade" id="keyHelpModal" tabindex="-1" aria-labelledby="keyHelpModalLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+    <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title" id="keyHelpModalLabel">Keyboard Shortcuts</h5>
@@ -1118,11 +1172,15 @@ window.addEventListener('load', function() {
             </div>
             <div class="modal-body">
                 <ul>
-                    <li><strong>Spacebar:</strong> Play/Pause</li>
-                    <li><strong>Up/Down Arrow Keys:</strong> Switch to the previous/next track</li>
-                    <li><strong>Left/Right Arrow Keys:</strong> Fast forward/rewind 10 seconds</li>
-                    <li><strong>ESC Key:</strong> Return to the first track</li>
+                    <li><strong>Left Mouse Button:</strong> Double-click to open the music player</li>
+                    <li><strong>F9 Key:</strong> Play/Pause</li>
+                    <li><strong>Up/Down Arrow Keys:</strong> Switch to previous/next track</li>
+                    <li><strong>Left/Right Arrow Keys:</strong> Skip forward/backward 10 seconds</li>
+                    <li><strong>ESC Key:</strong> Go back to the first track</li>
                     <li><strong>F2 Key:</strong> Toggle between repeat and sequential play</li>
+                    <li><strong>F8 Key:</strong> Enable website connectivity check</li>
+                    <li><strong>Ctrl + F6 Key:</strong> Enable/Disable snow animation (works in settings)</li>
+                    <li><strong>Ctrl + Shift + C Key:</strong> Clear cache data</li>
                 </ul>
             </div>
         </div>

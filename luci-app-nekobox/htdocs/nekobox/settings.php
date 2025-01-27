@@ -701,7 +701,7 @@ $razordVersion = getRazordVersion();
           </div>
             <div class="mb-3 form-check">
               <input type="checkbox" class="form-check-input" id="enableSnowEffect" name="enableSnowEffect" <?php echo $enableSnow ? 'checked' : ''; ?>>
-              <label class="form-check-label" for="enableSnowEffect">Enable Snow Animation (To disable, check twice)</label>
+              <label class="form-check-label" for="enableSnowEffect">Enable Snow Animation (Ctrl + F6 shortcut key to enable/disable)</label>
           </div>
           <div class="mb-3 form-check">
             <input type="checkbox" class="form-check-input" id="useBackgroundImage" name="useBackgroundImage">
@@ -768,42 +768,66 @@ $razordVersion = getRazordVersion();
 </script>
 
 <script>
-const tooltip = document.createElement('div');
-tooltip.style.position = 'fixed';
-tooltip.style.top = '10px';
-tooltip.style.left = '10px';
-tooltip.style.backgroundColor = 'rgba(0, 128, 0, 0.7)';  
-tooltip.style.color = 'white';
-tooltip.style.padding = '10px';
-tooltip.style.borderRadius = '5px';
-tooltip.style.zIndex = '9999';
-tooltip.style.display = 'none';  
-document.body.appendChild(tooltip);
+    const tooltip = document.createElement('div');
+    tooltip.style.position = 'fixed';
+    tooltip.style.top = '10px';
+    tooltip.style.left = '10px';
+    tooltip.style.backgroundColor = 'rgba(0, 128, 0, 0.7)';
+    tooltip.style.color = 'white';
+    tooltip.style.padding = '10px';
+    tooltip.style.borderRadius = '5px';
+    tooltip.style.zIndex = '9999';
+    tooltip.style.display = 'none';
+    document.body.appendChild(tooltip);
 
-function showTooltip(message) {
-    tooltip.textContent = message;
-    tooltip.style.display = 'block'; 
-    setTimeout(() => {
-        tooltip.style.display = 'none';  
-    }, 5000);  
-}
+    function showTooltip(message) {
+        tooltip.textContent = message;
+        tooltip.style.display = 'block';
 
-window.onload = function() {
-    showTooltip('Double-click the left mouse button to open the player, and press F8 to start website connectivity testing.');
-};
+        setTimeout(() => {
+            tooltip.style.display = 'none';
+        }, 5000); 
+    }
+
+    window.onload = function() {
+        const lastShownTime = localStorage.getItem('lastTooltipShownTime'); 
+        const currentTime = new Date().getTime(); 
+
+        if (!lastShownTime || (currentTime - lastShownTime) > 4 * 60 * 60 * 1000) {
+            showTooltip('Double-click the left mouse button to open the player, and press F8 to start website connectivity testing.');
+            localStorage.setItem('lastTooltipShownTime', currentTime);
+        }
+    };
 </script>
 
 <script>
 document.getElementById('enableSnowEffect').addEventListener('change', function() {
-    var isChecked = this.checked;
+    toggleSnowEffect(this.checked);
+});
+
+
+document.addEventListener('keydown', function(event) {
+    if (event.ctrlKey && event.code === 'F6') {
+        var checkbox = document.getElementById('enableSnowEffect');
+        checkbox.checked = !checkbox.checked;  
+        toggleSnowEffect(checkbox.checked);
+
+        var message = checkbox.checked ? 'Snow effect enabled' : 'Snow effect disabled';
+        showNotification(message);
+    }
+});
+
+function toggleSnowEffect(isChecked) {
     var xhr = new XMLHttpRequest();
     xhr.open('POST', 'save_snow_status.php', true);
     xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
     xhr.send('enableSnowEffect=' + (isChecked ? '1' : '0'));
-    
     var message = isChecked ? 'Enabled' : 'Disabled';
     console.log(message);
-    
+    showNotification(message);
+}
+
+function showNotification(message) {
     var notification = document.createElement('div');
     notification.style.position = 'fixed';
     notification.style.top = '10px';
@@ -814,13 +838,11 @@ document.getElementById('enableSnowEffect').addEventListener('change', function(
     notification.style.borderRadius = '5px';
     notification.style.zIndex = '9999';
     notification.innerText = message;
-    
     document.body.appendChild(notification);
-    
     setTimeout(function() {
         notification.style.display = 'none';
-    }, 5000);
-});
+    }, 5000); 
+}
 </script>
 
 <div class="modal fade" id="filesModal" tabindex="-1" aria-labelledby="filesModalLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
