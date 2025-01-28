@@ -1,4 +1,33 @@
 <?php
+$default_url = 'https://raw.githubusercontent.com/Thaolga/Rules/main/Clash/songs.txt';
+
+$message = '';  
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    if (isset($_POST['new_url'])) {
+        $new_url = $_POST['new_url'];  
+        $file_path = 'url_config.txt';  
+        if (file_put_contents($file_path, $new_url)) {
+            $message = 'URL updated successfully';
+        } else {
+            $message = 'Failed to update URL';
+        }
+    }
+
+    if (isset($_POST['reset_default'])) {
+        $file_path = 'url_config.txt';  
+        if (file_put_contents($file_path, $default_url)) {
+            $message = 'Default URL restored successfully';
+        } else {
+            $message = 'Failed to restore default URL';
+        }
+    }
+}
+else {
+    $new_url = file_exists('url_config.txt') ? file_get_contents('url_config.txt') : $default_url;
+}
+?>
+<?php
 ob_start();
 include './cfg.php';
 $translate = [
@@ -824,7 +853,7 @@ function clearCache() {
 
     sessionStorage.setItem('cacheCleared', 'true');
 
-    showNotification('Cache has been cleared');
+    showNotification('Cache cleared');
 }
 
 function showNotification(message) {
@@ -848,46 +877,8 @@ function showNotification(message) {
 
 window.addEventListener('load', function() {
     if (sessionStorage.getItem('cacheCleared') === 'true') {
-        showNotification('Cache has been cleared');
+        showNotification('Cache cleared');
         sessionStorage.removeItem('cacheCleared'); 
-    }
-});
-</script>
-
-<script>
-window.addEventListener('load', function() {
-    let snowContainer = document.querySelector('#snow-container');
-
-    if (snowContainer) {
-        snowContainer.innerHTML = ''; 
-    }
-
-    if (snowContainer) {
-        for (let i = 0; i < 80; i++) {  
-            let snowflake = document.createElement('div');
-            snowflake.classList.add('snowflake');
-            
-            let size = Math.random() * 10 + 5 + 'px';  
-            snowflake.style.width = size;
-            snowflake.style.height = size;
-            
-            let speed = Math.random() * 3 + 2 + 's'; 
-            snowflake.style.animationDuration = speed;
-
-            let rotate = Math.random() * 360 + 'deg'; 
-            let rotateSpeed = Math.random() * 5 + 2 + 's'; 
-            snowflake.style.animationName = 'fall';
-            snowflake.style.animationDuration = speed;
-            snowflake.style.animationTimingFunction = 'linear';
-            snowflake.style.animationIterationCount = 'infinite';
-
-            let leftPosition = Math.random() * 100 + 'vw';  
-            snowflake.style.left = leftPosition;
-
-            snowflake.style.animationDelay = Math.random() * 5 + 's';  
-
-            snowContainer.appendChild(snowflake);
-        }
     }
 });
 </script>
@@ -943,7 +934,7 @@ window.addEventListener('load', function() {
     document.head.appendChild(styleSheet);
 
     function loadDefaultPlaylist() {
-        fetch('https://raw.githubusercontent.com/Thaolga/Rules/main/Clash/songs.txt')
+        fetch('<?php echo $new_url; ?>')
             .then(response => {
                 if (!response.ok) {
                     throw new Error('Failed to load playlist');
@@ -1163,6 +1154,78 @@ window.addEventListener('load', function() {
     restorePlayerState(); 
 </script>
 
+<div class="modal fade" id="urlModal" tabindex="-1" aria-labelledby="urlModalLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="urlModalLabel">Update Playlist Link</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form method="POST">
+                    <div class="mb-3">
+                        <label for="new_url" class="form-label">Custom Playlist Link (Press Ctrl + Shift + C to clear data, must use download link for proper playback)</label>
+                        <input type="text" id="new_url" name="new_url" class="form-control" value="<?php echo htmlspecialchars($new_url); ?>" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Update Link</button>
+                    <button type="button" id="resetButton" class="btn btn-secondary ms-2">Restore Default Link</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('keydown', function(event) {
+        if (event.ctrlKey && event.shiftKey && event.key === 'V') {
+            var urlModal = new bootstrap.Modal(document.getElementById('urlModal'));
+            urlModal.show();
+        }
+    });
+
+    document.getElementById('resetButton').addEventListener('click', function() {
+        fetch('', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded'
+            },
+        body: 'reset_default=true'
+    })
+        .then(response => response.text())  
+        .then(data => {
+            var urlModal = bootstrap.Modal.getInstance(document.getElementById('urlModal'));
+            urlModal.hide();
+
+            document.getElementById('new_url').value = '<?php echo $default_url; ?>';
+
+            showNotification('The default link has been successfully restored');
+        })
+        .catch(error => {
+            console.error('An error occurred while restoring the default link:', error);
+            showNotification('An error occurred while restoring the default link');
+        });
+    });
+
+    function showNotification(message) {
+        var notification = document.createElement('div');
+        notification.style.position = 'fixed';
+        notification.style.top = '10px';
+        notification.style.right = '30px';
+        notification.style.backgroundColor = '#4CAF50';
+        notification.style.color = '#fff';
+        notification.style.padding = '10px';
+        notification.style.borderRadius = '5px';
+        notification.style.zIndex = '9999';
+        notification.innerText = message;
+
+        document.body.appendChild(notification);
+
+        setTimeout(function() {
+            notification.style.display = 'none';
+        }, 5000); 
+    }
+</script>
+
 <div class="modal fade" id="keyHelpModal" tabindex="-1" aria-labelledby="keyHelpModalLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
@@ -1172,16 +1235,24 @@ window.addEventListener('load', function() {
             </div>
             <div class="modal-body">
                 <ul>
-                    <li><strong>Left Mouse Button:</strong> Double-click to open the music player</li>
-                    <li><strong>F9 Key:</strong> Play/Pause</li>
-                    <li><strong>Up/Down Arrow Keys:</strong> Switch to previous/next track</li>
-                    <li><strong>Left/Right Arrow Keys:</strong> Skip forward/backward 10 seconds</li>
-                    <li><strong>ESC Key:</strong> Go back to the first track</li>
-                    <li><strong>F2 Key:</strong> Toggle between repeat and sequential play</li>
+                    <li><strong>Left Mouse Button:</strong> Double-click to open the player interface</li>
+                    <li><strong>F9 Key:</strong> Toggle play/pause</li>
+                    <li><strong>Up/Down Arrow Keys:</strong> Skip to previous/next song</li>
+                    <li><strong>Left/Right Arrow Keys:</strong> Fast forward/rewind 10 seconds</li>
+                    <li><strong>ESC Key:</strong> Return to the first song in the playlist</li>
+                    <li><strong>F2 Key:</strong> Toggle between loop play and sequential play mode</li>
                     <li><strong>F8 Key:</strong> Enable website connectivity check</li>
-                    <li><strong>Ctrl + F6 Key:</strong> Enable/Disable snow animation (works in settings)</li>
+                    <li><strong>Ctrl + F6 Key:</strong> Toggle snowflake animation</li>
+                    <li><strong>Ctrl + F7 Key:</strong> Toggle square light animation</li>
+                    <li><strong>Ctrl + F10 Key:</strong> Toggle square animation</li>
+                    <li><strong>Ctrl + F11 Key:</strong> Toggle light spot animation</li>
                     <li><strong>Ctrl + Shift + C Key:</strong> Clear cache data</li>
+                    <li><strong>Ctrl + Shift + V Key:</strong> Customize playlist</li>
+                    <li><strong>Ctrl + Shift + X Key:</strong> Set city</li>
                 </ul>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
             </div>
         </div>
     </div>
@@ -1258,3 +1329,507 @@ window.addEventListener('load', function() {
     });
 
 </script>
+
+<style>
+    .animated-box {
+        width: 50px;
+        height: 50px;
+        margin: 10px;
+        background: linear-gradient(45deg, #ff6b6b, #ffd93d);
+        border-radius: 10px;
+        position: absolute;
+        animation: complex-animation 5s infinite alternate ease-in-out;
+        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+    }
+
+    @keyframes complex-animation {
+        0% {
+            transform: rotate(0deg) scale(1);
+            background: linear-gradient(45deg, #ff6b6b, #ffd93d);
+        }
+        25% {
+            transform: rotate(45deg) scale(1.2);
+            background: linear-gradient(135deg, #42a5f5, #66bb6a);
+        }
+        50% {
+            transform: rotate(90deg) scale(0.8);
+            background: linear-gradient(225deg, #ab47bc, #ff7043);
+        }
+        75% {
+            transform: rotate(135deg) scale(1.5);
+            background: linear-gradient(315deg, #29b6f6, #8e24aa);
+        }
+        100% {
+            transform: rotate(180deg) scale(1);
+            background: linear-gradient(45deg, #ff6b6b, #ffd93d);
+        }
+    }
+</style>
+
+<script>
+    (function() {
+        let isAnimationActive = localStorage.getItem('animationActive') === 'true';
+        let intervalId;
+
+        function createAnimatedBox() {
+            const box = document.createElement('div');
+            box.className = 'animated-box';
+            document.body.appendChild(box);
+            const randomX = Math.random() * window.innerWidth;
+            const randomY = Math.random() * window.innerHeight;
+            box.style.left = randomX + 'px';
+            box.style.top = randomY + 'px';
+            const randomDuration = Math.random() * 3 + 3;
+            box.style.animationDuration = randomDuration + 's';
+            setTimeout(() => {
+                box.remove();
+            }, randomDuration * 1000);
+        }
+
+        function startAnimation() {
+            intervalId = setInterval(() => {
+                createAnimatedBox();
+            }, 1000);
+            localStorage.setItem('animationActive', 'true');
+        }
+
+        function stopAnimation() {
+            clearInterval(intervalId);
+            localStorage.setItem('animationActive', 'false');
+        }
+
+        function showNotification(message) {
+            var notification = document.createElement('div');
+            notification.style.position = 'fixed';
+            notification.style.top = '10px';
+            notification.style.right = '30px';
+            notification.style.backgroundColor = '#4CAF50';
+            notification.style.color = '#fff';
+            notification.style.padding = '10px';
+            notification.style.borderRadius = '5px';
+            notification.style.zIndex = '9999';
+            notification.innerText = message;
+            document.body.appendChild(notification);
+
+            setTimeout(function() {
+                notification.style.display = 'none';
+            }, 5000);
+        }
+
+        window.addEventListener('keydown', function(event) {
+            if (event.ctrlKey && event.key === 'F10') {
+                isAnimationActive = !isAnimationActive;
+                if (isAnimationActive) {
+                    startAnimation();
+                    showNotification('The animation has started');
+                } else {
+                    stopAnimation();
+                    showNotification('The animation has stopped');
+                }
+            }
+        });
+
+        if (isAnimationActive) {
+            startAnimation();
+        }
+    })();
+</script>
+
+<style>
+    .snowflake {
+        position: absolute;
+        top: -10px;
+        width: 10px;
+        height: 10px;
+        background-color: white;
+        border-radius: 50%;
+        animation: fall linear infinite;
+    }
+
+    @keyframes fall {
+        0% {
+            transform: translateY(0) rotate(0deg); 
+        }
+        100% {
+            transform: translateY(100vh) rotate(360deg); 
+        }
+    }
+
+    .snowflake:nth-child(1) {
+        animation-duration: 8s;
+        animation-delay: -2s;
+        left: 10%;
+        width: 12px;
+        height: 12px;
+    }
+
+    .snowflake:nth-child(2) {
+        animation-duration: 10s;
+        animation-delay: -3s;
+        left: 20%;
+        width: 8px;
+        height: 8px;
+    }
+
+    .snowflake:nth-child(3) {
+        animation-duration: 12s;
+        animation-delay: -1s;
+        left: 30%;
+        width: 15px;
+        height: 15px;
+    }
+
+    .snowflake:nth-child(4) {
+        animation-duration: 9s;
+        animation-delay: -5s;
+        left: 40%;
+        width: 10px;
+        height: 10px;
+    }
+
+    .snowflake:nth-child(5) {
+        animation-duration: 11s;
+        animation-delay: -4s;
+        left: 50%;
+        width: 14px;
+        height: 14px;
+    }
+
+    .snowflake:nth-child(6) {
+        animation-duration: 7s;
+        animation-delay: -6s;
+        left: 60%;
+        width: 9px;
+        height: 9px;
+    }
+
+    .snowflake:nth-child(7) {
+        animation-duration: 8s;
+        animation-delay: -7s;
+        left: 70%;
+        width: 11px;
+        height: 11px;
+    }
+
+    .snowflake:nth-child(8) {
+        animation-duration: 10s;
+        animation-delay: -8s;
+        left: 80%;
+        width: 13px;
+        height: 13px;
+    }
+
+    .snowflake:nth-child(9) {
+        animation-duration: 6s;
+        animation-delay: -9s;
+        left: 90%;
+        width: 10px;
+        height: 10px;
+    }
+</style>
+
+<script>
+    function createSnowflakes() {
+        for (let i = 0; i < 80; i++) {
+            let snowflake = document.createElement('div');
+            snowflake.classList.add('snowflake');
+                
+            let size = Math.random() * 10 + 5 + 'px';  
+            snowflake.style.width = size;
+            snowflake.style.height = size;
+                
+            let speed = Math.random() * 3 + 2 + 's'; 
+            snowflake.style.animationDuration = speed;
+
+            let rotate = Math.random() * 360 + 'deg'; 
+            let rotateSpeed = Math.random() * 5 + 2 + 's'; 
+            snowflake.style.animationName = 'fall';
+            snowflake.style.animationDuration = speed;
+            snowflake.style.animationTimingFunction = 'linear';
+            snowflake.style.animationIterationCount = 'infinite';
+
+            let leftPosition = Math.random() * 100 + 'vw';  
+            snowflake.style.left = leftPosition;
+
+            snowflake.style.animationDelay = Math.random() * 5 + 's';  
+
+            document.body.appendChild(snowflake);
+        }
+    }
+
+    function stopSnowflakes() {
+        let snowflakes = document.querySelectorAll('.snowflake');
+        snowflakes.forEach(snowflake => snowflake.remove());
+    }
+
+    function showNotification(message) {
+        var notification = document.createElement('div');
+        notification.style.position = 'fixed';
+        notification.style.top = '10px';
+        notification.style.right = '30px';
+        notification.style.backgroundColor = '#4CAF50';
+        notification.style.color = '#fff';
+        notification.style.padding = '10px';
+        notification.style.borderRadius = '5px';
+        notification.style.zIndex = '9999';
+        notification.innerText = message;
+        document.body.appendChild(notification);
+        setTimeout(function() {
+            notification.style.display = 'none';
+        }, 5000);
+    }
+
+    function getSnowingState() {
+        return localStorage.getItem('isSnowing') === 'true';
+    }
+
+    function saveSnowingState(state) {
+        localStorage.setItem('isSnowing', state);
+    }
+
+    let isSnowing = getSnowingState();
+
+    if (isSnowing) {
+        createSnowflakes();  
+    }
+
+    window.addEventListener('keydown', function(event) {
+        if (event.ctrlKey && event.key === 'F6') {
+            isSnowing = !isSnowing;
+            saveSnowingState(isSnowing);
+            if (isSnowing) {
+                createSnowflakes(); 
+                showNotification('The snowflake animation has started');
+            } else {
+                stopSnowflakes(); 
+                showNotification('The snowflake animation has stopped');
+            }
+        }
+    });
+</script>
+
+<style>
+.floating-light {
+    position: fixed;
+    bottom: 0;
+    left: 50%;
+    width: 50px;
+    height: 50px;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(255, 87, 51, 0.7), 0 0 20px rgba(255, 87, 51, 0.5);
+    transform: translateX(-50%);
+    animation: float-random 5s ease-in-out infinite;
+}
+
+.floating-light.color-1 {
+    background-color: #ff5733; 
+}
+
+.floating-light.color-2 {
+    background-color: #33ff57; 
+}
+
+.floating-light.color-3 {
+    background-color: #5733ff; 
+}
+
+.floating-light.color-4 {
+    background-color: #f5f533; 
+}
+
+.floating-light.color-5 {
+    background-color: #ff33f5; 
+}
+
+@keyframes float-random {
+    0% {
+        transform: translateX(var(--start-x)) translateY(var(--start-y)) rotate(var(--start-rotation));
+    }
+    100% {
+        transform: translateX(var(--end-x)) translateY(var(--end-y)) rotate(var(--end-rotation));
+    }
+}
+</style>
+<script>
+(function() {
+    let isLightAnimationActive = localStorage.getItem('lightAnimationStatus') === 'true'; 
+    let intervalId;
+    const colors = ['color-1', 'color-2', 'color-3', 'color-4', 'color-5']; 
+
+    if (isLightAnimationActive) {
+        startLightAnimation(false);  
+    }
+
+    function createLightBox() {
+        const lightBox = document.createElement('div');
+        const randomColor = colors[Math.floor(Math.random() * colors.length)]; 
+        lightBox.classList.add('floating-light', randomColor);
+        
+        const startX = Math.random() * 100 - 50 + 'vw';  
+        const startY = Math.random() * 100 - 50 + 'vh';  
+        const endX = Math.random() * 100 - 50 + 'vw';  
+        const endY = Math.random() * 100 - 50 + 'vh';  
+        const rotation = Math.random() * 360 + 'deg';   
+
+        lightBox.style.setProperty('--start-x', startX);
+        lightBox.style.setProperty('--start-y', startY);
+        lightBox.style.setProperty('--end-x', endX);
+        lightBox.style.setProperty('--end-y', endY);
+        lightBox.style.setProperty('--start-rotation', rotation);
+        lightBox.style.setProperty('--end-rotation', Math.random() * 360 + 'deg');
+        
+        document.body.appendChild(lightBox);
+
+        setTimeout(() => {
+            lightBox.remove();
+        }, 5000); 
+    }
+
+    function startLightAnimation(showLog = true) {
+        intervalId = setInterval(createLightBox, 400); 
+        localStorage.setItem('lightAnimationStatus', 'true');  
+        if (showLog) showNotification('The cube light animation has started');
+    }
+
+    function stopLightAnimation(showLog = true) {
+        clearInterval(intervalId);
+        const allLights = document.querySelectorAll('.floating-light');
+        allLights.forEach(light => light.remove()); 
+        localStorage.setItem('lightAnimationStatus', 'false');  
+        if (showLog) showNotification('The cube light animation has stopped');
+    }
+
+    function showNotification(message) {
+        var notification = document.createElement('div');
+        notification.style.position = 'fixed';
+        notification.style.top = '10px';
+        notification.style.right = '30px';
+        notification.style.backgroundColor = '#4CAF50';
+        notification.style.color = '#fff';
+        notification.style.padding = '10px';
+        notification.style.borderRadius = '5px';
+        notification.style.zIndex = '9999';
+        notification.innerText = message;
+        document.body.appendChild(notification);
+
+        setTimeout(function() {
+            notification.style.display = 'none';
+        }, 5000);
+    }
+
+    window.addEventListener('keydown', function(event) {
+        if (event.ctrlKey && event.key === 'F7') {
+            isLightAnimationActive = !isLightAnimationActive;
+            if (isLightAnimationActive) {
+                startLightAnimation(); 
+            } else {
+                stopLightAnimation();   
+            }
+        }
+    });
+})();
+</script>
+
+<style>
+@keyframes lightPulse {
+    0% {
+        transform: scale(0.5);
+        opacity: 1;
+    }
+    50% {
+        transform: scale(1.5);
+        opacity: 0.7;
+    }
+    100% {
+        transform: scale(3);
+        opacity: 0;
+    }
+}
+
+.light-point {
+    position: fixed;
+    width: 10px;
+    height: 10px;
+    background: radial-gradient(circle, rgba(255, 255, 255, 1), rgba(255, 255, 255, 0.2));
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 9999;
+    animation: lightPulse 3s linear infinite;
+}
+</style>
+
+<script>
+(function () {
+    let isLightEffectActive = localStorage.getItem('lightEffectAnimation') === 'true';
+    let lightInterval;
+
+    function createLightPoint() {
+        const lightPoint = document.createElement('div');
+        lightPoint.className = 'light-point';
+
+        const posX = Math.random() * window.innerWidth;
+        const posY = Math.random() * window.innerHeight;
+
+        lightPoint.style.left = `${posX}px`;
+        lightPoint.style.top = `${posY}px`;
+
+        const colors = ['#ffcc00', '#00ccff', '#ff6699', '#99ff66', '#cc99ff'];
+        const randomColor = colors[Math.floor(Math.random() * colors.length)];
+        lightPoint.style.background = `radial-gradient(circle, ${randomColor}, rgba(255, 255, 255, 0.1))`;
+
+        document.body.appendChild(lightPoint);
+        setTimeout(() => {
+            lightPoint.remove();
+        }, 3000); 
+    }
+
+    function startLightEffect(showLog = true) {
+        if (lightInterval) clearInterval(lightInterval);
+        lightInterval = setInterval(createLightPoint, 200); 
+        localStorage.setItem('lightEffectAnimation', 'true');
+        if (showLog) showNotification('The light spot animation has been turned on');
+    }
+
+    function stopLightEffect(showLog = true) {
+        clearInterval(lightInterval);
+        document.querySelectorAll('.light-point').forEach((light) => light.remove());
+        localStorage.setItem('lightEffectAnimation', 'false');
+        if (showLog) showNotification('The light spot animation has been turned off');
+    }
+
+    function showNotification(message) {
+        const notification = document.createElement('div');
+        notification.style.position = 'fixed';
+        notification.style.top = '10px';
+        notification.style.right = '10px';
+        notification.style.padding = '10px';
+        notification.style.backgroundColor = '#4CAF50';
+        notification.style.color = '#fff';
+        notification.style.borderRadius = '5px';
+        notification.style.zIndex = 9999;
+        notification.textContent = message;
+
+        document.body.appendChild(notification);
+        setTimeout(() => {
+            notification.remove();
+        }, 3000);
+    }
+
+    window.addEventListener('keydown', function (event) {
+        if (event.ctrlKey && event.key === 'F11') {
+            isLightEffectActive = !isLightEffectActive;
+            if (isLightEffectActive) {
+                startLightEffect();
+            } else {
+                stopLightEffect();
+            }
+        }
+    });
+
+    if (isLightEffectActive) {
+        startLightEffect(false);
+    }
+})();
+</script>
+
+

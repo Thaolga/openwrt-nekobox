@@ -19,7 +19,6 @@ if(isset($_POST['fw'])){
     if ($dt == 'disable') shell_exec("uci set neko.cfg.new_interface='0' && uci commit neko");
 }
 $fwstatus=shell_exec("uci get neko.cfg.new_interface");
-$enableSnow = false;
 ?>
 <?php
 function getSingboxVersion() {
@@ -257,8 +256,8 @@ $razordVersion = getRazordVersion();
                 </tr>
                 <tr>
                     <td class="text-center">
-                        <button class="btn btn-pink me-1" id="checkCliverButton">🔍 Detect</button>
-                        <button class="btn btn-info" id="updateButton" title="Update to Latest Version" onclick="showVersionTypeModal()">🔄 Update</button>
+                        <button class="btn btn-pink me-1" id="checkCliverButton"><i class="bi bi-search"></i> Detect</button>
+                        <button class="btn btn-info" id="updateButton" title="Update to Latest Version" onclick="showVersionTypeModal()"><i class="bi bi-arrow-repeat"></i> Update</button>
                     </td>
                 </tr>
             </tbody>
@@ -279,8 +278,8 @@ $razordVersion = getRazordVersion();
                 </tr>
                 <tr>
                     <td class="text-center">
-                        <button class="btn btn-pink me-1" id="checkUiButton">🔍 Detect</button>
-                        <button class="btn btn-info" id="updateUiButton" title="Update Panel" onclick="showPanelSelector()">🔄 Update</button>
+                        <button class="btn btn-pink me-1" id="checkUiButton"><i class="bi bi-search"></i> Detect</button>
+                        <button class="btn btn-info" id="updateUiButton" title="Update Panel" onclick="showPanelSelector()"><i class="bi bi-arrow-repeat"></i> Update</button>
                     </td>
                 </tr>
             </tbody>
@@ -305,8 +304,8 @@ $razordVersion = getRazordVersion();
                 </tr>
                 <tr>
                     <td class="text-center">
-                        <button class="btn btn-pink me-1" id="checkSingboxButton">🔍 Detect</button>
-                        <button class="btn btn-info" id="singboxOptionsButton" title="Singbox Related Operations">🔄 Update</button>
+                        <button class="btn btn-pink me-1" id="checkSingboxButton"><i class="bi bi-search"></i> Detect</button>
+                        <button class="btn btn-info" id="singboxOptionsButton" title="Singbox Related Operations"><i class="bi bi-arrow-repeat"></i> Update</button>
                     </td>
                 </tr>
             </tbody>
@@ -327,8 +326,8 @@ $razordVersion = getRazordVersion();
                 </tr>
                 <tr>
                     <td class="text-center">
-                        <button class="btn btn-pink me-1" id="checkMihomoButton">🔍 Detect</button>
-                        <button class="btn btn-info" id="updateCoreButton" title="Update Mihomo Core" onclick="showMihomoVersionSelector()">🔄 Update</button>
+                        <button class="btn btn-pink me-1" id="checkMihomoButton"><i class="bi bi-search"></i> Detect</button>
+                        <button class="btn btn-info" id="updateCoreButton" title="Update Mihomo Core" onclick="showMihomoVersionSelector()"><i class="bi bi-arrow-repeat"></i> Update</button>
                     </td>
                 </tr>
             </tbody>
@@ -699,10 +698,6 @@ $razordVersion = getRazordVersion();
               <input type="color" class="form-control" name="heading6Color" id="heading6Color" value="#00ffff">
             </div>
           </div>
-            <div class="mb-3 form-check">
-              <input type="checkbox" class="form-check-input" id="enableSnowEffect" name="enableSnowEffect" <?php echo $enableSnow ? 'checked' : ''; ?>>
-              <label class="form-check-label" for="enableSnowEffect">Enable Snow Animation (Ctrl + F6 shortcut key to enable/disable)</label>
-          </div>
           <div class="mb-3 form-check">
             <input type="checkbox" class="form-check-input" id="useBackgroundImage" name="useBackgroundImage">
             <label class="form-check-label" for="useBackgroundImage">Use Custom Background Image</label>
@@ -798,51 +793,6 @@ $razordVersion = getRazordVersion();
             localStorage.setItem('lastTooltipShownTime', currentTime);
         }
     };
-</script>
-
-<script>
-document.getElementById('enableSnowEffect').addEventListener('change', function() {
-    toggleSnowEffect(this.checked);
-});
-
-
-document.addEventListener('keydown', function(event) {
-    if (event.ctrlKey && event.code === 'F6') {
-        var checkbox = document.getElementById('enableSnowEffect');
-        checkbox.checked = !checkbox.checked;  
-        toggleSnowEffect(checkbox.checked);
-
-        var message = checkbox.checked ? 'Snow effect enabled' : 'Snow effect disabled';
-        showNotification(message);
-    }
-});
-
-function toggleSnowEffect(isChecked) {
-    var xhr = new XMLHttpRequest();
-    xhr.open('POST', 'save_snow_status.php', true);
-    xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
-    xhr.send('enableSnowEffect=' + (isChecked ? '1' : '0'));
-    var message = isChecked ? 'Enabled' : 'Disabled';
-    console.log(message);
-    showNotification(message);
-}
-
-function showNotification(message) {
-    var notification = document.createElement('div');
-    notification.style.position = 'fixed';
-    notification.style.top = '10px';
-    notification.style.right = '30px';
-    notification.style.backgroundColor = '#4CAF50';
-    notification.style.color = '#fff';
-    notification.style.padding = '10px';
-    notification.style.borderRadius = '5px';
-    notification.style.zIndex = '9999';
-    notification.innerText = message;
-    document.body.appendChild(notification);
-    setTimeout(function() {
-        notification.style.display = 'none';
-    }, 5000); 
-}
 </script>
 
 <div class="modal fade" id="filesModal" tabindex="-1" aria-labelledby="filesModalLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
