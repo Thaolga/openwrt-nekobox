@@ -24,6 +24,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $warningColor = $_POST['warningColor'] ?? '#ffc107'; 
     $pinkColor = $_POST['pinkColor'] ?? '#f82af2';
     $dangerColor = $_POST['dangerColor'] ?? '#dc3545';
+    $controlColor = $_POST['controlColor'] ?? '#0eaf3e';
+    $checkColor = $_POST['checkColor'] ?? '#0eaf3e';
+    $labelColor = $_POST['labelColor'] ?? '#0eaf3e';
+    $lineColor = $_POST['lineColor'] ?? '#f515f9';
+    $themeName = isset($_POST['themeName']) ? $_POST['themeName'] : 'transparent'; 
+    
+    $themeName = preg_replace('/[^a-zA-Z]/', '', $themeName); 
+    if (empty($themeName)) {
+        $themeName = 'transparent'; 
+    }
+    
+    $themeFileName = $themeName . '.css';
 
     $uploadedImagePath = '';
     if (isset($_FILES['imageFile']) && $_FILES['imageFile']['error'] === UPLOAD_ERR_OK) {
@@ -43,7 +55,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;700&family=Noto+Serif+SC:wght@400;700&display=swap');
     @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&family=Roboto:wght@400;700&family=Cinzel+Decorative:wght@700;900&display=swap');
     
-    [data-bs-theme=transparent] {
+    [data-bs-theme='$themeName'] {
       color-scheme: dark;
       --bs-primary: $primaryColor; 
       --bs-secondary: $secondaryColor; 
@@ -57,6 +69,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       --bs-btn-warning-bg: $warningColor;
       --bs-btn-pink-bg: $pinkColor;
       --bs-btn-danger-bg: $dangerColor;
+      --bs-controlr-bg: $controlColor;
+      --bs-check-bg: $checkColor;
+      --bs-label-bg: $labelColor;
+      --bs-line-bg: $lineColor;
 
       --bs-primary-border-subtle: $primaryBorderSubtle; 
       --bs-tertiary: $tertiaryColor; 
@@ -76,10 +92,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       --bs-heading-font-weight: 700;
       --bs-heading-letter-spacing: 0.05em;
       --bs-heading-text-transform: uppercase;
-
-      --bs-shadow-light: 0 4px 8px rgba(255, 0, 124, 0.4);
-      --bs-shadow-medium: 0 8px 16px rgba(0, 255, 133, 0.3);
-      --bs-shadow-heavy: 0 12px 24px rgba(125, 95, 255, 0.5);
 
       --bs-btn-color: #fff;
       --bs-btn-hover-color: #fff;
@@ -117,7 +129,31 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
     #lineColumnDisplay, #charCountDisplay {
-        color: white !important; 
+        color: var(--bs-line-bg) !important; 
+    }
+
+    .form-label {
+      color: var(--bs-check-bg)
+    }
+
+    .form-check-label {
+      color: var(--bs-check-bg)
+    }
+
+    label {
+      color: var(--bs-label-bg)
+    }
+
+    .form-control {
+      color: var(--bs-controlr-bg)
+    }
+
+    form .form-control {
+      color: var(--bs-controlr-bg) !important;  
+    }
+
+    .card .card-body pre {
+        color: var(--log-text-color) !important;
     }
 
     .close {
@@ -132,12 +168,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     .alert-info {
         color: #FF00FF; 
-    }
-
-    #plugin_log,
-    #bin_logs,
-    #singbox_log {
-        color: var(--log-text-color);
     }
 
     .detail-label {
@@ -290,7 +320,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     .container-bg {
       border-radius: 12px;
-      box-shadow: var(--bs-shadow-medium);
+      box-shadow: none;
       padding: 2rem;
       margin-top: 2rem;
       margin-bottom: 2rem;
@@ -577,10 +607,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
     ";
 
-    $filePath = $_SERVER['DOCUMENT_ROOT'] . '/nekobox/assets/theme/transparent.css';
+    $filePath = $_SERVER['DOCUMENT_ROOT'] . '/nekobox/assets/theme/' . $themeFileName;
     file_put_contents($filePath, $cssContent);
     echo "<script>
-            alert('自定义主题已更新，名称为 transparent.css ！');
+            alert('自定义主题已更新，名称为 $themeName.css ！');
             window.location.href = 'settings.php';
           </script>";
 } else {
