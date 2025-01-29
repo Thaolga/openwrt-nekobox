@@ -544,6 +544,36 @@ html {
 .upload-icon {
     font-size: 1.5rem; 
 }
+
+@media (max-width: 768px) {
+    .table thead {
+        display: none; 
+    }
+
+    .table tbody, 
+    .table tr, 
+    .table td {
+        display: block;
+        width: 100%;
+    }
+
+    .table td::before {
+        content: attr(data-label); 
+        font-weight: bold;
+        display: block;
+        text-transform: uppercase;
+        color: #23407E; 
+    }
+
+    .table tr {
+        margin-bottom: 10px;
+        border: 1px solid #ddd;
+        padding: 10px;
+        border-radius: 5px;
+        background-color: #f9f9f9;
+    }
+}
+
 </style>
 
 <script>
@@ -610,16 +640,16 @@ function showUpdateAlert() {
                     $fileType = $fileTypes[$index];
                 ?>
                     <tr>
-                        <td class="align-middle">
+                        <td class="align-middle" data-label="文件名">
                             <a href="download.php?file=<?php echo urlencode($file); ?>"><?php echo htmlspecialchars($file); ?></a>
                         </td>
-                        <td class="align-middle">
+                        <td class="align-middle" data-label="大小">
                             <?php echo file_exists($filePath) ? formatSize(filesize($filePath)) : '文件不存在'; ?>
                         </td>
-                        <td class="align-middle">
+                        <td class="align-middle" data-label="最后修改时间">
                             <?php echo htmlspecialchars(date('Y-m-d H:i:s', filemtime($filePath))); ?>
                         </td>
-                        <td class="align-middle">
+                        <td class="align-middle" data-label="文件类型">
                             <?php echo htmlspecialchars($fileType); ?>
                         </td>
                         <td class="align-middle">
