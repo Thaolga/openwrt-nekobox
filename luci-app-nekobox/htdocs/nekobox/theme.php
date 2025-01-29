@@ -28,9 +28,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $checkColor = $_POST['checkColor'] ?? '#0eaf3e';
     $labelColor = $_POST['labelColor'] ?? '#0eaf3e';
     $lineColor = $_POST['lineColor'] ?? '#f515f9';
-    $themeName = isset($_POST['themeName']) ? $_POST['themeName'] : 'transparent'; 
-    
-    $themeName = preg_replace('/[^a-zA-Z]/', '', $themeName); 
+    $themeName = isset($_POST['themeName']) ? $_POST['themeName'] : 'transparent';   
+
+    $themeName = preg_replace('/[\p{Han}]/u', '', $themeName);
     if (empty($themeName)) {
         $themeName = 'transparent'; 
     }
