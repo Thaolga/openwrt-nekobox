@@ -574,6 +574,11 @@ html {
     }
 }
 
+.container {
+    padding-left: 1.4em;  
+    padding-right: 1.4em; 
+}
+
 </style>
 
 <script>
