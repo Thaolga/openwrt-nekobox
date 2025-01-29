@@ -117,10 +117,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     h5 { color: var(--bs-heading-5) !important; }
     h6 { color: var(--bs-heading-6) !important; }
 
-    input::placeholder { color: #ffffff !important; }
+    input::placeholder { color: var(--log-text-color) !important; }
      .table, .form-control, .card, button, label, li, td, th, blockquote, q, code, pre {
        background-color: transparent;
-       color: #ffffff;
+       color: var(--log-text-color);
     }
 
     input::placeholder {
@@ -157,12 +157,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
     .close {
-        color: white !important; 
+        color: var(--log-text-color) !important; 
     }
 
     .close:hover,
     .close:focus {
-        color: white !important; 
+        color: var(--log-text-color) !important; 
         text-decoration: none; 
     }
 
@@ -185,14 +185,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     .form-select {
         background-color: var(--bs-form-select);
-        color: white !important;            
+        color: var(--bs-controlr-bg) !important;            
         border: 1px solid gray;    
         border-radius: 5px;       
     }
 
     .form-select option {
         background-color: var(--bs-form-select);    
-        color: white !important;           
+        color: var(--bs-controlr-bg) !important;           
     }
 
     .form-control {
