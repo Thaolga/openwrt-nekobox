@@ -618,7 +618,7 @@ $razordVersion = getRazordVersion();
 </div>
 
 <div class="modal fade" id="colorModal" tabindex="-1" aria-labelledby="colorModalLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
-  <div class="modal-dialog modal-fullscreen">
+  <div class="modal-dialog modal-xl">
     <div class="modal-content">
       <div class="modal-header">
         <h5 class="modal-title" id="colorModalLabel">选择主题颜色</h5>
