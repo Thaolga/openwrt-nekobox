@@ -824,18 +824,19 @@ $(document).ready(function() {
        margin-bottom: 20px;
    }
 
-    @media (max-width: 768px) {
-       .section-container {
-          padding-left: 15px;
-          padding-right: 15px;
-       }
-    }
-
-   tr {
-       margin-bottom: 15px;
-       display: block;
+   @media (max-width: 768px) {
+      .section-container {
+         padding-left: 15px;
+         padding-right: 15px;
+      }
    }
-}
+
+   @media (max-width: 768px) {
+      tr {
+          margin-bottom: 15px;
+          display: block;
+      }
+   }
 </style>
 <div class="section-container">
    <table class="table table-borderless mb-2">
