@@ -143,6 +143,11 @@ EOL;
 </head>
 <body>
 <style>
+.container {
+    padding-left: 2.4em;  
+    padding-right: 2.4em; 
+}
+
 @media (max-width: 767px) {
     .row a {
         font-size: 9px; 
@@ -152,6 +157,29 @@ EOL;
 .table-responsive {
     width: 100%;
 }
+
+@media (max-width: 768px) {
+    .container {
+        padding-left: 1.2em;  
+        padding-right: 1.2em; 
+}
+
+@media (max-width: 768px) {
+    .row.mb-4 {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px; 
+    }
+
+    .btn {
+        width: 100%; 
+    }
+
+    .btn i {
+        margin-right: 8px; 
+    }
+}
+
 </style>
 <div class="container-sm container-bg callout border border-3 rounded-4 col-11">
     <div class="row">
@@ -161,7 +189,7 @@ EOL;
         <a href="./subscription.php" class="col btn btn-lg"><i class="bi bi-bank"></i> Singbox</a>
         <a href="./mihomo.php" class="col btn btn-lg"><i class="bi bi-building"></i> Mihomo</a>
 <div class="outer-container">
-    <div class="container" style="padding-left: 2.4em; padding-right: 2.4em;">
+    <div class="container">
         <h1 class="title text-center" style="margin-top: 3rem; margin-bottom: 2rem;">Sing-box  Template I</h1>
         <div class="alert alert-info">
             <h4 class="alert-heading">Help Information</h4>
@@ -223,7 +251,7 @@ EOL;
                     </form>
                 </div>
                 <div class="col-auto">
-                    <button type="button" class="btn btn-secondary" data-bs-toggle="modal" data-bs-target="#cronModal">
+                    <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#cronModal">
                         <i class="bi bi-clock"></i> Set up a scheduled task
                     </button>
                 </div>
@@ -437,7 +465,7 @@ EOL;
             echo "<h2 class='card-title'>Saved data</h2>";
             echo "<pre>" . htmlspecialchars($savedData) . "</pre>";
             echo "<form method='post' action=''>";
-            echo "<button class='btn btn-danger' type='submit' name='clearData'>Clear data</button>";
+            echo '<button class="btn btn-danger" type="submit" name="clearData"><i class="bi bi-trash"></i> Clear data</button>';
             echo "</form>";
             echo "</div>";
             echo "</div>";

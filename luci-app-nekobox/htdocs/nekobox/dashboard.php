@@ -68,6 +68,12 @@ $dash_link = $neko_cfg['ctrl_host'] . ':' . $neko_cfg['ctrl_port'] . '/ui/dashbo
                 display: none; 
             }
         }
+
+        @media (max-width: 767px) { 
+            #iframeMeta {
+                width: 100% !important; 
+            }
+        }
     </style>
   </head>
   <body>
@@ -75,13 +81,13 @@ $dash_link = $neko_cfg['ctrl_host'] . ':' . $neko_cfg['ctrl_port'] . '/ui/dashbo
 <head>
 <div class="container-sm container-bg text-center callout border border-3 rounded-4 col-11">
     <div class="row">
-        <a href="./index.php" class="col btn btn-lg"><i class="bi bi-house-door"></i> Home</a>
-        <a href="./dashboard.php" class="col btn btn-lg"><i class="bi bi-bar-chart"></i> Panel</a>
-        <a href="./singbox.php" class="col btn btn-lg"><i class="bi bi-box"></i> Document</a> 
-        <a href="./settings.php" class="col btn btn-lg"><i class="bi bi-gear"></i> Settings</a>
+        <a href="./index.php" class="col btn btn-lg text-nowrap"><i class="bi bi-house-door"></i> Home</a>
+        <a href="./dashboard.php" class="col btn btn-lg text-nowrap"><i class="bi bi-bar-chart"></i> Panel</a>
+        <a href="./singbox.php" class="col btn btn-lg text-nowrap"><i class="bi bi-box"></i> Document</a> 
+        <a href="./settings.php" class="col btn btn-lg text-nowrap"><i class="bi bi-gear"></i> Settings</a>
     </div>
 <div class="container text-left p-3">
-        <div class="container h-100 mb-5">
+        <div class="h-100 mb-5">
             <iframe id="iframeMeta" class="border border-3 rounded-4 w-100" style="height: 70vh;" src="http://<?php echo $zash_link; ?>" title="zash" allowfullscreen></iframe>   
             <div class="mb-3 mt-3">
                 <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#panelModal">

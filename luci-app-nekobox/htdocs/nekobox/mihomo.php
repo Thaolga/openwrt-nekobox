@@ -642,6 +642,13 @@ function getSubscriptionUrlFromFile($file) {
 .table-responsive {
     width: 100%;
 }
+
+@media (max-width: 767px) {
+.custom-padding {
+    padding-left: 3ch;  
+    padding-right: 3ch;  
+}
+
 </style>
 <div class="container-sm container-bg callout border border-3 rounded-4 col-11">
     <div class="row">
@@ -650,7 +657,7 @@ function getSubscriptionUrlFromFile($file) {
         <a href="./singbox.php" class="col btn btn-lg"><i class="bi bi-shop"></i> Sing-box</a>
         <a href="./subscription.php" class="col btn btn-lg"><i class="bi bi-bank"></i> Singbox</a>
         <a href="./mihomo.php" class="col btn btn-lg"><i class="bi bi-building"></i> Mihomo</a>
-        <h1 class="text-center p-2" style="margin-top: 2rem; margin-bottom: 1rem;">Mihomo Subscription Conversion Template</h1>
+        <h1 class="text-center p-2" style="margin-top: 2rem; margin-bottom: 1rem;">Mihomo Template</h1>
 
         <div class="col-12 custom-padding">
             <div class="form-section">

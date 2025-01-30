@@ -530,6 +530,13 @@ EOL;
 .table-responsive {
     width: 100%;
 }
+
+@media (max-width: 767px) {
+.custom-padding {
+    padding-left: 3ch;  
+    padding-right: 3ch;  
+}
+
 </style>
 <div class="container-sm container-bg callout border border-3 rounded-4 col-11">
     <div class="row">

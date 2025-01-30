@@ -754,10 +754,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['selected_config'])) {
     <?php endif; ?>
 <div class="container-sm container-bg callout border border-3 rounded-4 col-11">
     <div class="row">
-        <a href="./index.php" class="col btn btn-lg"><i class="bi bi-house-door"></i> Home</a>
-        <a href="./dashboard.php" class="col btn btn-lg"><i class="bi bi-bar-chart"></i> Panel</a>
-        <a href="./singbox.php" class="col btn btn-lg"><i class="bi bi-box"></i> Document</a> 
-        <a href="./settings.php" class="col btn btn-lg"><i class="bi bi-gear"></i> Settings</a>
+        <a href="./index.php" class="col btn btn-lg text-nowrap"><i class="bi bi-house-door"></i> Home</a>
+        <a href="./dashboard.php" class="col btn btn-lg text-nowrap"><i class="bi bi-bar-chart"></i> Panel</a>
+        <a href="./singbox.php" class="col btn btn-lg text-nowrap"><i class="bi bi-box"></i> Document</a> 
+        <a href="./settings.php" class="col btn btn-lg text-nowrap"><i class="bi bi-gear"></i> Settings</a>
     <div class="container-sm text-center col-8">
   <img src="./assets/img/nekobox.png">
 <div id="version-info">
@@ -1090,6 +1090,26 @@ $(document).ready(function() {
     .rotated {
         transform: rotate(180deg); 
     }
+
+    @media (max-width: 767px) {
+        .form-inline {
+            display: flex;         
+            flex-wrap: nowrap;     
+            justify-content: center; 
+            gap: 5px;         
+        }
+
+        .form-check-inline, .btn {
+            font-size: 10px;      
+        }
+    }
+
+    @media (max-width: 767px) {
+        #logTabs .nav-item {
+            display: block;  
+            width: 100%;     
+        }
+    }
 </style>
 <h2 class="text-center">Logs</h2>
 <ul class="nav nav-pills mb-3" id="logTabs" role="tablist">
@@ -1137,7 +1157,7 @@ $(document).ready(function() {
                 <pre id="singbox_log" class="log-container form-control" style="resize: vertical; overflow: auto; height: 350px; white-space: pre-wrap;" contenteditable="true"></pre>
             </div>
             <div class="card-footer text-center">
-                <form action="index.php" method="post" class="d-inline-block">
+                <form action="index.php" method="post" class="form-inline">
                     <div class="form-check form-check-inline mb-2">
                         <input class="form-check-input" type="checkbox" id="autoRefresh" checked>
                         <label class="form-check-label" for="autoRefresh">Auto Refresh</label>
