@@ -701,11 +701,11 @@ $razordVersion = getRazordVersion();
             </div>
             <div class="col-md-4 mb-3">
               <label for="ipColor" class="form-label">IP 文本色</label>
-              <input type="color" class="form-control" name="ipColor" id="ipColor" value="#ff69b4">
+              <input type="color" class="form-control" name="ipColor" id="ipColor" value="#09B63F">
             </div>
             <div class="col-md-4 mb-3">
               <label for="ipipColor" class="form-label">运营商文本色</label>
-              <input type="color" class="form-control" name="ipipColor" id="ipipColor" value="#09B63F">
+              <input type="color" class="form-control" name="ipipColor" id="ipipColor" value="#ff69b4">
             </div>
             <div class="col-md-4 mb-3">
               <label for="detailColor" class="form-label">IP详情文本色</label>
@@ -1014,8 +1014,8 @@ function formatSize($size) {
       document.getElementById('radiusColor').value = '#14b863';
       document.getElementById('bodyColor').value = '#04f153';
       document.getElementById('tertiaryColor').value = '#46e1ec';
-      document.getElementById('ipColor').value = '#ff69b4';
-      document.getElementById('ipipColor').value = '#09B63F';
+      document.getElementById('ipColor').value = '#09b63f';
+      document.getElementById('ipipColor').value = '#ff69b4';
       document.getElementById('detailColor').value = '#FFFFFF';
       document.getElementById('outlineColor').value = '#0dcaf0';
       document.getElementById('successColor').value = '#28a745';
