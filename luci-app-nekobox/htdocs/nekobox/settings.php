@@ -216,13 +216,8 @@ $razordVersion = getRazordVersion();
         <div class="row justify-content-center">
             <div class="col-12 col-md-6 mb-3">
                 <select class="form-select" name="themechange" aria-label="themex">
-                    <option selected>当前主题  【 <?php echo htmlspecialchars(basename(mb_convert_encoding($neko_theme, 'UTF-8', 'auto'), '.css')); ?> 】</option>
-                    <?php 
-                    foreach ($arrFiles as $file) {
-                        $fileNameWithoutExtension = basename(mb_convert_encoding($file, 'UTF-8', 'auto'), '.css');
-                        echo '<option value="' . htmlspecialchars($file) . '">' . htmlspecialchars($fileNameWithoutExtension) . '</option>';
-                    }
-                    ?>
+                    <option selected>Change Theme (<?php echo $neko_theme ?>)</option>
+                    <?php foreach ($arrFiles as $file) echo "<option value=\"".$file.'">'.$file."</option>" ?>
                 </select>
             </div>
             <div class="col-12 col-md-6 mb-3" style="padding-right: 1.3rem;" >
