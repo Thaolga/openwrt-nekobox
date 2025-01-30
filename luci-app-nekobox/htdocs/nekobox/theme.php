@@ -30,8 +30,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $lineColor = $_POST['lineColor'] ?? '#f515f9';
     $disabledColor = $_POST['disabledColor'] ?? '#23407e';
     $radiusColor = $_POST['radiusColor'] ?? '#14b863';
-    $ipColor = $_POST['ipColor'] ?? '#ff69b4';
-    $ipipColor = $_POST['ipipColor'] ?? '#09B63F';
+    $ipColor = $_POST['ipColor'] ?? '#09B63F';
+    $ipipColor = $_POST['ipipColor'] ?? '#ff69b4';
     $detailColor = $_POST['detailColor'] ?? '#FFFFFF';
     $themeName = isset($_POST['themeName']) ? $_POST['themeName'] : 'transparent';   
 
@@ -149,22 +149,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     #ip-address {
         color: var(--bs-ip-bg) !important;  
-        font-weight: bold !important;
     }
 
     #ipip {
         color: var(--bs-ipip-bg) !important;  
-        font-weight: bold !important;
     }
 
     #ipDetailModal .detail-value {
         color: var(--bs-detail-bg) !important;  
-        font-weight: bold !important; 
     }
 
     #ipDetailModal .detail-label {
         color: var(--bs-detail-bg) !important; 
-        font-weight: bold !important; 
     }
 
     #ipDetailModal .modal-title:not([class]) {
