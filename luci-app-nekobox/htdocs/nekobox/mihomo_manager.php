@@ -169,17 +169,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['downloadFile'], $_GET['
 ?>
 
 <?php
+session_start();
+
 $subscriptionPath = '/etc/neko/proxy_provider/';
 $subscriptionFile = $subscriptionPath . 'subscriptions.json';
-$message = "";
+$notificationMessage = "";
 $subscriptions = [];
 $updateCompleted = false;
 
-function outputMessage($message) {
-    if (!isset($_SESSION['update_messages'])) {
-        $_SESSION['update_messages'] = [];
+function storeUpdateLog($message) {
+    if (!isset($_SESSION['update_logs'])) {
+        $_SESSION['update_logs'] = [];
     }
-    $_SESSION['update_messages'][] = $message;
+    $_SESSION['update_logs'][] = $message;
 }
 
 if (!file_exists($subscriptionPath)) {
@@ -202,58 +204,77 @@ if (!$subscriptions) {
 
 if (isset($_POST['update'])) {
     $index = intval($_POST['index']);
-    $url = $_POST['subscription_url'] ?? '';
-    $customFileName = $_POST['custom_file_name'] ?? "subscription_" . ($index + 1) . ".yaml";  
+    $url = trim($_POST['subscription_url'] ?? '');
+    $customFileName = trim($_POST['custom_file_name'] ?? "subscription_" . ($index + 1) . ".yaml");  
 
     $subscriptions[$index]['url'] = $url;
     $subscriptions[$index]['file_name'] = $customFileName;
 
     if (!empty($url)) {
+        $tempPath = $subscriptionPath . $customFileName . ".temp";
         $finalPath = $subscriptionPath . $customFileName;
 
-        $command = "wget -q --show-progress -O {$finalPath} {$url}";
+        $command = "curl -s -L -o {$tempPath} {$url}";
         exec($command . ' 2>&1', $output, $return_var);
 
         if ($return_var !== 0) {
-            $command = "curl -s -o {$finalPath} {$url}";
+            $command = "wget -q --show-progress -O {$tempPath} {$url}";
             exec($command . ' 2>&1', $output, $return_var);
         }
 
         if ($return_var === 0) {
-            $_SESSION['update_messages'] = array();
-            $_SESSION['update_messages'][] = '<div class="alert alert-warning" style="margin-bottom: 8px;">
-                <strong>⚠️ Instructions:</strong>
-                <ul class="mb-0 pl-3">
-                    <li>The general template (mihomo.yaml) supports up to <strong>6</strong> subscription links</li>
-                    <li>Please do not change the default file name</li>
-                    <li>This template supports all format subscription links, no additional conversion is required</li>
-                </ul>
-            </div>';
+            $_SESSION['update_logs'] = [];
+            storeUpdateLog("✅ Subscription " . htmlspecialchars($url) . " has been downloaded and saved to a temporary file: " . htmlspecialchars($tempPath));
 
-            $fileContent = file_get_contents($finalPath);
-            $decodedContent = base64_decode($fileContent);
+            $fileContent = file_get_contents($tempPath);
 
-            if ($decodedContent === false) {
-                $_SESSION['update_messages'][] = "Base64 decoding failed, please check if the downloaded file content is valid!";            
-                $message = "Base64 decoding failed";
-            } else {
-                $clashFile = $subscriptionPath . $customFileName;
-                file_put_contents($clashFile, "# Clash Meta Config\n\n" . $decodedContent);
-                $_SESSION['update_messages'][] = "Subscription link {$url} updated successfully, and the decoded content has been saved to: {$clashFile}";
-                $message = 'Update successful';
+            if (base64_encode(base64_decode($fileContent, true)) === $fileContent) {
+                $decodedContent = base64_decode($fileContent);
+                if ($decodedContent !== false && strlen($decodedContent) > 0) {
+                    file_put_contents($finalPath, "# Clash Meta Config\n\n" . $decodedContent);
+                    storeUpdateLog("📂 Base64 decoding successful, configuration saved to: " . htmlspecialchars($finalPath));
+                    unlink($tempPath); 
+                    $notificationMessage = 'Update successful';
+                    $updateCompleted = true;
+                } else {
+                    storeUpdateLog("⚠️ Base64 decoding failed, please check the subscription link content!");
+                    unlink($tempPath); 
+                    $notificationMessage = 'Update failed';
+                }
+            } 
+            elseif (substr($fileContent, 0, 2) === "\x1f\x8b") {
+                $decompressedContent = gzdecode($fileContent);
+                if ($decompressedContent !== false) {
+                    file_put_contents($finalPath, "# Clash Meta Config\n\n" . $decompressedContent);
+                    storeUpdateLog("📂 Gzip decompression successful, configuration saved to: " . htmlspecialchars($finalPath));
+                    unlink($tempPath); 
+                    $notificationMessage = 'Update successful';
+                    $updateCompleted = true;
+                } else {
+                    storeUpdateLog("⚠️  Gzip decompression failed, please check the subscription link format!");
+                    unlink($tempPath); 
+                    $notificationMessage = 'Update failed';
+                }
+            } 
+            else {
+                rename($tempPath, $finalPath); 
+                storeUpdateLog("✅ Subscription content successfully downloaded, no decoding required");
+                $notificationMessage = 'Update successful';
                 $updateCompleted = true;
             }
         } else {
-            $_SESSION['update_messages'][] = "Configuration update failed! Error message: " . implode("\n", $output);
-            $message = 'Update failed';
+            storeUpdateLog("❌ Subscription update failed! Error message: " . implode("\n", $output));
+            unlink($tempPath); 
+            $notificationMessage = 'Update failed';
         }
     } else {
-        $_SESSION['update_messages'][] = "The subscription link at position " . ($index + 1) . " is empty!";
-        $message = 'Update failed';
+        storeUpdateLog("⚠️ The " . ($index + 1) . "th subscription link is empty!");
+        $notificationMessage = 'Update failed';
     }
 
     file_put_contents($subscriptionFile, json_encode($subscriptions));
-    }
+}
+
 ?>
 <?php
 $shellScriptPath = '/etc/neko/core/update_mihomo.sh';
@@ -266,62 +287,85 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         $shellScriptContent = <<<EOL
 #!/bin/bash
 
-LOG_FILE="$LOG_FILE"
-JSON_FILE="$JSON_FILE"
-SAVE_DIR="$SAVE_DIR"
+LOG_FILE="/etc/neko/tmp/log.txt"
+JSON_FILE="/etc/neko/proxy_provider/subscriptions.json"
+SAVE_DIR="/etc/neko/proxy_provider"
+
+log() {
+    echo "$(date '+[ %H:%M:%S ]') \$1" >> "\$LOG_FILE"
+}
+
+log "Starting subscription update task..."
 
 if [ ! -f "\$JSON_FILE" ]; then
-    echo "\$(date '+[ %H:%M:%S ]') Error: JSON file does not exist: \$JSON_FILE" >> "\$LOG_FILE"
+    log "❌ Error: JSON file does not exist: \$JSON_FILE"
     exit 1
 fi
-
-echo "\$(date '+[ %H:%M:%S ]') Starting to process subscription links..." >> "\$LOG_FILE"
 
 jq -c '.[]' "\$JSON_FILE" | while read -r ITEM; do
     URL=\$(echo "\$ITEM" | jq -r '.url')         
     FILE_NAME=\$(echo "\$ITEM" | jq -r '.file_name')  
 
     if [ -z "\$URL" ] || [ "\$URL" == "null" ]; then
-        echo "\$(date '+[ %H:%M:%S ]') Skipping empty URL. File name: \$FILE_NAME" >> "\$LOG_FILE"
+        log "⚠️ Skipping empty subscription URL, file name: \$FILE_NAME"
         continue
     fi
 
     if [ -z "\$FILE_NAME" ] || [ "\$FILE_NAME" == "null" ]; then
-        echo "\$(date '+[ %H:%M:%S ]') Error: File name is empty. Skipping URL: \$URL" >> "\$LOG_FILE"
+        log "❌ Error: File name is empty, skipping this URL: \$URL"
         continue
     fi
 
     SAVE_PATH="\$SAVE_DIR/\$FILE_NAME"
     TEMP_PATH="\$SAVE_PATH.temp"  
-    echo "\$(date '+[ %H:%M:%S ]') Downloading URL: \$URL to temporary file: \$TEMP_PATH" >> "\$LOG_FILE"
 
-    wget -q -O "\$TEMP_PATH" "\$URL"
+    log "🔄 Downloading: \$URL to temporary file: \$TEMP_PATH"
+
+    curl -s -L -o "\$TEMP_PATH" "\$URL"
+
+    if [ \$? -ne 0 ]; then
+        wget -q -O "\$TEMP_PATH" "\$URL"
+    fi
 
     if [ \$? -eq 0 ]; then
-        echo "\$(date '+[ %H:%M:%S ]') File downloaded successfully: \$TEMP_PATH" >> "\$LOG_FILE"
-        
-        base64 -d "\$TEMP_PATH" > "\$SAVE_PATH"
+        log "✅ File downloaded successfully: \$TEMP_PATH"
 
-        if [ \$? -eq 0 ]; then
-            echo "\$(date '+[ %H:%M:%S ]') File decoded successfully: \$SAVE_PATH" >> "\$LOG_FILE"
+        if base64 -d "\$TEMP_PATH" > /dev/null 2>&1; then
+            base64 -d "\$TEMP_PATH" > "\$SAVE_PATH"
+            if [ \$? -eq 0 ]; then
+                log "📂 Base64 decoding successful, configuration saved: \$SAVE_PATH"
+                rm -f "\$TEMP_PATH"
+            else
+                log "⚠️ Base64 decoding failed: \$SAVE_PATH"
+                rm -f "\$TEMP_PATH"
+            fi
+        elif file "\$TEMP_PATH" | grep -q "gzip compressed"; then
+            gunzip -c "\$TEMP_PATH" > "\$SAVE_PATH"
+            if [ \$? -eq 0 ]; then
+                log "📂 Gzip decompression successful, configuration saved: \$SAVE_PATH"
+                rm -f "\$TEMP_PATH"
+            else
+                log "⚠️ Gzip decompression failed: \$SAVE_PATH"
+                rm -f "\$TEMP_PATH"
+            fi
         else
-            echo "\$(date '+[ %H:%M:%S ]') Error: File decoding failed: \$SAVE_PATH" >> "\$LOG_FILE"
+            mv "\$TEMP_PATH" "\$SAVE_PATH"
+            log "✅ Subscription content successfully downloaded, no decoding required"
         fi
-
-        rm -f "\$TEMP_PATH"
     else
-        echo "\$(date '+[ %H:%M:%S ]') Error: File download failed: \$URL" >> "\$LOG_FILE"
+        log "❌ Subscription update failed: \$URL"
+        rm -f "\$TEMP_PATH"
     fi
 done
 
-echo "\$(date '+[ %H:%M:%S ]') All subscription links processed." >> "\$LOG_FILE"
+log "🚀 All subscription links updated successfully！"
 EOL;
 
         if (file_put_contents($shellScriptPath, $shellScriptContent) !== false) {
-            chmod($shellScriptPath, 0755);
-            echo "<div class='alert alert-success'>Shell script created successfully! Path: $shellScriptPath</div>";
+            chmod($shellScriptPath, 0755); 
+            echo "<div class='alert alert-success'>Shell script successfully created! Path: $shellScriptPath</div>";
         } else {
-            echo "<div class='alert alert-danger'>Failed to create Shell script. Please check permissions.</div>";
+            echo "<div class='alert alert-danger'>Failed to create Shell script, please check permissions.</div>";
         }
     }
 }
@@ -436,13 +480,24 @@ function download_file($url, $destination) {
     </script>
 <?php endif; ?>
 <body>
-<div class="position-fixed w-100 d-flex justify-content-center" style="top: 20px; z-index: 1050;">
-    <div id="updateAlert" class="alert alert-success alert-dismissible fade show" role="alert" style="display: none; min-width: 300px; max-width: 600px;">
+<div class="position-fixed w-100 d-flex flex-column align-items-center" style="top: 20px; z-index: 1050;">
+    <div id="updateNotification" class="alert alert-info alert-dismissible fade show shadow-lg" role="alert" style="display: none; min-width: 320px; max-width: 600px; opacity: 0.95;">
         <div class="d-flex align-items-center">
             <div class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></div>
-            <strong>Update Complete</strong>
+            <strong>🔔 Update Notification</strong>
         </div>
-        <div id="updateMessages" class="small mt-2"></div>
+        
+        <div class="alert alert-info mt-2 p-2 small">
+            <strong>⚠️ Instructions for Use：</strong>
+            <ul class="mb-0 pl-3">
+                <li>The general template (mihomo.yaml) supports up to <strong>6</strong> subscription links.</li>
+                <li>Please do not change the default file name.</li>
+                <li>This template supports all format subscription links without the need for additional conversion.</li>
+            </ul>
+        </div>
+
+        <div id="updateLogContainer" class="small mt-2"></div>
+
         <button type="button" class="btn-close custom-btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
     </div>
 </div>
@@ -540,32 +595,65 @@ html {
 .upload-icon {
     font-size: 1.5rem; 
 }
+
+@media (max-width: 768px) {
+    .table thead {
+        display: none; 
+    }
+
+    .table tbody, 
+    .table tr, 
+    .table td {
+        display: block;
+        width: 100%;
+    }
+
+    .table td::before {
+        content: attr(data-label); 
+        font-weight: bold;
+        display: block;
+        text-transform: uppercase;
+        color: #23407E; 
+    }
+
+    .table tr {
+        margin-bottom: 10px;
+        border: 1px solid #ddd;
+        padding: 10px;
+        border-radius: 5px;
+        background-color: #f9f9f9;
+    }
+}
+
+.container {
+    padding-left: 1.4em;  
+    padding-right: 1.4em; 
+}
 </style>
 
 <script>
-function showUpdateAlert() {
-    const alert = $('#updateAlert');
-    const messages = <?php echo json_encode($_SESSION['update_messages'] ?? []); ?>;
+function displayUpdateNotification() {
+    const notification = $('#updateNotification');
+    const updateLogs = <?php echo json_encode($_SESSION['update_logs'] ?? []); ?>;
     
-    if (messages.length > 0) {
-        const messagesHtml = messages.map(msg => `<div>${msg}</div>`).join('');
-        $('#updateMessages').html(messagesHtml);
+    if (updateLogs.length > 0) {
+        const logsHtml = updateLogs.map(log => `<div>${log}</div>`).join('');
+        $('#updateLogContainer').html(logsHtml);
     }
     
-    alert.show().addClass('show');
+    notification.fadeIn().addClass('show');
     
     setTimeout(function() {
-        alert.removeClass('show');
-        setTimeout(function() {
-            alert.hide();
-            $('#updateMessages').html('');
-        }, 150);
-    }, 12000);
+        notification.fadeOut(300, function() {
+            notification.hide();
+            $('#updateLogContainer').html('');
+        });
+    }, 10000);
 }
 
-<?php if (!empty($message)): ?>
+<?php if (!empty($notificationMessage)): ?>
     $(document).ready(function() {
-        showUpdateAlert();
+        displayUpdateNotification();
     });
 <?php endif; ?>
 </script>
@@ -606,16 +694,16 @@ function showUpdateAlert() {
                     $fileType = $fileTypes[$index];
                 ?>
                     <tr>
-                        <td class="align-middle">
+                        <td class="align-middle" data-label="File Name">
                             <a href="download.php?file=<?php echo urlencode($file); ?>"><?php echo htmlspecialchars($file); ?></a>
                         </td>
-                        <td class="align-middle">
-                            <?php echo file_exists($filePath) ? formatSize(filesize($filePath)) : 'File Not Found'; ?>
+                        <td class="align-middle" data-label="Size">
+                            <?php echo file_exists($filePath) ? formatSize(filesize($filePath)) : 'The file does not exist'; ?>
                         </td>
-                        <td class="align-middle">
+                        <td class="align-middle" data-label="Modification Time">
                             <?php echo htmlspecialchars(date('Y-m-d H:i:s', filemtime($filePath))); ?>
                         </td>
-                        <td class="align-middle">
+                        <td class="align-middle" data-label="File Type">
                             <?php echo htmlspecialchars($fileType); ?>
                         </td>
                         <td class="align-middle">
@@ -1246,6 +1334,7 @@ function initializeAceEditor() {
     #cronModal code {
         white-space: pre-wrap; 
     }
+
 </style>
       <footer class="text-center mt-3">
     <p><?php echo $footer ?></p>

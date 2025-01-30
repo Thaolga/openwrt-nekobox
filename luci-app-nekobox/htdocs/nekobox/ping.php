@@ -854,6 +854,7 @@ function clearCache() {
     sessionStorage.setItem('cacheCleared', 'true');
 
     showNotification('Cache cleared');
+    speakMessage('Cache cleared');
 }
 
 function showNotification(message) {
@@ -878,6 +879,7 @@ function showNotification(message) {
 window.addEventListener('load', function() {
     if (sessionStorage.getItem('cacheCleared') === 'true') {
         showNotification('Cache cleared');
+        speakMessage('Cache cleared');
         sessionStorage.removeItem('cacheCleared'); 
     }
 });
@@ -978,6 +980,7 @@ window.addEventListener('load', function() {
                 isPlaying = true;
                 savePlayerState(); 
                 console.log('Playback started');
+                speakMessage('Playback started');
             }).catch(error => {
                 console.log('Playback failed:', error);
             });
@@ -986,6 +989,7 @@ window.addEventListener('load', function() {
             isPlaying = false;
             savePlayerState(); 
             console.log('Playback paused');
+            speakMessage('Playback paused');
         }
     });
 
@@ -999,6 +1003,7 @@ window.addEventListener('load', function() {
             }
             const songName = getSongName(songs[currentSongIndex]); 
             showLogMessage(`Previous track：${songName}`);
+            speakMessage('Previous track');
         } else if (event.key === 'ArrowDown') {
             currentSongIndex = (currentSongIndex + 1) % songs.length; 
             loadSong(currentSongIndex);
@@ -1008,6 +1013,7 @@ window.addEventListener('load', function() {
             }
             const songName = getSongName(songs[currentSongIndex]); 
             showLogMessage(`Next track：${songName}`);
+            speakMessage('Next track');
         } else if (event.key === 'ArrowLeft') {
             audioPlayer.currentTime = Math.max(audioPlayer.currentTime - 10, 0); 
             console.log('Rewind 10 seconds');
@@ -1028,19 +1034,21 @@ window.addEventListener('load', function() {
             if (isPlaying) {
                 audioPlayer.play();
             }
-        } else if (event.key === ' ') { 
+        } else if (event.key === 'F9') { 
             if (isPlaying) {
                 audioPlayer.pause();
                 isPlaying = false;
                 savePlayerState(); 
                 console.log('Playback paused');
                 showLogMessage('Playback paused');
+                speakMessage('Playback paused');
             } else {
                 audioPlayer.play().then(() => {
                     isPlaying = true;
                     savePlayerState(); 
                     console.log('Playback started');
                     showLogMessage('Playback started');
+                    speakMessage('Playback started');
                 }).catch(error => {
                     console.log('Playback failed:', error);
                 });
@@ -1050,9 +1058,11 @@ window.addEventListener('load', function() {
             if (isLooping) {
                 console.log('Loop playback');
                 showLogMessage('Loop playback');
+                speakMessage('Loop playback');
             } else {
                 console.log('Sequential playback');
                 showLogMessage('Sequential playback');
+                speakMessage('Sequential playback');
             }
         }
     });
@@ -1422,9 +1432,11 @@ window.addEventListener('load', function() {
                 if (isAnimationActive) {
                     startAnimation();
                     showNotification('The animation has started');
+                    speakMessage('The animation has started');
                 } else {
                     stopAnimation();
                     showNotification('The animation has stopped');
+                    speakMessage('The animation has stopped');
                 }
             }
         });
@@ -1600,9 +1612,11 @@ window.addEventListener('load', function() {
             if (isSnowing) {
                 createSnowflakes(); 
                 showNotification('The snowflake animation has started');
+                speakMessage('The snowflake animation has started');
             } else {
                 stopSnowflakes(); 
                 showNotification('The snowflake animation has stopped');
+                speakMessage('The snowflake animation has stopped');
             }
         }
     });
@@ -1722,8 +1736,10 @@ window.addEventListener('load', function() {
             isLightAnimationActive = !isLightAnimationActive;
             if (isLightAnimationActive) {
                 startLightAnimation(); 
+                speakMessage('The cube light animation has started');
             } else {
                 stopLightAnimation();   
+                speakMessage('The cube light animation has stopped');
             }
         }
     });
@@ -1820,8 +1836,10 @@ window.addEventListener('load', function() {
             isLightEffectActive = !isLightEffectActive;
             if (isLightEffectActive) {
                 startLightEffect();
+                speakMessage('The light spot animation has been turned on');
             } else {
                 stopLightEffect();
+                speakMessage('The light spot animation has been turned off');
             }
         }
     });

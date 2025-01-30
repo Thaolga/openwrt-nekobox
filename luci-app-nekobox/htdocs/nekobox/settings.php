@@ -206,8 +206,13 @@ $razordVersion = getRazordVersion();
         <div class="row justify-content-center">
             <div class="col-12 col-md-6 mb-3">
                 <select class="form-select" name="themechange" aria-label="themex style="text-indent: 5ch;">
-                    <option selected>Change Theme (<?php echo $neko_theme ?>)</option>
-                    <?php foreach ($arrFiles as $file) echo "<option value=\"".$file.'">'.$file."</option>" ?>
+                    <option selected>Change Theme 【 <?php echo htmlspecialchars(basename(mb_convert_encoding($neko_theme, 'UTF-8', 'auto'), '.css')); ?> 】</option>
+                    <?php 
+                    foreach ($arrFiles as $file) {
+                        $fileNameWithoutExtension = basename(mb_convert_encoding($file, 'UTF-8', 'auto'), '.css');
+                        echo '<option value="' . htmlspecialchars($file) . '">' . htmlspecialchars($fileNameWithoutExtension) . '</option>';
+                    }
+                    ?>
                 </select>
             </div>
             <div class="col-12 col-md-6 mb-3" style="padding-right: 1.3rem;" >
@@ -591,6 +596,7 @@ $razordVersion = getRazordVersion();
         </div>
     </div>
 </div>
+
 <div class="modal fade" id="colorModal" tabindex="-1" aria-labelledby="colorModalLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
   <div class="modal-dialog modal-xl">
     <div class="modal-content">
@@ -601,102 +607,130 @@ $razordVersion = getRazordVersion();
       <div class="modal-body">
         <form method="POST" action="theme.php" id="themeForm" enctype="multipart/form-data">
           <div class="row">
-            <div class="col-md-6 mb-3">
+            <div class="col-md-4 mb-3">
               <label for="primaryColor" class="form-label">Navbar Text Color</label>
               <input type="color" class="form-control" name="primaryColor" id="primaryColor" value="#0ceda2">
             </div>
-            <div class="col-md-6 mb-3">
+            <div class="col-md-4 mb-3">
               <label for="secondaryColor" class="form-label">Navbar Hover Text Color</label>
               <input type="color" class="form-control" name="secondaryColor" id="secondaryColor" value="#00ffff">
             </div>
-            <div class="col-md-6 mb-3">
+            <div class="col-md-4 mb-3">
               <label for="bodyBgColor" class="form-label">Main Background Color</label>
               <input type="color" class="form-control" name="bodyBgColor" id="bodyBgColor" value="#23407e">
             </div>
-            <div class="col-md-6 mb-3">
+            <div class="col-md-4 mb-3">
               <label for="infoBgSubtle" class="form-label">Information Background Color</label>
               <input type="color" class="form-control" name="infoBgSubtle" id="infoBgSubtle" value="#23407e">
             </div>
-            <div class="col-md-6 mb-3">
+            <div class="col-md-4 mb-3">
               <label for="backgroundColor" class="form-label">Table Background Color</label>
               <input type="color" class="form-control" name="backgroundColor" id="backgroundColor" value="#20cdd9">
             </div>
-            <div class="col-md-6 mb-3">
+            <div class="col-md-4 mb-3">
               <label for="primaryBorderSubtle" class="form-label">Table Text Color</label>
               <input type="color" class="form-control" name="primaryBorderSubtle" id="primaryBorderSubtle" value="#1815d1">
             </div>
-            <div class="col-md-6 mb-3">
-              <label for="placeholderColor" class="form-label">Input Field Text Color</label>
+            <div class="col-md-4 mb-3">
+              <label for="checkColor" class="form-label">Main Title Text Color 1</label>
+              <input type="color" class="form-control" name="checkColor" id="checkColor" value="#0eaf3e">
+            </div>
+            <div class="col-md-4 mb-3">
+              <label for="labelColor" class="form-label">Main Title Text Color 2</label>
+              <input type="color" class="form-control" name="labelColor" id="labelColor" value="#0eaf3e">
+            </div>
+            <div class="col-md-4 mb-3">
+              <label for="lineColor" class="form-label">Line Text Color</label>
+              <input type="color" class="form-control" name="lineColor" id="lineColor" value="#f515f9">
+            </div>
+            <div class="col-md-4 mb-3">
+              <label for="controlColor" class="form-label">Input Box Text Color 1</label>
+              <input type="color" class="form-control" name="controlColor" id="controlColor" value="#0eaf3e">
+            </div>
+            <div class="col-md-4 mb-3">
+              <label for="placeholderColor" class="form-label">Input Box Text Color 2</label>
               <input type="color" class="form-control" name="placeholderColor" id="placeholderColor" value="#f82af2">
             </div>
-            <div class="col-md-6 mb-3">
+            <div class="col-md-4 mb-3">
+              <label for="disabledColor" class="form-label">Display Box Background Color</label>
+              <input type="color" class="form-control" name="disabledColor" id="disabledColor" value="#23407e">
+            </div>
+            <div class="col-md-4 mb-3">
               <label for="logTextColor" class="form-label">Log Text Color</label>
               <input type="color" class="form-control" name="logTextColor" id="logTextColor" value="#f8f9fa">
             </div>
-            <div class="col-md-6 mb-3">
+            <div class="col-md-4 mb-3">
               <label for="selectColor" class="form-label">Main Border Background Color</label>
               <input type="color" class="form-control" name="selectColor" id="selectColor" value="#23407e">
             </div>
-            <div class="col-md-6 mb-3">
+            <div class="col-md-4 mb-3">
+              <label for="radiusColor" class="form-label">Main Border Text Color</label>
+              <input type="color" class="form-control" name="radiusColor" id="radiusColor" value="#24f086">
+            </div>
+            <div class="col-md-4 mb-3">
               <label for="bodyColor" class="form-label">Table Text Color 1</label>
               <input type="color" class="form-control" name="bodyColor" id="bodyColor" value="#04f153">
             </div>
-            <div class="col-md-6 mb-3">
+            <div class="col-md-4 mb-3">
               <label for="tertiaryColor" class="form-label">Table Text Color 2</label>
               <input type="color" class="form-control" name="tertiaryColor" id="tertiaryColor" value="#46e1ec">
             </div>
-            <div class="col-md-6 mb-3">
+            <div class="col-md-4 mb-3">
               <label for="tertiaryRgbColor" class="form-label">Table Text Color 3</label>
               <input type="color" class="form-control" name="tertiaryRgbColor" id="tertiaryRgbColor" value="#1e90ff">
             </div>
-            <div class="col-md-6 mb-3">
+            <div class="col-md-4 mb-3">
               <label for="outlineColor" class="form-label">Button Color (Cyan)</label>
               <input type="color" class="form-control" name="outlineColor" id="outlineColor" value="#0dcaf0">
             </div>
-            <div class="col-md-6 mb-3">
+            <div class="col-md-4 mb-3">
               <label for="successColor" class="form-label">Button Color (Green)</label>
               <input type="color" class="form-control" name="successColor" id="successColor" value="#28a745">
             </div>
-            <div class="col-md-6 mb-3">
+            <div class="col-md-4 mb-3">
               <label for="infoColor" class="form-label">Button Color (Blue)</label>
               <input type="color" class="form-control" name="infoColor" id="infoColor" value="#0ca2ed">
             </div>
-            <div class="col-md-6 mb-3">
+            <div class="col-md-4 mb-3">
               <label for="warningColor" class="form-label">Button Color (Yellow)</label>
               <input type="color" class="form-control" name="warningColor" id="warningColor" value="#ffc107">
             </div>
-            <div class="col-md-6 mb-3">
+            <div class="col-md-4 mb-3">
               <label for="pinkColor" class="form-label">Button Color (Pink)</label>
               <input type="color" class="form-control" name="pinkColor" id="pinkColor" value="#f82af2">
             </div>
-            <div class="col-md-6 mb-3">
+            <div class="col-md-4 mb-3">
               <label for="dangerColor" class="form-label">Button Color (Red)</label>
               <input type="color" class="form-control" name="dangerColor" id="dangerColor" value="#dc3545">
             </div>
-            <div class="col-md-6 mb-3">
+            <div class="col-md-4 mb-3">
               <label for="heading1Color" class="form-label">Heading Color 1</label>
               <input type="color" class="form-control" name="heading1Color" id="heading1Color" value="#21e4f2">
             </div>
-            <div class="col-md-6 mb-3">
+            <div class="col-md-4 mb-3">
               <label for="heading2Color" class="form-label">Heading Color 2</label>
               <input type="color" class="form-control" name="heading2Color" id="heading2Color" value="#65f1fb">
             </div>
-            <div class="col-md-6 mb-3">
+            <div class="col-md-4 mb-3">
               <label for="heading3Color" class="form-label">Heading Color 3</label>
               <input type="color" class="form-control" name="heading3Color" id="heading3Color" value="#ffcc00">
             </div>
-            <div class="col-md-6 mb-3">
+            <div class="col-md-4 mb-3">
               <label for="heading4Color" class="form-label">Heading Color 4</label>
               <input type="color" class="form-control" name="heading4Color" id="heading4Color" value="#00fbff">
             </div>
-            <div class="col-md-6 mb-3">
+            <div class="col-md-4 mb-3">
               <label for="heading5Color" class="form-label">Heading Color 5</label>
               <input type="color" class="form-control" name="heading5Color" id="heading5Color" value="#ba13f6">
             </div>
-            <div class="col-md-6 mb-3">
+            <div class="col-md-4 mb-3">
               <label for="heading6Color" class="form-label">Heading Color 6</label>
               <input type="color" class="form-control" name="heading6Color" id="heading6Color" value="#00ffff">
             </div>
+          </div>
+          <div class="col-12 mb-3">
+            <label for="themeName" class="form-label">Custom Theme Name</label>
+            <input type="text" class="form-control" name="themeName" id="themeName" value="transparent">
           </div>
           <div class="mb-3 form-check">
             <input type="checkbox" class="form-check-input" id="useBackgroundImage" name="useBackgroundImage">
@@ -719,7 +753,7 @@ $razordVersion = getRazordVersion();
           </div>
       <div class="d-flex flex-wrap justify-content-center align-items-center mb-3 gap-2">
           <button type="submit" class="btn btn-primary">Save Theme</button>
-          <button type="button" class="btn btn-success" id="resetButton">Restore Default Values</button>
+          <button type="button" class="btn btn-success" id="resetButton" onclick="clearCache()">Restore Default Values</button>
           <button type="button" class="btn btn-info" id="exportButton">Immediate Backup</button>
           <button type="button" class="btn btn-warning" id="restoreButton">Restore Backup</button> 
           <input type="file" id="importButton" class="form-control" accept="application/json" style="display: none;"> 
@@ -758,6 +792,21 @@ $razordVersion = getRazordVersion();
                 }
             };
             reader.readAsText(file);
+        }
+    });
+</script>
+
+<script>
+    function clearCache() {
+        location.reload(true);        
+        localStorage.clear();   
+        sessionStorage.clear(); 
+        sessionStorage.setItem('cacheCleared', 'true'); 
+    }
+
+    window.addEventListener('load', function() {
+        if (sessionStorage.getItem('cacheCleared') === 'true') {
+            sessionStorage.removeItem('cacheCleared'); 
         }
     });
 </script>
@@ -918,28 +967,33 @@ function formatSize($size) {
       document.getElementById('primaryColor').value = '#0ceda2';
       document.getElementById('secondaryColor').value = '#00ffff';
       document.getElementById('bodyBgColor').value = '#23407e';
-      document.getElementById('bodyColor').value = '#04f153';
       document.getElementById('infoBgSubtle').value = '#23407e';
-      document.getElementById('selectColor').value = '#23407e';
-      document.getElementById('tertiaryColor').value = '#46e1ec';
-      document.getElementById('tertiaryRgbColor').value = '#1e90ff';
-      document.getElementById('heading1Color').value = '#21e4f2';
-      document.getElementById('heading2Color').value = '#65f1fb';
-      document.getElementById('heading3Color').value = '#ffcc00';
-      document.getElementById('heading4Color').value = '#00fbff';
-      document.getElementById('heading5Color').value = '#ba13f6';
-      document.getElementById('heading6Color').value = '#00ffff';
-      document.getElementById('primaryBorderSubtle').value = '#1815d1';
       document.getElementById('backgroundColor').value = '#20cdd9';
+      document.getElementById('primaryBorderSubtle').value = '#1815d1';
+      document.getElementById('checkColor').value = '#0eaf3e';
+      document.getElementById('labelColor').value = '#0eaf3e';
+      document.getElementById('lineColor').value = '#f515f9';
+      document.getElementById('controlColor').value = '#0eaf3e';
       document.getElementById('placeholderColor').value = '#f82af2';
+      document.getElementById('disabledColor').value = '#23407e';
       document.getElementById('logTextColor').value = '#f8f9fa';
+      document.getElementById('selectColor').value = '#23407e';
+      document.getElementById('radiusColor').value = '#14b863';
+      document.getElementById('bodyColor').value = '#04f153';
+      document.getElementById('tertiaryColor').value = '#46e1ec';
       document.getElementById('outlineColor').value = '#0dcaf0';
       document.getElementById('successColor').value = '#28a745';
       document.getElementById('infoColor').value = '#0ca2ed';
       document.getElementById('warningColor').value = '#ffc107';
       document.getElementById('pinkColor').value = '#f82af2';
       document.getElementById('dangerColor').value = '#dc3545';
-      
+      document.getElementById('tertiaryRgbColor').value = '#1e90ff';
+      document.getElementById('heading1Color').value = '#21e4f2';
+      document.getElementById('heading2Color').value = '#65f1fb';
+      document.getElementById('heading3Color').value = '#ffcc00';
+      document.getElementById('heading4Color').value = '#00fbff';
+      document.getElementById('heading5Color').value = '#ba13f6';
+      document.getElementById('heading6Color').value = '#00ffff';  
       localStorage.clear();
     });
 
@@ -949,27 +1003,32 @@ function formatSize($size) {
         secondaryColor: document.getElementById('secondaryColor').value,
         bodyBgColor: document.getElementById('bodyBgColor').value,
         infoBgSubtle: document.getElementById('infoBgSubtle').value,
+        backgroundColor: document.getElementById('backgroundColor').value,
+        primaryBorderSubtle: document.getElementById('primaryBorderSubtle').value,
+        checkColor: document.getElementById('checkColor').value,
+        labelColor: document.getElementById('labelColor').value,
+        lineColor: document.getElementById('lineColor').value,
+        controlColor: document.getElementById('controlColor').value,
+        placeholderColor: document.getElementById('placeholderColor').value,
+        disabledColor: document.getElementById('disabledColor').value,
+        logTextColor: document.getElementById('logTextColor').value,
         selectColor: document.getElementById('selectColor').value,
+        radiusColor: document.getElementById('radiusColor').value,
         bodyColor: document.getElementById('bodyColor').value,
         tertiaryColor: document.getElementById('tertiaryColor').value,
         tertiaryRgbColor: document.getElementById('tertiaryRgbColor').value,
-        heading1Color: document.getElementById('heading1Color').value,
-        heading2Color: document.getElementById('heading2Color').value,
-        heading3Color: document.getElementById('heading3Color').value,
-        heading4Color: document.getElementById('heading4Color').value,
-        heading5Color: document.getElementById('heading5Color').value,
-        heading6Color: document.getElementById('heading6Color').value,
-
         outlineColor: document.getElementById('outlineColor').value,
         successColor: document.getElementById('successColor').value,
         infoColor: document.getElementById('infoColor').value,
         warningColor: document.getElementById('warningColor').value,
         pinkColor: document.getElementById('pinkColor').value,
         dangerColor: document.getElementById('dangerColor').value,
-        primaryBorderSubtle: document.getElementById('primaryBorderSubtle').value,
-        backgroundColor: document.getElementById('backgroundColor').value,
-        placeholderColor: document.getElementById('placeholderColor').value,
-        logTextColor: document.getElementById('logTextColor').value,
+        heading1Color: document.getElementById('heading1Color').value,
+        heading2Color: document.getElementById('heading2Color').value,
+        heading3Color: document.getElementById('heading3Color').value,
+        heading4Color: document.getElementById('heading4Color').value,
+        heading5Color: document.getElementById('heading5Color').value,
+        heading6Color: document.getElementById('heading6Color').value,
         useBackgroundImage: document.getElementById('useBackgroundImage').checked,
         backgroundImage: document.getElementById('backgroundImage').value
       };
@@ -992,26 +1051,32 @@ function formatSize($size) {
           document.getElementById('secondaryColor').value = settings.secondaryColor;
           document.getElementById('bodyBgColor').value = settings.bodyBgColor;
           document.getElementById('infoBgSubtle').value = settings.infoBgSubtle;
+          document.getElementById('backgroundColor').value = settings.backgroundColor;
+          document.getElementById('primaryBorderSubtle').value = settings.primaryBorderSubtle;
+          document.getElementById('checkColor').value = settings.checkColor;
+          document.getElementById('labelColor').value = settings.labelColor;
+          document.getElementById('lineColor').value = settings.lineColor;
+          document.getElementById('controlColor').value = settings.controlColor;
+          document.getElementById('placeholderColor').value = settings.placeholderColor;
+          document.getElementById('disabledColor').value = settings.disabledColor;
+          document.getElementById('logTextColor').value = settings.logTextColor;
           document.getElementById('selectColor').value = settings.selectColor;
+          document.getElementById('radiusColor').value = settings.radiusColor;
           document.getElementById('bodyColor').value = settings.bodyColor;
           document.getElementById('tertiaryColor').value = settings.tertiaryColor;
           document.getElementById('tertiaryRgbColor').value = settings.tertiaryRgbColor;
-          document.getElementById('heading1Color').value = settings.heading1Color;
-          document.getElementById('heading2Color').value = settings.heading2Color;
-          document.getElementById('heading3Color').value = settings.heading3Color;
-          document.getElementById('heading4Color').value = settings.heading4Color;
-          document.getElementById('heading5Color').value = settings.heading5Color;
-          document.getElementById('heading6Color').value = settings.heading6Color;
           document.getElementById('outlineColor').value = settings.outlineColor;
           document.getElementById('successColor').value = settings.successColor;
           document.getElementById('infoColor').value = settings.infoColor;
           document.getElementById('warningColor').value = settings.warningColor;
           document.getElementById('pinkColor').value = settings.pinkColor;
           document.getElementById('dangerColor').value = settings.dangerColor;
-          document.getElementById('primaryBorderSubtle').value = settings.primaryBorderSubtle;
-          document.getElementById('backgroundColor').value = settings.backgroundColor;
-          document.getElementById('placeholderColor').value = settings.placeholderColor;
-          document.getElementById('logTextColor').value = settings.logTextColor;
+          document.getElementById('heading1Color').value = settings.heading1Color;
+          document.getElementById('heading2Color').value = settings.heading2Color;
+          document.getElementById('heading3Color').value = settings.heading3Color;
+          document.getElementById('heading4Color').value = settings.heading4Color;
+          document.getElementById('heading5Color').value = settings.heading5Color;
+          document.getElementById('heading6Color').value = settings.heading6Color;
           document.getElementById('useBackgroundImage').checked = settings.useBackgroundImage;
 
           const backgroundImageContainer = document.getElementById('backgroundImageContainer');
@@ -1022,27 +1087,32 @@ function formatSize($size) {
           localStorage.setItem('secondaryColor', settings.secondaryColor);
           localStorage.setItem('bodyBgColor', settings.bodyBgColor);
           localStorage.setItem('infoBgSubtle', settings.infoBgSubtle);
+          localStorage.setItem('backgroundColor', settings.backgroundColor);
+          localStorage.setItem('primaryBorderSubtle', settings.primaryBorderSubtle);
+          localStorage.setItem('checkColor', settings.checkColor);
+          localStorage.setItem('labelColor', settings.labelColor);
+          localStorage.setItem('lineColor', settings.lineColor);
+          localStorage.setItem('controlColor', settings.controlColor);
+          localStorage.setItem('placeholderColor', settings.placeholderColor);
+          localStorage.setItem('disabledColor', settings.disabledColor);
+          localStorage.setItem('logTextColor', settings.logTextColor);
           localStorage.setItem('selectColor', settings.selectColor);
+          localStorage.setItem('radiusColor', settings.radiusColor);
           localStorage.setItem('bodyColor', settings.bodyColor);
           localStorage.setItem('tertiaryColor', settings.tertiaryColor);
           localStorage.setItem('tertiaryRgbColor', settings.tertiaryRgbColor);
-          localStorage.setItem('heading1Color', settings.heading1Color);
-          localStorage.setItem('heading2Color', settings.heading2Color);
-          localStorage.setItem('heading3Color', settings.heading3Color);
-          localStorage.setItem('heading4Color', settings.heading4Color);
-          localStorage.setItem('heading5Color', settings.heading5Color);
-          localStorage.setItem('heading6Color', settings.heading6Color);
-
           localStorage.setItem('outlineColor', settings.outlineColor);
           localStorage.setItem('successColor', settings.successColor);
           localStorage.setItem('infoColor', settings.infoColor);
           localStorage.setItem('warningColor', settings.warningColor);
           localStorage.setItem('pinkColor', settings.pinkColor);
           localStorage.setItem('dangerColor', settings.dangerColor);
-          localStorage.setItem('primaryBorderSubtle', settings.primaryBorderSubtle);
-          localStorage.setItem('backgroundColor', settings.backgroundColor);
-          localStorage.setItem('placeholderColor', settings.placeholderColor);
-          localStorage.setItem('logTextColor', settings.logTextColor);
+          localStorage.setItem('heading1Color', settings.heading1Color);
+          localStorage.setItem('heading2Color', settings.heading2Color);
+          localStorage.setItem('heading3Color', settings.heading3Color);
+          localStorage.setItem('heading4Color', settings.heading4Color);
+          localStorage.setItem('heading5Color', settings.heading5Color);
+          localStorage.setItem('heading6Color', settings.heading6Color);
           localStorage.setItem('useBackgroundImage', settings.useBackgroundImage);
           localStorage.setItem('backgroundImage', settings.backgroundImage);
         };
