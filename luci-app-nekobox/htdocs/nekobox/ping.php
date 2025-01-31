@@ -266,6 +266,15 @@ $lang = $_GET['lang'] ?? 'en';
         gap: 5px;  
         flex-wrap: nowrap;  
     }
+
+    svg.feather {
+        width: 20px !important;
+        height: 20px !important;
+        vertical-align: middle !important;
+        margin-right: 5px !important;
+        stroke: #FF00FF !important; 
+        fill: none !important;
+    }
 </style>
 <script src="./assets/neko/js/jquery.min.js"></script>
 <link rel="stylesheet" href="./assets/bootstrap/leaflet.css" />
@@ -576,7 +585,7 @@ let IP = {
                     <div class="modal-content">
                         <div class="modal-header">
                             <h5 class="modal-title" id="ipDetailModalLabel">IP Detailed Information</h5>
-                            <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
                                 <span aria-hidden="true">&times;</span>
                             </button>
                         </div>
@@ -760,7 +769,7 @@ style.textContent = `
     padding: 20px;
 }
 .custom-modal .modal-header {
-    background-color: #007bff;
+    background-color: #fff;
     color: #fff;
     padding: 16px 20px;
     border-bottom: 1px solid #ddd;
@@ -1848,6 +1857,12 @@ window.addEventListener('load', function() {
         startLightEffect(false);
     }
 })();
+</script>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        feather.replace();
+    });
 </script>
 
 

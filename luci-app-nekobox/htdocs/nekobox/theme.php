@@ -30,7 +30,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $lineColor = $_POST['lineColor'] ?? '#f515f9';
     $disabledColor = $_POST['disabledColor'] ?? '#23407e';
     $radiusColor = $_POST['radiusColor'] ?? '#14b863';
+    $ipColor = $_POST['ipColor'] ?? '#09B63F';
+    $ipipColor = $_POST['ipipColor'] ?? '#ff69b4';
+    $detailColor = $_POST['detailColor'] ?? '#FFFFFF';
     $themeName = isset($_POST['themeName']) ? $_POST['themeName'] : 'transparent';   
+    $containerWidth = $_POST['containerWidth'] ?? '1400';  
+
 
     $themeName = preg_replace('/[^a-zA-Z0-9_\-一-龯]/u', '', $themeName);
     if (empty($themeName)) {
@@ -77,6 +82,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       --bs-line-bg: $lineColor;
       --bs-disabled-bg: $disabledColor;
       --bs-radius-bg: $radiusColor;
+      --bs-ip-bg: $ipColor;
+      --bs-ipip-bg: $ipipColor;
+      --bs-detail-bg: $detailColor;
+      --container-width: {$containerWidth}px;
 
       --bs-primary-border-subtle: $primaryBorderSubtle; 
       --bs-tertiary: $tertiaryColor; 
@@ -139,6 +148,36 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     #lineColumnDisplay, #charCountDisplay {
         color: var(--bs-line-bg) !important; 
+    }
+
+    #ip-address {
+        color: var(--bs-ip-bg) !important;  
+    }
+
+    #ipip {
+        color: var(--bs-ipip-bg) !important;  
+    }
+
+    #ipDetailModal .detail-value {
+        color: var(--bs-detail-bg) !important;  
+    }
+
+    #ipDetailModal .detail-label {
+        color: var(--bs-detail-bg) !important; 
+    }
+
+    #ipDetailModal .modal-title:not([class]) {
+        color: var(--bs-heading-5) !important;
+    }
+
+    #ipDetailModal h5:not([class]) {
+        color: var(--bs-heading-5) !important;
+    }
+
+    .container-sm {
+        width: var(--container-width); 
+        max-width: 100%;
+        margin: 0 auto; 
     }
 
     .form-label {

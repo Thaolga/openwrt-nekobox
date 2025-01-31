@@ -570,9 +570,10 @@ html {
     font-size: 16px;  
 }
 
-.container {
-    padding-left: 2.4em;  
-    padding-right: 2.4em; 
+.container-fluid {
+    max-width: 2400px;
+    width: 100%;
+    margin: 0 auto;
 }
 
 #dropZone {
@@ -623,11 +624,6 @@ html {
     }
 }
 
-@media (max-width: 768px) {
-    .container {
-        padding-left: 1.2em;  
-        padding-right: 1.2em; 
-}
 </style>
 
 <script>
@@ -660,13 +656,13 @@ function displayUpdateNotification() {
     <div class="row">
         <a href="./index.php" class="col btn btn-lg"><i class="bi bi-house-door"></i> Home</a>
         <a href="./mihomo_manager.php" class="col btn btn-lg"><i class="bi bi-folder"></i> Manager</a>
-        <a href="./singbox.php" class="col btn btn-lg"><i class="bi bi-shop"></i> Sing-box</a>
-        <a href="./subscription.php" class="col btn btn-lg"><i class="bi bi-bank"></i> Singbox</a>
-        <a href="./mihomo.php" class="col btn btn-lg"><i class="bi bi-building"></i> Mihomo</a>
+        <a href="./singbox.php" class="col btn btn-lg"><i class="bi bi-shop"></i> Template I</a>
+        <a href="./subscription.php" class="col btn btn-lg"><i class="bi bi-bank"></i> Template II</a>
+        <a href="./mihomo.php" class="col btn btn-lg"><i class="bi bi-building"></i> Template III</a>
     </div>
     <div class="text-center">
         <h2 style="margin-top: 40px; margin-bottom: 20px;">File Management</h2>
-<div class="container">
+<div class="container-fluid">
     <div class="table-responsive">
         <table class="table table-striped table-bordered text-center">
             <thead class="thead-dark">
@@ -1185,7 +1181,7 @@ function initializeAceEditor() {
 <?php endif; ?>
 
 <?php if (isset($subscriptions) && is_array($subscriptions)): ?>
-    <div class="container">
+    <div class="container-fluid">
         <div class="row">
             <?php 
             $maxSubscriptions = 6; 
@@ -1207,7 +1203,7 @@ function initializeAceEditor() {
                             </div>
                             <input type="hidden" name="index" value="<?php echo $i; ?>">
                             <div class="text-center mt-3"> 
-                                <button type="submit" name="update" class="btn btn-info btn-block">🔄 Update subscription <?php echo $displayIndex; ?></button>
+                                <button type="submit" name="update" class="btn btn-info btn-block"><i class="bi bi-arrow-repeat"></i> Update subscription <?php echo $displayIndex; ?></button>
                             </div>
                         </div>
                     </form>

@@ -56,7 +56,7 @@ $dash_link = $neko_cfg['ctrl_host'] . ':' . $neko_cfg['ctrl_port'] . '/ui/dashbo
 
         #iframeMeta {
             transition: height 0.3s ease; 
-            height: 70vh; 
+            height: 75vh; 
         }
 
         body.fullscreen #iframeMeta {
@@ -74,6 +74,7 @@ $dash_link = $neko_cfg['ctrl_host'] . ':' . $neko_cfg['ctrl_port'] . '/ui/dashbo
                 width: 100% !important; 
             }
         }
+
     </style>
   </head>
   <body>
@@ -86,9 +87,9 @@ $dash_link = $neko_cfg['ctrl_host'] . ':' . $neko_cfg['ctrl_port'] . '/ui/dashbo
         <a href="./singbox.php" class="col btn btn-lg text-nowrap"><i class="bi bi-box"></i> Document</a> 
         <a href="./settings.php" class="col btn btn-lg text-nowrap"><i class="bi bi-gear"></i> Settings</a>
     </div>
-<div class="container text-left p-3">
+<div class="container-fluid text-left p-3" style="max-width: 2400px; width: 100%;">
         <div class="h-100 mb-5">
-            <iframe id="iframeMeta" class="border border-3 rounded-4 w-100" style="height: 70vh;" src="http://<?php echo $zash_link; ?>" title="zash" allowfullscreen></iframe>   
+            <iframe id="iframeMeta" class="border border-3 rounded-4 w-100" style="height: 75vh; width: 100%; max-width: 2400px;" src="http://<?php echo $zash_link; ?>" title="zash" allowfullscreen></iframe>   
             <div class="mb-3 mt-3">
                 <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#panelModal">
                     Panel Settings

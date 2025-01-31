@@ -675,6 +675,18 @@ $razordVersion = getRazordVersion();
               <input type="color" class="form-control" name="tertiaryRgbColor" id="tertiaryRgbColor" value="#1e90ff">
             </div>
             <div class="col-md-4 mb-3">
+              <label for="ipColor" class="form-label">IP Text Color</label>
+              <input type="color" class="form-control" name="ipColor" id="ipColor" value="#09B63F">
+            </div>
+            <div class="col-md-4 mb-3">
+              <label for="ipipColor" class="form-label">Carrier Text Color</label>
+              <input type="color" class="form-control" name="ipipColor" id="ipipColor" value="#ff69b4">
+            </div>
+            <div class="col-md-4 mb-3">
+              <label for="detailColor" class="form-label">IP Details Text Color</label>
+              <input type="color" class="form-control" name="detailColor" id="detailColor" value="#FFFFFF">
+            </div>
+            <div class="col-md-4 mb-3">
               <label for="outlineColor" class="form-label">Button Color (Cyan)</label>
               <input type="color" class="form-control" name="outlineColor" id="outlineColor" value="#0dcaf0">
             </div>
@@ -723,6 +735,11 @@ $razordVersion = getRazordVersion();
               <input type="color" class="form-control" name="heading6Color" id="heading6Color" value="#00ffff">
             </div>
           </div>
+            <div class="col-12 mb-3">
+              <label for="containerWidth" class="form-label">Container Width</label>
+              <input type="range" class="form-range" name="containerWidth" id="containerWidth" min="800" max="2400" step="50" value="1400" style="width: 100%;">
+              <div id="widthValue" class="mt-2" style="color: #FF00FF;">Current Width: 1400px</div>
+          </div>
           <div class="col-12 mb-3">
             <label for="themeName" class="form-label">Custom Theme Name</label>
             <input type="text" class="form-control" name="themeName" id="themeName" value="transparent">
@@ -759,6 +776,72 @@ $razordVersion = getRazordVersion();
     </div>
   </div>
 </div>
+
+<style>
+    input[type="range"] {
+        -webkit-appearance: none;  
+        appearance: none;
+        width: 100%;
+        height: 10px;  
+        border-radius: 5px;
+        background: linear-gradient(to right, #ff00ff, #00ffff); 
+        outline: none;
+    }
+
+    input[type="range"]::-webkit-slider-thumb {
+        -webkit-appearance: none;
+        appearance: none;
+        width: 20px;
+        height: 20px;
+        border-radius: 50%;
+        background: #ff00ff;  
+        border: none;
+        cursor: pointer;
+    }
+
+    input[type="range"]:focus {
+        outline: none; 
+    }
+
+    input[type="range"]::-moz-range-thumb {
+        width: 20px;
+        height: 20px;
+        border-radius: 50%;
+        background: #ff00ff;  
+        border: none;
+        cursor: pointer;
+    }
+
+    #widthValue {
+        color: #ff00ff;
+    }
+</style>
+
+<script>
+    const slider = document.getElementById("containerWidth");
+    const widthValue = document.getElementById("widthValue");
+
+    function updateSliderColor(value) {
+        let red = Math.min(Math.max((value - 800) / (2400 - 800) * 255, 0), 255);
+        let green = 255 - red;
+        
+        slider.style.background = `linear-gradient(to right, rgb(${red}, ${green}, 255), rgb(${255 - red}, ${green}, ${255 - red}))`;
+        slider.style.setProperty('--thumb-color', `rgb(${red}, ${green}, 255)`);
+        widthValue.textContent = `Current Width: ${value}px`;
+        widthValue.style.color = `rgb(${red}, ${green}, 255)`;  
+    }
+
+    let savedWidth = localStorage.getItem('containerWidth');
+    if (savedWidth) {
+        slider.value = savedWidth;  
+    }
+    updateSliderColor(slider.value);  
+
+    slider.oninput = function() {
+        updateSliderColor(slider.value);
+        localStorage.setItem('containerWidth', slider.value);  
+    };
+</script>
 
 <script>
     document.getElementById('useBackgroundImage').addEventListener('change', function() {
@@ -976,6 +1059,9 @@ function formatSize($size) {
       document.getElementById('radiusColor').value = '#14b863';
       document.getElementById('bodyColor').value = '#04f153';
       document.getElementById('tertiaryColor').value = '#46e1ec';
+      document.getElementById('ipColor').value = '#09b63f';
+      document.getElementById('ipipColor').value = '#ff69b4';
+      document.getElementById('detailColor').value = '#FFFFFF';
       document.getElementById('outlineColor').value = '#0dcaf0';
       document.getElementById('successColor').value = '#28a745';
       document.getElementById('infoColor').value = '#0ca2ed';
@@ -988,7 +1074,7 @@ function formatSize($size) {
       document.getElementById('heading3Color').value = '#ffcc00';
       document.getElementById('heading4Color').value = '#00fbff';
       document.getElementById('heading5Color').value = '#ba13f6';
-      document.getElementById('heading6Color').value = '#00ffff';  
+      document.getElementById('heading6Color').value = '#00ffff';   
       localStorage.clear();
     });
 
@@ -1012,6 +1098,9 @@ function formatSize($size) {
         bodyColor: document.getElementById('bodyColor').value,
         tertiaryColor: document.getElementById('tertiaryColor').value,
         tertiaryRgbColor: document.getElementById('tertiaryRgbColor').value,
+        ipColor: document.getElementById('ipColor').value,
+        ipipColor: document.getElementById('ipipColor').value,
+        detailColor: document.getElementById('detailColor').value,
         outlineColor: document.getElementById('outlineColor').value,
         successColor: document.getElementById('successColor').value,
         infoColor: document.getElementById('infoColor').value,
@@ -1060,6 +1149,9 @@ function formatSize($size) {
           document.getElementById('bodyColor').value = settings.bodyColor;
           document.getElementById('tertiaryColor').value = settings.tertiaryColor;
           document.getElementById('tertiaryRgbColor').value = settings.tertiaryRgbColor;
+          document.getElementById('ipColor').value = settings.ipColor;
+          document.getElementById('ipipColor').value = settings.ipipColor;
+          document.getElementById('detailColor').value = settings.detailColor;
           document.getElementById('outlineColor').value = settings.outlineColor;
           document.getElementById('successColor').value = settings.successColor;
           document.getElementById('infoColor').value = settings.infoColor;
@@ -1096,6 +1188,9 @@ function formatSize($size) {
           localStorage.setItem('bodyColor', settings.bodyColor);
           localStorage.setItem('tertiaryColor', settings.tertiaryColor);
           localStorage.setItem('tertiaryRgbColor', settings.tertiaryRgbColor);
+          localStorage.setItem('ipColor', settings.ipColor);
+          localStorage.setItem('ipipColor', settings.ipipColor);
+          localStorage.setItem('detailColor', settings.detailColor);
           localStorage.setItem('outlineColor', settings.outlineColor);
           localStorage.setItem('successColor', settings.successColor);
           localStorage.setItem('infoColor', settings.infoColor);
@@ -1673,6 +1768,13 @@ document.addEventListener('DOMContentLoaded', checkSingboxVersion);
             padding: 0;
             font-family: Arial, sans-serif;
         }
+
+        .container-fluid {
+            max-width: 2400px;
+            width: 100%;
+            margin: 0 auto;
+        }
+
         .feature-box {
             padding: 15px;
             margin-bottom: 20px;
@@ -1736,14 +1838,14 @@ document.addEventListener('DOMContentLoaded', checkSingboxVersion);
     </style>
 </head>
 <body>
-    <div class="container mt-4">
+    <div class="container-fluid mt-4">
         <h2 class="text-center mb-4">About NekoBox</h2>
         <div class="feature-box text-center">
             <h5>NekoBox</h5>
             <p>NekoBox is a thoughtfully designed Sing-box proxy tool, created specifically for home users, aimed at providing a simple yet powerful proxy solution. Built on PHP and BASH technologies, NekoBox simplifies complex proxy configurations into an intuitive experience, allowing every user to easily enjoy an efficient and secure network environment.</p>
         </div>
 
-        <h5 class="text-center mb-4">Core Features</h5>
+        <h5 class="text-center mb-4"><i data-feather="cpu"></i> Core Features</h5>
         <div class="row">
             <div class="col-md-4 mb-4 d-flex">
                 <div class="feature-box text-center flex-fill">
@@ -1765,7 +1867,7 @@ document.addEventListener('DOMContentLoaded', checkSingboxVersion);
             </div>
         </div>
 
-        <h5 class="text-center mb-4">Tool Information</h5>
+        <h5 class="text-center mb-4"><i data-feather="tool"></i> Tool Information</h5>
         <div class="d-flex justify-content-center">
             <div class="table-container">
                 <table class="table table-borderless mb-5">
@@ -1777,12 +1879,12 @@ document.addEventListener('DOMContentLoaded', checkSingboxVersion);
                         <tr class="text-center">
                             <td>
                                 <div class="link-box">
-                                    <a href="https://github.com/SagerNet/sing-box" target="_blank">Sing-box</a>
+                                    <a href="https://github.com/SagerNet/sing-box" target="_blank"><i data-feather="codesandbox"></i>   Sing-box</a>
                                 </div>
                             </td>
                             <td>
                                 <div class="link-box">
-                                    <a href="https://github.com/MetaCubeX/mihomo" target="_blank">Mihomo</a>
+                                    <a href="https://github.com/MetaCubeX/mihomo" target="_blank"><i data-feather="box"></i>   Mihomo</a>
                                 </div>
                             </td>
                         </tr>
@@ -1790,7 +1892,7 @@ document.addEventListener('DOMContentLoaded', checkSingboxVersion);
                 </table>
             </div>
         </div>
-        <h5 class="text-center mb-4">External Links</h5>
+        <h5 class="text-center mb-4"><i data-feather="paperclip"></i>  External Links</h5>
         <div class="table-container">
             <table class="table table-borderless mb-5">
                 <tbody>
@@ -1801,12 +1903,12 @@ document.addEventListener('DOMContentLoaded', checkSingboxVersion);
                     <tr class="text-center">
                         <td>
                             <div class="link-box">
-                                <a href="https://github.com/Thaolga/openwrt-nekobox/issues" target="_blank">Issues</a>
+                                <a href="https://github.com/Thaolga/openwrt-nekobox/issues" target="_blank"><i data-feather="github"></i>   Issues</a>
                             </div>
                         </td>
                         <td>
                             <div class="link-box">
-                                <a href="https://github.com/Thaolga/openwrt-nekobox" target="_blank">NEKOBOX</a>
+                                <a href="https://github.com/Thaolga/openwrt-nekobox" target="_blank"><i data-feather="github"></i>   NEKOBOX</a>
                             </div>
                         </td>
                     </tr>
@@ -1817,12 +1919,12 @@ document.addEventListener('DOMContentLoaded', checkSingboxVersion);
                     <tr class="text-center">
                         <td>
                             <div class="link-box">
-                                <a href="https://t.me/+J55MUupktxFmMDgx" target="_blank">Telegram</a>
+                                <a href="https://t.me/+J55MUupktxFmMDgx" target="_blank"><i data-feather="send"></i> Telegram</a>
                             </div>
                         </td>
                         <td>
                             <div class="link-box">
-                                <a href="https://github.com/Zephyruso/zashboard" target="_blank">ZASHBOARD</a>
+                                <a href="https://github.com/Zephyruso/zashboard" target="_blank"><i data-feather="package"></i>    ZASHBOARD</a>
                             </div>
                         </td>
                     </tr>
