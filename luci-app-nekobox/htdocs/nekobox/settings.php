@@ -172,24 +172,25 @@ $razordVersion = getRazordVersion();
     <?php include './ping.php'; ?>
   </head>
 <style>
-    @media (max-width: 576px) {
-        .btn-custom {
-            width: 45%; 
-            margin: 0 auto; 
-            display: block; 
+
+@media (max-width: 767px) {
+    .form-select {
+        width: 100%;  
+        margin-left: 0;  
     }
 
-        .btn-fw {
-            width: 100%; 
-            margin-right: 0; 
-            margin-bottom: 10px; 
-        }
-
-        .container .form-select {
-            margin-right: 6ch;
-            width: calc(100% - 1.8ch); 
-        }
+    .col-12.col-md-6 {
+        padding-left: 10px;  
+        padding-right: 18px;
     }
+}
+
+@media (max-width: 767px) {
+    .btn-custom {
+        margin-left: 10px;  
+
+    }
+}
 
 </style>
   <body>
@@ -200,12 +201,13 @@ $razordVersion = getRazordVersion();
         <a href="./dashboard.php" class="col btn btn-lg text-nowrap"><i class="bi bi-bar-chart"></i> Panel</a>
         <a href="./singbox.php" class="col btn btn-lg text-nowrap"><i class="bi bi-box"></i> Document</a> 
         <a href="./settings.php" class="col btn btn-lg text-nowrap"><i class="bi bi-gear"></i> Settings</a>
+
 <div class="container px-4">
     <h2 class="text-center p-2 mb-4">Theme Settings</h2>
     <form action="settings.php" method="post">
         <div class="row justify-content-center">
-            <div class="col-12 col-md-6 mb-3">
-                <select class="form-select" name="themechange" aria-label="themex style="text-indent: 5ch;">
+            <div class="col-12 col-md-6 mb-3 d-flex">
+                <select class="form-select" name="themechange" aria-label="themex" style="margin-left: 10px;">
                     <option selected>Change Theme (<?php echo $neko_theme ?>)</option>
                     <?php foreach ($arrFiles as $file) echo "<option value=\"".$file.'">'.$file."</option>" ?>
                 </select>
@@ -226,6 +228,7 @@ $razordVersion = getRazordVersion();
             </div>
         </div>
     </form>
+
 <table class="table table-borderless mb-3">
     <tbody>
         <tr>
