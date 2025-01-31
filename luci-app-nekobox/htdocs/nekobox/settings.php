@@ -226,117 +226,67 @@ $razordVersion = getRazordVersion();
             </div>
         </div>
     </form>
-    <table class="table table-borderless mb-3">
-        <tbody>
-            <tr>
-                <td colspan="2">
+<table class="table table-borderless mb-3">
+    <tbody>
+        <tr>
+            <td colspan="2">
+                <div class="table-container">
                     <h2 class="text-center mb-3">Software Information</h2>
                     <form action="settings.php" method="post">
                         <div class="btn-group d-flex justify-content-center">
-                            <button type="submit" name="fw" value="enable" class="btn btn<?php if($fwstatus==1) echo "-outline" ?>-success <?php if($fwstatus==1) echo "disabled" ?> btn-fw" style="margin-right: 20px;">Enable</button>
-                            <button type="submit" name="fw" value="disable" class="btn btn<?php if($fwstatus==0) echo "-outline" ?>-danger <?php if($fwstatus==0) echo "disabled" ?>">Disable</button>
-                         </div>
-                     </form>
-                 </td>
-             </tr>
-         <tr>
-     <tr>
-    <td>
-        <table class="table">
-            <thead>
-                <tr>
-                    <th>Client Version</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    <td class="text-center" style="font-family: monospace;">
-                        <span id="cliver"></span><span id="NewCliver"> </span>
-                    </td>
-                </tr>
-                <tr>
-                    <td class="text-center">
+                            <button type="submit" name="fw" value="enable" class="btn btn-success <?php if($fwstatus==1) echo "disabled" ?>">Enable</button>
+                            <button type="submit" name="fw" value="disable" class="btn btn-danger <?php if($fwstatus==0) echo "disabled" ?>">Disable</button>
+                        </div>
+                    </form>
+                </div>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <div class="table-container">
+                    <h2>Client Version</h2>
+                    <p id="cliver" class="text-center" style="font-family: monospace;"><?php echo htmlspecialchars($clientVersion); ?></p>
+                    <div class="text-center">
                         <button class="btn btn-pink me-1" id="checkCliverButton"><i class="bi bi-search"></i> Detect</button>
                         <button class="btn btn-info" id="updateButton" title="Update to Latest Version" onclick="showVersionTypeModal()"><i class="bi bi-arrow-repeat"></i> Update</button>
-                    </td>
-                </tr>
-            </tbody>
-        </table>
-    </td>
-    <td>
-        <table class="table">
-            <thead>
-                <tr>
-                    <th>Ui Panel</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    <td class="text-center">
-                        <?php echo htmlspecialchars($uiVersion); ?><span id="NewUi"> </span>
-                    </td>
-                </tr>
-                <tr>
-                    <td class="text-center">
+                    </div>
+                </div>
+            </td>
+            <td>
+                <div class="table-container">
+                    <h2>Ui Panel</h2>
+                    <p class="text-center"><?php echo htmlspecialchars($uiVersion); ?></p>
+                    <div class="text-center">
                         <button class="btn btn-pink me-1" id="checkUiButton"><i class="bi bi-search"></i> Detect</button>
                         <button class="btn btn-info" id="updateUiButton" title="Update Panel" onclick="showPanelSelector()"><i class="bi bi-arrow-repeat"></i> Update</button>
-                    </td>
-                </tr>
-            </tbody>
-        </table>
-    </td>
-</tr>
-<tr>
-    <td>
-        <table class="table">
-            <thead>
-                <tr>
-                    <th>Sing-box Core Version</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    <td class="text-center">
-                        <div id="singBoxCorever">
-                            <?php echo htmlspecialchars($singBoxVersion); ?><span id="NewSingbox"></span>
-                        </div>
-                    </td>
-                </tr>
-                <tr>
-                    <td class="text-center">
+                    </div>
+                </div>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <div class="table-container">
+                    <h2>Sing-box Core Version</h2>
+                    <p id="singBoxCorever" class="text-center"><?php echo htmlspecialchars($singBoxVersion); ?></p>
+                    <div class="text-center">
                         <button class="btn btn-pink me-1" id="checkSingboxButton"><i class="bi bi-search"></i> Detect</button>
                         <button class="btn btn-info" id="singboxOptionsButton" title="Singbox Related Operations"><i class="bi bi-arrow-repeat"></i> Update</button>
-                    </td>
-                </tr>
-            </tbody>
-        </table>
-    </td>
-    <td>
-        <table class="table">
-            <thead>
-                <tr>
-                    <th>Mihomo Core Version</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    <td class="text-center">
-                        <?php echo htmlspecialchars($mihomoVersion); ?><span id="NewMihomo"> </span>
-                    </td>
-                </tr>
-                <tr>
-                    <td class="text-center">
+                    </div>
+                </div>
+            </td>
+            <td>
+                <div class="table-container">
+                    <h2>Mihomo Core Version</h2>
+                    <p class="text-center"><?php echo htmlspecialchars($mihomoVersion); ?></p>
+                    <div class="text-center">
                         <button class="btn btn-pink me-1" id="checkMihomoButton"><i class="bi bi-search"></i> Detect</button>
                         <button class="btn btn-info" id="updateCoreButton" title="Update Mihomo Core" onclick="showMihomoVersionSelector()"><i class="bi bi-arrow-repeat"></i> Update</button>
-                    </td>
-                </tr>
-            </tbody>
-        </table>
-    </td>
-</tr>
-</tbody>
+                    </div>
+                </div>
+            </td>
+        </tr>
+    </tbody>
 </table>
-
 <div class="modal fade" id="updateVersionTypeModal" tabindex="-1" aria-labelledby="updateVersionTypeModalLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
@@ -1518,6 +1468,19 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 
+<style>
+    .custom-table {
+        width: 100%;
+        border-collapse: collapse; 
+    }
+
+    .custom-table th, .custom-table td {
+        padding: 10px;
+        text-align: center;
+        border: 1px solid #ccc; 
+    }
+</style>
+
 <script>
 function checkVersion(outputId, updateFiles, currentVersions) {
     const modalContent = document.getElementById('modalContent');
@@ -1579,7 +1542,7 @@ function checkVersion(outputId, updateFiles, currentVersions) {
 
     Promise.all(requests).then(() => {
         modalContent.innerHTML = `
-            <table class="table table-striped table-bordered">
+            <table class="table custom-table">
                 <thead>
                     <tr>
                         <th class="text-center">Component Name</th>
