@@ -1152,6 +1152,17 @@ setInterval(IP.getIpipnetIP, 180000);
 </script>
 
 <script>
+    document.addEventListener("DOMContentLoaded", function () {
+        var video = document.getElementById('background-video');
+
+        var savedMuteState = localStorage.getItem("videoMuted");
+        if (savedMuteState !== null) {
+            video.muted = savedMuteState === "true";
+        }
+
+        updateButtonStates();
+    });
+
     function togglePopup() {
         var popup = document.getElementById('popup');
         popup.style.display = (popup.style.display === "block") ? "none" : "block";
@@ -1162,6 +1173,7 @@ setInterval(IP.getIpipnetIP, 180000);
     function toggleAudio() {
         var video = document.getElementById('background-video');
         video.muted = !video.muted;
+        localStorage.setItem("videoMuted", video.muted);
         updateButtonStates();
     }
 
@@ -2387,6 +2399,8 @@ function speakWeather(weather) {
         feather.replace();
     });
 </script>
+
+
 
 
 
