@@ -1152,6 +1152,48 @@ setInterval(IP.getIpipnetIP, 180000);
 </script>
 
 <script>
+    function togglePopup() {
+        var popup = document.getElementById('popup');
+        popup.style.display = (popup.style.display === "block") ? "none" : "block";
+
+        updateButtonStates();
+    }
+
+    function toggleAudio() {
+        var video = document.getElementById('background-video');
+        video.muted = !video.muted;
+        updateButtonStates();
+    }
+
+    function toggleFullScreen() {
+        if (!document.fullscreenElement) {
+            document.documentElement.requestFullscreen();
+        } else {
+            document.exitFullscreen();
+        }
+        updateButtonStates();
+    }
+
+    function updateButtonStates() {
+        var video = document.getElementById('background-video');
+        var audioBtn = document.getElementById('audio-btn');
+        var fullscreenBtn = document.getElementById('fullscreen-btn');
+
+        audioBtn.textContent = video.muted ? "🔇 静音" : "🔊 取消静音";
+
+        fullscreenBtn.textContent = document.fullscreenElement ? "📴 退出全屏" : "⛶ 进入全屏";
+    }
+
+    document.addEventListener("keydown", function(event) {
+        if (event.ctrlKey && event.shiftKey && event.key === "S") {
+            togglePopup();
+        }
+    });
+
+    document.addEventListener("fullscreenchange", updateButtonStates);
+</script>  
+
+<script>
 document.addEventListener('keydown', function(event) {
     if (event.ctrlKey && event.shiftKey && event.code === 'KeyC') {
         clearCache();
@@ -2345,3 +2387,7 @@ function speakWeather(weather) {
         feather.replace();
     });
 </script>
+
+
+
+
