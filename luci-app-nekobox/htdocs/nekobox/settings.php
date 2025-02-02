@@ -899,10 +899,10 @@ $razordVersion = getRazordVersion();
           <table class="table table-bordered text-center">
               <thead>
                   <tr>
-                      <th>文件名</th>
-                      <th>文件大小</th>
-                      <th>预览</th>
-                      <th>操作</th>
+                      <th style="width: 30%;">文件名</th>
+                      <th style="width: 10%;">文件大小</th>
+                      <th style="width: 35%;">预览</th>
+                      <th style="width: 25%;">操作</th>
                   </tr>
               </thead>
               <tbody>
@@ -943,7 +943,7 @@ $razordVersion = getRazordVersion();
                             <td class='align-middle' data-label='文件大小'>" . formatFileSize($fileSize) . "</td>
                             <td class='align-middle' data-label='预览'>";
                     if (isVideo($file)) {
-                        echo "<video id='video-player' class='video-js vjs-default-skin' width='100' controls>
+                        echo "<video id='video-player' class='video-js vjs-default-skin' width='100' controls style='display: block; margin-left: auto; margin-right: auto;'>
                                 <source src='$fileUrl' type='video/" . strtolower(pathinfo($file, PATHINFO_EXTENSION)) . "'>
                                 Your browser does not support the video tag.
                               </video>";
