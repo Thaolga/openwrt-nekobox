@@ -857,7 +857,7 @@ $razordVersion = getRazordVersion();
 </script>
 
 <div class="modal fade" id="filesModal" tabindex="-1" aria-labelledby="filesModalLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
-  <div class="modal-dialog modal-xl">
+  <div class="modal-dialog custom-modal-width" style="max-width: 60%; margin: 30px auto;">
     <div class="modal-content">
       <div class="modal-header">
         <h5 class="modal-title" id="filesModalLabel">Upload and Manage Background Images/Videos</h5>
@@ -874,10 +874,10 @@ $razordVersion = getRazordVersion();
           <table class="table table-bordered text-center">
               <thead>
                   <tr>
-                      <th style="width: 35%;">Filename</th>
+                      <th style="width: 30%;">Filename</th>
                       <th style="width: 10%;">File Size</th>
-                      <th style="width: 20%;">Preview</th>
-                      <th>style="width: 35%;">Actions</th>
+                      <th style="width: 30%;">Preview</th>
+                      <th style="width: 25%;">Actions</th>
                   </tr>
               </thead>
               <tbody>
@@ -918,12 +918,12 @@ $razordVersion = getRazordVersion();
                             <td class='align-middle' data-label='File Size'>" . formatFileSize($fileSize) . "</td>
                             <td class='align-middle' data-label='Preview'>";
                     if (isVideo($file)) {
-                        echo "<video id='video-player' class='video-js vjs-default-skin' width='100' controls>
+                        echo "<video id='video-player' class='video-js vjs-default-skin' width='200' controls style='display: block; margin-left: auto; margin-right: auto;'>
                                 <source src='$fileUrl' type='video/" . strtolower(pathinfo($file, PATHINFO_EXTENSION)) . "'>
                                 Your browser does not support the video tag.
                               </video>";
                     } elseif (isImage($file)) {
-                        echo "<img src='$fileUrl' alt='$file' style='width: 100px; height: auto;'>";
+                        echo "<img src='$fileUrl' alt='$file' style='width: 200px; height: auto;'>";
                     } else {
                         echo "Unknown file type";
                     }
