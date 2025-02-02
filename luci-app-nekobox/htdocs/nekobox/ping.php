@@ -390,6 +390,8 @@ $lang = $_GET['lang'] ?? 'en';
     }
 }
 </style>
+<link href="./assets/bootstrap/video-js.css" rel="stylesheet" />
+<script src="./assets/bootstrap/video.js"></script>
 <script src="./assets/neko/js/jquery.min.js"></script>
 <link rel="stylesheet" href="./assets/bootstrap/leaflet.css" />
 <script src="./assets/bootstrap/leaflet.js"></script>

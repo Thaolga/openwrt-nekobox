@@ -7,7 +7,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             mkdir($targetDir, 0777, true);
         }
 
-        $allowedFileTypes = ['image/jpeg', 'image/png', 'video/mp4']; 
         $maxFileSize = 1024 * 1024 * 1024; 
 
         $uploadedFiles = [];
@@ -20,11 +19,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $fileType = $_FILES['imageFile']['type'][$key];
 
             if ($fileError === UPLOAD_ERR_OK) {
-                if (!in_array($fileType, $allowedFileTypes)) {
-                    $fileErrors[] = "File '$fileName' type is not allowed!";
-                    continue;
-                }
-
                 if ($fileSize > $maxFileSize) {
                     $fileErrors[] = "File '$fileName' exceeds the size limit!";
                     continue;
