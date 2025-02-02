@@ -594,7 +594,8 @@ $lang = $_GET['lang'] ?? 'en';
     }
 }
 </style>
-
+<link href="./assets/bootstrap/video-js.css" rel="stylesheet" />
+<script src="./assets/bootstrap/video.js"></script>
 <link rel="stylesheet" href="./assets/bootstrap/all.min.css">
 <link href="./assets/bootstrap/bootstrap-icons.css" rel="stylesheet">
 <script src="./assets/neko/js/jquery.min.js"></script>
@@ -2557,6 +2558,12 @@ function speakWeather(weather) {
         feather.replace();
     });
 </script>
+
+
+
+
+
+
 
 
 

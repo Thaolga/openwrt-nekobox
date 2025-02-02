@@ -943,9 +943,8 @@ $razordVersion = getRazordVersion();
                             <td class='align-middle' data-label='文件大小'>" . formatFileSize($fileSize) . "</td>
                             <td class='align-middle' data-label='预览'>";
                     if (isVideo($file)) {
-                        $fileType = strtolower(pathinfo($file, PATHINFO_EXTENSION));
-                        echo "<video width='100' controls>
-                                <source src='$fileUrl' type='video/$fileType'>
+                        echo "<video id='video-player' class='video-js vjs-default-skin' width='100' controls>
+                                <source src='$fileUrl' type='video/" . strtolower(pathinfo($file, PATHINFO_EXTENSION)) . "'>
                                 Your browser does not support the video tag.
                               </video>";
                     } elseif (isImage($file)) {
@@ -1107,7 +1106,10 @@ document.getElementById("updatePhpConfig").addEventListener("click", function() 
 <?php
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $uploadedFilePath = '';
-    $allowedTypes = ['jpg', 'jpeg', 'png', 'mp4', 'avi', 'mkv']; 
+    $allowedTypes = [
+        'image/jpeg', 'image/png', 'image/gif', 'image/bmp', 'image/webp',
+        'video/mp4', 'video/avi', 'video/mkv', 'video/mov', 'video/wmv', 'video/3gp'
+    ];
 
     if (isset($_FILES['imageFile']) && $_FILES['imageFile']['error'] === UPLOAD_ERR_OK) {
         $targetDir = $_SERVER['DOCUMENT_ROOT'] . '/nekobox/assets/Pictures/';
