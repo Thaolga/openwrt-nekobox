@@ -336,7 +336,7 @@ $lang = $_GET['lang'] ?? 'en';
     }
 }
 
-@media (max-width: 768px) {
+@media (max-width: 1440px) {
     .modal-dialog {
         max-width: 100% !important; 
         margin: 30px auto; 
