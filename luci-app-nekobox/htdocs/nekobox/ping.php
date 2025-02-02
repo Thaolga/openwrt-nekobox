@@ -1291,6 +1291,20 @@ setInterval(IP.getIpipnetIP, 180000);
         updateButtonStates();
     });
 
+    var longPressTimer;
+    var touchStartTime = 0;
+
+    document.addEventListener('touchstart', function (event) {
+        var touch = event.touches[0];
+        touchStartTime = new Date().getTime();
+    
+        if (touch.clientY < window.innerHeight / 2) {
+            longPressTimer = setTimeout(function () {
+                togglePopup();
+            }, 1000); 
+        }
+    });
+
     function togglePopup() {
         var popup = document.getElementById('popup');
         popup.style.display = (popup.style.display === "block") ? "none" : "block";
