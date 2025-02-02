@@ -1816,6 +1816,7 @@ window.addEventListener('load', function() {
                     <li><strong>Ctrl + Shift + C键:</strong> 清空缓存数据</li>
                     <li><strong>Ctrl + Shift + V键:</strong> 定制播放列表</li>
                     <li><strong>Ctrl + Shift + X键:</strong> 设置城市</li>
+                    <li><strong>长按屏幕顶部</strong> 设置音频（视频模式下有效）</li>
                 </ul>
             </div>
             <div class="modal-footer">
