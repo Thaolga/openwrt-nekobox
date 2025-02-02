@@ -1,4 +1,72 @@
 <?php
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    if (isset($_FILES['imageFile']) && is_array($_FILES['imageFile']['error'])) {
+        $targetDir = $_SERVER['DOCUMENT_ROOT'] . '/nekobox/assets/Pictures/';
+        
+        if (!file_exists($targetDir)) {
+            mkdir($targetDir, 0777, true);
+        }
+
+        $allowedFileTypes = ['image/jpeg', 'image/png', 'video/mp4']; 
+        $maxFileSize = 1024 * 1024 * 1024; 
+
+        $uploadedFiles = [];
+        $fileErrors = [];
+
+        foreach ($_FILES['imageFile']['name'] as $key => $fileName) {
+            $fileTmpName = $_FILES['imageFile']['tmp_name'][$key];
+            $fileSize = $_FILES['imageFile']['size'][$key];
+            $fileError = $_FILES['imageFile']['error'][$key];
+            $fileType = $_FILES['imageFile']['type'][$key];
+
+            if ($fileError === UPLOAD_ERR_OK) {
+                if (!in_array($fileType, $allowedFileTypes)) {
+                    $fileErrors[] = "File '$fileName' type is not allowed!";
+                    continue;
+                }
+
+                if ($fileSize > $maxFileSize) {
+                    $fileErrors[] = "File '$fileName' exceeds the size limit!";
+                    continue;
+                }
+
+                $uniqueFileName = uniqid() . '-' . basename($fileName);
+                $targetFile = $targetDir . $uniqueFileName;
+                $uploadedFilePath = '/nekobox/assets/Pictures/' . $uniqueFileName;
+
+                if (move_uploaded_file($fileTmpName, $targetFile)) {
+                    $uploadedFiles[] = $uploadedFilePath;
+                } else {
+                    $fileErrors[] = "Failed to upload file '$fileName'!";
+                }
+            } else {
+                $fileErrors[] = "Error uploading file '$fileName', error code: $fileError";
+            }
+        }
+
+        if (count($uploadedFiles) > 0) {
+            echo "<script>
+                    alert('File(s) uploaded successfully!');
+                    window.location.href = 'settings.php'; 
+                  </script>";
+        } else {
+            if (count($fileErrors) > 0) {
+                foreach ($fileErrors as $error) {
+                    echo "<script>alert('$error');</script>";
+                }
+            } else {
+                echo "<script>alert('No files uploaded or an error occurred during upload!');</script>";
+            }
+        }
+    } else {
+        echo "<script>alert('No files uploaded or an error occurred during upload!');</script>";
+    }
+} else {
+    echo "<script>alert('No data received.');</script>";
+}
+?>
+
+<?php
 $proxyDir = '/www/nekobox/proxy/'; 
 $uploadDir = '/etc/neko/proxy_provider/';
 $configDir = '/etc/neko/config/';
