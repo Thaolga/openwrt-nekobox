@@ -1568,8 +1568,7 @@ window.addEventListener('load', function() {
 }
 
 #audioPlayerModal .modal-header {
-  background: #333;
-  border-bottom: 1px solid #444;
+
 }
 
 #audioPlayerModal .modal-title {
@@ -1606,44 +1605,49 @@ window.addEventListener('load', function() {
   color: white;
 }
 
+.audio-player-container .btn-primary {
+  background: #FF5722 !important; 
+  color: white !important;
+}
+
 .audio-player-container .btn-primary:hover {
-  background: #ff6f4d; 
+  background: #e64a19 !important; 
 }
 
 .audio-player-container .btn-secondary {
-  background: #6a1b9a; 
-  color: white;
+  background: #9C27B0 !important; 
+  color: white !important;
 }
 
 .audio-player-container .btn-secondary:hover {
-  background: #8e24aa; 
+  background: #8E24AA !important; 
 }
 
 .audio-player-container .btn-info {
-  background: #3498db; 
-  color: white;
+  background: #00BCD4 !important; 
+  color: white !important;
 }
 
 .audio-player-container .btn-info:hover {
-  background: #5dade2; 
+  background: #0097A7 !important; 
 }
 
 .audio-player-container .btn-warning {
-  background: #f39c12; 
-  color: black;
+  background: #FF9800 !important; 
+  color: black !important;
 }
 
 .audio-player-container .btn-warning:hover {
-  background: #f5b041;
+  background: #FB8C00 !important; 
 }
 
 .audio-player-container .btn-dark {
-  background: #2c3e50; 
-  color: white;
+  background: #8BC34A !important; 
+  color: white !important;
 }
 
 .audio-player-container .btn-dark:hover {
-  background: #34495e; 
+  background: #7CB342 !important; 
 }
 
 .track-name {
@@ -1715,9 +1719,74 @@ window.addEventListener('load', function() {
     margin: 5px 0;
   }
 }
+
+#playlistCollapse {
+    max-height: 700px; 
+    overflow-y: auto;  
+    overflow-x: hidden; 
+    background-color: rgba(0, 0, 0, 0.8); 
+    backdrop-filter: blur(10px); 
+    border-radius: 8px; 
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2); 
+    padding: 10px; 
+}
+
+#playlistCollapse h3 {
+    font-size: 1.25rem;
+    font-weight: bold;
+    color: #fff; 
+    text-align: center;
+    margin-bottom: 15px;
+}
+
+#trackList .list-group-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 15px; 
+    margin-bottom: 8px; 
+    background-color: rgba(255, 255, 255, 0.1); 
+    border: 1px solid rgba(255, 255, 255, 0.2); 
+    border-radius: 5px; 
+    transition: background-color 0.3s, transform 0.2s; 
+}
+
+#trackList .list-group-item.active {
+    background-color: #007bff;
+    color: white; 
+    font-weight: bold; 
+}
+
+#trackList .list-group-item:hover {
+    background-color: #0056b3; 
+    color: white; 
+    transform: scale(1.05); 
+}
+
+#playlistCollapse::-webkit-scrollbar {
+    width: 8px; 
+}
+
+#playlistCollapse::-webkit-scrollbar-thumb {
+    background-color: #007bff; 
+    border-radius: 4px;
+}
+
+#playlistCollapse::-webkit-scrollbar-track {
+    background-color: rgba(255, 255, 255, 0.1); 
+}
+
+#trackList .list-group-item .track-name {
+    flex-grow: 1;
+    font-size: 1rem;
+    color: #fff; 
+    text-overflow: ellipsis; 
+    overflow: hidden;
+    white-space: nowrap;
+}
 </style>
 
-<div class="modal fade" id="audioPlayerModal" tabindex="-1" aria-labelledby="audioPlayerModalLabel" aria-hidden="true">
+<div class="modal fade" id="audioPlayerModal" tabindex="-1" aria-labelledby="audioPlayerModalLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
   <div class="modal-dialog modal-xl" role="document">
     <div class="modal-content">
       <div class="modal-header">
@@ -1742,9 +1811,13 @@ window.addEventListener('load', function() {
           <button id="modalLoopButton" class="btn btn-warning">🔁 循环</button>
           <div class="track-name" id="trackName">没有歌曲</div>
         </div>
-        <button type="button" class="btn btn-light" data-bs-dismiss="modal" style="position: absolute; bottom: 15px; right: 15px;">
-          取消
+        <button class="btn btn-outline-primary mt-3" type="button" data-bs-toggle="collapse" data-bs-target="#playlistCollapse">
+          📜 显示/隐藏播放列表
         </button>
+        <div id="playlistCollapse" class="collapse mt-3">
+          <h3>歌曲列表</h3>
+          <ul id="trackList" class="list-group"></ul>
+        </div>
         <div id="tooltip"></div>
       </div>
     </div>
@@ -1817,12 +1890,57 @@ function loadDefaultPlaylist() {
                 throw new Error('播放列表中没有有效的歌曲');
             }
             console.log('播放列表已加载:', songs);
+            updateTrackListUI(); 
             restorePlayerState();
             updateTrackName(); 
         })
         .catch(error => {
             console.error('加载播放列表时出错:', error.message);
         });
+}
+
+function updateTrackListUI() {
+    const trackListContainer = document.getElementById('trackList');
+    trackListContainer.innerHTML = '';
+
+    songs.forEach((song, index) => {
+        const trackItem = document.createElement('li');
+        trackItem.textContent = extractSongName(song);
+        trackItem.classList.add('list-group-item', 'track-item');
+        trackItem.style.cursor = 'pointer';
+
+        trackItem.addEventListener('click', () => {
+            currentSongIndex = index;
+            loadSong(index);
+            if (isPlaying) audioPlayer.play();
+            updateTrackName();
+            highlightCurrentSong();
+        });
+
+        trackListContainer.appendChild(trackItem);
+    });
+
+    highlightCurrentSong(); 
+}
+
+function extractSongName(url) {
+    return decodeURIComponent(url.split('/').pop());
+}
+
+function loadSong(index) {
+    if (index >= 0 && index < songs.length) {
+        audioPlayer.src = songs[index];
+    }
+}
+
+function updateTrackName() {
+    document.getElementById('trackName').textContent = extractSongName(songs[currentSongIndex]);
+}
+
+function highlightCurrentSong() {
+    document.querySelectorAll('.track-item').forEach((item, index) => {
+        item.classList.toggle('active', index === currentSongIndex);
+    });
 }
 
 function loadSong(index) {
@@ -4283,6 +4401,84 @@ window.addEventListener('load', function() {
     });
   });
 </script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
