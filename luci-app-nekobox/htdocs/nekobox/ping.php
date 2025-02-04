@@ -1650,6 +1650,16 @@ window.addEventListener('load', function() {
   background: #7CB342 !important; 
 }
 
+#modalLoopButton {
+  color: white !important;
+  background-color: #f39c12 !important; 
+}
+
+#modalLoopButton:hover {
+  background-color: #f5b041 !important; 
+  color: white !important; 
+}
+
 .track-name {
   margin-top: 15px;
   font-size: 16px;
