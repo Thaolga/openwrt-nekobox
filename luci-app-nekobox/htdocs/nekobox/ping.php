@@ -1491,7 +1491,7 @@ window.addEventListener('load', function() {
 }
 </style>
 
-<div class="modal fade" id="audioPlayerModal" tabindex="-1" aria-labelledby="audioPlayerModalLabel" aria-hidden="true">
+<div class="modal fade" id="audioPlayerModal" tabindex="-1" aria-labelledby="audioPlayerModalLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
   <div class="modal-dialog modal-xl" role="document">
     <div class="modal-content">
       <div class="modal-header">
@@ -1632,12 +1632,6 @@ function extractSongName(url) {
     return decodeURIComponent(url.split('/').pop());
 }
 
-function loadSong(index) {
-    if (index >= 0 && index < songs.length) {
-        audioPlayer.src = songs[index];
-    }
-}
-
 function updateTrackName() {
     document.getElementById('trackName').textContent = extractSongName(songs[currentSongIndex]);
 }
@@ -1663,6 +1657,7 @@ function loadSong(index) {
             }
         }, { once: true });
     }
+    highlightCurrentSong();
 }
 
 const playPauseButton = document.getElementById('modalPlayPauseButton');
