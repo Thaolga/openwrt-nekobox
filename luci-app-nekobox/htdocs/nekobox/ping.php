@@ -1937,12 +1937,6 @@ function extractSongName(url) {
     return decodeURIComponent(url.split('/').pop());
 }
 
-function loadSong(index) {
-    if (index >= 0 && index < songs.length) {
-        audioPlayer.src = songs[index];
-    }
-}
-
 function updateTrackName() {
     document.getElementById('trackName').textContent = extractSongName(songs[currentSongIndex]);
 }
@@ -1968,6 +1962,7 @@ function loadSong(index) {
             }
         }, { once: true });
     }
+    highlightCurrentSong(); 
 }
 
 const playPauseButton = document.getElementById('modalPlayPauseButton');
