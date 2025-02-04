@@ -1915,7 +1915,7 @@ function updateTrackListUI() {
 
     songs.forEach((song, index) => {
         const trackItem = document.createElement('li');
-        trackItem.textContent = extractSongName(song);
+        trackItem.textContent = `${index + 1}. ${extractSongName(song)}`;
         trackItem.classList.add('list-group-item', 'track-item');
         trackItem.style.cursor = 'pointer';
 
