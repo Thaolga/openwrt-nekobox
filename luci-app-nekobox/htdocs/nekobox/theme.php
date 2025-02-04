@@ -174,12 +174,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         color: var(--bs-heading-5) !important;
     }
 
-    .container-sm {
-        width: var(--container-width); 
-        max-width: 100%;
-        margin: 0 auto; 
-    }
-
     .form-label {
       color: var(--bs-check-bg)
     }

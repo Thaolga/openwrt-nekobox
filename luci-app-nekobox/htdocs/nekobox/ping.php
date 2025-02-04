@@ -258,7 +258,7 @@ $lang = $_GET['lang'] ?? 'en';
 
     .exit-fullscreen-btn {
         display: none;
-    } 
+    }
 
     #d-ip {
         display: flex;
@@ -320,6 +320,76 @@ $lang = $_GET['lang'] ?? 'en';
         background-color: #218838;
     }
 
+    .popup {
+        display: none; 
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background: rgba(255, 255, 255, 0.8);
+        backdrop-filter: blur(10px);
+        color: #333;
+        padding: 20px;
+        border-radius: 12px;
+        z-index: 1000;
+        text-align: center;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+        width: 820px;
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 10px;
+    }
+
+    .popup h3 {
+        grid-column: span 3;
+        text-align: center;
+        margin-bottom: 10px;
+    }
+
+    .popup button {
+        padding: 12px;
+        font-size: 14px;
+        cursor: pointer;
+        border: none;
+        border-radius: 8px;
+        background-color: rgba(0, 0, 0, 0.1);
+        color: #333;
+        transition: background 0.3s, transform 0.2s;
+    }
+
+    .popup button:hover {
+        background: rgba(0, 0, 0, 0.2);
+        transform: scale(1.05);
+    }
+
+    .popup button:active {
+        transform: scale(0.95);
+    }
+
+    .popup button:last-child {
+        grid-column: span 3;
+        justify-self: center;
+        width: 80%;
+        background: rgba(255, 0, 0, 0.2);
+        color: red;
+    }
+
+    .popup button:last-child:hover {
+        background: rgba(255, 0, 0, 0.4);
+    }
+
+    label[for="newPath"], label[for="permissions"], .form-text {
+        color: white !important;
+    }
+
+    .container-bg {
+      border-radius: 12px;
+      box-shadow: var(--bs-shadow-medium);
+      padding: 2rem;
+      margin-top: 2rem;
+      margin-bottom: 2rem;
+    }
+
 @media (max-width: 768px) {
     .d-flex.justify-content-between.gap-2 {
         width: 100%;
@@ -336,10 +406,11 @@ $lang = $_GET['lang'] ?? 'en';
     }
 }
 
-@media (max-width: 1440px) {
+
+@media (max-width: 768px) {
     .modal-dialog {
-        max-width: 100% !important; 
-        margin: 30px auto; 
+        max-width: 100% !important;
+        margin: 30px auto;
     }
 
     .table thead {
@@ -375,21 +446,21 @@ $lang = $_GET['lang'] ?? 'en';
     }
 
     .table td .btn-container {
-        display: flex; 
-        justify-content: space-between; 
-        gap: 10px; 
+        display: flex;
+        justify-content: space-between;
+        gap: 10px;
     }
 
     .table td .btn {
-        flex: 1; 
-        text-align: center; 
+        flex: 1;
+        text-align: center;
         padding: 10px;
         font-size: 14px;
-        min-width: 0; 
+        min-width: 0;
     }
-}
 
-@media (max-width: 767px) {
+
+@media (max-width: 768px) {
     .control-toggle {
         display: none;
     }
@@ -397,6 +468,8 @@ $lang = $_GET['lang'] ?? 'en';
 </style>
 <link href="./assets/bootstrap/video-js.css" rel="stylesheet" />
 <script src="./assets/bootstrap/video.js"></script>
+<link rel="stylesheet" href="./assets/bootstrap/all.min.css">
+<link href="./assets/bootstrap/bootstrap-icons.css" rel="stylesheet">
 <script src="./assets/neko/js/jquery.min.js"></script>
 <link rel="stylesheet" href="./assets/bootstrap/leaflet.css" />
 <script src="./assets/bootstrap/leaflet.js"></script>
@@ -614,6 +687,9 @@ let IP = {
                 </div>
                 <span id="toggle-ip" style="cursor: pointer; position: relative; top: -3px;  text-indent: 1ch; padding-top: 2px;" title="Click to hide/show IP">
                     <i class="fa ${isHidden ? 'bi-eye-slash' : 'bi-eye'}"></i>  
+                </span>
+                <span class="control-toggle" style="cursor: pointer; margin-left: 10px; display: inline-flex; align-items: center; position: relative; top: -1px;"" onclick="togglePopup()" title="Open Settings">
+                    <i class="bi bi-gear" style="font-size: 0.8rem; margin-right: 5px;"></i>  
                 </span>
             `;
 
@@ -970,6 +1046,9 @@ setInterval(IP.getIpipnetIP, 180000);
 <script>
     document.addEventListener("DOMContentLoaded", function () {
         var video = document.getElementById('background-video');
+        var popup = document.getElementById('popup');
+
+        popup.style.display = "none";
         
         var savedMuteState = localStorage.getItem("videoMuted");
         if (savedMuteState !== null) {
@@ -986,10 +1065,28 @@ setInterval(IP.getIpipnetIP, 180000);
         updateButtonStates();
     });
 
+    var longPressTimer;
+    var touchStartTime = 0;
+
+    document.addEventListener('touchstart', function (event) {
+        var touch = event.touches[0];
+        touchStartTime = new Date().getTime();
+    
+        if (touch.clientY < window.innerHeight / 2) {
+            longPressTimer = setTimeout(function () {
+                togglePopup();
+            }, 1000); 
+        }
+    });
+
     function togglePopup() {
         var popup = document.getElementById('popup');
-        popup.style.display = (popup.style.display === "block") ? "none" : "block";
-        updateButtonStates();
+    
+        if (popup.style.display === "none" || popup.style.display === "") {
+            popup.style.display = "grid"; 
+        } else {
+            popup.style.display = "none"; 
+        }
     }
 
     function toggleAudio() {
@@ -1025,7 +1122,7 @@ setInterval(IP.getIpipnetIP, 180000);
                 break;
             case "fill":
                 video.style.objectFit = "none";
-                objectFitBtn.textContent = "🔲 No Scaling";
+                objectFitBtn.textContent = "🔲 Do Not Scale";
                 localStorage.setItem("videoObjectFit", "none");
                 break;
             case "none":
@@ -1035,7 +1132,7 @@ setInterval(IP.getIpipnetIP, 180000);
                 break;
             case "scale-down":
                 video.style.objectFit = "contain";
-                objectFitBtn.textContent = "🖼️ Fill Screen";
+                objectFitBtn.textContent = "🖼️ Full Screen";
                 localStorage.setItem("videoObjectFit", "contain");
                 break;
             default:
@@ -1046,7 +1143,7 @@ setInterval(IP.getIpipnetIP, 180000);
         }
     }
 
-    function updateButtonStates() {
+  function updateButtonStates() {
         var video = document.getElementById('background-video');
         var audioBtn = document.getElementById('audio-btn');
         var fullscreenBtn = document.getElementById('fullscreen-btn');
@@ -1064,12 +1161,57 @@ setInterval(IP.getIpipnetIP, 180000);
     document.addEventListener("fullscreenchange", updateButtonStates);
 </script>
 
+<div class="popup" id="popup">
+    <h3>🔧 Control Panel</h3>
+    <button onclick="toggleAudio()" id="audio-btn">🔊 Toggle Audio</button>
+    <button onclick="toggleObjectFit()" id="object-fit-btn">🔲 Toggle Video Display Mode</button>
+    <button onclick="toggleFullScreen()" id="fullscreen-btn">⛶ Toggle Fullscreen</button>
+    <button id="clear-cache-btn">🗑️ Clear Cache</button>
+    <button type="button" data-bs-toggle="modal" data-bs-target="#urlModal">🔗 Customize Playlist</button>
+    <button type="button" data-bs-toggle="modal" data-bs-target="#keyHelpModal">⌨️ Keyboard Shortcuts</button>
+    <button type="button" data-bs-toggle="modal" data-bs-target="#singboxModal">🎤 Sing-box Startup Tips</button>
+    <button id="openPlayerButton"  data-bs-toggle="modal" data-bs-target="#audioPlayerModal">🎶 Music Player</button>
+    <button id="startCheckBtn">🌐 Start Website Check</button>
+    <button id="toggleModal"><i class="fas fa-arrows-alt-h"></i> Modify Page Width</button>
+    <button id="toggleAnimationBtn">🖥️ Start Block Animation</button>
+    <button id="toggleSnowBtn">❄️ Start Snow Animation</button>
+    <button id="toggleLightAnimationBtn">💡 Start Light Animation</button>
+    <button id="toggleLightEffectBtn">✨ Start Light Effect Animation</button>
+    <button type="button" data-bs-toggle="modal" data-bs-target="#colorModal"><i class="bi-palette"></i> Theme Editor</button>
+    <button type="button" data-bs-toggle="modal" data-bs-target="#filesModal"><i class="bi-camera-video"></i> Set Background</button>
+    <button onclick="togglePopup()">❌ Close</button>
+</div>
+
+<div class="modal fade" id="singboxModal" tabindex="-1" aria-labelledby="singboxModalLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+  <div class="modal-dialog modal-xl">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="singboxModalLabel">Sing-box Startup Tips</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+           <ul>
+                <li>If startup fails, go to File Management ⇨ Update Database ⇨ Download cache.db Cache Data.</li>
+                <li>If unable to connect to the network after startup, go to Firewall Settings ⇨ Outbound/Inbound/Forward ⇨ Accept ⇨ Save Application.</li>
+           </ul>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <script>
 document.addEventListener('keydown', function(event) {
     if (event.ctrlKey && event.shiftKey && event.code === 'KeyC') {
         clearCache();
         event.preventDefault();  
     }
+});
+
+document.getElementById('clear-cache-btn').addEventListener('click', function() {
+    clearCache();
 });
 
 function clearCache() {
@@ -1112,284 +1254,622 @@ window.addEventListener('load', function() {
 });
 </script>
 
+<style>
+#audioPlayerModal .modal-content {
+  background: #222;
+  color: #fff;
+  border-radius: 12px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
+}
+
+#audioPlayerModal .modal-header {
+  background: #333;
+  border-bottom: 1px solid #444;
+}
+
+#audioPlayerModal .modal-title {
+  font-size: 18px;
+  font-weight: bold;
+}
+
+#audioPlayerModal .close {
+  color: #fff;
+  opacity: 0.8;
+}
+
+#audioPlayerModal .close:hover {
+  opacity: 1;
+}
+
+.audio-player-container {
+  padding: 20px;
+
+}
+
+.audio-player-container button {
+  margin: 8px;
+  padding: 10px 15px;
+  font-size: 16px;
+  border: none;
+  border-radius: 8px;
+  transition: all 0.3s ease-in-out;
+  cursor: pointer;
+}
+
+.audio-player-container .btn-primary {
+  background: #ff5733; 
+  color: white;
+}
+
+.audio-player-container .btn-primary:hover {
+  background: #ff6f4d; 
+}
+
+.audio-player-container .btn-secondary {
+  background: #6a1b9a; 
+  color: white;
+}
+
+.audio-player-container .btn-secondary:hover {
+  background: #8e24aa; 
+}
+
+.audio-player-container .btn-info {
+  background: #3498db; 
+  color: white;
+}
+
+.audio-player-container .btn-info:hover {
+  background: #5dade2; 
+}
+
+.audio-player-container .btn-warning {
+  background: #f39c12; 
+  color: black;
+}
+
+.audio-player-container .btn-warning:hover {
+  background: #f5b041;
+}
+
+.audio-player-container .btn-dark {
+  background: #2c3e50; 
+  color: white;
+}
+
+.audio-player-container .btn-dark:hover {
+  background: #34495e; 
+}
+
+.track-name {
+  margin-top: 15px;
+  font-size: 16px;
+  font-weight: bold;
+  color: #1db954;
+  text-align: center;
+}
+
+#tooltip {
+  position: absolute;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 10px 15px;
+  background: rgba(0, 0, 0, 0.75);
+  color: #fff;
+  font-size: 14px;
+  border-radius: 8px;
+  white-space: nowrap;
+  text-align: center;
+  visibility: hidden;
+  opacity: 0;
+  transition: opacity 0.3s ease-in-out, visibility 0.3s ease-in-out;
+  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.3);
+  z-index: 1050;
+}
+
+#tooltip.show {
+  visibility: visible;
+  opacity: 1;
+}
+
+.datetime-container {
+  text-align: center;
+  margin-bottom: 15px;
+  font-size: 16px;
+  font-weight: bold;
+  color: #ffcc00;
+}
+
+#dateDisplay,
+#timeDisplay {
+  margin: 0 10px;
+}
+
+#timeDisplay {
+  font-style: italic;
+}
+
+#audioElement {
+  margin-top: 20px;
+  width: 100%;
+  max-width: 600px; /* Limit the audio player width */
+  display: block;
+  margin-left: auto;
+  margin-right: auto; /* Center the audio player */
+}
+
+@media (max-width: 768px) {
+  .audio-player-container {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .audio-player-container button {
+    width: 100%;
+    margin: 5px 0;
+  }
+}
+</style>
+
+<div class="modal fade" id="audioPlayerModal" tabindex="-1" aria-labelledby="audioPlayerModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-xl" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="audioPlayerModalLabel">Music Player</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <div class="datetime-container">
+          <span id="dateDisplay"></span> 
+          <span id="timeDisplay"></span>
+        </div>
+        <audio id="audioElement" controls>
+          <source id="audioSource" type="audio/mp3" src="your-audio-file.mp3">
+          Your browser does not support the audio element.
+        </audio>
+        <div class="audio-player-container text-center">
+          <button id="modalPlayPauseButton" class="btn btn-primary">▶ Play</button>
+          <button id="modalPrevButton" class="btn btn-secondary">⏪ Previous</button>
+          <button id="modalNextButton" class="btn btn-secondary">⏩ Next</button>
+          <button id="modalRewindButton" class="btn btn-dark">⏪ Rewind</button>
+          <button id="modalFastForwardButton" class="btn btn-info">⏩ Fast Forward</button>
+          <button id="modalLoopButton" class="btn btn-warning">🔁 Loop</button>
+          <div class="track-name" id="trackName">No Songs</div>
+        </div>
+        <button type="button" class="btn btn-light" data-bs-dismiss="modal" style="position: absolute; bottom: 15px; right: 15px;">
+          Cancel
+        </button>
+        <div id="tooltip"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
 <script>
-    const audioPlayer = new Audio();  
-    let songs = [];  
-    let currentSongIndex = 0;  
-    let isPlaying = false;  
-    let isReportingTime = false; 
-    let isLooping = false; 
-    let hasModalShown = false;
+const audioPlayer = document.getElementById('audioElement');
+let songs = [];
+let currentSongIndex = 0;
+let isPlaying = false;
+let isReportingTime = false;
+let isLooping = false;
+let hasModalShown = false;
 
-    const logBox = document.createElement('div');
-    logBox.style.position = 'fixed';
-    logBox.style.top = '90%';  
-    logBox.style.left = '20px';
-    logBox.style.padding = '10px';
-    logBox.style.backgroundColor = 'green';
-    logBox.style.color = 'white';
-    logBox.style.borderRadius = '5px';
-    logBox.style.zIndex = '9999';
-    logBox.style.maxWidth = '250px'; 
-    logBox.style.fontSize = '14px';
-    logBox.style.display = 'none'; 
-    logBox.style.maxWidth = '300px';  
-    logBox.style.wordWrap = 'break-word'; 
-    document.body.appendChild(logBox);
+const logBox = document.createElement('div');
+logBox.style.position = 'fixed';
+logBox.style.top = '90%';
+logBox.style.left = '20px';
+logBox.style.padding = '10px';
+logBox.style.backgroundColor = 'green';
+logBox.style.color = 'white';
+logBox.style.borderRadius = '5px';
+logBox.style.zIndex = '9999';
+logBox.style.maxWidth = '250px';
+logBox.style.fontSize = '14px';
+logBox.style.display = 'none';
+logBox.style.maxWidth = '300px';
+logBox.style.wordWrap = 'break-word';
+document.body.appendChild(logBox);
 
-    function showLogMessage(message) {
-        logBox.textContent = message;
-        logBox.style.display = 'block';
-        logBox.style.animation = 'scrollUp 8s ease-out forwards'; 
-        logBox.style.width = 'auto'; 
-        logBox.style.maxWidth = '300px'; 
+function showLogMessage(message) {
+    const decodedMessage = decodeURIComponent(message);
+    logBox.textContent = decodedMessage;
+    logBox.style.display = 'block';
+    logBox.style.animation = 'scrollUp 8s ease-out forwards';
+    logBox.style.width = 'auto';
+    logBox.style.maxWidth = '300px';
 
-        setTimeout(() => {
-            logBox.style.display = 'none';
-        }, 8000); 
-    }
+    setTimeout(() => {
+        logBox.style.display = 'none';
+    }, 8000);
+}
 
-    const styleSheet = document.createElement('style');
-    styleSheet.innerHTML = `
-        @keyframes scrollUp {
-            0% {
-                top: 90%;
-            }
-            100% {
-                top: 50%;
-            }
+const styleSheet = document.createElement('style');
+styleSheet.innerHTML = `
+    @keyframes scrollUp {
+        0% {
+            top: 90%;
         }
-    `;
-    document.head.appendChild(styleSheet);
+        100% {
+            top: 50%;
+        }
+    }
+`;
+document.head.appendChild(styleSheet);
 
-    function loadDefaultPlaylist() {
-        fetch('<?php echo $new_url; ?>')
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error('Failed to load playlist');
+function loadDefaultPlaylist() {
+    fetch('<?php echo $new_url; ?>')
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Failed to load playlist');
+                speakMessage('Failed to load playlist');
+            }
+            return response.text();
+        })
+        .then(data => {
+            songs = data.split('\n').filter(url => url.trim() !== '');
+            if (songs.length === 0) {
+                throw new Error('No valid songs in the playlist');
+            }
+            console.log('Playlist loaded:', songs);
+            restorePlayerState();
+            updateTrackName(); 
+        })
+        .catch(error => {
+            console.error('Error loading playlist:', error.message);
+        });
+}
+
+function loadSong(index) {
+    if (index >= 0 && index < songs.length) {
+        audioPlayer.src = songs[index];
+        audioPlayer.addEventListener('loadedmetadata', () => {
+            const savedState = JSON.parse(localStorage.getItem('playerState'));
+            if (savedState && savedState.currentSongIndex === index) {
+                audioPlayer.currentTime = savedState.currentTime || 0;
+                if (savedState.isPlaying) {
+                    audioPlayer.play().catch(error => {
+                        console.error('Failed to resume playback:', error);
+                    });
                 }
-                return response.text();
-            })
-            .then(data => {
-                songs = data.split('\n').filter(url => url.trim() !== ''); 
-                if (songs.length === 0) {
-                    throw new Error('No valid songs in the playlist');
-                }
-                console.log('Playlist loaded:', songs);
-                restorePlayerState(); 
-            })
-            .catch(error => {
-                console.error('Error loading playlist:', error.message);
+            }
+        }, { once: true });
+    }
+}
+
+const playPauseButton = document.getElementById('modalPlayPauseButton');
+playPauseButton.addEventListener('click', function() {
+    if (!isPlaying) {
+        loadSong(currentSongIndex);
+        audioPlayer.play().then(() => {
+            isPlaying = true;
+            savePlayerState();
+            console.log('Playback started');
+            speakMessage('Playback started');
+            playPauseButton.textContent = '⏸️ Pause';
+            updateTrackName();
+        }).catch(error => {
+            console.log('Playback failed:', error);
+        });
+    } else {
+        audioPlayer.pause();
+        isPlaying = false;
+        savePlayerState();
+        console.log('Playback paused');
+        speakMessage('Playback paused');
+        playPauseButton.textContent = '▶ Play';
+    }
+});
+
+document.getElementById('modalPrevButton').addEventListener('click', () => {
+    currentSongIndex = (currentSongIndex - 1 + songs.length) % songs.length;
+    loadSong(currentSongIndex);
+    savePlayerState();
+    if (isPlaying) {
+        audioPlayer.play();
+    }
+    updateTrackName();
+    const songName = getSongName(songs[currentSongIndex]);
+    showLogMessage(`Previous song: ${songName}`);
+});
+
+document.getElementById('modalNextButton').addEventListener('click', () => {
+    currentSongIndex = (currentSongIndex + 1) % songs.length;
+    loadSong(currentSongIndex);
+    savePlayerState();
+    if (isPlaying) {
+        audioPlayer.play();
+    }
+    updateTrackName();
+    const songName = getSongName(songs[currentSongIndex]);
+    showLogMessage(`Next song: ${songName}`);
+});
+
+function updateTrackName() {
+    if (songs.length > 0) {
+        const currentSongUrl = songs[currentSongIndex];
+        const trackName = extractSongName(currentSongUrl);
+        document.getElementById('trackName').textContent = trackName || 'Unknown song';
+    } else {
+        document.getElementById('trackName').textContent = 'No songs';
+    }
+}
+
+function extractSongName(url) {
+    const parts = url.split('/');
+    return decodeURIComponent(parts[parts.length - 1]);
+}
+
+audioPlayer.addEventListener('ended', () => {
+    currentSongIndex = (currentSongIndex + 1) % songs.length;
+    loadSong(currentSongIndex);
+    savePlayerState();
+    if (isPlaying) {
+        audioPlayer.play();
+    }
+    updateTrackName();
+    const songName = getSongName(songs[currentSongIndex]);
+    showLogMessage(`Auto switch to: ${songName}`);
+});
+
+document.getElementById('modalRewindButton').addEventListener('click', () => {
+    audioPlayer.currentTime = Math.max(audioPlayer.currentTime - 10, 0);
+    console.log('Rewind 10 seconds');
+    savePlayerState();
+    showLogMessage('Rewind 10 seconds');
+});
+
+document.getElementById('modalFastForwardButton').addEventListener('click', () => {
+    audioPlayer.currentTime = Math.min(audioPlayer.currentTime + 10, audioPlayer.duration || Infinity);
+    console.log('Fast forward 10 seconds');
+    savePlayerState();
+    showLogMessage('Fast forward 10 seconds');
+});
+
+const loopButton = document.getElementById('modalLoopButton');
+loopButton.addEventListener('click', () => {
+    isLooping = !isLooping;
+    
+    if (isLooping) {
+        loopButton.textContent = "🔁 Loop";
+        console.log('Loop playback');
+        showLogMessage('Loop playback');
+        speakMessage('Loop playback');
+        audioPlayer.loop = true;
+    } else {
+        loopButton.textContent = "🔄 Sequential";
+        console.log('Sequential playback');
+        showLogMessage('Sequential playback');
+        speakMessage('Sequential playback');
+        audioPlayer.loop = false;
+    }
+});
+
+function getSongName(url) {
+    const pathParts = url.split('/');
+    return pathParts[pathParts.length - 1];
+}
+
+function startHourlyAlert() {
+    setInterval(() => {
+        const now = new Date();
+        const hours = now.getHours();
+
+        if (now.getMinutes() === 0 && !isReportingTime) {
+            isReportingTime = true;
+
+            const timeAnnouncement = new SpeechSynthesisUtterance(`It's now ${hours} o'clock`);
+            timeAnnouncement.lang = 'en-US';
+            speechSynthesis.speak(timeAnnouncement);
+
+            console.log(`Hourly alert: It's now ${hours} o'clock`);
+        }
+
+        if (now.getMinutes() !== 0) {
+            isReportingTime = false;
+        }
+    }, 60000);
+}
+
+function updateDateTime() {
+    const now = new Date();
+
+    const year = now.getFullYear();
+    const month = now.getMonth() + 1;
+    const day = now.getDate();
+    document.getElementById('dateDisplay').textContent = `${year}-${month}-${day}`;
+
+    const timeString = now.toLocaleTimeString('en-US', { hour12: false });
+
+    const hours = now.getHours();
+    let ancientTime;
+    if (hours >= 23 || hours < 1) ancientTime = '子時';
+    else if (hours >= 1 && hours < 3) ancientTime = '丑時';
+    else if (hours >= 3 && hours < 5) ancientTime = '寅時';
+    else if (hours >= 5 && hours < 7) ancientTime = '卯時';
+    else if (hours >= 7 && hours < 9) ancientTime = '辰時';
+    else if (hours >= 9 && hours < 11) ancientTime = '巳時';
+    else if (hours >= 11 && hours < 13) ancientTime = '午時';
+    else if (hours >= 13 && hours < 15) ancientTime = '未時';
+    else if (hours >= 15 && hours < 17) ancientTime = '申時';
+    else if (hours >= 17 && hours < 19) ancientTime = '酉時';
+    else if (hours >= 19 && hours < 21) ancientTime = '戌時';
+    else ancientTime = '亥時';
+
+    document.getElementById('timeDisplay').textContent = `${timeString} (${ancientTime})`;
+}
+
+setInterval(updateDateTime, 1000);
+updateDateTime();
+
+audioPlayer.addEventListener('ended', function() {
+    if (isLooping) {
+        loadSong(currentSongIndex);
+        savePlayerState();
+        audioPlayer.play();
+    } else {
+        currentSongIndex = (currentSongIndex + 1) % songs.length;
+        loadSong(currentSongIndex);
+        savePlayerState();
+        audioPlayer.play();
+    }
+});
+
+function savePlayerState() {
+    const state = {
+        currentSongIndex,
+        currentTime: audioPlayer.currentTime,
+        isPlaying,
+        isLooping,
+        timestamp: Date.now()
+    };
+    localStorage.setItem('playerState', JSON.stringify(state));
+}
+
+function clearExpiredPlayerState() {
+    const state = JSON.parse(localStorage.getItem('playerState'));
+
+    if (state) {
+        const currentTime = Date.now();
+        const stateAge = currentTime - state.timestamp;
+
+        const expirationTime = 60 * 60 * 1000;
+
+        if (stateAge > expirationTime) {
+            localStorage.removeItem('playerState');
+            console.log('Player state expired, cleared');
+        }
+    }
+}
+
+setInterval(clearExpiredPlayerState, 10 * 60 * 1000);
+
+function restorePlayerState() {
+    const state = JSON.parse(localStorage.getItem('playerState'));
+    if (state) {
+        currentSongIndex = state.currentSongIndex || 0;
+        isLooping = state.isLooping || false;
+        loadSong(currentSongIndex);
+        if (state.isPlaying) {
+            isPlaying = true;
+            playPauseButton.textContent = '⏸️ Pause';
+            audioPlayer.currentTime = state.currentTime || 0;
+            audioPlayer.play().catch(error => {
+                console.error('Failed to resume playback:', error);
             });
-    }
-
-    function loadSong(index) {
-        if (index >= 0 && index < songs.length) {
-            audioPlayer.src = songs[index];  
-            audioPlayer.addEventListener('loadedmetadata', () => {
-                const savedState = JSON.parse(localStorage.getItem('playerState'));
-                if (savedState && savedState.currentSongIndex === index) {
-                    audioPlayer.currentTime = savedState.currentTime || 0; 
-                    if (savedState.isPlaying) {
-                        audioPlayer.play().catch(error => {
-                            console.error('Failed to resume playback:', error);
-                        });
-                    }
-                }
-            }, { once: true }); 
+            playPauseButton.textContent = '⏸️ Pause';
         }
     }
+}
 
-    document.addEventListener('dblclick', function () {
-        if (!isPlaying) {
-            loadSong(currentSongIndex);
+document.addEventListener('dblclick', function() {
+    const lastShownTime = localStorage.getItem('lastModalShownTime');
+    const currentTime = new Date().getTime();
+
+    if (!lastShownTime || (currentTime - lastShownTime) > 4 * 60 * 60 * 1000) {
+        if (!hasModalShown) {
+            const modal = new bootstrap.Modal(document.getElementById('keyHelpModal'));
+            modal.show();
+            hasModalShown = true;
+
+            localStorage.setItem('lastModalShownTime', currentTime);
+        }
+    }
+});
+
+loadDefaultPlaylist();
+startHourlyAlert();
+restorePlayerState();
+
+$('#audioPlayerModal').on('shown.bs.modal', function () {
+    updateTrackName();
+});
+
+window.addEventListener('keydown', function(event) {
+    if (event.key === 'ArrowUp') {
+        currentSongIndex = (currentSongIndex - 1 + songs.length) % songs.length;
+        loadSong(currentSongIndex);
+        savePlayerState();
+        if (isPlaying) {
+            audioPlayer.play();
+        }
+        const songName = getSongName(songs[currentSongIndex]);
+        showLogMessage(`Previous song: ${songName}`);
+        speakMessage('Previous song');
+        updateTrackName();
+    } else if (event.key === 'ArrowDown') {
+        currentSongIndex = (currentSongIndex + 1) % songs.length;
+        loadSong(currentSongIndex);
+        savePlayerState();
+        if (isPlaying) {
+            audioPlayer.play();
+        }
+        const songName = getSongName(songs[currentSongIndex]);
+        showLogMessage(`Next song: ${songName}`);
+        speakMessage('Next song');
+        updateTrackName();
+    } else if (event.key === 'ArrowLeft') {
+        audioPlayer.currentTime = Math.max(audioPlayer.currentTime - 10, 0);
+        console.log('Rewind 10 seconds');
+        savePlayerState();
+        showLogMessage('Rewind 10 seconds');
+    } else if (event.key === 'ArrowRight') {
+        audioPlayer.currentTime = Math.min(audioPlayer.currentTime + 10, audioPlayer.duration || Infinity);
+        console.log('Fast forward 10 seconds');
+        savePlayerState();
+        showLogMessage('Fast forward 10 seconds');
+    } else if (event.key === 'Escape') {
+        localStorage.removeItem('playerState');
+        currentSongIndex = 0;
+        loadSong(currentSongIndex);
+        savePlayerState();
+        console.log('Reset to first song');
+        showLogMessage('Reset to first song');
+        speakMessage('Returned to the first song in the playlist');
+        if (isPlaying) {
+            audioPlayer.play();
+        }
+    } else if (event.key === 'F9') {
+        if (isPlaying) {
+            audioPlayer.pause();
+            isPlaying = false;
+            savePlayerState();
+            console.log('Playback paused');
+            showLogMessage('Playback paused');
+            speakMessage('Playback paused');
+            playPauseButton.textContent = '▶ Play';
+        } else {
             audioPlayer.play().then(() => {
                 isPlaying = true;
-                savePlayerState(); 
+                savePlayerState();
                 console.log('Playback started');
+                showLogMessage('Playback started');
                 speakMessage('Playback started');
+                playPauseButton.textContent = '⏸️ Pause';
             }).catch(error => {
                 console.log('Playback failed:', error);
             });
-        } else {
-            audioPlayer.pause();
-            isPlaying = false;
-            savePlayerState(); 
-            console.log('Playback paused');
-            speakMessage('Playback paused');
         }
-    });
-
-    window.addEventListener('keydown', function (event) {
-        if (event.key === 'ArrowUp') {
-            currentSongIndex = (currentSongIndex - 1 + songs.length) % songs.length; 
-            loadSong(currentSongIndex);
-            savePlayerState(); 
-            if (isPlaying) {
-                audioPlayer.play();  
-            }
-            const songName = getSongName(songs[currentSongIndex]); 
-            showLogMessage(`Previous track：${songName}`);
-            speakMessage('Previous track');
-        } else if (event.key === 'ArrowDown') {
-            currentSongIndex = (currentSongIndex + 1) % songs.length; 
-            loadSong(currentSongIndex);
-            savePlayerState();
-            if (isPlaying) {
-                audioPlayer.play();
-            }
-            const songName = getSongName(songs[currentSongIndex]); 
-            showLogMessage(`Next track：${songName}`);
-            speakMessage('Next track');
-        } else if (event.key === 'ArrowLeft') {
-            audioPlayer.currentTime = Math.max(audioPlayer.currentTime - 10, 0); 
-            console.log('Rewind 10 seconds');
-            savePlayerState();
-            showLogMessage('Rewind 10 seconds');
-        } else if (event.key === 'ArrowRight') {
-            audioPlayer.currentTime = Math.min(audioPlayer.currentTime + 10, audioPlayer.duration || Infinity); 
-            console.log('Fast forward 10 seconds');
-            savePlayerState();
-            showLogMessage('Fast forward 10 seconds');
-        } else if (event.key === 'Escape') { 
-            localStorage.removeItem('playerState');
-            currentSongIndex = 0;
-            loadSong(currentSongIndex);
-            savePlayerState();
-            console.log('Reset to the first track');
-            showLogMessage('Reset to the first track');
-            if (isPlaying) {
-                audioPlayer.play();
-            }
-        } else if (event.key === 'F9') { 
-            if (isPlaying) {
-                audioPlayer.pause();
-                isPlaying = false;
-                savePlayerState(); 
-                console.log('Playback paused');
-                showLogMessage('Playback paused');
-                speakMessage('Playback paused');
-            } else {
-                audioPlayer.play().then(() => {
-                    isPlaying = true;
-                    savePlayerState(); 
-                    console.log('Playback started');
-                    showLogMessage('Playback started');
-                    speakMessage('Playback started');
-                }).catch(error => {
-                    console.log('Playback failed:', error);
-                });
-            }
-        } else if (event.key === 'F2') { 
-            isLooping = !isLooping;
-            if (isLooping) {
-                console.log('Loop playback');
-                showLogMessage('Loop playback');
-                speakMessage('Loop playback');
-            } else {
-                console.log('Sequential playback');
-                showLogMessage('Sequential playback');
-                speakMessage('Sequential playback');
-            }
-        }
-    });
-
-    function getSongName(url) {
-        const pathParts = url.split('/');
-        return pathParts[pathParts.length - 1]; 
-    }
-
-    function startHourlyAlert() {
-        setInterval(() => {
-            const now = new Date();
-            const hours = now.getHours();
-
-            if (now.getMinutes() === 0 && !isReportingTime) {
-                isReportingTime = true;  
-
-                const timeAnnouncement = new SpeechSynthesisUtterance(`It's now exactly ${hours} o'clock.`);
-                timeAnnouncement.lang = 'en-US';
-                speechSynthesis.speak(timeAnnouncement);
-
-                console.log(`Hourly alert: It's now exactly ${hours} o'clock.`);
-            }
-
-            if (now.getMinutes() !== 0) {
-                isReportingTime = false;
-            }
-        }, 60000); 
-    }
-
-    audioPlayer.addEventListener('ended', function () {
+    } else if (event.key === 'F2') {
+        isLooping = !isLooping;
+        const loopButton = document.getElementById('modalLoopButton');
         if (isLooping) {
-            loadSong(currentSongIndex); 
-            savePlayerState();
-            audioPlayer.play();
+            loopButton.textContent = "🔁 Loop";
+            audioPlayer.loop = true;
+            console.log('Loop playback');
+            showLogMessage('Loop playback');
+            speakMessage('Loop playback');
         } else {
-            currentSongIndex = (currentSongIndex + 1) % songs.length;  
-            loadSong(currentSongIndex);  
-            savePlayerState(); 
-            audioPlayer.play();
-        }
-    });
-
-    function savePlayerState() {
-        const state = {
-            currentSongIndex,       
-            currentTime: audioPlayer.currentTime,
-            isPlaying,
-            isLooping,
-            timestamp: Date.now()
-        };
-        localStorage.setItem('playerState', JSON.stringify(state));
-    }
-
-    function clearExpiredPlayerState() {
-        const state = JSON.parse(localStorage.getItem('playerState'));
-    
-        if (state) {
-            const currentTime = Date.now();
-            const stateAge = currentTime - state.timestamp;  
-
-            const expirationTime = 60 * 60 * 1000;  
-
-            if (stateAge > expirationTime) {
-                localStorage.removeItem('playerState');  
-                console.log('Playback state has expired and has been cleared');
-            }
+            loopButton.textContent = "🔄 Sequential";
+            audioPlayer.loop = false;
+            console.log('Sequential playback');
+            showLogMessage('Sequential playback');
+            speakMessage('Sequential playback');
         }
     }
-
-    setInterval(clearExpiredPlayerState, 10 * 60 * 1000);
-
-    function restorePlayerState() {
-        const state = JSON.parse(localStorage.getItem('playerState'));
-        if (state) {
-            currentSongIndex = state.currentSongIndex || 0;
-            isLooping = state.isLooping || false; 
-            loadSong(currentSongIndex);
-            if (state.isPlaying) {
-                isPlaying = true;
-                audioPlayer.currentTime = state.currentTime || 0;
-                audioPlayer.play().catch(error => {
-                    console.error('Failed to resume playback:', error);
-                });
-            }
-        }
-    }
-
-    document.addEventListener('dblclick', function () {
-        if (!hasModalShown) {  
-            const modal = new bootstrap.Modal(document.getElementById('keyHelpModal'));
-            modal.show();
-            hasModalShown = true;  
-        }
-    });
-
-    loadDefaultPlaylist();
-    startHourlyAlert();
-    restorePlayerState(); 
+});
 </script>
+
 
 <div class="modal fade" id="urlModal" tabindex="-1" aria-labelledby="urlModalLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
     <div class="modal-dialog modal-lg">
@@ -1464,28 +1944,29 @@ window.addEventListener('load', function() {
 </script>
 
 <div class="modal fade" id="keyHelpModal" tabindex="-1" aria-labelledby="keyHelpModalLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
-    <div class="modal-dialog modal-lg">
+    <div class="modal-dialog modal-xl">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="keyHelpModalLabel">Keyboard Shortcuts</h5>
+                <h5 class="modal-title" id="keyHelpModalLabel">Keyboard Shortcuts Guide</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
                 <ul>
-                    <li><strong>Left Mouse Button:</strong> Double-click to open the player interface</li>
+                    <li><strong>Left Mouse Button:</strong> Double click to open the player interface</li>
                     <li><strong>F9 Key:</strong> Toggle play/pause</li>
-                    <li><strong>Up/Down Arrow Keys:</strong> Skip to previous/next song</li>
+                    <li><strong>Up/Down Arrow Keys:</strong> Switch to previous/next track</li>
                     <li><strong>Left/Right Arrow Keys:</strong> Fast forward/rewind 10 seconds</li>
-                    <li><strong>ESC Key:</strong> Return to the first song in the playlist</li>
-                    <li><strong>F2 Key:</strong> Toggle between loop play and sequential play mode</li>
-                    <li><strong>F8 Key:</strong> Enable website connectivity check</li>
-                    <li><strong>Ctrl + F6 Key:</strong> Toggle snowflake animation</li>
-                    <li><strong>Ctrl + F7 Key:</strong> Toggle square light animation</li>
-                    <li><strong>Ctrl + F10 Key:</strong> Toggle square animation</li>
-                    <li><strong>Ctrl + F11 Key:</strong> Toggle light spot animation</li>
+                    <li><strong>ESC Key:</strong> Return to the first track in the playlist</li>
+                    <li><strong>F2 Key:</strong> Toggle between loop and sequential play mode</li>
+                    <li><strong>F8 Key:</strong> Start website connectivity check</li>
+                    <li><strong>Ctrl + F6 Key:</strong> Start/stop snowflake animation</li>
+                    <li><strong>Ctrl + F7 Key:</strong> Start/stop square light animation</li>
+                    <li><strong>Ctrl + F10 Key:</strong> Start/stop square animation</li>
+                    <li><strong>Ctrl + F11 Key:</strong> Start/stop light dot animation</li>
+                    <li><strong>Ctrl + Shift + S Key:</strong> Open settings</li>
                     <li><strong>Ctrl + Shift + C Key:</strong> Clear cache data</li>
                     <li><strong>Ctrl + Shift + V Key:</strong> Customize playlist</li>
-                    <li><strong>Ctrl + Shift + X Key:</strong> Set city</li>
+                    <li><strong>Long press top half of the screen on mobile/tablet:</strong> Open settings</li>
                 </ul>
             </div>
             <div class="modal-footer">
@@ -1497,6 +1978,7 @@ window.addEventListener('load', function() {
 
 <script>
     const websites = [
+        'https://www.baidu.com/', 
         'https://www.cloudflare.com/', 
         'https://openai.com/',
         'https://www.youtube.com/',
@@ -1508,22 +1990,23 @@ window.addEventListener('load', function() {
 
     function speakMessage(message) {
         const utterance = new SpeechSynthesisUtterance(message);
-        utterance.lang = 'en-US'; 
+        utterance.lang = 'en-US';  
         speechSynthesis.speak(utterance);
     }
 
     function getWebsiteStatusMessage(url, status) {
         const statusMessages = {
-            'https://www.cloudflare.com/': status ? 'Cloudflare website is accessible.' : 'Unable to access Cloudflare website, please check the network connection.',
-            'https://openai.com/': status ? 'OpenAI website is accessible.' : 'Unable to access OpenAI website, please check the network connection.',
-            'https://www.youtube.com/': status ? 'YouTube website is accessible.' : 'Unable to access YouTube website, please check the network connection.',
-            'https://www.google.com/': status ? 'Google website is accessible.' : 'Unable to access Google website, please check the network connection.',
-            'https://www.facebook.com/': status ? 'Facebook website is accessible.' : 'Unable to access Facebook website, please check the network connection.',
-            'https://www.twitter.com/': status ? 'Twitter website is accessible.' : 'Unable to access Twitter website, please check the network connection.',
-            'https://www.github.com/': status ? 'GitHub website is accessible.' : 'Unable to access GitHub website, please check the network connection.',
+            'https://www.baidu.com/': status ? 'Baidu website is accessible.' : 'Cannot access Baidu website, please check your network connection.',
+            'https://www.cloudflare.com/': status ? 'Cloudflare website is accessible.' : 'Cannot access Cloudflare website, please check your network connection.',
+            'https://openai.com/': status ? 'OpenAI website is accessible.' : 'Cannot access OpenAI website, please check your network connection.',
+            'https://www.youtube.com/': status ? 'YouTube website is accessible.' : 'Cannot access YouTube website, please check your network connection.',
+            'https://www.google.com/': status ? 'Google website is accessible.' : 'Cannot access Google website, please check your network connection.',
+            'https://www.facebook.com/': status ? 'Facebook website is accessible.' : 'Cannot access Facebook website, please check your network connection.',
+            'https://www.twitter.com/': status ? 'Twitter website is accessible.' : 'Cannot access Twitter website, please check your network connection.',
+            'https://www.github.com/': status ? 'GitHub website is accessible.' : 'Cannot access GitHub website, please check your network connection.',
         };
 
-        return statusMessages[url] || (status ? `${url} website is accessible.` : `Unable to access ${url} website, please check the network connection.`);
+        return statusMessages[url] || (status ? `${url} website is accessible.` : `Cannot access ${url} website, please check your network connection.`);
     }
 
     function checkWebsiteAccess(urls) {
@@ -1543,14 +2026,14 @@ window.addEventListener('load', function() {
                     requestsCompleted++;
                     if (requestsCompleted === urls.length) {
                         speakMessage(statusMessages.join(' '));  
-                        speakMessage('The website check is complete');  
+                        speakMessage('Website check is complete, thank you for using.'); 
                     }
                 });
         });
     }
 
     setInterval(() => {
-        speakMessage('Starting website connectivity detection...');
+        speakMessage('Starting website connectivity check...');
         checkWebsiteAccess(websites);  
     }, 3600000);  
 
@@ -1559,12 +2042,16 @@ window.addEventListener('load', function() {
     document.addEventListener('keydown', function(event) {
         if (event.key === 'F8' && !isDetectionStarted) {  
             event.preventDefault();  
-            speakMessage('Starting website connectivity detection...');
+            speakMessage('Website check has started, checking website connectivity...');
             checkWebsiteAccess(websites);
             isDetectionStarted = true;
         }
     });
 
+    document.getElementById('startCheckBtn').addEventListener('click', function() {
+        speakMessage('Website check has started, checking website connectivity...');
+        checkWebsiteAccess(websites);
+    });
 </script>
 
 <style>
@@ -1628,11 +2115,15 @@ window.addEventListener('load', function() {
                 createAnimatedBox();
             }, 1000);
             localStorage.setItem('animationActive', 'true');
+            isAnimationActive = true;
+            updateButtonText();
         }
 
         function stopAnimation() {
             clearInterval(intervalId);
             localStorage.setItem('animationActive', 'false');
+            isAnimationActive = false;
+            updateButtonText();
         }
 
         function showNotification(message) {
@@ -1653,25 +2144,48 @@ window.addEventListener('load', function() {
             }, 5000);
         }
 
+        function updateButtonText() {
+            document.getElementById('toggleAnimationBtn').innerText = isAnimationActive ? '⏸️ Stop Box Animation' : '▶ Start Box Animation';
+        }
+
         window.addEventListener('keydown', function(event) {
             if (event.ctrlKey && event.key === 'F10') {
                 isAnimationActive = !isAnimationActive;
                 if (isAnimationActive) {
                     startAnimation();
-                    showNotification('The animation has started');
-                    speakMessage('The animation has started');
+                    showNotification('Box animation started');
+                    speakMessage('Box animation started');
                 } else {
                     stopAnimation();
-                    showNotification('The animation has stopped');
-                    speakMessage('The animation has stopped');
+                    showNotification('Box animation stopped');
+                    speakMessage('Box animation stopped');
                 }
+            }
+        });
+
+        document.getElementById('toggleAnimationBtn').addEventListener('click', function() {
+            if (isAnimationActive) {
+                stopAnimation();
+                showNotification('⏸️ Box animation stopped');
+                speakMessage('Box animation stopped');
+            } else {
+                startAnimation();
+                showNotification('▶ Box animation started');
+                speakMessage('Box animation started');
             }
         });
 
         if (isAnimationActive) {
             startAnimation();
         }
+        updateButtonText();
     })();
+
+    function speakMessage(message) {
+        const utterance = new SpeechSynthesisUtterance(message);
+        utterance.lang = 'en-US';
+        speechSynthesis.speak(utterance);
+    }
 </script>
 
 <style>
@@ -1818,6 +2332,12 @@ window.addEventListener('load', function() {
         }, 5000);
     }
 
+    function speakMessage(message) {
+        const utterance = new SpeechSynthesisUtterance(message);
+        utterance.lang = 'en-US';
+        speechSynthesis.speak(utterance);
+    }
+
     function getSnowingState() {
         return localStorage.getItem('isSnowing') === 'true';
     }
@@ -1832,21 +2352,34 @@ window.addEventListener('load', function() {
         createSnowflakes();  
     }
 
+    function toggleSnowflakes() {
+        isSnowing = !isSnowing;
+        saveSnowingState(isSnowing);
+        if (isSnowing) {
+            createSnowflakes();
+            showNotification('Snowflake animation started');
+            speakMessage('Snowflake animation started');
+            document.getElementById('toggleSnowBtn').innerText = '⏸️ Stop Snowflake Animation';
+        } else {
+            stopSnowflakes();
+            showNotification('Snowflake animation stopped');
+            speakMessage('Snowflake animation stopped');
+            document.getElementById('toggleSnowBtn').innerText = '▶ Start Snowflake Animation';
+        }
+    }
+
     window.addEventListener('keydown', function(event) {
         if (event.ctrlKey && event.key === 'F6') {
-            isSnowing = !isSnowing;
-            saveSnowingState(isSnowing);
-            if (isSnowing) {
-                createSnowflakes(); 
-                showNotification('The snowflake animation has started');
-                speakMessage('The snowflake animation has started');
-            } else {
-                stopSnowflakes(); 
-                showNotification('The snowflake animation has stopped');
-                speakMessage('The snowflake animation has stopped');
-            }
+            toggleSnowflakes();
         }
     });
+
+    document.getElementById('toggleSnowBtn').addEventListener('click', toggleSnowflakes);
+
+    if (isSnowing) {
+        document.getElementById('toggleSnowBtn').innerText = '⏸️ Stop Snowflake Animation';
+    }
+
 </script>
 
 <style>
@@ -1929,7 +2462,8 @@ window.addEventListener('load', function() {
     function startLightAnimation(showLog = true) {
         intervalId = setInterval(createLightBox, 400); 
         localStorage.setItem('lightAnimationStatus', 'true');  
-        if (showLog) showNotification('The cube light animation has started');
+        if (showLog) showNotification('Light box animation started');
+        document.getElementById('toggleLightAnimationBtn').innerText = '⏸️ Stop Light Animation';
     }
 
     function stopLightAnimation(showLog = true) {
@@ -1937,7 +2471,8 @@ window.addEventListener('load', function() {
         const allLights = document.querySelectorAll('.floating-light');
         allLights.forEach(light => light.remove()); 
         localStorage.setItem('lightAnimationStatus', 'false');  
-        if (showLog) showNotification('The cube light animation has stopped');
+        if (showLog) showNotification('Light box animation stopped');
+        document.getElementById('toggleLightAnimationBtn').innerText = '▶ Start Light Animation';
     }
 
     function showNotification(message) {
@@ -1958,18 +2493,34 @@ window.addEventListener('load', function() {
         }, 5000);
     }
 
+    function speakMessage(message) {
+        const utterance = new SpeechSynthesisUtterance(message);
+        utterance.lang = 'en-US';
+        speechSynthesis.speak(utterance);
+    }
+
+    function toggleLightAnimation() {
+        isLightAnimationActive = !isLightAnimationActive;
+        if (isLightAnimationActive) {
+            startLightAnimation();
+            speakMessage('Light box animation started');
+        } else {
+            stopLightAnimation();
+            speakMessage('Light box animation stopped');
+        }
+    }
+
     window.addEventListener('keydown', function(event) {
         if (event.ctrlKey && event.key === 'F7') {
-            isLightAnimationActive = !isLightAnimationActive;
-            if (isLightAnimationActive) {
-                startLightAnimation(); 
-                speakMessage('The cube light animation has started');
-            } else {
-                stopLightAnimation();   
-                speakMessage('The cube light animation has stopped');
-            }
+            toggleLightAnimation();
         }
     });
+
+    document.getElementById('toggleLightAnimationBtn').addEventListener('click', toggleLightAnimation);
+
+    if (isLightAnimationActive) {
+        document.getElementById('toggleLightAnimationBtn').innerText = '⏸️ Stop Light Animation';
+    }
 })();
 </script>
 
@@ -2030,14 +2581,16 @@ window.addEventListener('load', function() {
         if (lightInterval) clearInterval(lightInterval);
         lightInterval = setInterval(createLightPoint, 200); 
         localStorage.setItem('lightEffectAnimation', 'true');
-        if (showLog) showNotification('The light spot animation has been turned on');
+        if (showLog) showNotification('Light point animation started');
+        document.getElementById('toggleLightEffectBtn').innerText = '⏸️ Stop Light Point Animation';
     }
 
     function stopLightEffect(showLog = true) {
         clearInterval(lightInterval);
         document.querySelectorAll('.light-point').forEach((light) => light.remove());
         localStorage.setItem('lightEffectAnimation', 'false');
-        if (showLog) showNotification('The light spot animation has been turned off');
+        if (showLog) showNotification('Light point animation stopped');
+        document.getElementById('toggleLightEffectBtn').innerText = '▶ Start Light Point Animation';
     }
 
     function showNotification(message) {
@@ -2058,20 +2611,33 @@ window.addEventListener('load', function() {
         }, 3000);
     }
 
+    function speakMessage(message) {
+        const utterance = new SpeechSynthesisUtterance(message);
+        utterance.lang = 'en-US';
+        speechSynthesis.speak(utterance);
+    }
+
+    function toggleLightEffect() {
+        isLightEffectActive = !isLightEffectActive;
+        if (isLightEffectActive) {
+            startLightEffect();
+            speakMessage('Light point animation started');
+        } else {
+            stopLightEffect();
+            speakMessage('Light point animation stopped');
+        }
+    }
+
     window.addEventListener('keydown', function (event) {
         if (event.ctrlKey && event.key === 'F11') {
-            isLightEffectActive = !isLightEffectActive;
-            if (isLightEffectActive) {
-                startLightEffect();
-                speakMessage('The light spot animation has been turned on');
-            } else {
-                stopLightEffect();
-                speakMessage('The light spot animation has been turned off');
-            }
+            toggleLightEffect();
         }
     });
 
+    document.getElementById('toggleLightEffectBtn').addEventListener('click', toggleLightEffect);
+
     if (isLightEffectActive) {
+        document.getElementById('toggleLightEffectBtn').innerText = '⏸️ Stop Light Point Animation';
         startLightEffect(false);
     }
 })();
@@ -2081,6 +2647,1167 @@ window.addEventListener('load', function() {
     document.addEventListener("DOMContentLoaded", function() {
         feather.replace();
     });
+</script>
+
+<div class="modal fade" id="widthModal" tabindex="-1" aria-labelledby="widthModalLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+  <div class="modal-dialog modal-xl">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="widthModalLabel">Adjust Container Width</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <label for="containerWidth" class="form-label">Page Width</label>
+        <input type="range" class="form-range" name="containerWidth" id="containerWidth" min="800" max="2400" step="50" value="1800" style="width: 100%;">
+        <div id="widthValue" class="mt-2" style="color: #FF00FF;">Current Width: 1800px</div>
+
+        <label for="modalMaxWidth" class="form-label mt-4">Modal Max Width</label>
+        <input type="range" class="form-range" name="modalMaxWidth" id="modalMaxWidth" min="1400" max="2400" step="50" value="1400" style="width: 100%;">
+        <div id="modalWidthValue" class="mt-2" style="color: #00FF00;">Current Max Width: 1400px</div>
+
+        <div class="form-check mt-3">
+            <input class="form-check-input" type="checkbox" id="group1Background">
+            <label class="form-check-label" for="group1Background">
+                Enable Transparent Dropdown, Form Select, and Info Background
+            </label>
+        </div>
+        <div class="form-check mt-3">
+            <input class="form-check-input" type="checkbox" id="bodyBackground">
+            <label class="form-check-label" for="bodyBackground">
+                Enable Transparent Body Background
+            </label>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+<script>
+const slider = document.getElementById("containerWidth");
+const widthValue = document.getElementById("widthValue");
+const modalSlider = document.getElementById("modalMaxWidth");
+const modalWidthValue = document.getElementById("modalWidthValue");
+
+const group1Checkbox = document.getElementById("group1Background");
+const bodyBackgroundCheckbox = document.getElementById("bodyBackground");
+
+function updateSliderColor(value, slider, valueElement) {
+    let red = Math.min(Math.max((value - 800) / (2400 - 800) * 255, 0), 255);
+    let green = 255 - red;
+    
+    slider.style.background = `linear-gradient(to right, rgb(${red}, ${green}, 255), rgb(${255 - red}, ${green}, ${255 - red}))`;
+    slider.style.setProperty('--thumb-color', `rgb(${red}, ${green}, 255)`);
+    valueElement.textContent = `Current Width: ${value}px`;
+    valueElement.style.color = `rgb(${red}, ${green}, 255)`;  
+}
+
+let savedWidth = localStorage.getItem('containerWidth');
+let savedModalWidth = localStorage.getItem('modalMaxWidth');
+
+if (savedWidth) {
+    slider.value = savedWidth;
+}
+if (savedModalWidth) {
+    modalSlider.value = savedModalWidth;
+}
+
+updateSliderColor(slider.value, slider, widthValue);
+updateSliderColor(modalSlider.value, modalSlider, modalWidthValue);
+
+slider.oninput = function() {
+    updateSliderColor(slider.value, slider, widthValue);
+    localStorage.setItem('containerWidth', slider.value);  
+
+    sendCSSUpdate();
+    showNotification(`Page width updated! Current Width: ${slider.value}px`);
+};
+
+modalSlider.oninput = function() {
+    updateSliderColor(modalSlider.value, modalSlider, modalWidthValue);
+    localStorage.setItem('modalMaxWidth', modalSlider.value);  
+
+    sendCSSUpdate();
+    showNotification(`Modal max width updated! Current Max Width: ${modalSlider.value}px`);
+};
+
+function sendCSSUpdate() {
+    const width = slider.value;
+    const modalWidth = modalSlider.value;
+    const group1 = group1Checkbox.checked ? 1 : 0;
+    const bodyBackground = bodyBackgroundCheckbox.checked ? 1 : 0;
+
+    fetch('update-css.php', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ 
+            width: width,
+            modalWidth: modalWidth,
+            group1: group1,
+            bodyBackground: bodyBackground
+        })
+    }).then(response => response.json())
+      .then(data => console.log('CSS updated successfully:', data))
+      .catch(error => console.error('Error updating CSS:', error));
+}
+
+group1Checkbox.onchange = function() {
+    sendCSSUpdate();
+    showNotification(group1Checkbox.checked ? "Transparent dropdown, form select, and info background enabled" : "Transparent dropdown, form select, and info background disabled");
+};
+
+bodyBackgroundCheckbox.onchange = function() {
+    sendCSSUpdate();
+    showNotification(bodyBackgroundCheckbox.checked ? "Transparent body background enabled" : "Transparent body background disabled");
+};
+
+function showNotification(message) {
+    const notification = document.createElement('div');
+    notification.style.position = 'fixed';
+    notification.style.top = '10px';
+    notification.style.right = '10px';
+    notification.style.padding = '10px';
+    notification.style.backgroundColor = '#4CAF50';
+    notification.style.color = '#fff';
+    notification.style.borderRadius = '5px';
+    notification.style.zIndex = 9999;
+    notification.textContent = message;
+
+    document.body.appendChild(notification);
+    setTimeout(() => {
+        notification.remove();
+    }, 3000);
+}
+
+const toggleModalButton = document.getElementById("toggleModal");
+toggleModalButton.onclick = function() {
+    const modal = new bootstrap.Modal(document.getElementById('widthModal'));
+    modal.show();
+};
+</script>
+
+<div class="modal fade" id="colorModal" tabindex="-1" aria-labelledby="colorModalLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+  <div class="modal-dialog modal-xl">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="colorModalLabel">Select Theme Color</h5>
+        <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+      </div>
+      <div class="modal-body">
+        <form method="POST" action="theme.php" id="themeForm" enctype="multipart/form-data">
+          <div class="row">
+            <div class="col-md-4 mb-3">
+              <label for="primaryColor" class="form-label">Navigation Text Color</label>
+              <input type="color" class="form-control" name="primaryColor" id="primaryColor" value="#0ceda2">
+            </div>
+            <div class="col-md-4 mb-3">
+              <label for="secondaryColor" class="form-label">Navigation Hover Text Color</label>
+              <input type="color" class="form-control" name="secondaryColor" id="secondaryColor" value="#00ffff">
+            </div>
+            <div class="col-md-4 mb-3">
+              <label for="bodyBgColor" class="form-label">Main Background Color</label>
+              <input type="color" class="form-control" name="bodyBgColor" id="bodyBgColor" value="#23407e">
+            </div>
+            <div class="col-md-4 mb-3">
+              <label for="infoBgSubtle" class="form-label">Info Background Color</label>
+              <input type="color" class="form-control" name="infoBgSubtle" id="infoBgSubtle" value="#23407e">
+            </div>
+            <div class="col-md-4 mb-3">
+              <label for="backgroundColor" class="form-label">Table Background Color</label>
+              <input type="color" class="form-control" name="backgroundColor" id="backgroundColor" value="#20cdd9">
+            </div>
+            <div class="col-md-4 mb-3">
+              <label for="primaryBorderSubtle" class="form-label">Table Text Color</label>
+              <input type="color" class="form-control" name="primaryBorderSubtle" id="primaryBorderSubtle" value="#1815d1">
+            </div>
+            <div class="col-md-4 mb-3">
+              <label for="checkColor" class="form-label">Main Title Text Color 1</label>
+              <input type="color" class="form-control" name="checkColor" id="checkColor" value="#0eaf3e">
+            </div>
+            <div class="col-md-4 mb-3">
+              <label for="labelColor" class="form-label">Main Title Text Color 2</label>
+              <input type="color" class="form-control" name="labelColor" id="labelColor" value="#0eaf3e">
+            </div>
+            <div class="col-md-4 mb-3">
+              <label for="lineColor" class="form-label">Line Text Color</label>
+              <input type="color" class="form-control" name="lineColor" id="lineColor" value="#f515f9">
+            </div>
+            <div class="col-md-4 mb-3">
+              <label for="controlColor" class="form-label">Input Text Color 1</label>
+              <input type="color" class="form-control" name="controlColor" id="controlColor" value="#0eaf3e">
+            </div>
+            <div class="col-md-4 mb-3">
+              <label for="placeholderColor" class="form-label">Input Text Color 2</label>
+              <input type="color" class="form-control" name="placeholderColor" id="placeholderColor" value="#f82af2">
+            </div>
+            <div class="col-md-4 mb-3">
+              <label for="disabledColor" class="form-label">Display Background Color</label>
+              <input type="color" class="form-control" name="disabledColor" id="disabledColor" value="#23407e">
+            </div>
+            <div class="col-md-4 mb-3">
+              <label for="logTextColor" class="form-label">Log Text Color</label>
+              <input type="color" class="form-control" name="logTextColor" id="logTextColor" value="#f8f9fa">
+            </div>
+            <div class="col-md-4 mb-3">
+              <label for="selectColor" class="form-label">Main Border Background Color</label>
+              <input type="color" class="form-control" name="selectColor" id="selectColor" value="#23407e">
+            </div>
+            <div class="col-md-4 mb-3">
+              <label for="radiusColor" class="form-label">Main Border Text Color</label>
+              <input type="color" class="form-control" name="radiusColor" id="radiusColor" value="#24f086">
+            </div>
+            <div class="col-md-4 mb-3">
+              <label for="bodyColor" class="form-label">Table Text Color 1</label>
+              <input type="color" class="form-control" name="bodyColor" id="bodyColor" value="#04f153">
+            </div>
+            <div class="col-md-4 mb-3">
+              <label for="tertiaryColor" class="form-label">Table Text Color 2</label>
+              <input type="color" class="form-control" name="tertiaryColor" id="tertiaryColor" value="#46e1ec">
+            </div>
+            <div class="col-md-4 mb-3">
+              <label for="tertiaryRgbColor" class="form-label">Table Text Color 3</label>
+              <input type="color" class="form-control" name="tertiaryRgbColor" id="tertiaryRgbColor" value="#1e90ff">
+            </div>
+            <div class="col-md-4 mb-3">
+              <label for="ipColor" class="form-label">IP Text Color</label>
+              <input type="color" class="form-control" name="ipColor" id="ipColor" value="#09B63F">
+            </div>
+            <div class="col-md-4 mb-3">
+              <label for="ipipColor" class="form-label">ISP Text Color</label>
+              <input type="color" class="form-control" name="ipipColor" id="ipipColor" value="#ff69b4">
+            </div>
+            <div class="col-md-4 mb-3">
+              <label for="detailColor" class="form-label">IP Detail Text Color</label>
+              <input type="color" class="form-control" name="detailColor" id="detailColor" value="#FFFFFF">
+            </div>
+            <div class="col-md-4 mb-3">
+              <label for="outlineColor" class="form-label">Button Color (Cyan)</label>
+              <input type="color" class="form-control" name="outlineColor" id="outlineColor" value="#0dcaf0">
+            </div>
+            <div class="col-md-4 mb-3">
+              <label for="successColor" class="form-label">Button Color (Green)</label>
+              <input type="color" class="form-control" name="successColor" id="successColor" value="#28a745">
+            </div>
+            <div class="col-md-4 mb-3">
+              <label for="infoColor" class="form-label">Button Color (Blue)</label>
+              <input type="color" class="form-control" name="infoColor" id="infoColor" value="#0ca2ed">
+            </div>
+            <div class="col-md-4 mb-3">
+              <label for="warningColor" class="form-label">Button Color (Yellow)</label>
+              <input type="color" class="form-control" name="warningColor" id="warningColor" value="#ffc107">
+            </div>
+            <div class="col-md-4 mb-3">
+              <label for="pinkColor" class="form-label">Button Color (Pink)</label>
+              <input type="color" class="form-control" name="pinkColor" id="pinkColor" value="#f82af2">
+            </div>
+            <div class="col-md-4 mb-3">
+              <label for="dangerColor" class="form-label">Button Color (Red)</label>
+              <input type="color" class="form-control" name="dangerColor" id="dangerColor" value="#dc3545">
+            </div>
+            <div class="col-md-4 mb-3">
+              <label for="heading1Color" class="form-label">Heading Color 1</label>
+              <input type="color" class="form-control" name="heading1Color" id="heading1Color" value="#21e4f2">
+            </div>
+            <div class="col-md-4 mb-3">
+              <label for="heading2Color" class="form-label">Heading Color 2</label>
+              <input type="color" class="form-control" name="heading2Color" id="heading2Color" value="#65f1fb">
+            </div>
+            <div class="col-md-4 mb-3">
+              <label for="heading3Color" class="form-label">Heading Color 3</label>
+              <input type="color" class="form-control" name="heading3Color" id="heading3Color" value="#ffcc00">
+            </div>
+            <div class="col-md-4 mb-3">
+              <label for="heading4Color" class="form-label">Heading Color 4</label>
+              <input type="color" class="form-control" name="heading4Color" id="heading4Color" value="#00fbff">
+            </div>
+            <div class="col-md-4 mb-3">
+              <label for="heading5Color" class="form-label">Heading Color 5</label>
+              <input type="color" class="form-control" name="heading5Color" id="heading5Color" value="#ba13f6">
+            </div>
+            <div class="col-md-4 mb-3">
+              <label for="heading6Color" class="form-label">Heading Color 6</label>
+              <input type="color" class="form-control" name="heading6Color" id="heading6Color" value="#00ffff">
+            </div>
+          </div>
+          <div class="col-12 mb-3">
+            <label for="themeName" class="form-label">Custom Theme Name</label>
+            <input type="text" class="form-control" name="themeName" id="themeName" value="transparent">
+          </div>
+      <div class="d-flex flex-wrap justify-content-center align-items-center mb-3 gap-2">
+          <button type="submit" class="btn btn-primary">Save Theme</button>
+          <button type="button" class="btn btn-success" id="resetButton" onclick="clearCache()">Reset to Default</button>
+          <button type="button" class="btn btn-info" id="exportButton">Backup Now</button>
+          <button type="button" class="btn btn-warning" id="restoreButton">Restore Backup</button> 
+          <input type="file" id="importButton" class="form-control" accept="application/json" style="display: none;"> 
+          <button type="button" class="btn btn-pink" data-bs-dismiss="modal">Cancel</button>
+      </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+    input[type="range"] {
+        -webkit-appearance: none;  
+        appearance: none;
+        width: 100%;
+        height: 10px;  
+        border-radius: 5px;
+        background: linear-gradient(to right, #ff00ff, #00ffff); 
+        outline: none;
+    }
+
+    input[type="range"]::-webkit-slider-thumb {
+        -webkit-appearance: none;
+        appearance: none;
+        width: 20px;
+        height: 20px;
+        border-radius: 50%;
+        background: #ff00ff;  
+        border: none;
+        cursor: pointer;
+    }
+
+    input[type="range"]:focus {
+        outline: none; 
+    }
+
+    input[type="range"]::-moz-range-thumb {
+        width: 20px;
+        height: 20px;
+        border-radius: 50%;
+        background: #ff00ff;  
+        border: none;
+        cursor: pointer;
+    }
+
+    #widthValue {
+        color: #ff00ff;
+    }
+
+.file-preview {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.btn-container {
+    display: flex;
+    justify-content: center;
+    margin-top: 10px;
+}
+
+.btn-container .btn {
+    margin: 0 5px;
+}
+
+.delete-btn {
+    color: white !important; 
+}
+
+@media (max-width: 768px) {
+    .set-background-btn {
+        font-size: 12px;
+        padding: 5px 10px;
+        width: 100px; 
+        height: 42px; 
+    }
+}
+</style>
+
+<script>
+    document.getElementById('useBackgroundImage').addEventListener('change', function() {
+        const container = document.getElementById('backgroundImageContainer');
+        container.style.display = this.checked ? 'block' : 'none';
+    });
+</script>
+
+<script>
+    document.getElementById('restoreButton').addEventListener('click', () => {
+        document.getElementById('importButton').click();
+    });
+
+    document.getElementById('importButton').addEventListener('change', (event) => {
+        const file = event.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                const content = e.target.result;
+                try {
+                    const jsonData = JSON.parse(content); 
+                    console.log('Restored backup data:', jsonData);
+                    alert('Backup successfully uploaded and parsed!');
+                } catch (error) {
+                    alert('File format error, please upload a valid JSON file!');
+                }
+            };
+            reader.readAsText(file);
+        }
+    });
+</script>
+
+<script>
+    function clearCache() {
+        location.reload(true);        
+        localStorage.clear();   
+        sessionStorage.clear(); 
+        sessionStorage.setItem('cacheCleared', 'true'); 
+    }
+
+    window.addEventListener('load', function() {
+        if (sessionStorage.getItem('cacheCleared') === 'true') {
+            sessionStorage.removeItem('cacheCleared'); 
+        }
+    });
+</script>
+
+<div class="modal fade" id="filesModal" tabindex="-1" aria-labelledby="filesModalLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="filesModalLabel">Upload and Manage Background Images/Videos/Audio</h5>
+                <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-4 d-flex justify-content-between align-items-center">
+                    <div>
+                        <button type="button" class="btn btn-success mr-3" onclick="selectAll()"><i class="fas fa-check-square"></i> Select All</button>
+                        <button type="button" class="btn btn-warning mr-3" onclick="deselectAll()"><i class="fas fa-square"></i> Deselect All</button>
+                        <button type="button" class="btn btn-danger" onclick="batchDelete()"><i class="fas fa-trash-alt"></i> Batch Delete</button>
+                        <span id="selectedCount" class="ms-2" style="display: none;">Selected 0 files, totaling 0 MB</span>
+                    </div>
+                    <div>
+                        <button type="button" class="btn btn-pink mr-3" onclick="sortFiles()"><i class="fas fa-sort"></i> Sort</button>
+                        <button type="button" class="btn btn-primary mr-3" data-bs-toggle="modal" data-bs-target="#uploadModal">
+                            <i class="fas fa-cloud-upload-alt"></i> Upload File
+                        </button>
+                        <button type="button" class="btn btn-danger delete-btn" onclick="setBackground('', '', 'remove')"><i class="fas fa-trash"></i> Remove Background</button>
+                    </div>
+                </div>
+                <table class="table table-bordered text-center">
+                    <tbody id="fileTableBody">
+                        <?php
+                        function isImage($file)
+                        {
+                            $imageExtensions = ['jpg', 'jpeg', 'png', 'gif', 'bmp', 'webp'];
+                            $fileExtension = strtolower(pathinfo($file, PATHINFO_EXTENSION));
+                            return in_array($fileExtension, $imageExtensions);
+                        }
+
+                        function isVideo($file)
+                        {
+                            $videoExtensions = ['mp4', 'avi', 'mkv', 'mov', 'wmv'];
+                            $fileExtension = strtolower(pathinfo($file, PATHINFO_EXTENSION));
+                            return in_array($fileExtension, $videoExtensions);
+                        }
+
+                        function isAudio($file)
+                        {
+                            $audioExtensions = ['mp3', 'wav', 'ogg', 'flac', 'aac', 'm4a', 'webm', 'opus'];
+                            $fileExtension = strtolower(pathinfo($file, PATHINFO_EXTENSION));
+                            return in_array($fileExtension, $audioExtensions);
+                        }
+
+                        function getFileNameWithoutPrefix($file)
+                        {
+                            $fileBaseName = pathinfo($file, PATHINFO_FILENAME);
+                            $hyphenPos = strpos($fileBaseName, '-');
+                            if ($hyphenPos !== false) {
+                                return substr($fileBaseName, $hyphenPos + 1) . '.' . pathinfo($file, PATHINFO_EXTENSION);
+                            } else {
+                                return $file;
+                            }
+                        }
+
+                        function formatFileSize($size)
+                        {
+                            if ($size >= 1073741824) {
+                                return number_format($size / 1073741824, 2) . ' GB';
+                            } elseif ($size >= 1048576) {
+                                return number_format($size / 1048576, 2) . ' MB';
+                            } elseif ($size >= 1024) {
+                                return number_format($size / 1024, 2) . ' KB';
+                            } else {
+                                return $size . ' bytes';
+                            }
+                        }
+
+                        $picturesDir = $_SERVER['DOCUMENT_ROOT'] . '/nekobox/assets/Pictures/';
+                        $backgroundHistoryFile = $_SERVER['DOCUMENT_ROOT'] . '/nekobox/background_history.txt';
+                        $backgroundFiles = [];
+                        if (file_exists($backgroundHistoryFile)) {
+                            $backgroundFiles = array_filter(array_map('trim', file($backgroundHistoryFile)));
+                        }
+
+                        if (is_dir($picturesDir)) {
+                            $files = array_diff(scandir($picturesDir), array('..', '.'));
+                            usort($files, function ($a, $b) use ($backgroundFiles) {
+                                $indexA = array_search($a, $backgroundFiles);
+                                $indexB = array_search($b, $backgroundFiles);
+
+                                if ($indexA === false && $indexB === false) {
+                                    return 0; 
+                                } elseif ($indexA === false) {
+                                    return 1; 
+                                } elseif ($indexB === false) {
+                                    return -1; 
+                                } else {
+                                    return $indexA - $indexB; 
+                                 }
+                            });     
+
+                            $fileCount = 0;
+                            foreach ($files as $file) {
+                                $filePath = $picturesDir . $file;
+                                if (is_file($filePath)) {
+                                    $fileSize = filesize($filePath);
+                                    $formattedFileSize = formatFileSize($fileSize);
+                                    $fileUrl = '/nekobox/assets/Pictures/' . $file;
+                                    $fileNameWithoutPrefix = getFileNameWithoutPrefix($file);
+                                    $fileTitle = "Name: $fileNameWithoutPrefix\nSize: $formattedFileSize";
+
+                                    if ($fileCount % 5 == 0) {
+                                        echo "<tr>";
+                                    }
+
+                                    echo "<td class='align-middle' data-label='Preview' style='vertical-align: middle;'>
+                                            <div class='file-preview mb-2' oncontextmenu='showRenameModal(event, \"" . htmlspecialchars($file, ENT_QUOTES) . "\")'>
+                                                <input type='checkbox' class='file-checkbox mb-2' value='" . htmlspecialchars($file, ENT_QUOTES) . "' data-size='$fileSize' onchange='updateSelectedCount()'>";
+
+                                    if (isVideo($file)) {
+                                        echo "<video width='200' controls title='$fileTitle'>
+                                                  <source src='$fileUrl' type='video/mp4'>
+                                                  Your browser does not support the video tag.
+                                              </video>";
+                                    } elseif (isImage($file)) {
+                                        echo "<img src='$fileUrl' alt='$file' style='width: 200px; height: auto;' title='$fileTitle'>";
+                                    } elseif (isAudio($file)) {
+                                        echo "<audio width='200' controls title='$fileTitle'>
+                                                  <source src='$fileUrl' type='audio/mp3'>
+                                                  Your browser does not support the audio tag.
+                                              </audio>";
+                                    } else {
+                                        echo "Unknown file type";
+                                    }
+
+                                    echo "<div class='btn-container mt-2'>
+                                              <a href='?delete=" . htmlspecialchars($file, ENT_QUOTES) . "' class='btn btn-danger me-2 delete-btn' onclick='return confirm(\"Are you sure you want to delete?\")'>Delete</a>";
+
+                                    if (isImage($file)) {
+                                        echo "<button type='button' onclick=\"setBackground('" . htmlspecialchars($file, ENT_QUOTES) . "', 'image')\" class='btn btn-primary ms-2 set-background-btn'>Set as Background</button>";
+                                    } elseif (isVideo($file)) {
+                                        echo "<button type='button' onclick=\"setBackground('" . htmlspecialchars($file, ENT_QUOTES) . "', 'video')\" class='btn btn-primary ms-2 set-background-btn'>Set as Background</button>";
+                                    } elseif (isAudio($file)) {
+                                        echo "<button type='button' onclick=\"setBackground('" . htmlspecialchars($file, ENT_QUOTES) . "', 'audio')\" class='btn btn-primary ms-2 set-background-btn'>Background Music</button>";
+                                    }
+
+                                    echo "</div></div></td>";
+
+                                    if ($fileCount % 5 == 4) {
+                                        echo "</tr>";
+                                    }
+
+                                    $fileCount++;
+                                }
+                            }
+
+                            if ($fileCount % 5 != 0) {
+                                echo str_repeat("<td></td>", 5 - ($fileCount % 5)) . "</tr>";
+                            }
+                        }
+
+                        if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['oldFileName']) && isset($_POST['newFileName'])) {
+                            $oldFileName = $_POST['oldFileName'];
+                            $newFileName = $_POST['newFileName'];
+
+                            $oldFilePath = $picturesDir . $oldFileName;
+                            $newFilePath = $picturesDir . $newFileName;
+
+                            if (file_exists($oldFilePath)) {
+                                if (rename($oldFilePath, $newFilePath)) {
+                                    echo "<script>alert('File renamed successfully');</script>";
+                                } else {
+                                    echo "<script>alert('Failed to rename file');</script>";
+                                }
+                            } else {
+                                echo "<script>alert('File does not exist');</script>";
+                            }
+                        }
+                        ?>
+                    </tbody>
+                </table>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="renameModal" tabindex="-1" aria-labelledby="renameModalLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+    <div class="modal-dialog modal-xl">
+        <form id="renameForm" method="POST">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="renameModalLabel">Rename File</h5>
+                    <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <input type="hidden" name="oldFileName" id="oldFileName">
+                    <div class="form-group">
+                        <label for="newFileName">New File Name</label>
+                        <input type="text" class="form-control" id="newFileName" name="newFileName" required>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Save</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="modal fade" id="uploadModal" tabindex="-1" aria-labelledby="uploadModalLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="uploadModalLabel"><i class="fas fa-cloud-upload-alt"></i> Upload File</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body text-center">
+                <h2 class="mb-3">Upload Image/Video</h2>
+                <form method="POST" action="download.php" enctype="multipart/form-data">
+                    <div id="dropArea" class="mb-3">
+                        <i id="uploadIcon" class="fas fa-cloud-upload-alt"></i>
+                        <p>Drag and drop files here, or click the icon to select files.</p>
+                        <p>PHP upload files have size limits. If the upload fails, you can manually upload files to the /nekobox/assets/Pictures directory.</p>
+                    </div>
+                    <input type="file" class="form-control mb-3" name="imageFile[]" id="imageFile" multiple style="display: none;">                   
+                    <button type="submit" class="btn btn-success mt-3" id="submitBtnModal">
+                        Upload Image/Video
+                    </button>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-warning" id="updatePhpConfig">Update PHP Upload Limits</button>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+function batchDelete() {
+    const checkboxes = document.querySelectorAll('.file-checkbox:checked');
+    if (checkboxes.length === 0) {
+        alert("Please select files to delete.");
+        return;
+    }
+
+    if (!confirm("Are you sure you want to delete the selected files?")) {
+        return;
+    }
+
+    checkboxes.forEach(checkbox => {
+        const fileName = checkbox.value;
+        fetch(`?delete=${encodeURIComponent(fileName)}`)
+            .then(response => {
+                if (response.ok) {
+                    checkbox.closest('td').remove(); 
+                    updateSelectedCount();
+                } else {
+                    alert(`Failed to delete file: ${fileName}`);
+                }
+            })
+            .catch(error => console.error('Error:', error));
+    });
+}
+
+function updateSelectedCount() {
+    const checkboxes = document.querySelectorAll('.file-checkbox:checked');
+    const selectedCount = checkboxes.length;
+    let totalSize = 0;
+
+    checkboxes.forEach(checkbox => {
+        totalSize += parseInt(checkbox.getAttribute('data-size'), 10);
+    });
+
+    const totalSizeMB = (totalSize / 1048576).toFixed(2); 
+    const selectedCountElement = document.getElementById('selectedCount');
+    if (selectedCount > 0) {
+        selectedCountElement.style.display = 'inline';
+        selectedCountElement.innerText = `Selected ${selectedCount} files, totaling ${totalSizeMB} MB`;
+    } else {
+        selectedCountElement.style.display = 'none';
+    }
+}
+
+function sortFiles() {
+    const tableBody = document.getElementById('fileTableBody');
+    const rows = Array.from(tableBody.getElementsByTagName('tr'));
+    
+    rows.sort((a, b) => {
+        const aText = a.getElementsByTagName('td')[0].querySelector('.file-preview img, .file-preview video').title;
+        const bText = b.getElementsByTagName('td')[0].querySelector('.file-preview img, .file-preview video').title;
+        
+        return aText.localeCompare(bText);
+    });
+
+    rows.forEach(row => tableBody.appendChild(row));
+}
+
+function selectAll() {
+    const checkboxes = document.querySelectorAll('.file-checkbox');
+    checkboxes.forEach(checkbox => checkbox.checked = true);
+    updateSelectedCount();
+}
+
+function deselectAll() {
+    const checkboxes = document.querySelectorAll('.file-checkbox');
+    checkboxes.forEach(checkbox => checkbox.checked = false);
+    updateSelectedCount();
+}
+
+function showRenameModal(event, fileName) {
+    event.preventDefault();
+    const modal = new bootstrap.Modal(document.getElementById('renameModal'));
+    document.getElementById('oldFileName').value = fileName;
+    document.getElementById('newFileName').value = fileName; 
+    modal.show();
+}
+</script>
+
+<script>
+document.getElementById("updatePhpConfig").addEventListener("click", function() {
+    if (confirm("Are you sure you want to modify PHP upload limits?")) {
+        fetch("update_php_config.php", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" }
+        })
+        .then(response => response.json())
+        .then(data => alert(data.message))
+        .catch(error => alert("Request failed: " + error.message));
+    }
+});
+</script>
+
+<script>
+    document.getElementById('uploadIcon').addEventListener('click', function() {
+        document.getElementById('imageFile').click(); 
+    });
+
+    document.getElementById('imageFile').addEventListener('change', function() {
+        if (this.files.length > 0) {
+            document.getElementById('submitBtnModal').style.display = 'inline-block';
+        } else {
+            document.getElementById('submitBtnModal').style.display = 'none';
+        }
+    });
+
+    const dropArea = document.getElementById('dropArea');
+    dropArea.addEventListener('dragover', function(event) {
+        event.preventDefault(); 
+        dropArea.classList.add('dragging'); 
+    });
+
+    dropArea.addEventListener('dragleave', function() {
+        dropArea.classList.remove('dragging'); 
+    });
+
+    dropArea.addEventListener('drop', function(event) {
+        event.preventDefault();
+        dropArea.classList.remove('dragging'); 
+
+        const files = event.dataTransfer.files;
+        document.getElementById('imageFile').files = files; 
+
+        if (files.length > 0) {
+            document.getElementById('submitBtnModal').style.display = 'inline-block'; 
+        }
+    });
+</script>
+
+<script>
+    const fileInput = document.getElementById('imageFile');
+    const dragDropArea = document.getElementById('dragDropArea');
+    const submitBtn = document.getElementById('submitBtn');
+
+    dragDropArea.addEventListener('dragover', function(e) {
+        e.preventDefault();
+        dragDropArea.classList.add('drag-over');
+    });
+
+    dragDropArea.addEventListener('dragleave', function(e) {
+        e.preventDefault();
+        dragDropArea.classList.remove('drag-over');
+    });
+
+    dragDropArea.addEventListener('drop', function(e) {
+        e.preventDefault();
+        dragDropArea.classList.remove('drag-over');
+        
+        const files = e.dataTransfer.files;
+        if (files.length > 0) {
+            fileInput.files = files;  
+        }
+    });
+
+    fileInput.addEventListener('change', function(e) {
+        const files = e.target.files;
+        if (files.length > 0) {
+            submitBtn.disabled = false;
+        } else {
+            submitBtn.disabled = true;
+        }
+        updateDragDropText();
+    });
+
+    function updateDragDropText() {
+        if (fileInput.files.length > 0) {
+            dragDropArea.querySelector('p').textContent = `${fileInput.files.length} files selected`;
+        } else {
+            dragDropArea.querySelector('p').textContent = 'Drag files here or click to select files';
+        }
+    }
+
+</script>
+
+<?php
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $uploadedFilePath = '';
+
+    $allowedTypes = [
+        'image/jpeg', 'image/png', 'image/gif', 'image/bmp', 'image/webp',
+        'video/mp4', 'video/avi', 'video/mkv', 'video/mov', 'video/wmv', 'video/3gp',
+        'audio/mp3', 'audio/wav', 'audio/ogg', 'audio/flac', 'audio/aac', 'audio/m4a', 'audio/webm', 'audio/opus'
+    ];
+
+    if (isset($_FILES['imageFile']) && $_FILES['imageFile']['error'] === UPLOAD_ERR_OK) {
+        $targetDir = $_SERVER['DOCUMENT_ROOT'] . '/nekobox/assets/Pictures/';
+        if (!file_exists($targetDir)) {
+            mkdir($targetDir, 0777, true);
+        }
+
+        $fileExtension = strtolower(pathinfo($_FILES['imageFile']['name'], PATHINFO_EXTENSION));
+
+        if (in_array($fileExtension, $allowedTypes)) {
+            $targetFile = $targetDir . basename($_FILES['imageFile']['name']);
+            if (move_uploaded_file($_FILES['imageFile']['tmp_name'], $targetFile)) {
+                $uploadedFilePath = '/nekobox/assets/Pictures/' . basename($_FILES['imageFile']['name']);
+            }
+        } else {
+            echo "<script>alert('Unsupported file type!');</script>";
+        }
+    }
+}
+
+if (isset($_GET['delete'])) {
+    $fileToDelete = $_GET['delete'];
+    $picturesDir = $_SERVER['DOCUMENT_ROOT'] . '/nekobox/assets/Pictures/';
+    $filePath = $picturesDir . $fileToDelete;
+    if (file_exists($filePath)) {
+        unlink($filePath);
+        echo "<script>alert('File deleted!'); location.reload();</script>";
+        exit;
+    }
+}
+?>
+
+<script>
+function setBackground(filename, type, action = 'set') {
+    const bodyData = 'filename=' + encodeURIComponent(filename) + '&type=' + type;
+
+    if (action === 'set') {
+        fetch('/nekobox/set_background.php', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: 'action=set&' + bodyData
+        })
+        .then(response => response.text())
+        .then(data => {
+            sessionStorage.setItem('notificationMessage', data);
+            sessionStorage.setItem('notificationType', 'success');
+            location.reload(); 
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            sessionStorage.setItem('notificationMessage', "Operation failed, please try again later.");
+            sessionStorage.setItem('notificationType', 'error');
+            location.reload(); 
+        });
+    }
+
+    else if (action === 'remove') {
+        fetch('/nekobox/set_background.php', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: 'action=remove'
+        })
+        .then(response => response.text())
+        .then(data => {
+            sessionStorage.setItem('notificationMessage', data);
+            sessionStorage.setItem('notificationType', 'success');
+            location.reload(); 
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            sessionStorage.setItem('notificationMessage', "Failed to delete, please try again later.");
+            sessionStorage.setItem('notificationType', 'error');
+            location.reload(); 
+        });
+    }
+}
+
+function showNotification(message, type = 'success') {
+    var notification = document.createElement('div');
+    notification.style.position = 'fixed';
+    notification.style.top = '10px';
+    notification.style.left = '30px'; 
+    notification.style.padding = '10px';
+    notification.style.borderRadius = '5px';
+    notification.style.zIndex = '9999';
+    notification.style.color = '#fff'; 
+    notification.innerText = message;
+
+    if (type === 'success') {
+        notification.style.backgroundColor = '#4CAF50'; 
+    } else if (type === 'error') {
+        notification.style.backgroundColor = '#F44336'; 
+    }
+
+    document.body.appendChild(notification);
+
+    setTimeout(function() {
+        notification.style.display = 'none';
+    }, 5000); 
+}
+
+window.addEventListener('load', function() {
+    var message = sessionStorage.getItem('notificationMessage');
+    var type = sessionStorage.getItem('notificationType');
+
+    if (message) {
+        showNotification(message, type); 
+        sessionStorage.removeItem('notificationMessage');
+        sessionStorage.removeItem('notificationType');
+    }
+});
+</script>
+
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+    const colorInputs = document.querySelectorAll('input[type="color"]');
+    
+    colorInputs.forEach(input => {
+      if (localStorage.getItem(input.name)) {
+        input.value = localStorage.getItem(input.name);
+      }
+
+      input.addEventListener('input', function() {
+        localStorage.setItem(input.name, input.value);
+      });
+    });
+
+    const useBackgroundImageCheckbox = document.getElementById('useBackgroundImage');
+    const backgroundImageContainer = document.getElementById('backgroundImageContainer');
+
+    const savedBackgroundImageState = localStorage.getItem('useBackgroundImage');
+    if (savedBackgroundImageState === 'true') {
+      useBackgroundImageCheckbox.checked = true;
+      backgroundImageContainer.style.display = 'block';
+    } else {
+      useBackgroundImageCheckbox.checked = false;
+      backgroundImageContainer.style.display = 'none';
+    }
+
+    useBackgroundImageCheckbox.addEventListener('change', function() {
+      if (useBackgroundImageCheckbox.checked) {
+        backgroundImageContainer.style.display = 'block';
+      } else {
+        backgroundImageContainer.style.display = 'none';
+      }
+
+      localStorage.setItem('useBackgroundImage', useBackgroundImageCheckbox.checked);
+    });
+
+    document.getElementById('resetButton').addEventListener('click', function() {
+      document.getElementById('primaryColor').value = '#0ceda2';
+      document.getElementById('secondaryColor').value = '#00ffff';
+      document.getElementById('bodyBgColor').value = '#23407e';
+      document.getElementById('infoBgSubtle').value = '#23407e';
+      document.getElementById('backgroundColor').value = '#20cdd9';
+      document.getElementById('primaryBorderSubtle').value = '#1815d1';
+      document.getElementById('checkColor').value = '#0eaf3e';
+      document.getElementById('labelColor').value = '#0eaf3e';
+      document.getElementById('lineColor').value = '#f515f9';
+      document.getElementById('controlColor').value = '#0eaf3e';
+      document.getElementById('placeholderColor').value = '#f82af2';
+      document.getElementById('disabledColor').value = '#23407e';
+      document.getElementById('logTextColor').value = '#f8f9fa';
+      document.getElementById('selectColor').value = '#23407e';
+      document.getElementById('radiusColor').value = '#14b863';
+      document.getElementById('bodyColor').value = '#04f153';
+      document.getElementById('tertiaryColor').value = '#46e1ec';
+      document.getElementById('ipColor').value = '#09b63f';
+      document.getElementById('ipipColor').value = '#ff69b4';
+      document.getElementById('detailColor').value = '#FFFFFF';
+      document.getElementById('outlineColor').value = '#0dcaf0';
+      document.getElementById('successColor').value = '#28a745';
+      document.getElementById('infoColor').value = '#0ca2ed';
+      document.getElementById('warningColor').value = '#ffc107';
+      document.getElementById('pinkColor').value = '#f82af2';
+      document.getElementById('dangerColor').value = '#dc3545';
+      document.getElementById('tertiaryRgbColor').value = '#1e90ff';
+      document.getElementById('heading1Color').value = '#21e4f2';
+      document.getElementById('heading2Color').value = '#65f1fb';
+      document.getElementById('heading3Color').value = '#ffcc00';
+      document.getElementById('heading4Color').value = '#00fbff';
+      document.getElementById('heading5Color').value = '#ba13f6';
+      document.getElementById('heading6Color').value = '#00ffff';   
+      localStorage.clear();
+    });
+
+    document.getElementById('exportButton').addEventListener('click', function() {
+      const settings = {
+        primaryColor: document.getElementById('primaryColor').value,
+        secondaryColor: document.getElementById('secondaryColor').value,
+        bodyBgColor: document.getElementById('bodyBgColor').value,
+        infoBgSubtle: document.getElementById('infoBgSubtle').value,
+        backgroundColor: document.getElementById('backgroundColor').value,
+        primaryBorderSubtle: document.getElementById('primaryBorderSubtle').value,
+        checkColor: document.getElementById('checkColor').value,
+        labelColor: document.getElementById('labelColor').value,
+        lineColor: document.getElementById('lineColor').value,
+        controlColor: document.getElementById('controlColor').value,
+        placeholderColor: document.getElementById('placeholderColor').value,
+        disabledColor: document.getElementById('disabledColor').value,
+        logTextColor: document.getElementById('logTextColor').value,
+        selectColor: document.getElementById('selectColor').value,
+        radiusColor: document.getElementById('radiusColor').value,
+        bodyColor: document.getElementById('bodyColor').value,
+        tertiaryColor: document.getElementById('tertiaryColor').value,
+        tertiaryRgbColor: document.getElementById('tertiaryRgbColor').value,
+        ipColor: document.getElementById('ipColor').value,
+        ipipColor: document.getElementById('ipipColor').value,
+        detailColor: document.getElementById('detailColor').value,
+        outlineColor: document.getElementById('outlineColor').value,
+        successColor: document.getElementById('successColor').value,
+        infoColor: document.getElementById('infoColor').value,
+        warningColor: document.getElementById('warningColor').value,
+        pinkColor: document.getElementById('pinkColor').value,
+        dangerColor: document.getElementById('dangerColor').value,
+        heading1Color: document.getElementById('heading1Color').value,
+        heading2Color: document.getElementById('heading2Color').value,
+        heading3Color: document.getElementById('heading3Color').value,
+        heading4Color: document.getElementById('heading4Color').value,
+        heading5Color: document.getElementById('heading5Color').value,
+        heading6Color: document.getElementById('heading6Color').value,
+        useBackgroundImage: document.getElementById('useBackgroundImage').checked,
+        backgroundImage: document.getElementById('backgroundImage').value
+      };
+
+      const blob = new Blob([JSON.stringify(settings)], { type: 'application/json' });
+      const link = document.createElement('a');
+      link.href = URL.createObjectURL(blob);
+      link.download = 'theme-settings.json';
+      link.click();
+    });
+
+    document.getElementById('importButton').addEventListener('change', function(event) {
+      const file = event.target.files[0];
+      if (file && file.type === 'application/json') {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          const settings = JSON.parse(e.target.result);
+
+          document.getElementById('primaryColor').value = settings.primaryColor;
+          document.getElementById('secondaryColor').value = settings.secondaryColor;
+          document.getElementById('bodyBgColor').value = settings.bodyBgColor;
+          document.getElementById('infoBgSubtle').value = settings.infoBgSubtle;
+          document.getElementById('backgroundColor').value = settings.backgroundColor;
+          document.getElementById('primaryBorderSubtle').value = settings.primaryBorderSubtle;
+          document.getElementById('checkColor').value = settings.checkColor;
+          document.getElementById('labelColor').value = settings.labelColor;
+          document.getElementById('lineColor').value = settings.lineColor;
+          document.getElementById('controlColor').value = settings.controlColor;
+          document.getElementById('placeholderColor').value = settings.placeholderColor;
+          document.getElementById('disabledColor').value = settings.disabledColor;
+          document.getElementById('logTextColor').value = settings.logTextColor;
+          document.getElementById('selectColor').value = settings.selectColor;
+          document.getElementById('radiusColor').value = settings.radiusColor;
+          document.getElementById('bodyColor').value = settings.bodyColor;
+          document.getElementById('tertiaryColor').value = settings.tertiaryColor;
+          document.getElementById('tertiaryRgbColor').value = settings.tertiaryRgbColor;
+          document.getElementById('ipColor').value = settings.ipColor;
+          document.getElementById('ipipColor').value = settings.ipipColor;
+          document.getElementById('detailColor').value = settings.detailColor;
+          document.getElementById('outlineColor').value = settings.outlineColor;
+          document.getElementById('successColor').value = settings.successColor;
+          document.getElementById('infoColor').value = settings.infoColor;
+          document.getElementById('warningColor').value = settings.warningColor;
+          document.getElementById('pinkColor').value = settings.pinkColor;
+          document.getElementById('dangerColor').value = settings.dangerColor;
+          document.getElementById('heading1Color').value = settings.heading1Color;
+          document.getElementById('heading2Color').value = settings.heading2Color;
+          document.getElementById('heading3Color').value = settings.heading3Color;
+          document.getElementById('heading4Color').value = settings.heading4Color;
+          document.getElementById('heading5Color').value = settings.heading5Color;
+          document.getElementById('heading6Color').value = settings.heading6Color;
+          document.getElementById('useBackgroundImage').checked = settings.useBackgroundImage;
+
+          const backgroundImageContainer = document.getElementById('backgroundImageContainer');
+          backgroundImageContainer.style.display = settings.useBackgroundImage ? 'block' : 'none';
+          document.getElementById('backgroundImage').value = settings.backgroundImage || '';
+
+          localStorage.setItem('primaryColor', settings.primaryColor);
+          localStorage.setItem('secondaryColor', settings.secondaryColor);
+          localStorage.setItem('bodyBgColor', settings.bodyBgColor);
+          localStorage.setItem('infoBgSubtle', settings.infoBgSubtle);
+          localStorage.setItem('backgroundColor', settings.backgroundColor);
+          localStorage.setItem('primaryBorderSubtle', settings.primaryBorderSubtle);
+          localStorage.setItem('checkColor', settings.checkColor);
+          localStorage.setItem('labelColor', settings.labelColor);
+          localStorage.setItem('lineColor', settings.lineColor);
+          localStorage.setItem('controlColor', settings.controlColor);
+          localStorage.setItem('placeholderColor', settings.placeholderColor);
+          localStorage.setItem('disabledColor', settings.disabledColor);
+          localStorage.setItem('logTextColor', settings.logTextColor);
+          localStorage.setItem('selectColor', settings.selectColor);
+          localStorage.setItem('radiusColor', settings.radiusColor);
+          localStorage.setItem('bodyColor', settings.bodyColor);
+          localStorage.setItem('tertiaryColor', settings.tertiaryColor);
+          localStorage.setItem('tertiaryRgbColor', settings.tertiaryRgbColor);
+          localStorage.setItem('ipColor', settings.ipColor);
+          localStorage.setItem('ipipColor', settings.ipipColor);
+          localStorage.setItem('detailColor', settings.detailColor);
+          localStorage.setItem('outlineColor', settings.outlineColor);
+          localStorage.setItem('successColor', settings.successColor);
+          localStorage.setItem('infoColor', settings.infoColor);
+          localStorage.setItem('warningColor', settings.warningColor);
+          localStorage.setItem('pinkColor', settings.pinkColor);
+          localStorage.setItem('dangerColor', settings.dangerColor);
+          localStorage.setItem('heading1Color', settings.heading1Color);
+          localStorage.setItem('heading2Color', settings.heading2Color);
+          localStorage.setItem('heading3Color', settings.heading3Color);
+          localStorage.setItem('heading4Color', settings.heading4Color);
+          localStorage.setItem('heading5Color', settings.heading5Color);
+          localStorage.setItem('heading6Color', settings.heading6Color);
+          localStorage.setItem('useBackgroundImage', settings.useBackgroundImage);
+          localStorage.setItem('backgroundImage', settings.backgroundImage);
+        };
+        reader.readAsText(file);
+      }
+    });
+  });
 </script>
 
 

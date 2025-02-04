@@ -993,36 +993,6 @@ $(document).ready(function() {
        </tbody>
    </table>
 
-<div class="modal fade" id="singboxModal" tabindex="-1" aria-labelledby="singboxModalLabel" aria-hidden="true">
-  <div class="modal-dialog">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="singboxModalLabel">Sing-box Startup Notice</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-      </div>
-      <div class="modal-body">
-        <p>If the startup fails, please go to File Management ⇨ Update Database ⇨ Download the cache.db cache data.</p>
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-      </div>
-    </div>
-  </div>
-</div>
-
-<script>
-    $(document).ready(function() {
-        var lastShown = localStorage.getItem('singboxModalLastShown');
-        var currentTime = new Date().getTime();
-
-        if (!lastShown || (currentTime - lastShown) > 12 * 60 * 60 * 1000) {
-            $('#singboxModal').modal('show');  
-        }
-
-        localStorage.setItem('singboxModalLastShown', currentTime);
-    });
-</script>
-
 <script>
     document.addEventListener("DOMContentLoaded", function() {
         const savedConfig = localStorage.getItem("configSelection");
@@ -1228,40 +1198,7 @@ $(document).ready(function() {
                     </div>
                     <button type="submit" name="clear_singbox_log" class="btn btn-danger me-2"><i class="bi bi-trash"></i> Clear Log</button>
                     <button type="button" class="btn btn-primary me-2" data-toggle="modal" data-target="#cronModal"><i class="bi bi-clock"></i> Scheduled restart</button>
-                    <button id="showHelpButton" class="btn btn-info" data-bs-toggle="modal" data-bs-target="#helpModal" type="button"><i class="bi bi-keyboard"></i> Keyboard Instructions</button>
                 </form>
-            </div>
-        </div>
-    </div>
-</div>
-
-<div class="modal fade" id="helpModal" tabindex="-1" aria-labelledby="helpModalLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="helpModalLabel">Keyboard Operation Instructions</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <ul>
-                    <li><strong>Left Mouse Button:</strong> Double-click to open the player interface</li>
-                    <li><strong>F9 Key:</strong> Toggle Play/Pause</li>
-                    <li><strong>Up/Down Arrow Keys:</strong> Switch to the previous/next track</li>
-                    <li><strong>Left/Right Arrow Keys:</strong> Fast-forward/rewind by 10 seconds</li>
-                    <li><strong>ESC Key:</strong> Return to the first track in the playlist</li>
-                    <li><strong>F2 Key:</strong> Toggle between repeat and sequential play modes</li>
-                    <li><strong>F8 Key:</strong> Start website connectivity check</li>
-                    <li><strong>Ctrl + F6 Key:</strong> Start/Stop snowflake animation</li>
-                    <li><strong>Ctrl + F7 Key:</strong> Start/Stop lightbox animation</li>
-                    <li><strong>Ctrl + F10 Key:</strong> Start/Stop block animation</li>
-                    <li><strong>Ctrl + F11 Key:</strong> Start/Stop point light animation</li>
-                    <li><strong>Ctrl + Shift + C Key:</strong> Clear cache</li>
-                    <li><strong>Ctrl + Shift + V Key:</strong> Customize playlist</li>
-                    <li><strong>Ctrl + Shift + X Key:</strong> Set city</li>
-                </ul>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
             </div>
         </div>
     </div>
