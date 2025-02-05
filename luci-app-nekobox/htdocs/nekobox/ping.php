@@ -466,6 +466,7 @@ $lang = $_GET['lang'] ?? 'en';
     }
 }
 </style>
+<script src="./assets/bootstrap/Sortable.min.js"></script>
 <link href="./assets/bootstrap/video-js.css" rel="stylesheet" />
 <script src="./assets/bootstrap/video.js"></script>
 <link rel="stylesheet" href="./assets/bootstrap/all.min.css">
@@ -1047,9 +1048,11 @@ setInterval(IP.getIpipnetIP, 180000);
     document.addEventListener("DOMContentLoaded", function () {
         var video = document.getElementById('background-video');
         var popup = document.getElementById('popup');
+        var controlPanel = document.getElementById('controlPanel');
 
         popup.style.display = "none";
-        
+        controlPanel.style.display = "none";
+    
         var savedMuteState = localStorage.getItem("videoMuted");
         if (savedMuteState !== null) {
             video.muted = savedMuteState === "true";
@@ -1063,6 +1066,87 @@ setInterval(IP.getIpipnetIP, 180000);
         }
 
         updateButtonStates();
+
+        var savedVolume = localStorage.getItem("videoVolume");
+        if (savedVolume !== null) {
+            video.volume = parseFloat(savedVolume);
+            document.getElementById('volumeControl').value = savedVolume;
+        }
+
+        document.getElementById('volumeControl').addEventListener('input', function () {
+            video.volume = this.value;
+            localStorage.setItem("videoVolume", this.value);
+        });
+
+        var savedCurrentTime = localStorage.getItem("videoCurrentTime");
+        if (savedCurrentTime !== null) {
+            video.currentTime = parseFloat(savedCurrentTime);
+        }
+
+        var progressControl = document.getElementById('progressControl');
+        progressControl.addEventListener('input', function () {
+            var duration = video.duration;
+            if (!isNaN(duration)) {
+                video.currentTime = (progressControl.value / 100) * duration;
+                localStorage.setItem("videoCurrentTime", video.currentTime);
+            }
+        });
+
+        video.addEventListener('timeupdate', function () {
+            var duration = video.duration;
+            var currentTime = video.currentTime;
+            if (!isNaN(duration)) {
+                progressControl.value = (currentTime / duration) * 100;
+                document.getElementById('progressTimeDisplay').textContent = formatTime(currentTime) + ' / ' + formatTime(duration);
+                localStorage.setItem("videoCurrentTime", currentTime);
+            }
+        });
+
+        var savedPlayState = localStorage.getItem("videoPaused");
+        if (savedPlayState === "true") {
+            video.pause();
+            document.getElementById('playPauseBtn').textContent = '▶️ Play';
+        } else {
+            video.play();
+            document.getElementById('playPauseBtn').textContent = '⏸️ Pause';
+        }
+
+        function formatTime(seconds) {
+            var minutes = Math.floor(seconds / 60);
+            var seconds = Math.floor(seconds % 60);
+            return (minutes < 10 ? '0' : '') + minutes + ':' + (seconds < 10 ? '0' : '') + seconds;
+        }
+    });
+
+    document.addEventListener("DOMContentLoaded", function() {
+        var video = document.getElementById('background-video');
+        var playPauseBtn = document.getElementById('playPauseBtn');
+    
+        setInterval(() => {
+            localStorage.removeItem('videoCurrentTime');     
+            video.muted = false;
+            video.volume = 1;
+            video.currentTime = 0;
+            video.style.objectFit = 'cover';
+        
+            playPauseBtn.textContent = '▶️ Play';
+        }, 60 * 60 * 1000); 
+
+        document.getElementById('clearSettingsBtn').addEventListener('click', function() {
+            localStorage.removeItem('videoMuted');
+            localStorage.removeItem('videoVolume');
+            localStorage.removeItem('videoCurrentTime');
+            localStorage.removeItem('videoObjectFit');
+            localStorage.removeItem('videoPaused');
+        
+            video.muted = false;
+            video.volume = 1;
+            video.currentTime = 0;
+            video.style.objectFit = 'cover';
+        
+            playPauseBtn.textContent = '▶️ Play';
+        
+        });
     });
 
     var longPressTimer;
@@ -1096,6 +1180,29 @@ setInterval(IP.getIpipnetIP, 180000);
         updateButtonStates();
     }
 
+    function toggleControlPanel() {
+        var controlPanel = document.getElementById('controlPanel');
+        if (controlPanel.style.display === "none" || controlPanel.style.display === "") {
+            controlPanel.style.display = "block";
+        } else {
+            controlPanel.style.display = "none";
+        }
+    }
+
+    function togglePlayPause() {
+        var video = document.getElementById('background-video');
+        var playPauseBtn = document.getElementById('playPauseBtn');
+        if (video.paused) {
+            video.play();
+            playPauseBtn.textContent = '⏸️ Pause';
+            localStorage.setItem("videoPaused", "false");
+        } else {
+            video.pause();
+            playPauseBtn.textContent = '▶️ Play';
+            localStorage.setItem("videoPaused", "true");
+        }
+    }
+
     function toggleFullScreen() {
         if (!document.fullscreenElement) {
             document.documentElement.requestFullscreen();
@@ -1112,7 +1219,7 @@ setInterval(IP.getIpipnetIP, 180000);
         switch (video.style.objectFit) {
             case "contain":
                 video.style.objectFit = "cover";
-                objectFitBtn.textContent = "🔲 Normal Display";
+                objectFitBtn.textContent = "🔲 Normal";
                 localStorage.setItem("videoObjectFit", "cover");
                 break;
             case "cover":
@@ -1122,7 +1229,7 @@ setInterval(IP.getIpipnetIP, 180000);
                 break;
             case "fill":
                 video.style.objectFit = "none";
-                objectFitBtn.textContent = "🔲 Do Not Scale";
+                objectFitBtn.textContent = "🔲 No Scale";
                 localStorage.setItem("videoObjectFit", "none");
                 break;
             case "none":
@@ -1132,12 +1239,12 @@ setInterval(IP.getIpipnetIP, 180000);
                 break;
             case "scale-down":
                 video.style.objectFit = "contain";
-                objectFitBtn.textContent = "🖼️ Full Screen";
+                objectFitBtn.textContent = "🖼️ Fit";
                 localStorage.setItem("videoObjectFit", "contain");
                 break;
             default:
                 video.style.objectFit = "cover"; 
-                objectFitBtn.textContent = "🔲 Normal Display";
+                objectFitBtn.textContent = "🔲 Normal";
                 localStorage.setItem("videoObjectFit", "cover");
                 break;
         }
@@ -1153,7 +1260,7 @@ setInterval(IP.getIpipnetIP, 180000);
     }
 
     document.addEventListener("keydown", function(event) {
-        if (event.ctrlKey && event.shiftKey && event.key === "S") {
+        if (event.ctrlKey && event.shiftKey && event.key === "Q") {
             togglePopup();
         }
     });
@@ -1164,6 +1271,7 @@ setInterval(IP.getIpipnetIP, 180000);
 <div class="popup" id="popup">
     <h3>🔧 Control Panel</h3>
     <button onclick="toggleAudio()" id="audio-btn">🔊 Toggle Audio</button>
+    <button onclick="toggleControlPanel()" id="control-btn">🎛️ Volume and Progress Control</button>
     <button onclick="toggleObjectFit()" id="object-fit-btn">🔲 Toggle Video Display Mode</button>
     <button onclick="toggleFullScreen()" id="fullscreen-btn">⛶ Toggle Fullscreen</button>
     <button id="clear-cache-btn">🗑️ Clear Cache</button>
@@ -1180,6 +1288,21 @@ setInterval(IP.getIpipnetIP, 180000);
     <button type="button" data-bs-toggle="modal" data-bs-target="#colorModal"><i class="bi-palette"></i> Theme Editor</button>
     <button type="button" data-bs-toggle="modal" data-bs-target="#filesModal"><i class="bi-camera-video"></i> Set Background</button>
     <button onclick="togglePopup()">❌ Close</button>
+</div>
+<div id="controlPanel">
+    <h3>Video Control Panel</h3>
+    <div>
+        <label for="volumeControl">Volume Control</label>
+        <input type="range" id="volumeControl" min="0" max="1" step="0.01" value="1">
+    </div>
+    <div>
+        <label for="progressControl">Playback Progress</label>
+        <input type="range" id="progressControl" min="0" max="100" step="0.1" value="0">
+        <span id="progressTimeDisplay">00:00 / 00:00</span>
+    </div>
+    <button id="clearSettingsBtn"><i class="fas fa-trash-alt"></i> Clear Video Settings</button>
+    <button onclick="togglePlayPause()" id="playPauseBtn">⏸️ Pause</button>
+    <button onclick="toggleControlPanel()">❌ Close</button>
 </div>
 
 <div class="modal fade" id="singboxModal" tabindex="-1" aria-labelledby="singboxModalLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
@@ -1255,11 +1378,59 @@ window.addEventListener('load', function() {
 </script>
 
 <style>
+#controlPanel {
+    width: 80%;
+    max-width: 625px;
+    display: none;
+    position: fixed;
+    top: 20%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: rgba(255, 255, 255, 0.8);
+    backdrop-filter: blur(10px);
+    padding: 20px;
+    border: 1px solid rgba(255, 255, 255, 0.6);
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    z-index: 1000;
+    overflow: hidden;
+}
+
+#controlPanel h3 {
+    margin-top: 0;
+    font-size: 1.5em;
+    color: #333;
+    text-align: center;
+}
+
+#controlPanel button {
+    display: block;
+    width: 100%;
+    margin: 10px 0;
+    padding: 10px;
+    font-size: 1em;
+    color: #fff;
+    background-color: #007bff;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+#controlPanel button:hover {
+    background-color: #0056b3;
+}
+
+#controlPanel input[type="range"] {
+    width: 100%;
+    margin: 10px 0;
+}
+
 #audioPlayerModal .modal-content {
-  background: #222;
-  color: #fff;
-  border-radius: 12px;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
+    background: #222;
+    color: #fff;
+    border-radius: 12px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
 }
 
 #audioPlayerModal .modal-header {
@@ -1267,166 +1438,166 @@ window.addEventListener('load', function() {
 }
 
 #audioPlayerModal .modal-title {
-  font-size: 18px;
-  font-weight: bold;
+    font-size: 18px;
+    font-weight: bold;
 }
 
 #audioPlayerModal .close {
-  color: #fff;
-  opacity: 0.8;
+    color: #fff;
+    opacity: 0.8;
 }
 
 #audioPlayerModal .close:hover {
-  opacity: 1;
+    opacity: 1;
 }
 
 .audio-player-container {
-  padding: 20px;
+    padding: 20px;
 
 }
 
 .audio-player-container button {
-  margin: 8px;
-  padding: 10px 15px;
-  font-size: 16px;
-  border: none;
-  border-radius: 8px;
-  transition: all 0.3s ease-in-out;
-  cursor: pointer;
+    margin: 8px;
+    padding: 10px 15px;
+    font-size: 16px;
+    border: none;
+    border-radius: 8px;
+    transition: all 0.3s ease-in-out;
+    cursor: pointer;
 }
 
 .audio-player-container .btn-primary {
-  background: #ff5733; 
-  color: white;
+    background: #ff5733; 
+    color: white;
 }
 
 .audio-player-container .btn-primary {
-  background: #FF5722 !important; 
-  color: white !important;
+    background: #FF5722 !important; 
+    color: white !important;
 }
 
 .audio-player-container .btn-primary:hover {
-  background: #e64a19 !important; 
+    background: #e64a19 !important; 
 }
 
 .audio-player-container .btn-secondary {
-  background: #9C27B0 !important; 
-  color: white !important;
+    background: #9C27B0 !important; 
+    color: white !important;
 }
 
 .audio-player-container .btn-secondary:hover {
-  background: #8E24AA !important; 
+    background: #8E24AA !important; 
 }
 
 .audio-player-container .btn-info {
-  background: #00BCD4 !important; 
-  color: white !important;
+    background: #00BCD4 !important; 
+    color: white !important;
 }
 
 .audio-player-container .btn-info:hover {
-  background: #0097A7 !important; 
+    background: #0097A7 !important; 
 }
 
 .audio-player-container .btn-warning {
-  background: #FF9800 !important; 
-  color: black !important;
+    background: #FF9800 !important; 
+    color: black !important;
 }
 
 .audio-player-container .btn-warning:hover {
-  background: #FB8C00 !important; 
+    background: #FB8C00 !important; 
 }
 
 .audio-player-container .btn-dark {
-  background: #8BC34A !important; 
-  color: white !important;
+    background: #8BC34A !important; 
+    color: white !important;
 }
 
 .audio-player-container .btn-dark:hover {
-  background: #7CB342 !important; 
+    background: #7CB342 !important; 
 }
 
 #modalLoopButton {
-  color: white !important;
-  background-color: #f39c12 !important; 
+    color: white !important;
+    background-color: #f39c12 !important; 
 }
 
 #modalLoopButton:hover {
-  background-color: #f5b041 !important; 
-  color: white !important; 
+    background-color: #f5b041 !important; 
+    color: white !important; 
 }
 
 .track-name {
-  margin-top: 15px;
-  font-size: 16px;
-  font-weight: bold;
-  color: #1db954;
-  text-align: center;
+    margin-top: 15px;
+    font-size: 16px;
+    font-weight: bold;
+    color: #1db954;
+    text-align: center;
 }
 
 #tooltip {
-  position: absolute;
-  bottom: 20px;
-  left: 50%;
-  transform: translateX(-50%);
-  padding: 10px 15px;
-  background: rgba(0, 0, 0, 0.75);
-  color: #fff;
-  font-size: 14px;
-  border-radius: 8px;
-  white-space: nowrap;
-  text-align: center;
-  visibility: hidden;
-  opacity: 0;
-  transition: opacity 0.3s ease-in-out, visibility 0.3s ease-in-out;
-  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.3);
-  z-index: 1050;
+    position: absolute;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    padding: 10px 15px;
+    background: rgba(0, 0, 0, 0.75);
+    color: #fff;
+    font-size: 14px;
+    border-radius: 8px;
+    white-space: nowrap;
+    text-align: center;
+    visibility: hidden;
+    opacity: 0;
+    transition: opacity 0.3s ease-in-out, visibility 0.3s ease-in-out;
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.3);
+    z-index: 1050;
 }
 
 #tooltip.show {
-  visibility: visible;
-  opacity: 1;
+    visibility: visible;
+    opacity: 1;
 }
 
 .datetime-container {
-  text-align: center;
-  margin-bottom: 15px;
-  font-size: 16px;
-  font-weight: bold;
-  color: #ffcc00;
+    text-align: center;
+    margin-bottom: 15px;
+    font-size: 16px;
+    font-weight: bold;
+    color: #ffcc00;
 }
 
 #dateDisplay,
 #timeDisplay {
-  margin: 0 10px;
+    margin: 0 10px;
 }
 
 #timeDisplay {
-  font-style: italic;
+    font-style: italic;
 }
 
 #audioElement {
-  margin-top: 20px;
-  width: 100%;
-  max-width: 600px; /* Limit the audio player width */
-  display: block;
-  margin-left: auto;
-  margin-right: auto; /* Center the audio player */
+    margin-top: 20px;
+    width: 100%;
+    max-width: 600px; 
+    display: block;
+    margin-left: auto;
+    margin-right: auto; 
 }
 
 @media (max-width: 768px) {
-  .audio-player-container {
-    flex-direction: column;
-    align-items: center;
-  }
+    .audio-player-container {
+      flex-direction: column;
+      align-items: center;
+    }
 
-  .audio-player-container button {
-    width: 100%;
-    margin: 5px 0;
-  }
+    .audio-player-container button {
+      width: 100%;
+      margin: 5px 0;
+    }
 }
 
 #playlistCollapse {
-    max-height: 700px; 
+    max-height: 620px; 
     overflow-y: auto;  
     overflow-x: hidden; 
     background-color: rgba(0, 0, 0, 0.8); 
@@ -1489,6 +1660,66 @@ window.addEventListener('load', function() {
     overflow: hidden;
     white-space: nowrap;
 }
+
+.icon-button {
+     background: none;
+     border: none;
+     color: inherit;
+     position: relative;
+     cursor: pointer;
+     padding: 5px;
+     margin: 5px;
+}
+
+.btn-bordered {
+     border: 1px solid #ccc; 
+     border-radius: 5px;
+     padding: 5px 10px;
+}
+
+.file-checkbox {
+     margin-right: 10px;
+     width: 20px;
+     height: 20px;
+}
+
+.icon-button .tooltip {
+     visibility: hidden;
+     width: auto;
+     background-color: black;
+     color: #fff;
+     text-align: center;
+     border-radius: 5px;
+     padding: 5px;
+     position: absolute;
+     z-index: 1;
+     bottom: 125%; 
+     left: 50%;
+     margin-left: -60px;
+     opacity: 0;
+     transition: opacity 0.3s;
+     white-space: nowrap;
+     font-size: 16px; 
+}
+
+.icon-button .tooltip::after {
+     content: "";
+     position: absolute;
+     top: 100%; 
+     left: 50%;
+     margin-left: -5px;
+     border-width: 5px;
+     border-style: solid;
+     border-color: black transparent transparent transparent;
+}
+
+.icon-button:hover .tooltip {
+     visibility: visible;
+     opacity: 1;
+     width: auto;
+     max-width: 200px; 
+     word-wrap: break-word; 
+}
 </style>
 
 <div class="modal fade" id="audioPlayerModal" tabindex="-1" aria-labelledby="audioPlayerModalLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
@@ -1514,13 +1745,15 @@ window.addEventListener('load', function() {
           <button id="modalRewindButton" class="btn btn-dark">⏪ Rewind</button>
           <button id="modalFastForwardButton" class="btn btn-info">⏩ Fast Forward</button>
           <button id="modalLoopButton" class="btn btn-warning">🔁 Loop</button>
-          <div class="track-name" id="trackName">No Songs</div>
+          <div class="track-name" id="trackName">No Track</div>
         </div>
         <button class="btn btn-outline-primary mt-3" type="button" data-bs-toggle="collapse" data-bs-target="#playlistCollapse">
           📜 Show/Hide Playlist
         </button>
+        <button class="btn btn-outline-primary mt-3 ms-2" type="button" data-bs-toggle="modal" data-bs-target="#urlModal">🔗 Customize Playlist</button>
+        <button class="btn btn-outline-primary mt-3 ms-2" id="clearStorageBtn"><i class="fas fa-trash-alt"></i> Clear Player Settings</button>
         <div id="playlistCollapse" class="collapse mt-3">
-          <h3>Playlist</h3>
+          <h3>Track List</h3>
           <ul id="trackList" class="list-group"></ul>
         </div>
         <div id="tooltip"></div>
@@ -1595,6 +1828,10 @@ function loadDefaultPlaylist() {
                 throw new Error('No valid songs in the playlist');
             }
             console.log('Playlist loaded:', songs);
+            const savedOrder = JSON.parse(localStorage.getItem('songOrder'));
+            if (savedOrder) {
+                songs = savedOrder;
+            }
             updateTrackListUI(); 
             restorePlayerState();
             updateTrackName(); 
@@ -1613,6 +1850,7 @@ function updateTrackListUI() {
         trackItem.textContent = `${index + 1}. ${extractSongName(song)}`;
         trackItem.classList.add('list-group-item', 'track-item');
         trackItem.style.cursor = 'pointer';
+        trackItem.draggable = true; 
 
         trackItem.addEventListener('click', () => {
             currentSongIndex = index;
@@ -1622,10 +1860,59 @@ function updateTrackListUI() {
             highlightCurrentSong();
         });
 
+        trackItem.addEventListener('dragstart', handleDragStart);
+        trackItem.addEventListener('dragover', handleDragOver);
+        trackItem.addEventListener('drop', handleDrop);
+
         trackListContainer.appendChild(trackItem);
     });
 
     highlightCurrentSong(); 
+}
+
+function handleDragStart(e) {
+    e.dataTransfer.setData('text/plain', e.target.dataset.index);
+    e.target.classList.add('dragging');
+}
+
+function handleDragOver(e) {
+    e.preventDefault();
+    const dragging = document.querySelector('.dragging');
+    const closest = getClosestElement(e.clientY);
+    if (closest) {
+        trackListContainer.insertBefore(dragging, closest);
+    } else {
+        trackListContainer.appendChild(dragging);
+    }
+}
+
+function handleDrop(e) {
+    const draggedIndex = parseInt(e.dataTransfer.getData('text/plain'), 10);
+    const targetIndex = Array.from(e.target.parentNode.children).indexOf(e.target);
+    if (draggedIndex !== targetIndex) {
+        const [draggedSong] = songs.splice(draggedIndex, 1);
+        songs.splice(targetIndex, 0, draggedSong);
+        saveSongOrder(); 
+        updateTrackListUI(); 
+    }
+    document.querySelector('.dragging').classList.remove('dragging');
+}
+
+function getClosestElement(y) {
+    const elements = [...document.querySelectorAll('.track-item:not(.dragging)')];
+    return elements.reduce((closest, child) => {
+        const box = child.getBoundingClientRect();
+        const offset = y - box.top - box.height / 2;
+        if (offset < 0 && offset > closest.offset) {
+            return { offset, element: child };
+        } else {
+            return closest;
+        }
+    }, { offset: Number.NEGATIVE_INFINITY }).element;
+}
+
+function saveSongOrder() {
+    localStorage.setItem('songOrder', JSON.stringify(songs));
 }
 
 function extractSongName(url) {
@@ -1639,6 +1926,9 @@ function updateTrackName() {
 function highlightCurrentSong() {
     document.querySelectorAll('.track-item').forEach((item, index) => {
         item.classList.toggle('active', index === currentSongIndex);
+        if (index === currentSongIndex) {
+            item.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
     });
 }
 
@@ -1647,7 +1937,7 @@ function loadSong(index) {
         audioPlayer.src = songs[index];
         audioPlayer.addEventListener('loadedmetadata', () => {
             const savedState = JSON.parse(localStorage.getItem('playerState'));
-            if (savedState && savedState.currentSongIndex === index) {
+            if (savedState) {
                 audioPlayer.currentTime = savedState.currentTime || 0;
                 if (savedState.isPlaying) {
                     audioPlayer.play().catch(error => {
@@ -1657,7 +1947,7 @@ function loadSong(index) {
             }
         }, { once: true });
     }
-    highlightCurrentSong();
+    highlightCurrentSong(); 
 }
 
 const playPauseButton = document.getElementById('modalPlayPauseButton');
@@ -1667,19 +1957,19 @@ playPauseButton.addEventListener('click', function() {
         audioPlayer.play().then(() => {
             isPlaying = true;
             savePlayerState();
-            console.log('Playback started');
-            speakMessage('Playback started');
+            console.log('Playing');
+            speakMessage('Playing');
             playPauseButton.textContent = '⏸️ Pause';
             updateTrackName();
         }).catch(error => {
-            console.log('Playback failed:', error);
+            console.log('Failed to play:', error);
         });
     } else {
         audioPlayer.pause();
         isPlaying = false;
         savePlayerState();
-        console.log('Playback paused');
-        speakMessage('Playback paused');
+        console.log('Paused');
+        speakMessage('Paused');
         playPauseButton.textContent = '▶ Play';
     }
 });
@@ -1692,8 +1982,9 @@ document.getElementById('modalPrevButton').addEventListener('click', () => {
         audioPlayer.play();
     }
     updateTrackName();
-    const songName = getSongName(songs[currentSongIndex]);
-    showLogMessage(`Previous song: ${songName}`);
+    highlightCurrentSong(); 
+    const songName = extractSongName(songs[currentSongIndex]);
+    showLogMessage(`Previous: ${songName}`);
 });
 
 document.getElementById('modalNextButton').addEventListener('click', () => {
@@ -1704,17 +1995,18 @@ document.getElementById('modalNextButton').addEventListener('click', () => {
         audioPlayer.play();
     }
     updateTrackName();
-    const songName = getSongName(songs[currentSongIndex]);
-    showLogMessage(`Next song: ${songName}`);
+    highlightCurrentSong(); 
+    const songName = extractSongName(songs[currentSongIndex]);
+    showLogMessage(`Next: ${songName}`);
 });
 
 function updateTrackName() {
     if (songs.length > 0) {
         const currentSongUrl = songs[currentSongIndex];
         const trackName = extractSongName(currentSongUrl);
-        document.getElementById('trackName').textContent = trackName || 'Unknown song';
+        document.getElementById('trackName').textContent = trackName || 'Unknown Song';
     } else {
-        document.getElementById('trackName').textContent = 'No songs';
+        document.getElementById('trackName').textContent = 'No Song';
     }
 }
 
@@ -1724,15 +2016,20 @@ function extractSongName(url) {
 }
 
 audioPlayer.addEventListener('ended', () => {
-    currentSongIndex = (currentSongIndex + 1) % songs.length;
-    loadSong(currentSongIndex);
+    if (isLooping) {
+        loadSong(currentSongIndex);
+    } else {
+        currentSongIndex = (currentSongIndex + 1) % songs.length;
+        loadSong(currentSongIndex);
+    }
     savePlayerState();
     if (isPlaying) {
         audioPlayer.play();
     }
     updateTrackName();
-    const songName = getSongName(songs[currentSongIndex]);
-    showLogMessage(`Auto switch to: ${songName}`);
+    highlightCurrentSong(); 
+    const songName = extractSongName(songs[currentSongIndex]);
+    showLogMessage(`Auto switched to: ${songName}`);
 });
 
 document.getElementById('modalRewindButton').addEventListener('click', () => {
@@ -1755,15 +2052,15 @@ loopButton.addEventListener('click', () => {
     
     if (isLooping) {
         loopButton.textContent = "🔁 Loop";
-        console.log('Loop playback');
-        showLogMessage('Loop playback');
-        speakMessage('Loop playback');
+        console.log('Looping');
+        showLogMessage('Looping');
+        speakMessage('Looping');
         audioPlayer.loop = true;
     } else {
         loopButton.textContent = "🔄 Sequential";
-        console.log('Sequential playback');
-        showLogMessage('Sequential playback');
-        speakMessage('Sequential playback');
+        console.log('Sequential');
+        showLogMessage('Sequential');
+        speakMessage('Sequential');
         audioPlayer.loop = false;
     }
 });
@@ -1825,19 +2122,6 @@ function updateDateTime() {
 setInterval(updateDateTime, 1000);
 updateDateTime();
 
-audioPlayer.addEventListener('ended', function() {
-    if (isLooping) {
-        loadSong(currentSongIndex);
-        savePlayerState();
-        audioPlayer.play();
-    } else {
-        currentSongIndex = (currentSongIndex + 1) % songs.length;
-        loadSong(currentSongIndex);
-        savePlayerState();
-        audioPlayer.play();
-    }
-});
-
 function savePlayerState() {
     const state = {
         currentSongIndex,
@@ -1865,7 +2149,17 @@ function clearExpiredPlayerState() {
     }
 }
 
-setInterval(clearExpiredPlayerState, 10 * 60 * 1000);
+setInterval(() => {
+    localStorage.removeItem('playerState');
+}, 60 * 60 * 1000);
+
+document.getElementById('clearStorageBtn').addEventListener('click', function() {
+    localStorage.removeItem('playerState');
+    localStorage.removeItem('songOrder'); 
+    loadDefaultPlaylist(); 
+    document.getElementById('modalPlayPauseButton').textContent = '▶ Play';
+    alert('Player state cleared!');
+});
 
 function restorePlayerState() {
     const state = JSON.parse(localStorage.getItem('playerState'));
@@ -1875,7 +2169,7 @@ function restorePlayerState() {
         loadSong(currentSongIndex);
         if (state.isPlaying) {
             isPlaying = true;
-            playPauseButton.textContent = '⏸️ Pause';
+            playPauseButton.textContent = 'Pause';
             audioPlayer.currentTime = state.currentTime || 0;
             audioPlayer.play().catch(error => {
                 console.error('Failed to resume playback:', error);
@@ -1889,7 +2183,7 @@ document.addEventListener('dblclick', function() {
     const lastShownTime = localStorage.getItem('lastModalShownTime');
     const currentTime = new Date().getTime();
 
-    if (!lastShownTime || (currentTime - lastShownTime) > 4 * 60 * 60 * 1000) {
+    if (!lastShownTime || (currentTime - lastShownTime) > 24 * 60 * 60 * 1000) {
         if (!hasModalShown) {
             const modal = new bootstrap.Modal(document.getElementById('keyHelpModal'));
             modal.show();
@@ -1917,8 +2211,8 @@ window.addEventListener('keydown', function(event) {
             audioPlayer.play();
         }
         const songName = getSongName(songs[currentSongIndex]);
-        showLogMessage(`Previous song: ${songName}`);
-        speakMessage('Previous song');
+        showLogMessage(`Previous: ${songName}`);
+        speakMessage('Previous');
         updateTrackName();
     } else if (event.key === 'ArrowDown') {
         currentSongIndex = (currentSongIndex + 1) % songs.length;
@@ -1928,8 +2222,8 @@ window.addEventListener('keydown', function(event) {
             audioPlayer.play();
         }
         const songName = getSongName(songs[currentSongIndex]);
-        showLogMessage(`Next song: ${songName}`);
-        speakMessage('Next song');
+        showLogMessage(`Next: ${songName}`);
+        speakMessage('Next');
         updateTrackName();
     } else if (event.key === 'ArrowLeft') {
         audioPlayer.currentTime = Math.max(audioPlayer.currentTime - 10, 0);
@@ -1946,9 +2240,9 @@ window.addEventListener('keydown', function(event) {
         currentSongIndex = 0;
         loadSong(currentSongIndex);
         savePlayerState();
-        console.log('Reset to first song');
-        showLogMessage('Reset to first song');
-        speakMessage('Returned to the first song in the playlist');
+        console.log('Reset to the first track');
+        showLogMessage('Reset to the first track');
+        speakMessage('Returned to the first track in the playlist');
         if (isPlaying) {
             audioPlayer.play();
         }
@@ -1957,20 +2251,20 @@ window.addEventListener('keydown', function(event) {
             audioPlayer.pause();
             isPlaying = false;
             savePlayerState();
-            console.log('Playback paused');
-            showLogMessage('Playback paused');
-            speakMessage('Playback paused');
+            console.log('Paused');
+            showLogMessage('Paused');
+            speakMessage('Paused');
             playPauseButton.textContent = '▶ Play';
         } else {
             audioPlayer.play().then(() => {
                 isPlaying = true;
                 savePlayerState();
-                console.log('Playback started');
-                showLogMessage('Playback started');
-                speakMessage('Playback started');
+                console.log('Playing');
+                showLogMessage('Playing');
+                speakMessage('Playing');
                 playPauseButton.textContent = '⏸️ Pause';
             }).catch(error => {
-                console.log('Playback failed:', error);
+                console.log('Failed to play:', error);
             });
         }
     } else if (event.key === 'F2') {
@@ -1979,36 +2273,36 @@ window.addEventListener('keydown', function(event) {
         if (isLooping) {
             loopButton.textContent = "🔁 Loop";
             audioPlayer.loop = true;
-            console.log('Loop playback');
-            showLogMessage('Loop playback');
-            speakMessage('Loop playback');
+            console.log('Looping');
+            showLogMessage('Looping');
+            speakMessage('Looping');
         } else {
             loopButton.textContent = "🔄 Sequential";
             audioPlayer.loop = false;
-            console.log('Sequential playback');
-            showLogMessage('Sequential playback');
-            speakMessage('Sequential playback');
+            console.log('Sequential');
+            showLogMessage('Sequential');
+            speakMessage('Sequential');
         }
     }
 });
 </script>
 
-
 <div class="modal fade" id="urlModal" tabindex="-1" aria-labelledby="urlModalLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
-    <div class="modal-dialog modal-lg">
+    <div class="modal-dialog modal-xl">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="urlModalLabel">Update Playlist Link</h5>
+                <h5 class="modal-title" id="urlModalLabel">Update Playlist</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
                 <form method="POST">
                     <div class="mb-3">
-                        <label for="new_url" class="form-label">Custom Playlist Link (Press Ctrl + Shift + C to clear data, must use download link for proper playback)</label>
+                        <label for="new_url" class="form-label">Custom Playlist</label>
                         <input type="text" id="new_url" name="new_url" class="form-control" value="<?php echo htmlspecialchars($new_url); ?>" required>
                     </div>
-                    <button type="submit" class="btn btn-primary">Update Link</button>
-                    <button type="button" id="resetButton" class="btn btn-secondary ms-2">Restore Default Link</button>
+                    <button type="submit" class="btn btn-primary">Save</button>
+                    <button type="button" id="resetButton" class="btn btn-secondary ms-2">Reset to Default</button>
+                    <button type="button" class="btn btn-secondary ms-2" data-bs-dismiss="modal">Cancel</button>
                 </form>
             </div>
         </div>
@@ -2086,7 +2380,7 @@ window.addEventListener('keydown', function(event) {
                     <li><strong>Ctrl + F7 Key:</strong> Start/stop square light animation</li>
                     <li><strong>Ctrl + F10 Key:</strong> Start/stop square animation</li>
                     <li><strong>Ctrl + F11 Key:</strong> Start/stop light dot animation</li>
-                    <li><strong>Ctrl + Shift + S Key:</strong> Open settings</li>
+                    <li><strong>Ctrl + Shift + Q Key:</strong> Open settings</li>
                     <li><strong>Ctrl + Shift + C Key:</strong> Clear cache data</li>
                     <li><strong>Ctrl + Shift + V Key:</strong> Customize playlist</li>
                     <li><strong>Long press top half of the screen on mobile/tablet:</strong> Open settings</li>
@@ -3204,7 +3498,7 @@ toggleModalButton.onclick = function() {
                         <button type="button" class="btn btn-success mr-3" onclick="selectAll()"><i class="fas fa-check-square"></i> Select All</button>
                         <button type="button" class="btn btn-warning mr-3" onclick="deselectAll()"><i class="fas fa-square"></i> Deselect All</button>
                         <button type="button" class="btn btn-danger" onclick="batchDelete()"><i class="fas fa-trash-alt"></i> Batch Delete</button>
-                        <span id="selectedCount" class="ms-2" style="display: none;">Selected 0 files, totaling 0 MB</span>
+                        <span id="selectedCount" class="ms-2" style="display: none;">0 files selected, total 0 MB</span>
                     </div>
                     <div>
                         <button type="button" class="btn btn-pink mr-3" onclick="sortFiles()"><i class="fas fa-sort"></i> Sort</button>
@@ -3217,29 +3511,25 @@ toggleModalButton.onclick = function() {
                 <table class="table table-bordered text-center">
                     <tbody id="fileTableBody">
                         <?php
-                        function isImage($file)
-                        {
+                        function isImage($file) {
                             $imageExtensions = ['jpg', 'jpeg', 'png', 'gif', 'bmp', 'webp'];
                             $fileExtension = strtolower(pathinfo($file, PATHINFO_EXTENSION));
                             return in_array($fileExtension, $imageExtensions);
                         }
 
-                        function isVideo($file)
-                        {
+                        function isVideo($file) {
                             $videoExtensions = ['mp4', 'avi', 'mkv', 'mov', 'wmv'];
                             $fileExtension = strtolower(pathinfo($file, PATHINFO_EXTENSION));
                             return in_array($fileExtension, $videoExtensions);
                         }
 
-                        function isAudio($file)
-                        {
+                        function isAudio($file) {
                             $audioExtensions = ['mp3', 'wav', 'ogg', 'flac', 'aac', 'm4a', 'webm', 'opus'];
                             $fileExtension = strtolower(pathinfo($file, PATHINFO_EXTENSION));
                             return in_array($fileExtension, $audioExtensions);
                         }
 
-                        function getFileNameWithoutPrefix($file)
-                        {
+                        function getFileNameWithoutPrefix($file) {
                             $fileBaseName = pathinfo($file, PATHINFO_FILENAME);
                             $hyphenPos = strpos($fileBaseName, '-');
                             if ($hyphenPos !== false) {
@@ -3249,8 +3539,7 @@ toggleModalButton.onclick = function() {
                             }
                         }
 
-                        function formatFileSize($size)
-                        {
+                        function formatFileSize($size) {
                             if ($size >= 1073741824) {
                                 return number_format($size / 1073741824, 2) . ' GB';
                             } elseif ($size >= 1048576) {
@@ -3283,8 +3572,8 @@ toggleModalButton.onclick = function() {
                                     return -1; 
                                 } else {
                                     return $indexA - $indexB; 
-                                 }
-                            });     
+                                }
+                            });
 
                             $fileCount = 0;
                             foreach ($files as $file) {
@@ -3301,8 +3590,8 @@ toggleModalButton.onclick = function() {
                                     }
 
                                     echo "<td class='align-middle' data-label='Preview' style='vertical-align: middle;'>
-                                            <div class='file-preview mb-2' oncontextmenu='showRenameModal(event, \"" . htmlspecialchars($file, ENT_QUOTES) . "\")'>
-                                                <input type='checkbox' class='file-checkbox mb-2' value='" . htmlspecialchars($file, ENT_QUOTES) . "' data-size='$fileSize' onchange='updateSelectedCount()'>";
+                                            <div class='file-preview mb-2 d-flex align-items-center'>
+                                                <input type='checkbox' class='file-checkbox mb-2 mr-2' value='" . htmlspecialchars($file, ENT_QUOTES) . "' data-size='$fileSize' onchange='updateSelectedCount()'>";
 
                                     if (isVideo($file)) {
                                         echo "<video width='200' controls title='$fileTitle'>
@@ -3320,15 +3609,29 @@ toggleModalButton.onclick = function() {
                                         echo "Unknown file type";
                                     }
 
-                                    echo "<div class='btn-container mt-2'>
-                                              <a href='?delete=" . htmlspecialchars($file, ENT_QUOTES) . "' class='btn btn-danger me-2 delete-btn' onclick='return confirm(\"Are you sure you want to delete?\")'>Delete</a>";
+                                    echo "<div class='btn-container mt-2 d-flex align-items-center'>
+                                            <a href='?delete=" . htmlspecialchars($file, ENT_QUOTES) . "' onclick='return confirm(\"Are you sure you want to delete?\")' class='icon-button btn-bordered' style='margin-right: 10px;'>
+                                                <i class='fas fa-trash-alt'></i><span class='tooltip'>Delete</span>
+                                            </a>
+                                            <button type='button' data-bs-toggle='modal' data-bs-target='#renameModal' onclick='document.getElementById(\"oldFileName\").value=\"" . htmlspecialchars($file, ENT_QUOTES) . "\"; document.getElementById(\"newFileName\").value=\"" . htmlspecialchars(getFileNameWithoutPrefix($file), ENT_QUOTES) . "\";' class='icon-button btn-bordered' style='margin-right: 10px;'>
+                                                <i class='fas fa-edit'></i><span class='tooltip'>Rename</span>
+                                            </button>
+                                            <a href='$fileUrl' download class='icon-button btn-bordered' style='margin-right: 10px;'>
+                                                <i class='fas fa-download'></i><span class='tooltip'>Download</span>
+                                            </a>";
 
                                     if (isImage($file)) {
-                                        echo "<button type='button' onclick=\"setBackground('" . htmlspecialchars($file, ENT_QUOTES) . "', 'image')\" class='btn btn-primary ms-2 set-background-btn'>Set as Background</button>";
+                                        echo "<button type='button' onclick=\"setBackground('" . htmlspecialchars($file, ENT_QUOTES) . "', 'image')\" class='icon-button btn-bordered' style='margin-left: 10px;'>
+                                                <i class='fas fa-image'></i><span class='tooltip'>Set Image Background</span>
+                                              </button>";
                                     } elseif (isVideo($file)) {
-                                        echo "<button type='button' onclick=\"setBackground('" . htmlspecialchars($file, ENT_QUOTES) . "', 'video')\" class='btn btn-primary ms-2 set-background-btn'>Set as Background</button>";
+                                        echo "<button type='button' onclick=\"setBackground('" . htmlspecialchars($file, ENT_QUOTES) . "', 'video')\" class='icon-button btn-bordered' style='margin-left: 10px;'>
+                                                <i class='fas fa-video'></i><span class='tooltip'>Set Video Background</span>
+                                              </button>";
                                     } elseif (isAudio($file)) {
-                                        echo "<button type='button' onclick=\"setBackground('" . htmlspecialchars($file, ENT_QUOTES) . "', 'audio')\" class='btn btn-primary ms-2 set-background-btn'>Background Music</button>";
+                                        echo "<button type='button' onclick=\"setBackground('" . htmlspecialchars($file, ENT_QUOTES) . "', 'audio')\" class='icon-button btn-bordered' style='margin-left: 10px;'>
+                                                <i class='fas fa-music'></i><span class='tooltip'>Set Audio Background</span>
+                                              </button>";
                                     }
 
                                     echo "</div></div></td>";
@@ -3357,7 +3660,7 @@ toggleModalButton.onclick = function() {
                                 if (rename($oldFilePath, $newFilePath)) {
                                     echo "<script>alert('File renamed successfully');</script>";
                                 } else {
-                                    echo "<script>alert('Failed to rename file');</script>";
+                                    echo "<script>alert('File rename failed');</script>";
                                 }
                             } else {
                                 echo "<script>alert('File does not exist');</script>";
@@ -3373,6 +3676,65 @@ toggleModalButton.onclick = function() {
         </div>
     </div>
 </div>
+<script>
+function showNotification(message) {
+    const notification = document.createElement('div');
+    notification.style.position = 'fixed';
+    notification.style.top = '10px';
+    notification.style.right = '10px';
+    notification.style.padding = '10px';
+    notification.style.backgroundColor = '#4CAF50';
+    notification.style.color = '#fff';
+    notification.style.borderRadius = '5px';
+    notification.style.zIndex = '9999';
+    notification.textContent = message;
+
+    document.body.appendChild(notification);
+    setTimeout(() => {
+        notification.remove();
+    }, 3000);
+}
+
+document.addEventListener('DOMContentLoaded', (event) => {
+    var el = document.getElementById('fileTableBody');
+    var sortable = new Sortable(el, {
+        animation: 150,
+        onEnd: function (evt) {
+            var order = sortable.toArray();
+            $.ajax({
+                type: 'POST',
+                url: 'order_handler.php', 
+                data: { order: order },
+                success: function (response) {
+                    showNotification('Sort order saved successfully!');
+                },
+                error: function (xhr, status, error) {
+                    showNotification('Error saving sort order: ' + error);
+                }
+            });
+        },
+    });
+
+    $.ajax({
+        type: 'GET',
+        url: 'order_handler.php', 
+        success: function (response) {
+            var savedOrder = JSON.parse(response);
+            var fileTableBody = document.getElementById('fileTableBody');
+            var rows = Array.from(fileTableBody.children);
+            rows.sort(function(a, b) {
+                return savedOrder.indexOf(a.id) - savedOrder.indexOf(b.id);
+            });
+            rows.forEach(function(row) {
+                fileTableBody.appendChild(row);
+            });
+        },
+        error: function (xhr, status, error) {
+            console.error('Error loading sort order: ' + error);
+        }
+    });
+});
+</script>
 
 <div class="modal fade" id="renameModal" tabindex="-1" aria-labelledby="renameModalLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
     <div class="modal-dialog modal-xl">
@@ -3932,5 +4294,3 @@ window.addEventListener('load', function() {
     });
   });
 </script>
-
-
