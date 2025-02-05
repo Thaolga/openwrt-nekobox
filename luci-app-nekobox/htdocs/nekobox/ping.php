@@ -670,6 +670,7 @@ $lang = $_GET['lang'] ?? 'en';
     }
 }
 </style>
+<script src="./assets/bootstrap/Sortable.min.js"></script>
 <link href="./assets/bootstrap/video-js.css" rel="stylesheet" />
 <script src="./assets/bootstrap/video.js"></script>
 <link rel="stylesheet" href="./assets/bootstrap/all.min.css">
@@ -4139,6 +4140,67 @@ toggleModalButton.onclick = function() {
         </div>
     </div>
 </div>
+
+<script>
+    function showNotification(message) {
+        const notification = document.createElement('div');
+        notification.style.position = 'fixed';
+        notification.style.top = '10px';
+        notification.style.right = '10px';
+        notification.style.padding = '10px';
+        notification.style.backgroundColor = '#4CAF50';
+        notification.style.color = '#fff';
+        notification.style.borderRadius = '5px';
+        notification.style.zIndex = 9999;
+        notification.textContent = message;
+
+        document.body.appendChild(notification);
+        setTimeout(() => {
+            notification.remove();
+        }, 3000);
+    }
+
+    document.addEventListener('DOMContentLoaded', (event) => {
+        var el = document.getElementById('fileTableBody');
+        var sortable = new Sortable(el, {
+            animation: 150,
+            onEnd: function (evt) {
+                var order = sortable.toArray();
+                $.ajax({
+                    type: 'POST',
+                    url: 'order_handler.php', 
+                    data: { order: order },
+                    success: function (response) {
+                        showNotification('排序已成功保存!');
+                    },
+                    error: function (xhr, status, error) {
+                        showNotification('保存排序时出错: ' + error);
+                    }
+                });
+            },
+        });
+
+        $.ajax({
+            type: 'GET',
+            url: 'order_handler.php', 
+            success: function (response) {
+                var savedOrder = JSON.parse(response);
+                var fileTableBody = document.getElementById('fileTableBody');
+                var rows = Array.from(fileTableBody.children);
+                rows.sort(function(a, b) {
+                    return savedOrder.indexOf(a.id) - savedOrder.indexOf(b.id);
+                });
+                rows.forEach(function(row) {
+                    fileTableBody.appendChild(row);
+                });
+            },
+            error: function (xhr, status, error) {
+                console.error('加载排序时出错: ' + error);
+            }
+        });
+    });
+</script>
+
 <script>
 function batchDelete() {
     const checkboxes = document.querySelectorAll('.file-checkbox:checked');
@@ -4642,212 +4704,3 @@ window.addEventListener('load', function() {
     });
   });
 </script>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
