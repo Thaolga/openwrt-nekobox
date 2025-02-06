@@ -768,7 +768,7 @@ function displayUpdateNotification() {
             </div>
             <div class="modal-body">
                 <div id="dropZone" class="border border-primary rounded text-center py-4 position-relative">
-                    <i class="bi bi-cloud-upload-fill text-primary upload-icon"></i>
+                    <i  class="fas fa-cloud-upload-alt"></i>
                     <p class="mb-0 mt-3">Drag files to this area to upload<br>or click the button below to select files</p>
                 </div>
                 <input type="file" id="fileInputModal" class="form-control mt-3" hidden>
