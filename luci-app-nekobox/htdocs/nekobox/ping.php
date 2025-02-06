@@ -4026,7 +4026,7 @@ input[type="range"]:focus {
                         <span id="selectedCount" class="ms-2" style="display: none;">已选中 0 个文件，总计 0 MB</span>
                     </div>
                     <div>
-                        <button type='button' class='btn btn-primary mr-3' onclick='openVideoPlayerModal()'><i class='fas fa-play'></i> 播放视频</button>
+                        <button type='button' class='btn btn-primary mr-3' onclick='openVideoPlayerModal()' title="勾选添加到播放列表"><i class='fas fa-play'></i> 播放视频</button>
                         <button type="button" class="btn btn-pink mr-3" onclick="sortFiles()"><i class="fas fa-sort"></i> 排序</button>
                         <button type="button" class="btn btn-primary mr-3" data-bs-toggle="modal" data-bs-target="#newuploadModal">
                             <i class="fas fa-cloud-upload-alt"></i> 上传文件
