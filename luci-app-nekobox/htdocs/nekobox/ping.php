@@ -485,7 +485,7 @@ $lang = $_GET['lang'] ?? 'en';
         padding: 20px;
         border-radius: 10px;
         text-align: center;
-        background-color: #f8f9fa;
+
     }
 
     #dropArea.dragging {
@@ -4028,7 +4028,7 @@ input[type="range"]:focus {
                     <div>
                         <button type='button' class='btn btn-primary mr-3' onclick='openVideoPlayerModal()'><i class='fas fa-play'></i> 播放视频</button>
                         <button type="button" class="btn btn-pink mr-3" onclick="sortFiles()"><i class="fas fa-sort"></i> 排序</button>
-                        <button type="button" class="btn btn-primary mr-3" data-bs-toggle="modal" data-bs-target="#uploadModal">
+                        <button type="button" class="btn btn-primary mr-3" data-bs-toggle="modal" data-bs-target="#newuploadModal">
                             <i class="fas fa-cloud-upload-alt"></i> 上传文件
                         </button>
                         <button type="button" class="btn btn-danger delete-btn" onclick="setBackground('', '', 'remove')"><i class="fas fa-trash"></i> 删除背景</button>
@@ -4254,11 +4254,11 @@ input[type="range"]:focus {
     </div>
 </div>
 
-<div class="modal fade" id="uploadModal" tabindex="-1" aria-labelledby="uploadModalLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+<div class="modal fade" id="newuploadModal" tabindex="-1" aria-labelledby="newuploadModalLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
     <div class="modal-dialog modal-xl">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="uploadModalLabel"><i class="fas fa-cloud-upload-alt"></i> 上传文件</h5>
+                <h5 class="modal-title" id="newuploadModalLabel"><i class="fas fa-cloud-upload-alt"></i> 上传文件</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body text-center">
