@@ -3552,7 +3552,7 @@ input[type="range"]:focus {
                         <span id="selectedCount" class="ms-2" style="display: none;">Selected 0 files, Total 0 MB</span>
                     </div>
                     <div>
-                        <button type='button' class='btn btn-primary mr-3' onclick='openVideoPlayerModal()'><i class='fas fa-play'></i> Play Video</button>
+                        <button type='button' class='btn btn-primary mr-3' onclick='openVideoPlayerModal()' title="Check to add to playlist"><i class='fas fa-play'></i> Play Video</button>
                         <button type="button" class="btn btn-pink mr-3" onclick="sortFiles()"><i class="fas fa-sort"></i> Sort</button>
                         <button type="button" class="btn btn-primary mr-3" data-bs-toggle="modal" data-bs-target="#newuploadModal">
                             <i class="fas fa-cloud-upload-alt"></i> Upload Files
@@ -3808,6 +3808,7 @@ document.addEventListener('DOMContentLoaded', (event) => {
                 </div>
             </div>
             <div class="modal-footer">
+                <button type="button" class="btn btn-danger" onclick="clearPlaylist()">Clear Playlist</button>
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
             </div>
         </div>
@@ -3870,17 +3871,24 @@ document.addEventListener('DOMContentLoaded', (event) => {
 </div>
 
 <script>
-let playlist = [];
+let playlist = JSON.parse(localStorage.getItem('playlist')) || [];
 let currentIndex = 0;
 
 document.addEventListener("DOMContentLoaded", function () {
     updatePlaylistUI();
 });
 
+function clearPlaylist() {
+    playlist = [];  
+    updatePlaylistUI(); 
+    savePlaylistToLocalStorage(); 
+}
+
 function addToPlaylist(mediaUrl, mediaTitle) {
     if (!playlist.some(item => item.url === mediaUrl)) {
         playlist.push({ url: mediaUrl, title: mediaTitle });
         updatePlaylistUI();
+        savePlaylistToLocalStorage();  
     }
 }
 
@@ -3946,6 +3954,7 @@ function removeFromPlaylist(index) {
         }
     }
     updatePlaylistUI();
+    savePlaylistToLocalStorage(); 
 }
 
 function playMedia(index) {
@@ -4030,7 +4039,6 @@ function playNextAudio() {
 }
 
 function openVideoPlayerModal() {
-    playlist = [];  
     document.querySelectorAll('.file-checkbox:checked').forEach(checkbox => {
         addToPlaylist(checkbox.getAttribute('data-url'), checkbox.getAttribute('data-title'));
     });
@@ -4039,6 +4047,10 @@ function openVideoPlayerModal() {
 
     const videoPlayerModal = new bootstrap.Modal(document.getElementById('videoPlayerModal'));
     videoPlayerModal.show();
+}
+
+function savePlaylistToLocalStorage() {
+    localStorage.setItem('playlist', JSON.stringify(playlist));
 }
 </script>
 
