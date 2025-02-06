@@ -4222,6 +4222,7 @@ input[type="range"]:focus {
                 </div>
             </div>
             <div class="modal-footer">
+                <button type="button" class="btn btn-danger" onclick="clearPlaylist()">清空播放列表</button>
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">关闭</button>
             </div>
         </div>
@@ -4290,6 +4291,11 @@ let currentIndex = 0;
 document.addEventListener("DOMContentLoaded", function () {
     updatePlaylistUI();
 });
+
+function clearPlaylist() {
+    playlist = [];  
+    updatePlaylistUI();  
+}
 
 function addToPlaylist(mediaUrl, mediaTitle) {
     if (!playlist.some(item => item.url === mediaUrl)) {
@@ -4444,7 +4450,6 @@ function playNextAudio() {
 }
 
 function openVideoPlayerModal() {
-    playlist = [];  
     document.querySelectorAll('.file-checkbox:checked').forEach(checkbox => {
         addToPlaylist(checkbox.getAttribute('data-url'), checkbox.getAttribute('data-title'));
     });
