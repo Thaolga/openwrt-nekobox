@@ -1277,8 +1277,8 @@ setInterval(IP.getIpipnetIP, 180000);
     <button id="clear-cache-btn">🗑️ Clear Cache</button>
     <button type="button" data-bs-toggle="modal" data-bs-target="#urlModal">🔗 Customize Playlist</button>
     <button type="button" data-bs-toggle="modal" data-bs-target="#keyHelpModal">⌨️ Keyboard Shortcuts</button>
-    <button type="button" data-bs-toggle="modal" data-bs-target="#singboxModal">🎤 Sing-box Startup Tips</button>
     <button id="openPlayerButton"  data-bs-toggle="modal" data-bs-target="#audioPlayerModal">🎶 Music Player</button>
+    <button type='button' onclick='openVideoPlayerModal()'><i class='fas fa-video'></i> Media Player</button>
     <button id="startCheckBtn">🌐 Start Website Check</button>
     <button id="toggleModal"><i class="fas fa-arrows-alt-h"></i> Modify Page Width</button>
     <button id="toggleAnimationBtn">🖥️ Start Block Animation</button>
@@ -1303,26 +1303,6 @@ setInterval(IP.getIpipnetIP, 180000);
     <button id="clearSettingsBtn"><i class="fas fa-trash-alt"></i> Clear Video Settings</button>
     <button onclick="togglePlayPause()" id="playPauseBtn">⏸️ Pause</button>
     <button onclick="toggleControlPanel()">❌ Close</button>
-</div>
-
-<div class="modal fade" id="singboxModal" tabindex="-1" aria-labelledby="singboxModalLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
-  <div class="modal-dialog modal-xl">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="singboxModalLabel">Sing-box Startup Tips</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-      </div>
-      <div class="modal-body">
-           <ul>
-                <li>If startup fails, go to File Management ⇨ Update Database ⇨ Download cache.db Cache Data.</li>
-                <li>If unable to connect to the network after startup, go to Firewall Settings ⇨ Outbound/Inbound/Forward ⇨ Accept ⇨ Save Application.</li>
-           </ul>
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-      </div>
-    </div>
-  </div>
 </div>
 
 <script>
@@ -2364,27 +2344,34 @@ window.addEventListener('keydown', function(event) {
     <div class="modal-dialog modal-xl">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="keyHelpModalLabel">Keyboard Shortcuts Guide</h5>
+                <h5 class="modal-title" id="keyHelpModalLabel">Keyboard Shortcuts</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
                 <ul>
-                    <li><strong>Left Mouse Button:</strong> Double click to open the player interface</li>
+                    <li><strong>Left Mouse Button:</strong> Double-click to open the player interface</li>
                     <li><strong>F9 Key:</strong> Toggle play/pause</li>
-                    <li><strong>Up/Down Arrow Keys:</strong> Switch to previous/next track</li>
+                    <li><strong>Up/Down Arrow Keys:</strong> Skip to previous/next track</li>
                     <li><strong>Left/Right Arrow Keys:</strong> Fast forward/rewind 10 seconds</li>
-                    <li><strong>ESC Key:</strong> Return to the first track in the playlist</li>
-                    <li><strong>F2 Key:</strong> Toggle between loop and sequential play mode</li>
+                    <li><strong>ESC Key:</strong> Go back to the first track in the playlist</li>
+                    <li><strong>F2 Key:</strong> Toggle between repeat and sequential play mode</li>
                     <li><strong>F8 Key:</strong> Start website connectivity check</li>
-                    <li><strong>Ctrl + F6 Key:</strong> Start/stop snowflake animation</li>
-                    <li><strong>Ctrl + F7 Key:</strong> Start/stop square light animation</li>
-                    <li><strong>Ctrl + F10 Key:</strong> Start/stop square animation</li>
-                    <li><strong>Ctrl + F11 Key:</strong> Start/stop light dot animation</li>
-                    <li><strong>Ctrl + Shift + Q Key:</strong> Open settings</li>
-                    <li><strong>Ctrl + Shift + C Key:</strong> Clear cache data</li>
-                    <li><strong>Ctrl + Shift + V Key:</strong> Customize playlist</li>
-                    <li><strong>Long press top half of the screen on mobile/tablet:</strong> Open settings</li>
+                    <li><strong>Ctrl + F6 Keys:</strong> Start/stop snowflake animation</li>
+                    <li><strong>Ctrl + F7 Keys:</strong> Start/stop block light animation</li>
+                    <li><strong>Ctrl + F10 Keys:</strong> Start/stop block animation</li>
+                    <li><strong>Ctrl + F11 Keys:</strong> Start/stop dot light animation</li>
+                    <li><strong>Ctrl + Shift + Q Keys:</strong> Open control panel</li>
+                    <li><strong>Ctrl + Shift + C Keys:</strong> Clear cache data</li>
+                    <li><strong>Ctrl + Shift + V Keys:</strong> Customize playlist</li>
+                    <li><strong>Long Press on the Upper Half of Screen (Mobile/Tablet):</strong> Open settings</li>
                 </ul>
+                <div class="sing-box-section mt-4">
+                    <h5>Sing-box Startup Tips</h5>
+                    <ul>
+                        <li>If startup fails, go to File Manager ⇨ Update Database ⇨ Download cache.db cache data.</li>
+                        <li>If unable to connect to the network, go to Firewall Settings ⇨ Outbound/Inbound/Forward ⇨ Allow ⇨ Save Application.</li>
+                    </ul>
+                </div>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
@@ -3075,11 +3062,11 @@ window.addEventListener('keydown', function(event) {
       </div>
       <div class="modal-body">
         <label for="containerWidth" class="form-label">Page Width</label>
-        <input type="range" class="form-range" name="containerWidth" id="containerWidth" min="800" max="2400" step="50" value="1800" style="width: 100%;">
+        <input type="range" class="form-range" name="containerWidth" id="containerWidth" min="800" max="5400" step="50" value="1800" style="width: 100%;">
         <div id="widthValue" class="mt-2" style="color: #FF00FF;">Current Width: 1800px</div>
 
         <label for="modalMaxWidth" class="form-label mt-4">Modal Max Width</label>
-        <input type="range" class="form-range" name="modalMaxWidth" id="modalMaxWidth" min="1400" max="2400" step="50" value="1400" style="width: 100%;">
+        <input type="range" class="form-range" name="modalMaxWidth" id="modalMaxWidth" min="1400" max="5400" step="50" value="1400" style="width: 100%;">
         <div id="modalWidthValue" class="mt-2" style="color: #00FF00;">Current Max Width: 1400px</div>
 
         <div class="form-check mt-3">
@@ -3368,43 +3355,35 @@ toggleModalButton.onclick = function() {
 </div>
 
 <style>
-    input[type="range"] {
-        -webkit-appearance: none;  
-        appearance: none;
-        width: 100%;
-        height: 10px;  
-        border-radius: 5px;
-        background: linear-gradient(to right, #ff00ff, #00ffff); 
-        outline: none;
-    }
+input[type="range"] {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 100%;
+    height: 10px;
+    border-radius: 5px;
+    background: linear-gradient(to right, #ff00ff, #00ffff);
+    outline: none;
+}
 
-    input[type="range"]::-webkit-slider-thumb {
-        -webkit-appearance: none;
-        appearance: none;
-        width: 20px;
-        height: 20px;
-        border-radius: 50%;
-        background: #ff00ff;  
-        border: none;
-        cursor: pointer;
-    }
+input[type="range"]::-webkit-slider-thumb,
+input[type="range"]::-moz-range-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: #ff00ff;
+    border: none;
+    cursor: pointer;
+}
 
-    input[type="range"]:focus {
-        outline: none; 
-    }
+input[type="range"]:focus {
+    outline: none;
+}
 
-    input[type="range"]::-moz-range-thumb {
-        width: 20px;
-        height: 20px;
-        border-radius: 50%;
-        background: #ff00ff;  
-        border: none;
-        cursor: pointer;
-    }
-
-    #widthValue {
-        color: #ff00ff;
-    }
+#widthValue {
+    color: #ff00ff;
+}
 
 .file-preview {
     display: flex;
@@ -3424,15 +3403,88 @@ toggleModalButton.onclick = function() {
 }
 
 .delete-btn {
-    color: white !important; 
+    color: white !important;
+}
+
+#videoPlayerModal .modal-body {
+    display: flex;
+    gap: 20px;
+    height: calc(90vh - 140px);
+}
+
+#videoPlayerModal .w-75 {
+    flex: 0 0 75%;
+    padding-right: 20px;
+    height: 100%;
+}
+
+#videoPlayerModal #videoPlayer {
+    border-radius: 10px;
+    width: 100%;
+    height: 100%;
+    background-color: #000;
+}
+
+#videoPlayerModal .w-25 {
+    flex: 0 0 25%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+#videoPlayerModal #playlist {
+    list-style-type: none;
+    padding-left: 0;
+    margin: 0;
+    overflow-y: auto;
+    max-height: 100%;
+    background-color: #000;
+    border-radius: 10px;
+    width: 100%;
+}
+
+#videoPlayerModal #playlist li {
+    font-size: 1rem;
+    padding: 12px 20px;
+    border-radius: 8px;
+    margin-bottom: 10px;
+    background-color: #333;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+    cursor: pointer;
+    transition: background-color 0.3s, box-shadow 0.3s;
+}
+
+#videoPlayerModal #playlist li:hover {
+    background-color: #007bff;
+    color: white;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+#videoPlayerModal #playlist li.active {
+    background-color: #28a745;
+    color: white;
 }
 
 @media (max-width: 768px) {
+    #videoPlayerModal .modal-dialog {
+        max-width: 100%;
+        margin: 0;
+    }
+
+    #videoPlayerModal .modal-body {
+        flex-direction: column;
+    }
+
+    #videoPlayerModal .w-75,
+    #videoPlayerModal .w-25 {
+        width: 100%;
+    }
+
     .set-background-btn {
         font-size: 12px;
         padding: 5px 10px;
-        width: 100px; 
-        height: 42px; 
+        width: 100px;
+        height: 42px;
     }
 }
 </style>
@@ -3483,27 +3535,28 @@ toggleModalButton.onclick = function() {
     });
 </script>
 
-<div class="modal fade" id="filesModal" tabindex="-1" aria-labelledby="filesModalLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
-    <div class="modal-dialog modal-xl">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="filesModalLabel">Upload and Manage Background Images/Videos/Audio</h5>
-                <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
+<div class='modal fade' id='filesModal' tabindex='-1' aria-labelledby='filesModalLabel' aria-hidden='true' data-bs-backdrop='static' data-bs-keyboard='false'>
+    <div class='modal-dialog modal-xl'>
+        <div class='modal-content'>
+            <div class='modal-header'>
+                <h5 class='modal-title' id='filesModalLabel'>Upload and Manage Background Images/Videos/Audio</h5>
+                <button type='button' class='close' data-bs-dismiss='modal' aria-label='Close'>
+                    <span aria-hidden='true'>&times;</span>
                 </button>
             </div>
-            <div class="modal-body">
-                <div class="mb-4 d-flex justify-content-between align-items-center">
+            <div class='modal-body'>
+                <div class='mb-4 d-flex justify-content-between align-items-center'>
                     <div>
                         <button type="button" class="btn btn-success mr-3" onclick="selectAll()"><i class="fas fa-check-square"></i> Select All</button>
                         <button type="button" class="btn btn-warning mr-3" onclick="deselectAll()"><i class="fas fa-square"></i> Deselect All</button>
                         <button type="button" class="btn btn-danger" onclick="batchDelete()"><i class="fas fa-trash-alt"></i> Batch Delete</button>
-                        <span id="selectedCount" class="ms-2" style="display: none;">0 files selected, total 0 MB</span>
+                        <span id="selectedCount" class="ms-2" style="display: none;">Selected 0 files, Total 0 MB</span>
                     </div>
                     <div>
+                        <button type='button' class='btn btn-primary mr-3' onclick='openVideoPlayerModal()'><i class='fas fa-play'></i> Play Video</button>
                         <button type="button" class="btn btn-pink mr-3" onclick="sortFiles()"><i class="fas fa-sort"></i> Sort</button>
                         <button type="button" class="btn btn-primary mr-3" data-bs-toggle="modal" data-bs-target="#uploadModal">
-                            <i class="fas fa-cloud-upload-alt"></i> Upload File
+                            <i class="fas fa-cloud-upload-alt"></i> Upload Files
                         </button>
                         <button type="button" class="btn btn-danger delete-btn" onclick="setBackground('', '', 'remove')"><i class="fas fa-trash"></i> Remove Background</button>
                     </div>
@@ -3565,13 +3618,13 @@ toggleModalButton.onclick = function() {
                                 $indexB = array_search($b, $backgroundFiles);
 
                                 if ($indexA === false && $indexB === false) {
-                                    return 0; 
+                                    return 0;
                                 } elseif ($indexA === false) {
-                                    return 1; 
+                                    return 1;
                                 } elseif ($indexB === false) {
-                                    return -1; 
+                                    return -1;
                                 } else {
-                                    return $indexA - $indexB; 
+                                    return $indexA - $indexB;
                                 }
                             });
 
@@ -3591,7 +3644,7 @@ toggleModalButton.onclick = function() {
 
                                     echo "<td class='align-middle' data-label='Preview' style='vertical-align: middle;'>
                                             <div class='file-preview mb-2 d-flex align-items-center'>
-                                                <input type='checkbox' class='file-checkbox mb-2 mr-2' value='" . htmlspecialchars($file, ENT_QUOTES) . "' data-size='$fileSize' onchange='updateSelectedCount()'>";
+                                                <input type='checkbox' class='file-checkbox mb-2 mr-2' value='" . htmlspecialchars($file, ENT_QUOTES) . "' data-url='$fileUrl' data-title='$fileNameWithoutPrefix' data-size='$fileSize' onchange='updateSelectedCount()'>";
 
                                     if (isVideo($file)) {
                                         echo "<video width='200' controls title='$fileTitle'>
@@ -3610,7 +3663,7 @@ toggleModalButton.onclick = function() {
                                     }
 
                                     echo "<div class='btn-container mt-2 d-flex align-items-center'>
-                                            <a href='?delete=" . htmlspecialchars($file, ENT_QUOTES) . "' onclick='return confirm(\"Are you sure you want to delete?\")' class='icon-button btn-bordered' style='margin-right: 10px;'>
+                                            <a href='?delete=" . htmlspecialchars($file, ENT_QUOTES) . "' onclick='return confirm(\"Are you sure you want to delete this file?\")' class='icon-button btn-bordered' style='margin-right: 10px;'>
                                                 <i class='fas fa-trash-alt'></i><span class='tooltip'>Delete</span>
                                             </a>
                                             <button type='button' data-bs-toggle='modal' data-bs-target='#renameModal' onclick='document.getElementById(\"oldFileName\").value=\"" . htmlspecialchars($file, ENT_QUOTES) . "\"; document.getElementById(\"newFileName\").value=\"" . htmlspecialchars(getFileNameWithoutPrefix($file), ENT_QUOTES) . "\";' class='icon-button btn-bordered' style='margin-right: 10px;'>
@@ -3622,15 +3675,15 @@ toggleModalButton.onclick = function() {
 
                                     if (isImage($file)) {
                                         echo "<button type='button' onclick=\"setBackground('" . htmlspecialchars($file, ENT_QUOTES) . "', 'image')\" class='icon-button btn-bordered' style='margin-left: 10px;'>
-                                                <i class='fas fa-image'></i><span class='tooltip'>Set Image Background</span>
+                                                <i class='fas fa-image'></i><span class='tooltip'>Set Image as Background</span>
                                               </button>";
                                     } elseif (isVideo($file)) {
                                         echo "<button type='button' onclick=\"setBackground('" . htmlspecialchars($file, ENT_QUOTES) . "', 'video')\" class='icon-button btn-bordered' style='margin-left: 10px;'>
-                                                <i class='fas fa-video'></i><span class='tooltip'>Set Video Background</span>
+                                                <i class='fas fa-video'></i><span class='tooltip'>Set Video as Background</span>
                                               </button>";
                                     } elseif (isAudio($file)) {
                                         echo "<button type='button' onclick=\"setBackground('" . htmlspecialchars($file, ENT_QUOTES) . "', 'audio')\" class='icon-button btn-bordered' style='margin-left: 10px;'>
-                                                <i class='fas fa-music'></i><span class='tooltip'>Set Audio Background</span>
+                                                <i class='fas fa-music'></i><span class='tooltip'>Set Audio as Background</span>
                                               </button>";
                                     }
 
@@ -3660,7 +3713,7 @@ toggleModalButton.onclick = function() {
                                 if (rename($oldFilePath, $newFilePath)) {
                                     echo "<script>alert('File renamed successfully');</script>";
                                 } else {
-                                    echo "<script>alert('File rename failed');</script>";
+                                    echo "<script>alert('File renaming failed');</script>";
                                 }
                             } else {
                                 echo "<script>alert('File does not exist');</script>";
@@ -3676,6 +3729,7 @@ toggleModalButton.onclick = function() {
         </div>
     </div>
 </div>
+
 <script>
 function showNotification(message) {
     const notification = document.createElement('div');
@@ -3736,6 +3790,31 @@ document.addEventListener('DOMContentLoaded', (event) => {
 });
 </script>
 
+<div class="modal fade" id="videoPlayerModal" tabindex="-1" aria-labelledby="videoPlayerModalLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="videoPlayerModalLabel">Media Player</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body d-flex">
+                <div class="w-75 pe-3">
+                    <video id="videoPlayer" controls preload="auto" width="100%" height="400px" style="display: none;"></video>
+                    <audio id="audioPlayer" controls preload="auto" style="width: 100%; display: none;"></audio>
+                    <img id="imageViewer" src="" style="width: 100%; height: 400px; object-fit: contain; display: none;">
+                </div>
+                <div class="w-25 d-flex flex-column">
+                    <h5>Playlist</h5>
+                    <ul id="playlist" class="list-group flex-grow-1 overflow-auto"></ul>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <div class="modal fade" id="renameModal" tabindex="-1" aria-labelledby="renameModalLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
     <div class="modal-dialog modal-xl">
         <form id="renameForm" method="POST">
@@ -3790,6 +3869,180 @@ document.addEventListener('DOMContentLoaded', (event) => {
         </div>
     </div>
 </div>
+
+<script>
+let playlist = [];
+let currentIndex = 0;
+
+document.addEventListener("DOMContentLoaded", function () {
+    updatePlaylistUI();
+});
+
+function addToPlaylist(mediaUrl, mediaTitle) {
+    if (!playlist.some(item => item.url === mediaUrl)) {
+        playlist.push({ url: mediaUrl, title: mediaTitle });
+        updatePlaylistUI();
+    }
+}
+
+function updatePlaylistUI() {
+    const playlistElement = document.getElementById('playlist');
+    playlistElement.innerHTML = ''; 
+
+    playlist.forEach((media, index) => {
+        const listItem = document.createElement('li');
+        listItem.className = 'list-group-item';
+        listItem.textContent = `${index + 1}. ${media.title}`;
+
+        const removeButton = document.createElement('button');
+        removeButton.textContent = 'X';
+        removeButton.classList.add('btn', 'btn-danger', 'btn-sm', 'float-right');
+        removeButton.style.display = 'none'; 
+        removeButton.onclick = () => removeFromPlaylist(index);
+
+        listItem.appendChild(removeButton);
+
+        listItem.setAttribute('draggable', 'true');
+        listItem.addEventListener('dragstart', (event) => {
+            event.dataTransfer.setData('text', index);
+        });
+        listItem.addEventListener('dragover', (event) => {
+            event.preventDefault();
+        });
+        listItem.addEventListener('drop', (event) => {
+            event.preventDefault();
+            const draggedIndex = event.dataTransfer.getData('text');
+            if (draggedIndex !== index) {
+                removeFromPlaylist(draggedIndex);
+                addToPlaylist(media.url, media.title);  
+            }
+        });
+
+        listItem.addEventListener('contextmenu', (event) => {
+            event.preventDefault();
+            removeButton.style.display = 'block'; 
+        });
+
+        if (index === currentIndex) {
+            listItem.classList.add('active');
+        }
+
+        listItem.onclick = () => playMedia(index);
+        playlistElement.appendChild(listItem);
+    });
+
+    const activeItem = playlistElement.querySelector('.active');
+    if (activeItem) {
+        activeItem.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+}
+
+function removeFromPlaylist(index) {
+    playlist.splice(index, 1);
+    if (currentIndex === index) {
+        if (playlist.length > 0) {
+            playMedia(Math.min(currentIndex, playlist.length - 1));
+        } else {
+            currentIndex = 0;  
+        }
+    }
+    updatePlaylistUI();
+}
+
+function playMedia(index) {
+    if (playlist.length === 0) return;
+
+    currentIndex = index;
+    const media = playlist[index];
+
+    const videoElement = document.getElementById('videoPlayer');
+    const audioElement = document.getElementById('audioPlayer');
+    const imageElement = document.getElementById('imageViewer');
+
+    videoElement.style.display = "none";
+    audioElement.style.display = "none";
+    imageElement.style.display = "none";
+
+    let mediaUrl = media.url;
+    if (!mediaUrl.startsWith('http://') && !mediaUrl.startsWith('https://')) {
+        mediaUrl = window.location.origin + mediaUrl;
+    }
+
+    if (/\.(mp4|avi|mkv|mov|wmv)$/i.test(mediaUrl)) {
+        if (!audioElement.paused) {
+            audioElement.pause();
+            audioElement.currentTime = 0;
+        }
+
+        videoElement.src = "";
+        videoElement.src = mediaUrl;
+        videoElement.style.display = "block";
+        videoElement.load();
+        videoElement.play().catch((err) => {
+            console.warn("Autoplay blocked:", err);
+        });
+
+        videoElement.onended = () => playNextVideo();
+    } 
+
+    else if (/\.(mp3|wav|ogg|flac|aac|m4a|webm|opus)$/i.test(mediaUrl)) {
+        if (!videoElement.paused) {
+            videoElement.pause();
+            videoElement.currentTime = 0;
+        }
+
+        audioElement.src = "";
+        audioElement.src = mediaUrl;
+        audioElement.style.display = "block";
+        audioElement.load();
+        audioElement.play().catch((err) => {
+            console.warn("Autoplay blocked:", err);
+        });
+
+        audioElement.onended = () => playNextAudio();
+    } 
+
+    else if (/\.(jpg|jpeg|png|gif|bmp|webp)$/i.test(mediaUrl)) {
+        imageElement.src = mediaUrl;
+        imageElement.style.display = "block";
+    }
+
+    updatePlaylistUI();
+}
+
+function playNextVideo() {
+    let nextIndex = (currentIndex + 1) % playlist.length;
+
+    while (nextIndex !== currentIndex && !/\.(mp4|avi|mkv|mov|wmv)$/i.test(playlist[nextIndex].url)) {
+        nextIndex = (nextIndex + 1) % playlist.length;
+    }
+
+    playMedia(nextIndex);
+}
+
+function playNextAudio() {
+    let nextIndex = (currentIndex + 1) % playlist.length;
+
+    while (nextIndex !== currentIndex && !/\.(mp3|wav|ogg|flac|aac|m4a|webm|opus)$/i.test(playlist[nextIndex].url)) {
+        nextIndex = (nextIndex + 1) % playlist.length;
+    }
+
+    playMedia(nextIndex);
+}
+
+function openVideoPlayerModal() {
+    playlist = [];  
+    document.querySelectorAll('.file-checkbox:checked').forEach(checkbox => {
+        addToPlaylist(checkbox.getAttribute('data-url'), checkbox.getAttribute('data-title'));
+    });
+
+    if (playlist.length > 0) playMedia(0);  
+
+    const videoPlayerModal = new bootstrap.Modal(document.getElementById('videoPlayerModal'));
+    videoPlayerModal.show();
+}
+</script>
+
 <script>
 function batchDelete() {
     const checkboxes = document.querySelectorAll('.file-checkbox:checked');
