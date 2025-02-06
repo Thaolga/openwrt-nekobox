@@ -576,23 +576,25 @@ html {
     margin: 0 auto;
 }
 
-#dropZone {
-    height: 150px;
-    cursor: pointer;
-    transition: background-color 0.3s;
+#dropZone i {
+    font-size: 50px;
+    color: #007bff;
+    animation: iconPulse 1.5s infinite; 
 }
 
-#dropZone.bg-light {
-    background-color: #e9ecef;
-}
-
-#dropZone:hover {
-    background-color: #f8f9fa;
-    border-color: #0d6efd;
-}
-
-.upload-icon {
-    font-size: 1.5rem; 
+@keyframes iconPulse {
+    0% {
+        transform: scale(1);
+        opacity: 1;
+    }
+    50% {
+        transform: scale(1.2); 
+        opacity: 0.7;
+    }
+    100% {
+        transform: scale(1);
+        opacity: 1;
+    }
 }
 
 @media (max-width: 768px) {
@@ -690,7 +692,7 @@ function displayUpdateNotification() {
                 ?>
                     <tr>
                         <td class="align-middle" data-label="File Name">
-                            <a href="download.php?file=<?php echo urlencode($file); ?>"><?php echo htmlspecialchars($file); ?></a>
+                            <?php echo htmlspecialchars($file); ?>
                         </td>
                         <td class="align-middle" data-label="Size">
                             <?php echo file_exists($filePath) ? formatSize(filesize($filePath)) : 'The file does not exist'; ?>
