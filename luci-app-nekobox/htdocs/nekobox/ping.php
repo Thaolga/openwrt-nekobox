@@ -3852,7 +3852,7 @@ document.addEventListener('DOMContentLoaded', (event) => {
                     <img id="imageViewer" src="" style="display: none;">
                 </div>
                 <div class="playlist-container">
-                    <h5>播放列表</h5>
+                    <h5>Playlist</h5>
                     <ul id="playlist"></ul>
                 </div>
             </div>
