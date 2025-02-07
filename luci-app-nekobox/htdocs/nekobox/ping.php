@@ -3968,11 +3968,6 @@ input[type="range"]:focus {
         gap: 10px;
     }
 
-    .btn {
-        width: 48%;
-        margin-bottom: 10px;
-    }
-
     .btn-group {
         width: 100%;
         display: flex;
