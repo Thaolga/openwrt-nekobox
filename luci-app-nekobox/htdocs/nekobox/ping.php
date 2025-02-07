@@ -672,7 +672,7 @@ $lang = $_GET['lang'] ?? 'en';
 
 @media (max-width: 768px) {
     .popup {
-        display: grid;
+        display: none;
         grid-template-columns: repeat(2, 1fr);
         gap: 10px;
         padding: 10px;
