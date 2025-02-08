@@ -482,6 +482,31 @@ $lang = $_GET['lang'] ?? 'en';
         box-sizing: border-box;
     }
 }
+
+@media only screen and (max-width: 768px) {
+  body, html {
+    overflow-x: hidden;
+  }
+
+  .container {
+    word-wrap: break-word; 
+    word-break: break-word; 
+  }
+}
+
+@media only screen and (max-width: 768px) {
+  #ip-address {
+    margin-left: -1px !important;  
+  }
+
+  #toggle-ip {
+    margin-left: -8px !important;  
+  }
+
+  .control-toggle {
+    margin-left:  5px !important;  
+  }
+}
 </style>
 <script src="./assets/bootstrap/Sortable.min.js"></script>
 <link href="./assets/bootstrap/video-js.css" rel="stylesheet" />
@@ -703,11 +728,11 @@ let IP = {
                         </div>
                     </div>
                 </div>
-                <span id="toggle-ip" style="cursor: pointer; position: relative; top: -3px;  text-indent: 1ch; padding-top: 2px;" title="Click to hide/show IP">
-                    <i class="fa ${isHidden ? 'bi-eye-slash' : 'bi-eye'}"></i>  
+                <span id="toggle-ip" style="cursor: pointer; position: relative; top: -3px;  text-indent: 0.3ch; padding-top: 2px;" title="Click to hide/show IP">
+                    <i class="fa ${isHidden ? 'bi-eye-slash' : 'bi-eye'}" style="font-size: 1.4rem; vertical-align: middle;"></i>  
                 </span>
-                <span class="control-toggle" style="cursor: pointer; margin-left: 10px; display: inline-flex; align-items: center; position: relative; top: -1px;" onclick="togglePopup()" title="Open Settings">
-                    <i class="bi bi-gear" style="font-size: 0.8rem; margin-right: 5px;"></i>  
+                <span class="control-toggle" style="cursor: pointer; margin-left: 10px; display: inline-flex; align-items: center; position: relative; top: -1.7px;" onclick="togglePopup()" title="Open Settings">
+                    <i class="bi bi-gear" style="font-size: 1.1rem; margin-right: 5px; vertical-align: middle;"></i> 
                 </span>
             `;
 
@@ -3207,7 +3232,7 @@ toggleModalButton.onclick = function() {
           <div class="row">
             <div class="col-md-4 mb-3">
               <label for="primaryColor" class="form-label">Navigation Text Color</label>
-              <input type="color" class="form-control" name="primaryColor" id="primaryColor" value="#0ceda2">
+              <input type="color" class="form-control" name="primaryColor" id="primaryColor" value="#30e8dc">
             </div>
             <div class="col-md-4 mb-3">
               <label for="secondaryColor" class="form-label">Navigation Hover Text Color</label>
@@ -3247,7 +3272,7 @@ toggleModalButton.onclick = function() {
             </div>
             <div class="col-md-4 mb-3">
               <label for="placeholderColor" class="form-label">Input Text Color 2</label>
-              <input type="color" class="form-control" name="placeholderColor" id="placeholderColor" value="#f82af2">
+              <input type="color" class="form-control" name="placeholderColor" id="placeholderColor" value="#f8f9fa">
             </div>
             <div class="col-md-4 mb-3">
               <label for="disabledColor" class="form-label">Display Background Color</label>
@@ -3263,15 +3288,15 @@ toggleModalButton.onclick = function() {
             </div>
             <div class="col-md-4 mb-3">
               <label for="radiusColor" class="form-label">Main Border Text Color</label>
-              <input type="color" class="form-control" name="radiusColor" id="radiusColor" value="#24f086">
+              <input type="color" class="form-control" name="radiusColor" id="radiusColor" value="#28edf0">
             </div>
             <div class="col-md-4 mb-3">
               <label for="bodyColor" class="form-label">Table Text Color 1</label>
-              <input type="color" class="form-control" name="bodyColor" id="bodyColor" value="#04f153">
+              <input type="color" class="form-control" name="bodyColor" id="bodyColor" value="#4eedf9">
             </div>
             <div class="col-md-4 mb-3">
               <label for="tertiaryColor" class="form-label">Table Text Color 2</label>
-              <input type="color" class="form-control" name="tertiaryColor" id="tertiaryColor" value="#46e1ec">
+              <input type="color" class="form-control" name="tertiaryColor" id="tertiaryColor" value="#df38f5">
             </div>
             <div class="col-md-4 mb-3">
               <label for="tertiaryRgbColor" class="form-label">Table Text Color 3</label>
@@ -3287,7 +3312,7 @@ toggleModalButton.onclick = function() {
             </div>
             <div class="col-md-4 mb-3">
               <label for="detailColor" class="form-label">IP Detail Text Color</label>
-              <input type="color" class="form-control" name="detailColor" id="detailColor" value="#FFFFFF">
+              <input type="color" class="form-control" name="detailColor" id="detailColor" value="#15d1bb">
             </div>
             <div class="col-md-4 mb-3">
               <label for="outlineColor" class="form-label">Button Color (Cyan)</label>
@@ -3492,11 +3517,6 @@ input[type="range"]:focus {
         display: flex;
         flex-wrap: wrap;
         gap: 10px;
-    }
-
-    .btn {
-        width: 48%;
-        margin-bottom: 10px;
     }
 
     .btn-group {
@@ -3839,8 +3859,8 @@ document.addEventListener('DOMContentLoaded', (event) => {
 </script>
 
 <div class="modal fade" id="videoPlayerModal" tabindex="-1" aria-labelledby="videoPlayerModalLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
-    <div class="modal-dialog modal-xl">
-        <div class="modal-content">
+    <div class="modal-dialog modal-xl" id="modalDialog" style="max-height: 100vh;">
+        <div class="modal-content" style="height: 100%;">
             <div class="modal-header">
                 <h5 class="modal-title" id="videoPlayerModalLabel">Media Player</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
@@ -3857,7 +3877,8 @@ document.addEventListener('DOMContentLoaded', (event) => {
                 </div>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-danger" onclick="clearPlaylist()">Clear Playlist</button>
+                <button type="button" class="btn btn-primary me-3" id="fullscreenButton" onclick="toggleFullscreen()">Toggle Fullscreen</button>
+                <button type="button" class="btn btn-danger me-3" onclick="clearPlaylist()">Clear Playlist</button>
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
             </div>
         </div>
@@ -3920,11 +3941,50 @@ document.addEventListener('DOMContentLoaded', (event) => {
 </div>
 
 <script>
+    const videoElement = document.getElementById('videoPlayer');
+    const modalDialog = document.getElementById('modalDialog');
+    const fullscreenButton = document.getElementById('fullscreenButton');
+
+    if (localStorage.getItem('isFullscreen') === 'true') {
+        toggleFullscreen();
+    }
+
+    function toggleFullscreen() {
+        if (!document.fullscreenElement) {
+            modalDialog.requestFullscreen().catch(err => {});
+            localStorage.setItem('isFullscreen', 'true');
+        } else {
+            document.exitFullscreen();
+            localStorage.setItem('isFullscreen', 'false');
+        }
+    }
+
+    document.addEventListener("fullscreenchange", function () {
+        if (document.fullscreenElement) {
+            fullscreenButton.innerText = "Exit Fullscreen";
+        } else {
+            fullscreenButton.innerText = "Toggle Fullscreen";
+        }
+    });
+
+    function adjustModalHeight() {
+        if (document.fullscreenElement) {
+            modalDialog.style.height = '100vh';
+        } else {
+            modalDialog.style.height = '';
+        }
+    }
+
+    document.addEventListener("fullscreenchange", adjustModalHeight);
+</script>
+
+<script>
 let playlist = JSON.parse(localStorage.getItem('playlist')) || [];
 let currentIndex = 0;
 
 document.addEventListener("DOMContentLoaded", function () {
     updatePlaylistUI();
+    setupHoverControls();
 });
 
 function clearPlaylist() {
@@ -4100,6 +4160,125 @@ function openVideoPlayerModal() {
 
 function savePlaylistToLocalStorage() {
     localStorage.setItem('playlist', JSON.stringify(playlist));
+}
+
+function toggleView() {
+    const mediaContainer = document.querySelector('.media-container');
+    const playlistContainer = document.querySelector('.playlist-container');
+
+    if (mediaContainer.style.display === "none") {
+        mediaContainer.style.display = "block";
+        playlistContainer.style.display = "none";
+    } else {
+        mediaContainer.style.display = "none";
+        playlistContainer.style.display = "block";
+    }
+}
+
+function setupHoverControls() {
+    const videoElement = document.getElementById('videoPlayer');
+    const hoverControls = document.createElement('div');
+    hoverControls.id = 'hoverControls';
+    hoverControls.style.display = 'none';
+    hoverControls.style.position = 'absolute';
+    hoverControls.style.bottom = '60px';
+    hoverControls.style.left = '36%';
+    hoverControls.style.transform = 'translateX(-36%)';
+    hoverControls.style.padding = '10px';
+    hoverControls.style.background = 'rgba(0, 0, 0, 0.5)';
+    hoverControls.style.borderRadius = '5px';
+    hoverControls.style.zIndex = '1000';
+    hoverControls.innerHTML = `
+        <button id="prevButton" style="background: none; border: none;">
+            <i class="fas fa-backward" style="color: white; font-size: 24px;"></i>
+        </button>
+        <button id="playPauseButton" style="background: none; border: none;">
+            <i class="fas fa-play" style="color: white; font-size: 24px;"></i>
+        </button>
+        <button id="nextButton" style="background: none; border: none;">
+            <i class="fas fa-forward" style="color: white; font-size: 24px;"></i>
+        </button>
+        <button id="pipButton" style="background: none; border: none;">
+            <i class="fas fa-compress" style="color: white; font-size: 24px;"></i>
+        </button>
+        <i id="volumeIcon" class="fas fa-volume-up" style="color: white; font-size: 24px; margin-left: 10px; cursor: pointer;"></i>
+        <input type="range" id="volumeSlider" min="0" max="1" step="0.1" value="1" style="width: 100px;">
+    `;
+    videoElement.parentElement.appendChild(hoverControls);
+
+    document.getElementById('prevButton').onclick = () => playNextVideo();
+    document.getElementById('nextButton').onclick = () => playNextVideo(); 
+    document.getElementById('pipButton').onclick = () => togglePictureInPicture(videoElement);
+
+    const playPauseButton = document.getElementById('playPauseButton');
+    playPauseButton.onclick = () => {
+        if (videoElement.paused) {
+            videoElement.play();
+            playPauseButton.innerHTML = '<i class="fas fa-pause" style="color: white; font-size: 24px;"></i>';
+        } else {
+            videoElement.pause();
+            playPauseButton.innerHTML = '<i class="fas fa-play" style="color: white; font-size: 24px;"></i>';
+        }
+    };
+
+    const volumeSlider = document.getElementById('volumeSlider');
+    const volumeIcon = document.getElementById('volumeIcon');
+    
+    volumeSlider.oninput = (event) => {
+        videoElement.volume = event.target.value;
+        updateVolumeIcon(videoElement.volume);
+    };
+
+    volumeIcon.onclick = () => {
+        if (videoElement.volume > 0) {
+            videoElement.volume = 0;
+            updateVolumeIcon(0);
+            volumeSlider.value = 0;
+        } else {
+            videoElement.volume = 1;
+            updateVolumeIcon(1);
+            volumeSlider.value = 1;
+        }
+    };
+
+    function updateVolumeIcon(volume) {
+        if (volume == 0) {
+            volumeIcon.className = "fas fa-volume-mute";
+        } else if (volume > 0 && volume <= 0.5) {
+            volumeIcon.className = "fas fa-volume-down";
+        } else {
+            volumeIcon.className = "fas fa-volume-up";
+        }
+    }
+
+    function showHoverControls() {
+        const currentMedia = playlist[currentIndex]?.url || "";
+        if (/\.(mp4|avi|mkv|mov|wmv)$/i.test(currentMedia)) {
+            hoverControls.style.display = 'block';
+        } else {
+            hoverControls.style.display = 'none';
+        }
+    }
+
+    videoElement.addEventListener('mouseenter', showHoverControls);
+    videoElement.addEventListener('mouseleave', () => {
+        hoverControls.style.display = 'none';
+    });
+
+    hoverControls.addEventListener('mouseenter', showHoverControls);
+    hoverControls.addEventListener('mouseleave', () => {
+        hoverControls.style.display = 'none';
+    });
+}
+
+function togglePictureInPicture(videoElement) {
+    if (document.pictureInPictureElement) {
+        document.exitPictureInPicture();
+        document.getElementById('pipButton').innerHTML = '<i class="fas fa-compress" style="color: white; font-size: 24px;"></i>';
+    } else {
+        videoElement.requestPictureInPicture();
+        document.getElementById('pipButton').innerHTML = '<i class="fas fa-expand" style="color: white; font-size: 24px;"></i>';
+    }
 }
 </script>
 
@@ -4438,33 +4617,33 @@ window.addEventListener('load', function() {
     });
 
     document.getElementById('resetButton').addEventListener('click', function() {
-      document.getElementById('primaryColor').value = '#0ceda2';
+      document.getElementById('primaryColor').value = '#30e8dc';
       document.getElementById('secondaryColor').value = '#00ffff';
       document.getElementById('bodyBgColor').value = '#23407e';
       document.getElementById('infoBgSubtle').value = '#23407e';
       document.getElementById('backgroundColor').value = '#20cdd9';
       document.getElementById('primaryBorderSubtle').value = '#1815d1';
-      document.getElementById('checkColor').value = '#0eaf3e';
-      document.getElementById('labelColor').value = '#0eaf3e';
+      document.getElementById('checkColor').value = '#f8f9fa';
+      document.getElementById('labelColor').value = '#248cf5';
       document.getElementById('lineColor').value = '#f515f9';
-      document.getElementById('controlColor').value = '#0eaf3e';
-      document.getElementById('placeholderColor').value = '#f82af2';
+      document.getElementById('controlColor').value = '#f8f9fa';
+      document.getElementById('placeholderColor').value = '#f8f9fa';
       document.getElementById('disabledColor').value = '#23407e';
       document.getElementById('logTextColor').value = '#f8f9fa';
       document.getElementById('selectColor').value = '#23407e';
-      document.getElementById('radiusColor').value = '#14b863';
-      document.getElementById('bodyColor').value = '#04f153';
+      document.getElementById('radiusColor').value = '#28edf0';
+      document.getElementById('bodyColor').value = '#4eedf9';
       document.getElementById('tertiaryColor').value = '#46e1ec';
       document.getElementById('ipColor').value = '#09b63f';
       document.getElementById('ipipColor').value = '#ff69b4';
-      document.getElementById('detailColor').value = '#FFFFFF';
+      document.getElementById('detailColor').value = '#15d1bb';
       document.getElementById('outlineColor').value = '#0dcaf0';
       document.getElementById('successColor').value = '#28a745';
       document.getElementById('infoColor').value = '#0ca2ed';
       document.getElementById('warningColor').value = '#ffc107';
       document.getElementById('pinkColor').value = '#f82af2';
       document.getElementById('dangerColor').value = '#dc3545';
-      document.getElementById('tertiaryRgbColor').value = '#1e90ff';
+      document.getElementById('tertiaryRgbColor').value = '#df38f5';
       document.getElementById('heading1Color').value = '#21e4f2';
       document.getElementById('heading2Color').value = '#65f1fb';
       document.getElementById('heading3Color').value = '#ffcc00';

@@ -34,8 +34,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $ipipColor = $_POST['ipipColor'] ?? '#ff69b4';
     $detailColor = $_POST['detailColor'] ?? '#FFFFFF';
     $themeName = isset($_POST['themeName']) ? $_POST['themeName'] : 'transparent';   
-    $containerWidth = $_POST['containerWidth'] ?? '1400';  
-
 
     $themeName = preg_replace('/[^a-zA-Z0-9_\-一-龯]/u', '', $themeName);
     if (empty($themeName)) {
@@ -85,7 +83,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       --bs-ip-bg: $ipColor;
       --bs-ipip-bg: $ipipColor;
       --bs-detail-bg: $detailColor;
-      --container-width: {$containerWidth}px;
 
       --bs-primary-border-subtle: $primaryBorderSubtle; 
       --bs-tertiary: $tertiaryColor; 
