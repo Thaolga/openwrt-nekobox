@@ -2069,7 +2069,8 @@ window.addEventListener('load', function() {
     left: 50%; 
     transform: translateX(-50%);
     top: 53px; 
-    background: rgba(0, 0, 0, 0.7);  
+    background: rgba(0, 0, 0, 0.1);  
+    backdrop-filter: blur(10px);  
     color: #FFD700; 
     padding: 10px 15px;
     border-radius: 10px;
