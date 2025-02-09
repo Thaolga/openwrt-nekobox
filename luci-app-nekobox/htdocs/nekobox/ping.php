@@ -1765,6 +1765,28 @@ window.addEventListener('load', function() {
 }
 </style>
 
+<style>
+.floating-lyrics {
+    position: fixed;
+    left: 50%;
+    transform: translateX(-50%);
+    top: 53px;
+    background: rgba(0, 0, 0, 0.1);  
+    backdrop-filter: blur(10px);  
+    color: #FFD700;
+    padding: 10px 15px;
+    border-radius: 10px;
+    font-size: 16px;
+    display: none; 
+    min-width: 100px;
+    max-width: 80%;
+    word-wrap: break-word;
+    white-space: nowrap;
+    z-index: 9999;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.7);
+}
+</style>
+<div id="floatingLyrics" class="floating-lyrics"></div>
 <div class="modal fade" id="audioPlayerModal" tabindex="-1" aria-labelledby="audioPlayerModalLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
   <div class="modal-dialog modal-xl" role="document">
     <div class="modal-content">
@@ -1795,6 +1817,7 @@ window.addEventListener('load', function() {
         </button>
         <button class="btn btn-outline-primary mt-3 ms-2" type="button" data-bs-toggle="modal" data-bs-target="#urlModal">🔗 Customize Playlist</button>
         <button class="btn btn-outline-primary mt-3 ms-2" id="clearStorageBtn"><i class="fas fa-trash-alt"></i> Clear Player Settings</button>
+        <button class="btn btn-outline-primary mt-3 ms-2"  id="pinLyricsButton"><i class="fas fa-thumbtack"></i> Desktop Lyrics</button>
         <div id="playlistCollapse" class="collapse mt-3">
           <h3>Track List</h3>
           <ul id="trackList" class="list-group"></ul>
@@ -1815,6 +1838,7 @@ let isReportingTime = false;
 let isLooping = false;
 let hasModalShown = false;
 let lyrics = {};
+let isPinned = false; 
 
 const logBox = document.createElement('div');
 logBox.style.position = 'fixed';
@@ -2282,15 +2306,48 @@ function syncLyrics() {
     const lyricsContainer = document.getElementById('lyricsContainer');
     const lines = lyricsContainer.querySelectorAll('.lyric-line');
 
+    let currentLine = null;
+
     lines.forEach(line => {
         const time = parseFloat(line.dataset.time);
         if (currentTime >= time) {
             lines.forEach(l => l.classList.remove('highlight'));
             line.classList.add('highlight');
+            currentLine = line;
             line.scrollIntoView({ behavior: 'smooth', block: 'center' });
         }
     });
+
+    if (isPinned && currentLine) {
+        const floatingLyrics = document.getElementById('floatingLyrics');
+        floatingLyrics.textContent = currentLine.textContent;
+        floatingLyrics.style.display = 'block';  
+    }
 }
+
+document.addEventListener('DOMContentLoaded', () => {
+    isPinned = localStorage.getItem('isPinned') === 'true';
+    const floatingLyrics = document.getElementById('floatingLyrics');
+
+    if (isPinned) {
+        floatingLyrics.style.display = 'block';
+    } else {
+        floatingLyrics.style.display = 'none'; 
+    }
+});
+
+document.getElementById('pinLyricsButton').addEventListener('click', () => {
+    isPinned = !isPinned;
+    localStorage.setItem('isPinned', isPinned); 
+
+    const floatingLyrics = document.getElementById('floatingLyrics');
+
+    if (isPinned) {
+        floatingLyrics.style.display = 'block';
+    } else {
+        floatingLyrics.style.display = 'none';
+    }
+}); 
 
 document.addEventListener('dblclick', function() {
     const lastShownTime = localStorage.getItem('lastModalShownTime');
