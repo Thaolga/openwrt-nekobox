@@ -2039,6 +2039,7 @@ window.addEventListener('load', function() {
     text-align: center;
     color: #fff; 
     font-family: 'SimSun', 'Songti SC', '宋体', serif; 
+    font-size: 1.1rem; 
 }
 
 .lyrics-container .highlight {
@@ -2564,7 +2565,10 @@ function displayLyrics() {
         const line = document.createElement('div');
         line.className = 'lyric-line';
         line.dataset.time = time;
-        line.textContent = lyrics[time];
+
+        const lyricText = lyrics[time].replace(/\[\d{2}:\d{2}\.\d{3}\]/g, '').trim();
+
+        line.textContent = lyricText;
         lyricsContainer.appendChild(line);
     });
 
