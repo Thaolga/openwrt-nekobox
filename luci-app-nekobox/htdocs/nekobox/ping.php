@@ -2267,7 +2267,10 @@ function displayLyrics() {
         const line = document.createElement('div');
         line.className = 'lyric-line';
         line.dataset.time = time;
-        line.textContent = lyrics[time];
+
+        const lyricText = lyrics[time].replace(/\[\d{2}:\d{2}\.\d{3}\]/g, '').trim();
+
+        line.textContent = lyricText;
         lyricsContainer.appendChild(line);
     });
 
