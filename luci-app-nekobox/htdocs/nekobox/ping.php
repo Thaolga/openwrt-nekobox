@@ -1605,7 +1605,7 @@ window.addEventListener('load', function() {
 }
 
 #playlistCollapse {
-    max-height: 620px; 
+    max-height: 500px; 
     overflow-y: auto;  
     overflow-x: hidden; 
     background-color: rgba(0, 0, 0, 0.8); 
@@ -1730,6 +1730,41 @@ window.addEventListener('load', function() {
 }
 </style>
 
+<style>
+.lyrics-container {
+    max-height: 220px;
+    overflow-y: auto;
+    margin-top: 20px;
+    border: 1px solid #333;
+    padding: 10px;
+    background-color: #000; 
+    border-radius: 5px;
+    text-align: center;
+    color: #fff; 
+    font-family: 'SimSun', 'Songti SC', '宋体', serif; 
+}
+
+.lyrics-container .highlight {
+    color: #ff0; 
+    font-weight: bold;
+}
+
+.lyrics-container::-webkit-scrollbar {
+    width: 13.5px; 
+}
+
+.lyrics-container::-webkit-scrollbar-track {
+    background: #000; 
+}
+
+.lyrics-container::-webkit-scrollbar-thumb {
+    background-color: #007bff; 
+    border-radius: 10px; 
+    border: 3px solid #000; 
+}
+}
+</style>
+
 <div class="modal fade" id="audioPlayerModal" tabindex="-1" aria-labelledby="audioPlayerModalLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
   <div class="modal-dialog modal-xl" role="document">
     <div class="modal-content">
@@ -1755,7 +1790,7 @@ window.addEventListener('load', function() {
           <button id="modalLoopButton" class="btn btn-warning">🔁 Loop</button>
           <div class="track-name" id="trackName">No Track</div>
         </div>
-        <button class="btn btn-outline-primary mt-3" type="button" data-bs-toggle="collapse" data-bs-target="#playlistCollapse">
+        <button class="btn btn-outline-primary mt-3" type="button" data-bs-toggle="collapse" data-bs-target="#playlistCollapse" aria-expanded="true">
           📜 Show/Hide Playlist
         </button>
         <button class="btn btn-outline-primary mt-3 ms-2" type="button" data-bs-toggle="modal" data-bs-target="#urlModal">🔗 Customize Playlist</button>
@@ -1764,6 +1799,7 @@ window.addEventListener('load', function() {
           <h3>Track List</h3>
           <ul id="trackList" class="list-group"></ul>
         </div>
+        <div class="lyrics-container" id="lyricsContainer"></div>
         <div id="tooltip"></div>
       </div>
     </div>
@@ -1778,6 +1814,7 @@ let isPlaying = false;
 let isReportingTime = false;
 let isLooping = false;
 let hasModalShown = false;
+let lyrics = {};
 
 const logBox = document.createElement('div');
 logBox.style.position = 'fixed';
@@ -1866,6 +1903,8 @@ function updateTrackListUI() {
             if (isPlaying) audioPlayer.play();
             updateTrackName();
             highlightCurrentSong();
+            showLogMessage(`Playlist clicked: Index ${index}, Song Name: ${trackItem.textContent.trim()}`);
+            savePlayerState();
         });
 
         trackItem.addEventListener('dragstart', handleDragStart);
@@ -1924,7 +1963,8 @@ function saveSongOrder() {
 }
 
 function extractSongName(url) {
-    return decodeURIComponent(url.split('/').pop());
+    const parts = url.split('/');
+    return decodeURIComponent(parts[parts.length - 1]);
 }
 
 function updateTrackName() {
@@ -1945,15 +1985,16 @@ function loadSong(index) {
         audioPlayer.src = songs[index];
         audioPlayer.addEventListener('loadedmetadata', () => {
             const savedState = JSON.parse(localStorage.getItem('playerState'));
-            if (savedState) {
+            if (savedState && savedState.timestamp) {
                 audioPlayer.currentTime = savedState.currentTime || 0;
                 if (savedState.isPlaying) {
                     audioPlayer.play().catch(error => {
-                        console.error('Failed to resume playback:', error);
+                        console.error('Failed to restore playback:', error);
                     });
                 }
             }
         }, { once: true });
+        loadLyrics(songs[index]);
     }
     highlightCurrentSong(); 
 }
@@ -2016,11 +2057,6 @@ function updateTrackName() {
     } else {
         document.getElementById('trackName').textContent = 'No Song';
     }
-}
-
-function extractSongName(url) {
-    const parts = url.split('/');
-    return decodeURIComponent(parts[parts.length - 1]);
 }
 
 audioPlayer.addEventListener('ended', () => {
@@ -2136,6 +2172,8 @@ function savePlayerState() {
         currentTime: audioPlayer.currentTime,
         isPlaying,
         isLooping,
+        playlistCollapsed: document.getElementById('playlistCollapse').classList.contains('show'),
+        lastPlayedSong: extractSongName(songs[currentSongIndex]),
         timestamp: Date.now()
     };
     localStorage.setItem('playerState', JSON.stringify(state));
@@ -2174,17 +2212,81 @@ function restorePlayerState() {
     if (state) {
         currentSongIndex = state.currentSongIndex || 0;
         isLooping = state.isLooping || false;
+        if (state.playlistCollapsed) {
+            document.getElementById('playlistCollapse').classList.remove('show');
+        } else {
+            document.getElementById('playlistCollapse').classList.add('show');
+        }
         loadSong(currentSongIndex);
         if (state.isPlaying) {
             isPlaying = true;
-            playPauseButton.textContent = 'Pause';
+            playPauseButton.textContent = '⏸️ Pause';
             audioPlayer.currentTime = state.currentTime || 0;
             audioPlayer.play().catch(error => {
-                console.error('Failed to resume playback:', error);
+                console.error('Failed to restore playback:', error);
             });
-            playPauseButton.textContent = '⏸️ Pause';
         }
+        console.log(`Restored playback: ${state.lastPlayedSong}, Timestamp: ${new Date(state.timestamp).toLocaleString()}`);
     }
+}
+
+function loadLyrics(songUrl) {
+    const lyricsUrl = songUrl.replace(/\.\w+$/, '.lrc'); 
+    fetch(lyricsUrl)
+        .then(response => response.arrayBuffer())
+        .then(buffer => {
+            const decoder = new TextDecoder('utf-8');
+            const text = decoder.decode(buffer);
+            parseLyrics(text);
+            displayLyrics();
+        })
+        .catch(error => {
+            console.error('Failed to load lyrics:', error.message);
+        });
+}
+
+function parseLyrics(lyricsText) {
+    lyrics = {};
+    const regex = /\[(\d+):(\d+)\.(\d+)\](.+)/g;
+    let match;
+    while ((match = regex.exec(lyricsText)) !== null) {
+        const minutes = parseInt(match[1], 10);
+        const seconds = parseInt(match[2], 10);
+        const millis = parseInt(match[3], 10);
+        const time = minutes * 60 + seconds + millis / 1000;
+        lyrics[time] = match[4];
+    }
+}
+
+function displayLyrics() {
+    const lyricsContainer = document.getElementById('lyricsContainer');
+    lyricsContainer.innerHTML = '';
+
+    const times = Object.keys(lyrics).map(parseFloat).sort((a, b) => a - b);
+    times.forEach(time => {
+        const line = document.createElement('div');
+        line.className = 'lyric-line';
+        line.dataset.time = time;
+        line.textContent = lyrics[time];
+        lyricsContainer.appendChild(line);
+    });
+
+    audioPlayer.addEventListener('timeupdate', syncLyrics);
+}
+
+function syncLyrics() {
+    const currentTime = audioPlayer.currentTime;
+    const lyricsContainer = document.getElementById('lyricsContainer');
+    const lines = lyricsContainer.querySelectorAll('.lyric-line');
+
+    lines.forEach(line => {
+        const time = parseFloat(line.dataset.time);
+        if (currentTime >= time) {
+            lines.forEach(l => l.classList.remove('highlight'));
+            line.classList.add('highlight');
+            line.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+    });
 }
 
 document.addEventListener('dblclick', function() {
@@ -3550,6 +3652,21 @@ input[type="range"]:focus {
     }
 }
 
+@media (max-width: 768px) {
+    .modal-body .d-flex {
+        align-items: stretch;  
+        gap: 10px; 
+    }
+    .modal-body .btn {
+        width: 100%; 
+        text-align: center;
+        margin-bottom: 8px; 
+        padding: 10px; 
+    }
+    .modal-body .btn:last-child {
+        margin-bottom: 0; 
+    }
+}
 </style>
 
 <script>
@@ -3608,20 +3725,16 @@ input[type="range"]:focus {
                 </button>
             </div>
             <div class='modal-body'>
-                <div class='mb-4 d-flex justify-content-between align-items-center'>
+                <div class='mb-4 d-flex flex-wrap gap-2 justify-content-start align-items-center'>
                     <div>
-                        <button type="button" class="btn btn-success mr-3" onclick="selectAll()"><i class="fas fa-check-square"></i> Select All</button>
-                        <button type="button" class="btn btn-warning mr-3" onclick="deselectAll()"><i class="fas fa-square"></i> Deselect All</button>
-                        <button type="button" class="btn btn-danger" onclick="batchDelete()"><i class="fas fa-trash-alt"></i> Batch Delete</button>
-                        <span id="selectedCount" class="ms-2" style="display: none;">Selected 0 files, Total 0 MB</span>
-                    </div>
-                    <div>
-                        <button type='button' class='btn btn-primary mr-3' onclick='openVideoPlayerModal()' title="Check to add to playlist"><i class='fas fa-play'></i> Play Video</button>
-                        <button type="button" class="btn btn-pink mr-3" onclick="sortFiles()"><i class="fas fa-sort"></i> Sort</button>
-                        <button type="button" class="btn btn-primary mr-3" data-bs-toggle="modal" data-bs-target="#newuploadModal">
+                        <button type="button" class="btn btn-success me-2" id="selectToggleBtn" onclick="toggleSelectAll()"><i class="fas fa-check-square"></i> Select All</button>
+                        <button type="button" class="btn btn-danger me-2" onclick="batchDelete()"><i class="fas fa-trash-alt"></i> Batch Delete</button>
+                        <button type='button' class='btn btn-primary me-2' onclick='openVideoPlayerModal()' title="Check to add to playlist"><i class='fas fa-play'></i> Play Video</button>
+                        <button type="button" class="btn btn-primary me-2" data-bs-toggle="modal" data-bs-target="#newuploadModal">
                             <i class="fas fa-cloud-upload-alt"></i> Upload Files
                         </button>
                         <button type="button" class="btn btn-danger delete-btn" onclick="setBackground('', '', 'remove')"><i class="fas fa-trash"></i> Remove Background</button>
+                        <span id="selectedCount" class="ms-2" style="display: none;">Selected 0 files, Total 0 MB</span>
                     </div>
                 </div>
                 <table class="table table-bordered text-center">
@@ -4309,22 +4422,35 @@ function batchDelete() {
     });
 }
 
+function toggleSelectAll() {
+    var checkboxes = document.querySelectorAll('.file-checkbox');
+    var selectToggleBtn = document.getElementById('selectToggleBtn');
+    var allSelected = Array.from(checkboxes).every(checkbox => checkbox.checked);
+
+    checkboxes.forEach(checkbox => checkbox.checked = !allSelected);
+    selectToggleBtn.innerHTML = allSelected ? '<i class="fas fa-check-square"></i> Select All' : '<i class="fas fa-square"></i> Deselect';
+    updateSelectedCount();
+}
+
 function updateSelectedCount() {
-    const checkboxes = document.querySelectorAll('.file-checkbox:checked');
-    const selectedCount = checkboxes.length;
-    let totalSize = 0;
+    var checkboxes = document.querySelectorAll('.file-checkbox:checked');
+    var selectedCount = checkboxes.length;
+    var totalSize = Array.from(checkboxes).reduce((sum, checkbox) => sum + parseInt(checkbox.dataset.size), 0);
 
-    checkboxes.forEach(checkbox => {
-        totalSize += parseInt(checkbox.getAttribute('data-size'), 10);
-    });
+    var selectedCountElement = document.getElementById('selectedCount');
+    selectedCountElement.style.display = selectedCount > 0 ? 'inline' : 'none';
+    selectedCountElement.textContent = `Selected ${selectedCount} files, total ${formatFileSize(totalSize)}`;
+}
 
-    const totalSizeMB = (totalSize / 1048576).toFixed(2); 
-    const selectedCountElement = document.getElementById('selectedCount');
-    if (selectedCount > 0) {
-        selectedCountElement.style.display = 'inline';
-        selectedCountElement.innerText = `Selected ${selectedCount} files, totaling ${totalSizeMB} MB`;
+function formatFileSize(size) {
+    if (size >= 1073741824) {
+        return (size / 1073741824).toFixed(2) + ' GB';
+    } else if (size >= 1048576) {
+        return (size / 1048576).toFixed(2) + ' MB';
+    } else if (size >= 1024) {
+        return (size / 1024).toFixed(2) + ' KB';
     } else {
-        selectedCountElement.style.display = 'none';
+        return size + ' bytes';
     }
 }
 
