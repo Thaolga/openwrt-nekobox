@@ -11490,30 +11490,3 @@ window.addEventListener('load', function() {
   });
 </script>
 
-
-<!-- BG_START -->
-<style>
-            body {
-                background: transparent;
-                position: relative;
-                margin: 0;
-                padding: 0;
-                height: 100vh;
-            }
-
-            .video-background {
-                position: fixed;
-                top: 0;
-                left: 0;
-                width: 100%;
-                height: 100%;
-                object-fit: contain;
-                z-index: -1;
-            }
-
-        </style>
-
-        <video class="video-background" autoplay loop id="background-video">
-            <source src='/nekobox/assets/Pictures/67aa0e89dddbe-BMjAyMTA4MzExMjE4NDZfNDU1MTU2MF81NjMyOTk5OTI5NF8xXzM_b_B3f0018.mp4' type='video/mp4'>
-            您的浏览器不支持视频标签。
-        </video><!-- BG_END -->
