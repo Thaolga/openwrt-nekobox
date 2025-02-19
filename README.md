@@ -49,12 +49,6 @@ Depedencies
   - ` kmod-tun `
   - ` iptables `/` xtables-nft `
 
-# Chinese version repository address. [nekobox](https://github.com/Thaolga/openwrt-nekobox/tree/nekobox) 
-
-```bash
-git clone https://github.com/Thaolga/openwrt-nekobox package/openwrt-nekobox && cd package/openwrt-nekobox && git checkout nekobox
-
-```
 
 # OpenWrt One-Click Installation Script
 ---

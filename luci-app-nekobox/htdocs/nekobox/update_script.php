@@ -31,7 +31,7 @@ if (empty($new_version)) {
     die("No latest version found or version information is empty");
 }
 
-$installed_lang = isset($_GET['lang']) ? $_GET['lang'] : 'en'; 
+$installed_lang = isset($_GET['lang']) ? $_GET['lang'] : 'cn'; 
 
 if ($installed_lang !== 'cn' && $installed_lang !== 'en') {
     die("Invalid language selection. Please choose 'cn' or 'en'");

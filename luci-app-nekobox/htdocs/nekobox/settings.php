@@ -1,6 +1,7 @@
 <?php
 
 include './cfg.php';
+
 $themeDir = "$neko_www/assets/theme";
 $tmpPath = "$neko_www/lib/selected_config.txt";
 $arrFiles = array();
@@ -137,6 +138,7 @@ function getCliverVersion() {
 $cliverData = getCliverVersion();
 $cliverVersion = $cliverData['version']; 
 $cliverType = $cliverData['type']; 
+
 $singBoxVersionInfo = getSingboxVersion();
 $singBoxVersion = $singBoxVersionInfo['version'];
 $singBoxType = $singBoxVersionInfo['type'];
@@ -164,6 +166,8 @@ $razordVersion = getRazordVersion();
     <link href="./assets/theme/<?php echo $neko_theme ?>" rel="stylesheet">
     <link href="./assets/css/custom.css" rel="stylesheet">
     <link href="./assets/bootstrap/bootstrap-icons.css" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css?v=<?php echo time(); ?>" />
+    <script src="script.js?v=<?php echo time(); ?>"></script>
     <script type="text/javascript" src="./assets/js/bootstrap.min.js"></script>
     <script type="text/javascript" src="./assets/js/feather.min.js"></script>
     <script type="text/javascript" src="./assets/bootstrap/bootstrap.bundle.min.js"></script>
@@ -172,42 +176,44 @@ $razordVersion = getRazordVersion();
     <?php include './ping.php'; ?>
   </head>
 <style>
-
-@media (max-width: 767px) {
     .form-select {
-        width: 100%;  
-        margin-left: 0;  
+        margin-left: 10px;
+        margin-right: 16px;
     }
 
-    .col-12.col-md-6 {
-        padding-left: 10px;  
-        padding-right: 18px;
+    @media (max-width: 576px) {
+        .btn-custom {
+            width: 30%; 
+            margin: 0 auto; 
+            display: block; 
     }
-}
 
-@media (max-width: 767px) {
-    .btn-custom {
-        margin-left: 10px;  
+        .btn-fw {
+            width: 100%; 
+            margin-right: 0; 
+            margin-bottom: 10px; 
+        }
 
+        .container .form-select {
+            margin-right: 6ch;
+            width: calc(100% - 1.8ch); 
+        }
     }
-}
 
 </style>
   <body>
-
-<div class="container-sm container-bg text-center callout border border-3 rounded-4 col-11">
-    <div class="row">
-        <a href="./index.php" class="col btn btn-lg text-nowrap"><i class="bi bi-house-door"></i> Home</a>
-        <a href="./dashboard.php" class="col btn btn-lg text-nowrap"><i class="bi bi-bar-chart"></i> Panel</a>
-        <a href="./singbox.php" class="col btn btn-lg text-nowrap"><i class="bi bi-box"></i> Document</a> 
-        <a href="./settings.php" class="col btn btn-lg text-nowrap"><i class="bi bi-gear"></i> Settings</a>
-
+    <div class="container-sm container-bg text-center callout border border-3 rounded-4 col-11">
+        <div class="row">
+        <a href="./index.php" class="col btn btn-lg text-nowrap"><i class="bi bi-house-door"></i> <span data-translate="home">Home</span></a>
+        <a href="./dashboard.php" class="col btn btn-lg text-nowrap"><i class="bi bi-bar-chart"></i> <span data-translate="panel">Panel</span></a>
+        <a href="./singbox.php" class="col btn btn-lg text-nowrap"><i class="bi bi-box"></i> <span data-translate="document">Document</span></a> 
+        <a href="./settings.php" class="col btn btn-lg text-nowrap"><i class="bi bi-gear"></i> <span data-translate="settings">Settings</span></a>
 <div class="container px-4">
-    <h2 class="text-center p-2 mb-4">Theme Settings</h2>
+    <h2 class="text-center p-2 mb-4" data-translate="theme_settings">Theme Settings</h2>
     <form action="settings.php" method="post">
         <div class="row justify-content-center">
-            <div class="col-12 col-md-6 mb-3 d-flex">
-                <select class="form-select" name="themechange" aria-label="themex" style="margin-left: 10px;">
+            <div class="col-12 col-md-6 mb-3">
+                <select class="form-select" name="themechange" aria-label="themex">
                     <option selected>Change Theme (<?php echo $neko_theme ?>)</option>
                     <?php foreach ($arrFiles as $file) echo "<option value=\"".$file.'">'.$file."</option>" ?>
                 </select>
@@ -215,13 +221,14 @@ $razordVersion = getRazordVersion();
             <div class="col-12 col-md-6 mb-3" style="padding-right: 1.3rem;" >
                 <div class="d-flex justify-content-between gap-2">
                     <button class="btn btn-info btn-custom" type="submit">
-                        <i class="bi bi-paint-bucket"></i> Change Theme
+                        <i class="bi bi-paint-bucket"></i> <span data-translate="change_theme_button">Change Theme</span>
                     </button>
-                    <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#colorModal">
+
+                    <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#colorModal" data-translate="theme_editor">
                         <i class="bi-palette"></i> Theme Editor
                     </button>
                     
-                    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#filesModal">
+                    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#filesModal" data-translate="set_background">
                         <i class="bi-camera-video"></i> Set as Background
                     </button>
                 </div>
@@ -234,11 +241,11 @@ $razordVersion = getRazordVersion();
         <tr>
             <td colspan="2">
                 <div class="table-container">
-                    <h2 class="text-center mb-3">Software Information</h2>
+                    <h2 class="text-center mb-3" data-translate="software_information_title">Software Information</h2>
                     <form action="settings.php" method="post">
                         <div class="btn-group d-flex justify-content-center">
-                            <button type="submit" name="fw" value="enable" class="btn btn-success <?php if($fwstatus==1) echo "disabled" ?>">Enable</button>
-                            <button type="submit" name="fw" value="disable" class="btn btn-danger <?php if($fwstatus==0) echo "disabled" ?>">Disable</button>
+                            <button type="submit" name="fw" value="enable" class="btn btn-success <?php if($fwstatus==1) echo "disabled" ?>" data-translate="enable_button">Enable</button>
+                            <button type="submit" name="fw" value="disable" class="btn btn-danger <?php if($fwstatus==0) echo "disabled" ?>" data-translate="disable_button">Disable</button>
                         </div>
                     </form>
                 </div>
@@ -247,21 +254,21 @@ $razordVersion = getRazordVersion();
         <tr>
             <td>
                 <div class="table-container">
-                    <h2>Client Version</h2>
+                    <h2 data-translate="client_version_title">Client Version</h2>
                     <p id="cliver" class="text-center" style="font-family: monospace;"></p>
                     <div class="text-center">
-                        <button class="btn btn-pink me-1" id="checkCliverButton"><i class="bi bi-search"></i> Detect</button>
-                        <button class="btn btn-info" id="updateButton" title="Update to Latest Version" onclick="showVersionTypeModal()"><i class="bi bi-arrow-repeat"></i> Update</button>
+                        <button class="btn btn-pink me-1" id="checkCliverButton"><i class="bi bi-search"></i> <span data-translate="detect_button">Detect</span></button>
+                        <button class="btn btn-info" id="updateButton" title="Update to Latest Version" onclick="showUpdateVersionModal()"><i class="bi bi-arrow-repeat"></i> <span data-translate="update_button">Update</span></button>
                     </div>
                 </div>
             </td>
             <td>
                 <div class="table-container">
-                    <h2>Ui Panel</h2>
+                    <h2 data-translate="ui_panel_title">Ui Panel</h2>
                     <p class="text-center"><?php echo htmlspecialchars($uiVersion); ?></p>
                     <div class="text-center">
-                        <button class="btn btn-pink me-1" id="checkUiButton"><i class="bi bi-search"></i> Detect</button>
-                        <button class="btn btn-info" id="updateUiButton" title="Update Panel" onclick="showPanelSelector()"><i class="bi bi-arrow-repeat"></i> Update</button>
+                        <button class="btn btn-pink me-1" id="checkUiButton"><i class="bi bi-search"></i> <span data-translate="detect_button">Detect</span></button>
+                        <button class="btn btn-info" id="updateUiButton" title="Update Panel" onclick="showPanelSelector()"><i class="bi bi-arrow-repeat"></i> <span data-translate="update_button">Update</span></button>
                     </div>
                 </div>
             </td>
@@ -269,87 +276,47 @@ $razordVersion = getRazordVersion();
         <tr>
             <td>
                 <div class="table-container">
-                    <h2>Sing-box Core Version</h2>
+                    <h2 data-translate="singbox_core_version_title">Sing-box Core Version</h2>
                     <p id="singBoxCorever" class="text-center"><?php echo htmlspecialchars($singBoxVersion); ?></p>
                     <div class="text-center">
-                        <button class="btn btn-pink me-1" id="checkSingboxButton"><i class="bi bi-search"></i> Detect</button>
-                        <button class="btn btn-info" id="singboxOptionsButton" title="Singbox Related Operations"><i class="bi bi-arrow-repeat"></i> Update</button>
+                        <button class="btn btn-pink me-1" id="checkSingboxButton"><i class="bi bi-search"></i> <span data-translate="detect_button">Detect</span></button>
+                        <button class="btn btn-info" id="singboxOptionsButton" title="Singbox Related Operations"><i class="bi bi-arrow-repeat"></i> <span data-translate="update_button">Update</span></button>
                     </div>
                 </div>
             </td>
             <td>
                 <div class="table-container">
-                    <h2>Mihomo Core Version</h2>
+                    <h2 data-translate="mihomo_core_version_title">Mihomo Core Version</h2>
                     <p class="text-center"><?php echo htmlspecialchars($mihomoVersion); ?></p>
                     <div class="text-center">
-                        <button class="btn btn-pink me-1" id="checkMihomoButton"><i class="bi bi-search"></i> Detect</button>
-                        <button class="btn btn-info" id="updateCoreButton" title="Update Mihomo Core" onclick="showMihomoVersionSelector()"><i class="bi bi-arrow-repeat"></i> Update</button>
+                        <button class="btn btn-pink me-1" id="checkMihomoButton"><i class="bi bi-search"></i> <span data-translate="detect_button">Detect</span></button>
+                        <button class="btn btn-info" id="updateCoreButton" title="Update Mihomo Core" onclick="showMihomoVersionSelector()"><i class="bi bi-arrow-repeat"></i> <span data-translate="update_button">Update</span></button>
                     </div>
                 </div>
             </td>
         </tr>
     </tbody>
 </table>
-<div class="modal fade" id="updateVersionTypeModal" tabindex="-1" aria-labelledby="updateVersionTypeModalLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="updateVersionTypeModalLabel">Select the update version type</h5>
-                <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-            </div>
-            <div class="modal-body">
-                <div class="form-group text-center">
-                    <button id="stableBtn" class="btn btn-success btn-lg" style="margin: 10px;" onclick="selectVersionType('stable')">Stable</button>
-                    <button id="previewBtn" class="btn btn-warning btn-lg" style="margin: 10px;" onclick="selectVersionType('preview')">Preview</button>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
 
-<div class="modal fade" id="updateLanguageModal" tabindex="-1" aria-labelledby="updateLanguageModalLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+<div class="modal fade" id="updateVersionModal" tabindex="-1" aria-labelledby="updateVersionModalLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="updateLanguageModalLabel">Select Language</h5>
-                <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h5 class="modal-title" id="updateVersionModalLabel" data-translate="stable">Select the updated version of the language</h5>
+                <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
             </div>
             <div class="modal-body">
                 <div class="form-group">
-                    <label for="languageSelect">Select Language</label>
                     <select id="languageSelect" class="form-select">
-                        <option value="en">English</option>
-                        <option value="cn">Chinese</option> 
+                        <option value="cn" data-translate="stable">Stable</option>
                     </select>
                 </div>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">cancel</button>
-                <button type="button" class="btn btn-primary" onclick="confirmLanguageSelection()">confirm</button>
-            </div>
-        </div>
-    </div>
-</div>
-
-<div class="modal fade" id="previewLanguageModal" tabindex="-1" aria-labelledby="previewLanguageModalLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="previewLanguageModalLabel">Choose Preview Language</h5>
-                <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-            </div>
-            <div class="modal-body">
-                <div class="form-group">
-                    <label for="previewLanguageSelect">Select Language</label>
-                    <select id="previewLanguageSelect" class="form-select">
-                        <option value="en">English Preview Version</option>
-                        <option value="cn">Chinese Preview Version</option>
-                    </select>
-                </div>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">cancel</button>
-                <button type="button" class="btn btn-primary" onclick="confirmPreviewLanguageSelection()">confirm</button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" data-translate="close_button">cancel</button>
+                <button type="button" class="btn btn-primary" onclick="confirmUpdateVersion()" data-translate="confirmButton">confirm</button>
             </div>
         </div>
     </div>
@@ -359,20 +326,20 @@ $razordVersion = getRazordVersion();
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="mihomoVersionSelectionModalLabel">Select Mihomo Kernel Version</h5>
+                <h5 class="modal-title" id="mihomoVersionSelectionModalLabel" data-translate="mihomo_version_modal_title">Select Mihomo Kernel Version</h5>
                 <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
             <div class="modal-body">
                 <select id="mihomoVersionSelect" class="form-select">
-                    <option value="stable">Stable</option>
-                    <option value="preview">Preview</option>
+                    <option value="stable" data-translate="mihomo_version_stable">Stable</option>
+                    <option value="preview" data-translate="mihomo_version_preview">Preview</option>
                 </select>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">cancel</button>
-                <button type="button" class="btn btn-primary" onclick="confirmMihomoVersion()">confirm</button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" data-translate="close_button">cancel</button>
+                <button type="button" class="btn btn-primary" onclick="confirmMihomoVersion()" data-translate="confirmButton">confirm</button>
             </div>
         </div>
     </div>
@@ -382,20 +349,20 @@ $razordVersion = getRazordVersion();
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="optionsModalLabel">Select Operation</h5>
+                <h5 class="modal-title" id="optionsModalLabel" data-translate="options_modal_title">Select Operation</h5>
                 <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
             <div class="modal-body">
-                <p class="text-warning">
+                <p class="text-warning" data-translate="options_modal_note">
                     <strong>Note：</strong> Please prioritize selecting the Channel 1 version for updates to ensure compatibility. The system will first check and dynamically generate the latest version number for download. If the Channel 1 update is unavailable, you can try the Channel 2 version.
                 </p>
                 <div class="d-grid gap-2">
-                    <button class="btn btn-info" onclick="showSingboxVersionSelector()">Update Singbox Core (Channel One)</button>
-                    <button class="btn btn-success" onclick="showSingboxVersionSelectorForChannelTwo()">Update Singbox Core (Channel Two)</button>
-                    <button type="button" class="btn btn-warning" id="operationOptionsButton">Other operations</button>
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button class="btn btn-info" onclick="showSingboxVersionSelector()" data-translate="singbox_channel_one">Update Singbox Core (Channel One)</button>
+                    <button class="btn btn-success" onclick="showSingboxVersionSelectorForChannelTwo()" data-translate="singbox_channel_two">Update Singbox Core (Channel Two)</button>
+                    <button type="button" class="btn btn-warning" id="operationOptionsButton" data-translate="other_operations">Other operations</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" data-translate="close_button">Close</button>
                 </div>
             </div>
         </div>
@@ -406,20 +373,20 @@ $razordVersion = getRazordVersion();
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="operationModalLabel">Select operation</h5>
+                <h5 class="modal-title" id="operationModalLabel" data-translate="operation_modal_title">Select operation</h5>
                 <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
             <div class="modal-body">
-                <p class="text-warning">
+                <p class="text-warning" data-translate="operation_modal_note">
                     <strong>Note：</strong> Please select an operation based on your requirements
                 </p>
                 <div class="d-grid gap-2">
-                    <button class="btn btn-success" onclick="selectOperation('puernya')">Switch to Puernya kernel</button>
-                    <button class="btn btn-primary" onclick="selectOperation('rule')">Update P-core rule set</button>
-                    <button class="btn btn-primary" onclick="selectOperation('config')">Update config file (backup)</button>
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button class="btn btn-success" onclick="selectOperation('puernya')" data-translate="switch_to_puernya">Switch to Puernya kernel</button>
+                    <button class="btn btn-primary" onclick="selectOperation('rule')" data-translate="update_pcore_rule">Update P-core rule set</button>
+                    <button class="btn btn-primary" onclick="selectOperation('config')" data-translate="update_config_backup">Update config file (backup)</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" data-translate="close_button">Close</button>
                 </div>
             </div>
         </div>
@@ -430,14 +397,14 @@ $razordVersion = getRazordVersion();
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="versionSelectionModalLabel">Select Singbox core version</h5>
+                <h5 class="modal-title" id="versionSelectionModalLabel" data-translate="versionSelectionModalTitle">Select Singbox core version</h5>
                 <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
             <div class="modal-body">
-                <div class="alert alert-info">
-                 <strong>Help:</strong> Please select an existing version or manually enter a version number, and click "Add Version" to add it to the dropdown list. 
+                <div class="alert alert-info" data-translate="helpMessage">
+                    <strong>Help:</strong> Please select an existing version or manually enter a version number, and click "Add Version" to add it to the dropdown list.
                 </div>
                 <select id="singboxVersionSelect" class="form-select">
                     <option value="v1.11.0-alpha.10">v1.11.0-alpha.10</option>
@@ -449,11 +416,11 @@ $razordVersion = getRazordVersion();
                     <option value="v1.11.0-beta.20">v1.11.0-beta.20</option>
                 </select>
                 <input type="text" id="manualVersionInput" class="form-control mt-2" placeholder="For example: v1.11.0-beta.10">
-                <button type="button" class="btn btn-secondary mt-2" onclick="addManualVersion()">Add Version</button>
+                <button type="button" class="btn btn-secondary mt-2" onclick="addManualVersion()" data-translate="addVersionButton">Add Version</button>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">cancel</button>
-                <button type="button" class="btn btn-primary" onclick="confirmSingboxVersion()">confirm</button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" data-translate="cancelButton">cancel</button>
+                <button type="button" class="btn btn-primary" onclick="confirmSingboxVersion()" data-translate="confirmButton">confirm</button>
             </div>
         </div>
     </div>
@@ -463,12 +430,12 @@ $razordVersion = getRazordVersion();
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="singboxVersionModalLabel">Select Singbox core version (Channel 2)</h5>
+                <h5 class="modal-title" id="singboxVersionModalLabel" data-translate="singboxVersionModalTitle">Select Singbox core version (Channel 2)</h5>
                 <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
             </div>
             <div class="modal-body">
                 <div class="form-group">
-                    <label for="singboxVersionSelectForChannelTwo">Select version</label>
+                    <label for="singboxVersionSelectForChannelTwo" data-translate="singboxVersionModalTitle">Select version</label>
                     <select id="singboxVersionSelectForChannelTwo" class="form-select">
                         <option value="preview" selected>Preview</option>  
                         <option value="stable">Stable</option>
@@ -476,8 +443,8 @@ $razordVersion = getRazordVersion();
                 </div>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">cancel</button>
-                <button type="button" class="btn btn-primary" onclick="confirmSingboxVersionForChannelTwo()">confirm</button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" data-translate="cancelButton">cancel</button>
+                <button type="button" class="btn btn-primary" onclick="confirmSingboxVersionForChannelTwo()" data-translate="confirmButton">confirm</button>
             </div>
         </div>
     </div>
@@ -487,23 +454,23 @@ $razordVersion = getRazordVersion();
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="panelSelectionModalLabel">Selection Panel</h5>
+                <h5 class="modal-title" id="panelSelectionModalLabel" data-translate="panelSelectionModalTitle">Selection Panel</h5>
                 <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
             </div>
             <div class="modal-body">
                 <div class="form-group">
-                    <label for="panelSelect">Select a Panel</label>
+                    <label for="panelSelect" data-translate="selectPanelLabel">Select a Panel</label>
                     <select id="panelSelect" class="form-select">
-                        <option value="zashboard">Zashboard Panel</option>
-                        <option value="metacubexd">Metacubexd Panel</option>
-                        <option value="yacd-meat">Yacd-Meat Panel</option>
-                        <option value="dashboard">Dashboard Panel</option>
+                        <option value="zashboard" data-translate="zashboardPanel">Zashboard Panel</option>
+                        <option value="metacubexd" data-translate="metacubexdPanel">Metacubexd Panel</option>
+                        <option value="yacd-meat" data-translate="yacdMeatPanel">Yacd-Meat Panel</option>
+                        <option value="dashboard" data-translate="dashboardPanel">Dashboard Panel</option>
                     </select>
                 </div>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">cancel</button>
-                <button type="button" class="btn btn-primary" onclick="confirmPanelSelection()">confirm</button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" data-translate="cancelButton">cancel</button>
+                <button type="button" class="btn btn-primary" onclick="confirmPanelSelection()" data-translate="confirmButton">confirm</button>
             </div>
         </div>
     </div>
@@ -513,16 +480,18 @@ $razordVersion = getRazordVersion();
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="versionModalLabel">Version check results</h5>
-                <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h5 class="modal-title" id="versionModalLabel" data-translate="versionModalLabel">Version check results</h5>
+                <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
             </div>
             <div class="modal-body">
                 <div id="modalContent">
-                    <p>Loading...</p>
+                    <p data-translate="loadingMessage">Loading...</p>
                 </div>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" data-translate="closeButton">Close</button>
             </div>
         </div>
     </div>
@@ -532,14 +501,14 @@ $razordVersion = getRazordVersion();
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="updateModalLabel">Update status</h5>
+                <h5 class="modal-title" id="updateModalLabel" data-translate="updateModalLabel">Update status</h5>
                 <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
             <div class="modal-body text-center">
-                <div id="updateDescription" class="alert alert-info mb-3"></div>
-                <pre id="logOutput" style="white-space: pre-wrap; word-wrap: break-word; text-align: left; display: inline-block;">Waiting for the operation to begin...</pre>
+                <div id="updateDescription" class="alert alert-info mb-3" data-translate="updateDescription"></div>
+                <pre id="logOutput" style="white-space: pre-wrap; word-wrap: break-word; text-align: left; display: inline-block;" data-translate="waitingMessage">Waiting for the operation to begin...</pre>
             </div>
         </div>
     </div>
@@ -551,23 +520,19 @@ $razordVersion = getRazordVersion();
             display: block;
             width: 100%;
         }
-
         .form-control {
             display: flex;
             flex-direction: column;
         }
-
         .btn-group {
             flex-direction: column;
         }
     }
-
 </style>
-
 <script>
 let selectedSingboxVersion = 'v1.11.0-alpha.10';  
 let selectedMihomoVersion = 'stable';  
-let selectedLanguage = 'en';  
+let selectedLanguage = 'cn';  
 let selectedSingboxVersionForChannelTwo = 'preview'; 
 let selectedPanel = 'zashboard';
 let selectedVersionType = 'stable';
@@ -586,53 +551,14 @@ function showVersionTypeModal() {
     $('#updateVersionTypeModal').modal('show');  
 }
 
-function confirmVersionTypeSelection() {
-    selectedVersionType = document.getElementById('versionTypeSelect').value;  
-    $('#updateVersionTypeModal').modal('hide');  
-
-    if (selectedVersionType === 'stable') {
-        $('#updateLanguageModal').modal('show');  
-    } else {
-        selectOperation('client');
-    }
+function showUpdateVersionModal() {
+    $('#updateVersionModal').modal('show');  
 }
 
-function selectVersionType(type) {
-    selectedVersionType = type; 
-    
-    if (type === 'stable') {
-        document.getElementById('stableBtn').classList.add('btn-success');
-        document.getElementById('previewBtn').classList.remove('btn-warning');
-        document.getElementById('previewBtn').classList.add('btn-light');
-    } else {
-        document.getElementById('previewBtn').classList.add('btn-warning');
-        document.getElementById('stableBtn').classList.remove('btn-success');
-        document.getElementById('stableBtn').classList.add('btn-light');
-    }
-
-    handleVersionSelection();
-}
-
-function handleVersionSelection() {
-    $('#updateVersionTypeModal').modal('hide');  
-
-    if (selectedVersionType === 'stable') {
-        $('#updateLanguageModal').modal('show');  
-    } else {
-        $('#previewLanguageModal').modal('show');  
-    }
-}
-
-function confirmLanguageSelection() {
-    selectedLanguage = document.getElementById('languageSelect').value; 
-    $('#updateLanguageModal').modal('hide');  
-    selectOperation('client');  
-}
-
-function confirmPreviewLanguageSelection() {
-    selectedLanguage = document.getElementById('previewLanguageSelect').value; 
-    $('#previewLanguageModal').modal('hide');  
-    selectOperation('client');  
+function confirmUpdateVersion() {
+    selectedLanguage = document.getElementById('languageSelect').value;  
+    $('#updateVersionModal').modal('hide');  
+    selectOperation('client'); 
 }
 
 function showSingboxVersionSelector() {
@@ -723,48 +649,44 @@ function selectOperation(type) {
     const operations = {
         'singbox': {
             url: 'update_singbox_core.php?version=' + selectedSingboxVersion,  
-            message: 'Starting to download Singbox core update...',
-            description: 'Updating Singbox core to the latest version'
+            message: langData[currentLang]['singbox_message'] || 'Starting to download Singbox core update...', 
+            description: langData[currentLang]['singbox_description'] || 'Updating Singbox core to the latest version'
         },
         'sing-box': {
             url: selectedSingboxVersionForChannelTwo === 'stable'  
                 ? 'update_singbox_stable.php'  
                 : 'update_singbox_preview.php', 
-            message: 'Starting to download Singbox core update...',
-            description: 'Updating Singbox core to ' + selectedSingboxVersionForChannelTwo + ' version'
+            message: langData[currentLang]['sing-box_message'] || 'Starting to download Singbox core update...',
+            description: langData[currentLang]['sing-box_description'] 
+                || 'Updating Singbox core to ' + selectedSingboxVersionForChannelTwo + ' version'
         },
         'puernya': {
             url: 'puernya.php',
-            message: 'Starting to switch to Puernya core...',
-            description: 'Switching to Puernya core, this action will replace the current Singbox core'
+            message: langData[currentLang]['puernya_message'] || 'Starting to switch to Puernya core...',
+            description: langData[currentLang]['puernya_description'] || 'Switching to Puernya core, this action will replace the current Singbox core'
         },
         'rule': {
             url: 'update_rule.php',
-            message: 'Starting to download Singbox rule set...',
-            description: 'Updating Singbox rule set'
+            message: langData[currentLang]['rule_message'] || 'Starting to download Singbox rule set...',
+            description: langData[currentLang]['rule_description'] || 'Updating Singbox rule set'
         },
         'config': {
             url: 'update_config.php',
-            message: 'Starting to download Mihomo configuration file...',
-            description: 'Updating Mihomo configuration file to the latest version'
+            message: langData[currentLang]['config_message'] || 'Starting to download Mihomo configuration file...',
+            description: langData[currentLang]['config_description'] || 'Updating Mihomo configuration file to the latest version'
         },
         'mihomo': {
             url: selectedMihomoVersion === 'stable' 
                 ? 'update_mihomo_stable.php' 
                 : 'update_mihomo_preview.php',  
-            message: 'Starting to download Mihomo Kernel updates...',
-            description: 'Updating Mihomo Kernel to the latest version (' + selectedMihomoVersion + ')'
+            message: langData[currentLang]['mihomo_message'] || 'Starting to download Mihomo Kernel updates...',
+            description: langData[currentLang]['mihomo_description'] 
+                || 'Updating Mihomo Kernel to the latest version (' + selectedMihomoVersion + ')'
         },
         'client': {
-            url: selectedVersionType === 'stable' 
-                ? 'update_script.php?lang=' + selectedLanguage  
-                : 'update_preview.php?lang=' + selectedLanguage,
-            message: selectedVersionType === 'stable' 
-                ? 'Starting to download client updates...' 
-                : 'Starting to download client preview version updates...',
-            description: selectedVersionType === 'stable' 
-                ? 'Updating the client to the latest official version' 
-                : 'Updating the client to the latest preview version'
+            url: 'update_script.php?lang=' + selectedLanguage,  
+            message: 'Starting to download client updates...',
+            description: 'Updating the client to the latest version'
         },
         'panel': { 
             url: selectedPanel === 'zashboard' 
@@ -776,26 +698,20 @@ function selectOperation(type) {
                         : selectedPanel === 'dashboard'  
                             ? 'update_dashboard.php'  
                             : 'unknown_panel.php', 
-            message: selectedPanel === 'zashboard' 
-                ? 'Starting to download Zashboard panel update...' 
-                : selectedPanel === 'yacd-meat' 
-                    ? 'Starting to download Yacd-Meat panel update...' 
-                    : selectedPanel === 'metacubexd' 
-                        ? 'Starting to download Metacubexd panel update...' 
-                         : selectedPanel === 'dashboard'  
-                            ? 'Starting to download Dashboard panel update...' 
-                            : 'Unknown panel update type...',
-            description: selectedPanel === 'zashboard' 
-                ? 'Updating Zashboard panel to the latest version' 
-                : selectedPanel === 'yacd-meat' 
-                    ? 'Updating Yacd-Meat panel to the latest version' 
-                    : selectedPanel === 'metacubexd' 
-                        ? 'Updating Metacubexd panel to the latest version' 
-                        : selectedPanel === 'dashboard'  
-                            ? 'Updating Dashboard panel to the latest version'  
-                            : 'Unrecognized panel type, unable to update.'
+            message: langData[currentLang]['panel_' + selectedPanel + '_message'] || 
+                (selectedPanel === 'zashboard' ? 'Starting to download Zashboard panel update...' :
+                selectedPanel === 'yacd-meat' ? 'Starting to download Yacd-Meat panel update...' :
+                selectedPanel === 'metacubexd' ? 'Starting to download Metacubexd panel update...' :
+                selectedPanel === 'dashboard' ? 'Starting to download Dashboard panel update...' : 'Unknown panel update type...'),
+            description: langData[currentLang]['panel_' + selectedPanel + '_description'] || 
+                (selectedPanel === 'zashboard' ? 'Updating Zashboard panel to the latest version' :
+                selectedPanel === 'yacd-meat' ? 'Updating Yacd-Meat panel to the latest version' :
+                selectedPanel === 'metacubexd' ? 'Updating Metacubexd panel to the latest version' :
+                selectedPanel === 'dashboard' ? 'Updating Dashboard panel to the latest version' : 
+                'Unrecognized panel type, unable to update.')
         }
     };
+
     const operation = operations[type];
     if (operation) {
         setTimeout(function() {
@@ -813,7 +729,7 @@ function initiateUpdate(url, logMessage, description) {
     document.getElementById('logOutput').textContent = logMessage;
     xhr.onload = function() {
         if (xhr.status === 200) {
-            document.getElementById('logOutput').textContent += '\nUpdate completed!';
+            document.getElementById('logOutput').textContent += '\n' + (translations['updateCompleted'] || '更新完成！');
             document.getElementById('logOutput').textContent += '\n' + xhr.responseText;
             setTimeout(function() {
                 $('#updateModal').modal('hide');
@@ -822,12 +738,12 @@ function initiateUpdate(url, logMessage, description) {
                 }, 500);
             }, 10000);
         } else {
-            document.getElementById('logOutput').textContent += '\nError occurred: ' + xhr.statusText;
+            document.getElementById('logOutput').textContent += '\n' + (translations['errorOccurred'] || '发生错误：') + xhr.statusText;
         } 
     };
 
     xhr.onerror = function() {
-        document.getElementById('logOutput').textContent += '\nNetwork error, please try again later.';
+        document.getElementById('logOutput').textContent += '\n' + (translations['networkError'] || '网络错误，请稍后再试。');
     };
 
     xhr.send();
@@ -902,14 +818,14 @@ document.addEventListener('DOMContentLoaded', function() {
 function checkVersion(outputId, updateFiles, currentVersions) {
     const modalContent = document.getElementById('modalContent');
     const versionModal = new bootstrap.Modal(document.getElementById('versionModal'));
-    modalContent.innerHTML = '<p>Checking for new version...</p>';
+    modalContent.innerHTML = `<p>${translations['checkingVersion'] || '正在检查新版本...'}</p>`;
     let results = [];
 
     const requests = updateFiles.map((file) => {
         return fetch(file.url + '?check_version=true')
             .then(response => {
                 if (!response.ok) {
-                    throw new Error(`Request failed: ${file.name}`);
+                    throw new Error(`${translations['requestFailed'] || '请求失败'}: ${file.name}`);
                 }
                 return response.text();
             })
@@ -920,7 +836,7 @@ function checkVersion(outputId, updateFiles, currentVersions) {
                     results.push(`
                         <tr class="table-success">
                             <td>${file.name}</td>
-                            <td>${currentVersions[file.name] || 'Unknown'}</td>
+                            <td>${currentVersions[file.name] || '未知'}</td>
                             <td>${newVersion}</td>
                         </tr>
                     `);
@@ -940,8 +856,8 @@ function checkVersion(outputId, updateFiles, currentVersions) {
                     results.push(`
                         <tr class="table-warning">
                             <td>${file.name}</td>
-                            <td>${currentVersions[file.name] || 'Unknown'}</td>
-                            <td>Unable to parse version information</td>
+                            <td>${currentVersions[file.name] || translations['unknown']}</td>
+                            <td>${translations['cannotParseVersion'] || '无法解析版本信息'}</td>
                         </tr>
                     `);
                 }
@@ -950,8 +866,8 @@ function checkVersion(outputId, updateFiles, currentVersions) {
                 results.push(`
                     <tr class="table-danger">
                         <td>${file.name}</td>
-                        <td>${currentVersions[file.name] || 'Unknown'}</td>
-                        <td>Network Error</td>
+                        <td>${currentVersions[file.name] || translations['unknown']}</td>
+                        <td>${translations['networkError'] || '网络错误'}</td>
                     </tr>
                 `);
             });
@@ -962,9 +878,9 @@ function checkVersion(outputId, updateFiles, currentVersions) {
             <table class="table custom-table">
                 <thead>
                     <tr>
-                        <th class="text-center">Component Name</th>
-                        <th class="text-center">Current version</th>
-                        <th class="text-center">Latest version</th>
+                        <th class="text-center">${translations['componentName'] || '组件名称'}</th>
+                        <th class="text-center">${translations['currentVersion'] || '当前版本'}</th>
+                        <th class="text-center">${translations['latestVersion'] || '最新版本'}</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -983,10 +899,10 @@ document.getElementById('checkSingboxButton').addEventListener('click', function
     const singboxPreviewVersion = "<?php echo htmlspecialchars($singboxPreviewVersion); ?>";
     const singboxCompileVersion = "<?php echo htmlspecialchars($singboxCompileVersion); ?>";
 
-    let finalPreviewVersion = 'Not installed';
-    let finalCompileVersion = 'Not installed';
-    let finalOfficialVersion = 'Not installed';
-    let finalPuernyaVersion = 'Not installed';
+    let finalPreviewVersion = langData[currentLang]['notInstalled'];  
+    let finalCompileVersion = langData[currentLang]['notInstalled'];  
+    let finalOfficialVersion = langData[currentLang]['notInstalled']; 
+    let finalPuernyaVersion = langData[currentLang]['notInstalled']; 
 
     if (puernyaVersion === '1.10.0-alpha.29-067c81a7') {
         finalPuernyaVersion = puernyaVersion; 
@@ -1005,17 +921,17 @@ document.getElementById('checkSingboxButton').addEventListener('click', function
     }
 
     const currentVersions = {
-        'Singbox [ Stable ]': finalOfficialVersion,
-        'Singbox [ Preview ]': finalPreviewVersion,
-        'Singbox [ Compiled ]': finalCompileVersion,
-        'Puernya [ Preview ]': finalPuernyaVersion
+        ['Singbox [' + langData[currentLang]['stable'] + ']']: finalOfficialVersion,
+        ['Singbox [' + langData[currentLang]['preview'] + ']']: finalPreviewVersion,
+        ['Singbox [' + langData[currentLang]['compiled'] + ']']: finalCompileVersion,
+        ['Puernya [' + langData[currentLang]['preview'] + ']']: finalPuernyaVersion
     };
 
     const updateFiles = [
-        { name: 'Singbox [ Stable ]', url: 'update_singbox_stable.php' },
-        { name: 'Singbox [ Preview ]', url: 'update_singbox_preview.php' },
-        { name: 'Singbox [ Compiled ]', url: 'update_singbox_core.php' },
-        { name: 'Puernya [ Preview ]', url: 'puernya.php' }
+        { name: 'Singbox [' + langData[currentLang]['stable'] + ']', url: 'update_singbox_stable.php' },
+        { name: 'Singbox [' + langData[currentLang]['preview'] + ']', url: 'update_singbox_preview.php' },
+        { name: 'Singbox [' + langData[currentLang]['compiled'] + ']', url: 'update_singbox_core.php' },
+        { name: 'Puernya [' + langData[currentLang]['preview'] + ']', url: 'puernya.php' }
     ];
 
     checkVersion('NewSingbox', updateFiles, currentVersions);
@@ -1029,13 +945,13 @@ document.getElementById('checkMihomoButton').addEventListener('click', function 
     console.log('Mihomo Type:', mihomoType);  
 
     const currentVersions = {
-        'Mihomo [ Stable ]': mihomoType === 'Stable' ? mihomoVersion : 'Not installed',
-        'Mihomo [ Preview ]': mihomoType === 'Preview' ? mihomoVersion : 'Not installed',
+        ['Mihomo [ ' + langData[currentLang]['stable'] + ' ]']: mihomoType === 'Stable' ? mihomoVersion : langData[currentLang]['notInstalled'],
+        ['Mihomo [ ' + langData[currentLang]['preview'] + ' ]']: mihomoType === 'Preview' ? mihomoVersion : langData[currentLang]['notInstalled'],
     };
 
     const updateFiles = [
-        { name: 'Mihomo [ Stable ]', url: 'update_mihomo_stable.php' },
-        { name: 'Mihomo [ Preview ]', url: 'update_mihomo_preview.php' }
+        { name: 'Mihomo [ ' + langData[currentLang]['stable'] + ' ]', url: 'update_mihomo_stable.php' },
+        { name: 'Mihomo [ ' + langData[currentLang]['preview'] + ' ]', url: 'update_mihomo_preview.php' }
     ];
 
     checkVersion('NewMihomo', updateFiles, currentVersions);
@@ -1058,22 +974,18 @@ document.getElementById('checkUiButton').addEventListener('click', function () {
 });
 
 document.getElementById('checkCliverButton').addEventListener('click', function () {
-    const cliverVersion = "<?php echo htmlspecialchars($cliverVersion); ?>";
-    const cliverType = "<?php echo htmlspecialchars($cliverType); ?>";
+    const cliverVersion = document.getElementById('cliver').textContent.trim(); 
 
     const currentVersions = {
-        'Client [ Stable ]': cliverType === 'Stable' ? cliverVersion : 'Not installed',
-        'Client [ Preview ]': cliverType === 'Preview' ? cliverVersion : 'Not installed',
+        [langData[currentLang]['client'] + ' [ ' + langData[currentLang]['stable'] + ' ]']: cliverVersion, 
     };
 
     const updateFiles = [
-        { name: 'Client [ Stable ]', url: 'update_script.php' },
-        { name: 'Client [ Preview ]', url: 'update_preview.php' }
+        { name: langData[currentLang]['client'] + ' [ ' + langData[currentLang]['stable'] + ' ]', url: 'update_script.php' },
     ];
 
     checkVersion('NewCliver', updateFiles, currentVersions);
 });
-
 </script>
 
 <script>
@@ -1092,56 +1004,57 @@ document.getElementById('checkCliverButton').addEventListener('click', function 
         return 0; 
     }
 
-function checkSingboxVersion() {
-    var currentVersion = '<?php echo $singBoxVersion; ?>'; 
-    var minVersion = '1.10.0';
-
-        if (currentVersion === 'Not installed') {
-            alert('No Sing-box detected. Please check your system configuration');
+    function checkSingboxVersion() {
+        var currentVersion = '<?php echo $singBoxVersion; ?>'; 
+        var minVersion = '1.10.0'; 
+        
+        if (currentVersion === translations['notInstalled']) {
+            alert(translations['notInstalledMessage']);
             return;
         }
-    
-    if (compareVersions(currentVersion, minVersion) >= 0) {
-        return;
-    }
 
-    var modalHtml = `
-        <div class="modal fade" id="versionWarningModal" tabindex="-1" aria-labelledby="versionWarningModalLabel" aria-hidden="true">
-            <div class="modal-dialog">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title" id="versionWarningModalLabel">Version Warning</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                    </div>
-                    <div class="modal-body">
-                        <p>Your Sing-box version (${currentVersion}) is lower than the recommended minimum version (v1.10.0).</p>
-                        <p>Please consider upgrading to a higher version for optimal performance.</p>
+        if (compareVersions(currentVersion, minVersion) >= 0) {
+            return;
+        }
+
+        var modalHtml = `
+            <div class="modal fade" id="versionWarningModal" tabindex="-1" aria-labelledby="versionWarningModalLabel" aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="versionWarningModalLabel">${translations['versionWarning']}</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            <p>${translations['versionTooLowMessage']} (${currentVersion}) ${translations['recommendedMinVersion']} (v1.10.0).</p>
+                            <p>${translations['upgradeSuggestion']}</p>
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
-    `;
+        `;
 
-    if (!document.getElementById('versionWarningModal')) {
-        document.body.insertAdjacentHTML('beforeend', modalHtml);
+        if (!document.getElementById('versionWarningModal')) {
+            document.body.insertAdjacentHTML('beforeend', modalHtml);
+        }
+
+        var modal = new bootstrap.Modal(document.getElementById('versionWarningModal'));
+        modal.show();
+        
+        setTimeout(function() {
+            modal.hide();
+        }, 5000);
     }
 
-    var modal = new bootstrap.Modal(document.getElementById('versionWarningModal'));
-    modal.show();
-    
-    setTimeout(function() {
-        modal.hide();
-    }, 5000);
-}
-
-document.addEventListener('DOMContentLoaded', checkSingboxVersion);
+    document.addEventListener('DOMContentLoaded', checkSingboxVersion);
 </script>
+
 <!DOCTYPE html>
 <html lang="zh">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NekoClash</title>
+    <title>NekoBox</title>
     <style>
         body {
             margin: 0;
@@ -1218,61 +1131,61 @@ document.addEventListener('DOMContentLoaded', checkSingboxVersion);
     </style>
 </head>
 <body>
-    <div class="container-fluid mt-4">
-        <h2 class="text-center mb-4">About NekoBox</h2>
-        <div class="feature-box text-center">
-            <h5>NekoBox</h5>
-            <p>NekoBox is a thoughtfully designed Sing-box proxy tool, created specifically for home users, aimed at providing a simple yet powerful proxy solution. Built on PHP and BASH technologies, NekoBox simplifies complex proxy configurations into an intuitive experience, allowing every user to easily enjoy an efficient and secure network environment.</p>
-        </div>
+<div class="container-fluid mt-4">
+    <h2 class="text-center mb-4" data-translate="aboutTitle"></h2>
+    <div class="feature-box text-center">
+        <h5 data-translate="nekoBoxTitle"></h5>
+        <p data-translate="nekoBoxDescription"></p>
+    </div>
 
-        <h5 class="text-center mb-4"><i data-feather="cpu"></i> Core Features</h5>
-        <div class="row">
-            <div class="col-md-4 mb-4 d-flex">
-                <div class="feature-box text-center flex-fill">
-                    <h6>Simplified Configuration</h6>
-                    <p>With a user-friendly interface and smart configuration features, easily set up and manage Sing-box proxies.。</p>
-                </div>
-            </div>
-            <div class="col-md-4 mb-4 d-flex">
-                <div class="feature-box text-center flex-fill">
-                    <h6>Optimized Performance</h6>
-                    <p>Ensures optimal proxy performance and stability through efficient scripts and automation.</p>
-                </div>
-            </div>
-            <div class="col-md-4 mb-4 d-flex">
-                <div class="feature-box text-center flex-fill">
-                    <h6>Seamless Experience</h6>
-                    <p>Designed for home users, balancing ease of use and functionality, ensuring every family member can conveniently use the proxy service.</p>
-                </div>
+    <h5 class="text-center mb-4"><i data-feather="cpu"></i><span data-translate="coreFeatures"></span></h5>
+    <div class="row">
+        <div class="col-md-4 mb-4 d-flex">
+            <div class="feature-box text-center flex-fill">
+                <h6 data-translate="simplifiedConfiguration"></h6>
+                <p data-translate="simplifiedConfigurationDescription"></p>
             </div>
         </div>
+        <div class="col-md-4 mb-4 d-flex">
+            <div class="feature-box text-center flex-fill">
+                <h6 data-translate="optimizedPerformance"></h6>
+                <p data-translate="optimizedPerformanceDescription"></p>
+            </div>
+        </div>
+        <div class="col-md-4 mb-4 d-flex">
+            <div class="feature-box text-center flex-fill">
+                <h6 data-translate="seamlessExperience"></h6>
+                <p data-translate="seamlessExperienceDescription"></p>
+            </div>
+        </div>
+    </div>
 
-        <h5 class="text-center mb-4"><i data-feather="tool"></i> Tool Information</h5>
-        <div class="d-flex justify-content-center">
-            <div class="table-container">
-                <table class="table table-borderless mb-5">
-                    <tbody>
-                        <tr class="text-center">
-                            <td>SagerNet</td>
-                            <td>MetaCubeX</td>
-                        </tr>
-                        <tr class="text-center">
-                            <td>
-                                <div class="link-box">
-                                    <a href="https://github.com/SagerNet/sing-box" target="_blank"><i data-feather="codesandbox"></i>   Sing-box</a>
-                                </div>
-                            </td>
-                            <td>
-                                <div class="link-box">
-                                    <a href="https://github.com/MetaCubeX/mihomo" target="_blank"><i data-feather="box"></i>   Mihomo</a>
-                                </div>
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-        </div>
-        <h5 class="text-center mb-4"><i data-feather="paperclip"></i>  External Links</h5>
+<h5 class="text-center mb-4"><i data-feather="tool"></i> <span data-translate="toolInfo"></span></h5>
+<div class="d-flex justify-content-center">
+    <div class="table-container">
+        <table class="table table-borderless mb-5">
+            <tbody>
+                <tr class="text-center">
+                    <td>SagerNet</td>
+                    <td>MetaCubeX</td>
+                </tr>
+                <tr class="text-center">
+                    <td>
+                        <div class="link-box">
+                            <a href="https://github.com/SagerNet/sing-box" target="_blank"><i data-feather="codesandbox"></i>   Sing-box</a>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="link-box">
+                            <a href="https://github.com/MetaCubeX/mihomo" target="_blank"><i data-feather="box"></i>   Mihomo</a>
+                        </div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+<h5 class="text-center mb-4"><i data-feather="paperclip"></i> <span data-translate="externalLinks"></span></h5>
         <div class="table-container">
             <table class="table table-borderless mb-5">
                 <tbody>
@@ -1311,9 +1224,15 @@ document.addEventListener('DOMContentLoaded', checkSingboxVersion);
                 </tbody>
             </table>
         </div>
-        <footer class="text-center">
-            <p><?php echo $footer ?></p>
-        </footer>
+      <footer class="text-center">
+    <p><?php echo $footer ?></p>
+</footer>
     </div>
 </body>
 </html>
+
+
+
+
+
+

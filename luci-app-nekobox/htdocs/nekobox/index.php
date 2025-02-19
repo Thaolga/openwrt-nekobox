@@ -274,7 +274,6 @@ EOL;
     file_put_contents($cronScriptPath, $cronScriptContent);
     chmod($cronScriptPath, 0755);
     shell_exec("sh $cronScriptPath");
-    echo '<div id="cron-success-message" style="display: none;" class="alert alert-success">Cron script created and executed successfully. Log cleanup tasks added or updated to clear logs for $log_file and $tmp_log_file.</div>';
 }
 
 function rotateLogs($logFile, $maxSize = 1048576) {
@@ -717,6 +716,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['selected_config'])) {
     }
 }
 ?>
+
 <!doctype html>
 <html lang="en" data-bs-theme="<?php echo substr($neko_theme,0,-4) ?>">
   <head>
@@ -732,12 +732,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['selected_config'])) {
     <script type="text/javascript" src="./assets/js/jquery-2.1.3.min.js"></script>
     <script type="text/javascript" src="./assets/js/neko.js"></script>
     <script type="text/javascript" src="./assets/bootstrap/bootstrap.min.js"></script>
+    <script src="./assets/js/bootstrap.bundle.min.js"></script>
     <?php include './ping.php'; ?>
   </head>
 <body>
     <?php if ($isNginx): ?>
     <div id="nginxWarning" class="alert alert-warning alert-dismissible fade show" role="alert" style="position: fixed; top: 20px; left: 50%; transform: translateX(-50%); z-index: 1050;">
-        <strong>Warning!</strong> Nginx detected. This plugin does not support Nginx, please use Uhttpd to build the firmware.
+        <strong data-translate="nginxWarningStrong"></strong> 
+        <span data-translate="nginxWarning"></span>
         <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
     </div>
     <script>
@@ -754,10 +756,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['selected_config'])) {
     <?php endif; ?>
 <div class="container-sm container-bg callout border border-3 rounded-4 col-11">
     <div class="row">
-        <a href="./index.php" class="col btn btn-lg text-nowrap"><i class="bi bi-house-door"></i> Home</a>
-        <a href="./dashboard.php" class="col btn btn-lg text-nowrap"><i class="bi bi-bar-chart"></i> Panel</a>
-        <a href="./singbox.php" class="col btn btn-lg text-nowrap"><i class="bi bi-box"></i> Document</a> 
-        <a href="./settings.php" class="col btn btn-lg text-nowrap"><i class="bi bi-gear"></i> Settings</a>
+        <a href="./index.php" class="col btn btn-lg text-nowrap"><i class="bi bi-house-door"></i> <span data-translate="home">Home</span></a>
+        <a href="./dashboard.php" class="col btn btn-lg text-nowrap"><i class="bi bi-bar-chart"></i> <span data-translate="panel">Panel</span></a>
+        <a href="./singbox.php" class="col btn btn-lg text-nowrap"><i class="bi bi-box"></i> <span data-translate="document">Document</span></a> 
+        <a href="./settings.php" class="col btn btn-lg text-nowrap"><i class="bi bi-gear"></i> <span data-translate="settings">Settings</span></a>
     <div class="container-sm text-center col-8">
   <img src="./assets/img/nekobox.png">
 <div id="version-info">
@@ -774,9 +776,8 @@ $(document).ready(function() {
         dataType: 'json',
         success: function(data) {
             if (data.hasUpdate) {
-                $('#current-version').attr('src', 'https://raw.githubusercontent.com/Thaolga/openwrt-nekobox/refs/heads/nekobox/luci-app-nekobox/htdocs/nekobox/assets/img/Latest.svg');
+                $('#current-version').attr('src', 'https://raw.githubusercontent.com/Thaolga/openwrt-nekobox/refs/heads/main/luci-app-nekobox/htdocs/nekobox/assets/img/Latest.svg');
             }
-
             console.log('Current Version:', data.currentVersion);
             console.log('Latest Version:', data.latestVersion);
             console.log('Has Update:', data.hasUpdate);
@@ -790,6 +791,7 @@ $(document).ready(function() {
 </script>
 <h2 class="royal-style">NekoBox</h2>
 <style>
+
     .nav-pills .nav-link {
         background-color: transparent !important;
         color: inherit;
@@ -802,8 +804,8 @@ $(document).ready(function() {
     }
 
    .section-container {
-       padding-left: 48px;  
-       padding-right: 48px;
+       padding-left: 42px;  
+       padding-right: 42px;
    }
 
    .btn-group .btn {
@@ -821,6 +823,15 @@ $(document).ready(function() {
    .log-card {
        margin-bottom: 20px;
    }
+
+    .custom-icon {
+        width: 20px !important;
+        height: 20px !important;
+        vertical-align: middle !important;
+        margin-right: 5px !important;
+        stroke: #FF00FF !important; 
+        fill: none !important;
+        }
 
    @media (max-width: 768px) {
       .section-container {
@@ -904,32 +915,32 @@ $(document).ready(function() {
    <table class="table table-borderless mb-2">
        <tbody>
            <tr>
-               <td style="width:150px">Status</td>
+               <td style="width:150px" data-translate="status">Status</td>
                <td class="d-grid">
                    <div class="btn-group w-100" role="group" aria-label="ctrl">
                        <?php
                        if ($neko_status == 1) {
-                           echo "<button type=\"button\" class=\"btn btn-success\">Mihomo Running</button>\n";
+                           echo "<button type=\"button\" class=\"btn btn-success\" data-translate=\"mihomoRunning\">Mihomo Running</button>\n";
                        } else {
-                           echo "<button type=\"button\" class=\"btn btn-outline-danger\">Mihomo Not Running</button>\n";
+                           echo "<button type=\"button\" class=\"btn btn-outline-danger\" data-translate=\"mihomoNotRunning\">Mihomo Not Running</button>\n";
                        }
                        echo "<button type=\"button\" class=\"btn btn-deepskyblue\">$str_cfg</button>\n";
                        if ($singbox_status == 1) {
-                           echo "<button type=\"button\" class=\"btn btn-success\">Sing-box Running</button>\n";
+                           echo "<button type=\"button\" class=\"btn btn-success\" data-translate=\"singboxRunning\">Sing-box Running</button>\n";
                        } else {
-                           echo "<button type=\"button\" class=\"btn btn-outline-danger\">Sing-box Not Running</button>\n";
+                           echo "<button type=\"button\" class=\"btn btn-outline-danger\" data-translate=\"singboxNotRunning\">Sing-box Not Running</button>\n";
                        }
                        ?>
                    </div>
                </td>
            </tr>
            <tr>
-               <td style="width:150px">Mihomo Control</td>
+               <td style="width:150px" data-translate="mihomoControl">Mihomo Control</td>
                <td class="d-grid">
                    <form action="index.php" method="post" style="display: inline-block; width: 100%; margin-bottom: 10px;">
                        <div class="form-group">
                            <select id="configSelect" class="form-select" name="selected_config" onchange="saveConfigToLocalStorage(); this.form.submit()">
-                               <option value="">Please select a configuration file</option> 
+                               <option value="" data-translate="selectConfig">Please select a configuration file</option> 
                                <?php
                                    $config_dir = '/etc/neko/config';
                                    $files = array_diff(scandir($config_dir), array('..', '.')); 
@@ -945,20 +956,20 @@ $(document).ready(function() {
                     </form>
                    <form action="index.php" method="post" style="display: inline-block; width: 100%;">
                        <div class="btn-group w-100">
-                           <button type="submit" name="neko" value="start" class="btn btn<?php if ($neko_status == 1) echo "-outline" ?>-success <?php if ($neko_status == 1) echo "disabled" ?>">Enable Mihomo</button>
-                           <button type="submit" name="neko" value="disable" class="btn btn<?php if ($neko_status == 0) echo "-outline" ?>-danger <?php if ($neko_status == 0) echo "disabled" ?>">Disable Mihomo</button>
-                           <button type="submit" name="neko" value="restart" class="btn btn<?php if ($neko_status == 0) echo "-outline" ?>-warning <?php if ($neko_status == 0) echo "disabled" ?>">Restart Mihomo</button>
+                           <button type="submit" name="neko" value="start" class="btn btn<?php if ($neko_status == 1) echo "-outline" ?>-success <?php if ($neko_status == 1) echo "disabled" ?>" data-translate="enableMihomo">Enable Mihomo</button>
+                           <button type="submit" name="neko" value="disable" class="btn btn<?php if ($neko_status == 0) echo "-outline" ?>-danger <?php if ($neko_status == 0) echo "disabled" ?>" data-translate="disableMihomo">Disable Mihomo</button>
+                           <button type="submit" name="neko" value="restart" class="btn btn<?php if ($neko_status == 0) echo "-outline" ?>-warning <?php if ($neko_status == 0) echo "disabled" ?>" data-translate="restartMihomo">Restart Mihomo</button>
                        </div>
                    </form>
                </td>
            </tr>
            <tr>
-               <td style="width:150px">Singbox Control</td>
+               <td style="width:150px" data-translate="singboxControl">Singbox Control</td>
                <td class="d-grid">
                    <form action="index.php" method="post">
                        <div class="input-group mb-2">
                            <select name="config_file" id="config_file" class="form-select" onchange="saveConfigSelection()">
-                               <option value="">Please select a configuration file</option> 
+                               <option value="" data-translate="selectConfig">Please select a configuration file</option> 
                                <?php foreach ($availableConfigs as $config): ?>
                                    <option value="<?= htmlspecialchars($config) ?>" <?= isset($_POST['config_file']) && $_POST['config_file'] === $config ? 'selected' : '' ?>>
                                        <?= htmlspecialchars(basename($config)) ?>
@@ -967,15 +978,15 @@ $(document).ready(function() {
                            </select>
                        </div>
                        <div class="btn-group w-100">
-                           <button type="submit" name="singbox" value="start" class="btn btn<?php echo ($singbox_status == 1) ? "-outline" : "" ?>-success <?php echo ($singbox_status == 1) ? "disabled" : "" ?>">Enable Sing-box</button>
-                           <button type="submit" name="singbox" value="disable" class="btn btn<?php echo ($singbox_status == 0) ? "-outline" : "" ?>-danger <?php echo ($singbox_status == 0) ? "disabled" : "" ?>">Disable Sing-box</button>
-                           <button type="submit" name="singbox" value="restart" class="btn btn<?php echo ($singbox_status == 0) ? "-outline" : "" ?>-warning <?php echo ($singbox_status == 0) ? "disabled" : "" ?>">Restart Sing-box</button>
+                           <button type="submit" name="singbox" value="start" class="btn btn<?php echo ($singbox_status == 1) ? "-outline" : "" ?>-success <?php echo ($singbox_status == 1) ? "disabled" : "" ?>" data-translate="enableSingbox">Enable Sing-box</button>
+                           <button type="submit" name="singbox" value="disable" class="btn btn<?php echo ($singbox_status == 0) ? "-outline" : "" ?>-danger <?php echo ($singbox_status == 0) ? "disabled" : "" ?>" data-translate="disableSingbox">Disable Sing-box</button>
+                           <button type="submit" name="singbox" value="restart" class="btn btn<?php echo ($singbox_status == 0) ? "-outline" : "" ?>-warning <?php echo ($singbox_status == 0) ? "disabled" : "" ?>" data-translate="restartSingbox">Restart Sing-box</button>
                        </div>
                    </form>
                </td>
            </tr>
            <tr>
-               <td style="width:150px">Running Mode</td>
+               <td style="width:150px" data-translate="runningMode">Running Mode</td>
                <td class="d-grid">
                    <?php
                    $mode_placeholder = '';
@@ -1017,52 +1028,53 @@ $(document).ready(function() {
 </script>
 
 <script>
-    function saveConfigToLocalStorage() {
-        const selectedConfig = document.getElementById('configSelect').value;
-        if (selectedConfig) {
-            localStorage.setItem('selected_config', selectedConfig);
-        }
+function saveConfigToLocalStorage() {
+    const selectedConfig = document.getElementById('configSelect').value;
+    if (selectedConfig) {
+        localStorage.setItem('selected_config', selectedConfig);
     }
+}
 
-    window.onload = function() {
-        const savedConfig = localStorage.getItem('selected_config');
-        if (savedConfig) {
-            const configSelect = document.getElementById('configSelect');
-            configSelect.value = savedConfig; 
-        }
-    };
+window.onload = function() {
+    const savedConfig = localStorage.getItem('selected_config');
+    if (savedConfig) {
+        const configSelect = document.getElementById('configSelect');
+        configSelect.value = savedConfig; 
+    }
+};
 </script>
 <div id="collapsibleHeader" style="cursor: pointer; display: flex; flex-direction: column; align-items: center; justify-content: center;">
-   <i id="toggleIcon" class="triangle-icon"></i> 
-   <h2 id="systemTitle" class="text-center" style="display: none; margin-top: 0;">System Status</h2> 
+    <i id="toggleIcon" class="triangle-icon"></i> 
+    <h2 id="systemTitle" class="text-center" style="display: none; margin-top: 0;" data-translate="systemInfo">System Status</h2>
 </div>
 
 <div id="collapsible" style="display: none; margin-top: 5px;"> 
    <table class="table table-borderless rounded-4 mb-2">
        <tbody>
            <tr>
-               <td style="width:150px">Devices</td>
+               <td style="width:150px"><span data-translate="systemInfo">System Info</span></td>
                <td id="systemInfo"></td>
            </tr>
            <tr>
-               <td style="width:150px">RAM</td>
+               <td style="width:150px"><span data-translate="systemMemory">System Memory</span></td>
                <td id="ramUsage"></td>
            </tr>
            <tr>
-               <td style="width:150px">Average Load</td>
+               <td style="width:150px"><span data-translate="avgLoad">Average Load</span></td>
                <td id="cpuLoad"></td>
            </tr>
            <tr>
-               <td style="width:150px">Uptime</td>
+               <td style="width:150px"><span data-translate="uptime">Uptime</span></td>
                <td id="uptime"></td>
            </tr>
            <tr>
-               <td style="width:150px">Traffic Statistics</td>
+               <td style="width:150px"><span data-translate="trafficStats">Traffic Stats</span></td>
                <td>⬇️ <span id="downtotal"></span> | ⬆️ <span id="uptotal"></span></td>
            </tr>
        </tbody>
    </table>
 </div>
+
 <script>
     const collapsible = document.getElementById('collapsible');
     const collapsibleHeader = document.getElementById('collapsibleHeader');
@@ -1125,6 +1137,11 @@ $(document).ready(function() {
         transform: rotate(180deg); 
     }
 
+
+    .form-inline {
+        display: inline-block;  
+    }
+
     @media (max-width: 767px) {
         .form-inline {
             display: flex;         
@@ -1144,29 +1161,29 @@ $(document).ready(function() {
             width: 100%;     
         }
     }
+
 </style>
-<h2 class="text-center">Logs</h2>
+<h2 class="text-center" data-translate="log"></h2>
 <ul class="nav nav-pills mb-3" id="logTabs" role="tablist">
     <li class="nav-item" role="presentation">
-        <a class="nav-link" id="pluginLogTab" data-bs-toggle="pill" href="#pluginLog" role="tab" aria-controls="pluginLog" aria-selected="true">NeKoBox Logs</a>
+        <a class="nav-link" id="pluginLogTab" data-bs-toggle="pill" href="#pluginLog" role="tab" aria-controls="pluginLog" aria-selected="true"><span data-translate="nekoBoxLog"></span></a>
     </li>
     <li class="nav-item" role="presentation">
-        <a class="nav-link" id="mihomoLogTab" data-bs-toggle="pill" href="#mihomoLog" role="tab" aria-controls="mihomoLog" aria-selected="false">Mihomo Logs</a>
+        <a class="nav-link" id="mihomoLogTab" data-bs-toggle="pill" href="#mihomoLog" role="tab" aria-controls="mihomoLog" aria-selected="false"><span data-translate="mihomoLog"></span></a>
     </li>
     <li class="nav-item" role="presentation">
-        <a class="nav-link" id="singboxLogTab" data-bs-toggle="pill" href="#singboxLog" role="tab" aria-controls="singboxLog" aria-selected="false">Sing-box Logs</a>
+        <a class="nav-link" id="singboxLogTab" data-bs-toggle="pill" href="#singboxLog" role="tab" aria-controls="singboxLog" aria-selected="false"><span data-translate="singboxLog"></span></a>
     </li>
 </ul>
-
 <div class="tab-content" id="logTabsContent">
     <div class="tab-pane fade" id="pluginLog" role="tabpanel" aria-labelledby="pluginLogTab">
         <div class="card log-card">
             <div class="card-body">
-                <pre id="plugin_log" class="log-container form-control" style="resize: vertical; overflow: auto; height: 350px; white-space: pre-wrap;" contenteditable="true"></pre>
+                <pre id="plugin_log" class="log-container form-control" style="resize: vertical; overflow: auto; height: 370px; white-space: pre-wrap;" contenteditable="true"></pre>
             </div>
             <div class="card-footer text-center">
                 <form action="index.php" method="post">
-                    <button type="submit" name="clear_plugin_log" class="btn btn-danger"><i class="bi bi-trash"></i> Clear Log</button>
+                    <button type="submit" name="clear_plugin_log" class="btn btn-danger"><i class="bi bi-trash"></i> <span data-translate="clearLog"></span></button>
                 </form>
             </div>
         </div>
@@ -1175,11 +1192,11 @@ $(document).ready(function() {
     <div class="tab-pane fade" id="mihomoLog" role="tabpanel" aria-labelledby="mihomoLogTab">
         <div class="card log-card">
             <div class="card-body">
-                <pre id="bin_logs" class="log-container form-control" style="resize: vertical; overflow: auto; height: 350px; white-space: pre-wrap;" contenteditable="true"></pre>
+                <pre id="bin_logs" class="log-container form-control" style="resize: vertical; overflow: auto; height: 370px; white-space: pre-wrap;" contenteditable="true"></pre>
             </div>
             <div class="card-footer text-center">
                 <form action="index.php" method="post">
-                    <button type="submit" name="neko" value="clear" class="btn btn-danger"><i class="bi bi-trash"></i> Clear Log</button>
+                    <button type="submit" name="neko" value="clear" class="btn btn-danger"><i class="bi bi-trash"></i> <span data-translate="clearLog"></span></button>
                 </form>
             </div>
         </div>
@@ -1188,16 +1205,16 @@ $(document).ready(function() {
     <div class="tab-pane fade" id="singboxLog" role="tabpanel" aria-labelledby="singboxLogTab">
         <div class="card log-card">
             <div class="card-body">
-                <pre id="singbox_log" class="log-container form-control" style="resize: vertical; overflow: auto; height: 350px; white-space: pre-wrap;" contenteditable="true"></pre>
+                <pre id="singbox_log" class="log-container form-control" style="resize: vertical; overflow: auto; height: 370px; white-space: pre-wrap;" contenteditable="true"></pre>
             </div>
             <div class="card-footer text-center">
                 <form action="index.php" method="post" class="form-inline">
                     <div class="form-check form-check-inline mb-2">
                         <input class="form-check-input" type="checkbox" id="autoRefresh" checked>
-                        <label class="form-check-label" for="autoRefresh">Auto Refresh</label>
+                        <label class="form-check-label" for="autoRefresh"><span data-translate="autoRefresh"></span></label>
                     </div>
-                    <button type="submit" name="clear_singbox_log" class="btn btn-danger me-2"><i class="bi bi-trash"></i> Clear Log</button>
-                    <button type="button" class="btn btn-primary me-2" data-toggle="modal" data-target="#cronModal"><i class="bi bi-clock"></i> Scheduled restart</button>
+                    <button type="submit" name="clear_singbox_log" class="btn btn-danger me-2"><i class="bi bi-trash"></i> <span data-translate="clearLog"></span></button>
+                    <button type="button" class="btn btn-primary me-2" data-toggle="modal" data-target="#cronModal"><i class="bi bi-clock"></i> <span data-translate="scheduledRestart"></span></button>
                 </form>
             </div>
         </div>
@@ -1208,7 +1225,7 @@ $(document).ready(function() {
   <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title" id="cronModalLabel">Set Cron job schedule</h5>
+        <h5 class="modal-title" id="cronModalLabel" data-translate="setCronTitle"></h5>
         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
           <span aria-hidden="true">&times;</span>
         </button>
@@ -1216,27 +1233,29 @@ $(document).ready(function() {
       <div class="modal-body">
         <form id="cronForm" method="POST">
           <div class="form-group ">
-            <label for="cronTime">Set Sing-box restart time</label>
-            <input type="text" class="form-control mt-3" id="cronTime" name="cronTime" value="0 2 * * *" required>
+            <label for="cronTime" data-translate="setRestartTime"></label>
+            <input type="text" class="form-control mt-3" id="cronTime" name="cronTime" value="0 3 * * *" required>
           </div>
           <div class="alert alert-info mt-3">
-            <strong>Hint:</strong> Cron expression format：
+            <strong><?= $langData[$currentLang]['tip'] ?>:</strong> <?= $langData[$currentLang]['cronFormat'] ?>:
             <ul>
-              <li><code>Minute Hour Day Month Weekday</code></li>
-              <li>Example: Every day at 2 AM: <code>0 2 * * *</code></li>
-              <li>Every Monday at 3 AM: <code>0 3 * * 1</code></li>
+              <li><code>分钟 小时 日 月 星期</code></li>
+              <li><?= $langData[$currentLang]['example1'] ?>: <code>0 2 * * *</code></li>
+              <li><?= $langData[$currentLang]['example2'] ?>: <code>0 3 * * 1</code></li>
+              <li><?= $langData[$currentLang]['example3'] ?>: <code>0 9 * * 1-5</code></li>
             </ul>
           </div>
         </form>
         <div id="resultMessage" class="mt-3"></div>
       </div>
       <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
-        <button type="submit" class="btn btn-primary" form="cronForm">Save</button>
+        <button type="button" class="btn btn-secondary" data-dismiss="modal" data-translate="cancel"></button>
+        <button type="submit" class="btn btn-primary" form="cronForm" data-translate="save"></button>
       </div>
     </div>
   </div>
 </div>
+
 <script>
     $('#cronForm').submit(function(event) {
         event.preventDefault(); 
@@ -1255,12 +1274,12 @@ $(document).ready(function() {
                 }
             },
             error: function() {
-                $('#resultMessage').html('<div class="alert alert-danger">Failed to set Cron job. Please try again!</div>');
+                $('#resultMessage').html('<div class="alert alert-danger">设置 Cron 任务失败，请重试！</div>');
             }
         });
     });
 </script>
-<script src="./assets/js/bootstrap.bundle.min.js"></script>
+
 <script>
     function scrollToBottom(elementId) {
         var logElement = document.getElementById(elementId);

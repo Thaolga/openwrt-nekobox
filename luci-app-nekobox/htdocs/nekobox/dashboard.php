@@ -82,16 +82,16 @@ $dash_link = $neko_cfg['ctrl_host'] . ':' . $neko_cfg['ctrl_port'] . '/ui/dashbo
 <head>
 <div class="container-sm container-bg text-center callout border border-3 rounded-4 col-11">
     <div class="row">
-        <a href="./index.php" class="col btn btn-lg text-nowrap"><i class="bi bi-house-door"></i> Home</a>
-        <a href="./dashboard.php" class="col btn btn-lg text-nowrap"><i class="bi bi-bar-chart"></i> Panel</a>
-        <a href="./singbox.php" class="col btn btn-lg text-nowrap"><i class="bi bi-box"></i> Document</a> 
-        <a href="./settings.php" class="col btn btn-lg text-nowrap"><i class="bi bi-gear"></i> Settings</a>
+        <a href="./index.php" class="col btn btn-lg text-nowrap"><i class="bi bi-house-door"></i> <span data-translate="home">Home</span></a>
+        <a href="./dashboard.php" class="col btn btn-lg text-nowrap"><i class="bi bi-bar-chart"></i> <span data-translate="panel">Panel</span></a>
+        <a href="./singbox.php" class="col btn btn-lg text-nowrap"><i class="bi bi-box"></i> <span data-translate="document">Document</span></a> 
+        <a href="./settings.php" class="col btn btn-lg text-nowrap"><i class="bi bi-gear"></i> <span data-translate="settings">Settings</span></a>
     </div>
 <div class="container-fluid text-left p-3" style="max-width: 2400px; width: 100%;">
         <div class="h-100 mb-5">
             <iframe id="iframeMeta" class="border border-3 rounded-4 w-100" style="height: 75vh; width: 100%; max-width: 2400px;" src="http://<?php echo $zash_link; ?>" title="zash" allowfullscreen></iframe>   
             <div class="mb-3 mt-3">
-                <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#panelModal">
+                <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#panelModal" data-translate="panel_settings">
                     Panel Settings
                 </button>
             </div>
@@ -99,28 +99,28 @@ $dash_link = $neko_cfg['ctrl_host'] . ':' . $neko_cfg['ctrl_port'] . '/ui/dashbo
                 <div class="modal-dialog modal-lg">
                     <div class="modal-content">
                         <div class="modal-header">
-                            <h5 class="modal-title" id="panelModalLabel">Select Panel</h5>
+                            <h5 class="modal-title" id="panelModalLabel" data-translate="select_panel">Select Panel</h5>
                             <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
                         </div>
                         <div class="modal-body">
                             <div>
-                                <label for="panelSelect" class="form-label">Select Panel</label>
+                                <label for="panelSelect" class="form-label" data-translate="select_panel">Select Panel</label>
                                 <select id="panelSelect" class="form-select" onchange="changeIframe(this.value)">
-                                    <option value="http://<?php echo $zash_link; ?>">ZASHBOARD Panel</option>
-                                    <option value="http://<?php echo $yacd_link; ?>">YACD-META Panel</option>
-                                    <option value="http://<?php echo $dash_link; ?>">DASHBOARD Panel</option>
-                                    <option value="http://<?php echo $meta_link; ?>">METACUBEXD Panel</option>
+                                    <option value="http://<?php echo $zash_link; ?>" data-translate="zash_panel"></option> 
+                                    <option value="http://<?php echo $yacd_link; ?>" data-translate="yacd_panel"></option> 
+                                    <option value="http://<?php echo $dash_link; ?>" data-translate="dash_panel"></option> 
+                                    <option value="http://<?php echo $meta_link; ?>" data-translate="metacubexd_panel"></option>
                                 </select>
                             </div>
                             <div class="d-flex justify-content-around mt-3">
-                                <a class="btn btn-info btn-sm text-white" target="_blank" href="http://<?php echo $yacd_link; ?>">YACD-META Panel</a>
-                                <a class="btn btn-info btn-sm text-white" target="_blank" href="http://<?php echo $dash_link; ?>">DASHBOARD Panel</a>
-                                <a class="btn btn-info btn-sm text-white" target="_blank" href="http://<?php echo $meta_link; ?>">METACUBEXD Panel</a>
-                                <a class="btn btn-info btn-sm text-white" target="_blank" href="http://<?php echo $zash_link; ?>">ZASHBOARD Panel</a>
-                            </div>
-                        </div>
-                        <div class="modal-footer">
-                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                        <a class="btn btn-info btn-sm text-white" target="_blank" href="http://<?php echo $yacd_link; ?>" data-translate="yacd_panel"></a>
+                        <a class="btn btn-info btn-sm text-white" target="_blank" href="http://<?php echo $dash_link; ?>" data-translate="dash_panel"></a>
+                        <a class="btn btn-info btn-sm text-white" target="_blank" href="http://<?php echo $meta_link; ?>" data-translate="metacubexd_panel"></a>
+                        <a class="btn btn-info btn-sm text-white" target="_blank" href="http://<?php echo $zash_link; ?>" data-translate="zash_panel"></a>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" data-translate="close"></button> 
                         </div>
                     </div>
                 </div>

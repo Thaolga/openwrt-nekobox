@@ -7,7 +7,8 @@ $lastSubscribeUrl = '';
 
 if (file_exists($dataFilePath)) {
     $fileContent = file_get_contents($dataFilePath);
-    $lastPos = strrpos($fileContent, 'Subscription Link Address:');
+    $subscriptionLinkAddress = $translations['subscription_link_address'] ?? 'Subscription Link Address:';
+    $lastPos = strrpos($fileContent, $subscriptionLinkAddress);
     if ($lastPos !== false) {
         $urlSection = substr($fileContent, $lastPos);
         $httpPos = strpos($urlSection, 'http');
@@ -45,11 +46,11 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['setCron'])) {
 
         $timestamp = date('[ H:i:s ]');
         file_put_contents($logFile, "$timestamp Cron job successfully set. Sing-box will update at $cronExpression.\n", FILE_APPEND);
-        echo "<div class='alert alert-success'>Cron job set: $cronExpression</div>";
+        echo "<div class='alert alert-success' data-translate='cron_job_set' data-dynamic-content='$cronExpression'></div>";
     } else {
         $timestamp = date('[ H:i:s ]');
         file_put_contents($logFile, "$timestamp Invalid Cron expression: $cronExpression\n", FILE_APPEND);
-        echo "<div class='alert alert-danger'>Invalid Cron expression. Please check the format.</div>";
+        echo "<div class='alert alert-danger' data-translate='cron_job_added_failed'></div>";
     }
 }
 ?>
@@ -63,11 +64,11 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         $SUBSCRIBE_URL = trim($_POST['subscribeUrl']);
         
         if (empty($SUBSCRIBE_URL)) {
-            echo "<div class='alert alert-warning'>Subscription URL cannot be empty.</div>";
+            echo "<div class='alert alert-warning' data-translate='subscribe_url_empty'></div>";
             exit;
         }
         
-        echo "<div class='alert alert-success'>Submitted successfully: Subscription URL saved as $SUBSCRIBE_URL</div>";
+        echo "<div class='alert alert-success' data-translate='subscribe_url_saved' data-dynamic-content='$SUBSCRIBE_URL'></div>";
     }
 
     if (isset($_POST['createShellScript'])) {
@@ -115,9 +116,9 @@ EOL;
 
         if (file_put_contents($shellScriptPath, $shellScriptContent) !== false) {
             chmod($shellScriptPath, 0755);
-            echo "<div class='alert alert-success'>Shell script created successfully! Path: $shellScriptPath</div>";
+            echo "<div class='alert alert-success' data-translate='shell_script_created' data-dynamic-content='$shellScriptPath'></div>";
         } else {
-            echo "<div class='alert alert-danger'>Failed to create Shell script. Please check permissions.</div>";
+            echo "<div class='alert alert-danger' data-translate='shell_script_failed'></div>";
         }
     }
 }
@@ -133,12 +134,12 @@ EOL;
     <link href="./assets/css/bootstrap.min.css" rel="stylesheet">
     <link href="./assets/css/custom.css" rel="stylesheet">
     <link href="./assets/theme/<?php echo $neko_theme ?>" rel="stylesheet">
-    <link href="./assets/bootstrap/bootstrap-icons.css" rel="stylesheet">
     <script type="text/javascript" src="./assets/js/bootstrap.min.js"></script>
     <script type="text/javascript" src="./assets/js/feather.min.js"></script>
     <script type="text/javascript" src="./assets/bootstrap/bootstrap.bundle.min.js"></script>
     <script type="text/javascript" src="./assets/js/jquery-2.1.3.min.js"></script>
     <script type="text/javascript" src="./assets/js/neko.js"></script>
+    <link href="./assets/bootstrap/bootstrap-icons.css" rel="stylesheet">
     <?php include './ping.php'; ?>
 </head>
 <body>
@@ -159,135 +160,121 @@ EOL;
     width: 100%;
 }
 
-@media (max-width: 768px) {
-    .row.mb-4 {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 10px; 
-    }
-
-    .btn {
-        width: 100%; 
-    }
-
-    .btn i {
-        margin-right: 8px; 
-    }
-}
-
 </style>
 <div class="container-sm container-bg callout border border-3 rounded-4 col-11">
     <div class="row">
-        <a href="./index.php" class="col btn btn-lg"><i class="bi bi-house-door"></i> Home</a>
-        <a href="./mihomo_manager.php" class="col btn btn-lg"><i class="bi bi-folder"></i> Manager</a>
-        <a href="./singbox.php" class="col btn btn-lg"><i class="bi bi-shop"></i> Template I</a>
-        <a href="./subscription.php" class="col btn btn-lg"><i class="bi bi-bank"></i> Template II</a>
-        <a href="./mihomo.php" class="col btn btn-lg"><i class="bi bi-building"></i> Template III</a>
+        <a href="./index.php" class="col btn btn-lg text-nowrap"><i class="bi bi-house-door"></i> <span data-translate="home">Home</span></a>
+        <a href="./mihomo_manager.php" class="col btn btn-lg text-nowrap"><i class="bi bi-folder"></i> <span data-translate="manager">Manager</span></a>
+        <a href="./singbox.php" class="col btn btn-lg text-nowrap"><i class="bi bi-shop"></i> <span data-translate="template_i">Template I</span></a>
+        <a href="./subscription.php" class="col btn btn-lg text-nowrap"><i class="bi bi-bank"></i> <span data-translate="template_ii">Template II</span></a>
+        <a href="./mihomo.php" class="col btn btn-lg text-nowrap"><i class="bi bi-building"></i> <span data-translate="template_iii">Template III</span></a>
 <div class="outer-container">
     <div class="container-fluid">
-        <h1 class="title text-center" style="margin-top: 3rem; margin-bottom: 2rem;">Sing-box  Template I</h1>
+        <h1 class="title text-center" style="margin-top: 3rem; margin-bottom: 2rem;" data-translate="title">Sing-box Conversion Template One</h1>
         <div class="alert alert-info">
-            <h4 class="alert-heading">Help Information</h4>
+            <h4 class="alert-heading" data-translate="helpInfoHeading">Help Information</h4>
             <ul>
-                <li><strong>Template 1</strong>：No region, no grouping</li>
-                <li><strong>Template 2</strong>：No region, with routing rules</li>
-                <li><strong>Template 3</strong>：Hong Kong, Taiwan, Singapore, Japan, United States, South Korea, grouped with routing rules</li>
+                <li data-translate="template1"><strong>Template 1</strong>: No Region, No Groups.</li>
+                <li data-translate="template2"><strong>Template 2</strong>: No Region, With Routing Rules.</li>
+                <li data-translate="template3"><strong>Template 3</strong>: Hong Kong, Taiwan, Singapore, Japan, USA, South Korea, With Routing Rules.</li>
+                <li data-translate="template4"><strong>Template 4</strong>: Same As Above, Multiple Rules.</li>
             </ul>
         </div>
         <form method="post" action="">
             <div class="mb-3">
-                <label for="subscribeUrl" class="form-label">Subscription Link Address:</label>
-                <input type="text" class="form-control" id="subscribeUrl" name="subscribeUrl" value="<?php echo htmlspecialchars($lastSubscribeUrl); ?>" placeholder="Enter the subscription link" required>
+                <label for="subscribeUrl" class="form-label" data-translate="subscribeUrlLabel">Subscription URL</label>         
+                <input type="text" class="form-control" id="subscribeUrl" name="subscribeUrl" value="<?php echo htmlspecialchars($lastSubscribeUrl); ?>" placeholder="Enter subscription URL, multiple URLs separated by |" required>
             </div>
             <div class="mb-3">
-                <label for="customFileName" class="form-label">Custom filename (Default: sing-box.json)</label>
+                <label for="customFileName" class="form-label" data-translate="customFileNameLabel">Custom Filename (Default: sing-box.json)</label>
                 <input type="text" class="form-control" id="customFileName" name="customFileName" placeholder="sing-box.json">
             </div>
             <fieldset class="mb-3">
-                <legend class="form-label">Select a template</legend>
+                <legend class="form-label" data-translate="chooseTemplateLabel">Choose Template</legend>
                 <div class="row">
                     <div class="col">
                         <input type="radio" class="form-check-input" id="useDefaultTemplate0" name="defaultTemplate" value="0" checked>
-                        <label class="form-check-label" for="useDefaultTemplate0">Default</label>
+                        <label class="form-check-label" for="useDefaultTemplate0" data-translate="defaultTemplateLabel">Default Template</label>
                     </div>
                     <div class="col">
-                        <input type="radio" class="form-check-input" id="useDefaultTemplate1" name="defaultTemplate" value="1" checked>
-                        <label class="form-check-label" for="useDefaultTemplate1">Template 1</label>
+                        <input type="radio" class="form-check-input" id="useDefaultTemplate1" name="defaultTemplate" value="1">
+                        <label class="form-check-label" for="useDefaultTemplate1" data-translate="template1Label">Template 1</label>
                     </div>
                     <div class="col">
                         <input type="radio" class="form-check-input" id="useDefaultTemplate2" name="defaultTemplate" value="2">
-                        <label class="form-check-label" for="useDefaultTemplate2">Template 2</label>
+                        <label class="form-check-label" for="useDefaultTemplate2" data-translate="template2Label">Template 2</label>
                     </div>
                     <div class="col">
                         <input type="radio" class="form-check-input" id="useDefaultTemplate3" name="defaultTemplate" value="3">
-                        <label class="form-check-label" for="useDefaultTemplate3">Template 3</label>
+                        <label class="form-check-label" for="useDefaultTemplate3" data-translate="template3Label">Template 3</label>
                     </div>
                     <div class="col">
                         <input type="radio" class="form-check-input" id="useDefaultTemplate4" name="defaultTemplate" value="4">
-                        <label class="form-check-label" for="useDefaultTemplate4">Template 4</label>
-                    </div>
-                    <div class="col">
-                        <input type="radio" class="form-check-input" id="useDefaultTemplate5" name="defaultTemplate" value="5">
-                        <label class="form-check-label" for="useDefaultTemplate5">Template 5</label>
+                        <label class="form-check-label" for="useDefaultTemplate4" data-translate="template4Label">Template 4</label>
                     </div>
                 </div>
                 <div class="mt-3">
                     <input type="radio" class="form-check-input" id="useCustomTemplate" name="templateOption" value="custom">
-                    <label class="form-check-label mb-3" for="useCustomTemplate">Use Custom Template URL:</label>
-                    <input type="text" class="form-control" id="customTemplateUrl" name="customTemplateUrl" placeholder="Enter Custom Template URL">
+                    <label class="form-check-label mb-3" for="useCustomTemplate" data-translate="useCustomTemplateLabel">Use Custom Template URL</label>
+                    <input type="text" class="form-control" id="customTemplateUrl" name="customTemplateUrl" placeholder="Enter custom template URL" data-translate-placeholder="customTemplateUrlPlaceholder">
                 </div>
             </fieldset>
-            <div class="row mb-4"> 
+            <div class="d-flex flex-wrap gap-2 mb-4">
                 <div class="col-auto">
                     <form method="post" action="">
                         <button type="submit" name="generateConfig" class="btn btn-info">
-                            <i class="bi bi-file-earmark-text"></i> Generate a configuration file
+                            <i class="bi bi-file-earmark-text"></i> <span data-translate="generateConfigLabel">Generate Configuration File</span>
                         </button>
                     </form>
                 </div>
                 <div class="col-auto">
                     <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#cronModal">
-                        <i class="bi bi-clock"></i> Set up a scheduled task
+                        <i class="bi bi-clock"></i> <span data-translate="setCronLabel">Set Cron Job</span>
                     </button>
                 </div>
                 <div class="col-auto">
                     <form method="post" action="">
                         <button type="submit" name="createShellScript" class="btn btn-primary">
-                            <i class="bi bi-terminal"></i> Generate an update script
+                            <i class="bi bi-terminal"></i> <span data-translate="generateShellLabel">Generate Update Script</span>
                         </button>
                     </form>
                 </div>
             </div>
+        </form>
         <div class="modal fade" id="cronModal" tabindex="-1" aria-labelledby="cronModalLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
-          <div class="modal-dialog modal-lg">
-            <div class="modal-content">
-              <div class="modal-header">
-                <h5 class="modal-title" id="cronModalLabel">Set up a scheduled task</h5>
-                <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-              </div>
-              <form method="post" action="">
-                <div class="modal-body">
-                  <div class="mb-3">
-                    <label for="cronExpression" class="form-label">Cron expression</label>
-                    <input type="text" class="form-control" id="cronExpression" name="cronExpression" value="0 2 * * *" required>
-                  </div>
-                  <div class="alert alert-info">
-                    <strong>Hint:</strong> Cron expression format：
-                    <ul>
-                      <li><code>Minute Hour Day Month Weekday</code></li>
-                      <li>Example: Every day at 2 AM: <code>0 2 * * *</code></li>
-                      <li>Every Monday at 3 AM: <code>0 3 * * 1</code></li>
-                    </ul>
-                  </div>
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="cronModalLabel" data-translate="setCronModalTitle">Set Cron Job</h5>
+                        <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <form method="post" action="">
+                        <div class="modal-body">
+                            <div class="mb-3">
+                                <label for="cronExpression" class="form-label" data-translate="cronExpressionLabel">Cron Expression</label>
+                                <input type="text" class="form-control" id="cronExpression" name="cronExpression" value="0 2 * * *" required>
+                            </div>
+                            <div class="alert alert-info">
+                                <strong data-translate="cron_hint"></strong> <span data-translate="cron_expression_format"></span>
+                                <ul>
+                                    <li><span data-translate="cron_format_help"></span></li>
+                                    <li><span data-translate="cron_example"></span><code>0 2 * * *</code></li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" data-translate="cancelButton">Cancel</button>
+                            <button type="submit" name="setCron" class="btn btn-primary" data-translate="saveButton">Save</button>
+                        </div>
+                    </form>
                 </div>
-                <div class="modal-footer">
-                  <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                  <button type="submit" name="setCron" class="btn btn-primary">Save</button>
-                </div>
-              </form>
             </div>
-          </div>
         </div>
+    </div>
+</div>
+
 <script>
     document.querySelectorAll('input[name="defaultTemplate"]').forEach((elem) => {
         elem.addEventListener('change', function () {
@@ -304,14 +291,14 @@ EOL;
         $dataFilePath = '/etc/neko/proxy_provider/subscription_data.txt';
         $configFilePath = '/etc/neko/config/sing-box.json';
         $downloadedContent = ''; 
-        $fixedFileName = 'subscription.txt';
+        $fixedFileName = 'subscription.txt'; 
 
         if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['generateConfig'])) {
             $subscribeUrl = trim($_POST['subscribeUrl']);
             $customTemplateUrl = trim($_POST['customTemplateUrl']);
             $templateOption = $_POST['templateOption'] ?? 'default';
             $currentTime = date('Y-m-d H:i:s');
-            $dataContent = $currentTime . " | Subscription Link Address: " . $subscribeUrl . "\n";            
+            $dataContent = $currentTime . " | Subscription Link Address: " . $subscribeUrl . "\n";         
             $customFileName = trim($_POST['customFileName']);
             if (empty($customFileName)) {
                $customFileName = 'sing-box';  
@@ -334,7 +321,10 @@ EOL;
             file_put_contents($dataFilePath, implode("\n\n", $logEntries) . "\n\n");
 
             $subscribeUrlEncoded = urlencode($subscribeUrl);
-            if ($templateOption === 'custom' && !empty($customTemplateUrl)) {
+
+            if (isset($_POST['defaultTemplate']) && $_POST['defaultTemplate'] == '0') {
+                $templateUrlEncoded = '';  
+            } elseif ($templateOption === 'custom' && !empty($customTemplateUrl)) {
                 $templateUrlEncoded = urlencode($customTemplateUrl);
             } else {
                 $defaultTemplates = [
@@ -373,7 +363,6 @@ EOL;
                 if ($downloadedContent === false) {
                     $logMessages[] = "Unable to read the downloaded file content";
                 } else {
-
                     $downloadedContent = preg_replace_callback(
                         '/\{\s*"tag":\s*"(.*?)",\s*"type":\s*"selector",\s*"outbounds":\s*\[\s*"Proxy"\s*\]\s*\}/s',
                         function ($matches) {
@@ -396,35 +385,36 @@ EOL;
 
                     $tmpFileSavePath = '/etc/neko/proxy_provider/' . $fixedFileName;  
                     if (file_put_contents($tmpFileSavePath, $completeSubscribeUrl) === false) {
-                        $logMessages[] = "Unable to save subscription URL to file: " . $tmpFileSavePath;
+                        $logMessages[] = $translations['save_subscribe_url_failed'] . $tmpFileSavePath;
                     } else {
-                        $logMessages[] = "The subscription URL has been successfully saved to the file: " . $tmpFileSavePath;
+                        $logMessages[] = $translations['subscribe_url_saved'] . $tmpFileSavePath;
                     }
 
                     $configFilePath = '/etc/neko/config/' . $customFileName; 
                     if (file_put_contents($configFilePath, $downloadedContent) === false) {
-                        $logMessages[] = "Unable to save the modified content to: " . $configFilePath;
+                        $logMessages[] = $translations['save_config_failed'] . $configFilePath;
                     } else {
-                        $logMessages[] = "Configuration file generated and saved successfully: " . $configFilePath;
+                        $logMessages[] = $translations['config_saved'] . $configFilePath;
                     }
 
                     if (file_exists($tempFilePath)) {
                         unlink($tempFilePath); 
-                        $logMessages[] = "Temporary file has been cleaned: " . $tempFilePath;
+                        $logMessages[] = $translations['temp_file_cleaned'] . $tempFilePath;
                     } else {
-                        $logMessages[] = "Temporary file not found for cleaning: " . $tempFilePath;
+                        $logMessages[] = $translations['temp_file_not_found'] . $tempFilePath;
                     }
                 }
             }
+
             echo "<div class='result-container'>";
             echo "<form method='post' action=''>";
             echo "<div class='mb-3'>";
             echo "<textarea id='configContent' name='configContent' class='form-control' style='height: 300px;'>" . htmlspecialchars($downloadedContent) . "</textarea>";
             echo "</div>";
             echo "<div class='text-center' mb-3>";
-            echo "<button class='btn btn-info me-3' type='button' onclick='copyToClipboard()'><i class='bi bi-clipboard'></i> Copy to Clipboard</button>";
+            echo "<button class='btn btn-info me-3' type='button' onclick='copyToClipboard()'><i class='bi bi-clipboard'></i> " . $translations['copy_to_clipboard'] . "</button>";
             echo "<input type='hidden' name='saveContent' value='1'>";
-            echo "<button class='btn btn-success' type='submit'><i class='bi bi-save'></i>Save Changes</button>";
+            echo "<button class='btn btn-success' type='submit'><i class='bi bi-save'></i> " . $translations['save_changes'] . "</button>";
             echo "</div>";
             echo "</form>";
             echo "</div>";
@@ -439,9 +429,9 @@ EOL;
             if (isset($_POST['configContent'])) {
                 $editedContent = trim($_POST['configContent']);
                 if (file_put_contents($configFilePath, $editedContent) === false) {
-                    echo "<div class='alert alert-danger'>Unable to save the modified content to: " . htmlspecialchars($configFilePath) . "</div>";
+                    echo "<div class='alert alert-danger'>" . $translations['error_save_content'] . htmlspecialchars($configFilePath) . "</div>";
                 } else {
-                    echo "<div class='alert alert-success'>Content successfully saved to: " . htmlspecialchars($configFilePath) . "</div>";
+                    echo "<div class='alert alert-success'>" . $translations['success_save_content'] . htmlspecialchars($configFilePath) . "</div>";
                 }
             }
         }
@@ -449,7 +439,7 @@ EOL;
         if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['clearData'])) {
             if (file_exists($dataFilePath)) {
                 file_put_contents($dataFilePath, '');
-                echo "<div class='alert alert-success'>Saved data has been cleared</div>";
+                echo "<div class='alert alert-success'>" . $translations['save_data_cleared'] . "</div>";
             }
         }
 
@@ -457,10 +447,10 @@ EOL;
             $savedData = file_get_contents($dataFilePath);
             echo "<div class='card'>";
             echo "<div class='card-body'>";
-            echo "<h2 class='card-title'>Saved data</h2>";
+            echo "<h2 class='card-title'>" . $translations['data_saved'] . "</h2>";
             echo "<pre>" . htmlspecialchars($savedData) . "</pre>";
             echo "<form method='post' action=''>";
-            echo '<button class="btn btn-danger" type="submit" name="clearData"><i class="bi bi-trash"></i> Clear data</button>';
+            echo '<button class="btn btn-danger" type="submit" name="clearData"><i class="bi bi-trash"></i> ' . $translations['clear_data'] . '</button>';
             echo "</form>";
             echo "</div>";
             echo "</div>";
@@ -468,6 +458,8 @@ EOL;
         ?>
     </div>
 </div>
+    </div>
+</form>
 <script src="./assets/bootstrap/jquery.min.js"></script>
 <script>
     function copyToClipboard() {
@@ -525,5 +517,9 @@ document.addEventListener("DOMContentLoaded", function () {
     });
 });
 </script>
+</div>
+      <footer class="text-center">
+    <p><?php echo $footer ?></p>
+</footer>
 </body>
 </html>

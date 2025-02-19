@@ -1,3 +1,140 @@
+<?php include './language.php'; ?>
+<html lang="<?php echo $currentLang; ?>">
+<div class="modal fade" id="langModal" tabindex="-1" aria-labelledby="langModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="langModalLabel" data-translate="select_language">Select Language</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <select id="langSelect" class="form-select" onchange="changeLanguage(this.value)">
+                    <option value="zh" data-translate="simplified_chinese">Simplified Chinese</option>
+                    <option value="hk" data-translate="traditional_chinese">Traditional Chinese</option>
+                    <option value="en" data-translate="english">English</option>
+                    <option value="kr" data-translate="korean">Korean</option>
+                    <option value="vn" data-translate="vietnamese">Vietnamese</option>
+                    <option value="jp" data-translate="japanese"></option>
+                    <option value="ru" data-translate="russian"></option>
+                    <option value="ar" data-translate="arabic"></option>
+                    <option value="es" data-translate="spanish">spanish</option>
+                </select>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" data-translate="close">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+const langData = <?php echo json_encode($langData); ?>;  
+const currentLang = "<?php echo $currentLang; ?>"; 
+
+let translations = langData[currentLang] || langData['zh'];
+
+document.addEventListener("DOMContentLoaded", function () {
+    const userLang = localStorage.getItem('language') || currentLang;
+
+    updateLanguage(userLang); 
+    updateFlagIcon(userLang);  
+    document.getElementById("langSelect").value = userLang; 
+});
+
+function updateLanguage(lang) {
+    localStorage.setItem('language', lang); 
+    translations = langData[lang] || langData['zh'];  
+
+    document.querySelectorAll('[data-translate]').forEach((el) => {
+        const translationKey = el.getAttribute('data-translate');
+        const translationValue = translations[translationKey] || '';
+        const dynamicContent = el.getAttribute('data-dynamic-content') || '';
+
+        if (translations[translationKey]) {
+            if (el.tagName === 'OPTGROUP') {
+                el.setAttribute('label', translationValue);
+            } else {
+                el.innerText = translationValue + dynamicContent;
+            }
+        }
+    });
+
+    document.querySelectorAll('[data-translate-title]').forEach((el) => {
+        const translationKey = el.getAttribute('data-translate-title');
+        const translationValue = translations[translationKey] || ''; 
+        if (translations[translationKey]) {
+            el.setAttribute('title', translations[translationKey]);
+        }
+    });
+
+    document.querySelectorAll('[data-translate-placeholder]').forEach((el) => {
+        const translationKey = el.getAttribute('data-translate-placeholder');
+        const translationValue = translations[translationKey] || ''; 
+        if (translations[translationKey]) {
+            el.setAttribute('placeholder', translations[translationKey]);
+        }
+    });
+
+    document.querySelectorAll('[data-translate]').forEach((el) => {
+        const translationKey = el.getAttribute('data-translate');
+        const translationValue = translations[translationKey] || ''; 
+        if (translationKey && translations[translationKey]) {
+            el.setAttribute('label', translations[translationKey]);  
+        }
+    });
+}
+
+function updateFlagIcon(lang) {
+    const flagImg = document.getElementById('flagIcon');
+    if (!flagImg) return; 
+
+    const flagMap = {
+        'zh': './assets/neko/flags/cn.png', 
+        'hk': './assets/neko/flags/hk.png', 
+        'en': './assets/neko/flags/us.png',  
+        'kr': './assets/neko/flags/kr.png',  
+        'jp': './assets/neko/flags/jp.png', 
+        'ru': './assets/neko/flags/ru.png',  
+        'ar': './assets/neko/flags/sa.png', 
+        'es': './assets/neko/flags/es.png',  
+        'vn': './assets/neko/flags/vn.png'      
+    };
+    flagImg.src = flagMap[lang] || flagMap['zh']; 
+}
+
+function changeLanguage(lang) {
+    fetch('', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded'
+        },
+        body: 'lang=' + lang
+    }).then(response => response.text())
+      .then(data => {
+          console.log(data); 
+          updateLanguage(lang);  
+          updateFlagIcon(lang);  
+      });
+}
+</script>
+
+<?php
+function getAvailableSpace() {
+    $dfOutput = [];
+    exec('df /', $dfOutput);
+
+    $availableSpace = 0;
+    if (isset($dfOutput[1])) {
+        $dfData = preg_split('/\s+/', $dfOutput[1]);
+        $availableSpace = $dfData[3] * 1024;
+    }
+
+    $availableSpaceInMB = $availableSpace / 1024 / 1024;
+    return round($availableSpaceInMB, 2);
+}
+
+$availableSpace = getAvailableSpace(); 
+?>
+
 <?php
 $default_url = 'https://raw.githubusercontent.com/Thaolga/Rules/main/Clash/songs.txt';
 
@@ -8,18 +145,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $new_url = $_POST['new_url'];  
         $file_path = 'url_config.txt';  
         if (file_put_contents($file_path, $new_url)) {
-            $message = 'URL updated successfully';
+            $message = $translations['update_success'];
         } else {
-            $message = 'Failed to update URL';
+            $message = $translations['update_fail'];
         }
     }
 
     if (isset($_POST['reset_default'])) {
         $file_path = 'url_config.txt';  
         if (file_put_contents($file_path, $default_url)) {
-            $message = 'Default URL restored successfully';
+            $message = $translations['reset_success'];
         } else {
-            $message = 'Failed to restore default URL';
+            $message = $translations['reset_fail'];
         }
     }
 }
@@ -27,10 +164,207 @@ else {
     $new_url = file_exists('url_config.txt') ? file_get_contents('url_config.txt') : $default_url;
 }
 ?>
+
 <?php
 ob_start();
 include './cfg.php';
 $translate = [
+    'Argentina' => '阿根廷',
+    'Australia' => '澳大利亚',
+    'Austria' => '奥地利',
+    'Belgium' => '比利时',
+    'Brazil' => '巴西',
+    'Canada' => '加拿大',
+    'Chile' => '智利',
+    'China' => '中国',
+    'Colombia' => '哥伦比亚',
+    'Denmark' => '丹麦',
+    'Egypt' => '埃及',
+    'Finland' => '芬兰',
+    'France' => '法国',
+    'Germany' => '德国',
+    'Greece' => '希腊',
+    'Hong Kong' => '中国香港',
+    'India' => '印度',
+    'Indonesia' => '印度尼西亚',
+    'Iran' => '伊朗',
+    'Ireland' => '爱尔兰',
+    'Israel' => '以色列',
+    'Italy' => '意大利',
+    'Japan' => '日本',
+    'Kazakhstan' => '哈萨克斯坦',
+    'Kenya' => '肯尼亚',
+    'Macao' => '中国澳门',
+    'Malaysia' => '马来西亚',
+    'Mexico' => '墨西哥',
+    'Morocco' => '摩洛哥',
+    'The Netherlands' => '荷兰',
+    'New Zealand' => '新西兰',
+    'Nigeria' => '尼日利亚',
+    'Norway' => '挪威',
+    'Pakistan' => '巴基斯坦',
+    'Philippines' => '菲律宾',
+    'Poland' => '波兰',
+    'Portugal' => '葡萄牙',
+    'Russia' => '俄罗斯',
+    'Saudi Arabia' => '沙特阿拉伯',
+    'Singapore' => '新加坡',
+    'South Africa' => '南非',
+    'South Korea' => '韩国',
+    'Spain' => '西班牙',
+    'Sweden' => '瑞典',
+    'Switzerland' => '瑞士',
+    'Taiwan' => '中国台湾',
+    'Thailand' => '泰国',
+    'Turkey' => '土耳其',
+    'United Arab Emirates' => '阿拉伯联合酋长国',
+    'United Kingdom' => '英国',
+    'United States' => '美国',
+    'Vietnam' => '越南',
+    'Afghanistan' => '阿富汗',
+    'Albania' => '阿尔巴尼亚',
+    'Armenia' => '亚美尼亚',
+    'Bahrain' => '巴林',
+    'Bangladesh' => '孟加拉国',
+    'Barbados' => '巴巴多斯',
+    'Belarus' => '白俄罗斯',
+    'Bhutan' => '不丹',
+    'Bolivia' => '玻利维亚',
+    'Bosnia and Herzegovina' => '波斯尼亚和黑塞哥维那',
+    'Botswana' => '博茨瓦纳',
+    'Brunei' => '文莱',
+    'Bulgaria' => '保加利亚',
+    'Burkina Faso' => '布基纳法索',
+    'Burundi' => '布隆迪',
+    'Cambodia' => '柬埔寨',
+    'Cameroon' => '喀麦隆',
+    'Central African Republic' => '中非共和国',
+    'Chad' => '乍得',
+    'Comoros' => '科摩罗',
+    'Congo' => '刚果',
+    'Czech Republic' => '捷克共和国',
+    'Dominica' => '多米尼加',
+    'Dominican Republic' => '多米尼加共和国',
+    'Ecuador' => '厄瓜多尔',
+    'El Salvador' => '萨尔瓦多',
+    'Equatorial Guinea' => '赤道几内亚',
+    'Ethiopia' => '埃塞俄比亚',
+    'Fiji' => '斐济',
+    'Gabon' => '加蓬',
+    'Gambia' => '冈比亚',
+    'Georgia' => '格鲁吉亚',
+    'Ghana' => '加纳',
+    'Grenada' => '格林纳达',
+    'Guatemala' => '危地马拉',
+    'Guinea' => '几内亚',
+    'Guinea-Bissau' => '几内亚比绍',
+    'Haiti' => '海地',
+    'Honduras' => '洪都拉斯',
+    'Hungary' => '匈牙利',
+    'Iceland' => '冰岛',
+    'Jamaica' => '牙买加',
+    'Jordan' => '约旦',
+    'Kazakhstan' => '哈萨克斯坦',
+    'Kuwait' => '科威特',
+    'Kyrgyzstan' => '吉尔吉斯斯坦',
+    'Laos' => '老挝',
+    'Latvia' => '拉脱维亚',
+    'Lebanon' => '黎巴嫩',
+    'Lesotho' => '莱索托',
+    'Liberia' => '利比里亚',
+    'Libya' => '利比亚',
+    'Liechtenstein' => '列支敦士登',
+    'Lithuania' => '立陶宛',
+    'Luxembourg' => '卢森堡',
+    'Madagascar' => '马达加斯加',
+    'Malawi' => '马拉维',
+    'Maldives' => '马尔代夫',
+    'Mali' => '马里',
+    'Malta' => '马耳他',
+    'Mauritania' => '毛里塔尼亚',
+    'Mauritius' => '毛里求斯',
+    'Moldova' => '摩尔多瓦',
+    'Monaco' => '摩纳哥',
+    'Mongolia' => '蒙古',
+    'Montenegro' => '黑山',
+    'Morocco' => '摩洛哥',
+    'Mozambique' => '莫桑比克',
+    'Myanmar' => '缅甸',
+    'Namibia' => '纳米比亚',
+    'Nauru' => '瑙鲁',
+    'Nepal' => '尼泊尔',
+    'Nicaragua' => '尼加拉瓜',
+    'Niger' => '尼日尔',
+    'Nigeria' => '尼日利亚',
+    'North Korea' => '朝鲜',
+    'North Macedonia' => '北马其顿',
+    'Norway' => '挪威',
+    'Oman' => '阿曼',
+    'Pakistan' => '巴基斯坦',
+    'Palau' => '帕劳',
+    'Panama' => '巴拿马',
+    'Papua New Guinea' => '巴布亚新几内亚',
+    'Paraguay' => '巴拉圭',
+    'Peru' => '秘鲁',
+    'Philippines' => '菲律宾',
+    'Poland' => '波兰',
+    'Portugal' => '葡萄牙',
+    'Qatar' => '卡塔尔',
+    'Romania' => '罗马尼亚',
+    'Russia' => '俄罗斯',
+    'Rwanda' => '卢旺达',
+    'Saint Kitts and Nevis' => '圣基茨和尼维斯',
+    'Saint Lucia' => '圣卢西亚',
+    'Saint Vincent and the Grenadines' => '圣文森特和格林纳丁斯',
+    'Samoa' => '萨摩亚',
+    'San Marino' => '圣马力诺',
+    'Sao Tome and Principe' => '圣多美和普林西比',
+    'Saudi Arabia' => '沙特阿拉伯',
+    'Senegal' => '塞内加尔',
+    'Serbia' => '塞尔维亚',
+    'Seychelles' => '塞舌尔',
+    'Sierra Leone' => '塞拉利昂',
+    'Singapore' => '新加坡',
+    'Slovakia' => '斯洛伐克',
+    'Slovenia' => '斯洛文尼亚',
+    'Solomon Islands' => '所罗门群岛',
+    'Somalia' => '索马里',
+    'South Africa' => '南非',
+    'South Korea' => '韩国',
+    'South Sudan' => '南苏丹',
+    'Spain' => '西班牙',
+    'Sri Lanka' => '斯里兰卡',
+    'Sudan' => '苏丹',
+    'Suriname' => '苏里南',
+    'Sweden' => '瑞典',
+    'Switzerland' => '瑞士',
+    'Syria' => '叙利亚',
+    'Taiwan' => '中国台湾',
+    'Tajikistan' => '塔吉克斯坦',
+    'Tanzania' => '坦桑尼亚',
+    'Thailand' => '泰国',
+    'Timor-Leste' => '东帝汶',
+    'Togo' => '多哥',
+    'Tonga' => '汤加',
+    'Trinidad and Tobago' => '特立尼达和多巴哥',
+    'Tunisia' => '突尼斯',
+    'Turkey' => '土耳其',
+    'Turkmenistan' => '土库曼斯坦',
+    'Tuvalu' => '图瓦卢',
+    'Uganda' => '乌干达',
+    'Ukraine' => '乌克兰',
+    'United Arab Emirates' => '阿拉伯联合酋长国',
+    'United Kingdom' => '英国',
+    'United States' => '美国',
+    'Uruguay' => '乌拉圭',
+    'Uzbekistan' => '乌兹别克斯坦',
+    'Vanuatu' => '瓦努阿图',
+    'Vatican City' => '梵蒂冈',
+    'Venezuela' => '委内瑞拉',
+    'Vietnam' => '越南',
+    'Yemen' => '也门',
+    'Zambia' => '赞比亚',
+    'Zimbabwe' => '津巴布韦'
 ];
 $lang = $_GET['lang'] ?? 'en';
 ?>
@@ -187,12 +521,12 @@ $lang = $_GET['lang'] ?? 'en';
 }
 </style>
 
-<?php if (in_array($lang, ['zh-cn', 'en', 'auto'])): ?>
+<?php if (in_array($currentLang, ['zh', 'en', 'hk', 'vn', 'jp', 'ru', 'ar', 'es', 'kr'])): ?>
     <div id="status-bar-component" class="container-sm container-bg callout border border-3 rounded-4 col-11">
         <div class="row align-items-center">
             <div class="col-auto">
                 <div class="img-con">
-                    <img src="./assets/neko/img/loading.svg" id="flag" title="Click to refresh the IP address" onclick="IP.getIpipnetIP()">
+                    <img src="./assets/neko/img/loading.svg" id="flag" title="<?php echo $translations['refresh_ip']; ?>" onclick="IP.getIpipnetIP()">
                 </div>
             </div>
             <div class="col-3">
@@ -204,20 +538,28 @@ $lang = $_GET['lang'] ?? 'en';
             </div>
             <div class="col-auto ms-auto">
                 <div class="status-icons d-flex">
+                    <div class="site-icon mx-1" onclick="pingHost('baidu', 'Baidu')">
+                        <img src="./assets/neko/img/site_icon_01.png" id="baidu-normal" title="<?php echo sprintf($translations['test_latency'], 'Baidu'); ?>" class="status-icon" style="display: none;">
+                        <img src="./assets/neko/img/site_icon1_01.png" id="baidu-gray" class="status-icon">
+                    </div>
+                    <div class="site-icon mx-1" onclick="pingHost('taobao', 'Taobao')">
+                        <img src="./assets/neko/img/site_icon_02.png" id="taobao-normal" title="<?php echo sprintf($translations['test_latency'], 'Taobao'); ?>"  class="status-icon" style="display: none;">
+                        <img src="./assets/neko/img/site_icon1_02.png" id="taobao-gray" class="status-icon">
+                    </div>
                     <div class="site-icon mx-1" onclick="pingHost('google', 'Google')">
-                        <img src="./assets/neko/img/site_icon_03.png" id="google-normal" class="status-icon" title="Testing Google latency" style="display: none;">
+                        <img src="./assets/neko/img/site_icon_03.png" id="google-normal" title="<?php echo sprintf($translations['test_latency'], 'Google'); ?>"  class="status-icon" style="display: none;">
                         <img src="./assets/neko/img/site_icon1_03.png" id="google-gray" class="status-icon">
                     </div>
                     <div class="site-icon mx-1" onclick="pingHost('openai', 'OpenAI')">
-                        <img src="./assets/neko/img/site_icon_06.png" id="openai-normal" title="Testing OpenAI  latency"  class="status-icon" style="display: none;">
+                        <img src="./assets/neko/img/site_icon_06.png" id="openai-normal" title="<?php echo sprintf($translations['test_latency'], 'OpenAI'); ?>"  class="status-icon" style="display: none;">
                         <img src="./assets/neko/img/site_icon1_06.png" id="openai-gray" class="status-icon">
                     </div>
                     <div class="site-icon mx-1" onclick="pingHost('youtube', 'YouTube')">
-                        <img src="./assets/neko/img/site_icon_04.png" id="youtube-normal" class="status-icon" title="Testing YouTube latency" style="display: none;">
+                        <img src="./assets/neko/img/site_icon_04.png" id="youtube-normal" title="<?php echo sprintf($translations['test_latency'], 'YouTube'); ?>" class="status-icon" style="display: none;">
                         <img src="./assets/neko/img/site_icon1_04.png" id="youtube-gray" class="status-icon">
                     </div>
                     <div class="site-icon mx-1" onclick="pingHost('github', 'GitHub')">
-                        <img src="./assets/neko/img/site_icon_05.png" id="github-normal" title="Testing GitHub latency" class="status-icon" style="display: none;">
+                        <img src="./assets/neko/img/site_icon_05.png" id="github-normal" title="<?php echo sprintf($translations['test_latency'], 'GitHub'); ?>" class="status-icon" style="display: none;">
                         <img src="./assets/neko/img/site_icon1_05.png" id="github-gray" class="status-icon">
                     </div>
                 </div>
@@ -568,6 +910,7 @@ $lang = $_GET['lang'] ?? 'en';
 }
 
 </style>
+</style>
 <script src="./assets/bootstrap/Sortable.min.js"></script>
 <link href="./assets/bootstrap/video-js.css" rel="stylesheet" />
 <script src="./assets/bootstrap/video.js"></script>
@@ -584,11 +927,13 @@ let cachedInfo = null;
 let random = parseInt(Math.random() * 100000000);
 
 const sitesToPing = {
+    baidu: { url: 'https://www.baidu.com', name: 'Baidu' },
+    taobao: { url: 'https://www.taobao.com', name: 'Taobao' },
     google: { url: 'https://www.google.com', name: 'Google' },
     youtube: { url: 'https://www.youtube.com', name: 'YouTube' },
     github: { url: 'https://www.github.com', name: 'GitHub' },
     openai : { url: 'https://www.openai.com', name: 'OpenAI' }
-}
+};
 
 async function checkAllPings() {
     const pingResults = {};
@@ -601,7 +946,7 @@ async function checkAllPings() {
             const pingTime = Math.round(endTime - startTime);
             pingResults[key] = { name, pingTime };
         } catch (error) {
-            pingResults[key] = { name, pingTime: 'Timeout' };
+            pingResults[key] = { name, pingTime: '超时' };
         }
     }
     return pingResults;
@@ -609,6 +954,8 @@ async function checkAllPings() {
 
 const checkSiteStatus = {
     sites: {
+        baidu: 'https://www.baidu.com',
+        taobao: 'https://www.taobao.com',
         google: 'https://www.google.com',
         youtube: 'https://www.youtube.com',
         github: 'https://www.github.com',
@@ -638,26 +985,143 @@ async function pingHost(site, siteName) {
     const resultElement = document.getElementById('ping-result');
 
     try {
-        resultElement.innerHTML = `<span style="font-size: 22px">Testing the connection latency to ${siteName}...`;
-        resultElement.style.color = '#87CEFA';        
+        resultElement.innerHTML = `<span style="font-size: 22px">${translations.testing_latency.replace('%s', siteName)}...</span>`;
+        resultElement.style.color = '#87CEFA';
+
         const startTime = performance.now();
         await fetch(url, {
             mode: 'no-cors',
             cache: 'no-cache'
         });
         const endTime = performance.now();
-        const pingTime = Math.round(endTime - startTime);      
-        resultElement.innerHTML = `<span style="font-size: 22px">${siteName} Connection latency: ${pingTime}ms</span>`;
-        if(pingTime <= 100) {
-                resultElement.style.color = '#09B63F'; 
-        } else if(pingTime <= 200) {
-                resultElement.style.color = '#FFA500'; 
+        const pingTime = Math.round(endTime - startTime);
+
+        resultElement.innerHTML = `<span style="font-size: 22px">${translations.latency_result.replace('%s', siteName).replace('%d', pingTime)}</span>`;
+
+        if (pingTime <= 300) {
+            resultElement.style.color = '#09B63F';  
+        } else if (pingTime <= 700) {
+            resultElement.style.color = '#FFA500';  
         } else {
-                resultElement.style.color = '#ff6b6b'; 
+            resultElement.style.color = '#ff6b6b';  
         }
     } catch (error) {
-        resultElement.innerHTML = `<span style="font-size: 22px">${siteName} Connection timeout`;
+        resultElement.innerHTML = `<span style="font-size: 22px">${translations.connection_timeout.replace('%s', siteName)}</span>`;
         resultElement.style.color = '#ff6b6b';
+    }
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    const translationBtn = document.getElementById('translationToggleBtn');
+
+    const updateButtonState = () => {
+        const isEnabled = localStorage.getItem('translationEnabled') === 'true';
+         translationBtn.textContent = isEnabled ? langData[currentLang].disable : langData[currentLang].enable;
+
+    };
+
+    if (!localStorage.getItem('translationEnabled')) {
+        localStorage.setItem('translationEnabled', 'false');
+    }
+    updateButtonState();
+
+    translationBtn.addEventListener('click', () => {
+        const newState = localStorage.getItem('translationEnabled') !== 'true';
+        localStorage.setItem('translationEnabled', newState);
+        updateButtonState();
+        
+        translationBtn.style.transform = "scale(0.95)";
+        setTimeout(() => {
+            translationBtn.style.transform = "scale(1)";
+        }, 100);
+    });
+});
+
+async function translateText(text, targetLang = null) {
+    if (!text || text.trim() === '') return text;
+
+    if (!targetLang) {
+        targetLang = localStorage.getItem('language') || 'zh';
+    }
+
+    if (targetLang === 'zh') targetLang = 'zh-CN';
+    if (targetLang === 'hk') targetLang = 'zh-HK';
+    if (targetLang === 'vn') targetLang = 'vi';
+    if (targetLang === 'jp') targetLang = 'ja';
+    if (targetLang === 'en') targetLang = 'en-GB';
+    if (targetLang === 'kr') targetLang = 'ko';
+    if (targetLang === 'ru') targetLang = 'ru'; 
+
+    const isTranslationEnabled = localStorage.getItem('translationEnabled') === 'true';
+    if (!isTranslationEnabled) return text;
+
+    const cacheKey = `trans_${text}_${targetLang}`;
+    const cachedTranslation = localStorage.getItem(cacheKey);
+    if (cachedTranslation) return cachedTranslation;
+
+    const apis = [
+        {
+            url: `https://api.mymemory.translated.net/get?q=${encodeURIComponent(text)}&langpair=en|${targetLang}`,
+            method: 'GET',
+            parseResponse: (data) => data.responseData?.translatedText || null
+        },
+        {
+            url: 'https://libretranslate.com/translate',
+            method: 'POST',
+            body: JSON.stringify({
+                q: text,
+                source: 'en', 
+                target: targetLang,
+                format: 'text'
+            }),
+            headers: { 'Content-Type': 'application/json' },
+            parseResponse: (data) => data?.translatedText || null
+        },
+        {
+            url: `https://lingva.ml/api/v1/en/${targetLang}/${encodeURIComponent(text)}`,
+            method: 'GET',
+            parseResponse: (data) => data?.translation || null
+        }
+    ];
+
+    for (const api of apis) {
+        try {
+            const response = await fetch(api.url, {
+                method: api.method,
+                headers: api.headers || {},
+                body: api.body || null
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+                const translatedText = api.parseResponse(data);
+                
+                try {
+                    localStorage.setItem(cacheKey, translatedText);  
+                } catch (e) {
+                    clearOldCache();  
+                    localStorage.setItem(cacheKey, translatedText);
+                }
+                
+                return translatedText;
+            }
+        } catch (error) {
+            continue;  
+        }
+    }
+
+    return text; 
+}
+
+function clearOldCache() {
+    const cachePrefix = 'trans_';
+    const cacheKeys = Object.keys(localStorage).filter(key => 
+        key.startsWith(cachePrefix)
+    );
+    
+    if (cacheKeys.length > 1000) {
+        const itemsToRemove = cacheKeys.slice(0, cacheKeys.length - 1000);
+        itemsToRemove.forEach(key => localStorage.removeItem(key));
     }
 }
 
@@ -758,11 +1222,11 @@ let IP = {
 
     updateUI: async (data, elID) => {
         try {
-            const country = data.country || "Unknown";
-            const region = data.region || "";
-            const city = data.city || "";
-            const isp = data.isp || "";
-            const asnOrganization = data.asn_organization || "";
+            const country = await translateText(data.country || translations['unknown']);
+            const region = await translateText(data.region || "");
+            const city = await translateText(data.city || "");
+            const isp = await translateText(data.isp || "");
+            const asnOrganization = await translateText(data.asn_organization || "");
 
             let location = `${region && city && region !== city ? `${region} ${city}` : region || city || ''}`;
 
@@ -780,19 +1244,20 @@ let IP = {
             const isHidden = localStorage.getItem("ipHidden") === "true";
 
             let simpleDisplay = `
-                <div class="ip-main" style="cursor: pointer; position: relative; top: -4px;" onclick="IP.showDetailModal()" title="Click to view IP details">
+                <div class="ip-main" style="cursor: pointer; position: relative; top: -4px;" onclick="IP.showDetailModal()" title="${translations['show_ip']}">
                     <div style="display: flex; align-items: center; justify-content: flex-start; gap: 10px; ">
                         <div style="display: flex; align-items: center; gap: 5px;">
                             <span id="ip-address">${isHidden ? '***.***.***.***.***' : cachedIP}</span> 
                             <span class="badge badge-primary" style="color: #333;">${country}</span>
+
                         </div>
                     </div>
                 </div>
-                <span id="toggle-ip" style="cursor: pointer; position: relative; top: -3px;  text-indent: 0.3ch; padding-top: 2px;" title="Click to hide/show IP">
+                <span id="toggle-ip" style="cursor: pointer; position: relative; top: -3px; text-indent: 0.3ch; padding-top: 2px;" title="${translations['hide_ip']}">
                     <i class="fa ${isHidden ? 'bi-eye-slash' : 'bi-eye'}" style="font-size: 1.4rem; vertical-align: middle;"></i>  
                 </span>
-                <span class="control-toggle" style="cursor: pointer; margin-left: 10px; display: inline-flex; align-items: center; position: relative; top: -1.7px;" onclick="togglePopup()" title="Open Settings">
-                    <i class="bi bi-gear" style="font-size: 1.1rem; margin-right: 5px; vertical-align: middle;"></i> 
+                <span class="control-toggle" style="cursor: pointer; margin-left: 10px; display: inline-flex; align-items: center; position: relative; top: -1.7px;" onclick="togglePopup()" title="${translations['control_panel']}">
+                    <i class="bi bi-gear" style="font-size: 1.1rem; margin-right: 5px; vertical-align: middle;"></i>  
                 </span>
             `;
 
@@ -822,7 +1287,7 @@ let IP = {
 
         } catch (error) {
             console.error("Error in updateUI:", error);
-            document.getElementById('d-ip').innerHTML = "Failed to update IP information";
+            document.getElementById('d-ip').innerHTML = langData[currentLang]['connection_timeout'];
             $("#flag").attr("src", "./assets/neko/flags/mo.png");
         }
     },
@@ -831,11 +1296,17 @@ let IP = {
         const data = IP.lastGeoData;
         if (!data) return;
 
-        let country = data.country || "Unknown";
-        let region = data.region || "";
-        let city = data.city || "";
-        let isp = data.isp || "";
-        let asnOrganization = data.asn_organization || "";
+        const translatedCountry = await translateText(data.country, currentLang) || data.country || langData[currentLang]['unknown'];
+        const translatedRegion = await translateText(data.region, currentLang) || data.region || "";
+        const translatedCity = await translateText(data.city, currentLang) || data.city || "";
+        const translatedIsp = await translateText(data.isp, currentLang) || data.isp || "";
+        const translatedAsnOrganization = await translateText(data.asn_organization, currentLang) || data.asn_organization || "";
+
+        let country = translatedCountry;
+        let region = translatedRegion;
+        let city = translatedCity;
+        let isp = translatedIsp;
+        let asnOrganization = translatedAsnOrganization;
         let timezone = data.timezone || "";
         let asn = data.asn || "";
 
@@ -844,25 +1315,13 @@ let IP = {
             areaDisplay = `${country} ${region}`; 
         }
 
-        let ipSupport;
-        const ipv4Regex = /^(\d{1,3}\.){3}\d{1,3}$/;
-        const ipv6Regex = /^[a-fA-F0-9:]+$/;
-
-        if (ipv4Regex.test(cachedIP)) {
-            ipSupport = 'IPv4 Support';
-        } else if (ipv6Regex.test(cachedIP)) {
-            ipSupport = 'IPv6 Support';
-        } else {
-            ipSupport = 'IPv4 or IPv6 support not detected';
-        }
-
         const pingResults = await checkAllPings();
         const delayInfoHTML = Object.entries(pingResults).map(([key, { name, pingTime }]) => {
             let color = '#ff6b6b'; 
             if (typeof pingTime === 'number') {
-                color = pingTime <= 100 ? '#09B63F' : pingTime <= 200 ? '#FFA500' : '#ff6b6b';
+                color = pingTime <= 300 ? '#09B63F' : pingTime <= 700 ? '#FFA500' : '#ff6b6b';
             }
-            return `<span style="margin-right: 20px; font-size: 18px; color: ${color};">${name}: ${pingTime === 'Timeout' ? 'Timeout' : `${pingTime}ms`}</span>`;
+            return `<span style="margin-right: 20px; font-size: 18px; color: ${color};">${name}: ${pingTime === '超时' ? langData[currentLang]['timeout'] : `${pingTime}ms`}</span>`;
         }).join('');
 
         let lat = data.latitude || null;
@@ -875,7 +1334,7 @@ let IP = {
                 lat = geoData.latitude;
                 lon = geoData.longitude;
             } catch (error) {
-                console.error("Failed to retrieve IP geolocation:", error);
+                console.error(langData[currentLang]['geo_location_error'], error);
             }
         }
 
@@ -884,54 +1343,49 @@ let IP = {
                 <div class="modal-dialog modal-dialog-centered modal-xl" role="document">
                     <div class="modal-content">
                         <div class="modal-header">
-                            <h5 class="modal-title" id="ipDetailModalLabel">IP Detailed Information</h5>
+                            <h5 class="modal-title" id="ipDetailModalLabel">${translations['ip_info']}</h5>
                             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
                                 <span aria-hidden="true">&times;</span>
                             </button>
                         </div>
                         <div class="modal-body">
-                            <div class="ip-details">
                                 <div class="detail-row">
-                                    <span class="detail-label">IP Support:</span>
-                                    <span class="detail-value">${ipSupport}</span>
-                            </div>
-                                <div class="detail-row">
-                                    <span class="detail-label">IP Address:</span>
+                                    <span class="detail-label">${translations['ip_address']}:</span>
                                     <span class="detail-value">${cachedIP}</span>
                                 </div>
                                 <div class="detail-row">
-                                    <span class="detail-label">Region:</span>
+                                    <span class="detail-label">${translations['location']}:</span>
                                     <span class="detail-value">${areaDisplay}</span>
                                 </div>
                                 <div class="detail-row">
-                                    <span class="detail-label">Carrier:</span>
+                                    <span class="detail-label">${translations['isp']}:</span>
                                     <span class="detail-value">${isp}</span>
                                 </div>
                                 <div class="detail-row">
-                                    <span class="detail-label">ASN:</span>
+                                    <span class="detail-label">${translations['asn']}:</span>
                                     <span class="detail-value">${asn} ${asnOrganization}</span>
                                 </div>
                                 <div class="detail-row">
-                                    <span class="detail-label">Time Zone:</span>
+                                    <span class="detail-label">${translations['timezone']}:</span>
                                     <span class="detail-value">${timezone}</span>
                                 </div>
                                 ${data.latitude && data.longitude ? `
                                 <div class="detail-row">
-                                    <span class="detail-label">Latitude and Longitude:</span>
+                                    <span class="detail-label">${translations['latitude_longitude']}:</span>
                                     <span class="detail-value">${data.latitude}, ${data.longitude}</span>
-                                </div>` : ''}
+                                </div>` : ''}                           
                                 ${lat && lon ? `
                                 <div class="detail-row" style="height: 400px; margin-top: 20px;">
                                     <div id="leafletMap" style="width: 100%; height: 100%;"></div>
                                 </div>` : ''}
-                                <h5 style="margin-top: 15px; display: inline-block; white-space: nowrap;">Latency Information:</h5>
+                                <h5 style="margin-top: 15px;">${translations['latency_info']}:</h5>
                                 <div class="detail-row" style="display: flex; flex-wrap: wrap;">
                                     ${delayInfoHTML}
                                 </div>
                             </div>
                         </div>
-                        <div class="modal-footer">
-                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                       <!-- <div class="modal-footer">
+                             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" data-translate="close_button"></button> -->
                         </div>
                     </div>
                 </div>
@@ -948,7 +1402,7 @@ let IP = {
 
                 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
 
-                const popupContent = city || region || "Current location";
+                const popupContent = city || region || translations['current_location'];
                 L.marker([lat, lon]).addTo(map)
                     .bindPopup(popupContent)
                     .openPopup();
@@ -990,7 +1444,7 @@ let IP = {
             document.getElementById('d-ip').innerHTML = `
                 <div class="ip-main">
                     <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
-                    Checking...
+                    ${langData[currentLang]['checking']} 
                 </div>
             `;
             document.getElementById('ipip').innerHTML = "";
@@ -1000,7 +1454,7 @@ let IP = {
             await IP.Ipip(ip, 'ipip');
         } catch (error) {
             console.error("Error in getIpipnetIP function:", error);
-            document.getElementById('ipip').innerHTML = "The IP information retrieval failed";
+            document.getElementById('ipip').innerHTML = langData[currentLang]['ip_info_fail']; 
         } finally {
             IP.isRefreshing = false;
         }
@@ -1134,7 +1588,6 @@ style.textContent = `
 .custom-modal .custom-close-btn:hover {
     background-color: #0056b3;
 }
-
 `;
 document.head.appendChild(style);
 IP.getIpipnetIP();
@@ -1145,7 +1598,6 @@ if(typeof checkSiteStatus !== 'undefined') {
 
 setInterval(IP.getIpipnetIP, 180000);
 </script>
-
 <script>
     document.addEventListener("DOMContentLoaded", function () {
         var video = document.getElementById('background-video');
@@ -1207,10 +1659,10 @@ setInterval(IP.getIpipnetIP, 180000);
         var savedPlayState = localStorage.getItem("videoPaused");
         if (savedPlayState === "true") {
             video.pause();
-            document.getElementById('playPauseBtn').textContent = '▶️ Play';
+            document.getElementById('playPauseBtn').textContent = translations['play']; 
         } else {
             video.play();
-            document.getElementById('playPauseBtn').textContent = '⏸️ Pause';
+            document.getElementById('playPauseBtn').textContent = translations['pause']; 
         }
 
         function formatTime(seconds) {
@@ -1231,7 +1683,7 @@ setInterval(IP.getIpipnetIP, 180000);
             video.currentTime = 0;
             video.style.objectFit = 'cover';
         
-            playPauseBtn.textContent = '▶️ Play';
+            playPauseBtn.textContent = translations['play']; 
         }, 60 * 60 * 1000); 
 
         document.getElementById('clearSettingsBtn').addEventListener('click', function() {
@@ -1246,7 +1698,7 @@ setInterval(IP.getIpipnetIP, 180000);
             video.currentTime = 0;
             video.style.objectFit = 'cover';
         
-            playPauseBtn.textContent = '▶️ Play';
+            playPauseBtn.textContent = translations['play']; 
         
         });
     });
@@ -1282,11 +1734,11 @@ setInterval(IP.getIpipnetIP, 180000);
         var playPauseBtn = document.getElementById('playPauseBtn');
         if (video.paused) {
             video.play();
-            playPauseBtn.textContent = '⏸️ Pause';
+            playPauseBtn.textContent = translations['pause']; 
             localStorage.setItem("videoPaused", "false");
         } else {
             video.pause();
-            playPauseBtn.textContent = '▶️ Play';
+            playPauseBtn.textContent = translations['play']; 
             localStorage.setItem("videoPaused", "true");
         }
     }
@@ -1307,32 +1759,32 @@ setInterval(IP.getIpipnetIP, 180000);
         switch (video.style.objectFit) {
             case "contain":
                 video.style.objectFit = "cover";
-                objectFitBtn.textContent = "🔲 Normal";
+                objectFitBtn.textContent = translations['normal_display']; 
                 localStorage.setItem("videoObjectFit", "cover");
                 break;
             case "cover":
                 video.style.objectFit = "fill";
-                objectFitBtn.textContent = "🖼️ Fill";
+                objectFitBtn.textContent = translations['fill']; 
                 localStorage.setItem("videoObjectFit", "fill");
                 break;
             case "fill":
                 video.style.objectFit = "none";
-                objectFitBtn.textContent = "🔲 No Scale";
+                objectFitBtn.textContent = translations['no_scale'];
                 localStorage.setItem("videoObjectFit", "none");
                 break;
             case "none":
                 video.style.objectFit = "scale-down";
-                objectFitBtn.textContent = "🖼️ Scale Down";
+                objectFitBtn.textContent = translations['scale_down'];
                 localStorage.setItem("videoObjectFit", "scale-down");
                 break;
             case "scale-down":
                 video.style.objectFit = "contain";
-                objectFitBtn.textContent = "🖼️ Fit";
+                objectFitBtn.textContent = translations['normal_display']; 
                 localStorage.setItem("videoObjectFit", "contain");
                 break;
             default:
                 video.style.objectFit = "cover"; 
-                objectFitBtn.textContent = "🔲 Normal";
+                objectFitBtn.textContent = translations['normal_display'];
                 localStorage.setItem("videoObjectFit", "cover");
                 break;
         }
@@ -1343,8 +1795,8 @@ setInterval(IP.getIpipnetIP, 180000);
         var audioBtn = document.getElementById('audio-btn');
         var fullscreenBtn = document.getElementById('fullscreen-btn');
 
-        audioBtn.textContent = video.muted ? "🔇 Mute" : "🔊 Unmute";
-        fullscreenBtn.textContent = document.fullscreenElement ? "📴 Exit Fullscreen" : "⛶ Enter Fullscreen";
+        audioBtn.textContent = video.muted ? translations['mute'] : translations['unmute'];
+        fullscreenBtn.textContent = document.fullscreenElement ? translations['fullscreen_exit'] : translations['fullscreen_enter'];
     }
 
     document.addEventListener("keydown", function(event) {
@@ -1357,41 +1809,119 @@ setInterval(IP.getIpipnetIP, 180000);
 </script>
 
 <div class="popup" id="popup">
-    <h3>🔧 Control Panel</h3>
-    <button onclick="toggleAudio()" id="audio-btn">🔊 Toggle Audio</button>
-    <button onclick="toggleControlPanel()" id="control-btn">🎛️ Volume and Progress Control</button>
-    <button onclick="toggleObjectFit()" id="object-fit-btn">🔲 Toggle Video Display Mode</button>
-    <button onclick="toggleFullScreen()" id="fullscreen-btn">⛶ Toggle Fullscreen</button>
-    <button id="clear-cache-btn">🗑️ Clear Cache</button>
-    <button type="button" data-bs-toggle="modal" data-bs-target="#urlModal">🔗 Customize Playlist</button>
-    <button type="button" data-bs-toggle="modal" data-bs-target="#keyHelpModal">⌨️ Keyboard Shortcuts</button>
-    <button id="openPlayerButton"  data-bs-toggle="modal" data-bs-target="#audioPlayerModal">🎶 Music Player</button>
-    <button type='button' onclick='openVideoPlayerModal()'><i class='fas fa-video'></i> Media Player</button>
-    <button id="startCheckBtn">🌐 Start Website Check</button>
-    <button id="toggleModal"><i class="fas fa-arrows-alt-h"></i> Modify Page Width</button>
-    <button id="toggleAnimationBtn">🖥️ Start Block Animation</button>
-    <button id="toggleSnowBtn">❄️ Start Snow Animation</button>
-    <button id="toggleLightAnimationBtn">💡 Start Light Animation</button>
-    <button id="toggleLightEffectBtn">✨ Start Light Effect Animation</button>
-    <button type="button" data-bs-toggle="modal" data-bs-target="#colorModal"><i class="bi-palette"></i> Theme Editor</button>
-    <button type="button" data-bs-toggle="modal" data-bs-target="#filesModal"><i class="bi-camera-video"></i> Set Background</button>
-    <button onclick="togglePopup()">❌ Close</button>
+    <h3 data-translate="control_panel_title">🔧 Control Panel</h3>
+    <button onclick="toggleAudio()" id="audio-btn" data-translate="audio_toggle"></button>
+    <button onclick="toggleControlPanel()" id="control-btn" data-translate="control_toggle">🎛️ Volume and Progress Control</button>
+    <button id="openPlayerButton" data-bs-toggle="modal" data-bs-target="#audioPlayerModal" data-translate="music_player">🎶 Music Player</button>
+    <button type='button' onclick='openVideoPlayerModal()' data-translate="video_player"><i class='fas fa-video'></i> Media Player</button>
+    <button onclick="toggleObjectFit()" id="object-fit-btn" data-translate="object_fit_toggle">🔲 Toggle Display Mode</button>
+    <button onclick="toggleFullScreen()" id="fullscreen-btn" data-translate="fullscreen_toggle">⛶ Toggle Fullscreen</button>
+    <button id="clear-cache-btn" data-translate="clear_cache">🗑️ Clear Cache</button>
+    <button type="button" data-bs-toggle="modal" data-bs-target="#cityModal" data-translate="city_settings">🌆 Set City</button>
+    <button type="button" data-bs-toggle="modal" data-bs-target="#keyHelpModal" data-translate="keyboard_help">⌨️ Keyboard Shortcuts</button>
+    <button id="startCheckBtn" data-translate="start_check">🌐 Start Website Check</button>
+    <button id="startWeatherBtn" data-translate="start_weather">🌦️ Start Weather Report</button>
+    <button id="openModalBtn" data-translate="open_animation">🎛️ Open Animation Control</button>
+    <button id="toggleModal" data-translate="toggle_width"><i class="fas fa-arrows-alt-h"></i> Modify Page Width</button>
+    <button type="button" data-bs-toggle="modal" data-bs-target="#colorModal" data-translate="theme_editor"><i class="bi-palette"></i> Theme Editor</button>                   
+    <button type="button" data-bs-toggle="modal" data-bs-target="#filesModal" data-translate="set_background"><i class="bi-camera-video"></i> Set Background</button>
+    <button data-bs-toggle="modal" data-bs-target="#langModal"><img id="flagIcon" src="./assets/neko/flags/cn.png" alt="Country Flag" style="width: 30px; height: auto; margin-right: 10px;"><span data-translate="set_language">Set Language</span></button>
+     <button type="button" class="btn btn-outline-secondary btn-sm" onclick="window.open('./filekit.php', '_blank')"><i class="bi bi-file-earmark"></i> <span data-translate="fileHelper">文件助手</span></button>
+     <button type="button"  id="translationToggleBtn">🔤 启用翻译</button>
+    <button onclick="togglePopup()" data-translate="close_popup">❌ Close</button>
 </div>
+
 <div id="controlPanel">
-    <h3>Video Control Panel</h3>
+    <h3 data-translate="video_control_panel">Video Control Panel</h3>
     <div>
-        <label for="volumeControl">Volume Control</label>
+        <label for="volumeControl" data-translate="volume_control">Volume Control</label>
         <input type="range" id="volumeControl" min="0" max="1" step="0.01" value="1">
     </div>
     <div>
-        <label for="progressControl">Playback Progress</label>
+        <label for="progressControl" data-translate="progress_control">Playback Progress</label>
         <input type="range" id="progressControl" min="0" max="100" step="0.1" value="0">
         <span id="progressTimeDisplay">00:00 / 00:00</span>
     </div>
-    <button id="clearSettingsBtn"><i class="fas fa-trash-alt"></i> Clear Video Settings</button>
-    <button onclick="togglePlayPause()" id="playPauseBtn">⏸️ Pause</button>
-    <button onclick="toggleControlPanel()">❌ Close</button>
+    <button id="clearSettingsBtn" data-translate="clear_video_settings"><i class="fas fa-trash-alt"></i> Clear Video Settings</button>
+    <button onclick="togglePlayPause()" id="playPauseBtn" data-translate="play_pause">⏸️ Pause</button>
+    <button onclick="toggleControlPanel()" data-translate="close_popup">❌ Close</button>
 </div>
+
+<style>
+    .animation-modal {
+        display: none;
+        position: fixed;
+        z-index: 1000;
+        left: 50%;
+        top: 10%;
+        transform: translateX(-50%);
+        justify-content: center;
+        align-items: flex-start;
+        width: 100%;
+    }
+
+    .animation-modal-content {
+        background-color: #fff;
+        padding: 20px;
+        border-radius: 10px;
+        width: 400px;
+        text-align: center;
+        position: relative;
+        box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
+        margin-top: 20px;
+    }
+
+    .animation-modal-content button {
+        display: block;
+        width: 100%;
+        margin: 10px 0;
+        padding: 10px;
+        font-size: 16px;
+        cursor: pointer;
+    }
+
+    .modal-close-btn {
+        display: block;
+        width: 100px;
+        margin: 20px auto 0;
+        padding: 10px;
+        font-size: 16px;
+        cursor: pointer;
+        background-color: red;
+        color: white;
+        border: none;
+        border-radius: 5px;
+    }
+</style>
+
+<div id="animationModal" class="animation-modal">
+    <div class="animation-modal-content">
+        <button id="toggleAnimationBtn" data-translate="start_cube_animation">🖥️ Start Cube Animation</button>
+        <button id="toggleSnowBtn" data-translate="start_snow_animation">❄️ Start Snow Animation</button>
+        <button id="toggleLightAnimationBtn" data-translate="start_light_animation">💡Start Light Animation</button>
+        <button id="toggleLightEffectBtn" data-translate="start_light_effect_animation">✨Start Light Effect Animation</button>
+        <button class="modal-close-btn" onclick="closeModal()" data-translate="close">Close</button>
+    </div>
+</div>
+
+<script>
+    const modal = document.getElementById("animationModal");
+    const openModalBtn = document.getElementById("openModalBtn");
+
+    openModalBtn.addEventListener("click", () => {
+        modal.style.display = "flex";
+    });
+
+    function closeModal() {
+        modal.style.display = "none";
+    }
+
+    window.addEventListener("click", (event) => {
+        if (event.target === modal) {
+            closeModal();
+        }
+    });
+</script>
 
 <script>
 document.addEventListener('keydown', function(event) {
@@ -1405,6 +1935,9 @@ document.getElementById('clear-cache-btn').addEventListener('click', function() 
     clearCache();
 });
 
+const notificationMessage = translations['cache_cleared_notification'];
+const speechMessage = translations['cache_cleared_speech'];
+
 function clearCache() {
     location.reload(true); 
 
@@ -1413,8 +1946,8 @@ function clearCache() {
 
     sessionStorage.setItem('cacheCleared', 'true');
 
-    showNotification('Cache cleared');
-    speakMessage('Cache cleared');
+    showNotification(translations['notificationMessage']);
+    speakMessage(translations['notificationMessage']);
 }
 
 function showNotification(message) {
@@ -1438,8 +1971,8 @@ function showNotification(message) {
 
 window.addEventListener('load', function() {
     if (sessionStorage.getItem('cacheCleared') === 'true') {
-        showNotification('Cache cleared');
-        speakMessage('Cache cleared');
+        showNotification(translations['notificationMessage']);
+        speakMessage(translations['notificationMessage']);
         sessionStorage.removeItem('cacheCleared'); 
     }
 });
@@ -1869,7 +2402,7 @@ window.addEventListener('load', function() {
   <div class="modal-dialog modal-xl" role="document">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title" id="audioPlayerModalLabel">Music Player</h5>
+        <h5 class="modal-title" id="audioPlayerModalLabel" data-translate="music_player">Music Player</h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <div class="modal-body">
@@ -1882,22 +2415,22 @@ window.addEventListener('load', function() {
           Your browser does not support the audio element.
         </audio>
         <div class="audio-player-container text-center">
-          <button id="modalPlayPauseButton" class="btn btn-primary">▶ Play</button>
-          <button id="modalPrevButton" class="btn btn-secondary">⏪ Previous</button>
-          <button id="modalNextButton" class="btn btn-secondary">⏩ Next</button>
-          <button id="modalRewindButton" class="btn btn-dark">⏪ Rewind</button>
-          <button id="modalFastForwardButton" class="btn btn-info">⏩ Fast Forward</button>
-          <button id="modalLoopButton" class="btn btn-warning">🔁 Loop</button>
-          <div class="track-name" id="trackName">No Track</div>
+          <button id="modalPlayPauseButton" class="btn btn-primary"><span data-translate="play1"></span></button>
+          <button id="modalPrevButton" class="btn btn-secondary" data-translate="previous_song">⏪ Previous Song</button>
+          <button id="modalNextButton" class="btn btn-secondary" data-translate="next_song">⏩ Next Song</button>
+          <button id="modalRewindButton" class="btn btn-dark" data-translate="rewind">⏪ Rewind</button>
+          <button id="modalFastForwardButton" class="btn btn-info" data-translate="fast_forward">⏩ Fast Forward</button>
+          <button id="modalLoopButton" class="btn btn-warning" data-translate="loop">🔁 Loop</button>
+          <div class="track-name" id="trackName" data-translate="no_song">No Song</div>
         </div>
-        <button class="btn btn-outline-primary mt-3" type="button" data-bs-toggle="collapse" data-bs-target="#playlistCollapse" aria-expanded="true">
+        <button class="btn btn-outline-primary mt-3" type="button" data-bs-toggle="collapse" data-bs-target="#playlistCollapse" aria-expanded="true" data-translate="toggle_playlist">
           📜 Show/Hide Playlist
         </button>
-        <button class="btn btn-outline-primary mt-3 ms-2" type="button" data-bs-toggle="modal" data-bs-target="#urlModal">🔗 Customize Playlist</button>
-        <button class="btn btn-outline-primary mt-3 ms-2" id="clearStorageBtn"><i class="fas fa-trash-alt"></i> Clear Player Settings</button>
-        <button class="btn btn-outline-primary mt-3 ms-2"  id="pinLyricsButton"><i class="fas fa-thumbtack"></i> Desktop Lyrics</button>
+        <button class="btn btn-outline-primary mt-3 ms-2" type="button" data-bs-toggle="modal" data-bs-target="#urlModal" data-translate="customize_playlist">🔗 Customize Playlist</button>
+        <button class="btn btn-outline-primary mt-3 ms-2"  id="clearStorageBtn" data-translate="clear_playback_settings"><i class="fas fa-trash-alt"></i> Clear Playback Settings</button>
+        <button class="btn btn-outline-primary mt-3 ms-2"  id="pinLyricsButton" data-translate="pin_lyrics"><i class="fas fa-thumbtack"></i> Pin Lyrics</button>
         <div id="playlistCollapse" class="collapse mt-3">
-          <h3>Track List</h3>
+          <h3 data-translate="playlist">Playlist</h3>
           <ul id="trackList" class="list-group"></ul>
         </div>
         <div class="lyrics-container" id="lyricsContainer"></div>
@@ -1918,6 +2451,7 @@ let hasModalShown = false;
 let lyrics = {};
 let isPinned = false; 
 let isSmallScreen = window.innerWidth <= 768;
+
 
 const logBox = document.createElement('div');
 logBox.style.position = 'fixed';
@@ -1965,17 +2499,17 @@ function loadDefaultPlaylist() {
     fetch('<?php echo $new_url; ?>')
         .then(response => {
             if (!response.ok) {
-                throw new Error('Failed to load playlist');
-                speakMessage('Failed to load playlist');
+                throw new Error('load_playlist_error');  
+                speakMessage(translations['load_playlist_error']); 
             }
             return response.text();
         })
         .then(data => {
             songs = data.split('\n').filter(url => url.trim() !== '');
             if (songs.length === 0) {
-                throw new Error('No valid songs in the playlist');
+                throw new Error('no_valid_songs_in_playlist'); 
             }
-            console.log('Playlist loaded:', songs);
+            console.log(translations['playlist_loaded'], songs); 
             const savedOrder = JSON.parse(localStorage.getItem('songOrder'));
             if (savedOrder) {
                 songs = savedOrder;
@@ -1985,7 +2519,7 @@ function loadDefaultPlaylist() {
             updateTrackName(); 
         })
         .catch(error => {
-            console.error('Error loading playlist:', error.message);
+            console.error(translations['load_playlist_error'], error.message);
         });
 }
 
@@ -2006,7 +2540,7 @@ function updateTrackListUI() {
             if (isPlaying) audioPlayer.play();
             updateTrackName();
             highlightCurrentSong();
-            showLogMessage(`Playlist clicked: Index ${index}, Song Name: ${trackItem.textContent.trim()}`);
+            showLogMessage(`${translations['playlist_click_log']} ${index}: ${trackItem.textContent.trim()}`);
             savePlayerState();
         });
 
@@ -2092,7 +2626,7 @@ function loadSong(index) {
                 audioPlayer.currentTime = savedState.currentTime || 0;
                 if (savedState.isPlaying) {
                     audioPlayer.play().catch(error => {
-                        console.error('Failed to restore playback:', error);
+                        console.error(translations['restore_play_error'], error); 
                     });
                 }
             }
@@ -2109,20 +2643,20 @@ playPauseButton.addEventListener('click', function() {
         audioPlayer.play().then(() => {
             isPlaying = true;
             savePlayerState();
-            console.log('Playing');
-            speakMessage('Playing');
-            playPauseButton.textContent = '⏸️ Pause';
+            console.log(translations['start_playing']); 
+            speakMessage(translations['start_playing']); 
+            playPauseButton.textContent = '⏸️ ' + translations['pause']; 
             updateTrackName();
         }).catch(error => {
-            console.log('Failed to play:', error);
+            console.log(translations['play_error'], error);
         });
     } else {
         audioPlayer.pause();
         isPlaying = false;
         savePlayerState();
-        console.log('Paused');
-        speakMessage('Paused');
-        playPauseButton.textContent = '▶ Play';
+        console.log(translations['paused']); 
+        speakMessage(translations['paused']); 
+        playPauseButton.textContent = '' + translations['play']; 
     }
 });
 
@@ -2136,7 +2670,8 @@ document.getElementById('modalPrevButton').addEventListener('click', () => {
     updateTrackName();
     highlightCurrentSong(); 
     const songName = extractSongName(songs[currentSongIndex]);
-    showLogMessage(`Previous: ${songName}`);
+    showLogMessage(`${translations['previous_song1']} ${songName}`);
+    speakMessage(translations['previous_song1']);
 });
 
 document.getElementById('modalNextButton').addEventListener('click', () => {
@@ -2149,16 +2684,17 @@ document.getElementById('modalNextButton').addEventListener('click', () => {
     updateTrackName();
     highlightCurrentSong(); 
     const songName = extractSongName(songs[currentSongIndex]);
-    showLogMessage(`Next: ${songName}`);
+    showLogMessage(`${translations['next_song1']} ${songName}`);
+    speakMessage(translations['next_song1']);
 });
 
 function updateTrackName() {
     if (songs.length > 0) {
         const currentSongUrl = songs[currentSongIndex];
         const trackName = extractSongName(currentSongUrl);
-        document.getElementById('trackName').textContent = trackName || 'Unknown Song';
+        document.getElementById('trackName').textContent = trackName || translations['unknown_song'];
     } else {
-        document.getElementById('trackName').textContent = 'No Song';
+        document.getElementById('trackName').textContent = translations['no_songs']; 
     }
 }
 
@@ -2176,21 +2712,21 @@ audioPlayer.addEventListener('ended', () => {
     updateTrackName();
     highlightCurrentSong(); 
     const songName = extractSongName(songs[currentSongIndex]);
-    showLogMessage(`Auto switched to: ${songName}`);
+    showLogMessage(`${translations['auto_switch']} ${songName}`); 
 });
 
 document.getElementById('modalRewindButton').addEventListener('click', () => {
     audioPlayer.currentTime = Math.max(audioPlayer.currentTime - 10, 0);
-    console.log('Rewind 10 seconds');
+    console.log(translations['rewind_10_seconds']);
     savePlayerState();
-    showLogMessage('Rewind 10 seconds');
+    showLogMessage(translations['rewind_10_seconds']);
 });
 
 document.getElementById('modalFastForwardButton').addEventListener('click', () => {
     audioPlayer.currentTime = Math.min(audioPlayer.currentTime + 10, audioPlayer.duration || Infinity);
-    console.log('Fast forward 10 seconds');
+    console.log(translations['fast_forward_10_seconds']); 
     savePlayerState();
-    showLogMessage('Fast forward 10 seconds');
+    showLogMessage(translations['fast_forward_10_seconds']); 
 });
 
 const loopButton = document.getElementById('modalLoopButton');
@@ -2198,16 +2734,16 @@ loopButton.addEventListener('click', () => {
     isLooping = !isLooping;
     
     if (isLooping) {
-        loopButton.textContent = "🔁 Loop";
-        console.log('Looping');
-        showLogMessage('Looping');
-        speakMessage('Looping');
+        loopButton.textContent = "" + translations['loop']; 
+        console.log(translations['looping']); 
+        showLogMessage(translations['looping']); 
+        speakMessage(translations['looping']); 
         audioPlayer.loop = true;
     } else {
-        loopButton.textContent = "🔄 Sequential";
-        console.log('Sequential');
-        showLogMessage('Sequential');
-        speakMessage('Sequential');
+        loopButton.textContent = "🔄" + translations['sequential']; 
+        console.log(translations['sequential_playing']); 
+        showLogMessage(translations['sequential_playing']); 
+        speakMessage(translations['sequential_playing']); 
         audioPlayer.loop = false;
     }
 });
@@ -2225,11 +2761,11 @@ function startHourlyAlert() {
         if (now.getMinutes() === 0 && !isReportingTime) {
             isReportingTime = true;
 
-            const timeAnnouncement = new SpeechSynthesisUtterance(`It's now ${hours} o'clock`);
-            timeAnnouncement.lang = 'en-US';
+            const timeAnnouncement = new SpeechSynthesisUtterance(`整点报时，现在是北京时间 ${hours} 点整`);
+            timeAnnouncement.lang = currentLang;
             speechSynthesis.speak(timeAnnouncement);
 
-            console.log(`Hourly alert: It's now ${hours} o'clock`);
+            console.log(`整点报时：现在是北京时间 ${hours} 点整`);
         }
 
         if (now.getMinutes() !== 0) {
@@ -2244,9 +2780,9 @@ function updateDateTime() {
     const year = now.getFullYear();
     const month = now.getMonth() + 1;
     const day = now.getDate();
-    document.getElementById('dateDisplay').textContent = `${year}-${month}-${day}`;
+    document.getElementById('dateDisplay').textContent = `${year}年${month}月${day}日`;
 
-    const timeString = now.toLocaleTimeString('en-US', { hour12: false });
+    const timeString = now.toLocaleTimeString('zh-CN', { hour12: false });
 
     const hours = now.getHours();
     let ancientTime;
@@ -2293,7 +2829,7 @@ function clearExpiredPlayerState() {
 
         if (stateAge > expirationTime) {
             localStorage.removeItem('playerState');
-            console.log('Player state expired, cleared');
+            console.log(translations['player_state_expired']); 
         }
     }
 }
@@ -2306,7 +2842,7 @@ document.getElementById('clearStorageBtn').addEventListener('click', function() 
     localStorage.removeItem('playerState');
     localStorage.removeItem('songOrder'); 
     loadDefaultPlaylist(); 
-    document.getElementById('modalPlayPauseButton').textContent = '▶ Play';
+    document.getElementById('modalPlayPauseButton').textContent = '' + translations['play'];
     alert('Player state cleared!');
 });
 
@@ -2323,13 +2859,13 @@ function restorePlayerState() {
         loadSong(currentSongIndex);
         if (state.isPlaying) {
             isPlaying = true;
-            playPauseButton.textContent = '⏸️ Pause';
+            playPauseButton.textContent = '⏸️ ' + translations['pause']; 
             audioPlayer.currentTime = state.currentTime || 0;
             audioPlayer.play().catch(error => {
-                console.error('Failed to restore playback:', error);
+                console.error(translations['restore_play_error'], error);
             });
         }
-        console.log(`Restored playback: ${state.lastPlayedSong}, Timestamp: ${new Date(state.timestamp).toLocaleString()}`);
+        console.log(`恢复播放: ${state.lastPlayedSong}，时间戳: ${new Date(state.timestamp).toLocaleString()}`);
     }
 }
 
@@ -2344,7 +2880,7 @@ function loadLyrics(songUrl) {
             displayLyrics();
         })
         .catch(error => {
-            console.error('Failed to load lyrics:', error.message);
+            console.error('加载歌词失败:', error.message);
         });
 }
 
@@ -2523,8 +3059,8 @@ window.addEventListener('keydown', function(event) {
             audioPlayer.play();
         }
         const songName = getSongName(songs[currentSongIndex]);
-        showLogMessage(`Previous: ${songName}`);
-        speakMessage('Previous');
+        showLogMessage(`${translations['previous_song1']}: ${songName}`);
+        speakMessage(translations['previous_song1']);
         updateTrackName();
     } else if (event.key === 'ArrowDown') {
         currentSongIndex = (currentSongIndex + 1) % songs.length;
@@ -2534,27 +3070,27 @@ window.addEventListener('keydown', function(event) {
             audioPlayer.play();
         }
         const songName = getSongName(songs[currentSongIndex]);
-        showLogMessage(`Next: ${songName}`);
-        speakMessage('Next');
+        showLogMessage(`${translations['next_song1']}: ${songName}`);
+        speakMessage(translations['next_song1']);
         updateTrackName();
     } else if (event.key === 'ArrowLeft') {
         audioPlayer.currentTime = Math.max(audioPlayer.currentTime - 10, 0);
-        console.log('Rewind 10 seconds');
+        console.log(translations['rewind_10_seconds']);
         savePlayerState();
-        showLogMessage('Rewind 10 seconds');
+        showLogMessage(translations['rewind_10_seconds']);
     } else if (event.key === 'ArrowRight') {
         audioPlayer.currentTime = Math.min(audioPlayer.currentTime + 10, audioPlayer.duration || Infinity);
-        console.log('Fast forward 10 seconds');
+        console.log(translations['fast_forward_10_seconds']);
         savePlayerState();
-        showLogMessage('Fast forward 10 seconds');
+        showLogMessage(translations['fast_forward_10_seconds']);
     } else if (event.key === 'Escape') {
         localStorage.removeItem('playerState');
         currentSongIndex = 0;
         loadSong(currentSongIndex);
         savePlayerState();
-        console.log('Reset to the first track');
-        showLogMessage('Reset to the first track');
-        speakMessage('Returned to the first track in the playlist');
+        console.log(translations['reset_to_first_song']);
+        showLogMessage(translations['reset_to_first_song']);
+        speakMessage(translations['reset_to_first_song']);
         if (isPlaying) {
             audioPlayer.play();
         }
@@ -2563,37 +3099,37 @@ window.addEventListener('keydown', function(event) {
             audioPlayer.pause();
             isPlaying = false;
             savePlayerState();
-            console.log('Paused');
-            showLogMessage('Paused');
-            speakMessage('Paused');
-            playPauseButton.textContent = '▶ Play';
+            console.log(translations['pause_play']);
+            showLogMessage(translations['pause_play']);
+            speakMessage(translations['pause_play']);
+            playPauseButton.textContent = '' + translations['play']; 
         } else {
             audioPlayer.play().then(() => {
                 isPlaying = true;
                 savePlayerState();
-                console.log('Playing');
-                showLogMessage('Playing');
-                speakMessage('Playing');
-                playPauseButton.textContent = '⏸️ Pause';
+                console.log(translations['start_play']);
+                showLogMessage(translations['start_play']);
+                speakMessage(translations['start_play']);
+                playPauseButton.textContent = '⏸' + translations['pause']; 
             }).catch(error => {
-                console.log('Failed to play:', error);
+                console.log('播放失败:', error);
             });
         }
     } else if (event.key === 'F2') {
         isLooping = !isLooping;
         const loopButton = document.getElementById('modalLoopButton');
         if (isLooping) {
-            loopButton.textContent = "🔁 Loop";
+            loopButton.textContent = "" + translations['loop']; 
             audioPlayer.loop = true;
-            console.log('Looping');
-            showLogMessage('Looping');
-            speakMessage('Looping');
+            console.log(translations['loop_play']);
+            showLogMessage(translations['loop_play']);
+            speakMessage(translations['loop_play']);
         } else {
-            loopButton.textContent = "🔄 Sequential";
+            loopButton.textContent = "" + translations['sequential']; 
             audioPlayer.loop = false;
-            console.log('Sequential');
-            showLogMessage('Sequential');
-            speakMessage('Sequential');
+            console.log(translations['sequential_play']);
+            showLogMessage(translations['sequential_play']);
+            speakMessage(translations['sequential_play']);
         }
     }
 });
@@ -2603,18 +3139,18 @@ window.addEventListener('keydown', function(event) {
     <div class="modal-dialog modal-xl">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="urlModalLabel">Update Playlist</h5>
+                <h5 class="modal-title" id="urlModalLabel" data-translate="urlModalLabel">Update Playlist</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
                 <form method="POST">
                     <div class="mb-3">
-                        <label for="new_url" class="form-label">Custom Playlist</label>
+                        <label for="new_url" class="form-label" data-translate="customUrlLabel">Custom Playlist URL</label>
                         <input type="text" id="new_url" name="new_url" class="form-control" value="<?php echo htmlspecialchars($new_url); ?>" required>
                     </div>
-                    <button type="submit" class="btn btn-primary">Save</button>
-                    <button type="button" id="resetButton" class="btn btn-secondary ms-2">Reset to Default</button>
-                    <button type="button" class="btn btn-secondary ms-2" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary" data-translate="saveButton">Save</button>
+                    <button type="button" id="resetButton" class="btn btn-secondary ms-2" data-translate="resetButton">Restore Default</button>
+                    <button type="button" class="btn btn-secondary ms-2" data-bs-dismiss="modal" data-translate="cancelButton">Cancel</button>
                 </form>
             </div>
         </div>
@@ -2622,90 +3158,111 @@ window.addEventListener('keydown', function(event) {
 </div>
 
 <script>
-    document.addEventListener('keydown', function(event) {
-        if (event.ctrlKey && event.shiftKey && event.key === 'V') {
-            var urlModal = new bootstrap.Modal(document.getElementById('urlModal'));
-            urlModal.show();
-        }
-    });
+document.addEventListener('keydown', function(event) {
+    if (event.ctrlKey && event.shiftKey && event.key === 'V') {
+        var urlModal = new bootstrap.Modal(document.getElementById('urlModal'));
+        urlModal.show();
+        speakMessage(translations["openCustomPlaylist"]);
+    }
+});
 
-    document.getElementById('resetButton').addEventListener('click', function() {
-        fetch('', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/x-www-form-urlencoded'
-            },
+document.getElementById('resetButton').addEventListener('click', function() {
+    fetch('', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded'
+        },
         body: 'reset_default=true'
     })
-        .then(response => response.text())  
-        .then(data => {
-            var urlModal = bootstrap.Modal.getInstance(document.getElementById('urlModal'));
-            urlModal.hide();
+    .then(response => response.text())  
+    .then(data => {
+        var urlModal = bootstrap.Modal.getInstance(document.getElementById('urlModal'));
+        urlModal.hide();
 
-            document.getElementById('new_url').value = '<?php echo $default_url; ?>';
+        document.getElementById('new_url').value = '<?php echo $default_url; ?>';
 
-            showNotification('The default link has been successfully restored');
-        })
-        .catch(error => {
-            console.error('An error occurred while restoring the default link:', error);
-            showNotification('An error occurred while restoring the default link');
-        });
+        showNotification(translations['restoreSuccess']);
+    })
+    .catch(error => {
+        console.error('恢复默认链接时出错:', error);
+        showNotification(translations['restoreError']);
     });
+});
 
-    function showNotification(message) {
-        var notification = document.createElement('div');
-        notification.style.position = 'fixed';
-        notification.style.top = '10px';
-        notification.style.right = '30px';
-        notification.style.backgroundColor = '#4CAF50';
-        notification.style.color = '#fff';
-        notification.style.padding = '10px';
-        notification.style.borderRadius = '5px';
-        notification.style.zIndex = '9999';
-        notification.innerText = message;
+function showNotification(message) {
+    var notification = document.createElement('div');
+    notification.style.position = 'fixed';
+    notification.style.top = '10px';
+    notification.style.right = '30px';
+    notification.style.backgroundColor = '#4CAF50';
+    notification.style.color = '#fff';
+    notification.style.padding = '10px';
+    notification.style.borderRadius = '5px';
+    notification.style.zIndex = '9999';
+    notification.innerText = message;
 
-        document.body.appendChild(notification);
+    document.body.appendChild(notification);
 
-        setTimeout(function() {
-            notification.style.display = 'none';
-        }, 5000); 
-    }
+    setTimeout(function() {
+        notification.style.display = 'none';
+    }, 5000); 
+}
 </script>
 
 <div class="modal fade" id="keyHelpModal" tabindex="-1" aria-labelledby="keyHelpModalLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
     <div class="modal-dialog modal-xl">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="keyHelpModalLabel">Keyboard Shortcuts</h5>
+                <h5 class="modal-title" id="keyHelpModalLabel" data-translate="keyHelpModalLabel">Keyboard Shortcuts</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
                 <ul>
-                    <li><strong>Left Mouse Button:</strong> Double-click to open the player interface</li>
-                    <li><strong>F9 Key:</strong> Toggle play/pause</li>
-                    <li><strong>Up/Down Arrow Keys:</strong> Skip to previous/next track</li>
-                    <li><strong>Left/Right Arrow Keys:</strong> Fast forward/rewind 10 seconds</li>
-                    <li><strong>ESC Key:</strong> Go back to the first track in the playlist</li>
-                    <li><strong>F2 Key:</strong> Toggle between repeat and sequential play mode</li>
-                    <li><strong>F8 Key:</strong> Start website connectivity check</li>
-                    <li><strong>Ctrl + F6 Keys:</strong> Start/stop snowflake animation</li>
-                    <li><strong>Ctrl + F7 Keys:</strong> Start/stop block light animation</li>
-                    <li><strong>Ctrl + F10 Keys:</strong> Start/stop block animation</li>
-                    <li><strong>Ctrl + F11 Keys:</strong> Start/stop dot light animation</li>
-                    <li><strong>Ctrl + Shift + Q Keys:</strong> Open control panel</li>
-                    <li><strong>Ctrl + Shift + C Keys:</strong> Clear cache data</li>
-                    <li><strong>Ctrl + Shift + V Keys:</strong> Customize playlist</li>
+                    <li><strong data-translate="f9Key">F9 Key:</strong></li>
+                    <li><strong data-translate="arrowUpDown">Up/Down Arrow Keys:</strong></li>
+                    <li><strong data-translate="arrowLeftRight">Left/Right Arrow Keys:</strong></li>
+                    <li><strong data-translate="escKey">ESC Key:</strong></li>
+                    <li><strong data-translate="f2Key">F2 Key:</strong></li>
+                    <li><strong data-translate="f8Key">F8 Key:</strong></li>
+                    <li><strong data-translate="f4Key">F4 Key:</strong></li>
+                    <li><strong data-translate="ctrlF6">Ctrl + F6:</strong></li>
+                    <li><strong data-translate="ctrlF7">Ctrl + F7:</strong></li>
+                    <li><strong data-translate="ctrlF10">Ctrl + F10:</strong></li>
+                    <li><strong data-translate="ctrlF11">Ctrl + F11:</strong></li>
+                    <li><strong data-translate="ctrlShiftQ">Ctrl + Shift + Q:</strong></li>
+                    <li><strong data-translate="ctrlShiftC">Ctrl + Shift + C:</strong></li>
+                    <li><strong data-translate="ctrlShiftV">Ctrl + Shift + V:</strong></li>
+                    <li><strong data-translate="ctrlShiftX">Ctrl + Shift + X:</strong></li>
                 </ul>
                 <div class="sing-box-section mt-4">
-                    <h5>Sing-box Startup Tips</h5>
+                    <h5 data-translate="singBoxStartupTips">Sing-box Startup Tips</h5>
                     <ul>
-                        <li>If startup fails, go to File Manager ⇨ Update Database ⇨ Download cache.db cache data.</li>
-                        <li>If unable to connect to the network, go to Firewall Settings ⇨ Outbound/Inbound/Forward ⇨ Allow ⇨ Save Application.</li>
-                    </ul>
-                </div>
+                    <li data-translate="startupFailure">If startup fails, go to File Management ⇨ Update Database ⇨ Download cache.db</li>
+                    <li data-translate="startupNetworkIssue">If unable to connect, go to Firewall Settings ⇨ Outbound/Inbound/Forward ⇨ Accept ⇨ Save Application</li>
+                </ul>
+            </div>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" data-translate="cancelButton">Cancel</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="cityModal" tabindex="-1" aria-labelledby="cityModalLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="cityModalLabel" data-translate="cityModalLabel">Set City</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <label for="city-input" data-translate="cityInputLabel">Enter city name:</label>
+                <input type="text" id="city-input" class="form-control" placeholder="Enter city name">
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" data-translate="cancelButton">Cancel</button>
+                <button type="button" class="btn btn-primary" id="saveCityBtn" data-translate="saveCityButton">Save City</button>
             </div>
         </div>
     </div>
@@ -2725,23 +3282,23 @@ window.addEventListener('keydown', function(event) {
 
     function speakMessage(message) {
         const utterance = new SpeechSynthesisUtterance(message);
-        utterance.lang = 'en-US';  
+        utterance.lang = currentLang;  
         speechSynthesis.speak(utterance);
     }
 
     function getWebsiteStatusMessage(url, status) {
         const statusMessages = {
-            'https://www.baidu.com/': status ? 'Baidu website is accessible.' : 'Cannot access Baidu website, please check your network connection.',
-            'https://www.cloudflare.com/': status ? 'Cloudflare website is accessible.' : 'Cannot access Cloudflare website, please check your network connection.',
-            'https://openai.com/': status ? 'OpenAI website is accessible.' : 'Cannot access OpenAI website, please check your network connection.',
-            'https://www.youtube.com/': status ? 'YouTube website is accessible.' : 'Cannot access YouTube website, please check your network connection.',
-            'https://www.google.com/': status ? 'Google website is accessible.' : 'Cannot access Google website, please check your network connection.',
-            'https://www.facebook.com/': status ? 'Facebook website is accessible.' : 'Cannot access Facebook website, please check your network connection.',
-            'https://www.twitter.com/': status ? 'Twitter website is accessible.' : 'Cannot access Twitter website, please check your network connection.',
-            'https://www.github.com/': status ? 'GitHub website is accessible.' : 'Cannot access GitHub website, please check your network connection.',
+            'https://www.baidu.com/': status ? 'Baidu 网站访问正常。' : '无法访问 Baidu 网站，请检查网络连接。',
+            'https://www.cloudflare.com/': status ? 'Cloudflare 网站访问正常。' : '无法访问 Cloudflare 网站，请检查网络连接。',
+            'https://openai.com/': status ? 'OpenAI 网站访问正常。' : '无法访问 OpenAI 网站，请检查网络连接。',
+            'https://www.youtube.com/': status ? 'YouTube 网站访问正常。' : '无法访问 YouTube 网站，请检查网络连接。',
+            'https://www.google.com/': status ? 'Google 网站访问正常。' : '无法访问 Google 网站，请检查网络连接。',
+            'https://www.facebook.com/': status ? 'Facebook 网站访问正常。' : '无法访问 Facebook 网站，请检查网络连接。',
+            'https://www.twitter.com/': status ? 'Twitter 网站访问正常。' : '无法访问 Twitter 网站，请检查网络连接。',
+            'https://www.github.com/': status ? 'GitHub 网站访问正常。' : '无法访问 GitHub 网站，请检查网络连接。',
         };
 
-        return statusMessages[url] || (status ? `${url} website is accessible.` : `Cannot access ${url} website, please check your network connection.`);
+        return statusMessages[url] || (status ? `${url} 网站访问正常。` : `无法访问 ${url} 网站，请检查网络连接。`);
     }
 
     function checkWebsiteAccess(urls) {
@@ -2761,14 +3318,14 @@ window.addEventListener('keydown', function(event) {
                     requestsCompleted++;
                     if (requestsCompleted === urls.length) {
                         speakMessage(statusMessages.join(' '));  
-                        speakMessage('Website check is complete, thank you for using.'); 
+                        speakMessage('网站检查已完毕，感谢使用。'); 
                     }
                 });
         });
     }
 
     setInterval(() => {
-        speakMessage('Starting website connectivity check...');
+        speakMessage('开始检测网站连通性...');
         checkWebsiteAccess(websites);  
     }, 3600000);  
 
@@ -2777,16 +3334,165 @@ window.addEventListener('keydown', function(event) {
     document.addEventListener('keydown', function(event) {
         if (event.key === 'F8' && !isDetectionStarted) {  
             event.preventDefault();  
-            speakMessage('Website check has started, checking website connectivity...');
+            speakMessage('网站检测已开启，开始检测网站连通性...');
             checkWebsiteAccess(websites);
             isDetectionStarted = true;
         }
     });
 
     document.getElementById('startCheckBtn').addEventListener('click', function() {
-        speakMessage('Website check has started, checking website connectivity...');
+        speakMessage('网站检测已开启，开始检测网站连通性...');
         checkWebsiteAccess(websites);
     });
+</script>
+
+<script>
+let city = 'Beijing';
+const apiKey = 'fc8bd2637768c286c6f1ed5f1915eb22';
+let systemEnabled = true;
+let weatherEnabled = true;
+
+function speakMessage(message) {
+    const utterance = new SpeechSynthesisUtterance(message);
+    utterance.lang = currentLang;
+    speechSynthesis.speak(utterance);
+}
+
+function speakWeather(weather) {
+    if (!weatherEnabled || !systemEnabled) return;
+
+    const descriptions = {
+        "clear sky": "晴天", "few clouds": "少量云", "scattered clouds": "多云",
+        "broken clouds": "多云", "shower rain": "阵雨", "rain": "雨", 
+        "light rain": "小雨", "moderate rain": "中雨", "heavy rain": "大雨",
+        "very heavy rain": "暴雨", "extreme rain": "极端降雨", "snow": "雪",
+        "light snow": "小雪", "moderate snow": "中雪", "heavy snow": "大雪",
+        "very heavy snow": "特大暴雪", "extreme snow": "极端降雪",
+        "sleet": "雨夹雪", "freezing rain": "冻雨", "mist": "薄雾",
+        "fog": "雾", "haze": "霾", "sand": "沙尘", "dust": "扬尘", "squall": "阵风",
+        "tornado": "龙卷风", "ash": "火山灰", "drizzle": "毛毛雨",
+        "overcast": "阴天", "partly cloudy": "局部多云", "cloudy": "多云",
+        "tropical storm": "热带风暴", "hurricane": "飓风", "cold": "寒冷", 
+        "hot": "炎热", "windy": "大风", "breezy": "微风", "blizzard": "暴风雪"
+    };
+
+    const weatherDescription = descriptions[weather.weather[0].description.toLowerCase()] || weather.weather[0].description;
+    const temperature = weather.main.temp;
+    const tempMax = weather.main.temp_max;
+    const tempMin = weather.main.temp_min;
+    const humidity = weather.main.humidity;
+    const windSpeed = weather.wind.speed;
+    const visibility = weather.visibility / 1000;
+
+    let message = `以下是今天${city}的天气预报：当前气温为${temperature}摄氏度，${weatherDescription}。` +
+                  `预计今天的最高气温为${tempMax}摄氏度，今晚的最低气温为${tempMin}摄氏度。` +
+                  `西南风速为每小时${windSpeed}米。湿度为${humidity}%。` +
+                  `能见度为${visibility}公里。`;
+
+    if (temperature >= 25) {
+        message += `紫外线指数较高，如果外出，请记得涂防晒霜。`;
+    } else if (temperature >= 16 && temperature < 25) {
+        message += `紫外线指数适中，如果外出，建议涂防晒霜。`;
+    } else if (temperature >= 5 && temperature < 16) {
+        message += `当前天气较冷，外出时请注意保暖。`;
+    } else {
+        message += `当前天气非常寒冷，外出时请注意防寒保暖。`;
+    }
+
+    if (weatherDescription.includes('雨') || weatherDescription.includes('阵雨') || weatherDescription.includes('雷暴')) {
+        message += `建议您外出时携带雨伞。`;
+    }
+
+    message += `请注意安全，保持好心情，祝您有美好的一天！`;
+
+    speakMessage(message);
+    }
+
+    function fetchWeather() {
+        if (!weatherEnabled || !systemEnabled) return;
+        
+        const apiUrl = `https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${apiKey}&units=metric&lang=zh_cn`; 
+        fetch(apiUrl)
+            .then(response => response.ok ? response.json() : Promise.reject('网络响应不正常'))
+            .then(data => {
+                if (data.weather && data.main) {
+                    speakWeather(data);
+                } else {
+                    console.error('无法获取天气数据');
+                }
+            })
+            .catch(error => console.error('获取天气数据时出错:', error));
+    }
+
+    function showNotification(message) {
+        var notification = document.createElement('div');
+        notification.style.position = 'fixed';
+        notification.style.top = '10px';
+        notification.style.left = '10px';
+        notification.style.backgroundColor = '#4CAF50';  
+        notification.style.color = '#fff';
+        notification.style.padding = '10px';
+        notification.style.borderRadius = '5px';
+        notification.style.zIndex = '9999';
+        notification.innerText = message;
+
+        document.body.appendChild(notification);
+
+        setTimeout(function() {
+            notification.style.display = 'none';
+        }, 6000); 
+    }
+
+    function saveCity() {
+        const cityInput = document.getElementById('city-input').value.trim();
+        const chineseCharPattern = /[\u4e00-\u9fff]/;
+        const startsWithUppercasePattern = /^[A-Z]/;
+        if (chineseCharPattern.test(cityInput)) {
+            speakMessage('请输入非中文的城市名称。');
+        } else if (!startsWithUppercasePattern.test(cityInput)) {
+            speakMessage('城市名称必须以大写英文字母开头。');
+        } else if (cityInput) {
+            city = cityInput;
+            localStorage.setItem('city', city); 
+            showNotification(`城市已保存为：${city}`);
+            speakMessage(`城市已保存为${city}，正在获取最新天气信息...`);
+            fetchWeather();
+            const cityModal = bootstrap.Modal.getInstance(document.getElementById('cityModal'));
+            cityModal.hide();
+        } else {
+            speakMessage('请输入有效的城市名称。');
+        }
+    }
+
+    window.onload = function() {
+        const storedCity = localStorage.getItem('city');
+        if (storedCity) {
+            city = storedCity;
+            document.getElementById('current-city').style.display = 'block';
+            document.getElementById('city-name').textContent = city
+        }
+    };
+
+    document.addEventListener('keydown', function(event) {
+        if (event.ctrlKey && event.shiftKey && event.key === 'X') {
+            const cityModal = new bootstrap.Modal(document.getElementById('cityModal'));
+            cityModal.show();
+            speakMessage('打开城市设置');
+        }
+
+        if (event.key === 'F4') {
+            fetchWeather();
+            speakMessage('天气播报已开启');
+        }
+    });
+
+    document.getElementById('startWeatherBtn').addEventListener('click', function() {
+        speakMessage('正在获取天气信息...');
+        fetchWeather();
+    });
+
+    document.getElementById('saveCityBtn').addEventListener('click', saveCity);
+
 </script>
 
 <style>
@@ -2880,7 +3586,7 @@ window.addEventListener('keydown', function(event) {
         }
 
         function updateButtonText() {
-            document.getElementById('toggleAnimationBtn').innerText = isAnimationActive ? '⏸️ Stop Box Animation' : '▶ Start Box Animation';
+            document.getElementById('toggleAnimationBtn').innerText = isAnimationActive ? '⏸️ 停止方块动画' : '▶ 启动方块动画';
         }
 
         window.addEventListener('keydown', function(event) {
@@ -2888,12 +3594,12 @@ window.addEventListener('keydown', function(event) {
                 isAnimationActive = !isAnimationActive;
                 if (isAnimationActive) {
                     startAnimation();
-                    showNotification('Box animation started');
-                    speakMessage('Box animation started');
+                    showNotification('方块动画已启动');
+                    speakMessage('方块动画已启动');
                 } else {
                     stopAnimation();
-                    showNotification('Box animation stopped');
-                    speakMessage('Box animation stopped');
+                    showNotification('方块动画已停止');
+                    speakMessage('方块动画已停止');
                 }
             }
         });
@@ -2901,12 +3607,12 @@ window.addEventListener('keydown', function(event) {
         document.getElementById('toggleAnimationBtn').addEventListener('click', function() {
             if (isAnimationActive) {
                 stopAnimation();
-                showNotification('⏸️ Box animation stopped');
-                speakMessage('Box animation stopped');
+                showNotification('⏸️ 方块动画已停止');
+                speakMessage('方块动画已停止');
             } else {
                 startAnimation();
-                showNotification('▶ Box animation started');
-                speakMessage('Box animation started');
+                showNotification('▶ 方块动画已启动');
+                speakMessage('方块动画已启动');
             }
         });
 
@@ -2918,7 +3624,7 @@ window.addEventListener('keydown', function(event) {
 
     function speakMessage(message) {
         const utterance = new SpeechSynthesisUtterance(message);
-        utterance.lang = 'en-US';
+        utterance.lang = 'zh-CN';
         speechSynthesis.speak(utterance);
     }
 </script>
@@ -3069,7 +3775,7 @@ window.addEventListener('keydown', function(event) {
 
     function speakMessage(message) {
         const utterance = new SpeechSynthesisUtterance(message);
-        utterance.lang = 'en-US';
+        utterance.lang = 'zh-CN';
         speechSynthesis.speak(utterance);
     }
 
@@ -3092,14 +3798,14 @@ window.addEventListener('keydown', function(event) {
         saveSnowingState(isSnowing);
         if (isSnowing) {
             createSnowflakes();
-            showNotification('Snowflake animation started');
-            speakMessage('Snowflake animation started');
-            document.getElementById('toggleSnowBtn').innerText = '⏸️ Stop Snowflake Animation';
+            showNotification('雪花动画已启动');
+            speakMessage('雪花动画已启动');
+            document.getElementById('toggleSnowBtn').innerText = '⏸️ 停止雪花动画';
         } else {
             stopSnowflakes();
-            showNotification('Snowflake animation stopped');
-            speakMessage('Snowflake animation stopped');
-            document.getElementById('toggleSnowBtn').innerText = '▶ Start Snowflake Animation';
+            showNotification('雪花动画已停止');
+            speakMessage('雪花动画已停止');
+            document.getElementById('toggleSnowBtn').innerText = '▶ 启动雪花动画';
         }
     }
 
@@ -3112,7 +3818,7 @@ window.addEventListener('keydown', function(event) {
     document.getElementById('toggleSnowBtn').addEventListener('click', toggleSnowflakes);
 
     if (isSnowing) {
-        document.getElementById('toggleSnowBtn').innerText = '⏸️ Stop Snowflake Animation';
+        document.getElementById('toggleSnowBtn').innerText = '⏸️ 停止雪花动画';
     }
 
 </script>
@@ -3197,8 +3903,8 @@ window.addEventListener('keydown', function(event) {
     function startLightAnimation(showLog = true) {
         intervalId = setInterval(createLightBox, 400); 
         localStorage.setItem('lightAnimationStatus', 'true');  
-        if (showLog) showNotification('Light box animation started');
-        document.getElementById('toggleLightAnimationBtn').innerText = '⏸️ Stop Light Animation';
+        if (showLog) showNotification('方块灯光动画已启动');
+        document.getElementById('toggleLightAnimationBtn').innerText = '⏸️ 停止灯光动画';
     }
 
     function stopLightAnimation(showLog = true) {
@@ -3206,8 +3912,8 @@ window.addEventListener('keydown', function(event) {
         const allLights = document.querySelectorAll('.floating-light');
         allLights.forEach(light => light.remove()); 
         localStorage.setItem('lightAnimationStatus', 'false');  
-        if (showLog) showNotification('Light box animation stopped');
-        document.getElementById('toggleLightAnimationBtn').innerText = '▶ Start Light Animation';
+        if (showLog) showNotification('方块灯光动画已停止');
+        document.getElementById('toggleLightAnimationBtn').innerText = '▶ 启动灯光动画';
     }
 
     function showNotification(message) {
@@ -3230,7 +3936,7 @@ window.addEventListener('keydown', function(event) {
 
     function speakMessage(message) {
         const utterance = new SpeechSynthesisUtterance(message);
-        utterance.lang = 'en-US';
+        utterance.lang = 'zh-CN';
         speechSynthesis.speak(utterance);
     }
 
@@ -3238,25 +3944,25 @@ window.addEventListener('keydown', function(event) {
         isLightAnimationActive = !isLightAnimationActive;
         if (isLightAnimationActive) {
             startLightAnimation();
-            speakMessage('Light box animation started');
+            speakMessage('方块灯光动画已启动');
         } else {
             stopLightAnimation();
-            speakMessage('Light box animation stopped');
+            speakMessage('方块灯光动画已停止');
         }
     }
 
     window.addEventListener('keydown', function(event) {
         if (event.ctrlKey && event.key === 'F7') {
-            toggleLightAnimation();
+                toggleLightAnimation();
+            }
+        });
+
+        document.getElementById('toggleLightAnimationBtn').addEventListener('click', toggleLightAnimation);
+
+        if (isLightAnimationActive) {
+            document.getElementById('toggleLightAnimationBtn').innerText = '⏸️ 停止灯光动画';
         }
-    });
-
-    document.getElementById('toggleLightAnimationBtn').addEventListener('click', toggleLightAnimation);
-
-    if (isLightAnimationActive) {
-        document.getElementById('toggleLightAnimationBtn').innerText = '⏸️ Stop Light Animation';
-    }
-})();
+    })();
 </script>
 
 <style>
@@ -3316,16 +4022,16 @@ window.addEventListener('keydown', function(event) {
         if (lightInterval) clearInterval(lightInterval);
         lightInterval = setInterval(createLightPoint, 200); 
         localStorage.setItem('lightEffectAnimation', 'true');
-        if (showLog) showNotification('Light point animation started');
-        document.getElementById('toggleLightEffectBtn').innerText = '⏸️ Stop Light Point Animation';
+        if (showLog) showNotification('光点动画已开启');
+        document.getElementById('toggleLightEffectBtn').innerText = '⏸️ 停止光点动画';
     }
 
     function stopLightEffect(showLog = true) {
         clearInterval(lightInterval);
         document.querySelectorAll('.light-point').forEach((light) => light.remove());
         localStorage.setItem('lightEffectAnimation', 'false');
-        if (showLog) showNotification('Light point animation stopped');
-        document.getElementById('toggleLightEffectBtn').innerText = '▶ Start Light Point Animation';
+        if (showLog) showNotification('光点动画已关闭');
+        document.getElementById('toggleLightEffectBtn').innerText = '▶ 启动光点动画';
     }
 
     function showNotification(message) {
@@ -3348,7 +4054,7 @@ window.addEventListener('keydown', function(event) {
 
     function speakMessage(message) {
         const utterance = new SpeechSynthesisUtterance(message);
-        utterance.lang = 'en-US';
+        utterance.lang = 'zh-CN';
         speechSynthesis.speak(utterance);
     }
 
@@ -3356,26 +4062,26 @@ window.addEventListener('keydown', function(event) {
         isLightEffectActive = !isLightEffectActive;
         if (isLightEffectActive) {
             startLightEffect();
-            speakMessage('Light point animation started');
+            speakMessage('光点动画已启动');
         } else {
             stopLightEffect();
-            speakMessage('Light point animation stopped');
+            speakMessage('光点动画已关闭');
         }
     }
 
     window.addEventListener('keydown', function (event) {
         if (event.ctrlKey && event.key === 'F11') {
             toggleLightEffect();
-        }
-    });
+                }
+            });
 
-    document.getElementById('toggleLightEffectBtn').addEventListener('click', toggleLightEffect);
+            document.getElementById('toggleLightEffectBtn').addEventListener('click', toggleLightEffect);
 
-    if (isLightEffectActive) {
-        document.getElementById('toggleLightEffectBtn').innerText = '⏸️ Stop Light Point Animation';
-        startLightEffect(false);
-    }
-})();
+            if (isLightEffectActive) {
+                document.getElementById('toggleLightEffectBtn').innerText = '⏸️ 停止光点动画';
+                startLightEffect(false);
+            }
+        })();
 </script>
 
 <script>
@@ -3388,37 +4094,38 @@ window.addEventListener('keydown', function(event) {
   <div class="modal-dialog modal-xl">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title" id="widthModalLabel">Adjust Container Width</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        <h5 class="modal-title" id="widthModalLabel" data-translate="adjust_container_width">Adjust Container Width</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"</button>
       </div>
       <div class="modal-body">
-        <label for="containerWidth" class="form-label">Page Width</label>
+        <div class="alert alert-warning d-flex align-items-center" role="alert">
+            <i class="bi bi-exclamation-triangle-fill me-2"></i>
+            <span data-translate="warning_message">If changes do not take effect, please clear your browser cache and refresh the page!</span>
+        </div>
+        <label for="containerWidth" class="form-label" data-translate="page_width">Page Width</label>
         <input type="range" class="form-range" name="containerWidth" id="containerWidth" min="800" max="5400" step="50" value="1800" style="width: 100%;">
-        <div id="widthValue" class="mt-2" style="color: #FF00FF;">Current Width: 1800px</div>
+        <div id="widthValue" class="mt-2" style="color: #FF00FF;" data-translate="current_width">Current Width: 1800px</div>
 
-        <label for="modalMaxWidth" class="form-label mt-4">Modal Max Width</label>
+        <label for="modalMaxWidth" class="form-label mt-4" data-translate="modal_max_width">Modal Max Width</label>
         <input type="range" class="form-range" name="modalMaxWidth" id="modalMaxWidth" min="1400" max="5400" step="50" value="1400" style="width: 100%;">
-        <div id="modalWidthValue" class="mt-2" style="color: #00FF00;">Current Max Width: 1400px</div>
+        <div id="modalWidthValue" class="mt-2" style="color: #00FF00;" data-translate="current_max_width">Current Max Width: 1400px</div>
 
         <div class="form-check mt-3">
             <input class="form-check-input" type="checkbox" id="group1Background">
-            <label class="form-check-label" for="group1Background">
-                Enable Transparent Dropdown, Form Select, and Info Background
-            </label>
+            <label class="form-check-label" for="group1Background" data-translate="enable_transparent_dropdown">Enable transparent dropdowns, form selections, and info backgrounds</label>
         </div>
         <div class="form-check mt-3">
             <input class="form-check-input" type="checkbox" id="bodyBackground">
-            <label class="form-check-label" for="bodyBackground">
-                Enable Transparent Body Background
-            </label>
+            <label class="form-check-label" for="bodyBackground" data-translate="enable_transparent_body">Enable transparent body background</label>
         </div>
       </div>
       <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" data-translate="close">Close</button>
       </div>
     </div>
   </div>
 </div>
+
 <script>
 const slider = document.getElementById("containerWidth");
 const widthValue = document.getElementById("widthValue");
@@ -3434,7 +4141,7 @@ function updateSliderColor(value, slider, valueElement) {
     
     slider.style.background = `linear-gradient(to right, rgb(${red}, ${green}, 255), rgb(${255 - red}, ${green}, ${255 - red}))`;
     slider.style.setProperty('--thumb-color', `rgb(${red}, ${green}, 255)`);
-    valueElement.textContent = `Current Width: ${value}px`;
+    valueElement.textContent = translations['current_width'].replace('%s', value);
     valueElement.style.color = `rgb(${red}, ${green}, 255)`;  
 }
 
@@ -3456,7 +4163,7 @@ slider.oninput = function() {
     localStorage.setItem('containerWidth', slider.value);  
 
     sendCSSUpdate();
-    showNotification(`Page width updated! Current Width: ${slider.value}px`);
+    showNotification(translations['page_width_updated'].replace('%s', slider.value));
 };
 
 modalSlider.oninput = function() {
@@ -3464,7 +4171,7 @@ modalSlider.oninput = function() {
     localStorage.setItem('modalMaxWidth', modalSlider.value);  
 
     sendCSSUpdate();
-    showNotification(`Modal max width updated! Current Max Width: ${modalSlider.value}px`);
+    showNotification(translations['modal_width_updated'].replace('%s', modalSlider.value));
 };
 
 function sendCSSUpdate() {
@@ -3485,18 +4192,18 @@ function sendCSSUpdate() {
             bodyBackground: bodyBackground
         })
     }).then(response => response.json())
-      .then(data => console.log('CSS updated successfully:', data))
+      .then(data => console.log('CSS 更新成功:', data))
       .catch(error => console.error('Error updating CSS:', error));
 }
 
 group1Checkbox.onchange = function() {
     sendCSSUpdate();
-    showNotification(group1Checkbox.checked ? "Transparent dropdown, form select, and info background enabled" : "Transparent dropdown, form select, and info background disabled");
+    showNotification(group1Checkbox.checked ? translations['enable_transparent_dropdown'] : translations['disable_transparent_dropdown']);
 };
 
 bodyBackgroundCheckbox.onchange = function() {
     sendCSSUpdate();
-    showNotification(bodyBackgroundCheckbox.checked ? "Transparent body background enabled" : "Transparent body background disabled");
+    showNotification(bodyBackgroundCheckbox.checked ? translations['enable_transparent_body'] : translations['disable_transparent_body']);
 };
 
 function showNotification(message) {
@@ -3528,156 +4235,156 @@ toggleModalButton.onclick = function() {
   <div class="modal-dialog modal-xl">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title" id="colorModalLabel">Select Theme Color</h5>
+        <h5 class="modal-title" id="colorModalLabel" data-translate="adjust_container_width">Select Theme Color</h5>
         <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
       </div>
       <div class="modal-body">
         <form method="POST" action="theme.php" id="themeForm" enctype="multipart/form-data">
           <div class="row">
             <div class="col-md-4 mb-3">
-              <label for="primaryColor" class="form-label">Navigation Text Color</label>
+              <label for="primaryColor" class="form-label" data-translate="navbar_text_color">Navbar Text Color</label>
               <input type="color" class="form-control" name="primaryColor" id="primaryColor" value="#30e8dc">
             </div>
             <div class="col-md-4 mb-3">
-              <label for="secondaryColor" class="form-label">Navigation Hover Text Color</label>
+              <label for="secondaryColor" class="form-label" data-translate="navbar_hover_text_color">Navbar Hover Text Color</label>
               <input type="color" class="form-control" name="secondaryColor" id="secondaryColor" value="#00ffff">
             </div>
             <div class="col-md-4 mb-3">
-              <label for="bodyBgColor" class="form-label">Main Background Color</label>
+              <label for="bodyBgColor" class="form-label" data-translate="body_background_color">Body Background Color</label>
               <input type="color" class="form-control" name="bodyBgColor" id="bodyBgColor" value="#23407e">
             </div>
             <div class="col-md-4 mb-3">
-              <label for="infoBgSubtle" class="form-label">Info Background Color</label>
+              <label for="infoBgSubtle" class="form-label" data-translate="info_background_color">Info Background Color</label>
               <input type="color" class="form-control" name="infoBgSubtle" id="infoBgSubtle" value="#23407e">
             </div>
             <div class="col-md-4 mb-3">
-              <label for="backgroundColor" class="form-label">Table Background Color</label>
+              <label for="backgroundColor" class="form-label" data-translate="table_background_color">Table Background Color</label>
               <input type="color" class="form-control" name="backgroundColor" id="backgroundColor" value="#20cdd9">
             </div>
             <div class="col-md-4 mb-3">
-              <label for="primaryBorderSubtle" class="form-label">Table Text Color</label>
+              <label for="primaryBorderSubtle" class="form-label" data-translate="table_text_color">Table Text Color</label>
               <input type="color" class="form-control" name="primaryBorderSubtle" id="primaryBorderSubtle" value="#1815d1">
             </div>
             <div class="col-md-4 mb-3">
-              <label for="checkColor" class="form-label">Main Title Text Color 1</label>
-              <input type="color" class="form-control" name="checkColor" id="checkColor" value="#0eaf3e">
+              <label for="checkColor" class="form-label" data-translate="main_title_text_color_1">Main Title Text Color 1</label>
+              <input type="color" class="form-control" name="checkColor" id="checkColor" value="#f8f9fa">
             </div>
             <div class="col-md-4 mb-3">
-              <label for="labelColor" class="form-label">Main Title Text Color 2</label>
-              <input type="color" class="form-control" name="labelColor" id="labelColor" value="#0eaf3e">
+              <label for="labelColor" class="form-label" data-translate="main_title_text_color_2">Main Title Text Color 2</label>
+              <input type="color" class="form-control" name="labelColor" id="labelColor" value="#248cf5">
             </div>
             <div class="col-md-4 mb-3">
-              <label for="lineColor" class="form-label">Line Text Color</label>
+              <label for="lineColor" class="form-label" data-translate="row_text_color">Row Text Color</label>
               <input type="color" class="form-control" name="lineColor" id="lineColor" value="#f515f9">
             </div>
             <div class="col-md-4 mb-3">
-              <label for="controlColor" class="form-label">Input Text Color 1</label>
-              <input type="color" class="form-control" name="controlColor" id="controlColor" value="#0eaf3e">
+              <label for="controlColor" class="form-label" data-translate="input_text_color_1">Input Text Color 1</label>
+              <input type="color" class="form-control" name="controlColor" id="controlColor" value="#f8f9fa">
             </div>
             <div class="col-md-4 mb-3">
-              <label for="placeholderColor" class="form-label">Input Text Color 2</label>
+              <label for="placeholderColor" class="form-label" data-translate="input_text_color_2">Input Text Color 2</label>
               <input type="color" class="form-control" name="placeholderColor" id="placeholderColor" value="#f8f9fa">
             </div>
             <div class="col-md-4 mb-3">
-              <label for="disabledColor" class="form-label">Display Background Color</label>
+              <label for="disabledColor" class="class="form-label" data-translate="disabled_box_background_color">Disabled Box Background Color</label>
               <input type="color" class="form-control" name="disabledColor" id="disabledColor" value="#23407e">
             </div>
             <div class="col-md-4 mb-3">
-              <label for="logTextColor" class="form-label">Log Text Color</label>
+              <label for="logTextColor" class="form-label" data-translate="log_text_color">Log Text Color</label>
               <input type="color" class="form-control" name="logTextColor" id="logTextColor" value="#f8f9fa">
             </div>
             <div class="col-md-4 mb-3">
-              <label for="selectColor" class="form-label">Main Border Background Color</label>
+              <label for="selectColor" class="form-label" data-translate="main_border_background_color">Main Border Background Color</label>
               <input type="color" class="form-control" name="selectColor" id="selectColor" value="#23407e">
             </div>
             <div class="col-md-4 mb-3">
-              <label for="radiusColor" class="form-label">Main Border Text Color</label>
+              <label for="radiusColor" class="form-label" data-translate="main_border_background_color">Main Border Text Color</label>
               <input type="color" class="form-control" name="radiusColor" id="radiusColor" value="#28edf0">
             </div>
             <div class="col-md-4 mb-3">
-              <label for="bodyColor" class="form-label">Table Text Color 1</label>
+              <label for="bodyColor" class="form-label" data-translate="table_text_color_1">Table Text Color 1</label>
               <input type="color" class="form-control" name="bodyColor" id="bodyColor" value="#4eedf9">
             </div>
             <div class="col-md-4 mb-3">
-              <label for="tertiaryColor" class="form-label">Table Text Color 2</label>
-              <input type="color" class="form-control" name="tertiaryColor" id="tertiaryColor" value="#df38f5">
+              <label for="tertiaryColor" class="form-label" data-translate="table_text_color_2">Table Text Color 2</label>
+              <input type="color" class="form-control" name="tertiaryColor" id="tertiaryColor" value="#46e1ec">
             </div>
             <div class="col-md-4 mb-3">
-              <label for="tertiaryRgbColor" class="form-label">Table Text Color 3</label>
-              <input type="color" class="form-control" name="tertiaryRgbColor" id="tertiaryRgbColor" value="#1e90ff">
+              <label for="tertiaryRgbColor" class="form-label" data-translate="table_text_color_3">Table Text Color 3</label>
+              <input type="color" class="form-control" name="tertiaryRgbColor" id="tertiaryRgbColor" value="#df38f5">
             </div>
             <div class="col-md-4 mb-3">
-              <label for="ipColor" class="form-label">IP Text Color</label>
+              <label for="ipColor" class="form-label" data-translate="ip_text_color">IP Text Color</label>
               <input type="color" class="form-control" name="ipColor" id="ipColor" value="#09B63F">
             </div>
             <div class="col-md-4 mb-3">
-              <label for="ipipColor" class="form-label">ISP Text Color</label>
+              <label for="ipipColor" class="form-label" data-translate="isp_text_color">ISP Text Color</label>
               <input type="color" class="form-control" name="ipipColor" id="ipipColor" value="#ff69b4">
             </div>
             <div class="col-md-4 mb-3">
-              <label for="detailColor" class="form-label">IP Detail Text Color</label>
+              <label for="detailColor" class="form-label" data-translate="ip_detail_text_color">IP Detail Text Color</label>
               <input type="color" class="form-control" name="detailColor" id="detailColor" value="#15d1bb">
             </div>
             <div class="col-md-4 mb-3">
-              <label for="outlineColor" class="form-label">Button Color (Cyan)</label>
+              <label for="outlineColor" class="form-label" data-translate="button_color_cyan">Button Color (Cyan)</label>
               <input type="color" class="form-control" name="outlineColor" id="outlineColor" value="#0dcaf0">
             </div>
             <div class="col-md-4 mb-3">
-              <label for="successColor" class="form-label">Button Color (Green)</label>
+              <label for="successColor" class="form-label" data-translate="button_color_green">Button Color (Green)</label>
               <input type="color" class="form-control" name="successColor" id="successColor" value="#28a745">
             </div>
             <div class="col-md-4 mb-3">
-              <label for="infoColor" class="form-label">Button Color (Blue)</label>
+              <label for="infoColor" class="form-label" data-translate="button_color_blue">Button Color (Blue)</label>
               <input type="color" class="form-control" name="infoColor" id="infoColor" value="#0ca2ed">
             </div>
             <div class="col-md-4 mb-3">
-              <label for="warningColor" class="form-label">Button Color (Yellow)</label>
+              <label for="warningColor" class="form-label" data-translate="button_color_yellow">Button Color (Yellow)</label>
               <input type="color" class="form-control" name="warningColor" id="warningColor" value="#ffc107">
             </div>
             <div class="col-md-4 mb-3">
-              <label for="pinkColor" class="form-label">Button Color (Pink)</label>
+              <label for="pinkColor" class="form-label" data-translate="button_color_pink">Button Color (Pink)</label>
               <input type="color" class="form-control" name="pinkColor" id="pinkColor" value="#f82af2">
             </div>
             <div class="col-md-4 mb-3">
-              <label for="dangerColor" class="form-label">Button Color (Red)</label>
+              <label for="dangerColor" class="form-label" data-translate="button_color_red">Button Color (Red)</label>
               <input type="color" class="form-control" name="dangerColor" id="dangerColor" value="#dc3545">
             </div>
             <div class="col-md-4 mb-3">
-              <label for="heading1Color" class="form-label">Heading Color 1</label>
+              <label for="heading1Color" class="form-label" data-translate="heading_color_1">Heading Color 1</label>
               <input type="color" class="form-control" name="heading1Color" id="heading1Color" value="#21e4f2">
             </div>
             <div class="col-md-4 mb-3">
-              <label for="heading2Color" class="form-label">Heading Color 2</label>
+              <label for="heading2Color" class="form-label" data-translate="heading_color_2">Heading Color 2</label>
               <input type="color" class="form-control" name="heading2Color" id="heading2Color" value="#65f1fb">
             </div>
             <div class="col-md-4 mb-3">
-              <label for="heading3Color" class="form-label">Heading Color 3</label>
+              <label for="heading3Color" class="form-label" data-translate="heading_color_3">Heading Color 3</label>
               <input type="color" class="form-control" name="heading3Color" id="heading3Color" value="#ffcc00">
             </div>
             <div class="col-md-4 mb-3">
-              <label for="heading4Color" class="form-label">Heading Color 4</label>
+              <label for="heading4Color" class="form-label" data-translate="heading_color_4">Heading Color 4</label>
               <input type="color" class="form-control" name="heading4Color" id="heading4Color" value="#00fbff">
             </div>
             <div class="col-md-4 mb-3">
-              <label for="heading5Color" class="form-label">Heading Color 5</label>
+              <label for="heading5Color" class="form-label" data-translate="heading_color_5">Heading Color 5</label>
               <input type="color" class="form-control" name="heading5Color" id="heading5Color" value="#ba13f6">
             </div>
             <div class="col-md-4 mb-3">
-              <label for="heading6Color" class="form-label">Heading Color 6</label>
+              <label for="heading6Color" class="form-label" data-translate="heading_color_6">Heading Color 6</label>
               <input type="color" class="form-control" name="heading6Color" id="heading6Color" value="#00ffff">
             </div>
           </div>
           <div class="col-12 mb-3">
-            <label for="themeName" class="form-label">Custom Theme Name</label>
+            <label for="themeName" class="form-label" data-translate="custom_theme_name">Custom Theme Name</label>
             <input type="text" class="form-control" name="themeName" id="themeName" value="transparent">
           </div>
       <div class="d-flex flex-wrap justify-content-center align-items-center mb-3 gap-2">
-          <button type="submit" class="btn btn-primary">Save Theme</button>
-          <button type="button" class="btn btn-success" id="resetButton" onclick="clearCache()">Reset to Default</button>
-          <button type="button" class="btn btn-info" id="exportButton">Backup Now</button>
-          <button type="button" class="btn btn-warning" id="restoreButton">Restore Backup</button> 
+          <button type="submit" class="btn btn-primary" data-translate="save_theme">Save Theme</button>
+          <button type="button" class="btn btn-success" id="resetButton" onclick="clearCache()" data-translate="restore_default">Restore Default</button>
+          <button type="button" class="btn btn-info" id="exportButton" data-translate="backup_now">Backup Now</button>
+          <button type="button" class="btn btn-warning" id="restoreButton" data-translate="restore_backup">Restore Backup</button>
           <input type="file" id="importButton" class="form-control" accept="application/json" style="display: none;"> 
-          <button type="button" class="btn btn-pink" data-bs-dismiss="modal">Cancel</button>
+          <button type="button" class="btn btn-pink" data-bs-dismiss="modal" data-translate="cancel">Cancel</button>
       </div>
         </form>
       </div>
@@ -3714,6 +4421,14 @@ input[type="range"]:focus {
 
 #widthValue {
     color: #ff00ff;
+}
+
+ .file-section {
+    display: none;
+}
+
+.file-section.active {
+    display: block;
 }
 
 .file-preview {
@@ -3957,10 +4672,10 @@ input[type="range"]:focus {
                 const content = e.target.result;
                 try {
                     const jsonData = JSON.parse(content); 
-                    console.log('Restored backup data:', jsonData);
-                    alert('Backup successfully uploaded and parsed!');
+                    console.log('恢复的备份数据:', jsonData);
+                    alert('备份已成功上传并解析！');
                 } catch (error) {
-                    alert('File format error, please upload a valid JSON file!');
+                    alert('文件格式错误，请上传正确的 JSON 文件！');
                 }
             };
             reader.readAsText(file);
@@ -3987,147 +4702,290 @@ input[type="range"]:focus {
     <div class='modal-dialog modal-xl'>
         <div class='modal-content'>
             <div class='modal-header'>
-                <h5 class='modal-title' id='filesModalLabel'>Upload and Manage Background Images/Videos/Audio</h5>
-                <button type='button' class='close' data-bs-dismiss='modal' aria-label='Close'>
-                    <span aria-hidden='true'>&times;</span>
-                </button>
+                <h5 class='modal-title' id='filesModalLabel' data-translate='uploadManageTitle'>Upload and Manage Background Images/Videos/Audio</h5>
+                <button type='button' class='btn-close' data-bs-dismiss='modal' aria-label='Close'></button>
             </div>
             <div class='modal-body'>
                 <div class='mb-4 d-flex flex-wrap gap-2 justify-content-start align-items-center'>
                     <div>
-                        <button type="button" class="btn btn-success me-2" id="selectToggleBtn" onclick="toggleSelectAll()"><i class="fas fa-check-square"></i> Select All</button>
-                        <button type="button" class="btn btn-danger me-2" onclick="batchDelete()"><i class="fas fa-trash-alt"></i> Batch Delete</button>
-                        <button type='button' class='btn btn-primary me-2' onclick='openVideoPlayerModal()' title="Check to add to playlist"><i class='fas fa-play'></i> Play Video</button>
+                        <button type="button" class="btn btn-success me-2" id="selectToggleBtn" onclick="toggleSelectAll()"><i class="fas fa-check-square"></i> <span data-translate='selectAll'>Select All</span></button>
+                        <button type="button" class="btn btn-danger me-2" onclick="batchDelete()"><i class="fas fa-trash-alt"></i> <span data-translate='batchDelete'>Batch Delete</span></button>
+                        <button type='button' class='btn btn-primary me-2' onclick='openVideoPlayerModal()' title="勾选添加到播放列表"><i class='fas fa-play'></i> <span data-translate='playVideo'>Play Video</span></button>
                         <button type="button" class="btn btn-primary me-2" data-bs-toggle="modal" data-bs-target="#newuploadModal">
-                            <i class="fas fa-cloud-upload-alt"></i> Upload Files
+                            <i class="fas fa-cloud-upload-alt"></i> <span data-translate='uploadFile'>Upload File</span>
                         </button>
-                        <button type="button" class="btn btn-danger delete-btn" onclick="setBackground('', '', 'remove')"><i class="fas fa-trash"></i> Remove Background</button>
-                        <span id="selectedCount" class="ms-2" style="display: none;">Selected 0 files, Total 0 MB</span>
+                        <button type="button" class="btn btn-primary me-2" data-bs-toggle="modal" data-bs-target="#addDriveFileModal">
+                            <i class="fas fa-link"></i> <span data-translate='addDriveFile'>Add Drive File</span>
+                        </button>
+                        <button type="button" class="btn btn-danger me-2 delete-btn" onclick="setBackground('', '', 'remove')"><i class="fas fa-trash"></i> <span data-translate='removeBackground'>Remove Background</span></button>
+                        <span id="selectedCount" class="ms-2" style="display: none;" data-translate="selectedCount">已选中 0 个文件，总计 0 MB</span>
                     </div>
                 </div>
-                <table class="table table-bordered text-center">
-                    <tbody id="fileTableBody">
-                        <?php
-                        function isImage($file) {
-                            $imageExtensions = ['jpg', 'jpeg', 'png', 'gif', 'bmp', 'webp'];
-                            $fileExtension = strtolower(pathinfo($file, PATHINFO_EXTENSION));
-                            return in_array($fileExtension, $imageExtensions);
-                        }
-
-                        function isVideo($file) {
-                            $videoExtensions = ['mp4', 'avi', 'mkv', 'mov', 'wmv'];
-                            $fileExtension = strtolower(pathinfo($file, PATHINFO_EXTENSION));
-                            return in_array($fileExtension, $videoExtensions);
-                        }
-
-                        function isAudio($file) {
-                            $audioExtensions = ['mp3', 'wav', 'ogg', 'flac', 'aac', 'm4a', 'webm', 'opus'];
-                            $fileExtension = strtolower(pathinfo($file, PATHINFO_EXTENSION));
-                            return in_array($fileExtension, $audioExtensions);
-                        }
-
-                        function getFileNameWithoutPrefix($file) {
-                            $fileBaseName = pathinfo($file, PATHINFO_FILENAME);
-                            $hyphenPos = strpos($fileBaseName, '-');
-                            if ($hyphenPos !== false) {
-                                return substr($fileBaseName, $hyphenPos + 1) . '.' . pathinfo($file, PATHINFO_EXTENSION);
-                            } else {
-                                return $file;
-                            }
-                        }
-
-                        function formatFileSize($size) {
-                            if ($size >= 1073741824) {
-                                return number_format($size / 1073741824, 2) . ' GB';
-                            } elseif ($size >= 1048576) {
-                                return number_format($size / 1048576, 2) . ' MB';
-                            } elseif ($size >= 1024) {
-                                return number_format($size / 1024, 2) . ' KB';
-                            } else {
-                                return $size . ' bytes';
-                            }
-                        }
-
-                        $picturesDir = $_SERVER['DOCUMENT_ROOT'] . '/nekobox/assets/Pictures/';
-                        $backgroundHistoryFile = $_SERVER['DOCUMENT_ROOT'] . '/nekobox/background_history.txt';
-                        $backgroundFiles = [];
-                        if (file_exists($backgroundHistoryFile)) {
-                            $backgroundFiles = array_filter(array_map('trim', file($backgroundHistoryFile)));
-                        }
-
-                        if (is_dir($picturesDir)) {
-                            $files = array_diff(scandir($picturesDir), array('..', '.'));
-                            usort($files, function ($a, $b) use ($backgroundFiles) {
-                                $indexA = array_search($a, $backgroundFiles);
-                                $indexB = array_search($b, $backgroundFiles);
-
-                                if ($indexA === false && $indexB === false) {
-                                    return 0;
-                                } elseif ($indexA === false) {
-                                    return 1;
-                                } elseif ($indexB === false) {
-                                    return -1;
-                                } else {
-                                    return $indexA - $indexB;
+                <div class="btn-group mb-4" role="group" aria-label="File sections">
+                    <button type="button" class="btn btn-secondary" onclick="showSection('localFilesSection')" data-translate="localFiles">Local Files</button>
+                    <button type="button" class="btn btn-secondary" onclick="showSection('driveFilesSection')" data-translate="driveFiles">Drive Files</button>
+                </div>
+                <div id="fileSections">
+                    <div id="localFilesSection" class="file-section active">
+                        <h5 data-translate="localFiles">本地文件</h5>
+                        <table class="table table-bordered text-center">
+                            <tbody id="fileTableBody">
+                                <?php
+                                function isImage($file) {
+                                    $imageExtensions = ['jpg', 'jpeg', 'png', 'gif', 'bmp', 'webp'];
+                                    $fileExtension = strtolower(pathinfo($file, PATHINFO_EXTENSION));
+                                    return in_array($fileExtension, $imageExtensions);
                                 }
-                            });
 
-                            $fileCount = 0;
-                            foreach ($files as $file) {
-                                $filePath = $picturesDir . $file;
-                                if (is_file($filePath)) {
-                                    $fileSize = filesize($filePath);
-                                    $formattedFileSize = formatFileSize($fileSize);
-                                    $fileUrl = '/nekobox/assets/Pictures/' . $file;
-                                    $fileNameWithoutPrefix = getFileNameWithoutPrefix($file);
-                                    $fileTitle = "Name: $fileNameWithoutPrefix\nSize: $formattedFileSize";
+                                function isVideo($file) {
+                                    $videoExtensions = ['mp4', 'avi', 'mkv', 'mov', 'wmv'];
+                                    $fileExtension = strtolower(pathinfo($file, PATHINFO_EXTENSION));
+                                    return in_array($fileExtension, $videoExtensions);
+                                }
+
+                                function isAudio($file) {
+                                    $audioExtensions = ['mp3', 'wav', 'ogg', 'flac', 'aac', 'm4a', 'webm', 'opus'];
+                                    $fileExtension = strtolower(pathinfo($file, PATHINFO_EXTENSION));
+                                    return in_array($fileExtension, $audioExtensions);
+                                }
+
+                                function getFileNameWithoutPrefix($file) {
+                                    $fileBaseName = pathinfo($file, PATHINFO_FILENAME);
+                                    $hyphenPos = strpos($fileBaseName, '-');
+                                    if ($hyphenPos !== false) {
+                                        return substr($fileBaseName, $hyphenPos + 1) . '.' . pathinfo($file, PATHINFO_EXTENSION);
+                                    } else {
+                                        return $file;
+                                    }
+                                }
+
+                                function formatFileSize($size) {
+                                    if ($size >= 1073741824) {
+                                        return number_format($size / 1073741824, 2) . ' GB';
+                                    } elseif ($size >= 1048576) {
+                                        return number_format($size / 1048576, 2) . ' MB';
+                                    } elseif ($size >= 1024) {
+                                        return number_format($size / 1024, 2) . ' KB';
+                                    } else {
+                                        return $size . ' bytes';
+                                    }
+                                }
+
+                                $picturesDir = $_SERVER['DOCUMENT_ROOT'] . '/nekobox/assets/Pictures/';
+                                $backgroundHistoryFile = $_SERVER['DOCUMENT_ROOT'] . '/nekobox/background_history.txt';
+                                $driveFilesFile = $_SERVER['DOCUMENT_ROOT'] . '/nekobox/drive_files.txt';
+                                $backgroundFiles = [];
+                                $driveFiles = [];
+
+                                if (file_exists($backgroundHistoryFile)) {
+                                    $backgroundFiles = array_filter(array_map('trim', file($backgroundHistoryFile)));
+                                }
+
+                                if (file_exists($driveFilesFile)) {
+                                    $driveFiles = array_filter(array_map('trim', file($driveFilesFile)));
+                                }
+
+                                if (is_dir($picturesDir)) {
+                                    $files = array_diff(scandir($picturesDir), array('..', '.'));
+                                    usort($files, function ($a, $b) use ($backgroundFiles) {
+                                        $indexA = array_search($a, $backgroundFiles);
+                                        $indexB = array_search($b, $backgroundFiles);
+
+                                        if ($indexA === false && $indexB === false) {
+                                            return 0;
+                                        } elseif ($indexA === false) {
+                                            return 1;
+                                        } elseif ($indexB === false) {
+                                            return -1;
+                                        } else {
+                                            return $indexA - $indexB;
+                                        }
+                                    });
+
+                                    $fileCount = 0;
+                                    foreach ($files as $file) {
+                                        $filePath = $picturesDir . $file;
+                                        if (is_file($filePath)) {
+                                            $fileSize = filesize($filePath);
+                                            $formattedFileSize = formatFileSize($fileSize);
+                                            $fileUrl = '/nekobox/assets/Pictures/' . $file;
+                                            $fileNameWithoutPrefix = getFileNameWithoutPrefix($file);
+                                            $fileTitle = $langData[$currentLang]["name"] . ": $fileNameWithoutPrefix\n" . $langData[$currentLang]["size"] . ": $formattedFileSize";
+
+                                            if ($fileCount % 5 == 0) {
+                                                echo "<tr>";
+                                            }
+
+                                            echo "<td class='align-middle' data-label='预览' style='vertical-align: middle;'>
+                                                    <div class='file-preview mb-2 d-flex align-items-center'>
+                                                        <input type='checkbox' class='file-checkbox mb-2 mr-2' value='" . htmlspecialchars($file, ENT_QUOTES) . "' data-url='$fileUrl' data-title='$fileNameWithoutPrefix' data-size='$fileSize' onchange='updateSelectedCount()'>";
+
+                                            if (isVideo($file)) {
+                                                echo "<video width='200' controls title='$fileTitle'>
+                                                          <source src='$fileUrl' type='video/mp4'>
+                                                          Your browser does not support the video tag.
+                                                      </video>";
+                                            } elseif (isImage($file)) {
+                                                echo "<img src='$fileUrl' alt='$file' style='width: 200px; height: auto;' title='$fileTitle'>";
+                                            } elseif (isAudio($file)) {
+                                                echo "<audio width='200' controls title='$fileTitle'>
+                                                          <source src='$fileUrl' type='audio/mp3'>
+                                                          Your browser does not support the audio tag.
+                                                      </audio>";
+                                            } else {
+                                                echo "<span data-translate='unknownFileType'>未知文件类型</span>";
+                                            }
+
+                                            echo "<div class='btn-container mt-2 d-flex align-items-center'>
+                                                    <a href='?delete=" . htmlspecialchars($file, ENT_QUOTES) . "' onclick='return confirm(\"确定要删除吗?\")' class='icon-button btn-bordered' style='margin-right: 10px;'>
+                                                        <i class='fas fa-trash-alt'></i><span class='tooltip' data-translate='delete'>删除</span>
+                                                    </a>
+
+                                                    <button type='button' data-bs-toggle='modal' data-bs-target='#fileUploadModal' onclick='document.getElementById(\"oldFile\").value=\"" . htmlspecialchars($file, ENT_QUOTES) . "\"; document.getElementById(\"newFile\").value=\"" . htmlspecialchars(getFileNameWithoutPrefix($file), ENT_QUOTES) . "\";' class='icon-button btn-bordered' style='margin-right: 10px;'>
+                                                        <i class='fas fa-edit'></i><span class='tooltip' data-translate='rename'>重命名</span>
+                                                    </button>
+                                                    </button>
+                                                    <a href='$fileUrl' download class='icon-button btn-bordered' style='margin-right: 10px;'>
+                                                        <i class='fas fa-download'></i><span class='tooltip' data-translate='download'>下载</span>
+                                                    </a>";
+
+                                            if (isImage($file)) {
+                                                echo "<button type='button' onclick=\"setBackground('" . htmlspecialchars($file, ENT_QUOTES) . "', 'image')\" class='icon-button btn-bordered' style='margin-left: 10px;'>
+                                                        <i class='fas fa-image'></i><span class='tooltip' data-translate='setBackgroundImage'>设置图片背景</span>
+                                                      </button>";
+                                            } elseif (isVideo($file)) {
+                                                echo "<button type='button' onclick=\"setBackground('" . htmlspecialchars($file, ENT_QUOTES) . "', 'video')\" class='icon-button btn-bordered' style='margin-left: 10px;'>
+                                                        <i class='fas fa-video'></i><span class='tooltip' data-translate='setBackgroundVideo'>设置视频背景</span>
+                                                      </button>";
+                                            } elseif (isAudio($file)) {
+                                                echo "<button type='button' onclick=\"setBackground('" . htmlspecialchars($file, ENT_QUOTES) . "', 'audio')\" class='icon-button btn-bordered' style='margin-left: 10px;'>
+                                                        <i class='fas fa-music'></i><span class='tooltip' data-translate='setBackgroundMusic'>设置背景音乐</span>
+                                                      </button>";
+                                            }
+
+                                            echo "</div></div></td>";
+
+                                            if ($fileCount % 5 == 4) {
+                                                echo "</tr>";
+                                            }
+
+                                            $fileCount++;
+                                        }
+                                    }
+
+                                    if ($fileCount % 5 != 0) {
+                                        echo str_repeat("<td></td>", 5 - ($fileCount % 5)) . "</tr>";
+                                    }
+                                }
+
+                                if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['oldFile']) && isset($_POST['newFile'])) {
+                                $oldFileName = $_POST['oldFile'];
+                                $newFileName = $_POST['newFile'];
+
+                                $oldFilePath = $picturesDir . $oldFileName;
+                                $newFilePath = $picturesDir . $newFileName;
+
+                                if (file_exists($oldFilePath)) {
+                                    if (rename($oldFilePath, $newFilePath)) {
+                                        echo "<script>alert('文件重命名成功');</script>";
+                                    } else {
+                                        echo "<script>alert('文件重命名失败');</script>";
+                                    }
+                                } else {
+                                    echo "<script>alert('文件不存在');</script>";
+                                    }
+                                }
+                                ?>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div id="driveFilesSection" class="file-section">
+                        <h5 data-translate="driveFilesTitle"></h5>
+                        <table class="table table-bordered text-center">
+                            <tbody id="driveFileTableBody">
+                                <?php
+                                $driveFilesFile = $_SERVER['DOCUMENT_ROOT'] . '/nekobox/drive_files.txt';
+
+                                if (!file_exists($driveFilesFile)) {
+                                    touch($driveFilesFile);
+                                    chmod($driveFilesFile, 0666);
+                                }
+                                
+                                if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['driveFileUrl'])) {
+                                    $driveFileUrl = $_POST['driveFileUrl'];
+                                    $existingDriveFiles = file($driveFilesFile, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
+                                if (!in_array($driveFileUrl, $existingDriveFiles)) {
+                                    $driveFileEntry = "$driveFileUrl\n";
+                                    file_put_contents($driveFilesFile, $driveFileEntry, FILE_APPEND);
+                                    echo "<script>
+                                            alert('网盘文件添加成功');
+                                            document.getElementById('driveFilesSection').classList.add('active');
+                                          </script>";
+                                } else {
+                                    echo "<script>
+                                    alert('该网盘文件链接已存在！');
+                                   </script>";
+
+                                    } 
+                                } 
+
+                                if (isset($_GET['deleteDrive'])) {
+                                    $urlToDelete = urldecode($_GET['deleteDrive']);
+                                    $driveFiles = file($driveFilesFile, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
+                                    $updatedDriveFiles = array_filter($driveFiles, function($line) use ($urlToDelete) {
+                                        return trim($line) !== $urlToDelete;
+                                    });
+                                    file_put_contents($driveFilesFile, implode(PHP_EOL, $updatedDriveFiles));
+                                    echo "<script>window.location.href = window.location.pathname;</script>";
+                                    exit;
+                                }
+
+                                $fileCount = 0;
+                                foreach ($driveFiles as $driveFile) {
+                                    $fileUrl = trim($driveFile);
+                                    $fileName = basename($fileUrl);
+                                    $fileTitle = "名称: $fileName";
 
                                     if ($fileCount % 5 == 0) {
                                         echo "<tr>";
                                     }
 
-                                    echo "<td class='align-middle' data-label='Preview' style='vertical-align: middle;'>
+                                    echo "<td class='align-middle' data-label='预览' style='vertical-align: middle;'>
                                             <div class='file-preview mb-2 d-flex align-items-center'>
-                                                <input type='checkbox' class='file-checkbox mb-2 mr-2' value='" . htmlspecialchars($file, ENT_QUOTES) . "' data-url='$fileUrl' data-title='$fileNameWithoutPrefix' data-size='$fileSize' onchange='updateSelectedCount()'>";
+                                                <input type='checkbox' class='file-checkbox mb-2 mr-2' value='" . htmlspecialchars($fileName, ENT_QUOTES) . "' data-url='$fileUrl' data-title='$fileName' onchange='updateSelectedCount()'>";
 
-                                    if (isVideo($file)) {
+                                    if (isVideo($fileName)) {
                                         echo "<video width='200' controls title='$fileTitle'>
                                                   <source src='$fileUrl' type='video/mp4'>
                                                   Your browser does not support the video tag.
                                               </video>";
-                                    } elseif (isImage($file)) {
-                                        echo "<img src='$fileUrl' alt='$file' style='width: 200px; height: auto;' title='$fileTitle'>";
-                                    } elseif (isAudio($file)) {
+                                    } elseif (isImage($fileName)) {
+                                        echo "<img src='$fileUrl' alt='$fileName' style='width: 200px; height: auto;' title='$fileTitle'>";
+                                    } elseif (isAudio($fileName)) {
                                         echo "<audio width='200' controls title='$fileTitle'>
                                                   <source src='$fileUrl' type='audio/mp3'>
                                                   Your browser does not support the audio tag.
                                               </audio>";
                                     } else {
-                                        echo "Unknown file type";
+                                        echo "<span data-translate='unknownFileType'></span>";
                                     }
 
                                     echo "<div class='btn-container mt-2 d-flex align-items-center'>
-                                            <a href='?delete=" . htmlspecialchars($file, ENT_QUOTES) . "' onclick='return confirm(\"Are you sure you want to delete this file?\")' class='icon-button btn-bordered' style='margin-right: 10px;'>
-                                                <i class='fas fa-trash-alt'></i><span class='tooltip'>Delete</span>
-                                            </a>
-                                            <button type='button' data-bs-toggle='modal' data-bs-target='#renameModal' onclick='document.getElementById(\"oldFileName\").value=\"" . htmlspecialchars($file, ENT_QUOTES) . "\"; document.getElementById(\"newFileName\").value=\"" . htmlspecialchars(getFileNameWithoutPrefix($file), ENT_QUOTES) . "\";' class='icon-button btn-bordered' style='margin-right: 10px;'>
-                                                <i class='fas fa-edit'></i><span class='tooltip'>Rename</span>
-                                            </button>
-                                            <a href='$fileUrl' download class='icon-button btn-bordered' style='margin-right: 10px;'>
-                                                <i class='fas fa-download'></i><span class='tooltip'>Download</span>
+                                            <a href='?deleteDrive=" . urlencode($fileUrl) . "' onclick='return confirm(\"Are you sure you want to delete this file?\")' class='icon-button btn-bordered' style='margin-right: 10px;'>
+                                                <i class='fas fa-trash-alt'></i><span class='tooltip'></span>
                                             </a>";
 
-                                    if (isImage($file)) {
-                                        echo "<button type='button' onclick=\"setBackground('" . htmlspecialchars($file, ENT_QUOTES) . "', 'image')\" class='icon-button btn-bordered' style='margin-left: 10px;'>
-                                                <i class='fas fa-image'></i><span class='tooltip'>Set Image as Background</span>
+                                    if (isImage($fileName)) {
+                                        echo "<button type='button' onclick=\"setBackground('" . htmlspecialchars($fileUrl, ENT_QUOTES) . "', 'image')\" class='icon-button btn-bordered' style='margin-left: 10px;'>
+                                                <i class='fas fa-image'></i><span class='tooltip' data-translate='setBackgroundImage'></span>
                                               </button>";
-                                    } elseif (isVideo($file)) {
-                                        echo "<button type='button' onclick=\"setBackground('" . htmlspecialchars($file, ENT_QUOTES) . "', 'video')\" class='icon-button btn-bordered' style='margin-left: 10px;'>
-                                                <i class='fas fa-video'></i><span class='tooltip'>Set Video as Background</span>
+                                    } elseif (isVideo($fileName)) {
+                                        echo "<button type='button' onclick=\"setBackground('" . htmlspecialchars($fileUrl, ENT_QUOTES) . "', 'video')\" class='icon-button btn-bordered' style='margin-left: 10px;'>
+                                                <i class='fas fa-video'></i><span class='tooltip' data-translate='setBackgroundVideo'></span>
                                               </button>";
-                                    } elseif (isAudio($file)) {
-                                        echo "<button type='button' onclick=\"setBackground('" . htmlspecialchars($file, ENT_QUOTES) . "', 'audio')\" class='icon-button btn-bordered' style='margin-left: 10px;'>
-                                                <i class='fas fa-music'></i><span class='tooltip'>Set Audio as Background</span>
+                                    } elseif (isAudio($fileName)) {
+                                        echo "<button type='button' onclick=\"setBackground('" . htmlspecialchars($fileUrl, ENT_QUOTES) . "', 'audio')\" class='icon-button btn-bordered' style='margin-left: 10px;'>
+                                                <i class='fas fa-music'></i><span class='tooltip' data-translate='setBackgroundMusic'></span>
                                               </button>";
                                     }
 
@@ -4139,133 +4997,80 @@ input[type="range"]:focus {
 
                                     $fileCount++;
                                 }
-                            }
 
-                            if ($fileCount % 5 != 0) {
-                                echo str_repeat("<td></td>", 5 - ($fileCount % 5)) . "</tr>";
-                            }
-                        }
-
-                        if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['oldFileName']) && isset($_POST['newFileName'])) {
-                            $oldFileName = $_POST['oldFileName'];
-                            $newFileName = $_POST['newFileName'];
-
-                            $oldFilePath = $picturesDir . $oldFileName;
-                            $newFilePath = $picturesDir . $newFileName;
-
-                            if (file_exists($oldFilePath)) {
-                                if (rename($oldFilePath, $newFilePath)) {
-                                    echo "<script>alert('File renamed successfully');</script>";
-                                } else {
-                                    echo "<script>alert('File renaming failed');</script>";
+                                if ($fileCount % 5 != 0) {
+                                    echo str_repeat("<td></td>", 5 - ($fileCount % 5)) . "</tr>";
                                 }
-                            } else {
-                                echo "<script>alert('File does not exist');</script>";
-                            }
-                        }
-                        ?>
-                    </tbody>
-                </table>
+                                ?>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" data-translate="cancel"></button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="addDriveFileModal" tabindex="-1" aria-labelledby="addDriveFileModalLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="addDriveFileModalLabel" data-translate="add_drive_file">Add Drive File</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form method="post">
+                    <div class="form-group">
+                        <label for="driveFileUrl" data-translate="drive_file_link">Drive File URL</label>
+                        <input type="text" class="form-control" id="driveFileUrl" name="driveFileUrl" required>
+                    </div>
+                    <div class="form-group mt-3">
+                        <button type="submit" class="btn btn-primary" data-translate="add">Add</button>
+                    </div>
+                </form>
             </div>
         </div>
     </div>
 </div>
 
 <script>
-function showNotification(message) {
-    const notification = document.createElement('div');
-    notification.style.position = 'fixed';
-    notification.style.top = '10px';
-    notification.style.right = '10px';
-    notification.style.padding = '10px';
-    notification.style.backgroundColor = '#4CAF50';
-    notification.style.color = '#fff';
-    notification.style.borderRadius = '5px';
-    notification.style.zIndex = '9999';
-    notification.textContent = message;
-
-    document.body.appendChild(notification);
-    setTimeout(() => {
-        notification.remove();
-    }, 3000);
-}
-
-document.addEventListener('DOMContentLoaded', (event) => {
-    var el = document.getElementById('fileTableBody');
-
-        if (window.innerWidth <= 768) {
-            return; 
-        }
-
-    var sortable = new Sortable(el, {
-        animation: 150,
-        onEnd: function (evt) {
-            var order = sortable.toArray();
-            $.ajax({
-                type: 'POST',
-                url: 'order_handler.php', 
-                data: { order: order },
-                success: function (response) {
-                    showNotification('Sort order saved successfully!');
-                },
-                error: function (xhr, status, error) {
-                    showNotification('Error saving sort order: ' + error);
-                }
-            });
-        },
-    });
-
-    $.ajax({
-        type: 'GET',
-        url: 'order_handler.php', 
-        success: function (response) {
-            var savedOrder = JSON.parse(response);
-            var fileTableBody = document.getElementById('fileTableBody');
-            var rows = Array.from(fileTableBody.children);
-            rows.sort(function(a, b) {
-                return savedOrder.indexOf(a.id) - savedOrder.indexOf(b.id);
-            });
-            rows.forEach(function(row) {
-                fileTableBody.appendChild(row);
-            });
-        },
-        error: function (xhr, status, error) {
-            console.error('Error loading sort order: ' + error);
-        }
-    });
-});
+    function showSection(sectionId) {
+        document.querySelectorAll('.file-section').forEach(section => {
+            section.classList.remove('active');
+        });
+        document.getElementById(sectionId).classList.add('active');
+    }
 </script>
 
 <div class="modal fade" id="videoPlayerModal" tabindex="-1" aria-labelledby="videoPlayerModalLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
     <div class="modal-dialog modal-xl" id="modalDialog" style="max-height: 100vh;">
         <div class="modal-content" style="height: 100%;">
             <div class="modal-header">
-                <h5 class="modal-title" id="videoPlayerModalLabel">Media Player</h5>
+                <h5 class="modal-title" id="videoPlayerModalLabel" data-translate="media_player">Media Player</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="toggle-container">
-                <button type="button" class="btn btn-outline-primary" onclick="showMediaContainer()">Play Media</button>
-                <button type="button" class="btn btn-success" onclick="showPlaylistContainer()">Play Playlist</button>
+                <button type="button" class="btn btn-outline-primary" onclick="showMediaContainer()" data-translate="play_media">Play Media</button>
+                <button type="button" class="btn btn-success" onclick="showPlaylistContainer()" data-translate="playlist">Playlist</button>
             </div>
-
             <div class="modal-body">
                 <div class="media-container">
-                    <video id="videoPlayer" controls preload="auto" style="width: 100%; height: auto;"></video>
-                    <audio id="audioPlayer" controls preload="auto" style="width: 100%; height: auto;"></audio>
-                    <img id="imageViewer" src="" style="width: 100%; height: auto;">
+                    <video id="videoPlayer" controls preload="auto" style="display: none;"></video>
+                    <audio id="audioPlayer" controls preload="auto" style="display: none;"></audio>
+                    <img id="imageViewer" src="" style="display: none;">
                 </div>
                 <div class="playlist-container">
-                    <h5>Playlist</h5>
+                    <h5 data-translate="playlist">Playlist</h5>
                     <ul id="playlist"></ul>
                 </div>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-primary me-3" id="fullscreenButton" onclick="toggleFullscreen()">Toggle Fullscreen</button>
-                <button type="button" class="btn btn-danger me-3" onclick="clearPlaylist()">Clear Playlist</button>
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary me-3" id="fullscreenButton" onclick="toggleFullscreen()" data-translate="toggle_fullscreen">Toggle Fullscreen</button>
+                <button type="button" class="btn btn-danger me-3" onclick="clearPlaylist()" data-translate="clear_playlist">Clear Playlist</button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" data-translate="close">Close</button>
             </div>
         </div>
     </div>
@@ -4283,26 +5088,26 @@ function showPlaylistContainer() {
 }
 </script>
 
-<div class="modal fade" id="renameModal" tabindex="-1" aria-labelledby="renameModalLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+<div class="modal fade" id="fileUploadModal" tabindex="-1" aria-labelledby="fileUploadModalLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
     <div class="modal-dialog modal-xl">
         <form id="renameForm" method="POST">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="renameModalLabel">Rename File</h5>
+                    <h5 class="modal-title" id="fileUploadModalLabel" data-translate="rename_file">Rename File</h5>
                     <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
                     </button>
                 </div>
                 <div class="modal-body">
-                    <input type="hidden" name="oldFileName" id="oldFileName">
+                    <input type="hidden" name="oldFile" id="oldFile"> 
                     <div class="form-group">
-                        <label for="newFileName">New File Name</label>
-                        <input type="text" class="form-control" id="newFileName" name="newFileName" required>
+                        <label for="newFile" data-translate="new_file_name">New File Name</label>
+                        <input type="text" class="form-control" id="newFile" name="newFile" required> 
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                    <button type="submit" class="btn btn-primary">Save</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" data-translate="cancel">Cancel</button>
+                    <button type="submit" class="btn btn-primary" data-translate="save">Save</button>
                 </div>
             </div>
         </form>
@@ -4313,31 +5118,34 @@ function showPlaylistContainer() {
     <div class="modal-dialog modal-xl">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="newuploadModalLabel"><i class="fas fa-cloud-upload-alt"></i> Upload File</h5>
+                <h5 class="modal-title" id="newuploadModalLabel" data-translate="upload_file"><i class="fas fa-cloud-upload-alt"></i> Upload File</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body text-center">
-                <h2 class="mb-3">Upload Image/Video</h2>
+                <h2 class="mb-3" data-translate="upload_image_video_audio">Upload Image/Video/Audio</h2>
+                <div class="alert alert-warning d-flex align-items-center" role="alert">
+                    <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                    OpenWRT Remaining Space: <?php echo $availableSpace; ?> MB
+                </div>
                 <form method="POST" action="download.php" enctype="multipart/form-data">
                     <div id="dropArea" class="mb-3">
                         <i id="uploadIcon" class="fas fa-cloud-upload-alt"></i>
-                        <p>Drag and drop files here, or click the icon to select files.</p>
-                        <p>PHP upload files have size limits. If the upload fails, you can manually upload files to the /nekobox/assets/Pictures directory.</p>
+                        <p data-translate="drag_and_drop_or_click">Drag and drop files here, or click the icon to select files.</p>
+                        <p data-translate="php_upload_limit_notice">PHP upload files have a size limit. If upload fails, manually upload the files to /nekobox/assets/Pictures directory</p>
                     </div>
                     <input type="file" class="form-control mb-3" name="imageFile[]" id="imageFile" multiple style="display: none;">                   
-                    <button type="submit" class="btn btn-success mt-3" id="submitBtnModal">
+                    <button type="submit" class="btn btn-success mt-3" id="submitBtnModal" data-translate="upload_image_video">
                         Upload Image/Video
                     </button>
                 </form>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                <button type="button" class="btn btn-warning" id="updatePhpConfig">Update PHP Upload Limits</button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" data-translate="cancel">Cancel</button>
+                <button type="button" class="btn btn-warning" id="updatePhpConfig" data-translate="update_php_config">Update PHP Upload Limits</button>
             </div>
         </div>
     </div>
 </div>
-
 <script>
     const videoElement = document.getElementById('videoPlayer');
     const modalDialog = document.getElementById('modalDialog');
@@ -4358,10 +5166,11 @@ function showPlaylistContainer() {
     }
 
     document.addEventListener("fullscreenchange", function () {
+        const fullscreenButton = document.getElementById("fullscreenButton");
         if (document.fullscreenElement) {
-            fullscreenButton.innerText = "Exit Fullscreen";
+            fullscreenButton.innerText = langData[currentLang]['exit_fullscreen'];
         } else {
-            fullscreenButton.innerText = "Toggle Fullscreen";
+            fullscreenButton.innerText = langData[currentLang]['toggle_fullscreen'];
         }
     });
 
@@ -4375,6 +5184,7 @@ function showPlaylistContainer() {
 
     document.addEventListener("fullscreenchange", adjustModalHeight);
 </script>
+
 
 <script>
 let playlist = JSON.parse(localStorage.getItem('playlist')) || [];
@@ -4494,7 +5304,7 @@ function playMedia(index) {
         videoElement.style.display = "block";
         videoElement.load();
         videoElement.play().catch((err) => {
-            console.warn("Autoplay blocked:", err);
+            console.warn("自动播放被阻止:", err);
         });
 
         videoElement.onended = () => playNextVideo();
@@ -4511,7 +5321,7 @@ function playMedia(index) {
         audioElement.style.display = "block";
         audioElement.load();
         audioElement.play().catch((err) => {
-            console.warn("Autoplay blocked:", err);
+            console.warn("自动播放被阻止:", err);
         });
 
         audioElement.onended = () => playNextAudio();
@@ -4604,7 +5414,7 @@ function setupHoverControls() {
     `;
     videoElement.parentElement.appendChild(hoverControls);
 
-    document.getElementById('prevButton').onclick = () => playNextVideo();
+    document.getElementById('prevButton').onclick = () => playPreviousVideo();
     document.getElementById('nextButton').onclick = () => playNextVideo(); 
     document.getElementById('pipButton').onclick = () => togglePictureInPicture(videoElement);
 
@@ -4667,6 +5477,26 @@ function setupHoverControls() {
     hoverControls.addEventListener('mouseleave', () => {
         hoverControls.style.display = 'none';
     });
+
+    let startY = 0;
+    let endY = 0;
+
+    videoElement.addEventListener('touchstart', (event) => {
+        startY = event.touches[0].clientY;
+    });
+
+    videoElement.addEventListener('touchmove', (event) => {
+        endY = event.touches[0].clientY;
+    });
+
+    videoElement.addEventListener('touchend', () => {
+        const swipeDistance = startY - endY;
+        if (swipeDistance > 50) {
+            playNextVideo(); 
+        } else if (swipeDistance < -50) {
+            playPreviousVideo(); 
+        }
+    });
 }
 
 function togglePictureInPicture(videoElement) {
@@ -4681,14 +5511,48 @@ function togglePictureInPicture(videoElement) {
 </script>
 
 <script>
+document.addEventListener('DOMContentLoaded', function () {
+    const isSmallScreen = window.innerWidth <= 768; 
+
+    if (!isSmallScreen) {
+        var el = document.getElementById('fileTableBody');
+        var sortable = new Sortable(el, {
+            handle: '.file-preview', 
+            animation: 150, 
+            onEnd: function (evt) {
+                updateFileOrder();
+            }
+        });
+    }
+
+    function updateFileOrder() {
+        const fileOrder = [];
+        
+        document.querySelectorAll('.file-preview').forEach(item => {
+            const fileName = item.querySelector('input').value; 
+            fileOrder.push(fileName);
+        });
+
+        const xhr = new XMLHttpRequest();
+        xhr.open('POST', 'order_handler.php', true);
+        xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+        xhr.send('fileOrder=' + JSON.stringify(fileOrder));
+    }
+});
+
+</script>
+
+<script>
 function batchDelete() {
     const checkboxes = document.querySelectorAll('.file-checkbox:checked');
+    const translations = langData[currentLang] || langData['zh']; 
+
     if (checkboxes.length === 0) {
-        alert("Please select files to delete.");
+        alert(translations["selectFiles"] || "Please select files to delete.");
         return;
     }
 
-    if (!confirm("Are you sure you want to delete the selected files?")) {
+    if (!confirm(translations["confirmDelete"] || "Are you sure you want to delete the selected files?")) {
         return;
     }
 
@@ -4697,10 +5561,10 @@ function batchDelete() {
         fetch(`?delete=${encodeURIComponent(fileName)}`)
             .then(response => {
                 if (response.ok) {
-                    checkbox.closest('td').remove(); 
+                    checkbox.closest('td').remove();
                     updateSelectedCount();
                 } else {
-                    alert(`Failed to delete file: ${fileName}`);
+                    alert(`${translations["deleteFailed"] || "Failed to delete file"}: ${fileName}`); 
                 }
             })
             .catch(error => console.error('Error:', error));
@@ -4713,7 +5577,11 @@ function toggleSelectAll() {
     var allSelected = Array.from(checkboxes).every(checkbox => checkbox.checked);
 
     checkboxes.forEach(checkbox => checkbox.checked = !allSelected);
-    selectToggleBtn.innerHTML = allSelected ? '<i class="fas fa-check-square"></i> Select All' : '<i class="fas fa-square"></i> Deselect';
+
+    selectToggleBtn.innerHTML = allSelected
+        ? `<i class="fas fa-check-square"></i> ${langData[currentLang].select_all}`
+        : `<i class="fas fa-square"></i> ${langData[currentLang].deselect_all}`;
+
     updateSelectedCount();
 }
 
@@ -4724,19 +5592,16 @@ function updateSelectedCount() {
 
     var selectedCountElement = document.getElementById('selectedCount');
     selectedCountElement.style.display = selectedCount > 0 ? 'inline' : 'none';
-    selectedCountElement.textContent = `Selected ${selectedCount} files, total ${formatFileSize(totalSize)}`;
+    selectedCountElement.textContent = langData[currentLang].selected_files
+        .replace("{count}", selectedCount)
+        .replace("{size}", formatFileSize(totalSize));
 }
 
 function formatFileSize(size) {
-    if (size >= 1073741824) {
-        return (size / 1073741824).toFixed(2) + ' GB';
-    } else if (size >= 1048576) {
-        return (size / 1048576).toFixed(2) + ' MB';
-    } else if (size >= 1024) {
-        return (size / 1024).toFixed(2) + ' KB';
-    } else {
-        return size + ' bytes';
-    }
+    if (size < 1024) return `${size} B`;
+    else if (size < 1024 * 1024) return `${(size / 1024).toFixed(2)} KB`;
+    else if (size < 1024 * 1024 * 1024) return `${(size / 1024 / 1024).toFixed(2)} MB`;
+    else return `${(size / 1024 / 1024 / 1024).toFixed(2)} GB`;
 }
 
 function sortFiles() {
@@ -4767,23 +5632,23 @@ function deselectAll() {
 
 function showRenameModal(event, fileName) {
     event.preventDefault();
-    const modal = new bootstrap.Modal(document.getElementById('renameModal'));
-    document.getElementById('oldFileName').value = fileName;
-    document.getElementById('newFileName').value = fileName; 
+    const modal = new bootstrap.Modal(document.getElementById('fileUploadModal')); 
+    document.getElementById('oldFile').value = fileName;  
+    document.getElementById('newFile').value = fileName; 
     modal.show();
 }
 </script>
 
 <script>
 document.getElementById("updatePhpConfig").addEventListener("click", function() {
-    if (confirm("Are you sure you want to modify PHP upload limits?")) {
+    if (confirm(langData[currentLang]['confirm_update'])) {
         fetch("update_php_config.php", {
             method: "POST",
             headers: { "Content-Type": "application/json" }
         })
         .then(response => response.json())
         .then(data => alert(data.message))
-        .catch(error => alert("Request failed: " + error.message));
+        .catch(error => alert(langData[currentLang]['request_failed'] + error.message));
     }
 });
 </script>
@@ -4856,17 +5721,15 @@ document.getElementById("updatePhpConfig").addEventListener("click", function() 
         } else {
             submitBtn.disabled = true;
         }
-        updateDragDropText();
     });
 
     function updateDragDropText() {
         if (fileInput.files.length > 0) {
-            dragDropArea.querySelector('p').textContent = `${fileInput.files.length} files selected`;
+            dragDropArea.querySelector('p').textContent = `${fileInput.files.length} 个文件已选择`;
         } else {
-            dragDropArea.querySelector('p').textContent = 'Drag files here or click to select files';
+            dragDropArea.querySelector('p').textContent = '拖动文件到此区域，或点击选择文件';
         }
     }
-
 </script>
 
 <?php
@@ -4893,7 +5756,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $uploadedFilePath = '/nekobox/assets/Pictures/' . basename($_FILES['imageFile']['name']);
             }
         } else {
-            echo "<script>alert('Unsupported file type!');</script>";
+            echo "<script>alert('不支持的文件类型！');</script>";
         }
     }
 }
@@ -4904,7 +5767,7 @@ if (isset($_GET['delete'])) {
     $filePath = $picturesDir . $fileToDelete;
     if (file_exists($filePath)) {
         unlink($filePath);
-        echo "<script>alert('File deleted!'); location.reload();</script>";
+        echo "<script>alert('文件已删除！'); location.reload();</script>";
         exit;
     }
 }
@@ -4924,13 +5787,13 @@ function setBackground(filename, type, action = 'set') {
         .then(data => {
             sessionStorage.setItem('notificationMessage', data);
             sessionStorage.setItem('notificationType', 'success');
-            location.reload(); 
+                 location.reload(); 
         })
         .catch(error => {
             console.error('Error:', error);
-            sessionStorage.setItem('notificationMessage', "Operation failed, please try again later.");
+            sessionStorage.setItem('notificationMessage', "操作失败，请稍后再试");
             sessionStorage.setItem('notificationType', 'error');
-            location.reload(); 
+                location.reload(); 
         });
     }
 
@@ -4944,13 +5807,13 @@ function setBackground(filename, type, action = 'set') {
         .then(data => {
             sessionStorage.setItem('notificationMessage', data);
             sessionStorage.setItem('notificationType', 'success');
-            location.reload(); 
+                location.reload(); 
         })
         .catch(error => {
             console.error('Error:', error);
-            sessionStorage.setItem('notificationMessage', "Failed to delete, please try again later.");
+            sessionStorage.setItem('notificationMessage', "删除失败，请稍后再试");
             sessionStorage.setItem('notificationType', 'error');
-            location.reload(); 
+                location.reload(); 
         });
     }
 }
@@ -4989,6 +5852,7 @@ window.addEventListener('load', function() {
         sessionStorage.removeItem('notificationType');
     }
 });
+
 </script>
 
 <script>

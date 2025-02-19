@@ -21,12 +21,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         if ($file['error'] === UPLOAD_ERR_OK) {
             if (move_uploaded_file($file['tmp_name'], $uploadFilePath)) {
-               echo 'File upload successful: ' . htmlspecialchars(basename($file['name']));
+                echo '<div class="alert alert-success" role="alert" data-translate="file_upload_success" data-dynamic-content="' . htmlspecialchars(basename($file['name'])) . '"></div>';
             } else {
-                echo 'File upload failed!';
+                echo '<div class="alert alert-danger" role="alert" data-translate="file_upload_failed"></div>';
             }
         } else {
-            echo 'Upload error: ' . $file['error'];
+            echo '<div class="alert alert-danger" role="alert" data-translate="file_upload_error" data-dynamic-content="' . $file['error'] . '"></div>';
         }
     }
 
@@ -36,30 +36,30 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         if ($file['error'] === UPLOAD_ERR_OK) {
             if (move_uploaded_file($file['tmp_name'], $uploadFilePath)) {
-                echo 'Configuration file uploaded successfully.：' . htmlspecialchars(basename($file['name']));
+                echo '<div class="alert alert-success" role="alert" data-translate="config_upload_success" data-dynamic-content="' . htmlspecialchars(basename($file['name'])) . '"></div>';
             } else {
-                echo 'Configuration file upload failed!';
+                echo '<div class="alert alert-danger" role="alert" data-translate="config_upload_failed"></div>';
             }
         } else {
-            echo 'Upload error:' . $file['error'];
+            echo '<div class="alert alert-danger" role="alert" data-translate="file_upload_error" data-dynamic-content="' . $file['error'] . '"></div>';
         }
     }
 
     if (isset($_POST['deleteFile'])) {
         $fileToDelete = $uploadDir . basename($_POST['deleteFile']);
         if (file_exists($fileToDelete) && unlink($fileToDelete)) {
-            echo 'File deleted successfully.：' . htmlspecialchars(basename($_POST['deleteFile']));
+            echo '<div class="alert alert-success" role="alert" data-translate="file_delete_success" data-dynamic-content="' . htmlspecialchars(basename($_POST['deleteFile'])) . '"></div>';
         } else {
-            echo 'File deletion failed!';
+            echo '<div class="alert alert-danger" role="alert" data-translate="file_delete_failed"></div>';
         }
     }
 
     if (isset($_POST['deleteConfigFile'])) {
         $fileToDelete = $configDir . basename($_POST['deleteConfigFile']);
         if (file_exists($fileToDelete) && unlink($fileToDelete)) {
-            echo 'Configuration file deleted successfully:' . htmlspecialchars(basename($_POST['deleteConfigFile']));
+            echo '<div class="alert alert-success" role="alert" data-translate="config_delete_success" data-dynamic-content="' . htmlspecialchars(basename($_POST['deleteConfigFile'])) . '"></div>';
         } else {
-            echo 'Configuration file deletion failed!';
+            echo '<div class="alert alert-danger" role="alert" data-translate="config_delete_failed"></div>';
         }
     }
 
@@ -69,32 +69,32 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $fileType = $_POST['fileType'];
 
         if ($fileType === 'proxy') {
-            $oldFilePath = $uploadDir. $oldFileName;
-            $newFilePath = $uploadDir. $newFileName;
+            $oldFilePath = $uploadDir . $oldFileName;
+            $newFilePath = $uploadDir . $newFileName;
         } elseif ($fileType === 'config') {
             $oldFilePath = $configDir . $oldFileName;
             $newFilePath = $configDir . $newFileName;
         } else {
-        echo 'Invalid file type';
+            echo '<div class="alert alert-danger" role="alert" data-translate="file_not_found"></div>';
             exit;
         }
 
-    if (file_exists($oldFilePath) && !file_exists($newFilePath)) {
-        if (rename($oldFilePath, $newFilePath)) {
-            echo 'File renamed successfully：' . htmlspecialchars($oldFileName) . ' -> ' . htmlspecialchars($newFileName);
+        if (file_exists($oldFilePath) && !file_exists($newFilePath)) {
+            if (rename($oldFilePath, $newFilePath)) {
+                echo '<div class="alert alert-success" role="alert" data-translate="file_rename_success" data-dynamic-content="' . htmlspecialchars($oldFileName) . ' -> ' . htmlspecialchars($newFileName) . '"></div>';
+            } else {
+                echo '<div class="alert alert-danger" role="alert" data-translate="file_rename_failed"></div>';
+            }
         } else {
-            echo 'File renaming failed!';
+            echo '<div class="alert alert-danger" role="alert" data-translate="file_rename_exists"></div>';
         }
-    } else {
-        echo 'File renaming failed, the file does not exist or the new file name already exists.';
     }
-}
 
     if (isset($_POST['saveContent'], $_POST['fileName'], $_POST['fileType'])) {
-            $fileToSave = ($_POST['fileType'] === 'proxy') ? $uploadDir . basename($_POST['fileName']) : $configDir . basename($_POST['fileName']);
-            $contentToSave = $_POST['saveContent'];
-            file_put_contents($fileToSave, $contentToSave);
-        echo '<p>File content has been updated：' . htmlspecialchars(basename($fileToSave)) . '</p>';
+        $fileToSave = ($_POST['fileType'] === 'proxy') ? $uploadDir . basename($_POST['fileName']) : $configDir . basename($_POST['fileName']);
+        $contentToSave = $_POST['saveContent'];
+        file_put_contents($fileToSave, $contentToSave);
+        echo '<div class="alert alert-info" role="alert" data-translate="file_save_success" data-dynamic-content="' . htmlspecialchars(basename($fileToSave)) . '"></div>';
     }
 }
 
@@ -103,7 +103,7 @@ function formatFileModificationTime($filePath) {
         $fileModTime = filemtime($filePath);
         return date('Y-m-d H:i:s', $fileModTime);
     } else {
-        return 'File does not exist.';
+        return '<span data-translate="file_not_found"></span>';
     }
 }
 
@@ -142,7 +142,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['editFile'], $_GET['file
         echo file_get_contents($filePath);
         exit;
     } else {
-        echo 'File does not exist.';
+        echo '<span data-translate="file_not_found"></span>';
         exit;
     }
 }
@@ -163,12 +163,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['downloadFile'], $_GET['
         readfile($filePath);
         exit;
     } else {
-        echo 'File does not exist';
+        echo '<span data-translate="file_not_found"></span>';
     }
 }
 ?>
 
 <?php
+
 $subscriptionPath = '/etc/neko/proxy_provider/';
 $subscriptionFile = $subscriptionPath . 'subscriptions.json';
 $notificationMessage = "";
@@ -222,7 +223,7 @@ if (isset($_POST['update'])) {
 
         if ($return_var === 0) {
             $_SESSION['update_logs'] = [];
-            storeUpdateLog("✅ Subscription " . htmlspecialchars($url) . " has been downloaded and saved to a temporary file: " . htmlspecialchars($tempPath));
+            storeUpdateLog('<span data-translate="subscription_downloaded" data-dynamic-content="' . htmlspecialchars($url) . '"></span> <span data-translate="saved_to_temp_file" data-dynamic-content="' . htmlspecialchars($tempPath) . '"></span>');
 
             $fileContent = file_get_contents($tempPath);
 
@@ -230,50 +231,50 @@ if (isset($_POST['update'])) {
                 $decodedContent = base64_decode($fileContent);
                 if ($decodedContent !== false && strlen($decodedContent) > 0) {
                     file_put_contents($finalPath, "# Clash Meta Config\n\n" . $decodedContent);
-                    storeUpdateLog("📂 Base64 decoding successful, configuration saved to: " . htmlspecialchars($finalPath));
+                    storeUpdateLog('<span data-translate="base64_decode_success" data-dynamic-content="' . htmlspecialchars($finalPath) . '"></span>');
                     unlink($tempPath); 
-                    $notificationMessage = 'Update successful';
+                    $notificationMessage = '<span data-translate="update_success"></span>';
                     $updateCompleted = true;
                 } else {
-                    storeUpdateLog("⚠️ Base64 decoding failed, please check the subscription link content!");
+                    storeUpdateLog('<span data-translate="base64_decode_failed"></span>');
                     unlink($tempPath); 
-                    $notificationMessage = 'Update failed';
+                    $notificationMessage = '<span data-translate="update_failed"></span>';
                 }
             } 
             elseif (substr($fileContent, 0, 2) === "\x1f\x8b") {
                 $decompressedContent = gzdecode($fileContent);
                 if ($decompressedContent !== false) {
                     file_put_contents($finalPath, "# Clash Meta Config\n\n" . $decompressedContent);
-                    storeUpdateLog("📂 Gzip decompression successful, configuration saved to: " . htmlspecialchars($finalPath));
+                    storeUpdateLog('<span data-translate="gzip_decompress_success" data-dynamic-content="' . htmlspecialchars($finalPath) . '"></span>');
                     unlink($tempPath); 
-                    $notificationMessage = 'Update successful';
+                    $notificationMessage = '<span data-translate="update_success"></span>';
                     $updateCompleted = true;
                 } else {
-                    storeUpdateLog("⚠️  Gzip decompression failed, please check the subscription link format!");
+                    storeUpdateLog('<span data-translate="gzip_decompress_failed"></span>');
                     unlink($tempPath); 
-                    $notificationMessage = 'Update failed';
+                    $notificationMessage = '<span data-translate="update_failed"></span>';
                 }
             } 
             else {
                 rename($tempPath, $finalPath); 
-                storeUpdateLog("✅ Subscription content successfully downloaded, no decoding required");
-                $notificationMessage = 'Update successful';
+                storeUpdateLog('<span data-translate="subscription_downloaded_no_decode"></span>');
+                $notificationMessage = '<span data-translate="update_success"></span>';
                 $updateCompleted = true;
             }
         } else {
-            storeUpdateLog("❌ Subscription update failed! Error message: " . implode("\n", $output));
+            storeUpdateLog('<span data-translate="subscription_update_failed" data-dynamic-content="' . htmlspecialchars(implode("\n", $output)) . '"></span>');
             unlink($tempPath); 
-            $notificationMessage = 'Update failed';
+            $notificationMessage = '<span data-translate="update_failed"></span>';
         }
     } else {
-        storeUpdateLog("⚠️ The " . ($index + 1) . "th subscription link is empty!");
-        $notificationMessage = 'Update failed';
+        storeUpdateLog('<span data-translate="subscription_url_empty" data-dynamic-content="' . ($index + 1) . '"></span>');
+        $notificationMessage = '<span data-translate="update_failed"></span>';
     }
 
     file_put_contents($subscriptionFile, json_encode($subscriptions));
 }
-
 ?>
+
 <?php
 $shellScriptPath = '/etc/neko/core/update_mihomo.sh';
 $LOG_FILE = '/etc/neko/tmp/log.txt'; 
@@ -361,9 +362,9 @@ EOL;
 
         if (file_put_contents($shellScriptPath, $shellScriptContent) !== false) {
             chmod($shellScriptPath, 0755); 
-            echo "<div class='alert alert-success'>Shell script successfully created! Path: $shellScriptPath</div>";
+            echo "<div class='alert alert-success' data-translate='shell_script_created' data-dynamic-content='$shellScriptPath'></div>";
         } else {
-            echo "<div class='alert alert-danger'>Failed to create Shell script, please check permissions.</div>";
+            echo "<div class='alert alert-danger' data-translate='shell_script_failed'></div>";
         }
     }
 }
@@ -378,7 +379,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
         if (empty($cronExpression)) {
             file_put_contents($CRON_LOG_FILE, date('[ H:i:s ] ') . "Error: Cron expression cannot be empty.\n", FILE_APPEND);
-            echo "<div class='alert alert-warning'>Cron expression cannot be empty.</div>";
+            echo "<div class='alert alert-warning' data-translate='cron_expression_empty'></div>";
             exit;
         }
 
@@ -394,10 +395,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         exec("(crontab -l; echo '$cronJob') | crontab -", $output, $returnVarAdd);
         if ($returnVarAdd === 0) {
             file_put_contents($CRON_LOG_FILE, date('[ H:i:s ] ') . "Successfully added new Cron job: $cronJob\n", FILE_APPEND);
-            echo "<div class='alert alert-success'>Cron job successfully added or updated!</div>";
+            echo "<div class='alert alert-success' data-translate='cron_job_added_success'></div>";
         } else {
             file_put_contents($CRON_LOG_FILE, date('[ H:i:s ] ') . "Failed to add new Cron job.\n", FILE_APPEND);
-            echo "<div class='alert alert-danger'>Failed to add or update Cron job. Please check server permissions.</div>";
+            echo "<div class='alert alert-danger' data-translate='cron_job_added_failed'></div>";
         }
     }
 }
@@ -425,12 +426,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['file'])) {
         $destination_path = $destination_directory . basename($file_url);
 
         if (download_file($file_url, $destination_path)) {
-            echo "<div class='alert alert-success'>The file was successfully downloaded to $destination_path</div>";
+            echo "<div class='alert alert-success' data-translate='file_download_success' data-dynamic-content='$destination_path'></div>";
         } else {
-            echo "<div class='alert alert-danger'>File download failed</div>";
+            echo "<div class='alert alert-danger' data-translate='file_download_failed'></div>";
         }
     } else {
-        echo "Invalid file request";
+        echo "<div class='alert alert-warning' data-translate='invalid_file_request'></div>";
     }
 }
 
@@ -482,15 +483,15 @@ function download_file($url, $destination) {
     <div id="updateNotification" class="alert alert-info alert-dismissible fade show shadow-lg" role="alert" style="display: none; min-width: 320px; max-width: 600px; opacity: 0.95;">
         <div class="d-flex align-items-center">
             <div class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></div>
-            <strong>🔔 Update Notification</strong>
+            <strong data-translate="update_notification"></strong>
         </div>
         
         <div class="alert alert-info mt-2 p-2 small">
-            <strong>⚠️ Instructions for Use：</strong>
+            <strong data-translate="usage_instruction"></strong>
             <ul class="mb-0 pl-3">
-                <li>The general template (mihomo.yaml) supports up to <strong>6</strong> subscription links.</li>
-                <li>Please do not change the default file name.</li>
-                <li>This template supports all format subscription links without the need for additional conversion.</li>
+                <li data-translate="max_subscriptions"></li>
+                <li data-translate="no_rename"></li>
+                <li data-translate="supports_all_formats"></li>
             </ul>
         </div>
 
@@ -660,24 +661,24 @@ function displayUpdateNotification() {
 </script>
 <div class="container-sm container-bg callout border border-3 rounded-4 col-11">
     <div class="row">
-        <a href="./index.php" class="col btn btn-lg"><i class="bi bi-house-door"></i> Home</a>
-        <a href="./mihomo_manager.php" class="col btn btn-lg"><i class="bi bi-folder"></i> Manager</a>
-        <a href="./singbox.php" class="col btn btn-lg"><i class="bi bi-shop"></i> Template I</a>
-        <a href="./subscription.php" class="col btn btn-lg"><i class="bi bi-bank"></i> Template II</a>
-        <a href="./mihomo.php" class="col btn btn-lg"><i class="bi bi-building"></i> Template III</a>
+        <a href="./index.php" class="col btn btn-lg text-nowrap"><i class="bi bi-house-door"></i> <span data-translate="home">Home</span></a>
+        <a href="./mihomo_manager.php" class="col btn btn-lg text-nowrap"><i class="bi bi-folder"></i> <span data-translate="manager">Manager</span></a>
+        <a href="./singbox.php" class="col btn btn-lg text-nowrap"><i class="bi bi-shop"></i> <span data-translate="template_i">Template I</span></a>
+        <a href="./subscription.php" class="col btn btn-lg text-nowrap"><i class="bi bi-bank"></i> <span data-translate="template_ii">Template II</span></a>
+        <a href="./mihomo.php" class="col btn btn-lg text-nowrap"><i class="bi bi-building"></i> <span data-translate="template_iii">Template III</span></a>
     </div>
     <div class="text-center">
-        <h2 style="margin-top: 40px; margin-bottom: 20px;">File Management</h2>
+        <h2 style="margin-top: 40px; margin-bottom: 20px;" data-translate="fileManagement"></h2>
 <div class="container-fluid">
     <div class="table-responsive">
         <table class="table table-striped table-bordered text-center">
             <thead class="thead-dark">
                 <tr>
-                    <th style="width: 20%;">File Name</th>
-                    <th style="width: 10%;">Size</th>
-                    <th style="width: 20%;">Modification Time</th>
-                    <th style="width: 10%;">File Type</th>
-                    <th style="width: 30%;">Action</th>
+                    <th style="width: 20%;" data-translate="fileName"></th>
+                    <th style="width: 10%;" data-translate="fileSize"></th>
+                    <th style="width: 20%;" data-translate="lastModified"></th>
+                    <th style="width: 10%;" data-translate="fileType"></th>
+                    <th style="width: 30%;" data-translate="actions"></th>
                 </tr>
             </thead>
             <tbody>
@@ -689,71 +690,71 @@ function displayUpdateNotification() {
                     return $configDir . $file;
                 }, $configFiles));
                 $fileTypes = array_merge(array_fill(0, count($proxyFiles), 'Proxy File'), array_fill(0, count($configFiles), 'Config File'));
-                
+
                 foreach ($allFiles as $index => $file) {
                     $filePath = $allFilePaths[$index];
                     $fileType = $fileTypes[$index];
                 ?>
                     <tr>
-                        <td class="align-middle" data-label="File Name">
+                        <td class="align-middle" data-label="fileName">
                             <?php echo htmlspecialchars($file); ?>
                         </td>
-                        <td class="align-middle" data-label="Size">
+                        <td class="align-middle" data-label="fileSize">
                             <?php echo file_exists($filePath) ? formatSize(filesize($filePath)) : 'The file does not exist'; ?>
                         </td>
-                        <td class="align-middle" data-label="Modification Time">
+                        <td class="align-middle" data-label="lastModified">
                             <?php echo htmlspecialchars(date('Y-m-d H:i:s', filemtime($filePath))); ?>
                         </td>
-                        <td class="align-middle" data-label="File Type">
+                        <td class="align-middle" data-label="fileType">
                             <?php echo htmlspecialchars($fileType); ?>
                         </td>
                         <td class="align-middle">
                             <div class="action-buttons">
-                                <?php if ($fileType == 'Proxy File'): ?>
+                              <?php if ($fileType == 'Proxy File'): ?>
                                     <form action="" method="post" class="d-inline mb-1">
                                         <input type="hidden" name="deleteFile" value="<?php echo htmlspecialchars($file); ?>">
-                                        <button type="submit" class="btn btn-danger btn-sm" title="🗑️ Delete" onclick="return confirm('Are you sure you want to delete this file？');"><i class="bi bi-trash"></i></button>
+                                        <button type="submit" class="btn btn-danger btn-sm"  onclick="return confirm('Are you sure you want to delete this file？');" data-translate-title="delete"><i class="bi bi-trash"></i></button>
                                     </form>
                                     <form action="" method="post" class="d-inline mb-1">
                                         <input type="hidden" name="oldFileName" value="<?php echo htmlspecialchars($file); ?>">
                                         <input type="hidden" name="fileType" value="proxy">
-                                        <button type="button" class="btn btn-success btn-sm btn-rename" title="✏️ Rename" data-toggle="modal" data-target="#renameModal" data-filename="<?php echo htmlspecialchars($file); ?>" data-filetype="proxy"><i class="bi bi-pencil"></i></button>
+                                        <button type="button" class="btn btn-success btn-sm btn-rename"  data-toggle="modal" data-target="#renameModal" data-filename="<?php echo htmlspecialchars($file); ?>" data-filetype="proxy" data-translate-title="rename"><i class="bi bi-pencil"></i></button>
                                     </form>
                                     <form action="" method="post" class="d-inline mb-1">
-                                        <button type="button" class="btn btn-warning btn-sm" title="📝 Edit" onclick="openEditModal('<?php echo htmlspecialchars($file); ?>', 'proxy')"><i class="bi bi-pen"></i></button>
+                                        <button type="button" class="btn btn-warning btn-sm" onclick="openEditModal('<?php echo htmlspecialchars($file); ?>', 'proxy')" data-translate-title="edit"><i class="bi bi-pen"></i></button>
                                     </form>
                                     <form action="" method="post" enctype="multipart/form-data" class="d-inline upload-btn mb-1">
                                         <input type="file" name="fileInput" class="form-control-file" required id="fileInput-<?php echo htmlspecialchars($file); ?>" style="display: none;" onchange="this.form.submit()">
-                                        <button type="button" class="btn btn-info btn-sm" title="📤 Upload" onclick="openUploadModal('proxy')"><i class="bi bi-upload"></i></button>
+                                        <button type="button" class="btn btn-info btn-sm"  onclick="openUploadModal('proxy')" data-translate-title="upload"><i class="bi bi-upload"></i></button>
                                     </form>
                                     <form action="" method="get" class="d-inline mb-1">
                                         <input type="hidden" name="downloadFile" value="<?php echo htmlspecialchars($file); ?>">
                                         <input type="hidden" name="fileType" value="proxy">
-                                        <button type="submit" class="btn btn-primary btn-sm" title="📥 Download" ><i class="bi bi-download"></i></button>
+                                        <button type="submit" class="btn btn-primary btn-sm"  data-translate-title="download"><i class="bi bi-download"></i></button>
                                     </form>
                                 <?php else: ?>
                                     <form action="" method="post" class="d-inline mb-1">
                                         <input type="hidden" name="deleteConfigFile" value="<?php echo htmlspecialchars($file); ?>">
-                                        <button type="submit" class="btn btn-danger btn-sm" title="🗑️ Delete" onclick="return confirm('Are you sure you want to delete this file？');"><i class="bi bi-trash"></i></button>
+                                        <button type="submit" class="btn btn-danger btn-sm"  onclick="return confirm('Are you sure you want to delete this file？');" data-translate-title="delete"><i class="bi bi-trash"></i></button>
                                     </form>
                                     <form action="" method="post" class="d-inline mb-1">
                                         <input type="hidden" name="oldFileName" value="<?php echo htmlspecialchars($file); ?>">
                                         <input type="hidden" name="fileType" value="config">
-                                        <button type="button" class="btn btn-success btn-sm btn-rename" title="✏️ Rename" data-toggle="modal" data-target="#renameModal" data-filename="<?php echo htmlspecialchars($file); ?>" data-filetype="config"><i class="bi bi-pencil"></i></button>
+                                        <button type="button" class="btn btn-success btn-sm btn-rename"  data-toggle="modal" data-target="#renameModal" data-filename="<?php echo htmlspecialchars($file); ?>" data-filetype="config" data-translate-title="rename"><i class="bi bi-pencil"></i></button>
                                     </form>
                                     <form action="" method="post" class="d-inline mb-1">
-                                        <button type="button" class="btn btn-warning btn-sm" title="📝 Edit" onclick="openEditModal('<?php echo htmlspecialchars($file); ?>', 'config')"><i class="bi bi-pen"></i></button>
+                                        <button type="button" class="btn btn-warning btn-sm" onclick="openEditModal('<?php echo htmlspecialchars($file); ?>', 'config')" data-translate-title="edit"><i class="bi bi-pen"></i></button>
                                     </form>
                                     <form action="" method="post" enctype="multipart/form-data" class="d-inline upload-btn mb-1">
                                         <input type="file" name="configFileInput" class="form-control-file" required id="fileInput-<?php echo htmlspecialchars($file); ?>" style="display: none;" onchange="this.form.submit()">
-                                        <button type="button" class="btn btn-info btn-sm" title="📤 Upload" onclick="openUploadModal('config')"><i class="bi bi-upload"></i></button>
+                                        <button type="button" class="btn btn-info btn-sm" onclick="openUploadModal('config')" data-translate-title="upload"><i class="bi bi-upload"></i></button>
                                     </form>
                                     <form action="" method="get" class="d-inline mb-1">
                                         <input type="hidden" name="downloadFile" value="<?php echo htmlspecialchars($file); ?>">
                                         <input type="hidden" name="fileType" value="config">
-                                        <button type="submit" class="btn btn-primary btn-sm"  title="📥 Download" ><i class="bi bi-download"></i></button>
+                                        <button type="submit" class="btn btn-primary btn-sm"  data-translate-title="download"><i class="bi bi-download"></i></button>
                                     </form>
-                                <?php endif; ?>
+                                 <?php endif; ?>
                             </div>
                         </td>
                     </tr>
@@ -767,19 +768,21 @@ function displayUpdateNotification() {
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="uploadModalLabel">Upload File</h5>
-                <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h5 class="modal-title" id="uploadModalLabel" data-translate="uploadFile"></h5> 
+                <button type="button" class="close" data-bs-dismiss="modal" aria-label="close"> 
+                    <span aria-hidden="true">&times;</span>
+                </button>
             </div>
             <div class="modal-body">
                 <div id="dropZone" class="border border-primary rounded text-center py-4 position-relative">
-                    <i  class="fas fa-cloud-upload-alt"></i>
-                    <p class="mb-0 mt-3">Drag files to this area to upload<br>or click the button below to select files</p>
+                    <i class="fas fa-cloud-upload-alt"></i>
+                    <p class="mb-0 mt-3" data-translate="dragOrClickToUpload"></p> 
                 </div>
                 <input type="file" id="fileInputModal" class="form-control mt-3" hidden>
-                <button id="selectFileBtn" class="btn btn-primary btn-block mt-3 w-100">Select File</button>
+                <button id="selectFileBtn" class="btn btn-primary btn-block mt-3 w-100" data-translate="selectFile"></button> 
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" data-translate="close"></button> 
             </div>
         </div>
     </div>
@@ -789,8 +792,10 @@ function displayUpdateNotification() {
     <div class="modal-dialog modal-lg" role="document">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="renameModalLabel">Rename File</h5>
-                <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h5 class="modal-title" id="renameModalLabel" data-translate="rename_file"></h5>
+                <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
             </div>
             <div class="modal-body">
                 <form id="renameForm" action="" method="post">
@@ -798,13 +803,13 @@ function displayUpdateNotification() {
                     <input type="hidden" name="fileType" id="fileType">
 
                     <div class="mb-3">
-                        <label for="newFileName" class="form-label">New File Name</label>
+                        <label for="newFileName" class="form-label" data-translate="new_file_name"></label>
                         <input type="text" class="form-control" id="newFileName" name="newFileName" required>
                     </div>
 
                     <div class="d-flex justify-content-end gap-2">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                        <button type="submit" class="btn btn-primary">Confirm</button>
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" data-translate="cancel"></button>
+                        <button type="submit" class="btn btn-primary" data-translate="save"></button>
                     </div>
                 </form>
             </div>
@@ -820,8 +825,11 @@ function displayUpdateNotification() {
     <div class="modal-dialog modal-xl" role="document">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="editModalLabel">Edit File: <span id="editingFileName"></span></h5>
-                <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h5 class="modal-title" id="editModalLabel"><?php echo $langData[$currentLang]['editFile']; ?>: <span id="editingFileName"></span></h5>
+
+                <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
             </div>
             <div class="modal-body">
                 <form id="editForm" action="" method="post" onsubmit="syncEditorContent()">
@@ -829,9 +837,8 @@ function displayUpdateNotification() {
                     <input type="hidden" name="fileName" id="hiddenFileName">
                     <input type="hidden" name="fileType" id="hiddenFileType">
                     <div class="mt-3 d-flex justify-content-start gap-2">
-                        <button type="submit" class="btn btn-primary">Save</button>
-                        <button type="button" class="btn btn-pink" onclick="openFullScreenEditor()">Advanced Edit</button>
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn btn-primary" data-translate="save"></button>
+                        <button type="button" class="btn btn-pink" onclick="openFullScreenEditor()" data-translate="advancedEdit"></button>
                     </div>
                 </form>
             </div>
@@ -844,7 +851,7 @@ function displayUpdateNotification() {
         <div class="modal-content" style="border: none;">
             <div class="modal-header d-flex justify-content-between align-items-center" style="border-bottom: none;">
                 <div class="d-flex align-items-center">
-                    <h5 class="modal-title mr-3">Advanced Edit - Fullscreen Mode</h5>
+                    <h5 class="modal-title mr-3" data-translate="advancedEditorTitle"></h5>
                     <select id="fontSize" onchange="changeFontSize()" class="form-select mx-1" style="width: auto; font-size: 0.8rem;">
                         <option value="18px">18px</option>
                         <option value="20px" selected>20px</option>
@@ -862,6 +869,7 @@ function displayUpdateNotification() {
 
                     <select id="editorTheme" onchange="changeEditorTheme()" class="form-select mx-1" style="width: auto; font-size: 0.9rem;">
                         <option value="ace/theme/vibrant_ink">Vibrant Ink</option>
+                        <option value="ace/theme/gob">Gob</option>
                         <option value="ace/theme/monokai">Monokai</option>
                         <option value="ace/theme/github">GitHub</option>
                         <option value="ace/theme/tomorrow">Tomorrow</option>
@@ -875,6 +883,7 @@ function displayUpdateNotification() {
                         <option value="ace/theme/dreamweaver">Dreamweaver</option>
                         <option value="ace/theme/xcode">Xcode</option>
                         <option value="ace/theme/kuroir">Kuroir</option>
+                        <option value="ace/theme/iplastic">Iplastic</option>
                         <option value="ace/theme/katzenmilch">KatzenMilch</option>
                         <option value="ace/theme/sqlserver">SQL Server</option>
                         <option value="ace/theme/ambiance">Ambiance</option>
@@ -889,13 +898,14 @@ function displayUpdateNotification() {
                         <option value="ace/theme/pastel_on_dark">Pastel on Dark</option>
                     </select>
 
-                    <button type="button" class="btn btn-success btn-sm mx-1" onclick="formatContent()">Format</button>
-                    <button type="button" class="btn btn-info btn-sm mx-1" id="jsonValidationBtn" onclick="validateJsonSyntax()">Validate JSON Syntax</button>
-                    <button type="button" class="btn btn-info btn-sm mx-1" id="yamlValidationBtn" onclick="validateYamlSyntax()" style="display: none;">Validate YAML Syntax</button>
-                    <button type="button" class="btn btn-primary btn-sm mx-1" onclick="saveFullScreenContent()">Save and Close</button>
-                    <button type="button" class="btn btn-primary btn-sm mx-1" onclick="openSearch()">Search</button>
-                    <button type="button" class="btn btn-primary btn-sm mx-1" onclick="closeFullScreenEditor()">Cancel</button>
-                    <button type="button" class="btn btn-warning btn-sm mx-1" id="toggleFullscreenBtn" onclick="toggleFullscreen()">Fullscreen</button>
+                    <button type="button" class="btn btn-success btn-sm mx-1" onclick="formatContent()" data-translate="formatIndentation"></button>
+                    <button type="button" class="btn btn-success btn-sm mx-1" id="yamlFormatBtn" onclick="formatYamlContent()" style="display: none;" data-translate="formatYaml"></button>
+                    <button type="button" class="btn btn-info btn-sm mx-1" id="jsonValidationBtn" onclick="validateJsonSyntax()" data-translate="validateJson"></button>
+                    <button type="button" class="btn btn-info btn-sm mx-1" id="yamlValidationBtn" onclick="validateYamlSyntax()" style="display: none;" data-translate="validateYaml"></button>
+                    <button type="button" class="btn btn-primary btn-sm mx-1" onclick="saveFullScreenContent()" data-translate="saveAndClose"></button>
+                    <button type="button" class="btn btn-primary btn-sm mx-1" onclick="openSearch()" data-translate="search"></button>
+                    <button type="button" class="btn btn-primary btn-sm mx-1" onclick="closeFullScreenEditor()" data-translate="cancel"></button>
+                    <button type="button" class="btn btn-warning btn-sm mx-1" id="toggleFullscreenBtn" onclick="toggleFullscreen()" data-translate="toggleFullscreen"></button>
                 </div>
 
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close" onclick="closeFullScreenEditor()">
@@ -904,7 +914,7 @@ function displayUpdateNotification() {
             </div>
 
             <div class="d-flex justify-content-center align-items-center my-1" id="editorStatus" style="font-weight: bold; font-size: 0.9rem;">
-                    <span id="lineColumnDisplay" style="color: blue; font-size: 1.1rem;">Lines: 1, Columns: 1</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span id="charCountDisplay" style="color: blue; font-size: 1.1rem;">Character Count: 0</span>
+                    <span id="lineColumnDisplay" style="color: blue; font-size: 1.1rem;" data-translate="lineColumnDisplay"></span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span id="charCountDisplay" style="color: blue; font-size: 1.1rem;" data-translate="charCountDisplay"></span>
                 </div>
                     <div class="modal-body" style="padding: 0; height: 100%;">
                 <div id="aceEditorContainer" style="height: 100%; width: 100%;"></div>
@@ -920,7 +930,7 @@ let aceEditorInstance;
 
 function initializeAceEditor() {
     aceEditorInstance = ace.edit("aceEditorContainer");
-    const savedTheme = localStorage.getItem("editorTheme") || "ace/theme/Vibrant Ink";
+    const savedTheme = localStorage.getItem("editorTheme") || "ace/theme/vibrant_ink";
     aceEditorInstance.setTheme(savedTheme);
     aceEditorInstance.session.setMode("ace/mode/javascript"); 
     aceEditorInstance.setOptions({
@@ -969,31 +979,6 @@ function initializeAceEditor() {
         aceEditorInstance.execCommand("find");
     }
 
-    function detectContentFormat() {
-        const content = aceEditorInstance.getValue().trim();
-
-        if (isJsonDetected) {
-            document.getElementById("jsonValidationBtn").style.display = "inline-block";
-            document.getElementById("yamlValidationBtn").style.display = "none";
-            return;
-        }
-
-        try {
-            JSON.parse(content);
-            document.getElementById("jsonValidationBtn").style.display = "inline-block";
-            document.getElementById("yamlValidationBtn").style.display = "none";
-            isJsonDetected = true; 
-        } catch {
-        if (isYamlFormat(content)) {
-            document.getElementById("jsonValidationBtn").style.display = "none";
-            document.getElementById("yamlValidationBtn").style.display = "inline-block";
-        } else {
-            document.getElementById("jsonValidationBtn").style.display = "none";
-            document.getElementById("yamlValidationBtn").style.display = "none";
-            }
-        }
-    }
-
     function isYamlFormat(content) {
             const yamlPattern = /^(---|\w+:\s)/m;
             return yamlPattern.test(content);
@@ -1004,7 +989,7 @@ function initializeAceEditor() {
             let annotations = [];
         try {
             JSON.parse(content);
-            alert("JSON syntax is correct");
+            alert(langData[currentLang]['validateJson'] + " " + langData[currentLang]['jsonSyntaxCorrect']); 
         } catch (e) {
             const line = e.lineNumber ? e.lineNumber - 1 : 0;
             annotations.push({
@@ -1014,7 +999,7 @@ function initializeAceEditor() {
             type: "error"
         });
         aceEditorInstance.session.setAnnotations(annotations);
-        alert("JSON syntax error: " + e.message);
+        alert(langData[currentLang]['validateJson'] + " " + langData[currentLang]['jsonSyntaxError'] + ": " + e.message); 
         }
     }
 
@@ -1023,7 +1008,7 @@ function initializeAceEditor() {
             let annotations = [];
         try {
             jsyaml.load(content); 
-            alert("YAML syntax is correct");
+            alert(langData[currentLang]['validateYaml'] + " " + langData[currentLang]['yamlSyntaxCorrect']);
         } catch (e) {
             const line = e.mark ? e.mark.line : 0;
             annotations.push({
@@ -1033,7 +1018,7 @@ function initializeAceEditor() {
             type: "error"
         });
         aceEditorInstance.session.setAnnotations(annotations);
-        alert("YAML syntax error: " + e.message);
+        alert(langData[currentLang]['validateYaml'] + " " + langData[currentLang]['yamlSyntaxError'] + ": " + e.message); 
         }
     }
 
@@ -1046,16 +1031,59 @@ function initializeAceEditor() {
             if (mode === "ace/mode/json") {
                 formattedContent = JSON.stringify(JSON.parse(content), null, 4);
                 aceEditorInstance.setValue(formattedContent, -1);
-                alert("JSON formatted successfully");
+                alert(langData[currentLang]['formatIndentation'] + " " + langData[currentLang]['jsonFormatSuccess']);
             } else if (mode === "ace/mode/javascript") {
                 formattedContent = js_beautify(content, { indent_size: 4 });
                 aceEditorInstance.setValue(formattedContent, -1);
-                alert("JavaScript formatted successfully");
+                alert(langData[currentLang]['formatIndentation'] + " " + langData[currentLang]['jsFormatSuccess']); 
             } else {
-                alert("Current mode does not support formatting indentation");
+                alert(langData[currentLang]['formatIndentation'] + " " + langData[currentLang]['unsupportedMode']);
             }
         } catch (e) {
-            alert("Formatting error: " + e.message);
+            alert(langData[currentLang]['formatIndentation'] + " " + langData[currentLang]['formatError'] + ": " + e.message); 
+        }
+    }
+
+
+    function formatYamlContent() {
+        const content = aceEditorInstance.getValue();
+        
+        try {
+            const yamlObject = jsyaml.load(content); 
+            const formattedYaml = jsyaml.dump(yamlObject, { indent: 4 }); 
+            aceEditorInstance.setValue(formattedYaml, -1);
+            alert(langData[currentLang]['yamlFormatSuccess']);
+        } catch (e) {
+            alert(langData[currentLang]['yamlSyntaxError'] + ": " + e.message);
+        }
+    }
+
+    function detectContentFormat() {
+        const content = aceEditorInstance.getValue().trim();
+
+        if (isJsonDetected) {
+            document.getElementById("jsonValidationBtn").style.display = "inline-block";
+            document.getElementById("yamlValidationBtn").style.display = "none";
+            document.getElementById("yamlFormatBtn").style.display = "none"; 
+            return;
+        }
+
+        try {
+            JSON.parse(content);
+            document.getElementById("jsonValidationBtn").style.display = "inline-block";
+            document.getElementById("yamlValidationBtn").style.display = "none";
+            document.getElementById("yamlFormatBtn").style.display = "none"; 
+            isJsonDetected = true; 
+        } catch {
+            if (isYamlFormat(content)) {
+                document.getElementById("jsonValidationBtn").style.display = "none";
+                document.getElementById("yamlValidationBtn").style.display = "inline-block";
+                document.getElementById("yamlFormatBtn").style.display = "inline-block"; 
+            } else {
+                document.getElementById("jsonValidationBtn").style.display = "none";
+                document.getElementById("yamlValidationBtn").style.display = "none";
+                document.getElementById("yamlFormatBtn").style.display = "none"; 
+            }
         }
     }
 
@@ -1083,8 +1111,11 @@ function initializeAceEditor() {
         const column = cursor.column + 1;
         const charCount = aceEditorInstance.getValue().length;
 
-        document.getElementById('lineColumnDisplay').textContent = `Line: ${line}, Column: ${column}`;
-        document.getElementById('charCountDisplay').textContent = `Character Count: ${charCount}`;
+        const lineColumnText = langData[currentLang]['lineColumnDisplay'].replace("{line}", line).replace("{column}", column);
+        const charCountText = langData[currentLang]['charCountDisplay'].replace("{charCount}", charCount);
+
+        document.getElementById('lineColumnDisplay').textContent = lineColumnText;
+        document.getElementById('charCountDisplay').textContent = charCountText;
     }
 
     $(document).ready(function() {
@@ -1174,11 +1205,12 @@ function initializeAceEditor() {
                 location.reload(); 
         })
             .catch((error) => {
-                alert('Upload failed：' + error.message);
+                alert('上传失败：' + error.message);
         });
     }
+
 </script>
-<h2 class="text-center mt-4 mb-4">Mihomo Subscription</h2>
+<h2 class="text-center mt-4 mb-4" data-translate="subscriptionManagement"></h2>
 
 <?php if (isset($message) && $message): ?>
     <div class="alert alert-info">
@@ -1200,16 +1232,16 @@ function initializeAceEditor() {
                     <form method="post" class="card shadow-sm">
                         <div class="card-body">
                             <div class="form-group">
-                                <h5 for="subscription_url_<?php echo $displayIndex; ?>" class="mb-2">Subscription link  <?php echo $displayIndex; ?></h5>
-                                <input type="text" name="subscription_url" id="subscription_url_<?php echo $displayIndex; ?>" value="<?php echo htmlspecialchars($url); ?>" class="form-control" placeholder="Please enter the subscription link">
+                                <h5 for="subscription_url_<?php echo $displayIndex; ?>" class="mb-2" data-translate="subscriptionLink"><?php echo $displayIndex; ?></h5>
+                                <input type="text" name="subscription_url" id="subscription_url_<?php echo $displayIndex; ?>" value="<?php echo htmlspecialchars($url); ?>" class="form-control" data-translate-placeholder="enterSubscriptionUrl">
                             </div>
                             <div class="form-group">
-                                <label for="custom_file_name_<?php echo $displayIndex; ?>">Custom file name</label>
+                                <label for="custom_file_name_<?php echo $displayIndex; ?>"data-translate="customFileName"></label>
                                 <input type="text" name="custom_file_name" id="custom_file_name_<?php echo $displayIndex; ?>" value="<?php echo htmlspecialchars($fileName); ?>" class="form-control">
                             </div>
                             <input type="hidden" name="index" value="<?php echo $i; ?>">
                             <div class="text-center mt-3"> 
-                                <button type="submit" name="update" class="btn btn-info btn-block"><i class="bi bi-arrow-repeat"></i> Update subscription <?php echo $displayIndex; ?></button>
+                                <button type="submit" name="update" class="btn btn-info btn-block"><i class="bi bi-arrow-repeat"></i> <span data-translate="updateSubscription">Settings</span> <?php echo $displayIndex; ?></button>
                             </div>
                         </div>
                     </form>
@@ -1223,7 +1255,7 @@ function initializeAceEditor() {
         </div>
     </div>
 <?php else: ?>
-    <p>No subscription information found</p>
+    <p>未找到订阅信息。</p>
 <?php endif; ?>
 <!DOCTYPE html>
 <html lang="zh">
@@ -1233,20 +1265,20 @@ function initializeAceEditor() {
 </head>
 <body>
     <div class="container">
-        <h2 class="mt-4 mb-4 text-center">Auto-update</h2>
+        <h2 class="mt-4 mb-4 text-center" data-translate="auto_update_title"></h2>
         <form method="post" class="text-center">
         <div class="d-flex flex-wrap justify-content-center gap-2">
             <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#cronModal">
-                <i class="bi bi-clock"></i> Set up a scheduled task
+                <i class="bi bi-clock"></i> <span data-translate="set_cron_job"></span>
             </button>
             <button type="submit" name="createShellScript" value="true" class="btn btn-success">
-                <i class="bi bi-terminal"></i> Generate an update script
+                <i class="bi bi-terminal"></i> <span data-translate="generate_update_script"></span>
             </button>
-            <button type="button" class="btn btn-cyan" data-bs-toggle="modal" data-bs-target="#downloadModal">
-                <i class="bi bi-download"></i> Update the database
+            <button type="button" class="btn btn-info" data-bs-toggle="modal" data-bs-target="#downloadModal">
+                <i class="bi bi-download"></i> <span data-translate="update_database"></span>
             </button>
-            <a class="btn btn-orange btn-sm text-white" target="_blank" href="./filekit.php" style="font-size: 14px; font-weight: bold;">
-                <i class="bi bi-file-earmark-text"></i> Open File Assistant
+            <a class="btn btn-pink btn-sm text-white" target="_blank" href="./filekit.php" style="font-size: 14px; font-weight: bold;">
+                <i class="bi bi-file-earmark-text"></i> <span data-translate="open_file_helper"></span>
             </a>
         </div>
         </form>
@@ -1256,7 +1288,7 @@ function initializeAceEditor() {
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="downloadModalLabel">Select Database to Download</h5>
+                    <h5 class="modal-title" id="downloadModalLabel" data-translate="select_database_download"></h5>
                     <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
@@ -1264,7 +1296,7 @@ function initializeAceEditor() {
                 <div class="modal-body">
                     <form method="GET" action="">
                         <div class="mb-3">
-                            <label for="fileSelect" class="form-label">Select File</label>
+                            <label for="fileSelect" class="form-label" data-translate="select_file"></label>
                             <select class="form-select" id="fileSelect" name="file">
                                 <option value="geoip">geoip.metadb</option>
                                 <option value="geosite">geosite.dat</option>
@@ -1272,8 +1304,8 @@ function initializeAceEditor() {
                             </select>
                         </div>
                         <div class="d-flex justify-content-end">
-                            <button type="submit" class="btn btn-primary me-2">Download</button>
-                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                            <button type="submit" class="btn btn-primary me-2" data-translate="download_button"></button>
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" data-translate="cancel_button"></button>
                         </div>
                     </form>
                 </div>
@@ -1287,30 +1319,42 @@ function initializeAceEditor() {
         <div class="modal-dialog modal-lg" role="document">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="cronModalLabel">Set up a Cron scheduled task</h5>
-                    <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h5 class="modal-title" id="cronModalLabel" data-translate="cron_task_title"></h5>
+                    <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
                 </div>
                 <div class="modal-body">
                     <div class="mb-3">
-                        <label for="cronExpression" class="form-label">Cron expression</label>
+                        <label for="cronExpression" class="form-label" data-translate="cron_expression_label"></label>
                         <input type="text" class="form-control" id="cronExpression" name="cronExpression" value="0 2 * * *" required>
                     </div>
                     <div class="alert alert-info">
-                        <strong>Tip:</strong> Cron expression format:
+                        <strong data-translate="cron_hint">提示:</strong> <span data-translate="cron_expression_format"></span>
                         <ul>
-                            <li><code>Minutes Hours Day Month Weekday</code></li>
-                            <li>Example: Every day at 2 AM: <code>0 2 * * *</code></li>
+                            <li><code>分钟 小时 日 月 星期</code></li>
+                            <li><span data-translate="cron_example"></code></li>
                         </ul>
                     </div>
                 </div>
                 <div class="modal-footer d-flex justify-content-end gap-3">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                    <button type="submit" name="createCronJob" class="btn btn-primary">Save</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" data-translate="cancel_button"></button>
+                    <button type="submit" name="createCronJob" class="btn btn-primary" data-translate="save_button"></button>
                 </div>
             </div>
         </div>
     </div>
 </form>
+    </div>
+<script>
+    document.getElementById('pasteButton').onclick = function() {
+        window.open('https://paste.gg', '_blank');
+    }
+    document.getElementById('base64Button').onclick = function() {
+        window.open('https://base64.us', '_blank');
+    }
+</script>
+
 <style>
     .btn-group {
         display: flex;
@@ -1328,6 +1372,7 @@ function initializeAceEditor() {
     .table-dark th, .table-dark td {
         background-color: #5a32a3; 
     }
+
     #cronModal .alert {
         text-align: left; 
     }
@@ -1337,6 +1382,8 @@ function initializeAceEditor() {
     }
 
 </style>
-      <footer class="text-center mt-3">
+
+</div>
+      <footer class="text-center">
     <p><?php echo $footer ?></p>
 </footer>

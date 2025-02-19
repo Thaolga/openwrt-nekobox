@@ -359,7 +359,6 @@ function downloadFileWithWget($url, $path) {
     }
 }
 ?>
-
 <?php
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     if (isset($_POST['createCronJob'])) {
@@ -377,6 +376,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     }
 }
 ?>
+
 <?php
 $shellScriptPath = '/etc/neko/core/update_singbox.sh';
 $LOG_FILE = '/etc/neko/tmp/log.txt';
@@ -488,9 +488,9 @@ EOL;
 
         if (file_put_contents($shellScriptPath, $shellScriptContent) !== false) {
             chmod($shellScriptPath, 0755); 
-            echo "<div class='alert alert-success'>Shell script created successfully! Path: $shellScriptPath</div>";
+            echo "<div class='alert alert-success' data-translate='shell_script_created' data-dynamic-content='$shellScriptPath'></div>";
         } else {
-            echo "<div class='alert alert-danger'>Failed to create Shell script. Please check permissions.</div>";
+            echo "<div class='alert alert-danger' data-translate='shell_script_failed'></div>";
         }
     }
 }
@@ -501,7 +501,7 @@ EOL;
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>mihomo - Nekobox</title>
+    <title>singbox - Nekobox</title>
     <link rel="icon" href="./assets/img/nekobox.png">
     <link href="./assets/css/bootstrap.min.css" rel="stylesheet">
     <link href="./assets/css/custom.css" rel="stylesheet">
@@ -522,6 +522,12 @@ EOL;
 }
 
 @media (max-width: 767px) {
+.custom-padding {
+    padding-left: 3ch;  
+    padding-right: 3ch;  
+}
+
+@media (max-width: 767px) {
     .row a {
         font-size: 9px; 
     }
@@ -530,50 +536,43 @@ EOL;
 .table-responsive {
     width: 100%;
 }
-
-@media (max-width: 767px) {
-.custom-padding {
-    padding-left: 3ch;  
-    padding-right: 3ch;  
-}
-
 </style>
 <div class="container-sm container-bg callout border border-3 rounded-4 col-11">
     <div class="row">
-        <a href="./index.php" class="col btn btn-lg"><i class="bi bi-house-door"></i> Home</a>
-        <a href="./mihomo_manager.php" class="col btn btn-lg"><i class="bi bi-folder"></i> Manager</a>
-        <a href="./singbox.php" class="col btn btn-lg"><i class="bi bi-shop"></i> Template I</a>
-        <a href="./subscription.php" class="col btn btn-lg"><i class="bi bi-bank"></i> Template II</a>
-        <a href="./mihomo.php" class="col btn btn-lg"><i class="bi bi-building"></i> Template III</a>
-        <h1 class="text-center p-2" style="margin-top: 2rem; margin-bottom: 1rem;">Sing-box Template II</h1>
+        <a href="./index.php" class="col btn btn-lg text-nowrap"><i class="bi bi-house-door"></i> <span data-translate="home">Home</span></a>
+        <a href="./mihomo_manager.php" class="col btn btn-lg text-nowrap"><i class="bi bi-folder"></i> <span data-translate="manager">Manager</span></a>
+        <a href="./singbox.php" class="col btn btn-lg text-nowrap"><i class="bi bi-shop"></i> <span data-translate="template_i">Template I</span></a>
+        <a href="./subscription.php" class="col btn btn-lg text-nowrap"><i class="bi bi-bank"></i> <span data-translate="template_ii">Template II</span></a>
+        <a href="./mihomo.php" class="col btn btn-lg text-nowrap"><i class="bi bi-building"></i> <span data-translate="template_iii">Template III</span></a>
+        <h1 class="text-center p-2" style="margin-top: 2rem; margin-bottom: 1rem;" data-translate="form_title"></h1>
 
         <div class="col-12 custom-padding">
             <div class="form-section">
                 <form method="post">
                     <div class="mb-3">
-                        <label for="subscription_url" class="form-label">Enter subscription link</label>
+                        <label for="subscription_url" class="form-label" data-translate="subscription_url_label"></label>
                         <input type="text" class="form-control" id="subscription_url" name="subscription_url"
-                               value="<?php echo htmlspecialchars($current_subscription_url); ?>" placeholder="Separate multiple links with a pipe symbol (|)"  required>
+                               value="<?php echo htmlspecialchars($current_subscription_url); ?>" placeholder="" data-translate-placeholder="subscription_url_placeholder"  required>
                     </div>
 
                     <div class="mb-3">
-                        <label for="filename" class="form-label">Custom file name (default: config: config.json)</label>
+                        <label for="filename" class="form-label" data-translate="filename_label"></label>
                         <input type="text" class="form-control" id="filename" name="filename"
                                value="<?php echo htmlspecialchars(isset($_POST['filename']) ? $_POST['filename'] : ''); ?>"
                                placeholder="config.json">
                     </div>
 
                     <div class="mb-3">
-                        <label for="backend_url" class="form-label">Select backend address</label>
+                        <label for="backend_url" class="form-label" data-translate="backend_url_label"></label>
                         <select class="form-select" id="backend_url" name="backend_url" required>
                             <option value="https://url.v1.mk/sub?" <?php echo ($_POST['backend_url'] ?? '') === 'https://url.v1.mk/sub?' ? 'selected' : ''; ?>>
-                                url.v1.mk【vless reality+hy1+hy2】
+                                <?php echo $langData[$currentLang]['backend_url_option_1']; ?>
                             </option>
                             <option value="https://sub.d1.mk/sub?" <?php echo ($_POST['backend_url'] ?? '') === 'https://sub.d1.mk/sub?' ? 'selected' : ''; ?>>
-                                url.v1.mk【vless reality+hy1+hy2】
+                                 <?php echo $langData[$currentLang]['backend_url_option_2']; ?>
                             </option>
                             <option value="https://sub.xeton.dev/sub?" <?php echo ($_POST['backend_url'] ?? '') === 'https://sub.xeton.dev/sub?' ? 'selected' : ''; ?>>
-                                subconverter
+                                 <?php echo $langData[$currentLang]['backend_url_option_3']; ?>
                             </option>
                             <option value="https://www.tline.website/sub/sub?" <?php echo ($_POST['backend_url'] ?? '') === 'https://www.tline.website/sub/sub?' ? 'selected' : ''; ?>>
                                 tline.website
@@ -582,7 +581,7 @@ EOL;
                                 api.dler.io
                             </option>
                             <option value="https://v.id9.cc/sub?" <?php echo ($_POST['backend_url'] ?? '') === 'https://v.id9.cc/sub?' ? 'selected' : ''; ?>>
-                                v.id9.cc
+                                 <?php echo $langData[$currentLang]['backend_url_option_6']; ?>
                             </option>
                             <option value="https://sub.id9.cc/sub?" <?php echo ($_POST['backend_url'] ?? '') === 'https://sub.id9.cc/sub?' ? 'selected' : ''; ?>>
                                 sub.id9.cc
@@ -594,107 +593,108 @@ EOL;
                                 subcloud.xyz
                             </option>
                             <option value="https://sub.maoxiongnet.com/sub?" <?php echo ($_POST['backend_url'] ?? '') === 'https://sub.maoxiongnet.com/sub?' ? 'selected' : ''; ?>>
-                                sub.maoxiongnet.com
+                                 <?php echo $langData[$currentLang]['backend_url_option_10']; ?>
                             </option>
                             <option value="http://localhost:25500/sub?" <?php echo ($_POST['backend_url'] ?? '') === 'http://localhost:25500/sub?' ? 'selected' : ''; ?>>
-                                localhost:25500 
+                                 <?php echo $langData[$currentLang]['backend_url_option_11']; ?>
                             </option>
                             <option value="custom" <?php echo ($_POST['backend_url'] ?? '') === 'custom' ? 'selected' : ''; ?>>
-                                Custom backend address
+                                 <?php echo $langData[$currentLang]['backend_url_option_custom']; ?>
                             </option>
                         </select>
                     </div>
+
                     <div class="mb-3" id="custom_backend_url_input" style="display: none;">
-                        <label for="custom_backend_url" class="form-label">Please enter your custom backend address</label>
+                        <label for="custom_backend_url" class="form-label" data-translate="custom_backend_url_label"></label>
                         <input type="text" class="form-control" id="custom_backend_url" name="custom_backend_url" value="<?php echo htmlspecialchars($_POST['custom_backend_url'] ?? '') . (empty($_POST['custom_backend_url']) ? '' : '?'); ?>" />
                     </div>
 
                     <div class="mb-3">
-                        <label for="template" class="form-label">Select Subscription Conversion Template</label>
+                        <label for="template" class="form-label" data-translate="subscription"></label>
                         <select class="form-select" id="template" name="template" required>
-                        <optgroup label="通用" style="color: #28a745; font-size: 20px;">
-                            <option value="1" <?php echo ($_POST['template'] ?? '') === '1' ? 'selected' : ''; ?>>默认</option>
-                            <option value="2" <?php echo ($_POST['template'] ?? '') === '2' ? 'selected' : ''; ?>>默认（自动测速）</option>
-                            <option value="3" <?php echo ($_POST['template'] ?? '') === '3' ? 'selected' : ''; ?>>默认（索尼电视专用）</option>
-                            <option value="4" <?php echo ($_POST['template'] ?? '') === '4' ? 'selected' : ''; ?>>默认（附带用于 Clash 的 AdGuard DNS）</option>
-                            <option value="5" <?php echo ($_POST['template'] ?? '') === '5' ? 'selected' : ''; ?>>ACL_全分组 Dream修改版</option>
-                            <option value="6" <?php echo ($_POST['template'] ?? '') === '6' ? 'selected' : ''; ?>>ACL_精简分组 Dream修改版</option>
-                            <option value="7" <?php echo ($_POST['template'] ?? '') === '7' ? 'selected' : ''; ?>>emby-TikTok-流媒体分组-去广告加强版</option>
-                            <option value="8" <?php echo ($_POST['template'] ?? '') === '8' ? 'selected' : ''; ?>>流媒体通用分组</option>
+                        <optgroup label="通用" style="color: #28a745; font-size: 20px;" data-translate="general">
+                            <option value="1" <?php echo ($_POST['template'] ?? '') === '1' ? 'selected' : ''; ?> data-translate="default">默认</option>
+                            <option value="2" <?php echo ($_POST['template'] ?? '') === '2' ? 'selected' : ''; ?> data-translate="auto_test">默认（自动测速）</option>
+                            <option value="3" <?php echo ($_POST['template'] ?? '') === '3' ? 'selected' : ''; ?> data-translate="sony_tv">默认（索尼电视专用）</option>
+                            <option value="4" <?php echo ($_POST['template'] ?? '') === '4' ? 'selected' : ''; ?> data-translate="clash_adguard">默认（附带用于 Clash 的 AdGuard DNS）</option>
+                            <option value="5" <?php echo ($_POST['template'] ?? '') === '5' ? 'selected' : ''; ?> data-translate="acl_full_dream">ACL_全分组 Dream修改版</option>
+                            <option value="6" <?php echo ($_POST['template'] ?? '') === '6' ? 'selected' : ''; ?> data-translate="acl_simplified_dream">ACL_精简分组 Dream修改版</option>
+                            <option value="7" <?php echo ($_POST['template'] ?? '') === '7' ? 'selected' : ''; ?> data-translate="emby_tiktok_stream">emby-TikTok-流媒体分组-去广告加强版</option>
+                            <option value="8" <?php echo ($_POST['template'] ?? '') === '8' ? 'selected' : ''; ?> data-translate="stream_general_group">流媒体通用分组</option>
                         </optgroup>
-                        <optgroup label="ACL规则" style="color: #fd7e14; font-size: 20px;">
-                            <option value="9" <?php echo ($_POST['template'] ?? '') === '9' ? 'selected' : ''; ?>>ACL_默认版</option>
-                            <option value="10" <?php echo ($_POST['template'] ?? '') === '10' ? 'selected' : ''; ?>>ACL_无测速版</option>
-                            <option value="11" <?php echo ($_POST['template'] ?? '') === '11' ? 'selected' : ''; ?>>ACL_去广告版</option>
-                            <option value="12" <?php echo ($_POST['template'] ?? '') === '12' ? 'selected' : ''; ?>>ACL_多国家版</option>
-                            <option value="13" <?php echo ($_POST['template'] ?? '') === '13' ? 'selected' : ''; ?>>ACL_无Reject版</option>
-                            <option value="14" <?php echo ($_POST['template'] ?? '') === '14' ? 'selected' : ''; ?>>ACL_无测速精简版</option>
-                            <option value="15" <?php echo ($_POST['template'] ?? '') === '15' ? 'selected' : ''; ?>>ACL_全分组版</option>
-                            <option value="16" <?php echo ($_POST['template'] ?? '') === '16' ? 'selected' : ''; ?>>ACL_全分组谷歌版</option>
-                            <option value="17" <?php echo ($_POST['template'] ?? '') === '17' ? 'selected' : ''; ?>>ACL_全分组多模式版</option>
-                            <option value="18" <?php echo ($_POST['template'] ?? '') === '18' ? 'selected' : ''; ?>>ACL_全分组奈飞版</option>
-                            <option value="19" <?php echo ($_POST['template'] ?? '') === '19' ? 'selected' : ''; ?>>ACL_精简版</option>
-                            <option value="20" <?php echo ($_POST['template'] ?? '') === '20' ? 'selected' : ''; ?>>ACL_去广告精简版</option>
-                            <option value="21" <?php echo ($_POST['template'] ?? '') === '21' ? 'selected' : ''; ?>>ACL_Fallback精简版</option>
-                            <option value="22" <?php echo ($_POST['template'] ?? '') === '22' ? 'selected' : ''; ?>>ACL_多国家精简版</option>
-                            <option value="23" <?php echo ($_POST['template'] ?? '') === '23' ? 'selected' : ''; ?>>ACL_多模式精简版</option>
+                        <optgroup label="ACL规则" style="color: #fd7e14; font-size: 20px;" data-translate="acl_rules">
+                            <option value="9" <?php echo ($_POST['template'] ?? '') === '9' ? 'selected' : ''; ?> data-translate="acl_default">ACL_默认版</option>
+                            <option value="10" <?php echo ($_POST['template'] ?? '') === '10' ? 'selected' : ''; ?> data-translate="acl_no_test">ACL_无测速版</option>
+                            <option value="11" <?php echo ($_POST['template'] ?? '') === '11' ? 'selected' : ''; ?> data-translate="acl_adfree">ACL_去广告版</option>
+                            <option value="12" <?php echo ($_POST['template'] ?? '') === '12' ? 'selected' : ''; ?> data-translate="acl_multicountry">ACL_多国家版</option>
+                            <option value="13" <?php echo ($_POST['template'] ?? '') === '13' ? 'selected' : ''; ?> data-translate="acl_no_reject">ACL_无Reject版</option>
+                            <option value="14" <?php echo ($_POST['template'] ?? '') === '14' ? 'selected' : ''; ?> data-translate="acl_no_speedtest_simplified">ACL_无测速精简版</option>
+                            <option value="15" <?php echo ($_POST['template'] ?? '') === '15' ? 'selected' : ''; ?> data-translate="acl_full_group">ACL_全分组版</option>
+                            <option value="16" <?php echo ($_POST['template'] ?? '') === '16' ? 'selected' : ''; ?> data-translate="acl_full_group_google">ACL_全分组谷歌版</option>
+                            <option value="17" <?php echo ($_POST['template'] ?? '') === '17' ? 'selected' : ''; ?> data-translate="acl_full_group_multi_mode">ACL_全分组多模式版</option>
+                            <option value="18" <?php echo ($_POST['template'] ?? '') === '18' ? 'selected' : ''; ?> data-translate="acl_full_group_nflx">ACL_全分组奈飞版</option>
+                            <option value="19" <?php echo ($_POST['template'] ?? '') === '19' ? 'selected' : ''; ?> data-translate="acl_simplified">ACL_精简版</option>
+                            <option value="20" <?php echo ($_POST['template'] ?? '') === '20' ? 'selected' : ''; ?> data-translate="acl_adfree_simplified">ACL_去广告精简版</option>
+                            <option value="21" <?php echo ($_POST['template'] ?? '') === '21' ? 'selected' : ''; ?> data-translate="acl_fallback_simplified">ACL_Fallback精简版</option>
+                            <option value="22" <?php echo ($_POST['template'] ?? '') === '22' ? 'selected' : ''; ?> data-translate="acl_multi_country_simplified">ACL_多国家精简版</option>
+                            <option value="23" <?php echo ($_POST['template'] ?? '') === '23' ? 'selected' : ''; ?> data-translate="acl_multi_mode_simplified">ACL_多模式精简版</option>
                         </optgroup>
-                        <optgroup label="全网搜集规则" style="color: #6f42c1; font-size: 20px;">
-                            <option value="24" <?php echo ($_POST['template'] ?? '') === '24' ? 'selected' : ''; ?>>常规规则</option>
-                            <option value="25" <?php echo ($_POST['template'] ?? '') === '25' ? 'selected' : ''; ?>>酷酷自用</option>
-                            <option value="26" <?php echo ($_POST['template'] ?? '') === '26' ? 'selected' : ''; ?>>PharosPro无测速</option>
-                            <option value="27" <?php echo ($_POST['template'] ?? '') === '27' ? 'selected' : ''; ?>>分区域故障转移</option>
-                            <option value="28" <?php echo ($_POST['template'] ?? '') === '28' ? 'selected' : ''; ?>>分区域自动测速</option>
-                            <option value="29" <?php echo ($_POST['template'] ?? '') === '29' ? 'selected' : ''; ?>>分区域无自动测速</option>
+                        <optgroup label="全网搜集规则" style="color: #6f42c1; font-size: 20px;" data-translate="global_collection_rules">
+                            <option value="24" <?php echo ($_POST['template'] ?? '') === '24' ? 'selected' : ''; ?> data-translate="general_rules">常规规则</option>
+                            <option value="25" <?php echo ($_POST['template'] ?? '') === '25' ? 'selected' : ''; ?> data-translate="cool_private">酷酷自用</option>
+                            <option value="26" <?php echo ($_POST['template'] ?? '') === '26' ? 'selected' : ''; ?> data-translate="pharos_no_test">PharosPro无测速</option>
+                            <option value="27" <?php echo ($_POST['template'] ?? '') === '27' ? 'selected' : ''; ?> data-translate="region_failover">分区域故障转移</option>
+                            <option value="28" <?php echo ($_POST['template'] ?? '') === '28' ? 'selected' : ''; ?> data-translate="regional_auto_test">分区域自动测速</option>
+                            <option value="29" <?php echo ($_POST['template'] ?? '') === '29' ? 'selected' : ''; ?> data-translate="regional_no_auto_test">分区域无自动测速</option>
                             <option value="30" <?php echo ($_POST['template'] ?? '') === '30' ? 'selected' : ''; ?>>OoHHHHHHH</option>
                             <option value="31" <?php echo ($_POST['template'] ?? '') === '31' ? 'selected' : ''; ?>>CFW-TAP</option>
-                            <option value="32" <?php echo ($_POST['template'] ?? '') === '32' ? 'selected' : ''; ?>>lhl77全分组（定期更新）</option>
-                            <option value="33" <?php echo ($_POST['template'] ?? '') === '33' ? 'selected' : ''; ?>>lhl77简易版（定期更新）</option>
-                            <option value="34" <?php echo ($_POST['template'] ?? '') === '34' ? 'selected' : ''; ?>>ConnersHua 神机规则 Outbound</option>
-                            <option value="35" <?php echo ($_POST['template'] ?? '') === '35' ? 'selected' : ''; ?>>ConnersHua 神机规则 Inbound 回国专用</option>
-                            <option value="36" <?php echo ($_POST['template'] ?? '') === '36' ? 'selected' : ''; ?>>lhie1 洞主规则（使用 Clash 分组规则）</option>
-                            <option value="37" <?php echo ($_POST['template'] ?? '') === '37' ? 'selected' : ''; ?>>lhie1 洞主规则完整版</option>
-                            <option value="38" <?php echo ($_POST['template'] ?? '') === '38' ? 'selected' : ''; ?>>eHpo1 规则</option>
-                            <option value="39" <?php echo ($_POST['template'] ?? '') === '39' ? 'selected' : ''; ?>>多策略组默认白名单模式</option>
-                            <option value="40" <?php echo ($_POST['template'] ?? '') === '40' ? 'selected' : ''; ?>>多策略组可以有效减少审计触发</option>
-                            <option value="41" <?php echo ($_POST['template'] ?? '') === '41' ? 'selected' : ''; ?>>精简策略默认白名单</option>
-                            <option value="42" <?php echo ($_POST['template'] ?? '') === '42' ? 'selected' : ''; ?>>多策略增加SMTP策略</option>
-                            <option value="43" <?php echo ($_POST['template'] ?? '') === '43' ? 'selected' : ''; ?>>无策略入门推荐</option>
-                            <option value="44" <?php echo ($_POST['template'] ?? '') === '44' ? 'selected' : ''; ?>>无策略入门推荐国家分组</option>
-                            <option value="45" <?php echo ($_POST['template'] ?? '') === '45' ? 'selected' : ''; ?>>无策略仅IPIP CN + Final</option>
-                            <option value="46" <?php echo ($_POST['template'] ?? '') === '46' ? 'selected' : ''; ?>>无策略魅影vip分组</option>
-                            <option value="47" <?php echo ($_POST['template'] ?? '') === '47' ? 'selected' : ''; ?>>品云专属配置（仅香港区域分组）</option>
-                            <option value="48" <?php echo ($_POST['template'] ?? '') === '48' ? 'selected' : ''; ?>>品云专属配置（全地域分组）</option>
-                            <option value="49" <?php echo ($_POST['template'] ?? '') === '49' ? 'selected' : ''; ?>>nzw9314 规则</option>
-                            <option value="50" <?php echo ($_POST['template'] ?? '') === '50' ? 'selected' : ''; ?>>maicoo-l 规则</option>
-                            <option value="51" <?php echo ($_POST['template'] ?? '') === '51' ? 'selected' : ''; ?>>DlerCloud Platinum 李哥定制规则</option>
-                            <option value="52" <?php echo ($_POST['template'] ?? '') === '52' ? 'selected' : ''; ?>>DlerCloud Gold 李哥定制规则</option>
-                            <option value="53" <?php echo ($_POST['template'] ?? '') === '53' ? 'selected' : ''; ?>>DlerCloud Silver 李哥定制规则</option>
-                            <option value="54" <?php echo ($_POST['template'] ?? '') === '54' ? 'selected' : ''; ?>>ProxyStorage自用</option>
-                            <option value="55" <?php echo ($_POST['template'] ?? '') === '55' ? 'selected' : ''; ?>>ShellClash修改版规则 (by UlinoyaPed)</option>
+                            <option value="32" <?php echo ($_POST['template'] ?? '') === '32' ? 'selected' : ''; ?> data-translate="lhl77_full_group">lhl77全分组（定期更新）</option>
+                            <option value="33" <?php echo ($_POST['template'] ?? '') === '33' ? 'selected' : ''; ?> data-translate="lhl77_simple">lhl77简易版（定期更新）</option>
+                            <option value="34" <?php echo ($_POST['template'] ?? '') === '34' ? 'selected' : ''; ?> data-translate="connershua_outbound">ConnersHua 神机规则 Outbound</option>
+                            <option value="35" <?php echo ($_POST['template'] ?? '') === '35' ? 'selected' : ''; ?> data-translate="connershua_inbound">ConnersHua 神机规则 Inbound 回国专用</option>
+                            <option value="36" <?php echo ($_POST['template'] ?? '') === '36' ? 'selected' : ''; ?> data-translate="lhie1_dongzhu">lhie1 洞主规则（使用 Clash 分组规则）</option>
+                            <option value="37" <?php echo ($_POST['template'] ?? '') === '37' ? 'selected' : ''; ?> data-translate="lhie1_dongzhu_full">lhie1 洞主规则完整版</option>
+                            <option value="38" <?php echo ($_POST['template'] ?? '') === '38' ? 'selected' : ''; ?> data-translate="epho1">eHpo1 规则</option>
+                            <option value="39" <?php echo ($_POST['template'] ?? '') === '39' ? 'selected' : ''; ?> data-translate="multi_strategy_default_whitelist">多策略组默认白名单模式</option>
+                            <option value="40" <?php echo ($_POST['template'] ?? '') === '40' ? 'selected' : ''; ?> data-translate="multi_strategy_reduced_audit">多策略组可以有效减少审计触发</option>
+                            <option value="41" <?php echo ($_POST['template'] ?? '') === '41' ? 'selected' : ''; ?> data-translate="simplified_strategy_default_whitelist">精简策略默认白名单</option>
+                            <option value="42" <?php echo ($_POST['template'] ?? '') === '42' ? 'selected' : ''; ?> data-translate="multi_strategy_smtp">多策略增加SMTP策略</option>
+                            <option value="43" <?php echo ($_POST['template'] ?? '') === '43' ? 'selected' : ''; ?> data-translate="no_strategy_recommended">无策略入门推荐</option>
+                            <option value="44" <?php echo ($_POST['template'] ?? '') === '44' ? 'selected' : ''; ?> data-translate="no_strategy_country_group">无策略入门推荐国家分组</option>
+                            <option value="45" <?php echo ($_POST['template'] ?? '') === '45' ? 'selected' : ''; ?> data-translate="no_strategy_advanced">无策略进阶版</option>
+                            <option value="46" <?php echo ($_POST['template'] ?? '') === '46' ? 'selected' : ''; ?> data-translate="no_strategy_shadow_vip">无策略魅影vip分组</option>
+                            <option value="47" <?php echo ($_POST['template'] ?? '') === '47' ? 'selected' : ''; ?> data-translate="pinyun_exclusive_hk">品云专属配置（仅香港区域分组）</option>
+                            <option value="48" <?php echo ($_POST['template'] ?? '') === '48' ? 'selected' : ''; ?> data-translate="pinyun_exclusive_all_regions">品云专属配置（全地域分组）</option>
+                            <option value="49" <?php echo ($_POST['template'] ?? '') === '49' ? 'selected' : ''; ?> data-translate="nzw9314_rules">nzw9314 规则</option>
+                            <option value="50" <?php echo ($_POST['template'] ?? '') === '50' ? 'selected' : ''; ?> data-translate="maicoo_l_rules">maicoo-l 规则</option>
+                            <option value="51" <?php echo ($_POST['template'] ?? '') === '51' ? 'selected' : ''; ?> data-translate="dlercloud_platinum">DlerCloud Platinum 李哥定制规则</option>
+                            <option value="52" <?php echo ($_POST['template'] ?? '') === '52' ? 'selected' : ''; ?> data-translate="dlercloud_gold">DlerCloud Gold 李哥定制规则</option>
+                            <option value="53" <?php echo ($_POST['template'] ?? '') === '53' ? 'selected' : ''; ?> data-translate="dlercloud_silver">DlerCloud Silver 李哥定制规则</option>
+                            <option value="54" <?php echo ($_POST['template'] ?? '') === '54' ? 'selected' : ''; ?> data-translate="proxystorage_personal">ProxyStorage自用</option>
+                            <option value="55" <?php echo ($_POST['template'] ?? '') === '55' ? 'selected' : ''; ?> data-translate="shellclash_modified">ShellClash修改版规则 (by UlinoyaPed)</option>
                         </optgroup>
-                        <optgroup label="各大机场规则" style="color: #007bff; font-size: 20px;">
+                        <optgroup label="各大机场规则" style="color: #007bff; font-size: 20px;" data-translate="airport_rules">
                             <option value="56" <?php echo ($_POST['template'] ?? '') === '56' ? 'selected' : ''; ?>>EXFLUX</option>
                             <option value="57" <?php echo ($_POST['template'] ?? '') === '57' ? 'selected' : ''; ?>>NaNoport</option>
                             <option value="58" <?php echo ($_POST['template'] ?? '') === '58' ? 'selected' : ''; ?>>CordCloud</option>
                             <option value="59" <?php echo ($_POST['template'] ?? '') === '59' ? 'selected' : ''; ?>>BigAirport</option>
-                            <option value="60" <?php echo ($_POST['template'] ?? '') === '60' ? 'selected' : ''; ?>>跑路云</option>
+                            <option value="60" <?php echo ($_POST['template'] ?? '') === '60' ? 'selected' : ''; ?> data-translate="runaway_cloud">跑路云</option>
                             <option value="61" <?php echo ($_POST['template'] ?? '') === '61' ? 'selected' : ''; ?>>WaveCloud</option>
-                            <option value="62" <?php echo ($_POST['template'] ?? '') === '62' ? 'selected' : ''; ?>>几鸡</option>
-                            <option value="63" <?php echo ($_POST['template'] ?? '') === '63' ? 'selected' : ''; ?>>四季加速</option>
+                            <option value="62" <?php echo ($_POST['template'] ?? '') === '62' ? 'selected' : ''; ?> data-translate="jiji">几鸡</option>
+                            <option value="63" <?php echo ($_POST['template'] ?? '') === '63' ? 'selected' : ''; ?> data-translate="four_seasons_acceleration">四季加速</option>
                             <option value="64" <?php echo ($_POST['template'] ?? '') === '64' ? 'selected' : ''; ?>>ImmTelecom</option>
                             <option value="65" <?php echo ($_POST['template'] ?? '') === '65' ? 'selected' : ''; ?>>AmyTelecom</option>
                             <option value="66" <?php echo ($_POST['template'] ?? '') === '66' ? 'selected' : ''; ?>>LinkCube</option>
                             <option value="67" <?php echo ($_POST['template'] ?? '') === '67' ? 'selected' : ''; ?>>Miaona</option>
                             <option value="68" <?php echo ($_POST['template'] ?? '') === '68' ? 'selected' : ''; ?>>Foo&Friends</option>
                             <option value="69" <?php echo ($_POST['template'] ?? '') === '69' ? 'selected' : ''; ?>>ABCloud</option>
-                            <option value="70" <?php echo ($_POST['template'] ?? '') === '70' ? 'selected' : ''; ?>>咸鱼</option>
-                            <option value="71" <?php echo ($_POST['template'] ?? '') === '71' ? 'selected' : ''; ?>>便利店</option>
+                            <option value="70" <?php echo ($_POST['template'] ?? '') === '70' ? 'selected' : ''; ?> data-translate="saltedfish">咸鱼</option>
+                            <option value="71" <?php echo ($_POST['template'] ?? '') === '71' ? 'selected' : ''; ?> data-translate="convenience_store">便利店</option>
                             <option value="72" <?php echo ($_POST['template'] ?? '') === '72' ? 'selected' : ''; ?>>CNIX</option>
                             <option value="73" <?php echo ($_POST['template'] ?? '') === '73' ? 'selected' : ''; ?>>Nirvana</option>
                             <option value="74" <?php echo ($_POST['template'] ?? '') === '74' ? 'selected' : ''; ?>>V2Pro</option>
-                            <option value="75" <?php echo ($_POST['template'] ?? '') === '75' ? 'selected' : ''; ?>>史迪仔-自动测速</option>
-                            <option value="76" <?php echo ($_POST['template'] ?? '') === '76' ? 'selected' : ''; ?>>史迪仔-负载均衡</option>
+                            <option value="75" <?php echo ($_POST['template'] ?? '') === '75' ? 'selected' : ''; ?> data-translate="stitch_auto_test">史迪仔-自动测速</option>
+                            <option value="76" <?php echo ($_POST['template'] ?? '') === '76' ? 'selected' : ''; ?> data-translate="stitch_load_balance">史迪仔-负载均衡</option>
                             <option value="77" <?php echo ($_POST['template'] ?? '') === '77' ? 'selected' : ''; ?>>Maying</option>
                             <option value="78" <?php echo ($_POST['template'] ?? '') === '78' ? 'selected' : ''; ?>>Ytoo</option>
                             <option value="79" <?php echo ($_POST['template'] ?? '') === '79' ? 'selected' : ''; ?>>w8ves</option>
@@ -706,7 +706,7 @@ EOL;
                             <option value="85" <?php echo ($_POST['template'] ?? '') === '85' ? 'selected' : ''; ?>>Scholar</option>
                             <option value="86" <?php echo ($_POST['template'] ?? '') === '86' ? 'selected' : ''; ?>>Flowercloud</option>
                         </optgroup>
-                        <optgroup label="特殊" style="color: #ff0000; font-size: 20px;">
+                        <optgroup label="特殊" style="color: #ff0000; font-size: 20px;" data-translate="special">
                             <option value="87" <?php echo ($_POST['template'] ?? '') === '87' ? 'selected' : ''; ?>>NeteaseUnblock</option>
                             <option value="88" <?php echo ($_POST['template'] ?? '') === '88' ? 'selected' : ''; ?>>Basic</option>
                         </optgroup>
@@ -714,113 +714,117 @@ EOL;
                     </div>
 
                     <div class="mb-3">
-                        <label class="form-label">Select Additional Configuration Options</label>
+                        <label class="form-label" data-translate="choose_additional_options"></label>
                         <div class="d-flex flex-wrap align-items-center">
                             <div class="form-check me-3">
                                 <input type="checkbox" class="form-check-input" id="emoji" name="emoji" value="true"
                                        <?php echo isset($_POST['emoji']) && $_POST['emoji'] == 'true' ? 'checked' : ''; ?>>
-                                <label class="form-check-label" for="emoji">Enable Emoji</label>
+                                <label class="form-check-label" for="emoji" data-translate="enable_emoji"></label>
                             </div>
                             <div class="form-check me-3">
                                 <input type="checkbox" class="form-check-input" id="udp" name="udp" value="true"
                                        <?php echo isset($_POST['udp']) && $_POST['udp'] == 'true' ? 'checked' : ''; ?>>
-                                <label class="form-check-label" for="udp">Enable UDP</label>
+                                <label class="form-check-label" for="udp" data-translate="enable_udp"></label>
                             </div>
                             <div class="form-check me-3">
                                 <input type="checkbox" class="form-check-input" id="xudp" name="xudp" value="true"
                                        <?php echo isset($_POST['xudp']) && $_POST['xudp'] == 'true' ? 'checked' : ''; ?>>
-                                <label class="form-check-label" for="xudp">Enable XUDP</label>
+                                <label class="form-check-label" for="xudp" data-translate="enable_xudp"></label>
                             </div>
                             <div class="form-check me-3">
                                 <input type="checkbox" class="form-check-input" id="tfo" name="tfo" value="true"
                                        <?php echo isset($_POST['tfo']) && $_POST['tfo'] == 'true' ? 'checked' : ''; ?>>
-                                <label class="form-check-label" for="tfo">Enable TFO</label>
+                                <label class="form-check-label" for="tfo" data-translate="enable_tfo"></label>
                             </div>
                             <div class="form-check me-3">
                                 <input type="checkbox" class="form-check-input" id="fdn" name="fdn" value="true"
                                        <?php echo isset($_POST['fdn']) && $_POST['fdn'] == 'true' ? 'checked' : ''; ?>>
-                                <label class="form-check-label" for="tls13">Enable FDN</label>
+                                <label class="form-check-label" for="tls13" data-translate="enable_fdn"></label>
                             </div>
                             <div class="form-check me-3">
                                 <input type="checkbox" class="form-check-input" id="sort" name="sort" value="true"
                                        <?php echo isset($_POST['sort']) && $_POST['sort'] == 'true' ? 'checked' : ''; ?>>
-                                <label class="form-check-label" for="sort">Enable SORT</label>
+                                <label class="form-check-label" for="sort" data-translate="enable_sort"></label>
                             </div>
                             <div class="form-check me-3">
                                 <input type="checkbox" class="form-check-input" id="tls13" name="tls13" value="true"
                                        <?php echo isset($_POST['tls13']) && $_POST['tls13'] == 'true' ? 'checked' : ''; ?>>
-                                <label class="form-check-label" for="tls13">Enable TLS_1.3</label>
+                                <label class="form-check-label" for="tls13" data-translate="enable_tls13"></label>
                             </div>
                             <div class="form-check">
                                 <input type="checkbox" class="form-check-input" id="ipv6" name="ipv6" value="true"
                                        <?php echo isset($_POST['ipv6']) && $_POST['ipv6'] == 'true' ? 'checked' : ''; ?>>
-                                <label class="form-check-label" for="ipv6">Enable IPv6</label>
+                                <label class="form-check-label" for="ipv6" data-translate="enable_ipv6"></label>
                             </div>
                         </div>
                     </div>
 
                     <div class="mb-3">
-                        <label for="include" class="form-label">Include Nodes (optional)</label>
+                        <label for="include" class="form-label" data-translate="include_nodes"></label>
                         <input type="text" class="form-control" id="include" name="include"
-                               value="<?php echo htmlspecialchars($_POST['include'] ?? ''); ?>" placeholder="Nodes to retain, support regular expressions separated by |">
+                               value="<?php echo htmlspecialchars($_POST['include'] ?? ''); ?>" placeholder="要保留的节点，支持正则 | 分隔" data-translate-placeholder="include_placeholder">
                     </div>
 
                     <div class="mb-3">
-                        <label for="exclude" class="form-label">Exclude Nodes (optional)</label>
+                        <label for="exclude" class="form-label" data-translate="exclude_nodes"></label>
                         <input type="text" class="form-control" id="exclude" name="exclude"
-                               value="<?php echo htmlspecialchars($_POST['exclude'] ?? ''); ?>" placeholder="Nodes to exclude, support regular expressions separated by |">
+                               value="<?php echo htmlspecialchars($_POST['exclude'] ?? ''); ?>" placeholder="要排除的节点，支持正则 | 分隔" data-translate-placeholder="exclude_placeholder">
                     </div>
 
                    <div class="mb-3">
-                        <label for="rename" class="form-label">Node naming</label>
+                        <label for="rename" class="form-label" data-translate="rename_nodes"></label>
                         <input type="text" class="form-control" id="rename" name="rename"
                                value="<?php echo htmlspecialchars(isset($_POST['rename']) ? $_POST['rename'] : ''); ?>"
-                               placeholder="Enter the rename content (e.g., a@b 1@2, the | symbol can be escaped with ).">
+                               placeholder="输入重命名内容（举例：`a@b``1@2`，|符可用\转义）" data-translate-placeholder="rename_placeholder">
                     </div>
 
                     <div class="mb-3">
-                        <label class="form-label" for="download_option">Select the database to download</label>
+                        <label class="form-label" for="download_option" data-translate="choose_download_database"></label>
                         <select class="form-select" id="download_option" name="download_option">
-                               <option value="geoip" <?php echo isset($_POST['download_option']) && $_POST['download_option'] === 'geoip' ? 'selected' : ''; ?>>GeoIP Database (geoip.db)</option>
-                              <option value="geosite" <?php echo isset($_POST['download_option']) && $_POST['download_option'] === 'geosite' ? 'selected' : ''; ?>>Geosite Database (geosite.db)</option>
+                               <option value="geoip" <?php echo isset($_POST['download_option']) && $_POST['download_option'] === 'geoip' ? 'selected' : ''; ?>data-translate="geoip_database">GeoIP 数据库 (geoip.db)</option>
+                              <option value="geosite" <?php echo isset($_POST['download_option']) && $_POST['download_option'] === 'geosite' ? 'selected' : ''; ?>data-translate="geosite_database">Geosite 数据库 (geosite.db)</option>
                         </select>
                     </div>
-                    <button type="submit" class="btn btn-primary" name="action" value="generate_subscription"><i class="bi bi-file-earmark-text"></i> Generate Configuration File</button>
-                    <button type="submit" class="btn btn-success" name="download_action" value="download_files"><i class="bi bi-download"></i>  Download the database</button>
+                   <button type="submit" class="btn btn-primary col mx-2" name="action" value="generate_subscription"><i class="bi bi-file-earmark-text"></i> <span data-translate="generate_configuration_file"></span></button>
+                    <button type="submit" class="btn btn-success" name="download_action" value="download_files"><i class="bi bi-download"></i>  <span data-translate="download_database"></span></button>
                 </form>
             </div>
         </div>
     <div class="container custom-padding">
         <form method="post">
-            <h5 style="margin-top: 20px;">Scheduled task</h5>
-            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#cronModal"><i class="bi bi-clock"></i> Set up a scheduled task</button>
-            <button type="submit" name="createShellScript" value="true" class="btn btn-success"><i class="bi bi-terminal"></i> Generate an update script</button>
+            <h5 style="margin-top: 20px;" data-translate="scheduled_tasks"></h5>
+            <button type="button" class="btn btn-primary mx-2" data-bs-toggle="modal" data-bs-target="#cronModal"><i class="bi bi-clock"></i> <span data-translate="set_scheduled_task"></span></button>
+            <button type="submit" name="createShellScript" value="true" class="btn btn-success"><i class="bi bi-terminal"></i> <span data-translate="generate_update_script"></span></button>
         </form>
     </div>
         <div class="modal fade" id="cronModal" tabindex="-1" aria-labelledby="cronModalLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
             <div class="modal-dialog modal-lg">
                 <div class="modal-content">
                     <div class="modal-header">
-                        <h5 class="modal-title" id="cronModalLabel">Set up a Cron scheduled task</h5>
-                        <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                        <h5 class="modal-title" id="cronModalLabel" data-translate="cron_task_title"></h5>
+                        <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                        </button>
                     </div>
                     <div class="modal-body">
                         <form method="POST">
                             <div class="mb-3">
-                                <label for="cronExpression" class="form-label">Cron expression</label>
+                                <label for="cronExpression" class="form-label" data-translate="cron_expression_label"></label>
                                 <input type="text" class="form-control" id="cronExpression" name="cronExpression"  value="0 2 * * *" required>
                             </div>
                             <div class="alert alert-info">
-                              <strong>Tip:</strong> Cron expression format:
+                              <strong data-translate="cron_hint">提示:</strong> <span data-translate="cron_expression_format">Cron 表达式格式：</span>
                               <ul>
-                                <li><code>Minutes Hours Day Month Weekday</code></li>
-                                <li>Example: Every day at 2 AM: <code>0 2 * * *</code></li>
+                                <li><span data-translate="cron_format_help"></span></li>
+                                <li><?= $langData[$currentLang]['example1'] ?>: <code>0 2 * * *</code></li>
+                                <li><?= $langData[$currentLang]['example2'] ?>: <code>0 3 * * 1</code></li>
+                                <li><?= $langData[$currentLang]['example3'] ?>: <code>0 9 * * 1-5</code></li>
                               </ul>
                             </div>
                           </div>
                           <div class="modal-footer">
-                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                            <button type="submit" name="createCronJob" class="btn btn-primary">Save</button>
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" data-translate="cancel_button"></button>
+                            <button type="submit" name="createCronJob" class="btn btn-primary" data-translate="save_button"></button>
                         </form>
                     </div>
                 </div>
@@ -828,8 +832,12 @@ EOL;
         </div>
     </div>
         <div class="help mt-4 custom-padding">
-            <strong>1. For first-time users of Sing-box, it is necessary to update the core to version v1.10.0 or higher. Ensure that both outbound and inbound/forwarding firewall rules are set to "accept" and enable them.<p>
-            <p style="color: red;">Caution: Online subscription conversion poses privacy leakage risks</p>
+             <strong>1. <?php echo $translations['first_time_singbox_user']; ?><p>
+            <p style="color: red;"><?php echo $translations['warning']; ?></p>
+            <p><?php echo $translations['subscription_conversion']; ?></p>
+            <a href="https://github.com/youshandefeiyang/sub-web-modify" target="_blank" class="btn btn-primary" style="color: white;">
+            <i data-feather="github"></i> <?php echo $translations['visit_link']; ?>
+            </a>
         </div>
         <div class="result mt-4 custom-padding">
             <?php echo nl2br(htmlspecialchars($result)); ?>
