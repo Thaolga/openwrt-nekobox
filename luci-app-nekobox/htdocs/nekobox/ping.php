@@ -2782,15 +2782,22 @@ function updateDateTime() {
     const year = now.getFullYear();
     const month = now.getMonth() + 1;
     const day = now.getDate();
-
     const monthLabel = translations['month'];  
-    const dayLabel = translations['day'];     
+    const dayLabel = translations['day'];  
     const weekdayLabel = translations['weekday'];  
-
     const weekdays = translations['weekdays'];  
     const weekDay = weekdays[now.getDay()]; 
+    const yearText = translations['year'] ? `${year}${translations['year']}` : `${year}-`;
+    const langsWithDash = ['en', 'vn', 'ru', 'ar', 'es', 'de', 'fr'];
 
-    document.getElementById('dateDisplay').textContent = `${year}${monthLabel}${month}${dayLabel}${day} ${weekdayLabel}${weekDay}`;
+    let dateDisplay;
+    if (langsWithDash.includes(currentLang)) {
+        dateDisplay = `${yearText}${month}-${day} ${weekDay}`;
+    } else {
+        dateDisplay = `${yearText}${monthLabel}${month}${dayLabel}${day} ${weekdayLabel}${weekDay}`;
+    }
+
+    document.getElementById('dateDisplay').textContent = dateDisplay;
 
     const timeString = now.toLocaleTimeString(currentLang === 'zh' ? 'zh-CN' : currentLang, { hour12: false });
 
