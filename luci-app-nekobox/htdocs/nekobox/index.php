@@ -912,6 +912,10 @@ $(document).ready(function() {
 
 </style>
 <div class="section-container">
+    <div class="card">
+       <div class="text-center">
+        </div>
+        <div class="card-body">
    <table class="table table-borderless mb-2">
        <tbody>
            <tr>
@@ -1003,7 +1007,8 @@ $(document).ready(function() {
            </tr>
        </tbody>
    </table>
-
+</div>
+    </div>
 <script>
     document.addEventListener("DOMContentLoaded", function() {
         const savedConfig = localStorage.getItem("configSelection");
@@ -1045,63 +1050,69 @@ window.onload = function() {
 </script>
 <div id="collapsibleHeader" style="cursor: pointer; display: flex; flex-direction: column; align-items: center; justify-content: center;">
     <i id="toggleIcon" class="triangle-icon"></i> 
-    <h2 id="systemTitle" class="text-center" style="display: none; margin-top: 0;" data-translate="systemInfo">System Status</h2>
 </div>
-
-<div id="collapsible" style="display: none; margin-top: 5px;"> 
-   <table class="table table-borderless rounded-4 mb-2">
-       <tbody>
-           <tr>
-               <td style="width:150px"><span data-translate="systemInfo">System Info</span></td>
-               <td id="systemInfo"></td>
-           </tr>
-           <tr>
-               <td style="width:150px"><span data-translate="systemMemory">System Memory</span></td>
-               <td id="ramUsage"></td>
-           </tr>
-           <tr>
-               <td style="width:150px"><span data-translate="avgLoad">Average Load</span></td>
-               <td id="cpuLoad"></td>
-           </tr>
-           <tr>
-               <td style="width:150px"><span data-translate="uptime">Uptime</span></td>
-               <td id="uptime"></td>
-           </tr>
-           <tr>
-               <td style="width:150px"><span data-translate="trafficStats">Traffic Stats</span></td>
-               <td>⬇️ <span id="downtotal"></span> | ⬆️ <span id="uptotal"></span></td>
-           </tr>
-       </tbody>
-   </table>
+<div class="card mt-3">
+    <div class=" text-center" id="systemHeader" style="display: none;">
+        <h3 class="mb-0"></h3>
+    </div>
+    <div id="collapsible" class="card-body" style="display: none; margin-top: 5px;">
+        <table class="table table-borderless rounded-4 mb-2">
+            <tbody>
+                <tr>
+                    <td style="width:150px"><span data-translate="systemInfo">System Info</span></td>
+                    <td id="systemInfo"></td>
+                </tr>
+                <tr>
+                    <td style="width:150px"><span data-translate="systemMemory">System Memory</span></td>
+                    <td id="ramUsage"></td>
+                </tr>
+                <tr>
+                    <td style="width:150px"><span data-translate="avgLoad">Average Load</span></td>
+                    <td id="cpuLoad"></td>
+                </tr>
+                <tr>
+                    <td style="width:150px"><span data-translate="uptime">Uptime</span></td>
+                    <td id="uptime"></td>
+                </tr>
+                <tr>
+                    <td style="width:150px"><span data-translate="trafficStats">Traffic Stats</span></td>
+                    <td>⬇️ <span id="downtotal"></span> | ⬆️ <span id="uptotal"></span></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
 </div>
 
 <script>
     const collapsible = document.getElementById('collapsible');
     const collapsibleHeader = document.getElementById('collapsibleHeader');
     const toggleIcon = document.getElementById('toggleIcon');
-    const systemTitle = document.getElementById('systemTitle');
+    const systemHeader = document.getElementById('systemHeader');  
     
     let isCollapsed = true;
 
     if (localStorage.getItem('isCollapsed') === 'false') {
         isCollapsed = false;
-        collapsible.style.display = 'block';
-        systemTitle.style.display = 'block';
+        collapsible.style.display = 'block';  
+        systemHeader.style.display = 'block';  
         toggleIcon.classList.add('rotated'); 
+    } else {
+        collapsible.style.display = 'none';   
+        systemHeader.style.display = 'none';   
     }
 
     collapsibleHeader.addEventListener('click', () => {
         if (isCollapsed) {
-            collapsible.style.display = 'block'; 
-            systemTitle.style.display = 'block'; 
-            toggleIcon.classList.add('rotated'); 
+            collapsible.style.display = 'block';  
+            systemHeader.style.display = 'block';  
+            toggleIcon.classList.add('rotated');  
         } else {
             collapsible.style.display = 'none';   
-            systemTitle.style.display = 'none';  
+            systemHeader.style.display = 'none';   
             toggleIcon.classList.remove('rotated'); 
         }
         isCollapsed = !isCollapsed;  
-        localStorage.setItem('isCollapsed', isCollapsed); 
+        localStorage.setItem('isCollapsed', isCollapsed);  
     });
 
     function fetchSystemStatus() {
@@ -1121,7 +1132,6 @@ window.onload = function() {
     setInterval(fetchSystemStatus, 1000);
     fetchSystemStatus();  
 </script>
-
 <style>
     .triangle-icon {
         width: 0;
@@ -1163,7 +1173,7 @@ window.onload = function() {
     }
 
 </style>
-<h2 class="text-center" data-translate="log"></h2>
+
 <ul class="nav nav-pills mb-3" id="logTabs" role="tablist">
     <li class="nav-item" role="presentation">
         <a class="nav-link" id="pluginLogTab" data-bs-toggle="pill" href="#pluginLog" role="tab" aria-controls="pluginLog" aria-selected="true"><span data-translate="nekoBoxLog"></span></a>
