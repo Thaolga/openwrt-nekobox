@@ -508,14 +508,12 @@ install_core_menu() {
         if [ "$language" = "cn" ]; then
             printf "${CLCyan}  %-54s ${NC}\n" "1. 安装 Sing-box 核心"
             printf "${CLCyan}  %-54s ${NC}\n" "2. 安装 puernya 核心"
-            printf "${CLCyan}  %-54s ${NC}\n" "3. 下载 Sing-box 规则集"
             printf "${CLCyan}  %-54s ${NC}\n" "4. 返回主菜单"
             echo -e "${CLCyan}╚════════════════════════════════════════════════════════╝"
             read -p "请选择要安装的核心: " core_choice
         else
             printf "${CLCyan}  %-54s ${NC}\n" "1. Install Sing-box Core"
             printf "${CLCyan}  %-54s ${NC}\n" "2. Install puernya Core"
-            printf "${CLCyan}  %-54s ${NC}\n" "3. Download Sing-box Ruleset"
             printf "${CLCyan}  %-54s ${NC}\n" "4. Return to Main Menu"
             echo -e "${CLCyan}╚════════════════════════════════════════════════════════╝"
             read -p "Please select a core to install: " core_choice
@@ -583,8 +581,7 @@ show_menu() {
     done
     echo -e "${CLCyan}╠════════════════════════════════════════════════════════╣"
     if [ "$language" = "cn" ]; then
-        printf "${CLCyan}  %-54s ${NC}\n" "1. 安装 NeKoBox (中文)"
-        printf "${CLCyan}  %-54s ${NC}\n" "2. 安装 NeKoBox (英文)"
+        printf "${CLCyan}  %-54s ${NC}\n" "1. 安装 NeKoBox"
         printf "${CLCyan}  %-54s ${NC}\n" "3. 安装 Mihomo 核心"
         printf "${CLCyan}  %-54s ${NC}\n" "4. 安装 Sing-box 核心"
         printf "${CLCyan}  %-54s ${NC}\n" "5. 安装 UI 控制面板"
@@ -593,8 +590,7 @@ show_menu() {
         printf "${CLCyan}  %-54s ${NC}\n" "8. 切换到英文界面"
         printf "${CLCyan}  %-54s ${NC}\n" "0. 退出"
     else
-        printf "${CLCyan}  %-54s ${NC}\n" "1. Install NeKoBox (Chinese)"
-        printf "${CLCyan}  %-54s ${NC}\n" "2. Install NeKoBox (English)"
+        printf "${CLCyan}  %-54s ${NC}\n" "1. Install NeKoBox"
         printf "${CLCyan}  %-54s ${NC}\n" "3. Install Mihomo Core"
         printf "${CLCyan}  %-54s ${NC}\n" "4. Install Sing-box Core"
         printf "${CLCyan}  %-54s ${NC}\n" "5. Install UI Control Panel"
@@ -613,10 +609,8 @@ main_menu() {
 
         if [ "$language" = "cn" ]; then
             echo -e "${CLGreen}注意: 执行 1. 安装 NeKoBox 后，正常情况下无需单独安装 UI 控制面板和 PHP8，只有缺少依赖时才需要安装。${NC}"
-            echo -e "${CLGreen}      Lean版本的 OpenWrt 安装后，无菜单界面。您可以通过在浏览器中输入 http://<路由器IP>/nekobox（将 <路由器IP> 替换为您的实际路由器地址）进入界面。${NC}"
         else
             echo -e "${CLGreen}Note: After executing 1. Install NeKoBox, you generally do not need to install UI Control Panel and PHP8, unless dependencies are missing.${NC}"
-            echo -e "${CLGreen}      After installing the Lean version of OpenWrt, there is no menu interface. You can access the interface by entering http://<router_IP>/nekobox in your browser (replace <router_IP> with your actual router address).${NC}"
         fi
 
         echo -e "${CLCyan}╠════════════════════════════════════════════════════════╣"
