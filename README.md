@@ -3,7 +3,7 @@
 </h1>
 
 <div align="center">
- <a target="_blank" href="https://github.com/Thaolga/openwrt-nekobox/releases"><img src="https://raw.githubusercontent.com/Thaolga/openwrt-nekobox/refs/heads/nekobox/luci-app-nekobox/htdocs/nekobox/assets/img/curent.svg"></a>
+ <a target="_blank" href="https://github.com/Thaolga/openwrt-nekobox/releases"><img src="https://raw.githubusercontent.com/Thaolga/openwrt-nekobox/refs/heads/main/luci-app-nekobox/htdocs/nekobox/assets/img/curent.svg"></a>
 </div>
 
 <p align="center">
