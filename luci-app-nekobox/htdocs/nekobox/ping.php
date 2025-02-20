@@ -16,6 +16,8 @@
                     <option value="vn" data-translate="vietnamese">Vietnamese</option>
                     <option value="jp" data-translate="japanese"></option>
                     <option value="ru" data-translate="russian"></option>
+                    <option value="de" data-translate="germany">Germany</option>
+                    <option value="fr" data-translate="france">France</option>
                     <option value="ar" data-translate="arabic"></option>
                     <option value="es" data-translate="spanish">spanish</option>
                 </select>
@@ -96,6 +98,8 @@ function updateFlagIcon(lang) {
         'ru': './assets/neko/flags/ru.png',  
         'ar': './assets/neko/flags/sa.png', 
         'es': './assets/neko/flags/es.png',  
+        'de': './assets/neko/flags/de.png', 
+        'fr': './assets/neko/flags/fr.png',  
         'vn': './assets/neko/flags/vn.png'      
     };
     flagImg.src = flagMap[lang] || flagMap['zh']; 
@@ -521,7 +525,7 @@ $lang = $_GET['lang'] ?? 'en';
 }
 </style>
 
-<?php if (in_array($currentLang, ['zh', 'en', 'hk', 'vn', 'jp', 'ru', 'ar', 'es', 'kr'])): ?>
+<?php if (in_array($currentLang, ['zh', 'en', 'hk', 'vn', 'jp', 'ru', 'ar', 'es', 'kr', 'de', 'fr'])): ?>
     <div id="status-bar-component" class="container-sm container-bg callout border border-3 rounded-4 col-11">
         <div class="row align-items-center">
             <div class="col-auto">
@@ -1038,49 +1042,51 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 async function translateText(text, targetLang = null) {
-    if (!text || text.trim() === '') return text;
+    if (!text?.trim()) return text;
 
-    if (!targetLang) {
-        targetLang = localStorage.getItem('language') || 'zh';
-    }
+    const countryToLang = {
+        'CN': 'zh-CN', 'HK': 'zh-HK', 'TW': 'zh-TW', 'JP': 'ja',
+        'KR': 'ko', 'VN': 'vi', 'TH': 'th', 'GB': 'en', 'FR': 'fr',
+        'DE': 'de', 'RU': 'ru', 'US': 'en', 'MX': 'es'
+    };
 
-    if (targetLang === 'zh') targetLang = 'zh-CN';
-    if (targetLang === 'hk') targetLang = 'zh-HK';
-    if (targetLang === 'vn') targetLang = 'vi';
-    if (targetLang === 'jp') targetLang = 'ja';
-    if (targetLang === 'en') targetLang = 'en-GB';
-    if (targetLang === 'kr') targetLang = 'ko';
-    if (targetLang === 'ru') targetLang = 'ru'; 
+    if (!targetLang) targetLang = localStorage.getItem('language') || 'CN';
+    targetLang = countryToLang[targetLang.toUpperCase()] || targetLang;
 
-    const isTranslationEnabled = localStorage.getItem('translationEnabled') === 'true';
-    if (!isTranslationEnabled) return text;
+    const apiLangMap = {
+        'zh-CN': 'zh-CN', 'zh-HK': 'zh-HK', 'zh-TW': 'zh-TW',
+        'ja': 'ja', 'ko': 'ko', 'vi': 'vi', 'en': 'en-GB', 'ru': 'ru'
+    };
+    const apiTargetLang = apiLangMap[targetLang] || targetLang;
 
-    const cacheKey = `trans_${text}_${targetLang}`;
-    const cachedTranslation = localStorage.getItem(cacheKey);
-    if (cachedTranslation) return cachedTranslation;
+    const detectJP = (text) => /[\u3040-\u309F\u30A0-\u30FF\u4E00-\u9FAF]/.test(text);
+    const sourceLang = detectJP(text) ? 'ja' : 'en';
+
+    const isSameLang = () => sourceLang.split('-')[0] === apiTargetLang.split('-')[0];
+    if (isSameLang()) return text;
+
+    if (localStorage.getItem('translationEnabled') !== 'true') return text;
+
+    const cacheKey = `trans_${sourceLang}_${apiTargetLang}_${text}`;
+    const cached = localStorage.getItem(cacheKey);
+    if (cached) return cached;
 
     const apis = [
         {
-            url: `https://api.mymemory.translated.net/get?q=${encodeURIComponent(text)}&langpair=en|${targetLang}`,
+            url: `https://api.mymemory.translated.net/get?q=${encodeURIComponent(text)}&langpair=${sourceLang}|${apiTargetLang}`,
             method: 'GET',
-            parseResponse: (data) => data.responseData?.translatedText || null
+            parse: data => data.responseData?.translatedText
         },
         {
             url: 'https://libretranslate.com/translate',
             method: 'POST',
-            body: JSON.stringify({
-                q: text,
-                source: 'en', 
-                target: targetLang,
-                format: 'text'
-            }),
-            headers: { 'Content-Type': 'application/json' },
-            parseResponse: (data) => data?.translatedText || null
+            body: JSON.stringify({ q: text, source: sourceLang, target: apiTargetLang, format: 'text' }),
+            headers: { 'Content-Type': 'application/json' }
         },
         {
-            url: `https://lingva.ml/api/v1/en/${targetLang}/${encodeURIComponent(text)}`,
+            url: `https://lingva.ml/api/v1/${sourceLang}/${apiTargetLang}/${encodeURIComponent(text)}`,
             method: 'GET',
-            parseResponse: (data) => data?.translation || null
+            parse: data => data.translation
         }
     ];
 
@@ -1089,28 +1095,20 @@ async function translateText(text, targetLang = null) {
             const response = await fetch(api.url, {
                 method: api.method,
                 headers: api.headers || {},
-                body: api.body || null
+                body: api.method === 'POST' ? api.body : undefined
             });
-
-            if (response.ok) {
-                const data = await response.json();
-                const translatedText = api.parseResponse(data);
-                
-                try {
-                    localStorage.setItem(cacheKey, translatedText);  
-                } catch (e) {
-                    clearOldCache();  
-                    localStorage.setItem(cacheKey, translatedText);
-                }
-                
-                return translatedText;
+            
+            const data = await response.json();
+            const result = api.parse ? api.parse(data) : data?.translatedText;
+            
+            if (result) {
+                localStorage.setItem(cacheKey, result);
+                return result;
             }
-        } catch (error) {
-            continue;  
-        }
+        } catch (e) {}
     }
-
-    return text; 
+    
+    return text;
 }
 
 function clearOldCache() {
@@ -2761,28 +2759,40 @@ function startHourlyAlert() {
         if (now.getMinutes() === 0 && !isReportingTime) {
             isReportingTime = true;
 
-            const timeAnnouncement = new SpeechSynthesisUtterance(`整点报时，现在是北京时间 ${hours} 点整`);
-            timeAnnouncement.lang = currentLang;
+            const hourlyAlertText = translations['hourlyAlert'];  
+            const hourlyAnnouncementTemplate = translations['hourlyAnnouncement'];
+
+            const timeAnnouncementText = hourlyAnnouncementTemplate.replace('%d', hours);
+
+            const timeAnnouncement = new SpeechSynthesisUtterance(hourlyAlertText + ' ' + timeAnnouncementText);
+            timeAnnouncement.lang = currentLang; 
             speechSynthesis.speak(timeAnnouncement);
 
-            console.log(`整点报时：现在是北京时间 ${hours} 点整`);
+            console.log(`${hourlyAlertText}：${timeAnnouncementText}`);
         }
 
         if (now.getMinutes() !== 0) {
             isReportingTime = false;
         }
-    }, 60000);
+    }, 60000);  
 }
 
 function updateDateTime() {
     const now = new Date();
-
     const year = now.getFullYear();
     const month = now.getMonth() + 1;
     const day = now.getDate();
-    document.getElementById('dateDisplay').textContent = `${year}年${month}月${day}日`;
 
-    const timeString = now.toLocaleTimeString('zh-CN', { hour12: false });
+    const monthLabel = translations['month'];  
+    const dayLabel = translations['day'];     
+    const weekdayLabel = translations['weekday'];  
+
+    const weekdays = translations['weekdays'];  
+    const weekDay = weekdays[now.getDay()]; 
+
+    document.getElementById('dateDisplay').textContent = `${year}${monthLabel}${month}${dayLabel}${day} ${weekdayLabel}${weekDay}`;
+
+    const timeString = now.toLocaleTimeString(currentLang === 'zh' ? 'zh-CN' : currentLang, { hour12: false });
 
     const hours = now.getHours();
     let ancientTime;
@@ -3280,70 +3290,66 @@ function showNotification(message) {
         'https://www.github.com/'
     ];
 
-    function speakMessage(message) {
-        const utterance = new SpeechSynthesisUtterance(message);
-        utterance.lang = currentLang;  
-        speechSynthesis.speak(utterance);
-    }
+function speakMessage(message) {
+    const utterance = new SpeechSynthesisUtterance(message);
+    utterance.lang = currentLang;  
+    speechSynthesis.speak(utterance);
+}
 
-    function getWebsiteStatusMessage(url, status) {
-        const statusMessages = {
-            'https://www.baidu.com/': status ? 'Baidu 网站访问正常。' : '无法访问 Baidu 网站，请检查网络连接。',
-            'https://www.cloudflare.com/': status ? 'Cloudflare 网站访问正常。' : '无法访问 Cloudflare 网站，请检查网络连接。',
-            'https://openai.com/': status ? 'OpenAI 网站访问正常。' : '无法访问 OpenAI 网站，请检查网络连接。',
-            'https://www.youtube.com/': status ? 'YouTube 网站访问正常。' : '无法访问 YouTube 网站，请检查网络连接。',
-            'https://www.google.com/': status ? 'Google 网站访问正常。' : '无法访问 Google 网站，请检查网络连接。',
-            'https://www.facebook.com/': status ? 'Facebook 网站访问正常。' : '无法访问 Facebook 网站，请检查网络连接。',
-            'https://www.twitter.com/': status ? 'Twitter 网站访问正常。' : '无法访问 Twitter 网站，请检查网络连接。',
-            'https://www.github.com/': status ? 'GitHub 网站访问正常。' : '无法访问 GitHub 网站，请检查网络连接。',
-        };
+function getWebsiteStatusMessage(url, status) {
+    const statusMessages = translations['statusMessages'][url] || {};
+    
+    const message = status 
+        ? statusMessages['accessible'] || `${url} 网站访问正常。`
+        : statusMessages['notAccessible'] || `无法访问 ${url} 网站，请检查网络连接。`;
 
-        return statusMessages[url] || (status ? `${url} 网站访问正常。` : `无法访问 ${url} 网站，请检查网络连接。`);
-    }
+    return message;
+}
 
-    function checkWebsiteAccess(urls) {
-        const statusMessages = [];
-        let requestsCompleted = 0;
+function checkWebsiteAccess(urls) {
+    const statusMessages = [];
+    let requestsCompleted = 0;
 
-        urls.forEach(url => {
-            fetch(url, { mode: 'no-cors' })
-                .then(response => {
-                    const isAccessible = response.type === 'opaque';  
-                    statusMessages.push(getWebsiteStatusMessage(url, isAccessible));
-                })
-                .catch(() => {
-                    statusMessages.push(getWebsiteStatusMessage(url, false));
-                })
-                .finally(() => {
-                    requestsCompleted++;
-                    if (requestsCompleted === urls.length) {
-                        speakMessage(statusMessages.join(' '));  
-                        speakMessage('网站检查已完毕，感谢使用。'); 
-                    }
-                });
-        });
-    }
-
-    setInterval(() => {
-        speakMessage('开始检测网站连通性...');
-        checkWebsiteAccess(websites);  
-    }, 3600000);  
-
-    let isDetectionStarted = false;
-
-    document.addEventListener('keydown', function(event) {
-        if (event.key === 'F8' && !isDetectionStarted) {  
-            event.preventDefault();  
-            speakMessage('网站检测已开启，开始检测网站连通性...');
-            checkWebsiteAccess(websites);
-            isDetectionStarted = true;
-        }
+    urls.forEach(url => {
+        fetch(url, { mode: 'no-cors' })
+            .then(response => {
+                const isAccessible = response.type === 'opaque';  
+                statusMessages.push(getWebsiteStatusMessage(url, isAccessible));
+            })
+            .catch(() => {
+                statusMessages.push(getWebsiteStatusMessage(url, false));
+            })
+            .finally(() => {
+                requestsCompleted++;
+                if (requestsCompleted === urls.length) {
+                    speakMessage(statusMessages.join(' '));  
+                    speakMessage(translations['websiteChecked']); 
+                }
+            });
     });
+}
 
-    document.getElementById('startCheckBtn').addEventListener('click', function() {
-        speakMessage('网站检测已开启，开始检测网站连通性...');
+setInterval(() => {
+    speakMessage(translations['startCheck']);
+    checkWebsiteAccess(websites);  
+}, 3600000);  
+
+let isDetectionStarted = false;
+
+document.addEventListener('keydown', function(event) {
+    if (event.key === 'F8' && !isDetectionStarted) {  
+        event.preventDefault();  
+        speakMessage(translations['checkStarted']);
         checkWebsiteAccess(websites);
-    });
+        isDetectionStarted = true;
+    }
+});
+
+document.getElementById('startCheckBtn').addEventListener('click', function() {
+    speakMessage(translations['checkStarted']);
+    checkWebsiteAccess(websites);
+});
+
 </script>
 
 <script>
@@ -3532,101 +3538,103 @@ function speakWeather(weather) {
 </style>
 
 <script>
-    (function() {
-        let isAnimationActive = localStorage.getItem('animationActive') === 'true';
-        let intervalId;
+(function() {
+    let isAnimationActive = localStorage.getItem('animationActive') === 'true';
+    let intervalId;
 
-        function createAnimatedBox() {
-            const box = document.createElement('div');
-            box.className = 'animated-box';
-            document.body.appendChild(box);
-            const randomX = Math.random() * window.innerWidth;
-            const randomY = Math.random() * window.innerHeight;
-            box.style.left = randomX + 'px';
-            box.style.top = randomY + 'px';
-            const randomDuration = Math.random() * 3 + 3;
-            box.style.animationDuration = randomDuration + 's';
-            setTimeout(() => {
-                box.remove();
-            }, randomDuration * 1000);
-        }
+    function createAnimatedBox() {
+        const box = document.createElement('div');
+        box.className = 'animated-box';
+        document.body.appendChild(box);
+        const randomX = Math.random() * window.innerWidth;
+        const randomY = Math.random() * window.innerHeight;
+        box.style.left = randomX + 'px';
+        box.style.top = randomY + 'px';
+        const randomDuration = Math.random() * 3 + 3;
+        box.style.animationDuration = randomDuration + 's';
+        setTimeout(() => {
+            box.remove();
+        }, randomDuration * 1000);
+    }
 
-        function startAnimation() {
-            intervalId = setInterval(() => {
-                createAnimatedBox();
-            }, 1000);
-            localStorage.setItem('animationActive', 'true');
-            isAnimationActive = true;
-            updateButtonText();
-        }
-
-        function stopAnimation() {
-            clearInterval(intervalId);
-            localStorage.setItem('animationActive', 'false');
-            isAnimationActive = false;
-            updateButtonText();
-        }
-
-        function showNotification(message) {
-            var notification = document.createElement('div');
-            notification.style.position = 'fixed';
-            notification.style.top = '10px';
-            notification.style.right = '30px';
-            notification.style.backgroundColor = '#4CAF50';
-            notification.style.color = '#fff';
-            notification.style.padding = '10px';
-            notification.style.borderRadius = '5px';
-            notification.style.zIndex = '9999';
-            notification.innerText = message;
-            document.body.appendChild(notification);
-
-            setTimeout(function() {
-                notification.style.display = 'none';
-            }, 5000);
-        }
-
-        function updateButtonText() {
-            document.getElementById('toggleAnimationBtn').innerText = isAnimationActive ? '⏸️ 停止方块动画' : '▶ 启动方块动画';
-        }
-
-        window.addEventListener('keydown', function(event) {
-            if (event.ctrlKey && event.key === 'F10') {
-                isAnimationActive = !isAnimationActive;
-                if (isAnimationActive) {
-                    startAnimation();
-                    showNotification('方块动画已启动');
-                    speakMessage('方块动画已启动');
-                } else {
-                    stopAnimation();
-                    showNotification('方块动画已停止');
-                    speakMessage('方块动画已停止');
-                }
-            }
-        });
-
-        document.getElementById('toggleAnimationBtn').addEventListener('click', function() {
-            if (isAnimationActive) {
-                stopAnimation();
-                showNotification('⏸️ 方块动画已停止');
-                speakMessage('方块动画已停止');
-            } else {
-                startAnimation();
-                showNotification('▶ 方块动画已启动');
-                speakMessage('方块动画已启动');
-            }
-        });
-
-        if (isAnimationActive) {
-            startAnimation();
-        }
+    function startAnimation() {
+        intervalId = setInterval(() => {
+            createAnimatedBox();
+        }, 1000);
+        localStorage.setItem('animationActive', 'true');
+        isAnimationActive = true;
         updateButtonText();
+    }
+
+    function stopAnimation() {
+        clearInterval(intervalId);
+        localStorage.setItem('animationActive', 'false');
+        isAnimationActive = false;
+        updateButtonText();
+    }
+
+    function showNotification(message) {
+        var notification = document.createElement('div');
+        notification.style.position = 'fixed';
+        notification.style.top = '10px';
+        notification.style.right = '30px';
+        notification.style.backgroundColor = '#4CAF50';
+        notification.style.color = '#fff';
+        notification.style.padding = '10px';
+        notification.style.borderRadius = '5px';
+        notification.style.zIndex = '9999';
+        notification.innerText = message;
+        document.body.appendChild(notification);
+
+        setTimeout(function() {
+            notification.style.display = 'none';
+        }, 5000);
+    }
+
+    function updateButtonText() {
+        document.getElementById('toggleAnimationBtn').innerText = isAnimationActive 
+            ? translations['toggleButton']['stop']
+            : translations['toggleButton']['start'];
+    }
+
+    window.addEventListener('keydown', function(event) {
+        if (event.ctrlKey && event.key === 'F10') {
+            isAnimationActive = !isAnimationActive;
+            if (isAnimationActive) {
+                startAnimation();
+                showNotification(translations['startAnimation']);
+                speakMessage(translations['startAnimation']);
+            } else {
+                stopAnimation();
+                    showNotification(translations['stopAnimation']);
+                    speakMessage(translations['stopAnimation']);
+            }
+        }
+    });
+
+    document.getElementById('toggleAnimationBtn').addEventListener('click', function() {
+        if (isAnimationActive) {
+            stopAnimation();
+                showNotification(translations['stopAnimation']);
+                speakMessage(translations['stopAnimation']);
+        } else {
+            startAnimation();
+                showNotification(translations['startAnimation']);
+                speakMessage(translations['startAnimation']);
+        }
+    });
+
+    if (isAnimationActive) {
+        startAnimation();
+    }
+    updateButtonText();
     })();
 
-    function speakMessage(message) {
-        const utterance = new SpeechSynthesisUtterance(message);
-        utterance.lang = 'zh-CN';
-        speechSynthesis.speak(utterance);
-    }
+function speakMessage(message) {
+    const utterance = new SpeechSynthesisUtterance(message);
+    utterance.lang = currentLang;  
+    speechSynthesis.speak(utterance);
+}
 </script>
 
 <style>
@@ -3798,14 +3806,14 @@ function speakWeather(weather) {
         saveSnowingState(isSnowing);
         if (isSnowing) {
             createSnowflakes();
-            showNotification('雪花动画已启动');
-            speakMessage('雪花动画已启动');
-            document.getElementById('toggleSnowBtn').innerText = '⏸️ 停止雪花动画';
+            showNotification(translations['startSnowflakes']);
+            speakMessage(translations['startSnowflakes']);
+            document.getElementById('toggleSnowBtn').innerText = translations['toggleSnowButton']['stop'];
         } else {
             stopSnowflakes();
-            showNotification('雪花动画已停止');
-            speakMessage('雪花动画已停止');
-            document.getElementById('toggleSnowBtn').innerText = '▶ 启动雪花动画';
+            showNotification(translations['stopSnowflakes']);
+            speakMessage(translations['stopSnowflakes']);
+            document.getElementById('toggleSnowBtn').innerText = translations['toggleSnowButton']['start'];
         }
     }
 
@@ -3818,7 +3826,7 @@ function speakWeather(weather) {
     document.getElementById('toggleSnowBtn').addEventListener('click', toggleSnowflakes);
 
     if (isSnowing) {
-        document.getElementById('toggleSnowBtn').innerText = '⏸️ 停止雪花动画';
+        document.getElementById('toggleSnowBtn').innerText = translations['toggleSnowButton']['stop'];
     }
 
 </script>
@@ -3901,10 +3909,13 @@ function speakWeather(weather) {
     }
 
     function startLightAnimation(showLog = true) {
-        intervalId = setInterval(createLightBox, 400); 
+        intervalId = setInterval(createLightBox, 400);  
         localStorage.setItem('lightAnimationStatus', 'true');  
-        if (showLog) showNotification('方块灯光动画已启动');
-        document.getElementById('toggleLightAnimationBtn').innerText = '⏸️ 停止灯光动画';
+        if (showLog) {
+            showNotification(translations['startLightAnimation']);
+            speakMessage(translations['startLightAnimation']);
+        }
+        updateButtonText();
     }
 
     function stopLightAnimation(showLog = true) {
@@ -3912,8 +3923,11 @@ function speakWeather(weather) {
         const allLights = document.querySelectorAll('.floating-light');
         allLights.forEach(light => light.remove()); 
         localStorage.setItem('lightAnimationStatus', 'false');  
-        if (showLog) showNotification('方块灯光动画已停止');
-        document.getElementById('toggleLightAnimationBtn').innerText = '▶ 启动灯光动画';
+        if (showLog) {
+            showNotification(translations['stopLightAnimation']);
+            speakMessage(translations['stopLightAnimation']);
+        }
+        updateButtonText();
     }
 
     function showNotification(message) {
@@ -3934,20 +3948,12 @@ function speakWeather(weather) {
         }, 5000);
     }
 
-    function speakMessage(message) {
-        const utterance = new SpeechSynthesisUtterance(message);
-        utterance.lang = 'zh-CN';
-        speechSynthesis.speak(utterance);
-    }
-
     function toggleLightAnimation() {
         isLightAnimationActive = !isLightAnimationActive;
         if (isLightAnimationActive) {
             startLightAnimation();
-            speakMessage('方块灯光动画已启动');
         } else {
             stopLightAnimation();
-            speakMessage('方块灯光动画已停止');
         }
     }
 
@@ -3959,9 +3965,11 @@ function speakWeather(weather) {
 
         document.getElementById('toggleLightAnimationBtn').addEventListener('click', toggleLightAnimation);
 
-        if (isLightAnimationActive) {
-            document.getElementById('toggleLightAnimationBtn').innerText = '⏸️ 停止灯光动画';
-        }
+    if (isLightAnimationActive) {
+        document.getElementById('toggleLightAnimationBtn').innerText = translations['toggleLightButton']['stop'];
+    } else {
+        document.getElementById('toggleLightAnimationBtn').innerText = translations['toggleLightButton']['start'];
+    }
     })();
 </script>
 
@@ -4022,16 +4030,22 @@ function speakWeather(weather) {
         if (lightInterval) clearInterval(lightInterval);
         lightInterval = setInterval(createLightPoint, 200); 
         localStorage.setItem('lightEffectAnimation', 'true');
-        if (showLog) showNotification('光点动画已开启');
-        document.getElementById('toggleLightEffectBtn').innerText = '⏸️ 停止光点动画';
+        if (showLog) {
+            showNotification(translations['startLightEffect']);
+            speakMessage(translations['startLightEffect']);
+        }
+        updateButtonText();
     }
 
     function stopLightEffect(showLog = true) {
         clearInterval(lightInterval);
         document.querySelectorAll('.light-point').forEach((light) => light.remove());
         localStorage.setItem('lightEffectAnimation', 'false');
-        if (showLog) showNotification('光点动画已关闭');
-        document.getElementById('toggleLightEffectBtn').innerText = '▶ 启动光点动画';
+        if (showLog) {
+            showNotification(translations['stopLightEffect']);
+            speakMessage(translations['stopLightEffect']);
+        }
+        updateButtonText();
     }
 
     function showNotification(message) {
@@ -4062,10 +4076,8 @@ function speakWeather(weather) {
         isLightEffectActive = !isLightEffectActive;
         if (isLightEffectActive) {
             startLightEffect();
-            speakMessage('光点动画已启动');
         } else {
             stopLightEffect();
-            speakMessage('光点动画已关闭');
         }
     }
 
@@ -4078,8 +4090,9 @@ function speakWeather(weather) {
             document.getElementById('toggleLightEffectBtn').addEventListener('click', toggleLightEffect);
 
             if (isLightEffectActive) {
-                document.getElementById('toggleLightEffectBtn').innerText = '⏸️ 停止光点动画';
-                startLightEffect(false);
+                document.getElementById('toggleLightEffectBtn').innerText = translations['toggleLightEffectButton']['stop'];
+            } else {
+                document.getElementById('toggleLightEffectBtn').innerText = translations['toggleLightEffectButton']['start'];
             }
         })();
 </script>
