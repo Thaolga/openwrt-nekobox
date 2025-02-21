@@ -835,12 +835,6 @@ $lang = $_GET['lang'] ?? 'en';
   }
 }
 
-@media (max-width: 768px) {
-    #toggle-ip i {
-        display: none; 
-    }
-}
-
 @media (max-width: 767.98px) {
     .popup-backdrop {
         content: '';
@@ -1237,7 +1231,14 @@ let IP = {
                 displayASN = '';  
             }
 
-            let locationInfo = `<span style="margin-left: 8px; position: relative; top: -4px;">${location} ${displayISP} ${data.asn || ''} ${displayASN}</span>`;
+            const isSmallScreen = window.innerWidth < 768; 
+
+            let locationInfo;
+            if (isSmallScreen) {
+                locationInfo = `<span style="margin-left: 8px; position: relative; top: -4px;">${location}</span>`;
+            } else {
+                locationInfo = `<span style="margin-left: 8px; position: relative; top: -4px;">${location} ${displayISP} ${data.asn || ''} ${displayASN}</span>`;
+            }
 
             const isHidden = localStorage.getItem("ipHidden") === "true";
 
@@ -1245,7 +1246,7 @@ let IP = {
                 <div class="ip-main" style="cursor: pointer; position: relative; top: -4px;" onclick="IP.showDetailModal()" title="${translations['show_ip']}">
                     <div style="display: flex; align-items: center; justify-content: flex-start; gap: 10px; ">
                         <div style="display: flex; align-items: center; gap: 5px;">
-                            <span id="ip-address">${isHidden ? '***.***.***.***.***' : cachedIP}</span> 
+                            <span id="ip-address">${isHidden ? '**.**.**.**.**' : cachedIP}</span> 
                             <span class="badge badge-primary" style="color: #333;">${country}</span>
 
                         </div>
@@ -6081,3 +6082,4 @@ window.addEventListener('load', function() {
     });
   });
 </script>
+
