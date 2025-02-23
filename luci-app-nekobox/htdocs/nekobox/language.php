@@ -505,6 +505,7 @@
         'subscription_url_label' => 'Abonnement-Link eingeben',
         'subscription_url_placeholder' => 'Unterstützt verschiedene Abonnement-Links oder Einzelknoten-Links, mehrere Links mit | trennen',
         'filename_label' => 'Benutzerdefinierter Dateiname (Standard: config.json)',
+        'filename' => 'Benutzerdefinierter Dateiname (Standard: config.yaml)',
         'filename_placeholder' => 'config.json',
         'backend_url_label' => 'Backend-URL auswählen',
         'custom_backend_url_label' => 'Benutzerdefinierte Backend-URL eingeben',
@@ -720,6 +721,7 @@
         'startCheck' => 'Website-Verbindung wird überprüft...',
         'websiteChecked' => 'Website-Überprüfung abgeschlossen, danke für die Nutzung.',
         'checkStarted' => 'Website-Überprüfung gestartet, Verbindung wird überprüft...',
+        'subscribeUrlPlaceholder' => 'Bitte geben Sie den Abonnement-Link ein, trennen Sie mehrere Links mit |',
         'statusMessages' => [
             'https://www.baidu.com/' => ['accessible' => 'Die Website von Baidu ist erreichbar.', 'notAccessible' => 'Die Website von Baidu ist nicht erreichbar, bitte überprüfen Sie die Netzwerkverbindung.'],
             'https://www.cloudflare.com/' => ['accessible' => 'Die Website von Cloudflare ist erreichbar.', 'notAccessible' => 'Die Website von Cloudflare ist nicht erreichbar, bitte überprüfen Sie die Netzwerkverbindung.'],
@@ -1486,6 +1488,7 @@
         'startCheck' => 'Vérification de la connexion au site Web...',
         'websiteChecked' => 'Vérification du site Web terminée, merci de l\'avoir utilisé.',
         'checkStarted' => 'Vérification du site Web commencée, en train de vérifier la connexion...',
+        'subscribeUrlPlaceholder' => 'Veuillez entrer le lien d\'abonnement, séparez plusieurs liens par |',
         'statusMessages' => [
             'https://www.baidu.com/' => ['accessible' => 'Le site Baidu est accessible.', 'notAccessible' => 'Impossible d\'accéder au site Baidu, veuillez vérifier la connexion réseau.'],
             'https://www.cloudflare.com/' => ['accessible' => 'Le site Cloudflare est accessible.', 'notAccessible' => 'Impossible d\'accéder au site Cloudflare, veuillez vérifier la connexion réseau.'],
@@ -2070,6 +2073,7 @@
         'subscription_url_label' => '输入订阅链接',
         'subscription_url_placeholder' => '支持各种订阅链接或单节点链接，多个链接用 | 分隔',
         'filename_label' => '自定义文件名 (默认: config.json)',
+        'filename' => '自定义文件名 (默认: config.yaml)',
         'filename_placeholder' => 'config.json',
         'backend_url_label' => '选择后端地址',
         'custom_backend_url_label' => '请输入自定义后端地址',
@@ -2329,7 +2333,8 @@
         'toggleSnowButton' => [
             'start' => '▶ 启动雪花动画',
             'stop' => '⏸️ 停止雪花动画',
-        ]
+        ],
+        'subscribeUrlPlaceholder' => '请输入订阅链接，多个链接用 | 分隔'
     ],
     'en' => [
         'home' => 'Home',
@@ -2911,6 +2916,7 @@
         'subscription_url_label' => 'Enter Subscription URL',
         'subscription_url_placeholder' => 'Supports various subscription URLs or single node links, separate multiple with |',
         'filename_label' => 'Custom Filename (default: config.json)',
+        'filename' => 'Custom Filename (default: config.yaml)',
         'filename_placeholder' => 'config.json',
         'backend_url_label' => 'Select Backend URL',
         'custom_backend_url_label' => 'Enter Custom Backend URL',
@@ -3136,6 +3142,7 @@
         'startCheck' => 'Start checking website connectivity...',
         'websiteChecked' => 'Website check complete, thank you for using.',
         'checkStarted' => 'Website check has started, checking website connectivity...',
+        'subscribeUrlPlaceholder' => 'Please enter the subscription link, separate multiple links with |',
         'statusMessages' => [
             'https://www.baidu.com/' => ['accessible' => 'Baidu website is accessible.', 'notAccessible' => 'Cannot access Baidu website, please check the network connection.'],
             'https://www.cloudflare.com/' => ['accessible' => 'Cloudflare website is accessible.', 'notAccessible' => 'Cannot access Cloudflare website, please check the network connection.'],
@@ -3728,6 +3735,7 @@
         'subscription_url_label' => '輸入訂閱鏈接',
         'subscription_url_placeholder' => '支持各種訂閱鏈接或單節點鏈接，多个鏈接用 | 分隔',
         'filename_label' => '自訂文件名稱 (預設: config.json)',
+        'filename' => '自訂文件名稱 (預設: config.yaml)',
         'filename_placeholder' => 'config.json',
         'backend_url_label' => '選擇後端地址',
         'custom_backend_url_label' => '請輸入自訂後端地址',
@@ -3913,6 +3921,7 @@
         'startCheck' => '開始檢查網站連通性...',
         'websiteChecked' => '網站檢查已完成，感謝使用。',
         'checkStarted' => '網站檢查已開始，正在檢查連通性...',
+        'subscribeUrlPlaceholder' => '請輸入訂閱鏈接，多個鏈接用 | 分隔',
         'statusMessages' => [
             'https://www.baidu.com/' => ['accessible' => '百度網站訪問正常。', 'notAccessible' => '無法訪問百度網站，請檢查網絡連接。'],
             'https://www.cloudflare.com/' => ['accessible' => 'Cloudflare網站訪問正常。', 'notAccessible' => '無法訪問Cloudflare網站，請檢查網絡連接。'],
@@ -4497,6 +4506,7 @@
         'subscription_url_label' => '구독 링크 입력',
         'subscription_url_placeholder' => '다양한 구독 링크 또는 단일 노드 링크를 지원하며, 여러 링크는 |로 구분',
         'filename_label' => '사용자 정의 파일명 (기본값: config.json)',
+        'filename' => '사용자 정의 파일명 (기본값: config.yalm)',
         'filename_placeholder' => 'config.json',
         'backend_url_label' => '백엔드 주소 선택',
         'custom_backend_url_label' => '사용자 정의 백엔드 주소 입력',
@@ -4681,6 +4691,7 @@
         'startCheck' => '웹사이트 연결 상태 확인을 시작합니다...',
         'websiteChecked' => '웹사이트 점검 완료, 사용해 주셔서 감사합니다.',
         'checkStarted' => '웹사이트 점검이 시작되었습니다, 연결을 확인하는 중...',
+        'subscribeUrlPlaceholder' => '구독 링크를 입력하십시오. 여러 링크는 | 로 구분하십시오.',
         'statusMessages' => [
             'https://www.baidu.com/' => ['accessible' => 'Baidu 웹사이트에 접속 가능합니다.', 'notAccessible' => 'Baidu 웹사이트에 접속할 수 없습니다, 네트워크 연결을 확인해주세요.'],
             'https://www.cloudflare.com/' => ['accessible' => 'Cloudflare 웹사이트에 접속 가능합니다.', 'notAccessible' => 'Cloudflare 웹사이트에 접속할 수 없습니다, 네트워크 연결을 확인해주세요.'],
@@ -4947,6 +4958,8 @@
         'restore_default' => 'デフォルトに戻す',
         'backup_now' => '今すぐバックアップ',
         'upload_file' => 'ファイルをアップロード',
+        'rename_file' => 'ファイル名を変更',
+        'new_file_name' => '新しいファイル名',
         'upload_image_video_audio' => '画像/ビデオ/オーディオをアップロード',
         'drag_and_drop_or_click' => 'このエリアにファイルをドラッグ＆ドロップするか、アイコンをクリックしてファイルを選択してください。',
         'php_upload_limit_notice' => 'PHPによるファイルアップロードにはサイズ制限があります。アップロードが失敗した場合は、手動でファイルを/nekobox/assets/Picturesディレクトリにアップロードできます。',
@@ -5250,6 +5263,7 @@
         'subscription_url_label' => 'サブスクリプションURLを入力',
         'subscription_url_placeholder' => 'さまざまなサブスクリプションURLまたは単一ノードURLをサポート、複数のURLは | で区切ってください',
         'filename_label' => 'カスタムファイル名（デフォルト: config.json）',
+        'filename' => 'カスタムファイル名（デフォルト: config.yaml）',
         'filename_placeholder' => 'config.json',
         'backend_url_label' => 'バックエンドURLを選択',
         'custom_backend_url_label' => 'カスタムバックエンドURLを入力',
@@ -5435,6 +5449,7 @@
         'startCheck' => 'ウェブサイトの接続確認を開始...',
         'websiteChecked' => 'ウェブサイトのチェックが完了しました。ご利用いただきありがとうございました。',
         'checkStarted' => 'ウェブサイトのチェックが開始されました、接続確認中...',
+        'subscribeUrlPlaceholder' => '購読リンクを入力してください。複数のリンクは | で区切ります。',
         'statusMessages' => [
             'https://www.baidu.com/' => ['accessible' => 'Baidu サイトに正常に接続できます。', 'notAccessible' => 'Baidu サイトに接続できません。ネットワーク接続を確認してください。'],
             'https://www.cloudflare.com/' => ['accessible' => 'Cloudflare サイトに正常に接続できます。', 'notAccessible' => 'Cloudflare サイトに接続できません。ネットワーク接続を確認してください。'],
@@ -5699,6 +5714,8 @@
         'custom_theme_name' => 'Название пользовательской темы',
         'activate_custom_theme' => 'Активировать пользовательскую тему',
         'activate_default_theme' => 'Активировать стандартную тему',
+        'rename_file' => 'Переименовать файл',
+        'new_file_name' => 'Новое имя файла',
         'upload_file' => 'Загрузить файл',
         'upload_image_video_audio' => 'Загрузить изображение/видео/аудио',
         'drag_and_drop_or_click' => 'Перетащите файл в эту область или нажмите на иконку для выбора файла.',
@@ -6003,6 +6020,7 @@
         'subscription_url_label' => 'Введите URL подписки',
         'subscription_url_placeholder' => 'Поддерживаются различные подписки или одиночные ссылки, разделенные через |',
         'filename_label' => 'Пользовательское имя файла (по умолчанию: config.json)',
+        'filename' => 'Пользовательское имя файла (по умолчанию: config.yaml)',
         'filename_placeholder' => 'config.json',
         'backend_url_label' => 'Выберите адрес бэкенда',
         'custom_backend_url_label' => 'Введите пользовательский адрес бэкенда',
@@ -6188,6 +6206,7 @@
         'startCheck' => 'Начало проверки подключения к сайту...',
         'websiteChecked' => 'Проверка сайта завершена, спасибо за использование.',
         'checkStarted' => 'Проверка сайта началась, проверка подключения...',
+        'subscribeUrlPlaceholder' => 'Пожалуйста, введите ссылку на подписку, разделяйте несколько ссылок с помощью |',
         'statusMessages' => [
             'https://www.baidu.com/' => ['accessible' => 'Сайт Baidu доступен.', 'notAccessible' => 'Не удалось подключиться к сайту Baidu, проверьте подключение к сети.'],
             'https://www.cloudflare.com/' => ['accessible' => 'Сайт Cloudflare доступен.', 'notAccessible' => 'Не удалось подключиться к сайту Cloudflare, проверьте подключение к сети.'],
@@ -6464,6 +6483,8 @@
         'add_drive_file' => 'إضافة ملف من محرك الأقراص',
         'drive_file_link' => 'رابط ملف محرك الأقراص',
         'add' => 'إضافة',
+        'rename_file' => 'إعادة تسمية الملف',
+        'new_file_name' => 'اسم الملف الجديد',
         'upload_file' => 'تحميل ملف',
         'upload_image_video_audio' => 'تحميل صورة / فيديو / صوت',
         'drag_and_drop_or_click' => 'اسحب وأفلت الملف هنا أو انقر على الأيقونة لاختيار الملف.',
@@ -6768,6 +6789,7 @@
         'subscription_url_label' => 'أدخل رابط الاشتراك',
         'subscription_url_placeholder' => 'يدعم مختلف روابط الاشتراك أو رابط نقطة واحدة، استخدم | للفصل بين الروابط',
         'filename_label' => 'اسم الملف المخصص (افتراضي: config.json)',
+        'filename' => 'اسم الملف المخصص (افتراضي: config.yaml)',
         'filename_placeholder' => 'config.json',
         'backend_url_label' => 'اختيار عنوان الخادم الخلفي',
         'custom_backend_url_label' => 'أدخل عنوان خادم خلفي مخصص',
@@ -6953,6 +6975,7 @@
         'startCheck' => 'بدء التحقق من اتصال الموقع...',
         'websiteChecked' => 'تمت عملية التحقق من الموقع، شكراً لاستخدامك.',
         'checkStarted' => 'تم بدء التحقق من الموقع، جاري التحقق من الاتصال...',
+        'subscribeUrlPlaceholder' => 'يرجى إدخال رابط الاشتراك، ويفصل بين الروابط المتعددة بواسطة |',
         'statusMessages' => [
             'https://www.baidu.com/' => ['accessible' => 'موقع Baidu متاح.', 'notAccessible' => 'تعذر الوصول إلى موقع Baidu، يرجى التحقق من الاتصال بالشبكة.'],
             'https://www.cloudflare.com/' => ['accessible' => 'موقع Cloudflare متاح.', 'notAccessible' => 'تعذر الوصول إلى موقع Cloudflare، يرجى التحقق من الاتصال بالشبكة.'],
@@ -7537,6 +7560,7 @@
         'subscription_url_label' => 'Introduce la URL de suscripción',
         'subscription_url_placeholder' => 'Soporta varios enlaces de suscripción o enlaces de nodo único, separa con |',
         'filename_label' => 'Nombre de archivo personalizado (predeterminado: config.json)',
+        'filename' => 'Nombre de archivo personalizado (predeterminado: config.yaml)',
         'filename_placeholder' => 'config.json',
         'backend_url_label' => 'Selecciona la dirección del backend',
         'custom_backend_url_label' => 'Introduce la dirección del backend personalizada',
@@ -7722,6 +7746,7 @@
         'startCheck' => 'Comenzando la comprobación de la conexión al sitio web...',
         'websiteChecked' => 'Comprobación del sitio web completada, gracias por usarlo.',
         'checkStarted' => 'Comprobación del sitio web iniciada, comprobando la conexión...',
+        'subscribeUrlPlaceholder' => 'Por favor ingrese el enlace de suscripción, separe varios enlaces con |',
         'statusMessages' => [
             'https://www.baidu.com/' => ['accessible' => 'El sitio web de Baidu es accesible.', 'notAccessible' => 'No se puede acceder al sitio web de Baidu, por favor verifique la conexión de red.'],
             'https://www.cloudflare.com/' => ['accessible' => 'El sitio web de Cloudflare es accesible.', 'notAccessible' => 'No se puede acceder al sitio web de Cloudflare, por favor verifique la conexión de red.'],
@@ -7998,6 +8023,8 @@
         'playlist_title' => 'Danh sách phát',
         'clear_playlist' => 'Xóa danh sách phát',
         'loop_playlist' => 'Lặp lại danh sách phát',
+        'rename_file' => 'Đổi tên tệp',
+        'new_file_name' => 'Tên tệp mới',
         'upload_file' => 'Tải lên tệp',
         'upload_image_video_audio' => 'Tải lên hình ảnh/video/âm thanh',
         'drag_and_drop_or_click' => 'Kéo và thả tệp vào khu vực này hoặc nhấp vào biểu tượng để chọn tệp.',
@@ -8302,6 +8329,7 @@
         'subscription_url_label' => 'Nhập URL đăng ký',
         'subscription_url_placeholder' => 'Hỗ trợ các loại URL đăng ký hoặc URL đơn, dùng | để phân tách các URL',
         'filename_label' => 'Tên tệp tùy chỉnh (mặc định: config.json)',
+        'filename' => 'Tên tệp tùy chỉnh (mặc định: config.yaml)',
         'filename_placeholder' => 'config.json',
         'backend_url_label' => 'Chọn địa chỉ backend',
         'custom_backend_url_label' => 'Nhập địa chỉ backend tùy chỉnh',
@@ -8486,6 +8514,7 @@
         'startCheck' => 'Bắt đầu kiểm tra kết nối trang web...',
         'websiteChecked' => 'Kiểm tra trang web đã hoàn tất, cảm ơn bạn đã sử dụng.',
         'checkStarted' => 'Kiểm tra trang web đã bắt đầu, đang kiểm tra kết nối...',
+        'subscribeUrlPlaceholder' => 'Vui lòng nhập liên kết đăng ký, phân tách các liên kết bằng |',
         'statusMessages' => [
             'https://www.baidu.com/' => ['accessible' => 'Trang web Baidu có thể truy cập.', 'notAccessible' => 'Không thể truy cập trang web Baidu, vui lòng kiểm tra kết nối mạng của bạn.'],
             'https://www.cloudflare.com/' => ['accessible' => 'Trang web Cloudflare có thể truy cập.', 'notAccessible' => 'Không thể truy cập trang web Cloudflare, vui lòng kiểm tra kết nối mạng của bạn.'],
@@ -8523,7 +8552,7 @@
     ]
 ];
 
-$currentLang = 'zh';
+$currentLang = 'en';
 
 $baseDir = realpath(dirname(__FILE__));
 

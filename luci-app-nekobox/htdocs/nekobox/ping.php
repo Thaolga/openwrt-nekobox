@@ -1847,8 +1847,8 @@ setInterval(IP.getIpipnetIP, 180000);
     <button type="button" data-bs-toggle="modal" data-bs-target="#colorModal" data-translate="theme_editor"><i class="bi-palette"></i> Theme Editor</button>                   
     <button type="button" data-bs-toggle="modal" data-bs-target="#filesModal" data-translate="set_background"><i class="bi-camera-video"></i> Set Background</button>
     <button data-bs-toggle="modal" data-bs-target="#langModal"><img id="flagIcon" src="./assets/neko/flags/cn.png" alt="Country Flag" style="width: 30px; height: auto; margin-right: 10px;"><span data-translate="set_language">Set Language</span></button>
-     <button type="button" class="btn btn-outline-secondary btn-sm" onclick="window.open('./filekit.php', '_blank')"><i class="bi bi-file-earmark"></i> <span data-translate="fileHelper">文件助手</span></button>
-     <button type="button"  id="translationToggleBtn">🔤 启用翻译</button>
+     <button type="button" class="btn btn-outline-secondary btn-sm" onclick="window.open('./filekit.php', '_blank')"><i class="bi bi-file-earmark"></i> <span data-translate="fileHelper"></span></button>
+     <button type="button" id="translationToggleBtn" data-translate="enableTranslation"></button>
     <button onclick="togglePopup()" data-translate="close_popup">❌ Close</button>
 </div>
 
@@ -2355,28 +2355,44 @@ window.addEventListener('load', function() {
 }
 
 .lyric-line {
-    opacity: 1 !important; 
+    opacity: 1 !important;
     color: #cccccc !important; 
     font-size: 1.1rem;
     transition: all 0.3s ease;
 }
 
-.lyric-line.played {
-    color: #a0a0a0 !important; 
-    position: relative;
+.lyric-line .char.played {
+    background: linear-gradient(...);
 }
 
 .lyric-line.highlight {
-    color: #cccccc !important;
+    color: #cccccc !important; 
     font-size: 1.3rem;
 }
+
+.lyric-line {
+    white-space: pre-wrap; 
+    word-break: keep-all; 
+}
+
+.word {
+    display: inline-block;
+    white-space: nowrap;
+}
+
+.char.space {
+    display: inline;
+    min-width: 0.5em; 
+}
+
 .lyric-line.highlight .char {
     transition: all 0.1s ease; 
+    display: inline-block;  
+    margin-right: 0.1rem;  
 }
+
 .lyric-line.highlight .char.active {
     transform: scale(1.2);
-    display: inline-block;
-
     background: linear-gradient(
         90deg,
         #ff3366 0%, 
@@ -2389,21 +2405,13 @@ window.addEventListener('load', function() {
     background-clip: text;
     -webkit-background-clip: text;
     color: transparent !important;
-    
     animation: color-flow 1s linear infinite;
-}
-
-@keyframes color-flow {
-    0% { background-position: 0% center; }
-    100% { background-position: -200% center; }
-}
-
-.lyric-line.highlight .char.active {
     text-shadow: 
         0 0 10px rgba(255,51,102,0.5),
         0 0 15px rgba(102,255,51,0.5),
         0 0 20px rgba(51,204,255,0.5);
 }
+
 .lyrics-container::-webkit-scrollbar {
     width: 13.5px; 
 }
@@ -2996,18 +3004,95 @@ function parseLyrics(lyricsText) {
     lyricTimes.sort((a, b) => a - b); 
 }
 
+function tokenize(text) {
+    const tokens = [];
+    let currentWord = '';
+    
+    for (const char of text) {
+        if (/\s/.test(char)) {
+            if (currentWord) {
+                tokens.push(currentWord);
+                currentWord = '';
+            }
+            tokens.push({ type: 'space', value: char });
+            continue;
+        }
+
+        if (/[-–—]/.test(char)) {
+            if (currentWord) {
+                tokens.push(currentWord);
+                currentWord = '';
+            }
+            tokens.push({ type: 'punctuation', value: char });
+            continue;
+        }
+
+        if (/[a-zA-Z0-9]/.test(char)) {
+            currentWord += char;
+        } else {
+            if (currentWord) {
+                tokens.push(currentWord);
+                currentWord = '';
+            }
+            tokens.push({ type: 'char', value: char });
+        }
+    }
+
+    if (currentWord) tokens.push(currentWord);
+    return tokens;
+}
 
 function createCharSpans(text, startTime, endTime) {
-    const chars = text.split('');
-    const duration = endTime - startTime;
-    return chars.map((char, i) => {
-        const span = document.createElement('span');
-        span.className = 'char';
-        span.textContent = char;
-        span.dataset.start = startTime + (i * duration) / chars.length;
-        span.dataset.end = startTime + ((i + 1) * duration) / chars.length;
-        return span;
+    const tokens = tokenize(text);
+    const totalDuration = endTime - startTime;
+    const charCount = text.replace(/\s/g, '').length; 
+    const durationPerChar = totalDuration / charCount;
+
+    let charIndex = 0;
+    const spans = [];
+
+    tokens.forEach(token => {
+        if (typeof token === 'string') { 
+            const wordSpan = document.createElement('span');
+            wordSpan.className = 'word';
+            const letters = token.split('');
+            
+            letters.forEach(letter => {
+                const span = document.createElement('span');
+                span.className = 'char';
+                span.textContent = letter;
+                span.dataset.start = startTime + charIndex * durationPerChar;
+                span.dataset.end = startTime + (charIndex + 1) * durationPerChar;
+                wordSpan.appendChild(span);
+                charIndex++;
+            });
+            
+            spans.push(wordSpan);
+        } else if (token.type === 'space') { 
+            const spaceSpan = document.createElement('span');
+            spaceSpan.className = 'char space';
+            spaceSpan.innerHTML = '&nbsp;';
+            spans.push(spaceSpan);
+        } else if (token.type === 'punctuation') { 
+            const punctSpan = document.createElement('span');
+            punctSpan.className = 'char punctuation';
+            punctSpan.textContent = token.value;
+            punctSpan.dataset.start = startTime + charIndex * durationPerChar;
+            punctSpan.dataset.end = startTime + (charIndex + 1) * durationPerChar;
+            spans.push(punctSpan);
+            charIndex++;
+        } else { 
+            const span = document.createElement('span');
+            span.className = 'char';
+            span.textContent = token.value;
+            span.dataset.start = startTime + charIndex * durationPerChar;
+            span.dataset.end = startTime + (charIndex + 1) * durationPerChar;
+            spans.push(span);
+            charIndex++;
+        }
     });
+
+    return spans;
 }
 
 function displayLyrics() {
@@ -3024,8 +3109,7 @@ function displayLyrics() {
                       : time + 3; 
         
         const chars = createCharSpans(lyrics[time], time, endTime);
-        chars.forEach(span => line.appendChild(span));
-        
+        chars.forEach(span => line.appendChild(span)); 
         lyricsContainer.appendChild(line);
     });
 
@@ -3061,23 +3145,18 @@ function syncLyrics() {
     const lines = lyricsContainer.querySelectorAll('.lyric-line');
     let currentLine = null;
     let hasActiveLine = false;
-    let prevHighlighted = null;
+    let activeChars = new Set();
 
-    document.querySelectorAll('.char').forEach(char => {
-        char.classList.remove('active');
+    lines.forEach(line => {
+        line.classList.remove('highlight', 'played');
     });
 
     for (let i = lines.length - 1; i >= 0; i--) {
         const line = lines[i];
         const lineTime = parseFloat(line.dataset.time);
         if (currentTime >= lineTime) {
-            if (prevHighlighted && prevHighlighted !== line) {
-                prevHighlighted.classList.remove('highlight');
-            }
-            
             line.classList.add('highlight');
             currentLine = line;
-            prevHighlighted = line;
             hasActiveLine = true;
             break;
         }
@@ -3089,25 +3168,24 @@ function syncLyrics() {
             const start = parseFloat(char.dataset.start);
             const end = parseFloat(char.dataset.end);
             if (currentTime >= start && currentTime <= end) {
-                char.classList.add('active');
+                if (!activeChars.has(char)) {
+                    char.classList.add('active');
+                    activeChars.add(char);
+                }
+            } else if (currentTime > end) {
+                char.classList.add('played');
             }
         });
 
         if (!isSmallScreen && !isHovering && !isManualScroll) {
             const lineRect = currentLine.getBoundingClientRect();
             const containerRect = lyricsContainer.getBoundingClientRect();
+            const targetPosition = lineRect.top - containerRect.top + lyricsContainer.scrollTop - (lyricsContainer.clientHeight / 2) + (lineRect.height / 2);
             
-            const lineTopRelative = lineRect.top - containerRect.top + lyricsContainer.scrollTop;
-            const lineBottomRelative = lineRect.bottom - containerRect.top + lyricsContainer.scrollTop;
-            const targetPosition = lineTopRelative - (lyricsContainer.clientHeight / 2) + (lineRect.height / 2);
-
             const buffer = 50;
-            if (lineTopRelative < lyricsContainer.scrollTop + buffer ||
-                lineBottomRelative > lyricsContainer.scrollTop + lyricsContainer.clientHeight - buffer) {
-                lyricsContainer.scrollTo({
-                    top: targetPosition,
-                    behavior: 'smooth'
-                });
+            if (lineRect.top < containerRect.top + buffer || 
+                lineRect.bottom > containerRect.bottom - buffer) {
+                lyricsContainer.scrollTo({ top: targetPosition, behavior: 'smooth' });
             }
         }
 
@@ -6248,3 +6326,4 @@ window.addEventListener('load', function() {
     });
   });
 </script>
+

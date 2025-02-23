@@ -565,24 +565,16 @@ EOL;
                     <div class="mb-3">
                         <label for="backend_url" class="form-label" data-translate="backend_url_label"></label>
                         <select class="form-select" id="backend_url" name="backend_url" required>
-                            <option value="https://url.v1.mk/sub?" <?php echo ($_POST['backend_url'] ?? '') === 'https://url.v1.mk/sub?' ? 'selected' : ''; ?>>
-                                <?php echo $langData[$currentLang]['backend_url_option_1']; ?>
-                            </option>
-                            <option value="https://sub.d1.mk/sub?" <?php echo ($_POST['backend_url'] ?? '') === 'https://sub.d1.mk/sub?' ? 'selected' : ''; ?>>
-                                 <?php echo $langData[$currentLang]['backend_url_option_2']; ?>
-                            </option>
-                            <option value="https://sub.xeton.dev/sub?" <?php echo ($_POST['backend_url'] ?? '') === 'https://sub.xeton.dev/sub?' ? 'selected' : ''; ?>>
-                                 <?php echo $langData[$currentLang]['backend_url_option_3']; ?>
-                            </option>
+                            <option value="https://url.v1.mk/sub?" <?php echo ($_POST['backend_url'] ?? '') === 'https://url.v1.mk/sub?' ? 'selected' : ''; ?> data-translate="backend_url_option_1"></option>
+                            <option value="https://sub.d1.mk/sub?" <?php echo ($_POST['backend_url'] ?? '') === 'https://sub.d1.mk/sub?' ? 'selected' : ''; ?> data-translate="backend_url_option_2"></option>
+                            <option value="https://sub.xeton.dev/sub?" <?php echo ($_POST['backend_url'] ?? '') === 'https://sub.xeton.dev/sub?' ? 'selected' : ''; ?> data-translate="backend_url_option_3"></option>
                             <option value="https://www.tline.website/sub/sub?" <?php echo ($_POST['backend_url'] ?? '') === 'https://www.tline.website/sub/sub?' ? 'selected' : ''; ?>>
                                 tline.website
                             </option>
                             <option value="https://api.dler.io/sub?" <?php echo ($_POST['backend_url'] ?? '') === 'https://api.dler.io/sub?' ? 'selected' : ''; ?>>
                                 api.dler.io
                             </option>
-                            <option value="https://v.id9.cc/sub?" <?php echo ($_POST['backend_url'] ?? '') === 'https://v.id9.cc/sub?' ? 'selected' : ''; ?>>
-                                 <?php echo $langData[$currentLang]['backend_url_option_6']; ?>
-                            </option>
+                            <option value="https://v.id9.cc/sub?" <?php echo ($_POST['backend_url'] ?? '') === 'https://v.id9.cc/sub?' ? 'selected' : ''; ?> data-translate="backend_url_option_6"></option>
                             <option value="https://sub.id9.cc/sub?" <?php echo ($_POST['backend_url'] ?? '') === 'https://sub.id9.cc/sub?' ? 'selected' : ''; ?>>
                                 sub.id9.cc
                             </option>
@@ -592,15 +584,9 @@ EOL;
                             <option value="https://yun-api.subcloud.xyz/sub?" <?php echo ($_POST['backend_url'] ?? '') === 'https://yun-api.subcloud.xyz/sub?' ? 'selected' : ''; ?>>
                                 subcloud.xyz
                             </option>
-                            <option value="https://sub.maoxiongnet.com/sub?" <?php echo ($_POST['backend_url'] ?? '') === 'https://sub.maoxiongnet.com/sub?' ? 'selected' : ''; ?>>
-                                 <?php echo $langData[$currentLang]['backend_url_option_10']; ?>
-                            </option>
-                            <option value="http://localhost:25500/sub?" <?php echo ($_POST['backend_url'] ?? '') === 'http://localhost:25500/sub?' ? 'selected' : ''; ?>>
-                                 <?php echo $langData[$currentLang]['backend_url_option_11']; ?>
-                            </option>
-                            <option value="custom" <?php echo ($_POST['backend_url'] ?? '') === 'custom' ? 'selected' : ''; ?>>
-                                 <?php echo $langData[$currentLang]['backend_url_option_custom']; ?>
-                            </option>
+                            <option value="https://sub.maoxiongnet.com/sub?" <?php echo ($_POST['backend_url'] ?? '') === 'https://sub.maoxiongnet.com/sub?' ? 'selected' : ''; ?> data-translate="backend_url_option_10"></option>
+                            <option value="http://localhost:25500/sub?" <?php echo ($_POST['backend_url'] ?? '') === 'http://localhost:25500/sub?' ? 'selected' : ''; ?> data-translate="backend_url_option_11"></option>
+                            <option value="custom" <?php echo ($_POST['backend_url'] ?? '') === 'custom' ? 'selected' : ''; ?> data-translate="backend_url_option_custom"></option>
                         </select>
                     </div>
 
@@ -832,11 +818,11 @@ EOL;
         </div>
     </div>
         <div class="help mt-4 custom-padding">
-             <strong>1. <?php echo $translations['first_time_singbox_user']; ?><p>
-            <p style="color: red;"><?php echo $translations['warning']; ?></p>
-            <p><?php echo $translations['subscription_conversion']; ?></p>
+            <p data-translate="first_time_singbox_user"><p>
+            <p style="color: red;" data-translate="warning"></p>
+            <p data-translate="subscription_conversion"></p>
             <a href="https://github.com/youshandefeiyang/sub-web-modify" target="_blank" class="btn btn-primary" style="color: white;">
-            <i data-feather="github"></i> <?php echo $translations['visit_link']; ?>
+            <i data-feather="github"></i> <span data-translate="change_theme_button">visit_link</span>
             </a>
         </div>
         <div class="result mt-4 custom-padding">

@@ -183,7 +183,7 @@ EOL;
         <form method="post" action="">
             <div class="mb-3">
                 <label for="subscribeUrl" class="form-label" data-translate="subscribeUrlLabel">Subscription URL</label>         
-                <input type="text" class="form-control" id="subscribeUrl" name="subscribeUrl" value="<?php echo htmlspecialchars($lastSubscribeUrl); ?>" placeholder="Enter subscription URL, multiple URLs separated by |" required>
+                <input type="text" class="form-control" id="subscribeUrl" name="subscribeUrl" value="<?php echo htmlspecialchars($lastSubscribeUrl); ?>" placeholder="Enter subscription URL, multiple URLs separated by |"  data-translate-placeholder="subscribeUrlPlaceholder" required>
             </div>
             <div class="mb-3">
                 <label for="customFileName" class="form-label" data-translate="customFileNameLabel">Custom Filename (Default: sing-box.json)</label>
