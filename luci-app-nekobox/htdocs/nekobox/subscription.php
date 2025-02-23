@@ -822,7 +822,7 @@ EOL;
             <p style="color: red;" data-translate="warning"></p>
             <p data-translate="subscription_conversion"></p>
             <a href="https://github.com/youshandefeiyang/sub-web-modify" target="_blank" class="btn btn-primary" style="color: white;">
-            <i data-feather="github"></i> <span data-translate="change_theme_button">visit_link</span>
+            <i data-feather="github"></i> <span data-translate="visit_link"></span>
             </a>
         </div>
         <div class="result mt-4 custom-padding">
