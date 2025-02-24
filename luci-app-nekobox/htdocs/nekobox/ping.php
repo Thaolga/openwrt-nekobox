@@ -2487,7 +2487,11 @@ window.addEventListener('load', function() {
         <h5 class="modal-title" id="audioPlayerModalLabel" data-translate="music_player">Music Player</h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
-      <div class="modal-body">
+      <div class="modal-body position-relative"> 
+        <img src="./assets/img/nekobox.png" 
+             alt="NekoBox Logo" 
+             class="position-absolute top-0 mt-4 me-2" 
+             style="width: 100px; height: auto; z-index: 1000; right: 40px;">
         <div class="datetime-container">
           <span id="dateDisplay"></span> 
           <span id="timeDisplay"></span>
@@ -2505,6 +2509,7 @@ window.addEventListener('load', function() {
           <button id="modalLoopButton" class="btn btn-warning" data-translate="loop">🔁 Loop</button>
           <div class="track-name" id="trackName" data-translate="no_song">No Song</div>
         </div>
+        <div class="lyrics-container" id="lyricsContainer"></div>
         <button class="btn btn-outline-primary mt-3" type="button" data-bs-toggle="collapse" data-bs-target="#playlistCollapse" aria-expanded="true" data-translate="toggle_playlist">
           📜 Show/Hide Playlist
         </button>
@@ -2515,7 +2520,6 @@ window.addEventListener('load', function() {
           <h3 data-translate="playlist">Playlist</h3>
           <ul id="trackList" class="list-group"></ul>
         </div>
-        <div class="lyrics-container" id="lyricsContainer"></div>
         <div id="tooltip"></div>
       </div>
     </div>
@@ -2728,6 +2732,7 @@ playPauseButton.addEventListener('click', function() {
             isPlaying = true;
             savePlayerState();
             console.log(translations['start_playing']); 
+            showLogMessage(translations['start_playing']); 
             speakMessage(translations['start_playing']); 
             playPauseButton.textContent = '⏸️ ' + translations['pause']; 
             updateTrackName();
@@ -2739,6 +2744,7 @@ playPauseButton.addEventListener('click', function() {
         isPlaying = false;
         savePlayerState();
         console.log(translations['paused']); 
+        showLogMessage(translations['paused']); 
         speakMessage(translations['paused']); 
         playPauseButton.textContent = '' + translations['play']; 
     }
