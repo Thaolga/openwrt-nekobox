@@ -2448,7 +2448,6 @@ window.addEventListener('load', function() {
     padding: 10px 15px;
     border-radius: 10px;
     font-size: 16px;
-    display: none;
     display: inline-block; 
     min-width: 100px; 
     max-width: 80%; 
@@ -2456,7 +2455,33 @@ window.addEventListener('load', function() {
     white-space: nowrap; 
     z-index: 9999;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.7);
-    transition: color 0.5s ease-in-out;
+    border: 1px solid rgba(255, 215, 0, 0.3); 
+    transition: font-size 0.3s ease;
+}
+
+.floating-lyrics .char {
+    display: inline-block;
+    transition: transform 0.2s ease;
+}
+
+.floating-lyrics:has(.char.active) {
+    font-size: 18px; 
+}
+
+.floating-lyrics .char.active {
+    transform: scale(1.35) translateY(-2px); 
+    color: #FFC125 !important;
+    display: inline-block;
+    transition: all 0.2s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+@media (max-width: 768px) {
+    .floating-lyrics:has(.char.active) {
+        font-size: 15px; 
+    }
+    .floating-lyrics .char.active {
+        transform: scale(1.2); 
+    }
 }
 
 @media (max-width: 768px) {
@@ -3151,11 +3176,8 @@ function syncLyrics() {
     const lines = lyricsContainer.querySelectorAll('.lyric-line');
     let currentLine = null;
     let hasActiveLine = false;
-    let activeChars = new Set();
 
-    lines.forEach(line => {
-        line.classList.remove('highlight', 'played');
-    });
+    lines.forEach(line => line.classList.remove('highlight', 'played'));
 
     for (let i = lines.length - 1; i >= 0; i--) {
         const line = lines[i];
@@ -3174,12 +3196,35 @@ function syncLyrics() {
             const start = parseFloat(char.dataset.start);
             const end = parseFloat(char.dataset.end);
             if (currentTime >= start && currentTime <= end) {
-                if (!activeChars.has(char)) {
-                    char.classList.add('active');
-                    activeChars.add(char);
-                }
+                char.classList.add('active');
             } else if (currentTime > end) {
                 char.classList.add('played');
+            }
+        });
+
+        const floatingLyrics = document.getElementById('floatingLyrics');
+        if (!floatingLyrics.innerHTML || currentLine.dataset.time !== floatingLyrics.dataset.time) {
+            floatingLyrics.innerHTML = currentLine.innerHTML;
+            floatingLyrics.dataset.time = currentLine.dataset.time;
+            floatingLyrics.classList.add('enter-active');
+            setTimeout(() => floatingLyrics.classList.remove('enter-active'), 500);
+        }
+
+        const floatingChars = floatingLyrics.querySelectorAll('.char');
+        chars.forEach((char, index) => {
+            const floatingChar = floatingChars[index];
+            if (!floatingChar) return;
+
+            const start = parseFloat(char.dataset.start);
+            const end = parseFloat(char.dataset.end);
+            
+            if (currentTime >= start && currentTime <= end) {
+                floatingChar.classList.add('active');
+                const progress = (currentTime - start) / (end - start);
+                floatingChar.style.transform = `scale(${1 + progress * 0.2})`;
+            } else {
+                floatingChar.classList.remove('active');
+                floatingChar.style.transform = '';
             }
         });
 
@@ -3192,15 +3237,6 @@ function syncLyrics() {
             if (lineRect.top < containerRect.top + buffer || 
                 lineRect.bottom > containerRect.bottom - buffer) {
                 lyricsContainer.scrollTo({ top: targetPosition, behavior: 'smooth' });
-            }
-        }
-
-        if (isPinned) {
-            const floatingLyrics = document.getElementById('floatingLyrics');
-            if (floatingLyrics.textContent !== currentLine.textContent) {
-                floatingLyrics.textContent = currentLine.textContent;
-                floatingLyrics.classList.add('pulse');
-                setTimeout(() => floatingLyrics.classList.remove('pulse'), 1000);
             }
         }
     }
@@ -3269,7 +3305,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     const icons = document.querySelectorAll(".icon");
 
-    const colors = ["#ff69b4", "#ff4500", "#00ff00", "#00ffff", "#ff1493", "#007bff"];
+    const colors = ["#ff69b4", "#ff4500", "#00ff00", "#00ffff", "#ff1493", "#ff1493"];
 
     let lyricsContainerIndex = 0;
     let floatingLyricsIndex = 1;
