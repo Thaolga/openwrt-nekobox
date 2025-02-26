@@ -21,12 +21,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         if ($file['error'] === UPLOAD_ERR_OK) {
             if (move_uploaded_file($file['tmp_name'], $uploadFilePath)) {
-                echo '<div class="alert alert-success" role="alert" data-translate="file_upload_success" data-dynamic-content="' . htmlspecialchars(basename($file['name'])) . '"></div>';
+                echo '<div id="log-message" class="alert alert-success" role="alert" data-translate="file_upload_success" data-dynamic-content="' . htmlspecialchars(basename($file['name'])) . '"></div>';
             } else {
-                echo '<div class="alert alert-danger" role="alert" data-translate="file_upload_failed"></div>';
+                echo '<div id="log-message" class="alert alert-danger" role="alert" data-translate="file_upload_failed"></div>';
             }
         } else {
-            echo '<div class="alert alert-danger" role="alert" data-translate="file_upload_error" data-dynamic-content="' . $file['error'] . '"></div>';
+            echo '<div id="log-message" class="alert alert-danger" role="alert" data-translate="file_upload_error" data-dynamic-content="' . $file['error'] . '"></div>';
         }
     }
 
@@ -36,30 +36,30 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         if ($file['error'] === UPLOAD_ERR_OK) {
             if (move_uploaded_file($file['tmp_name'], $uploadFilePath)) {
-                echo '<div class="alert alert-success" role="alert" data-translate="config_upload_success" data-dynamic-content="' . htmlspecialchars(basename($file['name'])) . '"></div>';
+                echo '<div id="log-message" class="alert alert-success" role="alert" data-translate="config_upload_success" data-dynamic-content="' . htmlspecialchars(basename($file['name'])) . '"></div>';
             } else {
-                echo '<div class="alert alert-danger" role="alert" data-translate="config_upload_failed"></div>';
+                echo '<div id="log-message" class="alert alert-danger" role="alert" data-translate="config_upload_failed"></div>';
             }
         } else {
-            echo '<div class="alert alert-danger" role="alert" data-translate="file_upload_error" data-dynamic-content="' . $file['error'] . '"></div>';
+            echo '<div id="log-message" class="alert alert-danger" role="alert" data-translate="file_upload_error" data-dynamic-content="' . $file['error'] . '"></div>';
         }
     }
 
     if (isset($_POST['deleteFile'])) {
         $fileToDelete = $uploadDir . basename($_POST['deleteFile']);
         if (file_exists($fileToDelete) && unlink($fileToDelete)) {
-            echo '<div class="alert alert-success" role="alert" data-translate="file_delete_success" data-dynamic-content="' . htmlspecialchars(basename($_POST['deleteFile'])) . '"></div>';
+            echo '<div id="log-message" class="alert alert-success" role="alert" data-translate="file_delete_success" data-dynamic-content="' . htmlspecialchars(basename($_POST['deleteFile'])) . '"></div>';
         } else {
-            echo '<div class="alert alert-danger" role="alert" data-translate="file_delete_failed"></div>';
+            echo '<div id="log-message" class="alert alert-danger" role="alert" data-translate="file_delete_failed"></div>';
         }
     }
 
     if (isset($_POST['deleteConfigFile'])) {
         $fileToDelete = $configDir . basename($_POST['deleteConfigFile']);
         if (file_exists($fileToDelete) && unlink($fileToDelete)) {
-            echo '<div class="alert alert-success" role="alert" data-translate="config_delete_success" data-dynamic-content="' . htmlspecialchars(basename($_POST['deleteConfigFile'])) . '"></div>';
+            echo '<div id="log-message" class="alert alert-success" role="alert" data-translate="config_delete_success" data-dynamic-content="' . htmlspecialchars(basename($_POST['deleteConfigFile'])) . '"></div>';
         } else {
-            echo '<div class="alert alert-danger" role="alert" data-translate="config_delete_failed"></div>';
+            echo '<div id="log-message" class="alert alert-danger" role="alert" data-translate="config_delete_failed"></div>';
         }
     }
 
@@ -75,18 +75,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $oldFilePath = $configDir . $oldFileName;
             $newFilePath = $configDir . $newFileName;
         } else {
-            echo '<div class="alert alert-danger" role="alert" data-translate="file_not_found"></div>';
+            echo '<div id="log-message" class="alert alert-danger" role="alert" data-translate="file_not_found"></div>';
             exit;
         }
 
         if (file_exists($oldFilePath) && !file_exists($newFilePath)) {
             if (rename($oldFilePath, $newFilePath)) {
-                echo '<div class="alert alert-success" role="alert" data-translate="file_rename_success" data-dynamic-content="' . htmlspecialchars($oldFileName) . ' -> ' . htmlspecialchars($newFileName) . '"></div>';
+                echo '<div id="log-message" class="alert alert-success" role="alert" data-translate="file_rename_success" data-dynamic-content="' . htmlspecialchars($oldFileName) . ' -> ' . htmlspecialchars($newFileName) . '"></div>';
             } else {
-                echo '<div class="alert alert-danger" role="alert" data-translate="file_rename_failed"></div>';
+                echo '<div id="log-message"  class="alert alert-danger" role="alert" data-translate="file_rename_failed"></div>';
             }
         } else {
-            echo '<div class="alert alert-danger" role="alert" data-translate="file_rename_exists"></div>';
+            echo '<div id="log-message"  class="alert alert-danger" role="alert" data-translate="file_rename_exists"></div>';
         }
     }
 
@@ -94,7 +94,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $fileToSave = ($_POST['fileType'] === 'proxy') ? $uploadDir . basename($_POST['fileName']) : $configDir . basename($_POST['fileName']);
         $contentToSave = $_POST['saveContent'];
         file_put_contents($fileToSave, $contentToSave);
-        echo '<div class="alert alert-info" role="alert" data-translate="file_save_success" data-dynamic-content="' . htmlspecialchars(basename($fileToSave)) . '"></div>';
+        echo '<div id="log-message" class="alert alert-info" role="alert" data-translate="file_save_success" data-dynamic-content="' . htmlspecialchars(basename($fileToSave)) . '"></div>';
     }
 }
 
@@ -224,7 +224,7 @@ if (isset($_POST['update'])) {
         if ($return_var === 0) {
             $_SESSION['update_logs'] = [];
             storeUpdateLog('<span data-translate="subscription_downloaded" data-dynamic-content="' . htmlspecialchars($url) . '"></span> <span data-translate="saved_to_temp_file" data-dynamic-content="' . htmlspecialchars($tempPath) . '"></span>');
-
+            echo '<div id="log-message"  class="alert alert-info"><span data-translate="subscription_downloaded" data-dynamic-content="' . htmlspecialchars($url) . '"></span> <span data-translate="saved_to_temp_file" data-dynamic-content="' . htmlspecialchars($tempPath) . '"></span></div>';
             $fileContent = file_get_contents($tempPath);
 
             if (base64_encode(base64_decode($fileContent, true)) === $fileContent) {
@@ -232,11 +232,13 @@ if (isset($_POST['update'])) {
                 if ($decodedContent !== false && strlen($decodedContent) > 0) {
                     file_put_contents($finalPath, "# Clash Meta Config\n\n" . $decodedContent);
                     storeUpdateLog('<span data-translate="base64_decode_success" data-dynamic-content="' . htmlspecialchars($finalPath) . '"></span>');
+                    echo '<div id="log-message" class="alert alert-info"><span data-translate="base64_decode_success" data-dynamic-content="' . htmlspecialchars($finalPath) . '"></span></div>';
                     unlink($tempPath); 
                     $notificationMessage = '<span data-translate="update_success"></span>';
                     $updateCompleted = true;
                 } else {
                     storeUpdateLog('<span data-translate="base64_decode_failed"></span>');
+                    echo '<div id="log-message" class="alert alert-info"><span data-translate="base64_decode_failed"></span></div>';
                     unlink($tempPath); 
                     $notificationMessage = '<span data-translate="update_failed"></span>';
                 }
@@ -246,11 +248,13 @@ if (isset($_POST['update'])) {
                 if ($decompressedContent !== false) {
                     file_put_contents($finalPath, "# Clash Meta Config\n\n" . $decompressedContent);
                     storeUpdateLog('<span data-translate="gzip_decompress_success" data-dynamic-content="' . htmlspecialchars($finalPath) . '"></span>');
+                    echo '<div id="log-message" class="alert alert-info"><span data-translate="gzip_decompress_success" data-dynamic-content="' . htmlspecialchars($finalPath) . '"></span></div>';
                     unlink($tempPath); 
                     $notificationMessage = '<span data-translate="update_success"></span>';
                     $updateCompleted = true;
                 } else {
                     storeUpdateLog('<span data-translate="gzip_decompress_failed"></span>');
+                    echo '<div id="log-message" class="alert alert-info"><span data-translate="gzip_decompress_failed"></span></div>';
                     unlink($tempPath); 
                     $notificationMessage = '<span data-translate="update_failed"></span>';
                 }
@@ -258,11 +262,13 @@ if (isset($_POST['update'])) {
             else {
                 rename($tempPath, $finalPath); 
                 storeUpdateLog('<span data-translate="subscription_downloaded_no_decode"></span>');
+                echo '<div id="log-message" class="alert alert-info"><span data-translate="subscription_downloaded_no_decode"></span></div>';
                 $notificationMessage = '<span data-translate="update_success"></span>';
                 $updateCompleted = true;
             }
         } else {
             storeUpdateLog('<span data-translate="subscription_update_failed" data-dynamic-content="' . htmlspecialchars(implode("\n", $output)) . '"></span>');
+            echo '<div id="log-message" class="alert alert-info"><span data-translate="subscription_update_failed" data-dynamic-content="' . htmlspecialchars(implode("\n", $output)) . '"></span></div>';
             unlink($tempPath); 
             $notificationMessage = '<span data-translate="update_failed"></span>';
         }
@@ -577,15 +583,16 @@ html {
     margin: 0 auto;
 }
 
+.section-container {
+   padding-left: 32px;  
+   padding-right: 32px;
+}
+
 #dropZone i {
     font-size: 50px;
     color: #007bff;
     animation: iconPulse 1.5s infinite; 
 }
-
-.popup {
-    display: none; 
- }
 
 @keyframes iconPulse {
     0% {
@@ -650,7 +657,7 @@ function displayUpdateNotification() {
             notification.hide();
             $('#updateLogContainer').html('');
         });
-    }, 10000);
+    }, 5000);
 }
 
 <?php if (!empty($notificationMessage)): ?>
@@ -669,11 +676,12 @@ function displayUpdateNotification() {
     </div>
     <div class="text-center">
         <h2 style="margin-top: 40px; margin-bottom: 20px;" data-translate="fileManagement"></h2>
-<div class="container-fluid">
-    <div class="table-responsive">
-        <table class="table table-striped table-bordered text-center">
-            <thead class="thead-dark">
-                <tr>
+<div class="container-fluid section-container">
+    <div class="card">
+        <div class="table-responsive">
+            <table class="table text-center">
+                <thead class="custom-card-body">
+                    <tr>
                     <th style="width: 20%;" data-translate="fileName"></th>
                     <th style="width: 10%;" data-translate="fileSize"></th>
                     <th style="width: 20%;" data-translate="lastModified"></th>
@@ -684,16 +692,22 @@ function displayUpdateNotification() {
             <tbody>
                 <?php
                 $allFiles = array_merge($proxyFiles, $configFiles);
-                $allFilePaths = array_merge(array_map(function($file) use ($uploadDir) {
-                    return $uploadDir . $file;
-                }, $proxyFiles), array_map(function($file) use ($configDir) {
-                    return $configDir . $file;
-                }, $configFiles));
-                $fileTypes = array_merge(array_fill(0, count($proxyFiles), 'Proxy File'), array_fill(0, count($configFiles), 'Config File'));
+                $allFilePaths = array_merge(
+                    array_map(function($file) use ($uploadDir) { return $uploadDir . $file; }, $proxyFiles),
+                    array_map(function($file) use ($configDir) { return $configDir . $file; }, $configFiles)
+                );
 
-                foreach ($allFiles as $index => $file) {
+               $lang = $_GET['lang'] ?? 'en'; 
+               $lang = isset($translations[$lang]) ? $lang : 'en'; 
+
+               $fileTypes = array_merge(
+                    array_fill(0, count($proxyFiles), $langData[$currentLang]['file_type_proxy']),
+                    array_fill(0, count($configFiles), $langData[$currentLang]['file_type_config'])
+                );
+
+                foreach ($allFiles as $index => $file):
                     $filePath = $allFilePaths[$index];
-                    $fileType = $fileTypes[$index];
+                    $isProxy = ($index < count($proxyFiles));  
                 ?>
                     <tr>
                         <td class="align-middle" data-label="fileName">
@@ -706,11 +720,11 @@ function displayUpdateNotification() {
                             <?php echo htmlspecialchars(date('Y-m-d H:i:s', filemtime($filePath))); ?>
                         </td>
                         <td class="align-middle" data-label="fileType">
-                            <?php echo htmlspecialchars($fileType); ?>
+                            <span class="badge <?= $isProxy ? 'bg-primary' : 'bg-success' ?>"><?= htmlspecialchars($fileTypes[$index]) ?></span>
                         </td>
                         <td class="align-middle">
                             <div class="action-buttons">
-                              <?php if ($fileType == 'Proxy File'): ?>
+                              <?php if ($index < count($proxyFiles)): ?>
                                     <form action="" method="post" class="d-inline mb-1">
                                         <input type="hidden" name="deleteFile" value="<?php echo htmlspecialchars($file); ?>">
                                         <button type="submit" class="btn btn-danger btn-sm"  onclick="return confirm('Are you sure you want to delete this file？');" data-translate-title="delete"><i class="bi bi-trash"></i></button>
@@ -758,7 +772,7 @@ function displayUpdateNotification() {
                             </div>
                         </td>
                     </tr>
-                <?php } ?>
+                <?php endforeach; ?>
             </tbody>
         </table>
     </div>
@@ -1219,7 +1233,7 @@ function initializeAceEditor() {
 <?php endif; ?>
 
 <?php if (isset($subscriptions) && is_array($subscriptions)): ?>
-    <div class="container-fluid">
+    <div class="container-fluid section-settings">
         <div class="row">
             <?php 
             $maxSubscriptions = 6; 
@@ -1228,7 +1242,7 @@ function initializeAceEditor() {
                 $url = $subscriptions[$i]['url'] ?? '';
                 $fileName = $subscriptions[$i]['file_name'] ?? "subscription_" . ($displayIndex) . ".yaml"; 
             ?>
-                <div class="col-md-4 mb-3">
+                <div class="col-md-4 mb-3 px-1">
                     <form method="post" class="card shadow-sm">
                         <div class="card-body">
                             <div class="form-group">

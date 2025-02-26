@@ -121,6 +121,19 @@ function changeLanguage(lang) {
 }
 </script>
 
+<script>
+const logMessages = document.querySelectorAll('#log-message');
+
+logMessages.forEach(message => {
+    setTimeout(() => {
+        message.style.opacity = '0'; 
+        setTimeout(() => {
+            message.remove(); 
+        }, 500); 
+    }, 4000); 
+});
+</script>
+
 <?php
 function getAvailableSpace() {
     $dfOutput = [];
@@ -666,7 +679,7 @@ $lang = $_GET['lang'] ?? 'en';
         background-color: #218838;
     }
 
-    .popup {
+    .settings-panel {
         display: none; 
         position: fixed;
         top: 50%;
@@ -681,18 +694,22 @@ $lang = $_GET['lang'] ?? 'en';
         text-align: center;
         box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
         width: 820px;
-        display: grid;
+
         grid-template-columns: repeat(3, 1fr);
         gap: 10px;
     }
 
-    .popup h3 {
+    .settings-panel.active {
+        display: grid; 
+    }
+
+    .settings-panel h3 {
         grid-column: span 3;
         text-align: center;
         margin-bottom: 10px;
     }
 
-    .popup button {
+    .settings-panel button {
         padding: 12px;
         font-size: 14px;
         cursor: pointer;
@@ -703,16 +720,16 @@ $lang = $_GET['lang'] ?? 'en';
         transition: background 0.3s, transform 0.2s;
     }
 
-    .popup button:hover {
+    .settings-panel button:hover {
         background: rgba(0, 0, 0, 0.2);
         transform: scale(1.05);
     }
 
-    .popup button:active {
+    .settings-panel button:active {
         transform: scale(0.95);
     }
 
-    .popup button:last-child {
+    .settings-panel button:last-child {
         grid-column: span 3;
         justify-self: center;
         width: 80%;
@@ -720,7 +737,7 @@ $lang = $_GET['lang'] ?? 'en';
         color: red;
     }
 
-    .popup button:last-child:hover {
+    .settings-panel button:last-child:hover {
         background: rgba(255, 0, 0, 0.4);
     }
 
@@ -734,6 +751,10 @@ $lang = $_GET['lang'] ?? 'en';
       padding: 2rem;
       margin-top: 2rem;
       margin-bottom: 2rem;
+    }
+
+    #log-message {
+        transition: opacity 0.5s ease; 
     }
 
 @media (max-width: 768px) {
@@ -836,7 +857,7 @@ $lang = $_GET['lang'] ?? 'en';
 }
 
 @media (max-width: 767.98px) {
-    .popup-backdrop {
+    .settings-panel-backdrop {
         content: '';
         position: fixed;
         top: 0;
@@ -848,7 +869,7 @@ $lang = $_GET['lang'] ?? 'en';
         z-index: 1040; 
     }
 
-    .popup {
+    .settings-panel {
         display: none; 
         grid-template-columns: 1fr 1fr;
         gap: 10px;
@@ -864,14 +885,14 @@ $lang = $_GET['lang'] ?? 'en';
         z-index: 1050; 
     }
 
-    .popup h3 {
+    .settings-panel h3 {
         grid-column: 1 / -1;
         text-align: center;
         font-size: 1.5rem;
         margin-bottom: 20px;
     }
 
-    .popup button {
+    .settings-panel button {
         display: flex;
         align-items: center;
         justify-content: center;
@@ -884,25 +905,25 @@ $lang = $_GET['lang'] ?? 'en';
         transition: background-color 0.2s ease-in-out;
     }
 
-    .popup button:hover {
+    .settings-panel button:hover {
         background-color: #0056b3;
     }
 
-    .popup button i {
+    .settings-panel button i {
         margin-right: 5px;
     }
 
-    .popup button:last-child {
+    .settings-panel button:last-child {
         grid-column: 1 / -1;
         background-color: #dc3545;
         color: #fff; 
     }
 
-    .popup button:last-child i {
+    .settings-panel button:last-child i {
         color: #fff; 
     }
 
-    .popup button:last-child:hover {
+    .settings-panel button:last-child:hover {
         background-color: #c82333;
     }
 }
@@ -1277,7 +1298,7 @@ let IP = {
                 <span id="toggle-ip" style="cursor: pointer; position: relative; top: -3px; text-indent: 0.3ch; padding-top: 2px;" title="${translations['hide_ip']}">
                     <i class="fa ${isHidden ? 'bi-eye-slash' : 'bi-eye'}" style="font-size: 1.4rem; vertical-align: middle;"></i>  
                 </span>
-                <span class="control-toggle" style="cursor: pointer; margin-left: 10px; display: inline-flex; align-items: center; position: relative; top: -1.7px;" onclick="togglePopup()" title="${translations['control_panel']}">
+                <span class="control-toggle" style="cursor: pointer; margin-left: 10px; display: inline-flex; align-items: center; position: relative; top: -1.7px;" onclick="toggleSettingsPanel()" title="${translations['control_panel']}">
                     <i class="bi bi-gear" style="font-size: 1.1rem; margin-right: 5px; vertical-align: middle;"></i>  
                 </span>
             `;
@@ -1622,10 +1643,8 @@ setInterval(IP.getIpipnetIP, 180000);
 <script>
     document.addEventListener("DOMContentLoaded", function () {
         var video = document.getElementById('background-video');
-        var popup = document.getElementById('popup');
         var controlPanel = document.getElementById('controlPanel');
 
-        popup.style.display = "none";
         controlPanel.style.display = "none";
     
         var savedMuteState = localStorage.getItem("videoMuted");
@@ -1724,15 +1743,6 @@ setInterval(IP.getIpipnetIP, 180000);
         });
     });
 
-    function togglePopup() {
-        var popup = document.getElementById('popup');
-    
-        if (popup.style.display === "none" || popup.style.display === "") {
-            popup.style.display = "grid"; 
-        } else {
-            popup.style.display = "none"; 
-        }
-    }
 
     function toggleAudio() {
         var video = document.getElementById('background-video');
@@ -1811,25 +1821,58 @@ setInterval(IP.getIpipnetIP, 180000);
         }
     }
 
-  function updateButtonStates() {
+    document.addEventListener('DOMContentLoaded', function() {
+        var video = document.getElementById('background-video');
+    
+        var savedMuted = localStorage.getItem('muted');
+        if (savedMuted !== null) {
+            video.muted = savedMuted === 'true';
+        }
+    
+        updateButtonStates(true);
+    });
+
+    function updateButtonStates(useSaved = false) {
         var video = document.getElementById('background-video');
         var audioBtn = document.getElementById('audio-btn');
         var fullscreenBtn = document.getElementById('fullscreen-btn');
 
         audioBtn.textContent = video.muted ? translations['mute'] : translations['unmute'];
-        fullscreenBtn.textContent = document.fullscreenElement ? translations['fullscreen_exit'] : translations['fullscreen_enter'];
+    
+        if (useSaved) {
+            var savedFullscreen = localStorage.getItem('isFullscreen') === 'true';
+            fullscreenBtn.textContent = savedFullscreen ? translations['fullscreen_exit'] : translations['fullscreen_enter'];
+        } else {
+            var isFullscreen = !!document.fullscreenElement;
+            localStorage.setItem('isFullscreen', isFullscreen);
+            fullscreenBtn.textContent = isFullscreen ? translations['fullscreen_exit'] : translations['fullscreen_enter'];
+        }
     }
 
-    document.addEventListener("keydown", function(event) {
-        if (event.ctrlKey && event.shiftKey && event.key === "Q") {
-            togglePopup();
+    function toggleFullscreen() {
+        var video = document.getElementById('background-video');
+        if (!document.fullscreenElement) {
+            video.requestFullscreen().then(() => {
+                updateButtonStates();
+            });
+        } else {
+            document.exitFullscreen().then(() => {
+                updateButtonStates();
+            });
         }
-    });
+    }
+
+    function toggleMute() {
+        var video = document.getElementById('background-video');
+        video.muted = !video.muted;
+        localStorage.setItem('muted', video.muted);
+        updateButtonStates();
+    }
 
     document.addEventListener("fullscreenchange", updateButtonStates);
 </script>
 
-<div class="popup" id="popup">
+<div class="settings-panel" id="settingsPanel">
     <h3 data-translate="control_panel_title">🔧 Control Panel</h3>
     <button onclick="toggleAudio()" id="audio-btn" data-translate="audio_toggle"></button>
     <button onclick="toggleControlPanel()" id="control-btn" data-translate="control_toggle">🎛️ Volume and Progress Control</button>
@@ -1847,9 +1890,9 @@ setInterval(IP.getIpipnetIP, 180000);
     <button type="button" data-bs-toggle="modal" data-bs-target="#colorModal" data-translate="theme_editor"><i class="bi-palette"></i> Theme Editor</button>                   
     <button type="button" data-bs-toggle="modal" data-bs-target="#filesModal" data-translate="set_background"><i class="bi-camera-video"></i> Set Background</button>
     <button data-bs-toggle="modal" data-bs-target="#langModal"><img id="flagIcon" src="./assets/neko/flags/cn.png" alt="Country Flag" style="width: 30px; height: auto; margin-right: 10px;"><span data-translate="set_language">Set Language</span></button>
-     <button type="button" class="btn btn-outline-secondary btn-sm" onclick="window.open('./filekit.php', '_blank')"><i class="bi bi-file-earmark"></i> <span data-translate="fileHelper"></span></button>
-     <button type="button" id="translationToggleBtn" data-translate="enableTranslation"></button>
-    <button onclick="togglePopup()" data-translate="close_popup">❌ Close</button>
+    <button type="button" class="btn btn-outline-secondary btn-sm" onclick="window.open('./filekit.php', '_blank')"><i class="bi bi-file-earmark"></i> <span data-translate="fileHelper"></span></button>
+    <button type="button" id="translationToggleBtn" data-translate="enableTranslation"></button>
+    <button onclick="closeSettingsPanel()" data-translate="close_popup">❌ Close</button>
 </div>
 
 <div id="controlPanel">
@@ -1926,22 +1969,41 @@ setInterval(IP.getIpipnetIP, 180000);
 </div>
 
 <script>
-    const modal = document.getElementById("animationModal");
-    const openModalBtn = document.getElementById("openModalBtn");
-
-    openModalBtn.addEventListener("click", () => {
-        modal.style.display = "flex";
-    });
-
-    function closeModal() {
-        modal.style.display = "none";
+document.addEventListener('keydown', function(event) {
+    if (event.ctrlKey && event.shiftKey && event.key === 'Q') {
+        event.preventDefault(); 
+        toggleSettingsPanel();
     }
+});
 
-    window.addEventListener("click", (event) => {
-        if (event.target === modal) {
-            closeModal();
-        }
-    });
+function toggleSettingsPanel() {
+    const panel = document.getElementById('settingsPanel');
+    panel.classList.toggle('active');
+}
+
+function closeSettingsPanel() {
+    const panel = document.getElementById('settingsPanel');
+    panel.classList.remove('active');
+}
+</script>
+
+<script>
+const modal = document.getElementById("animationModal");
+const openModalBtn = document.getElementById("openModalBtn");
+
+openModalBtn.addEventListener("click", () => {
+    modal.style.display = "flex";
+});
+
+function closeModal() {
+    modal.style.display = "none";
+}
+
+window.addEventListener("click", (event) => {
+    if (event.target === modal) {
+        closeModal();
+    }
+});
 </script>
 
 <script>
@@ -4542,7 +4604,7 @@ toggleModalButton.onclick = function() {
   <div class="modal-dialog modal-xl">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title" id="colorModalLabel" data-translate="adjust_container_width">Select Theme Color</h5>
+        <h5 class="modal-title" id="colorModalLabel" data-translate="chooseThemeColor">Choose Theme Color</h5>
         <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
       </div>
       <div class="modal-body">
@@ -4838,6 +4900,17 @@ input[type="range"]:focus {
     color: white;
 }
 
+.btn-group.mb-4 {
+    margin-bottom: 1.5rem !important;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    border-radius: 10px;
+    background: rgba(255, 255, 255, 0.9);
+    backdrop-filter: blur(8px);
+    padding: 8px;
+    display: inline-flex;
+    gap: 6px;
+}
+
 @media (max-width: 768px) {
     .button-group {
         display: flex;
@@ -5029,8 +5102,8 @@ input[type="range"]:focus {
                     </div>
                 </div>
                 <div class="btn-group mb-4" role="group" aria-label="File sections">
-                    <button type="button" class="btn btn-secondary" onclick="showSection('localFilesSection')" data-translate="localFiles">Local Files</button>
-                    <button type="button" class="btn btn-secondary" onclick="showSection('driveFilesSection')" data-translate="driveFiles">Drive Files</button>
+                    <button type="button" class="btn btn-success me-2" onclick="showSection('localFilesSection')" data-translate="localFiles">Local Files</button>
+                    <button type="button" class="btn btn-primary" onclick="showSection('driveFilesSection')" data-translate="driveFiles">Drive Files</button>
                 </div>
                 <div id="fileSections">
                     <div id="localFilesSection" class="file-section active">
@@ -5492,7 +5565,6 @@ function showPlaylistContainer() {
     document.addEventListener("fullscreenchange", adjustModalHeight);
 </script>
 
-
 <script>
 let playlist = JSON.parse(localStorage.getItem('playlist')) || [];
 let currentIndex = 0;
@@ -5662,6 +5734,34 @@ function playNextAudio() {
     playMedia(nextIndex);
 }
 
+function playPreviousVideo() {
+    let prevIndex = currentIndex - 1;
+    if (prevIndex < 0) prevIndex = playlist.length - 1; 
+
+    while (prevIndex !== currentIndex && !/\.(mp4|avi|mkv|mov|wmv)$/i.test(playlist[prevIndex].url)) {
+        prevIndex--;
+        if (prevIndex < 0) prevIndex = playlist.length - 1;
+    }
+
+    if (prevIndex !== currentIndex) {
+        playMedia(prevIndex);
+    }
+}
+
+function playPreviousAudio() {
+    let prevIndex = currentIndex - 1;
+    if (prevIndex < 0) prevIndex = playlist.length - 1; 
+
+    while (prevIndex !== currentIndex && !/\.(mp3|wav|ogg|flac|aac|m4a|webm|opus)$/i.test(playlist[prevIndex].url)) {
+        prevIndex--;
+        if (prevIndex < 0) prevIndex = playlist.length - 1;
+    }
+
+    if (prevIndex !== currentIndex) {
+        playMedia(prevIndex);
+    }
+}
+
 function openVideoPlayerModal() {
     document.querySelectorAll('.file-checkbox:checked').forEach(checkbox => {
         addToPlaylist(checkbox.getAttribute('data-url'), checkbox.getAttribute('data-title'));
@@ -5697,8 +5797,8 @@ function setupHoverControls() {
     hoverControls.style.display = 'none';
     hoverControls.style.position = 'absolute';
     hoverControls.style.bottom = '60px';
-    hoverControls.style.left = '36%';
-    hoverControls.style.transform = 'translateX(-36%)';
+    hoverControls.style.left = '38%';
+    hoverControls.style.transform = 'translateX(-38%)';
     hoverControls.style.padding = '10px';
     hoverControls.style.background = 'rgba(0, 0, 0, 0.5)';
     hoverControls.style.borderRadius = '5px';
@@ -5721,7 +5821,26 @@ function setupHoverControls() {
     `;
     videoElement.parentElement.appendChild(hoverControls);
 
-    document.getElementById('prevButton').onclick = () => playPreviousVideo();
+    function adjustControlsPosition() {
+        if (document.fullscreenElement) {
+            hoverControls.style.left = 'calc(38% + 120px)'; 
+        } else {
+            hoverControls.style.left = '38%';
+        }
+    }
+
+    document.addEventListener('fullscreenchange', adjustControlsPosition);
+
+    document.getElementById('prevButton').onclick = () => {
+        const videoElement = document.getElementById('videoPlayer');
+        const audioElement = document.getElementById('audioPlayer');
+    
+        if (videoElement.style.display !== 'none') {
+            playPreviousVideo();
+        } else if (audioElement.style.display !== 'none') {
+            playPreviousAudio();
+        }
+    };
     document.getElementById('nextButton').onclick = () => playNextVideo(); 
     document.getElementById('pipButton').onclick = () => togglePictureInPicture(videoElement);
 
@@ -5815,6 +5934,8 @@ function togglePictureInPicture(videoElement) {
         document.getElementById('pipButton').innerHTML = '<i class="fas fa-expand" style="color: white; font-size: 24px;"></i>';
     }
 }
+
+
 </script>
 
 <script>
@@ -6368,4 +6489,5 @@ window.addEventListener('load', function() {
     });
   });
 </script>
+
 
