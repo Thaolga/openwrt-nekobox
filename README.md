@@ -11,7 +11,7 @@
   Sing-box based Proxy
 </p>
 
-# NekoBox 默认的 Web 服务器是 Uhttpd。如果您正在使用 Nginx，请不要尝试使用此插件。
+# 中文版已合并至主线
 
 # NekoBox is a meticulously designed proxy tool for "Mihomo" and "Sing-box," specifically created for home users. It aims to provide a simple yet powerful proxy solution. Built on PHP and BASH technologies, NekoBox simplifies complex proxy configurations into an intuitive experience, allowing every user to easily enjoy an efficient and secure network environment.
 ---
