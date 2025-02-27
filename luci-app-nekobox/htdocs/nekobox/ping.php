@@ -2414,6 +2414,7 @@ window.addEventListener('load', function() {
 
 #lyricsContainer::-webkit-scrollbar-track {
     background: #000; 
+    margin: 140px 0;
 }
 
 #lyricsContainer::-webkit-scrollbar-thumb {
