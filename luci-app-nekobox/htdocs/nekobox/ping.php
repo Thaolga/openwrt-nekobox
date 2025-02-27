@@ -73,6 +73,8 @@ function updateLanguage(lang) {
         const translationValue = translations[translationKey] || ''; 
         if (translations[translationKey]) {
             el.setAttribute('placeholder', translations[translationKey]);
+            el.setAttribute('aria-label', translations[translationKey]);  
+            el.setAttribute('title', translations[translationKey]); 
         }
     });
 
@@ -2150,66 +2152,6 @@ window.addEventListener('load', function() {
     cursor: pointer;
 }
 
-.audio-player-container .btn-primary {
-    background: #ff5733; 
-    color: white;
-}
-
-.audio-player-container .btn-primary {
-    background: #FF5722 !important; 
-    color: white !important;
-}
-
-.audio-player-container .btn-primary:hover {
-    background: #e64a19 !important; 
-}
-
-.audio-player-container .btn-secondary {
-    background: #9C27B0 !important; 
-    color: white !important;
-}
-
-.audio-player-container .btn-secondary:hover {
-    background: #8E24AA !important; 
-}
-
-.audio-player-container .btn-info {
-    background: #00BCD4 !important; 
-    color: white !important;
-}
-
-.audio-player-container .btn-info:hover {
-    background: #0097A7 !important; 
-}
-
-.audio-player-container .btn-warning {
-    background: #FF9800 !important; 
-    color: black !important;
-}
-
-.audio-player-container .btn-warning:hover {
-    background: #FB8C00 !important; 
-}
-
-.audio-player-container .btn-dark {
-    background: #8BC34A !important; 
-    color: white !important;
-}
-
-.audio-player-container .btn-dark:hover {
-    background: #7CB342 !important; 
-}
-
-#modalLoopButton {
-    color: white !important;
-    background-color: #f39c12 !important; 
-}
-
-#modalLoopButton:hover {
-    background-color: #f5b041 !important; 
-    color: white !important; 
-}
-
 .track-name {
     margin-top: 15px;
     font-size: 16px;
@@ -2414,6 +2356,8 @@ window.addEventListener('load', function() {
     font-family: 'SimSun', 'Songti SC', '宋体', serif; 
     font-size: 1.1rem; 
     background: rgba(0, 0, 0, 0.9) !important; 
+    white-space: pre-wrap; 
+    word-break: keep-all; 
 }
 
 .lyric-line {
@@ -2421,6 +2365,13 @@ window.addEventListener('load', function() {
     color: #cccccc !important; 
     font-size: 1.1rem;
     transition: all 0.3s ease;
+    transition: color 0.3s; 
+}
+
+.lyric-line .char {
+    display: inline-block;
+    white-space: nowrap;
+    margin-right: 0.1rem;  
 }
 
 .lyric-line .char.played {
@@ -2432,25 +2383,8 @@ window.addEventListener('load', function() {
     font-size: 1.3rem;
 }
 
-.lyric-line {
-    white-space: pre-wrap; 
-    word-break: keep-all; 
-}
-
-.word {
-    display: inline-block;
-    white-space: nowrap;
-}
-
-.char.space {
-    display: inline;
-    min-width: 0.5em; 
-}
-
 .lyric-line.highlight .char {
-    transition: all 0.1s ease; 
-    display: inline-block;  
-    margin-right: 0.1rem;  
+    transition: all 0.1s ease;  
 }
 
 .lyric-line.highlight .char.active {
@@ -2474,20 +2408,18 @@ window.addEventListener('load', function() {
         0 0 20px rgba(51,204,255,0.5);
 }
 
-.lyrics-container::-webkit-scrollbar {
+#lyricsContainer::-webkit-scrollbar {
     width: 13.5px; 
 }
 
-.lyrics-container::-webkit-scrollbar-track {
+#lyricsContainer::-webkit-scrollbar-track {
     background: #000; 
-    margin: 140px 0;
 }
 
-.lyrics-container::-webkit-scrollbar-thumb {
+#lyricsContainer::-webkit-scrollbar-thumb {
     background-color: #007bff; 
     border-radius: 10px; 
     border: 3px solid #000; 
- }
 }
 
 .lyric-line.enter-active {
@@ -2497,6 +2429,17 @@ window.addEventListener('load', function() {
 @keyframes textPop {
     from { opacity: 0; transform: translateY(10px); }
     to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes color-flow {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+
+.char.space {
+    display: inline;
+    min-width: 0.5em; 
 }
 
 .floating-lyrics {
@@ -2570,11 +2513,11 @@ window.addEventListener('load', function() {
 <div class="modal fade" id="audioPlayerModal" tabindex="-1" aria-labelledby="audioPlayerModalLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
   <div class="modal-dialog modal-xl" role="document">
     <div class="modal-content">
-      <div class="modal-header">
+      <div class="modal-header text-white">
         <h5 class="modal-title" id="audioPlayerModalLabel" data-translate="music_player">Music Player</h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
-      <div class="modal-body position-relative"> 
+      <div class="modal-body position-relative d-flex flex-column align-items-center"> 
         <img src="./assets/img/nekobox.png" 
              alt="NekoBox Logo" 
              class="position-absolute top-0 mt-4 me-2" 
@@ -2583,31 +2526,39 @@ window.addEventListener('load', function() {
           <span id="dateDisplay"></span> 
           <span id="timeDisplay"></span>
         </div>
-        <audio id="audioElement" controls>
+        <audio id="audioElement" controls class="w-100 mt-3">
           <source id="audioSource" type="audio/mp3" src="your-audio-file.mp3">
           Your browser does not support the audio element.
         </audio>
-        <div class="audio-player-container text-center">
-          <button id="modalPlayPauseButton" class="btn btn-primary"><span data-translate="play1"></span></button>
-          <button id="modalPrevButton" class="btn btn-secondary" data-translate="previous_song">⏪ Previous Song</button>
-          <button id="modalNextButton" class="btn btn-secondary" data-translate="next_song">⏩ Next Song</button>
-          <button id="modalRewindButton" class="btn btn-dark" data-translate="rewind">⏪ Rewind</button>
-          <button id="modalFastForwardButton" class="btn btn-info" data-translate="fast_forward">⏩ Fast Forward</button>
-          <button id="modalLoopButton" class="btn btn-warning" data-translate="loop">🔁 Loop</button>
-          <div class="track-name" id="trackName" data-translate="no_song">No Song</div>
+        <div class="audio-player-container text-center w-100 mt-3 d-flex justify-content-center align-items-center gap-3">
+          <button id="modalRewindButton" data-translate-title="play1"><i class="fas fa-backward"></i></button>
+          <button id="modalPrevButton" data-translate-title="previous_song"><i class="fas fa-step-backward"></i></button>
+          <button id="modalPlayPauseButton" data-translate-title="next_song"><i id="playPauseIcon" class="fas fa-play"></i></button>
+          <button id="modalNextButton" data-translate-title="rewind"><i class="fas fa-step-forward"></i></button>
+          <button id="modalFastForwardButton" data-translate-title="fast_forward"><i class="fas fa-forward"></i></button>
+          <button id="modalLoopButton" data-translate-title="loop"><i class="fas fa-sync-alt"></i></button>
         </div>
-        <div class="lyrics-container" id="lyricsContainer"></div>
-        <button class="btn btn-outline-primary mt-3" type="button" data-bs-toggle="collapse" data-bs-target="#playlistCollapse" aria-expanded="true" data-translate="toggle_playlist">
-          📜 Show/Hide Playlist
-        </button>
-        <button class="btn btn-outline-primary mt-3 ms-2" type="button" data-bs-toggle="modal" data-bs-target="#urlModal" data-translate="customize_playlist">🔗 Customize Playlist</button>
-        <button class="btn btn-outline-primary mt-3 ms-2"  id="clearStorageBtn" data-translate="clear_playback_settings"><i class="fas fa-trash-alt"></i> Clear Playback Settings</button>
-        <button class="btn btn-outline-primary mt-3 ms-2"  id="pinLyricsButton" data-translate="pin_lyrics"><i class="fas fa-thumbtack"></i> Pin Lyrics</button>
-        <div id="playlistCollapse" class="collapse mt-3">
+        <div class="track-name text-center mt-3" id="trackName" data-translate="no_song">No Song</div>
+        <div class="lyrics-container mt-3 w-100" id="lyricsContainer"></div>
+        <div class="d-flex justify-content-center align-items-center gap-3 mt-3 w-100">
+          <button class="btn btn-outline-primary" type="button" data-bs-toggle="collapse" data-bs-target="#playlistCollapse" aria-expanded="true">
+            <i class="fas fa-list"></i> <span data-translate="toggle_playlist">Show/Hide Playlist</span>
+          </button>
+          <button class="btn btn-outline-primary" type="button" data-bs-toggle="modal" data-bs-target="#urlModal">
+            <i class="fas fa-cogs"></i> <span data-translate="customize_playlist">Customize Playlist</span>
+          </button>
+          <button class="btn btn-outline-primary" id="clearStorageBtn">
+            <i class="fas fa-trash-alt"></i> <span data-translate="clear_playback_settings">Clear Playback Settings</span>
+          </button>
+          <button class="btn btn-outline-primary" id="pinLyricsButton">
+            <i class="fas fa-thumbtack"></i> <span data-translate="pin_lyrics">Pin Lyrics</span>
+          </button>
+        </div>
+        <div id="playlistCollapse" class="collapse mt-3 w-100">
           <h3 data-translate="playlist">Playlist</h3>
           <ul id="trackList" class="list-group"></ul>
         </div>
-        <div id="tooltip"></div>
+        <div id="tooltip" class="tooltip"></div>
       </div>
     </div>
   </div>
