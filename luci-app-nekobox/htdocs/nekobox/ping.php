@@ -4475,17 +4475,17 @@ function speakMessage(message) {
         <input type="range" class="form-range" name="containerWidth" id="containerWidth" min="800" max="5400" step="50" value="1800" style="width: 100%;">
         <div id="widthValue" class="mt-2" style="color: #FF00FF;" data-translate="current_width">Current Width: 1800px</div>
 
-        <label for="modalMaxWidth" class="form-label mt-4" data-translate="modal_max_width">Modal Max Width</label>
+        <label for="modalMaxWidth" class="form-label mt-4" data-translate="settings.modal.maxWidth">Modal Max Width</label>
         <input type="range" class="form-range" name="modalMaxWidth" id="modalMaxWidth" min="1400" max="5400" step="50" value="1400" style="width: 100%;">
         <div id="modalWidthValue" class="mt-2" style="color: #00FF00;" data-translate="current_max_width">Current Max Width: 1400px</div>
 
         <div class="form-check mt-3">
             <input class="form-check-input" type="checkbox" id="group1Background">
-            <label class="form-check-label" for="group1Background" data-translate="enable_transparent_dropdown">Enable transparent dropdowns, form selections, and info backgrounds</label>
+            <label class="form-check-label" for="group1Background" data-translate="transparent_dropdown">Enable transparent dropdowns, form selections, and info backgrounds</label>
         </div>
         <div class="form-check mt-3">
             <input class="form-check-input" type="checkbox" id="bodyBackground">
-            <label class="form-check-label" for="bodyBackground" data-translate="enable_transparent_body">Enable transparent body background</label>
+            <label class="form-check-label" for="bodyBackground" data-translate="transparent_body">Enable transparent body background</label>
         </div>
       </div>
       <div class="modal-footer">
@@ -5505,7 +5505,7 @@ function showPlaylistContainer() {
                 <h2 class="mb-3" data-translate="upload_image_video_audio">Upload Image/Video/Audio</h2>
                 <div class="alert alert-warning d-flex align-items-center" role="alert">
                     <i class="bi bi-exclamation-triangle-fill me-2"></i>
-                    OpenWRT Remaining Space: <?php echo $availableSpace; ?> MB
+                    <?php echo $langData[$currentLang]['remaining Space']; ?> <?php echo $availableSpace; ?> MB    
                 </div>
                 <form method="POST" action="download.php" enctype="multipart/form-data">
                     <div id="dropArea" class="mb-3">

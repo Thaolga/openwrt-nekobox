@@ -299,7 +299,7 @@ $razordVersion = getRazordVersion();
 </table>
 
 <div class="modal fade" id="updateVersionModal" tabindex="-1" aria-labelledby="updateVersionModalLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
-    <div class="modal-dialog modal-lg">
+    <div class="modal-dialog modal-xl">
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title" id="updateVersionModalLabel" data-translate="stable">Select the updated version of the language</h5>
@@ -323,7 +323,7 @@ $razordVersion = getRazordVersion();
 </div>
 
 <div class="modal fade" id="mihomoVersionSelectionModal" tabindex="-1" aria-labelledby="mihomoVersionSelectionModalLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
-    <div class="modal-dialog modal-lg">
+    <div class="modal-dialog modal-xl">
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title" id="mihomoVersionSelectionModalLabel" data-translate="mihomo_version_modal_title">Select Mihomo Kernel Version</h5>
@@ -346,7 +346,7 @@ $razordVersion = getRazordVersion();
 </div>
 
 <div class="modal fade" id="optionsModal" tabindex="-1" aria-labelledby="optionsModalLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
-    <div class="modal-dialog modal-lg">
+    <div class="modal-dialog modal-xl">
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title" id="optionsModalLabel" data-translate="options_modal_title">Select Operation</h5>
@@ -370,7 +370,7 @@ $razordVersion = getRazordVersion();
 </div>
 
 <div class="modal fade" id="operationModal" tabindex="-1" aria-labelledby="operationModalLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
-    <div class="modal-dialog modal-lg">
+    <div class="modal-dialog modal-xl">
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title" id="operationModalLabel" data-translate="operation_modal_title">Select operation</h5>
@@ -394,7 +394,7 @@ $razordVersion = getRazordVersion();
 </div>
 
 <div class="modal fade" id="versionSelectionModal" tabindex="-1" aria-labelledby="versionSelectionModalLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
-    <div class="modal-dialog modal-lg">
+    <div class="modal-dialog modal-xl">
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title" id="versionSelectionModalLabel" data-translate="versionSelectionModalTitle">Select Singbox core version</h5>
@@ -427,7 +427,7 @@ $razordVersion = getRazordVersion();
 </div>
 
 <div class="modal fade" id="singboxVersionModal" tabindex="-1" aria-labelledby="singboxVersionModalLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
-    <div class="modal-dialog modal-lg">
+    <div class="modal-dialog modal-xl">
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title" id="singboxVersionModalLabel" data-translate="singboxVersionModalTitle">Select Singbox core version (Channel 2)</h5>
@@ -451,7 +451,7 @@ $razordVersion = getRazordVersion();
 </div>
 
 <div id="panelSelectionModal" class="modal fade" tabindex="-1" aria-labelledby="panelSelectionModalLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
-    <div class="modal-dialog modal-lg">
+    <div class="modal-dialog modal-xl">
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title" id="panelSelectionModalLabel" data-translate="panelSelectionModalTitle">Selection Panel</h5>
@@ -461,7 +461,8 @@ $razordVersion = getRazordVersion();
                 <div class="form-group">
                     <label for="panelSelect" data-translate="selectPanelLabel">Select a Panel</label>
                     <select id="panelSelect" class="form-select">
-                        <option value="zashboard" data-translate="zashboardPanel">Zashboard Panel</option>
+                        <option value="zashboard" data-translate="panel_zashboard_option">Zashboard Panel [Low Memory]</option>
+                        <option value="Zashboard" data-translate="panel_Zashboard_option">Zashboard Panel [High Memory]</option>
                         <option value="metacubexd" data-translate="metacubexdPanel">Metacubexd Panel</option>
                         <option value="yacd-meat" data-translate="yacdMeatPanel">Yacd-Meat Panel</option>
                         <option value="dashboard" data-translate="dashboardPanel">Dashboard Panel</option>
@@ -477,7 +478,7 @@ $razordVersion = getRazordVersion();
 </div>
 
 <div class="modal fade" id="versionModal" tabindex="-1" aria-labelledby="versionModalLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
-    <div class="modal-dialog modal-lg">
+    <div class="modal-dialog modal-xl">
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title" id="versionModalLabel" data-translate="versionModalLabel">Version check results</h5>
@@ -498,7 +499,7 @@ $razordVersion = getRazordVersion();
 </div>
 
 <div class="modal fade" id="updateModal" tabindex="-1" aria-labelledby="updateModalLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
-    <div class="modal-dialog modal-lg">
+    <div class="modal-dialog modal-xl">
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title" id="updateModalLabel" data-translate="updateModalLabel">Update status</h5>
@@ -685,26 +686,30 @@ function selectOperation(type) {
         },
         'client': {
             url: 'update_script.php?lang=' + selectedLanguage,  
-            message: 'Starting to download client updates...',
-            description: 'Updating the client to the latest version'
+            message: langData[currentLang]['client_message'] || 'Starting to download client updates...',
+            description: langData[currentLang]['client_description'] || 'Updating the client to the latest version'
         },
         'panel': { 
             url: selectedPanel === 'zashboard' 
-                ? 'update_zashboard.php' 
-                : selectedPanel === 'yacd-meat' 
-                    ? 'update_meta.php' 
-                    : selectedPanel === 'metacubexd' 
-                        ? 'update_metacubexd.php' 
-                        : selectedPanel === 'dashboard'  
-                            ? 'update_dashboard.php'  
-                            : 'unknown_panel.php', 
+                ? 'update_zashboard.php?panel=zashboard&update_type=dist' 
+                : selectedPanel === 'Zashboard' 
+                    ? 'update_zashboard.php?panel=zashboard1&update_type=fonts' 
+                        : selectedPanel === 'yacd-meat' 
+                            ? 'update_meta.php' 
+                            : selectedPanel === 'metacubexd' 
+                                ? 'update_metacubexd.php' 
+                                : selectedPanel === 'dashboard'  
+                                    ? 'update_dashboard.php'  
+                                    : 'unknown_panel.php', 
             message: langData[currentLang]['panel_' + selectedPanel + '_message'] || 
-                (selectedPanel === 'zashboard' ? 'Starting to download Zashboard panel update...' :
+                (selectedPanel === 'zashboard' ? 'Starting to download Zashboard panel update (dist-cdn-fonts.zip)...' :
+                selectedPanel === 'Zashboard' ? 'Starting to download Zashboard panel update (dist.zip)...' :
                 selectedPanel === 'yacd-meat' ? 'Starting to download Yacd-Meat panel update...' :
                 selectedPanel === 'metacubexd' ? 'Starting to download Metacubexd panel update...' :
                 selectedPanel === 'dashboard' ? 'Starting to download Dashboard panel update...' : 'Unknown panel update type...'),
             description: langData[currentLang]['panel_' + selectedPanel + '_description'] || 
-                (selectedPanel === 'zashboard' ? 'Updating Zashboard panel to the latest version' :
+                (selectedPanel === 'zashboard' ? 'Updating Zashboard panel to the latest version (dist-cdn-fonts.zip)' :
+                selectedPanel === 'Zashboard' ? 'Updating Zashboard panel to the latest version (dist.zip)' :
                 selectedPanel === 'yacd-meat' ? 'Updating Yacd-Meat panel to the latest version' :
                 selectedPanel === 'metacubexd' ? 'Updating Metacubexd panel to the latest version' :
                 selectedPanel === 'dashboard' ? 'Updating Dashboard panel to the latest version' : 
