@@ -2345,7 +2345,7 @@ window.addEventListener('load', function() {
 
 <style>
 #lyricsContainer {
-    max-height: 460px;
+    max-height: 320px;
     overflow-y: auto;
     margin-top: 20px;
     border: 1px solid #333;
@@ -2414,7 +2414,7 @@ window.addEventListener('load', function() {
 
 #lyricsContainer::-webkit-scrollbar-track {
     background: #000; 
-    margin: 140px 0;
+    margin: 80px 0;
 }
 
 #lyricsContainer::-webkit-scrollbar-thumb {
@@ -2441,6 +2441,53 @@ window.addEventListener('load', function() {
 .char.space {
     display: inline;
     min-width: 0.5em; 
+}
+
+.visualizer {
+    display: flex;
+    justify-content: center; 
+    align-items: flex-end;
+    gap: 3px;  
+    width: 100%; 
+    height: 50px;
+    margin: 0 auto; 
+    padding: 0;
+}
+
+.bar {
+    width: 1px;
+    flex: 1;
+    max-width: 3px;
+    background: linear-gradient(to bottom, 
+        rgba(255,107,107,0.9) 0%,
+        rgba(123,237,159,0.7) 30%,
+        rgba(112,161,255,0.6) 70%,
+        rgba(255,159,243,0.5) 100%
+    );
+    transition: height 0.25s cubic-bezier(0.2, 0.6, 0.3, 1.1);
+    transform-origin: bottom;
+}
+
+@keyframes colorFlow {
+    0% {
+        background-position: 0% 0%;
+        opacity: 0.9;
+    }
+    50% {
+        background-position: 100% 0%;
+        opacity: 1;
+    }
+    100% {
+        background-position: 200% 0%;
+        opacity: 0.9;
+    }
+}
+
+.bar:nth-child(odd) {
+    height: 30%;
+}
+.bar:nth-child(even) {
+    height: 20%;  
 }
 
 .floating-lyrics {
@@ -2523,7 +2570,7 @@ window.addEventListener('load', function() {
              alt="NekoBox Logo" 
              class="position-absolute top-0 mt-4 me-2" 
              style="width: 100px; height: auto; z-index: 1000; right: 40px;">
-        <div class="datetime-container">
+        <div class="datetime-container" style="font-size: 24px">
           <span id="dateDisplay"></span> 
           <span id="timeDisplay"></span>
         </div>
@@ -2539,7 +2586,127 @@ window.addEventListener('load', function() {
           <button id="modalFastForwardButton" data-translate-title="fast_forward"><i class="fas fa-forward"></i></button>
           <button id="modalLoopButton" data-translate-title="loop"><i class="fas fa-sync-alt"></i></button>
         </div>
-        <div class="track-name text-center mt-3" id="trackName" data-translate="no_song">No Song</div>
+        <div class="visualizer">
+          <div class="bar"></div>
+          <div class="bar"></div>
+          <div class="bar"></div>
+          <div class="bar"></div>
+          <div class="bar"></div>
+          <div class="bar"></div>
+          <div class="bar"></div>
+          <div class="bar"></div>
+          <div class="bar"></div>
+          <div class="bar"></div>
+          <div class="bar"></div>
+          <div class="bar"></div>
+          <div class="bar"></div>
+          <div class="bar"></div>
+          <div class="bar"></div>
+          <div class="bar"></div>
+          <div class="bar"></div>
+          <div class="bar"></div>
+          <div class="bar"></div>
+          <div class="bar"></div>
+          <div class="bar"></div>
+          <div class="bar"></div>
+          <div class="bar"></div>
+          <div class="bar"></div>
+          <div class="bar"></div>
+          <div class="bar"></div>
+          <div class="bar"></div>
+          <div class="bar"></div>
+          <div class="bar"></div>
+          <div class="bar"></div>
+          <div class="bar"></div>
+          <div class="bar"></div>
+          <div class="bar"></div>
+          <div class="bar"></div>
+          <div class="bar"></div>
+          <div class="bar"></div>
+          <div class="bar"></div>
+          <div class="bar"></div>
+          <div class="bar"></div>
+          <div class="bar"></div>
+          <div class="bar"></div>
+          <div class="bar"></div>
+          <div class="bar"></div>
+          <div class="bar"></div>
+          <div class="bar"></div>
+          <div class="bar"></div>
+          <div class="bar"></div>
+          <div class="bar"></div>
+          <div class="bar"></div>
+          <div class="bar"></div>
+          <div class="bar"></div>
+          <div class="bar"></div>
+          <div class="bar"></div>
+          <div class="bar"></div>
+          <div class="bar"></div>
+          <div class="bar"></div>
+          <div class="bar"></div>
+          <div class="bar"></div>
+          <div class="bar"></div>
+          <div class="bar"></div>
+          <div class="bar"></div>
+          <div class="bar"></div>
+          <div class="bar"></div>
+          <div class="bar"></div>
+          <div class="bar"></div>
+          <div class="bar"></div>
+          <div class="bar"></div>
+          <div class="bar"></div>
+          <div class="bar"></div>
+          <div class="bar"></div>
+          <div class="bar"></div>
+          <div class="bar"></div>
+          <div class="bar"></div>
+          <div class="bar"></div>
+          <div class="bar"></div>
+          <div class="bar"></div>
+          <div class="bar"></div>
+          <div class="bar"></div>
+          <div class="bar"></div>
+          <div class="bar"></div>
+          <div class="bar"></div>
+          <div class="bar"></div>
+          <div class="bar"></div>
+          <div class="bar"></div>
+          <div class="bar"></div>
+          <div class="bar"></div>
+          <div class="bar"></div>
+          <div class="bar"></div>
+          <div class="bar"></div>
+          <div class="bar"></div>
+          <div class="bar"></div>
+          <div class="bar"></div>
+          <div class="bar"></div>
+          <div class="bar"></div>
+          <div class="bar"></div>
+          <div class="bar"></div>
+          <div class="bar"></div>
+          <div class="bar"></div>
+          <div class="bar"></div>
+          <div class="bar"></div>
+          <div class="bar"></div>
+          <div class="bar"></div>
+          <div class="bar"></div>
+          <div class="bar"></div>
+          <div class="bar"></div>
+          <div class="bar"></div>
+          <div class="bar"></div>
+          <div class="bar"></div>
+          <div class="bar"></div>
+          <div class="bar"></div>
+          <div class="bar"></div>
+          <div class="bar"></div>
+          <div class="bar"></div>
+          <div class="bar"></div>
+          <div class="bar"></div>
+          <div class="bar"></div>
+          <div class="bar"></div>
+          <div class="bar"></div>
+        </div>
+        <div class="track-name text-center mt-3" id="trackName" style="font-size: 24px" data-translate="no_song">No Song</div>
         <div class="lyrics-container mt-3 w-100" id="lyricsContainer"></div>
         <div class="d-flex justify-content-center align-items-center gap-3 mt-3 w-100">
           <button class="btn btn-outline-primary" type="button" data-bs-toggle="collapse" data-bs-target="#playlistCollapse" aria-expanded="true">
@@ -2559,12 +2726,28 @@ window.addEventListener('load', function() {
           <h3 data-translate="playlist">Playlist</h3>
           <ul id="trackList" class="list-group"></ul>
         </div>
-        <div id="tooltip" class="tooltip"></div>
       </div>
     </div>
   </div>
 </div>
-
+<script>
+const bars = document.querySelectorAll('.bar');
+function synthWave() {
+  const time = Date.now() / 1000;
+  
+  bars.forEach((bar, i) => {
+    const frequency = 0.5 + i * 0.2; 
+    const amplitude = Math.sin(time * frequency) * 50 + 50; 
+    const height = amplitude * (0.8 + Math.random() * 0.2); 
+    
+    bar.style.height = `${Math.max(5, height)}%`;
+    bar.style.backgroundColor = `hsl(${(time * 50 + i * 30) % 360}, 80%, 60%)`;
+  });
+  
+  requestAnimationFrame(synthWave);
+}
+synthWave();
+</script> 
 <script>
 const audioPlayer = document.getElementById('audioElement');
 let songs = [];
@@ -2728,7 +2911,10 @@ function saveSongOrder() {
 
 function extractSongName(url) {
     const parts = url.split('/');
-    return decodeURIComponent(parts[parts.length - 1]);
+    const fileName = parts[parts.length - 1];
+    const decoded = decodeURIComponent(fileName);
+    const lastDotIndex = decoded.lastIndexOf('.');
+    return lastDotIndex === -1 ? decoded : decoded.substring(0, lastDotIndex);
 }
 
 function updateTrackName() {
