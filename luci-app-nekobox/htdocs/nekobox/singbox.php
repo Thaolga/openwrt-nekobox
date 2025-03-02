@@ -56,6 +56,37 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['setCron'])) {
 ?>
 
 <?php
+$subscriptionFilePath = '/etc/neko/proxy_provider/subscription_data.txt';
+
+if (file_exists($subscriptionFilePath)) {
+    $fileContent = file_get_contents($subscriptionFilePath);
+    $fileContent = trim($fileContent); 
+} else {
+    $fileContent = ''; 
+}
+
+$latestLink = '';
+if (!empty($fileContent)) {
+    $lines = explode("\n", $fileContent);
+
+    $latestTimestamp = '';
+    $latestLink = '';
+
+    foreach ($lines as $line) {
+        if (preg_match('/^(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}) \| .*: (.*)$/', $line, $matches)) {
+            $timestamp = $matches[1]; 
+            $links = $matches[2]; 
+
+            if ($timestamp > $latestTimestamp) {
+                $latestTimestamp = $timestamp;
+                $latestLink = $links;
+            }
+        }
+    }
+}
+?>
+
+<?php
 $shellScriptPath = '/etc/neko/core/update_subscription.sh';
 $LOG_FILE = '/etc/neko/tmp/log.txt'; 
 
@@ -183,7 +214,7 @@ EOL;
         <form method="post" action="">
             <div class="mb-3">
                 <label for="subscribeUrl" class="form-label" data-translate="subscribeUrlLabel">Subscription URL</label>         
-                <input type="text" class="form-control" id="subscribeUrl" name="subscribeUrl" value="<?php echo htmlspecialchars($lastSubscribeUrl); ?>" placeholder="Enter subscription URL, multiple URLs separated by |"  data-translate-placeholder="subscribeUrlPlaceholder" required>
+                <input type="text" class="form-control" id="subscribeUrl" name="subscribeUrl" value="<?php echo htmlspecialchars($links); ?>" placeholder="Enter subscription URL, multiple URLs separated by |"  data-translate-placeholder="subscribeUrlPlaceholder" required>
             </div>
             <div class="mb-3">
                 <label for="customFileName" class="form-label" data-translate="customFileNameLabel">Custom Filename (Default: sing-box.json)</label>
