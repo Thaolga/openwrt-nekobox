@@ -727,7 +727,7 @@ function displayUpdateNotification() {
                               <?php if ($index < count($proxyFiles)): ?>
                                     <form action="" method="post" class="d-inline mb-1">
                                         <input type="hidden" name="deleteFile" value="<?php echo htmlspecialchars($file); ?>">
-                                        <button type="submit" class="btn btn-danger btn-sm"  onclick="return confirm('Are you sure you want to delete this file？');" data-translate-title="delete"><i class="bi bi-trash"></i></button>
+                                        <button type="submit" class="btn btn-danger btn-sm"  onclick="return confirmDelete()"  data-translate-title="delete"><i class="bi bi-trash"></i></button>
                                     </form>
                                     <form action="" method="post" class="d-inline mb-1">
                                         <input type="hidden" name="oldFileName" value="<?php echo htmlspecialchars($file); ?>">
@@ -749,7 +749,7 @@ function displayUpdateNotification() {
                                 <?php else: ?>
                                     <form action="" method="post" class="d-inline mb-1">
                                         <input type="hidden" name="deleteConfigFile" value="<?php echo htmlspecialchars($file); ?>">
-                                        <button type="submit" class="btn btn-danger btn-sm"  onclick="return confirm('Are you sure you want to delete this file？');" data-translate-title="delete"><i class="bi bi-trash"></i></button>
+                                        <button type="submit" class="btn btn-danger btn-sm"  onclick="return confirmDelete()"  data-translate-title="delete"><i class="bi bi-trash"></i></button>
                                     </form>
                                     <form action="" method="post" class="d-inline mb-1">
                                         <input type="hidden" name="oldFileName" value="<?php echo htmlspecialchars($file); ?>">
@@ -1223,6 +1223,9 @@ function initializeAceEditor() {
         });
     }
 
+    function confirmDelete() {
+        return confirm(langData[currentLang]['confirmDelete']);
+    }
 </script>
 <h2 class="text-center mt-4 mb-4" data-translate="subscriptionManagement"></h2>
 
