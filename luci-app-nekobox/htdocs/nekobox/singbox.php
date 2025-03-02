@@ -46,11 +46,11 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['setCron'])) {
 
         $timestamp = date('[ H:i:s ]');
         file_put_contents($logFile, "$timestamp Cron job successfully set. Sing-box will update at $cronExpression.\n", FILE_APPEND);
-        echo "<div class='alert alert-success' data-translate='cron_job_set' data-dynamic-content='$cronExpression'></div>";
+        echo "<div id='log-message' class='alert alert-success' data-translate='cron_job_set' data-dynamic-content='$cronExpression'></div>";
     } else {
         $timestamp = date('[ H:i:s ]');
         file_put_contents($logFile, "$timestamp Invalid Cron expression: $cronExpression\n", FILE_APPEND);
-        echo "<div class='alert alert-danger' data-translate='cron_job_added_failed'></div>";
+        echo "<div id='log-message' class='alert alert-danger' data-translate='cron_job_added_failed'></div>";
     }
 }
 ?>
@@ -68,7 +68,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             exit;
         }
         
-        echo "<div class='alert alert-success' data-translate='subscribe_url_saved' data-dynamic-content='$SUBSCRIBE_URL'></div>";
+        echo '<div id="log-message" class="alert alert-success" data-translate="subscribe_url_saved" data-dynamic-content="' . $SUBSCRIBE_URL . '"></div>';
     }
 
     if (isset($_POST['createShellScript'])) {
@@ -116,9 +116,9 @@ EOL;
 
         if (file_put_contents($shellScriptPath, $shellScriptContent) !== false) {
             chmod($shellScriptPath, 0755);
-            echo "<div class='alert alert-success' data-translate='shell_script_created' data-dynamic-content='$shellScriptPath'></div>";
+            echo "<div id='log-message' class='alert alert-success' data-translate='shell_script_created' data-dynamic-content='$shellScriptPath'></div>";
         } else {
-            echo "<div class='alert alert-danger' data-translate='shell_script_failed'></div>";
+            echo "<div id='log-message' class='alert alert-danger' data-translate='shell_script_failed'></div>";
         }
     }
 }
@@ -298,7 +298,13 @@ EOL;
             $customTemplateUrl = trim($_POST['customTemplateUrl']);
             $templateOption = $_POST['templateOption'] ?? 'default';
             $currentTime = date('Y-m-d H:i:s');
-            $dataContent = $currentTime . " | Subscription Link Address: " . $subscribeUrl . "\n";         
+
+            $lang = $_GET['lang'] ?? 'en'; 
+            $lang = isset($translations[$lang]) ? $lang : 'en'; 
+            $subscribeLinkText = $langData[$currentLang]['subscriptionLink'] ?? 'Subscription Link Address';
+    
+            $dataContent = $currentTime . " | " . $subscribeLinkText . ": " . $subscribeUrl . "\n";     
+    
             $customFileName = trim($_POST['customFileName']);
             if (empty($customFileName)) {
                $customFileName = 'sing-box';  
@@ -450,6 +456,7 @@ EOL;
             echo "<h2 class='card-title'>" . $translations['data_saved'] . "</h2>";
             echo "<pre>" . htmlspecialchars($savedData) . "</pre>";
             echo "<form method='post' action=''>";
+            echo '<input type="hidden" name="lang" value="' . $currentLang . '">'; 
             echo '<button class="btn btn-danger" type="submit" name="clearData"><i class="bi bi-trash"></i> ' . $translations['clear_data'] . '</button>';
             echo "</form>";
             echo "</div>";

@@ -199,7 +199,7 @@ function saveSubscriptionContentToYaml($url, $filename) {
 
     $file_path = $download_path . $filename;
     $success = file_put_contents($file_path, $transformed_data) !== false;
-    $message = $success ? "Content successfully saved to: $file_path" : "File save failed.";
+    $message = $success ? "Content successfully saved to: $file_path" : "File save failed.";  
     logMessage($message);
     return $message;
 }
@@ -331,7 +331,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
     if (isset($result)) {
-        echo nl2br(htmlspecialchars($result)); 
+        echo "<div id='log-message' class='alert alert-success'>" . nl2br(htmlspecialchars($result)) . "</div>";
     }
 
     $download_option = $_POST['download_option'] ?? 'none';

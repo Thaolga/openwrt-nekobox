@@ -34,7 +34,7 @@ const currentLang = "<?php echo $currentLang; ?>";
 
 let translations = langData[currentLang] || langData['zh'];
 
-document.addEventListener("DOMContentLoaded", function () {
+document.addEventListener("DOMContentLoaded", () => {
     const userLang = localStorage.getItem('language') || currentLang;
 
     updateLanguage(userLang); 
@@ -46,31 +46,32 @@ function updateLanguage(lang) {
     localStorage.setItem('language', lang); 
     translations = langData[lang] || langData['zh'];  
 
-    document.querySelectorAll('[data-translate]').forEach((el) => {
+    const translateElement = (el, attribute, property) => {
+        const translationKey = el.getAttribute(attribute);
+        if (translations[translationKey]) {
+            el[property] = translations[translationKey];
+        }
+    };
+
+    document.querySelectorAll('[data-translate]').forEach(el => {
         const translationKey = el.getAttribute('data-translate');
-        const translationValue = translations[translationKey] || '';
         const dynamicContent = el.getAttribute('data-dynamic-content') || '';
 
         if (translations[translationKey]) {
             if (el.tagName === 'OPTGROUP') {
-                el.setAttribute('label', translationValue);
+                el.setAttribute('label', translations[translationKey]);
             } else {
-                el.innerText = translationValue + dynamicContent;
+                el.innerText = translations[translationKey] + dynamicContent; 
             }
         }
     });
 
-    document.querySelectorAll('[data-translate-title]').forEach((el) => {
-        const translationKey = el.getAttribute('data-translate-title');
-        const translationValue = translations[translationKey] || ''; 
-        if (translations[translationKey]) {
-            el.setAttribute('title', translations[translationKey]);
-        }
+    document.querySelectorAll('[data-translate-title]').forEach(el => {
+        translateElement(el, 'data-translate-title', 'title');
     });
 
-    document.querySelectorAll('[data-translate-placeholder]').forEach((el) => {
+    document.querySelectorAll('[data-translate-placeholder]').forEach(el => {
         const translationKey = el.getAttribute('data-translate-placeholder');
-        const translationValue = translations[translationKey] || ''; 
         if (translations[translationKey]) {
             el.setAttribute('placeholder', translations[translationKey]);
             el.setAttribute('aria-label', translations[translationKey]);  
@@ -78,9 +79,8 @@ function updateLanguage(lang) {
         }
     });
 
-    document.querySelectorAll('[data-translate]').forEach((el) => {
+    document.querySelectorAll('[data-translate]').forEach(el => {
         const translationKey = el.getAttribute('data-translate');
-        const translationValue = translations[translationKey] || ''; 
         if (translationKey && translations[translationKey]) {
             el.setAttribute('label', translations[translationKey]);  
         }

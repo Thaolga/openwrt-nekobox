@@ -368,9 +368,9 @@ EOL;
 
         if (file_put_contents($shellScriptPath, $shellScriptContent) !== false) {
             chmod($shellScriptPath, 0755); 
-            echo "<div class='alert alert-success' data-translate='shell_script_created' data-dynamic-content='$shellScriptPath'></div>";
+            echo "<div id='log-message' class='alert alert-success' data-translate='shell_script_created' data-dynamic-content='$shellScriptPath'></div>";
         } else {
-            echo "<div class='alert alert-danger' data-translate='shell_script_failed'></div>";
+            echo "<div id='log-message' class='alert alert-danger' data-translate='shell_script_failed'></div>";
         }
     }
 }
@@ -385,7 +385,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
         if (empty($cronExpression)) {
             file_put_contents($CRON_LOG_FILE, date('[ H:i:s ] ') . "Error: Cron expression cannot be empty.\n", FILE_APPEND);
-            echo "<div class='alert alert-warning' data-translate='cron_expression_empty'></div>";
+            echo "<div id='log-message' class='alert alert-warning' data-translate='cron_expression_empty'></div>";
             exit;
         }
 
@@ -401,10 +401,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         exec("(crontab -l; echo '$cronJob') | crontab -", $output, $returnVarAdd);
         if ($returnVarAdd === 0) {
             file_put_contents($CRON_LOG_FILE, date('[ H:i:s ] ') . "Successfully added new Cron job: $cronJob\n", FILE_APPEND);
-            echo "<div class='alert alert-success' data-translate='cron_job_added_success'></div>";
+            echo "<div id='log-message' class='alert alert-success' data-translate='cron_job_added_success'></div>";
         } else {
             file_put_contents($CRON_LOG_FILE, date('[ H:i:s ] ') . "Failed to add new Cron job.\n", FILE_APPEND);
-            echo "<div class='alert alert-danger' data-translate='cron_job_added_failed'></div>";
+            echo "<div id='log-message' class='alert alert-danger' data-translate='cron_job_added_failed'></div>";
         }
     }
 }
@@ -432,12 +432,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['file'])) {
         $destination_path = $destination_directory . basename($file_url);
 
         if (download_file($file_url, $destination_path)) {
-            echo "<div class='alert alert-success' data-translate='file_download_success' data-dynamic-content='$destination_path'></div>";
+            echo "<div id='log-message' class='alert alert-success' data-translate='file_download_success' data-dynamic-content='$destination_path'></div>";
         } else {
-            echo "<div class='alert alert-danger' data-translate='file_download_failed'></div>";
+            echo "<div id='log-message' class='alert alert-danger' data-translate='file_download_failed'></div>";
         }
     } else {
-        echo "<div class='alert alert-warning' data-translate='invalid_file_request'></div>";
+        echo "<div id='log-message' class='alert alert-warning' data-translate='invalid_file_request'></div>";
     }
 }
 

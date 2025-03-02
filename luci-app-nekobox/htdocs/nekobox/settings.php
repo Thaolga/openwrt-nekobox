@@ -77,44 +77,28 @@ function getMihomoVersion() {
     return ['version' => 'Not installed', 'type' => 'Unknown'];
 }
 
-function getUiVersion() {
-    $versionFile = '/etc/neko/ui/zashboard/version.txt';
-    
+function getVersion($versionFile) {
     if (file_exists($versionFile)) {
         return trim(file_get_contents($versionFile));
     } else {
         return "Not installed";
     }
+}
+
+function getUiVersion() {
+    return getVersion('/etc/neko/ui/zashboard/version.txt');
 }
 
 function getMetaCubexdVersion() {
-    $versionFile = '/etc/neko/ui/metacubexd/version.txt';
-    
-    if (file_exists($versionFile)) {
-        return trim(file_get_contents($versionFile));
-    } else {
-        return "Not installed";
-    }
+    return getVersion('/etc/neko/ui/metacubexd/version.txt');
 }
 
 function getMetaVersion() {
-    $versionFile = '/etc/neko/ui/meta/version.txt';
-    
-    if (file_exists($versionFile)) {
-        return trim(file_get_contents($versionFile));
-    } else {
-        return "Not installed";
-    }
+    return getVersion('/etc/neko/ui/meta/version.txt');
 }
 
 function getRazordVersion() {
-    $versionFile = '/etc/neko/ui/dashboard/version.txt';
-    
-    if (file_exists($versionFile)) {
-        return trim(file_get_contents($versionFile));
-    } else {
-        return "Not installed";
-    }
+    return getVersion('/etc/neko/ui/dashboard/version.txt');
 }
 
 function getCliverVersion() {
@@ -963,18 +947,28 @@ document.getElementById('checkMihomoButton').addEventListener('click', function 
 });
 
 document.getElementById('checkUiButton').addEventListener('click', function () {
+    const notInstalledText = langData[currentLang]?.['notInstalled'] || 'Not installed'; 
+
     const currentVersions = {
         'MetaCube': '<?php echo htmlspecialchars($metaCubexdVersion); ?>',
         'Zashboard': '<?php echo htmlspecialchars($uiVersion); ?>',
         'Yacd-Meat': '<?php echo htmlspecialchars($metaVersion); ?>',
         'Dashboard': '<?php echo htmlspecialchars($razordVersion); ?>',
     };
+
+    for (const key in currentVersions) {
+        if (currentVersions[key] === "Not installed") {
+            currentVersions[key] = notInstalledText;
+        }
+    }
+
     const updateFiles = [
         { name: 'MetaCube', url: 'update_metacubexd.php' },
         { name: 'Zashboard', url: 'update_zashboard.php' },
         { name: 'Yacd-Meat', url: 'update_meta.php' },
         { name: 'Dashboard', url: 'update_dashboard.php' }
     ];
+
     checkVersion('NewUi', updateFiles, currentVersions);
 });
 
