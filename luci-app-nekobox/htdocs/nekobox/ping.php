@@ -3505,7 +3505,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     const icons = document.querySelectorAll(".icon");
 
-    const colors = ["#ff69b4", "#ff4500", "#00ff00", "#00ffff", "#ff1493", "#ff1493"];
+    const colors = ["#ff69b4", "#ff4500", "#00ff00", "#00ffff", "#ff1493", "#00FF7F"];
 
     let lyricsContainerIndex = 0;
     let floatingLyricsIndex = 1;
