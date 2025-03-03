@@ -2590,7 +2590,7 @@ window.addEventListener('load', function() {
         <div class="audio-player-container text-center w-100 mt-3 d-flex justify-content-center align-items-center gap-3">
           <button id="modalRewindButton" data-translate-title="rewind"><i class="fas fa-backward"></i></button>
           <button id="modalPrevButton" data-translate-title="previous_song"><i class="fas fa-step-backward"></i></button>
-          <button id="modalPlayPauseButton" data-translate-title="play"><i id="playPauseIcon" class="fas fa-play"></i></button>
+          <button id="modalPlayPauseButton"><i class="fas fa-play"></i></button>
           <button id="modalNextButton" data-translate-title="next_song"><i class="fas fa-step-forward"></i></button>
           <button id="modalFastForwardButton" data-translate-title="fast_forward"><i class="fas fa-forward"></i></button>
           <button id="modalLoopButton" data-translate-title="loop"><i class="fas fa-sync-alt"></i></button>
@@ -2958,7 +2958,8 @@ playPauseButton.addEventListener('click', function() {
             console.log(translations['start_playing']); 
             showLogMessage(translations['start_playing']); 
             speakMessage(translations['start_playing']); 
-            playPauseButton.textContent = '⏸️ ' + translations['pause']; 
+            playPauseButton.innerHTML = '<i class="fas fa-pause"></i>';
+            playPauseButton.title = translations['pause']; 
             updateTrackName();
         }).catch(error => {
             console.log(translations['play_error'], error);
@@ -2970,7 +2971,8 @@ playPauseButton.addEventListener('click', function() {
         console.log(translations['paused']); 
         showLogMessage(translations['paused']); 
         speakMessage(translations['paused']); 
-        playPauseButton.textContent = '' + translations['play']; 
+        playPauseButton.innerHTML = '<i class="fas fa-play"></i>'; 
+        playPauseButton.title = translations['play']; 
     }
 });
 
@@ -3050,13 +3052,15 @@ loopButton.addEventListener('click', () => {
     isLooping = !isLooping;
     
     if (isLooping) {
-        loopButton.textContent = "" + translations['loop']; 
+        loopButton.innerHTML = '<i class="fas fa-repeat"></i>';
+        loopButton.title = translations['loop'];
         console.log(translations['looping']); 
         showLogMessage(translations['looping']); 
         speakMessage(translations['looping']); 
         audioPlayer.loop = true;
     } else {
-        loopButton.textContent = "🔄" + translations['sequential']; 
+        loopButton.innerHTML = '<i class="fas fa-arrow-right"></i>'; 
+        loopButton.title = translations['sequential']; 
         console.log(translations['sequential_playing']); 
         showLogMessage(translations['sequential_playing']); 
         speakMessage(translations['sequential_playing']); 
@@ -3191,12 +3195,13 @@ function restorePlayerState() {
     if (state) {
         currentSongIndex = state.currentSongIndex || 0;
         isLooping = state.isLooping || false;
-
+        audioPlayer.loop = isLooping;
         loadSong(currentSongIndex);
         updateTrackName()
         if (state.isPlaying) {
             isPlaying = true;
-            playPauseButton.textContent = '⏸️ ' + translations['pause'];
+            playPauseButton.innerHTML = '<i class="fas fa-pause"></i>'; 
+            playPauseButton.title = translations['pause'];
 
             audioPlayer.addEventListener('loadedmetadata', () => {
                 audioPlayer.currentTime = state.currentTime || 0;
@@ -3212,6 +3217,8 @@ function restorePlayerState() {
         currentSongIndex = 0;
         loadSong(currentSongIndex);
         updateTrackName();
+        playPauseButton.innerHTML = '<i class="fas fa-play"></i>'; 
+        playPauseButton.title = translations['play']; 
         highlightCurrentSong();
     }
 }
