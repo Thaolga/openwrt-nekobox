@@ -732,6 +732,7 @@
         'startCheck' => 'Website-Verbindung wird überprüft...',
         'websiteChecked' => 'Website-Überprüfung abgeschlossen, danke für die Nutzung.',
         'checkStarted' => 'Website-Überprüfung gestartet, Verbindung wird überprüft...',
+        'state_cleared' => '✅ Wiedergabestatus wurde gelöscht',
         'subscribeUrlPlaceholder' => 'Bitte geben Sie den Abonnement-Link ein, trennen Sie mehrere Links mit |',
         'statusMessages' => [
             'https://www.baidu.com/' => ['accessible' => 'Die Website von Baidu ist erreichbar.', 'notAccessible' => 'Die Website von Baidu ist nicht erreichbar, bitte überprüfen Sie die Netzwerkverbindung.'],
@@ -1510,6 +1511,7 @@
         'startCheck' => 'Vérification de la connexion au site Web...',
         'websiteChecked' => 'Vérification du site Web terminée, merci de l\'avoir utilisé.',
         'checkStarted' => 'Vérification du site Web commencée, en train de vérifier la connexion...',
+        'state_cleared' => '✅ État du lecteur effacé',
         'subscribeUrlPlaceholder' => 'Veuillez entrer le lien d\'abonnement, séparez plusieurs liens par |',
         'statusMessages' => [
             'https://www.baidu.com/' => ['accessible' => 'Le site Baidu est accessible.', 'notAccessible' => 'Impossible d\'accéder au site Baidu, veuillez vérifier la connexion réseau.'],
@@ -2364,6 +2366,7 @@
             'start' => '▶ 启动雪花动画',
             'stop' => '⏸️ 停止雪花动画',
         ],
+        'state_cleared' => '✅ 播放器状态已清除',
         'chooseThemeColor' => '选择主题颜色',
         'subscribeUrlPlaceholder' => '请输入订阅链接，多个链接用 | 分隔'
     ],
@@ -3182,6 +3185,7 @@
         'startCheck' => 'Start checking website connectivity...',
         'websiteChecked' => 'Website check complete, thank you for using.',
         'checkStarted' => 'Website check has started, checking website connectivity...',
+        'state_cleared' => '✅ Player state cleared',
         'subscribeUrlPlaceholder' => 'Please enter the subscription link, separate multiple links with |',
         'statusMessages' => [
             'https://www.baidu.com/' => ['accessible' => 'Baidu website is accessible.', 'notAccessible' => 'Cannot access Baidu website, please check the network connection.'],
@@ -3970,6 +3974,7 @@
         'startCheck' => '開始檢查網站連通性...',
         'websiteChecked' => '網站檢查已完成，感謝使用。',
         'checkStarted' => '網站檢查已開始，正在檢查連通性...',
+        'state_cleared' => '✅ 播放器狀態已清除',
         'subscribeUrlPlaceholder' => '請輸入訂閱鏈接，多個鏈接用 | 分隔',
         'statusMessages' => [
             'https://www.baidu.com/' => ['accessible' => '百度網站訪問正常。', 'notAccessible' => '無法訪問百度網站，請檢查網絡連接。'],
@@ -4749,6 +4754,7 @@
         'startCheck' => '웹사이트 연결 상태 확인을 시작합니다...',
         'websiteChecked' => '웹사이트 점검 완료, 사용해 주셔서 감사합니다.',
         'checkStarted' => '웹사이트 점검이 시작되었습니다, 연결을 확인하는 중...',
+        'state_cleared' => '✅ 플레이어 상태가 초기화되었습니다',
         'subscribeUrlPlaceholder' => '구독 링크를 입력하십시오. 여러 링크는 | 로 구분하십시오.',
         'statusMessages' => [
             'https://www.baidu.com/' => ['accessible' => 'Baidu 웹사이트에 접속 가능합니다.', 'notAccessible' => 'Baidu 웹사이트에 접속할 수 없습니다, 네트워크 연결을 확인해주세요.'],
@@ -5516,6 +5522,7 @@
         'startCheck' => 'ウェブサイトの接続確認を開始...',
         'websiteChecked' => 'ウェブサイトのチェックが完了しました。ご利用いただきありがとうございました。',
         'checkStarted' => 'ウェブサイトのチェックが開始されました、接続確認中...',
+        'state_cleared' => '✅ プレーヤーの状態がクリアされました',
         'subscribeUrlPlaceholder' => '購読リンクを入力してください。複数のリンクは | で区切ります。',
         'statusMessages' => [
             'https://www.baidu.com/' => ['accessible' => 'Baidu サイトに正常に接続できます。', 'notAccessible' => 'Baidu サイトに接続できません。ネットワーク接続を確認してください。'],
@@ -6283,6 +6290,7 @@
         'startCheck' => 'Начало проверки подключения к сайту...',
         'websiteChecked' => 'Проверка сайта завершена, спасибо за использование.',
         'checkStarted' => 'Проверка сайта началась, проверка подключения...',
+        'state_cleared' => '✅ Состояние плеера очищено',
         'subscribeUrlPlaceholder' => 'Пожалуйста, введите ссылку на подписку, разделяйте несколько ссылок с помощью |',
         'statusMessages' => [
             'https://www.baidu.com/' => ['accessible' => 'Сайт Baidu доступен.', 'notAccessible' => 'Не удалось подключиться к сайту Baidu, проверьте подключение к сети.'],
@@ -7061,6 +7069,7 @@
         'startCheck' => 'بدء التحقق من اتصال الموقع...',
         'websiteChecked' => 'تمت عملية التحقق من الموقع، شكراً لاستخدامك.',
         'checkStarted' => 'تم بدء التحقق من الموقع، جاري التحقق من الاتصال...',
+        'state_cleared' => '✅ تم مسح حالة المشغل',
         'subscribeUrlPlaceholder' => 'يرجى إدخال رابط الاشتراك، ويفصل بين الروابط المتعددة بواسطة |',
         'statusMessages' => [
             'https://www.baidu.com/' => ['accessible' => 'موقع Baidu متاح.', 'notAccessible' => 'تعذر الوصول إلى موقع Baidu، يرجى التحقق من الاتصال بالشبكة.'],
@@ -7842,6 +7851,7 @@
         'startCheck' => 'Comenzando la comprobación de la conexión al sitio web...',
         'websiteChecked' => 'Comprobación del sitio web completada, gracias por usarlo.',
         'checkStarted' => 'Comprobación del sitio web iniciada, comprobando la conexión...',
+        'state_cleared' => '✅ Estado del reproductor borrado',
         'subscribeUrlPlaceholder' => 'Por favor ingrese el enlace de suscripción, separe varios enlaces con |',
         'statusMessages' => [
             'https://www.baidu.com/' => ['accessible' => 'El sitio web de Baidu es accesible.', 'notAccessible' => 'No se puede acceder al sitio web de Baidu, por favor verifique la conexión de red.'],
@@ -8619,6 +8629,7 @@
         'startCheck' => 'Bắt đầu kiểm tra kết nối trang web...',
         'websiteChecked' => 'Kiểm tra trang web đã hoàn tất, cảm ơn bạn đã sử dụng.',
         'checkStarted' => 'Kiểm tra trang web đã bắt đầu, đang kiểm tra kết nối...',
+        'state_cleared' => '✅ Trạng thái trình phát đã được xóa',
         'subscribeUrlPlaceholder' => 'Vui lòng nhập liên kết đăng ký, phân tách các liên kết bằng |',
         'statusMessages' => [
             'https://www.baidu.com/' => ['accessible' => 'Trang web Baidu có thể truy cập.', 'notAccessible' => 'Không thể truy cập trang web Baidu, vui lòng kiểm tra kết nối mạng của bạn.'],
