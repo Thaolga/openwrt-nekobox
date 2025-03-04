@@ -138,7 +138,52 @@ $metaVersion = getMetaVersion();
 $razordVersion = getRazordVersion();
 
 ?>
+<?php
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'clearNekoTmpDir') {
+    $nekoDir = '/tmp/neko';
+    $response = [
+        'success' => false,
+        'message' => ''
+    ];
 
+    if (is_dir($nekoDir)) {
+        if (deleteDirectory($nekoDir)) {
+            $response['success'] = true;
+            $response['message'] = 'Directory cleared successfully.';
+        } else {
+            $response['message'] = 'Failed to delete the directory.';
+        }
+    } else {
+        $response['message'] = 'The directory does not exist.';
+    }
+
+    header('Content-Type: application/json');
+    echo json_encode($response);
+    exit;
+}
+
+function deleteDirectory($dir) {
+    if (!file_exists($dir)) {
+        return true;
+    }
+
+    if (!is_dir($dir)) {
+        return unlink($dir);
+    }
+
+    foreach (scandir($dir) as $item) {
+        if ($item == '.' || $item == '..') {
+            continue;
+        }
+
+        if (!deleteDirectory($dir . DIRECTORY_SEPARATOR . $item)) {
+            return false;
+        }
+    }
+
+    return rmdir($dir);
+}
+?>
 <!doctype html>
 <html lang="en" data-bs-theme="<?php echo substr($neko_theme,0,-4) ?>">
   <head>
@@ -299,6 +344,7 @@ $razordVersion = getRazordVersion();
                 </div>
             </div>
             <div class="modal-footer">
+                <button type="button" class="btn btn-danger" onclick="clearNekoTmpDir()" data-translate-title="delete_old_config"><i class="bi bi-trash"></i> <span data-translate="clear_config">Clear Config</span></button>
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" data-translate="close_button">cancel</button>
                 <button type="button" class="btn btn-primary" onclick="confirmUpdateVersion()" data-translate="confirmButton">confirm</button>
             </div>
@@ -498,6 +544,34 @@ $razordVersion = getRazordVersion();
         </div>
     </div>
 </div>
+
+<script>
+    function clearNekoTmpDir() {
+        fetch('', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+            },
+            body: 'action=clearNekoTmpDir'
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert(translations["tmp_neko_cleared"] || "The /tmp/neko directory has been cleared successfully.");
+            } else {
+                if (data.message === 'The directory does not exist.') {
+                    alert(translations["tmp_neko_not_exist"] || "The /tmp/neko directory does not exist. No action was taken.");
+                } else {
+                    alert('Failed to clear the /tmp/neko directory: ' + data.message);
+                }
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('An error occurred while trying to clear the /tmp/neko directory.');
+        });
+    }
+</script>
 
 <style>
     @media (max-width: 767px) {
