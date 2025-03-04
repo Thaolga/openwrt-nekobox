@@ -3059,13 +3059,14 @@ loopButton.addEventListener('click', () => {
         speakMessage(translations['looping']); 
         audioPlayer.loop = true;
     } else {
-        loopButton.innerHTML = '<i class="fas fa-arrow-right"></i>'; 
+        loopButton.innerHTML = '<i class="fas fa-list-ol"></i>'; 
         loopButton.title = translations['sequential']; 
         console.log(translations['sequential_playing']); 
         showLogMessage(translations['sequential_playing']); 
         speakMessage(translations['sequential_playing']); 
         audioPlayer.loop = false;
     }
+    savePlayerState(); 
 });
 
 function getSongName(url) {
@@ -3148,7 +3149,7 @@ function updateDateTime() {
 setInterval(updateDateTime, 1000);
 updateDateTime();
 
-function savePlayerState() {
+function savePlayerState(partial = false) {
     const state = {
         currentSongIndex,
         currentTime: audioPlayer.currentTime,
@@ -3158,25 +3159,17 @@ function savePlayerState() {
         lastPlayedSong: extractSongName(songs[currentSongIndex]),
         timestamp: Date.now()
     };
-    localStorage.setItem('playerState', JSON.stringify(state));
-}
 
-function clearExpiredPlayerState() {
-    const state = JSON.parse(localStorage.getItem('playerState'))
-    if (state) {
-        const currentTime = Date.now();
-        const stateAge = currentTime - state.timestamp;
-
-        const expirationTime = 60 * 60 * 1000; 
-
-        if (stateAge > expirationTime) {
-            localStorage.removeItem('playerState');
-            console.log(translations['player_state_expired']); 
-        }
+    if (partial) {
+        const savedState = JSON.parse(localStorage.getItem('playerState') || '{}');
+        savedState.currentTime = state.currentTime;
+        localStorage.setItem('playerState', JSON.stringify(savedState));
+    } else {
+        localStorage.setItem('playerState', JSON.stringify(state));
     }
 }
 
-setInterval(clearExpiredPlayerState, 60 * 60 * 1000);
+setInterval(() => savePlayerState(true), 1000);
 
 document.addEventListener('DOMContentLoaded', function () {
     clearExpiredPlayerState();
@@ -3186,8 +3179,8 @@ document.getElementById('clearStorageBtn').addEventListener('click', function() 
     localStorage.removeItem('playerState');
     localStorage.removeItem('songOrder'); 
     loadDefaultPlaylist(); 
-    document.getElementById('modalPlayPauseButton').textContent = '' + translations['play'];
-    alert('Player state cleared!');
+    document.getElementById('modalPlayPauseButton').innerHTML = '<i class="fas fa-play"></i>';
+    alert(translations["state_cleared"] || " Player state cleared.");  
 });
 
 function restorePlayerState() {
@@ -3195,9 +3188,18 @@ function restorePlayerState() {
     if (state) {
         currentSongIndex = state.currentSongIndex || 0;
         isLooping = state.isLooping || false;
-        audioPlayer.loop = isLooping;
+        audioPlayer.loop = isLooping; 
         loadSong(currentSongIndex);
-        updateTrackName()
+        updateTrackName();
+
+        if (isLooping) {
+            loopButton.innerHTML = '<i class="fas fa-repeat"></i>';
+            loopButton.title = translations['loop'];
+        } else {
+            loopButton.innerHTML = '<i class="fas fa-list-ol"></i>';
+            loopButton.title = translations['sequential'];
+        }
+
         if (state.isPlaying) {
             isPlaying = true;
             playPauseButton.innerHTML = '<i class="fas fa-pause"></i>'; 
