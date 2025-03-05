@@ -3169,11 +3169,7 @@ function savePlayerState(partial = false) {
     }
 }
 
-setInterval(() => savePlayerState(true), 1000);
-
-document.addEventListener('DOMContentLoaded', function () {
-    clearExpiredPlayerState();
-});
+//setInterval(() => savePlayerState(true), 1000);
 
 document.getElementById('clearStorageBtn').addEventListener('click', function() {
     localStorage.removeItem('playerState');
