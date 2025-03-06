@@ -1129,24 +1129,41 @@ async function translateText(text, targetLang = null) {
         }
     ];
 
-    for (const api of apis) {
-        try {
-            const response = await fetch(api.url, {
-                method: api.method,
-                headers: api.headers || {},
-                body: api.method === 'POST' ? api.body : undefined
-            });
-            
-            const data = await response.json();
-            const result = api.parse ? api.parse(data) : data?.translatedText;
-            
+    const controller = new AbortController();
+    try {
+        const promises = apis.map(async (api) => {
+            const timeoutPromise = new Promise((_, reject) => 
+                setTimeout(() => reject('timeout'), api.timeout || 3000)
+            );
+
+            try {
+                const fetchPromise = fetch(api.url, {
+                    method: api.method,
+                    headers: api.headers || {},
+                    body: api.method === 'POST' ? api.body : undefined,
+                    signal: controller.signal
+                });
+                
+                const response = await Promise.race([fetchPromise, timeoutPromise]);
+                const data = await response.json();
+                return api.parse ? api.parse(data) : data?.translatedText;
+            } catch (e) {
+                return null;
+            }
+        });
+
+        for (const promise of promises) {
+            const result = await promise;
             if (result) {
                 localStorage.setItem(cacheKey, result);
+                clearOldCache();
                 return result;
             }
-        } catch (e) {}
+        }
+    } finally {
+        controller.abort();
     }
-    
+
     return text;
 }
 
