@@ -634,7 +634,7 @@ input,
 
 body * {
   font-family: var(--modern-font) !important;
-  color: var(--text-primary) !important;
+
   text-shadow: none !important;
   -webkit-font-smoothing: auto !important;
   text-rendering: optimizeLegibility !important;
@@ -688,6 +688,66 @@ h6 {
   font-weight: 500 !important;
   margin-bottom: 0.3rem !important;
   color: var(--h6-color) !important;
+}
+
+.app-tags > .tag:not(:last-child)::after {
+  content: "|";
+  color: #ccc;
+  font-weight: 300;
+  padding: 0 6px; 
+  position: relative;
+  left: 3px; 
+  display: inline-block;
+  transform: scale(0.7) translateY(-0.5px); 
+  opacity: 0.8;
+}
+
+.app-tags > .block,
+.app-tags > span.block { 
+  display: none !important;
+  visibility: hidden !important;
+}
+
+.app-tags > .tag ~ .tag:not(:last-child)::after {
+  display: none !important; 
+}
+
+.app-tags > .tag span {
+  position: relative;
+  left: -3px; 
+}
+
+@media (max-width: 480px) {
+  .app-tags > .tag:not(:last-child)::after {
+    padding: 0 4px;
+    left: 2px;
+    transform: scale(0.6) translateY(-1px);
+  }
+  .app-tags > .tag span {
+    margin-right: -3px;
+  }
+}
+
+.modal.alert-message.notice {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: auto;
+  min-width: 300px;
+  max-width: 90%;
+  margin: 0 auto;
+  padding: 20px;
+  text-align: center;
+  z-index: 9999;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+  border-radius: 8px;
+  background: white;
+}
+
+.modal.alert-message.notice p {
+  margin: 0;
+  line-height: 1.5;
 }
 
 .cbi-section,
@@ -778,6 +838,7 @@ background-color: #3498db !important;
 margin-right: 5px;
 border-radius: 3px;
 border-radius: 8px !important;
+text-decoration: none;
 transition: 0.3s;
 display: inline-block;
 }
@@ -796,6 +857,7 @@ ul.cbi-tabmenu li {
   background-color: #3498db !important;
   margin-right: 5px;
   border-radius: 8px !important;
+  text-decoration: none;
   transition: 0.3s;
   display: inline-block;
   color: #ffffff !important;
@@ -883,6 +945,20 @@ ul.cbi-tabmenu li.cbi-tab {
   justify-content: center;
   text-decoration: none !important;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+
+.btn.cbi-button-positive,
+.btn.cbi-button-action,
+.btn.cbi-button-neutral {
+    border-radius: 8px;
+    overflow: hidden;     
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1); 
+}
+
+.btn.cbi-button-positive:hover,
+.btn.cbi-button-action:hover,
+.btn.cbi-button-neutral:hover {
+    box-shadow: 0 3px 6px rgba(0,0,0,0.15);
 }
 
 .cbi-button-add {
@@ -994,6 +1070,12 @@ html {
     text-overflow: ellipsis !important; 
 }
 
+.pure-u-2-3 h4 {
+    border-radius: 6px;
+    padding: 8px; 
+    background: rgba(255,255,255,0.9); 
+}
+
 .block > .pure-u-1-3 {
     order: 2 !important; 
     flex: 0 0 auto !important; 
@@ -1067,6 +1149,78 @@ html {
   .img-con:not(:first-child) {
     display: none !important;
   }
+}
+
+.user-icon::before,
+.pass-icon::before {
+    display: none !important;
+}
+
+.input-group {
+    display: flex;
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+.input-group::before {
+    content: "";
+    width: 24px;
+    height: 24px;
+    margin-right: 10px;
+    background-size: contain;
+    background-repeat: no-repeat;
+}
+
+.user-icon::before {
+    background-image: url('user-icon.svg');
+}
+
+.pass-icon::before {
+    background-image: url('password-icon.svg');
+}
+
+.input-group input {
+    flex: 1;
+    padding: 12px 15px;
+    border-radius: 8px;  
+    border: 1px solid #ddd;
+    border-radius: 4px;
+}
+
+.input-group input:focus {
+    border-radius: 8px;  
+    box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.25);
+}
+
+a.food[data-title="Log_out"]::before {
+    content: none !important;
+}
+
+a.food[data-title="Log_out"]::before {
+    content: none !important;
+}
+
+a.food[data-title="Log_out"] {
+    position: relative;
+    padding-left: 40px !important; 
+}
+
+a.food[data-title="Log_out"]::after {
+    content: "\e907";
+    font-family: "spectra" !important;   
+    position: absolute;
+    left: 14px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 16px;
+    line-height: 1;
+    color: red;
+    transition: color 0.3s ease;
+}
+
+a.food[data-title="Log_out"]:hover::after {
+    color: #ff4444;
+    transform: translateY(-50%) scale(1.1);
 }
 
 [data-page="admin-system-opkg"] h2 {
