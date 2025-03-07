@@ -624,6 +624,54 @@ input,
   --luxury-accent: #3FA7D6;
   --neo-shadow: 0 6px 24px rgba(0, 0, 0, 0.2);
   --transition-easing: cubic-bezier(0.22, 1, 0.36, 1);
+  --h1-color: #FF6B6B;
+  --h2-color: #FFD93D;
+  --h3-color: #6BCB77;
+  --h4-color: #4D96FF;
+  --h5-color: #A66DD4;
+  --h6-color: #FF9F1C;
+}
+
+body * {
+  font-family: var(--modern-font) !important;
+  color: var(--text-primary) !important;
+  text-shadow: none !important;
+  -webkit-font-smoothing: auto !important;
+  text-rendering: optimizeLegibility !important;
+}
+
+body {
+  font-size: 13px !important;
+  line-height: 1.4 !important;
+  letter-spacing: 0 !important;
+}
+
+h1, .heading-1 {
+  font-size: 1.8rem !important;
+  font-weight: 600 !important;
+  line-height: 1 !important;
+  margin-bottom: 0.8rem !important;
+  color: var(--h1-color) !important;
+}
+
+h2, .heading-2 {
+  font-size: 1.5rem !important;
+  font-weight: 550 !important;
+  letter-spacing: -0.01em !important;
+  margin-bottom: 0.7rem !important;
+  color: var(--h2-color) !important;
+}
+
+h3 {
+  font-size: 1.3rem !important;
+  font-weight: 500 !important;
+  margin-bottom: 0.6rem !important;
+  color: var(--h3-color) !important;
+}
+
+h4 {
+  font-size: 1.1rem !important;
+  font-weight: 500 !important;
   margin-bottom: 0.5rem !important;
   color: var(--h4-color) !important;
 }
