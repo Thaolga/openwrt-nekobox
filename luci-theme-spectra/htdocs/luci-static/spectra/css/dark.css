@@ -615,7 +615,6 @@ input,
 
 :root {
   --glass-bg: linear-gradient(160deg, 
-              rgba(255, 255, 255, 0.12) 10%, 
               rgba(255, 255, 255, 0.08)) !important;
   --blur-intensity: 15px;
   --crystal-border: 1px solid rgba(255, 255, 255, 0.25);
@@ -625,7 +624,7 @@ input,
   --neo-shadow: 0 6px 24px rgba(0, 0, 0, 0.2);
   --transition-easing: cubic-bezier(0.22, 1, 0.36, 1);
   --h1-color: #FF6B6B;
-  --h2-color: #FFD93D;
+  --h2-color: #00FFFF;
   --h3-color: #6BCB77;
   --h4-color: #4D96FF;
   --h5-color: #A66DD4;
@@ -634,7 +633,6 @@ input,
 
 body * {
   font-family: var(--modern-font) !important;
-
   text-shadow: none !important;
   -webkit-font-smoothing: auto !important;
   text-rendering: optimizeLegibility !important;
@@ -688,6 +686,10 @@ h6 {
   font-weight: 500 !important;
   margin-bottom: 0.3rem !important;
   color: var(--h6-color) !important;
+}
+
+.cbi-value-description, .cbi-map-descr {
+    color: var(--h6-color) !important; 
 }
 
 .app-tags > .tag:not(:last-child)::after {
@@ -978,8 +980,9 @@ ul.cbi-tabmenu li.cbi-tab {
 input[type="button"][value="全选"],
 input[type="button"][value="Select all"],
 input[type="button"][value="置顶"],
-input[type="button"][value="To Top"]{
-    background-color: blue !important;
+input[type="button"][value="To Top"],
+.btn.cbi-button.cbi-button-link {
+    background-color: #FFA500 !important;
     color: white !important;
 }
 
@@ -1034,6 +1037,21 @@ html {
   overflow-y: scroll;
 }
 
+.cbi-page-actions {
+    display: flex !important;
+    justify-content: center !important; 
+    align-items: center !important; 
+    flex-wrap: wrap !important; 
+}
+
+.cbi-dropdown.btn.cbi-button.cbi-button-apply.important {
+    margin: 0 10px !important; 
+}
+
+button.cbi-button {
+    margin: 0 10px !important; 
+}
+
 .pure-g {
     letter-spacing: -0.31em !important;
     text-rendering: optimizespeed !important;
@@ -1071,9 +1089,9 @@ html {
 }
 
 .pure-u-2-3 h4 {
-    border-radius: 6px;
+    border-radius: 8px;
     padding: 8px; 
-    background: rgba(255,255,255,0.9); 
+    background: #E6E6FA; 
 }
 
 .block > .pure-u-1-3 {
@@ -1221,6 +1239,303 @@ a.food[data-title="Log_out"]::after {
 a.food[data-title="Log_out"]:hover::after {
     color: #ff4444;
     transform: translateY(-50%) scale(1.1);
+}
+
+.cbi-section-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 20px 0;
+    background-color: #1a1a1a !important; 
+    color: #ffffff !important;
+}
+
+.cbi-section-table thead {
+    background-color: #333333 !important; 
+    color: #ffffff !important;
+}
+
+.cbi-section-table tbody {
+    background-color: #1a1a1a !important; 
+}
+
+.cbi-section-table tr {
+    border: 1px solid #404040 !important;
+}
+
+.cbi-section-table td, .cbi-section-table th {
+    padding: 10px !important;
+    text-align: left !important;
+    border: 1px solid #404040 !important;
+}
+
+.cbi-section-table th {
+    font-weight: bold !important;
+    text-align: center !important;
+    font-size: 0.85rem !important; 
+
+}
+
+.cbi-section-table tr:hover {
+    background-color: #3498db !important; 
+}
+
+.cbi-input-checkbox {
+    margin-right: 10px !important;
+}
+
+.cbi-section-table a {
+    color: #007bff !important;
+    text-decoration: none !important;
+}
+
+.cbi-section-table a:hover {
+    text-decoration: underline !important;
+}
+
+.cbi-section-table input[type="text"], .cbi-section-table input[type="hidden"] {
+    background-color: #1a1a1a !important;
+    color: #ffffff !important;
+    border: 1px solid #404040 !important;
+}
+
+.cbi-section-table select {
+    background-color: #1a1a1a !important;
+    color: #ffffff !important;
+    border: 1px solid #404040 !important;
+}
+
+#add_link_div {
+    background-color: rgba(26, 26, 26, 0.8) !important; 
+    backdrop-filter: blur(10px) !important;
+    border: 1px solid rgba(64, 64, 64, 0.5) !important;
+    border-radius: 8px !important;
+    padding: 20px !important;
+}
+
+#nodes_link {
+    width: 100% !important;
+    height: 100px !important;
+    background-color: rgba(26, 26, 26, 0.8) !important; 
+    border: 1px solid rgba(64, 64, 64, 0.5) !important;
+    color: #ffffff !important;
+    padding: 10px !important;
+    border-radius: 3px !important;
+}
+
+.cbi-section-node {
+    background-color: rgba(26, 26, 26, 0.8) !important;
+    backdrop-filter: blur(10px) !important;
+    border: 1px solid rgba(64, 64, 64, 0.5) !important;
+    border-radius: 8px !important;
+    padding: 20px !important;
+}
+.cbi-value-title {
+    color: #ffffff !important;
+    font-weight: bold !important;
+    margin-bottom: 10px !important;
+}
+
+.cbi-input-select {
+    background-color: rgba(26, 26, 26, 0.8) !important;
+    border: 1px solid rgba(64, 64, 64, 0.5) !important;
+    color: #ffffff !important;
+    padding: 5px !important;
+    border-radius: 3px !important;
+}
+
+.cbi-input-select option {
+    background-color: rgba(26, 26, 26, 0.8) !important;
+    color: #ffffff !important;
+}
+
+.create-item-input {
+    background-color: rgba(26, 26, 26, 0.8) !important;
+    border: 1px solid rgba(64, 64, 64, 0.5) !important;
+    color: #ffffff !important;
+    padding: 5px !important;
+    border-radius: 3px !important;
+}
+
+.cbi-value-description {
+    color: #40A9FF !important;
+    font-size: 1em !important;
+    margin-top: 5px !important;
+}
+
+input[type="checkbox"] {
+    background-color: rgba(26, 26, 26, 0.8) !important;
+    backdrop-filter: blur(10px) !important;
+    border: 1px solid rgba(64, 64, 64, 0.5) !important;
+    border-radius: 3px !important;
+}
+
+.action[data-v-127a3100] {
+    background-color: rgba(20, 20, 20, 0.85) !important;
+    backdrop-filter: blur(15px) !important;
+    border-radius: 10px !important;
+    border: 1px solid rgba(255, 255, 255, 0.12) !important;
+    padding: 18px !important;
+    margin: 12px 0 !important;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25) !important;
+}
+
+ul[data-v-b8dfe98c] {
+    background-color: rgba(20, 20, 20, 0.85) !important;
+    backdrop-filter: blur(15px) !important;
+    border-radius: 10px !important;
+    border: 1px solid rgba(255, 255, 255, 0.12) !important;
+    padding: 18px !important;
+    margin: 12px 0 !important;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25) !important;
+}
+
+ul[data-v-b8dfe98c] li[data-v-b8dfe98c] {
+    margin-bottom: 10px !important;
+}
+
+ul[data-v-b8dfe98c] li[data-v-b8dfe98c] a {
+    color: #f0f0f0 !important; 
+    text-decoration: none !important;
+}
+
+ul[data-v-b8dfe98c] li[data-v-b8dfe98c]:hover {
+    background-color: rgba(30, 30, 30, 0.5) !important;
+} 
+#maincontent {
+    background: linear-gradient(
+        to bottom right,
+        rgba(0, 0, 0, 0.85),
+        rgba(30, 30, 30, 0.95)
+    ) !important;
+    backdrop-filter: blur(15px) saturate(180%);
+    -webkit-backdrop-filter: blur(15px) saturate(180%);
+    color: rgba(255, 255, 255, 0.95) !important;
+    text-shadow: 0 0 2px rgba(255,255,255,0.3);
+}
+
+.network-container, 
+.nas-container_card, 
+.app-container {
+    background: rgba(25, 25, 25, 0.7) !important;
+    border: 1px solid rgba(255,255,255,0.1) !important;
+    backdrop-filter: blur(12px) !important;
+    -webkit-backdrop-filter: blur(12px) !important;
+    border-radius: 12px !important;
+    margin: 15px 0 !important;
+    padding: 20px !important;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3) !important;
+}
+
+.app-container_title span,
+.item-label_key span,
+.disk-item_name span,
+.domain-item_name span {
+    color: #ffffff !important;
+    font-weight: 500 !important;
+    letter-spacing: 0.3px;
+}
+
+.progress {
+    background: rgba(100, 100, 100, 0.4) !important;
+    border-radius: 5px;
+}
+.progress-value {
+    box-shadow: 0 0 8px rgba(83,195,27,0.3) !important;
+}
+
+.item-label,
+.disk-item,
+.domain-item {
+    background: rgba(50, 50, 50, 0.3) !important;
+    border-radius: 8px;
+    padding: 12px 15px !important;
+    margin: 8px 0 !important;
+}
+
+svg path {
+    fill: rgba(83,195,27,0.8) !important;
+}
+
+.network-container_status-label_item:hover,
+.nas-container_card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 24px rgba(0,0,0,0.25) !important;
+    transition: all 0.3s cubic-bezier(0.4,0,0.2,1);
+}
+
+.app-container_status-label[data-v-08006dd5] {
+    background: rgba(20, 20, 20, 0.85) !important;
+    backdrop-filter: blur(15px) !important;
+    border: 1px solid rgba(255, 255, 255, 0.12) !important;
+    border-radius: 10px !important;
+}
+
+.app-container_status-container[data-v-08006dd5] {
+    background: rgba(30, 30, 30, 0.6) !important;
+    border-radius: 8px !important;
+}
+
+.app-container_status-container[data-v-08006dd5] {
+    background: rgba(20, 20, 20, 0.85) !important;
+    backdrop-filter: blur(15px) !important;
+    border: 1px solid rgba(255, 255, 255, 0.12) !important;
+    border-radius: 10px !important;
+}
+
+.app-container_status-label_block[data-v-08006dd5] {
+    background: rgba(45, 45, 45, 0.5) !important;
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+    border-radius: 6px !important;
+}
+
+.app-container_status-label_bg[data-v-02f10ac5] {
+    background: rgba(40, 40, 40, 0.6) !important;
+    border-radius: 8px !important;
+    padding: 12px !important;
+}
+
+.app-container_status-label_text[data-v-02f10ac5] div {
+    color: #73d13d !important; 
+}
+
+.app-container_status-label_iconer[data-v-02f10ac5] {
+    display: flex !important;
+    align-items: center !important;
+}
+
+.app-container_status-label_iconer[data-v-02f10ac5] svg {
+    margin-right: 10px !important;
+}
+
+.app-container_status-label_block span {
+    color: #ffffff !important;
+}
+
+[data-v-b8dfe98c] {
+    color: #f0f0f0 !important;
+}
+
+#mwan3-service-status > div {
+    background-color: #ff4d4f !important; 
+}
+
+footer.mobile-hide a {
+    color: #03A9F4 !important; 
+    text-decoration: none !important;
+}
+
+footer.mobile-hide {
+    color: #FF00FF !important; 
+    text-align: center !important; 
+}
+
+a[href*="/passwall2/shunt_rules/"], 
+a[href="#"][onclick*="/passwall2/node_config/"] {
+    color: #40A9FF !important;
+    font-weight: 500;
+    position: relative;
+    padding-left: 20px;
+    transition: all 0.3s cubic-bezier(0.645, 0.045, 0.355, 1);
 }
 
 [data-page="admin-system-opkg"] h2 {
