@@ -944,7 +944,7 @@ ul.tabs li.active, ul.cbi-tabmenu li.cbi-tab {
   font-weight: normal !important;
   border-radius: 8px !important;
   min-width: 6em;
-  display: inline-flex !important;
+
   align-items: center!important;
   justify-content: center;
   text-decoration: none !important;
