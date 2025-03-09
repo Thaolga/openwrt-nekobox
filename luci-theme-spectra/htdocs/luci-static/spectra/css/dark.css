@@ -1469,6 +1469,10 @@ svg path {
     margin: 10px !important; 
 }
 
+#cbi-fchomo-config-_reload .cbi-button {
+  margin-left: -0.1ch !important;
+}
+
 footer {
     text-align: center; 
 }
