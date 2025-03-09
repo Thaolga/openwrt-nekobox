@@ -316,7 +316,7 @@ body {
     let cachedIP = null;
     let cachedInfo = null;
 
-    async function onlineTranslate(text) {
+    async function myAppTranslate(text) {
         if (!text || typeof text !== 'string' || text.trim() === '') {
             return text;
         }
@@ -405,14 +405,14 @@ body {
         }
     }
 
-    async function translateText(text, targetLang = 'zh') {
+    async function myAppTranslateText(text, targetLang = 'zh') {
         if (translate[text]) {
             return translate[text];
         }
-        return await onlineTranslate(text, targetLang);
+        return await myAppTranslate(text, targetLang);
     }
 
-    let IP = {
+    let myAppIP = {
         isRefreshing: false,
         lastGeoData: null, 
         ipApis: [
@@ -427,9 +427,9 @@ body {
 
         fetchIP: async () => {
             let error;
-            for (let api of IP.ipApis) {
+            for (let api of myAppIP.ipApis) {
                 try {
-                    const response = await IP.get(api.url, api.type);
+                    const response = await myAppIP.get(api.url, api.type);
                     if (api.type === 'json') {
                         const ipData = api.key ? response.data[api.key] : response.data;
                         cachedIP = ipData;
@@ -478,7 +478,7 @@ body {
                 {url: 'https://myip.ipip.net', type: 'text'},
                 {url: `http://ip-api.com/json/${ip}`, type: 'json'},
                 {url: `https://ipinfo.io/${ip}/json`, type: 'json'},
-                {url: `https://ipapi.co/${ip}/json/`, type: 'json'},
+                {url: `https://ipapi.co/${ip}/json`, type: 'json'},
                 {url: `https://freegeoip.app/json/${ip}`, type: 'json'}
             ];
 
@@ -487,7 +487,7 @@ body {
 
             for (let api of geoApis) {
                 try {
-                    const response = await IP.get(api.url, api.type);
+                    const response = await myAppIP.get(api.url, api.type);
                     geoData = response.data;
                     break;
                 } catch (e) {
@@ -502,21 +502,21 @@ body {
             }
 
             cachedIP = ip;
-            IP.lastGeoData = geoData; 
-            IP.updateUI(geoData, elID);
+            myAppIP.lastGeoData = geoData; 
+            myAppIP.updateUI(geoData, elID);
         },
 
         updateUI: async (data, elID) => {
             try {
-                const country = await onlineTranslate(data.country || "未知");
-                const region = await onlineTranslate(data.region || "");
-                const city = await onlineTranslate(data.city || "");
-                const isp = await onlineTranslate(data.isp || "");
-                const asnOrganization = await onlineTranslate(data.asn_organization || "");
+                const country = await myAppTranslate(data.country || "未知");
+                const region = await myAppTranslate(data.region || "");
+                const city = await myAppTranslate(data.city || "");
+                const isp = await myAppTranslate(data.isp || "");
+                const asnOrganization = await myAppTranslate(data.asn_organization || "");
 
                 let location = `${region && city && region !== city ? `${region} ${city}` : region || city || ''}`;
                 let simpleDisplay = `
-                    <div class="ip-main" style="cursor: pointer;" onclick="IP.showDetailModal()" >
+                    <div class="ip-main" style="cursor: pointer;" onclick="myAppIP.showDetailModal()" >
                         ${cachedIP} <span class="badge badge-primary" style="color: #fd7e14; background: #f0f8ff; border-radius: 4px; padding: 2px 4px;"">${country}</span>
                     </div>`;
         
@@ -536,10 +536,10 @@ body {
         },
 
         getIpipnetIP: async () => {
-            if (IP.isRefreshing) return;
+            if (myAppIP.isRefreshing) return;
 
             try {
-                IP.isRefreshing = true;
+                myAppIP.isRefreshing = true;
                 document.getElementById('d-ip').innerHTML = `
                     <div class="ip-main">
                         <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
@@ -549,25 +549,25 @@ body {
                 document.getElementById('ipip').innerHTML = "";
                 $("#flag").attr("src", _IMG + "img/loading.svg");
 
-                const ip = await IP.fetchIP();
-                await IP.Ipip(ip, 'ipip');
+                const ip = await myAppIP.fetchIP();
+                await myAppIP.Ipip(ip, 'ipip');
             } catch (error) {
                 console.error("Error in getIpipnetIP function:", error);
                 document.getElementById('ipip').innerHTML = "获取IP信息失败";
             } finally {
-                IP.isRefreshing = false;
+                myAppIP.isRefreshing = false;
             }
         }
     };
 
     document.getElementById('flag').addEventListener('click', () => {
-        IP.getIpipnetIP();
+        myAppIP.getIpipnetIP();
     });
 
-    IP.getIpipnetIP();  
+    myAppIP.getIpipnetIP();  
 
     setInterval(() => {
-        IP.getIpipnetIP();
+        myAppIP.getIpipnetIP();
     }, 180000); 
 </script>
 
