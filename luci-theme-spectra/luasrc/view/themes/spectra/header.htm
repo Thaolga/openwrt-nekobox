@@ -515,12 +515,22 @@ body {
                 const asnOrganization = await myAppTranslate(data.asn_organization || "");
 
                 let location = `${region && city && region !== city ? `${region} ${city}` : region || city || ''}`;
+
+                let displayISP = isp;
+                let displayASN = asnOrganization;
+
+                if (isp && asnOrganization && asnOrganization.includes(isp)) {
+                    displayISP = '';  
+                } else if (isp && asnOrganization && isp.includes(asnOrganization)) {
+                    displayASN = '';  
+                }
+
                 let simpleDisplay = `
                     <div class="ip-main" style="cursor: pointer;" onclick="myAppIP.showDetailModal()" >
-                        ${cachedIP} <span class="badge badge-primary" style="color: #fd7e14; background: #f0f8ff; border-radius: 4px; padding: 2px 4px;"">${country}</span>
+                        ${cachedIP} <span class="badge badge-primary" style="color: #fd7e14; background: #f0f8ff; border-radius: 4px; padding: 2px 4px;">${country}</span>
                     </div>`;
         
-                let locationInfo = `<span style="margin-left: 8px;">${location} ${isp} ${data.asn || ''} ${asnOrganization}</span>`;
+                let locationInfo = `<span style="margin-left: 8px;">${location} ${displayISP} ${data.asn || ''} ${displayASN}</span>`;
         
                 document.getElementById('d-ip').innerHTML = simpleDisplay;
                 document.getElementById('ipip').innerHTML = locationInfo;
