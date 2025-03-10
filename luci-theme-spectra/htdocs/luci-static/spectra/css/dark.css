@@ -1151,9 +1151,9 @@ button.cbi-button {
 }
 
 .pure-u-2-3 h4 {
-    border-radius: 8px;
-    padding: 8px; 
-    background: #E6E6FA; 
+    border-radius: 8px !important; 
+    padding: 8px !important; 
+    background: #E6E6FA !important; 
 }
 
 .block > .pure-u-1-3 {
