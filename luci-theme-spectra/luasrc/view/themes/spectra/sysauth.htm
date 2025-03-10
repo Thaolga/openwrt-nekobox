@@ -125,39 +125,196 @@
 	<div class="main-bg" id="main-bg" style="background-image:url(<%=bgUrl%>)"></div>
 	<!-- Image Background End -->
 	<% end %>
-	<!-- Login Container Start -->
-	<div class="login-container">
-		<div class="login-form">
-			<!-- Logo Start -->
-			<a class="brand" href="/"><img src="<%=media%>/img/spectra.svg" class="icon">
-				<span class="brand-text"><%=striptags( (boardinfo.hostname or "?") ) %></span>
-			</a>
-			<!-- Logo End -->
-			<!-- Login Form Start -->
-			<form class="form-login" method="post" action="<%=pcdata(luci.http.getenv("REQUEST_URI"))%>">
+    <div style="min-height: 100vh; display: flex; justify-content: center; align-items: center; background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);">
+<style>
+@font-face {
+  font-family: "spectra";
+  src: url("/luci-static/spectra/fonts/spectra.eot?u6kthm");
+  src: url("/luci-static/spectra/fonts/spectra.eot?u6kthm#iefix") format("embedded-opentype"),
+    url("/luci-static/spectra/fonts/spectra.ttf?u6kthm") format("truetype"),
+    url("/luci-static/spectra/fonts/spectra.woff?u6kthm") format("woff"),
+    url("/luci-static/spectra/fonts/spectra.svg?u6kthm#spectra") format("svg");
+  font-weight: normal;
+  font-style: normal;
+  font-display: block;
+}
 
-				<%- if fuser then %>
-				<div class="errorbox"><%:Invalid username and/or password! Please try again.%></div>
-				<% end -%>
+.auth-icon {
+  font-family: "spectra" !important;
+  font-style: normal;
+  font-weight: normal;
+  font-variant: normal;
+  text-transform: none;
+  line-height: 1;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  font-size: 20px;
+  color: #4a5568;
+}
 
-				<div class="input-container">
-					<div class="input-group user-icon">
-						<input class="cbi-input-user" id="cbi-input-user" type="text" name="luci_username" value="<%=duser%>" />
-						<label class="border" for="cbi-input-user"></label>
-					</div>
-					<div class="input-group pass-icon">
-						<input class="cbi-input-password" id="cbi-input-password" type="password" name="luci_password" />
-						<label class="border" for="cbi-input-password"></label>
-					</div>
-				</div>
-				<div>
-					<input type="submit" value="<%:Login%>" class="cbi-button cbi-button-apply" />
-				</div>
-			</form>
-			<!-- Login Form End -->
-			<script type="text/javascript">//<![CDATA[
-				var input = document.getElementsByName('luci_password')[0];
-				if (input)
-					input.focus();
-			//]]></script>
-<%+themes/spectra/footer_login%>
+.auth-icon.user::before { content: "\e971"; }
+.auth-icon.pass::before { content: "\e910"; }
+
+.auth-wrapper {
+  background: rgba(255, 255, 255, 0.9);
+  backdrop-filter: blur(10px);
+  padding: 2.5rem;
+  border-radius: 15px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+  width: 100%;
+  max-width: 400px;
+  position: relative;
+  animation: float 3s ease-in-out infinite;
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+
+.icon-container {
+  display: flex;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+
+.icon-container .auth-icon {
+  margin-right: 10px;
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.1); }
+  100% { transform: scale(1); }
+}
+
+.input-field {
+  flex-grow: 1;
+}
+
+.input-field input {
+  width: 100%;
+  padding: 12px 12px;
+  border: 2px solid #e2e8f0;
+  border-radius: 8px;
+  font-size: 1rem;
+  transition: all 0.3s ease;
+  background: rgba(255, 255, 255, 0.5);
+  backdrop-filter: blur(5px);
+}
+
+.input-field input:focus {
+  border-color: #4f46e5;
+  box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+  outline: none;
+}
+
+.submit-btn {
+  width: 100%;
+  padding: 14px;
+  background: #4f46e5;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  margin-top: 1rem;
+  position: relative;
+  overflow: hidden;
+}
+
+.submit-btn::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, rgba(255, 255, 255, 0) 0%, rgba(255, 255, 255, 0.3) 100%);
+  animation: shine 1.5s infinite;
+}
+
+@keyframes shine {
+  0% { left: -100%; }
+  100% { left: 100%; }
+}
+
+.submit-btn:hover {
+  background: #4338ca;
+}
+
+.alert-message {
+  background: #fee2e2;
+  color: #dc2626;
+  padding: 1rem;
+  border-radius: 8px;
+  margin-bottom: 1.5rem;
+  border: 1px solid #fca5a5;
+  animation: fadeIn 0.5s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+</style>
+
+    <div class="auth-wrapper">
+        <div class="brand-section" style="text-align: center; margin-bottom: 2rem;">
+            <a class="brand-logo" href="/" style="display: inline-flex; align-items: center; text-decoration: none; color: #2c3e50;">
+                <img src="<%=media%>/img/spectra.svg" style="height: 40px; margin-right: 12px;">
+                <span style="font-family: 'TypoGraphica', sans-serif; font-size: 1.8rem; font-weight: 600; letter-spacing: -0.5px;"><%=striptags( (boardinfo.hostname or "?") ) %></span>
+            </a>
+        </div>
+        <% if fuser then %>
+        <div class="alert-message">
+            <%:Invalid username and/or password! Please try again.%>
+        </div>
+        <% end %>
+
+        <form class="auth-form" method="post" action="<%=pcdata(luci.http.getenv("REQUEST_URI"))%>">
+            <div class="form-group">
+                <div class="icon-container">
+                    <span class="auth-icon user"></span>
+                    <div class="input-field">
+                        <input type="text" 
+                               id="authUsername" 
+                               name="luci_username" 
+                               value="<%=duser%>" 
+                               placeholder="<%:Username%>"
+                               onfocus="this.style.borderColor='#4f46e5'; this.style.boxShadow='0 0 0 3px rgba(79,70,229,0.1)'"
+                               onblur="this.style.borderColor='#e2e8f0'; this.style.boxShadow='none'">
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <div class="icon-container">
+                    <span class="auth-icon pass"></span>
+                    <div class="input-field">
+                        <input type="password" 
+                               id="authPassword" 
+                               name="luci_password" 
+                               placeholder="<%:Password%>"
+                               onfocus="this.style.borderColor='#4f46e5'; this.style.boxShadow='0 0 0 3px rgba(79,70,229,0.1)'"
+                               onblur="this.style.borderColor='#e2e8f0'; this.style.boxShadow='none'">
+                    </div>
+                </div>
+            </div>
+
+            <button type="submit" 
+                    class="submit-btn">
+                <%:Login%>
+            </button>
+        </form>
+
+        <script type="text/javascript">//<![CDATA[
+            document.getElementById('authPassword').focus();
+        //]]></script>
+        
+        <%+themes/spectra/footer_login%>
+    </div>
+</div>

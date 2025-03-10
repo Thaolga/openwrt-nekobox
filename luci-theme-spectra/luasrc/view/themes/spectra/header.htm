@@ -59,6 +59,10 @@
 -%>
 
     <style>
+        body * {
+             font-family: Helvetica, Arial, sans-serif !important;
+        }
+
         header {
             background-color: transparent;
             color: #fff;
@@ -68,6 +72,7 @@
         .box {
             width: 40px;
             height: 40px;
+            margin: 0 8px;
             background: transparent;
             margin: 0 10px;
             display: flex;
@@ -78,19 +83,21 @@
             overflow: hidden;
             box-shadow: 0 6px 6px 3px #00ffff9a;
         }
+
         .box img {
             display: block;
-            margin: auto; /* Memposisikan gambar di tengah secara horizontal dan vertikal */
+            margin: auto; 
             position: absolute;
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            transition: filter 0.2s ease-in-out; /* Transisi saat hover */
+            transition: filter 0.2s ease-in-out; 
         }
 
         .box:hover img {
-            filter: drop-shadow(0 0 5px cyan); /* Efek bayangan saat hover */
+            filter: drop-shadow(0 0 5px cyan); 
         }
+
         .box i {
             z-index: 5;
             font-size: 45px;
@@ -99,8 +106,50 @@
 
         .box-area {
             display: flex;
-            justify-content: space-around;
+            justify-content: space-evenly; 
             align-items: center;
+            margin: 30px 0 40px;
+            padding: 0 15px; 
+        }
+
+        .ip-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 15px 20px;
+            position: relative;
+            z-index: 1;
+            transform: translateY(1px); 
+        }
+
+        #flag {
+            width: 60px;
+            height: 40px;
+            margin-right: 25px; 
+            margin-left: 15px; 
+        }
+
+        .ip-text {
+            font-family: Arial, sans-serif;
+            line-height: 1.4;
+        }
+
+        #d-ip {
+            color: #09B63F !important;
+            font-weight: bold;
+            font-size: 15px;
+            position: relative;
+            left: 0.5em; 
+            margin-bottom: 3px; 
+        }
+
+        #ipip {
+            color: #FF00FF !important;
+            font-weight: bold;
+            font-size: 14px;
+            display: block;
+            margin-top: 3px; 
+            margin-bottom: 3px; 
         }
        
 </style>
@@ -192,21 +241,26 @@
 		<span></span>
 		<span></span>
 		<span></span>
+		<span></span>
+		<span></span>
+		<span></span>
 </div>
 <style>
 body {
 	background: #111;
 	height: 100vh;
+	overflow: hidden; 
 }
+
 .wrapper span {
 	position: fixed;
 	bottom: -180px;
 	height: 50px;
 	width: 50px;
-	z-index: -1;
+	z-index: 9999; 
 	background-color: #18191f;
 	box-shadow: 0 0 50px cyan, 0 0 100px cyan, 0 0 150px cyan, 0 0 200px cyan;
-	animation: animate 8s linear infinite;
+	animation: animate 15s linear infinite;
 }
 
 .wrapper span:nth-child(1) {
@@ -262,11 +316,11 @@ body {
 		transform: translateY(0);
 		opacity: 1;
 	}
-	80% {
+	90% {
 		opacity: .7;
 	}
 	100% {
-		transform: translateY(-800px) rotate(360deg);
+		transform: translateY(-1200px) rotate(360deg);
 		opacity: 0;
 	}
 }
@@ -301,12 +355,12 @@ body {
                 <a href='/cgi-bin/luci/admin/network/network'><img src="<%=media%>/navbar/interface.gif" width="35" height="35"></a>
             </div>
         </div>
-    <div style="display: flex; align-items: center; font-family: Arial, sans-serif; padding: 20px; height: 100vh; justify-content: center; margin-top: 10px;">
-        <img id="flag" style="width: 60px; height: 40px; margin-right: 8px; vertical-align: middle; cursor: pointer;" alt="IP Flag" title="点击刷新 IP 地址">
-        <h4 style="font-size: 1rem; margin: 0;">
-            <span id="d-ip" style="color: #09B63F !important; font-weight: bold; display: block; font-size: 17px; margin-bottom: 5px;">Checking...</span>
-            <span id="ipip" style="color: #FF00FF !important; font-weight: bold; display: block; text-indent: -0.7ch; transform: translateY(6px);"></span>
-        </h4>
+    <div class="ip-container">
+        <img id="flag" src="path/to/flag.png" alt="IP Flag" title="<%:Click to refresh IP address%>">
+        <div class="ip-text">
+            <span id="d-ip">Checking...</span>
+            <span id="ipip"></span>
+        </div>
     </div>
 <script>
 document.addEventListener("DOMContentLoaded", function () {
@@ -319,7 +373,7 @@ document.addEventListener("DOMContentLoaded", function () {
 });
 </script>
 <script type="text/javascript">
-    const _IMG = '/luci-static/ssr/';
+    const _IMG = '/luci-static/ipip/';
     const translate = {
     }; 
 
@@ -518,7 +572,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
         updateUI: async (data, elID) => {
             try {
-                const country = await myAppTranslate(data.country || "未知");
+                const country = await myAppTranslate(data.country || "<%:Unknown%>");
                 const region = await myAppTranslate(data.region || "");
                 const city = await myAppTranslate(data.city || "");
                 const isp = await myAppTranslate(data.isp || "");
@@ -537,7 +591,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
                 let simpleDisplay = `
                     <div class="ip-main" style="cursor: pointer;" onclick="myAppIP.showDetailModal()" >
-                        ${cachedIP} <span class="badge badge-primary" style="color: #fd7e14; background: #f0f8ff; border-radius: 4px; padding: 2px 4px;">${country}</span>
+                        ${cachedIP} <span class="badge badge-primary" style="color: #fd7e14; background: #f0f8ff; border-radius: 4px; padding: 1px 2px;">${country}</span>
                     </div>`;
         
                 let locationInfo = `<span style="margin-left: 8px;">${location} ${displayISP} ${data.asn || ''} ${displayASN}</span>`;
@@ -545,13 +599,13 @@ document.addEventListener("DOMContentLoaded", function () {
                 document.getElementById('d-ip').innerHTML = simpleDisplay;
                 document.getElementById('ipip').innerHTML = locationInfo;
                 const countryCode = data.country_code || 'unknown';
-                const flagSrc = (countryCode !== 'unknown') ? _IMG + "flags/" + countryCode.toLowerCase() + ".png" : '/luci-static/ssr/flags/cn.png';
+                const flagSrc = (countryCode !== 'unknown') ? _IMG + "flags/" + countryCode.toLowerCase() + ".png" : '/luci-static/ipip/flags/cn.png';
                 $("#flag").attr("src", flagSrc);
         
             } catch (error) {
                 console.error("Error in updateUI:", error);
-                document.getElementById('d-ip').innerHTML = "更新 IP 信息失败";
-                $("#flag").attr("src", "./assets/neko/flags/mo.png");
+                document.getElementById('d-ip').innerHTML = "<%:Failed to update IP information%>";
+                $("#flag").attr("src", "/luci-static/ipip/flags/mo.png");
             }
         },
 
@@ -563,7 +617,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 document.getElementById('d-ip').innerHTML = `
                     <div class="ip-main">
                         <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
-                        检查中...
+                        <%:Checking...%> 
                     </div>
                 `;
                 document.getElementById('ipip').innerHTML = "";
@@ -573,7 +627,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 await myAppIP.Ipip(ip, 'ipip');
             } catch (error) {
                 console.error("Error in getIpipnetIP function:", error);
-                document.getElementById('ipip').innerHTML = "获取IP信息失败";
+                document.getElementById('ipip').innerHTML = "<%:Failed to get IP information%>";
             } finally {
                 myAppIP.isRefreshing = false;
             }

@@ -303,11 +303,11 @@ div > .table > .tbody > .tr:nth-of-type(2n) {
 .cbi-tabmenu > li:hover {
   color: #ccc;
   background: #2d2d2d9a;
-  border-bottom: 0.18751rem solid var(--dark-primary) !important;
+  border-bottom: none !important;
 }
 .cbi-tabmenu > li[class~="cbi-tab"] {
   background-color: #1818199a;
-  border-bottom: 0.18751rem solid var(--dark-primary) !important;
+  border-bottom: none !important;
 }
 .cbi-tabcontainer > .cbi-value:nth-of-type(2n) {
   background-color: #252526;
@@ -632,6 +632,7 @@ input,
 }
 
 body * {
+  font-family: Helvetica, Arial, sans-serif !important;
   font-family: var(--modern-font) !important;
   text-shadow: none !important;
   -webkit-font-smoothing: auto !important;
@@ -835,7 +836,7 @@ ul.tabs, ul.cbi-tabmenu {
   padding: 10px;
   border-radius: 5px;
   margin: 10px 0;
-  border-bottom: none !important; 
+  border-bottom: none !important;
 }
 
 ul.tabs li, ul.cbi-tabmenu li {
@@ -843,18 +844,25 @@ ul.tabs li, ul.cbi-tabmenu li {
   margin-right: 5px;
   border-radius: 8px !important;
   text-decoration: none !important;
-  transition: 0.3s transform ease-in-out; 
+  transition: 0.3s transform ease-in-out;
   display: inline-block;
   color: #ffffff !important;
-  padding: 10px 20px !important;
   line-height: 1.5 !important;
   box-sizing: border-box;
-  border-bottom: none !important; 
+  border-bottom: none !important;
+}
+
+ul.tabs li {
+  padding: 8px 10px !important; 
+}
+
+ul.cbi-tabmenu li {
+  padding: 4px 6px !important; 
 }
 
 ul.tabs li:hover, ul.cbi-tabmenu li:hover {
   background-color: #2980b9 !important;
-  transform: scale(1.1); 
+  transform: scale(1.1);
 }
 
 ul.tabs li.active, ul.cbi-tabmenu li.cbi-tab {
@@ -1489,13 +1497,46 @@ footer a.version {
 
 }
 
-a[href*="/passwall2/shunt_rules/"], 
-a[href="#"][onclick*="/passwall2/node_config/"] {
-    color: #40A9FF !important;
+a[href="#"][onclick*="/passwall2/node_config/"],
+a[href="#"][onclick*="/passwall2/get_redir_log"],
+a[href="#"][onclick*="/passwall/node_config/"],
+a[href="#"][onclick*="/passwall/get_redir_log"],
+a[href="#"][onclick*="/cgi-bin/luci/admin/services/passwall2/get_socks_log"] {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #3b82f6; 
+    color: white !important;
     font-weight: 500;
-    position: relative;
-    padding-left: 20px;
-    transition: all 0.3s cubic-bezier(0.645, 0.045, 0.355, 1);
+    gap: 6px;
+    border-radius: 6px; 
+    text-decoration: none; 
+    transition: all 0.3s cubic-bezier(0.645, 0.045, 0.355, 1); 
+    margin-right: 5px; 
+    margin-bottom: 5px; 
+    font-size: inherit; 
+    padding: 0 10px; 
+    height: 36px; 
+    min-width: 60px; 
+}
+
+a[href="#"][onclick*="/passwall2/node_config/"]:hover,
+a[href="#"][onclick*="/passwall2/get_redir_log"]:hover,
+a[href="#"][onclick*="/passwall/node_config/"]:hover,
+a[href="#"][onclick*="/passwall/get_redir_log"]:hover,
+a[href="#"][onclick*="/cgi-bin/luci/admin/services/passwall2/get_socks_log"]:hover {
+    background-color: #2563eb; 
+    transform: translateY(-2px); 
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); 
+}
+
+a[href="#"][onclick*="/passwall2/node_config/"]:active,
+a[href="#"][onclick*="/passwall2/get_redir_log"]:active,
+a[href="#"][onclick*="/passwall/node_config/"]:active,
+a[href="#"][onclick*="/passwall/get_redir_log"]:active,
+a[href="#"][onclick*="/cgi-bin/luci/admin/services/passwall2/get_socks_log"]:active {
+    transform: translateY(0); 
+    background-color: #1d4ed8; 
 }
 
 [data-page="admin-system-opkg"] h2 {
