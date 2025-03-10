@@ -1,0 +1,40 @@
+msgid ""
+msgstr "Content-Type: text/plain; charset=UTF-8"
+
+msgid "Search Menu"
+msgstr "搜索菜单"
+
+msgid "Empty Input"
+msgstr "输入为空"
+
+msgid "Not Found"
+msgstr "未找到"
+
+msgid "Login"
+msgstr "登录"
+
+msgid "Click to refresh IP address"
+msgstr "点击刷新 IP 地址"
+
+msgid "Checking..."
+msgstr "检查中..."
+
+msgid "Failed to update IP information"
+msgstr "更新 IP 信息失败"
+
+msgid "Failed to get IP information"
+msgstr "获取IP信息失败"
+
+msgid "Unknown"
+msgstr "未知"
+
+msgid "Home"
+msgstr "首页"
+
+msgid "Configs"
+msgstr "配置"
+
+msgid "Manager"
+msgstr "文件助手"
+
+

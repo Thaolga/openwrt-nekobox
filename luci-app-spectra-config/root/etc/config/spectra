@@ -1,0 +1,12 @@
+
+config global
+	option primary '#5e72e4'
+	option dark_primary '#483d8b'
+	option blur '10'
+	option blur_dark '10'
+	option transparency '0.5'
+	option transparency_dark '0.5'
+	option mode 'dark'
+	option bing_background '0'
+	option save 'Save Changes'
+

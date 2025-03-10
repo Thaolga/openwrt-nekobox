@@ -1,0 +1,697 @@
+
+
+<%#
+	Argon is a clean HTML5 theme for LuCI. It is based on luci-theme-material Argon Template
+
+	luci-theme-argon
+	Copyright 2020 Jerrykuku <jerrykuku@qq.com>
+
+	Have a bug? Please create an issue here on GitHub!
+	https://github.com/jerrykuku/luci-theme-argon/issues
+
+	luci-theme-material:
+	Copyright 2015 Lutty Yang <lutty@wcan.in>
+
+	Argon Theme
+	https://demos.creative-tim.com/argon-dashboard/index.html
+
+	Licensed to the public under the Apache License 2.0
+-%>
+
+<%
+	local sys = require "luci.sys"
+	local util = require "luci.util"
+	local http = require "luci.http"
+	local disp = require "luci.dispatcher"
+	local ver = require "luci.version"
+
+	local boardinfo = util.ubus("system", "board")
+
+	local node = disp.context.dispatched
+
+	local fs = require "nixio.fs"
+	local nutil = require "nixio.util"
+	local uci = require 'luci.model.uci'.cursor()
+
+	-- send as HTML5
+	http.prepare_content("text/html")
+
+	math.randomseed(os.time())
+
+	-- Custom settings
+	local mode = 'normal'
+	local dark_css = fs.readfile('/www/luci-static/spectra/css/dark.css')
+	local bar_color = '#5e72e4'
+	local primary, dark_primary, blur_radius, blur_radius_dark, blur_opacity
+	if fs.access('/etc/config/spectra') then
+		primary = uci:get_first('spectra', 'global', 'primary')
+		dark_primary = uci:get_first('spectra', 'global', 'dark_primary')
+		blur_radius = uci:get_first('spectra', 'global', 'blur')
+		blur_radius_dark = uci:get_first('spectra', 'global', 'blur_dark')
+		blur_opacity = uci:get_first('spectra', 'global', 'transparency')
+		blur_opacity_dark = uci:get_first('spectra', 'global', 'transparency_dark')
+		mode = uci:get_first('spectra', 'global', 'mode')
+		bar_color = mode == 'dark' and dark_primary or primary
+	end
+
+	-- Brand name
+	local brand_name = boardinfo.hostname or "?"
+-%>
+
+    <style>
+        body * {
+             font-family: Helvetica, Arial, sans-serif !important;
+        }
+
+        header {
+            background-color: transparent;
+            color: #fff;
+            padding: 20px;
+        }
+
+        .box {
+            width: 40px;
+            height: 40px;
+            margin: 0 8px;
+            background: transparent;
+            margin: 0 10px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 6px 6px 3px #00ffff9a;
+        }
+
+        .box img {
+            display: block;
+            margin: auto; 
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            transition: filter 0.2s ease-in-out; 
+        }
+
+        .box:hover img {
+            filter: drop-shadow(0 0 5px cyan); 
+        }
+
+        .box i {
+            z-index: 5;
+            font-size: 45px;
+            color: #fff;
+        }
+
+        .box-area {
+            display: flex;
+            justify-content: space-evenly; 
+            align-items: center;
+            margin: 30px 0 40px;
+            padding: 0 15px; 
+        }
+
+        .ip-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 15px 20px;
+            position: relative;
+            z-index: 1;
+            transform: translateY(1px); 
+        }
+
+        #flag {
+            width: 60px;
+            height: 40px;
+            margin-right: 25px; 
+            margin-left: 15px; 
+        }
+
+        .ip-text {
+            font-family: Arial, sans-serif;
+            line-height: 1.4;
+        }
+
+        #d-ip {
+            color: #09B63F !important;
+            font-weight: bold;
+            font-size: 15px;
+            position: relative;
+            left: 0.5em; 
+            margin-bottom: 3px; 
+        }
+
+        #ipip {
+            color: #FF00FF !important;
+            font-weight: bold;
+            font-size: 14px;
+            display: block;
+            margin-top: 3px; 
+            margin-bottom: 3px; 
+        }
+       
+</style>
+   
+	<meta charset="utf-8">
+	<meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport" />
+	<meta name="format-detection" content="telephone=no, email=no" />
+	<meta name="apple-mobile-web-app-capable" content="yes">
+	<meta name="mobile-web-app-capable" content="yes">
+	<meta name="x5-fullscreen" content="true">
+	<meta name="full-screen" content="yes">
+	<meta name="x5-page-mode" content="app">
+	<meta name="browsermode" content="application">
+	<meta name="msapplication-tap-highlight" content="no">
+	<meta name="msapplication-TileColor" content="<%=bar_color%>">
+	<meta name="application-name" content="<%=striptags( (boardinfo.hostname or "?") ) %> - LuCI">
+	<meta name="apple-mobile-web-app-title" content="<%=striptags( (boardinfo.hostname or "?") ) %> - LuCI">
+	<link rel="apple-touch-icon" sizes="60x60" href="<%=media%>/icon/apple-icon-60x60.png">
+	<link rel="apple-touch-icon" sizes="72x72" href="<%=media%>/icon/apple-icon-72x72.png">
+	<link rel="apple-touch-icon" sizes="144x144" href="<%=media%>/icon/apple-icon-144x144.png">
+	<link rel="icon" type="image/png" sizes="192x192" href="<%=media%>/icon/android-icon-192x192.png">
+	<link rel="icon" type="image/png" sizes="32x32" href="<%=media%>/icon/favicon-32x32.png">
+	<link rel="icon" type="image/png" sizes="96x96" href="<%=media%>/icon/favicon-96x96.png">
+	<link rel="icon" type="image/png" sizes="16x16" href="<%=media%>/icon/favicon-16x16.png">
+	<link rel="manifest" href="<%=media%>/icon/manifest.json"  crossorigin="use-credentials">
+	<meta name="msapplication-TileColor" content="<%=bar_color%>">
+	<meta name="msapplication-TileImage" content="<%=media%>/icon/ms-icon-144x144.png">
+	<meta name="theme-color" content="<%=bar_color%>">
+	<link rel="stylesheet" href="<%=media%>/css/cascade.css?v=2.3.1">
+	<style title="text/css">
+		<% if mode ~= 'dark' then %>
+			@media (prefers-color-scheme: dark) {
+				<%=dark_css%>
+			}
+		<% if fs.access('/etc/config/spectra') then %>
+		:root {
+			--primary: <%=primary%>;
+			--dark-primary: <%=dark_primary%>;
+			--bar-bg: <%=primary%>;
+			--blur-radius:<%=blur_radius%>px;
+			--blur-opacity:<%=blur_opacity%>;
+			--blur-radius-dark:<%=blur_radius_dark%>px;
+			--blur-opacity-dark:<%=blur_opacity_dark%>;
+		}
+		<% end -%>
+		<% elseif mode == 'dark' then %>
+			<%=dark_css%>
+		<% if fs.access('/etc/config/spectra') then %>
+		:root {
+			--primary: <%=primary%>;
+			--dark-primary: <%=dark_primary%>;
+			--bar-bg: <%=dark_primary%>;
+			--blur-radius:<%=blur_radius%>px;
+			--blur-opacity:<%=blur_opacity%>;
+			--blur-radius-dark:<%=blur_radius_dark%>px;
+			--blur-opacity-dark:<%=blur_opacity_dark%>;
+		}
+		<% end -%>
+		<% end -%>
+	</style>
+	<link rel="shortcut icon" href="<%=media%>/favicon.ico">
+        <link rel="stylesheet" href="<%=resource%>/spectra/easeicon.css?v=2.4">
+	<% if node and node.css then %>
+	<link rel="stylesheet" href="<%=resource%>/<%=node.css%>">
+	<% end -%>
+	<% if css then %>
+	<style title="text/css">
+		<%=css %>
+	</style>
+	<% end -%>
+	<script src="<%=media%>/js/polyfill.min.js?v=2.3.1"></script>
+	<script src="<%=url('admin/translations', luci.i18n.context.lang)%>?v=<%=ver.luciversion%>"></script>
+	<script src="<%=resource%>/cbi.js?v=<%=ver.luciversion%>"></script>
+	<script src="<%=resource%>/luci.js?v=<%=ver.luciversion%>"></script>
+	<script src="<%=media%>/js/jquery.min.js?v=3.5.1"></script>
+</head>
+
+<body
+	class="lang_<%=luci.i18n.context.lang%> <% if node then %><%= striptags( node.title ) %><% end %> <% if luci.dispatcher.context.authsession then %>logged-in<% end %>"
+	data-page="<%= table.concat(disp.context.requestpath, "-") %>">
+<div class="wrapper">
+		<span></span>
+		<span></span>
+		<span></span>
+		<span></span>
+		<span></span>
+		<span></span>
+		<span></span>
+		<span></span>
+		<span></span>
+		<span></span>
+		<span></span>
+		<span></span>
+		<span></span>
+</div>
+<style>
+body {
+	background: #111;
+	height: 100vh;
+	overflow: hidden; 
+}
+
+.wrapper span {
+	position: fixed;
+	bottom: -180px;
+	height: 50px;
+	width: 50px;
+	z-index: 9999; 
+	background-color: #18191f;
+	box-shadow: 0 0 50px cyan, 0 0 100px cyan, 0 0 150px cyan, 0 0 200px cyan;
+	animation: animate 15s linear infinite;
+}
+
+.wrapper span:nth-child(1) {
+	left: 60px;
+	animation-delay: 0.6s;
+}
+.wrapper span:nth-child(2) {
+	left: 10%;
+	animation-delay: 3s;
+	width: 60px;
+	height: 60px;
+}
+.wrapper span:nth-child(3) {
+	left: 20%;
+	animation-delay: 2s;
+}
+.wrapper span:nth-child(4) {
+	left: 30%;
+	animation-delay: 5s;
+	width: 80px;
+	height: 80px;
+}
+.wrapper span:nth-child(5) {
+	left: 40%;
+	animation-delay: 1s;
+}
+.wrapper span:nth-child(6) {
+	left: 50%;
+	animation-delay: 7s;
+}
+.wrapper span:nth-child(7) {
+	left: 60%;
+	animation-delay: 6s;
+	width: 100px;
+	height: 100px;
+}
+.wrapper span:nth-child(8) {
+	left: 70%;
+	animation-delay: 8s;
+}
+.wrapper span:nth-child(9) {
+	left: 80%;
+	animation-delay: 6s;
+	width: 90px;
+	height: 90px;
+}
+.wrapper span:nth-child(10) {
+	left: 90%;
+	animation-delay: 4s;
+}
+@keyframes animate {
+	0% {
+		transform: translateY(0);
+		opacity: 1;
+	}
+	90% {
+		opacity: .7;
+	}
+	100% {
+		transform: translateY(-1200px) rotate(360deg);
+		opacity: 0;
+	}
+}
+
+</style>
+<header>
+	<div class="fill">
+		<div class="container">
+			<a class="showSide"></span>
+		<a id="logo" href="<% if luci.dispatcher.context.authsession then %><%=url('admin/status/overview')%><% else %>#<% end %>"><img src="<%=media%>/brand.png" alt="OpenWrt"></a>
+			<tr>
+        <div class="box-area">
+            <div class="box">
+                <a id="oc" href='/cgi-bin/luci/admin/services/openclash'><img src="<%=media%>/navbar/clash.gif" width="35" height="35"></a>
+            </div>
+            <div class="box">
+                <a href='/nekobox' target='_blank'><img src="<%=media%>/navbar/yacd.gif" width="35" height="35"></a>
+            </div>
+            <div class="box">
+                <a href='/cgi-bin/luci/admin/nas/tinyfilemanager'><img src="<%=media%>/navbar/tinyfm.gif" width="35" height="35"></a>
+            </div>
+            <div class="box">
+                <a href='/cgi-bin/luci/admin/status/realtime'><img src="<%=media%>/navbar/netmon.gif" width="35" height="35"></a>
+            </div>
+            <div class="box">
+                <a href='/cgi-bin/luci/admin/services/ttyd'><img src="<%=media%>/navbar/terminal.gif" width="35" height="35"></a>
+            </div>
+            <div class="box">
+                <a href='/cgi-bin/luci/admin/services/homeproxy'><img src="<%=media%>/navbar/modem.gif" width="35" height="35"></a>
+            </div>
+            <div class="box">
+                <a href='/cgi-bin/luci/admin/network/network'><img src="<%=media%>/navbar/interface.gif" width="35" height="35"></a>
+            </div>
+        </div>
+    <div class="ip-container">
+        <img id="flag" src="path/to/flag.png" alt="IP Flag" title="<%:Click to refresh IP address%>">
+        <div class="ip-text">
+            <span id="d-ip">Checking...</span>
+            <span id="ipip"></span>
+        </div>
+    </div>
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    const h4Element = document.querySelector("h4"); 
+    if (h4Element) {
+        h4Element.style.backgroundColor = "rgba(0, 0, 0, 0.05)"; 
+        h4Element.style.padding = "10px"; 
+        h4Element.style.borderRadius = "5px"; 
+    }
+});
+</script>
+<script type="text/javascript">
+    const _IMG = '/luci-static/ipip/';
+    const translate = {
+    }; 
+
+    let cachedIP = null;
+    let cachedInfo = null;
+
+    async function myAppTranslate(text) {
+        if (!text || typeof text !== 'string' || text.trim() === '') {
+            return text;
+        }
+
+        const browserLang = navigator.language || navigator.userLanguage;
+
+        if (browserLang.startsWith('en')) {
+            return text;
+        }
+
+        const langMap = {
+            'zh-CN': 'zh-CN', 
+            'zh-HK': 'zh-HK',  
+            'zh-TW': 'zh-TW', 
+            'ja': 'ja',   
+            'ko': 'ko',      
+            'fr': 'fr',     
+            'de': 'de',      
+            'es': 'es',       
+        };
+
+        const targetLang = langMap[browserLang] || browserLang.split('-')[0];
+
+        if (targetLang.startsWith('en')) {
+            return text;
+        }
+
+        const cacheKey = `trans_${text}_${targetLang}`;
+        const cachedTranslation = localStorage.getItem(cacheKey);
+        if (cachedTranslation) {
+            return cachedTranslation;
+        }
+
+        const apis = [
+            {
+                url: 'https://api.mymemory.translated.net/get?q=' + encodeURIComponent(text) + '&langpair=en|' + targetLang,
+                method: 'GET',
+                parseResponse: (data) => data.responseData.translatedText
+            },
+            {
+                url: 'https://libretranslate.com/translate',
+                method: 'POST',
+                body: JSON.stringify({
+                    q: text,
+                    source: 'en',
+                    target: targetLang,
+                    format: 'text'
+                }),
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                parseResponse: (data) => data.translatedText
+            }
+        ];
+
+        for (const api of apis) {
+            try {
+                const response = await fetch(api.url, {
+                    method: api.method,
+                    headers: api.headers || {},
+                    body: api.body || null
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    const translatedText = api.parseResponse(data);
+                    localStorage.setItem(cacheKey, translatedText);
+                    return translatedText;
+                }
+            } catch (error) {
+                continue;
+            }
+        }
+
+        return text;
+    }
+
+    function clearOldCache() {
+        const cachePrefix = 'trans_';
+        const cacheKeys = Object.keys(localStorage).filter(key => key.startsWith(cachePrefix));
+
+        if (cacheKeys.length > 1000) {
+            console.log("Cleaning up localStorage cache");
+            const itemsToRemove = cacheKeys.slice(0, cacheKeys.length - 1000);
+            itemsToRemove.forEach(key => localStorage.removeItem(key));
+        }
+    }
+
+    async function myAppTranslateText(text, targetLang = 'zh') {
+        if (translate[text]) {
+            return translate[text];
+        }
+        return await myAppTranslate(text, targetLang);
+    }
+
+    let myAppIP = {
+        isRefreshing: false,
+        lastGeoData: null, 
+        ipApis: [
+            {url: 'https://api.ipify.org?format=json', type: 'json', key: 'ip'},
+            {url: 'https://api-ipv4.ip.sb/geoip', type: 'json', key: 'ip'},
+            {url: 'https://myip.ipip.net', type: 'text'},
+            {url: 'http://pv.sohu.com/cityjson', type: 'text'},
+            {url: 'https://ipinfo.io/json', type: 'json', key: 'ip'},
+            {url: 'https://ipapi.co/json/', type: 'json'},
+            {url: 'https://freegeoip.app/json/', type: 'json'}
+        ],
+
+        fetchIP: async () => {
+            let error;
+            for (let api of myAppIP.ipApis) {
+                try {
+                    const response = await myAppIP.get(api.url, api.type);
+                    if (api.type === 'json') {
+                        const ipData = api.key ? response.data[api.key] : response.data;
+                        cachedIP = ipData;
+                        document.getElementById('d-ip').innerHTML = ipData;
+                        return ipData;
+                    } else {
+                        const ipData = response.data.match(/\d+\.\d+\.\d+\.\d+/)?.[0];
+                        if (ipData) {
+                            cachedIP = ipData;
+                            document.getElementById('d-ip').innerHTML = ipData;
+                            return ipData;
+                        }
+                    }
+                } catch (e) {
+                    error = e;
+                    console.error(`Error with ${api.url}:`, e);
+                    continue;
+                }
+            }
+            throw error || new Error("All IP APIs failed");
+        },
+
+        get: (url, type) =>
+            fetch(url, { 
+                method: 'GET',
+                cache: 'no-store'
+            }).then((resp) => {
+                if (type === 'text')
+                    return Promise.all([resp.ok, resp.status, resp.text(), resp.headers]);
+                else
+                    return Promise.all([resp.ok, resp.status, resp.json(), resp.headers]);
+            }).then(([ok, status, data, headers]) => {
+                if (ok) {
+                    return { ok, status, data, headers };
+                } else {
+                    throw new Error(JSON.stringify(data.error));
+                }
+            }).catch(error => {
+                console.error("Error fetching data:", error);
+                throw error;
+            }),
+
+        Ipip: async (ip, elID) => {
+            const geoApis = [
+                {url: `https://api.ip.sb/geoip/${ip}`, type: 'json'},
+                {url: 'https://myip.ipip.net', type: 'text'},
+                {url: `http://ip-api.com/json/${ip}`, type: 'json'},
+                {url: `https://ipinfo.io/${ip}/json`, type: 'json'},
+                {url: `https://ipapi.co/${ip}/json`, type: 'json'},
+                {url: `https://freegeoip.app/json/${ip}`, type: 'json'}
+            ];
+
+            let geoData = null;
+            let error;
+
+            for (let api of geoApis) {
+                try {
+                    const response = await myAppIP.get(api.url, api.type);
+                    geoData = response.data;
+                    break;
+                } catch (e) {
+                    error = e;
+                    console.error(`Error with ${api.url}:`, e);
+                    continue;
+                }
+            }
+
+            if (!geoData) {
+                throw error || new Error("All Geo APIs failed");
+            }
+
+            cachedIP = ip;
+            myAppIP.lastGeoData = geoData; 
+            myAppIP.updateUI(geoData, elID);
+        },
+
+        updateUI: async (data, elID) => {
+            try {
+                const country = await myAppTranslate(data.country || "<%:Unknown%>");
+                const region = await myAppTranslate(data.region || "");
+                const city = await myAppTranslate(data.city || "");
+                const isp = await myAppTranslate(data.isp || "");
+                const asnOrganization = await myAppTranslate(data.asn_organization || "");
+
+                let location = `${region && city && region !== city ? `${region} ${city}` : region || city || ''}`;
+
+                let displayISP = isp;
+                let displayASN = asnOrganization;
+
+                if (isp && asnOrganization && asnOrganization.includes(isp)) {
+                    displayISP = '';  
+                } else if (isp && asnOrganization && isp.includes(asnOrganization)) {
+                    displayASN = '';  
+                }
+
+                let simpleDisplay = `
+                    <div class="ip-main" style="cursor: pointer;" onclick="myAppIP.showDetailModal()" >
+                        ${cachedIP} <span class="badge badge-primary" style="color: #fd7e14; background: #f0f8ff; border-radius: 4px; padding: 1px 2px;">${country}</span>
+                    </div>`;
+        
+                let locationInfo = `<span style="margin-left: 8px;">${location} ${displayISP} ${data.asn || ''} ${displayASN}</span>`;
+        
+                document.getElementById('d-ip').innerHTML = simpleDisplay;
+                document.getElementById('ipip').innerHTML = locationInfo;
+                const countryCode = data.country_code || 'unknown';
+                const flagSrc = (countryCode !== 'unknown') ? _IMG + "flags/" + countryCode.toLowerCase() + ".png" : '/luci-static/ipip/flags/cn.png';
+                $("#flag").attr("src", flagSrc);
+        
+            } catch (error) {
+                console.error("Error in updateUI:", error);
+                document.getElementById('d-ip').innerHTML = "<%:Failed to update IP information%>";
+                $("#flag").attr("src", "/luci-static/ipip/flags/mo.png");
+            }
+        },
+
+        getIpipnetIP: async () => {
+            if (myAppIP.isRefreshing) return;
+
+            try {
+                myAppIP.isRefreshing = true;
+                document.getElementById('d-ip').innerHTML = `
+                    <div class="ip-main">
+                        <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                        <%:Checking...%> 
+                    </div>
+                `;
+                document.getElementById('ipip').innerHTML = "";
+                $("#flag").attr("src", _IMG + "img/loading.svg");
+
+                const ip = await myAppIP.fetchIP();
+                await myAppIP.Ipip(ip, 'ipip');
+            } catch (error) {
+                console.error("Error in getIpipnetIP function:", error);
+                document.getElementById('ipip').innerHTML = "<%:Failed to get IP information%>";
+            } finally {
+                myAppIP.isRefreshing = false;
+            }
+        }
+    };
+
+    document.getElementById('flag').addEventListener('click', () => {
+        myAppIP.getIpipnetIP();
+    });
+
+    myAppIP.getIpipnetIP();  
+
+    setInterval(() => {
+        myAppIP.getIpipnetIP();
+    }, 180000); 
+</script>
+
+<script>
+function updatemenu(){1==document.getElementById("responsive-menu").checked?(document.getElementById("menu").style.borderBottomRightRadius="0",document.getElementById("menu").style.borderBottomLeftRadius="0"):document.getElementById("menu").style.borderRadius="0px"}
+</script>
+
+</header>
+
+	<div class="main">
+		<div class="main-left" id="mainmenu" style="display:none">
+			<div class="sidenav-header d-flex align-items-center">
+					
+				<div class="ml-auto">
+					<!-- Sidenav toggler -->
+					<div class="sidenav-toggler d-none d-xl-block active" data-action="sidenav-unpin"
+						data-target="#sidenav-main">
+						<div class="sidenav-toggler-inner">
+							<i class="sidenav-toggler-line"></i>
+							<i class="sidenav-toggler-line"></i>
+							<i class="sidenav-toggler-line"></i>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div class="main-right">
+			
+				
+			
+			<div class="darkMask"></div>
+			<div id="maincontent">
+				<div class="container">
+					<%- if luci.sys.process.info("uid") == 0 and luci.sys.user.getuser("root") and not luci.sys.user.getpasswd("root") then -%>
+					<div class="alert-message error">
+						<h4><%:No password set!%></h4>
+						<p><%:There is no password set on this router. Please configure a root password to protect the web interface.%>
+						</p>
+						<% if disp.lookup("admin/system/admin") then %>
+						<div class="right"><a class="btn"
+								href="<%=url("admin/system/admin")%>"><%:Go to password configuration...%></a></div>
+						<% end %>
+					</div>
+					<%- end -%>
+
+					<noscript>
+						<div class="alert-message error">
+							<h4><%:JavaScript required!%></h4>
+							<p><%:You must enable JavaScript in your browser or LuCI will not work properly.%></p>
+						</div>
+					</noscript>
+
+	<div id="tabmenu" style="display:none"></div>				
