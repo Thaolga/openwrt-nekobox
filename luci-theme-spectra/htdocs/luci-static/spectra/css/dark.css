@@ -64,16 +64,45 @@ header::after {
 .main .main-left .nav .slide .slide-menu li::after {
   background-color: cyan !important;
 }
+
+.main .main-left .nav .slide a.menu {
+  color: #FFDAB9 !important;
+}
+
+.food {
+  color: #FFDAB9 !important; 
+}
+
+.main .main-left .nav .slide a.menu.active {
+  color: #ff8534 !important; 
+}
+
+.main .main-left .nav .slide .slide-menu li a {
+  color: #00ffcc !important; 
+}
+
+.main .main-left .nav .slide .slide-menu .active a {
+  color: #ffcc00 !important; 
+}
+
+.main .main-left .nav .slide .slide-menu li a:hover {
+  color: #FFDAB9 !important; 
+}
+
+.main .main-left .nav .slide .slide-menu li {
+  padding-left: 10px !important; 
+}
+
 .main .main-left .nav .slide .menu.active {
-  background-color: #483d8b !important;
-  background-color: darkcyan !important;
-  color: #ffffff !important;
+  background-color: #483d8b;
+  background-color: darkcyan;
+  color: #8B4513;
 }
 .main .main-left .nav .slide .menu.active a::after {
-  background-color: #ffffff !important;
+  background-color: #8B4513;
 }
 .main .main-left .nav li a {
-  color: white !important;
+  color: white;
 }
 .main .main-left .nav li a:hover {
   background-color: #483d8b !important;
@@ -611,6 +640,29 @@ input,
 }
 .cbi-dynlist > .item > span {
   border: 1px solid #3c3c3c !important;
+}
+
+.slide-menu li:before {
+    content: "";
+    left: -8px; 
+    top: -50%;
+    bottom: 50%;
+    position: absolute;
+    display: block;
+    width: 1px;
+    border-left: 1px dashed #66FFFF ;
+    z-index: 1;
+}
+
+.slide-menu li a:before {
+    content: "";
+    left: -20px;
+    top: 50%;
+    position: absolute;
+    display: block;
+    width: 26px;
+    border-bottom: 1px dashed #66FFFF;
+    z-index: 1;
 }
 
 :root {
@@ -1559,6 +1611,102 @@ a[href="#"][onclick*="/cgi-bin/luci/admin/services/passwall2/get_socks_log"]:act
   background: #333333 !important;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.03) !important;
 }
+
+@media (max-width: 600px) {
+  #hid_2,
+  #hid_3 {
+    display: none !important;
+  }
+
+  form.custom-style {
+    padding: 5px !important;
+  }
+
+  form.custom-style h2 {
+    margin-bottom: 10px !important;
+  }
+
+  form.custom-style .cbi-map-descr {
+    margin-bottom: 10px !important;
+  }
+
+  form.custom-style table,
+  form.custom-style td {
+    display: block !important;
+    width: 100% !important;
+    margin-bottom: 10px !important;
+  }
+
+  form.custom-style td {
+    padding: 5px 0 !important;
+  }
+
+  form.custom-style fieldset {
+    margin: 10px 0 !important;
+  }
+
+  form.custom-style input[type="button"],
+  form.custom-style input[type="submit"] {
+    padding: 5px 10px !important;
+    margin-bottom: 10px !important;
+  }
+
+  form.custom-style .radio-button {
+    margin-top: 5px !important;
+  }
+
+  form.custom-style .radio-button label {
+    padding: 2px 5px !important;
+  }
+
+  form.custom-style .select-popup {
+    padding: 5px !important;
+  }
+
+  form.custom-style .select-popup-header {
+    margin-bottom: 5px !important;
+  }
+
+  form.custom-style .select-option {
+    padding: 2px !important;
+  }
+
+  form.custom-style .custom-option-input {
+    margin-top: 2px !important;
+    padding: 2px !important;
+  }
+
+  form.custom-style #hid_btn {
+    text-align: center !important;
+  }
+
+  form.custom-style #hid_btn .arrow-down {
+    margin: 5px 0 !important;
+  }
+
+  form.custom-style #hid_1,
+  form.custom-style #state {
+    display: block !important;
+    margin: 5px 0 !important;
+  }
+}
+
+@media (max-width: 600px) {
+  .tr {
+    display: flex;
+    flex-wrap: nowrap;  
+  }
+
+  div[style*="display: flex"] {
+    display: none !important;
+  }
+}
+
+  p[style*="float: right; margin: 0.5% 2.5% 0 0;"] {
+    display: none !important;
+  }
+}
+
 @media screen and (min-width: 600px) {
   ::-webkit-scrollbar-thumb {
     background: #0000009a;
