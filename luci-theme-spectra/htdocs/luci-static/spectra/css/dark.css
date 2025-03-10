@@ -1297,7 +1297,10 @@ a.food[data-title="Log_out"]:hover::after {
 }
 
 .cbi-section-table tr:hover {
-    background-color: #3498db !important; 
+    background: rgba(255, 255, 255, 0.2) !important;
+    backdrop-filter: blur(10px);
+    color: #ffffff !important;
+    text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.6); 
 }
 
 .cbi-input-checkbox {
@@ -1377,10 +1380,24 @@ a.food[data-title="Log_out"]:hover::after {
 }
 
 input[type="checkbox"] {
-    background-color: rgba(26, 26, 26, 0.8) !important;
-    backdrop-filter: blur(10px) !important;
-    border: 1px solid rgba(64, 64, 64, 0.5) !important;
-    border-radius: 3px !important;
+    width: 20px !important; 
+    height: 20px !important; 
+    border: 2px solid #888 !important; 
+    background-color: #fff !important; 
+    appearance: none !important; 
+    outline: none !important; 
+    border-radius: 3px !important; 
+    cursor: pointer !important; 
+    transition: background-color 0.3s ease, border-color 0.3s ease !important; 
+}
+
+input[type="checkbox"]:checked {
+    background-color: #4CAF50 !important; 
+    border-color: #4CAF50 !important; 
+}
+
+input[type="checkbox"]:hover {
+    background-color: #f1f1f1 !important; 
 }
 
 .action[data-v-127a3100] {
