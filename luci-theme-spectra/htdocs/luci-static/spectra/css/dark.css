@@ -1373,11 +1373,21 @@ a.food[data-title="Log_out"]:hover::after {
 }
 
 .create-item-input {
-    background-color: rgba(26, 26, 26, 0.1) !important;
+    caret-color: #00ff00 !important;
+    background-color: rgba(26, 26, 26, 0.6) !important;
     border: 1px solid rgba(64, 64, 64, 0.5) !important;
     color: #ffffff !important;
     padding: 5px !important;
     border-radius: 3px !important;
+}
+
+.cbi-dropdown[open] > ul.dropdown > li:hover {
+    background-color: rgba(26, 26, 26, 0.8) !important;
+    background: rgba(83, 195, 27, 0.6) !important;  
+    color: #fff !important;  
+    cursor: pointer !important;  
+    border-bottom: 1px solid rgba(255, 255, 255, 0.2) !important;
+    transition: background 0.2s ease-in-out;  
 }
 
 .cbi-value-description {
