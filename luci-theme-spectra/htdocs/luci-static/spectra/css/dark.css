@@ -1368,7 +1368,7 @@ a.food[data-title="Log_out"]:hover::after {
 }
 
 .cbi-input-select option {
-    background-color: rgba(26, 26, 26, 0.1) !important;
+    background-color: rgba(26, 26, 26, 0.8) !important;
     color: #ffffff !important;
 }
 
@@ -1715,23 +1715,6 @@ a[href="#"][onclick*="/cgi-bin/luci/admin/services/passwall2/get_socks_log"]:act
     display: block !important;
     margin: 5px 0 !important;
   }
-}
-
-.cbi-dropdown {
-    position: relative !important;
-    z-index: 9999 !important;
-}
-
-.cbi-dropdown[open] > ul.preview,
-.cbi-dropdown[open] > ul.dropdown {
-    position: fixed !important;
-    z-index: 2147483647 !important;
-    top: auto !important;
-    bottom: calc(100% + 5px) !important;
-    left: 0 !important;
-    right: 0 !important;
-    margin: 0 !important;
-    box-shadow: 0 -4px 15px rgba(0,0,0,0.2) !important;
 }
 
 @media (max-width: 600px) {
