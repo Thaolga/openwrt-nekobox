@@ -1,6 +1,8 @@
 body {
-  background:  #1e1e1e;
-  color: #cccccc;
+  /* background: url('/luci-static/spectra/background/bg1.jpg') no-repeat center center fixed !important;
+  background-size: cover !important; */
+  color: #FFE4C4;
+  z-index: 9999;
 }
 .login-page .login-container .login-form {
   background-color: transparent;
@@ -118,18 +120,7 @@ header::after {
 .main .main-right {
   background-color: transparent; <!-- warna bg diluar system dll -->
 }
-h2 {
-  color: cyan;
-  background: linear-gradient(to right, #0000009a, transparent);
-}
-h3 {
-  color: #ccc;
-  border-bottom: 0;
-  background: #333333;
-}
-h4 {
-  color: #8c6900;
-}
+
 abbr {
   color: var(--dark-primary) !important;
 }
@@ -170,7 +161,7 @@ header.bg-primary {
 }
 div > table > tbody > tr:nth-of-type(2n),
 div > .table > .tr:nth-of-type(2n) {
-  background-color: transparent;
+  background-color: rgba(37, 37, 38, 0.1); 
 }
 table > tbody > tr > td,
 table > tfoot > tr > td,
@@ -178,7 +169,7 @@ table > thead > tr > td {
   color: #cccccc;
 }
 fieldset > table > tbody > tr:nth-of-type(2n) {
-  background-color: transparent;
+  background-color: rgba(37, 37, 38, 0.1); 
 }
 table > tbody > tr > td,
 table > tfoot > tr > td,
@@ -248,12 +239,10 @@ body:not(.Interfaces) .cbi-rowstyle-2:first-child {
 }
 .cbi-section > h3:first-child,
 .panel-title,
-h3 {
-  color: cyan;
-  background: linear-gradient(to right, #0000009a, transparent);
-}
-h4 {
-  background-color: #0000009a;
+h2, h3, h4 {
+    background: rgba(37, 37, 38, 0.1); 
+    backdrop-filter: blur(10px); 
+    -webkit-backdrop-filter: blur(10px); 
 }
 .cbi-progressbar {
   background: linear-gradient(to right, #0000009a, #0000);
@@ -339,7 +328,9 @@ div > .table > .tbody > .tr:nth-of-type(2n) {
   border-bottom: none !important;
 }
 .cbi-tabcontainer > .cbi-value:nth-of-type(2n) {
-  background-color: #252526;
+    background: rgba(37, 37, 38, 0.1); 
+    backdrop-filter: blur(10px); 
+    -webkit-backdrop-filter: blur(10px); 
 }
 .cbi-value-title {
   color: #ccc;
@@ -386,16 +377,18 @@ select {
   color: #ccc;
 }
 .cbi-input-textarea {
-  background-color: #1e1e1e;
-  color: #ccc;
+    background: rgba(37, 37, 38, 0.1); 
+    backdrop-filter: blur(10px); 
+    -webkit-backdrop-filter: blur(10px); 
+    color: #FFE4C4;
 }
 textarea:focus-visible {
   border: 1px solid var(--dark-primary);
 }
 .cbi-section-remove:nth-of-type(2n),
-.cbi-section-node:nth-of-type(2n) {
-  background-color: #0000009a;
-}
+    background: rgba(37, 37, 38, 0.1); 
+    backdrop-filter: blur(10px); 
+    -webkit-backdrop-filter: blur(10px); 
 .node-system-packages > .main table tr td:nth-last-child(1) {
   color: #ccc;
 }
@@ -517,7 +510,9 @@ header .fill .status span[data-style="active"] {
 [data-page="admin-network-diagnostics"] .tr > .td,
 .tr.table-titles > .th,
 .tr.cbi-section-table-titles > .th {
-  background-color: transparent;
+    background: rgba(37, 37, 38, 0.1); 
+    backdrop-filter: blur(10px); 
+    -webkit-backdrop-filter: blur(10px); 
 }
 .network-status-table .ifacebox-body .ifacebadge {
   background: linear-gradient(to right, #0000009a, transparent);
@@ -596,7 +591,9 @@ input,
   color: #ccc;
 }
 .cbi-section-table-row {
-  background-color: transparent; !important;
+    background: rgba(37, 37, 38, 0.1); 
+    backdrop-filter: blur(10px); 
+    -webkit-backdrop-filter: blur(10px); 
 }
 .modal {
   background-color: #0000009a;
@@ -1268,12 +1265,13 @@ a.food[data-title="Log_out"]:hover::after {
     color: #ff4444;
     transform: translateY(-50%) scale(1.1);
 }
-
 .cbi-section-table {
     width: 100%;
     border-collapse: collapse;
     margin: 20px 0;
-    background-color: #1a1a1a !important; 
+    background: rgba(37, 37, 38, 0.1); 
+    backdrop-filter: blur(10px); 
+    -webkit-backdrop-filter: blur(10px); 
     color: #ffffff !important;
 }
 
@@ -1283,7 +1281,9 @@ a.food[data-title="Log_out"]:hover::after {
 }
 
 .cbi-section-table tbody {
-    background-color: #1a1a1a !important; 
+    background: rgba(37, 37, 38, 0.1); 
+    backdrop-filter: blur(10px); 
+    -webkit-backdrop-filter: blur(10px); 
 }
 
 .cbi-section-table tr {
@@ -1509,11 +1509,12 @@ svg path {
 }
 
 .app-container_status-label[data-v-08006dd5] {
-    background: rgba(20, 20, 20, 0.85) !important;
+    background: rgba(20, 20, 20, 0.15) !important;
     backdrop-filter: blur(15px) !important;
     border: 1px solid rgba(255, 255, 255, 0.12) !important;
     border-radius: 10px !important;
 }
+
 
 .app-container_status-container[data-v-08006dd5] {
     background: rgba(30, 30, 30, 0.1) !important;
@@ -1528,13 +1529,14 @@ svg path {
 }
 
 .app-container_status-label_block[data-v-08006dd5] {
-    background: rgba(45, 45, 45, 0.5) !important;
+    background: rgba(37, 37, 38, 0.1) !important;
     border: 1px solid rgba(255, 255, 255, 0.1) !important;
     border-radius: 6px !important;
 }
 
+
 .app-container_status-label_bg[data-v-02f10ac5] {
-    background: rgba(40, 40, 40, 0.6) !important;
+    background: rgba(40, 40, 40, 0.1) !important;
     border-radius: 8px !important;
     padding: 12px !important;
 }
@@ -1641,7 +1643,9 @@ a[href="#"][onclick*="/cgi-bin/luci/admin/services/passwall2/get_socks_log"]:act
 [data-page="admin-status-routes"] #view p textarea,
 [data-page="admin-system-crontab"] #view p textarea {
   color: #ccc;
-  background-color: #0000009a;
+  background: rgba(37, 37, 38, 0.1); 
+  backdrop-filter: blur(10px); 
+  -webkit-backdrop-filter: blur(10px); 
 }
 #view > .spinning {
   background: #333333 !important;
