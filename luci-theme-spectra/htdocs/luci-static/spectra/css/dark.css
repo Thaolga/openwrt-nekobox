@@ -680,7 +680,7 @@ input,
   --h3-color: #6BCB77;
   --h4-color: #4D96FF;
   --h5-color: #A66DD4;
-  --h6-color: #FF9F1C;
+  --h6-color: #FFA500;
 }
 
 body * {
@@ -785,24 +785,31 @@ h6 {
 
 .modal.alert-message.notice {
   position: fixed;
-  top: 50%;
+  top: 10%;  
   left: 50%;
-  transform: translate(-50%, -50%);
+  transform: translateX(-50%);
   width: auto;
-  min-width: 300px;
+  min-width: 400px;
   max-width: 90%;
-  margin: 0 auto;
+  max-height: 400px;  
   padding: 20px;
-  text-align: center;
+  text-align: center;  
   z-index: 9999;
-  box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+  background: #f0f9eb !important; 
+  border: 2px solid #67C23A !important; 
   border-radius: 8px;
-  background: white;
+  box-shadow: 0 4px 12px rgba(102, 194, 58, 0.15); 
+  font-size: 16px;
+  color: #3d8b3d !important; 
+  text-align: center; 
 }
 
 .modal.alert-message.notice p {
   margin: 0;
   line-height: 1.5;
+  color: #3d8b3d !important;  
+  font-weight: bold; 
+  text-align: center; 
 }
 
 .cbi-section,
@@ -1329,7 +1336,7 @@ a.food[data-title="Log_out"]:hover::after {
 }
 
 #add_link_div {
-    background-color: rgba(26, 26, 26, 0.8) !important; 
+    background-color: rgba(26, 26, 26, 0.1) !important; 
     backdrop-filter: blur(10px) !important;
     border: 1px solid rgba(64, 64, 64, 0.5) !important;
     border-radius: 8px !important;
@@ -1339,7 +1346,7 @@ a.food[data-title="Log_out"]:hover::after {
 #nodes_link {
     width: 100% !important;
     height: 100px !important;
-    background-color: rgba(26, 26, 26, 0.8) !important; 
+    background-color: rgba(26, 26, 26, 0.1) !important; 
     border: 1px solid rgba(64, 64, 64, 0.5) !important;
     color: #ffffff !important;
     padding: 10px !important;
@@ -1347,7 +1354,7 @@ a.food[data-title="Log_out"]:hover::after {
 }
 
 .cbi-section-node {
-    background-color: rgba(26, 26, 26, 0.8) !important;
+    background-color: rgba(26, 26, 26, 0.1) !important;
     backdrop-filter: blur(10px) !important;
     border: 1px solid rgba(64, 64, 64, 0.5) !important;
     border-radius: 8px !important;
@@ -1361,12 +1368,12 @@ a.food[data-title="Log_out"]:hover::after {
 }
 
 .cbi-input-select option {
-    background-color: rgba(26, 26, 26, 0.8) !important;
+    background-color: rgba(26, 26, 26, 0.1) !important;
     color: #ffffff !important;
 }
 
 .create-item-input {
-    background-color: rgba(26, 26, 26, 0.8) !important;
+    background-color: rgba(26, 26, 26, 0.1) !important;
     border: 1px solid rgba(64, 64, 64, 0.5) !important;
     color: #ffffff !important;
     padding: 5px !important;
@@ -1374,14 +1381,16 @@ a.food[data-title="Log_out"]:hover::after {
 }
 
 .cbi-value-description {
-    color: #40A9FF !important;
+    color: #00FFFF !important;
     font-size: 1em !important;
+    font-weight: 700;
     margin-top: 5px !important;
+    text-shadow: -1px -1px 2px #444, 1px 1px 2px #000 !important; 
 }
 
 input[type="checkbox"] {
-    width: 20px !important; 
-    height: 20px !important; 
+    width: 18px !important; 
+    height: 18px !important; 
     border: 2px solid #888 !important; 
     background-color: #fff !important; 
     appearance: none !important; 
@@ -1401,7 +1410,7 @@ input[type="checkbox"]:hover {
 }
 
 .action[data-v-127a3100] {
-    background-color: rgba(20, 20, 20, 0.85) !important;
+    background-color: rgba(20, 20, 20, 0.1) !important;
     backdrop-filter: blur(15px) !important;
     border-radius: 10px !important;
     border: 1px solid rgba(255, 255, 255, 0.12) !important;
@@ -1411,7 +1420,7 @@ input[type="checkbox"]:hover {
 }
 
 ul[data-v-b8dfe98c] {
-    background-color: rgba(20, 20, 20, 0.85) !important;
+    background-color: rgba(20, 20, 20, 0.1) !important;
     backdrop-filter: blur(15px) !important;
     border-radius: 10px !important;
     border: 1px solid rgba(255, 255, 255, 0.12) !important;
@@ -1442,7 +1451,7 @@ ul[data-v-b8dfe98c] li[data-v-b8dfe98c]:hover {
 .network-container, 
 .nas-container_card, 
 .app-container {
-    background: rgba(25, 25, 25, 0.7) !important;
+    background: rgba(25, 25, 25, 0.1) !important;
     border: 1px solid rgba(255,255,255,0.1) !important;
     backdrop-filter: blur(12px) !important;
     -webkit-backdrop-filter: blur(12px) !important;
@@ -1462,7 +1471,7 @@ ul[data-v-b8dfe98c] li[data-v-b8dfe98c]:hover {
 }
 
 .progress {
-    background: rgba(100, 100, 100, 0.4) !important;
+    background: rgba(100, 100, 100, 0.1) !important;
     border-radius: 5px;
 }
 .progress-value {
@@ -1472,7 +1481,7 @@ ul[data-v-b8dfe98c] li[data-v-b8dfe98c]:hover {
 .item-label,
 .disk-item,
 .domain-item {
-    background: rgba(50, 50, 50, 0.3) !important;
+    background: rgba(50, 50, 50, 0.1) !important;
     border-radius: 8px;
     padding: 12px 15px !important;
     margin: 8px 0 !important;
@@ -1497,12 +1506,12 @@ svg path {
 }
 
 .app-container_status-container[data-v-08006dd5] {
-    background: rgba(30, 30, 30, 0.6) !important;
+    background: rgba(30, 30, 30, 0.1) !important;
     border-radius: 8px !important;
 }
 
 .app-container_status-container[data-v-08006dd5] {
-    background: rgba(20, 20, 20, 0.85) !important;
+    background: rgba(20, 20, 20, 0.1) !important;
     backdrop-filter: blur(15px) !important;
     border: 1px solid rgba(255, 255, 255, 0.12) !important;
     border-radius: 10px !important;
@@ -1708,6 +1717,23 @@ a[href="#"][onclick*="/cgi-bin/luci/admin/services/passwall2/get_socks_log"]:act
   }
 }
 
+.cbi-dropdown {
+    position: relative !important;
+    z-index: 9999 !important;
+}
+
+.cbi-dropdown[open] > ul.preview,
+.cbi-dropdown[open] > ul.dropdown {
+    position: fixed !important;
+    z-index: 2147483647 !important;
+    top: auto !important;
+    bottom: calc(100% + 5px) !important;
+    left: 0 !important;
+    right: 0 !important;
+    margin: 0 !important;
+    box-shadow: 0 -4px 15px rgba(0,0,0,0.2) !important;
+}
+
 @media (max-width: 600px) {
   .tr {
     display: flex;
@@ -1740,4 +1766,12 @@ a[href="#"][onclick*="/cgi-bin/luci/admin/services/passwall2/get_socks_log"]:act
     background-color: #1e1e1e;
     box-shadow: 0 0 0.5rem 0 rgba(0, 0, 0, 0.35);
   }
+}
+
+@media (max-width: 768px) {
+    .cbi-dropdown[open] > ul.preview {
+        width: 100vw !important;
+        left: 0 !important;
+        right: auto !important;
+    }
 }
