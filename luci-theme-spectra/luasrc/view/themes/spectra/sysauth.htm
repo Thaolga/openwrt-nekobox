@@ -183,6 +183,22 @@
   animation: pulse 2s infinite;
 }
 
+.icon-container .auth-icon.user {
+  color: #4CAF50; 
+}
+
+.icon-container .auth-icon.pass {
+  color: #FF5722; 
+}
+
+.icon-container .auth-icon.user:hover {
+  color: #388E3C; 
+}
+
+.icon-container .auth-icon.pass:hover {
+  color: #D32F2F; 
+}
+
 @keyframes pulse {
   0% { transform: scale(1); }
   50% { transform: scale(1.1); }
@@ -261,7 +277,7 @@
   to { opacity: 1; transform: translateY(0); }
 }
 </style>
-
+<% local ver = require("luci.version") %>
     <div class="auth-wrapper">
         <div class="brand-section" style="text-align: center; margin-bottom: 2rem;">
             <a class="brand-logo" href="/" style="display: inline-flex; align-items: center; text-decoration: none; color: #2c3e50;">
@@ -310,7 +326,12 @@
                 <%:Login%>
             </button>
         </form>
-
+    <div class="footer-info" style="margin-top: 2rem; text-align: center;">
+        <p>
+            Powered by <a href="https://github.com/openwrt/luci" target="_blank">OpenWRT LuCI</a> | 
+            <a href="https://github.com/Thaolga/openwrt-nekobox" target="_blank">Spectra Theme</a>
+        </p>
+    </div>
         <script type="text/javascript">//<![CDATA[
             document.getElementById('authPassword').focus();
         //]]></script>
