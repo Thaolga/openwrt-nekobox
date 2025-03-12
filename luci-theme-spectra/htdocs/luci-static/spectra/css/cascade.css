@@ -1713,14 +1713,15 @@ small {
 	width: 15rem;
 	height: 100%;
 	background-color: var(--menu-bg-color);
-	box-shadow: rgba(0,0,0,0.75) 0 0 15px -5px;
+	box-shadow: rgba(0, 0, 0, 0.75) 0 0 15px -5px;
 	overflow-x: auto;
-	z-index: 100
+	z-index: 100;
+	margin: 0;
 }
 
 .main-left .sidenav-header {
-	padding: 1.5rem .5rem;
-	text-align: center
+	padding: 0 0 0.1rem 0.5rem;
+	text-align: center;
 }
 
 .main-left .sidenav-header .brand {
@@ -1732,7 +1733,7 @@ small {
 	text-decoration: none;
 	text-align: center;
 	cursor: default;
-	margin: 0 2rem
+	margin: 0 0 0 2rem;
 }
 
 .main-left .sidenav-header .brand .logo {
