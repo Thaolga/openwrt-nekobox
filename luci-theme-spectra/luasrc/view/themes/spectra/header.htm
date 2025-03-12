@@ -57,10 +57,62 @@
 	-- Brand name
 	local brand_name = boardinfo.hostname or "?"
 -%>
-
     <style>
-        body * {
-             font-family: Helvetica, Arial, sans-serif !important;
+        body,
+        body *:not(script):not(style):not(link) {  
+          font-family: 
+            system-ui,
+            -apple-system,               
+            "Segoe UI Variable",            
+            "Microsoft YaHei UI",         
+            "HarmonyOS Sans SC",         
+            "PingFang SC", 
+            "Noto Sans CJK SC",
+            "Source Han Sans SC",
+            sans-serif !important;
+          font-synthesis: none !important; 
+
+        }
+
+        @font-face {
+          font-family: "Fallback Sans";
+          src: local("Arial"), local("Liberation Sans");
+          ascent-override: 95%;
+          descent-override: 20%;
+          line-gap-override: 0;
+        }
+
+        body {
+          font-family: 
+            var(--system-font-stack), 
+            "Fallback Sans" !important;
+          -webkit-font-smoothing: auto !important;
+          font-smooth: never !important; 
+        }
+
+        :lang(zh) {
+          hanging-punctuation: first allow-end !important; 
+        }
+
+        h2:not(.keep-default) {
+          font-family: 
+            ui-sans-serif,     
+            "HarmonyOS Sans SC Bold",
+            "Microsoft YaHei Bold",
+            sans-serif !important;
+          font-size: 1.8em !important;  
+          font-weight: bolder !important;  
+        }
+
+        h3:not(.keep-default) {
+          font-family: 
+            ui-sans-serif,
+            "HarmonyOS Sans SC Medium",
+            "Microsoft YaHei",
+            sans-serif !important;
+            font-size: 1.2em !important;  
+            font-weight: normal !important;
+            font-style: oblique 8deg !important; 
         }
 
         header {
@@ -247,92 +299,6 @@
 		<span></span>
 		<span></span>
 </div>
-<style>
-body {
-	background: #111;
-	height: 100vh;
-	overflow: hidden; 
-}
-
-.wrapper span {
-	position: fixed;
-	bottom: -180px;
-	height: 50px;
-	width: 50px;
-	z-index: 9999; 
-	background-color: #18191f;
-	box-shadow: 0 0 50px cyan, 0 0 100px cyan, 0 0 150px cyan, 0 0 200px cyan;
-	animation: animate 15s linear infinite;
-}
-
-.wrapper span:nth-child(1) {
-	left: 60px;
-	animation-delay: 0.6s;
-}
-.wrapper span:nth-child(2) {
-	left: 10%;
-	animation-delay: 3s;
-	width: 60px;
-	height: 60px;
-}
-.wrapper span:nth-child(3) {
-	left: 20%;
-	animation-delay: 2s;
-}
-.wrapper span:nth-child(4) {
-	left: 30%;
-	animation-delay: 5s;
-	width: 80px;
-	height: 80px;
-}
-.wrapper span:nth-child(5) {
-	left: 40%;
-	animation-delay: 1s;
-}
-.wrapper span:nth-child(6) {
-	left: 50%;
-	animation-delay: 7s;
-}
-.wrapper span:nth-child(7) {
-	left: 60%;
-	animation-delay: 6s;
-	width: 100px;
-	height: 100px;
-}
-.wrapper span:nth-child(8) {
-	left: 70%;
-	animation-delay: 8s;
-}
-.wrapper span:nth-child(9) {
-	left: 80%;
-	animation-delay: 6s;
-	width: 90px;
-	height: 90px;
-}
-.wrapper span:nth-child(10) {
-	left: 90%;
-	animation-delay: 4s;
-}
-@keyframes animate {
-	0% {
-		transform: translateY(0);
-		opacity: 1;
-	}
-	90% {
-		opacity: .7;
-	}
-	100% {
-		transform: translateY(-1200px) rotate(360deg);
-		opacity: 0;
-	}
-}
-@media screen and (max-width: 768px) {
-    .wrapper span {
-        z-index: -1;
-    }
-}
-
-</style>
 <header>
 	<div class="fill">
 		<div class="container">
