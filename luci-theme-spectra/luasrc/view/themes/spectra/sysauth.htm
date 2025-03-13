@@ -343,3 +343,18 @@
         <%+themes/spectra/footer_login%>
     </div>
 </div>
+<audio id="background-audio" autoplay loop muted>
+    <source src='/luci-static/spectra/img/bgm.mp3' type='audio/mp3'>
+    Your browser does not support audio playback.
+</audio>
+
+<script>
+window.addEventListener('load', function() {
+    let audio = document.getElementById("background-audio");
+    setTimeout(() => {
+        audio.muted = false;
+        audio.volume = 1.0;
+        audio.play();
+    }, 2000);
+});
+</script>

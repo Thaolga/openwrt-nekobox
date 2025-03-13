@@ -461,8 +461,8 @@ td.cbi-value-field var {
 .cbi-input-reload,
 .cbi-button-reload {
   color: #fff !important;
-  background: darkolivegreen !important;
-  border-color: darkolivegreen !important;
+  background: #3498db !important;
+  border-color: #3498db !important;
 }
 .cbi-button-reset,
 .cbi-input-remove {
@@ -1334,21 +1334,56 @@ a.food[data-title="Log_out"]:hover::after {
 }
 
 #add_link_div {
-    background-color: rgba(26, 26, 26, 0.1) !important; 
-    backdrop-filter: blur(10px) !important;
-    border: 1px solid rgba(64, 64, 64, 0.5) !important;
+    background-color: rgba(0, 80, 200, 0.95) !important; 
+    backdrop-filter: blur(3px) !important; 
+    border: 1px solid rgba(255, 255, 255, 0.5) !important; 
     border-radius: 8px !important;
-    padding: 20px !important;
 }
 
 #nodes_link {
-    width: 100% !important;
-    height: 100px !important;
-    background-color: rgba(26, 26, 26, 0.1) !important; 
-    border: 1px solid rgba(64, 64, 64, 0.5) !important;
-    color: #ffffff !important;
-    padding: 10px !important;
-    border-radius: 3px !important;
+    background-color: rgba(255, 255, 255, 0.9) !important; 
+    border: 1px solid rgba(0, 0, 0, 0.3) !important;
+    border-radius: 5px !important; 
+}
+
+.modal {
+    padding: 30px; 
+    background: linear-gradient(145deg, #004e92, #000428); 
+    backdrop-filter: blur(15px); 
+    border-radius: 12px; 
+    color: #fff; 
+
+    overflow-y: auto; 
+    margin: 0 auto; 
+    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.1); 
+}
+
+.btn {
+    border-radius: 8px; 
+    padding: 10px 20px; 
+    background-color: #007bff; 
+    color: white; 
+    text-align: center; 
+    cursor: pointer; 
+    transition: background-color 0.3s ease, transform 0.2s ease; 
+}
+
+.btn:hover {
+    background-color: #0056b3; 
+    transform: scale(1.1); 
+}
+
+.warning-text {
+    color: red !important;
+    font-weight: bold !important;
+}
+
+table .td {
+    color: white !important; 
+}
+
+a:hover {
+    color: white !important; 
 }
 
 .cbi-section-node {
@@ -1733,10 +1768,23 @@ a[href="#"][onclick*="/cgi-bin/luci/admin/services/passwall2/get_socks_log"]:act
 		opacity: 0;
 	}
 }
-@media screen and (max-width: 768px) {
+@media screen and (max-width: 600px) {
     .wrapper span {
-        z-index: -1;
+        display: none !important;
     }
+}
+
+@media (max-width: 600px) {
+  td p {
+    white-space: nowrap; 
+    text-align: center;
+  }
+
+  td p img {
+    margin: 0; 
+    width: auto; 
+    height: auto; 
+  }
 }
 
 @media (max-width: 600px) {
