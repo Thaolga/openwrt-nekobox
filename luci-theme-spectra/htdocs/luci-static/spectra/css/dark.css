@@ -1423,10 +1423,12 @@ a:hover {
 }
 
 .cbi-value-description {
-    color: #03A9F4 !important;
+    color: #00FFFF !important;
     font-size: 1em !important;
     font-weight: 500;
     margin-top: 5px !important;
+    opacity: 1 !important;
+    filter: none !important;
     text-shadow: -1px -1px 2px #444, 1px 1px 2px #000 !important; 
 }
 
@@ -1836,6 +1838,58 @@ form .actioner-dns_footer .cbi-button-remove:hover, form .action .cbi-button-rem
 
 .action .cbi-button-remove:hover {
   background-color: #c82333 !important;
+}
+
+font[style*="color"] {
+  color: #00FFFF !important;
+  font-size: 13px !important;
+  opacity: 1 !important;
+  filter: none !important;
+}
+
+.cbi-dropdown[disabled] {
+  pointer-events: auto !important;
+  opacity: 1 !important;
+}
+
+.cbi-dropdown ul {
+  bottom: 100% !important; 
+  top: auto !important;
+}
+
+font[color="green"] {
+  opacity: 1 !important;
+  filter: none !important;
+}
+
+a:hover {
+  color: #00FFFF!important; 
+}
+
+select#instance_template {
+  color: white !important; 
+  border: 1px solid #ccc !important; 
+
+  cursor: pointer !important; 
+}
+
+select#instance_template:hover {
+  background-color: #000 !important; 
+  color: #000 !important; 
+}
+
+select#instance_template:focus, select#instance_template:hover {
+  background-color: #f0f0f0 !important;
+  border-color: #007bff !important;
+}
+
+select#instance_template option {
+  background-color: #fff !important; 
+  color: #333 !important;
+}
+
+select#instance_template option:hover {
+  background-color: #e9e9e9 !important; 
 }
 
 @media screen and (max-width: 600px) {
