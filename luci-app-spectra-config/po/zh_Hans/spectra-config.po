@@ -125,8 +125,8 @@ msgstr "上传 (剩余空间："
 msgid "Background file list"
 msgstr "背景文件列表"
 
-msgid "Upload file to '/www/luci-static/spectra/background/'"
-msgstr "文件将上传到'/www/luci-static/spectra/background/'"
+msgid "Upload file to '/www/luci-static/resources/background/'"
+msgstr "文件将上传到'/www/luci-static/resources/background/'"
 
 msgid "NOTE: "
 msgstr "提示："
