@@ -42,12 +42,14 @@
     color: #8965e0;
 }
 
-.main>.main-left>.nav>li.slide>.menu[data-title=QuickStart]:before,
-.main>.main-left>.nav>li>a[data-title=QuickStart]:before {
+.main > .main-left > .nav > li.slide > .menu[data-title="QuickStart"]:before,
+.main > .main-left > .nav > li > a[data-title="QuickStart"]:before,
+.main > .main-left > .nav > li > a[data-title="Home"]:before {
     font-family: 'easeicon' !important;
     content: "\e664" !important;
-    color: #11cdef;
+    color: #11cdef !important;
 }
+
 
 .main>.main-left>.nav>li.slide>.menu[data-title=NetworkGuide]:before,
 .main>.main-left>.nav>li>a[data-title=NetworkGuide]:before {
