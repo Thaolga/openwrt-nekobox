@@ -4,6 +4,7 @@ body {
   overflow: hidden; 
   z-index: 9999;
 }
+
 .login-page .login-container .login-form {
   background-color: transparent;
   -webkit-backdrop-filter: blur(var(--blur-radius-dark));
@@ -1754,6 +1755,7 @@ a[href="#"][onclick*="/cgi-bin/luci/admin/services/passwall2/get_socks_log"]:act
 	left: 90%;
 	animation-delay: 4s;
 }
+
 @keyframes animate {
 	0% {
 		transform: translateY(0);
@@ -1767,6 +1769,75 @@ a[href="#"][onclick*="/cgi-bin/luci/admin/services/passwall2/get_socks_log"]:act
 		opacity: 0;
 	}
 }
+
+form.actioner-dns, form.action {
+  background-color: #fff !important;
+  border-radius: 8px !important;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1) !important;
+  padding: 20px !important;
+  max-width: 800px !important;
+  margin: 20px auto !important;
+}
+
+form .actioner-dns_footer .cbi-button, form .action .btns .cbi-button {
+  padding: 10px 20px !important;
+  font-size: 14px !important;
+  border-radius: 5px !important;
+  cursor: pointer !important;
+  border: none !important;
+  width: 100% !important; 
+  margin-bottom: 10px !important; 
+}
+
+form .actioner-dns_footer .cbi-button-apply, form .action .cbi-button-apply {
+  background-color: #28a745 !important;
+  color: white !important;
+}
+
+form .actioner-dns_footer .cbi-button-apply:hover, form .action .cbi-button-apply:hover {
+  background-color: #218838 !important;
+}
+
+form .actioner-dns_footer .cbi-button-remove, form .action .cbi-button-remove {
+  background-color: #dc3545 !important;
+  color: white !important;
+}
+
+form .actioner-dns_footer .cbi-button-remove:hover, form .action .cbi-button-remove:hover {
+  background-color: #c82333 !important;
+}
+
+.action .btns {
+  display: flex !important;
+  justify-content: space-between !important;
+}
+
+.action .cbi-button {
+  padding: 10px 20px !important;
+  font-size: 14px !important;
+  border-radius: 5px !important;
+  cursor: pointer !important;
+  border: none !important;
+}
+
+.action .cbi-button-apply {
+  background-color: #28a745 !important;
+  color: white !important;
+}
+
+.action .cbi-button-apply:hover {
+  background-color: #218838 !important;
+}
+
+.action .cbi-button-remove {
+  background-color: #dc3545 !important;
+  color: white !important;
+}
+
+.action .cbi-button-remove:hover {
+  background-color: #c82333 !important;
+}
+
 @media screen and (max-width: 600px) {
     .wrapper span {
         display: none !important;
