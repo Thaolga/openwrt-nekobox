@@ -231,8 +231,7 @@
 	<meta name="msapplication-TileImage" content="<%=media%>/icon/ms-icon-144x144.png">
 	<meta name="theme-color" content="<%=bar_color%>">
 	<link rel="stylesheet" href="<%=media%>/css/cascade.css?v=2.3.1">
-        <link rel="stylesheet" href="<%=media%>/css/dark?t=<%= math.random(111, 999) %>">
-        <script src="<%=media%>/js/cbi-fix.js?t=<%= math.random(111, 999) %>"></script>
+        <script src="/luci-static/spectra/js/custom.js"></script>
 	<style title="text/css">
 		<% if mode ~= 'dark' then %>
 			@media (prefers-color-scheme: dark) {
@@ -335,16 +334,6 @@
             <span id="ipip"></span>
         </div>
     </div>
-<script>
-document.addEventListener("DOMContentLoaded", function () {
-    const h4Element = document.querySelector("h4"); 
-    if (h4Element) {
-        h4Element.style.backgroundColor = "rgba(0, 0, 0, 0.05)"; 
-        h4Element.style.padding = "10px"; 
-        h4Element.style.borderRadius = "5px"; 
-    }
-});
-</script>
 <script type="text/javascript">
     const _IMG = '/luci-static/ipip/';
     const translate = {

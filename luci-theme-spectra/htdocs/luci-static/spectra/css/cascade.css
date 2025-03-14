@@ -197,6 +197,9 @@ html {
 	display: none !important
 }
 
+.inner {
+    display: none !important;
+}
 
 .pure-img {
 	max-width: 100%;
@@ -2236,7 +2239,7 @@ div[style="width:100%;height:300px;border:1px solid #000;background:#fff"] {
 	content: "\e906";
 	color: #5e72e4;
 	color: var(--primary)
-}
+} 
 
 .main .main-left .nav li .menu[data-title=System]:before {
 	content: "\e90a";

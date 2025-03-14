@@ -125,14 +125,14 @@ ful = SimpleForm('upload', translate('Upload  (Free: ') .. wa.byte_format(free_b
 ful.reset = false
 ful.submit = false
 
-sul = ful:section(SimpleSection, '', translate("Upload file to '/www/luci-static/spectra/background/'"))
+sul = ful:section(SimpleSection, '', translate("Upload file to '/www/luci-static/resources/background/'"))
 fu = sul:option(FileUpload, '')
 fu.template = 'spectra-config/other_upload'
 um = sul:option(DummyValue, '', nil)
 um.template = 'spectra-config/other_dvalue'
 
 local dir, fd
-dir = '/www/luci-static/spectra/background/'
+dir = '/www/luci-static/resources/background/'
 nxfs.mkdir(dir)
 http.setfilehandler(
     function(meta, chunk, eof)
@@ -156,7 +156,7 @@ http.setfilehandler(
         if eof and fd then
             fd:close()
             fd = nil
-            um.value = translate('File saved to') .. ' "/www/luci-static/spectra/background/' .. meta.file .. '"'
+            um.value = translate('File saved to') .. ' "/www/luci-static/resources/background/' .. meta.file .. '"'
         end
     end
 )
@@ -195,6 +195,15 @@ end
 form = SimpleForm('filelist', translate('Background file list'), nil)
 form.reset = false
 form.submit = false
+hint_section = form:section(SimpleSection, 
+    nil,  
+    translate('NOTE: ') .. 
+    translate('The default background file is named "bg1.jpg". ') ..
+    translate('Deleting this file will restore the black transparent background.') ..
+    [[<br><small>]] ..
+    translate('Supported formats: jpg/png/gif/mp4/webm') ..
+    [[</small>]]
+)
 
 tb = form:section(Table, inits)
 nm = tb:option(DummyValue, 'name', translate('File name'))
