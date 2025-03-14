@@ -127,3 +127,15 @@ msgstr "背景文件列表"
 
 msgid "Upload file to '/www/luci-static/spectra/background/'"
 msgstr "文件将上传到'/www/luci-static/spectra/background/'"
+
+msgid "NOTE: "
+msgstr "提示："
+
+msgid "The default background file is named \"bg1.jpg\"."
+msgstr "默认主题背景文件名为「bg1.jpg」"
+
+msgid "Deleting this file will restore the black transparent background."
+msgstr "删除此文件将恢复默认的黑色透明背景"
+
+msgid "Supported formats: jpg/png/gif/mp4/webm"
+msgstr "支持格式：jpg/png/gif/mp4/webm"

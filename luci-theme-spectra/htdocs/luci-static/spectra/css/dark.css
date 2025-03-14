@@ -1,6 +1,4 @@
 body {
-  background: url('/luci-static/spectra/background/bg1.jpg') no-repeat center center fixed !important;
-  background-size: cover !important; 
   background: #111;
   height: 100vh;
   overflow: hidden; 
@@ -1696,6 +1694,7 @@ a[href="#"][onclick*="/cgi-bin/luci/admin/services/passwall2/get_socks_log"]:act
   background: #333333 !important;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.03) !important;
 }
+
 .wrapper span {
 	position: fixed;
 	bottom: -180px;

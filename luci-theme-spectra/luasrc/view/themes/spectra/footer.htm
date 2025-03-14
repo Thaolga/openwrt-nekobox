@@ -25,13 +25,13 @@
     var luciLocation = <%= luci.http.write_json(luci.dispatcher.context.path) %>;
     var winHeight = $(window).height();
     $(window).resize(function () {
-        var winWidth = $(window).width()
+        var winWidth = $(window).width();
         if (winWidth < 600) {
             var newHeight = $(this).height();
             var keyboradHeight = newHeight - winHeight;
             $(".ftc").css("bottom", keyboradHeight + 30);
         }
-    })
+    });
 </script>
 <script type="text/javascript">L.require('menu-spectra')</script>
 </body>

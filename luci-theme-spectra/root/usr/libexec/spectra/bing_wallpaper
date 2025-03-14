@@ -1,9 +1,8 @@
 #!/bin/sh
-# author jjm2473
 
 BING_BASE=http://www.bing.com
-CACHE=/var/run/argon_bing.url
-WRLOCK=/var/lock/argon_bing.lock
+CACHE=/var/run/spectra_bing.url
+WRLOCK=/var/lock/spectra_bing.lock
 
 fetch_url_path() {
     curl --fail --show-error --max-time 1 \

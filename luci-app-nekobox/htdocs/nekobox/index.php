@@ -769,7 +769,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['selected_config'])) {
 </div>
 </div>
 <script>
-$(document).ready(function() {
+function checkForUpdate() {
     $.ajax({
         url: 'check_update.php',
         method: 'GET',
@@ -781,15 +781,47 @@ $(document).ready(function() {
             console.log('Current Version:', data.currentVersion);
             console.log('Latest Version:', data.latestVersion);
             console.log('Has Update:', data.hasUpdate);
+
+            localStorage.setItem('lastUpdateCheck', Date.now());
+            startUpdateTimer(); 
         },
         error: function(jqXHR, textStatus, errorThrown) {
-            //$('#version-info').text('Error fetching version information');
             console.error('AJAX Error:', textStatus, errorThrown);
         }
     });
+}
+
+function startUpdateTimer() {
+    const now = Date.now();
+    const lastCheck = localStorage.getItem('lastUpdateCheck');
+
+    let timeSinceLastCheck = lastCheck ? now - parseInt(lastCheck, 10) : Infinity;
+    let timeUntilNextCheck = Math.max(28800000 - timeSinceLastCheck, 0); 
+
+    console.log('Time until next check:', timeUntilNextCheck / 1000 / 60, 'minutes');
+
+    setTimeout(checkForUpdate, timeUntilNextCheck); 
+}
+
+startUpdateTimer(); 
+</script>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const titleElement = document.getElementById('neko-title');
+    const cachedTitle = localStorage.getItem('nekoTitle');
+
+    if (cachedTitle) {
+        titleElement.textContent = cachedTitle; 
+    }
+
+    function updateTitle(newTitle) {
+        titleElement.textContent = newTitle;
+        localStorage.setItem('nekoTitle', newTitle);
+    }
+
 });
 </script>
-<h2 class="royal-style">NekoBox</h2>
+<h2 id="neko-title" class="royal-style">NekoBox</h2>
 <style>
 
     .nav-pills .nav-link {
