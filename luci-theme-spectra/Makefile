@@ -8,7 +8,7 @@ include $(TOPDIR)/rules.mk
 
 LUCI_TITLE:=Spectra Theme
 LUCI_DEPENDS:=+curl +luci-app-spectra-config
-PKG_VERSION:=27.472.65783~d87c578
+PKG_VERSION:=27.473.65783~d87c578
 
 LUCI_MINIFY_CSS:=0
 
