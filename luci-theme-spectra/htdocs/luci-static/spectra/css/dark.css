@@ -1814,8 +1814,19 @@ a[href="#"][onclick*="/cgi-bin/luci/admin/services/passwall2/get_socks_log"]:act
 }
 
 #view > .spinning {
-	background: #333333 !important;
-	box-shadow: 0 4px 8px rgba(0, 0, 0, 0.03) !important;
+	width: 300px;
+	height: auto;
+	position: absolute;
+	top: 10%;
+	background: #e8f5e9;
+	border: 2px solid #4caf50;
+	border-radius: 8px;
+	box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+	text-align: center;
+	padding: 20px;
+	font-family: Arial, sans-serif;
+	font-size: 16px;
+	color: #2e7d32;
 }
 
 .wrapper span {

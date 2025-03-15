@@ -23,8 +23,11 @@ document.addEventListener("DOMContentLoaded", function () {
         if (imageExists) {
             styleTag.innerHTML = `
                 body {
-                    background: #111 url('/luci-static/resources/background/bg1.jpg') no-repeat center center fixed !important;
+                    background: url('/luci-static/resources/background/bg1.jpg') no-repeat center center fixed !important;
                     background-size: cover !important;
+                }
+                .wrapper span {
+                    display: none !important;
                 }
             `;
         } else {
@@ -34,10 +37,13 @@ document.addEventListener("DOMContentLoaded", function () {
                     background-image: none !important;
                     background-size: auto !important;
                 }
+                .wrapper span {
+                    display: block !important;
+                }
             `;
         }
     }
 
     checkBackgroundImage();
-    setInterval(checkBackgroundImage, 10000);
+    setInterval(checkBackgroundImage, 1000);
 });
