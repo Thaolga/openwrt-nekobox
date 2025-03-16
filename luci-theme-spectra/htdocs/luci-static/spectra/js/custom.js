@@ -1,18 +1,20 @@
 document.addEventListener("DOMContentLoaded", function () {
-    function checkBackgroundImage() {
+    const bgImages = Array.from({ length: 5 }, (_, i) => `bg${i + 1}.jpg`);
+    let bgIndex = Math.floor(Math.random() * bgImages.length); 
+    let availableImages = [];
+
+    function checkImageExists(image, callback) {
         let testImg = new Image();
-        testImg.src = "/luci-static/resources/background/bg1.jpg";
-
+        testImg.src = `/luci-static/resources/background/${image}`;
         testImg.onload = function () {
-            applyCSS(true);
+            callback(true);
         };
-
         testImg.onerror = function () {
-            applyCSS(false);
+            callback(false);
         };
     }
 
-    function applyCSS(imageExists) {
+    function applyCSS(image) {
         let styleTag = document.querySelector("#dynamic-style");
         if (!styleTag) {
             styleTag = document.createElement("style");
@@ -20,11 +22,12 @@ document.addEventListener("DOMContentLoaded", function () {
             document.head.appendChild(styleTag);
         }
 
-        if (imageExists) {
+        if (image) {
             styleTag.innerHTML = `
                 body {
-                    background: url('/luci-static/resources/background/bg1.jpg') no-repeat center center fixed !important;
+                    background: url('/luci-static/resources/background/${image}') no-repeat center center fixed !important;
                     background-size: cover !important;
+                    transition: background 1s ease-in-out;
                 }
                 .wrapper span {
                     display: none !important;
@@ -44,6 +47,58 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     }
 
-    checkBackgroundImage();
-    setInterval(checkBackgroundImage, 1000);
+    function loadInitialBackground() {
+        let checkedImages = 0;
+
+        bgImages.forEach((image, index) => {
+            checkImageExists(image, function (exists) {
+                checkedImages++;
+                console.log(`Checking bg${index + 1}.jpg: ${exists}`);
+                if (exists) {
+                    availableImages.push(image);
+                }
+
+                if (checkedImages === bgImages.length) {
+                    if (availableImages.length > 0) {
+                        bgIndex = Math.floor(Math.random() * availableImages.length);
+                        applyCSS(availableImages[bgIndex]);
+                    } else {
+                        applyCSS(null); 
+                    }
+                }
+            });
+        });
+    }
+
+    function switchBackground() {
+        console.log("Switching background...");
+        if (availableImages.length > 1) {
+            let nextIndex = bgIndex;
+            while (nextIndex === bgIndex) {
+                nextIndex = Math.floor(Math.random() * availableImages.length);
+            }
+            bgIndex = nextIndex;
+            applyCSS(availableImages[bgIndex]);
+        }
+    }
+
+    function checkCurrentBackground() {
+        console.log("Checking current background...");
+        checkImageExists(availableImages[bgIndex], function (exists) {
+            console.log(`Current bg${bgIndex + 1}.jpg exists: ${exists}`);
+            if (!exists) {
+                availableImages.splice(bgIndex, 1);
+                if (availableImages.length > 0) {
+                    bgIndex = Math.floor(Math.random() * availableImages.length);
+                    applyCSS(availableImages[bgIndex]);
+                } else {
+                    applyCSS(null); 
+                }
+            }
+        });
+    }
+
+    loadInitialBackground();
+    setInterval(checkCurrentBackground, 1000);
+    setInterval(switchBackground, 120000);
 });

@@ -132,10 +132,10 @@ msgid "NOTE: "
 msgstr "提示："
 
 msgid "The default background file is named \"bg1.jpg\"."
-msgstr "默认主题背景文件名为「bg1.jpg」"
+msgstr "默认背景文件名为「bg1.jpg」。在设置中开启随机切换背景文件「bg1-5.jpg」。"
 
 msgid "Deleting this file will restore the black transparent background."
-msgstr "删除此文件将恢复默认的黑色透明背景"
+msgstr "删除此文件将恢复为黑色透明背景"
 
 msgid "Supported formats: jpg/png/gif/mp4/webm"
 msgstr "支持格式：jpg/png/gif/mp4/webm"
