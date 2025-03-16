@@ -195,9 +195,10 @@ end
 form = SimpleForm('filelist', translate('Background file list'), nil)
 form.reset = false
 form.submit = false
+
 hint_section = form:section(SimpleSection, 
-    nil,  
-    translate('NOTE: ') .. 
+    nil,
+    translate('NOTE: ') ..
     translate('The default background file is named "bg1.jpg". ') ..
     translate('Deleting this file will restore the black transparent background.') ..
     [[<br><small>]] ..
