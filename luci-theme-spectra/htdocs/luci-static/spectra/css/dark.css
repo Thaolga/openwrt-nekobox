@@ -344,7 +344,7 @@ div > .table > .tbody > .tr:nth-of-type(2n) {
 
 .tabs li[class~="active"] a,
 .tabs li:hover a {
-	color: #ccc !important;
+	color: #ffffff !important;
 }
 
 .tabs > li[class~="active"] > a {
@@ -361,12 +361,12 @@ div > .table > .tbody > .tr:nth-of-type(2n) {
 
 .cbi-tabmenu > li > a,
 .tabs > li > a {
-	color: #ccc;
+	color: #ffffff;
 }
 
 .cbi-tabmenu > li > a:hover,
 .tabs > li > a:hover {
-	color: #ccc;
+	color: #ffffff;
 }
 
 .cbi-tabmenu > li {
@@ -697,10 +697,63 @@ input,
 }
 
 .cbi-section-table-row {
-	background: rgba(37, 37, 38, 0.1);
-	backdrop-filter: blur(10px);
-	-webkit-backdrop-filter: blur(10px);
+	background-color: rgba(255, 255, 255, 0.1) !important;
+	box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1) !important;
 }
+
+.cbi-section-table-row:nth-child(odd) {
+	background-color: rgba(249, 249, 249, 0.1) !important;
+	box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1) !important;
+	font-size: 13px !important;
+}
+
+.cbi-section-table-row:nth-child(even) {
+	background-color: rgba(0, 0, 0, 0.2) !important;
+	z-index: 0 !important;
+	font-size: 13px !important;
+}
+
+.cbi-section-table-cell,
+.cbi-section-table-descr,
+.cbi-section-table-titles {
+	background-color: rgba(255, 255, 255, 0.1) !important;
+	box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1) !important;
+}
+
+th:empty {
+	background-color: rgba(255, 255, 255, 0.1) !important;
+	box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1) !important;
+}
+
+#tool_label {
+	background-color: #3498db !important;
+	padding: 5px 10px !important;
+	border-radius: 5px !important;
+	margin: 5px 0 !important;
+	border-bottom: none !important;
+}
+
+#tool_label .tool_label_span {
+	display: inline-block !important;
+	color: #ffffff !important;
+	line-height: 1.2 !important;
+}
+
+#tool_label .tool_label_select {
+	padding: 3px 5px !important;
+	border-radius: 5px !important;
+	border: none !important;
+}
+
+#tool_label .btn.cbi-button.cbi-button-apply {
+	background-color: #3498db !important;
+	color: #ffffff !important;
+	padding: 3px 10px !important;
+	border-radius: 5px !important;
+	border: none !important;
+	cursor: pointer !important;
+}
+
 
 .modal {
 	background-color: #0000009a;
@@ -797,8 +850,6 @@ input,
 }
 
 body * {
-	font-family: Helvetica, Arial, sans-serif !important;
-	font-family: var(--modern-font) !important;
 	text-shadow: none !important;
 	-webkit-font-smoothing: auto !important;
 	text-rendering: optimizeLegibility !important;
@@ -1241,7 +1292,6 @@ button.cbi-button {
 .pure-g {
 	letter-spacing: -0.31em !important;
 	text-rendering: optimizespeed !important;
-	font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif !important;
 	display: flex !important;
 	flex-flow: row wrap !important;
 	align-content: flex-start !important;
@@ -1624,8 +1674,6 @@ ul[data-v-b8dfe98c] li[data-v-b8dfe98c]:hover {
 	backdrop-filter: blur(12px) !important;
 	-webkit-backdrop-filter: blur(12px) !important;
 	border-radius: 12px !important;
-	margin: 15px 0 !important;
-	padding: 20px !important;
 	box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3) !important;
 }
 
@@ -1652,8 +1700,6 @@ ul[data-v-b8dfe98c] li[data-v-b8dfe98c]:hover {
 .domain-item {
 	background: rgba(50, 50, 50, 0.1) !important;
 	border-radius: 8px;
-	padding: 12px 15px !important;
-	margin: 8px 0 !important;
 }
 
 .network-container_status-label_item:hover,
@@ -1705,7 +1751,6 @@ span.devise[data-v-08006dd5] {
 .app-container_status-label_bg[data-v-02f10ac5] {
 	background: rgba(40, 40, 40, 0.1) !important;
 	border-radius: 8px !important;
-	padding: 12px !important;
 }
 
 .app-container_status-label_text[data-v-02f10ac5] div {
@@ -1825,7 +1870,6 @@ a[href="#"][onclick*="/cgi-bin/luci/admin/services/passwall2/get_socks_log"]:act
 	box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 	text-align: center;
 	padding: 20px;
-	font-family: Arial, sans-serif;
 	font-size: 16px;
 	color: #2e7d32;
 }
@@ -1984,8 +2028,8 @@ form .actioner-dns_footer .cbi-button-remove:hover, form .action .cbi-button-rem
 }
 
 font[style*="color"] {
-	color: #00FFFF !important;
-	font-size: 13px !important;
+	color: #FF00FF !important;
+	font-size: 15px !important;
 	opacity: 1 !important;
 	filter: none !important;
 }
@@ -2270,7 +2314,15 @@ div.roots[data-v-919e529c] {
 }
 
 .app-container ul[data-v-5f7dc1ac] li[data-v-5f7dc1ac] {
-	margin-bottom: 20px !important;
+	margin-bottom: 5px !important;
+}
+
+.app-container ul[data-v-5f7dc1ac] li[data-v-5f7dc1ac]:last-child {
+    margin-bottom: 5 !important;
+}
+
+.disk_infoicon svg g circle {
+    stroke: green !important; 
 }
 
 .icon path {
