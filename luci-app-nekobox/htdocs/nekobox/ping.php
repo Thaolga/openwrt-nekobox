@@ -2803,7 +2803,7 @@ window.addEventListener('load', function() {
         <div class="track-name text-center mt-3" id="trackName" style="font-size: 24px" data-translate="no_song">No Song</div>
         <div class="lyrics-container mt-3 w-100" id="lyricsContainer"></div>
         <div class="d-flex justify-content-center align-items-center gap-3 mt-3 w-100">
-          <button class="btn btn-outline-primary" type="button" data-bs-toggle="collapse" data-bs-target="#playlistCollapse" aria-expanded="true" data-translate-title="toggle_playlist"><i class="fas fa-list"></i> </button>
+          <button id="toggleButton" class="btn btn-outline-primary" type="button" data-translate-title="toggle_playlist"><i id="toggleIcon" class="fas fa-list"></i></button>
           <button class="btn btn-outline-primary" type="button" data-bs-toggle="modal" data-bs-target="#urlModal" data-translate-title="customize_playlist"><i class="fas fa-cogs"></i> </button>
           <button class="btn btn-outline-primary" id="clearStorageBtn" data-translate-title="clear_playback_settings"><i class="fas fa-trash-alt"></i> </button>
           <button class="btn btn-outline-primary" id="pinLyricsButton" data-translate-title="pin_lyrics"><i class="fas fa-thumbtack"></i> </button>
@@ -3592,30 +3592,43 @@ document.addEventListener('dblclick', function() {
     }
 });
 
-document.addEventListener('DOMContentLoaded', (event) => {
-    const state = JSON.parse(localStorage.getItem('playerState'));
-    const playlistCollapse = new bootstrap.Collapse(document.getElementById('playlistCollapse'), {
-        toggle: state ? !state.playlistCollapsed : true
-    });
-});
-
 document.addEventListener("DOMContentLoaded", function () {
     const playlistCollapse = document.getElementById('playlistCollapse');
-    const toggleButton = document.querySelector('[data-bs-target="#playlistCollapse"]');
-
+    const toggleButton = document.getElementById('toggleButton');
+    const toggleIcon = document.getElementById('toggleIcon');
+    
     const savedCollapseState = localStorage.getItem('playlistCollapseState');
+
+    const bootstrapCollapse = new bootstrap.Collapse(playlistCollapse, {
+        toggle: savedCollapseState !== 'collapsed'
+    });
+
     if (savedCollapseState === 'collapsed') {
-        new bootstrap.Collapse(playlistCollapse, { toggle: false });
+        toggleIcon.classList.remove('fa-list');
+        toggleIcon.classList.add('fa-chevron-down');
+        toggleButton.innerHTML = '<i class="fas fa-chevron-down"></i>';
     } else {
-        new bootstrap.Collapse(playlistCollapse, { toggle: true });
+        toggleIcon.classList.remove('fa-chevron-down');
+        toggleIcon.classList.add('fa-list');
+        toggleButton.innerHTML = '<i class="fas fa-list"></i>';
     }
 
     playlistCollapse.addEventListener('hidden.bs.collapse', function () {
         localStorage.setItem('playlistCollapseState', 'collapsed'); 
+        toggleIcon.classList.remove('fa-chevron-down');
+        toggleIcon.classList.add('fa-list');
+        toggleButton.innerHTML = '<i class="fas fa-list"></i>';
     });
 
     playlistCollapse.addEventListener('shown.bs.collapse', function () {
         localStorage.setItem('playlistCollapseState', 'expanded'); 
+        toggleIcon.classList.remove('fa-list');
+        toggleIcon.classList.add('fa-chevron-down');
+        toggleButton.innerHTML = '<i class="fas fa-chevron-down"></i>';
+    });
+
+    toggleButton.addEventListener('click', function () {
+        bootstrapCollapse.toggle(); 
     });
 
     const lyricsContainer = document.querySelector("#lyricsContainer");
