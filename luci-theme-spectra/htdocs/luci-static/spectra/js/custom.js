@@ -1,3 +1,49 @@
+let isProcessing = false; 
+
+function safeClickHandler(e) {
+  if (isProcessing) return;
+  isProcessing = true;
+
+  try {
+    const trigger = e.target.closest('.cbi-dropdown, [class*="trigger"]');
+    if (!trigger) return;
+
+    const nativeEvent = new MouseEvent(e.type, {
+      bubbles: true,
+      cancelable: true,
+      view: window,
+      ...e
+    });
+
+    requestAnimationFrame(() => {
+      const dropdowns = document.querySelectorAll('ul.dropdown');
+      if (dropdowns.length > 1) {
+        dropdowns.forEach((d, i) => i > 0 && d.remove());
+      }
+
+      trigger.dispatchEvent(nativeEvent);
+      
+      if (window.React) {
+        const rootNode = document.getElementById('root');
+        if (rootNode?._reactRootContainer) {
+          rootNode._reactRootContainer._internalRoot.current.discreteUpdates = [];
+        }
+      }
+    });
+  } finally {
+    setTimeout(() => isProcessing = false, 50);
+  }
+}
+
+if (/Chrome/.test(navigator.userAgent)) {
+  document.addEventListener('pointerdown', safeClickHandler, {
+    capture: true,
+    passive: true
+  });
+} else {
+  document.addEventListener('click', safeClickHandler, true);
+}
+
 document.addEventListener("DOMContentLoaded", function () {
     const bgImages = Array.from({ length: 5 }, (_, i) => `bg${i + 1}.jpg`);
     let bgIndex = Math.floor(Math.random() * bgImages.length); 
