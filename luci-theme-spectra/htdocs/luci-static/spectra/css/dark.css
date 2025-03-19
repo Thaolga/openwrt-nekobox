@@ -2305,6 +2305,17 @@ div.roots[data-v-919e529c] {
 	transform: scale(1.1);
 }
 
+.btn_styles.color3[data-v-3a6a7fea] {
+    background-color: #ff69b4 !important; 
+    color: white !important;
+    transition: transform 0.2s ease-in-out;
+}
+
+.btn_styles.color3[data-v-3a6a7fea]:hover {
+    background-color: #ff1493 !important; 
+    transform: scale(1.1);
+}
+
 .btn_styles.color4[data-v-3a6a7fea] {
 	background-color: #ffc107 !important;
 	color: white !important;
