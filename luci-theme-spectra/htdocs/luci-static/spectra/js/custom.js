@@ -1,136 +1,206 @@
 document.addEventListener("DOMContentLoaded", function () {
-    const bgImages = Array.from({ length: 5 }, (_, i) => `bg${i + 1}.jpg`);
-    let bgIndex = 0;
-    let availableImages = [];
-    let videoExists = false;
-    let videoTag;
-    let switchInterval;
+    let isEnabled = localStorage.getItem('backgroundEnabled') !== 'false';
+    let videoTag, bgImages, bgIndex, availableImages, switchInterval;
 
-    const settingsIcon = document.createElement('div');
-    settingsIcon.innerHTML = '⚙️';
-    settingsIcon.id = 'settings-icon'; 
-    Object.assign(settingsIcon.style, {
-        position: 'fixed',
-        right: '20px',
-        bottom: '20px',
-        cursor: 'pointer',
-        zIndex: 1001,
-        fontSize: '24px',
-        color: '#fff',
-        background: 'rgba(0,0,0,0.5)',
-        borderRadius: '50%',
-        width: '40px',
-        height: '40px',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-    });
-
-    const modePopup = document.createElement('div');
-    modePopup.id = 'mode-popup'; 
-    modePopup.style.cssText = `
-        position: fixed;
-        right: 20px;
-        top: 70px;
-        background: rgba(0,0,0,0.9);
-        border-radius: 5px;
-        padding: 10px;
-        color: #fff;
-        z-index: 1002;
-        display: none;
-        box-shadow: 0 2px 10px rgba(0,0,0,0.5);
+    const controlPanel = `
+        <div id="settings-icon">⚙️</div>
+        <div id="mode-popup">
+            <button id="master-switch">
+                <span>${isEnabled ? '已启用 ✅' : '已禁用 ❌'}</span>
+                <div class="status-led" style="background:${isEnabled ? '#4CAF50' : '#f44336'}"></div>
+            </button>
+            <button data-mode="video">视频模式</button>
+            <button data-mode="image">图片模式</button>
+            <button data-mode="solid">暗黑模式</button>
+            <button data-mode="auto">自动模式</button>
+            <button class="sound-toggle">
+                <span>背景音效</span>
+                <div>${localStorage.getItem('videoMuted') === 'true' ? '🔇' : '🔊'}</div>
+            </button>
+            <button class="info-btn">使用说明</button>
+        </div>
     `;
 
-    ['video', 'image', 'solid', 'auto'].forEach(mode => {
-        const btn = document.createElement('button');
-        btn.textContent = `${mode.charAt(0).toUpperCase() + mode.slice(1)} 模式`;
-        btn.onclick = () => setMode(mode);
-        btn.style.cssText = `
+    document.body.insertAdjacentHTML('beforeend', controlPanel);
+
+    const styles = `
+        #settings-icon {
+            position: fixed;
+            right: 20px;
+            bottom: 20px;
+            cursor: pointer;
+            z-index: 1001;
+            font-size: 24px;
+            background: rgba(0,0,0,0.5);
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            transition: transform 0.3s ease;
+        }
+
+        #settings-icon:hover {
+            transform: rotate(90deg);
+        }
+
+        #mode-popup {
+            position: fixed;
+            right: 20px;
+            top: 70px;
+            background: rgba(0,0,0,0.9);
+            border-radius: 5px;
+            padding: 10px;
+            color: white;
+            z-index: 1002;
+            display: none;
+            min-width: 150px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.5);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        #mode-popup.show {
             display: block;
+            opacity: 1;
+        }
+
+        #mode-popup button {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
             width: 100%;
             padding: 8px;
             margin: 4px 0;
-            background: #444;
             border: none;
             color: white;
             border-radius: 3px;
             cursor: pointer;
-        `;
-        modePopup.appendChild(btn);
+            background: #444;
+            opacity: ${isEnabled ? 1 : 0.5};
+            pointer-events: ${isEnabled ? 'auto' : 'none'};
+            transition: background 0.3s ease, transform 0.3s ease;
+        }
+
+        #mode-popup button:hover {
+            background: #555;
+            transform: scale(1.1);
+        }
+
+        #master-switch {
+            background: ${isEnabled ? '#4CAF50' : '#f44336'} !important;
+            pointer-events: auto !important;
+            opacity: 1 !important;
+        }
+
+        .status-led {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            box-shadow: 0 0 5px ${isEnabled ? '#4CAF50' : '#f44336'};
+        }
+
+        .selected-mode {
+            background: #007BFF !important;
+        }
+
+        @media (max-width: 600px) {
+            #settings-icon {
+                right: 10px;
+                bottom: 10px;
+                width: 30px;
+                height: 30px;
+                font-size: 18px;
+            }
+            #mode-popup {
+                right: 10px;
+                top: 50px;
+                min-width: 120px;
+            }
+            #mode-popup button {
+                padding: 6px;
+                font-size: 12px;
+            }
+        }
+    `;
+
+    const styleTag = document.createElement('style');
+    styleTag.textContent = styles;
+    document.head.appendChild(styleTag);
+
+    document.getElementById('settings-icon').addEventListener('click', function(e) {
+        e.stopPropagation();
+        const popup = document.getElementById('mode-popup');
+        popup.classList.toggle('show');
     });
 
-    const soundToggle = document.createElement('button');
-    soundToggle.className = 'sound-toggle';
-    soundToggle.id = 'sound-toggle';
-    soundToggle.style.cssText = `
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        cursor: pointer;
-        z-index: 1000;
-        transition: background 0.3s;
-        padding: 8px;
-        margin: 4px 0;
-        background: #444;
-        border: none;
-        color: white;
-        border-radius: 3px;
-    `;
-    modePopup.appendChild(soundToggle);
+    document.getElementById('master-switch').addEventListener('click', function(e) {
+        e.stopPropagation();
+        isEnabled = !isEnabled;
+        localStorage.setItem('backgroundEnabled', isEnabled);
+        
+        this.style.background = isEnabled ? '#4CAF50' : '#f44336';
+        this.querySelector('.status-led').style.boxShadow = `0 0 5px ${isEnabled ? '#4CAF50' : '#f44336'}`;
+        this.querySelector('span').textContent = isEnabled ? '已启用' : '已禁用';
 
-    soundToggle.onclick = function () {
-        if (videoTag.muted) {
-            videoTag.muted = false;
-            videoTag.volume = 1.0;
-            soundToggle.classList.add("sound-on");
-            soundToggle.textContent = "🔊 关闭音量";
-            localStorage.setItem("videoMuted", "false");
-        } else {
-            videoTag.muted = true;
-            soundToggle.classList.remove("sound-on");
-            soundToggle.textContent = "🔇 开启音量";
-            localStorage.setItem("videoMuted", "true");
+        document.querySelectorAll('#mode-popup button:not(#master-switch)').forEach(btn => {
+            btn.style.opacity = isEnabled ? 1 : 0.5;
+            btn.style.pointerEvents = isEnabled ? 'auto' : 'none';
+        });
+
+        isEnabled ? initBackgroundSystem() : clearBackgroundSystem();
+    });
+
+    document.querySelectorAll('[data-mode]').forEach(btn => {
+        btn.addEventListener('click', function() {
+            setMode(btn.dataset.mode);
+            document.querySelectorAll('[data-mode]').forEach(b => b.classList.remove('selected-mode'));
+            this.classList.add('selected-mode');
+        });
+    });
+
+    document.querySelector('.sound-toggle').addEventListener('click', function() {
+        if (!isEnabled) return;
+        if (videoTag) {
+            videoTag.muted = !videoTag.muted;
+            localStorage.setItem('videoMuted', videoTag.muted);
+            this.querySelector('div').textContent = videoTag.muted ? '🔇' : '🔊';
         }
-    };
+    });
 
-    const infoButton = document.createElement('button');
-    infoButton.textContent = '使用说明';
-    infoButton.onclick = () => alert('视频模式：默认名称为「bg.mp4」\n图片模式：默认名称为「bg1-5.jpg」\n暗黑模式：透明背景+光谱动画\n文件路径：/www/luci-static/resources/background');
-    infoButton.style.cssText = `
-        display: block;
-        width: 100%;
-        padding: 8px;
-        margin: 4px 0;
-        background: #444;
-        border: none;
-        color: white;
-        border-radius: 3px;
-        cursor: pointer;
-    `;
+    document.querySelector('.info-btn').addEventListener('click', () => {
+        alert('使用说明：\n1. 视频模式：默认名称为「bg.mp4」\n2. 图片模式：默认名称为「bg1-5.jpg」\n3. 暗黑模式：透明背景+光谱动画\n4. 文件路径：/www/luci-static/resources/background');
+    });
 
-    modePopup.appendChild(infoButton);
+    function initBackgroundSystem() {
+        bgImages = Array.from({length: 5}, (_, i) => `bg${i + 1}.jpg`);
+        bgIndex = 0;
+        availableImages = [];
+        
+        const savedMode = localStorage.getItem('backgroundMode') || 'auto';
+        setMode(savedMode);
+    }
 
-    document.body.appendChild(settingsIcon);
-    document.body.appendChild(modePopup);
+    function clearBackgroundSystem() {
+        if (videoTag) videoTag.remove();
+        document.querySelectorAll('#dynamic-style, #video-style').forEach(e => e.remove());
+        clearInterval(switchInterval);
+        document.body.style.background = '';
+    }
 
     function setMode(mode) {
+        if (!isEnabled) return;
         localStorage.setItem('backgroundMode', mode);
         clearExistingBackground();
 
         switch (mode) {
             case 'video':
-                checkFileExists('bg.mp4', exists => {
-                    exists ? initVideoBackground() : fallbackToAuto();
-                });
+                checkFileExists('bg.mp4', exists => exists ? initVideoBackground() : fallbackToAuto());
                 break;
             case 'image':
-                checkImages(() => {
-                    if (availableImages.length > 0) {
-                        initImageBackground();
-                    } else {
-                        fallbackToAuto();
-                    }
-                });
+                checkImages(() => availableImages.length > 0 ? initImageBackground() : fallbackToAuto());
                 break;
             case 'solid':
                 applyCSS(null);
@@ -139,7 +209,6 @@ document.addEventListener("DOMContentLoaded", function () {
                 initAutoBackground();
                 break;
         }
-        modePopup.style.display = 'none';
     }
 
     function clearExistingBackground() {
@@ -272,57 +341,28 @@ document.addEventListener("DOMContentLoaded", function () {
             }
         `;
         document.head.appendChild(styleTag);
-
-        updateSoundToggle();
-
-        videoTag.addEventListener("ended", function () {
-            this.currentTime = 0;
-            this.play();
-        });
     }
 
     function updateSoundToggle() {
         const soundState = localStorage.getItem("videoMuted") === "false" ? false : true;
         videoTag.muted = soundState;
 
+        const soundToggle = document.querySelector(".sound-toggle div");
         if (!soundState) {
-            soundToggle.classList.add("sound-on");
-            soundToggle.textContent = "🔊 关闭音量";
+            soundToggle.textContent = "🔊";
         } else {
-            soundToggle.classList.remove("sound-on");
-            soundToggle.textContent = "🔇 开启音量";
+            soundToggle.textContent = "🔇";
         }
     }
 
-    settingsIcon.addEventListener('click', e => {
-        e.stopPropagation();
-        modePopup.style.display = modePopup.style.display === 'none' ? 'block' : 'none';
-    });
-
-    document.addEventListener('click', e => {
-        if (!modePopup.contains(e.target) && e.target !== settingsIcon) {
-            modePopup.style.display = 'none';
+    if (isEnabled) initBackgroundSystem();
+    document.addEventListener('click', (e) => {
+        const popup = document.getElementById('mode-popup');
+        if (!popup.contains(e.target) && e.target.id !== 'settings-icon') {
+            popup.classList.remove('show');
         }
     });
-
-    const savedMode = localStorage.getItem('backgroundMode') || 'auto';
-    setMode(savedMode);
-    
-    const mediaStyle = document.createElement("style");
-    mediaStyle.innerHTML = `
-        @media (max-width: 600px) {
-            #settings-icon {
-                right: 10px;
-                bottom: 10px;
-                width: 30px;
-                height: 30px;
-                font-size: 18px;
-            }
-            #mode-popup {
-                right: 10px;
-                top: 50px;
-            }
-        }
-    `;
-    document.head.appendChild(mediaStyle);
 });
+
+
+
