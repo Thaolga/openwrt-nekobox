@@ -380,8 +380,8 @@ document.getElementById('redirect-btn').addEventListener('click', function(e) {
     }
 
     function applyPHPBackground() {
-        const phpBackgroundSrc = '<?= $background_src ?>';
-        const phpBackgroundType = '<?= $background_type ?>';
+        const phpBackgroundSrc = localStorage.getItem('phpBackgroundSrc');
+        const phpBackgroundType = localStorage.getItem('phpBackgroundType');
         if (phpBackgroundSrc && phpBackgroundType) {
             if (phpBackgroundType === 'image') {
                 clearExistingBackground();
