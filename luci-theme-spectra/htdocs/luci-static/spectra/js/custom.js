@@ -17,11 +17,17 @@ document.addEventListener("DOMContentLoaded", function () {
                 <span>背景音效</span>
                 <div>${localStorage.getItem('videoMuted') === 'true' ? '🔇' : '🔊'}</div>
             </button>
+            <button id="redirect-btn">文件管理</button>
             <button class="info-btn">使用说明</button>
         </div>
     `;
 
     document.body.insertAdjacentHTML('beforeend', controlPanel);
+
+document.getElementById('redirect-btn').addEventListener('click', function(e) {
+    e.preventDefault();
+    window.open('/luci-static/spectra/bgm/spectra.php', '_blank');
+});
 
     const styles = `
         #settings-icon {
@@ -40,6 +46,11 @@ document.addEventListener("DOMContentLoaded", function () {
             justify-content: center;
             color: white;
             transition: transform 0.3s ease;
+        }
+
+        #mode-popup button.sound-toggle {
+            opacity: 1 !important;
+            pointer-events: auto !important;
         }
 
         #settings-icon:hover {
@@ -145,12 +156,16 @@ document.addEventListener("DOMContentLoaded", function () {
         this.querySelector('.status-led').style.boxShadow = `0 0 5px ${isEnabled ? '#4CAF50' : '#f44336'}`;
         this.querySelector('span').textContent = isEnabled ? '已启用' : '已禁用';
 
-        document.querySelectorAll('#mode-popup button:not(#master-switch)').forEach(btn => {
+        document.querySelectorAll('#mode-popup button:not(#master-switch):not(.sound-toggle)').forEach(btn => {
             btn.style.opacity = isEnabled ? 1 : 0.5;
             btn.style.pointerEvents = isEnabled ? 'auto' : 'none';
         });
 
-        isEnabled ? initBackgroundSystem() : clearBackgroundSystem();
+        if (isEnabled) {
+            initBackgroundSystem();
+        } else {
+            clearBackgroundSystem();
+        }
     });
 
     document.querySelectorAll('[data-mode]').forEach(btn => {
@@ -162,16 +177,18 @@ document.addEventListener("DOMContentLoaded", function () {
     });
 
     document.querySelector('.sound-toggle').addEventListener('click', function() {
-        if (!isEnabled) return;
+        const newMuted = localStorage.getItem('videoMuted') !== 'true';
+        localStorage.setItem('videoMuted', newMuted);
+        
+        this.querySelector('div').textContent = newMuted ? '🔇' : '🔊';
+        
         if (videoTag) {
-            videoTag.muted = !videoTag.muted;
-            localStorage.setItem('videoMuted', videoTag.muted);
-            this.querySelector('div').textContent = videoTag.muted ? '🔇' : '🔊';
+            videoTag.muted = newMuted;
         }
     });
 
     document.querySelector('.info-btn').addEventListener('click', () => {
-        alert('使用说明：\n1. 视频模式：默认名称为「bg.mp4」\n2. 图片模式：默认名称为「bg1-5.jpg」\n3. 暗黑模式：透明背景+光谱动画\n4. 文件路径：/www/luci-static/resources/background');
+        alert('使用说明：\n1. 视频模式：默认名称为「bg.mp4」\n2. 图片模式：默认名称为「bg1-5.jpg」\n3. 暗黑模式：透明背景+光谱动画\n4. 纯白模式：需到文件管理进行切换，关闭控制开关\n5. 文件路径：/www/luci-static/spectra/bgm');
     });
 
     function initBackgroundSystem() {
@@ -184,7 +201,9 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     function clearBackgroundSystem() {
-        if (videoTag) videoTag.remove();
+        if (videoTag) {
+            videoTag.remove();
+        }
         document.querySelectorAll('#dynamic-style, #video-style').forEach(e => e.remove());
         clearInterval(switchInterval);
         document.body.style.background = '';
@@ -212,7 +231,10 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     function clearExistingBackground() {
-        if (videoTag) videoTag.remove();
+        if (videoTag) {
+            videoTag.remove();
+            videoTag = null;
+        }
         document.querySelectorAll('#dynamic-style, #video-style').forEach(e => e.remove());
         clearInterval(switchInterval);
     }
@@ -260,7 +282,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     function checkFileExists(file, callback) {
         const xhr = new XMLHttpRequest();
-        xhr.open('HEAD', `/luci-static/resources/background/${file}`);
+        xhr.open('HEAD', `/luci-static/spectra/bgm/${file}`);
         xhr.onreadystatechange = () => xhr.readyState === 4 && callback(xhr.status === 200);
         xhr.send();
     }
@@ -276,7 +298,7 @@ document.addEventListener("DOMContentLoaded", function () {
         if (image) {
             styleTag.innerHTML = `
                 body {
-                    background: url('/luci-static/resources/background/${image}') no-repeat center center fixed !important;
+                    background: url('/luci-static/spectra/bgm/${image}') no-repeat center center fixed !important;
                     background-size: cover !important;
                     transition: background 1s ease-in-out;
                 }
@@ -299,23 +321,26 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     function insertVideoBackground() {
-        console.log("Using video background...");
         videoTag = document.createElement("video");
         videoTag.className = "video-background";
         videoTag.id = "background-video";
         videoTag.autoplay = true;
         videoTag.loop = true;
-        videoTag.muted = true;
+        videoTag.muted = localStorage.getItem('videoMuted') === 'true';
         videoTag.playsInline = true;
         videoTag.innerHTML = `
-            <source src="/luci-static/resources/background/bg.mp4" type="video/mp4">
+            <source src="/luci-static/spectra/bgm/bg.mp4" type="video/mp4">
             Your browser does not support the video tag.
         `;
-
         document.body.prepend(videoTag);
+        videoTag.muted = localStorage.getItem('videoMuted') === 'true'; 
 
-        let styleTag = document.createElement("style");
-        styleTag.id = "video-style";
+        let styleTag = document.querySelector("#video-style");
+        if (!styleTag) {
+            styleTag = document.createElement("style");
+            styleTag.id = "video-style";
+            document.head.appendChild(styleTag);
+        }
         styleTag.innerHTML = `
             body {
                 background: transparent !important;
@@ -340,7 +365,6 @@ document.addEventListener("DOMContentLoaded", function () {
                 display: none !important;
             }
         `;
-        document.head.appendChild(styleTag);
     }
 
     function updateSoundToggle() {
@@ -355,14 +379,140 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     }
 
-    if (isEnabled) initBackgroundSystem();
+    function applyPHPBackground() {
+        const phpBackgroundSrc = '<?= $background_src ?>';
+        const phpBackgroundType = '<?= $background_type ?>';
+        if (phpBackgroundSrc && phpBackgroundType) {
+            if (phpBackgroundType === 'image') {
+                clearExistingBackground();
+                applyCSS(phpBackgroundSrc);
+            } else if (phpBackgroundType === 'video') {
+                clearExistingBackground();
+                setVideoBackground(phpBackgroundSrc, true);
+            }
+        }
+    }
+
+    if (isEnabled) {
+        initBackgroundSystem();
+    } else {
+        applyPHPBackground();
+    }
+
     document.addEventListener('click', (e) => {
         const popup = document.getElementById('mode-popup');
         if (!popup.contains(e.target) && e.target.id !== 'settings-icon') {
             popup.classList.remove('show');
         }
     });
+
+    if (typeof phpBackgroundSrc !== 'undefined' && typeof phpBackgroundType !== 'undefined') {
+        if (phpBackgroundType === 'image') {
+            setImageBackground(phpBackgroundSrc);
+        } else if (phpBackgroundType === 'video') {
+            setVideoBackground(phpBackgroundSrc, true);
+        }
+    }
 });
 
+    function setImageBackground(src) {
+        clearExistingBackground();
+        document.body.style.background = `url('/luci-static/spectra/bgm/${src}') no-repeat center center fixed`;
+        document.body.style.backgroundSize = 'cover';
+        localStorage.setItem('phpBackgroundSrc', src);
+        localStorage.setItem('phpBackgroundType', 'image');
+    }
+
+    function setVideoBackground(src, isPHP = false) {
+        clearExistingBackground();
+        let existingVideoTag = document.getElementById("background-video");
+    
+        if (existingVideoTag) {
+            existingVideoTag.src = `/luci-static/spectra/bgm/${src}`;
+            existingVideoTag.muted = localStorage.getItem('videoMuted') === 'true'; 
+        } else {
+            videoTag = document.createElement("video");
+            videoTag.className = "video-background";
+            videoTag.id = "background-video";
+            videoTag.autoplay = true;
+            videoTag.loop = true;
+            videoTag.muted = localStorage.getItem('videoMuted') === 'true'; 
+            videoTag.playsInline = true;
+            videoTag.innerHTML = `
+                <source src="/luci-static/spectra/bgm/${src}" type="video/mp4">
+                Your browser does not support the video tag.
+            `;
+            document.body.prepend(videoTag);
+
+            videoTag.addEventListener('loadedmetadata', () => {
+                videoTag.play().catch(error => {
+                    console.log('视频自动播放被阻止:', error);
+                });
+            });
+        }
+
+        let styleTag = document.querySelector("#video-style");
+        if (!styleTag) {
+            styleTag = document.createElement("style");
+            styleTag.id = "video-style";
+            document.head.appendChild(styleTag);
+        }
+        styleTag.innerHTML = `
+            body {
+                background: transparent !important;
+                margin: 0;
+                padding: 0;
+                height: 100vh;
+                overflow: hidden;
+            }
+            .video-background {
+                position: fixed;
+                top: 50%;
+                left: 50%;
+                width: auto;
+                height: auto;
+                min-width: 100%;
+                min-height: 100%;
+                transform: translate(-50%, -50%);
+                object-fit: cover;
+                z-index: -1;
+            }
+            .video-background + .wrapper span {
+                display: none !important;
+            }
+        `;
+
+        localStorage.setItem('phpBackgroundSrc', src);
+        localStorage.setItem('phpBackgroundType', 'video');
+    
+        const currentMuted = localStorage.getItem('videoMuted') === 'true';
+        document.querySelector('.sound-toggle div').textContent = currentMuted ? '🔇' : '🔊';
+    
+        checkAndReload();
+    }
+
+    document.querySelector('.sound-toggle').addEventListener('click', function() {
+        const newMuted = !(localStorage.getItem('videoMuted') === 'true');
+    
+        localStorage.setItem('videoMuted', newMuted);
+    
+        document.querySelectorAll('video#background-video').forEach(video => {
+            video.muted = newMuted;
+        });
+    
+        this.querySelector('div').textContent = newMuted ? '🔇' : '🔊';
+    });
+
+    function clearExistingBackground() {
+        document.body.style.background = ''; 
+        let existingVideoTag = document.getElementById("background-video");
+        if (existingVideoTag) {
+            existingVideoTag.remove(); 
+        }
+        let styleTag = document.querySelector("#video-style");
+        if (styleTag) {
+            styleTag.remove(); 
+        }
+    }
 
 
