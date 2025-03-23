@@ -53,6 +53,12 @@ document.getElementById('redirect-btn').addEventListener('click', function(e) {
             pointer-events: auto !important;
         }
 
+        #redirect-btn,
+        .info-btn {
+            opacity: 1 !important;
+            pointer-events: auto !important;
+        }
+
         #settings-icon:hover {
             transform: rotate(90deg);
         }
@@ -156,7 +162,7 @@ document.getElementById('redirect-btn').addEventListener('click', function(e) {
         this.querySelector('.status-led').style.boxShadow = `0 0 5px ${isEnabled ? '#4CAF50' : '#f44336'}`;
         this.querySelector('span').textContent = isEnabled ? '已启用' : '已禁用';
 
-        document.querySelectorAll('#mode-popup button:not(#master-switch):not(.sound-toggle)').forEach(btn => {
+        document.querySelectorAll('#mode-popup button:not(#master-switch):not(.sound-toggle):not(#redirect-btn):not(.info-btn)').forEach(btn => {
             btn.style.opacity = isEnabled ? 1 : 0.5;
             btn.style.pointerEvents = isEnabled ? 'auto' : 'none';
         });
@@ -188,8 +194,133 @@ document.getElementById('redirect-btn').addEventListener('click', function(e) {
     });
 
     document.querySelector('.info-btn').addEventListener('click', () => {
-        alert('使用说明：\n1. 视频模式：默认名称为「bg.mp4」\n2. 图片模式：默认名称为「bg1-5.jpg」\n3. 暗黑模式：透明背景+光谱动画\n4. 纯白模式：需到文件管理进行切换，关闭控制开关\n5. 文件路径：/www/luci-static/spectra/bgm');
+        showCustomAlert('使用说明', [
+            '1. 视频模式：默认名称为「bg.mp4」',
+            '2. 图片模式：默认名称为「bg1-5.jpg」',
+            '3. 暗黑模式：透明背景+光谱动画',
+            '4. 纯白模式：需到文件管理进行切换，关闭控制开关',
+            '5. 文件管理：支持自定义背景，需关闭开关，模式切换需清除背景',
+            '6. 项目地址：<a class="github-link" href="https://github.com/Thaolga/openwrt-nekobox" target="_blank">点击访问</a>'
+        ]);
     });
+
+    function showCustomAlert(title, messages) {
+        const existingAlert = document.getElementById('custom-alert');
+        if (existingAlert) existingAlert.remove();
+
+        const alertHTML = `
+            <div id="custom-alert-overlay">
+                <div id="custom-alert">
+                    <div class="alert-header">
+                        <h3>${title}</h3>
+                        <button class="close-btn">&times;</button>
+                    </div>
+                    <div class="alert-content">
+                        ${messages.map(msg => `<p>${msg}</p>`).join('')}
+                    </div>
+                </div>
+            </div>
+        `;
+
+    document.body.insertAdjacentHTML('beforeend', alertHTML);
+
+    const style = document.createElement('style');
+    style.textContent = `
+        #custom-alert-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.7);
+            z-index: 9999;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            backdrop-filter: blur(3px);
+        }
+
+        #custom-alert {
+            background: rgba(0,0,0,0.95);
+            border: 1px solid #333;
+            border-radius: 8px;
+            width: 90%;
+            max-width: 500px;
+            padding: 20px;
+            box-shadow: 0 0 20px rgba(0,0,0,0.5);
+            color: #fff;
+        }
+
+        .alert-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #333;
+            padding-bottom: 15px;
+            margin-bottom: 15px;
+        }
+
+        .alert-header h3 {
+            margin: 0;
+            color: #4CAF50;
+            font-size: 1.3em;
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            color: #fff;
+            font-size: 24px;
+            cursor: pointer;
+            padding: 0 8px;
+            transition: color 0.3s;
+        }
+
+        .close-btn:hover {
+            color: #4CAF50;
+        }
+
+        .alert-content {
+            max-height: 60vh;
+            overflow-y: auto;
+        }
+
+        .alert-content p {
+            line-height: 1.6;
+            margin: 10px 0;
+            color: #ddd;
+            font-size: 14px;
+        }
+
+        @media (max-width: 480px) {
+            #custom-alert {
+                width: 95%;
+                padding: 15px;
+            }
+            
+            .alert-header h3 {
+                font-size: 1.1em;
+            }
+            
+            .alert-content p {
+                font-size: 13px;
+            }
+        }
+    `;
+    document.head.appendChild(style);
+
+    document.querySelector('.close-btn').addEventListener('click', () => {
+        document.getElementById('custom-alert-overlay').remove();
+        style.remove();
+    });
+
+    document.getElementById('custom-alert-overlay').addEventListener('click', (e) => {
+        if (e.target.id === 'custom-alert-overlay') {
+            document.getElementById('custom-alert-overlay').remove();
+            style.remove();
+        }
+    });
+}
 
     function initBackgroundSystem() {
         bgImages = Array.from({length: 5}, (_, i) => `bg${i + 1}.jpg`);

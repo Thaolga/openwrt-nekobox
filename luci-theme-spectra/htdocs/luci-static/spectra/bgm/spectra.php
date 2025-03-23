@@ -111,12 +111,46 @@ if (!file_exists($configFile)) {
     $mode = $matches[1] ?? "N/A";
 }
 ?>
+
+<?php
+$repoOwner = 'Thaolga';
+$repoName = 'openwrt-nekobox';
+$releaseTag = '1.8.8'; 
+$packagePattern = '/^luci-theme-spectra_(.+)_all\.ipk$/';
+
+$latestVersion = null;
+$downloadUrl = null;
+
+try {
+    $ch = curl_init();
+    curl_setopt($ch, CURLOPT_URL, "https://api.github.com/repos/{$repoOwner}/{$repoName}/releases/tags/{$releaseTag}");
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+    curl_setopt($ch, CURLOPT_USERAGENT, 'PHP');
+    $response = curl_exec($ch);
+        
+    if (curl_getinfo($ch, CURLINFO_HTTP_CODE) === 200) {
+        $releaseData = json_decode($response, true);
+            
+        foreach ($releaseData['assets'] as $asset) {
+            if (preg_match($packagePattern, $asset['name'], $matches)) {
+                $latestVersion = $matches[1];
+                $downloadUrl = $asset['browser_download_url'];
+                break;
+            }
+        }
+    }
+    curl_close($ch);
+ } catch(Exception $e) {
+}
+?>
 <head>
     <title>媒体文件管理</title>
     <link href="/luci-static/spectra/css/bootstrap.min.css" rel="stylesheet">
     <script src="/luci-static/spectra/js/jquery.min.js"></script>
     <script src="/luci-static/spectra/js/bootstrap.bundle.min.js"></script>
     <script src="/luci-static/spectra/js/custom.js"></script>
+    <link href="/luci-static/spectra/css//bootstrap-icons.css" rel="stylesheet">
+
     <script>
         const phpBackgroundType = '<?= $background_type ?>';
         const phpBackgroundSrc = '<?= $background_src ?>';
@@ -126,6 +160,12 @@ body {
 	text-align: center;
 	font-family: Arial, sans-serif;
 	padding: 20px;
+}
+
+html, body {
+    height: 100%;
+    margin: 0;
+    overflow-y: auto !important;
 }
 
 button {
@@ -243,8 +283,104 @@ h2 {
 	color: oklch(77% .152 181.912) !important;
 	margin-top: 20px;
 }
-</style>
 
+.preview-container {
+	position: relative;
+	overflow: hidden;
+	cursor: pointer;
+	min-height: 200px;
+	background: #2a2a2a;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+
+.file-info-overlay {
+	position: absolute;
+	bottom: 0;
+	left: 0;
+	right: 0;
+	background: rgba(0,0,0,0.7);
+	color: white;
+	padding: 0.5rem;
+	transform: translateY(100%);
+	transition: 0.2s;
+	font-size: 0.8em;
+}
+
+.file-type-indicator {
+	position: absolute;
+	top: 8px;
+	right: 8px;
+	z-index: 2;
+	background: rgba(0,0,0,0.6);
+	padding: 4px 10px;
+	border-radius: 15px;
+	display: flex;
+	align-items: center;
+	gap: 6px;
+	backdrop-filter: blur(2px);
+}
+
+.preview-container:hover .file-info-overlay {
+	transform: translateY(0);
+}
+
+.preview-img {
+	object-fit: contain !important;
+	max-height: 300px;
+	width: auto;
+	height: auto;
+	max-width: 100%;
+	padding: 8px;
+}
+
+.video-wrapper {
+	width: 100%;
+	height: 0;
+	padding-top: 56.25%;
+	position: relative;
+}
+
+.preview-video {
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+	object-fit: contain;
+}
+
+.preview-video:hover::after {
+	content: "";
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	transform: translate(-50%,-50%);
+	width: 40px;
+	height: 40px;
+	background: rgba(255,255,255,0.8) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='%23000000'%3E%3Cpath d='M8 5v14l11-7z'/%3E%3C/svg%3E") no-repeat center;
+	border-radius: 50%;
+	opacity: 0.8;
+	pointer-events: none;
+}
+
+.card:hover .preview-img {
+	transform: scale(1.03);
+}
+
+.fileCheckbox {
+	margin-right: 8px;
+	transform: scale(1.2);
+}
+
+#previewImage, #previewVideo {
+        max-width: 100%;
+        max-height: 70vh;
+        object-fit: contain;  
+}
+
+</style>
 <body>
     <h2>Spectra 配置管理</h2>
     <p id="status">当前模式: <?= ($mode == "dark") ? "暗色模式" : "亮色模式" ?></p>
@@ -262,62 +398,124 @@ h2 {
         </div>
 
         <div class="card">
-            <div class="card-header text-center"><h2>文件列表</h2></div>
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h2 class="mb-0">文件列表</h2>
+                <div class="d-flex align-items-center">
+                    <?php
+                    $mountPoint = '/overlay';
+                    $freeSpace = @disk_free_space($mountPoint);
+                    $totalSpace = @disk_total_space($mountPoint);
+                    $usedSpace = $totalSpace - $freeSpace;
+        
+                    function formatSize($bytes) {
+                        $units = ['B', 'KB', 'MB', 'GB'];
+                        $index = 0;
+                        while ($bytes >= 1024 && $index < 3) {
+                            $bytes /= 1024;
+                            $index++;
+                        }
+                        return round($bytes, 2) . ' ' . $units[$index];
+                    }
+                    ?>
+        
+                    <div class="me-3 d-flex gap-2" 
+                        data-bs-toggle="tooltip" 
+                        title="挂载点：<?= $mountPoint ?>｜已用空间：<?= formatSize($usedSpace) ?>">
+                        <span class="badge bg-primary"><i class="bi bi-hdd"></i> 总共：<?= $totalSpace ? formatSize($totalSpace) : 'N/A' ?></span>
+                        <span class="badge bg-success"><i class="bi bi-hdd"></i> 剩余：<?= $freeSpace ? formatSize($freeSpace) : 'N/A' ?></span>
+                  </div>
+                    <?php if ($downloadUrl): ?><button class="btn btn-success btn-sm update-theme-btn" data-url="<?= htmlspecialchars($downloadUrl) ?>" title="最新版本：<?= htmlspecialchars($latestVersion) ?>"><i class="bi bi-cloud-download"></i> 更新主题</button><?php endif; ?>
+                    <button class="btn btn-success btn-sm ms-2" data-bs-toggle="modal" data-bs-target="#uploadModal"><i class="bi bi-upload"></i> 批量上传</button>
+                    <button class="btn btn-danger btn-sm ms-2" id="clearBackgroundBtn"><i class="bi bi-trash"></i> 清除背景</button>
+                </div>
+            </div>
             <div class="card-body">
                 <?php if (isset($error)): ?>
-                    <div class="alert alert-danger"> <?= $error ?> </div>
+                    <div class="alert alert-danger"><?= $error ?></div>
                 <?php endif; ?>
-                <table class="table table-striped text-center">
-                    <thead>
-                        <tr>
-                            <th style="width: 50px;"><input type="checkbox" id="selectAll"></th>
-                            <th>文件名</th>
-                            <th>类型</th>
-                            <th>大小</th>
-                            <th>预览</th>
-                            <th>操作</th>
-                            <th>设置背景</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <?php foreach ($files as $file): 
-                            $path = $upload_dir . '/' . $file;
-                            $size = filesize($path);
-                            $ext = strtolower(pathinfo($file, PATHINFO_EXTENSION));
-                        ?>
-                        <tr>
-                            <td><input type="checkbox" class="fileCheckbox" value="<?= htmlspecialchars($file) ?>" data-size="<?= $size ?>"></td>
-                            <td><?= htmlspecialchars($file) ?></td>
-                            <td><?= htmlspecialchars($ext) ?></td>
-                            <td><?= round($size / (1024 * 1024), 2) ?> MB</td>
-                            <td>
-                                <?php if (in_array($ext, ['jpg','jpeg','png','gif'])): ?>
-                                    <img src="<?= htmlspecialchars($file) ?>" class="img-thumbnail preview-img" data-bs-toggle="modal" data-bs-target="#previewModal" data-src="<?= htmlspecialchars($file) ?>" width="100">
-                                <?php elseif ($ext === 'mp4'): ?>
-                                    <video width="150" controls class="preview-video" data-bs-toggle="modal" data-bs-target="#previewModal" data-src="<?= htmlspecialchars($file) ?>">
-                                        <source src="<?= htmlspecialchars($file) ?>" type="video/mp4">
-                                    </video>
-                                <?php elseif ($ext === 'mp3' || $ext === 'wav'): ?>
-                                    <audio controls><source src="<?= htmlspecialchars($file) ?>" type="audio/<?= $ext ?>"></audio>
-                                <?php endif; ?>
-                            </td>
-                            <td>
-                                <button class="btn btn-danger" onclick="if(confirm('确定删除该文件？')) window.location='?delete=<?= urlencode($file) ?>'">删除</button>
-                                <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#renameModal-<?= md5($file) ?>">重命名</button>
-                                <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#uploadModal">批量上传</button>
-                            </td>
-                            <td>
-                                <?php if (in_array($ext, ['jpg','jpeg','png','gif'])): ?>
-                                    <button class="btn btn-info set-bg-btn" data-src="<?= htmlspecialchars($file) ?>" data-type="image">设置图片背景</button>
-                                <?php elseif ($ext === 'mp4'): ?>
-                                    <button class="btn btn-info set-bg-btn" data-src="<?= htmlspecialchars($file) ?>" data-type="video">设置视频背景</button>
-                                <?php endif; ?>
-                            </td>
-                        </tr>
-                        <?php endforeach; ?>
-                    </tbody>
-                </table>
-                <button class="btn btn-warning" id="clearBackgroundBtn">清除背景</button>
+        
+                <div class="d-flex align-items-center mb-3">
+                    <input type="checkbox" id="selectAll" class="me-2">
+                    <label for="selectAll">全选</label>
+                </div>
+
+                <div class="row row-cols-2 row-cols-md-4 row-cols-lg-5 g-4">
+                    <?php foreach ($files as $file): 
+                        $path = $upload_dir . '/' . $file;
+                        $size = filesize($path);
+                        $ext = strtolower(pathinfo($file, PATHINFO_EXTENSION));
+                        $isImage = in_array($ext, ['jpg','jpeg','png','gif']);
+                        $isVideo = ($ext === 'mp4');
+                        $isMedia = $isImage || $isVideo;
+                    ?>
+                    <div class="col">
+                        <div class="card h-100 shadow-sm">
+                            <div class="position-relative">
+                                <?php if ($isMedia): ?>
+                                <div class="preview-container">
+                                    <div class="file-type-indicator">
+                                        <?php if ($isImage): ?>
+                                            <i class="bi bi-image-fill text-white"></i>
+                                            <span class="text-white small">图片</span>
+                                        <?php elseif ($isVideo): ?>
+                                            <i class="bi bi-play-circle-fill  text-white"></i>
+                                            <span class="text-white small">视频</span>
+                                        <?php endif; ?>
+                                    </div>
+
+                                    <?php if ($isImage): ?>
+                                        <img src="<?= htmlspecialchars($file) ?>" 
+                                             class="card-img-top preview-img img-fluid"
+                                             data-bs-toggle="modal" 
+                                             data-bs-target="#previewModal"
+                                             data-src="<?= htmlspecialchars($file) ?>">
+                                    <?php elseif ($isVideo): ?>
+                                        <video class="card-img-top preview-video"
+                                               data-bs-toggle="modal"
+                                               data-bs-target="#previewModal"
+                                               data-src="<?= htmlspecialchars($file) ?>">
+                                            <source src="<?= htmlspecialchars($file) ?>" type="video/mp4">
+                                        </video>
+                                    <?php endif; ?>
+                            
+                                    <div class="file-info-overlay">
+                                        <p class="mb-1 small">名称：<?= htmlspecialchars($file) ?></p>
+                                        <p class="mb-1 small">大小：<?= round($size/(1024*1024),2) ?> MB</p>
+                                        <p class="mb-0 small text-uppercase">类型：<?= $ext ?></p>
+                                    </div>
+                                </div>
+                                    <?php else: ?>
+                                    <div class="card-body text-center">
+                                        <div class="file-type-indicator">
+                                            <i class="bi bi-file-earmark-text-fill text-white"></i>
+                                            <span class="text-white small">文档</span>
+                                        </div>
+                                        <i class="bi bi-file-earmark fs-1 text-muted"></i>
+                                        <p class="small mb-0"><?= htmlspecialchars($file) ?></p>
+                                    </div>
+                                    <?php endif; ?>
+                                </div>
+                    
+                                    <div class="card-body pt-2 mt-2">
+                                        <div class="d-flex flex-nowrap align-items-center justify-content-between gap-2">
+                                            <input type="checkbox" 
+                                                class="fileCheckbox flex-shrink-0" 
+                                                value="<?= htmlspecialchars($file) ?>"
+                                                data-size="<?= $size ?>"
+
+                                    <div class="d-flex flex-wrap gap-1 flex-grow-1" style="min-width: 0;">
+                                        <button class="btn btn-danger btn-sm" onclick="if(confirm('确定删除？')) window.location='?delete=<?= urlencode($file) ?>'"><i class="bi bi-trash"></i></button>
+                                        <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#renameModal-<?= md5($file) ?>"><i class="bi bi-pencil"></i></button>
+                            
+                                    <?php if ($isMedia): ?>
+                                        <button class="btn btn-info btn-sm set-bg-btn" data-src="<?= htmlspecialchars($file) ?>" data-type="<?= $isVideo ? 'video' : 'image' ?>"><i class="bi bi-image"></i></button>
+                                    <?php endif; ?>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <?php endforeach; ?>
+                </div>
             </div>
         </div>
 
@@ -395,6 +593,24 @@ h2 {
             </div>
         </div>
     </div>
+
+<div class="modal fade" id="updateConfirmModal">
+    <div class="modal-dialog modal-xl modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">主题下载</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="alert alert-warning">注意：下载过程可能需要1-3分钟，请勿关闭电源！</div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+                <a id="confirmUpdateLink" href="#" class="btn btn-danger">下载到本地</a>
+            </div>
+        </div>
+    </div>
+</div>
 
     <script>
         $(document).ready(function() {
@@ -587,6 +803,16 @@ h2 {
             }
         }
 
+    document.querySelectorAll('.preview-video').forEach(video => {
+        video.addEventListener('mouseenter', () => {
+            video.play().catch(() => {})
+        })
+        video.addEventListener('mouseleave', () => {
+            video.pause()
+            video.currentTime = 0
+        })
+    });
+
         $(document).ready(function () {
             $(".set-bg-btn").click(function () {
                 const bgSrc = $(this).data("src");
@@ -645,4 +871,18 @@ h2 {
         });
     </script>
 
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        new bootstrap.Tooltip(document.querySelector('[data-bs-toggle="tooltip"]'))
+
+        document.querySelectorAll('.update-theme-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const downloadUrl = this.dataset.url
+                const modal = new bootstrap.Modal('#updateConfirmModal')
+                document.getElementById('confirmUpdateLink').href = downloadUrl
+                modal.show()
+            })
+        })
+    })
+    </script> 
 
