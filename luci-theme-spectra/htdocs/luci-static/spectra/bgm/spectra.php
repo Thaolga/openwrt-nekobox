@@ -113,42 +113,6 @@ if (!file_exists($configFile)) {
 ?>
 
 <?php
-if (isset($_POST['action']) && $_POST['action'] === 'install') {
-    header('Content-Type: application/json');
-    
-    if (!isset($_SERVER['HTTP_X_REQUESTED_WITH']) || $_SERVER['HTTP_X_REQUESTED_WITH'] !== 'XMLHttpRequest') {
-        die(json_encode(['success' => false, 'message' => '非法请求方式']));
-    }
-    
-    $url = $_POST['url'] ?? '';
-    if (!preg_match('#^https://github\.com/Thaolga/openwrt-nekobox/releases/download/1\.8\.8/luci-theme-spectra_.+_all\.ipk$#', $url)) {
-        die(json_encode(['success' => false, 'message' => '非法下载地址']));
-    }
-
-    try {
-        $tmp_file = '/tmp/'.basename($url);
-        
-        exec('opkg update 2>&1', $output, $ret);
-        if ($ret !== 0) throw new Exception("更新失败：".implode("\n", $output));
-        
-        exec('opkg remove luci-theme-spectra', $output, $ret);
-        
-        exec("wget -O {$tmp_file} ".escapeshellarg($url)." 2>&1", $output, $ret);
-        if ($ret !== 0) throw new Exception("下载失败：".implode("\n", $output));
-        
-        exec("opkg install {$tmp_file} 2>&1", $output, $ret);
-        if ($ret !== 0) throw new Exception("安装失败：".implode("\n", $output));
-        
-        @unlink($tmp_file);
-        
-        echo json_encode(['success' => true, 'message' => '主题更新成功']);
-    } catch (Exception $e) {
-        @unlink($tmp_file);
-        echo json_encode(['success' => false, 'message' => $e->getMessage()]);
-    }
-    exit;
-}
-
 $repoOwner = 'Thaolga';
 $repoName = 'openwrt-nekobox';
 $releaseTag = '1.8.8'; 
@@ -165,7 +129,8 @@ try {
     $response = curl_exec($ch);
         
     if (curl_getinfo($ch, CURLINFO_HTTP_CODE) === 200) {
-        $releaseData = json_decode($response, true);    
+        $releaseData = json_decode($response, true);
+            
         foreach ($releaseData['assets'] as $asset) {
             if (preg_match($packagePattern, $asset['name'], $matches)) {
                 $latestVersion = $matches[1];
@@ -175,7 +140,8 @@ try {
         }
     }
     curl_close($ch);
-} catch(Exception $e) {}
+ } catch(Exception $e) {
+}
 ?>
 <head>
     <title>媒体文件管理</title>
@@ -627,30 +593,25 @@ h2 {
             </div>
         </div>
     </div>
-<div id="statusAlert" class="alert" style="display:none;"></div>
-    <div class="modal fade" id="updateConfirmModal">
-      <div class="modal-dialog modal-xl modal-dialog-centered">
+
+<div class="modal fade" id="updateConfirmModal">
+    <div class="modal-dialog modal-xl modal-dialog-centered">
         <div class="modal-content">
-          <div class="modal-header">
-            <h5 class="modal-title">确认更新</h5>
-            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-          </div>
-          <div class="modal-body">
-            <p>即将下载并安装最新版本主题，请确认设备满足以下条件：</p>
-            <ul>
-              <li>已连接互联网</li>
-              <li>剩余存储空间大于50MB</li>
-              <li>已关闭主题相关服务</li>
-            </ul>
-            <div class="alert alert-warning">注意：更新过程可能需要1-3分钟，请勿关闭电源！</div>
-          </div>
-          <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
-            <a id="confirmUpdateLink" href="#" class="btn btn-danger">立即更新</a>
-          </div>
+            <div class="modal-header">
+                <h5 class="modal-title">主题下载</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="alert alert-warning">注意：下载过程可能需要1-3分钟，请勿关闭电源！</div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+                <a id="confirmUpdateLink" href="#" class="btn btn-danger">下载到本地</a>
+            </div>
         </div>
-      </div>
     </div>
+</div>
+
     <script>
         $(document).ready(function() {
             $('#selectAll').change(function() {
@@ -912,55 +873,16 @@ h2 {
 
     <script>
     document.addEventListener('DOMContentLoaded', function() {
-        new bootstrap.Tooltip(document.querySelector('[data-bs-toggle="tooltip"]'));
+        new bootstrap.Tooltip(document.querySelector('[data-bs-toggle="tooltip"]'))
 
-        const updateBtn = document.querySelector('.update-theme-btn');
-        const confirmBtn = document.getElementById('confirmUpdateLink');
-        const alertDiv = document.getElementById('statusAlert');
-
-        updateBtn.addEventListener('click', function() {
-            window.downloadUrl = this.dataset.url;
-            new bootstrap.Modal('#updateConfirmModal').show();
-        });
-
-        confirmBtn.addEventListener('click', async function(e) {
-            e.preventDefault();
-        
-            const modal = bootstrap.Modal.getInstance('#updateConfirmModal');
-            modal.hide();
-
-            alertDiv.style.display = 'block';
-            alertDiv.className = 'alert alert-info';
-            alertDiv.innerHTML = '<i class="bi bi-arrow-repeat spin"></i> 正在安装更新...';
-
-            try {
-                const formData = new FormData();
-                formData.append('action', 'install');
-                formData.append('url', window.downloadUrl);
-
-                const response = await fetch(window.location.href, {
-                    method: 'POST',
-                    body: formData,
-                    headers: {
-                        'X-Requested-With': 'XMLHttpRequest'
-                    }
-                });
-            
-                const result = await response.json();
-                if (result.success) {
-                    alertDiv.className = 'alert alert-success';
-                    alertDiv.innerHTML = '<i class="bi bi-check-circle"></i> ' + result.message;
-                    setTimeout(() => location.reload(), 1500);
-                } else {
-                    alertDiv.className = 'alert alert-danger';
-                    alertDiv.innerHTML = '<i class="bi bi-x-circle"></i> ' + result.message;
-                }
-            } catch (error) {
-                alertDiv.className = 'alert alert-danger';
-                alertDiv.innerHTML = '<i class="bi bi-x-circle"></i> 请求失败：' + error.message;
-            }
-        });
-    });
-    </script>
-
+        document.querySelectorAll('.update-theme-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const downloadUrl = this.dataset.url
+                const modal = new bootstrap.Modal('#updateConfirmModal')
+                document.getElementById('confirmUpdateLink').href = downloadUrl
+                modal.show()
+            })
+        })
+    })
+    </script> 
 
