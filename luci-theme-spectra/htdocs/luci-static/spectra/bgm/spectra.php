@@ -7,36 +7,59 @@ $background_src = '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['upload_file'])) {
     $files = $_FILES['upload_file'];
+    $upload_errors = [];
+    
     foreach ($files['name'] as $key => $filename) {
         if ($files['error'][$key] === UPLOAD_ERR_OK) {
-            $raw_filename = urldecode($filename); 
+            $raw_filename = urldecode($filename);
             
-            $safe_filename = preg_replace('/[\/\\\?\*:|"<>]/', '_', $raw_filename);
+            $ext = strtolower(pathinfo($raw_filename, PATHINFO_EXTENSION));
+            if (!in_array($ext, $allowed_types)) {
+                $upload_errors[] = "不支持的文件类型：{$raw_filename}";
+                continue;
+            }
             
-            $ext = strtolower(pathinfo($safe_filename, PATHINFO_EXTENSION));
-            if (in_array($ext, $allowed_types)) {
-                $target_path = $upload_dir . '/' . $safe_filename;
-                if (!file_exists($target_path)) {
-                    if (move_uploaded_file($files['tmp_name'][$key], $target_path)) {
-                    } else {
-                        $error = "文件移动失败，请检查目录权限";
-                    }
-                } else {
-                    $error = "文件 {$safe_filename} 已存在";
-                }
-            } else {
-                $error = "不支持的文件类型：{$safe_filename}";
+            $basename = pathinfo($raw_filename, PATHINFO_FILENAME);
+            
+            $safe_basename = preg_replace([
+                '/[^\p{L}\p{N}_\- ]/u',
+                '/\s+/',
+                '/_+/',
+                '/-+/'
+            ], [
+                '_',
+                '_',
+                '_',
+                '-'
+            ], $basename);
+            
+            $safe_basename = trim($safe_basename, '_.- ');
+            
+            if (empty($safe_basename)) {
+                $safe_basename = uniqid();
+            }
+            
+            $counter = 1;
+            $final_name = "{$safe_basename}.{$ext}";
+            $target_path = "{$upload_dir}/{$final_name}";
+            while (file_exists($target_path)) {
+                $final_name = "{$safe_basename}_{$counter}.{$ext}";
+                $target_path = "{$upload_dir}/{$final_name}";
+                $counter++;
+            }
+            
+            if (!move_uploaded_file($files['tmp_name'][$key], $target_path)) {
+                $upload_errors[] = "文件上传失败：{$final_name}";
             }
         }
     }
     
-    if (isset($error)) {
-        echo "<script>alert('{$error}'); window.location.reload();</script>";
-        exit;
+    if (!empty($upload_errors)) {
+        echo "<script>alert('".implode("\\n", $upload_errors)."'); location.reload();</script>";
     } else {
-        header('Location: ' . $_SERVER['REQUEST_URI']);
-        exit;
+        header("Location: ".$_SERVER['REQUEST_URI']);
     }
+    exit;
 }
 
 if (isset($_GET['delete'])) {
@@ -49,17 +72,36 @@ if (isset($_GET['delete'])) {
 }
 
 if (isset($_POST['rename'])) {
-    $old_name = $base_dir . '/' . basename($_POST['old_name']);
-    $new_name = $base_dir . '/' . basename($_POST['new_name']);
-    
-    if (!preg_match('/^[\w\-\.]+$/', $_POST['new_name'])) {
-        echo json_encode(['success' => false, 'error' => '文件名包含非法字符']);
-        exit;
+    $oldName = $_POST['old_name'];
+    $newName = trim($_POST['new_name']);
+
+    $oldPath = $base_dir . DIRECTORY_SEPARATOR . basename($oldName);
+    $newPath = $base_dir . DIRECTORY_SEPARATOR . basename($newName);
+
+    $error = '';
+    if (!file_exists($oldPath)) {
+        $error = '原始文件不存在';
+    } elseif ($newName === '') {
+        $error = '文件名不能为空';
+    } elseif (preg_match('/[\\\\\/:*?"<>|]/', $newName)) {
+        $error = '包含非法字符：\/:*?"<>|';
+    } elseif (file_exists($newPath)) {
+        $error = '目标文件已存在';
     }
 
-    if (rename($old_name, $new_name)) {
-        header('Location: ' . $_SERVER['REQUEST_URI']);
-        exit;
+    if (!$error) {
+        if (rename($oldPath, $newPath)) {
+            header("Location: " . $_SERVER['REQUEST_URI']);
+            exit();
+        } else {
+            $error = '操作失败（权限/字符问题）';
+        }
+    }
+
+    if ($error) {
+        echo '<div class="alert alert-danger mb-3">错误：' 
+             . htmlspecialchars($error, ENT_QUOTES, 'UTF-8') 
+             . '</div>';
     }
 }
 
@@ -164,6 +206,7 @@ try {
     <script src="/luci-static/spectra/js/jquery.min.js"></script>
     <script src="/luci-static/spectra/js/bootstrap.bundle.min.js"></script>
     <script src="/luci-static/spectra/js/custom.js"></script>
+    <script src="/luci-static/spectra/js/interact.min.js"></script>
     <link href="/luci-static/spectra/css//bootstrap-icons.css" rel="stylesheet">
 
     <script>
@@ -557,6 +600,39 @@ h2 {
         color: #ffffff !important;
 }
 
+@media (max-width: 768px) {
+  .card-header .d-flex {
+    gap: 0.5rem !important;
+  }
+  
+  .btn-sm .btn-label {
+    display: none;
+  }
+  
+  .btn-sm {
+    padding: 0.25rem 0.5rem;
+  }
+  
+  .me-3 .badge {
+    font-size: 0.75rem;
+    padding: 0.35em 0.65em;
+  }
+  
+  #openPlayerBtn span {
+    display: none;
+  }
+}
+
+@media (max-width: 576px) {
+  .btn-sm i {
+    font-size: 0.9rem;
+  }
+  
+  .me-3 {
+    flex-direction: column;
+    gap: 0.2rem !important;
+  }
+}
 </style>
 <body>
     <h2>Spectra 配置管理</h2>
@@ -601,10 +677,10 @@ h2 {
                 <span class="badge bg-primary"><i class="bi bi-hdd"></i> 总共：<?= $totalSpace ? formatSize($totalSpace) : 'N/A' ?></span>
                 <span class="badge bg-success"><i class="bi bi-hdd"></i> 剩余：<?= $freeSpace ? formatSize($freeSpace) : 'N/A' ?></span>
             </div>
-            <?php if ($downloadUrl): ?><button class="btn btn-success btn-sm update-theme-btn" data-url="<?= htmlspecialchars($downloadUrl) ?>" title="最新版本：<?= htmlspecialchars($latestVersion) ?>"><i class="bi bi-cloud-download"></i> 更新主题</button><?php endif; ?>
-            <button class="btn btn-success btn-sm ms-2" data-bs-toggle="modal" data-bs-target="#uploadModal"><i class="bi bi-upload"></i> 批量上传</button>
-            <button class="btn btn-primary btn-sm ms-2" id="openPlayerBtn" data-bs-toggle="modal" data-bs-target="#playerModal"><i class="bi bi-play-btn"></i> 打开播放器</button>
-            <button class="btn btn-danger btn-sm ms-2" id="clearBackgroundBtn"><i class="bi bi-trash"></i> 清除背景</button>
+            <?php if ($downloadUrl): ?><button class="btn btn-success btn-sm update-theme-btn" data-url="<?= htmlspecialchars($downloadUrl) ?>" title="最新版本：<?= htmlspecialchars($latestVersion) ?>"><i class="bi bi-cloud-download"></i> <span class="btn-label">更新主题</span></button><?php endif; ?>
+            <button class="btn btn-success btn-sm ms-2" data-bs-toggle="modal" data-bs-target="#uploadModal"><i class="bi bi-upload"></i> <span class="btn-label">批量上传</span></button>
+            <button class="btn btn-primary btn-sm ms-2" id="openPlayerBtn" data-bs-toggle="modal" data-bs-target="#playerModal"><i class="bi bi-play-btn"></i> <span class="btn-label">播放器</span></button>
+            <button class="btn btn-danger btn-sm ms-2" id="clearBackgroundBtn"><i class="bi bi-trash"></i> <span class="btn-label">清除背景</span></button>
         </div>
     </div>
     <div class="card-body">
@@ -774,12 +850,12 @@ h2 {
 
     <?php foreach ($files as $file): ?>
     <div class="modal fade" id="renameModal-<?= md5($file) ?>" tabindex="-1">
-        <div class="modal-dialog modal-xl">
+        <div class="modal-dialog modal-lg">
             <div class="modal-content">
                 <form method="post" action="">
-                    <input type="hidden" name="old_name" value="<?= htmlspecialchars($file) ?>">
+                    <input type="hidden" name="old_name" value="<?= htmlspecialchars($file, ENT_QUOTES, 'UTF-8') ?>">
                     <div class="modal-header">
-                        <h5 class="modal-title">重命名 <?= htmlspecialchars($file) ?></h5>
+                        <h5 class="modal-title">重命名 <?= htmlspecialchars($file, ENT_QUOTES, 'UTF-8') ?></h5>
                         <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                     </div>
                     <div class="modal-body">
@@ -788,10 +864,8 @@ h2 {
                             <input type="text" 
                                    class="form-control" 
                                    name="new_name"
-                                   value="<?= htmlspecialchars($file) ?>"
-                                   pattern="[\w\-\.]+"
-                                   required
-                                   title="允许字母、数字、下划线、连字符和点号">
+                                   value="<?= htmlspecialchars($file, ENT_QUOTES, 'UTF-8') ?>"
+                                   title="文件名不能包含以下字符：\/:*?&quot;<>|">
                         </div>
                     </div>
                     <div class="modal-footer">
@@ -800,7 +874,7 @@ h2 {
                     </div>
                 </form>
             </div>
-        </div>
+       </div>
     </div>
     <?php endforeach; ?>
 
@@ -828,19 +902,17 @@ h2 {
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button class="btn btn-sm btn-danger" id="clearPlaylist">
-                        <i class="bi bi-trash"></i> 清除列表
-                    </button>
-                    <button class="btn btn-sm btn-secondary" data-bs-dismiss="modal">
-                        <i class="bi bi-x-lg"></i> 关闭
-                    </button>
+                    <button class="btn btn-sm btn-danger" id="clearPlaylist"><i class="bi bi-trash"></i> 清除列表</button>
+                    <button class="btn btn-sm btn-primary" id="togglePlaylist"><i class="bi bi-list-ul"></i> 隐藏列表</button>
+                    <button class="btn btn-sm btn-success" id="toggleFullscreen"><i class="bi bi-arrows-fullscreen"></i> 全屏</button>
+                    <button class="btn btn-sm btn-secondary" data-bs-dismiss="modal"><i class="bi bi-x-lg"></i> 关闭</button>
                 </div>
             </div>
         </div>
     </div>
 
     <div class="modal fade" id="updateConfirmModal">
-        <div class="modal-dialog modal-xl modal-dialog-centered">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title">主题下载</h5>
@@ -873,9 +945,9 @@ h2 {
                 fileItem.className = 'file-list-item';
                 fileItem.innerHTML = `
                     <div class="d-flex align-items-center">
-                        <i class="fas fa-file"></i> ${file.name}
+                        <i class="bi bi-file-earmark"></i> ${file.name}
                     </div>
-                    <i class="fas fa-times remove-file"></i>
+                    <i class="bi bi-x remove-file"></i>
                 `;
 
                 fileItem.querySelector('.remove-file').addEventListener('click', () => {
@@ -1292,8 +1364,7 @@ h2 {
         });
     });
     </script>
-
-    <script>
+<script>
     document.addEventListener('DOMContentLoaded', function() {
         const player = document.getElementById('mainPlayer');
         const imagePlayer = document.getElementById('imagePlayer');
@@ -1424,6 +1495,159 @@ h2 {
         player.addEventListener('ended', playNext);
         renderPlaylist();
     });
-    </script>
+</script> 
+<style>
+.modal-content:fullscreen .row {
+    --playlist-width: 350px; 
+}
+
+.modal-content:fullscreen .col-md-8 {
+    flex: 1 1 calc(100% - var(--playlist-width)) !important;
+    max-width: calc(100% - var(--playlist-width)) !important;
+}
+
+.modal-content:fullscreen .col-md-4 {
+    flex: 0 0 var(--playlist-width) !important;
+    max-width: var(--playlist-width) !important;
+    transition: all 0.3s; 
+}
+
+.modal-content:fullscreen #playlistContainer {
+    font-size: 0.9em; 
+    padding: 0 0.5rem; 
+}
+
+.col-md-4 {
+    transition: all 0.3s ease-in-out;
+}
+
+.modal-content:fullscreen .col-md-8.col-md-12 {
+    flex: 0 0 100% !important;
+    max-width: 100% !important;
+}
+
+.modal-content:fullscreen {
+    width: 100vw !important;
+    height: 100vh !important;
+    border-radius: 0 !important;
+    margin: 0 !important;
+}
+
+@media (max-width: 768px) {
+    #togglePlaylist {
+        display: none; 
+    }
+}
+</style>
+
+<script>
+const playlistToggleBtn = document.getElementById('togglePlaylist');
+const playlistColumn = document.querySelector('.col-md-4');
+let isPlaylistVisible = true;
+
+playlistToggleBtn.addEventListener('click', () => {
+    isPlaylistVisible = !isPlaylistVisible;
+    playlistColumn.classList.toggle('d-none');
+    
+    const icon = playlistToggleBtn.querySelector('i');
+    icon.className = isPlaylistVisible ? 'bi bi-list-ul' : 'bi bi-layout-sidebar';
+    playlistToggleBtn.innerHTML = icon.outerHTML + ' ' + 
+        (isPlaylistVisible ? '隐藏列表' : '显示列表');
+    
+    const mainColumn = document.querySelector('.col-md-8');
+    mainColumn.classList.toggle('col-md-12');
+});
+</script>
 
 
+<script>
+const fullscreenBtn = document.getElementById('toggleFullscreen');
+const modalContent = document.querySelector('#playerModal .modal-content');
+
+function toggleFullscreen() {
+    if (!document.fullscreenElement) {
+        modalContent.requestFullscreen().catch(console.error);
+    } else {
+        document.exitFullscreen();
+    }
+}
+
+document.addEventListener('fullscreenchange', () => {
+    const icon = fullscreenBtn.querySelector('i');
+    icon.className = document.fullscreenElement ? 
+        'bi bi-fullscreen-exit' : 
+        'bi bi-arrows-fullscreen';
+    fullscreenBtn.innerHTML = icon.outerHTML + ' ' + 
+        (document.fullscreenElement ? '退出全屏' : '全屏');
+});
+
+fullscreenBtn.addEventListener('click', toggleFullscreen);
+
+let startX = null;
+const playlist = document.querySelector('#playlistContainer');
+
+playlist.addEventListener('mousedown', (e) => {
+    if (document.fullscreenElement) {
+        startX = e.clientX;
+        document.addEventListener('mousemove', handleDrag);
+        document.addEventListener('mouseup', stopDrag);
+    }
+});
+
+function handleDrag(e) {
+    if (!startX) return;
+    const newWidth = Math.min(Math.max(250, playlist.offsetWidth + (startX - e.clientX)), 400);
+    document.documentElement.style.setProperty('--playlist-width', `${newWidth}px`);
+    startX = e.clientX;
+}
+
+function stopDrag() {
+    startX = null;
+    document.removeEventListener('mousemove', handleDrag);
+    document.removeEventListener('mouseup', stopDrag);
+}
+</script>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  interact('.modal-dialog.draggable').draggable({
+    allowFrom: '.modal-header',
+    modifiers: [
+      interact.modifiers.restrictRect({
+        restriction: 'parent', 
+        endOnly: true
+      })
+    ],
+    listeners: {
+      start(event) {
+        event.target.style.transition = 'none';
+        event.target.classList.add('dragging');
+      },
+      move(event) {
+        const target = event.target;
+        const x = (parseFloat(target.dataset.x) || 0) + event.dx;
+        const y = (parseFloat(target.dataset.y) || 0) + event.dy;
+
+        target.style.transform = `translate(${x}px, ${y}px)`;
+        target.dataset.x = x;
+        target.dataset.y = y;
+      },
+      end(event) {
+        event.target.style.transition = '';
+        event.target.classList.remove('dragging');
+      }
+    }
+  });
+
+  document.querySelectorAll('.modal').forEach(modal => {
+    const dialog = modal.querySelector('.modal-dialog');
+    dialog.classList.add('draggable');
+
+    modal.addEventListener('show.bs.modal', () => {
+      dialog.style.transform = ''; 
+      dialog.dataset.x = 0;
+      dialog.dataset.y = 0;
+    });
+  });
+});
+
+</script>
