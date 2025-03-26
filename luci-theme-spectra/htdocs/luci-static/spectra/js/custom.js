@@ -2,6 +2,82 @@ document.addEventListener("DOMContentLoaded", function () {
     let isEnabled = localStorage.getItem('backgroundEnabled') !== 'false';
     let videoTag, bgImages, bgIndex, availableImages, switchInterval;
 
+    const ipContainer = document.querySelector('.ip-container');
+    const flag = document.getElementById('flag');
+    const ipText = document.querySelector('.ip-text');
+
+    const dIp = document.getElementById('d-ip');
+    if (dIp) {
+        dIp.style.cssText = `
+            color: #09B63F !important;
+            font-weight: bold;
+            font-size: 15px;
+            position: relative;
+            left: 1em; 
+            margin-bottom: 3px;
+            text-indent: -0.7ch; 
+        `;
+    }
+
+    const ipip = document.getElementById('ipip');
+    if (ipip) {
+        ipip.style.cssText = `
+            color: #FF00FF !important;
+            font-weight: bold;
+            font-size: 15px;
+            display: block;
+            margin-top: 3px;
+            margin-bottom: 3px;
+        `;
+    }
+
+    if (ipContainer) {
+        ipContainer.style.cssText = `
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            z-index: 1;
+            padding: 15px 20px;
+            min-width: 300px;
+            transition: all 0.3s ease;
+        `;
+        
+        const shouldHide = localStorage.getItem('hideIP') === 'true';
+        ipContainer.style.display = shouldHide ? 'none' : 'flex';
+    }
+
+    if (flag) {
+        flag.style.cssText = `
+            width: 60px;
+            height: 40px;
+            margin-right: 25px;
+            margin-left: 15px;
+            flex-shrink: 0;
+        `;
+    }
+
+    if (ipText) {
+        ipText.style.cssText = `
+            font-family: Arial, sans-serif;
+            line-height: 1.4;
+            min-width: 180px;
+            transform: translateY(1px); 
+        `;
+    }
+
+    function getFitButtonText() {
+        const savedFit = localStorage.getItem('videoObjectFit') || 'cover';
+        const texts = {
+            'contain': '正常比例',
+            'fill': '拉伸填充', 
+            'none': '原始尺寸',
+            'scale-down': '智能适应',
+            'cover': '默认裁剪'
+        };
+        return texts[savedFit] || '默认裁剪';
+    }
+
     const controlPanel = `
         <div id="settings-icon">⚙️</div>
         <div id="mode-popup">
@@ -21,23 +97,33 @@ document.addEventListener("DOMContentLoaded", function () {
                 <span>显示比例：</span>
                 <div>${getFitButtonText()}</div>
             </button>
+            <button class="ip-toggle">
+                <span>${localStorage.getItem('hideIP') === 'true' ? '显示IP信息' : '隐藏IP信息'}</span>
+                <div class="status-led" style="background:${localStorage.getItem('hideIP') !== 'true' ? '#4CAF50' : '#f44336'}"></div>
+            </button>
             <button class="info-btn">使用说明</button>
         </div>
     `;
 
     document.body.insertAdjacentHTML('beforeend', controlPanel);
 
-    function getFitButtonText() {
-        const savedFit = localStorage.getItem('videoObjectFit') || 'cover';
-        const texts = {
-            'contain': '正常比例',
-            'fill': '拉伸填充', 
-            'none': '原始尺寸',
-            'scale-down': '智能适应',
-            'cover': '默认裁剪'
-        };
-        return texts[savedFit] || '默认裁剪';
+    if (localStorage.getItem('hideIP') === null) {
+        localStorage.setItem('hideIP', 'false');
     }
+
+    document.addEventListener('click', function(e) {
+        const toggleBtn = e.target.closest('.ip-toggle');
+        if (toggleBtn && ipContainer) {
+            const currentState = localStorage.getItem('hideIP') === 'true';
+            const newState = !currentState;
+            
+            ipContainer.style.display = newState ? 'none' : 'flex';
+            localStorage.setItem('hideIP', newState);
+            
+            toggleBtn.querySelector('span').textContent = newState ? '显示IP信息' : '隐藏IP信息';
+            toggleBtn.querySelector('.status-led').style.background = newState ? '#f44336' : '#4CAF50';
+        }
+    });
 
     const styles = `
         #settings-icon {
@@ -142,6 +228,12 @@ document.addEventListener("DOMContentLoaded", function () {
             color: #FFEB3B;
             margin-left: 8px;
             font-weight: bold;
+        }
+
+        #mode-popup button.ip-toggle {
+            opacity: 1 !important;      
+            pointer-events: auto !important;  
+            background: #2196F3 !important;  
         }
 
         @media (max-width: 600px) {
