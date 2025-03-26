@@ -1153,7 +1153,7 @@ function searchFiles($dir, $term) {
 
 <div class="row">
     <div class="col-12">  
-        <div class="container container-bg border border-3 rounded-4 p-3">
+        <div class="container container-bg mt-4">
             <div class="row align-items-center mb-3">
                 <div class="col-md-3 text-center text-md-start">
                     <img src="/luci-static/spectra/img/nekobox.png" alt="Neko Box" class="img-fluid" style="max-height: 100px;">

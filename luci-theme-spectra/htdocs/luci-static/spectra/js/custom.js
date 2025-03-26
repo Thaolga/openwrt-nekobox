@@ -17,17 +17,27 @@ document.addEventListener("DOMContentLoaded", function () {
                 <span>背景音效</span>
                 <div>${localStorage.getItem('videoMuted') === 'true' ? '🔇' : '🔊'}</div>
             </button>
-            <button id="redirect-btn">文件管理</button>
+            <button class="object-fit-btn" style="opacity:1 !important;pointer-events:auto !important">
+                <span>显示比例：</span>
+                <div>${getFitButtonText()}</div>
+            </button>
             <button class="info-btn">使用说明</button>
         </div>
     `;
 
     document.body.insertAdjacentHTML('beforeend', controlPanel);
 
-document.getElementById('redirect-btn').addEventListener('click', function(e) {
-    e.preventDefault();
-    window.open('/luci-static/spectra/bgm/spectra.php', '_blank');
-});
+    function getFitButtonText() {
+        const savedFit = localStorage.getItem('videoObjectFit') || 'cover';
+        const texts = {
+            'contain': '正常比例',
+            'fill': '拉伸填充', 
+            'none': '原始尺寸',
+            'scale-down': '智能适应',
+            'cover': '默认裁剪'
+        };
+        return texts[savedFit] || '默认裁剪';
+    }
 
     const styles = `
         #settings-icon {
@@ -123,6 +133,17 @@ document.getElementById('redirect-btn').addEventListener('click', function(e) {
             background: #007BFF !important;
         }
 
+        #mode-popup button.object-fit-btn {
+            opacity: 1 !important;
+            pointer-events: auto !important;
+            background: #007BFF !important;
+        }
+        #mode-popup button.object-fit-btn div {
+            color: #FFEB3B;
+            margin-left: 8px;
+            font-weight: bold;
+        }
+
         @media (max-width: 600px) {
             #settings-icon {
                 right: 10px;
@@ -199,7 +220,7 @@ document.getElementById('redirect-btn').addEventListener('click', function(e) {
             '2. 图片模式：默认名称为「bg1-5.jpg」',
             '3. 暗黑模式：透明背景+光谱动画',
             '4. 纯白模式：需到文件管理进行切换，关闭控制开关',
-            '5. 文件管理：支持自定义背景，需关闭开关，模式切换需清除背景',
+            '5. 文件列表：支持自定义背景，需关闭开关，模式切换需清除背景',
             '6. 项目地址：<a class="github-link" href="https://github.com/Thaolga/openwrt-nekobox" target="_blank">点击访问</a>'
         ]);
     });
@@ -451,7 +472,34 @@ document.getElementById('redirect-btn').addEventListener('click', function(e) {
         }
     }
 
-    function insertVideoBackground() {
+    document.querySelector('.object-fit-btn')?.addEventListener('click', function() {
+        const videos = document.querySelectorAll('video#background-video');
+        if (videos.length === 0) return;
+
+        const currentFit = videos[0].style.objectFit || localStorage.getItem('videoObjectFit') || 'cover';
+        const fitOrder = ['cover', 'contain', 'fill', 'none', 'scale-down'];
+        const newIndex = (fitOrder.indexOf(currentFit) + 1) % fitOrder.length;
+        const newFit = fitOrder[newIndex];
+
+        videos.forEach(video => {
+            video.style.objectFit = newFit;
+            if (newFit === 'none') {
+                video.style.minWidth = 'auto';
+                video.style.minHeight = 'auto';
+                video.style.width = '100%';
+                video.style.height = '100%';
+            } else {
+                video.style.minWidth = '100%';
+                video.style.minHeight = '100%';
+            }
+        });
+    
+        localStorage.setItem('videoObjectFit', newFit);
+        this.querySelector('div').textContent = getFitButtonText();
+    });
+
+    function insertVideoBackground(src = 'bg.mp4') {
+        document.querySelectorAll('video#background-video').forEach(v => v.remove());
         videoTag = document.createElement("video");
         videoTag.className = "video-background";
         videoTag.id = "background-video";
@@ -463,6 +511,8 @@ document.getElementById('redirect-btn').addEventListener('click', function(e) {
             <source src="/luci-static/spectra/bgm/bg.mp4" type="video/mp4">
             Your browser does not support the video tag.
         `;
+        const savedFit = localStorage.getItem('videoObjectFit') || 'cover';
+        videoTag.style.objectFit = savedFit;
         document.body.prepend(videoTag);
         videoTag.muted = localStorage.getItem('videoMuted') === 'true'; 
 
@@ -489,7 +539,6 @@ document.getElementById('redirect-btn').addEventListener('click', function(e) {
                 min-width: 100%;
                 min-height: 100%;
                 transform: translate(-50%, -50%);
-                object-fit: cover;
                 z-index: -1;
             }
             .video-background + .wrapper span {
@@ -558,9 +607,12 @@ document.getElementById('redirect-btn').addEventListener('click', function(e) {
         clearExistingBackground();
         let existingVideoTag = document.getElementById("background-video");
     
+        const savedFit = localStorage.getItem('videoObjectFit') || 'cover'; 
+
         if (existingVideoTag) {
             existingVideoTag.src = `/luci-static/spectra/bgm/${src}`;
             existingVideoTag.muted = localStorage.getItem('videoMuted') === 'true'; 
+            existingVideoTag.style.objectFit = savedFit; 
         } else {
             videoTag = document.createElement("video");
             videoTag.className = "video-background";
@@ -569,6 +621,7 @@ document.getElementById('redirect-btn').addEventListener('click', function(e) {
             videoTag.loop = true;
             videoTag.muted = localStorage.getItem('videoMuted') === 'true'; 
             videoTag.playsInline = true;
+            videoTag.style.objectFit = savedFit; 
             videoTag.innerHTML = `
                 <source src="/luci-static/spectra/bgm/${src}" type="video/mp4">
                 Your browser does not support the video tag.
@@ -605,22 +658,59 @@ document.getElementById('redirect-btn').addEventListener('click', function(e) {
                 min-width: 100%;
                 min-height: 100%;
                 transform: translate(-50%, -50%);
-                object-fit: cover;
-                z-index: -1;
+                z-index: -1; 
             }
             .video-background + .wrapper span {
                 display: none !important;
             }
         `;
 
+        if (savedFit === 'none') {
+            videoTag.style.minWidth = 'auto';
+            videoTag.style.minHeight = 'auto';
+            videoTag.style.width = '100%';
+            videoTag.style.height = '100%';
+        } else {
+            videoTag.style.minWidth = '100%';
+            videoTag.style.minHeight = '100%';
+        }
+
         localStorage.setItem('phpBackgroundSrc', src);
         localStorage.setItem('phpBackgroundType', 'video');
     
         const currentMuted = localStorage.getItem('videoMuted') === 'true';
         document.querySelector('.sound-toggle div').textContent = currentMuted ? '🔇' : '🔊';
-    
-        checkAndReload();
     }
+
+    document.querySelector('.object-fit-btn')?.addEventListener('click', function() {
+        const videos = document.querySelectorAll('video#background-video');
+        if (videos.length === 0) return;
+
+        const currentFit = videos[0].style.objectFit || localStorage.getItem('videoObjectFit') || 'cover';
+        const fitOrder = ['cover', 'contain', 'fill', 'none', 'scale-down'];
+        const newIndex = (fitOrder.indexOf(currentFit) + 1) % fitOrder.length;
+        const newFit = fitOrder[newIndex];
+
+        videos.forEach(video => {
+            video.style.objectFit = newFit;
+            if (newFit === 'none') {
+                video.style.minWidth = 'auto';
+                video.style.minHeight = 'auto';
+                video.style.width = '100%';
+                video.style.height = '100%';
+            } else {
+                video.style.minWidth = '100%';
+                video.style.minHeight = '100%';
+            }
+        
+            if(video.src.includes('bg.mp4') === false) {
+                localStorage.setItem('phpBackgroundType', 'video');
+            }
+        });
+    
+        localStorage.setItem('videoObjectFit', newFit);
+        this.querySelector('div').textContent = getFitButtonText();
+    });
 
     document.querySelector('.sound-toggle').addEventListener('click', function() {
         const newMuted = !(localStorage.getItem('videoMuted') === 'true');
@@ -640,6 +730,7 @@ document.getElementById('redirect-btn').addEventListener('click', function(e) {
         if (existingVideoTag) {
             existingVideoTag.remove(); 
         }
+
         let styleTag = document.querySelector("#video-style");
         if (styleTag) {
             styleTag.remove(); 

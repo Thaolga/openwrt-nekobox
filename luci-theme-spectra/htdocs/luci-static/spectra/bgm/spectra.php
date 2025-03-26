@@ -1,7 +1,8 @@
 <?php
+ini_set('memory_limit', '256M');
 $base_dir = __DIR__;
 $upload_dir = $base_dir;
-$allowed_types = ['jpg', 'jpeg', 'png', 'gif', 'mp4', 'mov', 'mkv', 'mp3', 'wav'];
+$allowed_types = ['jpg', 'jpeg', 'png', 'gif', 'mp4', 'mov', 'mkv', 'mp3', 'wav', 'flac'];
 $background_type = '';
 $background_src = '';
 
@@ -134,6 +135,7 @@ if (isset($_GET['background'])) {
     }
 }
 ?>
+
 <?php
 $configFile = "/etc/config/spectra"; 
 
@@ -218,6 +220,8 @@ body {
 	text-align: center;
 	font-family: Arial, sans-serif;
 	padding: 20px;
+        background: rgba(0, 0, 0, 0.5); 
+        -webkit-backdrop-filter: blur(10px);
 }
 
 html, body {
@@ -333,7 +337,7 @@ button {
 }
 
 #status {
-	font-size: 18px;
+	font-size: 22px;
 	color: #FFD700 !important;
 }
 
@@ -457,7 +461,7 @@ h2 {
 }
 
 #playlistContainer .list-group-item:hover {
-	background-color: #b3daff !important;
+	background-color: #666 !important;
 	transform: scale(1.02);
 	box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
 }
@@ -483,21 +487,6 @@ h2 {
 	opacity: 1;
 }
 
-#playlistContainer .list-group-item:nth-child(odd) {
-	background-color: #f8f9fa;
-}
-
-#playlistContainer .list-group-item:nth-child(even) {
-	background-color: #e9ecef;
-}
-
-#playlistContainer .list-group-item.active {
-	background-color: #0d6efd !important;
-	border-color: #0d6efd;
-	color: white;
-	box-shadow: 0px 5px 10px rgba(0, 0, 0, 0.2);
-}
-
 #playlistContainer {
 	overflow-x: hidden;
 	/
@@ -510,6 +499,94 @@ h2 {
 	white-space: normal;
 	word-wrap: break-word;
 	word-break: break-word;
+	font-size: 1.1em;
+	line-height: 1.4;
+}
+
+#playlistContainer .list-group-item {
+	padding: 1rem 1.5rem;
+	margin-bottom: 3px;
+	border-radius: 6px;
+	transition: all 0.3s ease;
+}
+
+#playlistContainer .list-group-item:nth-child(odd) {
+	background-color: #444;
+	border-left: 3px solid #666;
+	color: white;
+}
+
+#playlistContainer .list-group-item:nth-child(even) {
+	background-color: #393939;
+	border-left: 3px solid #555;
+	color: white;
+}
+
+#playlistContainer .list-group-item.active {
+	background: linear-gradient(145deg, #0a58ca, #0d6efd) !important;
+	border-color: #004cff;
+	transform: scale(1.02);
+	box-shadow: 0 5px 15px rgba(0, 110, 253, 0.4);
+	z-index: 1;
+	color: white;
+}
+
+#playlistContainer .list-group-item:hover {
+	background-color: #4a4a4a;
+	transform: translateX(5px);
+	cursor: pointer;
+}
+
+.text-muted {
+	color: #FF99FF !important;
+	font-size: 0.9em;
+	letter-spacing: 0.5px;
+}
+
+::-webkit-scrollbar {
+	width: 8px;
+        opacity: 0 !important;
+        transition: opacity 0.3s ease-in-out;
+}
+
+::-webkit-scrollbar-thumb {
+	background: linear-gradient(to bottom, #007bff, #00a8ff);
+	border-radius: 4px;
+}
+
+::-webkit-scrollbar-track {
+	background-color: rgba(255, 255, 255, 0.1);
+	margin: 120px 0;
+}
+
+body:hover, 
+.container:hover, 
+#playlistContainer:hover {
+	overflow-x: hidden !important;
+        overflow-y: auto !important;
+}
+
+#playlistContainer {
+        cursor: default; 
+}
+
+#playlistContainer:hover {
+        cursor: grab;    
+}
+
+#playlistContainer:active {
+        cursor: grabbing;
+}
+
+::-webkit-scrollbar:horizontal {
+	display: none !important;
+	height: 0 !important;
+}
+
+@supports (scrollbar-width: none) {
+	html {
+		scrollbar-width: none !important;
+	}
 }
 
 .drop-zone {
@@ -600,58 +677,70 @@ h2 {
         color: #ffffff !important;
 }
 
+
 @media (max-width: 768px) {
-  .card-header .d-flex {
-    gap: 0.5rem !important;
-  }
-  
-  .btn-sm .btn-label {
-    display: none;
-  }
-  
-  .btn-sm {
-    padding: 0.25rem 0.5rem;
-  }
-  
-  .me-3 .badge {
-    font-size: 0.75rem;
-    padding: 0.35em 0.65em;
-  }
-  
-  #openPlayerBtn span {
-    display: none;
-  }
+	.card-header .d-flex {
+		gap: 0.5rem !important;
+	}
+
+	.btn-sm .btn-label {
+		display: none;
+	}
+
+	.btn-sm {
+		padding: 0.25rem 0.5rem;
+	}
+
+	.me-3 .badge {
+		font-size: 0.75rem;
+		padding: 0.35em 0.65em;
+	}
+
+	#openPlayerBtn span {
+		display: none;
+	}
 }
 
 @media (max-width: 576px) {
-  .btn-sm i {
-    font-size: 0.9rem;
-  }
-  
-  .me-3 {
-    flex-direction: column;
-    gap: 0.2rem !important;
-  }
-}
-</style>
-<body>
-    <h2>Spectra 配置管理</h2>
-    <p id="status">当前模式: <?= ($mode == "dark") ? "暗色模式" : "亮色模式" ?></p>
-    <button id="toggleButton" onclick="toggleConfig()">切换模式</button>
-</body>
-    <div class="container-sm container-bg text-center mt-4">
-        <div class="alert alert-secondary d-none" id="toolbar">
-            <div class="d-flex justify-content-between">
-                <div>
-                    <button class="btn btn-outline-primary" id="selectAllBtn">全选</button>
-                    <span id="selectedInfo"></span>
-                </div>
-                <button class="btn btn-danger" id="batchDeleteBtn">批量删除选中文件</button>
-            </div>
-        </div>
+	.btn-sm i {
+		font-size: 0.9rem;
+	}
 
+	.me-3 {
+		flex-direction: column;
+		gap: 0.2rem !important;
+	}
+}
+
+@media (max-width: 576px) {
+	.d-flex {
+		flex-wrap: nowrap !important;
+		justify-content: space-between;
+	}
+
+	.d-flex .btn {
+		flex: 1 1 auto;
+	}
+}
+
+</style>
+
+<div class="container-sm container-bg text-center mt-4">
+    <div class="alert alert-secondary d-none" id="toolbar">
+        <div class="d-flex justify-content-between">
+            <div>
+                <button class="btn btn-outline-primary" id="selectAllBtn">全选</button>
+                <span id="selectedInfo"></span>
+            </div>
+            <button class="btn btn-danger" id="batchDeleteBtn">批量删除选中文件</button>
+        </div>
+    </div>
 <div class="card">
     <div class="card-header d-flex justify-content-between align-items-center">
+        <h2 style="position: relative; top: -8px;">Spectra 配置管理</h2>
+        <p id="status" class="mb-0">当前模式: <?= ($mode == "dark") ? "暗色模式" : "亮色模式" ?></p>
+        <button id="toggleButton" onclick="toggleConfig()" class="btn btn-primary">切换模式</button>
+    </div>
         <h2 class="mb-0">文件列表</h2>
         <div class="d-flex align-items-center">
             <?php
@@ -671,16 +760,16 @@ h2 {
             }
             ?>
             
-            <div class="me-3 d-flex gap-2" 
+            <div class="me-3 d-flex gap-2 mt-4" 
                  data-bs-toggle="tooltip" 
                  title="挂载点：<?= $mountPoint ?>｜已用空间：<?= formatSize($usedSpace) ?>">
-                <span class="badge bg-primary"><i class="bi bi-hdd"></i> 总共：<?= $totalSpace ? formatSize($totalSpace) : 'N/A' ?></span>
-                <span class="badge bg-success"><i class="bi bi-hdd"></i> 剩余：<?= $freeSpace ? formatSize($freeSpace) : 'N/A' ?></span>
+                <span class="btn btn-primary btn-sm"><i class="bi bi-hdd"></i> 总共：<?= $totalSpace ? formatSize($totalSpace) : 'N/A' ?></span>
+                <span class="btn btn-success btn-sm"><i class="bi bi-hdd"></i> 剩余：<?= $freeSpace ? formatSize($freeSpace) : 'N/A' ?></span>
             </div>
-            <?php if ($downloadUrl): ?><button class="btn btn-success btn-sm update-theme-btn" data-url="<?= htmlspecialchars($downloadUrl) ?>" title="最新版本：<?= htmlspecialchars($latestVersion) ?>"><i class="bi bi-cloud-download"></i> <span class="btn-label">更新主题</span></button><?php endif; ?>
-            <button class="btn btn-success btn-sm ms-2" data-bs-toggle="modal" data-bs-target="#uploadModal"><i class="bi bi-upload"></i> <span class="btn-label">批量上传</span></button>
-            <button class="btn btn-primary btn-sm ms-2" id="openPlayerBtn" data-bs-toggle="modal" data-bs-target="#playerModal"><i class="bi bi-play-btn"></i> <span class="btn-label">播放器</span></button>
-            <button class="btn btn-danger btn-sm ms-2" id="clearBackgroundBtn"><i class="bi bi-trash"></i> <span class="btn-label">清除背景</span></button>
+            <?php if ($downloadUrl): ?><button class="btn btn-info btn-sm mt-4 update-theme-btn" data-url="<?= htmlspecialchars($downloadUrl) ?>" title="最新版本：<?= htmlspecialchars($latestVersion) ?>"><i class="bi bi-cloud-download"></i> <span class="btn-label">更新主题</span></button><?php endif; ?>
+            <button class="btn btn-warning btn-sm ms-2 mt-4" data-bs-toggle="modal" data-bs-target="#uploadModal"><i class="bi bi-upload"></i> <span class="btn-label">批量上传</span></button>
+            <button class="btn btn-primary btn-sm ms-2 mt-4" id="openPlayerBtn" data-bs-toggle="modal" data-bs-target="#playerModal"><i class="bi bi-play-btn"></i> <span class="btn-label">播放器</span></button>
+            <button class="btn btn-danger btn-sm ms-2 mt-4" id="clearBackgroundBtn"><i class="bi bi-trash"></i> <span class="btn-label">清除背景</span></button>
         </div>
     </div>
     <div class="card-body">
@@ -688,9 +777,9 @@ h2 {
             <div class="alert alert-danger"><?= $error ?></div>
         <?php endif; ?>
         
-        <div class="d-flex align-items-center mb-3">
+        <div class="d-flex align-items-center mt-4 mb-3">
             <input type="checkbox" id="selectAll" class="me-2">
-            <label for="selectAll">全选</label>
+            <label for="selectAll" style="color: white">全选</label>
         </div>
 
         <div class="row row-cols-2 row-cols-md-4 row-cols-lg-5 g-4">
@@ -700,7 +789,7 @@ h2 {
                 $ext = strtolower(pathinfo($file, PATHINFO_EXTENSION));
                 $isImage = in_array($ext, ['jpg','jpeg','png','gif']);
                 $isVideo = in_array($ext, ['mp4', 'webm', 'ogg', 'mkv']);
-                $isAudio = in_array($ext, ['mp3', 'wav']);
+                $isAudio = in_array($ext, ['mp3', 'wav', 'flac']);
                 $isMedia = $isImage || $isVideo || $isAudio;
             ?>
             <div class="col">
@@ -793,7 +882,7 @@ h2 {
 </div>
 
     <div class="modal fade" id="previewModal" tabindex="-1">
-        <div class="modal-dialog modal-xl modal-dialog-centered">
+        <div class="modal-dialog modal-xl">
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title">预览</h5>
@@ -912,7 +1001,7 @@ h2 {
     </div>
 
     <div class="modal fade" id="updateConfirmModal">
-        <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-dialog modal-lg">
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title">主题下载</h5>
@@ -1250,11 +1339,11 @@ h2 {
             let status = document.getElementById("status");
 
             if (value == "dark") {
-                btn.innerText = "切换到亮色模式";
+                btn.innerHTML = '<i class="bi bi-sun"></i> 切换到亮色模式'; 
                 btn.className = "light";
                 status.innerText = "当前模式: 暗色模式";
             } else {
-                btn.innerText = "切换到暗色模式";
+                btn.innerHTML = '<i class="bi bi-moon"></i> 切换到暗色模式';
                 btn.className = "dark";
                 status.innerText = "当前模式: 亮色模式";
             }
@@ -1536,6 +1625,13 @@ h2 {
 @media (max-width: 768px) {
     #togglePlaylist {
         display: none; 
+    }
+}
+
+@media (max-width: 767px) {
+    #playerModal .col-md-4 h6 {
+        text-align: left; 
+        margin-bottom: 10px; 
     }
 }
 </style>
