@@ -163,47 +163,6 @@
             margin: 30px 0 40px;
             padding: 0 15px; 
         }
-
-        .ip-container {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 15px 20px;
-            position: relative;
-            z-index: 1;
-            transform: translateY(1px); 
-        }
-
-        #flag {
-            width: 60px;
-            height: 40px;
-            margin-right: 25px; 
-            margin-left: 15px; 
-        }
-
-        .ip-text {
-            font-family: Arial, sans-serif;
-            line-height: 1.4;
-        }
-
-        #d-ip {
-            color: #09B63F !important;
-            font-weight: bold;
-            font-size: 15px;
-            position: relative;
-            left: 0.5em; 
-            margin-bottom: 3px; 
-        }
-
-        #ipip {
-            color: #FF00FF !important;
-            font-weight: bold;
-            font-size: 14px;
-            display: block;
-            margin-top: 3px; 
-            margin-bottom: 3px; 
-        }
-       
 </style>
    
 	<meta charset="utf-8">
@@ -327,7 +286,7 @@
                 <a href='/cgi-bin/luci/admin/network/network'><img src="<%=media%>/navbar/interface.gif" width="35" height="35"></a>
             </div>
         </div>
-    <div class="ip-container">
+    <div class="ip-container" style="display: none;">
         <img id="flag" src="path/to/flag.png" alt="IP Flag" title="<%:Click to refresh IP address%>">
         <div class="ip-text">
             <span id="d-ip">Checking...</span>
