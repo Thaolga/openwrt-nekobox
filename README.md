@@ -68,6 +68,14 @@ wget -O /root/nekobox.sh https://raw.githubusercontent.com/Thaolga/openwrt-nekob
 curl -o /root/nekobox.sh https://raw.githubusercontent.com/Thaolga/openwrt-nekobox/nekobox/nekobox.sh && chmod 0755 /root/nekobox.sh && /root/nekobox.sh
 
 ```
+# luci-theme-spectra
+---
+
+```bash
+opkg update && opkg install wget grep sed && LATEST_FILE=$(wget -qO- https://github.com/Thaolga/openwrt-nekobox/releases/expanded_assets/1.8.8 | grep -o 'luci-theme-spectra_[0-9A-Za-z.\-_]*_all.ipk' | head -n1) && wget -O /tmp/"$LATEST_FILE" "https://github.com/Thaolga/openwrt-nekobox/releases/download/1.8.8/$LATEST_FILE" && opkg install --force-reinstall /tmp/"$LATEST_FILE" && rm -f /tmp/"$LATEST_FILE"
+
+```
+
 # OpenWrt Compilation
 ---
 ## Cloning the Source Code:
