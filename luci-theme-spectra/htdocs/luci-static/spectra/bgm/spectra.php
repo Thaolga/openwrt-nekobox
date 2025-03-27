@@ -216,78 +216,55 @@ try {
         const phpBackgroundSrc = '<?= $background_src ?>';
     </script>
 <style>
+:root {
+	--bg-body: rgba(0, 0, 0, 0.5);
+	--bg-container: #2a2a2a;
+	--text-primary: #ffffff;
+	--accent-color: #ffcc00;
+	--card-bg: #333333;
+	--header-bg: #444444;
+	--border-color: #555555;
+	--btn-primary-bg: #007bff;
+}
+
+[data-theme="light"] {
+	--bg-body: rgba(255, 255, 255, 0.9);
+	--bg-container: #ffffff;
+	--text-primary: #2a2a2a;
+	--accent-color: #cc9900;
+	--card-bg: #f8f9fa;
+	--header-bg: #e9ecef;
+	--border-color: #dee2e6;
+	--btn-primary-bg: #0056b3;
+}
+
 body {
-	text-align: center;
-	font-family: Arial, sans-serif;
-	padding: 20px;
-        background: rgba(0, 0, 0, 0.5); 
-        -webkit-backdrop-filter: blur(10px);
-}
-
-html, body {
-    height: 100%;
-    margin: 0;
-    overflow-y: auto !important;
-}
-
-button {
-	padding: 10px 20px;
-	font-size: 16px;
-	border: none;
-	cursor: pointer;
-	transition: 0.3s;
-}
-
-.light {
-	background: white;
-	color: black;
-	border: 1px solid black;
-}
-
-.dark {
-	background: black;
-	color: white;
-	border: 1px solid white;
+	background: var(--bg-body);
+	color: var(--text-primary);
+	-webkit-backdrop-filter: blur(10px);
+	transition: all 0.3s ease;
 }
 
 .container-bg {
-	background: #2a2a2a;
-	padding: 20px;
-	border-radius: 10px;
-	box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.3);
+	background: var(--bg-container);
+	box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
 }
 
 .card {
-	background: #333;
-	border: none;
-	color: #fff;
+	background: var(--card-bg);
+	border: 1px solid var(--border-color);
 }
 
 .card-header {
-	background: #444;
-	color: #ffcc00;
-	font-size: 1.5rem;
-	font-weight: bold;
+	background: var(--header-bg) !important;
+	border-bottom: 1px solid var(--border-color);
 }
 
 .table {
-	color: #fff;
-}
-
-.table th {
-	background: #444;
-	color: #ffcc00;
-	border-color: #555;
-}
-
-.table td {
-	background: #3a3a3a;
-	border-color: #555;
-	color: #fff;
-}
-
-.table-striped tbody tr:nth-of-type(odd) {
-	background: #2e2e2e;
+	--bs-table-bg: var(--card-bg);
+	--bs-table-color: var(--text-primary);
+	--bs-table-border-color: var(--border-color);
+	--bs-table-striped-bg: rgba(0, 0, 0, 0.05);
 }
 
 .btn {
@@ -300,50 +277,65 @@ button {
 	transform: scale(1.1);
 }
 
-.btn-info {
-	color: #fff !important;
-}
-
-.modal-content {
-	background: #2a2a2a;
-	color: #fff;
-	border-radius: 10px;
-}
-
-.modal-header {
-	background: #3a3a3a;
-	border-bottom: 1px solid #444;
-}
-
-.modal-title {
-	color: #ffcc00;
-}
-
-.modal-footer {
-	border-top: 1px solid #444;
-}
-
-.btn-close {
-	filter: invert(1);
-}
-
-.img-thumbnail {
-	background: #555;
-	border: 1px solid #777;
-}
-
-.table th, .table td {
-	vertical-align: middle;
+.btn-primary {
+	background: var(--btn-primary-bg);
+	border: 1px solid var(--border-color);
 }
 
 #status {
 	font-size: 22px;
-	color: #FFD700 !important;
+	color: var(--accent-color) !important;
 }
 
 h2 {
-	color: oklch(77% .152 181.912) !important;
+	color: var(--accent-color) !important;
 	margin-top: 20px;
+}
+
+.img-thumbnail {
+	background: var(--bg-container);
+	border: 1px solid var(--border-color);
+}
+
+#toggleButton {
+	transition: all 0.3s ease;
+}
+
+#toggleButton.light {
+	background: var(--btn-primary-bg);
+	color: white;
+}
+
+#toggleButton.dark {
+	background: var(--accent-color);
+	color: var(--text-primary);
+}
+
+.modal-content {
+	background: var(--bg-container);
+	border: 1px solid var(--border-color);
+}
+
+.modal-header {
+	background: var(--header-bg);
+	border-bottom: 1px solid var(--border-color);
+}
+
+.modal-title {
+	color: var(--accent-color) !important;
+}
+
+.modal-body {
+	color: var(--text-primary);
+}
+
+label {
+	color: var(--text-primary) !important;
+}
+
+label[for="selectAll"] {
+	margin-left: 8px;
+	vertical-align: middle;
 }
 
 .preview-container {
@@ -725,6 +717,51 @@ body:hover,
 
 </style>
 
+<style>
+.preview-nav-btn {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 3rem;
+    color: rgba(255,255,255,0.8);
+    cursor: pointer;
+    z-index: 1000;
+    opacity: 0;
+    transition: opacity 0.3s;
+}
+
+.modal-content:hover .preview-nav-btn {
+    opacity: 1;
+}
+
+#prevBtn {
+    left: 20px;
+}
+
+#nextBtn {
+    right: 20px;
+}
+
+.loading-spinner {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 40px;
+    height: 40px;
+    border: 3px solid #f3f3f3;
+    border-top: 3px solid #3498db;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    display: none;
+}
+
+@keyframes spin {
+    0% { transform: translate(-50%, -50%) rotate(0deg); }
+    100% { transform: translate(-50%, -50%) rotate(360deg); }
+}
+</style>
+
 <div class="container-sm container-bg text-center mt-4">
     <div class="alert alert-secondary d-none" id="toolbar">
         <div class="d-flex justify-content-between">
@@ -779,7 +816,7 @@ body:hover,
         
         <div class="d-flex align-items-center mt-4 mb-3">
             <input type="checkbox" id="selectAll" class="me-2">
-            <label for="selectAll" style="color: white">全选</label>
+            <label for="selectAll" class="form-check-label">全选</label>
         </div>
 
         <div class="row row-cols-2 row-cols-md-4 row-cols-lg-5 g-4">
@@ -815,11 +852,13 @@ body:hover,
                                      class="card-img-top preview-img img-fluid"
                                      data-bs-toggle="modal" 
                                      data-bs-target="#previewModal"
+                                     data-type="image"
                                      data-src="<?= htmlspecialchars($file) ?>">
                             <?php elseif ($isVideo): ?>
                                 <video class="card-img-top preview-video"
                                        data-bs-toggle="modal"
                                        data-bs-target="#previewModal"
+                                       data-type="video"
                                        data-src="<?= htmlspecialchars($file) ?>">
                                     <source src="<?= htmlspecialchars($file) ?>" type="video/mp4">
                                     <source src="<?= htmlspecialchars($file) ?>" type="video/webm">
@@ -888,7 +927,10 @@ body:hover,
                     <h5 class="modal-title">预览</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
-                <div class="modal-body text-center">
+                <div class="modal-body text-center position-relative">
+                    <div class="loading-spinner"></div>
+                    <div id="prevBtn" class="preview-nav-btn"><i class="bi bi-chevron-left"></i></div>
+                    <div id="nextBtn" class="preview-nav-btn"><i class="bi bi-chevron-right"></i></div>
                     <img id="previewImage" src="" class="img-fluid d-none">
                     <audio id="previewAudio" controls class="d-none w-100"></audio>
                     <video id="previewVideo" controls class="d-none" style="width: 100%; height: auto;">
@@ -1335,22 +1377,34 @@ body:hover,
         }
 
         function updateButton(value) {
-            let btn = document.getElementById("toggleButton");
-            let status = document.getElementById("status");
+            const body = document.documentElement;
+            const btn = document.getElementById("toggleButton");
+            const status = document.getElementById("status");
 
-            if (value == "dark") {
-                btn.innerHTML = '<i class="bi bi-sun"></i> 切换到亮色模式'; 
-                btn.className = "light";
+            body.setAttribute("data-theme", value);
+  
+            if (value === "dark") {
+                btn.innerHTML = '<i class="bi bi-sun"></i> 切换到亮色模式';
+                btn.className = "btn btn-primary light";
                 status.innerText = "当前模式: 暗色模式";
             } else {
                 btn.innerHTML = '<i class="bi bi-moon"></i> 切换到暗色模式';
-                btn.className = "dark";
+                btn.className = "btn btn-primary dark";
                 status.innerText = "当前模式: 亮色模式";
             }
-        }
+  
+                localStorage.setItem("theme", value);
+            }
 
-        document.addEventListener("DOMContentLoaded", function() {
-            updateButton("<?= $mode ?>"); 
+        document.addEventListener("DOMContentLoaded", () => {
+            const serverTheme = "<?= $mode ?>"; 
+            const savedTheme = localStorage.getItem("theme") || serverTheme;
+  
+            document.documentElement.setAttribute('data-theme', savedTheme);
+            document.querySelectorAll('[data-bs-toggle="tooltip"]').forEach(el => new bootstrap.Tooltip(el));
+            document.querySelectorAll('.modal').forEach(el => new bootstrap.Modal(el));
+  
+            updateButton(savedTheme);
         });
     </script>
 
@@ -1746,4 +1800,91 @@ document.addEventListener('DOMContentLoaded', function () {
   });
 });
 
+</script>
+
+<script>
+let mediaFiles = [];
+let currentPreviewIndex = -1;
+
+function initMediaFiles() {
+    mediaFiles = [];
+    document.querySelectorAll('[data-bs-target="#previewModal"]').forEach((el, index) => {
+        if (el.dataset.src) {
+            mediaFiles.push({
+                src: el.dataset.src,
+                type: el.dataset.type || 'image',
+                element: el
+            });
+            el.dataset.fileIndex = index;
+        }
+    });
+}
+
+function cleanMediaElements() {
+    const elements = {
+        image: document.getElementById('previewImage'),
+        video: document.getElementById('previewVideo'),
+        audio: document.getElementById('previewAudio')
+    };
+    
+    elements.image.classList.add('d-none');
+    elements.image.src = '';
+    
+    elements.audio.classList.add('d-none');
+    elements.audio.src = '';
+    if(elements.audio.pause) elements.audio.pause();
+    
+    elements.video.classList.add('d-none');
+    const source = elements.video.querySelector('source');
+    if(source) source.src = '';
+    if(elements.video.pause) elements.video.pause();
+}
+
+document.getElementById('previewModal').addEventListener('show.bs.modal', function(e) {
+    initMediaFiles();
+    const trigger = e.relatedTarget;
+    currentPreviewIndex = parseInt(trigger.dataset.fileIndex);
+    loadAndPlayMedia();
+});
+
+function loadAndPlayMedia() {
+    cleanMediaElements(); 
+    
+    const currentFile = mediaFiles[currentPreviewIndex];
+    if (!currentFile) return;
+
+    switch(currentFile.type) {
+        case 'image':
+            const img = document.getElementById('previewImage');
+            img.src = currentFile.src;
+            img.classList.remove('d-none');
+            break;
+            
+        case 'video':
+            const video = document.getElementById('previewVideo');
+            const source = video.querySelector('source');
+            source.src = currentFile.src;
+            video.load();
+            video.classList.remove('d-none');
+            video.play().catch(e => console.log('Video play failed:', e));
+            break;
+            
+        case 'audio':
+            const audio = document.getElementById('previewAudio');
+            audio.src = currentFile.src;
+            audio.classList.remove('d-none');
+            audio.play().catch(e => console.log('Audio play failed:', e));
+            break;
+    }
+}
+
+document.getElementById('prevBtn').addEventListener('click', () => {
+    currentPreviewIndex = (currentPreviewIndex - 1 + mediaFiles.length) % mediaFiles.length;
+    loadAndPlayMedia();
+});
+
+document.getElementById('nextBtn').addEventListener('click', () => {
+    currentPreviewIndex = (currentPreviewIndex + 1) % mediaFiles.length;
+    loadAndPlayMedia();
+});
 </script>
