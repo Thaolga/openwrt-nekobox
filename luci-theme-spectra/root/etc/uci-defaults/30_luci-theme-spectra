@@ -1,11 +1,11 @@
 #!/bin/sh
-if [ "$PKG_UPGRADE" != 1 ]; then
+if [ "${PKG_UPGRADE:-0}" != 1 ]; then
     uci get luci.themes.Spectra >/dev/null 2>&1 || \
-    uci batch <<-EOF
-        set luci.themes.Spectra=/luci-static/spectra
-        set luci.main.mediaurlbase=/luci-static/spectra
-        commit luci
-    EOF
+    uci batch <<EOF
+set luci.themes.Spectra=/luci-static/spectra
+set luci.main.mediaurlbase=/luci-static/spectra
+commit luci
+EOF
 
     rm -rf /tmp/luci-*
     /etc/init.d/uhttpd restart
