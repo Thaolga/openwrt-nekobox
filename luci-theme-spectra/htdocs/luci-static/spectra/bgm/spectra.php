@@ -246,6 +246,8 @@ body {
 }
 
 .container-bg {
+	padding: 20px;
+	border-radius: 10px;
 	background: var(--bg-container);
 	box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
 }
