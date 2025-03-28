@@ -826,7 +826,7 @@ body:hover,
             }
             ?>
             
-            <div class="me-3 d-flex gap-2 mt-4" 
+            <div class="me-3 d-flex gap-2 mt-4 ps-2" 
                  data-bs-toggle="tooltip" 
                  title="挂载点：<?= $mountPoint ?>｜已用空间：<?= formatSize($usedSpace) ?>">
                 <span class="btn btn-primary btn-sm"><i class="bi bi-hdd"></i> 总共：<?= $totalSpace ? formatSize($totalSpace) : 'N/A' ?></span>
@@ -844,9 +844,9 @@ body:hover,
             <div class="alert alert-danger"><?= $error ?></div>
         <?php endif; ?>
         
-        <div class="d-flex align-items-center mb-2">
-            <input type="checkbox" id="selectAll" class="me-2">
-            <label for="selectAll" class="form-check-label">全选</label>
+        <div class="d-flex align-items-center mb-3 ps-2">
+            <input type="checkbox" id="selectAll" class="form-check-input me-2 shadow-sm" style="width: 1.05em; height: 1.05em; border-radius: 0.35em; margin-left: 1px; transform: scale(1.2)">
+            <label for="selectAll" class="form-check-label fs-5 ms-1">全选</label>
         </div>
 
         <div class="row row-cols-2 row-cols-md-4 row-cols-lg-5 g-4">
@@ -866,7 +866,7 @@ body:hover,
                                class="fileCheckbox form-check-input shadow" 
                                value="<?= htmlspecialchars($file) ?>"
                                data-size="<?= $size ?>"
-                               style="transform: scale(1.2);">
+                               style="width: 1.05em; height: 1.05em; border-radius: 0.35em; transform: scale(1.2);">
                     </div>
                     <div class="position-relative">
                         <?php if ($isMedia): ?>
