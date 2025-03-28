@@ -106,6 +106,25 @@ if (isset($_POST['rename'])) {
     }
 }
 
+if (isset($_GET['download'])) {
+    $file = $_GET['download'];
+    $filePath = $upload_dir . '/' . $file;
+
+    if (file_exists($filePath)) {
+        header('Content-Description: File Transfer');
+        header('Content-Type: application/octet-stream');
+        header('Content-Disposition: attachment; filename="' . basename($filePath) . '"');
+        header('Expires: 0');
+        header('Cache-Control: must-revalidate');
+        header('Pragma: public');
+        header('Content-Length: ' . filesize($filePath));
+        readfile($filePath);
+        exit;
+    } else {
+        $error = "文件未找到：" . htmlspecialchars($file);
+    }
+}
+
 if (isset($_POST['batch_delete'])) {
     $deleted_files = [];
     foreach ($_POST['filenames'] as $filename) {
@@ -671,50 +690,65 @@ body:hover,
         color: #ffffff !important;
 }
 
+.btn-close {
+	width: 15px !important;
+	height: 15px !important;
+	background-color: rgba(0, 0, 0, 0.08) !important;
+	border-radius: 6px !important;
+	border: none !important;
+	position: relative !important;
+	display: flex !important;
+	align-items: center !important;
+	justify-content: center !important;
+	cursor: pointer !important;
+	transition: background-color 0.2s ease, transform 0.2s ease !important;
+}
 
-@media (max-width: 768px) {
-	.card-header .d-flex {
-		gap: 0.5rem !important;
-	}
+.btn-close::before, 
+.btn-close::after {
+	content: '' !important;
+	position: absolute !important;
+	width: 12px !important;
+	height: 2px !important;
+	background-color: #ff4d4f !important;
+	border-radius: 2px !important;
+	transition: background-color 0.2s ease !important;
+}
 
-	.btn-sm .btn-label {
-		display: none;
-	}
+.btn-close::before {
+	transform: rotate(45deg) !important;
+}
 
-	.btn-sm {
-		padding: 0.25rem 0.5rem;
-	}
+.btn-close::after {
+	transform: rotate(-45deg) !important;
+}
 
-	.me-3 .badge {
-		font-size: 0.75rem;
-		padding: 0.35em 0.65em;
-	}
+.btn-close:hover {
+	background-color: #30e8dc !important;
+}
 
-	#openPlayerBtn span {
-		display: none;
-	}
+.btn-close:hover::before, 
+.btn-close:hover::after {
+	background-color: #d9363e !important;
+}
+
+.btn-close:active {
+	transform: scale(0.9) !important;
 }
 
 @media (max-width: 576px) {
-	.btn-sm i {
-		font-size: 0.9rem;
-	}
+    .fileCheckbox {
+        margin-left: -10px !important; 
+        margin-right: 10px !important;
+    }
 
-	.me-3 {
-		flex-direction: column;
-		gap: 0.2rem !important;
-	}
-}
+    .d-flex.flex-nowrap.gap-1 {
+        gap: 0px !important; 
+    }
 
-@media (max-width: 576px) {
-	.d-flex {
-		flex-wrap: nowrap !important;
-		justify-content: space-between;
-	}
-
-	.d-flex .btn {
-		flex: 1 1 auto;
-	}
+    .btn-download {
+        display: none !important; 
+    }
 }
 
 </style>
@@ -780,7 +814,6 @@ body:hover,
         <p id="status" class="mb-0">当前模式: <?= ($mode == "dark") ? "暗色模式" : "亮色模式" ?></p>
         <button id="toggleButton" onclick="toggleConfig()" class="btn btn-primary">切换模式</button>
     </div>
-        <h2 class="mb-0">文件列表</h2>
         <div class="d-flex align-items-center">
             <?php
             $mountPoint = '/overlay';
@@ -805,18 +838,19 @@ body:hover,
                 <span class="btn btn-primary btn-sm"><i class="bi bi-hdd"></i> 总共：<?= $totalSpace ? formatSize($totalSpace) : 'N/A' ?></span>
                 <span class="btn btn-success btn-sm"><i class="bi bi-hdd"></i> 剩余：<?= $freeSpace ? formatSize($freeSpace) : 'N/A' ?></span>
             </div>
-            <?php if ($downloadUrl): ?><button class="btn btn-info btn-sm mt-4 update-theme-btn" data-url="<?= htmlspecialchars($downloadUrl) ?>" title="最新版本：<?= htmlspecialchars($latestVersion) ?>"><i class="bi bi-cloud-download"></i> <span class="btn-label">更新主题</span></button><?php endif; ?>
-            <button class="btn btn-warning btn-sm ms-2 mt-4" data-bs-toggle="modal" data-bs-target="#uploadModal"><i class="bi bi-upload"></i> <span class="btn-label">批量上传</span></button>
-            <button class="btn btn-primary btn-sm ms-2 mt-4" id="openPlayerBtn" data-bs-toggle="modal" data-bs-target="#playerModal"><i class="bi bi-play-btn"></i> <span class="btn-label">播放器</span></button>
-            <button class="btn btn-danger btn-sm ms-2 mt-4" id="clearBackgroundBtn"><i class="bi bi-trash"></i> <span class="btn-label">清除背景</span></button>
+            <?php if ($downloadUrl): ?><button class="btn btn-info btn-sm mt-4 update-theme-btn" data-url="<?= htmlspecialchars($downloadUrl) ?>" title="更新主题"><i class="bi bi-cloud-download"></i> <span class="btn-label"></span></button><?php endif; ?>
+            <button class="btn btn-warning btn-sm ms-2 mt-4" data-bs-toggle="modal" data-bs-target="#uploadModal" title="批量上传"><i class="bi bi-upload"></i> <span class="btn-label"></span></button>
+            <button class="btn btn-primary btn-sm ms-2 mt-4" id="openPlayerBtn" data-bs-toggle="modal" data-bs-target="#playerModal" title="勾选添加到播放列表"><i class="bi bi-play-btn"></i> <span class="btn-label"></span></button>
+            <button class="btn btn-danger btn-sm ms-2 mt-4" id="clearBackgroundBtn" title="清除背景"><i class="bi bi-trash"></i> <span class="btn-label"></span></button>
         </div>
     </div>
+        <h2 class="mb-0">文件列表</h2>
     <div class="card-body">
         <?php if (isset($error)): ?>
             <div class="alert alert-danger"><?= $error ?></div>
         <?php endif; ?>
         
-        <div class="d-flex align-items-center mt-4 mb-3">
+        <div class="d-flex align-items-center mb-2">
             <input type="checkbox" id="selectAll" class="me-2">
             <label for="selectAll" class="form-check-label">全选</label>
         </div>
@@ -905,13 +939,13 @@ body:hover,
                                    value="<?= htmlspecialchars($file) ?>"
                                    data-size="<?= $size ?>">
                             
-                            <div class="d-flex flex-wrap gap-1 flex-grow-1" style="min-width: 0;">
-                                <button class="btn btn-danger btn-sm" onclick="if(confirm('确定删除？')) window.location='?delete=<?= urlencode($file) ?>'"><i class="bi bi-trash"></i></button>
-                                <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#renameModal-<?= md5($file) ?>"><i class="bi bi-pencil"></i></button>
-                                
+                            <div class="d-flex flex-nowrap gap-1 flex-grow-1" style="min-width: 0;">
+                                <button class="btn btn-danger btn-sm" onclick="if(confirm('确定删除？')) window.location='?delete=<?= urlencode($file) ?>'"  title="删除"><i class="bi bi-trash"></i></button>
+                                <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#renameModal-<?= md5($file) ?>" title="重命名"><i class="bi bi-pencil"></i></button>
+                                <a href="?download=<?= urlencode($file) ?>" class="btn btn-success btn-sm btn-download" title="下载"><i class="bi bi-download"></i></a>                     
                                 <?php if ($isMedia): ?>
-                                <button class="btn btn-info btn-sm set-bg-btn" data-src="<?= htmlspecialchars($file) ?>" data-type="<?= $isVideo ? 'video' : ($isAudio ? 'audio' : 'image') ?>"><i class="bi bi-image"></i></button>
-                                <?php endif; ?>
+                                <button class="btn btn-info btn-sm set-bg-btn" data-src="<?= htmlspecialchars($file) ?>" data-type="<?= $isVideo ? 'video' : ($isAudio ? 'audio' : 'image') ?>" title="设置背景"><i class="bi bi-image"></i></button>
+                                <?php endif; ?>  
                             </div>
                         </div>
                     </div>
@@ -1052,7 +1086,7 @@ body:hover,
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body">
-                    <div class="alert alert-warning">注意：下载过程可能需要1-3分钟，请勿关闭电源！</div>
+                    <div class="alert alert-warning">最新版本：<?= htmlspecialchars($latestVersion) ?></div>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
