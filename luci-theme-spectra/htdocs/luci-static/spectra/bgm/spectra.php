@@ -736,21 +736,15 @@ body:hover,
 	transform: scale(0.9) !important;
 }
 
-@media (max-width: 576px) {
-    .fileCheckbox {
-        margin-left: -10px !important; 
-        margin-right: 10px !important;
-    }
-
-    .d-flex.flex-nowrap.gap-1 {
-        gap: 0px !important; 
-    }
-
-    .btn-download {
-        display: none !important; 
-    }
+.card:hover .fileCheckbox {
+    filter: drop-shadow(0 0 3px rgba(13, 110, 253, 0.5));
 }
 
+@media (max-width: 576px) {
+    .fileCheckbox {
+        transform: scale(1.1) !important;
+    }
+}
 </style>
 
 <style>
@@ -866,7 +860,14 @@ body:hover,
                 $isMedia = $isImage || $isVideo || $isAudio;
             ?>
             <div class="col">
-                <div class="card h-100 shadow-sm">
+                <div class="card h-100 shadow-sm position-relative"> 
+                    <div class="position-absolute start-0 top-0 m-2 z-2">
+                        <input type="checkbox" 
+                               class="fileCheckbox form-check-input shadow" 
+                               value="<?= htmlspecialchars($file) ?>"
+                               data-size="<?= $size ?>"
+                               style="transform: scale(1.2);">
+                    </div>
                     <div class="position-relative">
                         <?php if ($isMedia): ?>
                         <div class="preview-container">
@@ -933,16 +934,11 @@ body:hover,
                     </div>
                     
                     <div class="card-body pt-2 mt-2">
-                        <div class="d-flex flex-nowrap align-items-center justify-content-between gap-2">
-                            <input type="checkbox" 
-                                   class="fileCheckbox flex-shrink-0" 
-                                   value="<?= htmlspecialchars($file) ?>"
-                                   data-size="<?= $size ?>">
-                            
+                        <div class="d-flex flex-nowrap align-items-center justify-content-between gap-2">                         
                             <div class="d-flex flex-nowrap gap-1 flex-grow-1" style="min-width: 0;">
                                 <button class="btn btn-danger btn-sm" onclick="if(confirm('确定删除？')) window.location='?delete=<?= urlencode($file) ?>'"  title="删除"><i class="bi bi-trash"></i></button>
                                 <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#renameModal-<?= md5($file) ?>" title="重命名"><i class="bi bi-pencil"></i></button>
-                                <a href="?download=<?= urlencode($file) ?>" class="btn btn-success btn-sm btn-download" title="下载"><i class="bi bi-download"></i></a>                     
+                                <a href="?download=<?= urlencode($file) ?>" class="btn btn-success btn-sm" title="下载"><i class="bi bi-download"></i></a>                     
                                 <?php if ($isMedia): ?>
                                 <button class="btn btn-info btn-sm set-bg-btn" data-src="<?= htmlspecialchars($file) ?>" data-type="<?= $isVideo ? 'video' : ($isAudio ? 'audio' : 'image') ?>" title="设置背景"><i class="bi bi-image"></i></button>
                                 <?php endif; ?>  
