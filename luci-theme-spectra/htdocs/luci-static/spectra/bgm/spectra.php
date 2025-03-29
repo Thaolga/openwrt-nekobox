@@ -244,6 +244,8 @@ try {
 	--header-bg: #444444;
 	--border-color: #555555;
 	--btn-primary-bg: #007bff;
+	--nav-btn-color: rgba(255,255,255,0.8);
+	--hover-tips-color: rgba(255,255,255,0.8);
 }
 
 [data-theme="light"] {
@@ -255,6 +257,8 @@ try {
 	--header-bg: #e9ecef;
 	--border-color: #dee2e6;
 	--btn-primary-bg: #0056b3;
+	--nav-btn-color: #ffcc00; 
+	--hover-tips-color: rgba(255,255,255,0.8);
 }
 
 body {
@@ -363,7 +367,7 @@ label[for="selectAll"] {
 	position: relative;
 	overflow: hidden;
 	cursor: pointer;
-	min-height: 200px;
+	min-height: 300px;
 	background: #2a2a2a;
 	display: flex;
 	align-items: center;
@@ -423,7 +427,7 @@ label[for="selectAll"] {
 	left: 0;
 	width: 100%;
 	height: 100%;
-	object-fit: contain;
+        object-fit: cover; 
 }
 
 .preview-video:hover::after {
@@ -693,7 +697,7 @@ body:hover,
 .btn-close {
 	width: 15px !important;
 	height: 15px !important;
-	background-color: rgba(0, 0, 0, 0.08) !important;
+	background-color: #30e8dc !important;
 	border-radius: 6px !important;
 	border: none !important;
 	position: relative !important;
@@ -748,12 +752,47 @@ body:hover,
 </style>
 
 <style>
+#previewModal .modal-body {
+    height: 65vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative; 
+}
+
+#previewImage,
+#previewVideo {
+    max-height: 100%;
+    max-width: 100%;
+    object-fit: contain;
+}
+
+#previewAudio {
+    width: 100%;
+    max-height: 100%;
+    position: absolute; 
+    bottom: 20px; 
+    left: 0;
+}
+
+.hover-tips {
+    font-size: 0.8rem;
+    color: var(--hover-tips-color);
+    margin-top: 10px; 
+
+}
+
+.file-info-overlay p {
+    margin-bottom: 0.5rem; 
+    text-align: left; 
+}
+
 .preview-nav-btn {
     position: absolute;
     top: 50%;
     transform: translateY(-50%);
     font-size: 3rem;
-    color: rgba(255,255,255,0.8);
+    color: var(--nav-btn-color); 
     cursor: pointer;
     z-index: 1000;
     opacity: 0;
@@ -790,6 +829,14 @@ body:hover,
     0% { transform: translate(-50%, -50%) rotate(0deg); }
     100% { transform: translate(-50%, -50%) rotate(360deg); }
 }
+
+@media (max-width: 576px) {
+    .card-body .btn {
+        font-size: 0.75rem !important;  
+        padding: 0.25rem 0.5rem !important; 
+        white-space: nowrap;  
+    }
+ }
 </style>
 
 <div class="container-sm container-bg text-center mt-4">
@@ -832,10 +879,10 @@ body:hover,
                 <span class="btn btn-primary btn-sm"><i class="bi bi-hdd"></i> 总共：<?= $totalSpace ? formatSize($totalSpace) : 'N/A' ?></span>
                 <span class="btn btn-success btn-sm"><i class="bi bi-hdd"></i> 剩余：<?= $freeSpace ? formatSize($freeSpace) : 'N/A' ?></span>
             </div>
-            <?php if ($downloadUrl): ?><button class="btn btn-info btn-sm mt-4 update-theme-btn" data-url="<?= htmlspecialchars($downloadUrl) ?>" title="更新主题"><i class="bi bi-cloud-download"></i> <span class="btn-label"></span></button><?php endif; ?>
-            <button class="btn btn-warning btn-sm ms-2 mt-4" data-bs-toggle="modal" data-bs-target="#uploadModal" title="批量上传"><i class="bi bi-upload"></i> <span class="btn-label"></span></button>
-            <button class="btn btn-primary btn-sm ms-2 mt-4" id="openPlayerBtn" data-bs-toggle="modal" data-bs-target="#playerModal" title="勾选添加到播放列表"><i class="bi bi-play-btn"></i> <span class="btn-label"></span></button>
-            <button class="btn btn-danger btn-sm ms-2 mt-4" id="clearBackgroundBtn" title="清除背景"><i class="bi bi-trash"></i> <span class="btn-label"></span></button>
+            <?php if ($downloadUrl): ?><button class="btn btn-info mt-4 update-theme-btn" data-url="<?= htmlspecialchars($downloadUrl) ?>" title="更新主题"><i class="bi bi-cloud-download"></i> <span class="btn-label"></span></button><?php endif; ?>
+            <button class="btn btn-warning ms-2 mt-4" data-bs-toggle="modal" data-bs-target="#uploadModal" title="批量上传"><i class="bi bi-upload"></i> <span class="btn-label"></span></button>
+            <button class="btn btn-primary ms-2 mt-4" id="openPlayerBtn" data-bs-toggle="modal" data-bs-target="#playerModal" title="勾选添加到播放列表"><i class="bi bi-play-btn"></i> <span class="btn-label"></span></button>
+            <button class="btn btn-danger ms-2 mt-4" id="clearBackgroundBtn" title="清除背景"><i class="bi bi-trash"></i> <span class="btn-label"></span></button>
         </div>
     </div>
         <h2 class="mb-0">文件列表</h2>
@@ -858,6 +905,41 @@ body:hover,
                 $isVideo = in_array($ext, ['mp4', 'webm', 'ogg', 'mkv']);
                 $isAudio = in_array($ext, ['mp3', 'wav', 'flac']);
                 $isMedia = $isImage || $isVideo || $isAudio;
+                $resolution = '';
+                $duration = '';
+                $bitrate = '';
+                if ($isImage) {
+                    $imageInfo = @getimagesize($path);
+                    if ($imageInfo) {
+                        $resolution = $imageInfo[0] . 'x' . $imageInfo[1];
+                    }
+                } elseif ($isVideo) {
+                    $ffmpegPath = '/usr/bin/ffmpeg'; 
+                    $cmd = "$ffmpegPath -i \"$path\" 2>&1";
+                    $output = shell_exec($cmd);
+
+                    if ($output) {
+                        if (preg_match('/(\d{3,4})x(\d{3,4})/', $output, $matches)) {
+                            $resolution = $matches[1] . 'x' . $matches[2];
+                        }
+
+                        if (preg_match('/Duration: (\d+):(\d+):(\d+)\.(\d+)/', $output, $matches)) {
+                            $hours = intval($matches[1]);
+                            $minutes = intval($matches[2]);
+                            $seconds = intval($matches[3]);
+                            $duration = sprintf('%02d:%02d:%02d', $hours, $minutes, $seconds);
+                        }
+
+                        if (preg_match('/bitrate: (\d+) kb\/s/', $output, $matches)) {
+                            $bitrate = $matches[1] . ' kbps';
+                        }
+                
+                    } else {
+                        $resolution = '无法获取分辨率';
+                        $duration = '无法获取时长';
+                        $bitrate = '无法获取比特率';
+                    }
+                }
             ?>
             <div class="col">
                 <div class="card h-100 shadow-sm position-relative"> 
@@ -918,6 +1000,9 @@ body:hover,
                             <div class="file-info-overlay">
                                 <p class="mb-1 small">名称：<?= htmlspecialchars($file) ?></p>
                                 <p class="mb-1 small">大小：<?= round($size/(1024*1024),2) ?> MB</p>
+                                <?php if ($duration): ?><p class="mb-1 small">时长：<?= $duration ?></p><?php endif; ?>
+                                <?php if ($resolution): ?><p class="mb-1 small">分辨率：<?= $resolution ?></p><?php endif; ?>
+                                <?php if ($bitrate): ?><p class="mb-1 small">比特率：<?= $bitrate ?></p><?php endif; ?>
                                 <p class="mb-0 small text-uppercase">类型：<?= $ext ?></p>
                             </div>
                         </div>
@@ -936,11 +1021,11 @@ body:hover,
                     <div class="card-body pt-2 mt-2">
                         <div class="d-flex flex-nowrap align-items-center justify-content-between gap-2">                         
                             <div class="d-flex flex-nowrap gap-1 flex-grow-1" style="min-width: 0;">
-                                <button class="btn btn-danger btn-sm" onclick="if(confirm('确定删除？')) window.location='?delete=<?= urlencode($file) ?>'"  title="删除"><i class="bi bi-trash"></i></button>
-                                <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#renameModal-<?= md5($file) ?>" title="重命名"><i class="bi bi-pencil"></i></button>
-                                <a href="?download=<?= urlencode($file) ?>" class="btn btn-success btn-sm" title="下载"><i class="bi bi-download"></i></a>                     
+                                <button class="btn btn-danger" onclick="if(confirm('确定删除？')) window.location='?delete=<?= urlencode($file) ?>'"  title="删除"><i class="bi bi-trash"></i></button>
+                                <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#renameModal-<?= md5($file) ?>" title="重命名"><i class="bi bi-pencil"></i></button>
+                                <a href="?download=<?= urlencode($file) ?>" class="btn btn-success" title="下载"><i class="bi bi-download"></i></a>                     
                                 <?php if ($isMedia): ?>
-                                <button class="btn btn-info btn-sm set-bg-btn" data-src="<?= htmlspecialchars($file) ?>" data-type="<?= $isVideo ? 'video' : ($isAudio ? 'audio' : 'image') ?>" title="设置背景"><i class="bi bi-image"></i></button>
+                                <button class="btn btn-info set-bg-btn" data-src="<?= htmlspecialchars($file) ?>" data-type="<?= $isVideo ? 'video' : ($isAudio ? 'audio' : 'image') ?>" title="设置背景"><i class="bi bi-image"></i></button>
                                 <?php endif; ?>  
                             </div>
                         </div>
@@ -965,7 +1050,7 @@ body:hover,
                     <div id="nextBtn" class="preview-nav-btn"><i class="bi bi-chevron-right"></i></div>
                     <img id="previewImage" src="" class="img-fluid d-none">
                     <audio id="previewAudio" controls class="d-none w-100"></audio>
-                    <video id="previewVideo" controls class="d-none" style="width: 100%; height: auto;">
+                    <video id="previewVideo" controls class="d-none">
                         <source id="previewVideoSource" src="" type="video/mp4">
                     </video>
                 </div>
