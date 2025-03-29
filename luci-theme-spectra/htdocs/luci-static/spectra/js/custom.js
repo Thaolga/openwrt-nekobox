@@ -85,6 +85,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 <span>${isEnabled ? '已启用 ✅' : '已禁用 ❌'}</span>
                 <div class="status-led" style="background:${isEnabled ? '#4CAF50' : '#f44336'}"></div>
             </button>
+            <button class="theme-settings-btn">主题设置</button>
             <button data-mode="video">视频模式</button>
             <button data-mode="image">图片模式</button>
             <button data-mode="solid">暗黑模式</button>
@@ -106,7 +107,7 @@ document.addEventListener("DOMContentLoaded", function () {
     `;
 
     document.body.insertAdjacentHTML('beforeend', controlPanel);
-
+    document.querySelector('.theme-settings-btn')?.addEventListener('click', showThemeSettings);
     if (localStorage.getItem('hideIP') === null) {
         localStorage.setItem('hideIP', 'false');
     }
@@ -234,6 +235,12 @@ document.addEventListener("DOMContentLoaded", function () {
             opacity: 1 !important;      
             pointer-events: auto !important;  
             background: #2196F3 !important;  
+        }
+
+        #mode-popup button.theme-settings-btn {
+            background: #9C27B0 !important;
+            opacity: 1 !important;
+            pointer-events: auto !important;
         }
 
         @media (max-width: 600px) {
@@ -828,5 +835,99 @@ document.addEventListener("DOMContentLoaded", function () {
             styleTag.remove(); 
         }
     }
+
+    function showThemeSettings() {
+        const existing = document.getElementById('theme-settings-overlay');
+        if (existing) return;
+
+        const overlay = document.createElement('div');
+        overlay.id = 'theme-settings-overlay';
+        overlay.innerHTML = `
+            <div id="theme-settings-dialog">
+                <div class="dialog-header">
+                    <h3>Spectra 主题设置</h3>
+                    <button class="close-btn">&times;</button>
+                </div>
+                <iframe id="theme-iframe" 
+                    src="${window.location.protocol}//${window.location.host}/luci-static/spectra/bgm/spectra.php"
+                    style="width: 100%; height: calc(100% - 40px); border: none; border-radius: 0 0 5px 5px;">
+                </iframe>
+            </div>
+        `;
+
+        const style = document.createElement('style');
+        style.textContent = `
+            #theme-settings-overlay {
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: rgba(0,0,0,0.7);
+                z-index: 9999;
+                display: flex;
+                justify-content: center;
+                align-items: flex-start;
+                padding-top: 5vh;  
+                backdrop-filter: blur(3px);
+            }
+            #theme-settings-dialog {
+                background: rgba(0,0,0,0.9);
+                width: 70%;
+                height: 80vh;
+                margin-top: 0;
+                border-radius: 8px;
+                box-shadow: 0 0 20px rgba(0,0,0,0.5);
+                transform: translateY(0);
+            }
+            .dialog-header {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                padding: 15px 20px;
+                background: linear-gradient(135deg, #6f42c1, #9C27B0);
+                border-radius: 8px 8px 0 0;
+            }
+            .dialog-header h3 {
+                margin: 0;
+                color: #9C27B0;
+                font-size: 1.2em;
+            }
+            .close-btn {
+                background: none;
+                border: none;
+                color: white;
+                font-size: 24px;
+                cursor: pointer;
+                padding: 0 8px;
+            }
+
+            @media (max-width: 768px) {
+                #theme-settings-dialog {
+                    width: 90%;
+                    height: 90vh;
+                }
+            }
+        `;
+
+        document.body.appendChild(overlay);
+        document.head.appendChild(style);
+
+        overlay.querySelector('.close-btn').addEventListener('click', () => {
+            overlay.remove();
+            style.remove();
+        });
+
+        overlay.addEventListener('click', (e) => {
+            if (e.target === overlay) {
+                overlay.remove();
+                style.remove();
+            }
+        });
+    }
+
+
+
+
 
 
