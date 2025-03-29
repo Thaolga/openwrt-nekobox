@@ -236,29 +236,36 @@ try {
     </script>
 <style>
 :root {
-	--bg-body: rgba(0, 0, 0, 0.5);
-	--bg-container: #2a2a2a;
-	--text-primary: #ffffff;
-	--accent-color: #ffcc00;
-	--card-bg: #333333;
-	--header-bg: #444444;
-	--border-color: #555555;
-	--btn-primary-bg: #007bff;
-	--nav-btn-color: rgba(255,255,255,0.8);
-	--hover-tips-color: rgba(255,255,255,0.8);
+	--base-hue: 260;
+	--base-chroma: 0.03;
+	
+	--bg-body: oklch(20% var(--base-chroma) var(--base-hue) / 50%);
+	--bg-container: oklch(30% var(--base-chroma) var(--base-hue));
+	--text-primary: oklch(95% 0 0); 
+	--accent-color: oklch(70% 0.2 calc(var(--base-hue) + 60));
+	--card-bg: oklch(25% var(--base-chroma) var(--base-hue));
+	--header-bg: oklch(35% var(--base-chroma) var(--base-hue));
+	--border-color: oklch(40% var(--base-chroma) var(--base-hue));
+	--btn-primary-bg: oklch(50% 0.15 var(--base-hue));
+        --btn-success-bg: oklch(50% 0.2 240); 
+	--nav-btn-color: oklch(95% 0 0 / 80%);
+	--hover-tips-color: oklch(95% 0 0 / 80%);
 }
 
 [data-theme="light"] {
-	--bg-body: rgba(255, 255, 255, 0.9);
-	--bg-container: #ffffff;
-	--text-primary: #2a2a2a;
-	--accent-color: #cc9900;
-	--card-bg: #f8f9fa;
-	--header-bg: #e9ecef;
-	--border-color: #dee2e6;
-	--btn-primary-bg: #0056b3;
-	--nav-btn-color: #ffcc00; 
-	--hover-tips-color: rgba(255,255,255,0.8);
+	--base-hue: 200;
+	--base-chroma: 0.01;
+	
+	--bg-body: oklch(95% var(--base-chroma) var(--base-hue) / 90%);
+	--bg-container: oklch(99% var(--base-chroma) var(--base-hue));
+	--text-primary: oklch(25% var(--base-chroma) var(--base-hue));
+	--accent-color: oklch(60% 0.2 calc(var(--base-hue) + 60));
+	--card-bg: oklch(92% var(--base-chroma) var(--base-hue));
+	--header-bg: oklch(88% var(--base-chroma) var(--base-hue));
+	--border-color: oklch(85% var(--base-chroma) var(--base-hue));
+	--btn-primary-bg: oklch(45% 0.15 var(--base-hue));
+        --btn-success-bg: oklch(70% 0.2 240); 
+	--nav-btn-color: oklch(70% 0.2 calc(var(--base-hue) + 60));
 }
 
 body {
@@ -266,6 +273,14 @@ body {
 	color: var(--text-primary);
 	-webkit-backdrop-filter: blur(10px);
 	transition: all 0.3s ease;
+}
+
+.container-bg,
+.card,
+.modal-content,
+.table {
+	--bg-l: oklch(30% 0 0); 
+	color: oklch(calc(100% - var(--bg-l)) 0 0);
 }
 
 .container-bg {
@@ -323,17 +338,8 @@ h2 {
 }
 
 #toggleButton {
-	transition: all 0.3s ease;
-}
-
-#toggleButton.light {
-	background: var(--btn-primary-bg);
-	color: white;
-}
-
-#toggleButton.dark {
-	background: var(--accent-color);
-	color: var(--text-primary);
+        background-color: var(--btn-success-bg);
+        color: var(--text-primary);
 }
 
 .modal-content {
@@ -475,29 +481,34 @@ label[for="selectAll"] {
 	word-break: break-word;
 	overflow-wrap: break-word;
 	white-space: normal;
+	background-color: var(--card-bg);
+	color: var(--text-primary);
 }
 
 #playlistContainer .list-group-item:hover {
-	background-color: #666 !important;
+	background-color: var(--btn-primary-bg) !important;
 	transform: scale(1.02);
 	box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
 }
 
 #playlistContainer .list-group-item.active {
-	background-color: #0d6efd;
-	border-color: #0d6efd;
-	color: white;
+	background-color: var(--accent-color);
+	border-color: var(--accent-color);
+	color: var(--text-primary);
 }
 
 #playlistContainer .badge {
 	width: 24px;
 	text-align: center;
 	font-weight: normal;
+	background-color: var(--btn-primary-bg);
+	color: var(--text-primary);
 }
 
 #playlistContainer .delete-item {
 	opacity: 0.6;
 	transition: opacity 0.3s;
+	color: var(--text-primary);
 }
 
 #playlistContainer .delete-item:hover {
@@ -506,8 +517,8 @@ label[for="selectAll"] {
 
 #playlistContainer {
 	overflow-x: hidden;
-	/
-    overflow-y: auto;
+	overflow-y: auto;
+	background-color: var(--bg-container);
 }
 
 #playlistContainer .text-truncate {
@@ -518,6 +529,7 @@ label[for="selectAll"] {
 	word-break: break-word;
 	font-size: 1.1em;
 	line-height: 1.4;
+	color: var(--text-primary);
 }
 
 #playlistContainer .list-group-item {
@@ -525,39 +537,42 @@ label[for="selectAll"] {
 	margin-bottom: 3px;
 	border-radius: 6px;
 	transition: all 0.3s ease;
+	background-color: var(--card-bg);
+	color: var(--text-primary);
 }
 
 #playlistContainer .list-group-item:nth-child(odd) {
-	background-color: #444;
-	border-left: 3px solid #666;
-	color: white;
+	background-color: var(--card-bg);
+	border-left: 3px solid var(--border-color);
+	color: var(--text-primary);
 }
 
 #playlistContainer .list-group-item:nth-child(even) {
-	background-color: #393939;
-	border-left: 3px solid #555;
-	color: white;
+	background-color: var(--card-bg);
+	border-left: 3px solid var(--border-color);
+	color: var(--text-primary);
 }
 
 #playlistContainer .list-group-item.active {
-	background: linear-gradient(145deg, #0a58ca, #0d6efd) !important;
-	border-color: #004cff;
+	background: linear-gradient(145deg, var(--accent-color), var(--accent-color)) !important;
+	border-color: var(--accent-color);
 	transform: scale(1.02);
-	box-shadow: 0 5px 15px rgba(0, 110, 253, 0.4);
+	box-shadow: 0 5px 15px rgba(var(--accent-color), 0.4);
 	z-index: 1;
-	color: white;
+	color: var(--text-primary);
 }
 
 #playlistContainer .list-group-item:hover {
-	background-color: #4a4a4a;
+	background-color: var(--btn-primary-bg);
 	transform: translateX(5px);
 	cursor: pointer;
 }
 
 .text-muted {
-	color: #FF99FF !important;
+	color: var(--text-primary) !important;
 	font-size: 0.9em;
 	letter-spacing: 0.5px;
+	opacity: 0.7;
 }
 
 ::-webkit-scrollbar {
@@ -607,12 +622,12 @@ body:hover,
 }
 
 .drop-zone {
-	border: 2px dashed rgba(0, 123, 255, 0.8);
+	border: 2px dashed var(--accent-color);
 	border-radius: 12px;
 	padding: 30px;
 	text-align: center;
 	transition: all 0.3s ease;
-	background: rgba(0, 0, 0, 0.3);
+	background: var(--bg-container);
 	backdrop-filter: blur(10px);
 	position: relative;
 	min-height: 200px;
@@ -623,44 +638,46 @@ body:hover,
 }
 
 .drop-zone.dragover {
-	border-color: rgba(13, 110, 253, 0.9);
-	background: rgba(13, 110, 253, 0.15);
-	box-shadow: 0 0 20px rgba(13, 110, 253, 0.3);
+	border-color: var(--accent-color);
+	background: oklch(calc(var(--accent-color, 0, 0) + 10%) 0.05 0 / 0.15);
+	box-shadow: 0 0 20px oklch(calc(var(--accent-color, 0, 0) + 10%) 0.05 0 / 0.3);
 }
 
 .upload-icon {
 	font-size: 50px;
-	color: rgba(0, 123, 255, 0.8);
+	color: var(--accent-color);
 	margin-bottom: 15px;
 }
 
 .upload-text {
 	font-size: 18px;
 	font-weight: 500;
-	color: #e0e0e0;
+	color: var(--text-primary);
 	margin-bottom: 10px;
 }
 
 #customUploadButton {
 	transition: all 0.2s ease;
 	padding: 12px 24px;
+	background-color: var(--btn-primary-bg);
+	color: var(--text-primary);
 }
 
 #customUploadButton:hover {
 	transform: translateY(-3px);
-	box-shadow: 0 4px 10px rgba(0, 123, 255, 0.3);
+	box-shadow: 0 4px 10px oklch(calc(var(--btn-primary-bg, 0, 0) + 10%) 0.05 0 / 0.3);
 }
 
 .file-list {
 	max-height: 160px;
 	overflow-y: auto;
-	background: rgba(255, 255, 255, 0.1);
+	background: oklch(calc(var(--bg-container, 0, 0) - 5%) 0.01 0 / 0.1);
 	border-radius: 8px;
 	padding: 10px;
 	width: 100%;
 	text-align: left;
-	box-shadow: 0 0 10px rgba(255, 255, 255, 0.2);
-	color: #f8f9fa;
+	box-shadow: 0 0 10px oklch(calc(var(--bg-container, 0, 0) + 5%) 0.01 0 / 0.2);
+	color: var(--text-primary);
 }
 
 .file-list-item {
@@ -668,8 +685,9 @@ body:hover,
 	justify-content: space-between;
 	align-items: center;
 	padding: 8px 12px;
-	border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+	border-bottom: 1px solid oklch(calc(var(--bg-container, 0, 0) + 5%) 0.01 0 / 0.2);
 	font-size: 14px;
+	color: var(--text-primary);
 }
 
 .file-list-item:last-child {
@@ -677,21 +695,21 @@ body:hover,
 }
 
 .file-list-item i {
-	color: rgba(0, 123, 255, 0.8);
+	color: var(--accent-color);
 	margin-right: 8px;
 }
 
 .remove-file {
 	cursor: pointer;
-	color: #dc3545;
+	color: var(--accent-color);
 }
 
 .remove-file:hover {
-	color: #b02a37;
+	color: oklch(calc(var(--accent-color, 0, 0) - 5%) 0.1 0);
 }
 
 .upload-or {
-        color: #ffffff !important;
+	color: var(--text-primary) !important;
 }
 
 .btn-close {
@@ -818,8 +836,8 @@ body:hover,
     transform: translate(-50%, -50%);
     width: 40px;
     height: 40px;
-    border: 3px solid #f3f3f3;
-    border-top: 3px solid #3498db;
+    border: 3px solid var(--border-color);
+    border-top: 3px solid var(--accent-color);
     border-radius: 50%;
     animation: spin 1s linear infinite;
     display: none;
@@ -1498,6 +1516,12 @@ body:hover,
             const btn = document.getElementById("toggleButton");
             const status = document.getElementById("status");
 
+            const baseHue = value === 'dark' ? 260 : 200;
+            const chroma = value === 'dark' ? 0.03 : 0.01;
+    
+            body.style.setProperty('--base-hue', baseHue);
+            body.style.setProperty('--base-chroma', chroma);
+
             body.setAttribute("data-theme", value);
   
             if (value === "dark") {
@@ -1516,7 +1540,14 @@ body:hover,
         document.addEventListener("DOMContentLoaded", () => {
             const serverTheme = "<?= $mode ?>"; 
             const savedTheme = localStorage.getItem("theme") || serverTheme;
-  
+
+            document.documentElement.style.setProperty('--base-hue', 
+                savedTheme === 'dark' ? 260 : 200
+            );
+            document.documentElement.style.setProperty('--base-chroma', 
+                savedTheme === 'dark' ? 0.03 : 0.01
+            );
+    
             document.documentElement.setAttribute('data-theme', savedTheme);
             document.querySelectorAll('[data-bs-toggle="tooltip"]').forEach(el => new bootstrap.Tooltip(el));
             document.querySelectorAll('.modal').forEach(el => new bootstrap.Modal(el));
