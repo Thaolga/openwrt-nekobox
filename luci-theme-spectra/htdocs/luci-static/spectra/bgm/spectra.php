@@ -238,6 +238,7 @@ try {
 :root {
 	--base-hue: 260;
 	--base-chroma: 0.03;
+	--danger-base: 15;
 	
 	--bg-body: oklch(20% var(--base-chroma) var(--base-hue) / 50%);
 	--bg-container: oklch(30% var(--base-chroma) var(--base-hue));
@@ -250,6 +251,17 @@ try {
         --btn-success-bg: oklch(50% 0.2 240); 
 	--nav-btn-color: oklch(95% 0 0 / 80%);
 	--hover-tips-color: oklch(95% 0 0 / 80%);
+	--playlist-text: oklch(95% 0 0);
+	--text-secondary: oklch(75% 0 0);
+	--item-border: 3px solid oklch(40% var(--base-chroma) var(--base-hue));
+	--item-hover-bg: color-mix(in oklch, var(--btn-primary-bg), white 10%);
+	--item-hover-shadow: 0 2px 8px oklch(var(--base-hue) 0.2 0.2 / 0.3);
+	--drag-over-bg: oklch(30% var(--base-chroma) var(--base-hue) / 0.2);
+	--drag-over-shadow: 0 0 20px oklch(var(--base-hue) 0.15 0 / 0.25);
+	--file-list-bg: oklch(25% var(--base-chroma) var(--base-hue) / 0.3);
+	--file-list-border: oklch(35% var(--base-chroma) var(--base-hue) / 0.4);
+	--danger-color: oklch(65% 0.25 var(--danger-base));
+	--danger-hover: oklch(75% 0.3 var(--danger-base));
 }
 
 [data-theme="light"] {
@@ -260,12 +272,24 @@ try {
 	--bg-container: oklch(99% var(--base-chroma) var(--base-hue));
 	--text-primary: oklch(25% var(--base-chroma) var(--base-hue));
 	--accent-color: oklch(60% 0.2 calc(var(--base-hue) + 60));
-	--card-bg: oklch(92% var(--base-chroma) var(--base-hue));
+	--card-bg: oklch(96% var(--base-chroma) var(--base-hue));
 	--header-bg: oklch(88% var(--base-chroma) var(--base-hue));
 	--border-color: oklch(85% var(--base-chroma) var(--base-hue));
 	--btn-primary-bg: oklch(45% 0.15 var(--base-hue));
         --btn-success-bg: oklch(70% 0.2 240); 
 	--nav-btn-color: oklch(70% 0.2 calc(var(--base-hue) + 60));
+	--playlist-text: oklch(25% 0 0);
+	--text-secondary: oklch(40% 0 0);
+	--item-border: 3px solid oklch(85% var(--base-chroma) var(--base-hue));
+	--item-hover-bg: color-mix(in oklch, var(--accent-color), white 20%);
+	--item-hover-shadow: 0 2px 12px oklch(var(--base-hue) 0.15 0.5 / 0.2);
+	--drag-over-bg: oklch(90% var(--base-chroma) var(--base-hue) / 0.3);
+	--drag-over-shadow: 0 0 25px oklch(var(--base-hue) 0.1 0 / 0.15);
+	--file-list-bg: oklch(95% var(--base-chroma) var(--base-hue) / 0.4);
+	--file-list-border: oklch(85% var(--base-chroma) var(--base-hue) / 0.6);
+	--danger-color: oklch(50% 0.3 var(--danger-base));
+	--danger-hover: oklch(40% 0.35 var(--danger-base));
+
 }
 
 body {
@@ -482,19 +506,20 @@ label[for="selectAll"] {
 	overflow-wrap: break-word;
 	white-space: normal;
 	background-color: var(--card-bg);
-	color: var(--text-primary);
+	color: var(--playlist-text);
+	border-left: var(--item-border);
 }
 
 #playlistContainer .list-group-item:hover {
-	background-color: var(--btn-primary-bg) !important;
+	background-color: var(--item-hover-bg) !important;
+	box-shadow: var(--item-hover-shadow);
 	transform: scale(1.02);
-	box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+	--playlist-text: oklch(100% 0 0); 
+	color: var(--playlist-text);
 }
 
-#playlistContainer .list-group-item.active {
-	background-color: var(--accent-color);
-	border-color: var(--accent-color);
-	color: var(--text-primary);
+[data-theme="light"] #playlistContainer .list-group-item:hover {
+	--playlist-text: oklch(20% 0 0); 
 }
 
 #playlistContainer .badge {
@@ -557,8 +582,8 @@ label[for="selectAll"] {
 	background: linear-gradient(145deg, var(--accent-color), var(--accent-color)) !important;
 	border-color: var(--accent-color);
 	transform: scale(1.02);
-	box-shadow: 0 5px 15px rgba(var(--accent-color), 0.4);
-	z-index: 1;
+	box-shadow: 0 4px 16px color-mix(in oklch, var(--accent-color), black 15%);
+	z-index: 2;
 	color: var(--text-primary);
 }
 
@@ -569,7 +594,7 @@ label[for="selectAll"] {
 }
 
 .text-muted {
-	color: var(--text-primary) !important;
+	color: var(--text-secondary) !important;
 	font-size: 0.9em;
 	letter-spacing: 0.5px;
 	opacity: 0.7;
@@ -623,24 +648,20 @@ body:hover,
 
 .drop-zone {
 	border: 2px dashed var(--accent-color);
-	border-radius: 12px;
-	padding: 30px;
-	text-align: center;
-	transition: all 0.3s ease;
-	background: var(--bg-container);
-	backdrop-filter: blur(10px);
-	position: relative;
+	background: color-mix(in oklch, var(--bg-container), transparent 30%);
 	min-height: 200px;
-	display: flex;
-	flex-direction: column;
-	justify-content: center;
-	align-items: center;
+	transition: border-color 0.3s ease,
+		background 0.4s cubic-bezier(0.25, 0.8, 0.25, 1),
+		box-shadow 0.3s ease;
 }
 
 .drop-zone.dragover {
-	border-color: var(--accent-color);
-	background: oklch(calc(var(--accent-color, 0, 0) + 10%) 0.05 0 / 0.15);
-	box-shadow: 0 0 20px oklch(calc(var(--accent-color, 0, 0) + 10%) 0.05 0 / 0.3);
+	border-color: color-mix(in oklch, var(--accent-color), white 20%);
+	background: var(--drag-over-bg);
+	box-shadow: var(--drag-over-shadow);
+	.upload-icon {
+		animation: pulse-glow 1.5s ease infinite;
+}
 }
 
 .upload-icon {
@@ -657,27 +678,91 @@ body:hover,
 }
 
 #customUploadButton {
-	transition: all 0.2s ease;
-	padding: 12px 24px;
-	background-color: var(--btn-primary-bg);
-	color: var(--text-primary);
+	--btn-hover-bg: color-mix(in oklch, var(--btn-primary-bg), white 8%);
+	background: var(--btn-primary-bg);
+	position: relative;
+	overflow: hidden;
+	&: :after {
+		content: "";
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+	background: radial-gradient(circle at 50% 50%, 
+			oklch(100% 0 0 / 0.15) 0%, 
+			transparent 70%);
+	opacity: 0;
+	transition: opacity 0.3s ease;
 }
-
-#customUploadButton:hover {
-	transform: translateY(-3px);
-	box-shadow: 0 4px 10px oklch(calc(var(--btn-primary-bg, 0, 0) + 10%) 0.05 0 / 0.3);
+	
+	&:hover {
+	background: var(--btn-hover-bg);
+	transform: translateY(-2px) scale(1.05);
+	&: :after {
+			opacity: 1;
+}
+	}
 }
 
 .file-list {
-	max-height: 160px;
+	max-height: 200px;
 	overflow-y: auto;
-	background: oklch(calc(var(--bg-container, 0, 0) - 5%) 0.01 0 / 0.1);
-	border-radius: 8px;
-	padding: 10px;
-	width: 100%;
-	text-align: left;
-	box-shadow: 0 0 10px oklch(calc(var(--bg-container, 0, 0) + 5%) 0.01 0 / 0.2);
-	color: var(--text-primary);
+	background: var(--file-list-bg);
+	border: 1px solid var(--file-list-border);
+	scrollbar-width: thin;
+	scrollbar-color: var(--accent-color) transparent;
+	&: :-webkit-scrollbar-thumb {
+		background: var(--accent-color);
+	border-radius: 4px;
+}
+}
+
+.file-list-item {
+	border-bottom-color: color-mix(in oklch, var(--file-list-border), transparent 50%);
+	transition: background 0.2s ease;
+	&: hover {
+		background: color-mix(in oklch, var(--btn-primary-bg), transparent 80%);
+}
+}
+
+.remove-file {
+	color: var(--accent-color) !important;
+	transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.remove-file:hover {
+	color: oklch(65% 0.25 15) !important;
+	filter: drop-shadow(0 0 4px oklch(65% 0.3 15 / 0.3));
+	transform: scale(1.15);
+}
+
+[data-theme="light"] .remove-file:hover {
+	color: oklch(50% 0.3 15) !important;
+	filter: drop-shadow(0 0 6px oklch(50% 0.3 15 / 0.2));
+}
+
+@keyframes danger-pulse {
+	0% {
+		opacity: 0.8;
+	}
+
+	50% {
+		opacity: 1;
+	}
+
+	100% {
+		opacity: 0.8;
+	}
+}
+
+.remove-file:hover::after {
+	position: absolute;
+	right: -1.2em;
+	top: 50%;
+	transform: translateY(-50%);
+	animation: danger-pulse 1.5s ease infinite;
+	filter: hue-rotate(-20deg);
 }
 
 .file-list-item {
@@ -685,9 +770,38 @@ body:hover,
 	justify-content: space-between;
 	align-items: center;
 	padding: 8px 12px;
-	border-bottom: 1px solid oklch(calc(var(--bg-container, 0, 0) + 5%) 0.01 0 / 0.2);
-	font-size: 14px;
-	color: var(--text-primary);
+	min-height: 42px;
+}
+
+.file-list-item:hover {
+        cursor: grab; 
+}
+
+.remove-file {
+	display: inline-flex !important;
+	align-items: center;
+	justify-content: center;
+	width: 24px;
+	height: 24px;
+	margin-left: 12px;
+	font-size: 1.25rem;
+	vertical-align: middle;
+	position: relative;
+	top: 1px;
+}
+
+.bi-file-earmark {
+	font-size: 1.1rem;
+	margin-right: 10px;
+	position: relative;
+	top: -1px;
+}
+
+.file-list-item > div:first-child {
+	display: inline-flex;
+	align-items: center;
+	max-width: calc(100% - 40px);
+	line-height: 1.4;
 }
 
 .file-list-item:last-child {
@@ -697,19 +811,6 @@ body:hover,
 .file-list-item i {
 	color: var(--accent-color);
 	margin-right: 8px;
-}
-
-.remove-file {
-	cursor: pointer;
-	color: var(--accent-color);
-}
-
-.remove-file:hover {
-	color: oklch(calc(var(--accent-color, 0, 0) - 5%) 0.1 0);
-}
-
-.upload-or {
-	color: var(--text-primary) !important;
 }
 
 .btn-close {
@@ -856,6 +957,7 @@ body:hover,
     }
  }
 </style>
+
 
 <div class="container-sm container-bg text-center mt-4">
     <div class="alert alert-secondary d-none" id="toolbar">
