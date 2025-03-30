@@ -649,6 +649,7 @@ body:hover,
 .drop-zone {
 	border: 2px dashed var(--accent-color);
 	background: color-mix(in oklch, var(--bg-container), transparent 30%);
+	min-height: 200px;
 	transition: border-color 0.3s ease,
 		background 0.4s cubic-bezier(0.25, 0.8, 0.25, 1),
 		box-shadow 0.3s ease;
@@ -705,6 +706,8 @@ body:hover,
 }
 
 .file-list {
+	max-height: 200px;
+	overflow-y: auto;
 	background: var(--file-list-bg);
 	border: 1px solid var(--file-list-border);
 	scrollbar-width: thin;
