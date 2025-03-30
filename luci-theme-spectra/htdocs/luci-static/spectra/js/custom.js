@@ -316,10 +316,10 @@ document.addEventListener("DOMContentLoaded", function () {
     document.querySelector('.info-btn').addEventListener('click', () => {
         showCustomAlert('使用说明', [
             '1. 视频模式：默认名称为「bg.mp4」',
-            '2. 图片模式：默认名称为「bg1-5.jpg」',
+            '2. 图片模式：默认名称为「bg1-20.jpg」',
             '3. 暗黑模式：透明背景+光谱动画',
-            '4. 纯白模式：需到文件管理进行切换，关闭控制开关',
-            '5. 文件列表：支持自定义背景，需关闭开关，模式切换需清除背景',
+            '4. 亮色模式：主题设置进行切换，关闭控制开关',
+            '5. 主题设置：支持自定义背景，需关闭开关，模式切换需清除背景',
             '6. 项目地址：<a class="github-link" href="https://github.com/Thaolga/openwrt-nekobox" target="_blank">点击访问</a>'
         ]);
     });
@@ -443,7 +443,7 @@ document.addEventListener("DOMContentLoaded", function () {
 }
 
     function initBackgroundSystem() {
-        bgImages = Array.from({length: 5}, (_, i) => `bg${i + 1}.jpg`);
+        bgImages = Array.from({length: 20}, (_, i) => `bg${i + 1}.jpg`);
         bgIndex = 0;
         availableImages = [];
         
