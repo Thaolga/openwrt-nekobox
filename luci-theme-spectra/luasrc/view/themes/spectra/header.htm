@@ -1,5 +1,3 @@
-
-
 <%#
 	Argon is a clean HTML5 theme for LuCI. It is based on luci-theme-material Argon Template
 
@@ -36,8 +34,6 @@
 	-- send as HTML5
 	http.prepare_content("text/html")
 
-	math.randomseed(os.time())
-
 	-- Custom settings
 	local mode = 'normal'
 	local dark_css = fs.readfile('/www/luci-static/spectra/css/dark.css')
@@ -57,7 +53,13 @@
 	-- Brand name
 	local brand_name = boardinfo.hostname or "?"
 -%>
+
+<!DOCTYPE html>
+<html lang="<%=luci.i18n.context.lang%>">
+
+<head>
     <style>
+
         body,
         body *:not(script):not(style):not(link) {  
           font-family: 
@@ -163,65 +165,59 @@
             margin: 30px 0 40px;
             padding: 0 15px; 
         }
+
+        .inner {
+            display: none !important;
+        }
 </style>
-   
-	<meta charset="utf-8">
-	<meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport" />
-	<meta name="format-detection" content="telephone=no, email=no" />
-	<meta name="apple-mobile-web-app-capable" content="yes">
-	<meta name="mobile-web-app-capable" content="yes">
-	<meta name="x5-fullscreen" content="true">
-	<meta name="full-screen" content="yes">
-	<meta name="x5-page-mode" content="app">
-	<meta name="browsermode" content="application">
-	<meta name="msapplication-tap-highlight" content="no">
-	<meta name="msapplication-TileColor" content="<%=bar_color%>">
-	<meta name="application-name" content="<%=striptags( (boardinfo.hostname or "?") ) %> - LuCI">
-	<meta name="apple-mobile-web-app-title" content="<%=striptags( (boardinfo.hostname or "?") ) %> - LuCI">
-	<link rel="apple-touch-icon" sizes="60x60" href="<%=media%>/icon/apple-icon-60x60.png">
-	<link rel="apple-touch-icon" sizes="72x72" href="<%=media%>/icon/apple-icon-72x72.png">
-	<link rel="apple-touch-icon" sizes="144x144" href="<%=media%>/icon/apple-icon-144x144.png">
-	<link rel="icon" type="image/png" sizes="192x192" href="<%=media%>/icon/android-icon-192x192.png">
-	<link rel="icon" type="image/png" sizes="32x32" href="<%=media%>/icon/favicon-32x32.png">
-	<link rel="icon" type="image/png" sizes="96x96" href="<%=media%>/icon/favicon-96x96.png">
-	<link rel="icon" type="image/png" sizes="16x16" href="<%=media%>/icon/favicon-16x16.png">
-	<link rel="manifest" href="<%=media%>/icon/manifest.json"  crossorigin="use-credentials">
-	<meta name="msapplication-TileColor" content="<%=bar_color%>">
-	<meta name="msapplication-TileImage" content="<%=media%>/icon/ms-icon-144x144.png">
-	<meta name="theme-color" content="<%=bar_color%>">
-	<link rel="stylesheet" href="<%=media%>/css/cascade.css?v=2.3.1">
+    <meta charset="utf-8">
+    <title>
+        <%=striptags( (boardinfo.hostname or "?") .. ( (node and node.title) and ' - ' .. translate(node.title) or '')) %>
+        - LuCI</title>
+    <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport" />
+    <meta name="format-detection" content="telephone=no, email=no" />
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="x5-fullscreen" content="true">
+    <meta name="full-screen" content="yes">
+    <meta name="x5-page-mode" content="app">
+    <meta name="browsermode" content="application">
+    <meta name="msapplication-tap-highlight" content="no">
+    <meta name="msapplication-TileColor" content="<%=bar_color%>">
+    <meta name="application-name" content="<%=striptags( (boardinfo.hostname or "?") ) %> - LuCI">
+    <meta name="apple-mobile-web-app-title" content="<%=striptags( (boardinfo.hostname or "?") ) %> - LuCI">
+    <link rel="apple-touch-icon" sizes="60x60" href="<%=media%>/icon/apple-icon-60x60.png">
+    <link rel="apple-touch-icon" sizes="72x72" href="<%=media%>/icon/apple-icon-72x72.png">
+    <link rel="apple-touch-icon" sizes="144x144" href="<%=media%>/icon/apple-icon-144x144.png">
+    <link rel="icon" type="image/png" sizes="192x192" href="<%=media%>/icon/android-icon-192x192.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="<%=media%>/icon/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="96x96" href="<%=media%>/icon/favicon-96x96.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="<%=media%>/icon/favicon-16x16.png">
+    <link rel="manifest" href="<%=media%>/icon/manifest.json"  crossorigin="use-credentials">
+    <meta name="msapplication-TileColor" content="<%=bar_color%>">
+    <meta name="msapplication-TileImage" content="<%=media%>/icon/ms-icon-144x144.png">
+    <meta name="theme-color" content="<%=bar_color%>">
+    <link rel="stylesheet" href="<%=media%>/css/cascade.css?v=2.2.10.10">
         <script src="/luci-static/spectra/js/custom.js"></script>
-	<style title="text/css">
-		<% if mode ~= 'dark' then %>
-			@media (prefers-color-scheme: dark) {
-				<%=dark_css%>
-			}
-		<% if fs.access('/etc/config/spectra') then %>
-		:root {
-			--primary: <%=primary%>;
-			--dark-primary: <%=dark_primary%>;
-			--bar-bg: <%=primary%>;
-			--blur-radius:<%=blur_radius%>px;
-			--blur-opacity:<%=blur_opacity%>;
-			--blur-radius-dark:<%=blur_radius_dark%>px;
-			--blur-opacity-dark:<%=blur_opacity_dark%>;
-		}
-		<% end -%>
-		<% elseif mode == 'dark' then %>
-			<%=dark_css%>
-		<% if fs.access('/etc/config/spectra') then %>
-		:root {
-			--primary: <%=primary%>;
-			--dark-primary: <%=dark_primary%>;
-			--bar-bg: <%=dark_primary%>;
-			--blur-radius:<%=blur_radius%>px;
-			--blur-opacity:<%=blur_opacity%>;
-			--blur-radius-dark:<%=blur_radius_dark%>px;
-			--blur-opacity-dark:<%=blur_opacity_dark%>;
-		}
-		<% end -%>
-		<% end -%>
-	</style>
+    <style title="text/css">
+        <% if mode == 'normal' then %>
+            @media (prefers-color-scheme: dark) {
+                <%=dark_css%>
+            }
+        <% elseif mode == 'dark' then %>
+            <%=dark_css%>
+        <% end -%>
+        <% if fs.access('/etc/config/spectra') then %>
+        :root {
+            --primary: <%=primary%>;
+            --dark-primary: <%=dark_primary%>;
+            --blur-radius:<%=blur_radius%>px;
+            --blur-opacity:<%=blur_opacity%>;
+            --blur-radius-dark:<%=blur_radius_dark%>px;
+            --blur-opacity-dark:<%=blur_opacity_dark%>;
+        }
+        <% end -%>
+    </style>
 	<link rel="shortcut icon" href="<%=media%>/favicon.ico">
         <link rel="stylesheet" href="<%=resource%>/spectra/easeicon.css?v=2.4">
 	<% if node and node.css then %>
@@ -232,7 +228,7 @@
 		<%=css %>
 	</style>
 	<% end -%>
-	<script src="<%=media%>/js/polyfill.min.js?v=2.3.1"></script>
+	<script src="<%=media%>/js/polyfill.min.js?v=2.2.10.10"></script>
 	<script src="<%=url('admin/translations', luci.i18n.context.lang)%>?v=<%=ver.luciversion%>"></script>
 	<script src="<%=resource%>/cbi.js?v=<%=ver.luciversion%>"></script>
 	<script src="<%=resource%>/luci.js?v=<%=ver.luciversion%>"></script>
@@ -240,8 +236,10 @@
 </head>
 
 <body
+	theme="<%=mode%>"
 	class="lang_<%=luci.i18n.context.lang%> <% if node then %><%= striptags( node.title ) %><% end %> <% if luci.dispatcher.context.authsession then %>logged-in<% end %>"
 	data-page="<%= table.concat(disp.context.requestpath, "-") %>">
+
 <div class="wrapper">
 		<span></span>
 		<span></span>
@@ -261,8 +259,8 @@
 	<div class="fill">
 		<div class="container">
 			<a class="showSide"></span>
-		<a id="logo" href="<% if luci.dispatcher.context.authsession then %><%=url('admin/status/overview')%><% else %>#<% end %>"><img src="<%=media%>/brand.png" alt="OpenWrt"></a>
-			<tr>
+		<a id="logo" href="<% if luci.dispatcher.context.authsession then %><%=url('admin/status/overview')%><% else %>#<% end %>"><img src="<%=media%>/brand.png" alt="OpenWrt"></a>			
+
         <div class="box-area">
             <div class="box">
                 <a id="oc" href='/cgi-bin/luci/admin/services/openclash'><img src="<%=media%>/navbar/clash.gif" width="35" height="35"></a>
@@ -615,4 +613,4 @@ function updatemenu(){1==document.getElementById("responsive-menu").checked?(doc
 						</div>
 					</noscript>
 
-	<div id="tabmenu" style="display:none"></div>				
+					<div id="tabmenu" style="display:none"></div>
