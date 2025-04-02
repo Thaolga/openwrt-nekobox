@@ -2134,7 +2134,6 @@ video::-webkit-media-controls-enclosure {
     position: relative; 
     height: 60px;
     flex-shrink: 0; 
-    background: rgba(0,0,0,0.8);
 }
 </style>
 
