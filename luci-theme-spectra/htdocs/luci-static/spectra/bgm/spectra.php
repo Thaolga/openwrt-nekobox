@@ -1959,54 +1959,90 @@ playlistToggleBtn.addEventListener('click', () => {
 </script>
 
 <script>
-function updateMediaSize() {
-  const body = document.querySelector('.fullscreen-modal .modal-body');
-  const video = document.getElementById('previewVideo');
-  
-  if (body && video) {
-    const bodyRect = body.getBoundingClientRect();
-    video.style.maxHeight = `${bodyRect.height - 20}px`; 
-  }
+function calculateAvailableHeight() {
+  const header = document.querySelector('header');
+  const footer = document.querySelector('footer');
+  const headerHeight = header ? header.offsetHeight : 0;
+  const footerHeight = footer ? footer.offsetHeight : 0;
+  return window.innerHeight - headerHeight - footerHeight;
 }
 
-window.addEventListener('resize', updateMediaSize);
-document.getElementById('fullscreenToggle').addEventListener('click', () => {
-  setTimeout(updateMediaSize, 100); 
-});
-</script>
-
-<script>
 document.getElementById("fullscreenToggle").addEventListener("click", function () {
-    let modalDialog = document.querySelector("#previewModal .modal-xl"); 
-    let btn = document.getElementById("fullscreenToggle");
+    const modalDialog = document.querySelector("#previewModal .modal-xl"); 
+    const btn = document.getElementById("fullscreenToggle");
 
     if (!document.fullscreenElement) {
-        if (modalDialog.requestFullscreen) {
-            modalDialog.requestFullscreen();
-        } else if (modalDialog.mozRequestFullScreen) { 
-            modalDialog.mozRequestFullScreen();
-        } else if (modalDialog.webkitRequestFullscreen) { 
-            modalDialog.webkitRequestFullscreen();
-        } else if (modalDialog.msRequestFullscreen) { 
-            modalDialog.msRequestFullscreen();
-        }
-        modalDialog.classList.add("fullscreen-modal"); 
+        modalDialog.dataset.originalWidth = modalDialog.style.width;
+        modalDialog.dataset.originalHeight = modalDialog.style.height;
+        
+        if (modalDialog.requestFullscreen) modalDialog.requestFullscreen();
+        
+        modalDialog.classList.add("fullscreen-modal");
         btn.innerText = "退出全屏";
     } else {
-        if (document.exitFullscreen) {
-            document.exitFullscreen();
-        } else if (document.mozCancelFullScreen) {
-            document.mozCancelFullScreen();
-        } else if (document.webkitExitFullscreen) {
-            document.webkitExitFullscreen();
-        } else if (document.msExitFullscreen) {
-            document.msExitFullscreen();
+        if (document.exitFullscreen) document.exitFullscreen();
+        
+        modalDialog.classList.remove("fullscreen-modal");
+        if (window.innerWidth <= 576) {
+            modalDialog.style.height = `${calculateAvailableHeight()}px`;
+        } else {
+            modalDialog.style.width = modalDialog.dataset.originalWidth;
+            modalDialog.style.height = modalDialog.dataset.originalHeight;
         }
-        modalDialog.classList.remove("fullscreen-modal"); 
         btn.innerText = "进入全屏";
     }
 });
+
+function handleFullscreenChange() {
+    const isFullscreen = !!document.fullscreenElement;
+    const modalDialog = document.querySelector("#previewModal .modal-xl");
+    const btn = document.getElementById("fullscreenToggle");
+
+    if (!isFullscreen && modalDialog) {
+        modalDialog.classList.remove("fullscreen-modal");
+        if (window.innerWidth <= 576) {
+            modalDialog.style.height = `${calculateAvailableHeight()}px`;
+            window.addEventListener('resize', handleVerticalResize);
+        } else {
+            modalDialog.style.width = modalDialog.dataset.originalWidth;
+            modalDialog.style.height = modalDialog.dataset.originalHeight;
+        }
+        btn.innerText = "进入全屏";
+    }
+}
+
+function handleVerticalResize() {
+    if (window.innerWidth > 576) return;
+    const modalDialog = document.querySelector("#previewModal .modal-xl");
+    modalDialog.style.height = `${calculateAvailableHeight()}px`;
+}
+
+document.addEventListener('fullscreenchange', handleFullscreenChange);
+window.addEventListener('resize', handleVerticalResize);
 </script>
+
+<style>
+.modal-xl {
+    max-width: 1140px;
+    width: 80%;
+    margin: 1rem auto; 
+    transition: height 0.3s ease; 
+}
+
+.fullscreen-modal {
+    max-width: none !important;
+    width: 100vw !important;
+    height: 100vh !important;
+    margin: 0;
+}
+
+@media (max-width: 576px) {
+    .modal-xl:not(.fullscreen-modal) {
+        max-height: calc(100vh - var(--header-height) - var(--footer-height));
+        overflow-y: auto;
+    }
+}
+</style>
 
 <script>
 const fullscreenBtn = document.getElementById('toggleFullscreen');
