@@ -486,7 +486,7 @@ label[for="selectAll"] {
 
 #previewImage, #previewVideo {
         max-width: 100%;
-        max-height: 70vh;
+        max-height: 100vh;
         object-fit: contain;  
 }
 
@@ -1885,7 +1885,7 @@ body:hover,
 	max-width: 100%;
 	max-height: 100%;
 	width: auto;
-	height: auto;
+        height: 100% !important; 
 	object-fit: contain;
 }
 
