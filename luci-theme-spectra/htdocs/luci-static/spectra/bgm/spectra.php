@@ -888,11 +888,10 @@ body:hover,
 }
 
 #previewAudio {
-    width: 100%;
-    max-height: 100%;
-    position: absolute; 
-    bottom: 20px; 
-    left: 0;
+    width: 80% !important;    
+    display: block !important;
+    margin: 0 auto !important; 
+    max-width: 600px;      
 }
 
 .hover-tips {
@@ -957,6 +956,13 @@ body:hover,
         white-space: nowrap;  
     }
  }
+
+@media (max-width: 768px) {
+    #previewAudio {
+        width: 95% !important;
+        max-width: none;
+    }
+}
 </style>
 
 
