@@ -1946,25 +1946,6 @@ body:hover,
 </style>
 
 <script>
-const playlistToggleBtn = document.getElementById('togglePlaylist');
-const playlistColumn = document.querySelector('.col-md-4');
-let isPlaylistVisible = true;
-
-playlistToggleBtn.addEventListener('click', () => {
-    isPlaylistVisible = !isPlaylistVisible;
-    playlistColumn.classList.toggle('d-none');
-    
-    const icon = playlistToggleBtn.querySelector('i');
-    icon.className = isPlaylistVisible ? 'bi bi-list-ul' : 'bi bi-layout-sidebar';
-    playlistToggleBtn.innerHTML = icon.outerHTML + ' ' + 
-        (isPlaylistVisible ? '隐藏列表' : '显示列表');
-    
-    const mainColumn = document.querySelector('.col-md-8');
-    mainColumn.classList.toggle('col-md-12');
-});
-</script>
-
-<script>
 function calculateAvailableHeight() {
   const header = document.querySelector('header');
   const footer = document.querySelector('footer');
@@ -2051,52 +2032,101 @@ window.addEventListener('resize', handleVerticalResize);
 </style>
 
 <script>
+const playlistToggleBtn = document.getElementById('togglePlaylist');
+const playlistColumn = document.querySelector('.col-md-4');
 const fullscreenBtn = document.getElementById('toggleFullscreen');
 const modalContent = document.querySelector('#playerModal .modal-content');
+const videoElement = document.querySelector('#videoElement'); 
+let isPlaylistVisible = true;
+
+playlistToggleBtn.addEventListener('click', () => {
+    isPlaylistVisible = !isPlaylistVisible;
+    playlistColumn.classList.toggle('d-none');
+    
+    const icon = playlistToggleBtn.querySelector('i');
+    icon.className = isPlaylistVisible ? 'bi bi-list-ul' : 'bi bi-layout-sidebar';
+    playlistToggleBtn.innerHTML = icon.outerHTML + ' ' + 
+        (isPlaylistVisible ? '隐藏列表' : '显示列表');
+    
+    const mainColumn = document.querySelector('.col-md-8');
+    mainColumn.classList.toggle('col-md-12');
+    
+    checkFullscreenState(); 
+});
 
 function toggleFullscreen() {
     if (!document.fullscreenElement) {
-        modalContent.requestFullscreen().catch(console.error);
+        modalContent.requestFullscreen().then(() => {
+            updateFullscreenButton(true); 
+            checkFullscreenState();
+        }).catch(console.error);
     } else {
         document.exitFullscreen();
     }
 }
 
-document.addEventListener('fullscreenchange', () => {
+function updateFullscreenButton(isFullscreen) {
     const icon = fullscreenBtn.querySelector('i');
-    icon.className = document.fullscreenElement ? 
-        'bi bi-fullscreen-exit' : 
-        'bi bi-arrows-fullscreen';
-    fullscreenBtn.innerHTML = icon.outerHTML + ' ' + 
-        (document.fullscreenElement ? '退出全屏' : '全屏');
+    if (isFullscreen) {
+        icon.className = 'bi bi-fullscreen-exit';
+        fullscreenBtn.innerHTML = icon.outerHTML + ' 退出全屏';
+    } else {
+        icon.className = 'bi bi-arrows-fullscreen';
+        fullscreenBtn.innerHTML = icon.outerHTML + ' 全屏';
+    }
+}
+
+document.addEventListener('fullscreenchange', () => {
+    const isFullscreen = !!document.fullscreenElement;
+    updateFullscreenButton(isFullscreen); 
+    checkFullscreenState();
 });
+
+updateFullscreenButton(false); 
+
+function checkFullscreenState() {
+    if (document.fullscreenElement && !isPlaylistVisible) {
+        videoElement.style.height = 'calc(100vh - 60px)';
+        videoElement.style.marginBottom = '60px'; 
+    } else {
+        videoElement.style.height = '100%';
+        videoElement.style.marginBottom = '0';
+    }
+}
+
+document.addEventListener('fullscreenchange', checkFullscreenState);
 
 fullscreenBtn.addEventListener('click', toggleFullscreen);
 
-let startX = null;
-const playlist = document.querySelector('#playlistContainer');
-
-playlist.addEventListener('mousedown', (e) => {
-    if (document.fullscreenElement) {
-        startX = e.clientX;
-        document.addEventListener('mousemove', handleDrag);
-        document.addEventListener('mouseup', stopDrag);
-    }
+let resizeTimer;
+window.addEventListener('resize', () => {
+    clearTimeout(resizeTimer);
+    resizeTimer = setTimeout(checkFullscreenState, 100);
 });
-
-function handleDrag(e) {
-    if (!startX) return;
-    const newWidth = Math.min(Math.max(250, playlist.offsetWidth + (startX - e.clientX)), 400);
-    document.documentElement.style.setProperty('--playlist-width', `${newWidth}px`);
-    startX = e.clientX;
-}
-
-function stopDrag() {
-    startX = null;
-    document.removeEventListener('mousemove', handleDrag);
-    document.removeEventListener('mouseup', stopDrag);
-}
 </script>
+
+<style>
+#videoElement {
+    width: 100%;
+    height: 100%;
+    transition: all 0.3s ease;
+    object-fit: contain;
+}
+
+#playerModal .modal-content {
+    position: relative;
+    overflow: hidden;
+}
+
+.modal-footer {
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+    height: 60px;
+    background: rgba(0,0,0,0.8);
+    z-index: 10;
+}
+</style>
 
 <script>
 document.addEventListener('DOMContentLoaded', function () {
