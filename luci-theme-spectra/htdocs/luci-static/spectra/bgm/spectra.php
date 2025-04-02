@@ -141,7 +141,8 @@ if (isset($_POST['batch_delete'])) {
 
 $files = array_diff(scandir($upload_dir), ['..', '.', '.htaccess', 'index.php']);
 $files = array_filter($files, function ($file) {
-    return pathinfo($file, PATHINFO_EXTENSION) !== 'php';
+    $ext = pathinfo($file, PATHINFO_EXTENSION);
+    return !in_array(strtolower($ext), ['php', 'txt']); 
 });
 
 if (isset($_GET['background'])) {
@@ -1017,6 +1018,17 @@ body:hover,
             <input type="color" id="colorPicker"  value="#ff6600" />
         </div>
 
+        <?php
+            $history_file = 'background_history.txt';
+            $background_history = file_exists($history_file) ? file($history_file, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES) : [];
+
+            usort($files, function ($a, $b) use ($background_history) {
+                $posA = array_search($a, $background_history);
+                $posB = array_search($b, $background_history);
+                return ($posA === false ? PHP_INT_MAX : $posA) - ($posB === false ? PHP_INT_MAX : $posB);
+            });
+        ?>
+
         <div class="row row-cols-2 row-cols-md-4 row-cols-lg-5 g-4">
             <?php foreach ($files as $file): 
                 $path = $upload_dir . '/' . $file;
@@ -1146,7 +1158,7 @@ body:hover,
                                 <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#renameModal-<?= md5($file) ?>" title="重命名"><i class="bi bi-pencil"></i></button>
                                 <a href="?download=<?= urlencode($file) ?>" class="btn btn-success" title="下载"><i class="bi bi-download"></i></a>                     
                                 <?php if ($isMedia): ?>
-                                <button class="btn btn-info set-bg-btn" data-src="<?= htmlspecialchars($file) ?>" data-type="<?= $isVideo ? 'video' : ($isAudio ? 'audio' : 'image') ?>" title="设置背景"><i class="bi bi-image"></i></button>
+                                <button class="btn btn-info set-bg-btn" data-src="<?= htmlspecialchars($file) ?>" data-type="<?= $isVideo ? 'video' : ($isAudio ? 'audio' : 'image') ?>" title="设置背景" onclick="setBackground('<?= htmlspecialchars($file) ?>')"><i class="bi bi-image"></i></button>
                                 <?php endif; ?>  
                             </div>
                         </div>
@@ -2306,3 +2318,13 @@ document.getElementById('nextBtn').addEventListener('click', () => {
     }
 </script>
 
+<script>
+function setBackground(filename) {
+    fetch('set_background.php', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: 'file=' + encodeURIComponent(filename)
+    }).then(() => location.reload()) 
+      .catch(error => console.error('请求失败:', error)); 
+}
+</script>
