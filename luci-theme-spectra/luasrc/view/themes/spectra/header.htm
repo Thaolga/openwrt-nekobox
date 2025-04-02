@@ -58,12 +58,10 @@
 <html lang="<%=luci.i18n.context.lang%>">
 
 <head>
-    <style>
-
-        body,
-        body *:not(script):not(style):not(link) {  
-          font-family: 
-            system-ui,
+<style>
+body,
+        body *:not(script):not(style):not(link) {
+	font-family: system-ui,
             -apple-system,               
             "Segoe UI Variable",            
             "Microsoft YaHei UI",         
@@ -72,108 +70,148 @@
             "Noto Sans CJK SC",
             "Source Han Sans SC",
             sans-serif !important;
-          font-synthesis: none !important; 
+	font-synthesis: none !important;
+}
 
-        }
-
-        @font-face {
-          font-family: "Fallback Sans";
+@font-face {
+	font-family: "Fallback Sans";
           src: local("Arial"), local("Liberation Sans");
           ascent-override: 95%;
           descent-override: 20%;
           line-gap-override: 0;
-        }
+}
 
-        body {
-          font-family: 
-            var(--system-font-stack), 
+body {
+	font-family: var(--system-font-stack), 
             "Fallback Sans" !important;
-          -webkit-font-smoothing: auto !important;
-          font-smooth: never !important; 
-        }
+	-webkit-font-smoothing: auto !important;
+	font-smooth: never !important;
+}
 
-        :lang(zh) {
-          hanging-punctuation: first allow-end !important; 
-        }
+:lang(zh) {
+	hanging-punctuation: first allow-end !important;
+}
 
-        h2:not(.keep-default) {
-          font-family: 
-            ui-sans-serif,     
+h2:not(.keep-default) {
+	font-family: ui-sans-serif,     
             "HarmonyOS Sans SC Bold",
             "Microsoft YaHei Bold",
             sans-serif !important;
-          font-size: 1.8em !important;  
-          font-weight: bolder !important;  
-        }
+	font-size: 1.8em !important;
+	font-weight: bolder !important;
+}
 
-        h3:not(.keep-default) {
-          font-family: 
-            ui-sans-serif,
+h3:not(.keep-default) {
+	font-family: ui-sans-serif,
             "HarmonyOS Sans SC Medium",
             "Microsoft YaHei",
             sans-serif !important;
-            font-size: 1.2em !important;  
-            font-weight: normal !important;
-            font-style: oblique 8deg !important; 
-        }
+	font-size: 1.2em !important;
+	font-weight: normal !important;
+	font-style: oblique 8deg !important;
+}
 
-        header {
-            background-color: transparent;
-            color: #fff;
-            padding: 20px;
-        }
+header {
+	background-color: transparent;
+	color: #fff;
+	padding: 20px;
+}
 
-        .box {
-            width: 40px;
-            height: 40px;
-            margin: 0 8px;
-            background: transparent;
-            margin: 0 10px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            text-align: center;
-            position: relative;
-            overflow: hidden;
-            box-shadow: 0 6px 6px 3px #00ffff9a;
-        }
+.box {
+	width: 40px;
+	height: 40px;
+	margin: 0 8px;
+	background: transparent;
+	margin: 0 10px;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	text-align: center;
+	position: relative;
+	overflow: hidden;
+	box-shadow: 0 6px 6px 3px #00ffff9a;
+}
 
-        .box img {
-            display: block;
-            margin: auto; 
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            transition: filter 0.2s ease-in-out; 
-        }
+.box img {
+	display: block;
+	margin: auto;
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	transform: translate(-50%, -50%);
+	transition: filter 0.2s ease-in-out;
+}
 
-        .box:hover img {
-            filter: drop-shadow(0 0 5px cyan); 
-        }
+.box:hover img {
+	filter: drop-shadow(0 0 5px cyan);
+}
 
-        .box i {
-            z-index: 5;
-            font-size: 45px;
-            color: #fff;
-        }
+.box i {
+	z-index: 5;
+	font-size: 45px;
+	color: #fff;
+}
 
-        .box-area {
-            display: flex;
-            justify-content: space-evenly; 
-            align-items: center;
-            margin: 30px 0 40px;
-            padding: 0 15px; 
-        }
+.box-area {
+	display: flex;
+	justify-content: space-evenly;
+	align-items: center;
+	margin: 30px 0 40px;
+	padding: 0 15px;
+}
 
-        .inner {
-            display: none !important;
-        }
+.inner {
+	display: none !important;
+}
 
-        #logo img {
-            width: 220px; 
-            height: auto; 
-        }
+@font-face {
+	font-display: swap; 
+  font-family: 'Fredoka One';
+  font-style: normal;
+  font-weight: 700;
+  src: url('/luci-static/spectra/fonts/fredoka-v16-latin-700.woff2') format('woff2');
+}
+
+@keyframes textColorChange {
+	0% {
+		color: #28edf0;
+	}
+
+	50% {
+		color: #28edf0;
+	}
+
+	100% {
+		color: #28edf0;
+	}
+}
+
+.royal-style {
+	font-family: 'Fredoka One', cursive !important;
+	font-weight: 700;
+	font-size: 35px;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	min-width: 220px;
+	padding: 2px 5px;
+	line-height: 1.1;
+	letter-spacing: 2px;
+	text-decoration: none !important;
+	box-sizing: border-box;
+	color: #28edf0;
+	-webkit-text-stroke: 1px rgba(0, 0, 0, 0.5);
+	animation: textColorChange 3s infinite linear;
+	text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.2),  
+                 -2px -2px 5px rgba(255, 255, 255, 0.5);
+	transition: all 0.3s;
+}
+
+.royal-style:hover {
+	transform: skew(-5deg);
+	filter: drop-shadow(2px 2px 3px rgba(0, 0, 0, 0.3));
+}
+
 </style>
     <meta charset="utf-8">
     <title>
@@ -261,11 +299,10 @@
 		<span></span>
 </div>
 <header>
-	<div class="fill">
-		<div class="container">
-			<a class="showSide"></span>
-		<a id="logo" href="<% if luci.dispatcher.context.authsession then %><%=url('admin/status/overview')%><% else %>#<% end %>"><img src="<%=media%>/brand.png" alt="OpenWrt"></a>			
-
+    <div class="fill">
+        <div class="container">
+            <a class="showSide"></a>
+            <a id="logo" href="#" class="royal-style"><%=brand_name%></a>
         <div class="box-area">
             <div class="box">
                 <a id="oc" href='/cgi-bin/luci/admin/services/openclash'><img src="<%=media%>/navbar/clash.gif" width="35" height="35"></a>
