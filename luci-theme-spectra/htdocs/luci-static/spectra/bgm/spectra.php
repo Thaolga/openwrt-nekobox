@@ -243,7 +243,7 @@ try {
 	--bg-body: oklch(20% var(--base-chroma) var(--base-hue) / 50%);
 	--bg-container: oklch(30% var(--base-chroma) var(--base-hue));
 	--text-primary: oklch(95% 0 0); 
-	--accent-color: oklch(70% 0.2 calc(var(--base-hue) + 60));
+	--accent-color: oklch(70% 0.2 calc(var(--base-hue) + 0));
 	--card-bg: oklch(25% var(--base-chroma) var(--base-hue));
 	--header-bg: oklch(35% var(--base-chroma) var(--base-hue));
 	--border-color: oklch(40% var(--base-chroma) var(--base-hue));
@@ -1013,7 +1013,8 @@ body:hover,
         
         <div class="d-flex align-items-center mb-3 ps-2">
             <input type="checkbox" id="selectAll" class="form-check-input me-2 shadow-sm" style="width: 1.05em; height: 1.05em; border-radius: 0.35em; margin-left: 1px; transform: scale(1.2)">
-            <label for="selectAll" class="form-check-label fs-5 ms-1">全选</label>
+            <label for="selectAll" class="form-check-label fs-5 ms-1" style="margin-right: 10px;">全选</label>
+            <input type="color" id="colorPicker"  value="#ff6600" />
         </div>
 
         <div class="row row-cols-2 row-cols-md-4 row-cols-lg-5 g-4">
@@ -1173,6 +1174,9 @@ body:hover,
                     <video id="previewVideo" controls class="d-none">
                         <source id="previewVideoSource" src="" type="video/mp4">
                     </video>
+              </div>
+                <div class="modal-footer">
+                    <button class="btn btn-primary" id="fullscreenToggle">切换全屏</button>
                 </div>
             </div>
         </div>
@@ -1601,64 +1605,6 @@ body:hover,
     </script>
 
     <script>
-        function toggleConfig() {
-            fetch("", { method: "POST" }) 
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        updateButton(data.mode);
-                    } else {
-                        document.getElementById("status").innerText = "更新失败: " + data.error;
-                    }
-                });
-        }
-
-        function updateButton(value) {
-            const body = document.documentElement;
-            const btn = document.getElementById("toggleButton");
-            const status = document.getElementById("status");
-
-            const baseHue = value === 'dark' ? 260 : 200;
-            const chroma = value === 'dark' ? 0.03 : 0.01;
-    
-            body.style.setProperty('--base-hue', baseHue);
-            body.style.setProperty('--base-chroma', chroma);
-
-            body.setAttribute("data-theme", value);
-  
-            if (value === "dark") {
-                btn.innerHTML = '<i class="bi bi-sun"></i> 切换到亮色模式';
-                btn.className = "btn btn-primary light";
-                status.innerText = "当前模式: 暗色模式";
-            } else {
-                btn.innerHTML = '<i class="bi bi-moon"></i> 切换到暗色模式';
-                btn.className = "btn btn-primary dark";
-                status.innerText = "当前模式: 亮色模式";
-            }
-  
-                localStorage.setItem("theme", value);
-            }
-
-        document.addEventListener("DOMContentLoaded", () => {
-            const serverTheme = "<?= $mode ?>"; 
-            const savedTheme = localStorage.getItem("theme") || serverTheme;
-
-            document.documentElement.style.setProperty('--base-hue', 
-                savedTheme === 'dark' ? 260 : 200
-            );
-            document.documentElement.style.setProperty('--base-chroma', 
-                savedTheme === 'dark' ? 0.03 : 0.01
-            );
-    
-            document.documentElement.setAttribute('data-theme', savedTheme);
-            document.querySelectorAll('[data-bs-toggle="tooltip"]').forEach(el => new bootstrap.Tooltip(el));
-            document.querySelectorAll('.modal').forEach(el => new bootstrap.Modal(el));
-  
-            updateButton(savedTheme);
-        });
-    </script>
-
-    <script>
         document.addEventListener('DOMContentLoaded', function() {
             new bootstrap.Tooltip(document.querySelector('[data-bs-toggle="tooltip"]'))
 
@@ -1890,53 +1836,94 @@ body:hover,
     });
 </script> 
 <style>
+.col-md-8, .col-md-12 {
+	transition: all 0.3s ease;
+}
+
+.fullscreen-modal {
+	width: 100vw !important;
+	height: 100vh !important;
+	margin: 0 !important;
+	padding: 0 !important;
+	max-width: none !important;
+}
+
+.fullscreen-modal .modal-content {
+	height: 100%;
+	display: flex;
+	flex-direction: column;
+}
+
+.fullscreen-modal .modal-header,
+.fullscreen-modal .modal-footer {
+	flex-shrink: 0;
+	min-height: 60px;
+}
+
+.fullscreen-modal .modal-body {
+	flex: 1;
+	min-height: 0;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	padding: 10px;
+}
+
+#previewVideo {
+	max-width: 100%;
+	max-height: 100%;
+	width: auto;
+	height: auto;
+	object-fit: contain;
+}
+
 .modal-content:fullscreen .row {
-    --playlist-width: 350px; 
+	--playlist-width: 350px;
 }
 
 .modal-content:fullscreen .col-md-8 {
-    flex: 1 1 calc(100% - var(--playlist-width)) !important;
-    max-width: calc(100% - var(--playlist-width)) !important;
+	flex: 1 1 calc(100% - var(--playlist-width)) !important;
+	max-width: calc(100% - var(--playlist-width)) !important;
 }
 
 .modal-content:fullscreen .col-md-4 {
-    flex: 0 0 var(--playlist-width) !important;
-    max-width: var(--playlist-width) !important;
-    transition: all 0.3s; 
+	flex: 0 0 var(--playlist-width) !important;
+	max-width: var(--playlist-width) !important;
+	transition: all 0.3s;
 }
 
 .modal-content:fullscreen #playlistContainer {
-    font-size: 0.9em; 
-    padding: 0 0.5rem; 
+	font-size: 0.9em;
+	padding: 0 0.5rem;
 }
 
 .col-md-4 {
-    transition: all 0.3s ease-in-out;
+	transition: all 0.3s ease-in-out;
 }
 
 .modal-content:fullscreen .col-md-8.col-md-12 {
-    flex: 0 0 100% !important;
-    max-width: 100% !important;
+	flex: 0 0 100% !important;
+	max-width: 100% !important;
 }
 
 .modal-content:fullscreen {
-    width: 100vw !important;
-    height: 100vh !important;
-    border-radius: 0 !important;
-    margin: 0 !important;
+	width: 100vw !important;
+	height: 100vh !important;
+	border-radius: 0 !important;
+	margin: 0 !important;
 }
 
 @media (max-width: 768px) {
-    #togglePlaylist {
-        display: none; 
-    }
+	#togglePlaylist {
+		display: none;
+	}
 }
 
 @media (max-width: 767px) {
-    #playerModal .col-md-4 h6 {
-        text-align: left; 
-        margin-bottom: 10px; 
-    }
+	#playerModal .col-md-4 h6 {
+		text-align: left;
+		margin-bottom: 10px;
+	}
 }
 </style>
 
@@ -1959,6 +1946,55 @@ playlistToggleBtn.addEventListener('click', () => {
 });
 </script>
 
+<script>
+function updateMediaSize() {
+  const body = document.querySelector('.fullscreen-modal .modal-body');
+  const video = document.getElementById('previewVideo');
+  
+  if (body && video) {
+    const bodyRect = body.getBoundingClientRect();
+    video.style.maxHeight = `${bodyRect.height - 20}px`; 
+  }
+}
+
+window.addEventListener('resize', updateMediaSize);
+document.getElementById('fullscreenToggle').addEventListener('click', () => {
+  setTimeout(updateMediaSize, 100); 
+});
+</script>
+
+<script>
+document.getElementById("fullscreenToggle").addEventListener("click", function () {
+    let modalDialog = document.querySelector("#previewModal .modal-xl"); 
+    let btn = document.getElementById("fullscreenToggle");
+
+    if (!document.fullscreenElement) {
+        if (modalDialog.requestFullscreen) {
+            modalDialog.requestFullscreen();
+        } else if (modalDialog.mozRequestFullScreen) { 
+            modalDialog.mozRequestFullScreen();
+        } else if (modalDialog.webkitRequestFullscreen) { 
+            modalDialog.webkitRequestFullscreen();
+        } else if (modalDialog.msRequestFullscreen) { 
+            modalDialog.msRequestFullscreen();
+        }
+        modalDialog.classList.add("fullscreen-modal"); 
+        btn.innerText = "退出全屏";
+    } else {
+        if (document.exitFullscreen) {
+            document.exitFullscreen();
+        } else if (document.mozCancelFullScreen) {
+            document.mozCancelFullScreen();
+        } else if (document.webkitExitFullscreen) {
+            document.webkitExitFullscreen();
+        } else if (document.msExitFullscreen) {
+            document.msExitFullscreen();
+        }
+        modalDialog.classList.remove("fullscreen-modal"); 
+        btn.innerText = "进入全屏";
+    }
+});
+</script>
 
 <script>
 const fullscreenBtn = document.getElementById('toggleFullscreen');
@@ -2007,6 +2043,7 @@ function stopDrag() {
     document.removeEventListener('mouseup', stopDrag);
 }
 </script>
+
 <script>
 document.addEventListener('DOMContentLoaded', function () {
   interact('.modal-dialog.draggable').draggable({
@@ -2138,3 +2175,134 @@ document.getElementById('nextBtn').addEventListener('click', () => {
     loadAndPlayMedia();
 });
 </script>
+
+<script>
+    function updateBaseHueFromColorPicker(event) {
+        const color = event.target.value; 
+        const rgb = hexToRgb(color); 
+        const hsl = rgbToHsl(rgb.r, rgb.g, rgb.b); 
+        const hue = hsl.h; 
+
+        document.documentElement.style.setProperty('--base-hue', hue);
+        
+        localStorage.setItem("baseHue", hue);
+        
+        document.getElementById("colorPicker").value = color;
+    }
+
+    function hexToRgb(hex) {
+        const r = parseInt(hex.slice(1, 3), 16);
+        const g = parseInt(hex.slice(3, 5), 16);
+        const b = parseInt(hex.slice(5, 7), 16);
+        return { r, g, b };
+    }
+
+    function rgbToHsl(r, g, b) {
+        r /= 255;
+        g /= 255;
+        b /= 255;
+        
+        let max = Math.max(r, g, b);
+        let min = Math.min(r, g, b);
+        let h = (max + min) / 2;
+        let s = (max + min) / 2;
+        let l = (max + min) / 2;
+        
+        if (max === min) {
+            h = s = 0;
+        } else {
+            let d = max - min;
+            s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+            switch (max) {
+                case r: h = (g - b) / d + (g < b ? 6 : 0); break;
+                case g: h = (b - r) / d + 2; break;
+                case b: h = (r - g) / d + 4; break;
+            }
+            h /= 6;
+        }
+        
+        return { h: h * 360, s, l };
+    }
+
+    function hslToHex(h, s, l) {
+        h = h % 360;
+        s = Math.max(0, Math.min(100, s)) / 100;
+        l = Math.max(0, Math.min(100, l)) / 100;
+
+        let c = (1 - Math.abs(2 * l - 1)) * s;
+        let x = c * (1 - Math.abs(((h / 60) % 2) - 1));
+        let m = l - c / 2;
+
+        let [r, g, b] = [0, 0, 0];
+
+        if (0 <= h && h < 60) [r, g, b] = [c, x, 0];
+        else if (60 <= h && h < 120) [r, g, b] = [x, c, 0];
+        else if (120 <= h && h < 180) [r, g, b] = [0, c, x];
+        else if (180 <= h && h < 240) [r, g, b] = [0, x, c];
+        else if (240 <= h && h < 300) [r, g, b] = [x, 0, c];
+        else [r, g, b] = [c, 0, x];
+
+        return "#" + [r, g, b]
+            .map(channel => Math.round((channel + m) * 255)
+            .toString(16)
+            .padStart(2, "0"))
+            .join("")
+            .toUpperCase();
+    }
+
+    document.addEventListener("DOMContentLoaded", () => {
+        const savedHue = localStorage.getItem("baseHue") || 200;
+        
+        document.documentElement.style.setProperty('--base-hue', savedHue);
+        
+        const colorPicker = document.getElementById("colorPicker");
+        const savedColor = hslToHex(savedHue, 50, 50); 
+        colorPicker.value = savedColor; 
+
+        colorPicker.addEventListener('input', updateBaseHueFromColorPicker);
+
+        const penIcon = document.getElementById("penIcon");
+        penIcon.addEventListener("click", () => {
+            colorPicker.click(); 
+        });
+    });
+
+    function toggleConfig() {
+        fetch("", { method: "POST" })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    updateButton(data.mode);
+                } else {
+                    document.getElementById("status").innerText = "更新失败: " + data.error;
+                }
+            });
+    }
+
+    function updateButton(value) {
+        const body = document.documentElement;
+        const btn = document.getElementById("toggleButton");
+        const status = document.getElementById("status");
+
+        const baseHue = value === 'dark' ? 260 : 200;
+        const chroma = value === 'dark' ? 0.03 : 0.01;
+
+        body.style.setProperty('--base-hue', baseHue);
+        body.style.setProperty('--base-chroma', chroma);
+
+        body.setAttribute("data-theme", value);
+
+        if (value === "dark") {
+            btn.innerHTML = '<i class="bi bi-sun"></i> 切换到亮色模式';
+            btn.className = "btn btn-primary light";
+            status.innerText = "当前模式: 暗色模式";
+        } else {
+            btn.innerHTML = '<i class="bi bi-moon"></i> 切换到暗色模式';
+            btn.className = "btn btn-primary dark";
+            status.innerText = "当前模式: 亮色模式";
+        }
+
+        localStorage.setItem("theme", value);
+    }
+</script>
+
