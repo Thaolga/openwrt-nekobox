@@ -888,10 +888,11 @@ body:hover,
 }
 
 #previewAudio {
-    width: 80% !important;    
-    display: block !important;
-    margin: 0 auto !important; 
-    max-width: 600px;      
+    width: 100%;
+    max-height: 100%;
+    position: absolute; 
+    bottom: 20px; 
+    left: 0;
 }
 
 .hover-tips {
@@ -2082,15 +2083,16 @@ document.addEventListener('fullscreenchange', () => {
     checkFullscreenState();
 });
 
-updateFullscreenButton(false); 
-
 function checkFullscreenState() {
-    if (document.fullscreenElement && !isPlaylistVisible) {
-        videoElement.style.height = 'calc(100vh - 60px)';
-        videoElement.style.marginBottom = '60px'; 
-    } else {
+    const modalContent = document.querySelector('#playerModal .modal-content');
+    const videoContainer = modalContent.querySelector('.video-container');
+    
+    if (document.fullscreenElement) {
+        const footerHeight = document.querySelector('.modal-footer').offsetHeight;
+        videoContainer.style.height = `calc(100vh - ${footerHeight}px)`;
         videoElement.style.height = '100%';
-        videoElement.style.marginBottom = '0';
+    } else {
+        videoContainer.style.height = isPlaylistVisible ? 'calc(100vh - 180px)' : 'calc(100vh - 120px)';
     }
 }
 
@@ -2103,28 +2105,36 @@ window.addEventListener('resize', () => {
     clearTimeout(resizeTimer);
     resizeTimer = setTimeout(checkFullscreenState, 100);
 });
+
+updateFullscreenButton(false); 
 </script>
 
 <style>
-#videoElement {
-    width: 100%;
-    height: 100%;
-    transition: all 0.3s ease;
-    object-fit: contain;
+.video-container {
+    height: calc(100vh - 180px);  
+    transition: height 0.3s ease;
+    position: relative;
 }
 
 #playerModal .modal-content {
-    position: relative;
-    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    height: 70vh; 
+}
+
+video::-webkit-media-controls-panel {
+    bottom: 60px !important;  
+}
+
+video::-webkit-media-controls-enclosure {
+    height: calc(100% - 60px) !important;
 }
 
 .modal-footer {
-    position: absolute;
-    bottom: 0;
-    width: 100%;
+    position: relative; 
     height: 60px;
+    flex-shrink: 0; 
     background: rgba(0,0,0,0.8);
-    z-index: 10;
 }
 </style>
 
