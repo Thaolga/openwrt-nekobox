@@ -1214,6 +1214,7 @@ body:hover,
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body">
+                  <div class="alert alert-warning">支持格式：[ jpg, jpeg, png, gif, mp4, mkv, mp3, wav, flac ]</div>
                     <form id="uploadForm" method="post" enctype="multipart/form-data">
                         <div class="drop-zone border rounded p-5 text-center mb-3">
                             <input type="file" name="upload_file[]" id="upload_file" multiple 
