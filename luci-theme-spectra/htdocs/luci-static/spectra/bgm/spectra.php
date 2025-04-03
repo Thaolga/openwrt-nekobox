@@ -985,7 +985,7 @@ body:hover,
     </div>
         <div class="d-flex align-items-center">
             <?php
-            $mountPoint = '/overlay';
+            $mountPoint = '/'; 
             $freeSpace = @disk_free_space($mountPoint);
             $totalSpace = @disk_total_space($mountPoint);
             $usedSpace = $totalSpace - $freeSpace;
