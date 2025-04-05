@@ -2420,17 +2420,68 @@ document.getElementById('nextBtn').addEventListener('click', () => {
 </script>
 
 <script>
-    function updateBaseHueFromColorPicker(event) {
-        const color = event.target.value; 
-        const rgb = hexToRgb(color); 
-        const hsl = rgbToHsl(rgb.r, rgb.g, rgb.b); 
-        const hue = hsl.h; 
+    function hexToOklch(hex) {
+        const rgb = hexToRgb(hex);
+        return rgbToOklch(rgb.r, rgb.g, rgb.b);
+    }
 
-        document.documentElement.style.setProperty('--base-hue', hue);
+    function rgbToOklch(r, g, b) {
+        const [lr, lg, lb] = [r, g, b].map(c => {
+            c /= 255;
+            return c <= 0.04045 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4);
+        });
+
+        const x = 0.4122214708 * lr + 0.5363325363 * lg + 0.0514459929 * lb;
+        const y = 0.2119034982 * lr + 0.6806995451 * lg + 0.1073969566 * lb;
+        const z = 0.0883024619 * lr + 0.2817188376 * lg + 0.6299787005 * lb;
+
+        const l = Math.cbrt(0.8189330101 * x + 0.3618667424 * y - 0.1288997136 * z);
+        const m = Math.cbrt(-0.0321965433 * x + 0.9295746987 * y + 0.0361446476 * z);
+        const s = Math.cbrt(0.0481421477 * x - 0.0192659616 * y + 0.9902282127 * z);
+
+        const l_ = 0.2104542553 * l + 0.7936177850 * m - 0.0040720468 * s;
+        const a = 1.9779984951 * l - 2.4285922050 * m + 0.4505937099 * s;
+        const b_ = 0.0259040371 * l + 0.7827717662 * m - 0.8086757660 * s;
+
+        const c = Math.sqrt(a * a + b_ * b_);
+        let h = Math.atan2(b_, a) * 180 / Math.PI;
+        h = h < 0 ? h + 360 : h;
+
+        return {
+            l: l_ * 100, 
+            c: c,      
+            h: h       
+        };
+    }
+
+    function updateBaseHueFromColorPicker(event) {
+        const color = event.target.value;
+        const oklch = hexToOklch(color);
         
-        localStorage.setItem("baseHue", hue);
+        document.documentElement.style.setProperty('--base-hue', oklch.h);
+        document.documentElement.style.setProperty('--base-chroma', oklch.c);
         
-        document.getElementById("colorPicker").value = color;
+        localStorage.setItem("baseHue", oklch.h);
+        localStorage.setItem("baseChroma", oklch.c);
+    }
+
+    document.addEventListener("DOMContentLoaded", () => {
+        const savedHue = localStorage.getItem("baseHue") || 260;
+        const savedChroma = localStorage.getItem("baseChroma") || 0.03;
+        
+        document.documentElement.style.setProperty('--base-hue', savedHue);
+        document.documentElement.style.setProperty('--base-chroma', savedChroma);
+        
+        const colorPicker = document.getElementById("colorPicker");
+        colorPicker.value = oklchToHex(savedHue, savedChroma, 50); 
+        
+        colorPicker.addEventListener('input', updateBaseHueFromColorPicker);
+    });
+
+    function oklchToHex(h, c, l) {
+        const hslHue = h;
+        const hslSat = c * 100; 
+        return hslToHex(hslHue, hslSat, 50);
     }
 
     function hexToRgb(hex) {
