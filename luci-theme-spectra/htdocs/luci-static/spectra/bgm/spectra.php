@@ -2169,6 +2169,8 @@ window.addEventListener('resize', handleVerticalResize);
     position: relative; 
     height: 60px;
     flex-shrink: 0; 
+    border: none !important; 
+    box-shadow: none !important;
 }
 
 @media (max-width: 576px) {
