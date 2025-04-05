@@ -56,11 +56,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['upload_file'])) {
     }
     
     if (!empty($upload_errors)) {
-        echo "<script>alert('".implode("\\n", $upload_errors)."'); location.reload();</script>";
-    } else {
-        header("Location: ".$_SERVER['REQUEST_URI']);
+        $error_message = urlencode(implode("\n", $upload_errors));
+        header("Location: " . $_SERVER['PHP_SELF'] . "?error=" . $error_message);
+        exit;
     }
-    exit;
 }
 
 if (isset($_GET['delete'])) {
@@ -153,6 +152,14 @@ if (isset($_GET['background'])) {
     } elseif (in_array($ext, ['mp4', 'mov'])) {
         $background_type = 'video';
     }
+}
+?>
+
+<?php
+if (!empty($_GET['error'])) {
+    echo '<div class="alert alert-danger mt-3 mx-3" role="alert" id="log-message">';
+    echo nl2br(htmlspecialchars(urldecode($_GET['error'])));
+    echo '</div>';
 }
 ?>
 
@@ -1035,7 +1042,6 @@ body:hover,
 }
 </style>
 
-
 <div class="container-sm container-bg text-center mt-4">
     <div class="alert alert-secondary d-none" id="toolbar">
         <div class="d-flex justify-content-between">
@@ -1397,11 +1403,12 @@ body:hover,
                         <div class="progress">
                             <div class="progress-bar bg-success" role="progressbar" id="progressBar" style="width: 0%" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
                         </div>
-                    </div>           
+                    </div>         
                     <div class="d-flex justify-content-between mt-2 small">
                         <span id="currentTime">0:00</span>
                         <span id="duration">0:00</span>
-                    </div>                  
+                    </div> 
+                 
                     <div class="controls d-flex justify-content-center gap-3 mt-4">
                         <button class="btn btn-outline-light control-btn" onclick="changeTrack(-1)">
                             <i class="bi bi-skip-backward-fill"></i>
@@ -1415,7 +1422,21 @@ body:hover,
                         <button class="btn btn-outline-light control-btn" id="repeatBtn" onclick="toggleRepeat()">
                             <i class="bi bi-arrow-repeat"></i>
                         </button>
-                    </div>
+                        <button class="btn btn-volume position-relative" id="volumeToggle">
+                            <i class="bi bi-volume-up-fill"></i>
+                            <div class="volume-slider-container position-absolute bottom-100 start-50 translate-middle-x mb-1 p-2"
+                                 id="volumePanel"
+                                 style="display: none; width: 120px;">
+                                <input type="range" 
+                                       class="form-range volume-slider" 
+                                       id="volumeSlider"
+                                       min="0" 
+                                       max="1" 
+                                       step="0.01"
+                                       value="1">
+                                </div>
+                            </button>
+                        </div>
                     <div class="playlist mt-3" id="playlist"></div>
                 </div>
             </div>
@@ -2815,10 +2836,10 @@ setInterval(rotateColors, 4000);
 
 <style>
 :root {
-    --primary-color: #00c896;
-    --secondary-color: #0e574e;
-    --background: rgba(30, 30, 30, 0.6);
-    --text-color: #ffffff;
+    --primary-color: var(--accent-color);
+    --secondary-color: var(--btn-primary-bg);
+    --background: var(--bg-body);
+    --text-color: var(--text-primary);
     --glass-blur: blur(20px);
     --radius: 20px;
 }
@@ -2826,7 +2847,7 @@ setInterval(rotateColors, 4000);
 body {
     margin: 0;
     font-family: 'Zen Old Mincho', 'Noto Serif SC', 'Segoe UI', serif;
-    background: linear-gradient(145deg, #101010, #1a1a1a);
+    background: linear-gradient(145deg, var(--bg-body), var(--bg-container));
     color: var(--text-color);
     background-attachment: fixed;
 }
@@ -2853,8 +2874,8 @@ body {
     padding: 12px;
     margin-bottom: 15px;
     border-radius: var(--radius);
-    background: rgba(255, 255, 255, 0.02);
-    border: 1px solid rgba(255,255,255,0.05);
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
 }
 
 .lyric-line {
@@ -2879,7 +2900,7 @@ body {
 .lyric-line.highlight {
     opacity: 1;
     transform: scale(1.05);
-    color: var(--primary-color);
+    color: var(--accent-color);
     font-weight: 600;
 }
 
@@ -2891,36 +2912,20 @@ body {
     transform: scale(1.2);
     background: linear-gradient(
         90deg,
-        #ff3366 0%, 
-        #ff9933 25%,
-        #ffcc00 50%, 
-        #66ff33 75%,
-        #33ccff 100%
+        oklch(65% 0.25 15) 0%, 
+        oklch(70% 0.25 50) 25%,
+        oklch(75% 0.25 85) 50%, 
+        oklch(70% 0.25 135) 75%,
+        oklch(65% 0.25 240) 100%
     );
     background-size: 200% auto;
     background-clip: text;
     -webkit-background-clip: text;
     color: transparent !important;
     animation: color-flow 1s linear infinite;
-    text-shadow: 
-        0 0 10px rgba(255,51,102,0.5),
-        0 0 15px rgba(102,255,51,0.5),
-        0 0 20px rgba(51,204,255,0.5);
-}
-
-#lyricsContainer::-webkit-scrollbar {
-    width: 13.5px; 
-}
-
-#lyricsContainer::-webkit-scrollbar-track {
-    background: rgba(0, 31, 63, 0.9);
-    margin: 80px 0;
-}
-
-#lyricsContainer::-webkit-scrollbar-thumb {
-    background-color: #007bff; 
-    border-radius: 10px; 
-    border: 3px solid #000; 
+        0 0 10px oklch(65% 0.25 15 / 0.5),
+        0 0 15px oklch(70% 0.25 135 / 0.5),
+        0 0 20px oklch(65% 0.25 240 / 0.5);
 }
 
 .lyric-line.enter-active {
@@ -2941,7 +2946,7 @@ body {
 .progress-container {
     width: 100%;
     height: 6px;
-    background: rgba(255,255,255,0.08);
+    background: var(--border-color);
     border-radius: 4px;
     margin: 16px 0;
     overflow: hidden;
@@ -2949,7 +2954,7 @@ body {
 
 .progress-bar {
     height: 100%;
-    background: var(--primary-color);
+    background: var(--accent-color);
     transition: width 0.2s ease;
 }
 
@@ -2960,9 +2965,9 @@ body {
     margin-top: 15px;
 }
 
-.control-btn {
-    background: rgba(255,255,255,0.05);
-    border: 1px solid rgba(255,255,255,0.08);
+.control-btn, #volumeToggle {
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
     color: var(--text-color);
     width: 48px;
     height: 48px;
@@ -2972,8 +2977,8 @@ body {
     transition: all 0.3s ease;
 }
 
-.control-btn:hover {
-    background: rgba(255,255,255,0.15);
+.control-btn:hover, #volumeToggle:hover {
+    background: var(--item-hover-bg);
     transform: scale(1.1);
 }
 
@@ -2981,9 +2986,9 @@ body {
     width: 60px;
     height: 60px;
     font-size: 1.5rem;
-    background: var(--primary-color);
-    color: white;
-    box-shadow: 0 4px 20px rgba(0, 200, 150, 0.3);
+    background: var(--accent-color);
+    color: var(--text-primary);
+    box-shadow: 0 4px 20px rgba(var(--accent-color), 0.3);
 }
 
 .playlist {
@@ -2992,8 +2997,8 @@ body {
     overflow-y: auto;
     padding: 10px;
     border-radius: var(--radius);
-    background: rgba(255, 255, 255, 0.02);
-    border: 1px solid rgba(255,255,255,0.05);
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
 }
 
 .playlist-item {
@@ -3005,12 +3010,12 @@ body {
 }
 
 .playlist-item:hover {
-    background: rgba(255,255,255,0.05);
+    background: var(--item-hover-bg);
 }
 
 .playlist-item.active {
-    background: var(--primary-color);
-    color: white;
+    background: var(--accent-color);
+    color: var(--text-primary);
 }
 
 #floatingLyrics {
@@ -3018,11 +3023,11 @@ body {
     top: 30px;
     left: 50%;
     transform: translateX(-50%);
-    background: rgba(0,0,0,0.6);
+    background: var(--bg-body);
     padding: 12px 28px;
     border-radius: 30px;
     font-size: 1.1rem;
-    backdrop-filter: blur(5px);
+    backdrop-filter: var(--glass-blur);
     opacity: 0;
     transition: opacity 0.3s ease;
 }
@@ -3032,7 +3037,7 @@ body {
 }
 
 .char.active {
-    color: var(--primary-color);
+    color: var(--accent-color);
     font-weight: bold;
     transition: transform 0.1s ease;
 }
@@ -3057,13 +3062,12 @@ body {
     justify-content: space-between;
     margin-top: 8px;
     font-size: 0.9em;
-    color: rgba(255,255,255,0.7);
+    color: var(--text-secondary);
 }
 
 .progress-container {
     cursor: pointer; 
 }
-
 
 .lyrics-loading {
     position: relative;
@@ -3076,20 +3080,19 @@ body {
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    color: #666;
-
-} 
+    color: var(--text-secondary);
+}
 
 .no-lyrics {
     text-align: center;
-    color: #999;
+    color: var(--text-secondary);
     padding: 2rem;
     font-size: 1.2em;
-} 
+}
 
 .progress-bar {
     height: 100%;
-    background: #28a745;
+    background: var(--btn-success-bg);
     border-radius: 4px;
     transition: width 0.1s linear;
 }
@@ -3104,11 +3107,38 @@ body {
 }
 
 #currentSong {
-    font-weight: bold; 
-    color: rgb(40, 237, 240);
+    font-weight: bold !important;
+    color: var(--accent-color);
     text-shadow: 1px 1px 5px rgba(0, 0, 0, 0.5); 
 }
 
+#volumePanel {
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    margin-bottom: 10px;
+    background-color: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 0.5rem;
+    padding: 10px;
+    width: 160px;
+    box-shadow: 0 4px 10px var(--border-color);
+    z-index: 1000;
+    display: none;
+}
+
+#volumeSlider {
+    width: 100%;
+    accent-color: var(--text-color);
+}
+
+#volumeLabel {
+    color: var(--text-color);
+    font-size: 0.9rem;
+    text-align: right;
+    margin-top: 5px;
+}
 </style>
 
 <script>
@@ -3121,11 +3151,63 @@ let isHovering = false;
 let isManualScroll = false;
 let isSmallScreen = window.innerWidth < 768;
 
+const logBox = document.createElement('div');
+logBox.style.position = 'fixed';
+logBox.style.top = '90%';
+logBox.style.left = '20px';
+logBox.style.padding = '10px';
+logBox.style.backgroundColor = 'green';
+logBox.style.color = 'white';
+logBox.style.borderRadius = '5px';
+logBox.style.zIndex = '9999';
+logBox.style.maxWidth = '250px';
+logBox.style.fontSize = '14px';
+logBox.style.display = 'none';
+logBox.style.maxWidth = '300px';
+logBox.style.wordWrap = 'break-word';
+document.body.appendChild(logBox);
+
+function showLogMessage(message) {
+    const decodedMessage = decodeURIComponent(message);
+    logBox.textContent = decodedMessage;
+    logBox.style.display = 'block';
+    logBox.style.animation = 'scrollUp 8s ease-out forwards';
+    logBox.style.width = 'auto';
+    logBox.style.maxWidth = '300px';
+
+    setTimeout(() => {
+        logBox.style.display = 'none';
+    }, 8000);
+}
+
+const styleSheet = document.createElement('style');
+styleSheet.innerHTML = `
+    @keyframes scrollUp {
+        0% {
+            top: 90%;
+        }
+        100% {
+            top: 50%;
+        }
+    }
+`;
+document.head.appendChild(styleSheet);
+
+function speakMessage(message) {
+    const utterance = new SpeechSynthesisUtterance(message);
+    utterance.lang = 'zh-CN';
+    speechSynthesis.speak(utterance);
+}
+
 function togglePlay() {
     if (isPlaying) {
         audioPlayer.pause();
+        showLogMessage('暂停播放');
+        speakMessage('暂停播放');
     } else {
         audioPlayer.play();
+        showLogMessage('开始播放');
+        speakMessage('开始播放');
     }
     isPlaying = !isPlaying;
     updatePlayButton();
@@ -3138,11 +3220,28 @@ function updatePlayButton() {
 }
 
 function changeTrack(direction) {
-    if (repeatMode === 2) { 
+    const isManual = event && event.type === 'click'; 
+    const oldSong = songs[currentTrackIndex];
+    
+    if (repeatMode === 2 && !isManual) { 
         currentTrackIndex = Math.floor(Math.random() * songs.length);
     } else {
         currentTrackIndex = (currentTrackIndex + direction + songs.length) % songs.length;
     }
+
+    const songName = decodeURIComponent(
+        songs[currentTrackIndex].split('/').pop().replace(/\.\w+$/, '')
+    );
+
+    if (isManual) {
+        const action = direction === -1 ? '上一首' : '下一首';
+        showLogMessage(`手动切换${action}：${songName}`);
+        speakMessage(`切换到${action}：${songName}`);
+    } else {
+        showLogMessage(`自动切换到：${songName}`);
+        speakMessage(`自动播放：${songName}`);
+    }
+
     loadTrack(songs[currentTrackIndex]);
 }
 
@@ -3154,18 +3253,24 @@ function toggleRepeat() {
             btn.title = '顺序播放';
             btn.classList.remove('btn-success', 'btn-warning');
             btn.innerHTML = '<i class="bi bi-repeat"></i>';
+            showLogMessage('顺序播放');
+            speakMessage('顺序播放');
             break;
         case 1:
             btn.title = '单曲循环';
-            btn.classList.add('btn-success');
-            btn.classList.remove('btn-warning');
+            btn.classList.add('btn-warning');
+            btn.classList.remove('btn-success');
             btn.innerHTML = '<i class="bi bi-repeat-1"></i>';
+            showLogMessage('单曲循环');
+            speakMessage('单曲循环');
             break;
         case 2:
             btn.title = '随机播放';
             btn.classList.add('btn-warning');
             btn.classList.remove('btn-success');
             btn.innerHTML = '<i class="bi bi-shuffle"></i>';
+            showLogMessage('随机播放');
+            speakMessage('随机播放');
             break;
     }
     savePlayerState();
@@ -3179,10 +3284,13 @@ function updatePlaylistUI() {
             ${decodeURIComponent(url.split('/').pop().replace(/\.\w+$/, ''))}
         </div>
     `).join('');
+    showLogMessage(`播放列表已加载：${songs.length} 首歌曲`);
     setTimeout(() => scrollToCurrentTrack(), 100);
 }
 
 function playTrack(index) {
+    const songName = decodeURIComponent(songs[index].split('/').pop().replace(/\.\w+$/, ''));
+    showLogMessage(`播放列表点击：索引：${index}，歌曲名称：${songName}`);
     currentTrackIndex = index;
     loadTrack(songs[index]);
 }
@@ -3524,7 +3632,7 @@ audioPlayer.addEventListener('ended', () => {
     if (repeatMode === 1) {
         audioPlayer.play();
     } else {
-        changeTrack(1);
+        changeTrack(1); 
     }
 });
 
@@ -3642,3 +3750,86 @@ window.addEventListener('resize', () => {
     isSmallScreen = window.innerWidth < 768;
 });
 </script>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    const logMessages = document.querySelectorAll('#log-message');
+
+    logMessages.forEach(message => {
+        setTimeout(() => {
+            message.style.transition = "opacity 0.5s ease-out";  
+            message.style.opacity = '0';  
+            setTimeout(() => {
+                message.remove();  
+            }, 500); 
+        }, 4000); 
+    });
+});
+</script>
+
+<script>
+const volumeSlider = document.getElementById('volumeSlider');
+const volumeToggle = document.getElementById('volumeToggle');
+const volumePanel = document.getElementById('volumePanel');
+let lastVolume = 1;
+
+const savedVolume = localStorage.getItem('audioVolume');
+if (savedVolume !== null) {
+    lastVolume = parseFloat(savedVolume);
+    audioPlayer.volume = lastVolume;
+    volumeSlider.value = lastVolume;
+}
+
+volumeToggle.addEventListener('click', (e) => {
+    e.stopPropagation();
+    const isVisible = volumePanel.classList.contains('show');
+    if (isVisible) {
+        volumePanel.classList.remove('show');
+        setTimeout(() => volumePanel.style.display = 'none', 200);
+    } else {
+        volumePanel.style.display = 'block';
+        setTimeout(() => volumePanel.classList.add('show'), 10); 
+    }
+});
+
+document.addEventListener('click', () => {
+    if (volumePanel.classList.contains('show')) {
+        volumePanel.classList.remove('show');
+        setTimeout(() => volumePanel.style.display = 'none', 200);
+    }
+});
+
+volumeSlider.addEventListener('input', (e) => {
+    const value = parseFloat(e.target.value);
+    audioPlayer.volume = value;
+
+    if (audioPlayer.muted) {
+        audioPlayer.muted = false;
+    }
+
+    localStorage.setItem('audioVolume', value);
+
+    updateVolumeIcon();
+});
+
+function updateVolumeIcon() {
+    const icon = volumeToggle.querySelector('i');
+    if (audioPlayer.muted || audioPlayer.volume === 0) {
+        icon.className = 'bi bi-volume-mute-fill';
+    } else if (audioPlayer.volume < 0.5) {
+        icon.className = 'bi bi-volume-down-fill';
+    } else {
+        icon.className = 'bi bi-volume-up-fill';
+    }
+
+    if (!audioPlayer.muted) {
+        lastVolume = audioPlayer.volume;
+    }
+}
+
+audioPlayer.volume = lastVolume;
+updateVolumeIcon();
+</script>
+
+
+
