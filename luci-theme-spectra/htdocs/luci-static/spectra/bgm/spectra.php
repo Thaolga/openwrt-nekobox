@@ -369,6 +369,37 @@ body {
 	font-family: "Noto Serif SC", serif !important;
 }
 
+.custom-tooltip-wrapper {
+        position: relative;
+        display: inline-block;
+        cursor: help; 
+}
+
+.custom-tooltip-wrapper::after {
+        content: attr(data-tooltip);
+        position: absolute;
+        top: -100%; 
+        left: 0;
+        transform: translateY(-8px); 
+        background-color: rgba(0, 0, 0, 0.8);
+        color: #fff;
+        padding: 6px 10px;
+        border-radius: 6px;
+        font-size: 0.875rem;
+        white-space: pre-wrap;
+        line-height: 1.4;
+        z-index: 999;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.2s ease;
+        max-width: 300px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+}
+
+.custom-tooltip-wrapper:hover::after {
+        opacity: 1;
+}
+
 .card {
 	background: var(--card-bg);
 	border: 1px solid var(--border-color);
@@ -1074,7 +1105,7 @@ body:hover,
             $usedSpace = $totalSpace - $freeSpace;
             
             function formatSize($bytes) {
-                $units = ['B', 'KB', 'MB', 'GB'];
+                $units = ['B', 'KB', 'MB', 'GB', 'TB'];
                 $index = 0;
                 while ($bytes >= 1024 && $index < 3) {
                     $bytes /= 1024;
@@ -1082,10 +1113,9 @@ body:hover,
                 }
                 return round($bytes, 2) . ' ' . $units[$index];
             }
-            ?>            
-            <div class="me-3 d-flex gap-2 mt-4 ps-2" 
-                 data-bs-toggle="tooltip" 
-                 title="挂载点：<?= $mountPoint ?>｜已用空间：<?= formatSize($usedSpace) ?>">
+            ?>  
+            <div class="me-3 d-flex gap-2 mt-4 ps-2 custom-tooltip-wrapper" 
+                 data-tooltip="挂载点：<?= $mountPoint ?>｜已用空间：<?= formatSize($usedSpace) ?>">
                 <span class="btn btn-primary btn-sm"><i class="bi bi-hdd"></i> 总共：<?= $totalSpace ? formatSize($totalSpace) : 'N/A' ?></span>
                 <span class="btn btn-success btn-sm"><i class="bi bi-hdd"></i> 剩余：<?= $freeSpace ? formatSize($freeSpace) : 'N/A' ?></span>
             </div>
