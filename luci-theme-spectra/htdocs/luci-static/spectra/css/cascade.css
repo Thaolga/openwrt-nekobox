@@ -1785,9 +1785,14 @@ small {
         -ms-overflow-style: none !important;    
 }
 
-.main::-webkit-scrollbar {
-        width: 0px !important;
-        height: 0px !important;
+.main {
+	position: relative;
+	top: 0;
+	bottom: 0;
+	overflow-y: auto;
+	height: 100%;
+	display: flex;
+	flex-direction: row
 }
 
 .main-left {
@@ -1799,9 +1804,6 @@ small {
 	overflow-x: auto;
 	z-index: 100;
 	margin: 0;
-        overflow-y: auto !important;
-        scrollbar-width: none !important;
-        -ms-overflow-style: none !important;
 }
 
 .main-left .sidenav-header {
@@ -1827,8 +1829,8 @@ small {
 }
 
 .main-left::-webkit-scrollbar {
-        width: 0px !important;
-        height: 0px !important;
+	width: 5px;
+	height: 1px
 }
 
 .main-left::-webkit-scrollbar-thumb {
@@ -1847,14 +1849,6 @@ small {
 	overflow-y: auto;
 	display: flex;
 	flex-direction: column
-        overflow-y: auto !important;
-        scrollbar-width: none !important;
-        -ms-overflow-style: none !important;
-}
-
-.main-right::-webkit-scrollbar {
-        width: 0px !important;
-        height: 0px !important;
 }
 
 .main-right>#maincontent {
