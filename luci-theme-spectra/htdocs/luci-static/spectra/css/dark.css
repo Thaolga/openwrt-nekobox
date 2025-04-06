@@ -1559,12 +1559,8 @@ a.food[data-title="Log_out"]:hover::after {
 }
 
 .btn {
-	border-radius: 8px;
-	padding: 10px 20px;
 	background-color: #007bff;
 	color: white;
-	text-align: center;
-	cursor: pointer;
 	transition: background-color 0.3s ease, transform 0.2s ease;
 }
 
