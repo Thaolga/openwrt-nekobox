@@ -277,7 +277,7 @@ if (!file_exists($configFile)) {
 }
 
 body {
-	background: var(--bg-body);
+        background: var(--body-bg-color, #1a1a2e);
 	color: var(--text-primary);
 	-webkit-backdrop-filter: blur(10px);
 	transition: all 0.3s ease;
@@ -1039,6 +1039,16 @@ body:hover,
         max-width: none;
     }
 }
+
+@media (max-width: 768px) {
+  .me-3.d-flex.gap-2.mt-4.ps-2 {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.3rem;
+    padding-left: 15px; 
+    margin-bottom: 0.5rem !important; 
+  }
+
 </style>
 
 <div class="container-sm container-bg text-center mt-4">
@@ -1103,7 +1113,8 @@ body:hover,
         <div class="d-flex align-items-center mb-3 ps-2">
             <input type="checkbox" id="selectAll" class="form-check-input me-2 shadow-sm" style="width: 1.05em; height: 1.05em; border-radius: 0.35em; margin-left: 1px; transform: scale(1.2)">
             <label for="selectAll" class="form-check-label fs-5 ms-1" style="margin-right: 10px;">全选</label>
-            <input type="color" id="colorPicker"  value="#ff6600" />
+            <input type="color" id="colorPicker" style="margin-right: 10px;" value="#ff6600" title="选择组件背景色" />
+            <input type="color" id="bodyBgColorPicker" value="#1a1a2e" title="选择页面背景色" />
         </div>
 
         <?php
@@ -1384,7 +1395,7 @@ body:hover,
             </div>
         </div>
     </div>
-
+<div id="floatingLyrics"></div>
     <div class="modal fade" id="musicModal" tabindex="-1">
         <div class="modal-dialog modal-xl">
             <div class="modal-content bg-dark text-white">
@@ -1394,7 +1405,7 @@ body:hover,
                 </div>
                 <div class="modal-body">
                     <div id="floatingLyrics"></div>                   
-                    <div id="currentSong" class="mb-3 text-center font-weight-bold fs-4"></div>                    
+                    <div id="currentSong" class="mb-3 text-center font-weight-bold fs-4"></div>                   
                     <div class="lyrics-container" id="lyricsContainer" style="height: 300px; overflow-y: auto;">
                     </div>                    
                     <div class="progress-container mt-3">
@@ -1420,6 +1431,7 @@ body:hover,
                         <button class="btn btn-outline-light control-btn" id="repeatBtn" onclick="toggleRepeat()">
                             <i class="bi bi-arrow-repeat"></i>
                         </button>
+                        <button class="btn btn-outline-light control-btn" id="toggleFloatingLyrics" onclick="toggleFloating()" title="桌面歌词"><i id="floatingIcon" class="bi bi-display"></i></button>
                         <button class="btn btn-volume position-relative" id="volumeToggle">
                             <i class="bi bi-volume-up-fill"></i>
                             <div class="volume-slider-container position-absolute bottom-100 start-50 translate-middle-x mb-1 p-2"
@@ -2624,6 +2636,22 @@ function setBackground(filename) {
 </script>
 
 <script>
+document.addEventListener("DOMContentLoaded", () => {
+    const savedBodyBg = localStorage.getItem("bodyBgColor") || "#1a1a2e";
+    document.body.style.background = savedBodyBg;
+
+    const bodyBgPicker = document.getElementById("bodyBgColorPicker");
+    bodyBgPicker.value = savedBodyBg;
+    
+    bodyBgPicker.addEventListener("input", (e) => {
+        const selectedColor = e.target.value;
+        document.body.style.background = selectedColor;
+        localStorage.setItem("bodyBgColor", selectedColor); 
+    });
+});
+</script>
+
+<script>
 document.addEventListener('DOMContentLoaded', function() {
     updateDateTime();
     setInterval(updateDateTime, 1000);
@@ -2776,6 +2804,7 @@ function updateDateTime() {
         const config = localeConfig[lang] || localeConfig['zh-CN'];
 
         const hours = now.getHours();
+        const minutes = now.getMinutes();
         const ancientTime = getAncientTime(hours); 
         const weekDayIndex = now.getDay();
         const weekDay = config.weekDays[weekDayIndex];
@@ -2796,6 +2825,21 @@ function updateDateTime() {
             } else {
                 timeElement.textContent = timeStr;
             }
+        }
+
+        if (minutes === 0 && now.getSeconds() === 0) {
+            if (lastAnnouncedHour !== hours) {  
+                let announcement;
+                if (lang.startsWith('zh')) {
+                    announcement = `整点报时，现在是北京时间${hours}点整`;  
+                } else {
+                    announcement = `It's ${hours} hundred hours`;  
+                }
+                speakMessage(announcement);
+                lastAnnouncedHour = hours;  
+            }
+        } else if (minutes !== 0) {
+            lastAnnouncedHour = -1;  
         }
 
         const dateElement = document.getElementById('dateDisplay');
@@ -2972,7 +3016,8 @@ body {
 }
 
 .lyric-line.highlight .char.active {
-    transform: scale(1.2);
+    opacity: 1;
+    transform: scale(1.3);
     background: linear-gradient(
         90deg,
         oklch(65% 0.25 15) 0%, 
@@ -3083,26 +3128,54 @@ body {
 
 #floatingLyrics {
     position: fixed;
-    top: 30px;
-    left: 50%;
-    transform: translateX(-50%);
+    top: 10%;
+    left: 2%;
+    transform: none;
     background: var(--bg-body);
-    padding: 12px 28px;
-    border-radius: 30px;
+    padding: 12px;
+    border-radius: 20px;
     font-size: 1.1rem;
     backdrop-filter: var(--glass-blur);
     opacity: 0;
     transition: opacity 0.3s ease;
+    pointer-events: none;
+    writing-mode: vertical-rl;
+    text-orientation: mixed;
+    line-height: 1.6;
+    font-family: 'Noto Serif SC', serif; 
 }
 
 #floatingLyrics.visible {
     opacity: 1;
 }
 
+@keyframes bounce-scale {
+    0% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.3); 
+    }
+    70% {
+        transform: scale(1.1); 
+    }
+    100% {
+        transform: scale(1); 
+    }
+}
+
+.char {
+    font-size: 1.3rem; 
+    transition: transform 0.3s ease;
+    display: inline-block; 
+    position: relative;
+}
+
 .char.active {
-    color: var(--accent-color);
-    font-weight: bold;
-    transition: transform 0.1s ease;
+    color: #32CD32; 
+    animation: bounce-scale 0.6s ease-out; 
+    transform: scale(1.3);
+    position: relative; 
 }
 
 .char.played {
@@ -3202,7 +3275,55 @@ body {
     text-align: right;
     margin-top: 5px;
 }
+
+.heart {
+    position: absolute;
+    font-size: 2rem; 
+    color: #ff69b4;
+    pointer-events: none;
+    opacity: 0;
+    z-index: 9999;
+    animation: heartAnimation 1s ease-in-out forwards;
+}
+
+@keyframes heartAnimation {
+    0% {
+        transform: scale(1) translateY(0);
+        opacity: 1;
+    }
+    50% {
+        transform: scale(1.5) translateY(-50px); 
+        opacity: 1;
+    }
+    100% {
+        transform: scale(0) translateY(-100px); 
+        opacity: 0;
+    }
+}
 </style>
+
+<script>
+function toggleFloating() {
+    const floating = document.getElementById('floatingLyrics');
+    const icon = document.getElementById('floatingIcon');
+    const isVisible = floating.classList.toggle('visible');
+    icon.className = isVisible ? 'bi bi-display-fill' : 'bi bi-display';
+    localStorage.setItem('floatingLyricsVisible', isVisible);
+}
+
+window.addEventListener('DOMContentLoaded', () => {
+    const floating = document.getElementById('floatingLyrics');
+    const icon = document.getElementById('floatingIcon');
+    const saved = localStorage.getItem('floatingLyricsVisible') === 'true';
+
+    if (saved) {
+        floating.classList.add('visible');
+        icon.className = 'bi bi-display-fill';
+    } else {
+        icon.className = 'bi bi-display';
+    }
+});
+</script>
 
 <script>
 const audioPlayer = new Audio();
@@ -3554,10 +3675,12 @@ function syncLyrics() {
         chars.forEach(char => {
             const start = parseFloat(char.dataset.start);
             const end = parseFloat(char.dataset.end);
+
             if (currentTime >= start && currentTime <= end) {
                 char.classList.add('active');
-            } else if (currentTime > end) {
+            } else if (currentTime > end && !char.classList.contains('played')) {
                 char.classList.add('played');
+                spawnHeartAbove(char); 
             }
         });
 
@@ -3603,6 +3726,29 @@ function syncLyrics() {
             lyricsContainer.scrollTo({ top: 0, behavior: 'smooth' });
         }
     }
+}
+
+function spawnHeartAbove(char) {
+    const heart = document.createElement('span');
+    heart.className = 'heart';
+    heart.textContent = '💖';
+
+    const rect = char.getBoundingClientRect();
+    const offsetTop = rect.top + window.scrollY;
+    const offsetLeft = rect.left + window.scrollX;
+
+    heart.style.left = `${offsetLeft + char.offsetWidth / 2}px`;
+    heart.style.top = `${offsetTop - 30}px`; 
+
+    document.body.appendChild(heart);
+
+    requestAnimationFrame(() => {
+        heart.classList.add('pop');
+    });
+
+    setTimeout(() => {
+        heart.remove(); 
+    }, 1000);
 }
 
 function loadTrack(url) {

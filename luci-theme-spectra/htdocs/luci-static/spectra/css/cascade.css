@@ -3000,6 +3000,8 @@ ul.cbi-tabmenu li.cbi-tab a {
 
 	ul.tabs li a, ul.cbi-tabmenu li a {
 		white-space: nowrap;
+    text-align: center !important;   
+    display: block !important;    
 	}
 }
 
