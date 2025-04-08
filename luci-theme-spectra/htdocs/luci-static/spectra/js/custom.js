@@ -129,7 +129,7 @@ document.addEventListener("DOMContentLoaded", function () {
     const styles = `
         #settings-icon {
             position: fixed;
-            right: 20px;
+            right: 2%;
             bottom: 20px;
             cursor: pointer;
             z-index: 1001;
@@ -245,7 +245,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
         @media (max-width: 600px) {
             #settings-icon {
-                right: 10px;
+                right: 8%;
                 bottom: 10px;
                 width: 30px;
                 height: 30px;
