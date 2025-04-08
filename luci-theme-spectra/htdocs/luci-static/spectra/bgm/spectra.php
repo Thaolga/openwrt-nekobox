@@ -1041,14 +1041,29 @@ body:hover,
 }
 
 @media (max-width: 768px) {
-  .me-3.d-flex.gap-2.mt-4.ps-2 {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 0.3rem;
-    padding-left: 15px; 
-    margin-bottom: 0.5rem !important; 
+    .me-3.d-flex.gap-2.mt-4.ps-2 {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.3rem;
+        padding-left: 15px; 
+        margin-bottom: 0.5rem !important; 
   }
 
+@media (max-width: 768px) {
+    .controls {
+        gap: 0.1rem;  
+    }
+
+    .controls .control-btn {
+        font-size: 0.7rem;  
+        padding: 0.1rem 0.2rem;  
+        border-radius: 50%;  
+    }
+
+    .controls .btn {
+        padding: 0.1rem 0.2rem; 
+    }
+}
 </style>
 
 <div class="container-sm container-bg text-center mt-4">
