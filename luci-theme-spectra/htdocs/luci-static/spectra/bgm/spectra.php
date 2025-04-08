@@ -3507,7 +3507,7 @@ function updatePlaylistUI() {
 
 function playTrack(index) {
     const songName = decodeURIComponent(songs[index].split('/').pop().replace(/\.\w+$/, ''));
-    showLogMessage(`播放列表点击：索引：${index}，歌曲名称：${songName}`);
+    showLogMessage(`播放列表点击：索引：${index + 1}，歌曲名称：${songName}`);
     currentTrackIndex = index;
     loadTrack(songs[index]);
 }
