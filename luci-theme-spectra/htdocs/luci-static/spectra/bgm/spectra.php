@@ -2919,6 +2919,7 @@ const colorList = [
 
 let usedColors = [];
 const elements = document.querySelectorAll('.time-display span');
+const currentSong = document.querySelector('#currentSong'); 
 
 function getNextColor() {
     if (usedColors.length === colorList.length) {
@@ -2936,6 +2937,10 @@ function rotateColors() {
         const color = getNextColor();
         el.style.color = color;
     });
+
+    if (currentSong) {
+        currentSong.style.color = getNextColor();
+    }
 }
 
 setInterval(rotateColors, 4000); 
@@ -2983,15 +2988,18 @@ body {
     border-radius: var(--radius);
     background: var(--card-bg);
     border: 1px solid var(--border-color);
+    font-family: 'SimSun', 'Songti SC', '宋体', serif; 
+    display: flex;
+    flex-direction: column;
+    align-items: center;
 }
 
 .lyric-line {
-    font-size: 1.2em;
-    margin: 18px 0;
-    opacity: 0.5;
-    text-align: center;
+    opacity: 1 !important;
+    color: #cccccc !important; 
+    font-size: 1.1rem;
     transition: all 0.3s ease;
-    line-height: 1.6;
+    transition: color 0.3s; 
 }
 
 .lyric-line .char {
@@ -3005,10 +3013,8 @@ body {
 }
 
 .lyric-line.highlight {
-    opacity: 1;
-    transform: scale(1.05);
-    color: var(--accent-color);
-    font-weight: 600;
+    color: #cccccc !important; 
+    font-size: 1.3rem;
 }
 
 .lyric-line.highlight .char {
@@ -3031,9 +3037,10 @@ body {
     -webkit-background-clip: text;
     color: transparent !important;
     animation: color-flow 1s linear infinite;
-        0 0 10px oklch(65% 0.25 15 / 0.5),
-        0 0 15px oklch(70% 0.25 135 / 0.5),
-        0 0 20px oklch(65% 0.25 240 / 0.5);
+    text-shadow: 
+        0 0 10px rgba(255,51,102,0.5),
+        0 0 15px rgba(102,255,51,0.5),
+        0 0 20px rgba(51,204,255,0.5);
 }
 
 .lyric-line.enter-active {
@@ -3049,6 +3056,11 @@ body {
     0% { background-position: 0% 50%; }
     50% { background-position: 100% 50%; }
     100% { background-position: 0% 50%; }
+}
+
+.char.space {
+    display: inline;
+    min-width: 0.5em; 
 }
 
 .progress-container {
@@ -3142,11 +3154,25 @@ body {
     writing-mode: vertical-rl;
     text-orientation: mixed;
     line-height: 1.6;
-    font-family: 'Noto Serif SC', serif; 
+    font-family: 'Noto Serif SC', serif;
 }
 
 #floatingLyrics.visible {
     opacity: 1;
+}
+
+#floatingLyrics .char {
+    font-size: 1.6rem; 
+    transition: transform 0.3s ease;
+    display: inline-block; 
+    position: relative;
+}
+
+#floatingLyrics .char.active {
+    color: #32CD32; 
+    animation: bounce-scale 0.6s ease-out;
+    transform: scale(1.3);
+    position: relative;
 }
 
 @keyframes bounce-scale {
@@ -3164,22 +3190,9 @@ body {
     }
 }
 
-.char {
-    font-size: 1.3rem; 
-    transition: transform 0.3s ease;
-    display: inline-block; 
-    position: relative;
-}
-
-.char.active {
-    color: #32CD32; 
-    animation: bounce-scale 0.6s ease-out; 
-    transform: scale(1.3);
-    position: relative; 
-}
-
 .char.played {
-    opacity: 0.4;
+
+    transform: scale(1) !important;
 }
 
 .playlist {
@@ -3657,7 +3670,10 @@ function syncLyrics() {
     let currentLine = null;
     let hasActiveLine = false;
 
-    lines.forEach(line => line.classList.remove('highlight', 'played'));
+    lines.forEach(line => {
+    line.classList.remove('highlight', 'played');
+    line.style.color = 'white'; 
+});
 
     for (let i = lines.length - 1; i >= 0; i--) {
         const line = lines[i];
@@ -3948,10 +3964,13 @@ function updatePlaylistUI() {
     setTimeout(() => {
         const activeItem = playlist.querySelector('.active');
         if (activeItem) {
-            activeItem.scrollIntoView({ behavior: 'auto', block: 'nearest' });
+            activeItem.scrollIntoView({
+                behavior: 'smooth',
+                block: 'center',
+            });
             activeItem.classList.toggle('blink', !isPlaying);
         }
-    }, 100);
+    }, 300);
 }
 
 loadDefaultPlaylist();
