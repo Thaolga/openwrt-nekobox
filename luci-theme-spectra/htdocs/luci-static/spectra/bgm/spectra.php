@@ -1422,6 +1422,10 @@ body:hover,
                     </div> 
                  
                     <div class="controls d-flex justify-content-center gap-3 mt-4">
+                        <button class="btn btn-outline-light control-btn" id="toggleFloatingLyrics" onclick="toggleFloating()" title="桌面歌词"><i id="floatingIcon" class="bi bi-display"></i></button>
+                        <button class="btn btn-outline-light control-btn" id="repeatBtn" onclick="toggleRepeat()">
+                            <i class="bi bi-arrow-repeat"></i>
+                        </button>
                         <button class="btn btn-outline-light control-btn" onclick="changeTrack(-1)">
                             <i class="bi bi-skip-backward-fill"></i>
                         </button>
@@ -1431,10 +1435,6 @@ body:hover,
                         <button class="btn btn-outline-light control-btn" onclick="changeTrack(1)">
                             <i class="bi bi-skip-forward-fill"></i>
                         </button>
-                        <button class="btn btn-outline-light control-btn" id="repeatBtn" onclick="toggleRepeat()">
-                            <i class="bi bi-arrow-repeat"></i>
-                        </button>
-                        <button class="btn btn-outline-light control-btn" id="toggleFloatingLyrics" onclick="toggleFloating()" title="桌面歌词"><i id="floatingIcon" class="bi bi-display"></i></button>
                         <button class="btn btn-outline-light control-btn" id="clear-cache-btn" title="清除配置"><i class="bi bi-trash3-fill"></i></button>
                         <button class="btn btn-volume position-relative" id="volumeToggle">
                             <i class="bi bi-volume-up-fill"></i>
