@@ -3719,7 +3719,8 @@ function syncLyrics() {
             }
         });
 
-        const floatingLyrics = document.querySelector('#floatingLyrics .vertical-lyrics');
+        const floatingContainer = document.getElementById('floatingLyrics');
+        const floatingLyrics = floatingContainer.querySelector('.vertical-lyrics');
         if (!floatingLyrics.innerHTML || currentLine.dataset.time !== floatingLyrics.dataset.time) {
             floatingLyrics.innerHTML = currentLine.innerHTML;
             floatingLyrics.dataset.time = currentLine.dataset.time;
@@ -3838,8 +3839,13 @@ function saveCoreState() {
 
 function updateCurrentSong(url) {
     const songName = decodeURIComponent(url.split('/').pop().replace(/\.\w+$/, ''));
-    const titleElement = document.querySelector('#floatingLyrics #currentSong');
-    titleElement.textContent = songName;
+    document.getElementById('currentSong').textContent = songName;
+    
+    const floatingTitle = document.querySelector('#floatingLyrics #currentSong');
+    if (floatingTitle) floatingTitle.textContent = songName;
+
+    const modalTitle = document.querySelector('#musicModal #currentSong');
+    if (modalTitle) modalTitle.textContent = songName;
 }
 
 function updateTimeDisplay() {
