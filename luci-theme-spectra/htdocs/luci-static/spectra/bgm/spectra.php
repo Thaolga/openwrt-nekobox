@@ -1395,7 +1395,10 @@ body:hover,
             </div>
         </div>
     </div>
-<div id="floatingLyrics"></div>
+<div id="floatingLyrics">
+    <div id="currentSong" class="vertical-title"></div>
+    <div class="vertical-lyrics"></div>
+</div>
     <div class="modal fade" id="musicModal" tabindex="-1">
         <div class="modal-dialog modal-xl">
             <div class="modal-content bg-dark text-white">
@@ -3140,25 +3143,41 @@ body {
 
 #floatingLyrics {
     position: fixed;
-    top: 10%;
-    left: 2%;
-    transform: none;
+    top: 2%;
+    left: 7.5%;
     background: var(--bg-body);
-    padding: 12px;
+    padding: 20px;
     border-radius: 20px;
-    font-size: 1.1rem;
     backdrop-filter: var(--glass-blur);
     opacity: 0;
     transition: opacity 0.3s ease;
     pointer-events: none;
     writing-mode: vertical-rl;
     text-orientation: mixed;
-    line-height: 1.6;
+    line-height: 2;
     font-family: 'Noto Serif SC', serif;
+    display: flex;
+    flex-direction: row;
+    gap: 1em;
 }
 
 #floatingLyrics.visible {
     opacity: 1;
+}
+
+#floatingLyrics #currentSong.vertical-title {
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: #32CD32;
+    writing-mode: vertical-rl;
+    border-right: 2px solid rgba(255,255,255,0.3);
+    padding-right: 0.8em;
+    margin-right: 0.8em;
+}
+
+#floatingLyrics .vertical-lyrics {
+    writing-mode: vertical-rl;
+    text-combine-upright: all;
 }
 
 #floatingLyrics .char {
@@ -3700,7 +3719,7 @@ function syncLyrics() {
             }
         });
 
-        const floatingLyrics = document.getElementById('floatingLyrics');
+        const floatingLyrics = document.querySelector('#floatingLyrics .vertical-lyrics');
         if (!floatingLyrics.innerHTML || currentLine.dataset.time !== floatingLyrics.dataset.time) {
             floatingLyrics.innerHTML = currentLine.innerHTML;
             floatingLyrics.dataset.time = currentLine.dataset.time;
@@ -3819,7 +3838,8 @@ function saveCoreState() {
 
 function updateCurrentSong(url) {
     const songName = decodeURIComponent(url.split('/').pop().replace(/\.\w+$/, ''));
-    document.getElementById('currentSong').textContent = songName;
+    const titleElement = document.querySelector('#floatingLyrics #currentSong');
+    titleElement.textContent = songName;
 }
 
 function updateTimeDisplay() {
@@ -4058,6 +4078,5 @@ function updateVolumeIcon() {
 audioPlayer.volume = lastVolume;
 updateVolumeIcon();
 </script>
-
 
 
