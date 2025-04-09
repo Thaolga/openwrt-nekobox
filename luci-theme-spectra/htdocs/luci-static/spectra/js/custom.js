@@ -896,7 +896,7 @@ document.addEventListener("DOMContentLoaded", function () {
                     <button class="close-btn">&times;</button>
                 </div>
                 <iframe id="theme-iframe" 
-                    src="${window.location.protocol}//${window.location.host}/luci-static/spectra/bgm/spectra.php"
+                    src="${window.location.protocol}//${window.location.host}/luci-static/spectra/bgm/index.php"
                     style="width: 100%; height: calc(100% - 40px); border: none; border-radius: 0 0 5px 5px;">
                 </iframe>
             </div>
