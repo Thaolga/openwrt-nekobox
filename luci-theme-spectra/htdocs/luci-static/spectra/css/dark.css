@@ -1034,13 +1034,11 @@ h6 {
 	font-weight: bold;
 	text-align: center;
 }
-
 .cbi-section,
 .table,
 .modal-content,
 .tabs,
 .alert-message {
-	background: var(--glass-bg) !important;
 	backdrop-filter: blur(var(--blur-intensity)) saturate(150%) brightness(1.05) !important;
 	border: var(--crystal-border) !important;
 	border-radius: 10px !important;
