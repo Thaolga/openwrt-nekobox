@@ -1426,6 +1426,7 @@ body:hover,
         <button class="ctrl-btn" id="floatingRepeatBtn" onclick="toggleRepeat()" title="顺序播放">
             <i class="bi bi-arrow-repeat"></i>
         </button>
+        <button class="ctrl-btn" id="toggleFloatingLyrics" onclick="toggleFloating()" title="关闭歌词"><i id="floatingIcon" class="bi bi-display"></i></button>
     </div>
     <div id="currentSong" class="vertical-title"></div>
     <div class="vertical-lyrics"></div>
