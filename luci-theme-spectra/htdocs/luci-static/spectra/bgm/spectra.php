@@ -164,35 +164,37 @@ if (!empty($_GET['error'])) {
 ?>
 
 <?php
-$configFile = "/etc/config/spectra"; 
+$default_url = 'https://raw.githubusercontent.com/Thaolga/Rules/main/Clash/songs.txt';
+$file_path = __DIR__ . '/url_config.txt'; 
+$message = '';
 
-if ($_SERVER["REQUEST_METHOD"] === "POST") {
-    if (!file_exists($configFile)) {
-        echo json_encode(["error" => "Config file not found!"]);
-        exit;
+if (!file_exists($file_path)) {
+    if (file_put_contents($file_path, $default_url) !== false) {
+        chmod($file_path, 0644); 
     }
-
-    $content = file_get_contents($configFile);
-    preg_match("/option mode '(\w+)'/", $content, $matches);
-    $currentMode = $matches[1] ?? "N/A";
-
-    $newMode = ($currentMode === "dark") ? "light" : "dark";
-    $updatedContent = preg_replace("/option mode '\w+'/", "option mode '$newMode'", $content);
-    
-    if (file_put_contents($configFile, $updatedContent) !== false) {
-        echo json_encode(["success" => true, "mode" => $newMode]);
-    } else {
-        echo json_encode(["error" => "Failed to update config!"]);
-    }
-    exit;
 }
 
-if (!file_exists($configFile)) {
-    $mode = "N/A";
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    if (isset($_POST['new_url'])) {
+        $new_url = $_POST['new_url'];
+        if (file_put_contents($file_path, $new_url) !== false) {
+            chmod($file_path, 0644);  
+            $message = '更新成功！';
+        } else {
+            $message = '更新失败，请检查权限。';
+        }
+    }
+
+    if (isset($_POST['reset_default'])) {
+        if (file_put_contents($file_path, $default_url) !== false) {
+            chmod($file_path, 0644);
+            $message = '已恢复默认地址！';
+        } else {
+            $message = '恢复失败，请检查权限。';
+        }
+    }
 } else {
-    $content = file_get_contents($configFile);
-    preg_match("/option mode '(\w+)'/", $content, $matches);
-    $mode = $matches[1] ?? "N/A";
+    $new_url = file_exists($file_path) ? file_get_contents($file_path) : $default_url;
 }
 ?>
 
@@ -1087,7 +1089,7 @@ body:hover,
 </div>
     <div class="card-header d-flex flex-column flex-md-row justify-content-between align-items-center text-center gap-2">
         <h5 class="mb-0" style="line-height: 40px; height: 40px;">Spectra 配置管理</h5>
-        <p id="status" class="mb-0">当前模式: <?= ($mode == "dark") ? "暗色模式" : "亮色模式" ?></p>
+        <p id="status" class="mb-0">当前模式: 加载中...</p>
         <button id="toggleButton" onclick="toggleConfig()" class="btn btn-primary">切换模式</button>
     </div>
         <div class="d-flex align-items-center">
@@ -1411,6 +1413,20 @@ body:hover,
         </div>
     </div>
 <div id="floatingLyrics">
+    <div class="floating-controls">
+        <button class="ctrl-btn" onclick="changeTrack(-1)" title="上一首">
+            <i class="bi bi-skip-backward-fill"></i>
+        </button>
+        <button class="ctrl-btn" id="floatingPlayBtn" onclick="togglePlay()" title="播放/暂停">
+            <i class="bi bi-play-fill"></i>
+        </button>
+        <button class="ctrl-btn" onclick="changeTrack(1)" title="下一首">
+            <i class="bi bi-skip-forward-fill"></i>
+        </button>
+        <button class="ctrl-btn" id="floatingRepeatBtn" onclick="toggleRepeat()" title="顺序播放">
+            <i class="bi bi-arrow-repeat"></i>
+        </button>
+    </div>
     <div id="currentSong" class="vertical-title"></div>
     <div class="vertical-lyrics"></div>
 </div>
@@ -1442,15 +1458,16 @@ body:hover,
                             <i class="bi bi-arrow-repeat"></i>
                         </button>
                         <button class="btn btn-outline-light control-btn" onclick="changeTrack(-1)">
-                            <i class="bi bi-skip-backward-fill"></i>
+                            <i class="bi bi-caret-left-fill"></i>
                         </button>
                         <button class="btn btn-success control-btn" id="playPauseBtn" onclick="togglePlay()">
                             <i class="bi bi-play-fill"></i>
                         </button>
                         <button class="btn btn-outline-light control-btn" onclick="changeTrack(1)">
-                            <i class="bi bi-skip-forward-fill"></i>
+                            <i class="bi bi-caret-right-fill"></i>
                         </button>
                         <button class="btn btn-outline-light control-btn" id="clear-cache-btn" title="清除配置"><i class="bi bi-trash3-fill"></i></button>
+                       <button class="btn btn-outline-light control-btn" type="button" data-bs-toggle="modal" data-bs-target="#urlModal" title="自定义播放列表"><i class="bi bi-music-note-list"></i></button>
                         <button class="btn btn-volume position-relative" id="volumeToggle">
                             <i class="bi bi-volume-up-fill"></i>
                             <div class="volume-slider-container position-absolute bottom-100 start-50 translate-middle-x mb-1 p-2"
@@ -1467,6 +1484,36 @@ body:hover,
                             </button>
                         </div>
                     <div class="playlist mt-3" id="playlist"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="urlModal" tabindex="-1">
+        <div class="modal-dialog modal-xl">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">更新播放列表</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <?php if($message): ?>
+                    <div class="alert alert-<?= strpos($message, '成功') !== false ? 'success' : 'danger' ?>">
+                        <?= $message ?>
+                    </div>
+                    <?php endif; ?>               
+                    <form method="POST">
+                        <div class="mb-3">
+                            <label>播放列表地址</label>
+                            <input type="text" name="new_url" id="new_url" class="form-control" 
+                                   value="<?= htmlspecialchars($new_url) ?>" required>
+                        </div>
+                        <div class="d-flex gap-2">
+                            <button type="submit" class="btn btn-primary">保存</button>
+                            <button type="submit" name="reset_default" class="btn btn-secondary">恢复默认</button>
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+                        </div>
+                    </form>
                 </div>
             </div>
         </div>
@@ -2500,17 +2547,25 @@ document.getElementById('nextBtn').addEventListener('click', () => {
     function updateBaseHueFromColorPicker(event) {
         const color = event.target.value;
         const oklch = hexToOklch(color);
+        const currentTheme = document.documentElement.getAttribute("data-theme") || "dark";
+        
+        const hueKey = `${currentTheme}BaseHue`;
+        const chromaKey = `${currentTheme}BaseChroma`;
         
         document.documentElement.style.setProperty('--base-hue', oklch.h);
         document.documentElement.style.setProperty('--base-chroma', oklch.c);
         
-        localStorage.setItem("baseHue", oklch.h);
-        localStorage.setItem("baseChroma", oklch.c);
+        localStorage.setItem(hueKey, oklch.h);
+        localStorage.setItem(chromaKey, oklch.c);
     }
 
     document.addEventListener("DOMContentLoaded", () => {
-        const savedHue = localStorage.getItem("baseHue") || 260;
-        const savedChroma = localStorage.getItem("baseChroma") || 0.03;
+        const savedTheme = localStorage.getItem("theme") || "dark";
+        const hueKey = `${savedTheme}BaseHue`;
+        const chromaKey = `${savedTheme}BaseChroma`;
+        
+        const savedHue = localStorage.getItem(hueKey) || (savedTheme === "dark" ? 260 : 200);
+        const savedChroma = localStorage.getItem(chromaKey) || (savedTheme === "dark" ? 0.03 : 0.01);
         
         document.documentElement.style.setProperty('--base-hue', savedHue);
         document.documentElement.style.setProperty('--base-chroma', savedChroma);
@@ -2605,7 +2660,7 @@ document.getElementById('nextBtn').addEventListener('click', () => {
     });
 
     function toggleConfig() {
-        fetch("", { method: "POST" })
+        fetch("/luci-static/spectra/bgm/theme-switcher.php", { method: "POST" })
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
@@ -2613,6 +2668,9 @@ document.getElementById('nextBtn').addEventListener('click', () => {
                 } else {
                     document.getElementById("status").innerText = "更新失败: " + data.error;
                 }
+            })
+            .catch(error => {
+                document.getElementById("status").innerText = "请求出错: " + error;
             });
     }
 
@@ -2621,13 +2679,25 @@ document.getElementById('nextBtn').addEventListener('click', () => {
         const btn = document.getElementById("toggleButton");
         const status = document.getElementById("status");
 
-        const baseHue = value === 'dark' ? 260 : 200;
-        const chroma = value === 'dark' ? 0.03 : 0.01;
+        const oldTheme = body.getAttribute("data-theme") || "dark";
+        const oldHueKey = `${oldTheme}BaseHue`;
+        const oldChromaKey = `${oldTheme}BaseChroma`;
+        const oldHue = parseFloat(getComputedStyle(body).getPropertyValue('--base-hue'));
+        const oldChroma = parseFloat(getComputedStyle(body).getPropertyValue('--base-chroma'));
+        localStorage.setItem(oldHueKey, oldHue);
+        localStorage.setItem(oldChromaKey, oldChroma);
+
+        const hueKey = `${value}BaseHue`;
+        const chromaKey = `${value}BaseChroma`;
+        const baseHue = parseFloat(localStorage.getItem(hueKey)) || (value === "dark" ? 260 : 200);
+        const chroma = parseFloat(localStorage.getItem(chromaKey)) || (value === "dark" ? 0.03 : 0.01);
 
         body.style.setProperty('--base-hue', baseHue);
         body.style.setProperty('--base-chroma', chroma);
-
         body.setAttribute("data-theme", value);
+
+        const colorPicker = document.getElementById("colorPicker");
+        colorPicker.value = oklchToHex(baseHue, chroma, 50);
 
         if (value === "dark") {
             btn.innerHTML = '<i class="bi bi-sun"></i> 切换到亮色模式';
@@ -2641,6 +2711,17 @@ document.getElementById('nextBtn').addEventListener('click', () => {
 
         localStorage.setItem("theme", value);
     }
+
+    document.addEventListener("DOMContentLoaded", () => {
+        fetch("/luci-static/spectra/bgm/theme-switcher.php")
+            .then(res => res.json())
+            .then(data => {
+                updateButton(data.mode);
+            })
+            .catch(error => {
+                document.getElementById("status").innerText = "读取失败: " + error;
+            });
+    });
 </script>
 
 <script>
@@ -3015,7 +3096,7 @@ body {
 
 .lyric-line {
     opacity: 1 !important;
-    color: #cccccc !important; 
+    color: var(--text-primary) !important; 
     font-size: 1.1rem;
     transition: all 0.3s ease;
     transition: color 0.3s; 
@@ -3032,7 +3113,7 @@ body {
 }
 
 .lyric-line.highlight {
-    color: #cccccc !important; 
+    color: var(--text-primary) !important; 
     font-size: 1.3rem;
 }
 
@@ -3056,7 +3137,6 @@ body {
     -webkit-background-clip: text;
     color: transparent !important;
     animation: color-flow 1s linear infinite;
-    text-shadow: 
         0 0 10px rgba(255,51,102,0.5),
         0 0 15px rgba(102,255,51,0.5),
         0 0 20px rgba(51,204,255,0.5);
@@ -3160,21 +3240,21 @@ body {
 #floatingLyrics {
     position: fixed;
     top: 2%;
-    left: 7.5%;
+    left: 4.5%;
     background: var(--bg-body);
-    padding: 20px;
+    padding: 15px 10px;
     border-radius: 20px;
     backdrop-filter: var(--glass-blur);
     opacity: 0;
     transition: opacity 0.3s ease;
-    pointer-events: none;
+    pointer-events: auto;
     writing-mode: vertical-rl;
     text-orientation: mixed;
     line-height: 2;
     font-family: 'Noto Serif SC', serif;
     display: flex;
-    flex-direction: row;
-    gap: 1em;
+    flex-direction: column; 
+    gap: 0.5em;
 }
 
 #floatingLyrics.visible {
@@ -3184,11 +3264,11 @@ body {
 #floatingLyrics #currentSong.vertical-title {
     font-size: 1.8rem;
     font-weight: 700;
-    color: #32CD32;
+    color: var(--accent-color);
     writing-mode: vertical-rl;
-    border-right: 2px solid rgba(255,255,255,0.3);
-    padding-right: 0.8em;
-    margin-right: 0.8em;
+    padding-right: 0.5em;
+    margin-right: 0.5em;
+    text-shadow: none !important; 
 }
 
 #floatingLyrics .vertical-lyrics {
@@ -3203,11 +3283,65 @@ body {
     position: relative;
 }
 
+.floating-controls {
+    display: flex;
+    flex-direction: row; 
+    gap: 0.8em;
+    margin-bottom: 1em;
+    order: -1; 
+}
+
+.ctrl-btn {
+    background: var(--bg-body);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    border-radius: 50%;
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    transition: all 0.3s ease;
+    backdrop-filter: blur(5px);
+}
+
+.ctrl-btn:hover {
+    background: var(--card-bg);
+    transform: scale(1.1);
+}
+
+.ctrl-btn i {
+    font-size: 1.2rem;
+}
+
+.ctrl-btn.clicked {
+    transform: scale(0.9);
+    background: rgba(50, 205, 50, 0.5);
+}
+
+#currentSong.vertical-title {
+    margin-top: 0.5em;
+    border-right: none;
+    padding-right: 0;
+    padding-bottom: 0.8em;
+    margin-right: 0;
+    writing-mode: horizontal-tb; 
+}
+
+.vertical-lyrics {
+    margin-top: 0.5em;
+}
+
+.char {
+    transition: all 0.3s ease;
+}
+
 #floatingLyrics .char.active {
-    color: #32CD32; 
+    color: var(--accent-color);
     animation: bounce-scale 0.6s ease-out;
     transform: scale(1.3);
     position: relative;
+    text-shadow: none !important; 
 }
 
 @keyframes bounce-scale {
@@ -3271,7 +3405,7 @@ body {
     text-align: center;
     color: var(--text-secondary);
     padding: 2rem;
-    font-size: 1.2em;
+    font-size: 1.8em;
 }
 
 .progress-bar {
@@ -3444,11 +3578,21 @@ function togglePlay() {
     isPlaying = !isPlaying;
     updatePlayButton();
     savePlayerState();
+
+    const btn = event.target.closest('button');
+    if(btn) {
+        btn.classList.add('clicked');
+        setTimeout(() => btn.classList.remove('clicked'), 200);
+    }
 }
 
 function updatePlayButton() {
     const btn = document.getElementById('playPauseBtn');
-    btn.innerHTML = isPlaying ? '<i class="bi bi-pause-fill"></i>' : '<i class="bi bi-play-fill"></i>';
+    const floatingBtn = document.getElementById('floatingPlayBtn');
+    const icon = isPlaying ? 'bi-pause-fill' : 'bi-play-fill';
+    
+    btn.innerHTML = `<i class="bi ${icon}"></i>`;
+    floatingBtn.innerHTML = `<i class="bi ${icon}"></i>`;
 }
 
 function changeTrack(direction) {
@@ -3479,32 +3623,30 @@ function changeTrack(direction) {
 
 function toggleRepeat() {
     repeatMode = (repeatMode + 1) % 3;
-    const btn = document.getElementById('repeatBtn');
-    switch (repeatMode) {
-        case 0:
-            btn.title = '顺序播放';
-            btn.classList.remove('btn-success', 'btn-warning');
-            btn.innerHTML = '<i class="bi bi-repeat"></i>';
-            showLogMessage('顺序播放');
-            speakMessage('顺序播放');
-            break;
-        case 1:
-            btn.title = '单曲循环';
-            btn.classList.add('btn-warning');
-            btn.classList.remove('btn-success');
-            btn.innerHTML = '<i class="bi bi-repeat-1"></i>';
-            showLogMessage('单曲循环');
-            speakMessage('单曲循环');
-            break;
-        case 2:
-            btn.title = '随机播放';
-            btn.classList.add('btn-warning');
-            btn.classList.remove('btn-success');
-            btn.innerHTML = '<i class="bi bi-shuffle"></i>';
-            showLogMessage('随机播放');
-            speakMessage('随机播放');
-            break;
-    }
+    const mainBtn = document.getElementById('repeatBtn');
+    const floatingBtn = document.getElementById('floatingRepeatBtn');
+    
+    [mainBtn, floatingBtn].forEach(btn => {
+        btn.classList.remove('btn-success', 'btn-warning');
+        btn.title = ['顺序播放', '单曲循环', '随机播放'][repeatMode];
+        
+        switch(repeatMode) {
+            case 0:
+                btn.innerHTML = '<i class="bi bi-arrow-repeat"></i>';
+                break;
+            case 1:
+                btn.innerHTML = '<i class="bi bi-repeat-1"></i>';
+                btn.classList.add('btn-success'); 
+                break;
+            case 2:
+                btn.innerHTML = '<i class="bi bi-shuffle"></i>';
+                btn.classList.add('btn-warning'); 
+                break;
+        }
+    });
+
+    showLogMessage(['顺序播放', '单曲循环', '随机播放'][repeatMode]);
+    speakMessage(['顺序播放', '单曲循环', '随机播放'][repeatMode]);
     savePlayerState();
 }
 
@@ -3537,14 +3679,35 @@ function scrollToCurrentTrack() {
 
 function loadLyrics(songUrl) {
     const lyricsUrl = songUrl.replace(/\.\w+$/, '.lrc');
+    
+    window.lyrics = {};
+    window.lyricTimes = [];
+    
+    const containers = [
+        document.getElementById('lyricsContainer'),
+        document.querySelector('#floatingLyrics .vertical-lyrics')
+    ];
+    containers.forEach(container => {
+        container.innerHTML = '<div class="no-lyrics">歌词加载中...</div>';
+    });
+
     fetch(lyricsUrl)
-        .then(response => response.arrayBuffer())
+        .then(response => {
+            if (!response.ok) throw new Error('歌词不存在');
+            return response.arrayBuffer();
+        })
         .then(buffer => {
             const decoder = new TextDecoder('utf-8');
             parseLyrics(decoder.decode(buffer));
             displayLyrics();
+            document.dispatchEvent(new Event('lyricsLoaded'));
         })
-        .catch(error => console.error('歌词加载失败:', error));
+        .catch(error => {
+            console.error('歌词加载失败:', error);
+            containers.forEach(container => {
+                container.innerHTML = '<div class="no-lyrics">暂无歌词</div>';
+            });
+        });
 }
 
 function parseLyrics(text) {
@@ -3654,7 +3817,16 @@ function createCharSpans(text, startTime, endTime) {
 
 function displayLyrics() {
     const lyricsContainer = document.getElementById('lyricsContainer');
+    const floatingLyrics = document.querySelector('#floatingLyrics .vertical-lyrics');
+    
     lyricsContainer.innerHTML = '';
+    floatingLyrics.innerHTML = '';
+
+    if (Object.keys(window.lyrics).length === 0) {
+        lyricsContainer.innerHTML = '<div class="no-lyrics">暂无歌词</div>';
+        floatingLyrics.innerHTML = '<div class="no-lyrics">暂无歌词</div>';
+        return;
+    }
 
     lyricTimes.forEach((time, index) => {
         const line = document.createElement('div');
@@ -3804,6 +3976,18 @@ function spawnHeartAbove(char) {
 }
 
 function loadTrack(url) {
+    window.lyrics = {};
+    window.lyricTimes = [];
+    
+    const lyricsContainers = [
+        document.getElementById('lyricsContainer'),
+        document.querySelector('#floatingLyrics .vertical-lyrics')
+    ];
+    
+    lyricsContainers.forEach(container => {
+        container.innerHTML = '<div class="no-lyrics">歌词加载中...</div>';
+    });
+
     audioPlayer.src = url;
     updatePlayButton(); 
     updatePlaylistUI();
@@ -3929,27 +4113,30 @@ function loadPlayerState() {
 }
 
 function setRepeatButtonState() {
-    const btn = document.getElementById('repeatBtn');
-    switch (repeatMode) {
-        case 0:
-            btn.title = '顺序播放';
-            btn.classList.remove('btn-success', 'btn-warning');
-            break;
-        case 1:
-            btn.title = '单曲循环';
-            btn.classList.add('btn-success');
-            btn.classList.remove('btn-warning');
-            break;
-        case 2:
-            btn.title = '随机播放';
-            btn.classList.add('btn-warning');
-            btn.classList.remove('btn-success');
-            break;
-    }
+    const mainBtn = document.getElementById('repeatBtn');
+    const floatingBtn = document.getElementById('floatingRepeatBtn');
+    
+    [mainBtn, floatingBtn].forEach(btn => {
+        btn.classList.remove('btn-success', 'btn-warning');
+        btn.title = ['顺序播放', '单曲循环', '随机播放'][repeatMode];
+        
+        switch(repeatMode) {
+            case 1:
+                btn.classList.add('btn-success'); 
+                btn.innerHTML = '<i class="bi bi-repeat-1"></i>';
+                break;
+            case 2:
+                btn.classList.add('btn-warning'); 
+                btn.innerHTML = '<i class="bi bi-shuffle"></i>';
+                break;
+            default:
+                btn.innerHTML = '<i class="bi bi-arrow-repeat"></i>';
+        }
+    });
 }
 
 function loadDefaultPlaylist() {
-    fetch('https://raw.githubusercontent.com/Thaolga/Rules/main/Clash/songs.txt')
+    fetch('<?php echo $new_url; ?>')
         .then(response => response.text())
         .then(data => {
             const newSongs = data.split('\n').filter(url => url.trim());
@@ -3970,26 +4157,6 @@ function loadDefaultPlaylist() {
             }
         })
         .catch(error => console.error('播放列表加载失败:', error));
-}
-
-function loadLyrics(songUrl) {
-    const lyricsUrl = songUrl.replace(/\.\w+$/, '.lrc');
-    fetch(lyricsUrl)
-        .then(response => {
-            if (!response.ok) throw new Error('歌词不存在');
-            return response.arrayBuffer();
-        })
-        .then(buffer => {
-            const decoder = new TextDecoder('utf-8');
-            parseLyrics(decoder.decode(buffer));
-            displayLyrics();
-            document.dispatchEvent(new Event('lyricsLoaded'));
-        })
-        .catch(error => {
-            console.error('歌词加载失败:', error);
-            document.getElementById('lyricsContainer').innerHTML = 
-                `<div class="no-lyrics">暂无歌词</div>`;
-        });
 }
 
 function updatePlaylistUI() {
@@ -4139,4 +4306,80 @@ function speakMessage(text) {
         speechSynthesis.speak(utterance);
     }
 }
+</script>
+
+<script>
+document.addEventListener('keydown', function(event) {
+    if (event.ctrlKey && event.shiftKey && event.key === 'V') {
+        var urlModal = new bootstrap.Modal(document.getElementById('urlModal'));
+        urlModal.show();
+        speakMessage('打开自定义播放列表');
+    }
+});
+
+document.getElementById('resetButton').addEventListener('click', function() {
+    fetch('', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded'
+        },
+        body: 'reset_default=true'
+    })
+    .then(response => response.text())  
+    .then(data => {
+        var urlModal = bootstrap.Modal.getInstance(document.getElementById('urlModal'));
+        urlModal.hide();
+
+        document.getElementById('new_url').value = '<?php echo $default_url; ?>';
+
+        showNotification('已恢复默认播放列表链接');
+    })
+    .catch(error => {
+        console.error('恢复默认链接时出错:', error);
+        showNotification('恢复默认链接失败');
+    });
+});
+
+function showNotification(message) {
+    var notification = document.createElement('div');
+    notification.style.position = 'fixed';
+    notification.style.top = '10px';
+    notification.style.right = '30px';
+    notification.style.backgroundColor = '#4CAF50';
+    notification.style.color = '#fff';
+    notification.style.padding = '10px';
+    notification.style.borderRadius = '5px';
+    notification.style.zIndex = '9999';
+    notification.innerText = message;
+
+    document.body.appendChild(notification);
+
+    setTimeout(function() {
+        notification.style.display = 'none';
+    }, 5000); 
+}
+
+function loadNewPlaylist(url) {
+    const playlistContainer = document.getElementById('playlist');
+    playlistContainer.innerHTML = '';  
+
+    fetch(url)
+        .then(response => response.json())  
+        .then(data => {
+            data.forEach(item => {
+                const songElement = document.createElement('div');
+                songElement.textContent = item.name; 
+                playlistContainer.appendChild(songElement);
+            });
+        })
+        .catch(error => {
+            console.error('加载歌单失败:', error);
+            showNotification('加载歌单失败');
+        });
+}
+
+document.getElementById('urlModal').addEventListener('hidden.bs.modal', function() {
+    const newUrl = document.getElementById('new_url').value;
+    loadNewPlaylist(newUrl);
+});
 </script>
