@@ -78,9 +78,29 @@ document.addEventListener("DOMContentLoaded", function () {
         return texts[savedFit] || '默认裁剪';
     }
 
+    function updateThemeButton(mode) {
+        const btn = document.getElementById('theme-toggle');
+        const status = document.getElementById('theme-status');
+        if (!btn || !status) return;
+
+        if (mode === "dark") {
+            btn.innerHTML = '<i class="bi bi-sun"></i> 切换到亮色模式';
+            btn.className = "btn btn-primary light";
+            status.innerText = "当前主题: 暗色模式";
+        } else {
+            btn.innerHTML = '<i class="bi bi-moon"></i> 切换到暗色模式';
+            btn.className = "btn btn-primary dark";
+            status.innerText = "当前主题: 亮色模式";
+        }
+    }
+
     const controlPanel = `
         <div id="settings-icon">⚙️</div>
         <div id="mode-popup">
+            <button id="theme-toggle" style="opacity:1 !important;pointer-events:auto !important;background:#2196F3 !important">
+                <i class="bi bi-moon"></i> 切换主题模式
+                <div id="theme-status" style="margin-left:8px;color:#FFEB3B"></div>
+            </button>
             <button id="master-switch">
                 <span>${isEnabled ? '已启用 ✅' : '已禁用 ❌'}</span>
                 <div class="status-led" style="background:${isEnabled ? '#4CAF50' : '#f44336'}"></div>
@@ -313,6 +333,33 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     });
 
+    document.getElementById('theme-toggle')?.addEventListener('click', function(e) {
+        e.stopPropagation();
+        fetch("/luci-static/spectra/bgm/theme-switcher.php", { method: "POST" })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    updateThemeButton(data.mode);
+                } else {
+                    console.error("模式切换失败:", data.error);
+                }
+            })
+            .catch(error => {
+                console.error("请求出错:", error);
+            });
+    });
+
+    document.addEventListener("DOMContentLoaded", () => {
+        fetch("/luci-static/spectra/bgm/theme-switcher.php")
+            .then(res => res.json())
+            .then(data => {
+                updateThemeButton(data.mode);
+            })
+            .catch(error => {
+                console.error("获取主题模式失败:", error);
+            });
+    });
+
     document.querySelector('.info-btn').addEventListener('click', () => {
         showCustomAlert('使用说明', [
             '1. 视频模式：默认名称为「bg.mp4」',
@@ -320,7 +367,8 @@ document.addEventListener("DOMContentLoaded", function () {
             '3. 暗黑模式：透明背景+光谱动画',
             '4. 亮色模式：主题设置进行切换，关闭控制开关',
             '5. 主题设置：支持自定义背景，需关闭开关，模式切换需清除背景',
-            '6. 项目地址：<a class="github-link" href="https://github.com/Thaolga/openwrt-nekobox" target="_blank">点击访问</a>'
+            '6. 项目地址：<a class="github-link" href="https://github.com/Thaolga/openwrt-nekobox" target="_blank">点击访问</a>',
+            '7. 友情提示：要体验完整功能需配合 Nekobox 使用，否则无法启动 PHP 服务<br>'
         ]);
     });
 
