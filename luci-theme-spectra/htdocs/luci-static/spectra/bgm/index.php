@@ -3482,6 +3482,37 @@ body {
         opacity: 0;
     }
 }
+
+.list-group-item.active {
+    color: #fff !important;
+}
+
+.list-group-item.active .text-truncate,
+.list-group-item.active .text-muted,
+.list-group-item.active .badge {
+    color: #fff !important;
+}
+
+.modal-xl {
+    max-width: 60% !important;  
+    width: 90% !important;
+}
+
+@media (max-width: 768px) {
+    .modal-xl {
+        max-width: 95% !important;
+        width: 95% !important;
+        margin: 1rem auto !important; 
+    }
+}
+
+@media (max-width: 576px) {
+    .modal-xl {
+        max-width: 100% !important;
+        width: 100% !important;
+        margin: 0.5rem auto !important;
+    }
+}
 </style>
 
 <script>
