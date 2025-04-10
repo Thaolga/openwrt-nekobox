@@ -389,9 +389,7 @@ div > .table > .tbody > .tr:nth-of-type(2n) {
 }
 
 .cbi-tabcontainer > .cbi-value:nth-of-type(2n) {
-	background: rgba(37, 37, 38, 0.1);
-	backdrop-filter: blur(10px);
-	-webkit-backdrop-filter: blur(10px);
+	background-color: transparent !important;
 }
 
 .cbi-value-title {
@@ -607,9 +605,7 @@ header .fill .status span[data-style="active"] {
 [data-page="admin-network-diagnostics"] .tr > .td,
 .tr.table-titles > .th,
 .tr.cbi-section-table-titles > .th {
-	background: rgba(0, 0, 0, 0.05) !important;
-	border: 1px solid rgba(255, 255, 255, 0.62) !important;
-	backdrop-filter: blur(10px) !important;
+	background: transparent !important;
 }
 
 .network-status-table .ifacebox-body .ifacebadge {
@@ -1466,31 +1462,22 @@ a.food[data-title="Log_out"]:hover::after {
 	width: 100%;
 	border-collapse: collapse;
 	margin: 20px 0;
-	background: rgba(37, 37, 38, 0.1);
-	backdrop-filter: blur(10px);
-	-webkit-backdrop-filter: blur(10px);
+	background: transparent;
 	color: #ffffff !important;
 }
 
 .cbi-section-table thead {
-	background-color: #333333 !important;
+	background-color: transparent !important;
 	color: #ffffff !important;
 }
 
 .cbi-section-table tbody {
-	background: rgba(37, 37, 38, 0.1);
-	backdrop-filter: blur(10px);
-	-webkit-backdrop-filter: blur(10px);
-}
-
-.cbi-section-table tr {
-	border: 1px solid #404040 !important;
+	background: transparent;
 }
 
 .cbi-section-table td, .cbi-section-table th {
 	padding: 10px !important;
 	text-align: left !important;
-	border: 1px solid #404040 !important;
 }
 
 .cbi-section-table th {
@@ -1500,8 +1487,7 @@ a.food[data-title="Log_out"]:hover::after {
 }
 
 .cbi-section-table tr:hover {
-	background: rgba(255, 255, 255, 0.2) !important;
-	backdrop-filter: blur(10px);
+	background: transparent !important;
 	color: #ffffff !important;
 	text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.5);
 }
@@ -1520,16 +1506,12 @@ a.food[data-title="Log_out"]:hover::after {
 }
 
 .cbi-section-table input[type="text"], .cbi-section-table input[type="hidden"] {
-	background: rgba(0, 0, 0, 0.26) !important;
-	border: 1px solid rgba(255, 255, 255, 0.22) !important;
-	backdrop-filter: blur(10px) !important;
+	background: transparent !important;
 	color: #ffffff !important;
 }
 
 .cbi-section-table select {
-	background: rgba(255, 255, 255, 0.26) !important;
-	border: 1px solid rgba(255, 255, 255, 0.22) !important;
-	backdrop-filter: blur(10px) !important;
+	background: transparent !important;
 	color: #ffffff !important;
 }
 
