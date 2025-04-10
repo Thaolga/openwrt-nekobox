@@ -691,6 +691,35 @@ input,
 	color: #ccc;
 }
 
+.cbi-section-table-row {
+	background-color: rgba(255, 255, 255, 0.1) !important;
+	box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1) !important;
+}
+
+.cbi-section-table-row:nth-child(odd) {
+	background-color: rgba(249, 249, 249, 0.1) !important;
+	box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1) !important;
+	font-size: 13px !important;
+}
+
+.cbi-section-table-row:nth-child(even) {
+	background-color: rgba(0, 0, 0, 0.2) !important;
+	z-index: 0 !important;
+	font-size: 13px !important;
+}
+
+.cbi-section-table-cell,
+.cbi-section-table-descr,
+.cbi-section-table-titles {
+	background-color: rgba(255, 255, 255, 0.1) !important;
+	box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1) !important;
+}
+
+th:empty {
+	background-color: rgba(255, 255, 255, 0.1) !important;
+	box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1) !important;
+}
+
 #tool_label {
 	background-color: #3498db !important;
 	padding: 5px 10px !important;
