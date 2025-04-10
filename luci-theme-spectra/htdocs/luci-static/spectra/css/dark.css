@@ -1087,7 +1087,7 @@ select {
 	padding: 0.5rem 0.9rem !important;
 	transition: all 0.2s var(--transition-easing) !important;
 	&: focus {
-    background: rgba(255, 255, 255, 0.1) !important;
+        background: rgba(255, 255, 255, 0.1) !important;
 	border-color: var(--luxury-accent) !important;
 	box-shadow: 0 0 0 2px rgba(127, 216, 225, 0.15) !important;
 }
@@ -1114,10 +1114,11 @@ ul.tabs, ul.cbi-tabmenu {
 	border-radius: 5px;
 	margin: 10px 0;
 	border-bottom: none !important;
+        background-color: transparent;
 }
 
 ul.tabs li, ul.cbi-tabmenu li {
-	background-color: #3498db !important;
+	background-color: transparent !important;
 	margin-right: 5px;
 	border-radius: 8px !important;
 	text-decoration: none !important;
