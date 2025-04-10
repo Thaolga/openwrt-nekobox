@@ -278,11 +278,26 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 }
 
+@font-face {
+	font-display: swap; 
+  font-family: 'Fredoka One';
+  font-style: normal;
+  font-weight: 400;
+  src: url('/luci-static/spectra/fonts/fredoka-v16-latin-regular.woff2') format('woff2');
+}
+
 body {
         background: var(--body-bg-color, #1a1a2e);
-	color: var(--text-primary);
-	-webkit-backdrop-filter: blur(10px);
-	transition: all 0.3s ease;
+        color: var(--text-primary);
+        -webkit-backdrop-filter: blur(10px);
+        transition: all 0.3s ease;
+        font-family: 'Fredoka One', cursive;
+        font-weight: 400; 
+}
+
+body.default-font {
+        font-family: system-ui, sans-serif;
+        font-weight: 400;
 }
 
 .container-bg,
@@ -301,7 +316,6 @@ body {
 }
 
 .time-display {
-	font-family: system-ui, -apple-system, "Segoe UI", Roboto !important;
 	font-size: 1.2rem !important;
 	color: var(--text-primary);
 	padding: 6px 12px !important;
@@ -336,7 +350,6 @@ body {
 	font-size: 0.9em !important;
 	margin-left: 4px !important;
 	letter-spacing: 1px !important;
-	font-family: "Noto Serif SC", serif !important;
 }
 
 .custom-tooltip-wrapper {
@@ -1133,7 +1146,8 @@ body:hover,
             <input type="checkbox" id="selectAll" class="form-check-input me-2 shadow-sm" style="width: 1.05em; height: 1.05em; border-radius: 0.35em; margin-left: 1px; transform: scale(1.2)">
             <label for="selectAll" class="form-check-label fs-5 ms-1" style="margin-right: 10px;">全选</label>
             <input type="color" id="colorPicker" style="margin-right: 10px;" value="#ff6600" title="选择组件背景色" />
-            <input type="color" id="bodyBgColorPicker" value="#1a1a2e" title="选择页面背景色" />
+            <input type="color" id="bodyBgColorPicker"  style="margin-right: 10px; value="#1a1a2e" title="选择页面背景色" />
+            <button id="fontToggleBtn" title="切换字体"  style="border: 1px solid white; border-radius: 4px; width: 50px; display: flex; align-items: center; justify-content: center;">🅰️</button>
         </div>
 
         <?php
@@ -3061,7 +3075,6 @@ setInterval(rotateColors, 4000);
 
 body {
     margin: 0;
-    font-family: 'Zen Old Mincho', 'Noto Serif SC', 'Segoe UI', serif;
     background: linear-gradient(145deg, var(--bg-body), var(--bg-container));
     color: var(--text-color);
     background-attachment: fixed;
@@ -3091,7 +3104,6 @@ body {
     border-radius: var(--radius);
     background: var(--card-bg);
     border: 1px solid var(--border-color);
-    font-family: 'SimSun', 'Songti SC', '宋体', serif; 
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -3256,7 +3268,6 @@ body {
     writing-mode: vertical-rl;
     text-orientation: mixed;
     line-height: 2;
-    font-family: 'Noto Serif SC', serif;
     display: flex;
     flex-direction: column; 
     gap: 0.5em;
@@ -4461,5 +4472,22 @@ function loadNewPlaylist(url) {
 document.getElementById('urlModal').addEventListener('hidden.bs.modal', function() {
     const newUrl = document.getElementById('new_url').value;
     loadNewPlaylist(newUrl);
+});
+</script>
+
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+  const btn = document.getElementById("fontToggleBtn");
+  const body = document.body;
+  const storageKey = "fontToggle";
+
+  if (localStorage.getItem(storageKey) === "default") {
+    body.classList.add("default-font");
+  }
+
+  btn.addEventListener("click", () => {
+    const isDefault = body.classList.toggle("default-font");
+    localStorage.setItem(storageKey, isDefault ? "default" : "fredoka");
+  });
 });
 </script>
