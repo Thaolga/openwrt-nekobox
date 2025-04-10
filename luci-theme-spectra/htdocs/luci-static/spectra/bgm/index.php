@@ -217,6 +217,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 	--base-hue: 260;
 	--base-chroma: 0.03;
 	--danger-base: 15;
+        --base-hue-1: 20;
+        --base-hue-2: 200;
+        --base-hue-3: 135;
+        --base-hue-4: 80;
+        --base-hue-5: 270;
+        --base-hue-6: 170;
+        --base-hue-7: 340;
+        --l: 85%;
+        --c: 0.18;
 	
 	--bg-body: oklch(20% var(--base-chroma) var(--base-hue) / 50%);
 	--bg-container: oklch(30% var(--base-chroma) var(--base-hue));
@@ -244,11 +253,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 	--btn-info-hover: color-mix(in oklch, var(--btn-info-bg), white 10%);
 	--btn-warning-bg: oklch(70% 0.18 80); 
 	--btn-warning-hover: color-mix(in oklch, var(--btn-warning-bg), white 10%);
+
 }
 
 [data-theme="light"] {
 	--base-hue: 200;
 	--base-chroma: 0.01;
+        --l: 60%;
+        --c: 0.25;
 	
 	--bg-body: oklch(95% var(--base-chroma) var(--base-hue) / 90%);
 	--bg-container: oklch(99% var(--base-chroma) var(--base-hue));
@@ -275,7 +287,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 	--btn-info-hover: color-mix(in oklch, var(--btn-info-bg), black 10%);
 	--btn-warning-bg: oklch(85% 0.22 80);
 	--btn-warning-hover: color-mix(in oklch, var(--btn-warning-bg), black 15%);
-
 }
 
 @font-face {
@@ -3024,43 +3035,49 @@ function getAncientTime(hours) {
     return match ? `${match.name}時` : '亥時';
 }
 
-const colorList = [
-    '#ff6b6b',
-    '#4dabf7', 
-    '#51cf66', 
-    '#f59f00', 
-    '#845ef7', 
-    '#20c997', 
-    '#f783ac', 
-];
+const elements = document.querySelectorAll('.time-display span');
+const currentSong = document.querySelector('#currentSong');
 
 let usedColors = [];
-const elements = document.querySelectorAll('.time-display span');
-const currentSong = document.querySelector('#currentSong'); 
 
-function getNextColor() {
+function getColorListFromTheme() {
+    const styles = getComputedStyle(document.documentElement);
+    const lightness = styles.getPropertyValue('--l').trim();
+    const chroma = styles.getPropertyValue('--c').trim();
+
+    const colors = [];
+    for (let i = 1; i <= 7; i++) {
+        const hue = styles.getPropertyValue(`--base-hue-${i}`).trim();
+        const color = `oklch(${lightness} ${chroma} ${hue})`;
+        colors.push(color);
+    }
+    return colors;
+}
+
+function getNextColor(colorList) {
     if (usedColors.length === colorList.length) {
-        usedColors = []; 
+        usedColors = [];
     }
 
-    const remainingColors = colorList.filter(c => !usedColors.includes(c));
-    const nextColor = remainingColors[Math.floor(Math.random() * remainingColors.length)];
-    usedColors.push(nextColor);
-    return nextColor;
+    const remaining = colorList.filter(c => !usedColors.includes(c));
+    const next = remaining[Math.floor(Math.random() * remaining.length)];
+    usedColors.push(next);
+    return next;
 }
 
 function rotateColors() {
+    const colorList = getColorListFromTheme();
+
     elements.forEach(el => {
-        const color = getNextColor();
-        el.style.color = color;
+        el.style.color = getNextColor(colorList);
     });
 
     if (currentSong) {
-        currentSong.style.color = getNextColor();
+        currentSong.style.color = getNextColor(colorList);
     }
 }
 
-setInterval(rotateColors, 4000); 
+setInterval(rotateColors, 4000);
 </script>
 
 <style>
