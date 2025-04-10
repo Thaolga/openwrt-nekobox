@@ -242,7 +242,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 	--danger-hover: oklch(75% 0.3 var(--danger-base));
 	--btn-info-bg: oklch(50% 0.2 220);  
 	--btn-info-hover: color-mix(in oklch, var(--btn-info-bg), white 10%);
-	--btn-warning-bg: oklch(50% 0.25 50);  
+	--btn-warning-bg: oklch(70% 0.18 80); 
 	--btn-warning-hover: color-mix(in oklch, var(--btn-warning-bg), white 10%);
 }
 
@@ -273,7 +273,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 	--danger-hover: oklch(40% 0.35 var(--danger-base));
 	--btn-info-bg: oklch(65% 0.18 220);
 	--btn-info-hover: color-mix(in oklch, var(--btn-info-bg), black 10%);
-	--btn-warning-bg: oklch(60% 0.3 50);
+	--btn-warning-bg: oklch(85% 0.22 80);
 	--btn-warning-hover: color-mix(in oklch, var(--btn-warning-bg), black 15%);
 
 }
@@ -432,6 +432,7 @@ body {
 h5,
 h2 {
 	color: var(--accent-color) !important;
+        font-weight: bold;
 }
 
 .img-thumbnail {
@@ -459,6 +460,7 @@ h2 {
 }
 
 .modal-body {
+	background: var(--card-bg);
 	color: var(--text-primary);
 }
 
@@ -476,7 +478,7 @@ label[for="selectAll"] {
 	overflow: hidden;
 	cursor: pointer;
 	min-height: 300px;
-	background: #2a2a2a;
+	background: var(--card-bg);
 	display: flex;
 	align-items: center;
 	justify-content: center;
@@ -672,7 +674,7 @@ label[for="selectAll"] {
 }
 
 .text-muted {
-	color: var(--text-secondary) !important;
+	color: var(--accent-color) !important;
 	font-size: 0.9em;
 	letter-spacing: 0.5px;
 	opacity: 0.7;
@@ -973,8 +975,8 @@ body:hover,
 }
 
 .hover-tips {
-    font-size: 0.8rem;
-    color: var(--hover-tips-color);
+    font-size: 1.3rem;
+    color: var(--accent-color);
     margin-top: 10px; 
 
 }
@@ -1117,7 +1119,7 @@ body:hover,
             <button class="btn btn-info mt-4" data-bs-toggle="modal" data-bs-target="#updateConfirmModal" title="检查更新"><i class="bi bi-cloud-download"></i> <span class="btn-label"></span></button>
             <button class="btn btn-warning ms-2 mt-4" data-bs-toggle="modal" data-bs-target="#uploadModal" title="批量上传"><i class="bi bi-upload"></i> <span class="btn-label"></span></button>
             <button class="btn btn-primary ms-2 mt-4" id="openPlayerBtn" data-bs-toggle="modal" data-bs-target="#playerModal" title="勾选添加到播放列表"><i class="bi bi-play-btn"></i> <span class="btn-label"></span></button>
-            <button class="btn btn-primary ms-2 mt-4" data-bs-toggle="modal" data-bs-target="#musicModal"><i class="bi bi-music-note"></i></button>
+            <button class="btn btn-success ms-2 mt-4" data-bs-toggle="modal" data-bs-target="#musicModal"><i class="bi bi-music-note"></i></button>
             <button class="btn btn-danger ms-2 mt-4" id="clearBackgroundBtn" title="清除背景"><i class="bi bi-trash"></i> <span class="btn-label"></span></button>
         </div>
     </div>
@@ -3231,11 +3233,13 @@ body {
 
 .playlist-item:hover {
     background: var(--item-hover-bg);
+    font-weight: bold;
 }
 
 .playlist-item.active {
     background: var(--accent-color);
-    color: var(--text-primary);
+    color: white;
+    font-weight: bold;
 }
 
 #floatingLyrics {
@@ -3307,7 +3311,7 @@ body {
 }
 
 .ctrl-btn:hover {
-    background: var(--card-bg);
+    background: var(--item-hover-bg);
     transform: scale(1.1);
 }
 
@@ -3402,11 +3406,28 @@ body {
     color: var(--text-secondary);
 }
 
-.no-lyrics {
+#no-lyrics {
     text-align: center;
     color: var(--text-secondary);
     padding: 2rem;
     font-size: 1.8em;
+}
+
+#noLyricsFloating {
+    width: min-content; 
+    max-width: 4em;
+    text-align: center;
+    color: var(--text-secondary);
+    line-height: 1.2;
+    font-size: 1.5rem;
+    padding: 10px 2px;
+    letter-spacing: 0.2em;
+}
+
+@keyframes glow {
+    0% { opacity: 0.8; }
+    50% { opacity: 1; }
+    100% { opacity: 0.8; }
 }
 
 .progress-bar {
@@ -3428,7 +3449,8 @@ body {
 #currentSong {
     font-weight: bold !important;
     color: var(--accent-color);
-    text-shadow: 1px 1px 5px rgba(0, 0, 0, 0.5); 
+    text-shadow: 0px 1px 2px rgba(0, 0, 0, 0.3), 
+                 0px -1px 2px rgba(255, 255, 255, 0.4);
 }
 
 #volumePanel {
@@ -3484,14 +3506,33 @@ body {
     }
 }
 
-.list-group-item.active {
-    color: #fff !important;
+.list-group-item {
+    cursor: pointer;
+    color: var(--text-primary);
+    background: var(--bg-container);
+    border: 1px solid var(--border-color);
+    transition: background 0.3s ease;
 }
 
+.list-group-item:hover {
+    background: var(--item-hover-bg);
+}
+
+.list-group-item.active {
+    background: var(--accent-color);
+    color: white;
+    border: 1px solid var(--accent-color);
+}
+
+.list-group-item.active .badge,
 .list-group-item.active .text-truncate,
-.list-group-item.active .text-muted,
-.list-group-item.active .badge {
-    color: #fff !important;
+.list-group-item.active small,
+.list-group-item.active i {
+    color: white !important;
+}
+
+.list-group-item .delete-item {
+    cursor: pointer;
 }
 
 .modal-xl {
@@ -3719,13 +3760,17 @@ function loadLyrics(songUrl) {
         document.getElementById('lyricsContainer'),
         document.querySelector('#floatingLyrics .vertical-lyrics')
     ];
+    
     containers.forEach(container => {
-        container.innerHTML = '<div class="no-lyrics">歌词加载中...</div>';
+        const statusMsg = container.id === 'lyricsContainer' 
+            ? '<div id="no-lyrics">歌词加载中...</div>'
+            : '<div id="noLyricsFloating">歌词加载中...</div>';
+        container.innerHTML = statusMsg;
     });
 
     fetch(lyricsUrl)
         .then(response => {
-            if (!response.ok) throw new Error('歌词不存在');
+            if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
             return response.arrayBuffer();
         })
         .then(buffer => {
@@ -3737,10 +3782,13 @@ function loadLyrics(songUrl) {
         .catch(error => {
             console.error('歌词加载失败:', error);
             containers.forEach(container => {
-                container.innerHTML = '<div class="no-lyrics">暂无歌词</div>';
+                const errorMsg = container.id === 'lyricsContainer'
+                    ? '<div id="no-lyrics">暂无歌词</div>'
+                    : '<div id="noLyricsFloating">暂无歌词</div>';
+                container.innerHTML = errorMsg;
             });
         });
-}
+} 
 
 function parseLyrics(text) {
     window.lyrics = {};
@@ -3855,8 +3903,8 @@ function displayLyrics() {
     floatingLyrics.innerHTML = '';
 
     if (Object.keys(window.lyrics).length === 0) {
-        lyricsContainer.innerHTML = '<div class="no-lyrics">暂无歌词</div>';
-        floatingLyrics.innerHTML = '<div class="no-lyrics">暂无歌词</div>';
+        lyricsContainer.innerHTML = '<div id="no-lyrics">暂无歌词</div>';
+        floatingLyrics.innerHTML = '<div id="noLyricsFloating">暂无歌词</div>';
         return;
     }
 
