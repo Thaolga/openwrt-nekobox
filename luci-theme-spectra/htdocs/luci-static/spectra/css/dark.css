@@ -1113,7 +1113,7 @@ ul.tabs, ul.cbi-tabmenu {
 }
 
 ul.tabs li, ul.cbi-tabmenu li {
-	background-color: transparent !important;
+	background-color: #3498db !important;
 	margin-right: 5px;
 	border-radius: 8px !important;
 	text-decoration: none !important;
