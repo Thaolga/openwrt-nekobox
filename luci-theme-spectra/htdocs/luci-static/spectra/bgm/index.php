@@ -300,7 +300,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 }
 
 body {
-        background: var(--body-bg-color, #1a1a2e);
+        background: var(--body-bg-color, #ffecff);
         color: var(--text-primary);
         -webkit-backdrop-filter: blur(10px);
         transition: all 0.3s ease;
@@ -1127,16 +1127,25 @@ body:hover,
     letter-spacing: -0.3px !important; 
   }
 }
+
+  @media (max-width: 576px) {
+    #fontToggleBtn {
+      margin-right: 8px;
+    }
+    #langBtnWrapper {
+      margin-left: 6px;
+    }
+  }
 </style>
 
 <div class="container-sm container-bg text-center mt-4">
     <div class="alert alert-secondary d-none" id="toolbar">
         <div class="d-flex justify-content-between">
             <div>
-                <button class="btn btn-outline-primary" id="selectAllBtn" data-translate="select_all">全选</button>
+                <button class="btn btn-outline-primary" id="selectAllBtn" data-translate="select_all"></button>
                 <span id="selectedInfo"></span>
             </div>
-            <button class="btn btn-danger" id="batchDeleteBtn" data-translate="batch_delete">批量删除选中文件</button>
+            <button class="btn btn-danger" id="batchDeleteBtn" data-translate="batch_delete"></button>
         </div>
     </div>
 <div class="card">
@@ -1149,9 +1158,9 @@ body:hover,
     </div>
 </div>
     <div class="card-header d-flex flex-column flex-md-row justify-content-between align-items-center text-center gap-2">
-        <h5 class="mb-0" style="line-height: 40px; height: 40px;" data-translate="spectra_config">Spectra 配置管理</h5>
+        <h5 class="mb-0" style="line-height: 40px; height: 40px;" data-translate="spectra_config"></h5>
         <p id="status" class="mb-0"><span data-translate="current_mode">当前模式:</span> 加载中...</p>
-        <button id="toggleButton" onclick="toggleConfig()" class="btn btn-primary" data-translate="toggle_mode">切换模式</button>
+        <button id="toggleButton" onclick="toggleConfig()" class="btn btn-primary" data-translate="toggle_mode"></button>
     </div>
         <div class="d-flex align-items-center">
             <?php
@@ -1192,8 +1201,8 @@ body:hover,
             <input type="checkbox" id="selectAll" class="form-check-input me-2 shadow-sm" style="width: 1.05em; height: 1.05em; border-radius: 0.35em; margin-left: 1px; transform: scale(1.2)">
             <label for="selectAll" class="form-check-label fs-5 ms-1" style="margin-right: 10px;" data-translate="select_all">Select All'</label>
             <input type="color" id="colorPicker" style="margin-right: 10px;" value="#ff6600" data-translate-title="component_bg_color"/>
-            <input type="color" id="bodyBgColorPicker"  style="margin-right: 10px; value="#1a1a2e" data-translate-title="page_bg_color" />
-            <button id="fontToggleBtn" style="border: 1px solid white; border-radius: 4px; width: 50px; display: flex; align-items: center; justify-content: center;" data-translate-title="toggle_font">🅰️</button>
+            <input type="color" id="bodyBgColorPicker"  style="margin-right: 10px; value="#ffecff" data-translate-title="page_bg_color" />
+            <button id="fontToggleBtn" style="border: 1px solid var(--accent-color); border-radius: 4px; width: 50px; display: flex; align-items: center; background-color: var(--accent-color); justify-content: center;" data-translate-title="toggle_font">🅰️</button>
         <div class="ms-auto" style="margin-right: 20px;">
             <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#langModal">
                 <img id="flagIcon" src="/luci-static/ipip/flags/<?php echo $currentLang; ?>.png" style="width:24px; height:16px">
@@ -2723,7 +2732,7 @@ document.getElementById('nextBtn').addEventListener('click', () => {
         status.innerText = translations['current_mode_light'] || "Current Mode: Light Mode";
     }
 
-    const currentL = theme === "dark" ? 30 : 85;
+    const currentL = theme === "dark" ? 35 : 95;
     updateTextPrimary(currentL);
 
     localStorage.setItem("theme", theme);
@@ -2740,8 +2749,8 @@ document.getElementById('nextBtn').addEventListener('click', () => {
     document.documentElement.setAttribute("data-theme", savedTheme);
     const hueKey = `${savedTheme}BaseHue`;
     const chromaKey = `${savedTheme}BaseChroma`;
-    const defaultHue = savedTheme === "dark" ? 260 : 200;
-    const defaultChroma = savedTheme === "dark" ? 0.03 : 0.01;
+    const defaultHue = savedTheme === "dark" ? 260 : 332.5;
+    const defaultChroma = savedTheme === "dark" ? 0.03 : 0.045;
 
     const savedHueValue = localStorage.getItem(hueKey) || defaultHue;
     const savedChromaValue = localStorage.getItem(chromaKey) || defaultChroma;
@@ -2784,7 +2793,7 @@ function setBackground(filename) {
 
 <script>
 document.addEventListener("DOMContentLoaded", () => {
-    const savedBodyBg = localStorage.getItem("bodyBgColor") || "#1a1a2e";
+    const savedBodyBg = localStorage.getItem("bodyBgColor") || "#ffecff";
     document.body.style.background = savedBodyBg;
 
     const bodyBgPicker = document.getElementById("bodyBgColorPicker");
@@ -2830,13 +2839,23 @@ function getLunar(date) {
         0x0b5a0,0x056d0,0x055b2,0x049b0,0x0a577,0x0a4b0,0x0aa50,0x1b255,0x06d20,0x0ada0
     ];
 
-    const zodiacs = ['猴','鸡','狗','猪','鼠','牛','虎','兔','龙','蛇','马','羊'];
-    const Gan = ['甲','乙','丙','丁','戊','己','庚','辛','壬','癸'];
-    const Zhi = ['子','丑','寅','卯','辰','巳','午','未','申','酉','戌','亥'];
-    const lunarMonths = ['正','二','三','四','五','六','七','八','九','十','冬','腊'];
-    const lunarDays = ['初一','初二','初三','初四','初五','初六','初七','初八','初九','初十',
-                      '十一','十二','十三','十四','十五','十六','十七','十八','十九','二十',
-                      '廿一','廿二','廿三','廿四','廿五','廿六','廿七','廿八','廿九','三十'];
+    const defaultZodiacs = ['Monkey','Rooster','Dog','Pig','Rat','Ox','Tiger','Rabbit','Dragon','Snake','Horse','Goat'];
+    const defaultGan = ['Jia','Yi','Bing','Ding','Wu','Ji','Geng','Xin','Ren','Gui'];
+    const defaultZhi = ['Zi','Chou','Yin','Mao','Chen','Si','Wu','Wei','Shen','You','Xu','Hai'];
+    const defaultMonths = ['1st','2nd','3rd','4th','5th','6th','7th','8th','9th','10th','11th','12th'];
+    const defaultDays = ['1st','2nd','3rd','4th','5th','6th','7th','8th','9th','10th',
+        '11th','12th','13th','14th','15th','16th','17th','18th','19th','20th',
+        '21st','22nd','23rd','24th','25th','26th','27th','28th','29th','30th'];
+
+    const zodiacs = translations.zodiacs || defaultZodiacs;
+    const Gan = translations.heavenlyStems || defaultGan;
+    const Zhi = translations.earthlyBranches || defaultZhi;
+    const lunarMonths = translations.months || defaultMonths;
+    const lunarDays = translations.days || defaultDays;
+    const leapPrefix = translations.leap_prefix || 'Leap ';
+    const yearSuffix = translations.year_suffix || ' Year';
+    const monthSuffix = translations.month_suffix || ' Month';
+    const daySuffix = translations.day_suffix || '';
 
     let year = date.getFullYear();
     let month = date.getMonth();
@@ -2891,13 +2910,13 @@ function getLunar(date) {
     let lunarDay = offset + 1;
 
     const zodiac = zodiacs[lunarYear % 12];
-    const monthName = (isLeap ? '闰' : '') + lunarMonths[lunarMonth-1] + '月';
+    const monthName = (isLeap ? leapPrefix : '') + lunarMonths[lunarMonth-1] + monthSuffix;
     const dayName = lunarDays[lunarDay-1];
     const ganZhiYear = Gan[(lunarYear - 4) % 10] + Zhi[(lunarYear - 4) % 12];
 
     return {
         zodiac: zodiac,
-        year: ganZhiYear + '年',
+        year: ganZhiYear + yearSuffix,
         month: monthName,
         day: dayName
     };
@@ -2943,7 +2962,7 @@ function updateDateTime() {
 
         const timeElement = document.getElementById('timeDisplay');
         if (timeElement) {
-            if (lang === 'zh' || lang === 'hk') {
+            if (['zh', 'hk', 'jp', 'kr', 'vn'].includes(lang)) {
                 timeElement.innerHTML = `
                     <span class="ancient-time">${ancientTime}</span>
                     <span class="modern-time">${timeStr}</span>
@@ -2957,7 +2976,7 @@ function updateDateTime() {
             if (lastAnnouncedHour !== hours) {
                 let announcement;
                 if (lang === 'zh' || lang === 'hk') {
-                    announcement = `${translations['hour_announcement'] || '整点报时，现在是北京时间'}${hours}${translations['hour_exact'] || '点整'}`;
+                    announcement = `${translations['hour_announcement'] || '??'}${hours}${translations['hour_exact'] || '??'}`;
                 } else {
                     announcement = `${translations['hour_announcement_en'] || "It's"} ${hours} ${translations['hour_exact_en'] || "o'clock"}`;
                 }
@@ -2970,25 +2989,56 @@ function updateDateTime() {
 
         const dateElement = document.getElementById('dateDisplay');
         if (dateElement) {
-            const dateStr = `${now.getFullYear()}${translations.labels ? translations.labels.year : ' Year '}${now.getMonth() + 1}${translations.labels ? translations.labels.month : ' Month '}${now.getDate()}${translations.labels ? translations.labels.day : ' Day '}`;
+            let dateStr;
+            switch(lang) {
+                case 'zh':
+                case 'hk':
+                    dateStr = `${now.getFullYear()}${translations.labels.year}${now.getMonth()+1}${translations.labels.month}${now.getDate()}${translations.labels.day}`;
+                    break;
+                case 'vn':
+                    dateStr = `${translations.labels.day} ${now.getDate()} ${translations.labels.month} ${now.getMonth()+1} ${translations.labels.year} ${now.getFullYear()}`;
+                    break;
+                case 'kr':
+                    dateStr = `${now.getFullYear()}${translations.labels.year} ${now.getMonth()+1}${translations.labels.month} ${now.getDate()}${translations.labels.day}`;
+                    break;
+                case 'jp':
+                    dateStr = `${now.getFullYear()}${translations.labels.year}${now.getMonth()+1}${translations.labels.month}${now.getDate()}${translations.labels.day}`;
+                    break;
+                default:
+                    dateStr = `${now.getFullYear()}-${now.getMonth()+1}-${now.getDate()}`;
+            }
             dateElement.textContent = dateStr;
         }
 
         const weekElement = document.getElementById('weekDisplay');
         if (weekElement) {
-            if (lang === 'zh' || lang === 'hk') {
-                weekElement.textContent = `${translations.labels ? translations.labels.week : '星期'}${weekDay}`;
+            if (['zh', 'hk', 'kr', 'jp'].includes(lang)) {
+                weekElement.textContent = `${translations.labels.week}${weekDay}`;
+            } else if (lang === 'vn') {
+                weekElement.textContent = '';
             } else {
                 weekElement.textContent = weekDay;
             }
         }
 
         const lunarElement = document.getElementById('lunarDisplay');
-        if ((lang === 'zh' || lang === 'hk') && lunarElement) {
-            const lunar = getLunar(now);
-            lunarElement.textContent = `${lunar.year} ${lunar.month}${lunar.day} ${lunar.zodiac}年`;
+        if (['zh', 'hk', 'jp', 'kr'].includes(lang) && lunarElement) {
+            const lunar = getLunar(now); 
+            lunarElement.textContent = (() => {
+                switch(lang) {
+                    case 'zh':
+                    case 'hk':
+                        return `${lunar.year} ${lunar.month}${lunar.day} ${lunar.zodiac}年`;
+                    case 'jp':
+                        return `${lunar.year} ${lunar.month}${lunar.day} ${lunar.zodiac}年`;
+                    case 'kr':
+                        return `${lunar.year} ${lunar.month}${lunar.day} ${lunar.zodiac}띠`;
+                    default: 
+                        return '';
+                }
+            })();
         } else if (lunarElement) {
-            lunarElement.textContent = ''; 
+            lunarElement.textContent = '';
         }
 
         if (now.getHours() === 0 && now.getMinutes() === 0 && now.getSeconds() === 0) {
@@ -3006,19 +3056,22 @@ function updateDateTime() {
 }
 
 function getAncientTime(hours) {
+    const defaultPeriods = ['Zi', 'Chou', 'Yin', 'Mao', 'Chen', 'Si', 'Wu', 'Wei', 'Shen', 'You', 'Xu', 'Hai'];
+    const periodLabels = translations.periods || defaultPeriods;
+    const suffix = translations.default_period || 'Time';
     const periods = [
-        { start: 23, end: 1, name: '子', overnight: true },  
-        { start: 1, end: 3, name: '丑' },
-        { start: 3, end: 5, name: '寅' },
-        { start: 5, end: 7, name: '卯' },  
-        { start: 7, end: 9, name: '辰' },
-        { start: 9, end: 11, name: '巳'},
-        { start: 11, end: 13, name: '午'},
-        { start: 13, end: 15, name: '未'},
-        { start: 15, end: 17, name: '申'},
-        { start: 17, end: 19, name: '酉'},
-        { start: 19, end: 21, name: '戌'},
-        { start: 21, end: 23, name: '亥'}
+        { start: 23, end: 1, name: periodLabels[0] },
+        { start: 1, end: 3, name: periodLabels[1] },
+        { start: 3, end: 5, name: periodLabels[2] },
+        { start: 5, end: 7, name: periodLabels[3] },
+        { start: 7, end: 9, name: periodLabels[4] },
+        { start: 9, end: 11, name: periodLabels[5] },
+        { start: 11, end: 13, name: periodLabels[6] },
+        { start: 13, end: 15, name: periodLabels[7] },
+        { start: 15, end: 17, name: periodLabels[8] },
+        { start: 17, end: 19, name: periodLabels[9] },
+        { start: 19, end: 21, name: periodLabels[10] },
+        { start: 21, end: 23, name: periodLabels[11] }
     ];
 
     const match = periods.find(p => {
@@ -3028,7 +3081,7 @@ function getAncientTime(hours) {
         return hours >= p.start && hours < p.end;
     });
 
-    return match ? `${match.name}時` : '亥時';
+    return match ? `${match.name}${translations.default_period || ' Time'}` : translations.default_period || 'Hai Time';
 }
 
 const elements = document.querySelectorAll('.time-display span');
@@ -4671,8 +4724,19 @@ $langData = [
             'day' => '号',
             'week' => '星期'
         ],
-        'hour_announcement' => '整点报时，现在是北京时间',
-        'hour_exact' => '点整',
+        'zodiacs' => ['猴','鸡','狗','猪','鼠','牛','虎','兔','龙','蛇','马','羊'],
+        'heavenlyStems' => ['甲','乙','丙','丁','戊','己','庚','辛','壬','癸'],
+        'earthlyBranches' => ['子','丑','寅','卯','辰','巳','午','未','申','酉','戌','亥'],
+        'months' => ['正','二','三','四','五','六','七','八','九','十','冬','腊'],
+        'days' => ['初一','初二','初三','初四','初五','初六','初七','初八','初九','初十',
+                   '十一','十二','十三','十四','十五','十六','十七','十八','十九','二十',
+                   '廿一','廿二','廿三','廿四','廿五','廿六','廿七','廿八','廿九','三十'],
+        'leap_prefix' => '闰',
+        'year_suffix' => '年',
+        'month_suffix' => '月',
+        'day_suffix' => '',
+        'periods' => ['子', '丑', '寅', '卯', '辰', '巳', '午', '未', '申', '酉', '戌', '亥'],
+        'default_period' => '時',
         'error_loading_time' => '时间显示异常',
         'switch_to_light_mode' => '切换到亮色模式',
         'switch_to_dark_mode' => '切换到暗色模式',
@@ -4812,8 +4876,19 @@ $langData = [
             'day' => '號',
             'week' => '星期'
         ],
-        'hour_announcement' => '整點報時，現在是北京時間',
-        'hour_exact' => '點整',
+        'zodiacs' => ['猴','雞','狗','豬','鼠','牛','虎','兔','龍','蛇','馬','羊'],
+        'heavenlyStems' => ['甲','乙','丙','丁','戊','己','庚','辛','壬','癸'],
+        'earthlyBranches' => ['子','丑','寅','卯','辰','巳','午','未','申','酉','戌','亥'],
+        'months' => ['正','二','三','四','五','六','七','八','九','十','冬','臘'],
+        'days' => ['初一','初二','初三','初四','初五','初六','初七','初八','初九','初十',
+                   '十一','十二','十三','十四','十五','十六','十七','十八','十九','二十',
+                   '廿一','廿二','廿三','廿四','廿五','廿六','廿七','廿八','廿九','三十'],
+        'leap_prefix' => '閏',
+        'year_suffix' => '年',
+        'month_suffix' => '月',
+        'day_suffix' => '',
+        'periods' => ['子', '丑', '寅', '卯', '辰', '巳', '午', '未', '申', '酉', '戌', '亥'],
+        'default_period' => '時',
         'error_loading_time' => '時間顯示異常',
         'switch_to_light_mode' => '切換到亮色模式',
         'switch_to_dark_mode' => '切換到暗色模式',
@@ -4946,15 +5021,26 @@ $langData = [
         'playlist_load_failed_message'=> '재생 목록 로드 실패',
         'hour_announcement'      => '정각 알림, 현재 시간은',
         'hour_exact'             => '시 정각',
-        'weekDays' => ['일', '월', '화', '수', '목', '금', '토'],
+        'weekDays' =>  ['일요일', '월요일', '화요일', '수요일', '목요일', '금요일', '토요일'],
         'labels' => [
             'year' => '년',
             'month' => '월',
             'day' => '일',
-            'week' => '요일'
+            'week' => ''
         ],
-        'hour_announcement' => '정각 알림, 현재 시간은',
-        'hour_exact' => '시 정각',
+        'zodiacs' => ['원숭이','닭','개','돼지','쥐','소','호랑이','토끼','용','뱀','말','양'],
+        'heavenlyStems' => ['갑','을','병','정','무','기','경','신','임','계'],
+        'earthlyBranches' => ['자','축','인','묘','진','사','오','미','신','유','술','해'],
+        'months' => ['1','2','3','4','5','6','7','8','9','10','11','12'],
+        'days' => ['1일','2일','3일','4일','5일','6일','7일','8일','9일','10일',
+                   '11일','12일','13일','14일','15일','16일','17일','18일','19일','20일',
+                   '21일','22일','23일','24일','25일','26일','27일','28일','29일','30일'],
+        'leap_prefix' => '윤',
+        'year_suffix' => '년',
+        'month_suffix' => '월',
+        'day_suffix' => '',
+        'periods' => ['자', '축', '인', '묘', '진', '사', '오', '미', '신', '유', '술', '해'],
+        'default_period' => '시',
         'error_loading_time' => '시간 표시 오류',
         'switch_to_light_mode' => '밝은 모드로 전환',
         'switch_to_dark_mode' => '어두운 모드로 전환',
@@ -5087,15 +5173,26 @@ $langData = [
         'playlist_load_failed_message'=> 'プレイリストの読み込みに失敗しました',
         'hour_announcement'      => '時報、現在の時間は',
         'hour_exact'             => '時ちょうど',
-        'weekDays' => ['日', '月', '火', '水', '木', '金', '土'],
+        'weekDays' =>  ['日曜日', '月曜日', '火曜日', '水曜日', '木曜日', '金曜日', '土曜日'],
         'labels' => [
             'year' => '年',
             'month' => '月',
             'day' => '日',
-            'week' => '曜日'
+            'week' => ''
         ],
-        'hour_announcement' => '時報、現在の時間は',
-        'hour_exact' => '時ちょうど',
+        'zodiacs' => ['申','酉','戌','亥','子','丑','寅','卯','辰','巳','午','未'],
+        'heavenlyStems' => ['甲','乙','丙','丁','戊','己','庚','辛','壬','癸'],
+        'earthlyBranches' => ['子','丑','寅','卯','辰','巳','午','未','申','酉','戌','亥'],
+        'months' => ['1','2','3','4','5','6','7','8','9','10','11','12'],
+        'days' => ['1日','2日','3日','4日','5日','6日','7日','8日','9日','10日',
+                   '11日','12日','13日','14日','15日','16日','17日','18日','19日','20日',
+                   '21日','22日','23日','24日','25日','26日','27日','28日','29日','30日'],
+        'leap_prefix' => '閏',
+        'year_suffix' => '年',
+        'month_suffix' => '月',
+        'day_suffix' => '',
+        'periods' => ['子', '丑', '寅', '卯', '辰', '巳', '午', '未', '申', '酉', '戌', '亥'],
+        'default_period' => '時',
         'error_loading_time' => '時間表示エラー',
         'switch_to_light_mode' => 'ライトモードに切り替え',
         'switch_to_dark_mode' => 'ダークモードに切り替え',
@@ -5233,10 +5330,22 @@ $langData = [
             'year' => 'Năm',
             'month' => 'Tháng',
             'day' => 'Ngày',
-            'week' => 'Thứ'
+            'week' => ''
         ],
-        'hour_announcement' => 'Thông báo giờ, hiện tại là',
-        'hour_exact' => 'giờ đúng',
+        'zodiacs' => ['Khỉ','Gà','Chó','Lợn','Chuột','Trâu','Hổ','Thỏ','Rồng','Rắn','Ngựa','Dê'],
+        'heavenlyStems' => ['Giáp','Ất','Bính','Đinh','Mậu','Kỷ','Canh','Tân','Nhâm','Quý'],
+        'earthlyBranches' => ['Tí','Sửu','Dần','Mão','Thìn','Tỵ','Ngọ','Mùi','Thân','Dậu','Tuất','Hợi'],
+        'months' => ['Tháng 1','Tháng 2','Tháng 3','Tháng 4','Tháng 5','Tháng 6','Tháng 7','Tháng 8','Tháng 9','Tháng 10','Tháng 11','Tháng 12'],
+        'days' => ['Ngày 1','Ngày 2','Ngày 3','Ngày 4','Ngày 5','Ngày 6','Ngày 7','Ngày 8','Ngày 9','Ngày 10',
+                   'Ngày 11','Ngày 12','Ngày 13','Ngày 14','Ngày 15','Ngày 16','Ngày 17','Ngày 18','Ngày 19','Ngày 20',
+                   'Ngày 21','Ngày 22','Ngày 23','Ngày 24','Ngày 25','Ngày 26','Ngày 27','Ngày 28','Ngày 29','Ngày 30'],
+        'leap_prefix' => 'Nhuận',
+        'year_suffix' => ' Năm',
+        'month_suffix' => '',
+        'day_suffix' => '',
+        'periods' => ['Tý', 'Sửu', 'Dần', 'Mão', 'Thìn', 'Tỵ', 'Ngọ', 'Mùi', 'Thân', 'Dậu', 'Tuất', 'Hợi'],
+        'default_period' => ' Giờ',
+        'year_format' => '{heavenlyStem} {earthlyBranch}{suffix}',
         'error_loading_time' => 'Lỗi hiển thị thời gian',
         'switch_to_light_mode' => 'Chuyển sang chế độ sáng',
         'switch_to_dark_mode' => 'Chuyển sang chế độ tối',
@@ -5375,8 +5484,6 @@ $langData = [
             'day' => 'วัน',
             'week' => 'สัปดาห์'
         ],
-        'hour_announcement' => 'การประกาศเวลา, เวลาขณะนี้คือ',
-        'hour_exact' => 'โมงตรง',
         'error_loading_time' => 'แสดงเวลาไม่ถูกต้อง',
         'switch_to_light_mode' => 'เปลี่ยนเป็นโหมดสว่าง',
         'switch_to_dark_mode' => 'เปลี่ยนเป็นโหมดมืด',
@@ -5516,8 +5623,6 @@ $langData = [
             'day' => 'День',
             'week' => 'Неделя'
         ],
-        'hour_announcement' => 'Объявление времени, сейчас',
-        'hour_exact' => 'час ровно',
         'error_loading_time' => 'Ошибка отображения времени',
         'switch_to_light_mode' => 'Переключиться на светлый режим',
         'switch_to_dark_mode' => 'Переключиться на темный режим',
@@ -5657,8 +5762,6 @@ $langData = [
             'day' => 'يوم',
             'week' => 'أسبوع'
         ],
-        'hour_announcement' => 'إعلان الساعة، الآن الساعة',
-        'hour_exact' => 'بالضبط',
         'error_loading_time' => 'خطأ في عرض الوقت',
         'switch_to_light_mode' => 'التبديل إلى الوضع الفاتح',
         'switch_to_dark_mode' => 'التبديل إلى الوضع الداكن',
@@ -5798,8 +5901,6 @@ $langData = [
             'day' => 'Día',
             'week' => 'Semana'
         ],
-        'hour_announcement' => 'Anuncio de hora, ahora son las',
-        'hour_exact' => 'en punto',
         'error_loading_time' => 'Error al mostrar la hora',
         'switch_to_light_mode' => 'Cambiar al modo claro',
         'switch_to_dark_mode' => 'Cambiar al modo oscuro',
@@ -5939,8 +6040,6 @@ $langData = [
             'day' => 'Tag',
             'week' => 'Woche'
         ],
-        'hour_announcement' => 'Stundenansage, es ist jetzt',
-        'hour_exact' => 'Uhr',
         'error_loading_time' => 'Fehler beim Anzeigen der Zeit',
         'switch_to_light_mode' => 'Zum hellen Modus wechseln',
         'switch_to_dark_mode' => 'Zum dunklen Modus wechseln',
@@ -6080,8 +6179,6 @@ $langData = [
             'day' => 'Jour',
             'week' => 'Semaine'
         ],
-        'hour_announcement' => 'Annonce de l\'heure, il est actuellement',
-        'hour_exact' => 'heure(s) pile',
         'error_loading_time' => 'Erreur lors de l\'affichage de l\'heure',
         'switch_to_light_mode' => 'Passer au mode clair',
         'switch_to_dark_mode' => 'Passer au mode sombre',
@@ -6214,15 +6311,26 @@ $langData = [
         'playlist_load_failed_message'=> 'Failed to Load Playlist',
         'hour_announcement_en'   => "It's",  
         'hour_exact_en'          => "o'clock",
-        'weekDays' => ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'],
+        'weekDays' => ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'],
         'labels' => [
-            'year' => ' Year ',
-            'month' => ' Month ',
-            'day' => ' Day ',
+            'year' => '',
+            'month' => '',
+            'day' => '',
             'week' => ''
         ],
-        'hour_announcement_en' => "It's",
-        'hour_exact_en' => "o'clock",
+        'zodiacs' => ['Monkey','Rooster','Dog','Pig','Rat','Ox','Tiger','Rabbit','Dragon','Snake','Horse','Goat'],
+        'heavenlyStems' => ['Jia','Yi','Bing','Ding','Wu','Ji','Geng','Xin','Ren','Gui'],
+        'earthlyBranches' => ['Zi','Chou','Yin','Mao','Chen','Si','Wu','Wei','Shen','You','Xu','Hai'],
+        'months' => ['1st','2nd','3rd','4th','5th','6th','7th','8th','9th','10th','11th','12th'],
+        'days' => ['1st','2nd','3rd','4th','5th','6th','7th','8th','9th','10th',
+                   '11th','12th','13th','14th','15th','16th','17th','18th','19th','20th',
+                   '21st','22nd','23rd','24th','25th','26th','27th','28th','29th','30th'],
+        'leap_prefix' => 'Leap ',
+        'year_suffix' => ' Year',
+        'month_suffix' => ' Month',
+        'day_suffix' => '',
+        'periods' => ['Zi', 'Chou', 'Yin', 'Mao', 'Chen', 'Si', 'Wu', 'Wei', 'Shen', 'You', 'Xu', 'Hai'],
+        'default_period' => ' Time',
         'error_loading_time' => 'Error loading time',
         'switch_to_light_mode' => 'Switch to Light Mode',
         'switch_to_dark_mode' => 'Switch to Dark Mode',
