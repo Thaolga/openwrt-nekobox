@@ -3000,7 +3000,7 @@ function updateDateTime() {
 
         const hours = now.getHours();
         const minutes = now.getMinutes();
-        const ancientTime = getAncientTime(hours); 
+        const ancientTime = getAncientTime(now, translations);
         const weekDayIndex = now.getDay();
         const weekDay = translations.weekDays ? translations.weekDays[weekDayIndex] : weekDayIndex;
 
@@ -3105,10 +3105,18 @@ function updateDateTime() {
     }
 }
 
-function getAncientTime(hours, minutes = 0) {
+function getAncientTime(date, translations) {
+    let hours = date.getHours();
+    let minutes = date.getMinutes();
+
+    hours += Math.floor(minutes / 60);
+    minutes = minutes % 60;
+    hours = hours % 24;
+    if (hours < 0) hours += 24;
+
     const defaultPeriods = ['Zi', 'Chou', 'Yin', 'Mao', 'Chen', 'Si', 'Wu', 'Wei', 'Shen', 'You', 'Xu', 'Hai'];
-    const periodLabels = translations.periods || defaultPeriods;
-  
+    const periodLabels = translations?.periods || defaultPeriods;
+
     const periods = [
         { start: 23, end: 1, name: periodLabels[0], overnight: true },
         { start: 1, end: 3, name: periodLabels[1] },
@@ -3125,25 +3133,33 @@ function getAncientTime(hours, minutes = 0) {
     ];
 
     const match = periods.find(p => {
-        if (p.overnight) {
-            return hours >= p.start || hours < p.end;
-        }
+        if (p.overnight) return hours >= p.start || hours < p.end;
         return hours >= p.start && hours < p.end;
     });
 
-    if (!match) return 'Hai';
+    if (!match) return periodLabels[11];
 
-    let relativeMinutes;
-    if (match.overnight && hours < match.end) {
-        relativeMinutes = (hours + 24 - match.start) * 60 + minutes;
-    } else {
-        relativeMinutes = (hours - match.start) * 60 + minutes;
+    let totalMinutes = date.getHours() * 60 + date.getMinutes();
+    let periodStartMinutes = match.start * 60;
+    let periodEndMinutes = match.end * 60;
+
+    if (match.overnight) {
+        if (hours < match.start) totalMinutes += 24 * 60; 
+        periodEndMinutes += 24 * 60;
     }
 
+    const relativeMinutes = totalMinutes - periodStartMinutes;
+    const periodLength = periodEndMinutes - periodStartMinutes;
+    const stageDuration = periodLength / 3;
+
     let sub;
-    if (relativeMinutes < 40) sub = translations.initial || 'Initial';
-    else if (relativeMinutes < 80) sub = translations.middle || 'Middle';
-    else sub = translations.final || 'Final';
+    if (relativeMinutes < stageDuration) {
+        sub = translations?.initial || 'Initial';
+    } else if (relativeMinutes < stageDuration * 2) {
+        sub = translations?.middle || 'Middle';
+    } else {
+        sub = translations?.final || 'Final';
+    }
 
     return `${match.name}${sub}`; 
 }
