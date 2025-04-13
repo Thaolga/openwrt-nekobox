@@ -292,11 +292,27 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 }
 
 @font-face {
-	font-display: swap; 
+  font-display: swap; 
   font-family: 'Fredoka One';
   font-style: normal;
   font-weight: 400;
   src: url('/luci-static/spectra/fonts/fredoka-v16-latin-regular.woff2') format('woff2');
+}
+
+@font-face {
+  font-display: swap; 
+  font-family: 'Noto Serif SC';
+  font-style: normal;
+  font-weight: 400;
+  src: url('/luci-static/spectra/fonts/noto-serif-sc-v31-latin-regular.woff2') format('woff2'); 
+}
+
+@font-face {
+  font-display: swap; 
+  font-family: 'Comic Neue';
+  font-style: normal;
+  font-weight: 400;
+  src: url('/luci-static/spectra/fonts/comic-neue-v8-latin-regular.woff2') format('woff2'); 
 }
 
 body {
@@ -311,6 +327,17 @@ body {
 
 body.default-font {
         font-family: system-ui, sans-serif;
+        font-weight: 400;
+}
+
+body.system-nofo-font {
+        font-family: 'Noto Serif SC';
+        font-weight: 400;
+}
+
+
+body.system-mono-font {
+        font-family: 'Comic Neue';
         font-weight: 400;
 }
 
@@ -1136,6 +1163,7 @@ body:hover,
       margin-left: 6px;
     }
   }
+
 </style>
 
 <div class="container-sm container-bg text-center mt-4">
@@ -1179,16 +1207,16 @@ body:hover,
                 return round($bytes, 2) . ' ' . $units[$index];
             }
             ?>  
-            <div class="me-3 d-flex gap-2 mt-4 ps-2 custom-tooltip-wrapper" 
+            <div class="me-3 d-flex gap-2 mt-2 ps-2 custom-tooltip-wrapper gap-2" 
                  data-tooltip="挂载点：<?= $mountPoint ?>｜已用空间：<?= formatSize($usedSpace) ?>">
-                <span class="btn btn-primary btn-sm"><i class="bi bi-hdd"></i> <span data-translate="total">Total：</span>：<?= $totalSpace ? formatSize($totalSpace) : 'N/A' ?></span>
-                <span class="btn btn-success btn-sm"><i class="bi bi-hdd"></i> <span data-translate="free">Free：</span>：<?= $freeSpace ? formatSize($freeSpace) : 'N/A' ?></span>
+                <span class="btn btn-primary btn-sm mb-2 d-none d-sm-inline"><i class="bi bi-hdd"></i> <span data-translate="total">Total：</span><?= $totalSpace ? formatSize($totalSpace) : 'N/A' ?></span>
+                <span class="btn btn-success btn-sm mb-2 d-none d-sm-inline"><i class="bi bi-hdd"></i> <span data-translate="free">Free：</span><?= $freeSpace ? formatSize($freeSpace) : 'N/A' ?></span>
             </div>
-            <button class="btn btn-info mt-4" data-bs-toggle="modal" data-bs-target="#updateConfirmModal" data-translate-title="check_update"><i class="bi bi-cloud-download"></i> <span class="btn-label"></span></button>
-            <button class="btn btn-warning ms-2 mt-4" data-bs-toggle="modal" data-bs-target="#uploadModal" data-translate-title="batch_upload"><i class="bi bi-upload"></i> <span class="btn-label"></span></button>
-            <button class="btn btn-primary ms-2 mt-4" id="openPlayerBtn" data-bs-toggle="modal" data-bs-target="#playerModal" data-translate-title="add_to_playlist"><i class="bi bi-play-btn"></i> <span class="btn-label"></span></button>
-            <button class="btn btn-success ms-2 mt-4" data-bs-toggle="modal" data-bs-target="#musicModal"><i class="bi bi-music-note"></i></button>
-            <button class="btn btn-danger ms-2 mt-4" id="clearBackgroundBtn" data-translate-title="clear_background"><i class="bi bi-trash"></i> <span class="btn-label"></span></button>
+            <button class="btn btn-info" data-bs-toggle="modal" data-bs-target="#updateConfirmModal" data-translate-title="check_update"><i class="bi bi-cloud-download"></i> <span class="btn-label"></span></button>
+            <button class="btn btn-warning ms-2" data-bs-toggle="modal" data-bs-target="#uploadModal" data-translate-title="batch_upload"><i class="bi bi-upload"></i> <span class="btn-label"></span></button>
+            <button class="btn btn-primary ms-2" id="openPlayerBtn" data-bs-toggle="modal" data-bs-target="#playerModal" data-translate-title="add_to_playlist"><i class="bi bi-play-btn"></i> <span class="btn-label"></span></button>
+            <button class="btn btn-success ms-2" data-bs-toggle="modal" data-bs-target="#musicModal" data-translate-title="music_player"><i class="bi bi-music-note-beamed"></i></button>
+            <button class="btn btn-danger ms-2" id="clearBackgroundBtn" data-translate-title="clear_background"><i class="bi bi-trash"></i> <span class="btn-label"></span></button>
         </div>
     </div>
         <h2 class="mt-3 mb-0" data-translate="file_list">File List</h2>
@@ -1283,7 +1311,7 @@ body:hover,
                                     <i class="bi bi-image-fill text-white"></i>
                                     <span class="text-white small" data-translate="image">Image</span>
                                 <?php elseif ($isVideo): ?>
-                                    <i class="bi bi-play-circle-fill text-white"></i>
+                                    <i class="bi bi-play-btn text-white"></i>
                                     <span class="text-white small" data-translate="video">Video</span>
                                 <?php elseif ($isAudio): ?>
                                     <i class="bi bi-music-note-beamed text-white"></i>
@@ -1350,7 +1378,13 @@ body:hover,
                                 <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#renameModal-<?= md5($file) ?>" data-translate-title="rename"><i class="bi bi-pencil"></i></button>
                                 <a href="?download=<?= urlencode($file) ?>" class="btn btn-success"><i class="bi bi-download" data-translate-title="download"></i></a>                     
                                 <?php if ($isMedia): ?>
-                                <button class="btn btn-info set-bg-btn" data-src="<?= htmlspecialchars($file) ?>" data-type="<?= $isVideo ? 'video' : ($isAudio ? 'audio' : 'image') ?>" onclick="setBackground('<?= htmlspecialchars($file) ?>')" data-translate-title="set_background"><i class="bi bi-image"></i></button>
+                                <button class="btn btn-info set-bg-btn" 
+                                        data-src="<?= htmlspecialchars($file) ?>"
+                                        data-type="<?= $isVideo ? 'video' : ($isAudio ? 'audio' : 'image') ?>"
+                                        onclick="setBackground('<?= htmlspecialchars($file) ?>')"
+                                        data-translate-title="set_background">
+                                    <i class="bi <?= $isVideo ? 'bi-play-btn' : ($isAudio ? 'bi-music-note-beamed' : 'bi-image') ?>"></i>
+                                </button>
                                 <?php endif; ?>  
                             </div>
                         </div>
@@ -1507,6 +1541,7 @@ body:hover,
     <div id="currentSong" class="vertical-title"></div>
     <div class="vertical-lyrics"></div>
 </div>
+<span id="clearConfirmText" data-translate="clear_confirm" class="d-none"></span>
     <div class="modal fade" id="musicModal" tabindex="-1">
         <div class="modal-dialog modal-xl">
             <div class="modal-content bg-dark text-white">
@@ -2723,13 +2758,28 @@ document.getElementById('nextBtn').addEventListener('click', () => {
     colorPicker.value = oklchToHex(baseHue, baseChroma, 50);
 
     if (theme === "dark") {
+        const message = translations['current_mode_dark'] || "Current Mode: Dark Mode";
         btn.innerHTML = `<i class="bi bi-sun"></i> ${translations['switch_to_light_mode'] || 'Switch to Light Mode'}`;
         btn.className = "btn btn-primary light";
-        status.innerText = translations['current_mode_dark'] || "Current Mode: Dark Mode";
+        status.innerText = message;
+
+        if (typeof speakMessage === 'function') {
+            speakMessage(message);
+        }
+        if (typeof showLogMessage === 'function') {
+            showLogMessage(message);
+        }
     } else {
+        const message = translations['current_mode_light'] || "Current Mode: Light Mode";
         btn.innerHTML = `<i class="bi bi-moon"></i> ${translations['switch_to_dark_mode'] || 'Switch to Dark Mode'}`;
         btn.className = "btn btn-primary dark";
-        status.innerText = translations['current_mode_light'] || "Current Mode: Light Mode";
+        status.innerText = message;
+        if (typeof speakMessage === 'function') {
+            speakMessage(message);
+        }
+        if (typeof showLogMessage === 'function') {
+            showLogMessage(message);
+        }
     }
 
     const currentL = theme === "dark" ? 35 : 95;
@@ -2962,7 +3012,7 @@ function updateDateTime() {
 
         const timeElement = document.getElementById('timeDisplay');
         if (timeElement) {
-            if (['zh', 'hk', 'jp', 'kr', 'vn'].includes(lang)) {
+            if (['zh', 'hk', 'jp', 'kr'].includes(lang)) {
                 timeElement.innerHTML = `
                     <span class="ancient-time">${ancientTime}</span>
                     <span class="modern-time">${timeStr}</span>
@@ -3055,12 +3105,12 @@ function updateDateTime() {
     }
 }
 
-function getAncientTime(hours) {
+function getAncientTime(hours, minutes = 0) {
     const defaultPeriods = ['Zi', 'Chou', 'Yin', 'Mao', 'Chen', 'Si', 'Wu', 'Wei', 'Shen', 'You', 'Xu', 'Hai'];
     const periodLabels = translations.periods || defaultPeriods;
-    const suffix = translations.default_period || 'Time';
+  
     const periods = [
-        { start: 23, end: 1, name: periodLabels[0] },
+        { start: 23, end: 1, name: periodLabels[0], overnight: true },
         { start: 1, end: 3, name: periodLabels[1] },
         { start: 3, end: 5, name: periodLabels[2] },
         { start: 5, end: 7, name: periodLabels[3] },
@@ -3075,13 +3125,27 @@ function getAncientTime(hours) {
     ];
 
     const match = periods.find(p => {
-        if (p.overnight) { 
+        if (p.overnight) {
             return hours >= p.start || hours < p.end;
         }
         return hours >= p.start && hours < p.end;
     });
 
-    return match ? `${match.name}${translations.default_period || ' Time'}` : translations.default_period || 'Hai Time';
+    if (!match) return 'Hai';
+
+    let relativeMinutes;
+    if (match.overnight && hours < match.end) {
+        relativeMinutes = (hours + 24 - match.start) * 60 + minutes;
+    } else {
+        relativeMinutes = (hours - match.start) * 60 + minutes;
+    }
+
+    let sub;
+    if (relativeMinutes < 40) sub = translations.initial || 'Initial';
+    else if (relativeMinutes < 80) sub = translations.middle || 'Middle';
+    else sub = translations.final || 'Final';
+
+    return `${match.name}${sub}`; 
 }
 
 const elements = document.querySelectorAll('.time-display span');
@@ -3705,7 +3769,7 @@ function speakMessage(message) {
     const utterance = new SpeechSynthesisUtterance(message);
     utterance.lang = currentLang;  
     speechSynthesis.speak(utterance);
-}
+} 
 
 function togglePlay() {
     if (isPlaying) {
@@ -4561,13 +4625,36 @@ document.addEventListener("DOMContentLoaded", () => {
   const body = document.body;
   const storageKey = "fontToggle";
 
-  if (localStorage.getItem(storageKey) === "default") {
-    body.classList.add("default-font");
+  const fonts = [
+    { class: "default-font", key: "font_default" },
+    { class: "fredoka-font", key: "font_fredoka" },
+    { class: "system-nofo-font", key: "font_noto" },
+    { class: "system-mono-font", key: "font_mono" } 
+  ];
+
+  const savedFont = localStorage.getItem(storageKey);
+  if (savedFont) {
+    body.classList.add(savedFont);
   }
 
   btn.addEventListener("click", () => {
-    const isDefault = body.classList.toggle("default-font");
-    localStorage.setItem(storageKey, isDefault ? "default" : "fredoka");
+    const currentIndex = fonts.findIndex(f => body.classList.contains(f.class));
+    const nextIndex = (currentIndex + 1) % fonts.length;
+    const nextFont = fonts[nextIndex];
+
+    fonts.forEach(f => body.classList.remove(f.class));
+    body.classList.add(nextFont.class);
+    localStorage.setItem(storageKey, nextFont.class);
+
+    const message = translations[nextFont.key] || "Switched font";
+
+    if (typeof speakMessage === "function") {
+      speakMessage(message);
+    }
+
+    if (typeof showLogMessage === "function") {
+      showLogMessage(message);
+    }
   });
 });
 </script>
@@ -4630,7 +4717,6 @@ $langData = [
         'total'                  => '总共：',
         'free'                   => '剩余：',
         'hover_to_preview'       => '点击激活悬停播放',
-        'mount_info'             => '挂载点：{{mount}}｜已用空间：{{used}}',
         'spectra_config'         => 'Spectra 配置管理',
         'current_mode'           => '当前模式: 加载中...',
         'toggle_mode'            => '切换模式',
@@ -4737,6 +4823,15 @@ $langData = [
         'day_suffix' => '',
         'periods' => ['子', '丑', '寅', '卯', '辰', '巳', '午', '未', '申', '酉', '戌', '亥'],
         'default_period' => '時',
+        'initial' => '初',  
+        'middle' => '正',   
+        'final' =>'末',  
+        'clear_confirm' =>'确定要清除配置吗？', 
+        'back_to_first' => '已返回播放列表第一首歌曲',
+        'font_default' => '已切换为圆润字体',
+        'font_fredoka' => '已切换为默认字体',
+        'font_mono'   => '已切换为趣味手写字体',
+        'font_noto'     => '已切换为中文衬线字体',
         'error_loading_time' => '时间显示异常',
         'switch_to_light_mode' => '切换到亮色模式',
         'switch_to_dark_mode' => '切换到暗色模式',
@@ -4889,6 +4984,11 @@ $langData = [
         'day_suffix' => '',
         'periods' => ['子', '丑', '寅', '卯', '辰', '巳', '午', '未', '申', '酉', '戌', '亥'],
         'default_period' => '時',
+        'initial' => '初',  
+        'middle' => '正',   
+        'final' =>'末',   
+        'clear_confirm' => '確定要清除配置嗎？',
+        'back_to_first' => '已返回播放列表第一首歌曲', 
         'error_loading_time' => '時間顯示異常',
         'switch_to_light_mode' => '切換到亮色模式',
         'switch_to_dark_mode' => '切換到暗色模式',
@@ -4909,6 +5009,10 @@ $langData = [
         'confirm_update_php' => '您確定要更新 PHP 配置嗎？',
         'select_files_to_delete' => '請先選擇要刪除的文件！',
         'confirm_batch_delete' => '確定要刪除選中的 %d 個文件嗎？',
+        'font_default' => '已切換為圓潤字體',
+        'font_fredoka' => '已切換為預設字體',
+        'font_mono'    => '已切換為趣味手寫字體',
+        'font_noto'    => '已切換為中文襯線字體',
         'selected_info' => '已選擇 %d 個文件，合計 %s MB'
     ],
 
@@ -5039,6 +5143,11 @@ $langData = [
         'year_suffix' => '년',
         'month_suffix' => '월',
         'day_suffix' => '',
+        'initial' => '초',  
+        'middle' => '정',   
+        'final' =>'말',  
+        'clear_confirm' => '구성을 지우시겠습니까?',
+        'back_to_first' => '플레이리스트 첫 번째 곡으로 돌아갔습니다',
         'periods' => ['자', '축', '인', '묘', '진', '사', '오', '미', '신', '유', '술', '해'],
         'default_period' => '시',
         'error_loading_time' => '시간 표시 오류',
@@ -5061,6 +5170,10 @@ $langData = [
         'confirm_update_php' => 'PHP 설정을 업데이트하시겠습니까?',
         'select_files_to_delete' => '삭제할 파일을 선택하세요!',
         'confirm_batch_delete' => '선택된 %d개의 파일을 삭제하시겠습니까?',
+        'font_default' => '둥근 글꼴로 전환되었습니다',
+        'font_fredoka' => '기본 글꼴로 전환되었습니다',
+        'font_mono'    => '재미있는 손글씨 글꼴로 전환되었습니다',
+        'font_noto'    => '중국어 명조체 글꼴로 전환되었습니다',
         'selected_info' => '선택된 파일: %d개, 총합: %s MB'
     ],
 
@@ -5193,6 +5306,11 @@ $langData = [
         'day_suffix' => '',
         'periods' => ['子', '丑', '寅', '卯', '辰', '巳', '午', '未', '申', '酉', '戌', '亥'],
         'default_period' => '時',
+        'initial' => '初',  
+        'middle' => '正',   
+        'final' =>'末',  
+        'clear_confirm' => '設定を削除してもよろしいですか？',
+        'back_to_first' => 'プレイリストの最初の曲に戻りました',
         'error_loading_time' => '時間表示エラー',
         'switch_to_light_mode' => 'ライトモードに切り替え',
         'switch_to_dark_mode' => 'ダークモードに切り替え',
@@ -5213,6 +5331,10 @@ $langData = [
         'confirm_update_php' => 'PHP設定を更新しますか？',
         'select_files_to_delete' => '削除するファイルを選択してください！',
         'confirm_batch_delete' => '選択された%d個のファイルを削除しますか？',
+        'font_default' => '丸みのあるフォントに切り替えました',
+        'font_fredoka' => 'デフォルトフォントに切り替えました',
+        'font_mono'    => '手書き風フォントに切り替えました',
+        'font_noto'    => '中国語セリフ体フォントに切り替えました',
         'selected_info' => '選択されたファイル：%d個、合計：%s MB'
     ],
 
@@ -5345,6 +5467,8 @@ $langData = [
         'day_suffix' => '',
         'periods' => ['Tý', 'Sửu', 'Dần', 'Mão', 'Thìn', 'Tỵ', 'Ngọ', 'Mùi', 'Thân', 'Dậu', 'Tuất', 'Hợi'],
         'default_period' => ' Giờ',
+        'clear_confirm' => 'Bạn có chắc chắn muốn xóa cấu hình không?',
+        'back_to_first' => 'Đã quay lại bài hát đầu tiên trong danh sách phát',
         'year_format' => '{heavenlyStem} {earthlyBranch}{suffix}',
         'error_loading_time' => 'Lỗi hiển thị thời gian',
         'switch_to_light_mode' => 'Chuyển sang chế độ sáng',
@@ -5366,6 +5490,10 @@ $langData = [
         'confirm_update_php' => 'Bạn có chắc muốn cập nhật cấu hình PHP không?',
         'select_files_to_delete' => 'Vui lòng chọn tệp để xóa!',
         'confirm_batch_delete' => 'Bạn có chắc muốn xóa %d tệp đã chọn không?',
+        'font_default' => 'Đã chuyển sang phông tròn',
+        'font_fredoka' => 'Đã chuyển sang phông mặc định',
+        'font_mono'    => 'Đã chuyển sang phông chữ viết tay thú vị',
+        'font_noto'    => 'Đã chuyển sang phông chữ chân Trung Quốc',
         'selected_info' => 'Đã chọn %d tệp, tổng cộng %s MB'
     ],
 
@@ -5504,6 +5632,12 @@ $langData = [
         'confirm_update_php' => 'คุณแน่ใจหรือไม่ว่าต้องการอัปเดตการตั้งค่า PHP?',
         'select_files_to_delete' => 'กรุณาเลือกไฟล์ที่จะลบ!',
         'confirm_batch_delete' => 'คุณแน่ใจหรือไม่ว่าต้องการลบไฟล์ที่เลือก %d ไฟล์?',
+        'clear_confirm' => 'คุณแน่ใจหรือว่าต้องการล้างการตั้งค่า?',
+        'back_to_first' => 'กลับไปที่เพลงแรกในรายการเพลง',
+        'font_default' => 'เปลี่ยนเป็นแบบอักษรโค้งมนแล้ว',
+        'font_fredoka' => 'เปลี่ยนเป็นแบบอักษรเริ่มต้นแล้ว',
+        'font_mono'    => 'เปลี่ยนเป็นแบบอักษรลายมือสนุก ๆ แล้ว',
+        'font_noto'    => 'เปลี่ยนเป็นแบบอักษรมีเชิงภาษาจีนแล้ว',
         'selected_info' => 'เลือกไฟล์แล้ว %d ไฟล์ รวมทั้งหมด %s MB'
     ],
 
@@ -5643,6 +5777,12 @@ $langData = [
         'confirm_update_php' => 'Вы уверены, что хотите обновить конфигурацию PHP?',
         'select_files_to_delete' => 'Выберите файлы для удаления!',
         'confirm_batch_delete' => 'Вы уверены, что хотите удалить выбранные %d файлов?',
+        'clear_confirm' => 'Вы уверены, что хотите очистить конфигурацию?',
+        'back_to_first' => 'Вернулся к первой песне в плейлисте',
+        'font_default' => 'Переключено на округлый шрифт',
+        'font_fredoka' => 'Переключено на шрифт по умолчанию',
+        'font_mono'    => 'Переключено на забавный рукописный шрифт',
+        'font_noto'    => 'Переключено на китайский рубленый шрифт',
         'selected_info' => 'Выбрано %d файлов, всего %s MB'
     ],
 
@@ -5782,6 +5922,12 @@ $langData = [
         'confirm_update_php' => 'هل أنت متأكد أنك تريد تحديث إعدادات PHP؟',
         'select_files_to_delete' => 'يرجى اختيار الملفات المراد حذفها!',
         'confirm_batch_delete' => 'هل تريد بالتأكيد حذف الملفات المحددة وعددها %d؟',
+        'clear_confirm' => 'هل أنت متأكد أنك تريد مسح الإعدادات؟',
+        'back_to_first' => 'تم العودة إلى أول أغنية في قائمة التشغيل',
+        'font_default' => 'تم التبديل إلى خط دائري',
+        'font_fredoka' => 'تم التبديل إلى الخط الافتراضي',
+        'font_mono'    => 'تم التبديل إلى خط يدوي ممتع',
+        'font_noto'    => 'تم التبديل إلى خط صيني منمق',
         'selected_info' => 'تم اختيار %d ملف، الحجم الإجمالي %s ميغابايت'
     ],
 
@@ -5921,6 +6067,12 @@ $langData = [
         'confirm_update_php' => '¿Está seguro de que desea actualizar la configuración de PHP?',
         'select_files_to_delete' => '¡Seleccione primero los archivos a eliminar!',
         'confirm_batch_delete' => '¿Está seguro de que desea eliminar los %d archivos seleccionados?',
+        'clear_confirm' => '¿Estás seguro de que deseas borrar la configuración?',
+        'back_to_first' => 'Regresado a la primera canción en la lista de reproducción',
+        'font_default' => 'Cambiado a fuente redondeada',
+        'font_fredoka' => 'Cambiado a fuente predeterminada',
+        'font_mono'    => 'Cambiado a fuente manuscrita divertida',
+        'font_noto'    => 'Cambiado a fuente serif en chino',
         'selected_info' => 'Seleccionados %d archivos, en total %s MB'
     ],
 
@@ -6060,6 +6212,12 @@ $langData = [
         'confirm_update_php' => 'Möchten Sie die PHP-Konfiguration wirklich aktualisieren?',
         'select_files_to_delete' => 'Bitte wählen Sie Dateien zum Löschen aus!',
         'confirm_batch_delete' => 'Möchten Sie die ausgewählten %d Dateien wirklich löschen?',
+        'clear_confirm' => 'Sind Sie sicher, dass Sie die Konfiguration löschen möchten?', 
+        'back_to_first' => 'Zur ersten Wiedergabeliste zurückgekehrt',
+        'font_default' => 'Auf runde Schriftart umgestellt',
+        'font_fredoka' => 'Auf Standardschriftart umgestellt',
+        'font_mono'    => 'Auf lustige Handschrift umgestellt',
+        'font_noto'    => 'Auf chinesische Serifenschrift umgestellt',
         'selected_info' => '%d Dateien ausgewählt, insgesamt %s MB'
     ],
 
@@ -6199,6 +6357,12 @@ $langData = [
         'confirm_update_php' => 'Êtes-vous sûr de vouloir mettre à jour la configuration PHP ?',
         'select_files_to_delete' => 'Veuillez d\'abord sélectionner les fichiers à supprimer !',
         'confirm_batch_delete' => 'Êtes-vous sûr de vouloir supprimer les %d fichiers sélectionnés ?',
+        'clear_confirm' => 'Êtes-vous sûr de vouloir effacer la configuration ?',
+        'back_to_first' => 'Retour à la première chanson de la liste de lecture',
+        'font_default' => 'Police arrondie activée',
+        'font_fredoka' => 'Police par défaut activée',
+        'font_mono'    => 'Police manuscrite activée',
+        'font_noto'    => 'Police avec empattement chinoise activée',
         'selected_info' => '%d fichiers sélectionnés, total de %s Mo'
     ],
 
@@ -6351,6 +6515,12 @@ $langData = [
         'confirm_update_php' => 'Are you sure you want to update PHP configuration?',
         'select_files_to_delete' => 'Please select files to delete first!',
         'confirm_batch_delete' => 'Are you sure you want to delete the selected %d files?',
+        'clear_confirm' => 'Are you sure you want to clear the config?',
+        'back_to_first' => 'Returned to the first song in the playlist',
+        'font_default' => 'Switched to rounded font',
+        'font_fredoka' => 'Switched to default font',
+        'font_mono'    => 'Switched to fun handwriting font',
+        'font_noto'    => 'Switched to Chinese serif font',
         'selected_info' => 'Selected %d files, total %s MB'
     ]
 ];
@@ -6446,7 +6616,6 @@ function updateLanguage(lang) {
     });
 }
 
-
 function updateFlagIcon(lang) {
     const flagImg = document.getElementById('flagIcon');
     if (!flagImg) return;
@@ -6469,6 +6638,8 @@ function updateFlagIcon(lang) {
     flagImg.src = flagMap[lang] || flagMap['en'];
 }
 
+
+
 function changeLanguage(lang) {
     fetch('', {
         method: 'POST',
@@ -6481,7 +6652,84 @@ function changeLanguage(lang) {
           console.log(data); 
           updateLanguage(lang);  
           updateFlagIcon(lang);  
+
+          const langLabelMap = {
+              'zh': '语言已切换为简体中文',
+              'hk': '語言已切換為繁體中文',
+              'en': 'Language switched to English',
+              'kr': '언어가 한국어로 변경되었습니다',
+              'jp': '言語が日本語に変更されました',
+              'ru': 'Язык переключен на русский',
+              'ar': 'تم تغيير اللغة إلى العربية',
+              'es': 'El idioma ha cambiado a español',
+              'de': 'Sprache auf Deutsch umgestellt',
+              'fr': 'Langue changée en français',
+              'th': 'เปลี่ยนภาษาเป็นภาษาไทยแล้ว',
+              'vn': 'Đã chuyển ngôn ngữ sang tiếng Việt'
+          };
+
+          const message = langLabelMap[lang] || 'Language switched';
+
+          if (typeof speakMessage === 'function') {
+              speakMessage(message);
+          }
+          if (typeof showLogMessage === 'function') {
+              showLogMessage(message);
+          }
       });
 }
 </script>
+
+<script>
+document.addEventListener('keydown', function (event) {
+    const target = event.target;
+    const isTyping = target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.isContentEditable;
+
+    if (isTyping) return;
+
+    switch (event.code) {
+        case 'F9':
+            event.preventDefault();
+            togglePlay();
+            break;
+        case 'ArrowLeft':
+            event.preventDefault();
+            changeTrack(-1);
+            break;
+        case 'ArrowRight':
+            event.preventDefault();
+            changeTrack(1);
+            break;
+        case 'ArrowUp':
+            event.preventDefault();
+            document.getElementById('toggleFloatingLyrics')?.click();
+            break;
+        case 'ArrowDown': 
+            event.preventDefault();
+            document.getElementById('toggleButton')?.click();
+            break;
+        case 'Delete':
+          if (currentTrackIndex !== 0) {
+            currentTrackIndex = 0;
+            loadTrack(songs[0]);
+          }
+            speakMessage(translations['back_to_first'] || 'Returned to the first song in the playlist');
+          break;
+        case 'Insert':
+          document.getElementById('repeatBtn')?.click();
+          break;
+        case 'Escape':
+            event.preventDefault();
+            const confirmText = document.getElementById('clearConfirmText')?.textContent.trim() || 'Are you sure you want to clear the config?';
+            if (confirm(confirmText)) {
+                document.getElementById('clear-cache-btn')?.click();
+            }
+            speakMessage(translations['clear_confirm'] || 'Are you sure you want to clear the configuration?');
+            break;
+    }
+});
+</script>
+
+
+
 

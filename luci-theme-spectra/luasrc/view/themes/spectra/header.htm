@@ -348,19 +348,40 @@ header {
 
         const browserLang = navigator.language || navigator.userLanguage;
 
-        if (browserLang.startsWith('en')) {
-            return text;
-        }
-
         const langMap = {
             'zh-CN': 'zh-CN', 
             'zh-HK': 'zh-HK',  
             'zh-TW': 'zh-TW', 
-            'ja': 'ja',   
+            'ja': 'ja',  
             'ko': 'ko',      
             'fr': 'fr',     
             'de': 'de',      
             'es': 'es',       
+            'it': 'it',
+            'pt': 'pt',
+            'ru': 'ru',
+            'ar': 'ar',
+            'hi': 'hi',
+            'bn': 'bn',
+            'ms': 'ms',
+            'id': 'id',
+            'vi': 'vi',
+            'th': 'th',
+            'nl': 'nl',
+            'pl': 'pl',
+            'tr': 'tr',
+            'sv': 'sv',
+            'no': 'no',
+            'fi': 'fi',
+            'da': 'da',
+            'cs': 'cs',
+            'he': 'he',
+            'el': 'el',
+            'hu': 'hu',
+            'ro': 'ro',
+            'sk': 'sk',
+            'bg': 'bg',
+            'uk': 'uk',
         };
 
         const targetLang = langMap[browserLang] || browserLang.split('-')[0];
