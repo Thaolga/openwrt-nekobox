@@ -2624,6 +2624,8 @@ document.getElementById('nextBtn').addEventListener('click', () => {
 </script>
 
 <script>
+  let userInteracted = false;
+
   function hexToRgb(hex) {
     return {
       r: parseInt(hex.slice(1, 3), 16),
@@ -2763,7 +2765,7 @@ document.getElementById('nextBtn').addEventListener('click', () => {
         btn.className = "btn btn-primary light";
         status.innerText = message;
 
-        if (typeof speakMessage === 'function') {
+        if (userInteracted && typeof speakMessage === 'function') {
             speakMessage(message);
         }
         if (typeof showLogMessage === 'function') {
@@ -2774,7 +2776,7 @@ document.getElementById('nextBtn').addEventListener('click', () => {
         btn.innerHTML = `<i class="bi bi-moon"></i> ${translations['switch_to_dark_mode'] || 'Switch to Dark Mode'}`;
         btn.className = "btn btn-primary dark";
         status.innerText = message;
-        if (typeof speakMessage === 'function') {
+        if (userInteracted && typeof speakMessage === 'function') {
             speakMessage(message);
         }
         if (typeof showLogMessage === 'function') {
@@ -2816,6 +2818,17 @@ document.getElementById('nextBtn').addEventListener('click', () => {
     if (penIcon) {
       penIcon.addEventListener("click", () => colorPicker.click());
     }
+
+    const toggleBtn = document.getElementById("toggleButton");
+    toggleBtn.addEventListener("click", () => {
+      userInteracted = true;
+    });
+
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "ArrowDown" || e.keyCode === 40) {
+        userInteracted = true;
+      }
+    });
 
     fetch("/luci-static/spectra/bgm/theme-switcher.php")
       .then(res => res.json())
@@ -6730,10 +6743,11 @@ document.addEventListener('keydown', function (event) {
             loadTrack(songs[0]);
           }
             speakMessage(translations['back_to_first'] || 'Returned to the first song in the playlist');
-          break;
+            showLogMessage(translations['back_to_first'] || 'Returned to the first song in the playlist');
+            break;
         case 'Insert':
-          document.getElementById('repeatBtn')?.click();
-          break;
+            document.getElementById('repeatBtn')?.click();
+            break;
         case 'Escape':
             event.preventDefault();
             const confirmText = document.getElementById('clearConfirmText')?.textContent.trim() || 'Are you sure you want to clear the config?';
