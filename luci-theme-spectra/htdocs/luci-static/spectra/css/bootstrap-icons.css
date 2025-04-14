@@ -5,24 +5,10 @@
  */
 
 @font-face {
+  font-display: block;
   font-family: "bootstrap-icons";
-  src: url("../webfonts/bootstrap-icons.woff2") format("woff2"),
-       url("../webfonts/bootstrap-icons.woff") format("woff");
-}
-
-.bi::before,
-[class^="bi-"]::before,
-[class*=" bi-"]::before {
-  display: inline-block;
-  font-family: bootstrap-icons !important;
-  font-style: normal;
-  font-weight: normal !important;
-  font-variant: normal;
-  text-transform: none;
-  line-height: 1;
-  vertical-align: -.125em;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+  src: url("../fonts/bootstrap-icons.woff2") format("woff2"),
+       url("../fonts/bootstrap-icons.woff") format("woff");
 }
 
 .bi::before,

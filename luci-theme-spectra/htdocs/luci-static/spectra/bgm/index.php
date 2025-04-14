@@ -2,7 +2,7 @@
 ini_set('memory_limit', '256M');
 $base_dir = __DIR__;
 $upload_dir = $base_dir;
-$allowed_types = ['jpg', 'jpeg', 'png', 'gif', 'mp4', 'mov', 'mkv', 'mp3', 'wav', 'flac'];
+$allowed_types = ['jpg', 'jpeg', 'png', 'gif', 'mp4', 'webm', 'mkv', 'mp3', 'wav', 'flac'];
 $background_type = '';
 $background_src = '';
 
@@ -206,7 +206,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <script src="/luci-static/spectra/js/bootstrap.bundle.min.js"></script>
     <script src="/luci-static/spectra/js/custom.js"></script>
     <script src="/luci-static/spectra/js/interact.min.js"></script>
-    <link href="/luci-static/spectra/css//bootstrap-icons.css" rel="stylesheet">
+    <link href="/luci-static/spectra/css/bootstrap-icons.css" rel="stylesheet">
+    <link href="/luci-static/spectra/css/all.min.css" rel="stylesheet">
 
     <script>
         const phpBackgroundType = '<?= $background_type ?>';
@@ -777,21 +778,45 @@ body:hover,
 }
 
 .drop-zone {
-	border: 2px dashed var(--accent-color);
-	background: color-mix(in oklch, var(--bg-container), transparent 30%);
-	min-height: 200px;
-	transition: border-color 0.3s ease,
-		background 0.4s cubic-bezier(0.25, 0.8, 0.25, 1),
-		box-shadow 0.3s ease;
+	position: relative;
+	border: 2px dashed transparent;
+	border-radius: 10px;
+	padding: 2rem;
+	z-index: 1;
 }
 
-.drop-zone.dragover {
-	border-color: color-mix(in oklch, var(--accent-color), white 20%);
-	background: var(--drag-over-bg);
-	box-shadow: var(--drag-over-shadow);
-	.upload-icon {
-		animation: pulse-glow 1.5s ease infinite;
+.drop-zone::before {
+	content: "";
+	position: absolute;
+	top: -2px;
+	left: -2px;
+	right: -2px;
+	bottom: -2px;
+	z-index: -1;
+	border: 2px dashed var(--bs-primary);
+	border-radius: 10px;
+	animation: border-wave 2s linear infinite;
+	pointer-events: none;
+	mask-image: linear-gradient(90deg, #000 50%, transparent 0%);
+	mask-size: 10px 100%;
+	mask-repeat: repeat;
+	-webkit-mask-image: linear-gradient(90deg, #000 50%, transparent 0%);
+	-webkit-mask-size: 10px 100%;
+	-webkit-mask-repeat: repeat;
 }
+
+@keyframes border-wave {
+	0% {
+		mask-position: 0 0;
+	}
+
+	100% {
+		mask-position: 100% 0;
+	}
+}
+
+.drop-zone:hover::before {
+	border-color: var(--accent-color);
 }
 
 .upload-icon {
@@ -1079,6 +1104,38 @@ body:hover,
     100% { transform: translate(-50%, -50%) rotate(360deg); }
 }
 
+@keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.2); }
+    100% { transform: scale(1); }
+}
+
+.upload-area i {
+    animation: pulse 1s infinite;
+}
+
+.file-checkbox-wrapper {
+    opacity: 0;
+    transition: opacity 0.2s ease-in-out;
+}
+
+.fileCheckbox:checked + .file-checkbox-wrapper,
+.file-checkbox-wrapper.force-visible {
+    opacity: 1 !important;
+}
+
+@media (min-width: 768px) {
+    .card:hover .file-checkbox-wrapper:not(.force-visible) {
+        opacity: 1;
+    }
+}
+
+@media (max-width: 767.98px) {
+    .file-checkbox-wrapper {
+        opacity: 1 !important;
+    }
+}
+
 @media (max-width: 576px) {
     .card-body .btn {
         font-size: 0.75rem !important;  
@@ -1210,13 +1267,14 @@ body:hover,
             <div class="me-3 d-flex gap-2 mt-2 ps-2 custom-tooltip-wrapper gap-2" 
                  data-tooltip="挂载点：<?= $mountPoint ?>｜已用空间：<?= formatSize($usedSpace) ?>">
                 <span class="btn btn-primary btn-sm mb-2 d-none d-sm-inline"><i class="bi bi-hdd"></i> <span data-translate="total">Total：</span><?= $totalSpace ? formatSize($totalSpace) : 'N/A' ?></span>
-                <span class="btn btn-success btn-sm mb-2 d-none d-sm-inline"><i class="bi bi-hdd"></i> <span data-translate="free">Free：</span><?= $freeSpace ? formatSize($freeSpace) : 'N/A' ?></span>
+                <span class="btn btn-success btn-sm mb-2"><i class="bi bi-hdd"></i> <span data-translate="free">Free：</span><?= $freeSpace ? formatSize($freeSpace) : 'N/A' ?></span>
             </div>
-            <button class="btn btn-info" data-bs-toggle="modal" data-bs-target="#updateConfirmModal" data-translate-title="check_update"><i class="bi bi-cloud-download"></i> <span class="btn-label"></span></button>
+            <button class="btn btn-info" data-bs-toggle="modal" data-bs-target="#updateConfirmModal" data-translate-title="check_update"><i class="fas fa-cloud-download-alt"></i> <span class="btn-label"></span></button>
             <button class="btn btn-warning ms-2" data-bs-toggle="modal" data-bs-target="#uploadModal" data-translate-title="batch_upload"><i class="bi bi-upload"></i> <span class="btn-label"></span></button>
             <button class="btn btn-primary ms-2" id="openPlayerBtn" data-bs-toggle="modal" data-bs-target="#playerModal" data-translate-title="add_to_playlist"><i class="bi bi-play-btn"></i> <span class="btn-label"></span></button>
             <button class="btn btn-success ms-2" data-bs-toggle="modal" data-bs-target="#musicModal" data-translate-title="music_player"><i class="bi bi-music-note-beamed"></i></button>
-            <button class="btn btn-danger ms-2" id="clearBackgroundBtn" data-translate-title="clear_background"><i class="bi bi-trash"></i> <span class="btn-label"></span></button>
+            <button class="btn btn-danger ms-2" id="clear-cache-btn" data-translate-title="clear_config"><i class="bi bi-trash3-fill"></i></button>
+            <button class="btn btn-danger ms-2" id="clearBackgroundBtn" data-translate-title="clear_background"><i class="bi bi-trash"></i> <span class="btn-label"></span></button> 
         </div>
     </div>
         <h2 class="mt-3 mb-0" data-translate="file_list">File List</h2>
@@ -1225,7 +1283,7 @@ body:hover,
             <div class="alert alert-danger"><?= $error ?></div>
         <?php endif; ?>
         
-        <div class="d-flex align-items-center mb-3 ps-2">
+        <div class="d-flex align-items-center mb-3 ps-2" id="selectAll-container">
             <input type="checkbox" id="selectAll" class="form-check-input me-2 shadow-sm" style="width: 1.05em; height: 1.05em; border-radius: 0.35em; margin-left: 1px; transform: scale(1.2)">
             <label for="selectAll" class="form-check-label fs-5 ms-1" style="margin-right: 10px;" data-translate="select_all">Select All'</label>
             <input type="color" id="colorPicker" style="margin-right: 10px;" value="#ff6600" data-translate-title="component_bg_color"/>
@@ -1286,9 +1344,26 @@ body:hover,
                         if (preg_match('/bitrate: (\d+) kb\/s/', $output, $matches)) {
                             $bitrate = $matches[1] . ' kbps';
                         }
-                
                     } else {
                         $resolution = '无法获取分辨率';
+                        $duration = '无法获取时长';
+                        $bitrate = '无法获取比特率';
+                    }
+                } elseif ($isAudio) { 
+                    $ffmpegPath = '/usr/bin/ffmpeg';
+                    $cmd = "$ffmpegPath -i \"$path\" 2>&1";
+                    $output = shell_exec($cmd);
+
+                    if ($output) {
+                        if (preg_match('/Duration:\s*(\d+):(\d+):(\d+)/', $output, $matches)) {
+                            $duration = sprintf("%02d:%02d:%02d", $matches[1], $matches[2], $matches[3]);
+                        }
+
+                        if (preg_match('/bitrate:\s*(\d+)\s*kb\/s/', $output, $matches) || 
+                           preg_match('/Stream.*Audio:.*?(\d+)\s*kb\/s/', $output, $matches)) {
+                            $bitrate = $matches[1] . ' kbps';
+                        }
+                    } else {
                         $duration = '无法获取时长';
                         $bitrate = '无法获取比特率';
                     }
@@ -1296,7 +1371,7 @@ body:hover,
             ?>
             <div class="col">
                 <div class="card h-100 shadow-sm position-relative"> 
-                    <div class="position-absolute start-0 top-0 m-2 z-2">
+                    <div class="file-checkbox-wrapper position-absolute start-0 top-0 m-2 z-2">
                         <input type="checkbox" 
                                class="fileCheckbox form-check-input shadow" 
                                value="<?= htmlspecialchars($file) ?>"
@@ -1308,13 +1383,13 @@ body:hover,
                         <div class="preview-container">
                             <div class="file-type-indicator">
                                 <?php if ($isImage): ?>
-                                    <i class="bi bi-image-fill text-white"></i>
+                                    <i class="fas fa-image text-white"></i>
                                     <span class="text-white small" data-translate="image">Image</span>
                                 <?php elseif ($isVideo): ?>
-                                    <i class="bi bi-play-btn text-white"></i>
+                                    <i class="fas fa-play-circle text-white"></i>
                                     <span class="text-white small" data-translate="video">Video</span>
                                 <?php elseif ($isAudio): ?>
-                                    <i class="bi bi-music-note-beamed text-white"></i>
+                                    <i class="fas fa-music text-white"></i>
                                     <span class="text-white small" data-translate="audio">Audio</span>
                                 <?php endif; ?>
                             </div>
@@ -1374,7 +1449,7 @@ body:hover,
                     <div class="card-body pt-2 mt-2">
                         <div class="d-flex flex-nowrap align-items-center justify-content-between gap-2">                         
                             <div class="d-flex flex-nowrap gap-1 flex-grow-1" style="min-width: 0;">
-                                <button class="btn btn-danger" onclick="if(confirm('确定删除？')) window.location='?delete=<?= urlencode($file) ?>'" data-translate-title="delete"><i class="bi bi-trash"></i></button>
+                                <button class="btn btn-danger" onclick="handleDeleteConfirmation('<?= urlencode($file) ?>')" data-translate-title="delete"><i class="bi bi-trash"></i></button>
                                 <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#renameModal-<?= md5($file) ?>" data-translate-title="rename"><i class="bi bi-pencil"></i></button>
                                 <a href="?download=<?= urlencode($file) ?>" class="btn btn-success"><i class="bi bi-download" data-translate-title="download"></i></a>                     
                                 <?php if ($isMedia): ?>
@@ -1439,7 +1514,7 @@ body:hover,
                             <input type="file" name="upload_file[]" id="upload_file" multiple 
                                    style="opacity: 0; position: absolute; z-index: -1">
                             <div class="upload-area">
-                                <i class="bi bi-cloud-upload-fill text-primary mb-3" style="font-size: 4rem;"></i>
+                                <i class="fas fa-cloud-upload-alt text-primary mb-3" style="font-size: 4rem;"></i>
                                 <div class="fs-5 mb-2" data-translate="drop_files_here"></div>
                                 <div class="text-muted upload-or mb-3" data-translate="or"></div>
                                 <button type="button" class="btn btn-primary btn-lg" id="customUploadButton">
@@ -1578,7 +1653,6 @@ body:hover,
                         <button class="btn btn-outline-light control-btn" onclick="changeTrack(1)" data-translate-title="next_track">
                             <i class="bi bi-caret-right-fill"></i>
                         </button>
-                        <button class="btn btn-outline-light control-btn" id="clear-cache-btn" data-translate-title="clear_config"><i class="bi bi-trash3-fill"></i></button>
                        <button class="btn btn-outline-light control-btn" type="button" data-bs-toggle="modal" data-bs-target="#urlModal" data-translate-title="custom_playlist"><i class="bi bi-music-note-list"></i></button>
                         <button class="btn btn-volume position-relative" id="volumeToggle" data-translate-title="volume">
                             <i class="bi bi-volume-up-fill"></i>
@@ -1828,10 +1902,18 @@ body:hover,
             e.preventDefault();
             const formData = $(this).serialize();
             $.post('', formData, function(response) {
+                let message = '';
                 if (response.success) {
-                    location.reload();
+                    message = translations['batch_delete_success'] || '✅ Batch delete successful';
+                    showLogMessage(message);
+                    speakMessage(message);
+                    setTimeout(() => {
+                          location.reload();
+                    }, 2500);
                 } else {
-                    alert('批量删除操作失败');
+                    message = translations['batch_delete_failed'] || '❌ Batch delete failed';
+                    showLogMessage(message);
+                    speakMessage(message);
                 }
             }, 'json');
         });
@@ -3109,7 +3191,7 @@ function updateDateTime() {
         }
 
     } catch (error) {
-        console.error('时间更新失败:', error);
+        showLogMessage(translations['error_loading_time'] || 'Error loading time');
 
         const dateElement = document.getElementById('dateDisplay');
         if (dateElement) {
@@ -3427,9 +3509,11 @@ body {
     writing-mode: vertical-rl;
     text-orientation: mixed;
     line-height: 2;
+    z-index: 2;
     display: flex;
     flex-direction: column; 
     gap: 0.5em;
+
 }
 
 #floatingLyrics.visible {
@@ -4533,34 +4617,37 @@ updateVolumeIcon();
 </script>
 
 <script>
-const notificationMessage = 'Cache Cleared';
-const speechMessage = 'Cache Cleared';
-
 document.addEventListener('keydown', function(event) {
     if (event.ctrlKey && event.shiftKey && event.code === 'KeyC') {
-        clearCache();
-        event.preventDefault();  
+        confirmAndClearCache();
+        event.preventDefault();
     }
 });
 
 document.getElementById('clear-cache-btn').addEventListener('click', function() {
-    clearCache();
+    confirmAndClearCache();
 });
 
+function confirmAndClearCache() {
+    const confirmed = confirm(translations['clear_confirm'] || 'Are you sure you want to clear the configuration?');
+    if (confirmed) {
+        clearCache();
+    }
+}
+
 function clearCache() {
-    location.reload(true); 
+    location.reload(true);
     localStorage.clear();
     sessionStorage.clear();
     sessionStorage.setItem('cacheCleared', 'true');
-    showLogMessage(notificationMessage);
-    speakMessage(speechMessage);
 }
 
 window.addEventListener('load', function() {
     if (sessionStorage.getItem('cacheCleared') === 'true') {
-        showLogMessage(notificationMessage);
-        speakMessage(speechMessage);
-        sessionStorage.removeItem('cacheCleared'); 
+        const message = translations['cache_cleared'] || 'Cache Cleared';
+        showLogMessage(message);
+        speakMessage(message);
+        sessionStorage.removeItem('cacheCleared');
     }
 });
 
@@ -4743,6 +4830,9 @@ $langData = [
         'theme_download'         => '主题下载',
         'select_all'             => '全选',
         'batch_delete'           => '批量删除选中文件',
+        'batch_delete_success' => '✅ 批量删除成功',
+        'batch_delete_failed' => '❌ 批量删除失败',
+        'confirm_delete' => '确定删除？',
         'total'                  => '总共：',
         'free'                   => '剩余：',
         'hover_to_preview'       => '点击激活悬停播放',
@@ -5042,6 +5132,9 @@ $langData = [
         'font_fredoka' => '已切換為預設字體',
         'font_mono'    => '已切換為趣味手寫字體',
         'font_noto'    => '已切換為中文襯線字體',
+        'batch_delete_success' => '✅ 批量刪除成功',
+        'batch_delete_failed' => '❌ 批量刪除失敗',
+        'confirm_delete' => '確定刪除？',
         'selected_info' => '已選擇 %d 個文件，合計 %s MB'
     ],
 
@@ -5203,6 +5296,9 @@ $langData = [
         'font_fredoka' => '기본 글꼴로 전환되었습니다',
         'font_mono'    => '재미있는 손글씨 글꼴로 전환되었습니다',
         'font_noto'    => '중국어 명조체 글꼴로 전환되었습니다',
+        'batch_delete_success' => '✅ 배치 삭제 성공',
+        'batch_delete_failed' => '❌ 배치 삭제 실패',
+        'confirm_delete' => '삭제하시겠습니까?',
         'selected_info' => '선택된 파일: %d개, 총합: %s MB'
     ],
 
@@ -5364,6 +5460,9 @@ $langData = [
         'font_fredoka' => 'デフォルトフォントに切り替えました',
         'font_mono'    => '手書き風フォントに切り替えました',
         'font_noto'    => '中国語セリフ体フォントに切り替えました',
+        'batch_delete_success' => '✅ 一括削除成功',
+        'batch_delete_failed' => '❌ 一括削除失敗',
+        'confirm_delete' => '削除してもよろしいですか？',
         'selected_info' => '選択されたファイル：%d個、合計：%s MB'
     ],
 
@@ -5523,6 +5622,9 @@ $langData = [
         'font_fredoka' => 'Đã chuyển sang phông mặc định',
         'font_mono'    => 'Đã chuyển sang phông chữ viết tay thú vị',
         'font_noto'    => 'Đã chuyển sang phông chữ chân Trung Quốc',
+        'batch_delete_success' => '✅ Xóa hàng loạt thành công',
+        'batch_delete_failed' => '❌ Xóa hàng loạt thất bại',
+        'confirm_delete' => 'Bạn có chắc chắn muốn xóa không?',
         'selected_info' => 'Đã chọn %d tệp, tổng cộng %s MB'
     ],
 
@@ -5667,6 +5769,9 @@ $langData = [
         'font_fredoka' => 'เปลี่ยนเป็นแบบอักษรเริ่มต้นแล้ว',
         'font_mono'    => 'เปลี่ยนเป็นแบบอักษรลายมือสนุก ๆ แล้ว',
         'font_noto'    => 'เปลี่ยนเป็นแบบอักษรมีเชิงภาษาจีนแล้ว',
+        'batch_delete_success' => '✅ การลบเป็นกลุ่มสำเร็จ',
+        'batch_delete_failed' => '❌ การลบเป็นกลุ่มล้มเหลว',
+        'confirm_delete' => 'คุณแน่ใจหรือไม่ว่าต้องการลบ?',
         'selected_info' => 'เลือกไฟล์แล้ว %d ไฟล์ รวมทั้งหมด %s MB'
     ],
 
@@ -5812,6 +5917,9 @@ $langData = [
         'font_fredoka' => 'Переключено на шрифт по умолчанию',
         'font_mono'    => 'Переключено на забавный рукописный шрифт',
         'font_noto'    => 'Переключено на китайский рубленый шрифт',
+        'batch_delete_success' => '✅ Успешное массовое удаление',
+        'batch_delete_failed' => '❌ Ошибка массового удаления',
+        'confirm_delete' => 'Вы уверены, что хотите удалить?',
         'selected_info' => 'Выбрано %d файлов, всего %s MB'
     ],
 
@@ -5957,6 +6065,9 @@ $langData = [
         'font_fredoka' => 'تم التبديل إلى الخط الافتراضي',
         'font_mono'    => 'تم التبديل إلى خط يدوي ممتع',
         'font_noto'    => 'تم التبديل إلى خط صيني منمق',
+        'batch_delete_success' => '✅ تم الحذف الجماعي بنجاح',
+        'batch_delete_failed' => '❌ فشل الحذف الجماعي',
+        'confirm_delete' => 'هل أنت متأكد أنك تريد الحذف؟',
         'selected_info' => 'تم اختيار %d ملف، الحجم الإجمالي %s ميغابايت'
     ],
 
@@ -6102,6 +6213,9 @@ $langData = [
         'font_fredoka' => 'Cambiado a fuente predeterminada',
         'font_mono'    => 'Cambiado a fuente manuscrita divertida',
         'font_noto'    => 'Cambiado a fuente serif en chino',
+        'batch_delete_success' => '✅ Eliminación masiva exitosa',
+        'batch_delete_failed' => '❌ Fallo en la eliminación masiva',
+        'confirm_delete' => '¿Estás seguro de que deseas eliminar?',
         'selected_info' => 'Seleccionados %d archivos, en total %s MB'
     ],
 
@@ -6247,6 +6361,9 @@ $langData = [
         'font_fredoka' => 'Auf Standardschriftart umgestellt',
         'font_mono'    => 'Auf lustige Handschrift umgestellt',
         'font_noto'    => 'Auf chinesische Serifenschrift umgestellt',
+        'batch_delete_success' => '✅ Stapel-Löschung erfolgreich',
+        'batch_delete_failed' => '❌ Stapel-Löschung fehlgeschlagen',
+        'confirm_delete' => 'Bist du sicher, dass du löschen möchtest?',
         'selected_info' => '%d Dateien ausgewählt, insgesamt %s MB'
     ],
 
@@ -6392,6 +6509,9 @@ $langData = [
         'font_fredoka' => 'Police par défaut activée',
         'font_mono'    => 'Police manuscrite activée',
         'font_noto'    => 'Police avec empattement chinoise activée',
+        'batch_delete_success' => '✅ Suppression par lot réussie',
+        'batch_delete_failed' => '❌ Échec de la suppression par lot',
+        'confirm_delete' => 'Êtes-vous sûr de vouloir supprimer?',
         'selected_info' => '%d fichiers sélectionnés, total de %s Mo'
     ],
 
@@ -6550,6 +6670,9 @@ $langData = [
         'font_fredoka' => 'Switched to default font',
         'font_mono'    => 'Switched to fun handwriting font',
         'font_noto'    => 'Switched to Chinese serif font',
+        'batch_delete_success' => '✅ Batch delete successful',
+        'batch_delete_failed' => '❌ Batch delete failed',
+        'confirm_delete' => 'Are you sure you want to delete?',
         'selected_info' => 'Selected %d files, total %s MB'
     ]
 ];
@@ -6717,7 +6840,7 @@ document.addEventListener('keydown', function (event) {
     if (isTyping) return;
 
     switch (event.code) {
-        case 'F9':
+        case 'Space':
             event.preventDefault();
             togglePlay();
             break;
@@ -6742,11 +6865,16 @@ document.addEventListener('keydown', function (event) {
             currentTrackIndex = 0;
             loadTrack(songs[0]);
           }
-            speakMessage(translations['back_to_first'] || 'Returned to the first song in the playlist');
-            showLogMessage(translations['back_to_first'] || 'Returned to the first song in the playlist');
+            const message = translations['back_to_first'] || 'Returned to the first song in the playlist';
+            showLogMessage(message);
+            speakMessage(message);
             break;
         case 'Insert':
             document.getElementById('repeatBtn')?.click();
+            break;
+        case 'Home':
+            event.preventDefault();
+            document.querySelector('.btn.btn-success.ms-2[data-bs-target="#musicModal"]').click();
             break;
         case 'Escape':
             event.preventDefault();
@@ -6758,6 +6886,35 @@ document.addEventListener('keydown', function (event) {
             break;
     }
 });
+</script>
+
+<script>
+document.addEventListener('change', function(e) {
+    if(e.target.classList.contains('fileCheckbox')) {
+        const wrapper = e.target.closest('.file-checkbox-wrapper');
+        wrapper.classList.toggle('force-visible', e.target.checked);
+        
+        const allCheckboxes = [...document.querySelectorAll('.fileCheckbox:not(#selectAll)')];
+        const allChecked = allCheckboxes.every(c => c.checked);
+        document.getElementById('selectAll').checked = allChecked;
+    }
+});
+
+document.getElementById('selectAll').addEventListener('change', function(e) {
+    const checkboxes = document.querySelectorAll('.fileCheckbox:not(#selectAll)');
+    checkboxes.forEach(checkbox => {
+        checkbox.checked = e.target.checked;
+        const wrapper = checkbox.closest('.file-checkbox-wrapper');
+        wrapper.classList.toggle('force-visible', e.target.checked);
+    });
+});
+
+function handleDeleteConfirmation(file) {
+    const confirmMessage = translations['confirm_delete'] || 'Are you sure you want to delete?'; 
+    if (confirm(confirmMessage)) {
+        window.location = `?delete=${file}`;
+    }
+}
 </script>
 
 
