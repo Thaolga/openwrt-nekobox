@@ -2870,6 +2870,11 @@ document.getElementById('nextBtn').addEventListener('click', () => {
     updateTextPrimary(currentL);
 
     localStorage.setItem("theme", theme);
+    const bodyBgKey = `${theme}BodyBgColor`;
+    const defaultBg = theme === "dark" ? "#1C4792" : "#ffecff";
+    document.body.style.background = localStorage.getItem(bodyBgKey) || defaultBg;
+    
+    document.getElementById("bodyBgColorPicker").value = document.body.style.background;
   }
 
   function getContrastColor(hex) {
@@ -2938,16 +2943,19 @@ function setBackground(filename) {
 
 <script>
 document.addEventListener("DOMContentLoaded", () => {
-    const savedBodyBg = localStorage.getItem("bodyBgColor") || "#ffecff";
-    document.body.style.background = savedBodyBg;
+    const theme = localStorage.getItem("theme") || "dark";
+    const bodyBgKey = `${theme}BodyBgColor`;
+    const defaultBg = theme === "dark" ? "#1C4792" : "#ffecff"; 
+    document.body.style.background = localStorage.getItem(bodyBgKey) || defaultBg;
 
     const bodyBgPicker = document.getElementById("bodyBgColorPicker");
-    bodyBgPicker.value = savedBodyBg;
+    bodyBgPicker.value = document.body.style.background;
     
     bodyBgPicker.addEventListener("input", (e) => {
-        const selectedColor = e.target.value;
-        document.body.style.background = selectedColor;
-        localStorage.setItem("bodyBgColor", selectedColor); 
+        const color = e.target.value;
+        const currentTheme = document.documentElement.getAttribute("data-theme");
+        document.body.style.background = color;
+        localStorage.setItem(`${currentTheme}BodyBgColor`, color); 
     });
 });
 </script>
