@@ -2850,7 +2850,7 @@ document.getElementById('nextBtn').addEventListener('click', () => {
         if (userInteracted && typeof speakMessage === 'function') {
             speakMessage(message);
         }
-        if (typeof showLogMessage === 'function') {
+        if (userInteracted && typeof showLogMessage === 'function') {
             showLogMessage(message);
         }
     } else {
@@ -2861,7 +2861,7 @@ document.getElementById('nextBtn').addEventListener('click', () => {
         if (userInteracted && typeof speakMessage === 'function') {
             speakMessage(message);
         }
-        if (typeof showLogMessage === 'function') {
+        if (userInteracted && typeof showLogMessage === 'function') {
             showLogMessage(message);
         }
     }
