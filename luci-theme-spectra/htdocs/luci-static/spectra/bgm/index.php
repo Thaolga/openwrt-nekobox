@@ -1599,13 +1599,13 @@ body:hover,
     </div>
 <div id="floatingLyrics">
     <div class="floating-controls">
-        <button class="ctrl-btn" onclick="changeTrack(-1)" data-translate-title="previous_track">
+        <button class="ctrl-btn" onclick="changeTrack(-1, true)" data-translate-title="previous_track">
             <i class="bi bi-skip-backward-fill"></i>
         </button>
         <button class="ctrl-btn" id="floatingPlayBtn" onclick="togglePlay()"  data-translate-title="play_pause">
             <i class="bi bi-play-fill"></i>
         </button>
-        <button class="ctrl-btn" onclick="changeTrack(1)" data-translate-title="next_track">
+        <button class="ctrl-btn" onclick="changeTrack(1, true)" data-translate-title="next_track">
             <i class="bi bi-skip-forward-fill"></i>
         </button>
         <button class="ctrl-btn" id="floatingRepeatBtn" onclick="toggleRepeat()">
@@ -1644,13 +1644,13 @@ body:hover,
                         <button class="btn btn-outline-light control-btn" id="repeatBtn" onclick="toggleRepeat()">
                             <i class="bi bi-arrow-repeat"></i>
                         </button>
-                        <button class="btn btn-outline-light control-btn" onclick="changeTrack(-1)" data-translate-title="previous_track">
+                        <button class="btn btn-outline-light control-btn" onclick="changeTrack(-1, true)" data-translate-title="previous_track">
                             <i class="bi bi-caret-left-fill"></i>
                         </button>
                         <button class="btn btn-success control-btn" id="playPauseBtn" onclick="togglePlay()" data-translate-title="play_pause">
                             <i class="bi bi-play-fill"></i>
                         </button>
-                        <button class="btn btn-outline-light control-btn" onclick="changeTrack(1)" data-translate-title="next_track">
+                        <button class="btn btn-outline-light control-btn" onclick="changeTrack(1, true)" data-translate-title="next_track">
                             <i class="bi bi-caret-right-fill"></i>
                         </button>
                        <button class="btn btn-outline-light control-btn" type="button" data-bs-toggle="modal" data-bs-target="#urlModal" data-translate-title="custom_playlist"><i class="bi bi-music-note-list"></i></button>
@@ -3916,8 +3916,7 @@ function updatePlayButton() {
     floatingBtn.innerHTML = `<i class="bi ${icon}"></i>`;
 }
 
-function changeTrack(direction) {
-    const isManual = event && event.type === 'click'; 
+function changeTrack(direction, isManual = false) {
     const oldSong = songs[currentTrackIndex];
     
     if (repeatMode === 2 && !isManual) { 
@@ -6846,11 +6845,11 @@ document.addEventListener('keydown', function (event) {
             break;
         case 'ArrowLeft':
             event.preventDefault();
-            changeTrack(-1);
+            changeTrack(-1, true);
             break;
         case 'ArrowRight':
             event.preventDefault();
-            changeTrack(1);
+            changeTrack(1, true);
             break;
         case 'ArrowUp':
             event.preventDefault();
