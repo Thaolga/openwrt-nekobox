@@ -1,5 +1,8 @@
 #!/bin/sh
 if [ "$PKG_UPGRADE" != 1 ]; then
+    uci set uhttpd.main.index_page='index.php'
+    uci set uhttpd.main.interpreter='.php=/usr/bin/php-cgi'
+    uci commit uhttpd
     uci get luci.themes.Spectra >/dev/null 2>&1 || \
     uci batch <<EOF
 set luci.themes.Spectra=/luci-static/spectra
