@@ -1729,6 +1729,7 @@ body:hover,
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body">
+                    <div id="currentVersionInfo" class="alert alert-info" data-translate="current_version"></div>
                     <div id="themeVersionInfo" class="alert alert-warning" data-translate="fetching_version"></div>
                 </div>
                 <div class="modal-footer">
@@ -2611,17 +2612,25 @@ document.addEventListener('DOMContentLoaded', function () {
 document.addEventListener('DOMContentLoaded', function () {
     const modalElement = document.getElementById('updateConfirmModal');
     const versionInfo = document.getElementById('themeVersionInfo');
+    const currentVersionInfo = document.getElementById('currentVersionInfo');
     const downloadLink = document.getElementById('confirmUpdateLink');
 
     modalElement.addEventListener('shown.bs.modal', function () {
         versionInfo.textContent = translations['fetching_version'] || 'Fetching version info...';
+        currentVersionInfo.textContent = translations['unable_to_fetch_current_version'] || 'Fetching current version...';
         downloadLink.href = '#';
 
         fetch('check_theme_update.php')
             .then(response => response.json())
             .then(data => {
+                if (data.currentVersion) {
+                    currentVersionInfo.textContent = `${translations['current_version'] || 'Current Version'}: ${data.currentVersion}`;
+                } else {
+                    currentVersionInfo.textContent = translations['unable_to_fetch_current_version'] || 'Unable to fetch the current version info';
+                }
+
                 if (data.version && data.url) {
-                    versionInfo.textContent = `${translations['latest_version'] || 'Latest Version：'}${data.version}`;
+                    versionInfo.textContent = `${translations['latest_version'] || 'Latest Version'}: ${data.version}`;
                     downloadLink.href = data.url;
                 } else {
                     versionInfo.textContent = translations['unable_to_fetch_version'] || 'Unable to fetch the latest version info';
@@ -4980,7 +4989,7 @@ $langData = [
         'current_mode_dark' => '当前模式: 暗色模式',
         'current_mode_light' => '当前模式: 亮色模式',
         'fetching_version' => '正在获取版本信息...',
-        'latest_version' => '最新版本：',
+        'latest_version' => '最新版本',
         'unable_to_fetch_version' => '无法获取最新版本信息',
         'request_failed' => '请求失败，请稍后再试',
         'pip_not_supported' => '当前媒体不支持画中画',
@@ -4994,6 +5003,8 @@ $langData = [
         'confirm_update_php' => '您确定要更新 PHP 配置吗？',
         'select_files_to_delete' => '请先选择要删除的文件！',
         'confirm_batch_delete' => '确定要删除选中的 %d 个文件吗？',
+        'unable_to_fetch_current_version' => '正在获取当前版本...',
+        'current_version' => '当前版本',
         'selected_info' => '已选择 %d 个文件，合计 %s MB'
     ],
 
@@ -5137,7 +5148,7 @@ $langData = [
         'current_mode_dark' => '當前模式: 暗色模式',
         'current_mode_light' => '當前模式: 亮色模式',
         'fetching_version' => '正在獲取版本信息...',
-        'latest_version' => '最新版本：',
+        'latest_version' => '最新版本',
         'unable_to_fetch_version' => '無法獲取最新版本信息',
         'request_failed' => '請求失敗，請稍後再試',
         'pip_not_supported' => '當前媒體不支持畫中畫',
@@ -5158,6 +5169,8 @@ $langData = [
         'batch_delete_success' => '✅ 批量刪除成功',
         'batch_delete_failed' => '❌ 批量刪除失敗',
         'confirm_delete' => '確定刪除？',
+        'unable_to_fetch_current_version' => '正在獲取當前版本...',
+        'current_version' => '當前版本',
         'selected_info' => '已選擇 %d 個文件，合計 %s MB'
     ],
 
@@ -5301,7 +5314,7 @@ $langData = [
         'current_mode_dark' => '현재 모드: 어두운 모드',
         'current_mode_light' => '현재 모드: 밝은 모드',
         'fetching_version' => '버전 정보를 가져오는 중...',
-        'latest_version' => '최신 버전:',
+        'latest_version' => '최신 버전',
         'unable_to_fetch_version' => '최신 버전 정보를 가져올 수 없습니다',
         'request_failed' => '요청 실패, 나중에 다시 시도하세요',
         'pip_not_supported' => '현재 미디어는 화면 속 화면을 지원하지 않습니다',
@@ -5322,6 +5335,8 @@ $langData = [
         'batch_delete_success' => '✅ 배치 삭제 성공',
         'batch_delete_failed' => '❌ 배치 삭제 실패',
         'confirm_delete' => '삭제하시겠습니까?',
+        'unable_to_fetch_current_version' => '현재 버전 정보를 가져오는 중...',
+        'current_version' => '현재 버전',
         'selected_info' => '선택된 파일: %d개, 총합: %s MB'
     ],
 
@@ -5465,7 +5480,7 @@ $langData = [
         'current_mode_dark' => '現在のモード：ダークモード',
         'current_mode_light' => '現在のモード：ライトモード',
         'fetching_version' => 'バージョン情報を取得中...',
-        'latest_version' => '最新バージョン：',
+        'latest_version' => '最新バージョン',
         'unable_to_fetch_version' => '最新バージョン情報を取得できません',
         'request_failed' => 'リクエストに失敗しました。後でもう一度試してください',
         'pip_not_supported' => '現在のメディアはピクチャ・イン・ピクチャをサポートしていません',
@@ -5486,6 +5501,8 @@ $langData = [
         'batch_delete_success' => '✅ 一括削除成功',
         'batch_delete_failed' => '❌ 一括削除失敗',
         'confirm_delete' => '削除してもよろしいですか？',
+        'unable_to_fetch_current_version' => '現在のバージョン情報を取得しています...',
+        'current_version' => '現在のバージョン',
         'selected_info' => '選択されたファイル：%d個、合計：%s MB'
     ],
 
@@ -5627,7 +5644,7 @@ $langData = [
         'current_mode_dark' => 'Chế độ hiện tại: Chế độ tối',
         'current_mode_light' => 'Chế độ hiện tại: Chế độ sáng',
         'fetching_version' => 'Đang lấy thông tin phiên bản...',
-        'latest_version' => 'Phiên bản mới nhất:',
+        'latest_version' => 'Phiên bản mới nhất',
         'unable_to_fetch_version' => 'Không thể lấy thông tin phiên bản mới nhất',
         'request_failed' => 'Yêu cầu thất bại, vui lòng thử lại sau',
         'pip_not_supported' => 'Phương tiện hiện tại không hỗ trợ Hình trong hình',
@@ -5648,6 +5665,8 @@ $langData = [
         'batch_delete_success' => '✅ Xóa hàng loạt thành công',
         'batch_delete_failed' => '❌ Xóa hàng loạt thất bại',
         'confirm_delete' => 'Bạn có chắc chắn muốn xóa không?',
+        'unable_to_fetch_current_version' => 'Đang lấy thông tin phiên bản hiện tại...',
+        'current_version' => 'Phiên bản hiện tại',
         'selected_info' => 'Đã chọn %d tệp, tổng cộng %s MB'
     ],
 
@@ -5772,7 +5791,7 @@ $langData = [
         'current_mode_dark' => 'โหมดปัจจุบัน: โหมดมืด',
         'current_mode_light' => 'โหมดปัจจุบัน: โหมดสว่าง',
         'fetching_version' => 'กำลังดึงข้อมูลเวอร์ชัน...',
-        'latest_version' => 'เวอร์ชันล่าสุด:',
+        'latest_version' => 'เวอร์ชันล่าสุด',
         'unable_to_fetch_version' => 'ไม่สามารถดึงข้อมูลเวอร์ชันล่าสุด',
         'request_failed' => 'การร้องขอล้มเหลว กรุณาลองใหม่ภายหลัง',
         'pip_not_supported' => 'สื่อปัจจุบันไม่รองรับภาพในภาพ',
@@ -5795,6 +5814,8 @@ $langData = [
         'batch_delete_success' => '✅ การลบเป็นกลุ่มสำเร็จ',
         'batch_delete_failed' => '❌ การลบเป็นกลุ่มล้มเหลว',
         'confirm_delete' => 'คุณแน่ใจหรือไม่ว่าต้องการลบ?',
+        'unable_to_fetch_current_version' => 'กำลังดึงข้อมูลเวอร์ชันปัจจุบัน...',
+        'current_version' => 'เวอร์ชันปัจจุบัน',
         'selected_info' => 'เลือกไฟล์แล้ว %d ไฟล์ รวมทั้งหมด %s MB'
     ],
 
@@ -5920,7 +5941,7 @@ $langData = [
         'current_mode_dark' => 'Текущий режим: темный',
         'current_mode_light' => 'Текущий режим: светлый',
         'fetching_version' => 'Получение информации о версии...',
-        'latest_version' => 'Последняя версия:',
+        'latest_version' => 'Последняя версия',
         'unable_to_fetch_version' => 'Не удалось получить последнюю версию',
         'request_failed' => 'Запрос не удался, попробуйте позже',
         'pip_not_supported' => 'Текущее медиа не поддерживает картинку в картинке',
@@ -5943,6 +5964,8 @@ $langData = [
         'batch_delete_success' => '✅ Успешное массовое удаление',
         'batch_delete_failed' => '❌ Ошибка массового удаления',
         'confirm_delete' => 'Вы уверены, что хотите удалить?',
+        'unable_to_fetch_current_version' => 'Получение информации о текущей версии...',
+        'current_version' => 'Текущая версия',
         'selected_info' => 'Выбрано %d файлов, всего %s MB'
     ],
 
@@ -6068,7 +6091,7 @@ $langData = [
         'current_mode_dark' => 'الوضع الحالي: الوضع الداكن',
         'current_mode_light' => 'الوضع الحالي: الوضع الفاتح',
         'fetching_version' => 'جاري جلب معلومات الإصدار...',
-        'latest_version' => 'أحدث إصدار:',
+        'latest_version' => 'أحدث إصدار',
         'unable_to_fetch_version' => 'تعذر الحصول على أحدث إصدار',
         'request_failed' => 'فشل الطلب، يرجى المحاولة لاحقًا',
         'pip_not_supported' => 'الوسائط الحالية لا تدعم صورة داخل صورة',
@@ -6091,6 +6114,8 @@ $langData = [
         'batch_delete_success' => '✅ تم الحذف الجماعي بنجاح',
         'batch_delete_failed' => '❌ فشل الحذف الجماعي',
         'confirm_delete' => 'هل أنت متأكد أنك تريد الحذف؟',
+        'unable_to_fetch_current_version' => 'جارٍ الحصول على إصدار حالي...',
+        'current_version' => 'الإصدار الحالي',
         'selected_info' => 'تم اختيار %d ملف، الحجم الإجمالي %s ميغابايت'
     ],
 
@@ -6216,7 +6241,7 @@ $langData = [
         'current_mode_dark' => 'Modo actual: Modo oscuro',
         'current_mode_light' => 'Modo actual: Modo claro',
         'fetching_version' => 'Obteniendo información de la versión...',
-        'latest_version' => 'Última versión:',
+        'latest_version' => 'Última versión',
         'unable_to_fetch_version' => 'No se pudo obtener la última versión',
         'request_failed' => 'Solicitud fallida, inténtelo de nuevo más tarde',
         'pip_not_supported' => 'El medio actual no admite Imagen en Imagen',
@@ -6239,6 +6264,8 @@ $langData = [
         'batch_delete_success' => '✅ Eliminación masiva exitosa',
         'batch_delete_failed' => '❌ Fallo en la eliminación masiva',
         'confirm_delete' => '¿Estás seguro de que deseas eliminar?',
+        'unable_to_fetch_current_version' => 'Obteniendo la versión actual...',
+        'current_version' => 'Versión actual',
         'selected_info' => 'Seleccionados %d archivos, en total %s MB'
     ],
 
@@ -6364,7 +6391,7 @@ $langData = [
         'current_mode_dark' => 'Aktueller Modus: Dunkelmodus',
         'current_mode_light' => 'Aktueller Modus: Hellmodus',
         'fetching_version' => 'Version wird abgerufen...',
-        'latest_version' => 'Neueste Version:',
+        'latest_version' => 'Neueste Version',
         'unable_to_fetch_version' => 'Neueste Version konnte nicht abgerufen werden',
         'request_failed' => 'Anfrage fehlgeschlagen, bitte später erneut versuchen',
         'pip_not_supported' => 'Das aktuelle Medium unterstützt Bild-in-Bild nicht',
@@ -6387,6 +6414,8 @@ $langData = [
         'batch_delete_success' => '✅ Stapel-Löschung erfolgreich',
         'batch_delete_failed' => '❌ Stapel-Löschung fehlgeschlagen',
         'confirm_delete' => 'Bist du sicher, dass du löschen möchtest?',
+        'unable_to_fetch_current_version' => 'Aktuelle Version wird abgerufen...',
+        'current_version' => 'Aktuelle Version',
         'selected_info' => '%d Dateien ausgewählt, insgesamt %s MB'
     ],
 
@@ -6512,7 +6541,7 @@ $langData = [
         'current_mode_dark' => 'Mode actuel : Mode sombre',
         'current_mode_light' => 'Mode actuel : Mode clair',
         'fetching_version' => 'Récupération des informations de version...',
-        'latest_version' => 'Dernière version :',
+        'latest_version' => 'Dernière version',
         'unable_to_fetch_version' => 'Impossible de récupérer la dernière version',
         'request_failed' => 'La requête a échoué, veuillez réessayer plus tard',
         'pip_not_supported' => 'Le média actuel ne prend pas en charge l\'image dans l\'image',
@@ -6535,6 +6564,8 @@ $langData = [
         'batch_delete_success' => '✅ Suppression par lot réussie',
         'batch_delete_failed' => '❌ Échec de la suppression par lot',
         'confirm_delete' => 'Êtes-vous sûr de vouloir supprimer?',
+        'unable_to_fetch_current_version' => 'Récupération de la version actuelle...',
+        'current_version' => 'Version actuelle',
         'selected_info' => '%d fichiers sélectionnés, total de %s Mo'
     ],
 
@@ -6673,7 +6704,7 @@ $langData = [
         'current_mode_dark' => 'Current Mode: Dark Mode',
         'current_mode_light' => 'Current Mode: Light Mode',
         'fetching_version' => 'Fetching version info...',
-        'latest_version' => 'Latest Version:',
+        'latest_version' => 'Latest Version',
         'unable_to_fetch_version' => 'Unable to fetch the latest version info',
         'request_failed' => 'Request failed, please try again later',
         'pip_not_supported' => 'Current media does not support Picture-in-Picture',
@@ -6696,6 +6727,8 @@ $langData = [
         'batch_delete_success' => '✅ Batch delete successful',
         'batch_delete_failed' => '❌ Batch delete failed',
         'confirm_delete' => 'Are you sure you want to delete?',
+        'unable_to_fetch_current_version' => 'Fetching current version...',
+        'current_version' => 'Current Version',
         'selected_info' => 'Selected %d files, total %s MB'
     ]
 ];

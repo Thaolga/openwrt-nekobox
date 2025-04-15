@@ -6,8 +6,17 @@ $packagePattern = '/^luci-theme-spectra_(.+)_all\.ipk$/';
 
 $latestVersion = null;
 $downloadUrl = null;
+$currentInstalledVersion = null;
 
 try {
+    $installedPackages = shell_exec("opkg list-installed luci-theme-spectra");
+    if ($installedPackages) {
+        preg_match('/luci-theme-spectra\s+-\s+([0-9\.~a-zA-Z0-9]+)/', $installedPackages, $matches);
+        if (isset($matches[1])) {
+            $currentInstalledVersion = $matches[1];
+        }
+    }
+
     $ch = curl_init();
     curl_setopt($ch, CURLOPT_URL, "https://api.github.com/repos/{$repoOwner}/{$repoName}/releases/tags/{$releaseTag}");
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
@@ -28,6 +37,7 @@ try {
 } catch(Exception $e) {}
 
 echo json_encode([
+    'currentVersion' => $currentInstalledVersion,
     'version' => $latestVersion,
     'url' => $downloadUrl,
 ]);
