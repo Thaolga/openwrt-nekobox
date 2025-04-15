@@ -84,15 +84,46 @@ document.addEventListener("DOMContentLoaded", function () {
         if (!btn || !status) return;
 
         if (mode === "dark") {
-            btn.innerHTML = '<i class="bi bi-sun"></i> 切换到亮色模式';
+            btn.innerHTML = '<i class="bi bi-sun"></i>&nbsp;&nbsp;切换到亮色模式&nbsp;&nbsp;&nbsp;';
             btn.className = "btn btn-primary light";
             status.innerText = "当前主题: 暗色模式";
         } else {
-            btn.innerHTML = '<i class="bi bi-moon"></i> 切换到暗色模式';
+            btn.innerHTML = '<i class="bi bi-moon"></i>&nbsp;&nbsp;切换到暗色模式&nbsp;&nbsp;&nbsp;';
             btn.className = "btn btn-primary dark";
             status.innerText = "当前主题: 亮色模式";
         }
     }
+
+    fetch("/luci-static/spectra/bgm/theme-switcher.php")
+        .then(res => res.json())
+        .then(data => {
+            updateThemeButton(data.mode);
+
+            const masterSwitch = document.getElementById('master-switch');
+
+            if (data.mode === "light") {
+                isEnabled = false;
+                localStorage.setItem('backgroundEnabled', 'false');
+
+                if (masterSwitch) {
+                    masterSwitch.style.background = '#f44336';
+                    masterSwitch.querySelector('.status-led').style.background = '#f44336';
+                    masterSwitch.querySelector('span').textContent = '已禁用 ❌';
+                }
+            } else {
+                const enabled = localStorage.getItem('backgroundEnabled') === 'true';
+                isEnabled = enabled;
+
+                if (masterSwitch) {
+                    masterSwitch.style.background = enabled ? '#4CAF50' : '#f44336';
+                    masterSwitch.querySelector('.status-led').style.background = enabled ? '#4CAF50' : '#f44336';
+                    masterSwitch.querySelector('span').textContent = enabled ? '已启用 ✅' : '已禁用 ❌';
+                }
+            }
+        })
+        .catch(error => {
+            console.error("获取主题模式失败:", error);
+        });
 
     const controlPanel = `
         <div id="settings-icon">⚙️</div>
@@ -224,7 +255,7 @@ document.addEventListener("DOMContentLoaded", function () {
         }
 
         #master-switch {
-            background: ${isEnabled ? '#4CAF50' : '#f44336'} !important;
+            background: ${isEnabled ? '#4CAF50' : '#f44336'};
             pointer-events: auto !important;
             opacity: 1 !important;
         }
@@ -295,13 +326,17 @@ document.addEventListener("DOMContentLoaded", function () {
 
     document.getElementById('master-switch').addEventListener('click', function(e) {
         e.stopPropagation();
+
         isEnabled = !isEnabled;
         localStorage.setItem('backgroundEnabled', isEnabled);
-        
         this.style.background = isEnabled ? '#4CAF50' : '#f44336';
-        this.querySelector('.status-led').style.boxShadow = `0 0 5px ${isEnabled ? '#4CAF50' : '#f44336'}`;
-        this.querySelector('span').textContent = isEnabled ? '已启用' : '已禁用';
+        const led = this.querySelector('.status-led');
+        const circleColor = isEnabled ? '#4CAF50' : '#f44336';
+        led.style.boxShadow = `0 0 5px ${circleColor}`;
+        led.style.backgroundColor = circleColor;
+        led.style.borderColor = isEnabled ? '#ffffff' : '#000000'; 
 
+        this.querySelector('span').textContent = isEnabled ? '已启用 ✅' : '已禁用 ❌';
         document.querySelectorAll('#mode-popup button:not(#master-switch):not(.sound-toggle):not(#redirect-btn):not(.info-btn)').forEach(btn => {
             btn.style.opacity = isEnabled ? 1 : 0.5;
             btn.style.pointerEvents = isEnabled ? 'auto' : 'none';
@@ -349,24 +384,13 @@ document.addEventListener("DOMContentLoaded", function () {
             });
     });
 
-    document.addEventListener("DOMContentLoaded", () => {
-        fetch("/luci-static/spectra/bgm/theme-switcher.php")
-            .then(res => res.json())
-            .then(data => {
-                updateThemeButton(data.mode);
-            })
-            .catch(error => {
-                console.error("获取主题模式失败:", error);
-            });
-    });
-
     document.querySelector('.info-btn').addEventListener('click', () => {
         showCustomAlert('使用说明', [
             '1. 视频模式：默认名称为「bg.mp4」',
             '2. 图片模式：默认名称为「bg1-20.jpg」',
             '3. 暗黑模式：透明背景+光谱动画',
-            '4. 亮色模式：主题设置进行切换，关闭控制开关',
-            '5. 主题设置：支持自定义背景，需关闭开关，模式切换需清除背景',
+            '4. 亮色模式：主题设置进行切换，会自动关闭控制开关',
+            '5. 主题设置：支持自定义背景，模式切换需清除背景',
             '6. 项目地址：<a class="github-link" href="https://github.com/Thaolga/openwrt-nekobox" target="_blank">点击访问</a>'
         ]);
     });
