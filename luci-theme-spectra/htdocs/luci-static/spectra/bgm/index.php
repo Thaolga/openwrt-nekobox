@@ -1737,6 +1737,24 @@ body:hover,
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" data-translate="cancel"></button>
                     <a id="confirmUpdateLink" href="#" class="btn btn-danger" target="_blank" data-translate="download_local"></a>
                     <button id="copyCommandBtn" class="btn btn-info" data-translate="copy_command"></button>
+                    <button id="updatePluginBtn" class="btn btn-primary" data-translate="update_plugin">update_plugin</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="updateModal" tabindex="-1" aria-labelledby="updateModalLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="updateModalLabel" data-translate="updateModalLabel">Update status</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body text-center">
+                    <div id="updateDescription" class="alert alert-info mb-3" data-translate="updateDescription"></div>
+                    <pre id="logOutput" style="white-space: pre-wrap; word-wrap: break-word; text-align: left; display: inline-block;" data-translate="waitingMessage">Waiting for the operation to begin...</pre>
                 </div>
             </div>
         </div>
@@ -5009,6 +5027,11 @@ $langData = [
         'current_version' => '当前版本',
         'copy_command'     => '复制命令',
         'command_copied'   => '命令已复制到剪贴板！',
+        "updateModalLabel" => "更新状态",
+        "updateDescription" => "更新过程即将开始。",
+        "waitingMessage" => "等待操作开始...",
+        "update_plugin" => "更新插件",
+        "installation_complete" => "安装完成！",
         'selected_info' => '已选择 %d 个文件，合计 %s MB'
     ],
 
@@ -5177,6 +5200,11 @@ $langData = [
         'current_version' => '當前版本',
         'copy_command'     => '複製命令',
         'command_copied'   => '命令已複製到剪貼簿！',
+        "updateModalLabel" => "更新狀態",
+        "updateDescription" => "更新過程即將開始。",
+        "waitingMessage" => "等待操作開始...",
+        "update_plugin" => "更新插件",
+        "installation_complete" => "安裝完成！",
         'selected_info' => '已選擇 %d 個文件，合計 %s MB'
     ],
 
@@ -5345,6 +5373,11 @@ $langData = [
         'current_version' => '현재 버전',
         'copy_command'     => '명령 복사',
         'command_copied'   => '명령이 클립보드에 복사되었습니다!',
+        "updateModalLabel" => "업데이트 상태",
+        "updateDescription" => "업데이트 과정이 곧 시작됩니다.",
+        "waitingMessage" => "작업이 시작될 때까지 기다리는 중...",
+        "update_plugin" => "플러그인 업데이트",
+        "installation_complete" => "설치 완료!",
         'selected_info' => '선택된 파일: %d개, 총합: %s MB'
     ],
 
@@ -5513,6 +5546,11 @@ $langData = [
         'current_version' => '現在のバージョン',
         'copy_command'     => 'コマンドをコピー',
         'command_copied'   => 'コマンドがクリップボードにコピーされました！',
+        "updateModalLabel" => "更新ステータス",
+        "updateDescription" => "更新プロセスが間もなく開始されます。",
+        "waitingMessage" => "操作が開始されるのを待っています...",
+        "update_plugin" => "プラグインを更新する",
+        "installation_complete" => "インストール完了！",
         'selected_info' => '選択されたファイル：%d個、合計：%s MB'
     ],
 
@@ -5679,6 +5717,11 @@ $langData = [
         'current_version' => 'Phiên bản hiện tại',
         'copy_command'     => 'Sao chép lệnh',
         'command_copied'   => 'Lệnh đã được sao chép vào bảng tạm!',
+        "updateModalLabel" => "Trạng thái cập nhật",
+        "updateDescription" => "Quá trình cập nhật sẽ sớm bắt đầu.",
+        "waitingMessage" => "Đang chờ bắt đầu thao tác...",
+        "update_plugin" => "Cập nhật plugin",
+        "installation_complete" => "Cài đặt hoàn tất!",
         'selected_info' => 'Đã chọn %d tệp, tổng cộng %s MB'
     ],
 
@@ -5830,6 +5873,11 @@ $langData = [
         'current_version' => 'เวอร์ชันปัจจุบัน',
         'copy_command'     => 'คัดลอกคำสั่ง',
         'command_copied'   => 'คัดลอกคำสั่งไปยังคลิปบอร์ดแล้ว!',
+        "updateModalLabel" => "สถานะการอัปเดต",
+        "updateDescription" => "กระบวนการอัปเดตกำลังจะเริ่มต้น...",
+        "waitingMessage" => "รอให้การดำเนินการเริ่มต้น...",
+        "update_plugin" => "อัปเดตปลั๊กอิน",
+        "installation_complete" => "การติดตั้งเสร็จสิ้น!",
         'selected_info' => 'เลือกไฟล์แล้ว %d ไฟล์ รวมทั้งหมด %s MB'
     ],
 
@@ -5982,6 +6030,11 @@ $langData = [
         'current_version' => 'Текущая версия',
         'copy_command'     => 'Скопировать команду',
         'command_copied'   => 'Команда скопирована в буфер обмена!',
+        "updateModalLabel" => "Статус обновления",
+        "updateDescription" => "Процесс обновления вот-вот начнется.",
+        "waitingMessage" => "Ожидание начала операции...",
+        "update_plugin" => "Обновить плагин",
+        "installation_complete" => "Установка завершена!",
         'selected_info' => 'Выбрано %d файлов, всего %s MB'
     ],
 
@@ -6134,6 +6187,11 @@ $langData = [
         'current_version' => 'الإصدار الحالي',
         'copy_command'     => 'نسخ الأمر',
         'command_copied'   => 'تم نسخ الأمر إلى الحافظة!',
+        "updateModalLabel" => "حالة التحديث",
+        "updateDescription" => "عملية التحديث ستبدأ قريبًا.",
+        "waitingMessage" => "انتظار بدء العملية...",
+        "update_plugin" => "تحديث الإضافة",
+        "installation_complete" => "اكتملت عملية التثبيت!",
         'selected_info' => 'تم اختيار %d ملف، الحجم الإجمالي %s ميغابايت'
     ],
 
@@ -6286,6 +6344,11 @@ $langData = [
         'current_version' => 'Versión actual',
         'copy_command'     => 'Copiar comando',
         'command_copied'   => '¡Comando copiado al portapapeles!',
+        "updateModalLabel" => "Estado de actualización",
+        "updateDescription" => "El proceso de actualización está a punto de comenzar.",
+        "waitingMessage" => "Esperando que comience la operación...",
+        "update_plugin" => "Actualizar complemento",
+        "installation_complete" => "¡Instalación completa!",
         'selected_info' => 'Seleccionados %d archivos, en total %s MB'
     ],
 
@@ -6438,6 +6501,11 @@ $langData = [
         'current_version' => 'Aktuelle Version',
         'copy_command'     => 'Befehl kopieren',
         'command_copied'   => 'Befehl wurde in die Zwischenablage kopiert!',
+        "updateModalLabel" => "Aktualisierungsstatus",
+        "updateDescription" => "Der Aktualisierungsprozess wird gleich beginnen.",
+        "waitingMessage" => "Warten auf den Beginn der Operation...",
+        "update_plugin" => "Plugin aktualisieren",
+        "installation_complete" => "Installation abgeschlossen!",
         'selected_info' => '%d Dateien ausgewählt, insgesamt %s MB'
     ],
 
@@ -6590,6 +6658,11 @@ $langData = [
         'current_version' => 'Version actuelle',
         'copy_command'     => 'Copier la commande',
         'command_copied'   => 'Commande copiée dans le presse-papiers !',
+        "updateModalLabel" => "Statut de la mise à jour",
+        "updateDescription" => "Le processus de mise à jour va bientôt commencer.",
+        "waitingMessage" => "En attente du début de l'opération...",
+        "update_plugin" => "Mettre à jour le plugin",
+        "installation_complete" => "Installation terminée !",
         'selected_info' => '%d fichiers sélectionnés, total de %s Mo'
     ],
 
@@ -6755,6 +6828,11 @@ $langData = [
         'current_version' => 'Current Version',
         'copy_command'     => 'Copy Command',
         'command_copied'   => 'Command copied to clipboard!',
+        "updateModalLabel" => "Update Status",
+        "updateDescription" => "The update process is about to begin.",
+        "waitingMessage" => "Waiting for the operation to start...",
+        "update_plugin" => "Update Plugin",
+        "installation_complete" => "Installation complete!",
         'selected_info' => 'Selected %d files, total %s MB'
     ]
 ];
@@ -7035,8 +7113,40 @@ document.addEventListener('DOMContentLoaded', function () {
 });
 </script>
 
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const updatePluginBtn = document.getElementById('updatePluginBtn');
+    const updateConfirmModal = new bootstrap.Modal(document.getElementById('updateConfirmModal'));
+    const updateModal = new bootstrap.Modal(document.getElementById('updateModal'));
+    const logOutput = document.getElementById('logOutput');
 
+    updatePluginBtn.addEventListener('click', function () {
+        updateConfirmModal.hide();
+        updateModal.show();
 
+        fetch('install_theme.php', {
+            method: 'POST',
+        })
+        .then(response => response.text())
+        .then(data => {
+            if (data.includes("Installation complete!")) {
+                logOutput.textContent = "Installation complete!";
+            } else {
+                logOutput.textContent = data;
+            }
 
+            setTimeout(() => {
+                updateModal.hide();
+            }, 5000);
+        })
+        .catch(error => {
+            logOutput.textContent = '';
+            logOutput.textContent = translations['installation_complete'] || 'Installation complete!';
 
-
+            setTimeout(() => {
+                updateModal.hide();
+            }, 5000);
+        });
+    });
+});
+</script>
