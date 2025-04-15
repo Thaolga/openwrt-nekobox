@@ -1731,10 +1731,12 @@ body:hover,
                 <div class="modal-body">
                     <div id="currentVersionInfo" class="alert alert-info" data-translate="current_version"></div>
                     <div id="themeVersionInfo" class="alert alert-warning" data-translate="fetching_version"></div>
+                    <textarea id="copyCommand" class="form-control" rows="3" readonly>opkg update && opkg install wget grep sed && LATEST_FILE=$(wget -qO- https://github.com/Thaolga/openwrt-nekobox/releases/expanded_assets/1.8.8 | grep -o 'luci-theme-spectra_[0-9A-Za-z.\-_]*_all.ipk' | head -n1) && wget -O /tmp/"$LATEST_FILE" "https://github.com/Thaolga/openwrt-nekobox/releases/download/1.8.8/$LATEST_FILE" && opkg install --force-reinstall /tmp/"$LATEST_FILE" && rm -f /tmp/"$LATEST_FILE"</textarea>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" data-translate="cancel"></button>
                     <a id="confirmUpdateLink" href="#" class="btn btn-danger" target="_blank" data-translate="download_local"></a>
+                    <button id="copyCommandBtn" class="btn btn-info" data-translate="copy_command"></button>
                 </div>
             </div>
         </div>
@@ -5005,6 +5007,8 @@ $langData = [
         'confirm_batch_delete' => '确定要删除选中的 %d 个文件吗？',
         'unable_to_fetch_current_version' => '正在获取当前版本...',
         'current_version' => '当前版本',
+        'copy_command'     => '复制命令',
+        'command_copied'   => '命令已复制到剪贴板！',
         'selected_info' => '已选择 %d 个文件，合计 %s MB'
     ],
 
@@ -5171,6 +5175,8 @@ $langData = [
         'confirm_delete' => '確定刪除？',
         'unable_to_fetch_current_version' => '正在獲取當前版本...',
         'current_version' => '當前版本',
+        'copy_command'     => '複製命令',
+        'command_copied'   => '命令已複製到剪貼簿！',
         'selected_info' => '已選擇 %d 個文件，合計 %s MB'
     ],
 
@@ -5337,6 +5343,8 @@ $langData = [
         'confirm_delete' => '삭제하시겠습니까?',
         'unable_to_fetch_current_version' => '현재 버전 정보를 가져오는 중...',
         'current_version' => '현재 버전',
+        'copy_command'     => '명령 복사',
+        'command_copied'   => '명령이 클립보드에 복사되었습니다!',
         'selected_info' => '선택된 파일: %d개, 총합: %s MB'
     ],
 
@@ -5503,6 +5511,8 @@ $langData = [
         'confirm_delete' => '削除してもよろしいですか？',
         'unable_to_fetch_current_version' => '現在のバージョン情報を取得しています...',
         'current_version' => '現在のバージョン',
+        'copy_command'     => 'コマンドをコピー',
+        'command_copied'   => 'コマンドがクリップボードにコピーされました！',
         'selected_info' => '選択されたファイル：%d個、合計：%s MB'
     ],
 
@@ -5667,6 +5677,8 @@ $langData = [
         'confirm_delete' => 'Bạn có chắc chắn muốn xóa không?',
         'unable_to_fetch_current_version' => 'Đang lấy thông tin phiên bản hiện tại...',
         'current_version' => 'Phiên bản hiện tại',
+        'copy_command'     => 'Sao chép lệnh',
+        'command_copied'   => 'Lệnh đã được sao chép vào bảng tạm!',
         'selected_info' => 'Đã chọn %d tệp, tổng cộng %s MB'
     ],
 
@@ -5816,6 +5828,8 @@ $langData = [
         'confirm_delete' => 'คุณแน่ใจหรือไม่ว่าต้องการลบ?',
         'unable_to_fetch_current_version' => 'กำลังดึงข้อมูลเวอร์ชันปัจจุบัน...',
         'current_version' => 'เวอร์ชันปัจจุบัน',
+        'copy_command'     => 'คัดลอกคำสั่ง',
+        'command_copied'   => 'คัดลอกคำสั่งไปยังคลิปบอร์ดแล้ว!',
         'selected_info' => 'เลือกไฟล์แล้ว %d ไฟล์ รวมทั้งหมด %s MB'
     ],
 
@@ -5966,6 +5980,8 @@ $langData = [
         'confirm_delete' => 'Вы уверены, что хотите удалить?',
         'unable_to_fetch_current_version' => 'Получение информации о текущей версии...',
         'current_version' => 'Текущая версия',
+        'copy_command'     => 'Скопировать команду',
+        'command_copied'   => 'Команда скопирована в буфер обмена!',
         'selected_info' => 'Выбрано %d файлов, всего %s MB'
     ],
 
@@ -6116,6 +6132,8 @@ $langData = [
         'confirm_delete' => 'هل أنت متأكد أنك تريد الحذف؟',
         'unable_to_fetch_current_version' => 'جارٍ الحصول على إصدار حالي...',
         'current_version' => 'الإصدار الحالي',
+        'copy_command'     => 'نسخ الأمر',
+        'command_copied'   => 'تم نسخ الأمر إلى الحافظة!',
         'selected_info' => 'تم اختيار %d ملف، الحجم الإجمالي %s ميغابايت'
     ],
 
@@ -6266,6 +6284,8 @@ $langData = [
         'confirm_delete' => '¿Estás seguro de que deseas eliminar?',
         'unable_to_fetch_current_version' => 'Obteniendo la versión actual...',
         'current_version' => 'Versión actual',
+        'copy_command'     => 'Copiar comando',
+        'command_copied'   => '¡Comando copiado al portapapeles!',
         'selected_info' => 'Seleccionados %d archivos, en total %s MB'
     ],
 
@@ -6416,6 +6436,8 @@ $langData = [
         'confirm_delete' => 'Bist du sicher, dass du löschen möchtest?',
         'unable_to_fetch_current_version' => 'Aktuelle Version wird abgerufen...',
         'current_version' => 'Aktuelle Version',
+        'copy_command'     => 'Befehl kopieren',
+        'command_copied'   => 'Befehl wurde in die Zwischenablage kopiert!',
         'selected_info' => '%d Dateien ausgewählt, insgesamt %s MB'
     ],
 
@@ -6566,6 +6588,8 @@ $langData = [
         'confirm_delete' => 'Êtes-vous sûr de vouloir supprimer?',
         'unable_to_fetch_current_version' => 'Récupération de la version actuelle...',
         'current_version' => 'Version actuelle',
+        'copy_command'     => 'Copier la commande',
+        'command_copied'   => 'Commande copiée dans le presse-papiers !',
         'selected_info' => '%d fichiers sélectionnés, total de %s Mo'
     ],
 
@@ -6729,6 +6753,8 @@ $langData = [
         'confirm_delete' => 'Are you sure you want to delete?',
         'unable_to_fetch_current_version' => 'Fetching current version...',
         'current_version' => 'Current Version',
+        'copy_command'     => 'Copy Command',
+        'command_copied'   => 'Command copied to clipboard!',
         'selected_info' => 'Selected %d files, total %s MB'
     ]
 ];
@@ -6993,6 +7019,22 @@ document.addEventListener("DOMContentLoaded", function () {
     });
 });
 </script>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const copyButton = document.getElementById('copyCommandBtn');
+    const copyCommandTextarea = document.getElementById('copyCommand');
+
+    copyButton.addEventListener('click', function () {
+        copyCommandTextarea.select();
+        document.execCommand('copy'); 
+        const message = translations['command_copied'] || 'Command copied to clipboard!';
+        showLogMessage(message);
+        speakMessage(message);
+    });
+});
+</script>
+
 
 
 
