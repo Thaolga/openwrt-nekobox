@@ -201,14 +201,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <head>
     <meta charset="utf-8">
     <title>媒体文件管理</title>
+    <link href="/luci-static/spectra/css/bootstrap-icons.css" rel="stylesheet">
+    <link href="/luci-static/spectra/css/all.min.css" rel="stylesheet">
     <link href="/luci-static/spectra/css/bootstrap.min.css" rel="stylesheet">
     <script src="/luci-static/spectra/js/jquery.min.js"></script>
     <script src="/luci-static/spectra/js/bootstrap.bundle.min.js"></script>
     <script src="/luci-static/spectra/js/custom.js"></script>
     <script src="/luci-static/spectra/js/interact.min.js"></script>
-    <link href="/luci-static/spectra/css/bootstrap-icons.css" rel="stylesheet">
-    <link href="/luci-static/spectra/css/all.min.css" rel="stylesheet">
-
+    <script src="/luci-static/spectra/js/Sortable.min.js"></script>
     <script>
         const phpBackgroundType = '<?= $background_type ?>';
         const phpBackgroundSrc = '<?= $background_src ?>';
@@ -1110,6 +1110,22 @@ body:hover,
     100% { transform: scale(1); }
 }
 
+.drag-handle {
+    cursor: grab;
+    z-index: 10;
+    user-select: none;
+}
+.sortable-chosen .drag-handle {
+    cursor: grabbing;
+}
+
+[data-filename] {
+    cursor: grab;
+}
+.sortable-chosen {
+    cursor: grabbing !important;
+}
+
 .upload-area i {
     animation: pulse 1s infinite;
 }
@@ -1307,7 +1323,7 @@ body:hover,
             });
         ?>
 
-        <div class="row row-cols-2 row-cols-md-4 row-cols-lg-5 g-4">
+        <div  id="fileGrid" class="row row-cols-2 row-cols-md-4 row-cols-lg-5 g-4">
             <?php foreach ($files as $file): 
                 $path = $upload_dir . '/' . $file;
                 $size = filesize($path);
@@ -1369,7 +1385,7 @@ body:hover,
                     }
                 }
             ?>
-            <div class="col">
+            <div class="col" data-filename="<?= htmlspecialchars($file) ?>">
                 <div class="card h-100 shadow-sm position-relative"> 
                     <div class="file-checkbox-wrapper position-absolute start-0 top-0 m-2 z-2">
                         <input type="checkbox" 
@@ -6923,6 +6939,28 @@ function handleDeleteConfirmation(file) {
     }
 }
 </script>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    const grid = document.getElementById("fileGrid");
+    new Sortable(grid, {
+        animation: 150,
+        onEnd: function () {
+            const filenames = Array.from(grid.querySelectorAll('[data-filename]'))
+                                  .map(el => el.getAttribute('data-filename'));
+            
+            fetch('order_handler.php', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ order: filenames })
+            })
+            .then(response => response.ok ? console.log('Order saved.') : console.error('Failed to save.'))
+            .catch(console.error);
+        }
+    });
+});
+</script>
+
 
 
 
