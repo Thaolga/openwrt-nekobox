@@ -3563,6 +3563,7 @@ body {
 
 .playlist-item:hover {
     background: var(--item-hover-bg);
+    color: #fff;
     font-weight: bold;
 }
 
