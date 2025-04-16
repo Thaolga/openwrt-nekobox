@@ -2,9 +2,11 @@
 ini_set('memory_limit', '256M');
 $base_dir = __DIR__;
 $upload_dir = $base_dir;
-$allowed_types = ['jpg', 'jpeg', 'png', 'gif', 'mp4', 'webm', 'mkv', 'mp3', 'wav', 'flac'];
+$allowed_types = ['jpg', 'jpeg', 'png', 'gif', 'webp', 'mp4', 'webm', 'mkv', 'mp3', 'wav', 'flac', 'ogg'];
 $background_type = '';
 $background_src = '';
+$lang = $_POST['lang'] ?? $_GET['lang'] ?? 'en';
+$lang = isset($langData[$lang]) ? $lang : 'en';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['upload_file'])) {
     $files = $_FILES['upload_file'];
@@ -16,7 +18,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['upload_file'])) {
             
             $ext = strtolower(pathinfo($raw_filename, PATHINFO_EXTENSION));
             if (!in_array($ext, $allowed_types)) {
-                $upload_errors[] = "不支持的文件类型：{$raw_filename}";
+                $upload_errors[] = sprintf($langData[$lang]['upload_error_type_not_supported'] ?? 'Unsupported file type: %s', $raw_filename);
                 continue;
             }
             
@@ -50,7 +52,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['upload_file'])) {
             }
             
             if (!move_uploaded_file($files['tmp_name'][$key], $target_path)) {
-                $upload_errors[] = "文件上传失败：{$final_name}";
+                $upload_errors[] = sprintf($langData[$lang]['upload_error_move_failed'] ?? 'Upload failed: %s', $final_name);
             }
         }
     }
@@ -80,13 +82,13 @@ if (isset($_POST['rename'])) {
 
     $error = '';
     if (!file_exists($oldPath)) {
-        $error = '原始文件不存在';
+        $error = 'Original file does not exist';
     } elseif ($newName === '') {
-        $error = '文件名不能为空';
+        $error = 'File name cannot be empty';
     } elseif (preg_match('/[\\\\\/:*?"<>|]/', $newName)) {
-        $error = '包含非法字符：\/:*?"<>|';
+        $error = 'Contains invalid characters: \/:*?"<>|';
     } elseif (file_exists($newPath)) {
-        $error = '目标文件已存在';
+        $error = 'Target file already exists';
     }
 
     if (!$error) {
@@ -94,12 +96,12 @@ if (isset($_POST['rename'])) {
             header("Location: " . $_SERVER['REQUEST_URI']);
             exit();
         } else {
-            $error = '操作失败（权限/字符问题）';
+            $error = 'Operation failed (permissions/character issues)';
         }
     }
 
     if ($error) {
-        echo '<div class="alert alert-danger mb-3">错误：' 
+        echo '<div class="alert alert-danger mb-3">Error: ' 
              . htmlspecialchars($error, ENT_QUOTES, 'UTF-8') 
              . '</div>';
     }
@@ -120,7 +122,7 @@ if (isset($_GET['download'])) {
         readfile($filePath);
         exit;
     } else {
-        $error = "文件未找到：" . htmlspecialchars($file);
+        $error = "File not found: " . htmlspecialchars($file);
     }
 }
 
@@ -149,7 +151,7 @@ if (isset($_GET['background'])) {
     $ext = strtolower(pathinfo($background_src, PATHINFO_EXTENSION));
     if (in_array($ext, ['jpg', 'jpeg', 'png', 'gif'])) {
         $background_type = 'image';
-    } elseif (in_array($ext, ['mp4', 'mov'])) {
+    } elseif (in_array($ext, ['mp4', 'webm', 'mkv'])) {
         $background_type = 'video';
     }
 }
@@ -179,18 +181,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $new_url = $_POST['new_url'];
         if (file_put_contents($file_path, $new_url) !== false) {
             chmod($file_path, 0644);  
-            $message = '更新成功！';
+            $message = 'Update successful!';
         } else {
-            $message = '更新失败，请检查权限。';
+            $message = 'Update failed, please check permissions.';
         }
     }
 
     if (isset($_POST['reset_default'])) {
         if (file_put_contents($file_path, $default_url) !== false) {
             chmod($file_path, 0644);
-            $message = '已恢复默认地址！';
+            $message = 'Default URL restored!';
         } else {
-            $message = '恢复失败，请检查权限。';
+            $message = 'Restore failed, please check permissions.';
         }
     }
 } else {
@@ -200,7 +202,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 <head>
     <meta charset="utf-8">
-    <title>媒体文件管理</title>
+    <title>Media File Management</title>
     <link href="/luci-static/spectra/css/bootstrap-icons.css" rel="stylesheet">
     <link href="/luci-static/spectra/css/all.min.css" rel="stylesheet">
     <link href="/luci-static/spectra/css/bootstrap.min.css" rel="stylesheet">
@@ -1361,9 +1363,9 @@ body:hover,
                             $bitrate = $matches[1] . ' kbps';
                         }
                     } else {
-                        $resolution = '无法获取分辨率';
-                        $duration = '无法获取时长';
-                        $bitrate = '无法获取比特率';
+                        $resolution = 'Resolution cannot be obtained';
+                        $duration = 'Duration cannot be obtained';
+                        $bitrate = 'Bitrate cannot be obtained';
                     }
                 } elseif ($isAudio) { 
                     $ffmpegPath = '/usr/bin/ffmpeg';
@@ -1380,8 +1382,8 @@ body:hover,
                             $bitrate = $matches[1] . ' kbps';
                         }
                     } else {
-                        $duration = '无法获取时长';
-                        $bitrate = '无法获取比特率';
+                        $duration = 'Duration cannot be obtained';
+                        $bitrate = 'Bitrate cannot be obtained';
                     }
                 }
             ?>
@@ -1487,7 +1489,7 @@ body:hover,
     </div>
 </div>
 
-    <div class="modal fade" id="previewModal" tabindex="-1">
+    <div class="modal fade" id="previewModal" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false">
         <div class="modal-dialog modal-xl">
             <div class="modal-content">
                 <div class="modal-header">
@@ -1516,7 +1518,7 @@ body:hover,
         </form>
     </div>
 
-    <div class="modal fade" id="uploadModal" tabindex="-1">
+    <div class="modal fade" id="uploadModal" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false">
         <div class="modal-dialog modal-xl">
             <div class="modal-content">
                 <div class="modal-header">
@@ -1551,7 +1553,7 @@ body:hover,
     </div>
 
     <?php foreach ($files as $file): ?>
-    <div class="modal fade" id="renameModal-<?= md5($file) ?>" tabindex="-1">
+    <div class="modal fade" id="renameModal-<?= md5($file) ?>" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false">
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
                 <form method="post" action="">
@@ -1580,7 +1582,7 @@ body:hover,
     </div>
     <?php endforeach; ?>
 
-    <div class="modal fade" id="playerModal" tabindex="-1" aria-labelledby="playerModalLabel" aria-hidden="true">
+    <div class="modal fade" id="playerModal" tabindex="-1" aria-labelledby="playerModalLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
         <div class="modal-dialog modal-xl">
             <div class="modal-content">
                 <div class="modal-header">
@@ -1629,11 +1631,11 @@ body:hover,
         </button>
         <button class="ctrl-btn" id="toggleFloatingLyrics" onclick="toggleFloating()" data-translate-title="toggle_floating_lyrics"><i id="floatingIcon" class="bi bi-display"></i></button>
     </div>
-    <div id="currentSong" class="vertical-title"></div>
+    <div id="floatingCurrentSong" class="vertical-title"></div>
     <div class="vertical-lyrics"></div>
 </div>
 <span id="clearConfirmText" data-translate="clear_confirm" class="d-none"></span>
-    <div class="modal fade" id="musicModal" tabindex="-1">
+    <div class="modal fade" id="musicModal" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false">
         <div class="modal-dialog modal-xl">
             <div class="modal-content bg-dark text-white">
                 <div class="modal-header">
@@ -1691,7 +1693,7 @@ body:hover,
         </div>
     </div>
 
-    <div class="modal fade" id="urlModal" tabindex="-1">
+    <div class="modal fade" id="urlModal" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false">
         <div class="modal-dialog modal-xl">
             <div class="modal-content">
                 <div class="modal-header">
@@ -1721,7 +1723,7 @@ body:hover,
         </div>
     </div>
 
-    <div class="modal fade" id="updateConfirmModal" tabindex="-1">
+    <div class="modal fade" id="updateConfirmModal" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false">
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
                 <div class="modal-header">
@@ -1758,6 +1760,22 @@ body:hover,
                 </div>
             </div>
         </div>
+    </div>
+
+    <div class="modal fade" id="confirmModal" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false">
+      <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" data-translate="confirm_title">Confirm Action</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+          </div>
+          <div class="modal-body" id="confirmModalMessage"></div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" data-translate="cancel">Cancel</button>
+            <button type="button" class="btn btn-danger" id="confirmModalYes" data-translate="confirm">Confirm</button>
+          </div>
+        </div>
+      </div>
     </div>
 
     <script>
@@ -1871,7 +1889,8 @@ body:hover,
             $('#batchDeleteBtn').click(function() {
                 const files = $('.fileCheckbox:checked').map(function() { return $(this).val(); }).get();
                 if (files.length === 0) { alert(translations['select_files_to_delete'] || 'Please select files to delete first');  return; }
-                if (confirm((translations['confirm_batch_delete'] || 'Are you sure you want to delete the selected %d files?').replace('%d', files.length))) {
+                const confirmText = (translations['confirm_batch_delete'] || 'Are you sure you want to delete the selected %d files?').replace('%d', files.length);
+                showConfirmation(confirmText, () => {
                     const batchDeleteForm = $('#batchDeleteForm');
                     batchDeleteForm.empty();
                     batchDeleteForm.append('<input type="hidden" name="batch_delete" value="1">');
@@ -1879,7 +1898,7 @@ body:hover,
                         batchDeleteForm.append(`<input type="hidden" name="filenames[]" value="${file}">`);
                     });
                     batchDeleteForm.submit();
-                }
+                });
             });
 
             function updateSelectionInfo() {
@@ -2073,7 +2092,8 @@ body:hover,
 
     <script>
         document.getElementById("updatePhpConfig").addEventListener("click", function() {
-            if (confirm(translations['confirm_update_php'] || "Are you sure you want to update PHP configuration?")) {
+            const confirmText = translations['confirm_update_php'] || "Are you sure you want to update PHP configuration?";
+            showConfirmation(confirmText, () => {
                 fetch("update_php_config.php", {
                     method: "POST",
                     headers: { "Content-Type": "application/json" }
@@ -2081,7 +2101,7 @@ body:hover,
                 .then(response => response.json())
                 .then(data => alert(data.message))
                 .catch(error => alert(translations['request_failed'] || "Request failed: " + error.message));
-            }
+            });
         });
     </script>
 
@@ -2857,11 +2877,11 @@ document.getElementById('nextBtn').addEventListener('click', () => {
         if (data.success) {
           updateButton(data.mode);
         } else {
-          document.getElementById("status").innerText = "更新失败: " + data.error;
+          document.getElementById("status").innerText = "Update failed: " + data.error;
         }
       })
       .catch(error => {
-        document.getElementById("status").innerText = "请求出错: " + error;
+        document.getElementById("status").innerText = "Request error: " + error;
       });
   }
 
@@ -2970,7 +2990,7 @@ document.getElementById('nextBtn').addEventListener('click', () => {
         }
       })
       .catch(error => {
-        document.getElementById("status").innerText = "读取失败: " + error;
+        document.getElementById("status").innerText = "Failed to read: " + error;
       });
   });
 </script>
@@ -2982,7 +3002,7 @@ function setBackground(filename) {
         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
         body: 'file=' + encodeURIComponent(filename)
     }).then(() => location.reload()) 
-      .catch(error => console.error('请求失败:', error)); 
+      .catch(error => console.error('Request failed:', error));
 }
 </script>
 
@@ -3013,7 +3033,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const requiredElements = ['dateDisplay', 'timeDisplay', 'lunarDisplay'];
     requiredElements.forEach(id => {
         if (!document.getElementById(id)) {
-            console.error(`元素 #${id} 未找到`);
+            console.error(`Element #${id} not found`);
         }
     });
 });
@@ -3314,6 +3334,7 @@ function getAncientTime(date, translations) {
 
 const elements = document.querySelectorAll('.time-display span');
 const currentSong = document.querySelector('#currentSong');
+const floatingCurrentSong = document.getElementById('floatingCurrentSong');
 
 let usedColors = [];
 
@@ -3352,8 +3373,11 @@ function rotateColors() {
     if (currentSong) {
         currentSong.style.color = getNextColor(colorList);
     }
-}
 
+    if (floatingCurrentSong) {
+        floatingCurrentSong.style.color = getNextColor(colorList);
+    }
+}
 setInterval(rotateColors, 4000);
 </script>
 
@@ -3573,7 +3597,7 @@ body {
     opacity: 1;
 }
 
-#floatingLyrics #currentSong.vertical-title {
+#floatingLyrics #floatingCurrentSong.vertical-title {
     font-size: 1.8rem;
     font-weight: 700;
     color: var(--accent-color);
@@ -3594,6 +3618,7 @@ body {
     transition: transform 0.3s ease;
     display: inline-block; 
     position: relative;
+    margin-bottom: 10px;
 }
 
 .floating-controls {
@@ -3624,7 +3649,7 @@ body {
 }
 
 .ctrl-btn i {
-    font-size: 1.2rem;
+    font-size: 1.6rem;
 }
 
 .ctrl-btn.clicked {
@@ -3647,6 +3672,8 @@ body {
 
 .char {
     transition: all 0.3s ease;
+    display: inline-block;
+    margin-right: 2px;
 }
 
 #floatingLyrics .char.active {
@@ -3698,6 +3725,14 @@ body {
 
 .progress-container {
     cursor: pointer; 
+}
+
+.char.active {
+    transform: scale(1.2);
+}
+
+.char[data-start] + .char[data-start] {
+    margin-left: 12px;
 }
 
 .lyrics-loading {
@@ -3915,7 +3950,7 @@ function showLogMessage(message) {
 
     setTimeout(() => {
         logBox.style.display = 'none';
-    }, 8000);
+    }, 9999);
 }
 
 const styleSheet = document.createElement('style');
@@ -4045,7 +4080,7 @@ function updatePlaylistUI() {
             ${decodeURIComponent(url.split('/').pop().replace(/\.\w+$/, ''))}
         </div>
     `).join('');
-    showLogMessage(`播放列表已加载：${songs.length} 首歌曲`);
+    showLogMessage(`Playlist loaded: ${songs.length} songs`);
     setTimeout(() => scrollToCurrentTrack(), 100);
 }
 
@@ -4211,6 +4246,52 @@ function createCharSpans(text, startTime, endTime) {
     return spans;
 }
 
+function isEnglishWord(text) {
+    return /^[a-zA-Z']+$/.test(text);
+}
+
+function createCharSpans(text, startTime, endTime) {
+    const elements = [];
+    const words = text.split(/(\s+)/); 
+    
+    let currentTime = startTime;
+    const totalDuration = endTime - startTime;
+    const validWords = words.filter(word => word.trim().length > 0);
+    const durationPerWord = totalDuration / validWords.length;
+
+    words.forEach(word => {
+        if (word.trim().length === 0) return;
+
+        const isEnglish = isEnglishWord(word.replace(/[^a-zA-Z']/g, ''));
+        const span = document.createElement('span');
+        span.className = 'char';
+        
+        if (isEnglish) {
+            span.textContent = word;
+            span.dataset.start = currentTime;
+            span.dataset.end = currentTime + durationPerWord;
+            currentTime += durationPerWord;
+        } else {
+            const chars = word.split('');
+            const charDuration = durationPerWord / chars.length;
+            chars.forEach((char, index) => {
+                const charSpan = document.createElement('span');
+                charSpan.className = 'char';
+                charSpan.textContent = char;
+                charSpan.dataset.start = currentTime + index * charDuration;
+                charSpan.dataset.end = currentTime + (index + 1) * charDuration;
+                elements.push(charSpan);
+            });
+            currentTime += durationPerWord;
+            return;
+        }
+        
+        elements.push(span);
+    });
+
+    return elements;
+}
+
 function displayLyrics() {
     const lyricsContainer = document.getElementById('lyricsContainer');
     const floatingLyrics = document.querySelector('#floatingLyrics .vertical-lyrics');
@@ -4233,8 +4314,8 @@ function displayLyrics() {
                       ? lyricTimes[index + 1] 
                       : time + 3; 
         
-        const chars = createCharSpans(lyrics[time], time, endTime);
-        chars.forEach(span => line.appendChild(span)); 
+        const elements = createCharSpans(lyrics[time], time, endTime);
+        elements.forEach(element => line.appendChild(element));
         lyricsContainer.appendChild(line);
     });
 
@@ -4276,7 +4357,7 @@ function syncLyrics() {
     lines.forEach(line => {
     line.classList.remove('highlight', 'played');
     line.style.color = 'white'; 
-});
+    });
 
     for (let i = lines.length - 1; i >= 0; i--) {
         const line = lines[i];
@@ -4437,7 +4518,7 @@ function updateCurrentSong(url) {
     const songName = decodeURIComponent(url.split('/').pop().replace(/\.\w+$/, ''));
     document.getElementById('currentSong').textContent = songName;
     
-    const floatingTitle = document.querySelector('#floatingLyrics #currentSong');
+    const floatingTitle = document.querySelector('#floatingLyrics #floatingCurrentSong');
     if (floatingTitle) floatingTitle.textContent = songName;
 
     const modalTitle = document.querySelector('#musicModal #currentSong');
@@ -4556,7 +4637,7 @@ function loadDefaultPlaylist() {
                 updateCurrentSong(songs[currentTrackIndex]);
             }
         })
-        .catch(error => console.error('播放列表加载失败:', error));
+        .catch(error => console.error('Playlist loading failed:', error));
 }
 
 function updatePlaylistUI() {
@@ -4681,10 +4762,10 @@ document.getElementById('clear-cache-btn').addEventListener('click', function() 
 });
 
 function confirmAndClearCache() {
-    const confirmed = confirm(translations['clear_confirm'] || 'Are you sure you want to clear the configuration?');
-    if (confirmed) {
+    const confirmText = translations['clear_confirm'] || 'Are you sure you want to clear the configuration?';
+    showConfirmation(confirmText, () => {
         clearCache();
-    }
+    });
 }
 
 function clearCache() {
@@ -4840,10 +4921,10 @@ document.addEventListener("DOMContentLoaded", () => {
                     <option value="zh" data-translate="simplified_chinese">Simplified Chinese</option>
                     <option value="hk" data-translate="traditional_chinese">Traditional Chinese</option>
                     <option value="en" data-translate="english">English</option>
-                    <option value="kr" data-translate="korean">Korean</option>
-                    <option value="vn" data-translate="vietnamese">Vietnamese</option>
+                    <option value="ko" data-translate="korean">Korean</option>
+                    <option value="vi" data-translate="vietnamese">Vietnamese</option>
                     <option value="th" data-translate="thailand">Thailand</option>
-                    <option value="jp" data-translate="japanese"></option>
+                    <option value="ja" data-translate="japanese"></option>
                     <option value="ru" data-translate="russian"></option>
                     <option value="de" data-translate="germany">Germany</option>
                     <option value="fr" data-translate="france">France</option>
@@ -4916,7 +4997,7 @@ $langData = [
         'set_background'         => '设置背景',
         'preview'                => '预览',
         'toggle_fullscreen'      => '切换全屏',
-        'supported_formats'      => '支持格式：[ jpg, jpeg, png, gif, mp4, mkv, mp3, wav, flac ]',
+        'supported_formats'      => '支持格式：[ jpg, jpeg, png, gif, webp, mp4, webm, mkv, mp3, wav, flac ]',
         'drop_files_here'        => '拖放文件到这里',
         'or'                     => '或',
         'select_files'           => '选择文件',
@@ -5032,6 +5113,12 @@ $langData = [
         "waitingMessage" => "等待操作开始...",
         "update_plugin" => "更新插件",
         "installation_complete" => "安装完成！",
+        'confirm_title'             => '确认操作',
+        'confirm_delete_file'   => '确定要删除文件 %s 吗？',
+        'delete_success'      => '删除成功：%s',
+        'delete_failure'      => '删除失败：%s',
+        'upload_error_type_not_supported' => '不支持的文件类型：%s',
+        'upload_error_move_failed'        => '文件上传失败：%s',
         'selected_info' => '已选择 %d 个文件，合计 %s MB'
     ],
 
@@ -5086,7 +5173,7 @@ $langData = [
         'set_background'         => '設置背景',
         'preview'                => '預覽',
         'toggle_fullscreen'      => '切換全屏',
-        'supported_formats'      => '支持格式：[ jpg, jpeg, png, gif, mp4, mkv, mp3, wav, flac ]',
+        'supported_formats'      => '支持格式：[ jpg, jpeg, png, gif, webp, mp4, webm, mkv, mp3, wav, flac ]',
         'drop_files_here'        => '拖放文件到這裡',
         'or'                     => '或',
         'select_files'           => '選擇文件',
@@ -5205,10 +5292,16 @@ $langData = [
         "waitingMessage" => "等待操作開始...",
         "update_plugin" => "更新插件",
         "installation_complete" => "安裝完成！",
+        'confirm_title'         => '確認操作',
+        'confirm_delete_file'   => '確定要刪除文件 %s 嗎？',
+        'delete_success'      => '刪除成功：%s',
+        'delete_failure'      => '刪除失敗：%s',
+        'upload_error_type_not_supported' => '不支持的文件類型：%s',
+        'upload_error_move_failed'        => '文件上傳失敗：%s',
         'selected_info' => '已選擇 %d 個文件，合計 %s MB'
     ],
 
-    'kr' => [
+    'ko' => [
         'select_language'        => '언어 선택',
         'simplified_chinese'     => '중국어 간체',
         'traditional_chinese'    => '중국어 번체',
@@ -5259,7 +5352,7 @@ $langData = [
         'set_background'         => '배경 설정',
         'preview'                => '미리보기',
         'toggle_fullscreen'      => '전체 화면 전환',
-        'supported_formats'      => '지원 포맷: [ jpg, jpeg, png, gif, mp4, mkv, mp3, wav, flac ]',
+        'supported_formats'      => '지원 포맷: [ jpg, jpeg, png, gif, webp, mp4, webm, mkv, mp3, wav, flac ]',
         'drop_files_here'        => '파일을 여기에 드롭하세요',
         'or'                     => '또는',
         'select_files'           => '파일 선택',
@@ -5378,10 +5471,16 @@ $langData = [
         "waitingMessage" => "작업이 시작될 때까지 기다리는 중...",
         "update_plugin" => "플러그인 업데이트",
         "installation_complete" => "설치 완료!",
+        'confirm_title'         => '작업 확인',
+        'confirm_delete_file'   => '파일 %s을(를) 삭제하시겠습니까?',
+        'delete_success'      => '삭제 성공: %s',
+        'delete_failure'      => '삭제 실패: %s',
+        'upload_error_type_not_supported' => '지원되지 않는 파일 형식: %s',
+        'upload_error_move_failed'        => '파일 업로드 실패: %s',
         'selected_info' => '선택된 파일: %d개, 총합: %s MB'
     ],
 
-    'jp' => [
+    'ja' => [
         'select_language'        => '言語を選択',
         'simplified_chinese'     => '簡体字中国語',
         'traditional_chinese'    => '繁体字中国語',
@@ -5432,7 +5531,7 @@ $langData = [
         'set_background'         => '背景を設定',
         'preview'                => 'プレビュー',
         'toggle_fullscreen'      => '全画面切り替え',
-        'supported_formats'      => '対応形式：[ jpg, jpeg, png, gif, mp4, mkv, mp3, wav, flac ]',
+        'supported_formats'      => '対応形式：[ jpg, jpeg, png, gif, webp, mp4, webm, mkv, mp3, wav, flac ]',
         'drop_files_here'        => 'ここにファイルをドロップ',
         'or'                     => 'または',
         'select_files'           => 'ファイルを選択',
@@ -5551,10 +5650,16 @@ $langData = [
         "waitingMessage" => "操作が開始されるのを待っています...",
         "update_plugin" => "プラグインを更新する",
         "installation_complete" => "インストール完了！",
+        'confirm_title'         => '操作の確認',
+        'confirm_delete_file'   => 'ファイル %s を削除してもよろしいですか？',
+        'delete_success'      => '削除成功：%s',
+        'delete_failure'      => '削除失敗：%s',
+        'upload_error_type_not_supported' => 'サポートされていないファイルタイプ: %s',
+        'upload_error_move_failed'        => 'アップロード失敗: %s',
         'selected_info' => '選択されたファイル：%d個、合計：%s MB'
     ],
 
-    'vn' => [
+    'vi' => [
         'select_language'        => 'Chọn ngôn ngữ',
         'simplified_chinese'     => 'Tiếng Trung giản thể',
         'traditional_chinese'    => 'Tiếng Trung phồn thể',
@@ -5605,7 +5710,7 @@ $langData = [
         'set_background'         => 'Đặt nền',
         'preview'                => 'Xem trước',
         'toggle_fullscreen'      => 'Chuyển đổi chế độ toàn màn hình',
-        'supported_formats'      => 'Định dạng được hỗ trợ: [ jpg, jpeg, png, gif, mp4, mkv, mp3, wav, flac ]',
+        'supported_formats'      => 'Định dạng được hỗ trợ: [ jpg, jpeg, png, gif, webp, mp4, webm, mkv, mp3, wav, flac ]',
         'drop_files_here'        => 'Kéo thả tệp vào đây',
         'or'                     => 'hoặc',
         'select_files'           => 'Chọn tệp',
@@ -5722,6 +5827,12 @@ $langData = [
         "waitingMessage" => "Đang chờ bắt đầu thao tác...",
         "update_plugin" => "Cập nhật plugin",
         "installation_complete" => "Cài đặt hoàn tất!",
+        'confirm_title'         => 'Xác nhận hành động',
+        'confirm_delete_file'   => 'Bạn có chắc chắn muốn xóa tệp %s không?',
+        'delete_success'      => 'Xóa thành công: %s',
+        'delete_failure'      => 'Xóa thất bại: %s',
+        'upload_error_type_not_supported' => 'Loại tệp không được hỗ trợ: %s',
+        'upload_error_move_failed'        => 'Tải lên thất bại: %s',
         'selected_info' => 'Đã chọn %d tệp, tổng cộng %s MB'
     ],
 
@@ -5775,7 +5886,7 @@ $langData = [
         'set_background'         => 'ตั้งค่าพื้นหลัง',
         'preview'                => 'ดูตัวอย่าง',
         'toggle_fullscreen'      => 'สลับเป็นเต็มจอ',
-        'supported_formats'      => 'รูปแบบที่รองรับ: [ jpg, jpeg, png, gif, mp4, mkv, mp3, wav, flac ]',
+        'supported_formats'      => 'รูปแบบที่รองรับ: [ jpg, jpeg, png, gif, webp, mp4, webm, mkv, mp3, wav, flac ]',
         'drop_files_here'        => 'ลากไฟล์มาที่นี่',
         'or'                     => 'หรือ',
         'select_files'           => 'เลือกไฟล์',
@@ -5878,6 +5989,12 @@ $langData = [
         "waitingMessage" => "รอให้การดำเนินการเริ่มต้น...",
         "update_plugin" => "อัปเดตปลั๊กอิน",
         "installation_complete" => "การติดตั้งเสร็จสิ้น!",
+        'confirm_title'         => 'ยืนยันการดำเนินการ',
+        'confirm_delete_file'   => 'คุณแน่ใจหรือไม่ที่จะลบไฟล์ %s?',
+        'delete_success'      => 'ลบสำเร็จ: %s',
+        'delete_failure'      => 'ลบไม่สำเร็จ: %s',
+        'upload_error_type_not_supported' => 'ประเภทไฟล์ที่ไม่รองรับ: %s',
+        'upload_error_move_failed'        => 'การอัปโหลดไฟล์ล้มเหลว: %s',
         'selected_info' => 'เลือกไฟล์แล้ว %d ไฟล์ รวมทั้งหมด %s MB'
     ],
 
@@ -5932,7 +6049,7 @@ $langData = [
         'set_background'         => 'Установить фон',
         'preview'                => 'Предварительный просмотр',
         'toggle_fullscreen'      => 'Переключить полноэкранный режим',
-        'supported_formats'      => 'Поддерживаемые форматы: [ jpg, jpeg, png, gif, mp4, mkv, mp3, wav, flac ]',
+        'supported_formats'      => 'Поддерживаемые форматы: [ jpg, jpeg, png, gif, webp, mp4, webm, mkv, mp3, wav, flac ]',
         'drop_files_here'        => 'Перетащите файлы сюда',
         'or'                     => 'или',
         'select_files'           => 'Выбрать файлы',
@@ -6035,6 +6152,13 @@ $langData = [
         "waitingMessage" => "Ожидание начала операции...",
         "update_plugin" => "Обновить плагин",
         "installation_complete" => "Установка завершена!",
+        'confirm_title'         => 'Подтвердите действие',
+        'confirm_delete_file'   => 'Вы уверены, что хотите удалить файл %s?',
+        'confirm_delete_file' => 'Вы уверены, что хотите удалить файл %s?',
+        'delete_success'      => 'Успешно удалено: %s',
+        'delete_failure'      => 'Не удалось удалить: %s',
+        'upload_error_type_not_supported' => 'Неподдерживаемый тип файла: %s',
+        'upload_error_move_failed'        => 'Ошибка загрузки файла: %s',
         'selected_info' => 'Выбрано %d файлов, всего %s MB'
     ],
 
@@ -6089,7 +6213,7 @@ $langData = [
         'set_background'         => 'تعيين الخلفية',
         'preview'                => 'معاينة',
         'toggle_fullscreen'      => 'تبديل وضع الشاشة الكاملة',
-        'supported_formats'      => 'الصيغ المدعومة: [ jpg, jpeg, png, gif, mp4, mkv, mp3, wav, flac ]',
+        'supported_formats'      => 'الصيغ المدعومة: [ jpg, jpeg, png, gif, webp, mp4, webm, mkv, mp3, wav, flac ]',
         'drop_files_here'        => 'اسحب الملفات هنا',
         'or'                     => 'أو',
         'select_files'           => 'حدد الملفات',
@@ -6192,6 +6316,12 @@ $langData = [
         "waitingMessage" => "انتظار بدء العملية...",
         "update_plugin" => "تحديث الإضافة",
         "installation_complete" => "اكتملت عملية التثبيت!",
+        'confirm_title'         => 'تأكيد العملية',
+        'confirm_delete_file'   => 'هل أنت متأكد أنك تريد حذف الملف %s؟',
+        'delete_success'      => 'تم الحذف بنجاح: %s',
+        'delete_failure'      => 'فشل الحذف: %s',
+        'upload_error_type_not_supported' => 'نوع الملف غير مدعوم: %s',
+        'upload_error_move_failed'        => 'فشل تحميل الملف: %s',
         'selected_info' => 'تم اختيار %d ملف، الحجم الإجمالي %s ميغابايت'
     ],
 
@@ -6246,7 +6376,7 @@ $langData = [
         'set_background'         => 'Establecer fondo',
         'preview'                => 'Vista previa',
         'toggle_fullscreen'      => 'Cambiar a pantalla completa',
-        'supported_formats'      => 'Formatos compatibles: [ jpg, jpeg, png, gif, mp4, mkv, mp3, wav, flac ]',
+        'supported_formats'      => 'Formatos compatibles: [ jpg, jpeg, png, gif, webp, mp4, webm, mkv, mp3, wav, flac ]',
         'drop_files_here'        => 'Arrastra los archivos aquí',
         'or'                     => 'o',
         'select_files'           => 'Seleccionar archivos',
@@ -6349,6 +6479,12 @@ $langData = [
         "waitingMessage" => "Esperando que comience la operación...",
         "update_plugin" => "Actualizar complemento",
         "installation_complete" => "¡Instalación completa!",
+        'confirm_title'         => 'Confirmar acción',
+        'confirm_delete_file'   => '¿Estás seguro de que deseas eliminar el archivo %s?',
+        'delete_success'      => 'Eliminado con éxito: %s',
+        'delete_failure'      => 'Error al eliminar: %s',
+        'upload_error_type_not_supported' => 'Tipo de archivo no soportado: %s',
+        'upload_error_move_failed'        => 'Error de carga: %s',
         'selected_info' => 'Seleccionados %d archivos, en total %s MB'
     ],
 
@@ -6403,7 +6539,7 @@ $langData = [
         'set_background'         => 'Hintergrund festlegen',
         'preview'                => 'Vorschau',
         'toggle_fullscreen'      => 'Vollbildmodus umschalten',
-        'supported_formats'      => 'Unterstützte Formate: [ jpg, jpeg, png, gif, mp4, mkv, mp3, wav, flac ]',
+        'supported_formats'      => 'Unterstützte Formate: [ jpg, jpeg, png, gif, webp, mp4, webm, mkv, mp3, wav, flac ]',
         'drop_files_here'        => 'Dateien hier ablegen',
         'or'                     => 'oder',
         'select_files'           => 'Dateien auswählen',
@@ -6506,6 +6642,12 @@ $langData = [
         "waitingMessage" => "Warten auf den Beginn der Operation...",
         "update_plugin" => "Plugin aktualisieren",
         "installation_complete" => "Installation abgeschlossen!",
+        'confirm_title'         => 'Bestätigen Sie die Aktion',
+        'confirm_delete_file'   => 'Möchten Sie die Datei %s wirklich löschen?',
+        'delete_success'      => 'Erfolgreich gelöscht: %s',
+        'delete_failure'      => 'Löschen fehlgeschlagen: %s',
+        'upload_error_type_not_supported' => 'Nicht unterstützter Dateityp: %s',
+        'upload_error_move_failed'        => 'Upload fehlgeschlagen: %s',
         'selected_info' => '%d Dateien ausgewählt, insgesamt %s MB'
     ],
 
@@ -6560,7 +6702,7 @@ $langData = [
         'set_background'         => 'Définir comme arrière-plan',
         'preview'                => 'Aperçu',
         'toggle_fullscreen'      => 'Activer/désactiver le mode plein écran',
-        'supported_formats'      => 'Formats pris en charge : [ jpg, jpeg, png, gif, mp4, mkv, mp3, wav, flac ]',
+        'supported_formats'      => 'Formats pris en charge : [ jpg, jpeg, png, gif, webp, mp4, webm, mkv, mp3, wav, flac ]',
         'drop_files_here'        => 'Déposez les fichiers ici',
         'or'                     => 'ou',
         'select_files'           => 'Sélectionner les fichiers',
@@ -6663,6 +6805,12 @@ $langData = [
         "waitingMessage" => "En attente du début de l'opération...",
         "update_plugin" => "Mettre à jour le plugin",
         "installation_complete" => "Installation terminée !",
+        'confirm_title'         => 'Confirmer l\'action',
+       'confirm_delete_file'   => 'Êtes-vous sûr de vouloir supprimer le fichier %s ?',
+        'delete_success'      => 'Suppression réussie : %s',
+        'delete_failure'      => 'Échec de la suppression : %s',
+        'upload_error_type_not_supported' => 'Type de fichier non pris en charge : %s',
+        'upload_error_move_failed'        => 'Échec du téléchargement : %s',
         'selected_info' => '%d fichiers sélectionnés, total de %s Mo'
     ],
 
@@ -6717,7 +6865,7 @@ $langData = [
         'set_background'         => 'Set Background',
         'preview'                => 'Preview',
         'toggle_fullscreen'      => 'Toggle Fullscreen',
-        'supported_formats'      => 'Supported formats: [ jpg, jpeg, png, gif, mp4, mkv, mp3, wav, flac ]',
+        'supported_formats'      => 'Supported formats: [ jpg, jpeg, png, gif, webp, mp4, webm, mkv, mp3, wav, flac ]',
         'drop_files_here'        => 'Drop files here',
         'or'                     => 'or',
         'select_files'           => 'Select Files',
@@ -6833,6 +6981,12 @@ $langData = [
         "waitingMessage" => "Waiting for the operation to start...",
         "update_plugin" => "Update Plugin",
         "installation_complete" => "Installation complete!",
+        'confirm_title'         => 'Confirm Action',
+        'confirm_delete_file'   => 'Are you sure you want to delete file %s?',
+        'delete_success'      => 'Deleted successfully: %s',
+        'delete_failure'      => 'Failed to delete: %s',
+        'upload_error_type_not_supported' => 'Unsupported file type: %s',
+        'upload_error_move_failed'        => 'Upload failed: %s',
         'selected_info' => 'Selected %d files, total %s MB'
     ]
 ];
@@ -6936,15 +7090,15 @@ function updateFlagIcon(lang) {
         'zh': '/luci-static/ipip/flags/cn.png',
         'hk': '/luci-static/ipip/flags/hk.png',
         'en': '/luci-static/ipip/flags/us.png',
-        'kr': '/luci-static/ipip/flags/kr.png',
-        'jp': '/luci-static/ipip/flags/jp.png',
+        'ko': '/luci-static/ipip/flags/kr.png',
+        'ja': '/luci-static/ipip/flags/jp.png',
         'ru': '/luci-static/ipip/flags/ru.png',
         'ar': '/luci-static/ipip/flags/sa.png',
         'es': '/luci-static/ipip/flags/es.png',
         'de': '/luci-static/ipip/flags/de.png',
         'fr': '/luci-static/ipip/flags/fr.png',
         'th': '/luci-static/ipip/flags/th.png',
-        'vn': '/luci-static/ipip/flags/vn.png'
+        'vi': '/luci-static/ipip/flags/vn.png'
     };
     
     flagImg.src = flagMap[lang] || flagMap['en'];
@@ -6969,15 +7123,15 @@ function changeLanguage(lang) {
               'zh': '语言已切换为简体中文',
               'hk': '語言已切換為繁體中文',
               'en': 'Language switched to English',
-              'kr': '언어가 한국어로 변경되었습니다',
-              'jp': '言語が日本語に変更されました',
+              'ko': '언어가 한국어로 변경되었습니다',
+              'ja': '言語が日本語に変更されました',
               'ru': 'Язык переключен на русский',
               'ar': 'تم تغيير اللغة إلى العربية',
               'es': 'El idioma ha cambiado a español',
               'de': 'Sprache auf Deutsch umgestellt',
               'fr': 'Langue changée en français',
               'th': 'เปลี่ยนภาษาเป็นภาษาไทยแล้ว',
-              'vn': 'Đã chuyển ngôn ngữ sang tiếng Việt'
+              'vi': 'Đã chuyển ngôn ngữ sang tiếng Việt'
           };
 
           const message = langLabelMap[lang] || 'Language switched';
@@ -7039,9 +7193,9 @@ document.addEventListener('keydown', function (event) {
         case 'Escape':
             event.preventDefault();
             const confirmText = document.getElementById('clearConfirmText')?.textContent.trim() || 'Are you sure you want to clear the config?';
-            if (confirm(confirmText)) {
+            showConfirmation(confirmText, () => {
                 document.getElementById('clear-cache-btn')?.click();
-            }
+            });
             speakMessage(translations['clear_confirm'] || 'Are you sure you want to clear the configuration?');
             break;
     }
@@ -7068,13 +7222,6 @@ document.getElementById('selectAll').addEventListener('change', function(e) {
         wrapper.classList.toggle('force-visible', e.target.checked);
     });
 });
-
-function handleDeleteConfirmation(file) {
-    const confirmMessage = translations['confirm_delete'] || 'Are you sure you want to delete?'; 
-    if (confirm(confirmMessage)) {
-        window.location = `?delete=${file}`;
-    }
-}
 </script>
 
 <script>
@@ -7150,3 +7297,49 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 });
 </script>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    window.showConfirmation = function(message, onConfirm) {
+        const decodedMessage = decodeURIComponent(message);
+
+        document.getElementById('confirmModalMessage').innerText = decodedMessage;
+
+        const oldBtn = document.getElementById('confirmModalYes');
+        const newBtn = oldBtn.cloneNode(true);
+        oldBtn.parentNode.replaceChild(newBtn, oldBtn);
+
+        newBtn.addEventListener('click', () => {
+            const modal = bootstrap.Modal.getInstance(document.getElementById('confirmModal'));
+            modal.hide();
+            if (typeof onConfirm === 'function') onConfirm();
+        });
+
+        const modal = new bootstrap.Modal(document.getElementById('confirmModal'));
+        modal.show();
+    };
+
+    window.handleDeleteConfirmation = function(file) {
+        const decodedFile = decodeURIComponent(file); 
+        const confirmMessage = (translations['confirm_delete_file'] || 'Are you sure you want to delete file %s?').replace('%s', decodedFile);
+
+        showConfirmation(confirmMessage, () => {
+            fetch(`?delete=${file}`)
+                .then(response => {
+                    if (response.ok) {
+                        const successMsg = (translations['delete_success'] || 'Successfully deleted: %s').replace('%s', decodedFile);
+                        showLogMessage(successMsg);
+                        speakMessage(successMsg);
+                        setTimeout(() => window.location.reload(), 9000); 
+                    } else {
+                        const errorMsg = (translations['delete_failure'] || 'Failed to delete: %s').replace('%s', decodedFile);
+                        showLogMessage(errorMsg);
+                        speakMessage(errorMsg);
+                    }
+                })
+                .catch(() => { /*  */ });
+        });
+    };
+});
+</script>
+
