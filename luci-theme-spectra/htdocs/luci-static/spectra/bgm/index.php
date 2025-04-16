@@ -3180,7 +3180,7 @@ function updateDateTime() {
 
         const timeElement = document.getElementById('timeDisplay');
         if (timeElement) {
-            if (['zh', 'hk', 'jp', 'kr'].includes(lang)) {
+            if (['zh', 'hk', 'ja', 'ko'].includes(lang)) {
                 timeElement.innerHTML = `
                     <span class="ancient-time">${ancientTime}</span>
                     <span class="modern-time">${timeStr}</span>
@@ -3213,13 +3213,13 @@ function updateDateTime() {
                 case 'hk':
                     dateStr = `${now.getFullYear()}${translations.labels.year}${now.getMonth()+1}${translations.labels.month}${now.getDate()}${translations.labels.day}`;
                     break;
-                case 'vn':
+                case 'vi':
                     dateStr = `${translations.labels.day} ${now.getDate()} ${translations.labels.month} ${now.getMonth()+1} ${translations.labels.year} ${now.getFullYear()}`;
                     break;
-                case 'kr':
+                case 'ko':
                     dateStr = `${now.getFullYear()}${translations.labels.year} ${now.getMonth()+1}${translations.labels.month} ${now.getDate()}${translations.labels.day}`;
                     break;
-                case 'jp':
+                case 'ja':
                     dateStr = `${now.getFullYear()}${translations.labels.year}${now.getMonth()+1}${translations.labels.month}${now.getDate()}${translations.labels.day}`;
                     break;
                 default:
@@ -3230,7 +3230,7 @@ function updateDateTime() {
 
         const weekElement = document.getElementById('weekDisplay');
         if (weekElement) {
-            if (['zh', 'hk', 'kr', 'jp'].includes(lang)) {
+            if (['zh', 'hk', 'ko', 'ja'].includes(lang)) {
                 weekElement.textContent = `${translations.labels.week}${weekDay}`;
             } else if (lang === 'vn') {
                 weekElement.textContent = '';
@@ -3240,16 +3240,16 @@ function updateDateTime() {
         }
 
         const lunarElement = document.getElementById('lunarDisplay');
-        if (['zh', 'hk', 'jp', 'kr'].includes(lang) && lunarElement) {
+        if (['zh', 'hk', 'ja', 'ko'].includes(lang) && lunarElement) {
             const lunar = getLunar(now); 
             lunarElement.textContent = (() => {
                 switch(lang) {
                     case 'zh':
                     case 'hk':
                         return `${lunar.year} ${lunar.month}${lunar.day} ${lunar.zodiac}年`;
-                    case 'jp':
+                    case 'ja':
                         return `${lunar.year} ${lunar.month}${lunar.day} ${lunar.zodiac}年`;
-                    case 'kr':
+                    case 'ko':
                         return `${lunar.year} ${lunar.month}${lunar.day} ${lunar.zodiac}띠`;
                     default: 
                         return '';
