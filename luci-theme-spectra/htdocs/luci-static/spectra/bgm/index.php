@@ -3756,6 +3756,8 @@ body {
     font-size: 1.5rem;
     padding: 10px 2px;
     letter-spacing: 0.2em;
+    writing-mode: vertical-rl; 
+    text-orientation: upright; 
 }
 
 @keyframes glow {
@@ -4113,9 +4115,13 @@ function loadLyrics(songUrl) {
     ];
     
     containers.forEach(container => {
+        const message = translations['loading_lyrics'] || 'Loading Lyrics...';
+        const verticalText = message.split('').map(char => `<span class="char">${char}</span>`).join('');
+    
         const statusMsg = container.id === 'lyricsContainer' 
-            ? `<div id="no-lyrics">${translations['loading_lyrics'] || 'Loading Lyrics...'}</div>`
-            : `<div id="noLyricsFloating">${translations['loading_lyrics'] || 'Loading Lyrics...'}</div>`;
+            ? `<div id="no-lyrics">${message}</div>`
+            : `<div id="noLyricsFloating" class="vertical-message">${verticalText}</div>`;
+
         container.innerHTML = statusMsg;
     });
 
@@ -4133,10 +4139,16 @@ function loadLyrics(songUrl) {
         .catch(error => {
             console.error(`${translations['lyrics_load_failed'] || 'Lyrics Load Failed'}:`, error);
             containers.forEach(container => {
-                const errorMsg = container.id === 'lyricsContainer'
-                    ? `<div id="no-lyrics">${translations['no_lyrics'] || 'No Lyrics Available'}</div>`
-                    : `<div id="noLyricsFloating">${translations['no_lyrics'] || 'No Lyrics Available'}</div>`;
-                container.innerHTML = errorMsg;
+                if (container.id === 'lyricsContainer') {
+                    container.innerHTML = `<div id="no-lyrics">${translations['no_lyrics'] || 'No Lyrics Available'}</div>`;
+                } else {
+                    const message = translations['no_lyrics'] || 'No Lyrics Available';
+                    const verticalText = message
+                        .split('')
+                        .map(char => `<span class="char">${char}</span>`)
+                        .join('');
+                    container.innerHTML = `<div id="noLyricsFloating" class="vertical-text">${verticalText}</div>`;
+                }
             });
         });
 } 
@@ -4300,8 +4312,11 @@ function displayLyrics() {
     floatingLyrics.innerHTML = '';
 
     if (Object.keys(window.lyrics).length === 0) {
-        lyricsContainer.innerHTML = `<div id="no-lyrics">${translations['no_lyrics'] || 'No Lyrics Available'}</div>`;
-        floatingLyrics.innerHTML = `<div id="noLyricsFloating">${translations['no_lyrics'] || 'No Lyrics Available'}</div>`;
+        const message = translations['no_lyrics'] || 'No Lyrics Available';
+        const verticalText = message.split('').map(char => `<span class="char">${char}</span>`).join('');
+    
+        lyricsContainer.innerHTML = `<div id="no-lyrics">${message}</div>`;
+        floatingLyrics.innerHTML = `<div id="noLyricsFloating" class="vertical-message">${verticalText}</div>`;
         return;
     }
 
