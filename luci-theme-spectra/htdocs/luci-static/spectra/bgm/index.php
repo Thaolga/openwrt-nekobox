@@ -729,7 +729,7 @@ label[for="selectAll"] {
 
 .text-muted {
 	color: var(--accent-color) !important;
-	font-size: 0.9em;
+	font-size: 1.5em;
 	letter-spacing: 0.5px;
 	opacity: 0.7;
 }
@@ -1938,11 +1938,24 @@ body:hover,
             });
 
             $('#clearBackgroundBtn').click(function() {
-                clearExistingBackground();
-                localStorage.removeItem('phpBackgroundSrc');
-                localStorage.removeItem('phpBackgroundType');
-                localStorage.removeItem('backgroundSet');
-                location.reload();
+                const confirmMessage = translations['confirm_clear_background'] || 'Are you sure you want to clear the background?';
+                showConfirmation(confirmMessage, () => {
+                    setTimeout(() => {
+                        clearExistingBackground();
+                        localStorage.removeItem('phpBackgroundSrc');
+                        localStorage.removeItem('phpBackgroundType');
+                        localStorage.removeItem('backgroundSet');
+
+                        const clearedMsg = translations['background_cleared'] || 'Background cleared!';
+                        showLogMessage(clearedMsg);
+                        speakMessage(clearedMsg);
+
+                        setTimeout(() => {
+                              location.reload();
+                        }, 3000);
+
+                    }, 0);
+                });
             });
 
             function setBackground(src, type) {
@@ -2093,6 +2106,7 @@ body:hover,
     <script>
         document.getElementById("updatePhpConfig").addEventListener("click", function() {
             const confirmText = translations['confirm_update_php'] || "Are you sure you want to update PHP configuration?";
+            speakMessage(translations['confirm_update_php'] || 'Are you sure you want to update PHP configuration?');
             showConfirmation(confirmText, () => {
                 fetch("update_php_config.php", {
                     method: "POST",
@@ -2974,6 +2988,10 @@ document.getElementById('nextBtn').addEventListener('click', () => {
     const toggleBtn = document.getElementById("toggleButton");
     toggleBtn.addEventListener("click", () => {
       userInteracted = true;
+
+      setTimeout(() => {
+        window.top.location.href = "/cgi-bin/luci/admin/services/spectra";
+      }, 3000);
     });
 
     document.addEventListener("keydown", (e) => {
@@ -4779,6 +4797,7 @@ document.getElementById('clear-cache-btn').addEventListener('click', function() 
 
 function confirmAndClearCache() {
     const confirmText = translations['clear_confirm'] || 'Are you sure you want to clear the configuration?';
+    speakMessage(translations['clear_confirm'] || 'Are you sure you want to clear the configuration?');
     showConfirmation(confirmText, () => {
         clearCache();
     });
@@ -4946,6 +4965,7 @@ document.addEventListener("DOMContentLoaded", () => {
                     <option value="fr" data-translate="france">France</option>
                     <option value="ar" data-translate="arabic"></option>
                     <option value="es" data-translate="spanish">spanish</option>
+                    <option value="bn" data-translate="bangladesh">Bangladesh</option>
                 </select>
             </div>
             <div class="modal-footer">
@@ -4974,6 +4994,7 @@ $langData = [
         'france'                 => '法语',
         'arabic'                 => '阿拉伯语',
         'spanish'                => '西班牙语',
+        'bangladesh'                => '孟加拉语',
         'close'                  => '关闭',
         'save'                   => '保存',
         'theme_download'         => '主题下载',
@@ -5135,6 +5156,8 @@ $langData = [
         'delete_failure'      => '删除失败：%s',
         'upload_error_type_not_supported' => '不支持的文件类型：%s',
         'upload_error_move_failed'        => '文件上传失败：%s',
+        'confirm_clear_background' => '确定要清除背景吗？',
+        'background_cleared'      => '背景已清除！',
         'selected_info' => '已选择 %d 个文件，合计 %s MB'
     ],
 
@@ -5152,6 +5175,7 @@ $langData = [
         'france'                 => '法語',
         'arabic'                 => '阿拉伯語',
         'spanish'                => '西班牙語',
+       'bangladesh' => '孟加拉語',
         'close'                  => '關閉',
         'save'                   => '保存',
         'theme_download'         => '主題下載',
@@ -5314,6 +5338,8 @@ $langData = [
         'delete_failure'      => '刪除失敗：%s',
         'upload_error_type_not_supported' => '不支持的文件類型：%s',
         'upload_error_move_failed'        => '文件上傳失敗：%s',
+        'confirm_clear_background' => '確定要清除背景嗎？',
+        'background_cleared'      => '背景已清除！',
         'selected_info' => '已選擇 %d 個文件，合計 %s MB'
     ],
 
@@ -5331,6 +5357,7 @@ $langData = [
         'france'                 => '프랑스어',
         'arabic'                 => '아랍어',
         'spanish'                => '스페인어',
+        'bangladesh' => '벵골어',
         'close'                  => '닫기',
         'save'                   => '저장',
         'theme_download'         => '테마 다운로드',
@@ -5493,6 +5520,8 @@ $langData = [
         'delete_failure'      => '삭제 실패: %s',
         'upload_error_type_not_supported' => '지원되지 않는 파일 형식: %s',
         'upload_error_move_failed'        => '파일 업로드 실패: %s',
+        'confirm_clear_background' => '배경을 지우시겠습니까?',
+        'background_cleared'      => '배경이 지워졌습니다!',
         'selected_info' => '선택된 파일: %d개, 총합: %s MB'
     ],
 
@@ -5510,6 +5539,7 @@ $langData = [
         'france'                 => 'フランス語',
         'arabic'                 => 'アラビア語',
         'spanish'                => 'スペイン語',
+        'bangladesh' => 'ベンガル語',
         'close'                  => '閉じる',
         'save'                   => '保存',
         'theme_download'         => 'テーマをダウンロード',
@@ -5672,6 +5702,8 @@ $langData = [
         'delete_failure'      => '削除失敗：%s',
         'upload_error_type_not_supported' => 'サポートされていないファイルタイプ: %s',
         'upload_error_move_failed'        => 'アップロード失敗: %s',
+        'confirm_clear_background' => '背景をクリアしますか？',
+        'background_cleared'      => '背景をクリアしました！',
         'selected_info' => '選択されたファイル：%d個、合計：%s MB'
     ],
 
@@ -5689,6 +5721,7 @@ $langData = [
         'france'                 => 'Tiếng Pháp',
         'arabic'                 => 'Tiếng Ả Rập',
         'spanish'                => 'Tiếng Tây Ban Nha',
+        'bangladesh' => 'Tiếng Bengal',
         'close'                  => 'Đóng',
         'save'                   => 'Lưu',
         'theme_download'         => 'Tải xuống chủ đề',
@@ -5849,6 +5882,8 @@ $langData = [
         'delete_failure'      => 'Xóa thất bại: %s',
         'upload_error_type_not_supported' => 'Loại tệp không được hỗ trợ: %s',
         'upload_error_move_failed'        => 'Tải lên thất bại: %s',
+        'confirm_clear_background' => 'Bạn có chắc muốn xóa nền không?',
+        'background_cleared'      => 'Đã xóa nền!',
         'selected_info' => 'Đã chọn %d tệp, tổng cộng %s MB'
     ],
 
@@ -5865,6 +5900,7 @@ $langData = [
         'france'                 => 'ภาษาฝรั่งเศส',
         'arabic'                 => 'ภาษาอาหรับ',
         'spanish'                => 'ภาษาสเปน',
+        'bangladesh' => 'เบงกาลี',
         'close'                  => 'ปิด',
         'save'                   => 'บันทึก',
         'theme_download'         => 'ดาวน์โหลดธีม',
@@ -6011,6 +6047,8 @@ $langData = [
         'delete_failure'      => 'ลบไม่สำเร็จ: %s',
         'upload_error_type_not_supported' => 'ประเภทไฟล์ที่ไม่รองรับ: %s',
         'upload_error_move_failed'        => 'การอัปโหลดไฟล์ล้มเหลว: %s',
+        'confirm_clear_background' => 'แน่ใจหรือไม่ว่าต้องการลบพื้นหลัง?',
+        'background_cleared'      => 'ลบพื้นหลังแล้ว!',
         'selected_info' => 'เลือกไฟล์แล้ว %d ไฟล์ รวมทั้งหมด %s MB'
     ],
 
@@ -6028,6 +6066,7 @@ $langData = [
         'france'                 => 'Французский',
         'arabic'                 => 'Арабский',
         'spanish'                => 'Испанский',
+        'bangladesh' => 'Бенгальский',
         'close'                  => 'Закрыть',
         'save'                   => 'Сохранить',
         'theme_download'         => 'Скачать тему',
@@ -6175,6 +6214,8 @@ $langData = [
         'delete_failure'      => 'Не удалось удалить: %s',
         'upload_error_type_not_supported' => 'Неподдерживаемый тип файла: %s',
         'upload_error_move_failed'        => 'Ошибка загрузки файла: %s',
+        'confirm_clear_background' => 'Вы уверены, что хотите очистить фон?',
+        'background_cleared'      => 'Фон очищен!',
         'selected_info' => 'Выбрано %d файлов, всего %s MB'
     ],
 
@@ -6192,6 +6233,7 @@ $langData = [
         'france'                 => 'الفرنسية',
         'arabic'                 => 'العربية',
         'spanish'                => 'الإسبانية',
+        'bangladesh' => 'البنغالية',
         'close'                  => 'إغلاق',
         'save'                   => 'حفظ',
         'theme_download'         => 'تنزيل الثيم',
@@ -6338,6 +6380,8 @@ $langData = [
         'delete_failure'      => 'فشل الحذف: %s',
         'upload_error_type_not_supported' => 'نوع الملف غير مدعوم: %s',
         'upload_error_move_failed'        => 'فشل تحميل الملف: %s',
+        'confirm_clear_background' => 'هل أنت متأكد أنك تريد مسح الخلفية؟',
+        'background_cleared'      => 'تم مسح الخلفية!',
         'selected_info' => 'تم اختيار %d ملف، الحجم الإجمالي %s ميغابايت'
     ],
 
@@ -6355,6 +6399,7 @@ $langData = [
         'france'                 => 'Francés',
         'arabic'                 => 'Árabe',
         'spanish'                => 'Español',
+        'bangladesh' => 'Bengalí',
         'close'                  => 'Cerrar',
         'save'                   => 'Guardar',
         'theme_download'         => 'Descargar tema',
@@ -6501,6 +6546,8 @@ $langData = [
         'delete_failure'      => 'Error al eliminar: %s',
         'upload_error_type_not_supported' => 'Tipo de archivo no soportado: %s',
         'upload_error_move_failed'        => 'Error de carga: %s',
+        'confirm_clear_background' => '¿Estás seguro de que quieres borrar el fondo?',
+        'background_cleared'      => '¡Fondo borrado!',
         'selected_info' => 'Seleccionados %d archivos, en total %s MB'
     ],
 
@@ -6518,6 +6565,7 @@ $langData = [
         'france'                 => 'Französisch',
         'arabic'                 => 'Arabisch',
         'spanish'                => 'Spanisch',
+        'bangladesh' => 'Bengalisch',
         'close'                  => 'Schließen',
         'save'                   => 'Speichern',
         'theme_download'         => 'Theme herunterladen',
@@ -6664,6 +6712,8 @@ $langData = [
         'delete_failure'      => 'Löschen fehlgeschlagen: %s',
         'upload_error_type_not_supported' => 'Nicht unterstützter Dateityp: %s',
         'upload_error_move_failed'        => 'Upload fehlgeschlagen: %s',
+        'confirm_clear_background' => 'Möchten Sie den Hintergrund wirklich löschen?',
+        'background_cleared'      => 'Hintergrund wurde gelöscht!',
         'selected_info' => '%d Dateien ausgewählt, insgesamt %s MB'
     ],
 
@@ -6681,6 +6731,7 @@ $langData = [
         'france'                 => 'Français',
         'arabic'                 => 'Arabe',
         'spanish'                => 'Espagnol',
+        'bangladesh' => 'Bengali',
         'close'                  => 'Fermer',
         'save'                   => 'Enregistrer',
         'theme_download'         => 'Télécharger le thème',
@@ -6827,6 +6878,8 @@ $langData = [
         'delete_failure'      => 'Échec de la suppression : %s',
         'upload_error_type_not_supported' => 'Type de fichier non pris en charge : %s',
         'upload_error_move_failed'        => 'Échec du téléchargement : %s',
+        'confirm_clear_background' => 'Voulez-vous vraiment effacer l\'arrière-plan?',
+        'background_cleared'      => 'Arrière-plan effacé!',
         'selected_info' => '%d fichiers sélectionnés, total de %s Mo'
     ],
 
@@ -6844,6 +6897,7 @@ $langData = [
         'france'                 => 'French',
         'arabic'                 => 'Arabic',
         'spanish'                => 'Spanish',
+        'bangladesh' => 'Bengali',
         'close'                  => 'Close',
         'save'                   => 'Save',
         'theme_download'         => 'Theme Download',
@@ -7003,7 +7057,174 @@ $langData = [
         'delete_failure'      => 'Failed to delete: %s',
         'upload_error_type_not_supported' => 'Unsupported file type: %s',
         'upload_error_move_failed'        => 'Upload failed: %s',
+        'confirm_clear_background' => 'Are you sure you want to clear the background?',
+        'background_cleared'      => 'Background cleared!',
         'selected_info' => 'Selected %d files, total %s MB'
+    ],
+    'bn' => [
+        'select_language'        => 'ভাষা নির্বাচন করুন',
+        'simplified_chinese'     => 'সরলীকৃত চীনা',
+        'traditional_chinese'    => 'প্রথাগত চীনা',
+        'english'                => 'ইংরেজি',
+        'korean'                 => 'কোরিয়ান',
+        'vietnamese'             => 'ভিয়েতনামী',
+        'thailand'               => 'থাই',
+        'japanese'               => 'জাপানি',
+        'russian'                => 'রাশিয়ান',
+        'germany'                => 'জার্মান',
+        'france'                 => 'ফরাসি',
+        'arabic'                 => 'আরবি',
+        'spanish'                => 'স্প্যানিশ',
+        'bangladesh' => 'বাংলা',
+        'close'                  => 'বন্ধ',
+        'save'                   => 'সংরক্ষণ',
+        'theme_download'         => 'থিম ডাউনলোড',
+        'select_all'             => 'সব নির্বাচন',
+        'batch_delete'           => 'নির্বাচিত ফাইল একসাথে মুছুন',
+        'batch_delete_success'   => '✅ একসাথে মুছুন সফল',
+        'batch_delete_failed'    => '❌ একসাথে মুছুন ব্যর্থ',
+        'confirm_delete'         => 'মুছে ফেলতে চান?',
+        'total'                  => 'মোট:',
+        'free'                   => 'অবশিষ্ট:',
+        'hover_to_preview'       => 'প্লে করতে ক্লিক করুন',
+        'spectra_config'         => 'Spectra কনফিগারেশন',
+        'current_mode'           => 'বর্তমান মোড: লোড হচ্ছে...',
+        'toggle_mode'            => 'মোড পরিবর্তন',
+        'check_update'           => 'আপডেট চেক করুন',
+        'batch_upload'           => 'একসাথে আপলোডের জন্য ফাইল নির্বাচন',
+        'add_to_playlist'        => 'প্লেলিস্টে যোগ করতে চেক করুন',
+        'clear_background'       => 'পটভূমি সাফ',
+        'clear_background_label' => 'পটভূমি সাফ',
+        'file_list'              => 'ফাইল তালিকা',
+        'component_bg_color'     => 'কম্পোনেন্টের পটভূমি রং নির্বাচন',
+        'page_bg_color'          => 'পৃষ্ঠার পটভূমি রং নির্বাচন',
+        'toggle_font'            => 'ফন্ট পরিবর্তন',
+        'filename'               => 'নাম:',
+        'filesize'               => 'আকার:',
+        'duration'               => 'সময়:',
+        'resolution'             => 'রেজোলিউশন:',
+        'bitrate'                => 'বিটরেট:',
+        'type'                   => 'ধরণ:',
+        'image'                  => 'ছবি',
+        'video'                  => 'ভিডিও',
+        'audio'                  => 'অডিও',
+        'document'               => 'ডকুমেন্ট',
+        'delete'                 => 'মুছুন',
+        'rename'                 => 'নাম পরিবর্তন',
+        'download'               => 'ডাউনলোড',
+        'set_background'         => 'পটভূমি সেট করুন',
+        'preview'                => 'প্রিভিউ',
+        'toggle_fullscreen'      => 'ফুলস্ক্রিন পরিবর্তন',
+        'supported_formats'      => 'সমর্থিত ফরম্যাট: [ jpg, jpeg, png, gif, webp, mp4, webm, mkv, mp3, wav, flac ]',
+        'drop_files_here'        => 'ফাইল এখানে ড্রপ করুন',
+        'or'                     => 'অথবা',
+        'select_files'           => 'ফাইল নির্বাচন',
+        'unlock_php_upload_limit'=> 'PHP আপলোড লিমিট আনলক',
+        'upload'                 => 'আপলোড',
+        'cancel'                 => 'বাতিল',
+        'rename_file'            => 'নাম পরিবর্তন',
+        'new_filename'           => 'নতুন ফাইলনাম',
+        'invalid_filename_chars' => 'ফাইলনামে এই অক্ষর থাকতে পারবে না: \\/：*?"<>|',
+        'confirm'                => 'নিশ্চিত',
+        'media_player'           => 'মিডিয়া প্লেয়ার',
+        'playlist'               => 'প্লেলিস্ট',
+        'clear_list'             => 'তালিকা সাফ',
+        'toggle_list'            => 'তালিকা লুকান',
+        'picture_in_picture'     => 'পিকচার ইন পিকচার',
+        'fullscreen'             => 'ফুলস্ক্রিন',
+        'music_player'           => 'মিউজিক প্লেয়ার',
+        'play_pause'             => 'প্লে/পজ',
+        'previous_track'         => 'আগের ট্র্যাক',
+        'next_track'             => 'পরের ট্র্যাক',
+        'repeat_mode'            => 'পুনরাবৃত্তি মোড',
+        'toggle_floating_lyrics' => 'ভাসমান গানের কথা',
+        'clear_config'           => 'কনফিগারেশন সাফ',
+        'custom_playlist'        => 'কাস্টম প্লেলিস্ট',
+        'volume'                 => 'ভলিউম',
+        'update_playlist'        => 'প্লেলিস্ট আপডেট',
+        'playlist_url'           => 'প্লেলিস্ট URL',
+        'reset_default'          => 'ডিফল্টে ফিরুন',
+        'toggle_lyrics'          => 'গানের কথা বন্ধ',
+        'fetching_version'       => 'সংস্করণ তথ্য পাওয়া হচ্ছে...',
+        'download_local'         => 'লোকালে ডাউনলোড',
+        'change_language'        => 'ভাষা পরিবর্তন',
+        'pause_playing'          => 'প্লে থামান',
+        'start_playing'          => 'প্লে শুরু',
+        'manual_switch'          => 'ম্যানুয়াল পরিবর্তন',
+        'auto_switch'            => 'স্বয়ংক্রিয়ভাবে পরিবর্তন',
+        'switch_to'              => 'পরিবর্তন করুন',
+        'auto_play'              => 'স্বয়ংক্রিয় প্লে',
+        'lyrics_load_failed'     => 'গানের কথা লোড ব্যর্থ',
+        'order_play'             => 'অনুক্রমিক প্লে',
+        'single_loop'            => 'একক লুপ',
+        'shuffle_play'           => 'এলোমেলো প্লে',
+        'playlist_click'         => 'প্লেলিস্ট ক্লিক',
+        'index'                  => 'সূচী',
+        'song_name'              => 'গানের নাম',
+        'no_lyrics'              => 'কোনো গানের কথা নেই',
+        'loading_lyrics'         => 'গানের কথা লোড হচ্ছে...',
+        'autoplay_blocked'       => 'স্বয়ংক্রিয় প্লে ব্লক করা হয়েছে',
+        'cache_cleared'          => 'কনফিগারেশন সাফ হয়েছে',
+        'open_custom_playlist'   => 'কাস্টম প্লেলিস্ট খুলুন',
+        'reset_default_playlist' => 'ডিফল্ট প্লেলিস্ট লিঙ্ক ফিরিয়ে দেওয়া হয়েছে',
+        'reset_default_error'    => 'ডিফল্ট লিঙ্ক ফিরিয়ে দেওয়ার সময় ত্রুটি',
+        'reset_default_failed'   => 'ডিফল্ট লিঙ্ক ফিরিয়ে দেওয়া ব্যর্থ',
+        'playlist_load_failed'   => 'প্লেলিস্ট লোড ব্যর্থ',
+        'playlist_load_failed_message' => 'প্লেলিস্ট লোড করতে ব্যর্থ',
+        'hour_announcement'      => 'ঘন্টা ঘোষণা, এখন বেইজিং সময়',
+        'hour_exact'             => 'টা বাজে',
+        'weekDays' => ['রবি', 'সোম', 'মঙ্গল', 'বুধ', 'বৃহস্পতি', 'শুক্র', 'শনি'],
+        'labels' => [
+            'year' => 'বছর',
+            'month' => 'মাস',
+            'day' => 'তারিখ',
+            'week' => 'সপ্তাহ'
+        ],
+        'zodiacs' => ['বানর','মোরগ','কুকুর','শূকর','ইঁদুর','গরু','বাঘ','খরগোশ','ড্রাগন','সাপ','ঘোড়া','ছাগল'],
+        'clear_confirm' =>'কনফিগারেশন সাফ করতে চান?', 
+        'back_to_first' => 'প্লেলিস্টের প্রথম গানে ফিরে গেছে',
+        'font_default' => 'গোলাকার ফন্টে পরিবর্তন করা হয়েছে',
+        'font_fredoka' => 'ডিফল্ট ফন্টে পরিবর্তন করা হয়েছে',
+        'font_mono'    => 'হাতের লেখা ফন্টে পরিবর্তন করা হয়েছে',
+        'font_noto'    => 'চীনা সেরিফ ফন্টে পরিবর্তন করা হয়েছে',
+        'error_loading_time' => 'সময় প্রদর্শনে ত্রুটি',
+        'switch_to_light_mode' => 'হালকা মোডে পরিবর্তন',
+        'switch_to_dark_mode' => 'অন্ধকার মোডে পরিবর্তন',
+        'current_mode_dark' => 'বর্তমান মোড: অন্ধকার মোড',
+        'current_mode_light' => 'বর্তমান মোড: হালকা মোড',
+        'fetching_version' => 'সংস্করণ তথ্য পাওয়া হচ্ছে...',
+        'latest_version' => 'সর্বশেষ সংস্করণ',
+        'unable_to_fetch_version' => 'সর্বশেষ সংস্করণ তথ্য পাওয়া যায়নি',
+        'request_failed' => 'অনুরোধ ব্যর্থ, পরে আবার চেষ্টা করুন',
+        'pip_not_supported' => 'বর্তমান মিডিয়া পিকচার ইন পিকচার সমর্থন করে না',
+        'pip_operation_failed' => 'পিকচার ইন পিকচার অপারেশন ব্যর্থ',
+        'exit_picture_in_picture' => 'পিকচার ইন পিকচার থেকে বের হন',
+        'picture_in_picture' => 'পিকচার ইন পিকচার',
+        'hide_playlist' => 'তালিকা লুকান',
+        'show_playlist' => 'তালিকা দেখান',
+        'enter_fullscreen' => 'ফুলস্ক্রিনে যান',
+        'exit_fullscreen' => 'ফুলস্ক্রিন থেকে বের হন',
+        'confirm_update_php' => 'আপনি PHP কনফিগারেশন আপডেট করতে চান?',
+        'select_files_to_delete' => 'দয়া করে প্রথমে মুছতে চাওয়া ফাইল নির্বাচন করুন!',
+        'confirm_batch_delete' => '%d টি নির্বাচিত ফাইল মুছতে চান?',
+        'unable_to_fetch_current_version' => 'বর্তমান সংস্করণ পাওয়া হচ্ছে...',
+        'current_version' => 'বর্তমান সংস্করণ',
+        'copy_command'     => 'কমান্ড কপি',
+        'command_copied'   => 'কমান্ড ক্লিপবোর্ডে কপি হয়েছে!',
+        "updateModalLabel" => "আপডেট অবস্থা",
+        "updateDescription" => "আপডেট প্রক্রিয়া শুরু হতে চলেছে।",
+        "waitingMessage" => "অপারেশন শুরু হওয়ার জন্য অপেক্ষা...",
+        "update_plugin" => "প্লাগইন আপডেট",
+        "installation_complete" => "ইনস্টলেশন সম্পূর্ণ!",
+        'confirm_title'             => 'অপারেশন নিশ্চিত',
+        'confirm_delete_file'   => '%s ফাইলটি মুছতে চান?',
+        'delete_success'      => 'সফলভাবে মুছে ফেলা হয়েছে: %s',
+        'delete_failure'      => 'মুছতে ব্যর্থ: %s',
+        'upload_error_type_not_supported' => 'অসমর্থিত ফাইল টাইপ: %s',
+        'upload_error_move_failed'        => 'ফাইল আপলোড ব্যর্থ: %s',
+        'confirm_clear_background' => 'পটভূমি সাফ করতে চান?',
+        'background_cleared'      => 'পটভূমি সাফ করা হয়েছে!',
+        'selected_info' => '%d টি ফাইল নির্বাচিত, মোট %s MB'
     ]
 ];
 
@@ -7114,6 +7335,7 @@ function updateFlagIcon(lang) {
         'de': '/luci-static/ipip/flags/de.png',
         'fr': '/luci-static/ipip/flags/fr.png',
         'th': '/luci-static/ipip/flags/th.png',
+        'bn': '/luci-static/ipip/flags/bd.png',
         'vi': '/luci-static/ipip/flags/vn.png'
     };
     
@@ -7147,6 +7369,7 @@ function changeLanguage(lang) {
               'de': 'Sprache auf Deutsch umgestellt',
               'fr': 'Langue changée en français',
               'th': 'เปลี่ยนภาษาเป็นภาษาไทยแล้ว',
+              'bn': 'ভাষা বাংলাতে পরিবর্তন করা হয়েছে',
               'vi': 'Đã chuyển ngôn ngữ sang tiếng Việt'
           };
 
@@ -7303,8 +7526,11 @@ document.addEventListener('DOMContentLoaded', function () {
             }, 5000);
         })
         .catch(error => {
+            const message = translations['installation_complete'] || 'Installation complete!';
             logOutput.textContent = '';
-            logOutput.textContent = translations['installation_complete'] || 'Installation complete!';
+            logOutput.textContent = message;
+            showLogMessage(message);
+            speakMessage(message);
 
             setTimeout(() => {
                 updateModal.hide();
@@ -7338,7 +7564,6 @@ document.addEventListener("DOMContentLoaded", function () {
     window.handleDeleteConfirmation = function(file) {
         const decodedFile = decodeURIComponent(file); 
         const confirmMessage = (translations['confirm_delete_file'] || 'Are you sure you want to delete file %s?').replace('%s', decodedFile);
-
         showConfirmation(confirmMessage, () => {
             fetch(`?delete=${file}`)
                 .then(response => {
