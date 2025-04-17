@@ -27,7 +27,7 @@ try {
         $releaseData = json_decode($response, true);
         foreach ($releaseData['assets'] as $asset) {
             if (preg_match($packagePattern, $asset['name'], $matches)) {
-                $latestVersion = $matches[1];
+                $latestVersion = preg_replace('/\.([^.]+)$/', '~$1', $matches[1]);
                 $downloadUrl = $asset['browser_download_url'];
                 break;
             }
