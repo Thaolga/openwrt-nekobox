@@ -215,6 +215,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         const phpBackgroundType = '<?= $background_type ?>';
         const phpBackgroundSrc = '<?= $background_src ?>';
     </script>
+    <script>
+      (function() {
+        const savedTheme = localStorage.getItem("theme") || "dark";
+        document.documentElement.setAttribute("data-theme", savedTheme);
+      })();
+    </script>
 <style>
 :root {
 	--base-hue: 260;
