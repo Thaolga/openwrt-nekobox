@@ -729,7 +729,7 @@ label[for="selectAll"] {
 
 .text-muted {
 	color: var(--accent-color) !important;
-	font-size: 1.5em;
+	font-size: 1.2em;
 	letter-spacing: 0.5px;
 	opacity: 0.7;
 }
@@ -2788,78 +2788,84 @@ document.getElementById('nextBtn').addEventListener('click', () => {
   let userInteracted = false;
 
   function hexToRgb(hex) {
-    return {
-      r: parseInt(hex.slice(1, 3), 16),
-      g: parseInt(hex.slice(3, 5), 16),
-      b: parseInt(hex.slice(5, 7), 16)
-    };
+    const fullHex = hex.replace(/^#?([a-f\d])([a-f\d])([a-f\d])$/i, 
+      (_, r, g, b) => `#${r}${r}${g}${g}${b}${b}`);
+    
+    const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(fullHex);
+    return result ? {
+      r: parseInt(result[1], 16),
+      g: parseInt(result[2], 16),
+      b: parseInt(result[3], 16)
+    } : { r: 0, g: 0, b: 0 };
+  }
+
+  function rgbToLinear(c) {
+    const normalized = c / 255;
+    return normalized <= 0.04045 
+      ? normalized / 12.92 
+      : Math.pow((normalized + 0.055) / 1.055, 2.4);
   }
 
   function rgbToOklch(r, g, b) {
-    const [lr, lg, lb] = [r, g, b].map(c => {
-      c /= 255;
-      return c <= 0.04045 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4);
-    });
+    const [lr, lg, lb] = [r, g, b].map(rgbToLinear);
+    
+    const l = 0.4122214708 * lr + 0.5363325363 * lg + 0.0514459929 * lb;
+    const m = 0.2119034982 * lr + 0.6806995451 * lg + 0.1073969566 * lb;
+    const s = 0.0883024619 * lr + 0.2817188376 * lg + 0.6299787005 * lb;
 
-    const x = 0.4122214708 * lr + 0.5363325363 * lg + 0.0514459929 * lb;
-    const y = 0.2119034982 * lr + 0.6806995451 * lg + 0.1073969566 * lb;
-    const z = 0.0883024619 * lr + 0.2817188376 * lg + 0.6299787005 * lb;
+    const l_ = Math.cbrt(l);
+    const m_ = Math.cbrt(m);
+    const s_ = Math.cbrt(s);
 
-    const l = Math.cbrt(0.8189330101 * x + 0.3618667424 * y - 0.1288997136 * z);
-    const m = Math.cbrt(-0.0321965433 * x + 0.9295746987 * y + 0.0361446476 * z);
-    const s = Math.cbrt(0.0481421477 * x - 0.0192659616 * y + 0.9902282127 * z);
+    const L = 0.2104542553 * l_ + 0.7936177850 * m_ - 0.0040720468 * s_;
+    const a = 1.9779984951 * l_ - 2.4285922050 * m_ + 0.4505937099 * s_;
+    const b_ = 0.0259040371 * l_ + 0.7827717662 * m_ - 0.8086757660 * s_;
 
-    const l_ = 0.2104542553 * l + 0.7936177850 * m - 0.0040720468 * s;
-    const a  = 1.9779984951 * l - 2.4285922050 * m + 0.4505937099 * s;
-    const b_ = 0.0259040371 * l + 0.7827717662 * m - 0.8086757660 * s;
-
-    const c = Math.sqrt(a * a + b_ * b_);
+    const c = Math.sqrt(a ** 2 + b_ ** 2);
     let h = Math.atan2(b_, a) * 180 / Math.PI;
-    if (h < 0) { 
-      h += 360; 
-    }
+    h = h >= 0 ? h : h + 360;
 
-    return { l: l_ * 100, c: c, h: h };
+    return { 
+      l: L * 100,
+      c: c,
+      h: h
+    };
   }
 
   function hexToOklch(hex) {
-    const rgb = hexToRgb(hex);
-    return rgbToOklch(rgb.r, rgb.g, rgb.b);
+    const { r, g, b } = hexToRgb(hex);
+    return rgbToOklch(r, g, b);
   }
 
   function oklchToHex(h, c, l = 50) {
-    const hslSat = c * 100;
-    return hslToHex(h, hslSat, l);
-  }
+    const L = l / 100;
+    const a = c * Math.cos(h * Math.PI / 180);
+    const b = c * Math.sin(h * Math.PI / 180);
 
-  function hslToHex(h, s, l) {
-    h = h % 360;
-    s = Math.max(0, Math.min(100, s)) / 100;
-    l = Math.max(0, Math.min(100, l)) / 100;
+    const l_ = L + 0.3963377774 * a + 0.2158037573 * b;
+    const m_ = L - 0.1055613458 * a - 0.0638541728 * b;
+    const s_ = L - 0.0894841775 * a - 1.2914855480 * b;
 
-    const c = (1 - Math.abs(2 * l - 1)) * s;
-    const x = c * (1 - Math.abs(((h / 60) % 2) - 1));
-    const m = l - c / 2;
-    let r, g, b;
+    const [lr, lg, lb] = [l_, m_, s_].map(v => v ** 3);
+    
+    const r = 4.0767416621 * lr - 3.3077115913 * lg + 0.2309699292 * lb;
+    const g = -1.2684380046 * lr + 2.6097574011 * lg - 0.3413193965 * lb;
+    const bLinear = -0.0041960863 * lr - 0.7034186147 * lg + 1.7076147010 * lb;
 
-    if (h < 60) {
-      [r, g, b] = [c, x, 0];
-    } else if (h < 120) {
-      [r, g, b] = [x, c, 0];
-    } else if (h < 180) {
-      [r, g, b] = [0, c, x];
-    } else if (h < 240) {
-      [r, g, b] = [0, x, c];
-    } else if (h < 300) {
-      [r, g, b] = [x, 0, c];
-    } else {
-      [r, g, b] = [c, 0, x];
-    }
+    const toSRGB = (v) => {
+      v = Math.min(Math.max(v, 0), 1);
+      return v > 0.0031308 
+        ? 1.055 * (v ** (1/2.4)) - 0.055 
+        : 12.92 * v;
+    };
 
-    const toHex = channel => Math.round((channel + m) * 255)
-                                  .toString(16)
-                                  .padStart(2, "0");
-    return "#" + [r, g, b].map(toHex).join("").toUpperCase();
+    const [R, G, B] = [r, g, bLinear].map(v => 
+      Math.round(toSRGB(v) * 255)
+    );
+
+    return `#${[R, G, B]
+      .map(x => x.toString(16).padStart(2, '0'))
+      .join('')}`.toUpperCase();
   }
 
   function updateTextPrimary(currentL) {
@@ -3871,6 +3877,12 @@ body {
 
 .list-group-item:hover {
     background: var(--item-hover-bg);
+    color: white !important;
+}
+
+.list-group-item:hover .text-muted,
+.list-group-item:hover .text-truncate {
+    color: white !important;
 }
 
 .list-group-item.active {
