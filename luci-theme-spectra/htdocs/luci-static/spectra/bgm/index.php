@@ -7517,13 +7517,16 @@ document.addEventListener('DOMContentLoaded', function () {
         .then(data => {
             if (data.includes("Installation complete!")) {
                 logOutput.textContent = "Installation complete!";
+                setTimeout(() => {
+                    updateModal.hide();
+                    window.top.location.href = "/cgi-bin/luci/admin/services/spectra";
+                }, 3000);
             } else {
                 logOutput.textContent = data;
+                setTimeout(() => {
+                    updateModal.hide();
+                }, 5000);
             }
-
-            setTimeout(() => {
-                updateModal.hide();
-            }, 5000);
         })
         .catch(error => {
             const message = translations['installation_complete'] || 'Installation complete!';
