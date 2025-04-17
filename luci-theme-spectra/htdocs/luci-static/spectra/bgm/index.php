@@ -217,8 +217,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     </script>
     <script>
       (function() {
-        const savedTheme = localStorage.getItem("theme") || "dark";
-        document.documentElement.setAttribute("data-theme", savedTheme);
+        const root = document.documentElement;
+        const theme = localStorage.getItem("theme") || "dark";
+        root.setAttribute("data-theme", theme);
+
+        const hueKey = `${theme}BaseHue`;
+        const chromaKey = `${theme}BaseChroma`;
+
+        const defaultHue = theme === "dark" ? 260 : 200;
+        const defaultChroma = theme === "dark" ? 0.14 : 0.18;
+
+        const baseHue = localStorage.getItem(hueKey) || defaultHue;
+        const baseChroma = localStorage.getItem(chromaKey) || defaultChroma;
+
+        root.style.setProperty("--base-hue", baseHue);
+        root.style.setProperty("--base-chroma", baseChroma);
       })();
     </script>
 <style>
