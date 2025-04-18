@@ -4177,7 +4177,13 @@ function loadLyrics(songUrl) {
 
     fetch(lyricsUrl)
         .then(response => {
-            if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+            if (!response.ok) {
+                if (response.status === 404) {
+                    throw new Error('LYRICS_NOT_FOUND');
+                } else {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+            }
             return response.arrayBuffer();
         })
         .then(buffer => {
@@ -4187,21 +4193,30 @@ function loadLyrics(songUrl) {
             document.dispatchEvent(new Event('lyricsLoaded'));
         })
         .catch(error => {
-            console.error(`${translations['lyrics_load_failed'] || 'Lyrics Load Failed'}:`, error);
-            containers.forEach(container => {
-                if (container.id === 'lyricsContainer') {
-                    container.innerHTML = `<div id="no-lyrics">${translations['no_lyrics'] || 'No Lyrics Available'}</div>`;
-                } else {
-                    const message = translations['no_lyrics'] || 'No Lyrics Available';
-                    const verticalText = message
-                        .split('')
-                        .map(char => `<span class="char">${char}</span>`)
-                        .join('');
-                    container.innerHTML = `<div id="noLyricsFloating" class="vertical-text">${verticalText}</div>`;
-                }
-            });
+            if (error.message === 'LYRICS_NOT_FOUND') {
+                containers.forEach(container => {
+                    if (container.id === 'lyricsContainer') {
+                        container.innerHTML = `<div id="no-lyrics">${translations['no_lyrics'] || 'No Lyrics Available'}</div>`;
+                    } else {
+                        const message = translations['no_lyrics'] || 'No Lyrics Available';
+                        const verticalText = message.split('').map(char => `<span class="char">${char}</span>`).join('');
+                        container.innerHTML = `<div id="noLyricsFloating" class="vertical-text">${verticalText}</div>`;
+                    }
+                });
+            } else {
+                console.error(`${translations['lyrics_load_failed'] || 'Lyrics Load Failed'}:`, error);
+                containers.forEach(container => {
+                    if (container.id === 'lyricsContainer') {
+                        container.innerHTML = `<div id="no-lyrics">${translations['lyrics_load_failed'] || 'Failed to load lyrics'}</div>`;
+                    } else {
+                        const message = translations['lyrics_load_failed'] || 'Failed to load lyrics';
+                        const verticalText = message.split('').map(char => `<span class="char">${char}</span>`).join('');
+                        container.innerHTML = `<div id="noLyricsFloating" class="vertical-message">${verticalText}</div>`;
+                    }
+                });
+            }
         });
-} 
+}
 
 function parseLyrics(text) {
     window.lyrics = {};
@@ -4835,10 +4850,10 @@ function confirmAndClearCache() {
 }
 
 function clearCache() {
-    location.reload(true);
     localStorage.clear();
     sessionStorage.clear();
     sessionStorage.setItem('cacheCleared', 'true');
+    location.reload(true);
 }
 
 window.addEventListener('load', function() {
@@ -4847,6 +4862,9 @@ window.addEventListener('load', function() {
         showLogMessage(message);
         speakMessage(message);
         sessionStorage.removeItem('cacheCleared');
+        setTimeout(() => {
+            window.top.location.href = "/cgi-bin/luci/admin/services/spectra";
+        }, 3000);
     }
 });
 
