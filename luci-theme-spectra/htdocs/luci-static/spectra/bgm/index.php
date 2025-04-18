@@ -1958,6 +1958,7 @@ body:hover,
 
             $('#clearBackgroundBtn').click(function() {
                 const confirmMessage = translations['confirm_clear_background'] || 'Are you sure you want to clear the background?';
+                speakMessage(translations['confirm_clear_background'] || 'Are you sure you want to clear the background?');
                 showConfirmation(confirmMessage, () => {
                     setTimeout(() => {
                         clearExistingBackground();
@@ -1970,7 +1971,7 @@ body:hover,
                         speakMessage(clearedMsg);
 
                         setTimeout(() => {
-                              location.reload();
+                              window.top.location.href = "/cgi-bin/luci/admin/services/spectra";
                         }, 3000);
 
                     }, 0);
@@ -2012,6 +2013,7 @@ body:hover,
             document.body.style.backgroundSize = 'cover';
             localStorage.setItem('phpBackgroundSrc', src);
             localStorage.setItem('phpBackgroundType', 'image');
+            localStorage.setItem('redirectAfterImage', 'true');
             checkAndReload();
         }
 
@@ -2119,6 +2121,15 @@ body:hover,
                     location.reload();
                 }, 1000);
             });
+        });
+
+        window.addEventListener('load', function () {
+            if (localStorage.getItem('redirectAfterImage') === 'true') {
+                localStorage.removeItem('redirectAfterImage');
+                setTimeout(() => {
+                    window.top.location.href = "/cgi-bin/luci/admin/services/spectra?bg=image";
+                }, 3000);
+            }
         });
     </script>
 
@@ -5164,7 +5175,7 @@ $langData = [
         'initial' => '初',  
         'middle' => '正',   
         'final' =>'末',  
-        'clear_confirm' =>'确定要清除配置吗？', 
+        'clear_confirm' =>'确定要清除目前配置恢复预设配置吗？', 
         'back_to_first' => '已返回播放列表第一首歌曲',
         'font_default' => '已切换为圆润字体',
         'font_fredoka' => '已切换为默认字体',
@@ -5343,7 +5354,7 @@ $langData = [
         'initial' => '初',  
         'middle' => '正',   
         'final' =>'末',   
-        'clear_confirm' => '確定要清除配置嗎？',
+        'clear_confirm' => '確定要清除目前配置恢復預設配置嗎？',
         'back_to_first' => '已返回播放列表第一首歌曲', 
         'error_loading_time' => '時間顯示異常',
         'switch_to_light_mode' => '切換到亮色模式',
