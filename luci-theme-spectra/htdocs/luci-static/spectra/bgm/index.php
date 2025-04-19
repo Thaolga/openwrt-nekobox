@@ -249,7 +249,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         --l: 85%;
         --c: 0.18;
 	
-	--bg-body: oklch(20% var(--base-chroma) var(--base-hue) / 50%);
+	--bg-body: oklch(40% var(--base-chroma) var(--base-hue) / 90%);
 	--bg-container: oklch(30% var(--base-chroma) var(--base-hue));
 	--text-primary: oklch(95% 0 0); 
 	--accent-color: oklch(70% 0.2 calc(var(--base-hue) + 0));
@@ -275,8 +275,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 	--btn-info-hover: color-mix(in oklch, var(--btn-info-bg), white 10%);
 	--btn-warning-bg: oklch(70% 0.18 80); 
 	--btn-warning-hover: color-mix(in oklch, var(--btn-warning-bg), white 10%);
-	--color-accent: oklch(55% 0.18 240);
-
+	--sunset-bg: oklch(40% var(--base-chroma) var(--base-hue) / 90%);
+	--color-accent: oklch(55% 0.3 240);
+        --ocean-bg:     oklch(45% 0.3 calc(var(--base-hue) + 220));
+        --forest-bg:    oklch(40% 0.3 calc(var(--base-hue) + 140));
+        --rose-bg:      oklch(45% 0.3 calc(var(--base-hue) + 350));
+        --lavender-bg:  oklch(43% 0.3 calc(var(--base-hue) + 270));
+        --sand-bg:      oklch(42% 0.3 calc(var(--base-hue) + 60));
 }
 
 [data-theme="light"] {
@@ -292,7 +297,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 	--card-bg: oklch(96% var(--base-chroma) var(--base-hue));
 	--header-bg: oklch(88% var(--base-chroma) var(--base-hue));
 	--border-color: oklch(85% var(--base-chroma) var(--base-hue));
-	--btn-primary-bg: oklch(45% 0.15 var(--base-hue));
+	--btn-primary-bg: oklch(55% 0.3 var(--base-hue));
         --btn-success-bg: oklch(70% 0.2 240); 
 	--nav-btn-color: oklch(70% 0.2 calc(var(--base-hue) + 60));
 	--playlist-text: oklch(25% 0 0);
@@ -306,11 +311,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 	--file-list-border: oklch(85% var(--base-chroma) var(--base-hue) / 0.6);
 	--danger-color: oklch(50% 0.3 var(--danger-base));
 	--danger-hover: oklch(40% 0.35 var(--danger-base));
-	--btn-info-bg: oklch(65% 0.18 220);
+	--btn-info-bg: oklch(55% 0.3 220);
 	--btn-info-hover: color-mix(in oklch, var(--btn-info-bg), black 10%);
-	--btn-warning-bg: oklch(85% 0.22 80);
+	--btn-warning-bg: oklch(55% 0.22 80);
 	--btn-warning-hover: color-mix(in oklch, var(--btn-warning-bg), black 15%);
-	--color-accent: oklch(75% 0.14 220);
+	--sunset-bg: oklch(50% var(--base-chroma) var(--base-hue) / 90%);
+	--color-accent: oklch(55% 0.3 220);
+        --forest-bg:   oklch(50% 0.3 calc(var(--base-hue) + 140));
+        --rose-bg:     oklch(50% 0.3 calc(var(--base-hue) + 350));
+        --lavender-bg: oklch(50% 0.3 calc(var(--base-hue) + 270));
+        --sand-bg:     oklch(50% 0.3 calc(var(--base-hue) + 60));
 }
 
 @font-face {
@@ -514,8 +524,8 @@ h2 {
 }
 
 #toggleButton {
-        background-color: var(--btn-success-bg);
-        color: var(--text-primary);
+        background-color: var(--sand-bg);
+
 }
 
 .modal-content {
@@ -2136,15 +2146,23 @@ body:hover,
     <script>
         document.getElementById("updatePhpConfig").addEventListener("click", function() {
             const confirmText = translations['confirm_update_php'] || "Are you sure you want to update PHP configuration?";
-            speakMessage(translations['confirm_update_php'] || 'Are you sure you want to update PHP configuration?');
+            speakMessage(confirmText);
             showConfirmation(confirmText, () => {
                 fetch("update_php_config.php", {
                     method: "POST",
                     headers: { "Content-Type": "application/json" }
                 })
                 .then(response => response.json())
-                .then(data => alert(data.message))
-                .catch(error => alert(translations['request_failed'] || "Request failed: " + error.message));
+                .then(data => {
+                    const msg = data.message || "Configuration updated successfully.";
+                    showLogMessage(msg);
+                    speakMessage(msg);
+                })
+                .catch(error => {
+                    const errMsg = translations['request_failed'] || ("Request failed: " + error.message);
+                    showLogMessage(errMsg);
+                    speakMessage(errMsg);
+                });
             });
         });
     </script>
@@ -3897,6 +3915,78 @@ body {
     }
 }
 
+.log-box {
+    position: fixed;
+    left: 20px;
+    padding: 12px 16px;
+    background: var(--sand-bg);
+    color: white;
+    border-radius: 8px;
+    z-index: 9999;
+    max-width: 320px;
+    font-size: 15px;
+    word-wrap: break-word;
+    line-height: 1.5;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.15);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(2px);
+    transform: translateY(0);
+    opacity: 0;
+    animation: scrollUp 12s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+    display: inline-block;
+    margin-bottom: 10px;
+}
+
+@keyframes scrollUp {
+    0% {
+        top: 90%;
+        opacity: 0;
+    }
+    20% {
+        opacity: 1;
+    }
+    80% {
+        top: 50%;
+        opacity: 1;
+    }
+    100% {
+        top: 45%;
+        opacity: 0;
+    }
+}
+
+.log-box.error {
+    --accent-color: linear-gradient(145deg, #ff4444, #cc0000);
+}
+.log-box.warning {
+    --accent-color: linear-gradient(145deg, #ffc107, #ffab00);
+    color: #333;
+}
+.log-box.info {
+    --accent-color: linear-gradient(145deg, #2196F3, #1976D2);
+}
+
+.log-box::before {
+    content: '';
+    display: inline-block;
+    width: 18px;
+    height: 18px;
+    margin-right: 10px;
+    vertical-align: middle;
+    background: url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0iI2ZmZiI+PHBhdGggZD0iTTEyIDJDNi40OCAyIDIgNi40OCAyIDEyczQuNDggMTAgMTAgMTAgMTAtNC40OCAxMC0xMFMxNy41MiAyIDEyIDJ6bTEgMTVoLTJ2LTZoMnY2em0wLThoLTJWN2gydjJ6Ii8+PC9zdmc+') no-repeat center;
+    background-size: contain;
+}
+
+@media (max-width: 768px) {
+    .log-box {
+        left: 10px;
+        right: 10px;
+        max-width: none;
+        font-size: 14px;
+    }
+}
+
 .list-group-item {
     cursor: pointer;
     color: var(--text-primary);
@@ -3987,47 +4077,36 @@ let isHovering = false;
 let isManualScroll = false;
 let isSmallScreen = window.innerWidth < 768;
 
-const logBox = document.createElement('div');
-logBox.style.position = 'fixed';
-logBox.style.top = '90%';
-logBox.style.left = '20px';
-logBox.style.padding = '10px';
-logBox.style.backgroundColor = 'green';
-logBox.style.color = 'white';
-logBox.style.borderRadius = '5px';
-logBox.style.zIndex = '9999';
-logBox.style.maxWidth = '250px';
-logBox.style.fontSize = '14px';
-logBox.style.display = 'none';
-logBox.style.maxWidth = '300px';
-logBox.style.wordWrap = 'break-word';
-document.body.appendChild(logBox);
-
-function showLogMessage(message) {
+function showLogMessage(message, type = '') {
     const decodedMessage = decodeURIComponent(message);
+    const logBox = document.createElement('div');
+    logBox.className = 'log-box';
+
+    const bgColors = [
+        'var(--ocean-bg)',
+        'var(--forest-bg)',
+        'var(--color-accent)', 
+        'var(--rose-bg)',
+        'var(--lavender-bg)',
+        'var(--sand-bg)'      
+    ];
+
+    const randomBg = bgColors[Math.floor(Math.random() * bgColors.length)];
+
+    logBox.style.background = randomBg;
+
+    if (type) logBox.classList.add(type);
     logBox.textContent = decodedMessage;
-    logBox.style.display = 'block';
-    logBox.style.animation = 'scrollUp 8s ease-out forwards';
-    logBox.style.width = 'auto';
-    logBox.style.maxWidth = '300px';
+
+    document.body.appendChild(logBox);
+    requestAnimationFrame(() => {
+        logBox.classList.add('active');
+    });
 
     setTimeout(() => {
-        logBox.style.display = 'none';
-    }, 9999);
+        logBox.remove();
+    }, 12000);
 }
-
-const styleSheet = document.createElement('style');
-styleSheet.innerHTML = `
-    @keyframes scrollUp {
-        0% {
-            top: 90%;
-        }
-        100% {
-            top: 50%;
-        }
-    }
-`;
-document.head.appendChild(styleSheet);
 
 function speakMessage(message) {
     const utterance = new SpeechSynthesisUtterance(message);
