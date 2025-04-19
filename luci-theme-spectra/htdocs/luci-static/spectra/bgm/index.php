@@ -1647,13 +1647,13 @@ body:hover,
 <div id="floatingLyrics">
     <div class="floating-controls">
         <button class="ctrl-btn" onclick="changeTrack(-1, true)" data-translate-title="previous_track">
-            <i class="bi bi-skip-backward-fill"></i>
+            <i class="fas fa-backward"></i>
         </button>
         <button class="ctrl-btn" id="floatingPlayBtn" onclick="togglePlay()"  data-translate-title="play_pause">
             <i class="bi bi-play-fill"></i>
         </button>
         <button class="ctrl-btn" onclick="changeTrack(1, true)" data-translate-title="next_track">
-            <i class="bi bi-skip-forward-fill"></i>
+            <i class="fas fa-forward"></i>
         </button>
         <button class="ctrl-btn" id="floatingRepeatBtn" onclick="toggleRepeat()">
             <i class="bi bi-arrow-repeat"></i>
