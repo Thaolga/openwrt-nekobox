@@ -348,7 +348,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 }
 
 body {
-        background: var(--body-bg-color, #ffecff);
+        background: var(--body-bg-color, #f0ffff);
         color: var(--text-primary);
         -webkit-backdrop-filter: blur(10px);
         transition: all 0.3s ease;
@@ -659,6 +659,10 @@ label[for="selectAll"] {
 
 .card-body.pt-2.mt-2 .d-flex .btn {
         margin: 0 5px; 
+}
+
+.d-flex {
+    white-space: nowrap;
 }
 
 #playlistContainer .list-group-item {
@@ -1333,8 +1337,8 @@ body:hover,
         <div class="d-flex align-items-center mb-3 ps-2" id="selectAll-container">
             <input type="checkbox" id="selectAll" class="form-check-input me-2 shadow-sm" style="width: 1.05em; height: 1.05em; border-radius: 0.35em; margin-left: 1px; transform: scale(1.2)">
             <label for="selectAll" class="form-check-label fs-5 ms-1" style="margin-right: 10px;" data-translate="select_all">Select All'</label>
-            <input type="color" id="colorPicker" style="margin-right: 10px;" value="#ff6600" data-translate-title="component_bg_color"/>
-            <input type="color" id="bodyBgColorPicker"  style="margin-right: 10px; value="#ffecff" data-translate-title="page_bg_color" />
+            <input type="color" id="colorPicker" style="margin-right: 10px;" value="#333333" data-translate-title="component_bg_color"/>
+            <input type="color" id="bodyBgColorPicker"  style="margin-right: 10px; value="#f0ffff" data-translate-title="page_bg_color" />
             <button id="fontToggleBtn" style="border: 1px solid var(--accent-color); border-radius: 4px; width: 50px; display: flex; align-items: center; background-color: var(--accent-color); justify-content: center;" data-translate-title="toggle_font">🅰️</button>
         <div class="ms-auto" style="margin-right: 20px;">
             <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#langModal">
@@ -3004,7 +3008,7 @@ document.getElementById('nextBtn').addEventListener('click', () => {
 
     localStorage.setItem("theme", theme);
     const bodyBgKey = `${theme}BodyBgColor`;
-    const defaultBg = theme === "dark" ? "#1C4792" : "#ffecff";
+    const defaultBg = theme === "dark" ? "#333333" : "#f0ffff";
     document.body.style.background = localStorage.getItem(bodyBgKey) || defaultBg;
     
     document.getElementById("bodyBgColorPicker").value = document.body.style.background;
@@ -3021,8 +3025,8 @@ document.getElementById('nextBtn').addEventListener('click', () => {
     document.documentElement.setAttribute("data-theme", savedTheme);
     const hueKey = `${savedTheme}BaseHue`;
     const chromaKey = `${savedTheme}BaseChroma`;
-    const defaultHue = savedTheme === "dark" ? 260 : 332.5;
-    const defaultChroma = savedTheme === "dark" ? 0.03 : 0.045;
+    const defaultHue = savedTheme === "dark" ? 260 : 0;
+    const defaultChroma = savedTheme === "dark" ? 0.03 : 0;
 
     const savedHueValue = localStorage.getItem(hueKey) || defaultHue;
     const savedChromaValue = localStorage.getItem(chromaKey) || defaultChroma;
@@ -3082,7 +3086,7 @@ function setBackground(filename) {
 document.addEventListener("DOMContentLoaded", () => {
     const theme = localStorage.getItem("theme") || "dark";
     const bodyBgKey = `${theme}BodyBgColor`;
-    const defaultBg = theme === "dark" ? "#1C4792" : "#ffecff"; 
+    const defaultBg = theme === "dark" ? "#333333": "#f0ffff"; 
     document.body.style.background = localStorage.getItem(bodyBgKey) || defaultBg;
 
     const bodyBgPicker = document.getElementById("bodyBgColorPicker");
@@ -3640,7 +3644,7 @@ body {
 }
 
 .playlist-item.active {
-    background: var(--color-accent);
+    background: var(--rose-bg);
     color: white;
     font-weight: bold;
 }
@@ -3936,6 +3940,7 @@ body {
     animation: scrollUp 12s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
     display: inline-block;
     margin-bottom: 10px;
+    transition: transform 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
 }
 
 @keyframes scrollUp {
@@ -3956,27 +3961,57 @@ body {
     }
 }
 
-.log-box.error {
-    --accent-color: linear-gradient(145deg, #ff4444, #cc0000);
-}
-.log-box.warning {
-    --accent-color: linear-gradient(145deg, #ffc107, #ffab00);
-    color: #333;
-}
-.log-box.info {
-    --accent-color: linear-gradient(145deg, #2196F3, #1976D2);
+.log-box.exiting {
+    animation: fadeOut 0.3s forwards;
 }
 
-.log-box::before {
-    content: '';
-    display: inline-block;
-    width: 18px;
-    height: 18px;
-    margin-right: 10px;
-    vertical-align: middle;
-    background: url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0iI2ZmZiI+PHBhdGggZD0iTTEyIDJDNi40OCAyIDIgNi40OCAyIDEyczQuNDggMTAgMTAgMTAgMTAtNC40OCAxMC0xMFMxNy41MiAyIDEyIDJ6bTEgMTVoLTJ2LTZoMnY2em0wLThoLTJWN2gydjJ6Ii8+PC9zdmc+') no-repeat center;
-    background-size: contain;
+.log-content {
+    padding: 6px 20px 6px 8px;
+    color: white;
 }
+
+.close-btn {
+    position: absolute;
+    top: 6px;
+    right: 10px;
+    background: transparent;
+    border: none;
+    color: inherit;
+    cursor: pointer;
+    font-size: 20px;
+    line-height: 1;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s;
+}
+
+.log-box:hover .close-btn {
+    opacity: 0.7;
+    pointer-events: auto;
+}
+
+.log-box:hover .close-btn:hover {
+    opacity: 1;
+}
+
+@keyframes fadeOut {
+    to { 
+        opacity: 0;
+        transform: translateY(-20px) scale(0.95);
+    }
+}
+
+.log-icon {
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    margin-right: 3px;
+    vertical-align: middle;
+}
+
+.log-box.error { background: linear-gradient(145deg, #ff4444, #cc0000); }
+.log-box.warning { background: linear-gradient(145deg, #ffc107, #ffab00); }
+.log-box.info { background: linear-gradient(145deg, #2196F3, #1976D2); }
 
 @media (max-width: 768px) {
     .log-box {
@@ -4077,36 +4112,84 @@ let isHovering = false;
 let isManualScroll = false;
 let isSmallScreen = window.innerWidth < 768;
 
-function showLogMessage(message, type = '') {
-    const decodedMessage = decodeURIComponent(message);
-    const logBox = document.createElement('div');
-    logBox.className = 'log-box';
-
+const showLogMessage = (function() {
     const bgColors = [
         'var(--ocean-bg)',
         'var(--forest-bg)',
-        'var(--color-accent)', 
-        'var(--rose-bg)',
         'var(--lavender-bg)',
-        'var(--sand-bg)'      
+        'var(--sand-bg)'
     ];
+    
+    let currentIndex = 0;
+    const activeLogs = new Set();
+    const BASE_OFFSET = 20;
+    const MARGIN = 10;
 
-    const randomBg = bgColors[Math.floor(Math.random() * bgColors.length)];
+    function createIcon(type) {
+        const icons = {
+            error: 'M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z',
+            warning: 'M1 21h22L12 2 1 21zm12-3h-2v-2h2v2zm0-4h-2v-4h2v4z',
+            info: 'M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z'
+        };
+    
+        const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path fill="#fff" d="${icons[type] || icons.info}"/></svg>`;
+    
+        return `data:image/svg+xml;base64,${btoa(svg)}`;
+    }
 
-    logBox.style.background = randomBg;
+    function updatePositions() {
+        let verticalPos = BASE_OFFSET;
+        activeLogs.forEach(log => {
+            log.style.transform = `translateY(${verticalPos}px)`;
+            verticalPos += log.offsetHeight + MARGIN;
+        });
+    }
 
-    if (type) logBox.classList.add(type);
-    logBox.textContent = decodedMessage;
+    return function(message, type = '') {
+        const logBox = document.createElement('div');
+        logBox.className = `log-box ${type}`;
+        
+        if (!type) {
+            logBox.style.background = bgColors[currentIndex];
+            currentIndex = (currentIndex + 1) % bgColors.length;
+        }
 
-    document.body.appendChild(logBox);
-    requestAnimationFrame(() => {
-        logBox.classList.add('active');
-    });
+        logBox.innerHTML = `
+            <div class="log-content">
+                <span class="log-icon" style="background-image:url('${createIcon(type)}')"></span>
+                ${decodeURIComponent(message)}
+                <button class="close-btn">&times;</button>
+            </div>
+        `;
 
-    setTimeout(() => {
-        logBox.remove();
-    }, 12000);
-}
+        logBox.querySelector('.close-btn').onclick = () => {
+            logBox.classList.add('exiting');
+            setTimeout(() => logBox.remove(), 300);
+        };
+
+        logBox.addEventListener('mouseenter', () => 
+            logBox.style.animationPlayState = 'paused');
+        logBox.addEventListener('mouseleave', () => 
+            logBox.style.animationPlayState = 'running');
+
+        document.body.appendChild(logBox);
+        activeLogs.add(logBox);
+        
+        requestAnimationFrame(() => {
+            logBox.classList.add('active');
+            updatePositions();
+        });
+
+        setTimeout(() => {
+            logBox.classList.add('exiting');
+            setTimeout(() => {
+                logBox.remove();
+                activeLogs.delete(logBox);
+                updatePositions();
+            }, 300);
+        }, 12000);
+    };
+})();
 
 function speakMessage(message) {
     const utterance = new SpeechSynthesisUtterance(message);
@@ -4228,9 +4311,9 @@ function updatePlaylistUI() {
 
 function playTrack(index) {
     const songName = decodeURIComponent(songs[index].split('/').pop().replace(/\.\w+$/, ''));
-    showLogMessage(
-        `${translations['playlist_click'] || 'Playlist Click'}：${translations['index'] || 'Index'}：${index + 1}，${translations['song_name'] || 'Song Name'}：${songName}`
-    );
+    const message = `${translations['playlist_click'] || 'Playlist Click'}：${translations['index'] || 'Index'}：${index + 1}，${translations['song_name'] || 'Song Name'}：${songName}`;
+    showLogMessage(message);
+    speakMessage(message);
     currentTrackIndex = index;
     loadTrack(songs[index]);
 }
@@ -7725,4 +7808,3 @@ document.addEventListener("DOMContentLoaded", function () {
     };
 });
 </script>
-
