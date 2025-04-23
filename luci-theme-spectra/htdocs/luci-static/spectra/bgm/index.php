@@ -141,9 +141,9 @@ if (isset($_POST['batch_delete'])) {
 }
 
 $files = array_diff(scandir($upload_dir), ['..', '.', '.htaccess', 'index.php']);
-$files = array_filter($files, function ($file) {
+$files = array_filter($files, function ($file) use ($upload_dir) {
     $ext = pathinfo($file, PATHINFO_EXTENSION);
-    return !in_array(strtolower($ext), ['php', 'txt']); 
+    return !in_array(strtolower($ext), ['php', 'txt']) && basename($file) !== 'shares' && !is_dir($upload_dir . DIRECTORY_SEPARATOR . $file);
 });
 
 if (isset($_GET['background'])) {
@@ -1061,6 +1061,38 @@ body:hover,
 </style>
 
 <style>
+.custom-btn {
+    padding: 4px 8px;
+    font-size: 14px;
+    gap: 4px;
+}
+
+.custom-btn i {
+    font-size: 16px;
+}
+
+.d-flex .custom-btn {
+    margin: 0 4px;
+}
+
+.share-btn.custom-btn {
+    background-color: #ffc107;
+    color: #fff;
+    padding: 6px 8px;
+    font-size: 14px;
+}
+
+.share-btn.custom-btn i {
+    font-size: 16px;
+}
+
+.set-bg-btn.custom-btn {
+    background-color: #17a2b8;
+    color: #fff;
+    padding: 6px 8px;
+    font-size: 14px;
+}
+
 #previewModal .modal-body {
     height: 65vh;
     display: flex;
@@ -1272,6 +1304,12 @@ body:hover,
     }
   }
 
+@media (max-width: 576px) {
+  .share-btn.custom-btn,
+  #clear-cache-btn {
+    display: none !important;
+  }
+}
 </style>
 
 <div class="container-sm container-bg text-center mt-4">
@@ -1338,7 +1376,7 @@ body:hover,
             <input type="checkbox" id="selectAll" class="form-check-input me-2 shadow-sm" style="width: 1.05em; height: 1.05em; border-radius: 0.35em; margin-left: 1px; transform: scale(1.2)">
             <label for="selectAll" class="form-check-label fs-5 ms-1" style="margin-right: 10px;" data-translate="select_all">Select All'</label>
             <input type="color" id="colorPicker" style="margin-right: 10px;" value="#333333" data-translate-title="component_bg_color"/>
-            <input type="color" id="bodyBgColorPicker"  style="margin-right: 10px; value="#f0ffff" data-translate-title="page_bg_color" />
+            <input type="color" id="bodyBgColorPicker" value="#f0ffff" style="margin-right: 10px;" data-translate-title="page_bg_color" />
             <button id="fontToggleBtn" style="border: 1px solid var(--accent-color); border-radius: 4px; width: 50px; display: flex; align-items: center; background-color: var(--accent-color); justify-content: center;" data-translate-title="toggle_font">🅰️</button>
         <div class="ms-auto" style="margin-right: 20px;">
             <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#langModal">
@@ -1500,11 +1538,12 @@ body:hover,
                     <div class="card-body pt-2 mt-2">
                         <div class="d-flex flex-nowrap align-items-center justify-content-between gap-2">                         
                             <div class="d-flex flex-nowrap gap-1 flex-grow-1" style="min-width: 0;">
-                                <button class="btn btn-danger" onclick="handleDeleteConfirmation('<?= urlencode($file) ?>')" data-translate-title="delete"><i class="bi bi-trash"></i></button>
-                                <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#renameModal-<?= md5($file) ?>" data-translate-title="rename"><i class="bi bi-pencil"></i></button>
-                                <a href="?download=<?= urlencode($file) ?>" class="btn btn-success"><i class="bi bi-download" data-translate-title="download"></i></a>                     
+                                <button class="btn btn-danger custom-btn" onclick="handleDeleteConfirmation('<?= urlencode($file) ?>')" data-translate-title="delete"><i class="bi bi-trash"></i></button>
+                                <button class="btn btn-primary custom-btn" data-bs-toggle="modal" data-bs-target="#renameModal-<?= md5($file) ?>" data-translate-title="rename"><i class="bi bi-pencil"></i></button>
+                                <a href="?download=<?= urlencode($file) ?>" class="btn btn-success custom-btn"><i class="bi bi-download" data-translate-title="download"></i></a>   
+                                <button class="btn btn-warning share-btn custom-btn"data-filename="<?= htmlspecialchars($file) ?>"data-bs-toggle="modal"data-bs-target="#shareModal" data-translate-title="shareLinkLabel"><i class="bi bi-share"></i></button>
                                 <?php if ($isMedia): ?>
-                                <button class="btn btn-info set-bg-btn" 
+                                <button class="btn btn-info set-bg-btn custom-btn" 
                                         data-src="<?= htmlspecialchars($file) ?>"
                                         data-type="<?= $isVideo ? 'video' : ($isAudio ? 'audio' : 'image') ?>"
                                         onclick="setBackground('<?= htmlspecialchars($file) ?>')"
@@ -5380,6 +5419,35 @@ $langData = [
         'upload_error_move_failed'        => '文件上传失败：%s',
         'confirm_clear_background' => '确定要清除背景吗？',
         'background_cleared'      => '背景已清除！',
+        'createShareLink' => '创建分享链接',
+        'closeButton' => '关闭',
+        'expireTimeLabel' => '过期时间',
+        'expire1Hour' => '1 小时',
+        'expire1Day' => '1 天',
+        'expire7Days' => '7 天',
+        'expire30Days' => '30 天',
+        'maxDownloadsLabel' => '最大下载次数',
+        'max1Download' => '1 次',
+        'max5Downloads' => '5 次',
+        'max10Downloads' => '10 次',
+        'maxUnlimited' => '不限',
+        'shareLinkLabel' => '分享链接',
+        'copyLinkButton' => '复制链接',
+        'closeButtonFooter' => '关闭',
+        'generateLinkButton' => '生成链接',
+        'fileNotSelected' => '未选择文件',
+        'httpError' => 'HTTP 错误',
+        'linkGenerated' => '✅ 分享链接已生成',
+        'operationFailed' => '❌ 操作失败',
+        'generateLinkFirst' => '请先生成分享链接',
+        'linkCopied' => '📋 链接已复制',
+        'copyFailed' => '❌ 复制失败',
+        'cleanExpiredButton' => '清理过期',
+        'deleteAllButton' => '删除全部',
+        'cleanSuccess' => '✅ 清理完成，%s 项已删除',
+        'deleteSuccess' => '✅ 所有分享记录已删除，%s 个文件已移除',
+        'confirmDeleteAll' => '⚠️ 确定要删除所有分享记录吗？',
+        'operationFailed' => '❌ 操作失败',
         'selected_info' => '已选择 %d 个文件，合计 %s MB'
     ],
 
@@ -5562,6 +5630,35 @@ $langData = [
         'upload_error_move_failed'        => '文件上傳失敗：%s',
         'confirm_clear_background' => '確定要清除背景嗎？',
         'background_cleared'      => '背景已清除！',
+        'createShareLink' => '創建分享鏈接',
+        'closeButton' => '關閉',
+        'expireTimeLabel' => '過期時間',
+        'expire1Hour' => '1 小時',
+        'expire1Day' => '1 天',
+        'expire7Days' => '7 天',
+        'expire30Days' => '30 天',
+        'maxDownloadsLabel' => '最大下載次數',
+        'max1Download' => '1 次',
+        'max5Downloads' => '5 次',
+        'max10Downloads' => '10 次',
+        'maxUnlimited' => '不限',
+        'shareLinkLabel' => '分享鏈接',
+        'copyLinkButton' => '複製鏈接',
+        'closeButtonFooter' => '關閉',
+        'generateLinkButton' => '生成鏈接',
+        'fileNotSelected' => '未選擇文件',
+        'httpError' => 'HTTP 錯誤',
+        'linkGenerated' => '✅ 分享鏈接已生成',
+        'operationFailed' => '❌ 操作失敗',
+        'generateLinkFirst' => '請先生成分享鏈接',
+        'linkCopied' => '📋 鏈接已複製',
+        'copyFailed' => '❌ 複製失敗',
+        'cleanExpiredButton' => '清理過期',
+        'deleteAllButton' => '刪除全部',
+        'cleanSuccess' => '✅ 清理完成，%s 項已刪除',
+        'deleteSuccess' => '✅ 所有分享記錄已刪除，%s 個文件已移除',
+        'confirmDeleteAll' => '⚠️ 確定要刪除所有分享記錄嗎？',
+        'operationFailed' => '❌ 操作失敗',
         'selected_info' => '已選擇 %d 個文件，合計 %s MB'
     ],
 
@@ -5744,6 +5841,35 @@ $langData = [
         'upload_error_move_failed'        => '파일 업로드 실패: %s',
         'confirm_clear_background' => '배경을 지우시겠습니까?',
         'background_cleared'      => '배경이 지워졌습니다!',
+        'createShareLink' => '공유 링크 생성',
+        'closeButton' => '닫기',
+        'expireTimeLabel' => '만료 시간',
+        'expire1Hour' => '1 시간',
+        'expire1Day' => '1 일',
+        'expire7Days' => '7 일',
+        'expire30Days' => '30 일',
+        'maxDownloadsLabel' => '최대 다운로드 횟수',
+        'max1Download' => '1 회',
+        'max5Downloads' => '5 회',
+        'max10Downloads' => '10 회',
+        'maxUnlimited' => '무제한',
+        'shareLinkLabel' => '공유 링크',
+        'copyLinkButton' => '링크 복사',
+        'closeButtonFooter' => '닫기',
+        'generateLinkButton' => '링크 생성',
+        'fileNotSelected' => '파일을 선택하지 않았습니다',
+        'httpError' => 'HTTP 오류',
+        'linkGenerated' => '✅ 공유 링크 생성됨',
+        'operationFailed' => '❌ 작업 실패',
+        'generateLinkFirst' => '먼저 공유 링크를 생성하십시오',
+        'linkCopied' => '📋 링크 복사됨',
+        'copyFailed' => '❌ 복사 실패',
+        'cleanExpiredButton' => '만료 정리',
+        'deleteAllButton' => '모두 삭제',
+        'cleanSuccess' => '✅ 정리 완료, %s 항목이 삭제되었습니다',
+        'deleteSuccess' => '✅ 모든 공유 기록이 삭제되었습니다, %s 개의 파일이 제거되었습니다',
+        'confirmDeleteAll' => '⚠️ 모든 공유 기록을 삭제하시겠습니까?',
+        'operationFailed' => '❌ 작업 실패',
         'selected_info' => '선택된 파일: %d개, 총합: %s MB'
     ],
 
@@ -5754,107 +5880,109 @@ $langData = [
         'english'                => '英語',
         'korean'                 => '韓国語',
         'vietnamese'             => 'ベトナム語',
-        'thailand'              => 'タイ語',
+        'thailand'               => 'タイ語',
         'japanese'               => '日本語',
         'russian'                => 'ロシア語',
         'germany'                => 'ドイツ語',
         'france'                 => 'フランス語',
         'arabic'                 => 'アラビア語',
         'spanish'                => 'スペイン語',
-        'bangladesh' => 'ベンガル語',
+        'bangladesh'             => 'ベンガル語',
         'close'                  => '閉じる',
         'save'                   => '保存',
-        'theme_download'         => 'テーマをダウンロード',
+        'theme_download'         => 'テーマのダウンロード',
         'select_all'             => 'すべて選択',
-        'batch_delete'           => '選択したファイルを一括削除',
+        'batch_delete'           => '一括削除',
+        'batch_delete_success'   => '✅ 一括削除成功',
+        'batch_delete_failed'    => '❌ 一括削除失敗',
+        'confirm_delete'         => '削除しますか？',
         'total'                  => '合計：',
-        'free'                   => '残り：',
-        'hover_to_preview'       => 'クリックしてプレビューを有効化',
-        'mount_info'             => 'マウントポイント：{{mount}}｜使用済み容量：{{used}}',
-        'spectra_config'         => 'Spectra 設定管理',
+        'free'                   => '空き容量：',
+        'hover_to_preview'       => 'ホバーでプレビュー（クリックで有効化）',
+        'spectra_config'         => 'Spectra設定管理',
         'current_mode'           => '現在のモード：読み込み中...',
-        'toggle_mode'            => 'モード切り替え',
-        'check_update'           => '更新を確認',
-        'batch_upload'           => 'ファイルを選択して一括アップロード',
-        'add_to_playlist'        => 'チェックを入れてプレイリストに追加',
+        'toggle_mode'            => 'モード切替',
+        'check_update'           => 'アップデート確認',
+        'batch_upload'           => '一括アップロード',
+        'add_to_playlist'        => 'プレイリストに追加',
         'clear_background'       => '背景をクリア',
-        'clear_background_label' => '背景をクリア',
-        'file_list'              => 'ファイルリスト',
-        'component_bg_color'     => 'コンポーネント背景色を選択',
-        'page_bg_color'          => 'ページ背景色を選択',
-        'toggle_font'            => 'フォント切り替え',
-        'filename'               => '名前：',
+        'clear_background_label' => '背景クリア',
+        'file_list'              => 'ファイル一覧',
+        'component_bg_color'     => 'コンポーネント背景色',
+        'page_bg_color'          => 'ページ背景色',
+        'toggle_font'            => 'フォント切替',
+        'filename'               => 'ファイル名：',
         'filesize'               => 'サイズ：',
         'duration'               => '再生時間：',
         'resolution'             => '解像度：',
         'bitrate'                => 'ビットレート：',
         'type'                   => 'タイプ：',
         'image'                  => '画像',
-        'video'                  => 'ビデオ',
-        'audio'                  => 'オーディオ',
+        'video'                  => '動画',
+        'audio'                  => '音声',
         'document'               => 'ドキュメント',
         'delete'                 => '削除',
-        'rename'                 => '名前を変更',
+        'rename'                 => '名前変更',
         'download'               => 'ダウンロード',
-        'set_background'         => '背景を設定',
+        'set_background'         => '背景設定',
         'preview'                => 'プレビュー',
-        'toggle_fullscreen'      => '全画面切り替え',
-        'supported_formats'      => '対応形式：[ jpg, jpeg, png, gif, webp, mp4, webm, mkv, mp3, wav, flac ]',
-        'drop_files_here'        => 'ここにファイルをドロップ',
+        'toggle_fullscreen'      => '全画面切替',
+        'supported_formats'      => '対応フォーマット：[ jpg, jpeg, png, gif, webp, mp4, webm, mkv, mp3, wav, flac ]',
+        'drop_files_here'        => 'ファイルをドラッグ＆ドロップ',
         'or'                     => 'または',
         'select_files'           => 'ファイルを選択',
-        'unlock_php_upload_limit'=> 'PHPのアップロード制限を解除',
+        'unlock_php_upload_limit'=> 'PHPアップロード制限解除',
         'upload'                 => 'アップロード',
         'cancel'                 => 'キャンセル',
-        'rename_file'            => 'ファイル名を変更',
+        'rename_file'            => 'ファイル名変更',
         'new_filename'           => '新しいファイル名',
-        'invalid_filename_chars' => 'ファイル名に次の文字を含めることはできません：\\/：*?"<>|',
+        'invalid_filename_chars' => '使用不可文字：\\/:*?"<>|',
         'confirm'                => '確認',
         'media_player'           => 'メディアプレイヤー',
         'playlist'               => 'プレイリスト',
-        'clear_list'             => 'リストをクリア',
-        'toggle_list'            => 'リストを非表示',
-        'picture_in_picture'     => 'ピクチャ・イン・ピクチャ',
-        'fullscreen'             => '全画面',
-        'music_player'           => '音楽プレイヤー',
+        'clear_list'             => 'リストクリア',
+        'toggle_list'            => 'リスト非表示',
+        'picture_in_picture'     => 'ピクチャーインピクチャー',
+        'fullscreen'             => '全画面表示',
+        'music_player'           => 'ミュージックプレイヤー',
         'play_pause'             => '再生/一時停止',
-        'previous_track'         => '前のトラック',
-        'next_track'             => '次のトラック',
+        'previous_track'         => '前の曲',
+        'next_track'             => '次の曲',
         'repeat_mode'            => 'リピート再生',
         'toggle_floating_lyrics' => 'フローティング歌詞',
-        'clear_config'           => '設定をクリア',
+        'clear_config'           => '設定クリア',
         'custom_playlist'        => 'カスタムプレイリスト',
         'volume'                 => '音量',
-        'update_playlist'        => 'プレイリストを更新',
+        'update_playlist'        => 'プレイリスト更新',
         'playlist_url'           => 'プレイリストURL',
-        'reset_default'          => 'デフォルトにリセット',
-        'toggle_lyrics'          => '歌詞を非表示',
-        'fetching_version'       => 'バージョン情報を取得中...',
-        'download_local'         => 'ローカルにダウンロード',
-        'change_language'        => '言語を変更',
-        'pause_playing'          => '再生を一時停止',
-        'start_playing'          => '再生を開始',
-        'manual_switch'          => '手動切り替え',
-        'auto_switch'            => '自動切り替え',
-        'switch_to'              => '切り替え：',
+        'reset_default'          => 'デフォルトに戻す',
+        'toggle_lyrics'          => '歌詞非表示',
+        'fetching_version'       => 'バージョン確認中...',
+        'download_local'         => 'ローカルに保存',
+        'change_language'        => '言語変更',
+        'pause_playing'          => '再生停止',
+        'start_playing'          => '再生開始',
+        'manual_switch'          => '手動切替',
+        'auto_switch'            => '自動切替：',
+        'switch_to'              => '切り替え先：',
         'auto_play'              => '自動再生',
-        'lyrics_load_failed'     => '歌詞の読み込みに失敗しました',
-        'order_play'             => '順番再生',
-        'single_loop'            => '単一ループ',
+        'lyrics_load_failed'     => '歌詞読み込み失敗',
+        'order_play'             => '順次再生',
+        'single_loop'            => '一曲リピート',
         'shuffle_play'           => 'シャッフル再生',
         'playlist_click'         => 'プレイリストクリック',
-        'index'                  => 'インデックス',
+        'index'                  => '番号',
         'song_name'              => '曲名',
-        'no_lyrics'              => '歌詞がありません',
-        'loading_lyrics'         => '歌詞を読み込み中...',
+        'no_lyrics'              => '歌詞なし',
+        'loading_lyrics'         => '歌詞読み込み中...',
         'autoplay_blocked'       => '自動再生がブロックされました',
-        'cache_cleared'               => '設定がクリアされました',
+        'cache_cleared'               => '設定をクリアしました',
         'open_custom_playlist'        => 'カスタムプレイリストを開く',
-        'reset_default_playlist'      => 'デフォルトのプレイリストリンクに戻りました',
-        'reset_default_error'         => 'デフォルトリンク復元中にエラーが発生しました',
-        'reset_default_failed'        => 'デフォルトリンクの復元に失敗しました',
-        'playlist_load_failed'        => 'プレイリストの読み込みに失敗しました',
-        'playlist_load_failed_message'=> 'プレイリストの読み込みに失敗しました',
+        'reset_default_playlist'      => 'デフォルトプレイリストを復元',
+        'reset_default_error'         => 'リセットエラーが発生しました',
+        'reset_default_failed'        => 'リセットに失敗しました',
+        'playlist_load_failed'        => 'プレイリストの読み込み失敗',
+        'playlist_load_failed_message'=> 'プレイリスト読み込みに失敗しました',
         'hour_announcement'      => '時報、現在の時間は',
         'hour_exact'             => '時ちょうど',
         'weekDays' =>  ['日曜日', '月曜日', '火曜日', '水曜日', '木曜日', '金曜日', '土曜日'],
@@ -5880,91 +6008,119 @@ $langData = [
         'initial' => '初',  
         'middle' => '正',   
         'final' =>'末',  
-        'clear_confirm' => '設定を削除してもよろしいですか？',
-        'back_to_first' => 'プレイリストの最初の曲に戻りました',
-        'error_loading_time' => '時間表示エラー',
-        'switch_to_light_mode' => 'ライトモードに切り替え',
-        'switch_to_dark_mode' => 'ダークモードに切り替え',
-        'current_mode_dark' => '現在のモード：ダークモード',
-        'current_mode_light' => '現在のモード：ライトモード',
-        'fetching_version' => 'バージョン情報を取得中...',
+        'clear_confirm' =>'設定をリセットしますか？', 
+        'back_to_first' => 'プレイリストの先頭に戻りました',
+        'font_default' => '丸ゴシック体に変更',
+        'font_fredoka' => 'デフォルトフォントに戻す',
+        'font_mono'   => '手書き風フォントに変更',
+        'font_noto'     => '漢字書体に変更',
+        'error_loading_time' => '時刻表示エラー',
+        'switch_to_light_mode' => 'ライトモードへ',
+        'switch_to_dark_mode' => 'ダークモードへ',
+        'current_mode_dark' => '現在のモード：ダーク',
+        'current_mode_light' => '現在のモード：ライト',
+        'fetching_version' => 'バージョン確認中...',
         'latest_version' => '最新バージョン',
-        'unable_to_fetch_version' => '最新バージョン情報を取得できません',
-        'request_failed' => 'リクエストに失敗しました。後でもう一度試してください',
-        'pip_not_supported' => '現在のメディアはピクチャ・イン・ピクチャをサポートしていません',
-        'pip_operation_failed' => 'ピクチャ・イン・ピクチャ操作に失敗しました',
-        'exit_picture_in_picture' => 'ピクチャ・イン・ピクチャを終了',
-        'picture_in_picture' => 'ピクチャ・イン・ピクチャ',
-        'hide_playlist' => 'リストを非表示',
-        'show_playlist' => 'リストを表示',
-        'enter_fullscreen' => '全画面に切り替え',
-        'exit_fullscreen' => '全画面を終了',
+        'unable_to_fetch_version' => '最新バージョン取得失敗',
+        'request_failed' => 'リクエスト失敗、後ほど再試行してください',
+        'pip_not_supported' => 'ピクチャーインピクチャー非対応',
+        'pip_operation_failed' => 'ピクチャーインピクチャー操作失敗',
+        'exit_picture_in_picture' => 'ピクチャーインピクチャー終了',
+        'picture_in_picture' => 'ピクチャーインピクチャー',
+        'hide_playlist' => 'リスト非表示',
+        'show_playlist' => 'リスト表示',
+        'enter_fullscreen' => '全画面開始',
+        'exit_fullscreen' => '全画面終了',
         'confirm_update_php' => 'PHP設定を更新しますか？',
         'select_files_to_delete' => '削除するファイルを選択してください！',
-        'confirm_batch_delete' => '選択された%d個のファイルを削除しますか？',
-        'font_default' => '丸みのあるフォントに切り替えました',
-        'font_fredoka' => 'デフォルトフォントに切り替えました',
-        'font_mono'    => '手書き風フォントに切り替えました',
-        'font_noto'    => '中国語セリフ体フォントに切り替えました',
-        'batch_delete_success' => '✅ 一括削除成功',
-        'batch_delete_failed' => '❌ 一括削除失敗',
-        'confirm_delete' => '削除してもよろしいですか？',
-        'unable_to_fetch_current_version' => '現在のバージョン情報を取得しています...',
+        'confirm_batch_delete' => '%d個のファイルを削除しますか？',
+        'unable_to_fetch_current_version' => '現在のバージョン確認中...',
         'current_version' => '現在のバージョン',
         'copy_command'     => 'コマンドをコピー',
-        'command_copied'   => 'コマンドがクリップボードにコピーされました！',
+        'command_copied'   => 'コマンドをコピーしました！',
         "updateModalLabel" => "更新ステータス",
-        "updateDescription" => "更新プロセスが間もなく開始されます。",
-        "waitingMessage" => "操作が開始されるのを待っています...",
-        "update_plugin" => "プラグインを更新する",
+        "updateDescription" => "更新プロセスを開始します",
+        "waitingMessage" => "処理開始待機中...",
+        "update_plugin" => "プラグイン更新",
         "installation_complete" => "インストール完了！",
-        'confirm_title'         => '操作の確認',
-        'confirm_delete_file'   => 'ファイル %s を削除してもよろしいですか？',
+        'confirm_title'             => '操作確認',
+        'confirm_delete_file'   => 'ファイル「%s」を削除しますか？',
         'delete_success'      => '削除成功：%s',
         'delete_failure'      => '削除失敗：%s',
-        'upload_error_type_not_supported' => 'サポートされていないファイルタイプ: %s',
-        'upload_error_move_failed'        => 'アップロード失敗: %s',
+        'upload_error_type_not_supported' => '非対応フォーマット：%s',
+        'upload_error_move_failed'        => 'アップロード失敗：%s',
         'confirm_clear_background' => '背景をクリアしますか？',
         'background_cleared'      => '背景をクリアしました！',
-        'selected_info' => '選択されたファイル：%d個、合計：%s MB'
+        'createShareLink' => 'シェアリンクを作成',
+        'closeButton' => '閉じる',
+        'expireTimeLabel' => '有効期限',
+        'expire1Hour' => '1 時間',
+        'expire1Day' => '1 日',
+        'expire7Days' => '7 日',
+        'expire30Days' => '30 日',
+        'maxDownloadsLabel' => '最大ダウンロード回数',
+        'max1Download' => '1 回',
+        'max5Downloads' => '5 回',
+        'max10Downloads' => '10 回',
+        'maxUnlimited' => '無制限',
+        'shareLinkLabel' => 'シェアリンク',
+        'copyLinkButton' => 'リンクをコピー',
+        'closeButtonFooter' => '閉じる',
+        'generateLinkButton' => 'リンクを生成',
+        'fileNotSelected' => 'ファイルが選択されていません',
+        'httpError' => 'HTTP エラー',
+        'linkGenerated' => '✅ シェアリンクが生成されました',
+        'operationFailed' => '❌ 操作失敗',
+        'generateLinkFirst' => '先にシェアリンクを生成してください',
+        'linkCopied' => '📋 リンクがコピーされました',
+        'copyFailed' => '❌ コピー失敗',
+        'cleanExpiredButton' => '期限切れを削除',
+        'deleteAllButton' => 'すべて削除',
+        'cleanSuccess' => '✅ クリーン完了, %s 件が削除されました',
+        'deleteSuccess' => '✅ すべての共有記録を削除しました, %s 個のファイルが削除されました',
+        'confirmDeleteAll' => '⚠️ すべての共有記録を削除してもよろしいですか？',
+        'operationFailed' => '❌ 操作に失敗しました',
+        'selected_info' => '%dファイル選択（%s MB）'
     ],
 
     'vi' => [
         'select_language'        => 'Chọn ngôn ngữ',
-        'simplified_chinese'     => 'Tiếng Trung giản thể',
-        'traditional_chinese'    => 'Tiếng Trung phồn thể',
+        'simplified_chinese'     => 'Tiếng Trung Giản thể',
+        'traditional_chinese'    => 'Tiếng Trung Phồn thể',
         'english'                => 'Tiếng Anh',
         'korean'                 => 'Tiếng Hàn',
-        'thailand'               => 'Thái',
         'vietnamese'             => 'Tiếng Việt',
+        'thailand'               => 'Tiếng Thái',
         'japanese'               => 'Tiếng Nhật',
         'russian'                => 'Tiếng Nga',
         'germany'                => 'Tiếng Đức',
         'france'                 => 'Tiếng Pháp',
         'arabic'                 => 'Tiếng Ả Rập',
         'spanish'                => 'Tiếng Tây Ban Nha',
-        'bangladesh' => 'Tiếng Bengal',
+        'bangladesh'             => 'Tiếng Bangladesh',
         'close'                  => 'Đóng',
         'save'                   => 'Lưu',
-        'theme_download'         => 'Tải xuống chủ đề',
+        'theme_download'         => 'Tải chủ đề',
         'select_all'             => 'Chọn tất cả',
-        'batch_delete'           => 'Xóa nhiều tệp đã chọn',
-        'total'                  => 'Tổng cộng:',
+        'batch_delete'           => 'Xóa hàng loạt',
+        'batch_delete_success'   => '✅ Xóa hàng loạt thành công',
+        'batch_delete_failed'    => '❌ Xóa hàng loạt thất bại',
+        'confirm_delete'         => 'Xác nhận xóa?',
+        'total'                  => 'Tổng:',
         'free'                   => 'Còn lại:',
-        'hover_to_preview'       => 'Nhấn để kích hoạt xem trước',
-        'mount_info'             => 'Điểm gắn kết: {{mount}}｜Dung lượng đã sử dụng: {{used}}',
+        'hover_to_preview'       => 'Nhấp để kích hoạt xem trước khi di chuột',
         'spectra_config'         => 'Quản lý cấu hình Spectra',
         'current_mode'           => 'Chế độ hiện tại: Đang tải...',
-        'toggle_mode'            => 'Chuyển đổi chế độ',
+        'toggle_mode'            => 'Chuyển chế độ',
         'check_update'           => 'Kiểm tra cập nhật',
         'batch_upload'           => 'Chọn tệp để tải lên hàng loạt',
         'add_to_playlist'        => 'Chọn để thêm vào danh sách phát',
         'clear_background'       => 'Xóa nền',
         'clear_background_label' => 'Xóa nền',
         'file_list'              => 'Danh sách tệp',
-        'component_bg_color'     => 'Chọn màu nền của thành phần',
+        'component_bg_color'     => 'Chọn màu nền thành phần',
         'page_bg_color'          => 'Chọn màu nền trang',
-        'toggle_font'            => 'Chuyển đổi phông chữ',
+        'toggle_font'            => 'Thay đổi phông chữ',
         'filename'               => 'Tên:',
         'filesize'               => 'Kích thước:',
         'duration'               => 'Thời lượng:',
@@ -5980,17 +6136,17 @@ $langData = [
         'download'               => 'Tải xuống',
         'set_background'         => 'Đặt nền',
         'preview'                => 'Xem trước',
-        'toggle_fullscreen'      => 'Chuyển đổi chế độ toàn màn hình',
-        'supported_formats'      => 'Định dạng được hỗ trợ: [ jpg, jpeg, png, gif, webp, mp4, webm, mkv, mp3, wav, flac ]',
+        'toggle_fullscreen'      => 'Chuyển toàn màn hình',
+        'supported_formats'      => 'Định dạng hỗ trợ: [ jpg, jpeg, png, gif, webp, mp4, webm, mkv, mp3, wav, flac ]',
         'drop_files_here'        => 'Kéo thả tệp vào đây',
         'or'                     => 'hoặc',
         'select_files'           => 'Chọn tệp',
-        'unlock_php_upload_limit'=> 'Mở khóa giới hạn tải lên của PHP',
+        'unlock_php_upload_limit'=> 'Mở khóa giới hạn tải lên PHP',
         'upload'                 => 'Tải lên',
         'cancel'                 => 'Hủy',
         'rename_file'            => 'Đổi tên tệp',
-        'new_filename'           => 'Tên tệp mới',
-        'invalid_filename_chars' => 'Tên tệp không được chứa các ký tự sau: \\/:*?"<>|',
+        'new_filename'           => 'Tên mới',
+        'invalid_filename_chars' => 'Tên tệp không được chứa: \\/:*?"<>|',
         'confirm'                => 'Xác nhận',
         'media_player'           => 'Trình phát đa phương tiện',
         'playlist'               => 'Danh sách phát',
@@ -5999,7 +6155,7 @@ $langData = [
         'picture_in_picture'     => 'Hình trong hình',
         'fullscreen'             => 'Toàn màn hình',
         'music_player'           => 'Trình phát nhạc',
-        'play_pause'             => 'Phát / Dừng',
+        'play_pause'             => 'Phát/Tạm dừng',
         'previous_track'         => 'Bài trước',
         'next_track'             => 'Bài tiếp theo',
         'repeat_mode'            => 'Phát lặp lại',
@@ -6008,36 +6164,36 @@ $langData = [
         'custom_playlist'        => 'Danh sách phát tùy chỉnh',
         'volume'                 => 'Âm lượng',
         'update_playlist'        => 'Cập nhật danh sách phát',
-        'playlist_url'           => 'URL danh sách phát',
-        'reset_default'          => 'Đặt lại mặc định',
-        'toggle_lyrics'          => 'Ẩn lời bài hát',
-        'fetching_version'       => 'Đang lấy thông tin phiên bản...',
+        'playlist_url'           => 'Đường dẫn danh sách phát',
+        'reset_default'          => 'Khôi phục mặc định',
+        'toggle_lyrics'          => 'Tắt lời bài hát',
+        'fetching_version'       => 'Đang kiểm tra phiên bản...',
         'download_local'         => 'Tải về máy',
         'change_language'        => 'Thay đổi ngôn ngữ',
         'pause_playing'          => 'Tạm dừng phát',
         'start_playing'          => 'Bắt đầu phát',
-        'manual_switch'          => 'Chuyển đổi thủ công',
-        'auto_switch'            => 'Chuyển đổi tự động',
-        'switch_to'              => 'Chuyển sang:',
+        'manual_switch'          => 'Chuyển thủ công',
+        'auto_switch'            => 'Tự động chuyển sang',
+        'switch_to'              => 'Chuyển sang',
         'auto_play'              => 'Tự động phát',
-        'lyrics_load_failed'     => 'Không tải được lời bài hát',
-        'order_play'             => 'Phát theo thứ tự',
-        'single_loop'            => 'Lặp lại một bài',
+        'lyrics_load_failed'     => 'Tải lời bài hát thất bại',
+        'order_play'             => 'Phát tuần tự',
+        'single_loop'            => 'Lặp lại bài hát',
         'shuffle_play'           => 'Phát ngẫu nhiên',
-        'playlist_click'         => 'Nhấn vào danh sách phát',
-        'index'                  => 'Mục lục',
+        'playlist_click'         => 'Nhấp vào danh sách phát',
+        'index'                  => 'Thứ tự',
         'song_name'              => 'Tên bài hát',
         'no_lyrics'              => 'Không có lời bài hát',
         'loading_lyrics'         => 'Đang tải lời bài hát...',
         'autoplay_blocked'       => 'Tự động phát bị chặn',
-        'cache_cleared'               => 'Cấu hình đã được xóa',
+        'cache_cleared'               => 'Đã xóa cấu hình',
         'open_custom_playlist'        => 'Mở danh sách phát tùy chỉnh',
-        'reset_default_playlist'      => 'Đã khôi phục liên kết danh sách phát mặc định',
-        'reset_default_error'         => 'Lỗi khi khôi phục liên kết mặc định',
-        'reset_default_failed'        => 'Không thể khôi phục liên kết mặc định',
-        'playlist_load_failed'        => 'Không thể tải danh sách phát',
-        'playlist_load_failed_message'=> 'Không thể tải danh sách phát',
-        'hour_announcement'      => 'Thông báo giờ, hiện tại là',
+        'reset_default_playlist'      => 'Đã khôi phục đường dẫn mặc định',
+        'reset_default_error'         => 'Lỗi khi khôi phục mặc định',
+        'reset_default_failed'        => 'Khôi phục mặc định thất bại',
+        'playlist_load_failed'        => 'Tải danh sách phát thất bại',
+        'playlist_load_failed_message'=> 'Tải danh sách phát thất bại',
+        'hour_announcement'      => 'Báo giờ, hiện tại là',  
         'hour_exact'             => 'giờ đúng',
         'weekDays' => ['Chủ Nhật', 'Thứ Hai', 'Thứ Ba', 'Thứ Tư', 'Thứ Năm', 'Thứ Sáu', 'Thứ Bảy'],
         'labels' => [
@@ -6059,54 +6215,82 @@ $langData = [
         'day_suffix' => '',
         'periods' => ['Tý', 'Sửu', 'Dần', 'Mão', 'Thìn', 'Tỵ', 'Ngọ', 'Mùi', 'Thân', 'Dậu', 'Tuất', 'Hợi'],
         'default_period' => ' Giờ',
-        'clear_confirm' => 'Bạn có chắc chắn muốn xóa cấu hình không?',
-        'back_to_first' => 'Đã quay lại bài hát đầu tiên trong danh sách phát',
-        'year_format' => '{heavenlyStem} {earthlyBranch}{suffix}',
+        'initial' => 'đầu',  
+        'middle' => 'giữa',   
+        'final' =>'cuối',  
+        'clear_confirm' =>'Xác nhận xóa cấu hình hiện tại?', 
+        'back_to_first' => 'Đã quay về bài đầu tiên',
+        'font_default' => 'Đã chuyển sang font tròn',
+        'font_fredoka' => 'Đã chuyển về font mặc định',
+        'font_mono'   => 'Đã chuyển sang font viết tay',
+        'font_noto'     => 'Đã chuyển sang font chữ Hán',
         'error_loading_time' => 'Lỗi hiển thị thời gian',
         'switch_to_light_mode' => 'Chuyển sang chế độ sáng',
         'switch_to_dark_mode' => 'Chuyển sang chế độ tối',
-        'current_mode_dark' => 'Chế độ hiện tại: Chế độ tối',
-        'current_mode_light' => 'Chế độ hiện tại: Chế độ sáng',
-        'fetching_version' => 'Đang lấy thông tin phiên bản...',
+        'current_mode_dark' => 'Chế độ hiện tại: Tối',
+        'current_mode_light' => 'Chế độ hiện tại: Sáng',
+        'fetching_version' => 'Đang kiểm tra phiên bản...',
         'latest_version' => 'Phiên bản mới nhất',
-        'unable_to_fetch_version' => 'Không thể lấy thông tin phiên bản mới nhất',
-        'request_failed' => 'Yêu cầu thất bại, vui lòng thử lại sau',
-        'pip_not_supported' => 'Phương tiện hiện tại không hỗ trợ Hình trong hình',
-        'pip_operation_failed' => 'Thao tác Hình trong hình thất bại',
-        'exit_picture_in_picture' => 'Thoát Hình trong hình',
+        'unable_to_fetch_version' => 'Không thể kiểm tra phiên bản mới',
+        'request_failed' => 'Yêu cầu thất bại, vui lòng thử lại',
+        'pip_not_supported' => 'Không hỗ trợ hình trong hình',
+        'pip_operation_failed' => 'Thao tác hình trong hình thất bại',
+        'exit_picture_in_picture' => 'Thoát hình trong hình',
         'picture_in_picture' => 'Hình trong hình',
-        'hide_playlist' => 'Ẩn danh sách phát',
-        'show_playlist' => 'Hiện danh sách phát',
-        'enter_fullscreen' => 'Chuyển sang toàn màn hình',
+        'hide_playlist' => 'Ẩn danh sách',
+        'show_playlist' => 'Hiện danh sách',
+        'enter_fullscreen' => 'Vào toàn màn hình',
         'exit_fullscreen' => 'Thoát toàn màn hình',
-        'confirm_update_php' => 'Bạn có chắc muốn cập nhật cấu hình PHP không?',
-        'select_files_to_delete' => 'Vui lòng chọn tệp để xóa!',
-        'confirm_batch_delete' => 'Bạn có chắc muốn xóa %d tệp đã chọn không?',
-        'font_default' => 'Đã chuyển sang phông tròn',
-        'font_fredoka' => 'Đã chuyển sang phông mặc định',
-        'font_mono'    => 'Đã chuyển sang phông chữ viết tay thú vị',
-        'font_noto'    => 'Đã chuyển sang phông chữ chân Trung Quốc',
-        'batch_delete_success' => '✅ Xóa hàng loạt thành công',
-        'batch_delete_failed' => '❌ Xóa hàng loạt thất bại',
-        'confirm_delete' => 'Bạn có chắc chắn muốn xóa không?',
-        'unable_to_fetch_current_version' => 'Đang lấy thông tin phiên bản hiện tại...',
+        'confirm_update_php' => 'Xác nhận cập nhật cấu hình PHP?',
+        'select_files_to_delete' => 'Vui lòng chọn tệp cần xóa!',
+        'confirm_batch_delete' => 'Xác nhận xóa %d tệp?',
+        'unable_to_fetch_current_version' => 'Đang kiểm tra phiên bản hiện tại...',
         'current_version' => 'Phiên bản hiện tại',
         'copy_command'     => 'Sao chép lệnh',
-        'command_copied'   => 'Lệnh đã được sao chép vào bảng tạm!',
+        'command_copied'   => 'Đã sao chép lệnh!',
         "updateModalLabel" => "Trạng thái cập nhật",
-        "updateDescription" => "Quá trình cập nhật sẽ sớm bắt đầu.",
-        "waitingMessage" => "Đang chờ bắt đầu thao tác...",
+        "updateDescription" => "Quá trình cập nhật đang bắt đầu.",
+        "waitingMessage" => "Đang chờ bắt đầu...",
         "update_plugin" => "Cập nhật plugin",
         "installation_complete" => "Cài đặt hoàn tất!",
-        'confirm_title'         => 'Xác nhận hành động',
-        'confirm_delete_file'   => 'Bạn có chắc chắn muốn xóa tệp %s không?',
+        'confirm_title'             => 'Xác nhận thao tác',
+        'confirm_delete_file'   => 'Xác nhận xóa tệp %s?',
         'delete_success'      => 'Xóa thành công: %s',
         'delete_failure'      => 'Xóa thất bại: %s',
-        'upload_error_type_not_supported' => 'Loại tệp không được hỗ trợ: %s',
+        'upload_error_type_not_supported' => 'Không hỗ trợ định dạng: %s',
         'upload_error_move_failed'        => 'Tải lên thất bại: %s',
-        'confirm_clear_background' => 'Bạn có chắc muốn xóa nền không?',
+        'confirm_clear_background' => 'Xác nhận xóa nền?',
         'background_cleared'      => 'Đã xóa nền!',
-        'selected_info' => 'Đã chọn %d tệp, tổng cộng %s MB'
+        'createShareLink' => 'Tạo liên kết chia sẻ',
+        'closeButton' => 'Đóng',
+        'expireTimeLabel' => 'Thời gian hết hạn',
+        'expire1Hour' => '1 giờ',
+        'expire1Day' => '1 ngày',
+        'expire7Days' => '7 ngày',
+        'expire30Days' => '30 ngày',
+        'maxDownloadsLabel' => 'Số lượt tải tối đa',
+        'max1Download' => '1 lần',
+        'max5Downloads' => '5 lần',
+        'max10Downloads' => '10 lần',
+        'maxUnlimited' => 'Không giới hạn',
+        'shareLinkLabel' => 'Liên kết chia sẻ',
+        'copyLinkButton' => 'Sao chép liên kết',
+        'closeButtonFooter' => 'Đóng',
+        'generateLinkButton' => 'Tạo liên kết',
+        'fileNotSelected' => 'Chưa chọn tệp',
+        'httpError' => 'Lỗi HTTP',
+        'linkGenerated' => '✅ Đã tạo liên kết chia sẻ',
+        'operationFailed' => '❌ Thao tác thất bại',
+        'generateLinkFirst' => 'Vui lòng tạo liên kết chia sẻ trước',
+        'linkCopied' => '📋 Liên kết đã được sao chép',
+        'copyFailed' => '❌ Sao chép thất bại',
+        'cleanExpiredButton' => 'Dọn hết hạn',
+        'deleteAllButton' => 'Xóa tất cả',
+        'cleanSuccess' => '✅ Dọn dẹp hoàn tất, %s mục đã bị xóa',
+        'deleteSuccess' => '✅ Tất cả liên kết đã bị xóa, %s tệp đã bị xóa',
+        'confirmDeleteAll' => '⚠️ Bạn có chắc muốn xóa TẤT CẢ các liên kết chia sẻ không?',
+        'operationFailed' => '❌ Thao tác thất bại',
+        'selected_info' => 'Đã chọn %d tệp (%s MB)'
     ],
 
     'th' => [
@@ -6271,6 +6455,35 @@ $langData = [
         'upload_error_move_failed'        => 'การอัปโหลดไฟล์ล้มเหลว: %s',
         'confirm_clear_background' => 'แน่ใจหรือไม่ว่าต้องการลบพื้นหลัง?',
         'background_cleared'      => 'ลบพื้นหลังแล้ว!',
+        'createShareLink' => 'สร้างลิงค์การแชร์',
+        'closeButton' => 'ปิด',
+        'expireTimeLabel' => 'เวลาหมดอายุ',
+        'expire1Hour' => '1 ชั่วโมง',
+        'expire1Day' => '1 วัน',
+        'expire7Days' => '7 วัน',
+        'expire30Days' => '30 วัน',
+        'maxDownloadsLabel' => 'จำนวนการดาวน์โหลดสูงสุด',
+        'max1Download' => '1 ครั้ง',
+        'max5Downloads' => '5 ครั้ง',
+        'max10Downloads' => '10 ครั้ง',
+        'maxUnlimited' => 'ไม่จำกัด',
+        'shareLinkLabel' => 'ลิงค์การแชร์',
+        'copyLinkButton' => 'คัดลอกลิงค์',
+        'closeButtonFooter' => 'ปิด',
+        'generateLinkButton' => 'สร้างลิงค์',
+        'fileNotSelected' => 'ไม่เลือกไฟล์',
+        'httpError' => 'ข้อผิดพลาด HTTP',
+        'linkGenerated' => '✅ สร้างลิงค์การแชร์แล้ว',
+        'operationFailed' => '❌ การดำเนินการล้มเหลว',
+        'generateLinkFirst' => 'โปรดสร้างลิงค์การแชร์ก่อน',
+        'linkCopied' => '📋 ลิงค์ถูกคัดลอก',
+        'copyFailed' => '❌ การคัดลอกล้มเหลว',
+        'cleanExpiredButton' => 'ล้างที่หมดอายุ',
+        'deleteAllButton' => 'ลบทั้งหมด',
+        'cleanSuccess' => '✅ ล้างสำเร็จ, %s รายการถูกลบ',
+        'deleteSuccess' => '✅ ลบประวัติการแชร์ทั้งหมดแล้ว, %s ไฟล์ถูกลบ',
+        'confirmDeleteAll' => '⚠️ คุณแน่ใจหรือไม่ว่าต้องการลบประวัติการแชร์ทั้งหมด?',
+        'operationFailed' => '❌ ล้มเหลวในการดำเนินการ',
         'selected_info' => 'เลือกไฟล์แล้ว %d ไฟล์ รวมทั้งหมด %s MB'
     ],
 
@@ -6438,6 +6651,35 @@ $langData = [
         'upload_error_move_failed'        => 'Ошибка загрузки файла: %s',
         'confirm_clear_background' => 'Вы уверены, что хотите очистить фон?',
         'background_cleared'      => 'Фон очищен!',
+        'createShareLink' => 'Создать ссылку для обмена',
+        'closeButton' => 'Закрыть',
+        'expireTimeLabel' => 'Время истечения',
+        'expire1Hour' => '1 час',
+        'expire1Day' => '1 день',
+        'expire7Days' => '7 дней',
+        'expire30Days' => '30 дней',
+        'maxDownloadsLabel' => 'Максимальное количество загрузок',
+        'max1Download' => '1 раз',
+        'max5Downloads' => '5 раз',
+        'max10Downloads' => '10 раз',
+        'maxUnlimited' => 'Неограничено',
+        'shareLinkLabel' => 'Ссылка для обмена',
+        'copyLinkButton' => 'Копировать ссылку',
+        'closeButtonFooter' => 'Закрыть',
+        'generateLinkButton' => 'Создать ссылку',
+        'fileNotSelected' => 'Файл не выбран',
+        'httpError' => 'Ошибка HTTP',
+        'linkGenerated' => '✅ Ссылка для обмена создана',
+        'operationFailed' => '❌ Операция не удалась',
+        'generateLinkFirst' => 'Сначала создайте ссылку для обмена',
+        'linkCopied' => '📋 Ссылка скопирована',
+        'copyFailed' => '❌ Ошибка копирования',
+        'cleanExpiredButton' => 'Очистить просроченное',
+        'deleteAllButton' => 'Удалить всё',
+        'cleanSuccess' => '✅ Очистка завершена, %s предмет(ов) удалено',
+        'deleteSuccess' => '✅ Все записи о совместном доступе удалены, %s файл(ов) удалено',
+        'confirmDeleteAll' => '⚠️ Вы уверены, что хотите удалить ВСЕ записи о совместном доступе?',
+        'operationFailed' => '❌ Не удалось выполнить операцию',
         'selected_info' => 'Выбрано %d файлов, всего %s MB'
     ],
 
@@ -6448,29 +6690,31 @@ $langData = [
         'english'                => 'الإنجليزية',
         'korean'                 => 'الكورية',
         'vietnamese'             => 'الفيتنامية',
-        'thailand'              => 'التايلاندية',
+        'thailand'               => 'التايلاندية',
         'japanese'               => 'اليابانية',
         'russian'                => 'الروسية',
         'germany'                => 'الألمانية',
         'france'                 => 'الفرنسية',
         'arabic'                 => 'العربية',
         'spanish'                => 'الإسبانية',
-        'bangladesh' => 'البنغالية',
+        'bangladesh'             => 'البنغالية',
         'close'                  => 'إغلاق',
         'save'                   => 'حفظ',
-        'theme_download'         => 'تنزيل الثيم',
+        'theme_download'         => 'تنزيل السمة',
         'select_all'             => 'تحديد الكل',
-        'batch_delete'           => 'حذف الملفات المحددة دفعة واحدة',
+        'batch_delete'           => 'حذف جماعي للملفات المحددة',
+        'batch_delete_success'   => '✅ الحذف الجماعي ناجح',
+        'batch_delete_failed'    => '❌ فشل الحذف الجماعي',
+        'confirm_delete'         => 'تأكيد الحذف؟',
         'total'                  => 'الإجمالي:',
         'free'                   => 'المتبقي:',
-        'hover_to_preview'       => 'انقر لتفعيل المعاينة',
-        'mount_info'             => 'نقطة التركيب: {{mount}}｜المساحة المستخدمة: {{used}}',
+        'hover_to_preview'       => 'انقر لتفعيل معاينة التحويم',
         'spectra_config'         => 'إدارة إعدادات Spectra',
-        'current_mode'           => 'الوضع الحالي: جارٍ التحميل...',
+        'current_mode'           => 'الوضع الحالي: جاري التحميل...',
         'toggle_mode'            => 'تبديل الوضع',
-        'check_update'           => 'تحقق من التحديث',
-        'batch_upload'           => 'حدد الملفات للتحميل دفعة واحدة',
-        'add_to_playlist'        => 'إضافة الملفات المحددة إلى قائمة التشغيل',
+        'check_update'           => 'التحقق من التحديثات',
+        'batch_upload'           => 'اختر ملفات للرفع الجماعي',
+        'add_to_playlist'        => 'حدد لإضافة إلى قائمة التشغيل',
         'clear_background'       => 'مسح الخلفية',
         'clear_background_label' => 'مسح الخلفية',
         'file_list'              => 'قائمة الملفات',
@@ -6490,19 +6734,19 @@ $langData = [
         'delete'                 => 'حذف',
         'rename'                 => 'إعادة تسمية',
         'download'               => 'تنزيل',
-        'set_background'         => 'تعيين الخلفية',
+        'set_background'         => 'تعيين خلفية',
         'preview'                => 'معاينة',
-        'toggle_fullscreen'      => 'تبديل وضع الشاشة الكاملة',
-        'supported_formats'      => 'الصيغ المدعومة: [ jpg, jpeg, png, gif, webp, mp4, webm, mkv, mp3, wav, flac ]',
-        'drop_files_here'        => 'اسحب الملفات هنا',
+        'toggle_fullscreen'      => 'تبديل ملء الشاشة',
+        'supported_formats'      => 'التنسيقات المدعومة: [ jpg, jpeg, png, gif, webp, mp4, webm, mkv, mp3, wav, flac ]',
+        'drop_files_here'        => 'أسقط الملفات هنا',
         'or'                     => 'أو',
-        'select_files'           => 'حدد الملفات',
-        'unlock_php_upload_limit'=> 'إزالة حد التحميل الخاص بـ PHP',
+        'select_files'           => 'اختر ملفات',
+        'unlock_php_upload_limit'=> 'رفع قيود الرفع في PHP',
         'upload'                 => 'رفع',
         'cancel'                 => 'إلغاء',
         'rename_file'            => 'إعادة تسمية الملف',
-        'new_filename'           => 'الاسم الجديد للملف',
-        'invalid_filename_chars' => 'اسم الملف لا يمكن أن يحتوي على الأحرف التالية: \\/:*?"<>|',
+        'new_filename'           => 'اسم الملف الجديد',
+        'invalid_filename_chars' => 'لا يمكن أن يحتوي اسم الملف على: \\/:*?"<>|',
         'confirm'                => 'تأكيد',
         'media_player'           => 'مشغل الوسائط',
         'playlist'               => 'قائمة التشغيل',
@@ -6512,99 +6756,132 @@ $langData = [
         'fullscreen'             => 'ملء الشاشة',
         'music_player'           => 'مشغل الموسيقى',
         'play_pause'             => 'تشغيل/إيقاف مؤقت',
-        'previous_track'         => 'المسار السابق',
-        'next_track'             => 'المسار التالي',
-        'repeat_mode'            => 'وضع التكرار',
-        'toggle_floating_lyrics' => 'كلمات الأغاني العائمة',
+        'previous_track'         => 'المقطع السابق',
+        'next_track'             => 'المقطع التالي',
+        'repeat_mode'            => 'تكرار التشغيل',
+        'toggle_floating_lyrics' => 'كلمات عائمة',
         'clear_config'           => 'مسح الإعدادات',
         'custom_playlist'        => 'قائمة تشغيل مخصصة',
-        'volume'                 => 'مستوى الصوت',
+        'volume'                 => 'الصوت',
         'update_playlist'        => 'تحديث قائمة التشغيل',
         'playlist_url'           => 'رابط قائمة التشغيل',
-        'reset_default'          => 'إعادة التعيين إلى الافتراضي',
-        'toggle_lyrics'          => 'إخفاء كلمات الأغاني',
-        'fetching_version'       => 'جاري جلب معلومات الإصدار...',
+        'reset_default'          => 'إعادة الضبط',
+        'toggle_lyrics'          => 'إخفاء الكلمات',
+        'fetching_version'       => 'جاري التحقق من الإصدار...',
         'download_local'         => 'تنزيل محلي',
         'change_language'        => 'تغيير اللغة',
-        'pause_playing'          => 'إيقاف التشغيل مؤقتًا',
+        'pause_playing'          => 'إيقاف التشغيل',
         'start_playing'          => 'بدء التشغيل',
-        'manual_switch'          => 'التبديل اليدوي',
-        'auto_switch'            => 'التبديل التلقائي',
-        'switch_to'              => 'التبديل إلى:',
+        'manual_switch'          => 'تبديل يدوي',
+        'auto_switch'            => 'تبديل تلقائي إلى',
+        'switch_to'              => 'التبديل إلى',
         'auto_play'              => 'تشغيل تلقائي',
-        'lyrics_load_failed'     => 'فشل تحميل كلمات الأغاني',
-        'order_play'             => 'تشغيل بالترتيب',
-        'single_loop'            => 'تكرار الملف الواحد',
+        'lyrics_load_failed'     => 'فشل تحميل الكلمات',
+        'order_play'             => 'تشغيل بالتسلسل',
+        'single_loop'            => 'تكرار المقطع',
         'shuffle_play'           => 'تشغيل عشوائي',
-        'playlist_click'         => 'النقر على قائمة التشغيل',
+        'playlist_click'         => 'نقر قائمة التشغيل',
         'index'                  => 'الفهرس',
         'song_name'              => 'اسم الأغنية',
         'no_lyrics'              => 'لا توجد كلمات',
-        'loading_lyrics'         => 'جارٍ تحميل كلمات الأغاني...',
+        'loading_lyrics'         => 'جاري تحميل الكلمات...',
         'autoplay_blocked'       => 'تم حظر التشغيل التلقائي',
         'cache_cleared'               => 'تم مسح الإعدادات',
-        'open_custom_playlist'        => 'فتح قائمة التشغيل المخصصة',
+        'open_custom_playlist'        => 'فتح قائمة تشغيل مخصصة',
         'reset_default_playlist'      => 'تمت إعادة تعيين رابط قائمة التشغيل الافتراضي',
-        'reset_default_error'         => 'حدث خطأ أثناء إعادة تعيين الرابط الافتراضي',
-        'reset_default_failed'        => 'فشل في إعادة تعيين الرابط الافتراضي',
+        'reset_default_error'         => 'خطأ أثناء إعادة التعيين',
+        'reset_default_failed'        => 'فشل إعادة التعيين',
         'playlist_load_failed'        => 'فشل تحميل قائمة التشغيل',
         'playlist_load_failed_message'=> 'فشل تحميل قائمة التشغيل',
-        'hour_announcement'      => 'إعلان الساعة، الآن الساعة',
-        'hour_exact'             => 'بالضبط',
-        'weekDays' => ['الأحد', 'الإثنين', 'الثلاثاء', 'الأربعاء', 'الخميس', 'الجمعة', 'السبت'],
+        'hour_announcement'      => 'النشرة الزمنية، التوقيت المحلي هو',  
+        'hour_exact'             => 'الساعة بالضبط',
+        'weekDays' => ['الأحد', 'الاثنين', 'الثلاثاء', 'الأربعاء', 'الخميس', 'الجمعة', 'السبت'],
         'labels' => [
             'year' => 'سنة',
             'month' => 'شهر',
             'day' => 'يوم',
             'week' => 'أسبوع'
         ],
+        'zodiacs' => ['القرد','الديك','الكلب','الخنزير','الفأر','الثور','النمر','الأرنب','التنين','الأفعى','الحصان','الخروف'],
+        'heavenlyStems' => ['جيا','يي','بينغ','دينغ','وو','جي','قينغ','شين','رين','غوي'],
+        'earthlyBranches' => ['زي','تشو','يين','ماو','تشين','سي','وو','وي','شين','يو','شو','هاي'],
+        'months' => ['يناير','فبراير','مارس','أبريل','مايو','يونيو','يوليو','أغسطس','سبتمبر','أكتوبر','نوفمبر','ديسمبر'],
+        'days' => ['الأول','الثاني','الثالث','الرابع','الخامس','السادس','السابع','الثامن','التاسع','العاشر',
+                   'الحادي عشر','الثاني عشر','الثالث عشر','الرابع عشر','الخامس عشر','السادس عشر','السابع عشر','الثامن عشر','التاسع عشر','العشرون',
+                   'الحادي والعشرون','الثاني والعشرون','الثالث والعشرون','الرابع والعشرون','الخامس والعشرون','السادس والعشرون','السابع والعشرون','الثامن والعشرون','التاسع والعشرون','الثلاثون'],
+        'clear_confirm' =>'هل تريد مسح الإعدادات الحالية؟', 
+        'back_to_first' => 'العودة إلى أول مقطع في القائمة',
+        'font_default' => 'تم التبديل إلى الخط المدور',
+        'font_fredoka' => 'تم التبديل إلى الخط الافتراضي',
+        'font_mono'   => 'تم التبديل إلى الخط اليدوي',
+        'font_noto'     => 'تم التبديل إلى الخط الصيني',
         'error_loading_time' => 'خطأ في عرض الوقت',
-        'switch_to_light_mode' => 'التبديل إلى الوضع الفاتح',
-        'switch_to_dark_mode' => 'التبديل إلى الوضع الداكن',
-        'current_mode_dark' => 'الوضع الحالي: الوضع الداكن',
-        'current_mode_light' => 'الوضع الحالي: الوضع الفاتح',
-        'fetching_version' => 'جاري جلب معلومات الإصدار...',
-        'latest_version' => 'أحدث إصدار',
-        'unable_to_fetch_version' => 'تعذر الحصول على أحدث إصدار',
-        'request_failed' => 'فشل الطلب، يرجى المحاولة لاحقًا',
-        'pip_not_supported' => 'الوسائط الحالية لا تدعم صورة داخل صورة',
-        'pip_operation_failed' => 'فشل تشغيل صورة داخل صورة',
-        'exit_picture_in_picture' => 'الخروج من صورة داخل صورة',
+        'switch_to_light_mode' => 'الوضع الفاتح',
+        'switch_to_dark_mode' => 'الوضع الداكن',
+        'current_mode_dark' => 'الوضع الحالي: داكن',
+        'current_mode_light' => 'الوضع الحالي: فاتح',
+        'fetching_version' => 'جاري التحقق من الإصدار...',
+        'latest_version' => 'آخر إصدار',
+        'unable_to_fetch_version' => 'تعذر الحصول على آخر إصدار',
+        'request_failed' => 'فشل الطلب، حاول لاحقًا',
+        'pip_not_supported' => 'لا يدعم التشغيل بصورة داخل صورة',
+        'pip_operation_failed' => 'فشل عملية الصورة داخل الصورة',
+        'exit_picture_in_picture' => 'خروج من صورة داخل صورة',
         'picture_in_picture' => 'صورة داخل صورة',
         'hide_playlist' => 'إخفاء القائمة',
         'show_playlist' => 'إظهار القائمة',
-        'enter_fullscreen' => 'تبديل إلى وضع ملء الشاشة',
-        'exit_fullscreen' => 'الخروج من وضع ملء الشاشة',
-        'confirm_update_php' => 'هل أنت متأكد أنك تريد تحديث إعدادات PHP؟',
-        'select_files_to_delete' => 'يرجى اختيار الملفات المراد حذفها!',
-        'confirm_batch_delete' => 'هل تريد بالتأكيد حذف الملفات المحددة وعددها %d؟',
-        'clear_confirm' => 'هل أنت متأكد أنك تريد مسح الإعدادات؟',
-        'back_to_first' => 'تم العودة إلى أول أغنية في قائمة التشغيل',
-        'font_default' => 'تم التبديل إلى خط دائري',
-        'font_fredoka' => 'تم التبديل إلى الخط الافتراضي',
-        'font_mono'    => 'تم التبديل إلى خط يدوي ممتع',
-        'font_noto'    => 'تم التبديل إلى خط صيني منمق',
-        'batch_delete_success' => '✅ تم الحذف الجماعي بنجاح',
-        'batch_delete_failed' => '❌ فشل الحذف الجماعي',
-        'confirm_delete' => 'هل أنت متأكد أنك تريد الحذف؟',
-        'unable_to_fetch_current_version' => 'جارٍ الحصول على إصدار حالي...',
+        'enter_fullscreen' => 'ملء الشاشة',
+        'exit_fullscreen' => 'خروج من ملء الشاشة',
+        'confirm_update_php' => 'هل تريد تحديث إعدادات PHP؟',
+        'select_files_to_delete' => 'الرجاء اختيار الملفات للحذف أولاً!',
+        'confirm_batch_delete' => 'هل تريد حذف %d ملفات؟',
+        'unable_to_fetch_current_version' => 'جاري التحقق من الإصدار الحالي...',
         'current_version' => 'الإصدار الحالي',
         'copy_command'     => 'نسخ الأمر',
-        'command_copied'   => 'تم نسخ الأمر إلى الحافظة!',
+        'command_copied'   => 'تم نسخ الأمر!',
         "updateModalLabel" => "حالة التحديث",
-        "updateDescription" => "عملية التحديث ستبدأ قريبًا.",
-        "waitingMessage" => "انتظار بدء العملية...",
-        "update_plugin" => "تحديث الإضافة",
-        "installation_complete" => "اكتملت عملية التثبيت!",
-        'confirm_title'         => 'تأكيد العملية',
-        'confirm_delete_file'   => 'هل أنت متأكد أنك تريد حذف الملف %s؟',
-        'delete_success'      => 'تم الحذف بنجاح: %s',
+        "updateDescription" => "جاري بدء عملية التحديث.",
+        "waitingMessage" => "بانتظار بدء العملية...",
+        "update_plugin" => "تحديث الملحق",
+        "installation_complete" => "اكتمل التثبيت!",
+        'confirm_title'             => 'تأكيد العملية',
+        'confirm_delete_file'   => 'هل تريد حذف الملف %s؟',
+        'delete_success'      => 'تم الحذف: %s',
         'delete_failure'      => 'فشل الحذف: %s',
-        'upload_error_type_not_supported' => 'نوع الملف غير مدعوم: %s',
-        'upload_error_move_failed'        => 'فشل تحميل الملف: %s',
-        'confirm_clear_background' => 'هل أنت متأكد أنك تريد مسح الخلفية؟',
+        'upload_error_type_not_supported' => 'نوع ملف غير مدعوم: %s',
+        'upload_error_move_failed'        => 'فشل الرفع: %s',
+        'confirm_clear_background' => 'هل تريد مسح الخلفية؟',
         'background_cleared'      => 'تم مسح الخلفية!',
-        'selected_info' => 'تم اختيار %d ملف، الحجم الإجمالي %s ميغابايت'
+        'createShareLink' => 'إنشاء رابط المشاركة',
+        'closeButton' => 'إغلاق',
+        'expireTimeLabel' => 'وقت الانتهاء',
+        'expire1Hour' => '1 ساعة',
+        'expire1Day' => '1 يوم',
+        'expire7Days' => '7 أيام',
+        'expire30Days' => '30 يوم',
+        'maxDownloadsLabel' => 'الحد الأقصى للتنزيلات',
+        'max1Download' => '1 مرة',
+        'max5Downloads' => '5 مرات',
+        'max10Downloads' => '10 مرات',
+        'maxUnlimited' => 'غير محدود',
+        'shareLinkLabel' => 'رابط المشاركة',
+        'copyLinkButton' => 'نسخ الرابط',
+        'closeButtonFooter' => 'إغلاق',
+        'generateLinkButton' => 'إنشاء الرابط',
+        'fileNotSelected' => 'لم يتم اختيار الملف',
+        'httpError' => 'خطأ HTTP',
+        'linkGenerated' => '✅ تم إنشاء رابط المشاركة',
+        'operationFailed' => '❌ فشل العملية',
+        'generateLinkFirst' => 'يرجى إنشاء رابط المشاركة أولاً',
+        'linkCopied' => '📋 تم نسخ الرابط',
+        'copyFailed' => '❌ فشل النسخ',
+        'cleanExpiredButton' => 'تنظيف المنتهية',
+        'deleteAllButton' => 'حذف الكل',
+        'cleanSuccess' => '✅ تم التنظيف بنجاح، تم حذف %s عنصرًا منتهي الصلاحية',
+        'deleteSuccess' => '✅ تم حذف جميع سجلات المشاركة، تم حذف %s ملفًا',
+        'confirmDeleteAll' => '⚠️ هل أنت متأكد أنك تريد حذف جميع سجلات المشاركة؟',
+        'operationFailed' => '❌ فشل في العملية',
+        'selected_info' => 'تم اختيار %d ملفات (%s ميجابايت)'
     ],
 
     'es' => [
@@ -6770,6 +7047,35 @@ $langData = [
         'upload_error_move_failed'        => 'Error de carga: %s',
         'confirm_clear_background' => '¿Estás seguro de que quieres borrar el fondo?',
         'background_cleared'      => '¡Fondo borrado!',
+        'createShareLink' => 'Crear enlace de compartición',
+        'closeButton' => 'Cerrar',
+        'expireTimeLabel' => 'Tiempo de expiración',
+        'expire1Hour' => '1 Hora',
+        'expire1Day' => '1 Día',
+        'expire7Days' => '7 Días',
+        'expire30Days' => '30 Días',
+        'maxDownloadsLabel' => 'Descargas máximas',
+        'max1Download' => '1 vez',
+        'max5Downloads' => '5 veces',
+        'max10Downloads' => '10 veces',
+        'maxUnlimited' => 'Ilimitado',
+        'shareLinkLabel' => 'Enlace para compartir',
+        'copyLinkButton' => 'Copiar enlace',
+        'closeButtonFooter' => 'Cerrar',
+        'generateLinkButton' => 'Generar enlace',
+        'fileNotSelected' => 'Archivo no seleccionado',
+        'httpError' => 'Error HTTP',
+        'linkGenerated' => '✅ Enlace de compartición generado',
+        'operationFailed' => '❌ Operación fallida',
+        'generateLinkFirst' => 'Por favor, genera el enlace de compartición primero',
+        'linkCopied' => '📋 Enlace copiado',
+        'copyFailed' => '❌ Error al copiar',
+        'cleanExpiredButton' => 'Limpiar caducados',
+        'deleteAllButton' => 'Eliminar todo',
+        'cleanSuccess' => '✅ Limpieza completada, %s elemento(s) caducado(s) eliminado(s)',
+        'deleteSuccess' => '✅ Todos los registros compartidos han sido eliminados, %s archivo(s) eliminado(s)',
+        'confirmDeleteAll' => '⚠️ ¿Está seguro de que desea eliminar TODOS los registros compartidos?',
+        'operationFailed' => '❌ Operación fallida',
         'selected_info' => 'Seleccionados %d archivos, en total %s MB'
     ],
 
@@ -6936,6 +7242,35 @@ $langData = [
         'upload_error_move_failed'        => 'Upload fehlgeschlagen: %s',
         'confirm_clear_background' => 'Möchten Sie den Hintergrund wirklich löschen?',
         'background_cleared'      => 'Hintergrund wurde gelöscht!',
+        'createShareLink' => 'Freigabelink erstellen',
+        'closeButton' => 'Schließen',
+        'expireTimeLabel' => 'Ablaufzeit',
+        'expire1Hour' => '1 Stunde',
+        'expire1Day' => '1 Tag',
+        'expire7Days' => '7 Tage',
+        'expire30Days' => '30 Tage',
+        'maxDownloadsLabel' => 'Maximale Downloads',
+        'max1Download' => '1 Mal',
+        'max5Downloads' => '5 Mal',
+        'max10Downloads' => '10 Mal',
+        'maxUnlimited' => 'Unbegrenzt',
+        'shareLinkLabel' => 'Freigabelink',
+        'copyLinkButton' => 'Link kopieren',
+        'closeButtonFooter' => 'Schließen',
+        'generateLinkButton' => 'Link erstellen',
+        'fileNotSelected' => 'Datei nicht ausgewählt',
+        'httpError' => 'HTTP-Fehler',
+        'linkGenerated' => '✅ Freigabelink generiert',
+        'operationFailed' => '❌ Vorgang fehlgeschlagen',
+        'generateLinkFirst' => 'Bitte generieren Sie zuerst den Freigabelink',
+        'linkCopied' => '📋 Link kopiert',
+        'copyFailed' => '❌ Kopieren fehlgeschlagen',
+        'cleanExpiredButton' => 'Abgelaufene löschen',
+        'deleteAllButton' => 'Alle löschen',
+        'cleanSuccess' => '✅ Reinigung abgeschlossen, %s Elemente wurden entfernt',
+        'deleteSuccess' => '✅ Alle Freigabelinks wurden gelöscht, %s Datei(en) wurden entfernt',
+        'confirmDeleteAll' => '⚠️ Möchten Sie wirklich ALLE Freigabelinks löschen?',
+        'operationFailed' => '❌ Vorgang fehlgeschlagen',
         'selected_info' => '%d Dateien ausgewählt, insgesamt %s MB'
     ],
 
@@ -7102,6 +7437,35 @@ $langData = [
         'upload_error_move_failed'        => 'Échec du téléchargement : %s',
         'confirm_clear_background' => 'Voulez-vous vraiment effacer l\'arrière-plan?',
         'background_cleared'      => 'Arrière-plan effacé!',
+        'createShareLink' => 'Créer un lien de partage',
+        'closeButton' => 'Fermer',
+        'expireTimeLabel' => 'Temps d\'expiration',
+        'expire1Hour' => '1 Heure',
+        'expire1Day' => '1 Jour',
+        'expire7Days' => '7 Jours',
+        'expire30Days' => '30 Jours',
+        'maxDownloadsLabel' => 'Téléchargements maximum',
+        'max1Download' => '1 fois',
+        'max5Downloads' => '5 fois',
+        'max10Downloads' => '10 fois',
+        'maxUnlimited' => 'Illimité',
+        'shareLinkLabel' => 'Lien de partage',
+        'copyLinkButton' => 'Copier le lien',
+        'closeButtonFooter' => 'Fermer',
+        'generateLinkButton' => 'Générer le lien',
+        'fileNotSelected' => 'Fichier non sélectionné',
+        'httpError' => 'Erreur HTTP',
+        'linkGenerated' => '✅ Lien de partage généré',
+        'operationFailed' => '❌ Échec de l\'opération',
+        'generateLinkFirst' => 'Veuillez d\'abord générer le lien de partage',
+        'linkCopied' => '📋 Lien copié',
+        'copyFailed' => '❌ Échec de la copie',
+        'cleanExpiredButton' => 'Nettoyer expirés',
+        'deleteAllButton' => 'Supprimer tout',
+        'cleanSuccess' => '✅ Nettoyage terminé, %s élément(s) expiré(s) supprimé(s)',
+        'deleteSuccess' => '✅ Tous les liens partagés ont été supprimés, %s fichier(s) supprimé(s)',
+        'confirmDeleteAll' => '⚠️ Voulez-vous vraiment supprimer TOUS les enregistrements de partage ?',
+        'operationFailed' => '❌ Échec de l\'opération',
         'selected_info' => '%d fichiers sélectionnés, total de %s Mo'
     ],
 
@@ -7281,6 +7645,35 @@ $langData = [
         'upload_error_move_failed'        => 'Upload failed: %s',
         'confirm_clear_background' => 'Are you sure you want to clear the background?',
         'background_cleared'      => 'Background cleared!',
+        'createShareLink' => 'Create Share Link',
+        'closeButton' => 'Close',
+        'expireTimeLabel' => 'Expiration Time',
+        'expire1Hour' => '1 Hour',
+        'expire1Day' => '1 Day',
+        'expire7Days' => '7 Days',
+        'expire30Days' => '30 Days',
+        'maxDownloadsLabel' => 'Max Downloads',
+        'max1Download' => '1 Time',
+        'max5Downloads' => '5 Times',
+        'max10Downloads' => '10 Times',
+        'maxUnlimited' => 'Unlimited',
+        'shareLinkLabel' => 'Share Link',
+        'copyLinkButton' => 'Copy Link',
+        'closeButtonFooter' => 'Close',
+        'generateLinkButton' => 'Generate Link',
+        'fileNotSelected' => 'File not selected',
+        'httpError' => 'HTTP Error',
+        'linkGenerated' => '✅ Share link generated',
+        'operationFailed' => '❌ Operation failed',
+        'generateLinkFirst' => 'Please generate the share link first',
+        'linkCopied' => '📋 Link copied',
+        'copyFailed' => '❌ Copy failed',
+        'cleanExpiredButton' => 'Clean Expired',
+        'deleteAllButton' => 'Delete All',
+        'cleanSuccess' => '✅ Clean completed, %s expired item(s) removed',
+        'deleteSuccess' => '✅ All share records deleted, %s file(s) removed',
+        'confirmDeleteAll' => '⚠️ Are you sure you want to delete ALL share records?',
+        'operationFailed' => '❌ Operation failed',
         'selected_info' => 'Selected %d files, total %s MB'
     ],
     'bn' => [
@@ -7446,6 +7839,35 @@ $langData = [
         'upload_error_move_failed'        => 'ফাইল আপলোড ব্যর্থ: %s',
         'confirm_clear_background' => 'পটভূমি সাফ করতে চান?',
         'background_cleared'      => 'পটভূমি সাফ করা হয়েছে!',
+        'fileNotSelected' => 'ফাইল নির্বাচন করা হয়নি',
+        'httpError' => 'HTTP ত্রুটি',
+        'linkGenerated' => '✅ শেয়ার লিঙ্ক তৈরি হয়েছে',
+        'operationFailed' => '❌ অপারেশন ব্যর্থ',
+        'generateLinkFirst' => 'দয়া করে আগে শেয়ার লিঙ্ক তৈরি করুন',
+        'linkCopied' => '📋 লিঙ্ক কপি করা হয়েছে',
+        'copyFailed' => '❌ কপি ব্যর্থ',
+        'createShareLink' => 'শেয়ার লিঙ্ক তৈরি করুন',
+        'closeButton' => 'বন্ধ করুন',
+        'expireTimeLabel' => 'মেয়াদ শেষ হওয়ার সময়',
+        'expire1Hour' => '1 ঘণ্টা',
+        'expire1Day' => '1 দিন',
+        'expire7Days' => '7 দিন',
+        'expire30Days' => '30 দিন',
+        'maxDownloadsLabel' => 'সর্বাধিক ডাউনলোড সংখ্যা',
+        'max1Download' => '1 বার',
+        'max5Downloads' => '5 বার',
+        'max10Downloads' => '10 বার',
+        'maxUnlimited' => 'অসীম',
+        'shareLinkLabel' => 'শেয়ার লিঙ্ক',
+        'copyLinkButton' => 'লিঙ্ক কপি করুন',
+        'closeButtonFooter' => 'বন্ধ করুন',
+        'generateLinkButton' => 'লিঙ্ক তৈরি করুন',
+        'cleanExpiredButton' => 'মেয়াদোত্তীর্ণ পরিষ্কার করুন',
+        'deleteAllButton' => 'সব মুছে ফেলুন',
+        'cleanSuccess' => '✅ পরিষ্কার সম্পন্ন হয়েছে, %s আইটেম মুছে ফেলা হয়েছে',
+        'deleteSuccess' => '✅ সব শেয়ার রেকর্ড মুছে ফেলা হয়েছে, %s ফাইল মুছে ফেলা হয়েছে',
+        'confirmDeleteAll' => '⚠️ আপনি কি নিশ্চিত আপনি সব শেয়ার রেকর্ড মুছে ফেলতে চান?',
+        'operationFailed' => '❌ অপারেশন ব্যর্থ হয়েছে',
         'selected_info' => '%d টি ফাইল নির্বাচিত, মোট %s MB'
     ]
 ];
@@ -7807,4 +8229,155 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     };
 });
+</script>
+
+<div class="modal fade" id="shareModal" tabindex="-1" aria-labelledby="shareModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="shareModalLabel" data-translate="createShareLink">Create Share Link</h5>
+        <button type="button" class="btn-close" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <form id="shareForm">
+          <div class="mb-3">
+            <label for="expireTime" class="form-label" data-translate="expireTimeLabel">Expiration Time</label>
+            <select class="form-select" id="expireTime" name="expire">
+              <option value="3600" data-translate="expire1Hour">1 Hour</option>
+              <option value="86400" selected data-translate="expire1Day">1 Day</option>
+              <option value="604800" data-translate="expire7Days">7 Days</option>
+              <option value="2592000" data-translate="expire30Days">30 Days</option>
+            </select>
+          </div>
+          <div class="mb-3">
+            <label for="maxDownloads" class="form-label" data-translate="maxDownloadsLabel">Max Downloads</label>
+            <select class="form-select" id="maxDownloads" name="max_downloads">
+              <option value="1" data-translate="max1Download">1 Time</option>
+              <option value="5" data-translate="max5Downloads">5 Time</option>
+              <option value="10" data-translate="max10Downloads">10 Time</option>
+              <option value="0" selected data-translate="maxUnlimited">Unlimited</option>
+            </select>
+          </div>
+          <div class="mb-3">
+            <label for="shareLink" class="form-label" data-translate="shareLinkLabel">Share Link</label>
+            <div class="input-group">
+              <input type="text" class="form-control" id="shareLink" readonly>
+              <button class="btn btn-outline-secondary" type="button" id="copyLinkBtn" data-translate-title="copyLinkButton">
+                <i class="bi bi-clipboard"></i>
+              </button>
+            </div>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal"><i class="fa fa-times" aria-hidden="true"></i> <span data-translate="closeButtonFooter">Close</span></button>
+        <button type="button" class="btn btn-warning" id="cleanExpiredBtn"><i class="fa fa-broom" aria-hidden="true"></i> <span data-translate="cleanExpiredButton">Clean Expired</span></button>
+        <button type="button" class="btn btn-danger" id="deleteAllBtn"><i class="fa fa-trash" aria-hidden="true"></i> <span data-translate="deleteAllButton">Delete All</span></button>
+        <button type="button" class="btn btn-primary" id="generateShareBtn"><i class="fa fa-link" aria-hidden="true"></i> <span data-translate="generateLinkButton">Generate Link</span></button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  let currentFilename = '';
+  const shareModal = document.getElementById('shareModal');
+  const shareLinkInput = document.getElementById('shareLink');
+  const copyLinkBtn = document.getElementById('copyLinkBtn');
+  const generateShareBtn = document.getElementById('generateShareBtn');
+
+  shareModal.addEventListener('show.bs.modal', (event) => {
+    currentFilename = event.relatedTarget.dataset.filename;
+  });
+
+  generateShareBtn.addEventListener('click', async () => {
+    const expire = parseInt(document.getElementById('expireTime').value, 10) || 0;
+    const maxDownloads = parseInt(document.getElementById('maxDownloads').value, 10) || 0;
+
+    try {
+       if (!currentFilename) throw new Error(translations['fileNotSelected'] || 'No file selected');
+      
+      const response = await fetch('/luci-static/spectra/bgm/share.php', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'create',
+          filename: currentFilename,
+          expire: expire,
+          max_downloads: maxDownloads,
+        }),
+      });
+
+      const data = await response.json();
+      if (!response.ok || !data.success) {
+        throw new Error(data.message || `${translations['httpError']} ${response.status}`);
+      }
+
+      const link = `${window.location.origin}/luci-static/spectra/bgm/download.php?token=${data.token}`;
+      shareLinkInput.value = link;
+      const message = translations['linkGenerated'] || '✅ Share link generated';
+      showLogMessage(message);
+      speakMessage(message);
+    } catch (error) {
+      console.error('Error:', error);
+      showLogMessage(`${translations['operationFailed'] || '❌ Operation failed'}: ${error.message}`);
+    }
+  });
+
+  copyLinkBtn.addEventListener('click', async () => {
+    try {
+      if (!shareLinkInput.value) throw new Error(translations['generateLinkFirst'] || 'Please generate the share link first');
+      
+      await navigator.clipboard.writeText(shareLinkInput.value);
+      showLogMessage(translations['linkCopied'] || '📋 Link copied to clipboard');
+    } catch (error) {
+      console.error('Copy failed:', error);
+      showLogMessage(`${translations['copyFailed'] || '❌ Copy failed'}: ${error.message}`);
+      shareLinkInput.select();
+      shareLinkInput.setSelectionRange(0, 99999);
+    }
+  });
+});
+
+const cleanExpiredBtn = document.getElementById('cleanExpiredBtn');
+cleanExpiredBtn.addEventListener('click', async () => {
+  try {
+    const res = await fetch('/luci-static/spectra/bgm/manage_tokens.php?action=clean');
+    const result = await res.json();
+
+    if (result.success) {
+      const msg = (translations['cleanSuccess'] || '✅ Clean completed').replace('%s', result.deleted);
+      showLogMessage(msg);
+      speakMessage(msg);
+    } else {
+      throw new Error(result.message || 'Operation failed');
+    }
+  } catch (err) {
+    showLogMessage(`${translations['operationFailed'] || '❌ Operation failed'}: ${err.message}`);
+  }
+});
+
+const deleteAllBtn = document.getElementById('deleteAllBtn');
+if (deleteAllBtn) {
+  deleteAllBtn.addEventListener('click', () => {
+    const confirmMessage = translations['confirmDeleteAll'] || '⚠️ Are you sure you want to delete ALL share records?';
+    showConfirmation(confirmMessage, async () => {
+      try {
+        const res = await fetch('/luci-static/spectra/bgm/manage_tokens.php?action=delete_all');
+        const result = await res.json();
+
+        if (result.success) {
+          const msg = (translations['deleteSuccess'] || '✅ All share records deleted').replace('%s', result.deleted);
+          showLogMessage(msg);
+          speakMessage(msg);
+        } else {
+          throw new Error(result.message || 'Operation failed');
+        }
+      } catch (err) {
+        showLogMessage(`${translations['operationFailed'] || '❌ Operation failed'}: ${err.message}`);
+      }
+    });
+  });
+}
 </script>

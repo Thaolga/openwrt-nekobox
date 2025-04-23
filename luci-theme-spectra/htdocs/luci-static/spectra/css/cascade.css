@@ -2993,15 +2993,15 @@ ul.cbi-tabmenu li.cbi-tab a {
 	}
 
 	ul.tabs li, ul.cbi-tabmenu li {
-		min-width: 100px;
-		font-size: 14px;
-		padding: 8px 12px !important;
-	}
+		min-width: auto !important;
+		font-size: 12px !important;
+		padding: 4px 6px !important;
+	}       
 
 	ul.tabs li a, ul.cbi-tabmenu li a {
 		white-space: nowrap;
-    text-align: center !important;   
-    display: block !important;    
+                text-align: center !important;   
+                display: block !important;    
 	}
 }
 
