@@ -100,8 +100,36 @@ make package/openwrt-nekobox/luci-app-nekobox/{clean,compile} V=s
  </p>
 </details>
 
- <details><summary>Dasboard</summary>
+ <details><summary>Theme</summary>
  <p>
-  <img src="https://raw.githubusercontent.com/Thaolga/luci-app-nekoclash/tmp/image_2024-09-03_16-50-53.png" alt="home">
+  <img src="https://raw.githubusercontent.com/Thaolga/openwrt-nekobox/theme/theme/image_2025-04-24_16-30-02.png" alt="home">
+ </p>
+
+ <p>
+  <img src="https://raw.githubusercontent.com/Thaolga/openwrt-nekobox/theme/theme/image_2025-04-24_16-30-46.png" alt="home">
+ </p>
+
+ <p>
+  <img src="https://raw.githubusercontent.com/Thaolga/openwrt-nekobox/theme/theme/image_2025-04-24_16-31-56.png" alt="home">
+ </p>
+
+ <p>
+  <img src="https://raw.githubusercontent.com/Thaolga/openwrt-nekobox/theme/theme/image_2025-04-24_16-33-00.png" alt="home">
+ </p>
+
+ <p>
+  <img src="https://raw.githubusercontent.com/Thaolga/openwrt-nekobox/theme/theme/image_2025-04-24_16-33-43.png" alt="home">
+ </p>
+
+ <p>
+  <img src="https://raw.githubusercontent.com/Thaolga/openwrt-nekobox/theme/theme/image_2025-04-24_16-34-13.png" alt="home">
+ </p>
+
+ <p>
+  <img src="https://raw.githubusercontent.com/Thaolga/openwrt-nekobox/theme/theme/image_2025-04-24_16-35-05.png" alt="home">
+ </p>
+
+ <p>
+  <img src="https://raw.githubusercontent.com/Thaolga/openwrt-nekobox/theme/theme/image_2025-04-24_16-35-35.png" alt="home">
  </p>
 </details>
