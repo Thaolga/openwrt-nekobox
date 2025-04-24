@@ -1305,16 +1305,21 @@ body:hover,
   }
 
 @media (max-width: 576px) {
-  .share-btn.custom-btn,
-  #clear-cache-btn {
+  .share-btn.custom-btn {
     display: none !important;
+  }
+}
+
+@media (max-width: 576px) {
+  .custom-btn {
+    margin-right: 0px !important;
   }
 }
 </style>
 
 <div class="container-sm container-bg text-center mt-4">
     <div class="alert alert-secondary d-none" id="toolbar">
-        <div class="d-flex justify-content-between">
+        <div class="d-flex justify-content-between flex-column flex-sm-row">
             <div>
                 <button class="btn btn-outline-primary" id="selectAllBtn" data-translate="select_all"></button>
                 <span id="selectedInfo"></span>
@@ -1356,7 +1361,7 @@ body:hover,
             <div class="me-3 d-flex gap-2 mt-2 ps-2 custom-tooltip-wrapper gap-2" 
                  data-tooltip="挂载点：<?= $mountPoint ?>｜已用空间：<?= formatSize($usedSpace) ?>">
                 <span class="btn btn-primary btn-sm mb-2 d-none d-sm-inline"><i class="bi bi-hdd"></i> <span data-translate="total">Total：</span><?= $totalSpace ? formatSize($totalSpace) : 'N/A' ?></span>
-                <span class="btn btn-success btn-sm mb-2"><i class="bi bi-hdd"></i> <span data-translate="free">Free：</span><?= $freeSpace ? formatSize($freeSpace) : 'N/A' ?></span>
+                <span class="btn btn-success btn-sm mb-2  d-none d-sm-inline"><i class="bi bi-hdd"></i> <span data-translate="free">Free：</span><?= $freeSpace ? formatSize($freeSpace) : 'N/A' ?></span>
             </div>
             <button class="btn btn-info" data-bs-toggle="modal" data-bs-target="#updateConfirmModal" data-translate-title="check_update"><i class="fas fa-cloud-download-alt"></i> <span class="btn-label"></span></button>
             <button class="btn btn-warning ms-2" data-bs-toggle="modal" data-bs-target="#uploadModal" data-translate-title="batch_upload"><i class="bi bi-upload"></i> <span class="btn-label"></span></button>
@@ -8110,21 +8115,28 @@ document.getElementById('selectAll').addEventListener('change', function(e) {
 <script>
 document.addEventListener("DOMContentLoaded", function () {
     const grid = document.getElementById("fileGrid");
-    new Sortable(grid, {
-        animation: 150,
-        onEnd: function () {
-            const filenames = Array.from(grid.querySelectorAll('[data-filename]'))
-                                  .map(el => el.getAttribute('data-filename'));
-            
-            fetch('order_handler.php', {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({ order: filenames })
-            })
-            .then(response => response.ok ? console.log('Order saved.') : console.error('Failed to save.'))
-            .catch(console.error);
-        }
-    });
+
+    const isSmallScreen = window.innerWidth < 768;
+
+    if (!isSmallScreen) {
+        new Sortable(grid, {
+            animation: 150,
+            onEnd: function () {
+                const filenames = Array.from(grid.querySelectorAll('[data-filename]'))
+                                      .map(el => el.getAttribute('data-filename'));
+                
+                fetch('order_handler.php', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ order: filenames })
+                })
+                .then(response => response.ok ? console.log('Order saved.') : console.error('Failed to save.'))
+                .catch(console.error);
+            }
+        });
+    } else {
+        console.log('Drag and drop is disabled on small screens.');
+    }
 });
 </script>
 
