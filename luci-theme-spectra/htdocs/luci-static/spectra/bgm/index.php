@@ -234,20 +234,62 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         root.style.setProperty("--base-chroma", baseChroma);
       })();
     </script>
+    
+    <style>
+      #mainContainer { display: none; }
+    </style>
+
+    <script>
+      document.addEventListener('DOMContentLoaded', function() {
+        try {
+            const container = document.getElementById('mainContainer');
+              if (!container) return;
+
+              const isFullscreen = localStorage.getItem('fullscreenState') === 'true';
+        
+              container.classList.toggle('container-fluid', isFullscreen);
+              container.classList.toggle('container-sm', !isFullscreen);
+
+              container.style.display = 'block';
+        
+              const toggleBtn = document.getElementById('toggleScreenBtn');
+              if (toggleBtn) {
+                  const icon = toggleBtn.querySelector('i');
+                  icon.className = isFullscreen ? 'bi-fullscreen-exit' : 'bi-arrows-fullscreen';
+              }
+
+              toggleBtn.addEventListener('click', function() {
+                  const isNowFullscreen = container.classList.contains('container-fluid');
+                  const icon = this.querySelector('i');
+            
+                  container.classList.toggle('container-fluid', !isNowFullscreen);
+                  container.classList.toggle('container-sm', isNowFullscreen);
+            
+                  icon.className = isNowFullscreen ? 'bi-arrows-fullscreen' : 'bi-fullscreen-exit';
+                  localStorage.setItem('fullscreenState', !isNowFullscreen);
+              });
+
+          } catch (error) {
+              const container = document.getElementById('mainContainer');
+              if (container) container.style.display = 'block';
+          }
+      });
+    </script>
+
 <style>
 :root {
 	--base-hue: 260;
 	--base-chroma: 0.03;
 	--danger-base: 15;
-        --base-hue-1: 20;
-        --base-hue-2: 200;
-        --base-hue-3: 135;
-        --base-hue-4: 80;
-        --base-hue-5: 270;
-        --base-hue-6: 170;
-        --base-hue-7: 340;
-        --l: 85%;
-        --c: 0.18;
+    --base-hue-1: 20;
+    --base-hue-2: 200;
+    --base-hue-3: 135;
+    --base-hue-4: 80;
+    --base-hue-5: 270;
+    --base-hue-6: 170;
+    --base-hue-7: 340;
+    --l: 85%;
+    --c: 0.18;
 	
 	--bg-body: oklch(40% var(--base-chroma) var(--base-hue) / 90%);
 	--bg-container: oklch(30% var(--base-chroma) var(--base-hue));
@@ -257,7 +299,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 	--header-bg: oklch(35% var(--base-chroma) var(--base-hue));
 	--border-color: oklch(40% var(--base-chroma) var(--base-hue));
 	--btn-primary-bg: oklch(50% 0.15 var(--base-hue));
-        --btn-success-bg: oklch(50% 0.2 240); 
+    --btn-success-bg: oklch(50% 0.2 240); 
 	--nav-btn-color: oklch(95% 0 0 / 80%);
 	--hover-tips-color: oklch(95% 0 0 / 80%);
 	--playlist-text: oklch(95% 0 0);
@@ -277,18 +319,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 	--btn-warning-hover: color-mix(in oklch, var(--btn-warning-bg), white 10%);
 	--sunset-bg: oklch(40% var(--base-chroma) var(--base-hue) / 90%);
 	--color-accent: oklch(55% 0.3 240);
-        --ocean-bg:     oklch(45% 0.3 calc(var(--base-hue) + 220));
-        --forest-bg:    oklch(40% 0.3 calc(var(--base-hue) + 140));
-        --rose-bg:      oklch(45% 0.3 calc(var(--base-hue) + 350));
-        --lavender-bg:  oklch(43% 0.3 calc(var(--base-hue) + 270));
-        --sand-bg:      oklch(42% 0.3 calc(var(--base-hue) + 60));
+    --ocean-bg:     oklch(45% 0.3 calc(var(--base-hue) + 220));
+    --forest-bg:    oklch(40% 0.3 calc(var(--base-hue) + 140));
+    --rose-bg:      oklch(45% 0.3 calc(var(--base-hue) + 350));
+    --lavender-bg:  oklch(43% 0.3 calc(var(--base-hue) + 270));
+    --sand-bg:      oklch(42% 0.3 calc(var(--base-hue) + 60));
 }
 
 [data-theme="light"] {
 	--base-hue: 200;
 	--base-chroma: 0.01;
-        --l: 60%;
-        --c: 0.25;
+    --l: 60%;
+    --c: 0.25;
 	
 	--bg-body: oklch(95% var(--base-chroma) var(--base-hue) / 90%);
 	--bg-container: oklch(99% var(--base-chroma) var(--base-hue));
@@ -298,7 +340,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 	--header-bg: oklch(88% var(--base-chroma) var(--base-hue));
 	--border-color: oklch(85% var(--base-chroma) var(--base-hue));
 	--btn-primary-bg: oklch(55% 0.3 var(--base-hue));
-        --btn-success-bg: oklch(70% 0.2 240); 
+    --btn-success-bg: oklch(70% 0.2 240); 
 	--nav-btn-color: oklch(70% 0.2 calc(var(--base-hue) + 60));
 	--playlist-text: oklch(25% 0 0);
 	--text-secondary: oklch(40% 0 0);
@@ -317,60 +359,60 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 	--btn-warning-hover: color-mix(in oklch, var(--btn-warning-bg), black 15%);
 	--sunset-bg: oklch(50% var(--base-chroma) var(--base-hue) / 90%);
 	--color-accent: oklch(55% 0.3 220);
-        --forest-bg:   oklch(50% 0.3 calc(var(--base-hue) + 140));
-        --rose-bg:     oklch(50% 0.3 calc(var(--base-hue) + 350));
-        --lavender-bg: oklch(50% 0.3 calc(var(--base-hue) + 270));
-        --sand-bg:     oklch(50% 0.3 calc(var(--base-hue) + 60));
+    --forest-bg:   oklch(50% 0.3 calc(var(--base-hue) + 140));
+    --rose-bg:     oklch(50% 0.3 calc(var(--base-hue) + 350));
+    --lavender-bg: oklch(50% 0.3 calc(var(--base-hue) + 270));
+    --sand-bg:     oklch(50% 0.3 calc(var(--base-hue) + 60));
 }
 
 @font-face {
-  font-display: swap; 
-  font-family: 'Fredoka One';
-  font-style: normal;
-  font-weight: 400;
-  src: url('/luci-static/spectra/fonts/fredoka-v16-latin-regular.woff2') format('woff2');
+    font-display: swap; 
+    font-family: 'Fredoka One';
+    font-style: normal;
+    font-weight: 400;
+    src: url('/luci-static/spectra/fonts/fredoka-v16-latin-regular.woff2') format('woff2');
 }
 
 @font-face {
-  font-display: swap; 
-  font-family: 'Noto Serif SC';
-  font-style: normal;
-  font-weight: 400;
-  src: url('/luci-static/spectra/fonts/noto-serif-sc-v31-latin-regular.woff2') format('woff2'); 
+    font-display: swap; 
+    font-family: 'Noto Serif SC';
+    font-style: normal;
+    font-weight: 400;
+    src: url('/luci-static/spectra/fonts/noto-serif-sc-v31-latin-regular.woff2') format('woff2'); 
 }
 
 @font-face {
-  font-display: swap; 
-  font-family: 'Comic Neue';
-  font-style: normal;
-  font-weight: 400;
-  src: url('/luci-static/spectra/fonts/comic-neue-v8-latin-regular.woff2') format('woff2'); 
+    font-display: swap; 
+    font-family: 'Comic Neue';
+    font-style: normal;
+    font-weight: 400;
+    src: url('/luci-static/spectra/fonts/comic-neue-v8-latin-regular.woff2') format('woff2'); 
 }
 
 body {
-        background: var(--body-bg-color, #f0ffff);
-        color: var(--text-primary);
-        -webkit-backdrop-filter: blur(10px);
-        transition: all 0.3s ease;
-        font-family: 'Fredoka One', cursive;
-        font-weight: 400; 
-        background: oklch(var(--bg-l) var(--base-chroma) var(--base-hue));
+    background: var(--body-bg-color, #f0ffff);
+    color: var(--text-primary);
+    -webkit-backdrop-filter: blur(10px);
+    transition: all 0.3s ease;
+    font-family: 'Fredoka One', cursive;
+    font-weight: 400; 
+    background: oklch(var(--bg-l) var(--base-chroma) var(--base-hue));
 }
 
 body.default-font {
-        font-family: system-ui, sans-serif;
-        font-weight: 400;
+    font-family: system-ui, sans-serif;
+    font-weight: 400;
 }
 
 body.system-nofo-font {
-        font-family: 'Noto Serif SC';
-        font-weight: 400;
+    font-family: 'Noto Serif SC';
+    font-weight: 400;
 }
 
 
 body.system-mono-font {
-        font-family: 'Comic Neue';
-        font-weight: 400;
+    font-family: 'Comic Neue';
+    font-weight: 400;
 }
 
 .container-bg,
@@ -423,34 +465,34 @@ body.system-mono-font {
 }
 
 .custom-tooltip-wrapper {
-        position: relative;
-        display: inline-block;
-        cursor: help; 
+    position: relative;
+    display: inline-block;
+    cursor: help; 
 }
 
 .custom-tooltip-wrapper::after {
-        content: attr(data-tooltip);
-        position: absolute;
-        top: -100%; 
-        left: 0;
-        transform: translateY(-8px); 
-        background-color: rgba(0, 0, 0, 0.8);
-        color: #fff;
-        padding: 6px 10px;
-        border-radius: 6px;
-        font-size: 0.875rem;
-        white-space: pre-wrap;
-        line-height: 1.4;
-        z-index: 999;
-        opacity: 0;
-        pointer-events: none;
-        transition: opacity 0.2s ease;
-        max-width: 300px;
-        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+    content: attr(data-tooltip);
+    position: absolute;
+    top: -100%; 
+    left: 0;
+    transform: translateY(-8px); 
+    background-color: rgba(0, 0, 0, 0.8);
+    color: #fff;
+    padding: 6px 10px;
+    border-radius: 6px;
+    font-size: 0.875rem;
+    white-space: pre-wrap;
+    line-height: 1.4;
+    z-index: 999;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s ease;
+    max-width: 300px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
 }
 
 .custom-tooltip-wrapper:hover::after {
-        opacity: 1;
+    opacity: 1;
 }
 
 .card {
@@ -524,7 +566,7 @@ h2 {
 }
 
 #toggleButton {
-        background-color: var(--sand-bg);
+    background-color: var(--sand-bg);
 
 }
 
@@ -598,10 +640,10 @@ label[for="selectAll"] {
 }
 
 .preview-img {
-        position: absolute;
-        min-width: 100%;
-        min-height: 100%;
-        object-fit: cover; 
+    position: absolute;
+    min-width: 100%;
+    min-height: 100%;
+    object-fit: cover; 
 }
 
 .preview-container:hover .preview-img {
@@ -648,17 +690,17 @@ label[for="selectAll"] {
 }
 
 #previewImage, #previewVideo {
-        max-width: 100%;
-        max-height: 100vh;
-        object-fit: contain;  
+    max-width: 100%;
+    max-height: 100vh;
+    object-fit: contain;  
 }
 
 .card-body.pt-2.mt-2 .d-flex {
-        justify-content: center;
+    justify-content: center;
 }
 
 .card-body.pt-2.mt-2 .d-flex .btn {
-        margin: 0 5px; 
+    margin: 0 5px; 
 }
 
 .d-flex {
@@ -790,15 +832,15 @@ body:hover,
 }
 
 #playlistContainer {
-        cursor: default; 
+    cursor: default; 
 }
 
 #playlistContainer:hover {
-        cursor: grab;    
+    cursor: grab;    
 }
 
 #playlistContainer:active {
-        cursor: grabbing;
+    cursor: grabbing;
 }
 
 ::-webkit-scrollbar:horizontal {
@@ -961,10 +1003,6 @@ body:hover,
 	align-items: center;
 	padding: 8px 12px;
 	min-height: 42px;
-}
-
-.file-list-item:hover {
-        cursor: grab; 
 }
 
 .remove-file {
@@ -1295,14 +1333,14 @@ body:hover,
   }
 }
 
-  @media (max-width: 576px) {
-    #fontToggleBtn {
-      margin-right: 8px;
-    }
-    #langBtnWrapper {
-      margin-left: 6px;
-    }
+@media (max-width: 576px) {
+  #fontToggleBtn {
+    margin-right: 8px;
   }
+  #langBtnWrapper {
+    margin-left: 6px;
+  }
+}
 
 @media (max-width: 576px) {
   .share-btn.custom-btn {
@@ -1315,10 +1353,21 @@ body:hover,
     margin-right: 0px !important;
   }
 }
+
+@media (max-width: 575.98px) {
+  #fontToggleBtn {
+    min-height: 26px;
+    padding: 8px 14px;
+  }
+
+  #fontToggleBtn i {
+    font-size: 1.1rem;
+  }
+}
 </style>
 
-<div class="container-sm container-bg text-center mt-4">
-    <div class="alert alert-secondary d-none" id="toolbar">
+<div class="container-sm container-bg text-center mt-4" id="mainContainer">
+   <div class="alert alert-secondary d-none" id="toolbar">
         <div class="d-flex justify-content-between flex-column flex-sm-row">
             <div>
                 <button class="btn btn-outline-primary" id="selectAllBtn" data-translate="select_all"></button>
@@ -1382,7 +1431,9 @@ body:hover,
             <label for="selectAll" class="form-check-label fs-5 ms-1" style="margin-right: 10px;" data-translate="select_all">Select All'</label>
             <input type="color" id="colorPicker" style="margin-right: 10px;" value="#333333" data-translate-title="component_bg_color"/>
             <input type="color" id="bodyBgColorPicker" value="#f0ffff" style="margin-right: 10px;" data-translate-title="page_bg_color" />
-            <button id="fontToggleBtn" style="border: 1px solid var(--accent-color); border-radius: 4px; width: 50px; display: flex; align-items: center; background-color: var(--accent-color); justify-content: center;" data-translate-title="toggle_font">🅰️</button>
+            <button class="btn btn-info ms-2" id="fontToggleBtn" data-translate-title="toggle_font"><i id="fontToggleIcon" class="fa-solid fa-font" style="color: white;"></i></button>
+            <button class="btn btn-success ms-2 d-none d-sm-inline" id="toggleScreenBtn" data-translate-title="toggle_fullscreen"><i class="bi bi-arrows-fullscreen"></i></button>
+            <button type="button" class="btn btn-primary ms-2 d-none d-sm-inline" onclick="showIpDetailModal()" data-translate-title="ip_info"><i class="fa-solid fa-satellite-dish"></i></button>
         <div class="ms-auto" style="margin-right: 20px;">
             <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#langModal">
                 <img id="flagIcon" src="/luci-static/ipip/flags/<?php echo $currentLang; ?>.png" style="width:24px; height:16px">
@@ -1590,9 +1641,9 @@ body:hover,
         </div>
     </div>
 
-        <form id="batchDeleteForm" method="post" style="display: none;">
-            <input type="hidden" name="batch_delete" value="1">
-        </form>
+    <form id="batchDeleteForm" method="post" style="display: none;">
+        <input type="hidden" name="batch_delete" value="1">
+    </form>
     </div>
 
     <div class="modal fade" id="uploadModal" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false">
@@ -3128,19 +3179,38 @@ function setBackground(filename) {
 
 <script>
 document.addEventListener("DOMContentLoaded", () => {
-    const theme = localStorage.getItem("theme") || "dark";
-    const bodyBgKey = `${theme}BodyBgColor`;
-    const defaultBg = theme === "dark" ? "#333333": "#f0ffff"; 
-    document.body.style.background = localStorage.getItem(bodyBgKey) || defaultBg;
+    const initColorStorage = () => {
+        if (!localStorage.getItem("darkBodyBgColor")) localStorage.setItem("darkBodyBgColor", "#333333");
+        if (!localStorage.getItem("lightBodyBgColor")) localStorage.setItem("lightBodyBgColor", "#f0ffff");
+    };
 
-    const bodyBgPicker = document.getElementById("bodyBgColorPicker");
-    bodyBgPicker.value = document.body.style.background;
-    
-    bodyBgPicker.addEventListener("input", (e) => {
-        const color = e.target.value;
-        const currentTheme = document.documentElement.getAttribute("data-theme");
-        document.body.style.background = color;
-        localStorage.setItem(`${currentTheme}BodyBgColor`, color); 
+    const applyThemeColor = () => {
+        const currentTheme = document.documentElement.getAttribute("data-theme") || "dark";
+        const colorKey = `${currentTheme}BodyBgColor`;
+        document.body.style.background = localStorage.getItem(colorKey);
+        document.getElementById("bodyBgColorPicker").value = localStorage.getItem(colorKey);
+    };
+
+    initColorStorage();
+
+    applyThemeColor();
+
+    const themeObserver = new MutationObserver((mutations) => {
+        mutations.forEach(mutation => {
+            if (mutation.attributeName === "data-theme") {
+                applyThemeColor();
+            }
+        });
+    });
+    themeObserver.observe(document.documentElement, { attributes: true });
+
+    document.getElementById("bodyBgColorPicker").addEventListener("input", (e) => {
+        const currentTheme = document.documentElement.getAttribute("data-theme") || "dark";
+        const colorKey = `${currentTheme}BodyBgColor`;
+        const newColor = e.target.value;
+        
+        document.body.style.background = newColor;
+        localStorage.setItem(colorKey, newColor);
     });
 });
 </script>
@@ -5172,19 +5242,24 @@ document.getElementById('urlModal').addEventListener('hidden.bs.modal', function
 <script>
 document.addEventListener("DOMContentLoaded", () => {
   const btn = document.getElementById("fontToggleBtn");
+  const icon = document.getElementById("fontToggleIcon");
   const body = document.body;
   const storageKey = "fontToggle";
 
   const fonts = [
-    { class: "default-font", key: "font_default" },
-    { class: "fredoka-font", key: "font_fredoka" },
-    { class: "system-nofo-font", key: "font_noto" },
-    { class: "system-mono-font", key: "font_mono" } 
+    { class: "default-font", key: "font_default", icon: "fa-font" },
+    { class: "fredoka-font", key: "font_fredoka", icon: "fa-child-reaching" },
+    { class: "system-nofo-font", key: "font_noto", icon: "fa-language" },
+    { class: "system-mono-font", key: "font_mono", icon: "fa-code" }
   ];
 
   const savedFont = localStorage.getItem(storageKey);
   if (savedFont) {
+    const fontObj = fonts.find(f => f.class === savedFont);
     body.classList.add(savedFont);
+    if (fontObj) updateIcon(fontObj.icon);
+  } else {
+    updateIcon("fa-font");
   }
 
   btn.addEventListener("click", () => {
@@ -5196,16 +5271,17 @@ document.addEventListener("DOMContentLoaded", () => {
     body.classList.add(nextFont.class);
     localStorage.setItem(storageKey, nextFont.class);
 
+    updateIcon(nextFont.icon);
+
     const message = translations[nextFont.key] || "Switched font";
-
-    if (typeof speakMessage === "function") {
-      speakMessage(message);
-    }
-
-    if (typeof showLogMessage === "function") {
-      showLogMessage(message);
-    }
+    if (typeof speakMessage === "function") speakMessage(message);
+    if (typeof showLogMessage === "function") showLogMessage(message);
   });
+
+  function updateIcon(iconName) {
+    icon.className = `fa-solid ${iconName}`;
+    icon.style.color = "white";
+  }
 });
 </script>
 
@@ -5253,22 +5329,22 @@ $langData = [
         'english'                => '英文',
         'korean'                 => '韩语',
         'vietnamese'             => '越南语',
-        'thailand'             => '泰语',
+        'thailand'               => '泰语',
         'japanese'               => '日语',
         'russian'                => '俄语',
         'germany'                => '德语',
         'france'                 => '法语',
         'arabic'                 => '阿拉伯语',
         'spanish'                => '西班牙语',
-        'bangladesh'                => '孟加拉语',
+        'bangladesh'             => '孟加拉语',
         'close'                  => '关闭',
         'save'                   => '保存',
         'theme_download'         => '主题下载',
         'select_all'             => '全选',
         'batch_delete'           => '批量删除选中文件',
-        'batch_delete_success' => '✅ 批量删除成功',
-        'batch_delete_failed' => '❌ 批量删除失败',
-        'confirm_delete' => '确定删除？',
+        'batch_delete_success'   => '✅ 批量删除成功',
+        'batch_delete_failed'    => '❌ 批量删除失败',
+        'confirm_delete'         => '确定删除？',
         'total'                  => '总共：',
         'free'                   => '剩余：',
         'hover_to_preview'       => '点击激活悬停播放',
@@ -5453,6 +5529,15 @@ $langData = [
         'deleteSuccess' => '✅ 所有分享记录已删除，%s 个文件已移除',
         'confirmDeleteAll' => '⚠️ 确定要删除所有分享记录吗？',
         'operationFailed' => '❌ 操作失败',
+        'ip_info' => 'IP详细信息',
+        'ip_support' => 'IP支持',
+        'ip_address' => 'IP地址',
+        'location' => '地区',
+        'isp' => '运营商',
+        'asn' => 'ASN',
+        'timezone' => '时区',
+        'latitude_longitude' => '经纬度',
+        'latency_info' => '延迟信息',
         'selected_info' => '已选择 %d 个文件，合计 %s MB'
     ],
 
@@ -5463,14 +5548,14 @@ $langData = [
         'english'                => '英文',
         'korean'                 => '韓語',
         'vietnamese'             => '越南語',
-        'thailand'            => '泰語',
+        'thailand'               => '泰語',
         'japanese'               => '日語',
         'russian'                => '俄語',
         'germany'                => '德語',
         'france'                 => '法語',
         'arabic'                 => '阿拉伯語',
         'spanish'                => '西班牙語',
-       'bangladesh' => '孟加拉語',
+       'bangladesh'              => '孟加拉語',
         'close'                  => '關閉',
         'save'                   => '保存',
         'theme_download'         => '主題下載',
@@ -5664,6 +5749,15 @@ $langData = [
         'deleteSuccess' => '✅ 所有分享記錄已刪除，%s 個文件已移除',
         'confirmDeleteAll' => '⚠️ 確定要刪除所有分享記錄嗎？',
         'operationFailed' => '❌ 操作失敗',
+        'ip_info' => 'IP詳細資料',
+        'ip_support' => 'IP支援',
+        'ip_address' => 'IP地址',
+        'location' => '地區',
+        'isp' => '運營商',
+        'asn' => 'ASN',
+        'timezone' => '時區',
+        'latitude_longitude' => '經緯度',
+        'latency_info' => '延遲資訊',
         'selected_info' => '已選擇 %d 個文件，合計 %s MB'
     ],
 
@@ -5681,7 +5775,7 @@ $langData = [
         'france'                 => '프랑스어',
         'arabic'                 => '아랍어',
         'spanish'                => '스페인어',
-        'bangladesh' => '벵골어',
+        'bangladesh'             => '벵골어',
         'close'                  => '닫기',
         'save'                   => '저장',
         'theme_download'         => '테마 다운로드',
@@ -5875,6 +5969,15 @@ $langData = [
         'deleteSuccess' => '✅ 모든 공유 기록이 삭제되었습니다, %s 개의 파일이 제거되었습니다',
         'confirmDeleteAll' => '⚠️ 모든 공유 기록을 삭제하시겠습니까?',
         'operationFailed' => '❌ 작업 실패',
+        'ip_info' => 'IP 상세 정보',
+        'ip_support' => 'IP 지원',
+        'ip_address' => 'IP 주소',
+        'location' => '지역',
+        'isp' => '통신사',
+        'asn' => 'ASN',
+        'timezone' => '시간대',
+        'latitude_longitude' => '좌표',
+        'latency_info' => '지연 정보',
         'selected_info' => '선택된 파일: %d개, 총합: %s MB'
     ],
 
@@ -6085,6 +6188,15 @@ $langData = [
         'deleteSuccess' => '✅ すべての共有記録を削除しました, %s 個のファイルが削除されました',
         'confirmDeleteAll' => '⚠️ すべての共有記録を削除してもよろしいですか？',
         'operationFailed' => '❌ 操作に失敗しました',
+        'ip_info' => 'IP詳細情報',
+        'ip_support' => 'IPサポート',
+        'ip_address' => 'IPアドレス',
+        'location' => '地域',
+        'isp' => 'プロバイダ',
+        'asn' => 'ASN',
+        'timezone' => 'タイムゾーン',
+        'latitude_longitude' => '座標',
+        'latency_info' => 'レイテンシ情報',
         'selected_info' => '%dファイル選択（%s MB）'
     ],
 
@@ -6295,6 +6407,15 @@ $langData = [
         'deleteSuccess' => '✅ Tất cả liên kết đã bị xóa, %s tệp đã bị xóa',
         'confirmDeleteAll' => '⚠️ Bạn có chắc muốn xóa TẤT CẢ các liên kết chia sẻ không?',
         'operationFailed' => '❌ Thao tác thất bại',
+        'ip_info' => 'Thông tin IP',
+        'ip_support' => 'Hỗ trợ IP',
+        'ip_address' => 'Địa chỉ IP',
+        'location' => 'Khu vực',
+        'isp' => 'Nhà cung cấp',
+        'asn' => 'ASN',
+        'timezone' => 'Múi giờ',
+        'latitude_longitude' => 'Tọa độ',
+        'latency_info' => 'Thông tin độ trễ',
         'selected_info' => 'Đã chọn %d tệp (%s MB)'
     ],
 
@@ -6311,7 +6432,7 @@ $langData = [
         'france'                 => 'ภาษาฝรั่งเศส',
         'arabic'                 => 'ภาษาอาหรับ',
         'spanish'                => 'ภาษาสเปน',
-        'bangladesh' => 'เบงกาลี',
+        'bangladesh'             => 'เบงกาลี',
         'close'                  => 'ปิด',
         'save'                   => 'บันทึก',
         'theme_download'         => 'ดาวน์โหลดธีม',
@@ -6489,6 +6610,15 @@ $langData = [
         'deleteSuccess' => '✅ ลบประวัติการแชร์ทั้งหมดแล้ว, %s ไฟล์ถูกลบ',
         'confirmDeleteAll' => '⚠️ คุณแน่ใจหรือไม่ว่าต้องการลบประวัติการแชร์ทั้งหมด?',
         'operationFailed' => '❌ ล้มเหลวในการดำเนินการ',
+        'ip_info' => 'รายละเอียด IP',
+        'ip_support' => 'การสนับสนุน IP',
+        'ip_address' => 'ที่อยู่ IP',
+        'location' => 'ที่ตั้ง',
+        'isp' => 'ผู้ให้บริการ',
+        'asn' => 'ASN',
+        'timezone' => 'เขตเวลา',
+        'latitude_longitude' => 'พิกัด',
+        'latency_info' => 'ข้อมูลความหน่วง',
         'selected_info' => 'เลือกไฟล์แล้ว %d ไฟล์ รวมทั้งหมด %s MB'
     ],
 
@@ -6499,14 +6629,14 @@ $langData = [
         'english'                => 'Английский',
         'korean'                 => 'Корейский',
         'vietnamese'             => 'Вьетнамский',
-        'thailand'              => 'Тайский',
+        'thailand'               => 'Тайский',
         'japanese'               => 'Японский',
         'russian'                => 'Русский',
         'germany'                => 'Немецкий',
         'france'                 => 'Французский',
         'arabic'                 => 'Арабский',
         'spanish'                => 'Испанский',
-        'bangladesh' => 'Бенгальский',
+        'bangladesh'             => 'Бенгальский',
         'close'                  => 'Закрыть',
         'save'                   => 'Сохранить',
         'theme_download'         => 'Скачать тему',
@@ -6685,6 +6815,15 @@ $langData = [
         'deleteSuccess' => '✅ Все записи о совместном доступе удалены, %s файл(ов) удалено',
         'confirmDeleteAll' => '⚠️ Вы уверены, что хотите удалить ВСЕ записи о совместном доступе?',
         'operationFailed' => '❌ Не удалось выполнить операцию',
+        'ip_info' => 'IP информация',
+        'ip_support' => 'IP поддержка',
+        'ip_address' => 'IP адрес',
+        'location' => 'Локация',
+        'isp' => 'Провайдер',
+        'asn' => 'ASN',
+        'timezone' => 'Часовой пояс',
+        'latitude_longitude' => 'Координаты',
+        'latency_info' => 'Задержка',
         'selected_info' => 'Выбрано %d файлов, всего %s MB'
     ],
 
@@ -6886,6 +7025,15 @@ $langData = [
         'deleteSuccess' => '✅ تم حذف جميع سجلات المشاركة، تم حذف %s ملفًا',
         'confirmDeleteAll' => '⚠️ هل أنت متأكد أنك تريد حذف جميع سجلات المشاركة؟',
         'operationFailed' => '❌ فشل في العملية',
+        'ip_info' => 'تفاصيل IP',
+        'ip_support' => 'دعم IP',
+        'ip_address' => 'عنوان IP',
+        'location' => 'الموقع',
+        'isp' => 'مزود الخدمة',
+        'asn' => 'ASN',
+        'timezone' => 'المنطقة الزمنية',
+        'latitude_longitude' => 'إحداثيات',
+        'latency_info' => 'معلومات التأخر',
         'selected_info' => 'تم اختيار %d ملفات (%s ميجابايت)'
     ],
 
@@ -6903,7 +7051,7 @@ $langData = [
         'france'                 => 'Francés',
         'arabic'                 => 'Árabe',
         'spanish'                => 'Español',
-        'bangladesh' => 'Bengalí',
+        'bangladesh'             => 'Bengalí',
         'close'                  => 'Cerrar',
         'save'                   => 'Guardar',
         'theme_download'         => 'Descargar tema',
@@ -7081,6 +7229,15 @@ $langData = [
         'deleteSuccess' => '✅ Todos los registros compartidos han sido eliminados, %s archivo(s) eliminado(s)',
         'confirmDeleteAll' => '⚠️ ¿Está seguro de que desea eliminar TODOS los registros compartidos?',
         'operationFailed' => '❌ Operación fallida',
+        'ip_info' => 'Detalles de IP',
+        'ip_support' => 'Soporte IP',
+        'ip_address' => 'Dirección IP',
+        'location' => 'Ubicación',
+        'isp' => 'Proveedor',
+        'asn' => 'ASN',
+        'timezone' => 'Zona horaria',
+        'latitude_longitude' => 'Coordenadas',
+        'latency_info' => 'Informe de latencia',
         'selected_info' => 'Seleccionados %d archivos, en total %s MB'
     ],
 
@@ -7091,14 +7248,14 @@ $langData = [
         'english'                => 'Englisch',
         'korean'                 => 'Koreanisch',
         'vietnamese'             => 'Vietnamesisch',
-        'thailand'             => 'Thailändisch',
+        'thailand'               => 'Thailändisch',
         'japanese'               => 'Japanisch',
         'russian'                => 'Russisch',
         'germany'                => 'Deutsch',
         'france'                 => 'Französisch',
         'arabic'                 => 'Arabisch',
         'spanish'                => 'Spanisch',
-        'bangladesh' => 'Bengalisch',
+        'bangladesh'             => 'Bengalisch',
         'close'                  => 'Schließen',
         'save'                   => 'Speichern',
         'theme_download'         => 'Theme herunterladen',
@@ -7276,6 +7433,16 @@ $langData = [
         'deleteSuccess' => '✅ Alle Freigabelinks wurden gelöscht, %s Datei(en) wurden entfernt',
         'confirmDeleteAll' => '⚠️ Möchten Sie wirklich ALLE Freigabelinks löschen?',
         'operationFailed' => '❌ Vorgang fehlgeschlagen',
+        'ip_info' => 'IP-Informationen',
+        'ip_support' => 'IP-Support',
+        'ip_address' => 'IP-Adresse',
+        'location' => 'Standort',
+        'isp' => 'Anbieter',
+        'asn' => 'ASN',
+        'timezone' => 'Zeitzone',
+        'latitude_longitude' => 'Koordinaten',
+        'latency_info' => 'Latenzinformationen',
+
         'selected_info' => '%d Dateien ausgewählt, insgesamt %s MB'
     ],
 
@@ -7286,14 +7453,14 @@ $langData = [
         'english'                => 'Anglais',
         'korean'                 => 'Coréen',
         'vietnamese'             => 'Vietnamien',
-        'thailand'                    => 'Thaï',
+        'thailand'               => 'Thaï',
         'japanese'               => 'Japonais',
         'russian'                => 'Russe',
         'germany'                => 'Allemand',
         'france'                 => 'Français',
         'arabic'                 => 'Arabe',
         'spanish'                => 'Espagnol',
-        'bangladesh' => 'Bengali',
+        'bangladesh'             => 'Bengali',
         'close'                  => 'Fermer',
         'save'                   => 'Enregistrer',
         'theme_download'         => 'Télécharger le thème',
@@ -7471,6 +7638,15 @@ $langData = [
         'deleteSuccess' => '✅ Tous les liens partagés ont été supprimés, %s fichier(s) supprimé(s)',
         'confirmDeleteAll' => '⚠️ Voulez-vous vraiment supprimer TOUS les enregistrements de partage ?',
         'operationFailed' => '❌ Échec de l\'opération',
+        'ip_info' => 'Informations IP',
+        'ip_support' => 'Support IP',
+        'ip_address' => 'Adresse IP',
+        'location' => 'Localisation',
+        'isp' => 'Fournisseur',
+        'asn' => 'ASN',
+        'timezone' => 'Fuseau horaire',
+        'latitude_longitude' => 'Coordonnées',
+        'latency_info' => 'Informations de latence',
         'selected_info' => '%d fichiers sélectionnés, total de %s Mo'
     ],
 
@@ -7481,14 +7657,14 @@ $langData = [
         'english'                => 'English',
         'korean'                 => 'Korean',
         'vietnamese'             => 'Vietnamese',
-        'thailand'                  => 'Thai',
+        'thailand'               => 'Thai',
         'japanese'               => 'Japanese',
         'russian'                => 'Russian',
         'germany'                => 'German',
         'france'                 => 'French',
         'arabic'                 => 'Arabic',
         'spanish'                => 'Spanish',
-        'bangladesh' => 'Bengali',
+        'bangladesh'             => 'Bengali',
         'close'                  => 'Close',
         'save'                   => 'Save',
         'theme_download'         => 'Theme Download',
@@ -7679,6 +7855,15 @@ $langData = [
         'deleteSuccess' => '✅ All share records deleted, %s file(s) removed',
         'confirmDeleteAll' => '⚠️ Are you sure you want to delete ALL share records?',
         'operationFailed' => '❌ Operation failed',
+        'ip_info' => 'IP Details',
+        'ip_support' => 'IP Support',
+        'ip_address' => 'IP Address',
+        'location' => 'Location',
+        'isp' => 'ISP',
+        'asn' => 'ASN',
+        'timezone' => 'Timezone',
+        'latitude_longitude' => 'Coordinates',
+        'latency_info' => 'Latency Info',
         'selected_info' => 'Selected %d files, total %s MB'
     ],
     'bn' => [
@@ -7695,7 +7880,7 @@ $langData = [
         'france'                 => 'ফরাসি',
         'arabic'                 => 'আরবি',
         'spanish'                => 'স্প্যানিশ',
-        'bangladesh' => 'বাংলা',
+        'bangladesh'             => 'বাংলা',
         'close'                  => 'বন্ধ',
         'save'                   => 'সংরক্ষণ',
         'theme_download'         => 'থিম ডাউনলোড',
@@ -7873,6 +8058,15 @@ $langData = [
         'deleteSuccess' => '✅ সব শেয়ার রেকর্ড মুছে ফেলা হয়েছে, %s ফাইল মুছে ফেলা হয়েছে',
         'confirmDeleteAll' => '⚠️ আপনি কি নিশ্চিত আপনি সব শেয়ার রেকর্ড মুছে ফেলতে চান?',
         'operationFailed' => '❌ অপারেশন ব্যর্থ হয়েছে',
+        'ip_info' => 'আইপি বিবরণ',
+        'ip_support' => 'আইপি সমর্থন',
+        'ip_address' => 'আইপি ঠিকানা',
+        'location' => 'অবস্থান',
+        'isp' => 'সেবা প্রদানকারী',
+        'asn' => 'ASN',
+        'timezone' => 'সময় অঞ্চল',
+        'latitude_longitude' => 'স্থানাঙ্ক',
+        'latency_info' => 'বিলম্ব তথ্য',
         'selected_info' => '%d টি ফাইল নির্বাচিত, মোট %s MB'
     ]
 ];
@@ -8393,3 +8587,233 @@ if (deleteAllBtn) {
   });
 }
 </script>
+
+<div class="modal fade custom-modal" id="ipDetailModal" tabindex="-1" role="dialog" aria-labelledby="ipDetailModalLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+    <div class="modal-dialog modal-xl draggable" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="ipDetailModalLabel" data-translate="ip_info">IP Details</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="detail-row">
+                    <span class="detail-label" data-translate="ip_address">IP Address</span>
+                    <span class="detail-value"></span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label" data-translate="location">Location</span>
+                    <span class="detail-value"></span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label" data-translate="isp">ISP</span>
+                    <span class="detail-value"></span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">ASN</span>
+                    <span class="detail-value"></span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label" data-translate="timezone">Timezone</span>
+                    <span class="detail-value"></span>
+                </div>
+                <div class="detail-row map-coord-row" style="display: none;">
+                    <span class="detail-label" data-translate="latitude_longitude">Coordinates</span>
+                    <span class="detail-value"></span>
+                </div>
+                <div class="detail-row map-container" style="height: 400px; margin-top: 20px; display: none;">
+                    <div id="leafletMap" style="width: 100%; height: 100%;"></div>
+                </div>
+                <h5 style="margin-top: 15px;" data-translate="latency_info">Latency Info</h5>
+                <div class="detail-row" id="delayInfo" style="display: flex; flex-wrap: wrap;"></div>
+                </div>
+              <div class="modal-footer">
+                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" data-translate="cancel"></button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+async function translateText(text, targetLang = null) {
+  if (!text?.trim()) return text;
+  const countryToLang = {
+    'CN':'zh-CN','HK':'zh-HK','TW':'zh-TW','JA':'ja',
+    'KO':'ko','VI':'vi','TH':'th','GB':'en','FR':'fr',
+    'DE':'de','RU':'ru','US':'en','MX':'es'
+  };
+  if (!targetLang) targetLang = localStorage.getItem('language') || 'CN';
+  targetLang = countryToLang[targetLang.toUpperCase()] || targetLang;
+  const apiLangMap = {
+    'zh-CN':'zh-CN','zh-HK':'zh-HK','zh-TW':'zh-TW',
+    'ja':'ja','ko':'ko','vi':'vi','en':'en-GB','ru':'ru'
+  };
+  const apiTargetLang = apiLangMap[targetLang] || targetLang;
+  const detectJP = t => /[\u3040-\u309F\u30A0-\u30FF\u4E00-\u9FAF]/.test(t);
+  const sourceLang = detectJP(text) ? 'ja' : 'en';
+  if (sourceLang.split('-')[0] === apiTargetLang.split('-')[0]) return text;
+  const cacheKey = `trans_${sourceLang}_${apiTargetLang}_${text}`;
+  const cached = localStorage.getItem(cacheKey);
+  if (cached) return cached;
+  const url = `https://api.mymemory.translated.net/get?q=${encodeURIComponent(text)}&langpair=${sourceLang}|${apiTargetLang}`;
+  try {
+    const res  = await fetch(url);
+    const data = await res.json();
+    const translated = data.responseData?.translatedText || text;
+    localStorage.setItem(cacheKey, translated);
+    return translated;
+  } catch {
+    return text;
+  }
+}
+
+let IP = {
+  ipApis: [
+    {url:'https://api.ipify.org?format=json', type:'json', key:'ip'},
+    {url:'https://ipapi.co/json/',           type:'json', key:'ip'}
+  ],
+  get(url,type) { return fetch(url,{cache:'no-store'}).then(r=> type==='text'?r.text():r.json()); },
+  async fetchIP() {
+    for (let api of this.ipApis) {
+      try {
+        const data = await this.get(api.url, api.type);
+        const ip = api.type==='json'
+          ? (api.key? data[api.key]: data.ip)
+          : (data.match(/\d+\.\d+\.\d+\.\d+/)||[])[0];
+        if (ip) return ip;
+      } catch {}
+    }
+    throw new Error('Unable to retrieve IP');
+  }
+};
+
+async function fetchGeo(ip) {
+  for (let url of [
+    `https://ipapi.co/${ip}/json/`,
+    `https://api.ip.sb/geoip/${ip}`
+  ]) {
+    try { return await IP.get(url,'json'); }
+    catch {}
+  }
+  throw new Error('Unable to retrieve geographic information');
+}
+
+const pingSites = { Baidu:'https://www.baidu.com', Taobao:'https://www.taobao.com', YouTube:'https://www.youtube.com', Google:'https://www.google.com', GitHub:'https://www.github.com', OpenAI:'https://www.openai.com' };
+async function checkAllPings() {
+  const res = {};
+  for (let [name,url] of Object.entries(pingSites)) {
+    try {
+      const t0 = performance.now();
+      await fetch(url,{mode:'no-cors',cache:'no-cache'});
+      res[name] = Math.round(performance.now()-t0);
+    } catch {
+      res[name] = 'Timeout';
+    }
+  }
+  return res;
+}
+
+async function showIpDetailModal() {
+  const modalEl = document.getElementById('ipDetailModal');
+  const modal   = new bootstrap.Modal(modalEl,{backdrop:'static',keyboard:false});
+  modal.show();
+
+  modalEl.querySelectorAll('.detail-value').forEach(el=>el.innerHTML=`<span class="spinner-border spinner-border-sm"></span>`);
+  document.getElementById('delayInfo').innerHTML=`<span class="spinner-border spinner-border-sm"></span>`;
+  document.querySelector('.map-coord-row').style.display='none';
+  document.querySelector('.map-container').style.display='none';
+
+  try {
+    const ip  = await IP.fetchIP();
+    const geo = await fetchGeo(ip);
+
+    const parts = [geo.city,geo.region,geo.country_name].filter(Boolean);
+    const unique = parts.filter((v,i,a)=>a.indexOf(v)===i).join(' ');
+    const locationText = await translateText(unique);
+
+    let isp = geo.org||geo.isp||'';
+    if (!isp && geo.as) isp = geo.as.split(' ').slice(1).join(' ');
+    isp = await translateText(isp);
+    const asn    = geo.asn||geo.as?.split(' ')[0]||'';
+    const asnOrg = await translateText(geo.asn_org||isp);
+
+    const vals = modalEl.querySelectorAll('.detail-row .detail-value');
+    vals[0].textContent = ip;
+    vals[1].textContent = locationText;
+    vals[2].textContent = isp;
+    vals[3].textContent = [asn,asnOrg].filter(Boolean).join(' ');
+    vals[4].textContent = geo.timezone||'';
+
+    if (geo.latitude && geo.longitude) {
+      document.querySelector('.map-coord-row').style.display='flex';
+      document.querySelector('.map-coord-row .detail-value').textContent = `${geo.latitude}, ${geo.longitude}`;
+      document.querySelector('.map-container').style.display='block';
+
+      setTimeout(()=>{
+        if (window._leafletMap) window._leafletMap.remove();
+        window._leafletMap = L.map('leafletMap').setView([geo.latitude,geo.longitude],10);
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(window._leafletMap);
+        L.marker([geo.latitude,geo.longitude])
+         .addTo(window._leafletMap)
+         .bindPopup(locationText).openPopup();
+         window._leafletMap.addControl(new L.Control.FullScreen({
+             position: 'topright',
+             title: ' ',
+             titleCancel: ' ',
+             content: '<i class="fas fa-expand"></i>',
+             contentCancel: '<i class="fas fa-compress"></i>'
+         }));
+      },200);
+    }
+
+    const p = await checkAllPings();
+    document.getElementById('delayInfo').innerHTML = Object.entries(p).map(([n,t])=>{
+      const color = typeof t==='number'
+        ? (t<300?'#09B63F':t<700?'#FFA500':'#ff6b6b')
+        : '#ff6b6b';
+      return `<span style="margin-right:20px;color:${color}">${n}: ${t==='Timeout'?'Timeout':t+'ms'}</span>`;
+    }).join('');
+
+  } catch (err) {
+    console.error(err);
+    modalEl.querySelector('.modal-body').innerHTML = `
+      <div style="padding:20px;text-align:center;color:#c00;">
+        <p>Failed to retrieve the information, please try again later.</p>
+      </div>`;
+  }
+}
+</script>
+
+<link rel="stylesheet" href="/luci-static/spectra/css/leaflet.css" />
+<script src="/luci-static/spectra/js/leaflet.js"></script>
+<link rel="stylesheet" href="/luci-static/spectra/css/Control.FullScreen.min.css">
+<script src="/luci-static/spectra/js/Control.FullScreen.min.js"></script>
+
+<style>
+
+#ipDetailModal .modal-body h5 {
+    margin: 20px 0 15px !important;
+}
+
+.detail-row {
+    display: flex;
+    margin-bottom: 10px;
+    line-height: 1.6;
+}
+
+.detail-label {
+    flex: 0 0 200px;
+    text-align: left;
+    font-weight: 500;
+    padding-right: 18px;
+}
+
+.detail-value {
+    flex: 1;
+    text-align: left;
+    word-break: break-all;
+    margin-left: 0;
+}
+</style>
+
