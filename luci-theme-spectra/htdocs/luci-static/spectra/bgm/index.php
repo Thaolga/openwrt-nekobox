@@ -278,18 +278,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 <style>
 :root {
-	--base-hue: 260;
+        --base-hue: 260;
 	--base-chroma: 0.03;
 	--danger-base: 15;
-    --base-hue-1: 20;
-    --base-hue-2: 200;
-    --base-hue-3: 135;
-    --base-hue-4: 80;
-    --base-hue-5: 270;
-    --base-hue-6: 170;
-    --base-hue-7: 340;
-    --l: 85%;
-    --c: 0.18;
+        --base-hue-1: 20;
+        --base-hue-2: 200;
+        --base-hue-3: 135;
+        --base-hue-4: 80;
+        --base-hue-5: 270;
+        --base-hue-6: 170;
+        --base-hue-7: 340;
+        --l: 85%;
+        --c: 0.18;
 	
 	--bg-body: oklch(40% var(--base-chroma) var(--base-hue) / 90%);
 	--bg-container: oklch(30% var(--base-chroma) var(--base-hue));
@@ -299,7 +299,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 	--header-bg: oklch(35% var(--base-chroma) var(--base-hue));
 	--border-color: oklch(40% var(--base-chroma) var(--base-hue));
 	--btn-primary-bg: oklch(50% 0.15 var(--base-hue));
-    --btn-success-bg: oklch(50% 0.2 240); 
+        --btn-success-bg: oklch(50% 0.2 240); 
 	--nav-btn-color: oklch(95% 0 0 / 80%);
 	--hover-tips-color: oklch(95% 0 0 / 80%);
 	--playlist-text: oklch(95% 0 0);
@@ -319,18 +319,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 	--btn-warning-hover: color-mix(in oklch, var(--btn-warning-bg), white 10%);
 	--sunset-bg: oklch(40% var(--base-chroma) var(--base-hue) / 90%);
 	--color-accent: oklch(55% 0.3 240);
-    --ocean-bg:     oklch(45% 0.3 calc(var(--base-hue) + 220));
-    --forest-bg:    oklch(40% 0.3 calc(var(--base-hue) + 140));
-    --rose-bg:      oklch(45% 0.3 calc(var(--base-hue) + 350));
-    --lavender-bg:  oklch(43% 0.3 calc(var(--base-hue) + 270));
-    --sand-bg:      oklch(42% 0.3 calc(var(--base-hue) + 60));
+        --ocean-bg:     oklch(45% 0.3 calc(var(--base-hue) + 220));
+        --forest-bg:    oklch(40% 0.3 calc(var(--base-hue) + 140));
+        --rose-bg:      oklch(45% 0.3 calc(var(--base-hue) + 350));
+        --lavender-bg:  oklch(43% 0.3 calc(var(--base-hue) + 270));
+        --sand-bg:      oklch(42% 0.3 calc(var(--base-hue) + 60));
 }
 
 [data-theme="light"] {
 	--base-hue: 200;
 	--base-chroma: 0.01;
-    --l: 60%;
-    --c: 0.25;
+        --l: 60%;
+        --c: 0.25;
 	
 	--bg-body: oklch(95% var(--base-chroma) var(--base-hue) / 90%);
 	--bg-container: oklch(99% var(--base-chroma) var(--base-hue));
@@ -340,7 +340,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 	--header-bg: oklch(88% var(--base-chroma) var(--base-hue));
 	--border-color: oklch(85% var(--base-chroma) var(--base-hue));
 	--btn-primary-bg: oklch(55% 0.3 var(--base-hue));
-    --btn-success-bg: oklch(70% 0.2 240); 
+        --btn-success-bg: oklch(70% 0.2 240); 
 	--nav-btn-color: oklch(70% 0.2 calc(var(--base-hue) + 60));
 	--playlist-text: oklch(25% 0 0);
 	--text-secondary: oklch(40% 0 0);
@@ -359,72 +359,72 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 	--btn-warning-hover: color-mix(in oklch, var(--btn-warning-bg), black 15%);
 	--sunset-bg: oklch(50% var(--base-chroma) var(--base-hue) / 90%);
 	--color-accent: oklch(55% 0.3 220);
-    --forest-bg:   oklch(50% 0.3 calc(var(--base-hue) + 140));
-    --rose-bg:     oklch(50% 0.3 calc(var(--base-hue) + 350));
-    --lavender-bg: oklch(50% 0.3 calc(var(--base-hue) + 270));
-    --sand-bg:     oklch(50% 0.3 calc(var(--base-hue) + 60));
+        --forest-bg:   oklch(50% 0.3 calc(var(--base-hue) + 140));
+        --rose-bg:     oklch(50% 0.3 calc(var(--base-hue) + 350));
+        --lavender-bg: oklch(50% 0.3 calc(var(--base-hue) + 270));
+        --sand-bg:     oklch(50% 0.3 calc(var(--base-hue) + 60));
 }
 
 @font-face {
-    font-display: swap; 
-    font-family: 'Fredoka One';
-    font-style: normal;
-    font-weight: 400;
-    src: url('/luci-static/spectra/fonts/fredoka-v16-latin-regular.woff2') format('woff2');
+        font-display: swap; 
+        font-family: 'Fredoka One';
+        font-style: normal;
+        font-weight: 400;
+        src: url('/luci-static/spectra/fonts/fredoka-v16-latin-regular.woff2') format('woff2');
 }
 
 @font-face {
-    font-display: swap; 
-    font-family: 'Noto Serif SC';
-    font-style: normal;
-    font-weight: 400;
-    src: url('/luci-static/spectra/fonts/noto-serif-sc-v31-latin-regular.woff2') format('woff2'); 
+        font-display: swap; 
+        font-family: 'Noto Serif SC';
+        font-style: normal;
+        font-weight: 400;
+        src: url('/luci-static/spectra/fonts/noto-serif-sc-v31-latin-regular.woff2') format('woff2'); 
 }
 
 @font-face {
-    font-display: swap; 
-    font-family: 'Comic Neue';
-    font-style: normal;
-    font-weight: 400;
-    src: url('/luci-static/spectra/fonts/comic-neue-v8-latin-regular.woff2') format('woff2'); 
+        font-display: swap; 
+        font-family: 'Comic Neue';
+        font-style: normal;
+        font-weight: 400;
+        src: url('/luci-static/spectra/fonts/comic-neue-v8-latin-regular.woff2') format('woff2'); 
 }
 
 body {
-    background: var(--body-bg-color, #f0ffff);
-    color: var(--text-primary);
-    -webkit-backdrop-filter: blur(10px);
-    transition: all 0.3s ease;
-    font-family: 'Fredoka One', cursive;
-    font-weight: 400; 
-    background: oklch(var(--bg-l) var(--base-chroma) var(--base-hue));
+        background: var(--body-bg-color, #f0ffff);
+        color: var(--text-primary);
+        -webkit-backdrop-filter: blur(10px);
+        transition: all 0.3s ease;
+        font-family: 'Fredoka One', cursive;
+        font-weight: 400; 
+        background: oklch(var(--bg-l) var(--base-chroma) var(--base-hue));
 }
 
 body.default-font {
-    font-family: system-ui, sans-serif;
-    font-weight: 400;
+        font-family: system-ui, sans-serif;
+        font-weight: 400;
 }
 
 body.system-nofo-font {
-    font-family: 'Noto Serif SC';
-    font-weight: 400;
+        font-family: 'Noto Serif SC';
+        font-weight: 400;
 }
 
 
 body.system-mono-font {
-    font-family: 'Comic Neue';
-    font-weight: 400;
+        font-family: 'Comic Neue';
+        font-weight: 400;
 }
 
 .container-bg,
 .card,
 .modal-content,
 .table {
-	--bg-l: oklch(30% 0 0); 
-	color: oklch(calc(100% - var(--bg-l)) 0 0);
+        --bg-l: oklch(30% 0 0); 
+        color: oklch(calc(100% - var(--bg-l)) 0 0);
 }
 
 .container-bg {
-	padding: 20px;
+        padding: 20px;
 	border-radius: 10px;
 	background: var(--bg-container);
 	box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
@@ -465,34 +465,34 @@ body.system-mono-font {
 }
 
 .custom-tooltip-wrapper {
-    position: relative;
-    display: inline-block;
-    cursor: help; 
+        position: relative;
+        display: inline-block;
+        cursor: help; 
 }
 
 .custom-tooltip-wrapper::after {
-    content: attr(data-tooltip);
-    position: absolute;
-    top: -100%; 
-    left: 0;
-    transform: translateY(-8px); 
-    background-color: rgba(0, 0, 0, 0.8);
-    color: #fff;
-    padding: 6px 10px;
-    border-radius: 6px;
-    font-size: 0.875rem;
-    white-space: pre-wrap;
-    line-height: 1.4;
-    z-index: 999;
-    opacity: 0;
-    pointer-events: none;
-    transition: opacity 0.2s ease;
-    max-width: 300px;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+        content: attr(data-tooltip);
+        position: absolute;
+        top: -100%; 
+        left: 0;
+        transform: translateY(-8px); 
+        background-color: rgba(0, 0, 0, 0.8);
+        color: #fff;
+        padding: 6px 10px;
+        border-radius: 6px;
+        font-size: 0.875rem;
+        white-space: pre-wrap;
+        line-height: 1.4;
+        z-index: 999;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.2s ease;
+        max-width: 300px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
 }
 
 .custom-tooltip-wrapper:hover::after {
-    opacity: 1;
+        opacity: 1;
 }
 
 .card {
@@ -566,7 +566,7 @@ h2 {
 }
 
 #toggleButton {
-    background-color: var(--sand-bg);
+        background-color: var(--sand-bg);
 
 }
 
@@ -690,21 +690,21 @@ label[for="selectAll"] {
 }
 
 #previewImage, #previewVideo {
-    max-width: 100%;
-    max-height: 100vh;
-    object-fit: contain;  
+        max-width: 100%;
+        max-height: 100vh;
+        object-fit: contain;  
 }
 
 .card-body.pt-2.mt-2 .d-flex {
-    justify-content: center;
+        justify-content: center;
 }
 
 .card-body.pt-2.mt-2 .d-flex .btn {
-    margin: 0 5px; 
+        margin: 0 5px; 
 }
 
 .d-flex {
-    white-space: nowrap;
+        white-space: nowrap;
 }
 
 #playlistContainer .list-group-item {
@@ -832,15 +832,15 @@ body:hover,
 }
 
 #playlistContainer {
-    cursor: default; 
+        cursor: default; 
 }
 
 #playlistContainer:hover {
-    cursor: grab;    
+        cursor: grab;    
 }
 
 #playlistContainer:active {
-    cursor: grabbing;
+        cursor: grabbing;
 }
 
 ::-webkit-scrollbar:horizontal {
@@ -1088,13 +1088,13 @@ body:hover,
 }
 
 .card:hover .fileCheckbox {
-    filter: drop-shadow(0 0 3px rgba(13, 110, 253, 0.5));
+        filter: drop-shadow(0 0 3px rgba(13, 110, 253, 0.5));
 }
 
 @media (max-width: 576px) {
-    .fileCheckbox {
-        transform: scale(1.1) !important;
-    }
+        .fileCheckbox {
+            transform: scale(1.1) !important;
+        }
 }
 </style>
 
