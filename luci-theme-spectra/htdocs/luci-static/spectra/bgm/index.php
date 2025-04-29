@@ -166,7 +166,7 @@ if (!empty($_GET['error'])) {
 ?>
 
 <?php
-$default_url = 'https://raw.githubusercontent.com/Thaolga/Rules/main/Clash/songs.txt';
+$default_url = 'https://raw.githubusercontent.com/Thaolga/Rules/main/music/songs.txt';
 $file_path = __DIR__ . '/url_config.txt'; 
 $message = '';
 
@@ -1384,6 +1384,10 @@ body:hover,
         <span id="lunarDisplay" class="lunar-text"></span>
         <span id="timeDisplay"></span>
     </div>
+    <div class="weather-display d-flex align-items-center d-none d-sm-inline">
+      <img id="weatherIcon" src="" alt=" " style="width:32px;height:32px;margin-right:4px;">
+      <span id="weatherText" style="color:#fff;"></span>
+    </div>
 </div>
     <div class="card-header d-flex flex-column flex-md-row justify-content-between align-items-center text-center gap-2">
         <h5 class="mb-0" style="line-height: 40px; height: 40px;" data-translate="spectra_config"></h5>
@@ -1434,6 +1438,7 @@ body:hover,
             <button class="btn btn-info ms-2" id="fontToggleBtn" data-translate-title="toggle_font"><i id="fontToggleIcon" class="fa-solid fa-font" style="color: white;"></i></button>
             <button class="btn btn-success ms-2 d-none d-sm-inline" id="toggleScreenBtn" data-translate-title="toggle_fullscreen"><i class="bi bi-arrows-fullscreen"></i></button>
             <button type="button" class="btn btn-primary ms-2 d-none d-sm-inline" onclick="showIpDetailModal()" data-translate-title="ip_info"><i class="fa-solid fa-satellite-dish"></i></button>
+            <button class="btn btn-warning ms-2 d-none d-sm-inline" id="weatherBtn" data-bs-toggle="modal" data-bs-target="#cityModal" data-translate-title="set_city"><i class="bi bi-geo-alt"></i></button>
         <div class="ms-auto" style="margin-right: 20px;">
             <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#langModal">
                 <img id="flagIcon" src="/luci-static/ipip/flags/<?php echo $currentLang; ?>.png" style="width:24px; height:16px">
@@ -1617,6 +1622,27 @@ body:hover,
     </div>
 </div>
 
+    <div class="modal fade" id="cityModal" tabindex="-1" aria-labelledby="cityModalLabel" aria-hidden="true">
+      <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="cityModalLabel" data-translate="set_city">Set City</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+          </div>
+          <div class="modal-body">
+            <div class="mb-3">
+              <label for="cityInput" class="form-label" data-translate="input_label">City Name</label>
+              <input type="text" class="form-control" id="cityInput" data-translate-placeholder="input_placeholder">
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" data-translate="cancel">Cancel</button>
+            <button type="button" class="btn btn-primary" id="saveCityBtn" data-translate="save">Save</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <div class="modal fade" id="previewModal" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false">
         <div class="modal-dialog modal-xl">
             <div class="modal-content">
@@ -1757,6 +1783,7 @@ body:hover,
         <button class="ctrl-btn" id="floatingRepeatBtn" onclick="toggleRepeat()">
             <i class="bi bi-arrow-repeat"></i>
         </button>
+        <button class="ctrl-btn" id="speedToggle" data-translate-title="playback_speed"><span id="speedLabel">1×</span></button>
         <button class="ctrl-btn" id="toggleFloatingLyrics" onclick="toggleFloating()" data-translate-title="toggle_floating_lyrics"><i id="floatingIcon" class="bi bi-display"></i></button>
     </div>
     <div id="floatingCurrentSong" class="vertical-title"></div>
@@ -2847,6 +2874,7 @@ document.addEventListener('DOMContentLoaded', function () {
 <script>
 let mediaFiles = [];
 let currentPreviewIndex = -1;
+let mediaTimer = null;
 
 function initMediaFiles() {
     mediaFiles = [];
@@ -2863,23 +2891,69 @@ function initMediaFiles() {
 }
 
 function cleanMediaElements() {
-    const elements = {
-        image: document.getElementById('previewImage'),
-        video: document.getElementById('previewVideo'),
-        audio: document.getElementById('previewAudio')
-    };
-    
-    elements.image.classList.add('d-none');
-    elements.image.src = '';
-    
-    elements.audio.classList.add('d-none');
-    elements.audio.src = '';
-    if(elements.audio.pause) elements.audio.pause();
-    
-    elements.video.classList.add('d-none');
-    const source = elements.video.querySelector('source');
-    if(source) source.src = '';
-    if(elements.video.pause) elements.video.pause();
+    if (mediaTimer) {
+        clearTimeout(mediaTimer);
+        mediaTimer = null;
+    }
+
+    const image = document.getElementById('previewImage');
+    const audio = document.getElementById('previewAudio');
+    const video = document.getElementById('previewVideo');
+    const source = video.querySelector('source');
+
+    image.classList.add('d-none');
+    image.src = '';
+
+    audio.classList.add('d-none');
+    audio.src = '';
+    audio.pause();
+    audio.onended = null;
+
+    video.classList.add('d-none');
+    source.src = '';
+    video.pause();
+    video.onended = null;
+}
+
+function loadAndPlayMedia() {
+    cleanMediaElements();
+
+    const currentFile = mediaFiles[currentPreviewIndex];
+    if (!currentFile) return;
+
+    switch (currentFile.type) {
+        case 'image': {
+            const img = document.getElementById('previewImage');
+            img.src = currentFile.src;
+            img.classList.remove('d-none');
+            mediaTimer = setTimeout(() => {
+                document.getElementById('nextBtn').click();
+            }, 5000);
+            break;
+        }
+        case 'video': {
+            const video = document.getElementById('previewVideo');
+            const source = video.querySelector('source');
+            source.src = currentFile.src;
+            video.load();
+            video.classList.remove('d-none');
+            video.onended = () => {
+                document.getElementById('nextBtn').click();
+            };
+            video.play().catch(e => console.log('Video play failed:', e));
+            break;
+        }
+        case 'audio': {
+            const audio = document.getElementById('previewAudio');
+            audio.src = currentFile.src;
+            audio.classList.remove('d-none');
+            audio.onended = () => {
+                document.getElementById('nextBtn').click();
+            };
+            audio.play().catch(e => console.log('Audio play failed:', e));
+            break;
+        }
+    }
 }
 
 document.getElementById('previewModal').addEventListener('show.bs.modal', function(e) {
@@ -2888,37 +2962,6 @@ document.getElementById('previewModal').addEventListener('show.bs.modal', functi
     currentPreviewIndex = parseInt(trigger.dataset.fileIndex);
     loadAndPlayMedia();
 });
-
-function loadAndPlayMedia() {
-    cleanMediaElements(); 
-    
-    const currentFile = mediaFiles[currentPreviewIndex];
-    if (!currentFile) return;
-
-    switch(currentFile.type) {
-        case 'image':
-            const img = document.getElementById('previewImage');
-            img.src = currentFile.src;
-            img.classList.remove('d-none');
-            break;
-            
-        case 'video':
-            const video = document.getElementById('previewVideo');
-            const source = video.querySelector('source');
-            source.src = currentFile.src;
-            video.load();
-            video.classList.remove('d-none');
-            video.play().catch(e => console.log('Video play failed:', e));
-            break;
-            
-        case 'audio':
-            const audio = document.getElementById('previewAudio');
-            audio.src = currentFile.src;
-            audio.classList.remove('d-none');
-            audio.play().catch(e => console.log('Audio play failed:', e));
-            break;
-    }
-}
 
 document.getElementById('prevBtn').addEventListener('click', () => {
     currentPreviewIndex = (currentPreviewIndex - 1 + mediaFiles.length) % mediaFiles.length;
@@ -3781,7 +3824,11 @@ body {
     display: flex;
     flex-direction: column; 
     gap: 0.5em;
-
+    width: 200px;
+    resize: none;
+    overflow: auto;
+    cursor: move;
+    user-select: none;
 }
 
 #floatingLyrics.visible {
@@ -5053,67 +5100,133 @@ document.addEventListener("DOMContentLoaded", function () {
 </script>
 
 <script>
-const volumeSlider = document.getElementById('volumeSlider');
-const volumeToggle = document.getElementById('volumeToggle');
-const volumePanel = document.getElementById('volumePanel');
-let lastVolume = 1;
+  const volumeToggle = document.getElementById('volumeToggle');
+  const volumePanel = document.getElementById('volumePanel');
+  const volumeSlider = document.getElementById('volumeSlider');
+  const iconEl = volumeToggle.querySelector('i');
 
-const savedVolume = localStorage.getItem('audioVolume');
-if (savedVolume !== null) {
+  let lastVolume = 1;
+
+  const savedVolume = localStorage.getItem('audioVolume');
+  const savedMuted = localStorage.getItem('audioMuted');
+  if (savedVolume !== null) {
     lastVolume = parseFloat(savedVolume);
-    audioPlayer.volume = lastVolume;
-    volumeSlider.value = lastVolume;
-}
+  }
+  audioPlayer.volume = lastVolume;
+  volumeSlider.value = lastVolume;
+  audioPlayer.muted = savedMuted === 'true';
 
-volumeToggle.addEventListener('click', (e) => {
-    e.stopPropagation();
+  updateVolumeIcon();
+
+  function togglePanel() {
     const isVisible = volumePanel.classList.contains('show');
     if (isVisible) {
-        volumePanel.classList.remove('show');
-        setTimeout(() => volumePanel.style.display = 'none', 200);
+      volumePanel.classList.remove('show');
+      setTimeout(() => (volumePanel.style.display = 'none'), 200);
     } else {
-        volumePanel.style.display = 'block';
-        setTimeout(() => volumePanel.classList.add('show'), 10); 
+      volumePanel.style.display = 'block';
+      setTimeout(() => volumePanel.classList.add('show'), 10);
     }
-});
+  }
 
-document.addEventListener('click', () => {
-    if (volumePanel.classList.contains('show')) {
-        volumePanel.classList.remove('show');
-        setTimeout(() => volumePanel.style.display = 'none', 200);
+  function toggleMute() {
+    audioPlayer.muted = !audioPlayer.muted;
+    if (!audioPlayer.muted && audioPlayer.volume === 0) {
+      audioPlayer.volume = lastVolume;
+      volumeSlider.value = lastVolume;
     }
-});
-
-volumeSlider.addEventListener('input', (e) => {
-    const value = parseFloat(e.target.value);
-    audioPlayer.volume = value;
-
-    if (audioPlayer.muted) {
-        audioPlayer.muted = false;
-    }
-
-    localStorage.setItem('audioVolume', value);
-
+    localStorage.setItem('audioMuted', audioPlayer.muted);
     updateVolumeIcon();
-});
 
-function updateVolumeIcon() {
-    const icon = volumeToggle.querySelector('i');
+    const muteMessage = audioPlayer.muted
+      ? translations['mute_on'] || 'Audio muted'
+      : translations['mute_off'] || 'Audio unmuted';
+    showLogMessage(muteMessage);
+    speakMessage(muteMessage);
+  }
+
+  function updateVolumeIcon() {
     if (audioPlayer.muted || audioPlayer.volume === 0) {
-        icon.className = 'bi bi-volume-mute-fill';
+      iconEl.className = 'bi bi-volume-mute-fill';
     } else if (audioPlayer.volume < 0.5) {
-        icon.className = 'bi bi-volume-down-fill';
+      iconEl.className = 'bi bi-volume-down-fill';
     } else {
-        icon.className = 'bi bi-volume-up-fill';
+      iconEl.className = 'bi bi-volume-up-fill';
     }
-
     if (!audioPlayer.muted) {
-        lastVolume = audioPlayer.volume;
+      lastVolume = audioPlayer.volume;
+      localStorage.setItem('audioVolume', lastVolume);
     }
-}
+  }
 
-audioPlayer.volume = lastVolume;
-updateVolumeIcon();
+  volumeToggle.addEventListener('click', e => {
+    e.stopPropagation();
+    if (e.target === iconEl) {
+      toggleMute();
+    } else {
+      togglePanel();
+    }
+  });
+
+  document.addEventListener('click', () => {
+    if (volumePanel.classList.contains('show')) {
+      volumePanel.classList.remove('show');
+      setTimeout(() => (volumePanel.style.display = 'none'), 200);
+    }
+  });
+
+  volumeSlider.addEventListener('input', e => {
+    const vol = Math.round(parseFloat(e.target.value) * 100);
+    audioPlayer.volume = e.target.value;
+    if (audioPlayer.muted) {
+      audioPlayer.muted = false;
+      localStorage.setItem('audioMuted', 'false');
+    }
+    updateVolumeIcon();
+
+    const volumeMessage = translations['volume_change']
+      ? translations['volume_change'].replace('{vol}', vol)
+      : `Volume adjusted to ${vol}%`;
+    showLogMessage(volumeMessage);
+    speakMessage(volumeMessage);
+  });
+
+  const speedToggle = document.getElementById('speedToggle');
+  const speedLabel = document.getElementById('speedLabel');
+  const speeds = [0.5, 1, 1.5, 2];
+  let speedIndex = 1;
+
+  const savedSpeed = localStorage.getItem('audioSpeed');
+  if (savedSpeed !== null) {
+    const idx = speeds.indexOf(parseFloat(savedSpeed));
+    if (idx !== -1) {
+      speedIndex = idx;
+    }
+  }
+
+  audioPlayer.playbackRate = speeds[speedIndex];
+  speedLabel.textContent = speeds[speedIndex] + '×';
+
+  function toggleSpeed() {
+    speedIndex = (speedIndex + 1) % speeds.length;
+    const rate = speeds[speedIndex];
+    audioPlayer.playbackRate = rate;
+    speedLabel.textContent = rate + '×';
+    localStorage.setItem('audioSpeed', rate);
+
+    const speedMessage = translations['speed_change']
+      ? translations['speed_change'].replace('{rate}', rate)
+      : `Playback speed changed to ${rate}x`;
+    showLogMessage(speedMessage);
+    speakMessage(speedMessage);
+  }
+
+  speedToggle.addEventListener('click', e => {
+    e.stopPropagation();
+    toggleSpeed();
+  });
+
+  speedToggle.addEventListener('click', e => e.stopPropagation());
 </script>
 
 <script>
@@ -5538,6 +5651,18 @@ $langData = [
         'timezone' => '时区',
         'latitude_longitude' => '经纬度',
         'latency_info' => '延迟信息',
+        'mute_on' => '音频已静音',
+        'mute_off' => '音频取消静音',
+        'volume_change' => '音量调整为 {vol}%',
+        'speed_change' => '播放速度切换为 {rate} 倍',
+        'invalid_city_non_chinese' => '请输入非中文的城市名称。',
+        'invalid_city_uppercase' => '城市名称必须以大写英文字母开头。',
+        'city_saved' => '城市已保存为：{city}',
+        'city_saved_speak' => '城市已保存为{city}，正在获取最新天气信息...',
+        'invalid_city' => '请输入有效的城市名称。',
+        'set_city' => '设置城市',
+        'input_label' => '城市名称',
+        'input_placeholder' => '例如：Beijing',
         'selected_info' => '已选择 %d 个文件，合计 %s MB'
     ],
 
@@ -5758,6 +5883,18 @@ $langData = [
         'timezone' => '時區',
         'latitude_longitude' => '經緯度',
         'latency_info' => '延遲資訊',
+        'mute_on' => '音頻已靜音',
+        'mute_off' => '音頻取消靜音',
+        'volume_change' => '音量調整為 {vol}%',
+        'speed_change' => '播放速度切換為 {rate} 倍',
+        'invalid_city_non_chinese' => '請輸入非中文的城市名稱。',
+        'invalid_city_uppercase' => '城市名稱必須以大寫英文字母開頭。',
+        'city_saved' => '城市已保存為：{city}',
+        'city_saved_speak' => '城市已保存為{city}，正在獲取最新天氣信息...',
+        'invalid_city' => '請輸入有效的城市名稱。',
+        'set_city' => '設置城市',
+        'input_label' => '城市名稱',
+        'input_placeholder' => '例如：Beijing',
         'selected_info' => '已選擇 %d 個文件，合計 %s MB'
     ],
 
@@ -5978,6 +6115,18 @@ $langData = [
         'timezone' => '시간대',
         'latitude_longitude' => '좌표',
         'latency_info' => '지연 정보',
+        'mute_on' => '오디오가 음소거되었습니다',
+        'mute_off' => '오디오 음소거 해제',
+        'volume_change' => '볼륨이 {vol}%로 조정되었습니다',
+        'speed_change' => '재생 속도가 {rate}배로 변경되었습니다',
+        'invalid_city_non_chinese' => '중국어 문자가 없는 도시 이름을 입력하세요.',
+        'invalid_city_uppercase' => '도시 이름은 대문자로 시작해야 합니다.',
+        'city_saved' => '도시가 저장되었습니다: {city}',
+        'city_saved_speak' => '도시가 {city}로 저장되었습니다. 최신 날씨 정보를 가져오고 있습니다...',
+        'invalid_city' => '유효한 도시 이름을 입력하세요.',
+        'set_city' => '도시 설정',
+        'input_label' => '도시 이름',
+        'input_placeholder' => '예: Beijing',
         'selected_info' => '선택된 파일: %d개, 총합: %s MB'
     ],
 
@@ -6197,6 +6346,18 @@ $langData = [
         'timezone' => 'タイムゾーン',
         'latitude_longitude' => '座標',
         'latency_info' => 'レイテンシ情報',
+        'mute_on' => 'オーディオがミュートされました',
+        'mute_off' => 'オーディオのミュートが解除されました',
+        'volume_change' => '音量が {vol}% に調整されました',
+        'speed_change' => '再生速度が {rate} 倍に変更されました',
+        'invalid_city_non_chinese' => '中国語の文字を含まない都市名を入力してください。',
+        'invalid_city_uppercase' => '都市名は大文字の英字で始める必要があります。',
+        'city_saved' => '保存された都市: {city}',
+        'city_saved_speak' => '保存された都市: {city}、最新の天気情報を取得しています...',
+        'invalid_city' => '有効な都市名を入力してください。',
+        'set_city' => '都市を設定',
+        'input_label' => '都市名',
+        'input_placeholder' => '例: 北京',
         'selected_info' => '%dファイル選択（%s MB）'
     ],
 
@@ -6416,6 +6577,18 @@ $langData = [
         'timezone' => 'Múi giờ',
         'latitude_longitude' => 'Tọa độ',
         'latency_info' => 'Thông tin độ trễ',
+        'mute_on' => 'Âm thanh đã được tắt',
+        'mute_off' => 'Âm thanh đã được bật lại',
+        'volume_change' => 'Âm lượng đã điều chỉnh thành {vol}%',
+        'speed_change' => 'Tốc độ phát đã chuyển sang {rate} lần',
+        'invalid_city_non_chinese' => 'Vui lòng nhập tên thành phố không chứa ký tự tiếng Trung.',
+        'invalid_city_uppercase' => 'Tên thành phố phải bắt đầu bằng chữ cái in hoa.',
+        'city_saved' => 'Đã lưu thành phố: {city}',
+        'city_saved_speak' => 'Đã lưu thành phố {city}, đang lấy thông tin thời tiết mới nhất...',
+        'invalid_city' => 'Vui lòng nhập tên thành phố hợp lệ.',
+        'set_city' => 'Đặt Thành Phố',
+        'input_label' => 'Tên Thành Phố',
+        'input_placeholder' => 'ví dụ: Beijing',
         'selected_info' => 'Đã chọn %d tệp (%s MB)'
     ],
 
@@ -6619,6 +6792,18 @@ $langData = [
         'timezone' => 'เขตเวลา',
         'latitude_longitude' => 'พิกัด',
         'latency_info' => 'ข้อมูลความหน่วง',
+        'mute_on' => 'เสียงถูกปิด',
+        'mute_off' => 'เสียงถูกเปิด',
+        'volume_change' => 'ปรับระดับเสียงเป็น {vol}%',
+        'speed_change' => 'เปลี่ยนความเร็วการเล่นเป็น {rate} เท่า',
+        'invalid_city_non_chinese' => 'กรุณาใส่ชื่อเมืองที่ไม่มีอักษรจีน',
+        'invalid_city_uppercase' => 'ชื่อเมืองต้องขึ้นต้นด้วยตัวอักษรพิมพ์ใหญ่',
+        'city_saved' => 'เมืองถูกบันทึกแล้ว: {city}',
+        'city_saved_speak' => 'เมืองถูกบันทึกเป็น {city} กำลังดึงข้อมูลสภาพอากาศล่าสุด...',
+        'invalid_city' => 'กรุณาใส่ชื่อเมืองที่ถูกต้อง',
+        'set_city' => 'ตั้งค่าชื่อเมือง',
+        'input_label' => 'ชื่อเมือง',
+        'input_placeholder' => 'ตัวอย่าง: Beijing',
         'selected_info' => 'เลือกไฟล์แล้ว %d ไฟล์ รวมทั้งหมด %s MB'
     ],
 
@@ -6824,6 +7009,18 @@ $langData = [
         'timezone' => 'Часовой пояс',
         'latitude_longitude' => 'Координаты',
         'latency_info' => 'Задержка',
+        'mute_on' => 'Аудио отключено',
+        'mute_off' => 'Аудио включено',
+        'volume_change' => 'Громкость изменена на {vol}%',
+        'speed_change' => 'Скорость воспроизведения изменена на {rate}x',
+        'invalid_city_non_chinese' => 'Введите название города без китайских символов.',
+        'invalid_city_uppercase' => 'Название города должно начинаться с заглавной буквы.',
+        'city_saved' => 'Город сохранен: {city}',
+        'city_saved_speak' => 'Город сохранен: {city}, получение последней информации о погоде...',
+        'invalid_city' => 'Введите допустимое название города.',
+        'set_city' => 'Установить город',
+        'input_label' => 'Название города',
+        'input_placeholder' => 'например: Пекин',
         'selected_info' => 'Выбрано %d файлов, всего %s MB'
     ],
 
@@ -7034,7 +7231,18 @@ $langData = [
         'timezone' => 'المنطقة الزمنية',
         'latitude_longitude' => 'إحداثيات',
         'latency_info' => 'معلومات التأخر',
-        'selected_info' => 'تم اختيار %d ملفات (%s ميجابايت)'
+        'mute_on' => 'تم كتم الصوت',
+        'mute_off' => 'تم إلغاء كتم الصوت',
+        'volume_change' => 'تم تعديل مستوى الصوت إلى {vol}%',
+        'speed_change' => 'تم تغيير سرعة التشغيل إلى {rate}x',
+        'invalid_city_non_chinese' => 'يرجى إدخال اسم مدينة بدون أحرف صينية.',
+        'invalid_city_uppercase' => 'يجب أن يبدأ اسم المدينة بحرف كبير باللغة الإنجليزية.',
+        'city_saved' => 'تم حفظ المدينة: {city}',
+        'city_saved_speak' => 'تم حفظ المدينة: {city}، جارٍ جلب أحدث معلومات الطقس...',
+        'invalid_city' => 'يرجى إدخال اسم مدينة صالح.',
+        'set_city' => 'تعيين المدينة',
+        'input_label' => 'اسم المدينة',
+        'input_placeholder' => 'على سبيل المثال: بكين',        'selected_info' => 'تم اختيار %d ملفات (%s ميجابايت)'
     ],
 
     'es' => [
@@ -7238,6 +7446,18 @@ $langData = [
         'timezone' => 'Zona horaria',
         'latitude_longitude' => 'Coordenadas',
         'latency_info' => 'Informe de latencia',
+        'mute_on' => 'Audio silenciado',
+        'mute_off' => 'Audio reactivado',
+        'volume_change' => 'Volumen ajustado al {vol}%',
+        'speed_change' => 'Velocidad de reproducción cambiada a {rate}x',
+        'invalid_city_non_chinese' => 'Por favor, introduzca un nombre de ciudad sin caracteres chinos.',
+        'invalid_city_uppercase' => 'El nombre de la ciudad debe comenzar con una letra mayúscula.',
+        'city_saved' => 'Ciudad guardada como: {city}',
+        'city_saved_speak' => 'Ciudad guardada como: {city}, obteniendo la información meteorológica más reciente...',
+        'invalid_city' => 'Por favor, introduzca un nombre de ciudad válido.',
+        'set_city' => 'Establecer Ciudad',
+        'input_label' => 'Nombre de la ciudad',
+        'input_placeholder' => 'por ejemplo: Beijing',
         'selected_info' => 'Seleccionados %d archivos, en total %s MB'
     ],
 
@@ -7442,7 +7662,18 @@ $langData = [
         'timezone' => 'Zeitzone',
         'latitude_longitude' => 'Koordinaten',
         'latency_info' => 'Latenzinformationen',
-
+        'mute_on' => 'Audio stummgeschaltet',
+        'mute_off' => 'Audio-Stummschaltung aufgehoben',
+        'volume_change' => 'Lautstärke auf {vol}% eingestellt',
+        'speed_change' => 'Wiedergabegeschwindigkeit auf {rate}x geändert',
+        'invalid_city_non_chinese' => 'Bitte geben Sie einen Städtenamen ohne chinesische Zeichen ein.',
+        'invalid_city_uppercase' => 'Der Städtename muss mit einem Großbuchstaben beginnen.',
+        'city_saved' => 'Stadt gespeichert als: {city}',
+        'city_saved_speak' => 'Stadt gespeichert als: {city}, die neuesten Wetterinformationen werden abgerufen...',
+        'invalid_city' => 'Bitte geben Sie einen gültigen Städtenamen ein.',
+        'set_city' => 'Stadt festlegen',
+        'input_label' => 'Stadtname',
+        'input_placeholder' => 'z.B.: Beijing',
         'selected_info' => '%d Dateien ausgewählt, insgesamt %s MB'
     ],
 
@@ -7647,6 +7878,18 @@ $langData = [
         'timezone' => 'Fuseau horaire',
         'latitude_longitude' => 'Coordonnées',
         'latency_info' => 'Informations de latence',
+        'mute_on' => 'Audio coupé',
+        'mute_off' => 'Audio réactivé',
+        'volume_change' => 'Volume ajusté à {vol}%',
+        'speed_change' => 'Vitesse de lecture changée à {rate}x',
+        'invalid_city_non_chinese' => 'Veuillez entrer un nom de ville sans caractères chinois.',
+        'invalid_city_uppercase' => 'Le nom de la ville doit commencer par une lettre majuscule.',
+        'city_saved' => 'Ville enregistrée : {city}',
+        'city_saved_speak' => 'Ville enregistrée : {city}, récupération des dernières informations météorologiques...',
+        'invalid_city' => 'Veuillez entrer un nom de ville valide.',
+        'set_city' => 'Définir la ville',
+        'input_label' => 'Nom de la ville',
+        'input_placeholder' => 'par exemple : Beijing',
         'selected_info' => '%d fichiers sélectionnés, total de %s Mo'
     ],
 
@@ -7864,6 +8107,18 @@ $langData = [
         'timezone' => 'Timezone',
         'latitude_longitude' => 'Coordinates',
         'latency_info' => 'Latency Info',
+        'mute_on' => 'Audio muted',
+        'mute_off' => 'Audio unmuted',
+        'volume_change' => 'Volume adjusted to {vol}%',
+        'speed_change' => 'Playback speed changed to {rate}x',
+        'invalid_city_non_chinese' => 'Please enter a city name without Chinese characters.',
+        'invalid_city_uppercase' => 'The city name must start with an uppercase English letter.',
+        'city_saved' => 'City saved as: {city}',
+        'city_saved_speak' => 'City saved as {city}, fetching the latest weather information...',
+        'invalid_city' => 'Please enter a valid city name.',
+        'set_city' => 'Set City',
+        'input_label' => 'City Name',
+        'input_placeholder' => 'e.g., Beijing',
         'selected_info' => 'Selected %d files, total %s MB'
     ],
     'bn' => [
@@ -8067,6 +8322,18 @@ $langData = [
         'timezone' => 'সময় অঞ্চল',
         'latitude_longitude' => 'স্থানাঙ্ক',
         'latency_info' => 'বিলম্ব তথ্য',
+        'mute_on' => 'অডিও নিস্তব্ধ করা হয়েছে',
+        'mute_off' => 'অডিও মিউট বন্ধ হয়েছে',
+        'volume_change' => 'ভলিউম {vol}% এ সমন্বয় করা হয়েছে',
+        'speed_change' => 'প্লেব্যাক গতি {rate}x এ পরিবর্তন করা হয়েছে',
+        'invalid_city_non_chinese' => 'চীনা অক্ষর ছাড়া একটি শহরের নাম লিখুন।',
+        'invalid_city_uppercase' => 'শহরের নাম বড় হাতের অক্ষর দিয়ে শুরু করতে হবে।',
+        'city_saved' => 'শহর সংরক্ষণ করা হয়েছে: {city}',
+        'city_saved_speak' => 'শহর সংরক্ষণ করা হয়েছে {city}, সর্বশেষ আবহাওয়া তথ্য আনছে...',
+        'invalid_city' => 'বৈধ শহরের নাম লিখুন।',
+        'set_city' => 'শহর সেট করুন',
+        'input_label' => 'শহরের নাম',
+        'input_placeholder' => 'যেমন: বেইজিং',
         'selected_info' => '%d টি ফাইল নির্বাচিত, মোট %s MB'
     ]
 ];
@@ -8816,4 +9083,109 @@ async function showIpDetailModal() {
     margin-left: 0;
 }
 </style>
+
+<script>
+  let city = localStorage.getItem('city') || 'Beijing';
+  const apiKey = 'fc8bd2637768c286c6f1ed5f1915eb22';
+  const weatherIcon = document.getElementById('weatherIcon');
+  const weatherText = document.getElementById('weatherText');
+  const cityInput   = document.getElementById('cityInput');
+  const saveCityBtn = document.getElementById('saveCityBtn');
+
+  function updateWeatherUI(data) {
+    const iconCode = data.weather[0].icon;
+    const temp     = Math.round(data.main.temp);
+    const desc     = data.weather[0].description;
+    weatherIcon.src  = `https://openweathermap.org/img/wn/${iconCode}@2x.png`;
+    weatherIcon.alt  = desc;
+    weatherText.textContent = `${desc} ${temp}℃`;
+  }
+
+  function fetchWeather() {
+    const url = `https://api.openweathermap.org/data/2.5/weather?q=${encodeURIComponent(city)}&appid=${apiKey}&units=metric&lang=zh_cn`;
+    fetch(url)
+      .then(res => res.ok ? res.json() : Promise.reject('Network response not OK'))
+      .then(data => {
+        if (data.weather && data.main) {
+          updateWeatherUI(data);
+        }
+      })
+      .catch(err => console.error('Error fetching weather：', err));
+  }
+
+  function saveCity() {
+    const value = cityInput.value.trim();
+    const chineseCharPattern = /[\u4e00-\u9fff]/;
+    const startsWithUppercasePattern = /^[A-Z]/;
+
+    if (chineseCharPattern.test(value)) {
+      const invalidCityMessage = translations['invalid_city_non_chinese'] || 'Please enter a city name without Chinese characters.';
+      speakMessage(invalidCityMessage);
+      showLogMessage(invalidCityMessage);
+    } else if (!startsWithUppercasePattern.test(value)) {
+      const invalidCityUppercaseMessage = translations['invalid_city_uppercase'] || 'The city name must start with an uppercase English letter.';
+      speakMessage(invalidCityUppercaseMessage);
+      showLogMessage(invalidCityUppercaseMessage);
+    } else if (value) {
+      city = value;
+      localStorage.setItem('city', city);
+      const citySavedMessage = translations['city_saved']
+        ? translations['city_saved'].replace('{city}', city)
+        : `City saved as: ${city}`;
+      const citySavedSpeakMessage = translations['city_saved_speak']
+        ? translations['city_saved_speak'].replace('{city}', city)
+        : `City saved as ${city}, fetching the latest weather information...`;
+
+      showLogMessage(citySavedMessage);
+      speakMessage(citySavedSpeakMessage);
+      fetchWeather();
+      const modal = bootstrap.Modal.getInstance(document.getElementById('cityModal'));
+      modal.hide();
+    } else {
+      const invalidCityMessage = translations['invalid_city'] || 'Please enter a valid city name.';
+      speakMessage(invalidCityMessage);
+    }
+  }
+
+  saveCityBtn.addEventListener('click', saveCity);
+
+  document.addEventListener('DOMContentLoaded', () => {
+    cityInput.value = city;
+    fetchWeather();
+    setInterval(fetchWeather, 10 * 60 * 1000);
+  });
+</script>
+
+<script>
+(function() {
+  const box = document.getElementById('floatingLyrics');
+  let isDragging = false;
+  let offsetX = 0, offsetY = 0;
+
+  box.style.resize    = 'none';
+  box.style.overflow  = 'auto';
+  box.style.cursor    = 'move';
+  box.style.position  = 'absolute';
+
+  box.addEventListener('mousedown', e => {
+    if (e.target.closest('.ctrl-btn')) return;
+
+    e.preventDefault();
+    isDragging = true;
+    offsetX = e.clientX - box.offsetLeft;
+    offsetY = e.clientY - box.offsetTop;
+  });
+
+  document.addEventListener('mousemove', e => {
+    if (!isDragging) return;
+    box.style.left = (e.clientX - offsetX) + 'px';
+    box.style.top  = (e.clientY - offsetY) + 'px';
+  });
+
+  document.addEventListener('mouseup', () => {
+    isDragging = false;
+  });
+})();
+</script>
+
 
