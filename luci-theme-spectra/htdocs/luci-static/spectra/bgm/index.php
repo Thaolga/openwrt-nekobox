@@ -1785,7 +1785,8 @@ body:hover,
             <i class="bi bi-arrow-repeat"></i>
         </button>
         <button class="ctrl-btn" id="speedToggle" data-translate-title="playback_speed"><span id="speedLabel">1×</span></button>
-        <button id="toggleFloatingLyrics" class="ctrl-btn" data-translate-title="toggle_floating_lyrics"><i id="floatingIcon" class="bi bi-display"></i></button>
+        <button class="ctrl-btn" id="muteToggle" data-translate-title="volume"><i class="bi bi-volume-up-fill"></i></button>
+        <button class="ctrl-btn toggleFloatingLyricsBtn" data-translate-title="toggle_floating_lyrics"><i class="bi bi-display floatingIcon"></i></button>
     </div>
     <div id="floatingCurrentSong" class="vertical-title"></div>
     <div class="vertical-lyrics"></div>
@@ -1814,7 +1815,7 @@ body:hover,
                     </div> 
                  
                     <div class="controls d-flex justify-content-center gap-3 mt-4">
-                        <button class="btn btn-outline-light control-btn" id="toggleFloatingLyrics" onclick="toggleFloating()" data-translate-title="toggle_floating_lyrics"><i id="floatingIcon" class="bi bi-display"></i></button>
+                        <button class="btn btn-outline-light control-btn toggleFloatingLyricsBtn" data-translate-title="toggle_floating_lyrics"><i class="bi bi-display floatingIcon"></i></button>
                         <button class="btn btn-outline-light control-btn" id="repeatBtn" onclick="toggleRepeat()">
                             <i class="bi bi-arrow-repeat"></i>
                         </button>
@@ -5104,21 +5105,23 @@ document.addEventListener("DOMContentLoaded", function () {
 </script>
 
 <script>
-  const volumeToggle = document.getElementById('volumeToggle');
-  const volumePanel = document.getElementById('volumePanel');
-  const volumeSlider = document.getElementById('volumeSlider');
-  const iconEl = volumeToggle.querySelector('i');
+  const muteToggle    = document.getElementById('muteToggle');
+  const volumeToggle  = document.getElementById('volumeToggle');
+  const volumePanel   = document.getElementById('volumePanel');
+  const volumeSlider  = document.getElementById('volumeSlider');
+  const muteIconEl    = muteToggle.querySelector('i');
+  const volumeIconEl  = volumeToggle.querySelector('i');
 
   let lastVolume = 1;
 
   const savedVolume = localStorage.getItem('audioVolume');
-  const savedMuted = localStorage.getItem('audioMuted');
+  const savedMuted  = localStorage.getItem('audioMuted');
   if (savedVolume !== null) {
     lastVolume = parseFloat(savedVolume);
   }
   audioPlayer.volume = lastVolume;
   volumeSlider.value = lastVolume;
-  audioPlayer.muted = savedMuted === 'true';
+  audioPlayer.muted = (savedMuted === 'true');
 
   updateVolumeIcon();
 
@@ -5143,29 +5146,38 @@ document.addEventListener("DOMContentLoaded", function () {
     updateVolumeIcon();
 
     const muteMessage = audioPlayer.muted
-      ? translations['mute_on'] || 'Audio muted'
-      : translations['mute_off'] || 'Audio unmuted';
+      ? (translations['mute_on']  || 'Audio muted')
+      : (translations['mute_off'] || 'Audio unmuted');
     showLogMessage(muteMessage);
     speakMessage(muteMessage);
   }
 
   function updateVolumeIcon() {
+    let cls;
     if (audioPlayer.muted || audioPlayer.volume === 0) {
-      iconEl.className = 'bi bi-volume-mute-fill';
+      cls = 'bi bi-volume-mute-fill';
     } else if (audioPlayer.volume < 0.5) {
-      iconEl.className = 'bi bi-volume-down-fill';
+      cls = 'bi bi-volume-down-fill';
     } else {
-      iconEl.className = 'bi bi-volume-up-fill';
+      cls = 'bi bi-volume-up-fill';
     }
+    muteIconEl.className = cls;
+    volumeIconEl.className = cls;
+
     if (!audioPlayer.muted) {
       lastVolume = audioPlayer.volume;
       localStorage.setItem('audioVolume', lastVolume);
     }
   }
 
+  muteToggle.addEventListener('click', e => {
+    e.stopPropagation();
+    toggleMute();
+  });
+
   volumeToggle.addEventListener('click', e => {
     e.stopPropagation();
-    if (e.target === iconEl) {
+    if (e.target === volumeIconEl) {
       toggleMute();
     } else {
       togglePanel();
@@ -8548,7 +8560,7 @@ document.addEventListener('keydown', function (event) {
             break;
         case 'ArrowUp':
             event.preventDefault();
-            document.getElementById('toggleFloatingLyrics')?.click();
+            document.querySelector('.toggleFloatingLyricsBtn')?.click();
             break;
         case 'ArrowDown': 
             event.preventDefault();
@@ -9243,34 +9255,35 @@ async function showIpDetailModal() {
 
 <script>
 (function() {
-  const btn = document.getElementById('toggleFloatingLyrics');
+  const toggleBtns = document.querySelectorAll('.toggleFloatingLyricsBtn');
   const box = document.getElementById('floatingLyrics');
 
   const savedState = localStorage.getItem('floatingLyricsVisible') === 'true';
-  if (savedState) {
-    box.classList.add('visible');
-  } else {
-    box.classList.remove('visible');
-  }
+  box.classList.toggle('visible', savedState);
 
-  box.style.resize    = 'none';
-  box.style.overflow  = 'auto';
-  box.style.position  = 'absolute';
+  box.style.resize   = 'none';
+  box.style.overflow = 'auto';
+  box.style.position = 'absolute';
 
-  btn.addEventListener('click', () => {
-    box.classList.toggle('visible');
-    const isVisible = box.classList.contains('visible');
-    localStorage.setItem('floatingLyricsVisible', isVisible);
+  toggleBtns.forEach(btn => {
+    btn.addEventListener('click', e => {
+      e.stopPropagation();
+      const isNowVisible = box.classList.toggle('visible');
+      localStorage.setItem('floatingLyricsVisible', isNowVisible);
 
-    const message = isVisible 
-        ? translations['floating_lyrics_enabled'] || "Floating lyrics enabled" 
-        : translations['floating_lyrics_disabled'] || "Floating lyrics disabled";
-    speakMessage(message);
-    showLogMessage(message);
+      const msgKey = isNowVisible
+        ? 'floating_lyrics_enabled'
+        : 'floating_lyrics_disabled';
+      const message = translations[msgKey] ||
+        (isNowVisible
+          ? "Floating lyrics enabled"
+          : "Floating lyrics disabled");
+      showLogMessage(message);
+      speakMessage(message);
+    });
   });
 
-  let isDragging = false;
-  let offsetX = 0, offsetY = 0;
+  let isDragging = false, offsetX = 0, offsetY = 0;
 
   box.addEventListener('mousedown', e => {
     if (e.target.closest('.ctrl-btn')) return;
