@@ -206,6 +206,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <link href="/luci-static/spectra/css/bootstrap-icons.css" rel="stylesheet">
     <link href="/luci-static/spectra/css/all.min.css" rel="stylesheet">
     <link href="/luci-static/spectra/css/bootstrap.min.css" rel="stylesheet">
+    <link href="/luci-static/spectra/css/weather-icons.min.css" rel="stylesheet">
     <script src="/luci-static/spectra/js/jquery.min.js"></script>
     <script src="/luci-static/spectra/js/bootstrap.bundle.min.js"></script>
     <script src="/luci-static/spectra/js/custom.js"></script>
@@ -1385,8 +1386,8 @@ body:hover,
         <span id="timeDisplay"></span>
     </div>
     <div class="weather-display d-flex align-items-center d-none d-sm-inline">
-      <img id="weatherIcon" src="" alt=" " style="width:32px;height:32px;margin-right:4px;">
-      <span id="weatherText" style="color:#fff;"></span>
+      <i id="weatherIcon" class="wi wi-na" style="font-size:32px; margin-right:4px;"></i>
+      <span id="weatherText" style="color:var(--accent-color); font-weight: 700;"></span>
     </div>
 </div>
     <div class="card-header d-flex flex-column flex-md-row justify-content-between align-items-center text-center gap-2">
@@ -1784,7 +1785,7 @@ body:hover,
             <i class="bi bi-arrow-repeat"></i>
         </button>
         <button class="ctrl-btn" id="speedToggle" data-translate-title="playback_speed"><span id="speedLabel">1×</span></button>
-        <button class="ctrl-btn" id="toggleFloatingLyrics" onclick="toggleFloating()" data-translate-title="toggle_floating_lyrics"><i id="floatingIcon" class="bi bi-display"></i></button>
+        <button id="toggleFloatingLyrics" class="ctrl-btn" data-translate-title="toggle_floating_lyrics"><i id="floatingIcon" class="bi bi-display"></i></button>
     </div>
     <div id="floatingCurrentSong" class="vertical-title"></div>
     <div class="vertical-lyrics"></div>
@@ -3814,7 +3815,10 @@ body {
     padding: 15px 10px;
     border-radius: 20px;
     backdrop-filter: var(--glass-blur);
+    display: none; 
     opacity: 0;
+    pointer-events: none;
+    cursor: default; 
     transition: opacity 0.3s ease;
     pointer-events: auto;
     writing-mode: vertical-rl;
@@ -3827,12 +3831,14 @@ body {
     width: 200px;
     resize: none;
     overflow: auto;
-    cursor: move;
     user-select: none;
 }
 
 #floatingLyrics.visible {
+    display: flex;
     opacity: 1;
+    pointer-events: auto;
+    cursor: move;  
 }
 
 #floatingLyrics #floatingCurrentSong.vertical-title {
@@ -5663,6 +5669,8 @@ $langData = [
         'set_city' => '设置城市',
         'input_label' => '城市名称',
         'input_placeholder' => '例如：Beijing',
+        'floating_lyrics_enabled' => '浮动歌词已开启',
+        'floating_lyrics_disabled' => '浮动歌词已关闭',
         'selected_info' => '已选择 %d 个文件，合计 %s MB'
     ],
 
@@ -5895,6 +5903,8 @@ $langData = [
         'set_city' => '設置城市',
         'input_label' => '城市名稱',
         'input_placeholder' => '例如：Beijing',
+        'floating_lyrics_enabled' => '浮動歌詞已開啟',
+        'floating_lyrics_disabled' => '浮動歌詞已關閉',
         'selected_info' => '已選擇 %d 個文件，合計 %s MB'
     ],
 
@@ -6127,6 +6137,8 @@ $langData = [
         'set_city' => '도시 설정',
         'input_label' => '도시 이름',
         'input_placeholder' => '예: Beijing',
+        'floating_lyrics_enabled' => '플로팅 가사가 활성화되었습니다',
+        'floating_lyrics_disabled' => '플로팅 가사가 비활성화되었습니다',
         'selected_info' => '선택된 파일: %d개, 총합: %s MB'
     ],
 
@@ -6358,6 +6370,8 @@ $langData = [
         'set_city' => '都市を設定',
         'input_label' => '都市名',
         'input_placeholder' => '例: 北京',
+        'floating_lyrics_enabled' => 'フローティング歌詞が有効になりました',
+        'floating_lyrics_disabled' => 'フローティング歌詞が無効になりました',
         'selected_info' => '%dファイル選択（%s MB）'
     ],
 
@@ -6589,6 +6603,8 @@ $langData = [
         'set_city' => 'Đặt Thành Phố',
         'input_label' => 'Tên Thành Phố',
         'input_placeholder' => 'ví dụ: Beijing',
+        'floating_lyrics_enabled' => 'Đã bật lời bài hát nổi',
+        'floating_lyrics_disabled' => 'Đã tắt lời bài hát nổi',
         'selected_info' => 'Đã chọn %d tệp (%s MB)'
     ],
 
@@ -6804,6 +6820,8 @@ $langData = [
         'set_city' => 'ตั้งค่าชื่อเมือง',
         'input_label' => 'ชื่อเมือง',
         'input_placeholder' => 'ตัวอย่าง: Beijing',
+        'floating_lyrics_enabled' => 'เปิดใช้งานเนื้อเพลงลอย',
+        'floating_lyrics_disabled' => 'ปิดใช้งานเนื้อเพลงลอย',
         'selected_info' => 'เลือกไฟล์แล้ว %d ไฟล์ รวมทั้งหมด %s MB'
     ],
 
@@ -7021,6 +7039,8 @@ $langData = [
         'set_city' => 'Установить город',
         'input_label' => 'Название города',
         'input_placeholder' => 'например: Пекин',
+        'floating_lyrics_enabled' => 'Плавающие тексты включены',
+        'floating_lyrics_disabled' => 'Плавающие тексты отключены',
         'selected_info' => 'Выбрано %d файлов, всего %s MB'
     ],
 
@@ -7242,7 +7262,10 @@ $langData = [
         'invalid_city' => 'يرجى إدخال اسم مدينة صالح.',
         'set_city' => 'تعيين المدينة',
         'input_label' => 'اسم المدينة',
-        'input_placeholder' => 'على سبيل المثال: بكين',        'selected_info' => 'تم اختيار %d ملفات (%s ميجابايت)'
+        'floating_lyrics_enabled' => 'تم تفعيل كلمات الأغاني العائمة',
+        'floating_lyrics_disabled' => 'تم تعطيل كلمات الأغاني العائمة',
+        'input_placeholder' => 'على سبيل المثال: بكين',       
+        'selected_info' => 'تم اختيار %d ملفات (%s ميجابايت)'
     ],
 
     'es' => [
@@ -7458,6 +7481,8 @@ $langData = [
         'set_city' => 'Establecer Ciudad',
         'input_label' => 'Nombre de la ciudad',
         'input_placeholder' => 'por ejemplo: Beijing',
+        'floating_lyrics_enabled' => 'Letras flotantes habilitadas',
+        'floating_lyrics_disabled' => 'Letras flotantes deshabilitadas',
         'selected_info' => 'Seleccionados %d archivos, en total %s MB'
     ],
 
@@ -7674,6 +7699,8 @@ $langData = [
         'set_city' => 'Stadt festlegen',
         'input_label' => 'Stadtname',
         'input_placeholder' => 'z.B.: Beijing',
+        'floating_lyrics_enabled' => 'Schwebende Liedtexte aktiviert',
+        'floating_lyrics_disabled' => 'Schwebende Liedtexte deaktiviert',
         'selected_info' => '%d Dateien ausgewählt, insgesamt %s MB'
     ],
 
@@ -7890,6 +7917,8 @@ $langData = [
         'set_city' => 'Définir la ville',
         'input_label' => 'Nom de la ville',
         'input_placeholder' => 'par exemple : Beijing',
+        'floating_lyrics_enabled' => 'Paroles flottantes activées',
+        'floating_lyrics_disabled' => 'Paroles flottantes désactivées',
         'selected_info' => '%d fichiers sélectionnés, total de %s Mo'
     ],
 
@@ -8119,6 +8148,8 @@ $langData = [
         'set_city' => 'Set City',
         'input_label' => 'City Name',
         'input_placeholder' => 'e.g., Beijing',
+        'floating_lyrics_enabled' => 'Floating lyrics enabled',
+        'floating_lyrics_disabled' => 'Floating lyrics disabled',
         'selected_info' => 'Selected %d files, total %s MB'
     ],
     'bn' => [
@@ -8334,6 +8365,8 @@ $langData = [
         'set_city' => 'শহর সেট করুন',
         'input_label' => 'শহরের নাম',
         'input_placeholder' => 'যেমন: বেইজিং',
+        'floating_lyrics_enabled' => 'ভাসমান গানের কথা সক্রিয় করা হয়েছে',
+        'floating_lyrics_disabled' => 'ভাসমান গানের কথা অক্ষম করা হয়েছে',
         'selected_info' => '%d টি ফাইল নির্বাচিত, মোট %s MB'
     ]
 ];
@@ -9087,29 +9120,83 @@ async function showIpDetailModal() {
 <script>
   let city = localStorage.getItem('city') || 'Beijing';
   const apiKey = 'fc8bd2637768c286c6f1ed5f1915eb22';
+
+  const countryToLang = {
+    'CN': 'zh_cn',
+    'ZH': 'zh_cn',
+    'HK': 'zh_tw',
+    'EN': 'en',
+    'KO': 'kr',
+    'VI': 'vi',
+    'TH': 'th',
+    'JA': 'ja',
+    'RU': 'ru',
+    'DE': 'de',
+    'FR': 'fr',
+    'AR': 'ar',
+    'ES': 'es',
+    'BN': 'en' 
+  };
+  let targetLang = localStorage.getItem('language') || 'CN';
+  targetLang = countryToLang[targetLang.toUpperCase()] || targetLang;
+
   const weatherIcon = document.getElementById('weatherIcon');
   const weatherText = document.getElementById('weatherText');
   const cityInput   = document.getElementById('cityInput');
   const saveCityBtn = document.getElementById('saveCityBtn');
 
+  function owmCodeToWiClass(code) {
+    const map = {
+      '01d': 'wi-day-sunny',
+      '01n': 'wi-night-clear',
+      '02d': 'wi-day-cloudy',
+      '02n': 'wi-night-cloudy',
+      '03d': 'wi-cloud',
+      '03n': 'wi-cloud',
+      '04d': 'wi-cloudy',
+      '04n': 'wi-cloudy',
+      '09d': 'wi-showers',
+      '09n': 'wi-showers',
+      '10d': 'wi-day-rain',
+      '10n': 'wi-night-alt-rain',
+      '11d': 'wi-thunderstorm',
+      '11n': 'wi-thunderstorm',
+      '13d': 'wi-snow',
+      '13n': 'wi-snow',
+      '50d': 'wi-fog',
+      '50n': 'wi-fog'
+    };
+    return map[code] || 'wi-na';
+  }
+
   function updateWeatherUI(data) {
     const iconCode = data.weather[0].icon;
     const temp     = Math.round(data.main.temp);
     const desc     = data.weather[0].description;
-    weatherIcon.src  = `https://openweathermap.org/img/wn/${iconCode}@2x.png`;
-    weatherIcon.alt  = desc;
-    weatherText.textContent = `${desc} ${temp}℃`;
+
+    weatherIcon.className = `wi ${owmCodeToWiClass(iconCode)}`;
+
+    const colorMap = {
+      '01d': '#FFD700',
+      '02d': '#C0C0C0',
+      '09d': '#00BFFF',
+      '13d': '#ADD8E6',
+    };
+    weatherIcon.style.color = colorMap[iconCode] || '#FFF';
+
+    weatherIcon.title         = desc;
+    weatherText.textContent   = `${desc} ${temp}℃`;
   }
 
   function fetchWeather() {
-    const url = `https://api.openweathermap.org/data/2.5/weather?q=${encodeURIComponent(city)}&appid=${apiKey}&units=metric&lang=zh_cn`;
+    const url = `https://api.openweathermap.org/data/2.5/weather`
+              + `?q=${encodeURIComponent(city)}`
+              + `&appid=${apiKey}`
+              + `&units=metric`
+              + `&lang=${targetLang}`;
     fetch(url)
-      .then(res => res.ok ? res.json() : Promise.reject('Network response not OK'))
-      .then(data => {
-        if (data.weather && data.main) {
-          updateWeatherUI(data);
-        }
-      })
+      .then(res => res.ok ? res.json() : Promise.reject('Network not OK'))
+      .then(data => (data.weather && data.main) && updateWeatherUI(data))
       .catch(err => console.error('Error fetching weather：', err));
   }
 
@@ -9158,18 +9245,37 @@ async function showIpDetailModal() {
 
 <script>
 (function() {
+  const btn = document.getElementById('toggleFloatingLyrics');
   const box = document.getElementById('floatingLyrics');
-  let isDragging = false;
-  let offsetX = 0, offsetY = 0;
+
+  const savedState = localStorage.getItem('floatingLyricsVisible') === 'true';
+  if (savedState) {
+    box.classList.add('visible');
+  } else {
+    box.classList.remove('visible');
+  }
 
   box.style.resize    = 'none';
   box.style.overflow  = 'auto';
-  box.style.cursor    = 'move';
   box.style.position  = 'absolute';
+
+  btn.addEventListener('click', () => {
+    box.classList.toggle('visible');
+    const isVisible = box.classList.contains('visible');
+    localStorage.setItem('floatingLyricsVisible', isVisible);
+
+    const message = isVisible 
+        ? translations['floating_lyrics_enabled'] || "Floating lyrics enabled" 
+        : translations['floating_lyrics_disabled'] || "Floating lyrics disabled";
+    speakMessage(message);
+    showLogMessage(message);
+  });
+
+  let isDragging = false;
+  let offsetX = 0, offsetY = 0;
 
   box.addEventListener('mousedown', e => {
     if (e.target.closest('.ctrl-btn')) return;
-
     e.preventDefault();
     isDragging = true;
     offsetX = e.clientX - box.offsetLeft;
