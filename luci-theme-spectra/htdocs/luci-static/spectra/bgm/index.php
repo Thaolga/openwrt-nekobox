@@ -1386,7 +1386,7 @@ body:hover,
         <span id="timeDisplay"></span>
     </div>
     <div class="weather-display d-flex align-items-center d-none d-sm-inline">
-      <i id="weatherIcon" class="wi wi-na" style="font-size:32px; margin-right:4px;"></i>
+      <i id="weatherIcon" class="wi wi-na" style="font-size:28px; margin-right:4px;"></i>
       <span id="weatherText" style="color:var(--accent-color); font-weight: 700;"></span>
     </div>
 </div>
@@ -3820,12 +3820,10 @@ body {
     pointer-events: none;
     cursor: default; 
     transition: opacity 0.3s ease;
-    pointer-events: auto;
     writing-mode: vertical-rl;
     text-orientation: mixed;
     line-height: 2;
     z-index: 2;
-    display: flex;
     flex-direction: column; 
     gap: 0.5em;
     width: 200px;
