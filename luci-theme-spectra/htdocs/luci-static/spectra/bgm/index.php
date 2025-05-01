@@ -1457,7 +1457,6 @@ body:hover,
                 return ($posA === false ? PHP_INT_MAX : $posA) - ($posB === false ? PHP_INT_MAX : $posB);
             });
         ?>
-
         <div  id="fileGrid" class="row row-cols-2 row-cols-md-4 row-cols-lg-5 g-4">
             <?php foreach ($files as $file): 
                 $path = $upload_dir . '/' . $file;
@@ -1623,108 +1622,112 @@ body:hover,
     </div>
 </div>
 
-    <div class="modal fade" id="cityModal" tabindex="-1" aria-labelledby="cityModalLabel" aria-hidden="true">
-      <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h5 class="modal-title" id="cityModalLabel" data-translate="set_city">Set City</h5>
-            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-          </div>
-          <div class="modal-body">
-            <div class="mb-3">
-              <label for="cityInput" class="form-label" data-translate="input_label">City Name</label>
-              <input type="text" class="form-control" id="cityInput" data-translate-placeholder="input_placeholder">
-            </div>
-          </div>
-          <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" data-translate="cancel">Cancel</button>
-            <button type="button" class="btn btn-primary" id="saveCityBtn" data-translate="save">Save</button>
-          </div>
+<div class="modal fade" id="cityModal" tabindex="-1" aria-labelledby="cityModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="cityModalLabel" data-translate="set_city">Set City</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <div class="mb-3">
+          <label for="cityInput" class="form-label" data-translate="input_label">City Name</label>
+          <input type="text" class="form-control" id="cityInput" data-translate-placeholder="input_placeholder">
         </div>
       </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" data-translate="cancel">Cancel</button>
+        <button type="button" class="btn btn-primary" id="saveCityBtn" data-translate="save">Save</button>
+      </div>
     </div>
+  </div>
+</div>
 
-    <div class="modal fade" id="previewModal" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false">
-        <div class="modal-dialog modal-xl">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" data-translate="preview">Preview</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body text-center position-relative">
-                    <div class="loading-spinner"></div>
-                    <div id="prevBtn" class="preview-nav-btn"><i class="bi bi-chevron-left"></i></div>
-                    <div id="nextBtn" class="preview-nav-btn"><i class="bi bi-chevron-right"></i></div>
-                    <img id="previewImage" src="" class="img-fluid d-none">
-                    <audio id="previewAudio" controls class="d-none w-100"></audio>
-                    <video id="previewVideo" controls class="d-none">
-                        <source id="previewVideoSource" src="" type="video/mp4">
-                    </video>
-              </div>
-                <div class="modal-footer">
-                    <button class="btn btn-primary" id="fullscreenToggle" data-translate="toggle_fullscreen">Toggle Fullscreen</button>
-                </div>
+<div class="modal fade" id="previewModal" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" data-translate="preview">Preview</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body text-center position-relative">
+                <div class="loading-spinner"></div>
+                <div id="prevBtn" class="preview-nav-btn"><i class="bi bi-chevron-left"></i></div>
+                <div id="nextBtn" class="preview-nav-btn"><i class="bi bi-chevron-right"></i></div>
+                <img id="previewImage" src="" class="img-fluid d-none">
+                <audio id="previewAudio" controls class="d-none w-100"></audio>
+                <video id="previewVideo" controls class="d-none">
+                    <source id="previewVideoSource" src="" type="video/mp4">
+                </video>
+          </div>
+            <div class="modal-footer">
+                <button class="btn btn-primary" id="fullscreenToggle" data-translate="toggle_fullscreen">Toggle Fullscreen</button>
             </div>
         </div>
     </div>
+</div>
 
-    <form id="batchDeleteForm" method="post" style="display: none;">
-        <input type="hidden" name="batch_delete" value="1">
-    </form>
+<form id="batchDeleteForm" method="post" style="display: none;">
+    <input type="hidden" name="batch_delete" value="1">
+</form>
     </div>
 
-    <div class="modal fade" id="uploadModal" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false">
-        <div class="modal-dialog modal-xl">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" data-translate="batch_upload"></h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body">
-                  <div class="alert alert-warning" data-translate="supported_formats"></div>
-                    <form id="uploadForm" method="post" enctype="multipart/form-data">
-                        <div class="drop-zone border rounded p-5 text-center mb-3">
-                            <input type="file" name="upload_file[]" id="upload_file" multiple 
-                                   style="opacity: 0; position: absolute; z-index: -1">
-                            <div class="upload-area">
-                                <i class="fas fa-cloud-upload-alt text-primary mb-3" style="font-size: 4rem;"></i>
-                                <div class="fs-5 mb-2" data-translate="drop_files_here"></div>
-                                <div class="text-muted upload-or mb-3" data-translate="or"></div>
-                                <button type="button" class="btn btn-primary btn-lg" id="customUploadButton">
-                                    <i class="bi bi-folder2-open me-2"></i><span data-translate="select_files"></span>
-                                </button>
-                                <div class="file-list mt-3"></div>
-                            </div>
+<div class="modal fade" id="uploadModal" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" data-translate="batch_upload"></h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="alert alert-warning" data-translate="supported_formats"></div>
+                <form id="uploadForm" method="post" enctype="multipart/form-data">
+                    <div class="drop-zone border rounded p-5 text-center mb-3">
+                        <input type="file" name="upload_file[]" id="upload_file" multiple 
+                               style="opacity: 0; position: absolute; z-index: -1">
+                        <div class="upload-area">
+                            <i class="fas fa-cloud-upload-alt text-primary mb-3" style="font-size: 4rem;"></i>
+                            <div class="fs-5 mb-2" data-translate="drop_files_here"></div>
+                            <div class="text-muted upload-or mb-3" data-translate="or"></div>
+                            <button type="button" class="btn btn-primary btn-lg" id="customUploadButton">
+                                <i class="bi bi-folder2-open me-2"></i><span data-translate="select_files"></span>
+                            </button>
+                            <div class="file-list mt-3"></div>
                         </div>
-                    </form>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-warning" id="updatePhpConfig" data-translate="unlock_php_upload_limit"></button>
-                    <button class="btn btn-primary" onclick="$('#uploadForm').submit()" data-translate="upload"></button>
-                    <button class="btn btn-secondary" data-bs-dismiss="modal" data-translate="cancel"></button>
-                </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-warning" id="updatePhpConfig" data-translate="unlock_php_upload_limit"></button>
+                <button class="btn btn-primary" onclick="$('#uploadForm').submit()" data-translate="upload"></button>
+                <button class="btn btn-secondary" data-bs-dismiss="modal" data-translate="cancel"></button>
             </div>
         </div>
     </div>
+</div>
 
-    <?php foreach ($files as $file): ?>
+<?php foreach ($files as $file): ?>
     <div class="modal fade" id="renameModal-<?= md5($file) ?>" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false">
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
                 <form method="post" action="">
                     <input type="hidden" name="old_name" value="<?= htmlspecialchars($file, ENT_QUOTES, 'UTF-8') ?>">
                     <div class="modal-header">
-                        <h5 class="modal-title" data-translate="rename_file"><?= htmlspecialchars($file, ENT_QUOTES, 'UTF-8') ?></h5>
+                        <h5 class="modal-title" data-translate="rename_file">
+                            <?= htmlspecialchars($file, ENT_QUOTES, 'UTF-8') ?>
+                        </h5>
                         <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                     </div>
                     <div class="modal-body">
                         <div class="mb-3">
                             <label data-translate="new_filename"></label>
-                            <input type="text" 
-                                   class="form-control" 
-                                   name="new_name"
-                                   value="<?= htmlspecialchars($file, ENT_QUOTES, 'UTF-8') ?>"
-                                   data-translate-title="invalid_filename_chars">
+                            <input 
+                                type="text" 
+                                class="form-control" 
+                                name="new_name"
+                                value="<?= htmlspecialchars($file, ENT_QUOTES, 'UTF-8') ?>"
+                                data-translate-title="invalid_filename_chars"
+                            >
                         </div>
                     </div>
                     <div class="modal-footer">
@@ -1733,49 +1736,63 @@ body:hover,
                     </div>
                 </form>
             </div>
-       </div>
+        </div>
     </div>
-    <?php endforeach; ?>
+<?php endforeach; ?>
 
-    <div class="modal fade" id="playerModal" tabindex="-1" aria-labelledby="playerModalLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
-        <div class="modal-dialog modal-xl">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="playerModalLabel" data-translate="media_player"></h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body d-flex flex-column" style="height: 65vh;"> 
-                    <div class="row g-4 flex-grow-1 h-100">
-                        <div class="col-md-8 d-flex flex-column h-100">
-                            <div class="ratio ratio-16x9 bg-dark rounded flex-grow-1 position-relative">
-                                <video id="mainPlayer" controls class="w-100 h-100 d-none"></video>
-                                <img id="imagePlayer" class="w-100 h-100 d-none object-fit-contain">
-                            </div>
-                        </div>
-                    
-                        <div class="col-md-4 d-flex flex-column h-100">
-                            <h6 class="mb-3" data-translate="playlist"></h6>
-                            <div class="list-group flex-grow-1 overflow-auto" id="playlistContainer">
-                            </div>
+<div class="modal fade" id="playerModal" tabindex="-1" aria-labelledby="playerModalLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="playerModalLabel" data-translate="media_player"></h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body d-flex flex-column" style="height: 65vh;">
+                <div class="row g-4 flex-grow-1 h-100">
+                    <div class="col-md-8 d-flex flex-column h-100">
+                        <div class="ratio ratio-16x9 bg-dark rounded flex-grow-1 position-relative">
+                            <video id="mainPlayer" controls class="w-100 h-100 d-none"></video>
+                            <img id="imagePlayer" class="w-100 h-100 d-none object-fit-contain">
                         </div>
                     </div>
+                    <div class="col-md-4 d-flex flex-column h-100">
+                        <h6 class="mb-3" data-translate="playlist"></h6>
+                        <div class="list-group flex-grow-1 overflow-auto" id="playlistContainer"></div>
+                    </div>
                 </div>
-                <div class="modal-footer">
-                    <button class="btn btn-sm btn-danger" id="clearPlaylist"><i class="bi bi-trash"></i> <span data-translate="clear_list"></span></button>
-                    <button class="btn btn-sm btn-primary" id="togglePlaylist"><i class="bi bi-list-ul"></i> <span data-translate="toggle_list"></span></button>
-                    <button class="btn btn-sm btn-info" id="togglePip" style="display: none;"><i class="bi bi-pip"></i> <span data-translate="picture_in_picture"></span></button>
-                    <button class="btn btn-sm btn-success" id="toggleFullscreen"><i class="bi bi-arrows-fullscreen"></i> <span data-translate="fullscreen"></span></button>
-                    <button class="btn btn-sm btn-secondary" data-bs-dismiss="modal"><i class="bi bi-x-lg"></i> <span data-translate="close"></span></button>
-                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-sm btn-danger" id="clearPlaylist">
+                    <i class="bi bi-trash"></i>
+                    <span data-translate="clear_list"></span>
+                </button>
+                <button class="btn btn-sm btn-primary" id="togglePlaylist">
+                    <i class="bi bi-list-ul"></i>
+                    <span data-translate="toggle_list"></span>
+                </button>
+                <button class="btn btn-sm btn-info" id="togglePip" style="display: none;">
+                    <i class="bi bi-pip"></i>
+                    <span data-translate="picture_in_picture"></span>
+                </button>
+                <button class="btn btn-sm btn-success" id="toggleFullscreen">
+                    <i class="bi bi-arrows-fullscreen"></i>
+                    <span data-translate="fullscreen"></span>
+                </button>
+                <button class="btn btn-sm btn-secondary" data-bs-dismiss="modal">
+                    <i class="bi bi-x-lg"></i>
+                    <span data-translate="close"></span>
+                </button>
             </div>
         </div>
     </div>
+</div>
+
 <div id="floatingLyrics">
     <div class="floating-controls">
         <button class="ctrl-btn" onclick="changeTrack(-1, true)" data-translate-title="previous_track">
             <i class="fas fa-backward"></i>
         </button>
-        <button class="ctrl-btn" id="floatingPlayBtn" onclick="togglePlay()"  data-translate-title="play_pause">
+        <button class="ctrl-btn" id="floatingPlayBtn" onclick="togglePlay()" data-translate-title="play_pause">
             <i class="bi bi-play-fill"></i>
         </button>
         <button class="ctrl-btn" onclick="changeTrack(1, true)" data-translate-title="next_track">
@@ -1784,158 +1801,171 @@ body:hover,
         <button class="ctrl-btn" id="floatingRepeatBtn" onclick="toggleRepeat()">
             <i class="bi bi-arrow-repeat"></i>
         </button>
-        <button class="ctrl-btn" id="speedToggle" data-translate-title="playback_speed"><span id="speedLabel">1×</span></button>
-        <button class="ctrl-btn" id="muteToggle" data-translate-title="volume"><i class="bi bi-volume-up-fill"></i></button>
-        <button class="ctrl-btn toggleFloatingLyricsBtn" data-translate-title="toggle_floating_lyrics"><i class="bi bi-display floatingIcon"></i></button>
+        <button class="ctrl-btn" id="speedToggle" data-translate-title="playback_speed">
+            <span id="speedLabel">1×</span>
+        </button>
+        <button class="ctrl-btn" id="muteToggle" data-translate-title="volume">
+            <i class="bi bi-volume-up-fill"></i>
+        </button>
+        <button class="ctrl-btn toggleFloatingLyricsBtn" data-translate-title="toggle_floating_lyrics">
+            <i class="bi bi-display floatingIcon"></i>
+        </button>
     </div>
     <div id="floatingCurrentSong" class="vertical-title"></div>
     <div class="vertical-lyrics"></div>
 </div>
+
 <span id="clearConfirmText" data-translate="clear_confirm" class="d-none"></span>
-    <div class="modal fade" id="musicModal" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false">
-        <div class="modal-dialog modal-xl">
-            <div class="modal-content bg-dark text-white">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="langModalLabel" data-translate="music_player"></h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+
+<div class="modal fade" id="musicModal" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content bg-dark text-white">
+            <div class="modal-header">
+                <h5 class="modal-title" id="langModalLabel" data-translate="music_player"></h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div id="floatingLyrics"></div>
+                <div id="currentSong" class="mb-3 text-center font-weight-bold fs-4"></div>
+                <div class="lyrics-container" id="lyricsContainer" style="height: 300px; overflow-y: auto;"></div>
+                <div class="progress-container mt-3">
+                    <div class="progress">
+                        <div class="progress-bar bg-success" role="progressbar" id="progressBar" style="width: 0%" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+                    </div>
                 </div>
-                <div class="modal-body">
-                    <div id="floatingLyrics"></div>                   
-                    <div id="currentSong" class="mb-3 text-center font-weight-bold fs-4"></div>                   
-                    <div class="lyrics-container" id="lyricsContainer" style="height: 300px; overflow-y: auto;">
-                    </div>                    
-                    <div class="progress-container mt-3">
-                        <div class="progress">
-                            <div class="progress-bar bg-success" role="progressbar" id="progressBar" style="width: 0%" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
-                        </div>
-                    </div>         
-                    <div class="d-flex justify-content-between mt-2 small">
-                        <span id="currentTime">0:00</span>
-                        <span id="duration">0:00</span>
-                    </div> 
-                 
-                    <div class="controls d-flex justify-content-center gap-3 mt-4">
-                        <button class="btn btn-outline-light control-btn toggleFloatingLyricsBtn" data-translate-title="toggle_floating_lyrics"><i class="bi bi-display floatingIcon"></i></button>
-                        <button class="btn btn-outline-light control-btn" id="repeatBtn" onclick="toggleRepeat()">
-                            <i class="bi bi-arrow-repeat"></i>
-                        </button>
-                        <button class="btn btn-outline-light control-btn" onclick="changeTrack(-1, true)" data-translate-title="previous_track">
-                            <i class="bi bi-caret-left-fill"></i>
-                        </button>
-                        <button class="btn btn-success control-btn" id="playPauseBtn" onclick="togglePlay()" data-translate-title="play_pause">
-                            <i class="bi bi-play-fill"></i>
-                        </button>
-                        <button class="btn btn-outline-light control-btn" onclick="changeTrack(1, true)" data-translate-title="next_track">
-                            <i class="bi bi-caret-right-fill"></i>
-                        </button>
-                       <button class="btn btn-outline-light control-btn" type="button" data-bs-toggle="modal" data-bs-target="#urlModal" data-translate-title="custom_playlist"><i class="bi bi-music-note-list"></i></button>
-                        <button class="btn btn-volume position-relative" id="volumeToggle" data-translate-title="volume">
-                            <i class="bi bi-volume-up-fill"></i>
-                            <div class="volume-slider-container position-absolute bottom-100 start-50 translate-middle-x mb-1 p-2"
-                                 id="volumePanel"
-                                 style="display: none; width: 120px;">
-                                <input type="range" 
-                                       class="form-range volume-slider" 
-                                       id="volumeSlider"
-                                       min="0" 
-                                       max="1" 
-                                       step="0.01"
-                                       value="1">
-                                </div>
-                            </button> 
-                        </div>
-                    <div class="playlist mt-3" id="playlist"></div>
+                <div class="d-flex justify-content-between mt-2 small">
+                    <span id="currentTime">0:00</span>
+                    <span id="duration">0:00</span>
                 </div>
+                
+                <div class="controls d-flex justify-content-center gap-3 mt-4">
+                    <button class="btn btn-outline-light control-btn toggleFloatingLyricsBtn" data-translate-title="toggle_floating_lyrics">
+                        <i class="bi bi-display floatingIcon"></i>
+                    </button>
+                    <button class="btn btn-outline-light control-btn" id="repeatBtn" onclick="toggleRepeat()">
+                        <i class="bi bi-arrow-repeat"></i>
+                    </button>
+                    <button class="btn btn-outline-light control-btn" onclick="changeTrack(-1, true)" data-translate-title="previous_track">
+                        <i class="bi bi-caret-left-fill"></i>
+                    </button>
+                    <button class="btn btn-success control-btn" id="playPauseBtn" onclick="togglePlay()" data-translate-title="play_pause">
+                        <i class="bi bi-play-fill"></i>
+                    </button>
+                    <button class="btn btn-outline-light control-btn" onclick="changeTrack(1, true)" data-translate-title="next_track">
+                        <i class="bi bi-caret-right-fill"></i>
+                    </button>
+                    <button class="btn btn-outline-light control-btn" type="button" data-bs-toggle="modal" data-bs-target="#urlModal" data-translate-title="custom_playlist">
+                        <i class="bi bi-music-note-list"></i>
+                    </button>
+                    <button class="btn btn-volume position-relative" id="volumeToggle" data-translate-title="volume">
+                        <i class="bi bi-volume-up-fill"></i>
+                        <div class="volume-slider-container position-absolute bottom-100 start-50 translate-middle-x mb-1 p-2" id="volumePanel" style="display: none; width: 120px;">
+                            <input type="range" class="form-range volume-slider" id="volumeSlider" min="0" max="1" step="0.01" value="1">
+                        </div>
+                    </button>
+                </div>
+                <div class="playlist mt-3" id="playlist"></div>
             </div>
         </div>
     </div>
+</div>
 
-    <div class="modal fade" id="urlModal" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false">
-        <div class="modal-dialog modal-xl">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" data-translate="update_playlist"></h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body">
-                    <?php if($message): ?>
+<div class="modal fade" id="urlModal" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" data-translate="update_playlist"></h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <?php if ($message): ?>
                     <div class="alert alert-<?= strpos($message, '成功') !== false ? 'success' : 'danger' ?>">
                         <?= $message ?>
                     </div>
-                    <?php endif; ?>               
-                    <form method="POST">
-                        <div class="mb-3">
-                            <label data-translate="playlist_url"></label>
-                            <input type="text" name="new_url" id="new_url" class="form-control" 
-                                   value="<?= htmlspecialchars($new_url) ?>" required>
-                        </div>
-                        <div class="d-flex gap-2">
-                            <button type="submit" class="btn btn-primary" data-translate="save"></button>
-                            <button type="submit" name="reset_default" class="btn btn-secondary" data-translate="reset_default"></button>
-                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" data-translate="cancel"></button>
-                        </div>
-                    </form>
-                </div>
+                <?php endif; ?>
+                <form method="POST">
+                    <div class="mb-3">
+                        <label data-translate="playlist_url"></label>
+                        <input 
+                            type="text" 
+                            name="new_url" 
+                            id="new_url" 
+                            class="form-control" 
+                            value="<?= htmlspecialchars($new_url) ?>" 
+                            required
+                        >
+                    </div>
+                    <div class="d-flex gap-2">
+                        <button type="submit" class="btn btn-primary" data-translate="save"></button>
+                        <button type="submit" name="reset_default" class="btn btn-secondary" data-translate="reset_default"></button>
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" data-translate="cancel"></button>
+                    </div>
+                </form>
             </div>
         </div>
     </div>
+</div>
 
-    <div class="modal fade" id="updateConfirmModal" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false">
-        <div class="modal-dialog modal-lg">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" data-translate="theme_download"></h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body">
-                    <div id="currentVersionInfo" class="alert alert-info" data-translate="current_version"></div>
-                    <div id="themeVersionInfo" class="alert alert-warning" data-translate="fetching_version"></div>
-                    <textarea id="copyCommand" class="form-control" rows="3" readonly>opkg update && opkg install wget grep sed && LATEST_FILE=$(wget -qO- https://github.com/Thaolga/openwrt-nekobox/releases/expanded_assets/1.8.8 | grep -o 'luci-theme-spectra_[0-9A-Za-z.\-_]*_all.ipk' | head -n1) && wget -O /tmp/"$LATEST_FILE" "https://github.com/Thaolga/openwrt-nekobox/releases/download/1.8.8/$LATEST_FILE" && opkg install --force-reinstall /tmp/"$LATEST_FILE" && rm -f /tmp/"$LATEST_FILE"</textarea>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" data-translate="cancel"></button>
-                    <a id="confirmUpdateLink" href="#" class="btn btn-danger" target="_blank" data-translate="download_local"></a>
-                    <button id="copyCommandBtn" class="btn btn-info" data-translate="copy_command"></button>
-                    <button id="updatePluginBtn" class="btn btn-primary" data-translate="update_plugin">update_plugin</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div class="modal fade" id="updateModal" tabindex="-1" aria-labelledby="updateModalLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
-        <div class="modal-dialog modal-lg">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="updateModalLabel" data-translate="updateModalLabel">Update status</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                </div>
-                <div class="modal-body text-center">
-                    <div id="updateDescription" class="alert alert-info mb-3" data-translate="updateDescription"></div>
-                    <pre id="logOutput" style="white-space: pre-wrap; word-wrap: break-word; text-align: left; display: inline-block;" data-translate="waitingMessage">Waiting for the operation to begin...</pre>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div class="modal fade" id="confirmModal" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false">
-      <div class="modal-dialog modal-lg modal-dialog-centered">
+<div class="modal fade" id="updateConfirmModal" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false">
+    <div class="modal-dialog modal-lg">
         <div class="modal-content">
-          <div class="modal-header">
-            <h5 class="modal-title" data-translate="confirm_title">Confirm Action</h5>
-            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-          </div>
-          <div class="modal-body" id="confirmModalMessage"></div>
-          <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" data-translate="cancel">Cancel</button>
-            <button type="button" class="btn btn-danger" id="confirmModalYes" data-translate="confirm">Confirm</button>
-          </div>
+            <div class="modal-header">
+                <h5 class="modal-title" data-translate="theme_download"></h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div id="currentVersionInfo" class="alert alert-info" data-translate="current_version"></div>
+                <div id="themeVersionInfo" class="alert alert-warning" data-translate="fetching_version"></div>
+                <textarea id="copyCommand" class="form-control" rows="3" readonly>
+opkg update && opkg install wget grep sed && LATEST_FILE=$(wget -qO- https://github.com/Thaolga/openwrt-nekobox/releases/expanded_assets/1.8.8 | grep -o 'luci-theme-spectra_[0-9A-Za-z.\-_]*_all.ipk' | head -n1) && wget -O /tmp/"$LATEST_FILE" "https://github.com/Thaolga/openwrt-nekobox/releases/download/1.8.8/$LATEST_FILE" && opkg install --force-reinstall /tmp/"$LATEST_FILE" && rm -f /tmp/"$LATEST_FILE"
+</textarea>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" data-translate="cancel"></button>
+                <a id="confirmUpdateLink" href="#" class="btn btn-danger" target="_blank" data-translate="download_local"></a>
+                <button id="copyCommandBtn" class="btn btn-info" data-translate="copy_command"></button>
+                <button id="updatePluginBtn" class="btn btn-primary" data-translate="update_plugin">update_plugin</button>
+            </div>
         </div>
-      </div>
     </div>
+</div>
 
-    <script>
+<div class="modal fade" id="updateModal" tabindex="-1" aria-labelledby="updateModalLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="updateModalLabel" data-translate="updateModalLabel">Update status</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body text-center">
+                <div id="updateDescription" class="alert alert-info mb-3" data-translate="updateDescription"></div>
+                <pre id="logOutput" style="white-space: pre-wrap; word-wrap: break-word; text-align: left; display: inline-block;" data-translate="waitingMessage">Waiting for the operation to begin...</pre>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="confirmModal" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" data-translate="confirm_title">Confirm Action</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body" id="confirmModalMessage"></div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" data-translate="cancel">Cancel</button>
+                <button type="button" class="btn btn-danger" id="confirmModalYes" data-translate="confirm">Confirm</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
     document.addEventListener('DOMContentLoaded', function() {
         const dropZone = document.querySelector('.drop-zone');
         const fileInput = document.getElementById('upload_file');
@@ -2024,278 +2054,281 @@ body:hover,
             }
         });
     });
-    </script>
+</script>
 
-    <script>
-        $(document).ready(function() {
-            $('#selectAll').change(function() {
-                $('.fileCheckbox').prop('checked', this.checked);
-                updateSelectionInfo();
-            });
-
-            $('.fileCheckbox').change(function() {
-                $('#selectAll').prop('checked', $('.fileCheckbox:checked').length === $('.fileCheckbox').length);
-                updateSelectionInfo();
-            });
-
-            $('#selectAllBtn').click(function() {
-                const allChecked = $('.fileCheckbox:checked').length === $('.fileCheckbox').length;
-                $('.fileCheckbox').prop('checked', !allChecked).trigger('change');
-            });
-
-            $('#batchDeleteBtn').click(function() {
-                const files = $('.fileCheckbox:checked').map(function() { return $(this).val(); }).get();
-                if (files.length === 0) { alert(translations['select_files_to_delete'] || 'Please select files to delete first');  return; }
-                const confirmText = (translations['confirm_batch_delete'] || 'Are you sure you want to delete the selected %d files?').replace('%d', files.length);
-                showConfirmation(confirmText, () => {
-                    const batchDeleteForm = $('#batchDeleteForm');
-                    batchDeleteForm.empty();
-                    batchDeleteForm.append('<input type="hidden" name="batch_delete" value="1">');
-                    files.forEach(file => {
-                        batchDeleteForm.append(`<input type="hidden" name="filenames[]" value="${file}">`);
-                    });
-                    batchDeleteForm.submit();
-                });
-            });
-
-            function updateSelectionInfo() {
-                const checked = $('.fileCheckbox:checked');
-                const count = checked.length;
-                const totalSize = checked.toArray().reduce((sum, el) => sum + parseInt($(el).data('size')), 0);
-                if (count > 0) {
-                    $('#toolbar').removeClass('d-none');
-                    $('#selectedInfo').html((translations['selected_info'] || 'Selected %d files，total %s MB').replace('%d', count).replace('%s', (totalSize / (1024 * 1024)).toFixed(2)));
-                } else {
-                    $('#toolbar').addClass('d-none');
-                }
-            }
-
-            $('.preview-img').click(function() {
-                const src = $(this).data('src');
-                $('#previewImage').attr('src', src).removeClass('d-none');
-                $('#previewVideo').addClass('d-none');
-            });
-
-            $('.preview-video').click(function() {
-                const src = $(this).data('src');
-                $('#previewVideoSource').attr('src', src);
-                $('#previewVideo')[0].load();
-                $('#previewVideo').removeClass('d-none');
-                $('#previewImage').addClass('d-none');
-            });
-
-            $('#previewModal').on('hidden.bs.modal', function() {
-                $('#previewVideo')[0].pause();
-            });
-
-            $('.set-bg-btn').click(function() {
-                const src = $(this).data('src');
-                const type = $(this).data('type');
-                setBackground(src, type);
-            });
-
-            $('#clearBackgroundBtn').click(function() {
-                const confirmMessage = translations['confirm_clear_background'] || 'Are you sure you want to clear the background?';
-                speakMessage(translations['confirm_clear_background'] || 'Are you sure you want to clear the background?');
-                showConfirmation(confirmMessage, () => {
-                    setTimeout(() => {
-                        clearExistingBackground();
-                        localStorage.removeItem('phpBackgroundSrc');
-                        localStorage.removeItem('phpBackgroundType');
-                        localStorage.removeItem('backgroundSet');
-
-                        const clearedMsg = translations['background_cleared'] || 'Background cleared!';
-                        showLogMessage(clearedMsg);
-                        speakMessage(clearedMsg);
-
-                        setTimeout(() => {
-                              window.top.location.href = "/cgi-bin/luci/admin/services/spectra";
-                        }, 3000);
-
-                    }, 0);
-                });
-            });
-
-            function setBackground(src, type) {
-                if (type === 'image') {
-                    setImageBackground(src);
-                } else if (type === 'video') {
-                    setVideoBackground(src);
-                }
-            }
+<script>
+    $(document).ready(function() {
+        $('#selectAll').change(function() {
+            $('.fileCheckbox').prop('checked', this.checked);
+            updateSelectionInfo();
         });
 
-        $('#batchDeleteForm').submit(function(e) {
-            e.preventDefault();
-            const formData = $(this).serialize();
-            $.post('', formData, function(response) {
-                let message = '';
-                if (response.success) {
-                    message = translations['batch_delete_success'] || '✅ Batch delete successful';
-                    showLogMessage(message);
-                    speakMessage(message);
-                    setTimeout(() => {
-                          location.reload();
-                    }, 2500);
-                } else {
-                    message = translations['batch_delete_failed'] || '❌ Batch delete failed';
-                    showLogMessage(message);
-                    speakMessage(message);
-                }
-            }, 'json');
+        $('.fileCheckbox').change(function() {
+            $('#selectAll').prop('checked', $('.fileCheckbox:checked').length === $('.fileCheckbox').length);
+            updateSelectionInfo();
         });
 
-        function setImageBackground(src) {
-            clearExistingBackground();
-            document.body.style.background = `url('/luci-static/spectra/bgm/${src}') no-repeat center center fixed`;
-            document.body.style.backgroundSize = 'cover';
-            localStorage.setItem('phpBackgroundSrc', src);
-            localStorage.setItem('phpBackgroundType', 'image');
-            localStorage.setItem('redirectAfterImage', 'true');
-            checkAndReload();
-        }
-
-        function setVideoBackground(src, isPHP = false) {
-            clearExistingBackground();
-            let existingVideoTag = document.getElementById("background-video");
-            if (existingVideoTag) {
-                existingVideoTag.src = `/luci-static/spectra/bgm/${src}`;
-            } else {
-                videoTag = document.createElement("video");
-                videoTag.className = "video-background";
-                videoTag.id = "background-video";
-                videoTag.autoplay = true;
-                videoTag.loop = true;
-                videoTag.muted = localStorage.getItem('videoMuted') === 'true';
-                videoTag.playsInline = true;
-                videoTag.innerHTML = `
-                    <source src="/luci-static/spectra/bgm/${src}" type="video/mp4">
-                    Your browser does not support the video tag.
-                `;
-                document.body.prepend(videoTag);
-
-                let styleTag = document.querySelector("#video-style");
-                if (!styleTag) {
-                    styleTag = document.createElement("style");
-                    styleTag.id = "video-style";
-                    document.head.appendChild(styleTag);
-                }
-                styleTag.innerHTML = `
-                    body {
-                        background: transparent !important;
-                        margin: 0;
-                        padding: 0;
-                        height: 100vh;
-                        overflow: hidden;
-                    }
-                    .video-background {
-                        position: fixed;
-                        top: 50%;
-                        left: 50%;
-                        width: auto;
-                        height: auto;
-                        min-width: 100%;
-                        min-height: 100%;
-                        transform: translate(-50%, -50%);
-                        object-fit: cover;
-                        z-index: -1;
-                    }
-                    .video-background + .wrapper span {
-                        display: none !important;
-                    }
-                `;
-            }
-            localStorage.setItem('phpBackgroundSrc', src);
-            localStorage.setItem('phpBackgroundType', 'video');
-            if (isPHP) {
-                document.querySelector('.sound-toggle div').textContent = '🔊';
-                videoTag.muted = false;
-            }
-            checkAndReload();
-        }
-
-        function clearExistingBackground() {
-            document.body.style.background = ''; 
-            let existingVideoTag = document.getElementById("background-video");
-            if (existingVideoTag) {
-                existingVideoTag.remove(); 
-            }
-            let styleTag = document.querySelector("#video-style");
-            if (styleTag) {
-                styleTag.remove(); 
-            }
-        }
-
-        function checkAndReload() {
-            if (!localStorage.getItem('backgroundSet')) {
-                localStorage.setItem('backgroundSet', 'true');
-                location.reload();
-            }
-        }
-
-        if (phpBackgroundSrc && phpBackgroundType) {
-            if (phpBackgroundType === 'image') {
-                setImageBackground(phpBackgroundSrc);
-            } else if (phpBackgroundType === 'video') {
-                setVideoBackground(phpBackgroundSrc, true);
-            }
-        }
-
-        document.querySelectorAll('.preview-video').forEach(video => {
-            video.addEventListener('mouseenter', () => {
-                video.play().catch(() => {})
-            })
-            video.addEventListener('mouseleave', () => {
-                video.pause()
-                video.currentTime = 0
-            })
+        $('#selectAllBtn').click(function() {
+            const allChecked = $('.fileCheckbox:checked').length === $('.fileCheckbox').length;
+            $('.fileCheckbox').prop('checked', !allChecked).trigger('change');
         });
 
-        $(document).ready(function () {
-            $(".set-bg-btn").click(function () {
-                const bgSrc = $(this).data("src");
-                const bgType = $(this).data("type");
-                setTimeout(function () {
-                    location.reload();
-                }, 1000);
-            });
-        });
-
-        window.addEventListener('load', function () {
-            if (localStorage.getItem('redirectAfterImage') === 'true') {
-                localStorage.removeItem('redirectAfterImage');
-                setTimeout(() => {
-                    window.top.location.href = "/cgi-bin/luci/admin/services/spectra?bg=image";
-                }, 3000);
+        $('#batchDeleteBtn').click(function() {
+            const files = $('.fileCheckbox:checked').map(function() { return $(this).val(); }).get();
+            if (files.length === 0) { 
+                alert(translations['select_files_to_delete'] || 'Please select files to delete first');  
+                return; 
             }
-        });
-    </script>
-
-    <script>
-        document.getElementById("updatePhpConfig").addEventListener("click", function() {
-            const confirmText = translations['confirm_update_php'] || "Are you sure you want to update PHP configuration?";
-            speakMessage(confirmText);
+            const confirmText = (translations['confirm_batch_delete'] || 'Are you sure you want to delete the selected %d files?').replace('%d', files.length);
             showConfirmation(confirmText, () => {
-                fetch("update_php_config.php", {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" }
-                })
-                .then(response => response.json())
-                .then(data => {
-                    const msg = data.message || "Configuration updated successfully.";
-                    showLogMessage(msg);
-                    speakMessage(msg);
-                })
-                .catch(error => {
-                    const errMsg = translations['request_failed'] || ("Request failed: " + error.message);
-                    showLogMessage(errMsg);
-                    speakMessage(errMsg);
+                const batchDeleteForm = $('#batchDeleteForm');
+                batchDeleteForm.empty();
+                batchDeleteForm.append('<input type="hidden" name="batch_delete" value="1">');
+                files.forEach(file => {
+                    batchDeleteForm.append(`<input type="hidden" name="filenames[]" value="${file}">`);
                 });
+                batchDeleteForm.submit();
             });
         });
-    </script>
 
-    <script>
+        function updateSelectionInfo() {
+            const checked = $('.fileCheckbox:checked');
+            const count = checked.length;
+            const totalSize = checked.toArray().reduce((sum, el) => sum + parseInt($(el).data('size')), 0);
+            if (count > 0) {
+                $('#toolbar').removeClass('d-none');
+                $('#selectedInfo').html((translations['selected_info'] || 'Selected %d files，total %s MB').replace('%d', count).replace('%s', (totalSize / (1024 * 1024)).toFixed(2)));
+            } else {
+                $('#toolbar').addClass('d-none');
+            }
+        }
+
+        $('.preview-img').click(function() {
+            const src = $(this).data('src');
+            $('#previewImage').attr('src', src).removeClass('d-none');
+            $('#previewVideo').addClass('d-none');
+        });
+
+        $('.preview-video').click(function() {
+            const src = $(this).data('src');
+            $('#previewVideoSource').attr('src', src);
+            $('#previewVideo')[0].load();
+            $('#previewVideo').removeClass('d-none');
+            $('#previewImage').addClass('d-none');
+        });
+
+        $('#previewModal').on('hidden.bs.modal', function() {
+            $('#previewVideo')[0].pause();
+        });
+
+        $('.set-bg-btn').click(function() {
+            const src = $(this).data('src');
+            const type = $(this).data('type');
+            setBackground(src, type);
+        });
+
+        $('#clearBackgroundBtn').click(function() {
+            const confirmMessage = translations['confirm_clear_background'] || 'Are you sure you want to clear the background?';
+            speakMessage(translations['confirm_clear_background'] || 'Are you sure you want to clear the background?');
+            showConfirmation(confirmMessage, () => {
+                setTimeout(() => {
+                    clearExistingBackground();
+                    localStorage.removeItem('phpBackgroundSrc');
+                    localStorage.removeItem('phpBackgroundType');
+                    localStorage.removeItem('backgroundSet');
+
+                    const clearedMsg = translations['background_cleared'] || 'Background cleared!';
+                    showLogMessage(clearedMsg);
+                    speakMessage(clearedMsg);
+
+                    setTimeout(() => {
+                          window.top.location.href = "/cgi-bin/luci/admin/services/spectra";
+                    }, 3000);
+
+                }, 0);
+            });
+        });
+
+        function setBackground(src, type) {
+            if (type === 'image') {
+                setImageBackground(src);
+            } else if (type === 'video') {
+                setVideoBackground(src);
+            }
+        }
+    });
+
+    $('#batchDeleteForm').submit(function(e) {
+        e.preventDefault();
+        const formData = $(this).serialize();
+        $.post('', formData, function(response) {
+            let message = '';
+            if (response.success) {
+                message = translations['batch_delete_success'] || '✅ Batch delete successful';
+                showLogMessage(message);
+                speakMessage(message);
+                setTimeout(() => {
+                      location.reload();
+                }, 2500);
+            } else {
+                message = translations['batch_delete_failed'] || '❌ Batch delete failed';
+                showLogMessage(message);
+                speakMessage(message);
+            }
+        }, 'json');
+    });
+
+    function setImageBackground(src) {
+        clearExistingBackground();
+        document.body.style.background = `url('/luci-static/spectra/bgm/${src}') no-repeat center center fixed`;
+        document.body.style.backgroundSize = 'cover';
+        localStorage.setItem('phpBackgroundSrc', src);
+        localStorage.setItem('phpBackgroundType', 'image');
+        localStorage.setItem('redirectAfterImage', 'true');
+        checkAndReload();
+    }
+
+    function setVideoBackground(src, isPHP = false) {
+        clearExistingBackground();
+        let existingVideoTag = document.getElementById("background-video");
+        if (existingVideoTag) {
+            existingVideoTag.src = `/luci-static/spectra/bgm/${src}`;
+        } else {
+            videoTag = document.createElement("video");
+            videoTag.className = "video-background";
+            videoTag.id = "background-video";
+            videoTag.autoplay = true;
+            videoTag.loop = true;
+            videoTag.muted = localStorage.getItem('videoMuted') === 'true';
+            videoTag.playsInline = true;
+            videoTag.innerHTML = `
+                <source src="/luci-static/spectra/bgm/${src}" type="video/mp4">
+                Your browser does not support the video tag.
+            `;
+            document.body.prepend(videoTag);
+
+            let styleTag = document.querySelector("#video-style");
+            if (!styleTag) {
+                styleTag = document.createElement("style");
+                styleTag.id = "video-style";
+                document.head.appendChild(styleTag);
+            }
+            styleTag.innerHTML = `
+                body {
+                    background: transparent !important;
+                    margin: 0;
+                    padding: 0;
+                    height: 100vh;
+                    overflow: hidden;
+                }
+                .video-background {
+                    position: fixed;
+                    top: 50%;
+                    left: 50%;
+                    width: auto;
+                    height: auto;
+                    min-width: 100%;
+                    min-height: 100%;
+                    transform: translate(-50%, -50%);
+                    object-fit: cover;
+                    z-index: -1;
+                }
+                .video-background + .wrapper span {
+                    display: none !important;
+                }
+            `;
+        }
+        localStorage.setItem('phpBackgroundSrc', src);
+        localStorage.setItem('phpBackgroundType', 'video');
+        if (isPHP) {
+            document.querySelector('.sound-toggle div').textContent = '🔊';
+            videoTag.muted = false;
+        }
+        checkAndReload();
+    }
+
+    function clearExistingBackground() {
+        document.body.style.background = ''; 
+        let existingVideoTag = document.getElementById("background-video");
+        if (existingVideoTag) {
+            existingVideoTag.remove(); 
+        }
+        let styleTag = document.querySelector("#video-style");
+        if (styleTag) {
+            styleTag.remove(); 
+        }
+    }
+
+    function checkAndReload() {
+        if (!localStorage.getItem('backgroundSet')) {
+            localStorage.setItem('backgroundSet', 'true');
+            location.reload();
+        }
+    }
+
+    if (phpBackgroundSrc && phpBackgroundType) {
+        if (phpBackgroundType === 'image') {
+            setImageBackground(phpBackgroundSrc);
+        } else if (phpBackgroundType === 'video') {
+            setVideoBackground(phpBackgroundSrc, true);
+        }
+    }
+
+    document.querySelectorAll('.preview-video').forEach(video => {
+        video.addEventListener('mouseenter', () => {
+            video.play().catch(() => {})
+        })
+        video.addEventListener('mouseleave', () => {
+            video.pause()
+            video.currentTime = 0
+        })
+    });
+
+    $(document).ready(function () {
+        $(".set-bg-btn").click(function () {
+            const bgSrc = $(this).data("src");
+            const bgType = $(this).data("type");
+            setTimeout(function () {
+                location.reload();
+            }, 1000);
+        });
+    });
+
+    window.addEventListener('load', function () {
+        if (localStorage.getItem('redirectAfterImage') === 'true') {
+            localStorage.removeItem('redirectAfterImage');
+            setTimeout(() => {
+                window.top.location.href = "/cgi-bin/luci/admin/services/spectra?bg=image";
+            }, 3000);
+        }
+    });
+</script>
+
+<script>
+    document.getElementById("updatePhpConfig").addEventListener("click", function() {
+        const confirmText = translations['confirm_update_php'] || "Are you sure you want to update PHP configuration?";
+        speakMessage(confirmText);
+        showConfirmation(confirmText, () => {
+            fetch("update_php_config.php", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" }
+            })
+            .then(response => response.json())
+            .then(data => {
+                const msg = data.message || "Configuration updated successfully.";
+                showLogMessage(msg);
+                speakMessage(msg);
+            })
+            .catch(error => {
+                const errMsg = translations['request_failed'] || ("Request failed: " + error.message);
+                showLogMessage(errMsg);
+                speakMessage(errMsg);
+            });
+        });
+    });
+</script>
+
+<script>
     let mediaInteraction = false;
 
     document.addEventListener('DOMContentLoaded', function() {
@@ -2364,7 +2397,8 @@ body:hover,
             }
         });
     });
-    </script>
+</script>
+
 <script>
     document.addEventListener('DOMContentLoaded', function() {
         const player = document.getElementById('mainPlayer');
@@ -5209,7 +5243,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
   const speedToggle = document.getElementById('speedToggle');
   const speedLabel = document.getElementById('speedLabel');
-  const speeds = [0.5, 1, 1.5, 2];
+  const speeds = [0.75, 1, 1.25, 1.5, 1.75, 2];
   let speedIndex = 1;
 
   const savedSpeed = localStorage.getItem('audioSpeed');
