@@ -1819,8 +1819,8 @@ body:hover,
                     <i class="bi bi-trash"></i>
                     <span data-translate="clear_list"></span>
                 </button>
-                <button class="btn btn-info btn-sm" id="fitTogglePlayer">
-                    <i class="bi bi-aspect-ratio me-1"></i>
+                <button class="btn btn-sm btn-info" id="fitTogglePlayer">
+                    <i class="bi bi-aspect-ratio"></i>
                     <span data-translate="fit_cover">Cover</span>
                 </button>
                 <button class="btn btn-sm btn-primary" id="togglePlaylist">
@@ -3129,22 +3129,27 @@ function applyFitMode(announce = true) {
   const currentMode = fitModes[currentFitIndex];
   const label = translations?.[currentMode.labelKey] || currentMode.mode;
 
-  const targets = ['previewImage', 'previewVideo', 'mainPlayer'];
-  targets.forEach(id => {
+  ['previewImage', 'previewVideo', 'mainPlayer'].forEach(id => {
     const el = document.getElementById(id);
     if (el) el.style.objectFit = currentMode.mode;
   });
 
   fitButtons.forEach(id => {
     const btn = document.getElementById(id);
-    if (btn) btn.textContent = label;
+    if (btn) {
+      const span = btn.querySelector('span[data-translate]');
+      if (span) {
+        span.textContent = label;
+      } else {
+        btn.textContent = label;
+      }
+    }
   });
 
   if (!announce) return;
 
   const prefix = translations?.['current_fit_mode'] || 'Current mode';
   const messageText = `${prefix}: ${label}`;
-
   if (typeof showLogMessage === 'function') showLogMessage(messageText);
   if (typeof speakMessage === 'function') speakMessage(messageText);
 }
