@@ -390,6 +390,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         src: url('/luci-static/spectra/fonts/comic-neue-v8-latin-regular.woff2') format('woff2'); 
 }
 
+@font-face {
+        font-display: swap; 
+        font-family: 'DM Serif Display';
+        font-style: normal;
+        font-weight: 400;
+        src: url('/luci-static/spectra/fonts/dm-serif-display-v15-latin-regular.woff2') format('woff2');
+}
+
 body {
         background: var(--body-bg-color, #f0ffff);
         color: var(--text-primary);
@@ -414,6 +422,11 @@ body.system-nofo-font {
 body.system-mono-font {
         font-family: 'Comic Neue';
         font-weight: 400;
+}
+
+body.dm-serif-font {
+  font-family: 'DM Serif Display';
+  font-weight: 400;
 }
 
 .container-bg,
@@ -1148,11 +1161,18 @@ body:hover,
 }
 
 #previewAudio {
-    width: 100%;
-    max-height: 100%;
-    position: absolute; 
-    bottom: 20px; 
-    left: 0;
+    width: auto;
+    max-width: 80%;
+    margin: 20px auto 0;
+    display: block;
+    border-radius: 10px;
+    background-color: #f8f9fa;
+    padding: 5px 10px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+#previewAudio.d-none {
+    display: none;
 }
 
 .hover-tips {
@@ -1661,6 +1681,8 @@ body:hover,
                 </video>
           </div>
             <div class="modal-footer">
+                <button type="button" class="btn btn-secondary me-2" data-bs-dismiss="modal" data-translate="cancel">Cancel</button>
+                <button class="btn btn-info me-2" id="fitToggle" data-translate="fit_cover">Cover</button>
                 <button class="btn btn-primary" id="fullscreenToggle" data-translate="toggle_fullscreen">Toggle Fullscreen</button>
             </div>
         </div>
@@ -1739,6 +1761,38 @@ body:hover,
         </div>
     </div>
 <?php endforeach; ?>
+
+<html lang="<?php echo $currentLang; ?>">
+<div class="modal fade" id="langModal" tabindex="-1" aria-labelledby="langModalLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="langModalLabel" data-translate="select_language">Select Language</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <select id="langSelect" class="form-select" onchange="changeLanguage(this.value)">
+                    <option value="zh" data-translate="simplified_chinese">Simplified Chinese</option>
+                    <option value="hk" data-translate="traditional_chinese">Traditional Chinese</option>
+                    <option value="en" data-translate="english">English</option>
+                    <option value="ko" data-translate="korean">Korean</option>
+                    <option value="vi" data-translate="vietnamese">Vietnamese</option>
+                    <option value="th" data-translate="thailand">Thailand</option>
+                    <option value="ja" data-translate="japanese"></option>
+                    <option value="ru" data-translate="russian"></option>
+                    <option value="de" data-translate="germany">Germany</option>
+                    <option value="fr" data-translate="france">France</option>
+                    <option value="ar" data-translate="arabic"></option>
+                    <option value="es" data-translate="spanish">spanish</option>
+                    <option value="bn" data-translate="bangladesh">Bangladesh</option>
+                </select>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" data-translate="close">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
 
 <div class="modal fade" id="playerModal" tabindex="-1" aria-labelledby="playerModalLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
     <div class="modal-dialog modal-xl">
@@ -1928,6 +1982,127 @@ opkg update && opkg install wget grep sed && LATEST_FILE=$(wget -qO- https://git
             </div>
         </div>
     </div>
+</div>
+
+<div class="modal fade" id="weatherModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="modalCityName">—</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <ul class="list-unstyled mb-0">
+          <li><strong data-translate="weather_label">Weather</strong>：<span id="modalDesc">—</span></li>
+          <li><strong data-translate="temperature_label">Temperature</strong>：<span id="modalTemp">—</span>℃</li>
+          <li><strong data-translate="feels_like_label">Feels like</strong>：<span id="modalFeels">—</span>℃</li>
+          <li><strong data-translate="humidity_label">Humidity</strong>：<span id="modalHumidity">—</span>%</li>
+          <li><strong data-translate="pressure_label">Pressure</strong>：<span id="modalPressure">—</span> hPa</li>
+          <li><strong data-translate="wind_label">Wind speed</strong>：<span id="modalWind">—</span> m/s</li>
+          <li><strong data-translate="sunrise_label">Sunrise</strong>：<span id="modalSunrise">—</span></li>
+          <li><strong data-translate="sunset_label">Sunset</strong>：<span id="modalSunset">—</span></li>
+        </ul>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" data-translate="cancel">Cancel</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade custom-modal" id="ipDetailModal" tabindex="-1" role="dialog" aria-labelledby="ipDetailModalLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+    <div class="modal-dialog modal-xl draggable" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="ipDetailModalLabel" data-translate="ip_info">IP Details</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="detail-row">
+                    <span class="detail-label" data-translate="ip_address">IP Address</span>
+                    <span class="detail-value"></span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label" data-translate="location">Location</span>
+                    <span class="detail-value"></span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label" data-translate="isp">ISP</span>
+                    <span class="detail-value"></span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">ASN</span>
+                    <span class="detail-value"></span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label" data-translate="timezone">Timezone</span>
+                    <span class="detail-value"></span>
+                </div>
+                <div class="detail-row map-coord-row" style="display: none;">
+                    <span class="detail-label" data-translate="latitude_longitude">Coordinates</span>
+                    <span class="detail-value"></span>
+                </div>
+                <div class="detail-row map-container" style="height: 400px; margin-top: 20px; display: none;">
+                    <div id="leafletMap" style="width: 100%; height: 100%;"></div>
+                </div>
+                <h5 style="margin-top: 15px;" data-translate="latency_info">Latency Info</h5>
+                <div class="detail-row" id="delayInfo" style="display: flex; flex-wrap: wrap;"></div>
+                </div>
+              <div class="modal-footer">
+                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" data-translate="cancel"></button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="shareModal" tabindex="-1" aria-labelledby="shareModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="shareModalLabel" data-translate="createShareLink">Create Share Link</h5>
+        <button type="button" class="btn-close" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <form id="shareForm">
+          <div class="mb-3">
+            <label for="expireTime" class="form-label" data-translate="expireTimeLabel">Expiration Time</label>
+            <select class="form-select" id="expireTime" name="expire">
+              <option value="3600" data-translate="expire1Hour">1 Hour</option>
+              <option value="86400" selected data-translate="expire1Day">1 Day</option>
+              <option value="604800" data-translate="expire7Days">7 Days</option>
+              <option value="2592000" data-translate="expire30Days">30 Days</option>
+            </select>
+          </div>
+          <div class="mb-3">
+            <label for="maxDownloads" class="form-label" data-translate="maxDownloadsLabel">Max Downloads</label>
+            <select class="form-select" id="maxDownloads" name="max_downloads">
+              <option value="1" data-translate="max1Download">1 Time</option>
+              <option value="5" data-translate="max5Downloads">5 Time</option>
+              <option value="10" data-translate="max10Downloads">10 Time</option>
+              <option value="0" selected data-translate="maxUnlimited">Unlimited</option>
+            </select>
+          </div>
+          <div class="mb-3">
+            <label for="shareLink" class="form-label" data-translate="shareLinkLabel">Share Link</label>
+            <div class="input-group">
+              <input type="text" class="form-control" id="shareLink" readonly>
+              <button class="btn btn-outline-secondary" type="button" id="copyLinkBtn" data-translate-title="copyLinkButton">
+                <i class="bi bi-clipboard"></i>
+              </button>
+            </div>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal"><i class="fa fa-times" aria-hidden="true"></i> <span data-translate="closeButtonFooter">Close</span></button>
+        <button type="button" class="btn btn-warning" id="cleanExpiredBtn"><i class="fa fa-broom" aria-hidden="true"></i> <span data-translate="cleanExpiredButton">Clean Expired</span></button>
+        <button type="button" class="btn btn-danger" id="deleteAllBtn"><i class="fa fa-trash" aria-hidden="true"></i> <span data-translate="deleteAllButton">Delete All</span></button>
+        <button type="button" class="btn btn-primary" id="generateShareBtn"><i class="fa fa-link" aria-hidden="true"></i> <span data-translate="generateLinkButton">Generate Link</span></button>
+      </div>
+    </div>
+  </div>
 </div>
 
 <div class="modal fade" id="updateModal" tabindex="-1" aria-labelledby="updateModalLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
@@ -2707,6 +2882,14 @@ window.addEventListener('resize', handleVerticalResize);
     flex-shrink: 0; 
     border: none !important; 
     box-shadow: none !important;
+    background-color: var(--header-bg) !important;
+    border-top: 1px solid var(--border-color) !important;
+}
+
+#previewVideo {
+    width: 100% !important;
+    height: 100% !important;
+    object-fit: fill;
 }
 
 @media (max-width: 576px) {
@@ -2714,6 +2897,23 @@ window.addEventListener('resize', handleVerticalResize);
         max-height: calc(100vh - var(--header-height) - var(--footer-height));
         overflow-y: auto;
     }
+}
+
+#previewModal .modal-body {
+    background-color: transparent !important;
+    padding: 0 !important;
+    border: none !important;
+    box-shadow: none !important;
+}
+
+#previewModal .modal-content {
+    border-radius: 0.3rem;
+    box-shadow: var(--bs-box-shadow);
+}
+
+#previewModal .modal-footer {
+    background-color: var(--header-bg) !important;
+    border-top: 1px solid var(--border-color) !important;
 }
 </style>
 
@@ -2912,101 +3112,149 @@ let mediaFiles = [];
 let currentPreviewIndex = -1;
 let mediaTimer = null;
 
+const fitModes = [
+  { mode: 'cover',      labelKey: 'fit_cover' },
+  { mode: 'contain',    labelKey: 'fit_contain' },
+  { mode: 'fill',       labelKey: 'fit_fill' },
+  { mode: 'none',       labelKey: 'fit_none' },
+  { mode: 'scale-down', labelKey: 'fit_scale-down' },
+];
+let currentFitIndex = 0;
+
+const fitBtn = document.getElementById('fitToggle');
+
 function initMediaFiles() {
-    mediaFiles = [];
-    document.querySelectorAll('[data-bs-target="#previewModal"]').forEach((el, index) => {
-        if (el.dataset.src) {
-            mediaFiles.push({
-                src: el.dataset.src,
-                type: el.dataset.type || 'image',
-                element: el
-            });
-            el.dataset.fileIndex = index;
-        }
-    });
+  mediaFiles = [];
+  document.querySelectorAll('[data-bs-target="#previewModal"]').forEach((el, index) => {
+    if (el.dataset.src) {
+      mediaFiles.push({
+        src: el.dataset.src,
+        type: el.dataset.type || 'image',
+        element: el
+      });
+      el.dataset.fileIndex = index;
+    }
+  });
 }
 
 function cleanMediaElements() {
-    if (mediaTimer) {
-        clearTimeout(mediaTimer);
-        mediaTimer = null;
+  if (mediaTimer) {
+    clearTimeout(mediaTimer);
+    mediaTimer = null;
+  }
+  ['Image','Audio','Video'].forEach(kind => {
+    const el = document.getElementById('preview' + kind);
+    if (el) {
+      el.classList.add('d-none');
+      if (kind !== 'Video' && kind !== 'Image') {
+        el.src = '';
+      }
+      if (kind === 'Video' || kind === 'Audio') {
+        el.pause();
+        el.onended = null;
+        if (kind === 'Video') {
+          el.querySelector('source').src = '';
+        }
+      }
     }
-
-    const image = document.getElementById('previewImage');
-    const audio = document.getElementById('previewAudio');
-    const video = document.getElementById('previewVideo');
-    const source = video.querySelector('source');
-
-    image.classList.add('d-none');
-    image.src = '';
-
-    audio.classList.add('d-none');
-    audio.src = '';
-    audio.pause();
-    audio.onended = null;
-
-    video.classList.add('d-none');
-    source.src = '';
-    video.pause();
-    video.onended = null;
+  });
 }
 
+function applyFitMode(announce = true) {
+  const currentMode = fitModes[currentFitIndex];
+  const label = translations[currentMode.labelKey] || currentMode.mode;
+
+  document.getElementById('previewImage').style.objectFit = currentMode.mode;
+  document.getElementById('previewVideo').style.objectFit = currentMode.mode;
+  fitBtn.textContent = label;
+
+  if (!announce) return;
+
+  const prefix = translations['current_fit_mode'] || 'Current mode';
+  const messageText = `${prefix}: ${label}`;
+
+  if (typeof showLogMessage === 'function') {
+    showLogMessage(messageText);
+  }
+  if (typeof speakMessage === 'function') {
+    speakMessage(messageText);
+  }
+}
+
+fitBtn.addEventListener('click', () => {
+  currentFitIndex = (currentFitIndex + 1) % fitModes.length;
+  applyFitMode(true);
+});
+
 function loadAndPlayMedia() {
-    cleanMediaElements();
+  cleanMediaElements();
+  applyFitMode(false); 
 
-    const currentFile = mediaFiles[currentPreviewIndex];
-    if (!currentFile) return;
+  const currentFile = mediaFiles[currentPreviewIndex];
+  if (!currentFile) return;
 
-    switch (currentFile.type) {
-        case 'image': {
-            const img = document.getElementById('previewImage');
-            img.src = currentFile.src;
-            img.classList.remove('d-none');
-            mediaTimer = setTimeout(() => {
-                document.getElementById('nextBtn').click();
-            }, 5000);
-            break;
-        }
-        case 'video': {
-            const video = document.getElementById('previewVideo');
-            const source = video.querySelector('source');
-            source.src = currentFile.src;
-            video.load();
-            video.classList.remove('d-none');
-            video.onended = () => {
-                document.getElementById('nextBtn').click();
-            };
-            video.play().catch(e => console.log('Video play failed:', e));
-            break;
-        }
-        case 'audio': {
-            const audio = document.getElementById('previewAudio');
-            audio.src = currentFile.src;
-            audio.classList.remove('d-none');
-            audio.onended = () => {
-                document.getElementById('nextBtn').click();
-            };
-            audio.play().catch(e => console.log('Audio play failed:', e));
-            break;
-        }
+  switch (currentFile.type) {
+    case 'image': {
+      const img = document.getElementById('previewImage');
+      img.src = currentFile.src;
+      img.classList.remove('d-none');
+      mediaTimer = setTimeout(() => {
+        document.getElementById('nextBtn').click();
+      }, 5000);
+      break;
     }
+    case 'video': {
+      const video = document.getElementById('previewVideo');
+      const source = video.querySelector('source');
+      source.src = currentFile.src;
+      video.load();
+      video.classList.remove('d-none');
+      video.onended = () => {
+        document.getElementById('nextBtn').click();
+      };
+      video.play().catch(e => console.log('Video play failed:', e));
+      break;
+    }
+    case 'audio': {
+      const audio = document.getElementById('previewAudio');
+      audio.src = currentFile.src;
+      audio.classList.remove('d-none');
+      audio.onended = () => {
+        document.getElementById('nextBtn').click();
+      };
+      audio.play().catch(e => console.log('Audio play failed:', e));
+      break;
+    }
+  }
 }
 
 document.getElementById('previewModal').addEventListener('show.bs.modal', function(e) {
-    initMediaFiles();
-    const trigger = e.relatedTarget;
-    currentPreviewIndex = parseInt(trigger.dataset.fileIndex);
-    loadAndPlayMedia();
+  initMediaFiles();
+  currentPreviewIndex = parseInt(e.relatedTarget.dataset.fileIndex);
+  currentFitIndex = 0;
+  loadAndPlayMedia();
 });
 
 document.getElementById('prevBtn').addEventListener('click', () => {
-    currentPreviewIndex = (currentPreviewIndex - 1 + mediaFiles.length) % mediaFiles.length;
-    loadAndPlayMedia();
+  currentPreviewIndex = (currentPreviewIndex - 1 + mediaFiles.length) % mediaFiles.length;
+  loadAndPlayMedia();
 });
 
 document.getElementById('nextBtn').addEventListener('click', () => {
-    currentPreviewIndex = (currentPreviewIndex + 1) % mediaFiles.length;
-    loadAndPlayMedia();
+  currentPreviewIndex = (currentPreviewIndex + 1) % mediaFiles.length;
+  loadAndPlayMedia();
+});
+
+document.addEventListener('keydown', (e) => {
+  const modal = document.getElementById('previewModal');
+  if (!modal.classList.contains('show')) return;
+
+  const key = e.key.toLowerCase();
+  if (key === 'a') {
+    document.getElementById('prevBtn').click();
+  } else if (key === 'd') {
+    document.getElementById('nextBtn').click();
+  }
 });
 </script>
 
@@ -5413,7 +5661,8 @@ document.addEventListener("DOMContentLoaded", () => {
     { class: "default-font", key: "font_default", icon: "fa-font" },
     { class: "fredoka-font", key: "font_fredoka", icon: "fa-child-reaching" },
     { class: "system-nofo-font", key: "font_noto", icon: "fa-language" },
-    { class: "system-mono-font", key: "font_mono", icon: "fa-code" }
+    { class: "system-mono-font", key: "font_mono", icon: "fa-code" },
+    { class: "dm-serif-font", key: "font_dm_serif", icon: "fa-feather-pointed" }
   ];
 
   const savedFont = localStorage.getItem(storageKey);
@@ -5447,38 +5696,6 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 });
 </script>
-
-<html lang="<?php echo $currentLang; ?>">
-<div class="modal fade" id="langModal" tabindex="-1" aria-labelledby="langModalLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="langModalLabel" data-translate="select_language">Select Language</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <select id="langSelect" class="form-select" onchange="changeLanguage(this.value)">
-                    <option value="zh" data-translate="simplified_chinese">Simplified Chinese</option>
-                    <option value="hk" data-translate="traditional_chinese">Traditional Chinese</option>
-                    <option value="en" data-translate="english">English</option>
-                    <option value="ko" data-translate="korean">Korean</option>
-                    <option value="vi" data-translate="vietnamese">Vietnamese</option>
-                    <option value="th" data-translate="thailand">Thailand</option>
-                    <option value="ja" data-translate="japanese"></option>
-                    <option value="ru" data-translate="russian"></option>
-                    <option value="de" data-translate="germany">Germany</option>
-                    <option value="fr" data-translate="france">France</option>
-                    <option value="ar" data-translate="arabic"></option>
-                    <option value="es" data-translate="spanish">spanish</option>
-                    <option value="bn" data-translate="bangladesh">Bangladesh</option>
-                </select>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" data-translate="close">Close</button>
-            </div>
-        </div>
-    </div>
-</div>
 
 <?php
 $langFilePath = __DIR__ . '/language.txt';
@@ -5626,6 +5843,7 @@ $langData = [
         'font_fredoka' => '已切换为默认字体',
         'font_mono'   => '已切换为趣味手写字体',
         'font_noto'     => '已切换为中文衬线字体',
+        'font_dm_serif'     => '已切换为 DM Serif Display 字体',
         'error_loading_time' => '时间显示异常',
         'switch_to_light_mode' => '切换到亮色模式',
         'switch_to_dark_mode' => '切换到暗色模式',
@@ -5723,6 +5941,12 @@ $langData = [
         'wind_label'        => '风速',
         'sunrise_label'     => '日出',
         'sunset_label'      => '日落',
+        'fit_contain'    => '正常比例',
+        'fit_fill'       => '拉伸填充',
+        'fit_none'       => '原始尺寸',
+        'fit_scale-down' => '智能适应',
+        'fit_cover'      => '默认裁剪',
+        'current_fit_mode'    => '当前显示模式',
         'selected_info' => '已选择 %d 个文件，合计 %s MB'
     ],
 
@@ -5885,6 +6109,7 @@ $langData = [
         'font_fredoka' => '已切換為預設字體',
         'font_mono'    => '已切換為趣味手寫字體',
         'font_noto'    => '已切換為中文襯線字體',
+        'font_dm_serif'     => '已切換為 DM Serif Display 字體',
         'batch_delete_success' => '✅ 批量刪除成功',
         'batch_delete_failed' => '❌ 批量刪除失敗',
         'confirm_delete' => '確定刪除？',
@@ -5965,6 +6190,12 @@ $langData = [
         'wind_label'        => '風速',
         'sunrise_label'     => '日出',
         'sunset_label'      => '日落',
+        'fit_contain'    => '正常比例',
+        'fit_fill'       => '拉伸填充',
+        'fit_none'       => '原始尺寸',
+        'fit_scale-down' => '智能適應',
+        'fit_cover'      => '預設裁剪',
+        'current_fit_mode'    => '當前顯示模式',
         'selected_info' => '已選擇 %d 個文件，合計 %s MB'
     ],
 
@@ -6127,6 +6358,7 @@ $langData = [
         'font_fredoka' => '기본 글꼴로 전환되었습니다',
         'font_mono'    => '재미있는 손글씨 글꼴로 전환되었습니다',
         'font_noto'    => '중국어 명조체 글꼴로 전환되었습니다',
+        'font_dm_serif'     => 'DM Serif Display 글꼴로 변경됨',
         'batch_delete_success' => '✅ 배치 삭제 성공',
         'batch_delete_failed' => '❌ 배치 삭제 실패',
         'confirm_delete' => '삭제하시겠습니까?',
@@ -6207,6 +6439,12 @@ $langData = [
         'wind_label'        => '풍속',
         'sunrise_label'     => '일출',
         'sunset_label'      => '일몰',
+        'current_fit_mode'    => '현재 모드',
+        'fit_contain'    => '정상 비율',
+        'fit_fill'       => '채우기',
+        'fit_none'       => '원본 크기',
+        'fit_scale-down' => '스케일 다운',
+        'fit_cover'      => '자르기',
         'selected_info' => '선택된 파일: %d개, 총합: %s MB'
     ],
 
@@ -6351,6 +6589,7 @@ $langData = [
         'font_fredoka' => 'デフォルトフォントに戻す',
         'font_mono'   => '手書き風フォントに変更',
         'font_noto'     => '漢字書体に変更',
+        'font_dm_serif'     => 'DM Serif Display フォントに切り替えました',
         'error_loading_time' => '時刻表示エラー',
         'switch_to_light_mode' => 'ライトモードへ',
         'switch_to_dark_mode' => 'ダークモードへ',
@@ -6448,6 +6687,12 @@ $langData = [
         'wind_label'        => '風速',
         'sunrise_label'     => '日の出',
         'sunset_label'      => '日の入り',
+        'fit_contain'    => '標準比率',
+        'fit_fill'       => '引き伸ばし',
+        'fit_none'       => '元のサイズ',
+        'fit_scale-down' => '自動調整',
+        'fit_cover'      => 'トリミング',
+        'current_fit_mode'    => '現在のモード',
         'selected_info' => '%dファイル選択（%s MB）'
     ],
 
@@ -6592,6 +6837,7 @@ $langData = [
         'font_fredoka' => 'Đã chuyển về font mặc định',
         'font_mono'   => 'Đã chuyển sang font viết tay',
         'font_noto'     => 'Đã chuyển sang font chữ Hán',
+        'font_dm_serif'     => 'Đã chuyển sang font DM Serif Display',
         'error_loading_time' => 'Lỗi hiển thị thời gian',
         'switch_to_light_mode' => 'Chuyển sang chế độ sáng',
         'switch_to_dark_mode' => 'Chuyển sang chế độ tối',
@@ -6689,6 +6935,12 @@ $langData = [
         'wind_label'        => 'Tốc độ gió',
         'sunrise_label'     => 'Bình minh',
         'sunset_label'      => 'Hoàng hôn',
+        'current_fit_mode'    => 'Chế độ hiện tại',
+        'fit_contain'    => 'Giữ tỷ lệ',
+        'fit_fill'       => 'Kéo giãn',
+        'fit_none'       => 'Kích thước gốc',
+        'fit_scale-down' => 'Tự động thu nhỏ',
+        'fit_cover'      => 'Cắt vừa',
         'selected_info' => 'Đã chọn %d tệp (%s MB)'
     ],
 
@@ -6834,6 +7086,7 @@ $langData = [
         'font_fredoka' => 'เปลี่ยนเป็นแบบอักษรเริ่มต้นแล้ว',
         'font_mono'    => 'เปลี่ยนเป็นแบบอักษรลายมือสนุก ๆ แล้ว',
         'font_noto'    => 'เปลี่ยนเป็นแบบอักษรมีเชิงภาษาจีนแล้ว',
+        'font_dm_serif'     => 'เปลี่ยนเป็นฟอนต์ DM Serif Display',
         'batch_delete_success' => '✅ การลบเป็นกลุ่มสำเร็จ',
         'batch_delete_failed' => '❌ การลบเป็นกลุ่มล้มเหลว',
         'confirm_delete' => 'คุณแน่ใจหรือไม่ว่าต้องการลบ?',
@@ -6914,6 +7167,12 @@ $langData = [
         'wind_label'        => 'ความเร็วลม',
         'sunrise_label'     => 'พระอาทิตย์ขึ้น',
         'sunset_label'      => 'พระอาทิตย์ตก',
+        'current_fit_mode'    => 'โหมดปัจจุบัน',
+        'fit_contain'    => 'อัตราส่วนปกติ',
+        'fit_fill'       => 'เติมเต็ม',
+        'fit_none'       => 'ขนาดดั้งเดิม',
+        'fit_scale-down' => 'ปรับอัตโนมัติ',
+        'fit_cover'      => 'ครอบตัด',
         'selected_info' => 'เลือกไฟล์แล้ว %d ไฟล์ รวมทั้งหมด %s MB'
     ],
 
@@ -7060,6 +7319,7 @@ $langData = [
         'font_fredoka' => 'Переключено на шрифт по умолчанию',
         'font_mono'    => 'Переключено на забавный рукописный шрифт',
         'font_noto'    => 'Переключено на китайский рубленый шрифт',
+        'font_dm_serif'     => 'Переключено на шрифт DM Serif Display',
         'batch_delete_success' => '✅ Успешное массовое удаление',
         'batch_delete_failed' => '❌ Ошибка массового удаления',
         'confirm_delete' => 'Вы уверены, что хотите удалить?',
@@ -7141,6 +7401,12 @@ $langData = [
         'wind_label'        => 'Скорость ветра',
         'sunrise_label'     => 'Восход',
         'sunset_label'      => 'Закат',
+        'current_fit_mode'    => 'Текущий режим',
+        'fit_contain'    => 'Обычное соотношение',
+        'fit_fill'       => 'Растянуть',
+        'fit_none'       => 'Оригинальный размер',
+        'fit_scale-down' => 'Уменьшить при необходимости',
+        'fit_cover'      => 'Обрезать по размеру',
         'selected_info' => 'Выбрано %d файлов, всего %s MB'
     ],
 
@@ -7276,6 +7542,7 @@ $langData = [
         'font_fredoka' => 'تم التبديل إلى الخط الافتراضي',
         'font_mono'   => 'تم التبديل إلى الخط اليدوي',
         'font_noto'     => 'تم التبديل إلى الخط الصيني',
+        'font_dm_serif'     => 'تم التبديل إلى خط DM Serif Display',
         'error_loading_time' => 'خطأ في عرض الوقت',
         'switch_to_light_mode' => 'الوضع الفاتح',
         'switch_to_dark_mode' => 'الوضع الداكن',
@@ -7373,6 +7640,12 @@ $langData = [
         'wind_label'        => 'سرعة الرياح',
         'sunrise_label'     => 'شروق الشمس',
         'sunset_label'      => 'غروب الشمس',    
+        'current_fit_mode'    => 'الوضع الحالي',
+        'fit_contain'    => 'نسبة عادية',
+        'fit_fill'       => 'تمديد لملء',
+        'fit_none'       => 'الحجم الأصلي',
+        'fit_scale-down' => 'تكييف ذكي',
+        'fit_cover'      => 'اقتصاص افتراضي',
         'selected_info' => 'تم اختيار %d ملفات (%s ميجابايت)'
     ],
 
@@ -7519,6 +7792,7 @@ $langData = [
         'font_fredoka' => 'Cambiado a fuente predeterminada',
         'font_mono'    => 'Cambiado a fuente manuscrita divertida',
         'font_noto'    => 'Cambiado a fuente serif en chino',
+        'font_dm_serif'     => 'Cambiado a la fuente DM Serif Display',
         'batch_delete_success' => '✅ Eliminación masiva exitosa',
         'batch_delete_failed' => '❌ Fallo en la eliminación masiva',
         'confirm_delete' => '¿Estás seguro de que deseas eliminar?',
@@ -7599,6 +7873,12 @@ $langData = [
         'wind_label'        => 'Velocidad del viento',
         'sunrise_label'     => 'Amanecer',
         'sunset_label'      => 'Atardecer',
+        'current_fit_mode'    => 'Modo actual',
+        'fit_contain'    => 'Proporción normal',
+        'fit_fill'       => 'Estirar',
+        'fit_none'       => 'Tamaño original',
+        'fit_scale-down' => 'Escalado inteligente',
+        'fit_cover'      => 'Recorte predeterminado',
         'selected_info' => 'Seleccionados %d archivos, en total %s MB'
     ],
 
@@ -7745,6 +8025,7 @@ $langData = [
         'font_fredoka' => 'Auf Standardschriftart umgestellt',
         'font_mono'    => 'Auf lustige Handschrift umgestellt',
         'font_noto'    => 'Auf chinesische Serifenschrift umgestellt',
+        'font_dm_serif'     => 'Auf DM Serif Display-Schriftart umgeschaltet',
         'batch_delete_success' => '✅ Stapel-Löschung erfolgreich',
         'batch_delete_failed' => '❌ Stapel-Löschung fehlgeschlagen',
         'confirm_delete' => 'Bist du sicher, dass du löschen möchtest?',
@@ -7825,6 +8106,12 @@ $langData = [
         'wind_label'        => 'Windgeschwindigkeit',
         'sunrise_label'     => 'Sonnenaufgang',
         'sunset_label'      => 'Sonnenuntergang',
+        'current_fit_mode'    => 'Aktueller Modus',
+        'fit_contain'    => 'Seitenverhältnis beibehalten',
+        'fit_fill'       => 'Ausfüllen',
+        'fit_none'       => 'Originalgröße',
+        'fit_scale-down' => 'Skalieren falls nötig',
+        'fit_cover'      => 'Zuschneiden',
         'selected_info' => '%d Dateien ausgewählt, insgesamt %s MB'
     ],
 
@@ -7971,6 +8258,7 @@ $langData = [
         'font_fredoka' => 'Police par défaut activée',
         'font_mono'    => 'Police manuscrite activée',
         'font_noto'    => 'Police avec empattement chinoise activée',
+        'font_dm_serif'     => 'Passé à la police DM Serif Display',
         'batch_delete_success' => '✅ Suppression par lot réussie',
         'batch_delete_failed' => '❌ Échec de la suppression par lot',
         'confirm_delete' => 'Êtes-vous sûr de vouloir supprimer?',
@@ -8051,6 +8339,12 @@ $langData = [
         'wind_label'        => 'Vitesse du vent',
         'sunrise_label'     => 'Lever du soleil',
         'sunset_label'      => 'Coucher du soleil',
+        'current_fit_mode'    => 'Mode actuel',
+        'fit_contain'    => 'Proportions normales',
+        'fit_fill'       => 'Remplir',
+        'fit_none'       => 'Taille d’origine',
+        'fit_scale-down' => 'Réduction automatique',
+        'fit_cover'      => 'Rogner',
         'selected_info' => '%d fichiers sélectionnés, total de %s Mo'
     ],
 
@@ -8210,6 +8504,7 @@ $langData = [
         'font_fredoka' => 'Switched to default font',
         'font_mono'    => 'Switched to fun handwriting font',
         'font_noto'    => 'Switched to Chinese serif font',
+        'font_dm_serif'     => 'Switched to DM Serif Display font',
         'batch_delete_success' => '✅ Batch delete successful',
         'batch_delete_failed' => '❌ Batch delete failed',
         'confirm_delete' => 'Are you sure you want to delete?',
@@ -8290,6 +8585,12 @@ $langData = [
         'wind_label'        => 'Wind speed',
         'sunrise_label'     => 'Sunrise',
         'sunset_label'      => 'Sunset',
+        'current_fit_mode'    => 'Current mode',
+        'fit_contain'    => 'Contain',
+        'fit_fill'       => 'Fill',
+        'fit_none'       => 'Original size',
+        'fit_scale-down' => 'Scale down',
+        'fit_cover'      => 'Cover',
         'selected_info' => 'Selected %d files, total %s MB'
     ],
     'bn' => [
@@ -8418,6 +8719,7 @@ $langData = [
         'font_fredoka' => 'ডিফল্ট ফন্টে পরিবর্তন করা হয়েছে',
         'font_mono'    => 'হাতের লেখা ফন্টে পরিবর্তন করা হয়েছে',
         'font_noto'    => 'চীনা সেরিফ ফন্টে পরিবর্তন করা হয়েছে',
+        'font_dm_serif'     => 'DM Serif Display ফন্টে পরিবর্তিত হয়েছে',
         'error_loading_time' => 'সময় প্রদর্শনে ত্রুটি',
         'switch_to_light_mode' => 'হালকা মোডে পরিবর্তন',
         'switch_to_dark_mode' => 'অন্ধকার মোডে পরিবর্তন',
@@ -8515,6 +8817,12 @@ $langData = [
         'wind_label'        => 'বায়ুর গতি',
         'sunrise_label'     => 'সূর্যোদয়',
         'sunset_label'      => 'সূর্যাস্ত',
+        'current_fit_mode'    => 'বর্তমান মোড',
+        'fit_contain'    => 'স্বাভাবিক অনুপাত',
+        'fit_fill'       => 'সম্পূর্ণ ভরাট',
+        'fit_none'       => 'মূল আকার',
+        'fit_scale-down' => 'স্মার্ট মানানসই',
+        'fit_cover'      => 'ক্রপ মোড',
         'selected_info' => '%d টি ফাইল নির্বাচিত, মোট %s MB'
     ]
 ];
@@ -8883,54 +9191,6 @@ document.addEventListener("DOMContentLoaded", function () {
 });
 </script>
 
-<div class="modal fade" id="shareModal" tabindex="-1" aria-labelledby="shareModalLabel" aria-hidden="true">
-  <div class="modal-dialog modal-lg">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="shareModalLabel" data-translate="createShareLink">Create Share Link</h5>
-        <button type="button" class="btn-close" aria-label="Close"></button>
-      </div>
-      <div class="modal-body">
-        <form id="shareForm">
-          <div class="mb-3">
-            <label for="expireTime" class="form-label" data-translate="expireTimeLabel">Expiration Time</label>
-            <select class="form-select" id="expireTime" name="expire">
-              <option value="3600" data-translate="expire1Hour">1 Hour</option>
-              <option value="86400" selected data-translate="expire1Day">1 Day</option>
-              <option value="604800" data-translate="expire7Days">7 Days</option>
-              <option value="2592000" data-translate="expire30Days">30 Days</option>
-            </select>
-          </div>
-          <div class="mb-3">
-            <label for="maxDownloads" class="form-label" data-translate="maxDownloadsLabel">Max Downloads</label>
-            <select class="form-select" id="maxDownloads" name="max_downloads">
-              <option value="1" data-translate="max1Download">1 Time</option>
-              <option value="5" data-translate="max5Downloads">5 Time</option>
-              <option value="10" data-translate="max10Downloads">10 Time</option>
-              <option value="0" selected data-translate="maxUnlimited">Unlimited</option>
-            </select>
-          </div>
-          <div class="mb-3">
-            <label for="shareLink" class="form-label" data-translate="shareLinkLabel">Share Link</label>
-            <div class="input-group">
-              <input type="text" class="form-control" id="shareLink" readonly>
-              <button class="btn btn-outline-secondary" type="button" id="copyLinkBtn" data-translate-title="copyLinkButton">
-                <i class="bi bi-clipboard"></i>
-              </button>
-            </div>
-          </div>
-        </form>
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal"><i class="fa fa-times" aria-hidden="true"></i> <span data-translate="closeButtonFooter">Close</span></button>
-        <button type="button" class="btn btn-warning" id="cleanExpiredBtn"><i class="fa fa-broom" aria-hidden="true"></i> <span data-translate="cleanExpiredButton">Clean Expired</span></button>
-        <button type="button" class="btn btn-danger" id="deleteAllBtn"><i class="fa fa-trash" aria-hidden="true"></i> <span data-translate="deleteAllButton">Delete All</span></button>
-        <button type="button" class="btn btn-primary" id="generateShareBtn"><i class="fa fa-link" aria-hidden="true"></i> <span data-translate="generateLinkButton">Generate Link</span></button>
-      </div>
-    </div>
-  </div>
-</div>
-
 <script>
 document.addEventListener('DOMContentLoaded', () => {
   let currentFilename = '';
@@ -9033,53 +9293,6 @@ if (deleteAllBtn) {
   });
 }
 </script>
-
-<div class="modal fade custom-modal" id="ipDetailModal" tabindex="-1" role="dialog" aria-labelledby="ipDetailModalLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
-    <div class="modal-dialog modal-xl draggable" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="ipDetailModalLabel" data-translate="ip_info">IP Details</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-            <div class="modal-body">
-                <div class="detail-row">
-                    <span class="detail-label" data-translate="ip_address">IP Address</span>
-                    <span class="detail-value"></span>
-                </div>
-                <div class="detail-row">
-                    <span class="detail-label" data-translate="location">Location</span>
-                    <span class="detail-value"></span>
-                </div>
-                <div class="detail-row">
-                    <span class="detail-label" data-translate="isp">ISP</span>
-                    <span class="detail-value"></span>
-                </div>
-                <div class="detail-row">
-                    <span class="detail-label">ASN</span>
-                    <span class="detail-value"></span>
-                </div>
-                <div class="detail-row">
-                    <span class="detail-label" data-translate="timezone">Timezone</span>
-                    <span class="detail-value"></span>
-                </div>
-                <div class="detail-row map-coord-row" style="display: none;">
-                    <span class="detail-label" data-translate="latitude_longitude">Coordinates</span>
-                    <span class="detail-value"></span>
-                </div>
-                <div class="detail-row map-container" style="height: 400px; margin-top: 20px; display: none;">
-                    <div id="leafletMap" style="width: 100%; height: 100%;"></div>
-                </div>
-                <h5 style="margin-top: 15px;" data-translate="latency_info">Latency Info</h5>
-                <div class="detail-row" id="delayInfo" style="display: flex; flex-wrap: wrap;"></div>
-                </div>
-              <div class="modal-footer">
-                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" data-translate="cancel"></button>
-            </div>
-        </div>
-    </div>
-</div>
 
 <script>
 async function translateText(text, targetLang = null) {
@@ -9261,30 +9474,17 @@ async function showIpDetailModal() {
     word-break: break-all;
     margin-left: 0;
 }
-</style>
 
-<div class="modal fade" id="weatherModal" tabindex="-1" aria-hidden="true">
-  <div class="modal-dialog modal-lg">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="modalCityName">—</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-      </div>
-      <div class="modal-body">
-        <ul class="list-unstyled mb-0">
-          <li><strong data-translate="weather_label">Weather</strong>：<span id="modalDesc">—</span></li>
-          <li><strong data-translate="temperature_label">Temperature</strong>：<span id="modalTemp">—</span>℃</li>
-          <li><strong data-translate="feels_like_label">Feels like</strong>：<span id="modalFeels">—</span>℃</li>
-          <li><strong data-translate="humidity_label">Humidity</strong>：<span id="modalHumidity">—</span>%</li>
-          <li><strong data-translate="pressure_label">Pressure</strong>：<span id="modalPressure">—</span> hPa</li>
-          <li><strong data-translate="wind_label">Wind speed</strong>：<span id="modalWind">—</span> m/s</li>
-          <li><strong data-translate="sunrise_label">Sunrise</strong>：<span id="modalSunrise">—</span></li>
-          <li><strong data-translate="sunset_label">Sunset</strong>：<span id="modalSunset">—</span></li>
-        </ul>
-      </div>
-    </div>
-  </div>
-</div>
+.leaflet-popup-content-wrapper {
+    background-color: var(--header-bg) !important;
+    border-top: 1px solid var(--border-color) !important;
+    color: var(--accent-color) !important;
+}
+
+.leaflet-popup-tip {
+    background-color: var(--header-bg) !important;
+}
+</style>
 
 <script>
   let city = localStorage.getItem('city') || 'Beijing';
@@ -9470,6 +9670,7 @@ async function showIpDetailModal() {
   });
 })();
 </script>
+
 
 
 
