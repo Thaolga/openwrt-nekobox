@@ -1681,7 +1681,7 @@ body:hover,
           </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary me-2" data-bs-dismiss="modal" data-translate="cancel">Cancel</button>
-                <button class="btn btn-info me-2" id="fitToggle" data-translate="fit_cover">Cover</button>
+                <button class="btn btn-info me-2" id="fitTogglePreview" data-translate="fit_cover">Cover</button>
                 <button class="btn btn-primary" id="fullscreenToggle" data-translate="toggle_fullscreen">Toggle Fullscreen</button>
             </div>
         </div>
@@ -1818,6 +1818,10 @@ body:hover,
                 <button class="btn btn-sm btn-danger" id="clearPlaylist">
                     <i class="bi bi-trash"></i>
                     <span data-translate="clear_list"></span>
+                </button>
+                <button class="btn btn-info btn-sm" id="fitTogglePlayer">
+                    <i class="bi bi-aspect-ratio me-1"></i>
+                    <span data-translate="fit_cover">Cover</span>
                 </button>
                 <button class="btn btn-sm btn-primary" id="togglePlaylist">
                     <i class="bi bi-list-ul"></i>
@@ -3119,7 +3123,41 @@ const fitModes = [
 ];
 let currentFitIndex = 0;
 
-const fitBtn = document.getElementById('fitToggle');
+const fitButtons = ['fitTogglePreview', 'fitTogglePlayer'];
+
+function applyFitMode(announce = true) {
+  const currentMode = fitModes[currentFitIndex];
+  const label = translations?.[currentMode.labelKey] || currentMode.mode;
+
+  const targets = ['previewImage', 'previewVideo', 'mainPlayer'];
+  targets.forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.style.objectFit = currentMode.mode;
+  });
+
+  fitButtons.forEach(id => {
+    const btn = document.getElementById(id);
+    if (btn) btn.textContent = label;
+  });
+
+  if (!announce) return;
+
+  const prefix = translations?.['current_fit_mode'] || 'Current mode';
+  const messageText = `${prefix}: ${label}`;
+
+  if (typeof showLogMessage === 'function') showLogMessage(messageText);
+  if (typeof speakMessage === 'function') speakMessage(messageText);
+}
+
+fitButtons.forEach(btnId => {
+  const btn = document.getElementById(btnId);
+  if (btn) {
+    btn.addEventListener('click', () => {
+      currentFitIndex = (currentFitIndex + 1) % fitModes.length;
+      applyFitMode(true);
+    });
+  }
+});
 
 function initMediaFiles() {
   mediaFiles = [];
@@ -3157,32 +3195,6 @@ function cleanMediaElements() {
     }
   });
 }
-
-function applyFitMode(announce = true) {
-  const currentMode = fitModes[currentFitIndex];
-  const label = translations[currentMode.labelKey] || currentMode.mode;
-
-  document.getElementById('previewImage').style.objectFit = currentMode.mode;
-  document.getElementById('previewVideo').style.objectFit = currentMode.mode;
-  fitBtn.textContent = label;
-
-  if (!announce) return;
-
-  const prefix = translations['current_fit_mode'] || 'Current mode';
-  const messageText = `${prefix}: ${label}`;
-
-  if (typeof showLogMessage === 'function') {
-    showLogMessage(messageText);
-  }
-  if (typeof speakMessage === 'function') {
-    speakMessage(messageText);
-  }
-}
-
-fitBtn.addEventListener('click', () => {
-  currentFitIndex = (currentFitIndex + 1) % fitModes.length;
-  applyFitMode(true);
-});
 
 function loadAndPlayMedia() {
   cleanMediaElements();
@@ -3231,6 +3243,11 @@ document.getElementById('previewModal').addEventListener('show.bs.modal', functi
   currentPreviewIndex = parseInt(e.relatedTarget.dataset.fileIndex);
   currentFitIndex = 0;
   loadAndPlayMedia();
+});
+
+document.getElementById('playerModal').addEventListener('show.bs.modal', function () {
+  currentFitIndex = 0;
+  applyFitMode(false);
 });
 
 document.getElementById('prevBtn').addEventListener('click', () => {
