@@ -1166,7 +1166,6 @@ body:hover,
     margin: 20px auto 0;
     display: block;
     border-radius: 10px;
-    background-color: #f8f9fa;
     padding: 5px 10px;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
@@ -2900,7 +2899,6 @@ window.addEventListener('resize', handleVerticalResize);
 }
 
 #previewModal .modal-body {
-    background-color: transparent !important;
     padding: 0 !important;
     border: none !important;
     box-shadow: none !important;
@@ -9670,6 +9668,7 @@ async function showIpDetailModal() {
   });
 })();
 </script>
+
 
 
 
