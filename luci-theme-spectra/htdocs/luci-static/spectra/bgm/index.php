@@ -1156,7 +1156,7 @@ body:hover,
 #previewImage,
 #previewVideo {
     max-height: 100%;
-    max-width: 100%;
+    width: 100%;
     object-fit: contain;
 }
 
@@ -9690,9 +9690,3 @@ async function showIpDetailModal() {
   });
 })();
 </script>
-
-
-
-
-
-
