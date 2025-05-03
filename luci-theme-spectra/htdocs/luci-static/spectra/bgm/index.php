@@ -1090,6 +1090,7 @@ body:hover,
 
 .btn-close:hover {
 	background-color: #30e8dc !important;
+	transform: scale(1.1) !important;
 }
 
 .btn-close:hover::before, 
@@ -1885,6 +1886,7 @@ body:hover,
                 <div id="floatingLyrics"></div>
                 <div id="currentSong" class="mb-3 text-center font-weight-bold fs-4"></div>
                 <div class="lyrics-container" id="lyricsContainer" style="height: 300px; overflow-y: auto;"></div>
+            <div class="non-lyrics-content">
                 <div class="progress-container mt-3">
                     <div class="progress">
                         <div class="progress-bar bg-success" role="progressbar" id="progressBar" style="width: 0%" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
@@ -1893,8 +1895,7 @@ body:hover,
                 <div class="d-flex justify-content-between mt-2 small">
                     <span id="currentTime">0:00</span>
                     <span id="duration">0:00</span>
-                </div>
-                
+                </div>          
                 <div class="controls d-flex justify-content-center gap-3 mt-4">
                     <button class="btn btn-outline-light control-btn toggleFloatingLyricsBtn" data-translate-title="toggle_floating_lyrics">
                         <i class="bi bi-display floatingIcon"></i>
@@ -1922,6 +1923,11 @@ body:hover,
                     </button>
                 </div>
                 <div class="playlist mt-3" id="playlist"></div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-info" id="lyricsToggle"><i class="bi bi-chevron-down" id="lyricsIcon"></i></button>
+                <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal" data-translate="cancel">Cancel</button>
             </div>
         </div>
     </div>
@@ -4780,10 +4786,22 @@ function updatePlaylistUI() {
 function playTrack(index) {
     const songName = decodeURIComponent(songs[index].split('/').pop().replace(/\.\w+$/, ''));
     const message = `${translations['playlist_click'] || 'Playlist Click'}：${translations['index'] || 'Index'}：${index + 1}，${translations['song_name'] || 'Song Name'}：${songName}`;
-    showLogMessage(message);
-    speakMessage(message);
+    audioPlayer.pause();
     currentTrackIndex = index;
     loadTrack(songs[index]);
+    
+    isPlaying = true;
+    audioPlayer.play().catch((error) => {
+        isPlaying = false;
+    });
+    
+    updatePlayButton();
+    savePlayerState();
+    showLogMessage(message);
+    speakMessage(message);
+    
+    event.target.classList.add('clicked');
+    setTimeout(() => event.target.classList.remove('clicked'), 200);
 }
 
 function scrollToCurrentTrack() {
@@ -5186,21 +5204,25 @@ function loadTrack(url) {
         container.innerHTML = `<div class="no-lyrics">${translations['loading_lyrics'] || 'Loading Lyrics...'}</div>`;
     });
 
+    audioPlayer.pause();
     audioPlayer.src = url;
+    
+    audioPlayer.load();
+    audioPlayer.addEventListener('canplaythrough', () => {
+        audioPlayer.play().catch((error) => {
+            console.log(`${translations['autoplay_blocked'] || 'Autoplay Blocked'}:`, error);
+            showLogMessage(translations['click_to_play'] || 'Click play button to start');
+        });
+        isPlaying = true;
+        updatePlayButton();
+    }, { once: true });
+
     updatePlayButton(); 
     updatePlaylistUI();
     loadLyrics(url);
     updateCurrentSong(url);
     updateTimeDisplay();
     
-    if (isPlaying) {
-        audioPlayer.play().catch((error) => {
-            console.log(`${translations['autoplay_blocked'] || 'Autoplay Blocked'}:`, error);
-            isPlaying = false;
-            updatePlayButton();
-            savePlayerState();
-        });
-    }
     savePlayerState();
 }
 
@@ -5371,15 +5393,23 @@ function updatePlaylistUI() {
             ${decodeURIComponent(url.split('/').pop().replace(/\.\w+$/, ''))}
         </div>
     `).join('');
-    
     setTimeout(() => {
         const activeItem = playlist.querySelector('.active');
         if (activeItem) {
-            activeItem.scrollIntoView({
-                behavior: 'smooth',
-                block: 'center',
-            });
-            activeItem.classList.toggle('blink', !isPlaying);
+            const itemTop = activeItem.offsetTop;
+            const itemHeight = activeItem.offsetHeight;
+            const containerHeight = playlist.offsetHeight;
+
+            if (itemTop < playlist.scrollTop || 
+                itemTop + itemHeight > playlist.scrollTop + containerHeight) {
+                activeItem.scrollIntoView({
+                    behavior: 'smooth',
+                    block: 'center',
+                    inline: 'nearest'
+                });
+            }
+
+            activeItem.style.animation = 'none';
         }
     }, 300);
 }
@@ -5387,6 +5417,61 @@ function updatePlaylistUI() {
 loadDefaultPlaylist();
 window.addEventListener('resize', () => {
     isSmallScreen = window.innerWidth < 768;
+});
+</script>
+
+<style>
+.lyrics-mode {
+    .non-lyrics-content {
+        display: none !important;
+    }
+
+    #lyricsContainer {
+        height: calc(70vh - 150px) !important; 
+        position: relative;
+        z-index: 1000;
+    }
+
+    #currentSong {
+        font-size: 1.5rem;
+        margin-bottom: 1rem;
+    }
+
+    #floatingLyrics {
+        display: none;
+    }
+}
+
+#lyricsToggle .bi {
+    transition: transform 0.3s;
+}
+.lyrics-mode #lyricsToggle .bi {
+    transform: rotate(180deg);
+}
+</style>
+
+<script>
+let isLyricsMode = localStorage.getItem('lyricsMode') === 'true';
+
+function toggleLyricsMode() {
+    const modal = document.getElementById('musicModal');
+    const icon = document.getElementById('lyricsIcon');
+
+    isLyricsMode = !isLyricsMode;
+    modal.classList.toggle('lyrics-mode', isLyricsMode);
+    localStorage.setItem('lyricsMode', isLyricsMode);
+
+    icon.className = isLyricsMode ? 'bi bi-chevron-up' : 'bi bi-chevron-down';
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    const icon = document.getElementById('lyricsIcon');
+    document.getElementById('lyricsToggle').addEventListener('click', toggleLyricsMode);
+
+    if (isLyricsMode) {
+        document.getElementById('musicModal').classList.add('lyrics-mode');
+        icon.className = 'bi bi-chevron-up';
+    }
 });
 </script>
 
