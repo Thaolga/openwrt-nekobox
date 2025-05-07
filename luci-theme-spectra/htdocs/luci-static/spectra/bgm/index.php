@@ -228,8 +228,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         const defaultHue = theme === "dark" ? 260 : 200;
         const defaultChroma = theme === "dark" ? 0.14 : 0.18;
 
-        const baseHue = localStorage.getItem(hueKey) || defaultHue;
-        const baseChroma = localStorage.getItem(chromaKey) || defaultChroma;
+        const storedHue    = parseFloat(localStorage.getItem(hueKey));
+        const storedChroma = parseFloat(localStorage.getItem(chromaKey));
+
+        const baseHue    = !isNaN(storedHue)   ? storedHue   : defaultHue;
+        const baseChroma = !isNaN(storedChroma)? storedChroma: defaultChroma;
 
         root.style.setProperty("--base-hue", baseHue);
         root.style.setProperty("--base-chroma", baseChroma);
@@ -3375,17 +3378,14 @@ document.addEventListener('keydown', (e) => {
 
   function updateBaseHueFromColorPicker(event) {
     const color = event.target.value;
-    const oklch = hexToOklch(color);
-    const currentTheme = document.documentElement.getAttribute("data-theme") || "dark";
-    const hueKey = `${currentTheme}BaseHue`;
-    const chromaKey = `${currentTheme}BaseChroma`;
-    const currentL = document.documentElement.getAttribute('data-theme') === 'dark' ? 30 : 80;
+    const { h, c } = hexToOklch(color);
+    const theme = document.documentElement.getAttribute("data-theme") || "dark";
+    const currentL = theme === "dark" ? 30 : 80;
 
-    document.documentElement.style.setProperty('--base-hue', oklch.h);
-    document.documentElement.style.setProperty('--base-chroma', oklch.c);
-
-    localStorage.setItem(hueKey, oklch.h);
-    localStorage.setItem(chromaKey, oklch.c);
+    document.documentElement.style.setProperty('--base-hue', h);
+    document.documentElement.style.setProperty('--base-chroma', c);
+    localStorage.setItem(`${theme}BaseHue`, h);
+    localStorage.setItem(`${theme}BaseChroma`, c);
 
     updateTextPrimary(currentL);
   }
@@ -3416,15 +3416,15 @@ document.addEventListener('keydown', (e) => {
 
     const hueKey = `${theme}BaseHue`;
     const chromaKey = `${theme}BaseChroma`;
-    const baseHue = parseFloat(localStorage.getItem(hueKey)) || (theme === "dark" ? 260 : 200);
-    const baseChroma = parseFloat(localStorage.getItem(chromaKey)) || (theme === "dark" ? 0.03 : 0.01);
+    const baseHue   = parseFloat(localStorage.getItem(hueKey))   ?? (theme==="dark"?260:200);
+    const baseChroma= parseFloat(localStorage.getItem(chromaKey))?? (theme==="dark"?0.10:0.05);
 
     body.style.setProperty('--base-hue', baseHue);
     body.style.setProperty('--base-chroma', baseChroma);
     body.setAttribute("data-theme", theme);
 
-    const colorPicker = document.getElementById("colorPicker");
-    colorPicker.value = oklchToHex(baseHue, baseChroma, 50);
+    const l = theme === "dark" ? 30 : 80;
+    document.getElementById("colorPicker").value = oklchToHex(baseHue, baseChroma, l);
 
     if (theme === "dark") {
         const message = translations['current_mode_dark'] || "Current Mode: Dark Mode";
@@ -3451,7 +3451,7 @@ document.addEventListener('keydown', (e) => {
         }
     }
 
-    const currentL = theme === "dark" ? 35 : 95;
+    const currentL = theme === "dark" ? 30 : 80;
     updateTextPrimary(currentL);
 
     localStorage.setItem("theme", theme);
@@ -3469,27 +3469,24 @@ document.addEventListener('keydown', (e) => {
   }
 
   document.addEventListener("DOMContentLoaded", () => {
-    const savedTheme = localStorage.getItem("theme") || "dark";
-    document.documentElement.setAttribute("data-theme", savedTheme);
-    const hueKey = `${savedTheme}BaseHue`;
-    const chromaKey = `${savedTheme}BaseChroma`;
-    const defaultHue = savedTheme === "dark" ? 260 : 0;
-    const defaultChroma = savedTheme === "dark" ? 0.03 : 0;
+    const saved = localStorage.getItem("theme") || "dark";
+    document.documentElement.setAttribute("data-theme", saved);
 
-    const savedHueValue = localStorage.getItem(hueKey) || defaultHue;
-    const savedChromaValue = localStorage.getItem(chromaKey) || defaultChroma;
+    const hueKey    = `${saved}BaseHue`;
+    const chromaKey = `${saved}BaseChroma`;
+    const defaultHue    = saved==="dark"?260:0;
+    const defaultChroma = saved==="dark"?0.10:0.05;
 
-    document.documentElement.style.setProperty('--base-hue', savedHueValue);
-    document.documentElement.style.setProperty('--base-chroma', savedChromaValue);
+    const hVal = parseFloat(localStorage.getItem(hueKey))    || defaultHue;
+    const cVal = parseFloat(localStorage.getItem(chromaKey)) || defaultChroma;
+    document.documentElement.style.setProperty('--base-hue', hVal);
+    document.documentElement.style.setProperty('--base-chroma', cVal);
 
-    const colorPicker = document.getElementById("colorPicker");
-    colorPicker.value = oklchToHex(savedHueValue, savedChromaValue, 50);
-    colorPicker.addEventListener('input', updateBaseHueFromColorPicker);
-
-    const penIcon = document.getElementById("penIcon");
-    if (penIcon) {
-      penIcon.addEventListener("click", () => colorPicker.click());
-    }
+    const picker = document.getElementById("colorPicker");
+    const l = saved==="dark"?30:80;
+    picker.value = oklchToHex(hVal, cVal, l);
+    picker.addEventListener('input', updateBaseHueFromColorPicker);
+    document.getElementById("penIcon")?.addEventListener("click", () => picker.click());
 
     const toggleBtn = document.getElementById("toggleButton");
     toggleBtn.addEventListener("click", () => {
