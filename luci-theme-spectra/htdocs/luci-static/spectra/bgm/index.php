@@ -1428,7 +1428,7 @@ body:hover,
             function formatSize($bytes) {
                 $units = ['B', 'KB', 'MB', 'GB', 'TB'];
                 $index = 0;
-                while ($bytes >= 1024 && $index < 3) {
+                while ($bytes >= 1024 && $index < count($units) - 1) {
                     $bytes /= 1024;
                     $index++;
                 }
@@ -1456,7 +1456,7 @@ body:hover,
         
         <div class="d-flex align-items-center mb-3 ps-2" id="selectAll-container">
             <input type="checkbox" id="selectAll" class="form-check-input me-2 shadow-sm" style="width: 1.05em; height: 1.05em; border-radius: 0.35em; margin-left: 1px; transform: scale(1.2)">
-            <label for="selectAll" class="form-check-label fs-5 ms-1" style="margin-right: 10px;" data-translate="select_all">Select All'</label>
+            <label for="selectAll" class="form-check-label fs-5 ms-1" style="margin-right: 10px;" data-translate="select_all">Select All</label>
             <input type="color" id="colorPicker" style="margin-right: 10px;" value="#333333" data-translate-title="component_bg_color"/>
             <input type="color" id="bodyBgColorPicker" value="#f0ffff" style="margin-right: 10px;" data-translate-title="page_bg_color" />
             <button class="btn btn-info ms-2" id="fontToggleBtn" data-translate-title="toggle_font"><i id="fontToggleIcon" class="fa-solid fa-font" style="color: white;"></i></button>

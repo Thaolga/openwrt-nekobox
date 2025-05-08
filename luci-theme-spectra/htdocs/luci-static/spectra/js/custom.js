@@ -66,16 +66,120 @@ document.addEventListener("DOMContentLoaded", function () {
         `;
     }
 
+    const languages = {
+        'en': {
+            'enabled': 'Enabled',
+            'disabled': 'Disabled',
+            'themeToggle': 'Toggle Theme Mode',
+            'currentTheme': 'Current Theme: ',
+            'darkMode': 'Dark Mode',
+            'lightMode': 'Light Mode',
+            'themeSettings': 'Theme Settings',
+            'videoMode': 'Video Mode',
+            'imageMode': 'Image Mode',
+            'solidMode': 'Solid Mode',
+            'autoMode': 'Auto Mode',
+            'backgroundSound': 'Background Sound',
+            'displayRatio': 'Display Ratio: ',
+            'normalRatio': 'Normal Ratio',
+            'stretchFill': 'Stretch Fill',
+            'originalSize': 'Original Size',
+            'smartFit': 'Smart Fit',
+            'defaultCrop': 'Default Crop',
+            'showIP': 'Show IP Information',
+            'hideIP': 'Hide IP Information',
+            'usageGuide': 'Usage Guide',
+            'guide1': '1. Video Mode: Default name is "bg.mp4"',
+            'guide2': '2. Image Mode: Default names are "bg1-20.jpg"',
+            'guide3': '3. Solid Mode: Transparent background + spectrum animation',
+            'guide4': '4. Light Mode: Switch in theme settings, will automatically turn off the control switch',
+            'guide5': '5. Theme Settings: Supports custom backgrounds, mode switching requires clearing the background',
+            'guide6': '6. Project Address: <a class="github-link" href="https://github.com/Thaolga/openwrt-nekobox" target="_blank">Click to visit</a>',
+            'themeTitle': 'Spectra Theme Settings'
+        },
+        'zh': {
+            'enabled': '已启用',
+            'disabled': '已禁用',
+            'themeToggle': '切换主题模式',
+            'currentTheme': '当前主题: ',
+            'darkMode': '暗色模式',
+            'lightMode': '亮色模式',
+            'themeSettings': '主题设置',
+            'videoMode': '视频模式',
+            'imageMode': '图片模式',
+            'solidMode': '暗黑模式',
+            'autoMode': '自动模式',
+            'backgroundSound': '背景音效',
+            'displayRatio': '显示比例：',
+            'normalRatio': '正常比例',
+            'stretchFill': '拉伸填充',
+            'originalSize': '原始尺寸',
+            'smartFit': '智能适应',
+            'defaultCrop': '默认裁剪',
+            'showIP': '显示IP信息',
+            'hideIP': '隐藏IP信息',
+            'usageGuide': '使用说明',
+            'guide1': '1. 视频模式：默认名称为「bg.mp4」',
+            'guide2': '2. 图片模式：默认名称为「bg1-20.jpg」',
+            'guide3': '3. 暗黑模式：透明背景+光谱动画',
+            'guide4': '4. 亮色模式：主题设置进行切换，会自动关闭控制开关',
+            'guide5': '5. 主题设置：支持自定义背景，模式切换需清除背景',
+            'guide6': '6. 项目地址：<a class="github-link" href="https://github.com/Thaolga/openwrt-nekobox" target="_blank">点击访问</a>',
+            'themeTitle': 'Spectra 主题设置'
+        }
+    };
+
+    let currentLanguage = localStorage.getItem('currentLanguage') || 'zh';
+
+    function getLanguageButtonText() {
+        return currentLanguage === 'zh' ? 'English' : '中文';
+    }
+
+    function getLanguageButtonColor() {
+        return currentLanguage === 'zh' ? '#f44336' : '#4CAF50';
+    }
+
+    function translateText(key) {
+        return languages[currentLanguage][key] || key;
+    }
+
+    function updateUIText() {
+        document.getElementById('master-switch').querySelector('span').textContent = isEnabled ? translateText('enabled') + ' ✅' : translateText('disabled') + ' ❌';
+        document.getElementById('theme-toggle').querySelector('i').className = 'bi bi-moon';
+        document.getElementById('theme-toggle').textContent = translateText('themeToggle');
+        document.getElementById('theme-status').textContent = translateText('currentTheme') + (document.getElementById('theme-status').textContent.includes(translateText('darkMode')) ? translateText('darkMode') : translateText('lightMode'));
+        document.querySelector('.theme-settings-btn').textContent = translateText('themeSettings');
+        document.querySelector('[data-mode="video"]').textContent = translateText('videoMode');
+        document.querySelector('[data-mode="image"]').textContent = translateText('imageMode');
+        document.querySelector('[data-mode="solid"]').textContent = translateText('solidMode');
+        document.querySelector('[data-mode="auto"]').textContent = translateText('autoMode');
+        document.querySelector('.sound-toggle span').textContent = translateText('backgroundSound');
+        document.querySelector('.object-fit-btn span').textContent = translateText('displayRatio');
+        document.querySelector('.ip-toggle span').textContent = localStorage.getItem('hideIP') === 'true' ? translateText('showIP') : translateText('hideIP');
+        document.querySelector('.info-btn').textContent = translateText('usageGuide');
+
+        const objectFitBtn = document.querySelector('.object-fit-btn');
+        if (objectFitBtn) {
+            objectFitBtn.querySelector('div').textContent = getFitButtonText();
+        }
+
+        const languageToggle = document.getElementById('language-toggle');
+        if (languageToggle) {
+            languageToggle.querySelector('span').textContent = getLanguageButtonText();
+            languageToggle.querySelector('.status-led').style.background = getLanguageButtonColor();
+        }
+    }
+
     function getFitButtonText() {
         const savedFit = localStorage.getItem('videoObjectFit') || 'cover';
         const texts = {
-            'contain': '正常比例',
-            'fill': '拉伸填充', 
-            'none': '原始尺寸',
-            'scale-down': '智能适应',
-            'cover': '默认裁剪'
+            'contain': translateText('normalRatio'),
+            'fill': translateText('stretchFill'), 
+            'none': translateText('originalSize'),
+            'scale-down': translateText('smartFit'),
+            'cover': translateText('defaultCrop')
         };
-        return texts[savedFit] || '默认裁剪';
+        return texts[savedFit] || translateText('defaultCrop');
     }
 
     function updateThemeButton(mode) {
@@ -84,13 +188,13 @@ document.addEventListener("DOMContentLoaded", function () {
         if (!btn || !status) return;
 
         if (mode === "dark") {
-            btn.innerHTML = '<i class="bi bi-sun"></i>&nbsp;&nbsp;切换到亮色模式&nbsp;&nbsp;&nbsp;';
+            btn.innerHTML = `<i class="bi bi-sun"></i>&nbsp;&nbsp;${translateText('themeToggle')}&nbsp;&nbsp;&nbsp;`;
             btn.className = "btn btn-primary light";
-            status.innerText = "当前主题: 暗色模式";
+            status.innerText = `${translateText('currentTheme')}${translateText('darkMode')}`;
         } else {
-            btn.innerHTML = '<i class="bi bi-moon"></i>&nbsp;&nbsp;切换到暗色模式&nbsp;&nbsp;&nbsp;';
+            btn.innerHTML = `<i class="bi bi-moon"></i>&nbsp;&nbsp;${translateText('themeToggle')}&nbsp;&nbsp;&nbsp;`;
             btn.className = "btn btn-primary dark";
-            status.innerText = "当前主题: 亮色模式";
+            status.innerText = `${translateText('currentTheme')}${translateText('lightMode')}`;
         }
     }
 
@@ -108,8 +212,9 @@ document.addEventListener("DOMContentLoaded", function () {
                 if (masterSwitch) {
                     masterSwitch.style.background = '#f44336';
                     masterSwitch.querySelector('.status-led').style.background = '#f44336';
-                    masterSwitch.querySelector('span').textContent = '已禁用 ❌';
+                    masterSwitch.querySelector('span').textContent = translateText('disabled') + ' ❌';
                 }
+                applyPHPBackground();
             } else {
                 const enabled = localStorage.getItem('backgroundEnabled') === 'true';
                 isEnabled = enabled;
@@ -117,9 +222,15 @@ document.addEventListener("DOMContentLoaded", function () {
                 if (masterSwitch) {
                     masterSwitch.style.background = enabled ? '#4CAF50' : '#f44336';
                     masterSwitch.querySelector('.status-led').style.background = enabled ? '#4CAF50' : '#f44336';
-                    masterSwitch.querySelector('span').textContent = enabled ? '已启用 ✅' : '已禁用 ❌';
+                    masterSwitch.querySelector('span').textContent = enabled ? translateText('enabled') + ' ✅' : translateText('disabled') + ' ❌';
+                }
+                if (enabled) {
+                    initBackgroundSystem();
+                } else {
+                    applyPHPBackground();
                 }
             }
+            updateUIText();
         })
         .catch(error => {
             console.error("获取主题模式失败:", error);
@@ -129,31 +240,35 @@ document.addEventListener("DOMContentLoaded", function () {
         <div id="settings-icon">⚙️</div>
         <div id="mode-popup">
             <button id="theme-toggle" style="opacity:1 !important;pointer-events:auto !important;background:#2196F3 !important">
-                <i class="bi bi-moon"></i> 切换主题模式
-                <div id="theme-status" style="margin-left:8px;color:#FFEB3B"></div>
+                <i class="bi bi-moon"></i> ${translateText('themeToggle')}
+                <div id="theme-status" style="margin-left:8px;color:#FFEB3B">${translateText('currentTheme')}${translateText('darkMode')}</div>
             </button>
             <button id="master-switch">
-                <span>${isEnabled ? '已启用 ✅' : '已禁用 ❌'}</span>
+                <span>${isEnabled ? translateText('enabled') + ' ✅' : translateText('disabled') + ' ❌'}</span>
                 <div class="status-led" style="background:${isEnabled ? '#4CAF50' : '#f44336'}"></div>
             </button>
-            <button class="theme-settings-btn">主题设置</button>
-            <button data-mode="video">视频模式</button>
-            <button data-mode="image">图片模式</button>
-            <button data-mode="solid">暗黑模式</button>
-            <button data-mode="auto">自动模式</button>
+            <button class="theme-settings-btn">${translateText('themeSettings')}</button>
+            <button data-mode="video">${translateText('videoMode')}</button>
+            <button data-mode="image">${translateText('imageMode')}</button>
+            <button data-mode="solid">${translateText('solidMode')}</button>
+            <button data-mode="auto">${translateText('autoMode')}</button>
             <button class="sound-toggle">
-                <span>背景音效</span>
+                <span>${translateText('backgroundSound')}</span>
                 <div>${localStorage.getItem('videoMuted') === 'true' ? '🔇' : '🔊'}</div>
             </button>
             <button class="object-fit-btn" style="opacity:1 !important;pointer-events:auto !important">
-                <span>显示比例：</span>
+                <span>${translateText('displayRatio')}</span>
                 <div>${getFitButtonText()}</div>
             </button>
             <button class="ip-toggle">
-                <span>${localStorage.getItem('hideIP') === 'true' ? '显示IP信息' : '隐藏IP信息'}</span>
+                <span>${localStorage.getItem('hideIP') === 'true' ? translateText('showIP') : translateText('hideIP')}</span>
                 <div class="status-led" style="background:${localStorage.getItem('hideIP') !== 'true' ? '#4CAF50' : '#f44336'}"></div>
             </button>
-            <button class="info-btn">使用说明</button>
+            <button id="language-toggle">
+                <span>${getLanguageButtonText()}</span>
+                <div class="status-led" style="background:${getLanguageButtonColor()}"></div>
+            </button>
+            <button class="info-btn">${translateText('usageGuide')}</button>
         </div>
     `;
 
@@ -172,7 +287,7 @@ document.addEventListener("DOMContentLoaded", function () {
             ipContainer.style.display = newState ? 'none' : 'flex';
             localStorage.setItem('hideIP', newState);
             
-            toggleBtn.querySelector('span').textContent = newState ? '显示IP信息' : '隐藏IP信息';
+            toggleBtn.querySelector('span').textContent = newState ? translateText('showIP') : translateText('hideIP');
             toggleBtn.querySelector('.status-led').style.background = newState ? '#f44336' : '#4CAF50';
         }
     });
@@ -294,6 +409,12 @@ document.addEventListener("DOMContentLoaded", function () {
             pointer-events: auto !important;
         }
 
+        #mode-popup button#language-toggle {
+            background: #FF9800 !important;
+            opacity: 1 !important;
+            pointer-events: auto !important;
+        }
+
         @media (max-width: 600px) {
             #settings-icon {
                 right: 8%;
@@ -336,8 +457,8 @@ document.addEventListener("DOMContentLoaded", function () {
         led.style.backgroundColor = circleColor;
         led.style.borderColor = isEnabled ? '#ffffff' : '#000000'; 
 
-        this.querySelector('span').textContent = isEnabled ? '已启用 ✅' : '已禁用 ❌';
-        document.querySelectorAll('#mode-popup button:not(#master-switch):not(.sound-toggle):not(#redirect-btn):not(.info-btn)').forEach(btn => {
+        this.querySelector('span').textContent = isEnabled ? translateText('enabled') + ' ✅' : translateText('disabled') + ' ❌';
+        document.querySelectorAll('#mode-popup button:not(#master-switch):not(.sound-toggle):not(#redirect-btn):not(.info-btn):not(#language-toggle)').forEach(btn => {
             btn.style.opacity = isEnabled ? 1 : 0.5;
             btn.style.pointerEvents = isEnabled ? 'auto' : 'none';
         });
@@ -385,14 +506,22 @@ document.addEventListener("DOMContentLoaded", function () {
     });
 
     document.querySelector('.info-btn').addEventListener('click', () => {
-        showCustomAlert('使用说明', [
-            '1. 视频模式：默认名称为「bg.mp4」',
-            '2. 图片模式：默认名称为「bg1-20.jpg」',
-            '3. 暗黑模式：透明背景+光谱动画',
-            '4. 亮色模式：主题设置进行切换，会自动关闭控制开关',
-            '5. 主题设置：支持自定义背景，模式切换需清除背景',
-            '6. 项目地址：<a class="github-link" href="https://github.com/Thaolga/openwrt-nekobox" target="_blank">点击访问</a>'
+        showCustomAlert(translateText('usageGuide'), [
+            translateText('guide1'),
+            translateText('guide2'),
+            translateText('guide3'),
+            translateText('guide4'),
+            translateText('guide5'),
+            translateText('guide6')
         ]);
+    });
+
+    document.getElementById('language-toggle').addEventListener('click', function() {
+        currentLanguage = currentLanguage === 'zh' ? 'en' : 'zh';
+        localStorage.setItem('currentLanguage', currentLanguage);
+        this.querySelector('span').textContent = getLanguageButtonText();
+        this.querySelector('.status-led').style.background = getLanguageButtonColor();
+        updateUIText();
     });
 
     function showCustomAlert(title, messages) {
@@ -403,115 +532,115 @@ document.addEventListener("DOMContentLoaded", function () {
             <div id="custom-alert-overlay">
                 <div id="custom-alert">
                     <div class="alert-header">
-                        <h3>${title}</h3>
+                        <h3>${translateText(title)}</h3>
                         <button class="close-btn">&times;</button>
                     </div>
                     <div class="alert-content">
-                        ${messages.map(msg => `<p>${msg}</p>`).join('')}
+                        ${messages.map(msg => `<p>${translateText(msg)}</p>`).join('')}
                     </div>
                 </div>
             </div>
         `;
 
-    document.body.insertAdjacentHTML('beforeend', alertHTML);
+        document.body.insertAdjacentHTML('beforeend', alertHTML);
 
-    const style = document.createElement('style');
-    style.textContent = `
-        #custom-alert-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0,0,0,0.7);
-            z-index: 9999;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            backdrop-filter: blur(3px);
-        }
+        const style = document.createElement('style');
+        style.textContent = `
+            #custom-alert-overlay {
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: rgba(0,0,0,0.7);
+                z-index: 9999;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                backdrop-filter: blur(3px);
+            }
 
-        #custom-alert {
-            background: rgba(0,0,0,0.95);
-            border: 1px solid #333;
-            border-radius: 8px;
-            width: 90%;
-            max-width: 500px;
-            padding: 20px;
-            box-shadow: 0 0 20px rgba(0,0,0,0.5);
-            color: #fff;
-        }
-
-        .alert-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-bottom: 1px solid #333;
-            padding-bottom: 15px;
-            margin-bottom: 15px;
-        }
-
-        .alert-header h3 {
-            margin: 0;
-            color: #4CAF50;
-            font-size: 1.3em;
-        }
-
-        .close-btn {
-            background: none;
-            border: none;
-            color: #fff;
-            font-size: 24px;
-            cursor: pointer;
-            padding: 0 8px;
-            transition: color 0.3s;
-        }
-
-        .close-btn:hover {
-            color: #4CAF50;
-        }
-
-        .alert-content {
-            max-height: 60vh;
-            overflow-y: auto;
-        }
-
-        .alert-content p {
-            line-height: 1.6;
-            margin: 10px 0;
-            color: #ddd;
-            font-size: 14px;
-        }
-
-        @media (max-width: 480px) {
             #custom-alert {
-                width: 95%;
-                padding: 15px;
+                background: rgba(0,0,0,0.95);
+                border: 1px solid #333;
+                border-radius: 8px;
+                width: 90%;
+                max-width: 500px;
+                padding: 20px;
+                box-shadow: 0 0 20px rgba(0,0,0,0.5);
+                color: #fff;
             }
-            
+
+            .alert-header {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                border-bottom: 1px solid #333;
+                padding-bottom: 15px;
+                margin-bottom: 15px;
+            }
+
             .alert-header h3 {
-                font-size: 1.1em;
+                margin: 0;
+                color: #4CAF50;
+                font-size: 1.3em;
             }
-            
+
+            .close-btn {
+                background: none;
+                border: none;
+                color: #fff;
+                font-size: 24px;
+                cursor: pointer;
+                padding: 0 8px;
+                transition: color 0.3s;
+            }
+
+            .close-btn:hover {
+                color: #4CAF50;
+            }
+
+            .alert-content {
+                max-height: 60vh;
+                overflow-y: auto;
+            }
+
             .alert-content p {
-                font-size: 13px;
+                line-height: 1.6;
+                margin: 10px 0;
+                color: #ddd;
+                font-size: 14px;
             }
-        }
-    `;
-    document.head.appendChild(style);
 
-    document.querySelector('.close-btn').addEventListener('click', () => {
-        document.getElementById('custom-alert-overlay').remove();
-        style.remove();
-    });
+            @media (max-width: 480px) {
+                #custom-alert {
+                    width: 95%;
+                    padding: 15px;
+                }
+                
+                .alert-header h3 {
+                    font-size: 1.1em;
+                }
+                
+                .alert-content p {
+                    font-size: 13px;
+                }
+            }
+        `;
+        document.head.appendChild(style);
 
-    document.getElementById('custom-alert-overlay').addEventListener('click', (e) => {
-        if (e.target.id === 'custom-alert-overlay') {
+        document.querySelector('.close-btn').addEventListener('click', () => {
             document.getElementById('custom-alert-overlay').remove();
             style.remove();
-        }
-    });
-}
+        });
+
+        document.getElementById('custom-alert-overlay').addEventListener('click', (e) => {
+            if (e.target.id === 'custom-alert-overlay') {
+                document.getElementById('custom-alert-overlay').remove();
+                style.remove();
+            }
+        });
+    }
 
     function initBackgroundSystem() {
         bgImages = Array.from({length: 20}, (_, i) => `bg${i + 1}.jpg`);
@@ -763,7 +892,9 @@ document.addEventListener("DOMContentLoaded", function () {
             setVideoBackground(phpBackgroundSrc, true);
         }
     }
-});
+
+    currentLanguage = localStorage.getItem('currentLanguage') || 'zh';
+    updateUIText();
 
     function setImageBackground(src) {
         clearExistingBackground();
@@ -916,7 +1047,7 @@ document.addEventListener("DOMContentLoaded", function () {
         overlay.innerHTML = `
             <div id="theme-settings-dialog">
                 <div class="dialog-header">
-                    <h3>Spectra 主题设置</h3>
+                    <h3>${translateText('themeTitle')}</h3>
                     <button class="close-btn">&times;</button>
                 </div>
                 <iframe id="theme-iframe" 
@@ -996,9 +1127,4 @@ document.addEventListener("DOMContentLoaded", function () {
             }
         });
     }
-
-
-
-
-
-
+});
