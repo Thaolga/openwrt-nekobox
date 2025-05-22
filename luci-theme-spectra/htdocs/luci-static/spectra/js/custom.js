@@ -236,61 +236,182 @@ document.addEventListener("DOMContentLoaded", function () {
             console.error("获取主题模式失败:", error);
         });
 
-    const controlPanel = `
-        <div id="settings-icon">⚙️</div>
-        <div id="mode-popup">
-            <button id="theme-toggle" style="opacity:1 !important;pointer-events:auto !important;background:#2196F3 !important">
-                <i class="bi bi-moon"></i> ${translateText('themeToggle')}
-                <div id="theme-status" style="margin-left:8px;color:#FFEB3B">${translateText('currentTheme')}${translateText('darkMode')}</div>
-            </button>
-            <button id="master-switch">
-                <span>${isEnabled ? translateText('enabled') + ' ✅' : translateText('disabled') + ' ❌'}</span>
-                <div class="status-led" style="background:${isEnabled ? '#4CAF50' : '#f44336'}"></div>
-            </button>
-            <button class="theme-settings-btn">${translateText('themeSettings')}</button>
-            <button data-mode="video">${translateText('videoMode')}</button>
-            <button data-mode="image">${translateText('imageMode')}</button>
-            <button data-mode="solid">${translateText('solidMode')}</button>
-            <button data-mode="auto">${translateText('autoMode')}</button>
-            <button class="sound-toggle">
-                <span>${translateText('backgroundSound')}</span>
-                <div>${localStorage.getItem('videoMuted') === 'true' ? '🔇' : '🔊'}</div>
-            </button>
-            <button class="object-fit-btn" style="opacity:1 !important;pointer-events:auto !important">
-                <span>${translateText('displayRatio')}</span>
-                <div>${getFitButtonText()}</div>
-            </button>
-            <button class="ip-toggle">
-                <span>${localStorage.getItem('hideIP') === 'true' ? translateText('showIP') : translateText('hideIP')}</span>
-                <div class="status-led" style="background:${localStorage.getItem('hideIP') !== 'true' ? '#4CAF50' : '#f44336'}"></div>
-            </button>
-            <button id="language-toggle">
-                <span>${getLanguageButtonText()}</span>
-                <div class="status-led" style="background:${getLanguageButtonColor()}"></div>
-            </button>
-            <button class="info-btn">${translateText('usageGuide')}</button>
-        </div>
-    `;
-
-    document.body.insertAdjacentHTML('beforeend', controlPanel);
-    document.querySelector('.theme-settings-btn')?.addEventListener('click', showThemeSettings);
-    if (localStorage.getItem('hideIP') === null) {
-        localStorage.setItem('hideIP', 'false');
+    function generateControlPanel() {
+        return `
+            <div id="settings-icon">⚙️</div>
+            <div id="mode-popup">
+                <button id="theme-toggle" style="opacity:1 !important;pointer-events:auto !important;background:#2196F3 !important">
+                    <i class="bi bi-moon"></i>&nbsp;&nbsp;${translateText('themeToggle')}&nbsp;&nbsp;&nbsp;
+                    <div id="theme-status" style="margin-left:8px;color:#FFEB3B">${translateText('currentTheme')}${translateText('darkMode')}</div>
+                </button>
+                <button id="master-switch">
+                    <span>${isEnabled ? translateText('enabled') + ' ✅' : translateText('disabled') + ' ❌'}</span>
+                    <div class="status-led" style="background:${isEnabled ? '#4CAF50' : '#f44336'}"></div>
+                </button>
+                <button class="theme-settings-btn">${translateText('themeSettings')}</button>
+                <button data-mode="video">${translateText('videoMode')}</button>
+                <button data-mode="image">${translateText('imageMode')}</button>
+                <button data-mode="solid">${translateText('solidMode')}</button>
+                <button data-mode="auto">${translateText('autoMode')}</button>
+                <button class="sound-toggle">
+                    <span>${translateText('backgroundSound')}</span>
+                    <div>${localStorage.getItem('videoMuted') === 'true' ? '🔇' : '🔊'}</div>
+                </button>
+                <button class="object-fit-btn" style="opacity:1 !important;pointer-events:auto !important">
+                    <span>${translateText('displayRatio')}</span>
+                    <div>${getFitButtonText()}</div>
+                </button>
+                <button class="ip-toggle">
+                    <span>${localStorage.getItem('hideIP') === 'true' ? translateText('showIP') : translateText('hideIP')}</span>
+                    <div class="status-led" style="background:${localStorage.getItem('hideIP') !== 'true' ? '#4CAF50' : '#f44336'}"></div>
+                </button>
+                <button id="language-toggle">
+                    <span>${getLanguageButtonText()}</span>
+                    <div class="status-led" style="background:${getLanguageButtonColor()}"></div>
+                </button>
+                <button class="info-btn">${translateText('usageGuide')}</button>
+            </div>
+        `;
     }
 
-    document.addEventListener('click', function(e) {
-        const toggleBtn = e.target.closest('.ip-toggle');
-        if (toggleBtn && ipContainer) {
-            const currentState = localStorage.getItem('hideIP') === 'true';
-            const newState = !currentState;
+    function bindControlPanelEvents() {
+        document.querySelector('.theme-settings-btn')?.addEventListener('click', showThemeSettings);
+        document.querySelectorAll('[data-mode]').forEach(btn => {
+            btn.addEventListener('click', function() {
+                setMode(btn.dataset.mode);
+                document.querySelectorAll('[data-mode]').forEach(b => b.classList.remove('selected-mode'));
+                this.classList.add('selected-mode');
+            });
+        });
+        document.querySelector('.sound-toggle').addEventListener('click', function() {
+            const newMuted = localStorage.getItem('videoMuted') !== 'true';
+            localStorage.setItem('videoMuted', newMuted);
             
-            ipContainer.style.display = newState ? 'none' : 'flex';
-            localStorage.setItem('hideIP', newState);
+            this.querySelector('div').textContent = newMuted ? '🔇' : '🔊';
             
-            toggleBtn.querySelector('span').textContent = newState ? translateText('showIP') : translateText('hideIP');
-            toggleBtn.querySelector('.status-led').style.background = newState ? '#f44336' : '#4CAF50';
-        }
-    });
+            if (videoTag) {
+                videoTag.muted = newMuted;
+            }
+        });
+
+        document.getElementById('theme-toggle')?.addEventListener('click', function(e) {
+            e.stopPropagation();
+            fetch("/luci-static/spectra/bgm/theme-switcher.php", { method: "POST" })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        updateThemeButton(data.mode);
+                    } else {
+                        console.error("模式切换失败:", data.error);
+                    }
+                })
+                .catch(error => {
+                    console.error("请求出错:", error);
+                });
+        });
+
+        document.querySelector('.info-btn').addEventListener('click', () => {
+            showCustomAlert(translateText('usageGuide'), [
+                translateText('guide1'),
+                translateText('guide2'),
+                translateText('guide3'),
+                translateText('guide4'),
+                translateText('guide5'),
+                translateText('guide6')
+            ]);
+        });
+
+        document.getElementById('language-toggle').addEventListener('click', function() {
+            currentLanguage = currentLanguage === 'zh' ? 'en' : 'zh';
+            localStorage.setItem('currentLanguage', currentLanguage);
+            
+            const oldPopup = document.getElementById('mode-popup');
+            const oldIcon = document.getElementById('settings-icon');
+            if (oldPopup) oldPopup.remove();
+            if (oldIcon) oldIcon.remove();
+            
+            document.body.insertAdjacentHTML('beforeend', generateControlPanel());
+            
+            bindControlPanelEvents();
+
+            if (isPopupVisible) {
+                document.getElementById('mode-popup').classList.add('show');
+            }
+
+            updateUIText();
+        });
+
+        document.getElementById('settings-icon').addEventListener('click', function(e) {
+            e.stopPropagation();
+            const popup = document.getElementById('mode-popup');
+            popup.classList.toggle('show');
+        });
+
+        document.getElementById('master-switch').addEventListener('click', function(e) {
+            e.stopPropagation();
+
+            isEnabled = !isEnabled;
+            localStorage.setItem('backgroundEnabled', isEnabled);
+            this.style.background = isEnabled ? '#4CAF50' : '#f44336';
+            const led = this.querySelector('.status-led');
+            const circleColor = isEnabled ? '#4CAF50' : '#f44336';
+            led.style.boxShadow = `0 0 5px ${circleColor}`;
+            led.style.backgroundColor = circleColor;
+            led.style.borderColor = isEnabled ? '#ffffff' : '#000000'; 
+
+            this.querySelector('span').textContent = isEnabled ? translateText('enabled') + ' ✅' : translateText('disabled') + ' ❌';
+            document.querySelectorAll('#mode-popup button:not(#master-switch):not(.sound-toggle):not(#redirect-btn):not(.info-btn):not(#language-toggle)').forEach(btn => {
+                btn.style.opacity = isEnabled ? 1 : 0.5;
+                btn.style.pointerEvents = isEnabled ? 'auto' : 'none';
+            });
+
+            if (isEnabled) {
+                initBackgroundSystem();
+            } else {
+                clearBackgroundSystem();
+            }
+        });
+
+        document.querySelector('.object-fit-btn')?.addEventListener('click', function() {
+            const videos = document.querySelectorAll('video#background-video');
+            if (videos.length === 0) return;
+
+            const currentFit = videos[0].style.objectFit || localStorage.getItem('videoObjectFit') || 'cover';
+            const fitOrder = ['cover', 'contain', 'fill', 'none', 'scale-down'];
+            const newIndex = (fitOrder.indexOf(currentFit) + 1) % fitOrder.length;
+            const newFit = fitOrder[newIndex];
+
+            videos.forEach(video => {
+                video.style.objectFit = newFit;
+                if (newFit === 'none') {
+                    video.style.minWidth = 'auto';
+                    video.style.minHeight = 'auto';
+                    video.style.width = '100%';
+                    video.style.height = '100%';
+                } else {
+                    video.style.minWidth = '100%';
+                    video.style.minHeight = '100%';
+                }
+            });
+        
+            localStorage.setItem('videoObjectFit', newFit);
+            this.querySelector('div').textContent = getFitButtonText();
+        });
+
+        document.addEventListener('click', function(e) {
+            const toggleBtn = e.target.closest('.ip-toggle');
+            if (toggleBtn && ipContainer) {
+                const currentState = localStorage.getItem('hideIP') === 'true';
+                const newState = !currentState;
+                
+                ipContainer.style.display = newState ? 'none' : 'flex';
+                localStorage.setItem('hideIP', newState);
+                
+                toggleBtn.querySelector('span').textContent = newState ? translateText('showIP') : translateText('hideIP');
+                toggleBtn.querySelector('.status-led').style.background = newState ? '#f44336' : '#4CAF50';
+            }
+        });
+    }
 
     const styles = `
         #settings-icon {
@@ -391,6 +512,7 @@ document.addEventListener("DOMContentLoaded", function () {
             pointer-events: auto !important;
             background: #007BFF !important;
         }
+
         #mode-popup button.object-fit-btn div {
             color: #FFEB3B;
             margin-left: 8px;
@@ -439,90 +561,12 @@ document.addEventListener("DOMContentLoaded", function () {
     styleTag.textContent = styles;
     document.head.appendChild(styleTag);
 
-    document.getElementById('settings-icon').addEventListener('click', function(e) {
-        e.stopPropagation();
-        const popup = document.getElementById('mode-popup');
-        popup.classList.toggle('show');
-    });
+    document.body.insertAdjacentHTML('beforeend', generateControlPanel());
+    bindControlPanelEvents();
 
-    document.getElementById('master-switch').addEventListener('click', function(e) {
-        e.stopPropagation();
-
-        isEnabled = !isEnabled;
-        localStorage.setItem('backgroundEnabled', isEnabled);
-        this.style.background = isEnabled ? '#4CAF50' : '#f44336';
-        const led = this.querySelector('.status-led');
-        const circleColor = isEnabled ? '#4CAF50' : '#f44336';
-        led.style.boxShadow = `0 0 5px ${circleColor}`;
-        led.style.backgroundColor = circleColor;
-        led.style.borderColor = isEnabled ? '#ffffff' : '#000000'; 
-
-        this.querySelector('span').textContent = isEnabled ? translateText('enabled') + ' ✅' : translateText('disabled') + ' ❌';
-        document.querySelectorAll('#mode-popup button:not(#master-switch):not(.sound-toggle):not(#redirect-btn):not(.info-btn):not(#language-toggle)').forEach(btn => {
-            btn.style.opacity = isEnabled ? 1 : 0.5;
-            btn.style.pointerEvents = isEnabled ? 'auto' : 'none';
-        });
-
-        if (isEnabled) {
-            initBackgroundSystem();
-        } else {
-            clearBackgroundSystem();
-        }
-    });
-
-    document.querySelectorAll('[data-mode]').forEach(btn => {
-        btn.addEventListener('click', function() {
-            setMode(btn.dataset.mode);
-            document.querySelectorAll('[data-mode]').forEach(b => b.classList.remove('selected-mode'));
-            this.classList.add('selected-mode');
-        });
-    });
-
-    document.querySelector('.sound-toggle').addEventListener('click', function() {
-        const newMuted = localStorage.getItem('videoMuted') !== 'true';
-        localStorage.setItem('videoMuted', newMuted);
-        
-        this.querySelector('div').textContent = newMuted ? '🔇' : '🔊';
-        
-        if (videoTag) {
-            videoTag.muted = newMuted;
-        }
-    });
-
-    document.getElementById('theme-toggle')?.addEventListener('click', function(e) {
-        e.stopPropagation();
-        fetch("/luci-static/spectra/bgm/theme-switcher.php", { method: "POST" })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    updateThemeButton(data.mode);
-                } else {
-                    console.error("模式切换失败:", data.error);
-                }
-            })
-            .catch(error => {
-                console.error("请求出错:", error);
-            });
-    });
-
-    document.querySelector('.info-btn').addEventListener('click', () => {
-        showCustomAlert(translateText('usageGuide'), [
-            translateText('guide1'),
-            translateText('guide2'),
-            translateText('guide3'),
-            translateText('guide4'),
-            translateText('guide5'),
-            translateText('guide6')
-        ]);
-    });
-
-    document.getElementById('language-toggle').addEventListener('click', function() {
-        currentLanguage = currentLanguage === 'zh' ? 'en' : 'zh';
-        localStorage.setItem('currentLanguage', currentLanguage);
-        this.querySelector('span').textContent = getLanguageButtonText();
-        this.querySelector('.status-led').style.background = getLanguageButtonColor();
-        updateUIText();
-    });
+    if (localStorage.getItem('hideIP') === null) {
+        localStorage.setItem('hideIP', 'false');
+    }
 
     function showCustomAlert(title, messages) {
         const existingAlert = document.getElementById('custom-alert');
@@ -1126,5 +1170,12 @@ document.addEventListener("DOMContentLoaded", function () {
                 style.remove();
             }
         });
+    }
+
+    function switchBackground() {
+        if (availableImages.length > 0) {
+            bgIndex = (bgIndex + 1) % availableImages.length;
+            applyCSS(availableImages[bgIndex]);
+        }
     }
 });
