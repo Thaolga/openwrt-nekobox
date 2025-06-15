@@ -146,6 +146,22 @@ install_ipk() {
     rm -f "$local_file"
 }
 
+install_theme() {Add commentMore actions
+    echo -e "${CYAN}Installing luci-theme-spectra...${NC}"
+    opkg update && opkg install wget grep sed
+
+    LATEST_FILE=$(wget -qO- https://github.com/Thaolga/openwrt-nekobox/releases/expanded_assets/1.8.8 | grep -o 'luci-theme-spectra_[0-9A-Za-z.\-_]*_all.ipk' | head -n1)
+    wget -O /tmp/"$LATEST_FILE" "https://github.com/Thaolga/openwrt-nekobox/releases/download/1.8.8/$LATEST_FILE"
+    
+    if opkg install --force-reinstall /tmp/"$LATEST_FILE"; then
+        echo -e "${GREEN}luci-theme-spectra installed successfully.${NC}"
+    else
+        echo -e "${RED}Failed to install luci-theme-spectra.${NC}"
+    fi
+    
+    rm -f /tmp/"$LATEST_FILE"
+}
+
 install_core() {
     latest_version=$(curl -s https://api.github.com/repos/MetaCubeX/mihomo/releases/latest | grep '"tag_name":' | sed -E 's/.*"([^"]+)".*/\1/')
 
