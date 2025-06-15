@@ -117,9 +117,10 @@ install_ipk() {
 
     download_url="https://github.com/$repo_owner/$repo_name/releases/download/$new_version/${package_name}_${new_version}-${language_choice}_all.ipk"
 
-   echo -e "${CYAN}Download URL: $download_url${NC}"
+    echo -e "${CYAN}Downloading ONLY: $package_name ($new_version)${NC}"
+    echo -e "${CYAN}URL: $download_url${NC}"
 
-    local_file="/tmp/$package_name.ipk"
+    local_file="/tmp/${package_name}.ipk"
     curl -L -f -o "$local_file" "$download_url"
     if [ $? -ne 0 ]; then
         echo -e "${RED}Download failed!${NC}"
@@ -143,22 +144,6 @@ install_ipk() {
     fi
 
     rm -f "$local_file"
-}
-
-install_theme() {
-    echo -e "${CYAN}Installing luci-theme-spectra...${NC}"
-    opkg update && opkg install wget grep sed
-
-    LATEST_FILE=$(wget -qO- https://github.com/Thaolga/openwrt-nekobox/releases/expanded_assets/1.8.8 | grep -o 'luci-theme-spectra_[0-9A-Za-z.\-_]*_all.ipk' | head -n1)
-    wget -O /tmp/"$LATEST_FILE" "https://github.com/Thaolga/openwrt-nekobox/releases/download/1.8.8/$LATEST_FILE"
-    
-    if opkg install --force-reinstall /tmp/"$LATEST_FILE"; then
-        echo -e "${GREEN}luci-theme-spectra installed successfully.${NC}"
-    else
-        echo -e "${RED}Failed to install luci-theme-spectra.${NC}"
-    fi
-    
-    rm -f /tmp/"$LATEST_FILE"
 }
 
 install_core() {
