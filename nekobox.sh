@@ -146,8 +146,8 @@ install_ipk() {
     rm -f "$local_file"
 }
 
-install_theme() {Add commentMore actions
-    echo -e "${CYAN}Installing luci-theme-spectra...${NC}"
+install_theme() {
+    echo -e "${CYAN}Installing luci-theme-spectra...${NC}"Add commentMore actions
     opkg update && opkg install wget grep sed
 
     LATEST_FILE=$(wget -qO- https://github.com/Thaolga/openwrt-nekobox/releases/expanded_assets/1.8.8 | grep -o 'luci-theme-spectra_[0-9A-Za-z.\-_]*_all.ipk' | head -n1)
