@@ -1388,6 +1388,40 @@ body:hover,
     font-size: 1.1rem;
   }
 }
+
+@media (max-width: 576px) {
+    .card-body .custom-btn {
+        padding: 0.2rem 0.3rem !important;
+        font-size: 0.8rem !important;
+    }
+}
+
+@media (max-width: 576px) {
+    #fileGrid .card {
+        padding: 0.25rem;
+    }
+
+    #fileGrid .card .card-body {
+        padding: 0.25rem;
+    }
+
+    #fileGrid .card h5,
+    #fileGrid .card p,
+    #fileGrid .card .file-info-overlay p {
+        font-size: 0.75rem;
+        margin: 0.125rem 0;
+    }
+
+    #fileGrid .card .preview-container {
+        max-height: 180px;
+        overflow: hidden;
+    }
+
+    #fileGrid .card .custom-btn {
+        padding: 0.25rem 0.4rem;
+        font-size: 0.75rem;
+    }
+}
 </style>
 
 <div class="container-sm container-bg text-center mt-4" id="mainContainer">
@@ -1410,6 +1444,7 @@ body:hover,
     </div>
     <div class="weather-display d-flex align-items-center d-none d-sm-inline">
       <i id="weatherIcon" class="wi wi-na" style="font-size:28px; margin-right:4px;"></i>
+      <span id="cityNameDisplay" style="color:var(--accent-color); font-weight:700;"></span>
       <span id="weatherText" style="color:var(--accent-color); font-weight: 700;"></span>
     </div>
 </div>
@@ -1444,7 +1479,7 @@ body:hover,
             <button class="btn btn-warning ms-2" data-bs-toggle="modal" data-bs-target="#uploadModal" data-translate-title="batch_upload"><i class="bi bi-upload"></i> <span class="btn-label"></span></button>
             <button class="btn btn-primary ms-2" id="openPlayerBtn" data-bs-toggle="modal" data-bs-target="#playerModal" data-translate-title="add_to_playlist"><i class="bi bi-play-btn"></i> <span class="btn-label"></span></button>
             <button class="btn btn-success ms-2" data-bs-toggle="modal" data-bs-target="#musicModal" data-translate-title="music_player"><i class="bi bi-music-note-beamed"></i></button>
-            <button type="button" class="btn btn-primary ms-2" onclick="showIpDetailModal()" data-translate-title="ip_info"><i class="fa-solid fa-satellite-dish"></i></button>
+            <button type="button" class="btn btn-primary ms-2 d-none d-sm-inline" onclick="showIpDetailModal()" data-translate-title="ip_info"><i class="fa-solid fa-satellite-dish"></i></button>
             <button class="btn btn-danger ms-2" id="clear-cache-btn" data-translate-title="clear_config"><i class="bi bi-trash3-fill"></i></button>
             <button class="btn btn-danger ms-2" id="clearBackgroundBtn" data-translate-title="clear_background"><i class="bi bi-trash"></i> <span class="btn-label"></span></button> 
         </div>
@@ -9493,18 +9528,19 @@ async function showIpDetailModal() {
     const unique = parts.filter((v,i,a)=>a.indexOf(v)===i).join(' ');
     const locationText = await translateText(unique);
 
-    let isp = geo.org||geo.isp||'';
-    if (!isp && geo.as) isp = geo.as.split(' ').slice(1).join(' ');
+    let isp = geo.org || geo.isp || '';
     isp = await translateText(isp);
-    const asn    = geo.asn||geo.as?.split(' ')[0]||'';
-    const asnOrg = await translateText(geo.asn_org||isp);
+
+    const asn = geo.asn || geo.as?.split(' ')[0] || '   ';
+    const asnName = geo.asn_org || geo.as_name || geo.as?.split(' ').slice(1).join(' ') || '';
+    const asnNameTranslated = await translateText(asnName);
 
     const vals = modalEl.querySelectorAll('.detail-row .detail-value');
     vals[0].textContent = ip;
     vals[1].textContent = locationText;
     vals[2].textContent = isp;
-    vals[3].textContent = [asn,asnOrg].filter(Boolean).join(' ');
-    vals[4].textContent = geo.timezone||'';
+    vals[3].textContent = [asn, asnNameTranslated].filter(Boolean).join(' ');
+    vals[4].textContent = geo.timezone || '';
 
     if (geo.latitude && geo.longitude) {
       document.querySelector('.map-coord-row').style.display='flex';
@@ -9631,6 +9667,8 @@ async function showIpDetailModal() {
     return map[code] || 'wi-na';
   }
 
+  const cityNameDisplay = document.getElementById('cityNameDisplay'); 
+
   function updateWeatherUI(data) {
     const iconCode = data.weather[0].icon;
     const temp     = Math.round(data.main.temp);
@@ -9641,6 +9679,7 @@ async function showIpDetailModal() {
     weatherIcon.style.color = colorMap[iconCode] || '#FFF';
     weatherIcon.title       = desc;
     weatherText.textContent = `${desc} ${temp}℃`;
+    updateCityNameDisplay(data.name);
   }
 
   function fetchWeather() {
@@ -9689,11 +9728,22 @@ async function showIpDetailModal() {
     }
   }
 
+  async function updateCityNameDisplay(name) {
+      try {
+          const translatedCityName = await translateText(name, rawLang);
+          document.getElementById('cityNameDisplay').textContent = translatedCityName;
+      } catch (e) {
+          console.error('City name translation failed:', e);
+          document.getElementById('cityNameDisplay').textContent = name;
+      }
+  }
+
   async function openWeatherModal() {
     if (!currentWeatherData) return;
     const d = currentWeatherData;
 
     const translatedCityName = await translateText(d.name, rawLang);
+    document.getElementById('cityNameDisplay').textContent = translatedCityName;
     document.getElementById('modalCityName').textContent = translatedCityName;
     document.getElementById('modalDesc').textContent      = d.weather[0].description;
     document.getElementById('modalTemp').textContent      = Math.round(d.main.temp);
