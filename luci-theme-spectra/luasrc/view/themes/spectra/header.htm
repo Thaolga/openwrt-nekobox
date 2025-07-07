@@ -229,6 +229,18 @@ header {
         margin: 0 5px;
     }
 }
+
+@media (max-width:1044px) {
+  .site-icon {
+    display: none !important;
+  }
+}
+
+@media (max-width: 768px) {
+  .ip-container {
+    display: none !important;
+  }
+}
 </style>
     <meta charset="utf-8">
     <title>
@@ -351,6 +363,29 @@ header {
             <span id="ipip"></span>
         </div>
     </div>
+<div id="result" style="text-align:center;margin-bottom:-3px;margin-left: 240px;font-weight:bold;font-size:16px;min-height:30px;"></div>
+<div style="position: fixed; top: 4px; right: 10px; display: flex; flex-direction: row; align-items: center;">
+  <div class="site-icon" style="margin: 0 5px; cursor: pointer;" onclick="pingHost('baidu', 'Baidu', 'https://www.baidu.com')">
+    <img src="/luci-static/ipip/img/site_icon_01.png" id="baidu-normal" title="Baidu" style="width:48px;height:48px;border-radius:50%;object-fit:cover;display:none;">
+    <img src="/luci-static/ipip/img/site_icon1_01.png" id="baidu-gray" style="width:48px;height:48px;border-radius:50%;object-fit:cover;">
+  </div>
+  <div class="site-icon" style="margin: 0 5px; cursor: pointer;" onclick="pingHost('taobao', 'Taobao', 'https://www.taobao.com')">
+    <img src="/luci-static/ipip/img/site_icon_02.png" id="taobao-normal" title="Taobao" style="width:48px;height:48px;border-radius:50%;object-fit:cover;display:none;">
+    <img src="/luci-static/ipip/img/site_icon1_02.png" id="taobao-gray" style="width:48px;height:48px;border-radius:50%;object-fit:cover;">
+  </div>
+  <div class="site-icon" style="margin: 0 5px; cursor: pointer;" onclick="pingHost('google', 'Google', 'https://www.google.com')">
+    <img src="/luci-static/ipip/img/site_icon_03.png" id="google-normal" title="Google" style="width:48px;height:48px;border-radius:50%;object-fit:cover;display:none;">
+    <img src="/luci-static/ipip/img/site_icon1_03.png" id="google-gray" style="width:48px;height:48px;border-radius:50%;object-fit:cover;">
+  </div>
+  <div class="site-icon" style="margin: 0 5px; cursor: pointer;" onclick="pingHost('youtube', 'YouTube', 'https://www.youtube.com')">
+    <img src="/luci-static/ipip/img/site_icon_04.png" id="youtube-normal" title="YouTube" style="width:48px;height:48px;border-radius:50%;object-fit:cover;display:none;">
+    <img src="/luci-static/ipip/img/site_icon1_04.png" id="youtube-gray" style="width:48px;height:48px;border-radius:50%;object-fit:cover;">
+  </div>
+  <div class="site-icon" style="margin: 0 5px; cursor: pointer;" onclick="pingHost('github', 'GitHub', 'https://www.github.com')">
+    <img src="/luci-static/ipip/img/site_icon_05.png" id="github-normal" title="GitHub" style="width:55px;height:55px;border-radius:50%;object-fit:cover;display:none;">
+    <img src="/luci-static/ipip/img/site_icon1_05.png" id="github-gray" style="width:55px;height:55px;border-radius:50%;object-fit:cover;">
+  </div>
+</div>
 <script type="text/javascript">
     const _IMG = '/luci-static/ipip/';
     const translate = {
@@ -643,6 +678,60 @@ header {
     setInterval(() => {
         myAppIP.getIpipnetIP();
     }, 180000); 
+</script>
+
+<script>
+function pingHost(id, name, url) {
+    const normal = document.getElementById(`${id}-normal`);
+    const gray = document.getElementById(`${id}-gray`);
+    const result = document.getElementById('result');
+    const start = performance.now();
+
+    fetch(url, { mode: 'no-cors' })
+        .then(() => {
+            const end = performance.now();
+            const ping = Math.round(end - start);
+            normal.style.display = 'inline';
+            gray.style.display = 'none';
+
+            let color = '#00c800';
+            if (ping > 300) {
+                color = 'red';
+            } else if (ping > 150) {
+                color = 'orange';
+            }
+
+            result.innerHTML = `<span style="color:${color}; font-size:20px; font-weight:bold;">${name} 连接延迟: ${ping} ms</span>`;
+        })
+        .catch(() => {
+            normal.style.display = 'none';
+            gray.style.display = 'inline';
+            result.innerHTML = `<span style="color:red; font-weight:bold;">${name} 连接超时</span>`;
+        });
+}
+
+window.addEventListener('load', () => {
+    const sites = [
+        {id: 'baidu', name: 'Baidu', url: 'https://www.baidu.com'},
+        {id: 'taobao', name: 'Taobao', url: 'https://www.taobao.com'},
+        {id: 'google', name: 'Google', url: 'https://www.google.com'},
+        {id: 'youtube', name: 'YouTube', url: 'https://www.youtube.com'},
+        {id: 'github', name: 'GitHub', url: 'https://www.github.com'}
+    ];
+    sites.forEach(site => {
+        const normal = document.getElementById(`${site.id}-normal`);
+        const gray = document.getElementById(`${site.id}-gray`);
+        fetch(site.url, { mode: 'no-cors' })
+            .then(() => {
+                normal.style.display = 'inline';
+                gray.style.display = 'none';
+            })
+            .catch(() => {
+                normal.style.display = 'none';
+                gray.style.display = 'inline';
+            });
+    });
+});
 </script>
 
 <script>
