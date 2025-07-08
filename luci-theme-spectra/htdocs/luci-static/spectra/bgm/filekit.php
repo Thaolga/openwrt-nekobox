@@ -1582,7 +1582,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
 const translations = {
     zh: {
-        pageTitle: "NeKoBox 文件助手",
+        pageTitle: "文件助手",
         chinese: '简体中文',
         traditionalChinese: '繁體中文',
         english: 'English',
@@ -1701,7 +1701,7 @@ const translations = {
     },
 
     "vi": {
-        "pageTitle": "NeKoBox Trợ lý tệp",
+        "pageTitle": "Trợ lý tệp",
         "chinese": "Tiếng Trung giản thể",
         "traditionalChinese": "Tiếng Trung phồn thể",
         "english": "Tiếng Anh",
@@ -1818,7 +1818,7 @@ const translations = {
     },
 
     "ko": {
-        "pageTitle": "NeKoBox 파일 도우미",
+        "pageTitle": "파일 도우미",
         "chinese": "중국어 간체",
         "traditionalChinese": "중국어 번체",
         "english": "영어",
@@ -1935,7 +1935,7 @@ const translations = {
     },
 
     "ar": {
-        "pageTitle": "مساعد الملفات NeKoBox",
+        "pageTitle": "مساعد الملفات",
         "chinese": "الصينية المبسطة",
         "traditionalChinese": "الصينية التقليدية",
         "english": "الإنجليزية",
@@ -2052,7 +2052,7 @@ const translations = {
     },
 
     "ru": {
-        "pageTitle": "Помощник файлов NeKoBox",
+        "pageTitle": "Помощник файлов",
         "chinese": "Упрощённый китайский",
         "traditionalChinese": "Традиционный китайский",
         "english": "Английский",
@@ -2169,7 +2169,7 @@ const translations = {
     },
 
     "de": {
-        "pageTitle": "NeKoBox Dateimanager",
+        "pageTitle": "Dateimanager",
         "chinese": "Vereinfachtes Chinesisch",
         "traditionalChinese": "Traditionelles Chinesisch",
         "english": "Englisch",
@@ -2286,7 +2286,7 @@ const translations = {
     },
 
     en: {
-        pageTitle: "NeKoBox File Assistant",
+        pageTitle: "File Assistant",
         chinese: 'Simplified Chinese',
         traditionalChinese: 'Traditional Chinese',
         english: 'English',
@@ -2406,7 +2406,7 @@ const translations = {
         confirmDeleteSelected: "Are you sure you want to delete the selected {0} files or folders? This action cannot be undone."
     },
     "zh-tw": {
-        pageTitle: "NeKoBox 檔案助手",
+        pageTitle: "檔案助手",
         chinese: '简體中文',
         traditionalChinese: '繁體中文',
         english: 'English',
@@ -3932,7 +3932,7 @@ function formatJSON() {
         session.clearAnnotations();
         if (session.$errorMarker) {
             session.removeMarker(session.$errorMarker);
-        }
+        }+
 
         showNotification('JSON 已成功格式化', 'success');
     } catch (e) {
@@ -3958,11 +3958,14 @@ aceEditor.getSession().on("change", function(delta) {
     }
 });
 
-aceEditor.on("copy", function() {
-    var selectedText = aceEditor.getSelectedText();
-    if (selectedText) {
-        var formattedText = formatAllText(aceEditor.getValue());
-        navigator.clipboard.writeText(formattedText);
+aceEditor.commands.addCommand({
+    name: "customCopy",
+    bindKey: {win: "Ctrl-C", mac: "Command-C"},
+    exec: function(editor) {
+        const selectedText = editor.getSelectedText();
+        if (selectedText) {
+            navigator.clipboard.writeText(selectedText);
+        }
     }
 });
 
