@@ -702,11 +702,17 @@ function pingHost(id, name, url) {
             }
 
             result.innerHTML = `<span style="color:${color}; font-size:20px; font-weight:bold;">${name} 连接延迟: ${ping} ms</span>`;
+            setTimeout(() => {
+                result.innerHTML = '';
+            }, 7000);
         })
         .catch(() => {
             normal.style.display = 'none';
             gray.style.display = 'inline';
             result.innerHTML = `<span style="color:red; font-weight:bold;">${name} 连接超时</span>`;
+            setTimeout(() => {
+                result.innerHTML = '';
+            }, 7000);
         });
 }
 

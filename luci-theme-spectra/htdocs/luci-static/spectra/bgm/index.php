@@ -1903,6 +1903,10 @@ body:hover,
         <button class="ctrl-btn" id="muteToggle" data-translate-title="volume">
             <i class="bi bi-volume-up-fill"></i>
         </button>
+        <button class="ctrl-btn" id="updatePlaylistBtn" onclick="updatePlaylist()" 
+                data-translate-title="update_playlist">
+            <i class="fa fa-sync-alt"></i>
+        </button>
         <button class="ctrl-btn toggleFloatingLyricsBtn" data-translate-title="toggle_floating_lyrics">
             <i class="bi bi-display floatingIcon"></i>
         </button>
@@ -4815,6 +4819,58 @@ function updatePlaylistUI() {
     setTimeout(() => scrollToCurrentTrack(), 100);
 }
 
+function updatePlaylist() {
+    const btn = document.getElementById('updatePlaylistBtn');
+    const originalHTML = btn.innerHTML;
+    btn.innerHTML = '<i class="bi bi-arrow-repeat spinning"></i>';
+    
+    fetch('<?php echo $new_url; ?>')
+        .then(response => response.text())
+        .then(data => {
+            const newSongs = data.split('\n')
+                .filter(url => url.trim());
+            
+            songs = newSongs;
+            localStorage.setItem('cachedPlaylist', JSON.stringify(songs));
+            
+            if (currentTrackIndex >= songs.length) {
+                currentTrackIndex = 0;
+            }
+
+            updatePlaylistUI();
+            
+            if (songs.length > 0 && songs[currentTrackIndex]) {
+                loadTrack(songs[currentTrackIndex]);
+            }
+            
+            btn.innerHTML = originalHTML;
+            
+            const successMsg = translations['playlist_updated'] 
+                ? translations['playlist_updated'] 
+                : 'Playlist updated successfully';
+            const songCountMsg = translations['song_count'] 
+                ? translations['song_count'].replace('{count}', songs.length) 
+                : `Total ${songs.length} songs`;
+            
+            showLogMessage(`${successMsg}，${songCountMsg}`);
+            speakMessage(`${successMsg}，${songCountMsg}`);
+        })
+        .catch(error => {
+            console.error('Playlist update failed:', error);
+            
+            btn.innerHTML = '<i class="bi bi-x-circle"></i>';
+            setTimeout(() => {
+                btn.innerHTML = originalHTML;
+            }, 1000);
+            
+            const errorMsg = translations['update_failed'] 
+                ? translations['update_failed'] 
+                : 'Playlist update failed';
+            showLogMessage(errorMsg, 'error');
+            speakMessage(errorMsg);
+        });
+}
+
 function playTrack(index) {
     const songName = decodeURIComponent(songs[index].split('/').pop().replace(/\.\w+$/, ''));
     const message = `${translations['playlist_click'] || 'Playlist Click'}：${translations['index'] || 'Index'}：${index + 1}，${translations['song_name'] || 'Song Name'}：${songName}`;
@@ -6084,6 +6140,9 @@ $langData = [
         'fit_scale-down' => '智能适应',
         'fit_cover'      => '默认裁剪',
         'current_fit_mode'    => '当前显示模式',
+        'playlist_updated'  => '播放列表已更新',
+        'song_count'        => '共 {count} 首歌曲',
+        'update_failed'     => '播放列表更新失败',
         'selected_info' => '已选择 %d 个文件，合计 %s MB'
     ],
 
@@ -6333,6 +6392,9 @@ $langData = [
         'fit_scale-down' => '智能適應',
         'fit_cover'      => '預設裁剪',
         'current_fit_mode'    => '當前顯示模式',
+        'playlist_updated'  => '播放清單已更新',
+        'song_count'        => '共 {count} 首歌曲',
+        'update_failed'     => '播放清單更新失敗',
         'selected_info' => '已選擇 %d 個文件，合計 %s MB'
     ],
 
@@ -6582,6 +6644,9 @@ $langData = [
         'fit_none'       => '원본 크기',
         'fit_scale-down' => '스케일 다운',
         'fit_cover'      => '자르기',
+        'playlist_updated'  => '재생 목록이 업데이트되었습니다',
+        'song_count'        => '총 {count}곡',
+        'update_failed'     => '재생 목록 업데이트 실패',
         'selected_info' => '선택된 파일: %d개, 총합: %s MB'
     ],
 
@@ -6830,6 +6895,9 @@ $langData = [
         'fit_scale-down' => '自動調整',
         'fit_cover'      => 'トリミング',
         'current_fit_mode'    => '現在のモード',
+        'playlist_updated'  => 'プレイリストが更新されました',
+        'song_count'        => '合計 {count} 曲',
+        'update_failed'     => 'プレイリストの更新に失敗しました',
         'selected_info' => '%dファイル選択（%s MB）'
     ],
 
@@ -7078,6 +7146,9 @@ $langData = [
         'fit_none'       => 'Kích thước gốc',
         'fit_scale-down' => 'Tự động thu nhỏ',
         'fit_cover'      => 'Cắt vừa',
+        'playlist_updated'  => 'Danh sách phát đã được cập nhật',
+        'song_count'        => 'Tổng cộng {count} bài hát',
+        'update_failed'     => 'Cập nhật danh sách phát thất bại',
         'selected_info' => 'Đã chọn %d tệp (%s MB)'
     ],
 
@@ -7310,6 +7381,9 @@ $langData = [
         'fit_none'       => 'ขนาดดั้งเดิม',
         'fit_scale-down' => 'ปรับอัตโนมัติ',
         'fit_cover'      => 'ครอบตัด',
+        'playlist_updated'  => 'อัปเดตรายการเล่นเรียบร้อยแล้ว',
+        'song_count'        => 'ทั้งหมด {count} เพลง',
+        'update_failed'     => 'อัปเดตรายการเล่นล้มเหลว',
         'selected_info' => 'เลือกไฟล์แล้ว %d ไฟล์ รวมทั้งหมด %s MB'
     ],
 
@@ -7544,6 +7618,9 @@ $langData = [
         'fit_none'       => 'Оригинальный размер',
         'fit_scale-down' => 'Уменьшить при необходимости',
         'fit_cover'      => 'Обрезать по размеру',
+        'playlist_updated'  => 'Плейлист успешно обновлен',
+        'song_count'        => 'Всего {count} песен',
+        'update_failed'     => 'Не удалось обновить плейлист',
         'selected_info' => 'Выбрано %d файлов, всего %s MB'
     ],
 
@@ -7783,6 +7860,9 @@ $langData = [
         'fit_none'       => 'الحجم الأصلي',
         'fit_scale-down' => 'تكييف ذكي',
         'fit_cover'      => 'اقتصاص افتراضي',
+        'playlist_updated'  => 'تم تحديث قائمة التشغيل بنجاح',
+        'song_count'        => 'المجموع {count} أغنية',
+        'update_failed'     => 'فشل في تحديث قائمة التشغيل',
         'selected_info' => 'تم اختيار %d ملفات (%s ميجابايت)'
     ],
 
@@ -8016,6 +8096,9 @@ $langData = [
         'fit_none'       => 'Tamaño original',
         'fit_scale-down' => 'Escalado inteligente',
         'fit_cover'      => 'Recorte predeterminado',
+        'playlist_updated'  => 'Lista de reproducción actualizada correctamente',
+        'song_count'        => 'Total de {count} canciones',
+        'update_failed'     => 'Error al actualizar la lista de reproducción',
         'selected_info' => 'Seleccionados %d archivos, en total %s MB'
     ],
 
@@ -8249,6 +8332,9 @@ $langData = [
         'fit_none'       => 'Originalgröße',
         'fit_scale-down' => 'Skalieren falls nötig',
         'fit_cover'      => 'Zuschneiden',
+        'playlist_updated'  => 'Playlist erfolgreich aktualisiert',
+        'song_count'        => 'Insgesamt {count} Lieder',
+        'update_failed'     => 'Playlist konnte nicht aktualisiert werden',
         'selected_info' => '%d Dateien ausgewählt, insgesamt %s MB'
     ],
 
@@ -8482,6 +8568,9 @@ $langData = [
         'fit_none'       => 'Taille d’origine',
         'fit_scale-down' => 'Réduction automatique',
         'fit_cover'      => 'Rogner',
+        'playlist_updated'  => 'Playlist mise à jour avec succès',
+        'song_count'        => 'Total de {count} chansons',
+        'update_failed'     => 'Échec de la mise à jour de la playlist',
         'selected_info' => '%d fichiers sélectionnés, total de %s Mo'
     ],
 
@@ -8728,6 +8817,9 @@ $langData = [
         'fit_none'       => 'Original size',
         'fit_scale-down' => 'Scale down',
         'fit_cover'      => 'Cover',
+        'playlist_updated'  => 'Playlist updated successfully',
+        'song_count'        => 'Total {count} songs',
+        'update_failed'     => 'Playlist update failed',
         'selected_info' => 'Selected %d files, total %s MB'
     ],
     'bn' => [
@@ -8960,6 +9052,9 @@ $langData = [
         'fit_none'       => 'মূল আকার',
         'fit_scale-down' => 'স্মার্ট মানানসই',
         'fit_cover'      => 'ক্রপ মোড',
+        'playlist_updated'  => 'প্লেলিস্ট সফলভাবে আপডেট হয়েছে',
+        'song_count'        => 'মোট {count} গান',
+        'update_failed'     => 'প্লেলিস্ট আপডেট ব্যর্থ হয়েছে',
         'selected_info' => '%d টি ফাইল নির্বাচিত, মোট %s MB'
     ]
 ];
