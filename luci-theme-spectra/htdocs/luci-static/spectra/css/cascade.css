@@ -1803,6 +1803,17 @@ small {
         display: none;
 }
 
+.app-container .app-info .app-f .app-tags .block[data-v-b72905ea] {
+        display: inline !important;
+        font-size: 12px !important;
+        line-height: 1 !important;
+        padding: 0 !important;
+        margin: 0 2px !important;
+        vertical-align: middle !important;
+        background: none !important;
+        background-color: transparent !important;
+}
+
 .cbi-section,
 h2[name="content"],
 ul.tabs li {
