@@ -1495,9 +1495,11 @@ body:hover,
             <label for="selectAll" class="form-check-label fs-5 ms-1" style="margin-right: 10px;" data-translate="select_all">Select All</label>
             <input type="color" id="colorPicker" style="margin-right: 10px;" value="#333333" data-translate-title="component_bg_color"/>
             <input type="color" id="bodyBgColorPicker" value="#f0ffff" style="margin-right: 10px;" data-translate-title="page_bg_color" />
+            <button class="btn btn-primary" id="advancedColorBtn" data-translate-title="advanced_color_settings"><i class="bi bi-palette"></i></button>
             <button class="btn btn-info ms-2" id="fontToggleBtn" data-translate-title="toggle_font"><i id="fontToggleIcon" class="fa-solid fa-font" style="color: white;"></i></button>
             <button class="btn btn-success ms-2 d-none d-sm-inline" id="toggleScreenBtn" data-translate-title="toggle_fullscreen"><i class="bi bi-arrows-fullscreen"></i></button>
             <button class="btn btn-warning ms-2 d-none d-sm-inline" id="weatherBtn" data-bs-toggle="modal" data-bs-target="#cityModal" data-translate-title="set_city"><i class="bi bi-geo-alt"></i></button>
+
         <div class="ms-auto" style="margin-right: 20px;">
             <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#langModal">
                 <img id="flagIcon" src="/luci-static/ipip/flags/<?php echo $currentLang; ?>.png" style="width:24px; height:16px">
@@ -2189,6 +2191,114 @@ opkg update && opkg install wget grep sed && LATEST_FILE=$(wget -qO- https://git
             </div>
         </div>
     </div>
+</div>
+
+<div class="modal fade" id="colorModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-xl modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" data-translate="advanced_color_control">Advanced Color Control</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <div class="row">
+          <div class="col-md-6">
+            <div class="card h-100">
+              <div class="card-header bg-primary text-white">
+                <i class="bi bi-sliders"></i> <span data-translate="color_control">Color Control</span>
+              </div>
+              <div class="card-body">
+                <div class="mb-3">
+                  <label class="form-label" data-translate="primary_hue">Primary Hue</label>
+                  <div class="d-flex align-items-center">
+                    <input type="range" class="form-range flex-grow-1" id="hueSlider" min="0" max="360" step="1">
+                    <span class="ms-2" style="min-width: 50px;" id="hueValue">0°</span>
+                  </div>
+                </div>
+                
+                <div class="mb-3">
+                  <label class="form-label" data-translate="chroma">Chroma</label>
+                  <div class="d-flex align-items-center">
+                    <input type="range" class="form-range flex-grow-1" id="chromaSlider" min="0" max="0.3" step="0.01">
+                    <span class="ms-2" style="min-width: 50px;" id="chromaValue">0.10</span>
+                  </div>
+                </div>
+                
+                <div class="mb-3">
+                  <label class="form-label" data-translate="lightness">Lightness</label>
+                  <div class="d-flex align-items-center">
+                    <input type="range" class="form-range flex-grow-1" id="lightnessSlider" min="0" max="100" step="1">
+                    <span class="ms-2" style="min-width: 50px;" id="lightnessValue">30%</span>
+                  </div>
+                </div>
+                
+                <div class="mb-3">
+                  <label class="form-label" data-translate="or_use_palette">Or use palette：</label>
+                  <div class="d-flex flex-wrap gap-2">
+                    <button class="btn btn-sm p-2" style="background-color:#4d79ff" data-h="240" data-c="0.2" data-l="30"></button>
+                    <button class="btn btn-sm p-2" style="background-color:#ff4d94" data-h="340" data-c="0.25" data-l="35"></button>
+                    <button class="btn btn-sm p-2" style="background-color:#4dff88" data-h="150" data-c="0.18" data-l="40"></button>
+                    <button class="btn btn-sm p-2" style="background-color:#ffb84d" data-h="40" data-c="0.22" data-l="45"></button>
+                    <button class="btn btn-sm p-2" style="background-color:#bf4dff" data-h="280" data-c="0.23" data-l="50"></button>
+                  </div>
+                </div>
+                
+                <div class="mt-3">
+                  <button class="btn btn-secondary w-100" id="resetColorBtn" data-translate="reset_to_default">
+                    <i class="bi bi-arrow-counterclockwise"></i> Reset to Default
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <div class="col-md-6">
+            <div class="card h-100">
+              <div class="card-header bg-info text-white">
+                <i class="bi bi-eye"></i> <span data-translate="preview_and_contrast">Preview & Contrast</span>
+              </div>
+              <div class="card-body">
+                <div class="mb-3">
+                  <label class="form-label" data-translate="color_preview">Color Preview</label>
+                  <div id="colorPreview" style="height: 80px; border: 1px solid #ddd; border-radius: 4px;"></div>
+                </div>
+                
+                <div class="mb-3">
+                  <label class="form-label" data-translate="readability_check">Readability Check</label>
+                  <div class="bg-light p-2 rounded">
+                    <div class="d-flex justify-content-between">
+                      <span data-translate="contrast_between_text_and_bg" style="color: #000;">Contrast between text and background：</span>
+                      <strong id="contrastRatio" style="color: #000;">4.5:1</strong>
+                    </div>
+                    <div class="mt-1" id="contrastRating">Good (AA)</div>
+                  </div>
+                </div>
+                
+                <div class="mb-3">
+                  <label class="form-label" data-translate="hue_adjustment">Hue Adjustment</label>
+                  <div class="d-flex justify-content-between">
+                    <button class="btn btn-outline-primary" id="hueMinus5">-5°</button>
+                    <button class="btn btn-outline-primary" id="hueMinus1">-1°</button>
+                    <button class="btn btn-outline-primary" id="huePlus1">+1°</button>
+                    <button class="btn btn-outline-primary" id="huePlus5">+5°</button>
+                  </div>
+                </div>
+                
+                <div class="mb-3">
+                  <label class="form-label" data-translate="recent_colors">Recently Used Colors：</label>
+                  <div class="d-flex flex-wrap gap-2" id="recentColors"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" data-translate="cancel">Cancel</button>
+        <button type="button" class="btn btn-primary" id="applyColorBtn" data-translate="apply">Apply</button>
+      </div>
+    </div>
+  </div>
 </div>
 
 <script>
@@ -6143,6 +6253,24 @@ $langData = [
         'playlist_updated'  => '播放列表已更新',
         'song_count'        => '共 {count} 首歌曲',
         'update_failed'     => '播放列表更新失败',
+        'advanced_color_settings' => '高级颜色设置',
+        'advanced_color_control' => '高级颜色控制',
+        'color_control' => '颜色控制',
+        'primary_hue' => '主色调',
+        'chroma' => '饱和度',
+        'lightness' => '亮度',
+        'or_use_palette' => '或使用调色板',
+        'reset_to_default' => '重置为默认',
+        'preview_and_contrast' => '预览与对比度',
+        'color_preview' => '颜色预览',
+        'readability_check' => '可读性检查',
+        'contrast_between_text_and_bg' => '文本与背景的对比度：',
+        'hue_adjustment' => '色相调整',
+        'recent_colors' => '最近使用的颜色',
+        'apply' => '应用',
+        'excellent_aaa' => '优秀 (AAA)',
+        'good_aa' => '良好 (AA)',
+        'poor_needs_improvement' => '不足 (需要改进)',
         'selected_info' => '已选择 %d 个文件，合计 %s MB'
     ],
 
@@ -6395,6 +6523,24 @@ $langData = [
         'playlist_updated'  => '播放清單已更新',
         'song_count'        => '共 {count} 首歌曲',
         'update_failed'     => '播放清單更新失敗',
+        'advanced_color_settings' => '高級顏色設定',
+        'advanced_color_control' => '高級顏色控制',
+        'color_control' => '顏色控制',
+        'primary_hue' => '主色調',
+        'chroma' => '飽和度',
+        'lightness' => '亮度',
+        'or_use_palette' => '或使用調色盤',
+        'reset_to_default' => '重設為預設',
+        'preview_and_contrast' => '預覽與對比度',
+        'color_preview' => '顏色預覽',
+        'readability_check' => '可讀性檢查',
+        'contrast_between_text_and_bg' => '文字與背景的對比度：',
+        'hue_adjustment' => '色相調整',
+        'recent_colors' => '最近使用的顏色',
+        'apply' => '套用',
+        'excellent_aaa' => '優秀 (AAA)',
+        'good_aa' => '良好 (AA)',
+        'poor_needs_improvement' => '不足 (需要改進)',
         'selected_info' => '已選擇 %d 個文件，合計 %s MB'
     ],
 
@@ -6647,6 +6793,24 @@ $langData = [
         'playlist_updated'  => '재생 목록이 업데이트되었습니다',
         'song_count'        => '총 {count}곡',
         'update_failed'     => '재생 목록 업데이트 실패',
+        'advanced_color_settings' => '고급 색상 설정',
+        'advanced_color_control' => '고급 색상 조절',
+        'color_control' => '색상 조절',
+        'primary_hue' => '기본 색조',
+        'chroma' => '채도',
+        'lightness' => '명도',
+        'or_use_palette' => '또는 팔레트 사용',
+        'reset_to_default' => '기본값으로 재설정',
+        'preview_and_contrast' => '미리보기 및 대비',
+        'color_preview' => '색상 미리보기',
+        'readability_check' => '가독성 확인',
+        'contrast_between_text_and_bg' => '텍스트와 배경의 대비:',
+        'hue_adjustment' => '색조 조정',
+        'recent_colors' => '최근 사용한 색상',
+        'apply' => '적용',
+        'excellent_aaa' => '우수 (AAA)',
+        'good_aa' => '양호 (AA)',
+        'poor_needs_improvement' => '미흡 (개선 필요)',
         'selected_info' => '선택된 파일: %d개, 총합: %s MB'
     ],
 
@@ -6897,6 +7061,24 @@ $langData = [
         'current_fit_mode'    => '現在のモード',
         'playlist_updated'  => 'プレイリストが更新されました',
         'song_count'        => '合計 {count} 曲',
+        'advanced_color_settings' => '高度なカラー設定',
+        'advanced_color_control' => '高度なカラーコントロール',
+        'color_control' => 'カラーコントロール',
+        'primary_hue' => '基本色相',
+        'chroma' => '彩度',
+        'lightness' => '明度',
+        'or_use_palette' => 'またはパレットを使用',
+        'reset_to_default' => 'デフォルトにリセット',
+        'preview_and_contrast' => 'プレビューとコントラスト',
+        'color_preview' => 'カラー プレビュー',
+        'readability_check' => '可読性チェック',
+        'contrast_between_text_and_bg' => 'テキストと背景のコントラスト：',
+        'hue_adjustment' => '色相調整',
+        'recent_colors' => '最近使用した色',
+        'apply' => '適用',
+        'excellent_aaa' => '優秀 (AAA)',
+        'good_aa' => '良好 (AA)',
+        'poor_needs_improvement' => '不十分 (改善が必要)',
         'update_failed'     => 'プレイリストの更新に失敗しました',
         'selected_info' => '%dファイル選択（%s MB）'
     ],
@@ -7148,6 +7330,24 @@ $langData = [
         'fit_cover'      => 'Cắt vừa',
         'playlist_updated'  => 'Danh sách phát đã được cập nhật',
         'song_count'        => 'Tổng cộng {count} bài hát',
+        'advanced_color_settings' => 'Cài đặt màu nâng cao',
+        'advanced_color_control' => 'Điều khiển màu nâng cao',
+        'color_control' => 'Điều khiển màu',
+        'primary_hue' => 'Tông màu chính',
+        'chroma' => 'Độ bão hòa',
+        'lightness' => 'Độ sáng',
+        'or_use_palette' => 'hoặc sử dụng bảng màu',
+        'reset_to_default' => 'Đặt lại về mặc định',
+        'preview_and_contrast' => 'Xem trước và độ tương phản',
+        'color_preview' => 'Xem trước màu',
+        'readability_check' => 'Kiểm tra khả năng đọc',
+        'contrast_between_text_and_bg' => 'Độ tương phản giữa chữ và nền:',
+        'hue_adjustment' => 'Điều chỉnh tông màu',
+        'recent_colors' => 'Màu đã dùng gần đây',
+        'apply' => 'Áp dụng',
+        'excellent_aaa' => 'Xuất sắc (AAA)',
+        'good_aa' => 'Tốt (AA)',
+        'poor_needs_improvement' => 'Kém (Cần cải thiện)',
         'update_failed'     => 'Cập nhật danh sách phát thất bại',
         'selected_info' => 'Đã chọn %d tệp (%s MB)'
     ],
@@ -7384,6 +7584,24 @@ $langData = [
         'playlist_updated'  => 'อัปเดตรายการเล่นเรียบร้อยแล้ว',
         'song_count'        => 'ทั้งหมด {count} เพลง',
         'update_failed'     => 'อัปเดตรายการเล่นล้มเหลว',
+        'advanced_color_settings' => 'การตั้งค่าสีขั้นสูง',
+        'advanced_color_control' => 'การควบคุมสีขั้นสูง',
+        'color_control' => 'การควบคุมสี',
+        'primary_hue' => 'สีหลัก',
+        'chroma' => 'ความอิ่มตัว',
+        'lightness' => 'ความสว่าง',
+        'or_use_palette' => 'หรือใช้จานสี',
+        'reset_to_default' => 'รีเซ็ตเป็นค่าเริ่มต้น',
+        'preview_and_contrast' => 'ดูตัวอย่างและความเปรียบต่าง',
+        'color_preview' => 'ดูตัวอย่างสี',
+        'readability_check' => 'ตรวจสอบความสามารถในการอ่าน',
+        'contrast_between_text_and_bg' => 'ความเปรียบต่างระหว่างข้อความกับพื้นหลัง:',
+        'hue_adjustment' => 'การปรับสี',
+        'recent_colors' => 'สีที่ใช้ล่าสุด',
+        'apply' => 'นำไปใช้',
+        'excellent_aaa' => 'ยอดเยี่ยม (AAA)',
+        'good_aa' => 'ดี (AA)',
+        'poor_needs_improvement' => 'ต่ำ (ต้องปรับปรุง)',
         'selected_info' => 'เลือกไฟล์แล้ว %d ไฟล์ รวมทั้งหมด %s MB'
     ],
 
@@ -7621,6 +7839,24 @@ $langData = [
         'playlist_updated'  => 'Плейлист успешно обновлен',
         'song_count'        => 'Всего {count} песен',
         'update_failed'     => 'Не удалось обновить плейлист',
+        'advanced_color_settings' => 'Расширенные настройки цвета',
+        'advanced_color_control' => 'Расширенное управление цветом',
+        'color_control' => 'Управление цветом',
+        'primary_hue' => 'Основной оттенок',
+        'chroma' => 'Насыщенность',
+        'lightness' => 'Яркость',
+        'or_use_palette' => 'или используйте палитру',
+        'reset_to_default' => 'Сбросить по умолчанию',
+        'preview_and_contrast' => 'Предпросмотр и контраст',
+        'color_preview' => 'Предпросмотр цвета',
+        'readability_check' => 'Проверка читаемости',
+        'contrast_between_text_and_bg' => 'Контраст текста и фона:',
+        'hue_adjustment' => 'Настройка оттенка',
+        'recent_colors' => 'Недавние цвета',
+        'apply' => 'Применить',
+        'excellent_aaa' => 'Отлично (AAA)',
+        'good_aa' => 'Хорошо (AA)',
+        'poor_needs_improvement' => 'Низкий (нуждается в улучшении)',
         'selected_info' => 'Выбрано %d файлов, всего %s MB'
     ],
 
@@ -7863,6 +8099,24 @@ $langData = [
         'playlist_updated'  => 'تم تحديث قائمة التشغيل بنجاح',
         'song_count'        => 'المجموع {count} أغنية',
         'update_failed'     => 'فشل في تحديث قائمة التشغيل',
+        'advanced_color_settings' => 'إعدادات الألوان المتقدمة',
+        'advanced_color_control' => 'تحكم الألوان المتقدم',
+        'color_control' => 'تحكم الألوان',
+        'primary_hue' => 'درجة اللون الأساسية',
+        'chroma' => 'التشبع',
+        'lightness' => 'السطوع',
+        'or_use_palette' => 'أو استخدام لوحة الألوان',
+        'reset_to_default' => 'إعادة التعيين للوضع الافتراضي',
+        'preview_and_contrast' => 'المعاينة والتباين',
+        'color_preview' => 'معاينة اللون',
+        'readability_check' => 'فحص قابلية القراءة',
+        'contrast_between_text_and_bg' => 'التباين بين النص والخلفية:',
+        'hue_adjustment' => 'ضبط درجة اللون',
+        'recent_colors' => 'الألوان المستخدمة مؤخراً',
+        'apply' => 'تطبيق',
+        'excellent_aaa' => 'ممتاز (AAA)',
+        'good_aa' => 'جيد (AA)',
+        'poor_needs_improvement' => 'ضعيف (بحاجة إلى تحسين)',
         'selected_info' => 'تم اختيار %d ملفات (%s ميجابايت)'
     ],
 
@@ -8099,6 +8353,24 @@ $langData = [
         'playlist_updated'  => 'Lista de reproducción actualizada correctamente',
         'song_count'        => 'Total de {count} canciones',
         'update_failed'     => 'Error al actualizar la lista de reproducción',
+        'advanced_color_settings' => 'Configuración avanzada de color',
+        'advanced_color_control' => 'Control avanzado de color',
+        'color_control' => 'Control de color',
+        'primary_hue' => 'Tono principal',
+        'chroma' => 'Croma',
+        'lightness' => 'Luminosidad',
+        'or_use_palette' => 'o usar paleta',
+        'reset_to_default' => 'Restablecer por defecto',
+        'preview_and_contrast' => 'Vista previa y contraste',
+        'color_preview' => 'Vista previa del color',
+        'readability_check' => 'Comprobación de legibilidad',
+        'contrast_between_text_and_bg' => 'Contraste entre texto y fondo:',
+        'hue_adjustment' => 'Ajuste de tono',
+        'recent_colors' => 'Colores recientes',
+        'apply' => 'Aplicar',
+        'excellent_aaa' => 'Excelente (AAA)',
+        'good_aa' => 'Bueno (AA)',
+        'poor_needs_improvement' => 'Pobre (Necesita mejora)',
         'selected_info' => 'Seleccionados %d archivos, en total %s MB'
     ],
 
@@ -8335,6 +8607,24 @@ $langData = [
         'playlist_updated'  => 'Playlist erfolgreich aktualisiert',
         'song_count'        => 'Insgesamt {count} Lieder',
         'update_failed'     => 'Playlist konnte nicht aktualisiert werden',
+        'advanced_color_settings' => 'Erweiterte Farbeinstellungen',
+        'advanced_color_control' => 'Erweiterte Farbsteuerung',
+        'color_control' => 'Farbsteuerung',
+        'primary_hue' => 'Primärer Farbton',
+        'chroma' => 'Sättigung',
+        'lightness' => 'Helligkeit',
+        'or_use_palette' => 'oder Palette verwenden',
+        'reset_to_default' => 'Auf Standard zurücksetzen',
+        'preview_and_contrast' => 'Vorschau und Kontrast',
+        'color_preview' => 'Farbvorschau',
+        'readability_check' => 'Lesbarkeitsprüfung',
+        'contrast_between_text_and_bg' => 'Kontrast zwischen Text und Hintergrund:',
+        'hue_adjustment' => 'Farbtonanpassung',
+        'recent_colors' => 'Kürzlich verwendete Farben',
+        'apply' => 'Anwenden',
+        'excellent_aaa' => 'Ausgezeichnet (AAA)',
+        'good_aa' => 'Gut (AA)',
+        'poor_needs_improvement' => 'Schlecht (Verbesserung nötig)',
         'selected_info' => '%d Dateien ausgewählt, insgesamt %s MB'
     ],
 
@@ -8571,6 +8861,24 @@ $langData = [
         'playlist_updated'  => 'Playlist mise à jour avec succès',
         'song_count'        => 'Total de {count} chansons',
         'update_failed'     => 'Échec de la mise à jour de la playlist',
+        'advanced_color_settings' => 'Paramètres avancés des couleurs',
+        'advanced_color_control' => 'Contrôle avancé des couleurs',
+        'color_control' => 'Contrôle des couleurs',
+        'primary_hue' => 'Teinte principale',
+        'chroma' => 'Chroma',
+        'lightness' => 'Luminosité',
+        'or_use_palette' => 'ou utiliser une palette ',
+        'reset_to_default' => 'Réinitialiser par défaut',
+        'preview_and_contrast' => 'Aperçu et contraste',
+        'color_preview' => 'Aperçu des couleurs',
+        'readability_check' => 'Vérification de lisibilité',
+        'contrast_between_text_and_bg' => 'Contraste entre texte et fond :',
+        'hue_adjustment' => 'Ajustement de la teinte',
+        'recent_colors' => 'Couleurs récentes ',
+        'apply' => 'Appliquer',
+        'excellent_aaa' => 'Excellent (AAA)',
+        'good_aa' => 'Bon (AA)',
+        'poor_needs_improvement' => 'Insuffisant (À améliorer)',
         'selected_info' => '%d fichiers sélectionnés, total de %s Mo'
     ],
 
@@ -8820,6 +9128,24 @@ $langData = [
         'playlist_updated'  => 'Playlist updated successfully',
         'song_count'        => 'Total {count} songs',
         'update_failed'     => 'Playlist update failed',
+        'advanced_color_settings' => 'Advanced Color Settings',
+        'advanced_color_control' => 'Advanced Color Control',
+        'color_control' => 'Color Control',
+        'primary_hue' => 'Primary Hue',
+        'chroma' => 'Chroma',
+        'lightness' => 'Lightness',
+        'or_use_palette' => 'or use palette',
+        'reset_to_default' => 'Reset to Default',
+        'preview_and_contrast' => 'Preview and Contrast',
+        'color_preview' => 'Color Preview',
+        'readability_check' => 'Readability Check',
+        'contrast_between_text_and_bg' => 'Contrast between text and background:',
+        'hue_adjustment' => 'Hue Adjustment',
+        'recent_colors' => 'Recent Colors',
+        'apply' => 'Apply',
+        'excellent_aaa' => 'Excellent (AAA)',
+        'good_aa' => 'Good (AA)',
+        'poor_needs_improvement' => 'Poor (Needs Improvement)',
         'selected_info' => 'Selected %d files, total %s MB'
     ],
     'bn' => [
@@ -9055,6 +9381,24 @@ $langData = [
         'playlist_updated'  => 'প্লেলিস্ট সফলভাবে আপডেট হয়েছে',
         'song_count'        => 'মোট {count} গান',
         'update_failed'     => 'প্লেলিস্ট আপডেট ব্যর্থ হয়েছে',
+        'advanced_color_settings' => 'উন্নত রঙ সেটিংস',
+        'advanced_color_control' => 'উন্নত রঙ নিয়ন্ত্রণ',
+        'color_control' => 'রঙ নিয়ন্ত্রণ',
+        'primary_hue' => 'প্রাথমিক রঙ',
+        'chroma' => 'সত্যতা',
+        'lightness' => 'উজ্জ্বলতা',
+        'or_use_palette' => 'অথবা প্যালেট ব্যবহার করুন',
+        'reset_to_default' => 'ডিফল্টে রিসেট করুন',
+        'preview_and_contrast' => 'পূর্বদর্শন এবং কনট্রাস্ট',
+        'color_preview' => 'রঙের পূর্বরূপ',
+        'readability_check' => 'পাঠযোগ্যতা পরীক্ষা',
+        'contrast_between_text_and_bg' => 'পাঠ্য এবং পটভূমির মধ্যে কনট্রাস্ট:',
+        'hue_adjustment' => 'রঙ সামঞ্জস্য',
+        'recent_colors' => 'সাম্প্রতিক রঙ',
+        'apply' => 'প্রয়োগ করুন',
+        'excellent_aaa' => 'চমৎকার (AAA)',
+        'good_aa' => 'ভাল (AA)',
+        'poor_needs_improvement' => 'খারাপ (উন্নতি প্রয়োজন)',
         'selected_info' => '%d টি ফাইল নির্বাচিত, মোট %s MB'
     ]
 ];
@@ -9916,4 +10260,208 @@ async function showIpDetailModal() {
     isDragging = false;
   });
 })();
+</script>
+
+<script>
+  document.addEventListener("DOMContentLoaded", () => {   
+    const colorModal = new bootstrap.Modal(document.getElementById('colorModal'));
+    let currentHue, currentChroma, currentLightness;
+    let recentColors = [];
+    
+    document.getElementById('advancedColorBtn').addEventListener('click', () => {
+      const theme = document.documentElement.getAttribute("data-theme") || "dark";
+      currentLightness = theme === "dark" ? 30 : 80;
+      currentHue = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--base-hue'));
+      currentChroma = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--base-chroma'));
+      
+      document.getElementById('hueSlider').value = currentHue;
+      document.getElementById('chromaSlider').value = currentChroma;
+      document.getElementById('lightnessSlider').value = currentLightness;
+      document.getElementById('hueValue').textContent = Math.round(currentHue) + '°';
+      document.getElementById('chromaValue').textContent = currentChroma.toFixed(2);
+      document.getElementById('lightnessValue').textContent = currentLightness + '%';
+      
+      updateColorPreview();
+      
+      colorModal.show();
+    });
+    
+    document.getElementById('hueSlider').addEventListener('input', function() {
+      currentHue = parseFloat(this.value);
+      document.getElementById('hueValue').textContent = Math.round(currentHue) + '°';
+      updateColorPreview();
+    });
+    
+    document.getElementById('chromaSlider').addEventListener('input', function() {
+      currentChroma = parseFloat(this.value);
+      document.getElementById('chromaValue').textContent = currentChroma.toFixed(2);
+      updateColorPreview();
+    });
+    
+    document.getElementById('lightnessSlider').addEventListener('input', function() {
+      currentLightness = parseFloat(this.value);
+      document.getElementById('lightnessValue').textContent = currentLightness + '%';
+      updateColorPreview();
+    });
+    
+    document.getElementById('hueMinus5').addEventListener('click', () => adjustHue(-5));
+    document.getElementById('hueMinus1').addEventListener('click', () => adjustHue(-1));
+    document.getElementById('huePlus1').addEventListener('click', () => adjustHue(1));
+    document.getElementById('huePlus5').addEventListener('click', () => adjustHue(5));
+    
+    document.querySelectorAll('[data-h]').forEach(button => {
+      button.addEventListener('click', function() {
+        currentHue = parseFloat(this.dataset.h);
+        currentChroma = parseFloat(this.dataset.c);
+        currentLightness = parseFloat(this.dataset.l);
+        
+        document.getElementById('hueSlider').value = currentHue;
+        document.getElementById('chromaSlider').value = currentChroma;
+        document.getElementById('lightnessSlider').value = currentLightness;
+        document.getElementById('hueValue').textContent = Math.round(currentHue) + '°';
+        document.getElementById('chromaValue').textContent = currentChroma.toFixed(2);
+        document.getElementById('lightnessValue').textContent = currentLightness + '%';
+        
+        addToRecentColors(oklchToHex(currentHue, currentChroma, currentLightness));
+        updateColorPreview();
+      });
+    });
+    
+    document.getElementById('applyColorBtn').addEventListener('click', function() {
+      document.documentElement.style.setProperty('--base-hue', currentHue);
+      document.documentElement.style.setProperty('--base-chroma', currentChroma);
+      document.getElementById('colorPicker').value = oklchToHex(currentHue, currentChroma, currentLightness);
+      
+      const theme = document.documentElement.getAttribute("data-theme") || "dark";
+      localStorage.setItem(`${theme}BaseHue`, currentHue);
+      localStorage.setItem(`${theme}BaseChroma`, currentChroma);
+      
+      updateTextPrimary(currentLightness);
+      
+      colorModal.hide();
+    });
+    
+    document.getElementById('resetColorBtn').addEventListener('click', function() {
+      const theme = document.documentElement.getAttribute("data-theme") || "dark";
+      const defaultHue = theme === "dark" ? 260 : 200;
+      const defaultChroma = theme === "dark" ? 0.10 : 0.05;
+      const defaultLightness = theme === "dark" ? 30 : 80;
+      
+      document.getElementById('hueSlider').value = defaultHue;
+      document.getElementById('chromaSlider').value = defaultChroma;
+      document.getElementById('lightnessSlider').value = defaultLightness;
+      document.getElementById('hueValue').textContent = defaultHue + '°';
+      document.getElementById('chromaValue').textContent = defaultChroma.toFixed(2);
+      document.getElementById('lightnessValue').textContent = defaultLightness + '%';
+      
+      currentHue = defaultHue;
+      currentChroma = defaultChroma;
+      currentLightness = defaultLightness;
+      
+      updateColorPreview();
+    });
+    
+    function updateColorPreview() {
+      const hexColor = oklchToHex(currentHue, currentChroma, currentLightness);
+      document.getElementById('colorPreview').style.backgroundColor = hexColor;
+      
+      const contrastRatio = calculateContrast(hexColor);
+      document.getElementById('contrastRatio').textContent = contrastRatio;
+      
+      updateContrastRating(parseFloat(contrastRatio));
+    }
+    
+    function calculateContrast(hexColor) {
+      const rgb = hexToRgb(hexColor);
+      const luminance = (0.2126 * rgb.r + 0.7152 * rgb.g + 0.0722 * rgb.b) / 255;
+      const textLuminance = luminance > 0.5 ? 0 : 1;
+      const contrast = (Math.max(luminance, textLuminance) + 0.05) / (Math.min(luminance, textLuminance) + 0.05);
+      return contrast.toFixed(2) + ":1";
+    }
+    
+    function updateContrastRating(contrast) {
+        const container = document.getElementById('contrastRating');
+
+        if (contrast >= 7) {
+            container.className = "mt-1 text-success fw-bold";
+            container.innerHTML = `${translations['excellent_aaa'] || 'Excellent (AAA)'}`;
+        } else if (contrast >= 4.5) {
+            container.className = "mt-1 text-primary fw-bold";
+            container.innerHTML = `${translations['good_aa'] || 'Good (AA)'}`;
+        } else {
+            container.className = "mt-1 text-danger fw-bold";
+            container.innerHTML = `${translations['poor_needs_improvement'] || 'Needs Improvement'}`;
+      }
+    }
+    
+    function adjustHue(amount) {
+      currentHue = (currentHue + amount + 360) % 360;
+      document.getElementById('hueSlider').value = currentHue;
+      document.getElementById('hueValue').textContent = Math.round(currentHue) + '°';
+      updateColorPreview();
+    }
+    
+    function addToRecentColors(color) {
+      recentColors = recentColors.filter(c => c !== color);
+      
+      recentColors.unshift(color);
+      
+      if (recentColors.length > 6) {
+        recentColors.pop();
+      }
+      
+      updateRecentColors();
+      
+      localStorage.setItem('recentColors', JSON.stringify(recentColors));
+    }
+    
+    function updateRecentColors() {
+      const container = document.getElementById('recentColors');
+      container.innerHTML = '';
+      
+      recentColors.forEach(color => {
+        const swatch = document.createElement('button');
+        swatch.className = 'btn btn-sm p-2';
+        swatch.style.backgroundColor = color;
+        swatch.style.width = '30px';
+        swatch.style.height = '30px';
+        swatch.title = color;
+        swatch.addEventListener('click', function() {
+          const { h, c } = hexToOklch(color);
+          const theme = document.documentElement.getAttribute("data-theme") || "dark";
+          const l = theme === "dark" ? 30 : 80;
+          
+          document.getElementById('hueSlider').value = h;
+          document.getElementById('chromaSlider').value = c;
+          document.getElementById('lightnessSlider').value = l;
+          
+          document.getElementById('hueValue').textContent = Math.round(h) + '°';
+          document.getElementById('chromaValue').textContent = c.toFixed(2);
+          document.getElementById('lightnessValue').textContent = l + '%';
+          
+          currentHue = h;
+          currentChroma = c;
+          currentLightness = l;
+          
+          updateColorPreview();
+        });
+        container.appendChild(swatch);
+      });
+    }
+    
+    function initRecentColors() {
+      const savedColors = localStorage.getItem('recentColors');
+      if (savedColors) {
+        recentColors = JSON.parse(savedColors);
+      } else {
+        recentColors = [
+          '#4d79ff', '#ff4d94', '#4dff88', 
+          '#ffb84d', '#bf4dff', '#4dc2ff'
+        ];
+      }
+      updateRecentColors();
+    }
+    
+    initRecentColors();
+  });
 </script>
