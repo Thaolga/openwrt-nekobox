@@ -10271,7 +10271,7 @@ async function showIpDetailModal() {
     
     document.getElementById('advancedColorBtn').addEventListener('click', () => {
       const theme = document.documentElement.getAttribute("data-theme") || "dark";
-      currentLightness = theme === "dark" ? 30 : 80;
+      currentLightness = parseFloat(localStorage.getItem(`${theme}BaseLightness`)) || (theme === "dark" ? 30 : 80);
       currentHue = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--base-hue'));
       currentChroma = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--base-chroma'));
       
@@ -10336,7 +10336,8 @@ async function showIpDetailModal() {
       const theme = document.documentElement.getAttribute("data-theme") || "dark";
       localStorage.setItem(`${theme}BaseHue`, currentHue);
       localStorage.setItem(`${theme}BaseChroma`, currentChroma);
-      
+      localStorage.setItem(`${theme}BaseLightness`, currentLightness);
+
       updateTextPrimary(currentLightness);
       
       colorModal.hide();
