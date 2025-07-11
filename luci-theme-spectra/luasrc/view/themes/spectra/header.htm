@@ -59,58 +59,6 @@
 
 <head>
 <style>
-body,
-        body *:not(script):not(style):not(link) {
-	font-family: system-ui,
-            -apple-system,               
-            "Segoe UI Variable",            
-            "Microsoft YaHei UI",         
-            "HarmonyOS Sans SC",         
-            "PingFang SC", 
-            "Noto Sans CJK SC",
-            "Source Han Sans SC",
-            sans-serif !important;
-	font-synthesis: none !important;
-}
-
-@font-face {
-	font-family: "Fallback Sans";
-          src: local("Arial"), local("Liberation Sans");
-          ascent-override: 95%;
-          descent-override: 20%;
-          line-gap-override: 0;
-}
-
-body {
-	font-family: var(--system-font-stack), 
-            "Fallback Sans" !important;
-	-webkit-font-smoothing: auto !important;
-	font-smooth: never !important;
-}
-
-:lang(zh) {
-	hanging-punctuation: first allow-end !important;
-}
-
-h2:not(.keep-default) {
-	font-family: ui-sans-serif,     
-            "HarmonyOS Sans SC Bold",
-            "Microsoft YaHei Bold",
-            sans-serif !important;
-	font-size: 1.8em !important;
-	font-weight: bolder !important;
-}
-
-h3:not(.keep-default) {
-	font-family: ui-sans-serif,
-            "HarmonyOS Sans SC Medium",
-            "Microsoft YaHei",
-            sans-serif !important;
-	font-size: 1.2em !important;
-	font-weight: normal !important;
-	font-style: oblique 8deg !important;
-}
-
 header {
 	background-color: transparent;
 	color: #fff;
@@ -166,10 +114,10 @@ header {
 
 @font-face {
 	font-display: swap; 
-  font-family: 'Fredoka One';
-  font-style: normal;
-  font-weight: 700;
-  src: url('/luci-static/spectra/fonts/fredoka-v16-latin-700.woff2') format('woff2');
+        font-family: 'Fredoka One';
+        font-style: normal;
+        font-weight: 700;
+        src: url('/luci-static/spectra/fonts/fredoka-v16-latin-700.woff2') format('woff2');
 }
 
 @keyframes textColorChange {
@@ -738,6 +686,50 @@ window.addEventListener('load', () => {
             });
     });
 });
+</script>
+
+<script>
+(function(){
+    function isDarkMode() {
+        const bg = getComputedStyle(document.body).backgroundColor;
+        const match = bg.match(/rgba?\((\d+), (\d+), (\d+)(?:, ([\d.]+))?\)/);
+        if (!match) return false;
+        const r = parseInt(match[1], 10);
+        const g = parseInt(match[2], 10);
+        const b = parseInt(match[3], 10);
+        const brightness = (r + g + b) / 3;
+        return brightness < 128;
+    }
+
+    function isTransparent(color) {
+        if (color === 'transparent') return true;
+        const match = color.match(/rgba?\((\d+), (\d+), (\d+)(?:, ([\d.]+))?\)/);
+        if (match && match[4]) {
+            const alpha = parseFloat(match[4]);
+            return alpha < 0.2;
+        }
+        return false;
+    }
+
+    function updateHeaderBackground() {
+        const headerFill = document.querySelector('header > div.fill');
+        if (!headerFill) return;
+        const currentBg = getComputedStyle(headerFill).backgroundColor;
+
+        if (isDarkMode()) {
+            if (isTransparent(currentBg)) {
+                headerFill.style.backgroundColor = 'transparent';
+            } else {
+                headerFill.style.backgroundColor = '#111111';
+            }
+        } else {
+            headerFill.style.backgroundColor = '#ffffff';
+        }
+    }
+
+    updateHeaderBackground();
+    setTimeout(updateHeaderBackground, 800);
+})();
 </script>
 
 <script>

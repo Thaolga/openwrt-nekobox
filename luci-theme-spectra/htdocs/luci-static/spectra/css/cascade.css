@@ -26,6 +26,7 @@ body {
 	background-attachment: fixed;
         overflow: hidden !important;
 }
+
 main {
 	display: block
 }
@@ -1780,19 +1781,6 @@ small {
 	height: 100%;
 	display: flex;
 	flex-direction: row
-        overflow-y: auto !important;
-        scrollbar-width: none !important;         
-        -ms-overflow-style: none !important;    
-}
-
-.main {
-	position: relative;
-	top: 0;
-	bottom: 0;
-	overflow-y: auto;
-	height: 100%;
-	display: flex;
-	flex-direction: row
 }
 
 .main-left {
@@ -1800,10 +1788,26 @@ small {
 	width: 15rem;
 	height: 100%;
 	background-color: var(--menu-bg-color);
-	box-shadow: rgba(0, 0, 0, 0.75) 0 0 15px -5px;
+	box-shadow: rgba(0,0,0,0.75) 0 0 15px -5px;
 	overflow-x: auto;
-	z-index: 100;
-	margin: 0;
+	z-index: 100
+}
+
+#maincontent, .main-right {
+        scrollbar-width: none;
+        -ms-overflow-style: none;
+}
+
+#maincontent::-webkit-scrollbar,
+.main-right::-webkit-scrollbar {
+        display: none;
+}
+
+.cbi-section,
+h2[name="content"],
+ul.tabs li {
+        border-radius: 12px !important;
+        overflow: hidden !important;
 }
 
 .main-left .sidenav-header {
@@ -1908,9 +1912,9 @@ header {
 }
 
 header.bg-primary {
-	background-color: #5e72e4 !important;
+
+}	background-color: #5e72e4 !important;
 	background-color: var(--primary) !important
-}
 
 header::after {
 	content: "";
@@ -1923,7 +1927,7 @@ header::after {
 
 header .fill {
 	padding: .8rem 0;
-	border-bottom: 0 solid rgba(255,255,255,0.08) !important;
+
 	display: flex
 }
 
