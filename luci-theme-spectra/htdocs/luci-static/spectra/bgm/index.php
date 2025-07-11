@@ -2260,7 +2260,8 @@ opkg update && opkg install wget grep sed && LATEST_FILE=$(wget -qO- https://git
               <div class="card-body">
                 <div class="mb-3">
                   <label class="form-label" data-translate="color_preview">Color Preview</label>
-                  <div id="colorPreview" style="height: 80px; border: 1px solid #ddd; border-radius: 4px;"></div>
+                  <div id="colorPreview" class="d-flex justify-content-center align-items-center text-center" style="height: 80px; border: 1px solid #ddd; border-radius: 4px;">
+                  <span id="oklchValue" class="small text-white">(OKLCH)</span>
                 </div>
                 
                 <div class="mb-3">
@@ -10369,7 +10370,9 @@ async function showIpDetailModal() {
       document.getElementById('contrastRatio').textContent = contrastRatio;
       
       updateContrastRating(parseFloat(contrastRatio));
-    }
+      document.getElementById('oklchValue').textContent = 
+        `OKLCH(${currentLightness.toFixed(0)}%, ${currentChroma.toFixed(2)}, ${Math.round(currentHue)}°)`;
+ }
     
     function calculateContrast(hexColor) {
       const rgb = hexToRgb(hexColor);
@@ -10381,19 +10384,23 @@ async function showIpDetailModal() {
     
     function updateContrastRating(contrast) {
         const container = document.getElementById('contrastRating');
+        let icon = '';
 
         if (contrast >= 7) {
+            icon = '<i class="bi bi-check-circle-fill"></i> ';
             container.className = "mt-1 text-success fw-bold";
-            container.innerHTML = `${translations['excellent_aaa'] || 'Excellent (AAA)'}`;
+            container.innerHTML = `${icon}${translations['excellent_aaa'] || 'Excellent (AAA)'}`;
         } else if (contrast >= 4.5) {
+            icon = '<i class="bi bi-check-circle"></i> ';
             container.className = "mt-1 text-primary fw-bold";
-            container.innerHTML = `${translations['good_aa'] || 'Good (AA)'}`;
+            container.innerHTML = `${icon}${translations['good_aa'] || 'Good (AA)'}`;
         } else {
+            icon = '<i class="bi bi-exclamation-triangle-fill"></i> ';
             container.className = "mt-1 text-danger fw-bold";
-            container.innerHTML = `${translations['poor_needs_improvement'] || 'Needs Improvement'}`;
-      }
+            container.innerHTML = `${icon}${translations['poor_needs_improvement'] || 'Needs Improvement'}`;
+        }
     }
-    
+  
     function adjustHue(amount) {
       currentHue = (currentHue + amount + 360) % 360;
       document.getElementById('hueSlider').value = currentHue;
