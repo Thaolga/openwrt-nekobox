@@ -5586,7 +5586,7 @@ pre.command-output {
 }
 
 @media screen and (max-width:480px) {
-	.mobile-hide {
+        .mobile-hide {
 		display: none
 	}
 
@@ -5606,3 +5606,62 @@ pre.command-output {
 		border-radius: 0
 	}
 }
+
+@media screen and (max-width: 600px) {
+        .mobile-hide {
+                display: none;
+        }
+
+        #maincontent > .container {
+                margin: 1rem 0;
+        }
+
+        .cbi-value-title {
+                text-align: left;
+        }
+
+        [data-page="admin-system-flash"] legend,
+        [data-page="admin-system-flash"] .cbi-section-descr {
+                padding: 1rem 0 1rem 1rem;
+        }
+
+        [data-page="admin-system-flash"] .cbi-value {
+                padding: 0 1rem;
+        }
+
+        [data-page="admin-network-dhcp"] [data-tab-active="true"] {
+                padding: 1rem !important;
+        }
+
+        body {
+                overflow-x: hidden;
+        }
+
+        .node-main-login .main .main-right #maincontent .container
+        .cbi-map .cbi-section .cbi-section-node
+        .cbi-value .cbi-value-field {
+                width: 16rem;
+        }
+
+        .node-main-login footer {
+                display: none;
+        }
+}
+
+@media screen and (max-width: 600px) {
+        .block h4 {
+                font-size: 0.7rem !important;
+        }
+
+        .block {
+                padding: 0.2rem !important;
+        }
+
+        .block img {
+                width: 36px !important;
+        }
+}
+
+
+
+
