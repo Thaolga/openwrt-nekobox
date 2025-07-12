@@ -1851,9 +1851,6 @@ ul.tabs li {
 	box-shadow: 0 0 6px rgba(102, 175, 233, 0.6);
 }
 
-
-
-
 .main {
 	position: relative;
 	top: 0;
@@ -1962,10 +1959,16 @@ p {
 .main-right > #maincontent {
 	position: relative;
 	z-index: 50;
-	margin-top: 2rem;
+	margin-top: 0m;
         padding-left: 1rem;
         padding-right: 1rem;
         box-sizing: border-box;
+}
+
+@media screen and (max-width: 600px) {
+        .main-right > #maincontent {
+                margin-top: 0 !important;
+        }
 }
 
 header {
