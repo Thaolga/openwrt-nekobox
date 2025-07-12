@@ -2397,6 +2397,10 @@ input[data-v-07bccc36].cbi-button {
 	color: #FF6347 !important;
 }
 
+#log_textarea {
+        color: #cccccc !important;
+}
+
 @media screen and (max-width: 600px) {
 	.wrapper span {
 		display: none !important;
