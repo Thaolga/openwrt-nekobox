@@ -60,7 +60,7 @@
 <head>
 <style>
 header {
-        margin-top: 20px;
+        margin-top: 0px;
 }
 
 html, body {
@@ -209,6 +209,20 @@ html, body {
     }
 }
 
+@media screen and (max-width: 600px) {
+        .block h4 {
+                font-size: 0.7rem !important;
+        }
+
+        .block {
+                padding: 0.3rem !important;
+        }
+
+        .block img {
+                width: 36px !important;
+        }
+}
+
 </style>
     <meta charset="utf-8">
     <title>
@@ -332,7 +346,7 @@ html, body {
         </div>
     </div>
 <div id="result" style="text-align:center;margin-bottom:-3px;margin-left: 240px;font-weight:bold;font-size:16px;min-height:30px; position: relative; top: 10px;"></div>
-<div style="position: fixed; top: 24px; right: 10px; display: flex; flex-direction: row; align-items: center;">
+<div style="position: fixed; top: 4px; right: 10px; display: flex; flex-direction: row; align-items: center;">
   <div class="site-icon" style="margin: 0 5px; cursor: pointer;" onclick="pingHost('baidu', 'Baidu', 'https://www.baidu.com')">
     <img src="/luci-static/ipip/img/site_icon_01.png" id="baidu-normal" title="Baidu" style="width:48px;height:48px;border-radius:50%;object-fit:cover;display:none;">
     <img src="/luci-static/ipip/img/site_icon1_01.png" id="baidu-gray" style="width:48px;height:48px;border-radius:50%;object-fit:cover;">
