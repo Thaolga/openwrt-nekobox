@@ -3861,6 +3861,12 @@ ul.cbi-tabmenu li.cbi-tab a {
 	width: auto
 }
 
+ul.dropdown {
+        top: auto !important;
+        bottom: 100% !important;
+        margin-bottom: 4px !important;
+}
+
 .cbi-progressbar {
 	position: relative;
 	display: flex;
