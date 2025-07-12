@@ -1330,30 +1330,28 @@ body:hover,
   }
 
   .time-display > span {
-    flex: 1 1 45% !important; 
     box-sizing: border-box;
     white-space: nowrap !important;
+    overflow: visible !important;
   }
 
   .time-display > span:nth-child(1),
   .time-display > span:nth-child(2) {
-    order: 1; 
+    flex: 0 0 33.33% !important;
+    order: 1;
   }
 
   .time-display > span:nth-child(3),
   .time-display > span:nth-child(4) {
-    order: 2; 
+    flex: 0 0 100% !important;
+    order: 2;
     margin-top: 0.25rem !important;
+    text-align: center !important;
   }
 
-  .time-display > span { 
-    min-width: 45% !important;
-    overflow: visible !important; 
-  }
-
-  .lunar-text { 
+  .lunar-text {
     font-size: 1.05rem !important;
-    letter-spacing: -0.3px !important; 
+    letter-spacing: -0.3px !important;
   }
 }
 
@@ -1422,6 +1420,44 @@ body:hover,
         font-size: 0.75rem;
     }
 }
+
+@media (max-width: 768px) {
+    .btn i {
+        font-size: 0.8rem !important;
+        margin-left: -2px;
+    }
+}
+
+@media (max-width: 575.98px) {
+  #selectAll-container input[type="checkbox"] {
+    transform: scale(1) !important;
+    width: 1em !important;
+    height: 1em !important;
+    margin-left: 0 !important;
+    margin-right: 0.3rem !important;
+    flex-shrink: 0;
+  }
+
+  #selectAll-container {
+    flex-wrap: nowrap !important;
+    gap: 0.2rem !important;
+    overflow-x: auto;
+  }
+
+  #selectAll-container input[type="checkbox"] {
+    margin-right: 0.15rem !important;
+  }
+
+  #selectAll-container label[for="selectAll"] {
+    margin-right: 0.2rem !important;
+  }
+
+  #selectAll-container input[type="color"],
+  #selectAll-container button {
+    margin-right: 0.2rem !important;
+  }
+}
+
 </style>
 
 <div class="container-sm container-bg text-center mt-4" id="mainContainer">
@@ -1495,7 +1531,7 @@ body:hover,
             <label for="selectAll" class="form-check-label fs-5 ms-1" style="margin-right: 10px;" data-translate="select_all">Select All</label>
             <input type="color" id="colorPicker" style="margin-right: 10px;" value="#333333" data-translate-title="component_bg_color"/>
             <input type="color" id="bodyBgColorPicker" value="#f0ffff" style="margin-right: 10px;" data-translate-title="page_bg_color" />
-            <button class="btn btn-primary" id="advancedColorBtn" data-translate-title="advanced_color_settings"><i class="bi bi-palette"></i></button>
+            <button class="btn btn-primary d-none d-sm-inline" id="advancedColorBtn" data-translate-title="advanced_color_settings"><i class="bi bi-palette"></i></button>
             <button class="btn btn-info ms-2" id="fontToggleBtn" data-translate-title="toggle_font"><i id="fontToggleIcon" class="fa-solid fa-font" style="color: white;"></i></button>
             <button class="btn btn-success ms-2 d-none d-sm-inline" id="toggleScreenBtn" data-translate-title="toggle_fullscreen"><i class="bi bi-arrows-fullscreen"></i></button>
             <button class="btn btn-warning ms-2 d-none d-sm-inline" id="weatherBtn" data-bs-toggle="modal" data-bs-target="#cityModal" data-translate-title="set_city"><i class="bi bi-geo-alt"></i></button>
