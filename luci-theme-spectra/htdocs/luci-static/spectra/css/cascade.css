@@ -3603,6 +3603,10 @@ table table,.table .table,.cbi-value-field table,.cbi-value-field .table,td>tabl
 	box-shadow: none;
 }
 
+.item:hover::after {
+	transform: scale(1.1);
+}
+
 .cbi-dynlist>.item>span {
 	white-space: normal;
 	word-break: break-word;
