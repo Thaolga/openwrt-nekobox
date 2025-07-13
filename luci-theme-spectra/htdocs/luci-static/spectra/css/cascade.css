@@ -3577,31 +3577,30 @@ table table,.table .table,.cbi-value-field table,.cbi-value-field .table,td>tabl
 	max-width: none
 }
 
-.cbi-dynlist>.item::after {
+.cbi-dynlist > .item::after {
+	font-family: "spectra" !important;
 	position: absolute;
 	width: 2.2rem !important;
-	height: calc(100% - .5rem - 2px);
+	height: calc(100% - 10px) !important;
 	right: 0;
 	bottom: 0;
-	content: "\00D7";
+	content: "\e900";
 	pointer-events: auto;
 	background-color: var(--red);
 	font-weight: normal;
-	font-size: 1.2rem;
+	font-size: 1.3em !important;
 	display: flex;
 	align-items: center;
 	justify-content: center;
-	line-height: 1.5rem;
+	line-height: 1.3rem;
 	padding: 0;
-	margin: .25rem .1rem .25rem 0;
+	margin: 5px 2px 5px 0;
 	color: #fff;
 	border: 1px solid #f5365c;
-	border-radius: .25rem;
+	border-radius: 0 0.4rem 0.4rem 0 !important;
 	outline: 0;
 	background-image: none;
 	box-shadow: none;
-	border-top-left-radius: 0;
-	border-bottom-left-radius: 0
 }
 
 .cbi-dynlist>.item>span {
