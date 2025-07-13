@@ -66,6 +66,18 @@ document.addEventListener("DOMContentLoaded", function () {
         `;
     }
 
+    const savedColor = localStorage.getItem('customBackgroundColor');
+    const savedMode = localStorage.getItem('backgroundMode');
+    
+    if (savedMode === 'color' && savedColor) {
+        document.body.style.background = savedColor;
+        document.body.style.backgroundSize = 'auto';
+    } else if (isEnabled) {
+        initBackgroundSystem();
+    } else {
+        applyPHPBackground();
+    }
+
     const languages = {
         'en': {
             'enabled': 'Enabled',
@@ -89,6 +101,9 @@ document.addEventListener("DOMContentLoaded", function () {
             'showIP': 'Show IP Information',
             'hideIP': 'Hide IP Information',
             'usageGuide': 'Usage Guide',
+            'colorPanel': 'Color Panel',
+            'apply': 'Apply',
+            'reset': 'Reset',
             'guide1': '1. Video Mode: Default name is "bg.mp4"',
             'guide2': '2. Image Mode: Default names are "bg1-20.jpg"',
             'guide3': '3. Solid Mode: Transparent background + spectrum animation',
@@ -118,6 +133,9 @@ document.addEventListener("DOMContentLoaded", function () {
             'defaultCrop': '默认裁剪',
             'showIP': '显示IP信息',
             'hideIP': '隐藏IP信息',
+            'colorPanel': '颜色面板',
+            'apply': '应用',
+            'reset': '重置',
             'usageGuide': '使用说明',
             'guide1': '1. 视频模式：默认名称为「bg.mp4」',
             'guide2': '2. 图片模式：默认名称为「bg1-20.jpg」',
@@ -269,6 +287,10 @@ document.addEventListener("DOMContentLoaded", function () {
                     <span>${getLanguageButtonText()}</span>
                     <div class="status-led" style="background:${getLanguageButtonColor()}"></div>
                 </button>
+                <button id="color-panel-btn">
+                    <span>${translateText('colorPanel')}</span>
+                    <div><i class="bi bi-palette"></i></div>
+                </button>
                 <button class="info-btn">${translateText('usageGuide')}</button>
             </div>
         `;
@@ -292,6 +314,10 @@ document.addEventListener("DOMContentLoaded", function () {
             if (videoTag) {
                 videoTag.muted = newMuted;
             }
+        });
+
+        document.getElementById('color-panel-btn')?.addEventListener('click', function() {
+            openColorPicker();
         });
 
         document.getElementById('theme-toggle')?.addEventListener('click', function(e) {
@@ -537,6 +563,12 @@ document.addEventListener("DOMContentLoaded", function () {
             pointer-events: auto !important;
         }
 
+        #mode-popup button#color-panel-btn {
+            background: #795548 !important;
+            opacity: 1 !important;
+            pointer-events: auto !important;
+        }
+
         @media (max-width: 600px) {
             #settings-icon {
                 right: 8%;
@@ -692,6 +724,14 @@ document.addEventListener("DOMContentLoaded", function () {
         availableImages = [];
         
         const savedMode = localStorage.getItem('backgroundMode') || 'auto';
+        if (savedMode === 'color') {
+            const savedColor = localStorage.getItem('customBackgroundColor');
+        if (savedColor) {
+            document.body.style.background = savedColor;
+            document.body.style.backgroundSize = 'auto';
+            return;
+        }
+    }
         setMode(savedMode);
     }
 
@@ -719,6 +759,11 @@ document.addEventListener("DOMContentLoaded", function () {
             case 'solid':
                 applyCSS(null);
                 break;
+            case 'color':
+                const savedColor = localStorage.getItem('customBackgroundColor') || '#333333';
+                document.body.style.background = savedColor;
+                document.body.style.backgroundSize = 'auto';
+            break;
             case 'auto':
                 initAutoBackground();
                 break;
@@ -780,6 +825,257 @@ document.addEventListener("DOMContentLoaded", function () {
         xhr.open('HEAD', `/luci-static/spectra/bgm/${file}`);
         xhr.onreadystatechange = () => xhr.readyState === 4 && callback(xhr.status === 200);
         xhr.send();
+    }
+
+    function openColorPicker() {
+        const overlay = document.createElement('div');
+        overlay.id = 'color-picker-overlay';
+        overlay.innerHTML = `
+            <div id="color-picker-dialog">
+                <div class="dialog-header">
+                    <h3>${translateText('colorPanel')}</h3>
+                    <button class="close-btn">&times;</button>
+                </div>
+                <div class="color-preview" id="color-preview"></div>
+                <div class="color-controls">
+                    <input type="color" id="color-selector">
+                    <input type="text" id="color-input" placeholder="#RRGGBB">
+                    <button id="apply-color">${translateText('apply')}</button>
+                    <button id="reset-color">${translateText('reset')}</button>
+                </div>
+                <div class="preset-colors">
+                    ${generateColorPresets()}
+                </div>
+            </div>
+        `;
+        
+        document.body.appendChild(overlay);
+        
+        const style = document.createElement('style');
+        style.textContent = `
+            #color-picker-overlay {
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: rgba(0,0,0,0.7);
+                z-index: 9999;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                backdrop-filter: blur(3px);
+            }
+            
+            #color-picker-dialog {
+                background: rgba(0,0,0,0.9);
+                width: 320px;
+                padding: 20px;
+                border-radius: 8px;
+                box-shadow: 0 0 20px rgba(0,0,0,0.5);
+                border: 1px solid #444;
+            }
+            
+            .dialog-header {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                margin-bottom: 15px;
+                padding-bottom: 10px;
+                border-bottom: 1px solid #444;
+            }
+            
+            .dialog-header h3 {
+                margin: 0;
+                color: #9C27B0;
+                font-size: 1.2em;
+            }
+            
+            .close-btn {
+                background: none;
+                border: none;
+                color: #fff;
+                font-size: 24px;
+                cursor: pointer;
+            }
+            
+            .color-preview {
+                width: 100%;
+                height: 100px;
+                border-radius: 5px;
+                margin-bottom: 15px;
+                border: 1px solid #555;
+                transition: background 0.3s;
+            }
+            
+            .color-controls {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 10px;
+                margin-bottom: 15px;
+            }
+            
+            #color-selector {
+                flex: 1;
+                height: 40px;
+                border: none;
+                cursor: pointer;
+            }
+            
+            #color-input {
+                flex: 2;
+                padding: 8px;
+                background: #222;
+                border: 1px solid #444;
+                color: #fff;
+                border-radius: 4px;
+            }
+            
+            #apply-color, #reset-color {
+                flex: 1;
+                padding: 8px;
+                background: #4CAF50;
+                border: none;
+                color: white;
+                border-radius: 4px;
+                cursor: pointer;
+                transition: background 0.3s;
+            }
+            
+            #reset-color {
+                background: #f44336;
+            }
+            
+            #apply-color:hover {
+                background: #45a049;
+            }
+            
+            #reset-color:hover {
+                background: #d32f2f;
+            }
+            
+            .preset-colors {
+                display: grid;
+                grid-template-columns: repeat(6, 1fr);
+                gap: 5px;
+            }
+            
+            .color-preset {
+                height: 30px;
+                border-radius: 4px;
+                cursor: pointer;
+                border: 2px solid transparent;
+                transition: transform 0.2s, border-color 0.2s;
+            }
+            
+            .color-preset:hover {
+                transform: scale(1.1);
+            }
+            
+            @media (max-width: 480px) {
+                #color-picker-dialog {
+                    width: 90%;
+                }
+            }
+        `;
+        document.head.appendChild(style);
+        
+        const savedColor = localStorage.getItem('customBackgroundColor') || '#333333';
+        document.getElementById('color-preview').style.background = savedColor;
+        document.getElementById('color-selector').value = savedColor;
+        document.getElementById('color-input').value = savedColor;
+        
+        document.getElementById('color-selector').addEventListener('input', function(e) {
+            const color = e.target.value;
+            document.getElementById('color-preview').style.background = color;
+            document.getElementById('color-input').value = color;
+        });
+        
+        document.getElementById('color-input').addEventListener('input', function(e) {
+            const color = e.target.value;
+            if (isValidColor(color)) {
+                document.getElementById('color-preview').style.background = color;
+                document.getElementById('color-selector').value = color;
+            }
+        });
+        
+        document.getElementById('apply-color').addEventListener('click', function() {
+            const color = document.getElementById('color-input').value;
+            if (isValidColor(color)) {
+                applyCustomBackgroundColor(color);
+            }
+        });
+        
+        document.getElementById('reset-color').addEventListener('click', function() {
+            resetCustomBackgroundColor();
+        });
+        
+        document.querySelector('.close-btn').addEventListener('click', function() {
+            overlay.remove();
+            style.remove();
+        });
+        
+        overlay.addEventListener('click', function(e) {
+            if (e.target === overlay) {
+                overlay.remove();
+                style.remove();
+            }
+        });
+        
+        document.querySelectorAll('.color-preset').forEach(preset => {
+            preset.addEventListener('click', function() {
+                const color = this.getAttribute('data-color');
+                document.getElementById('color-preview').style.background = color;
+                document.getElementById('color-selector').value = color;
+                document.getElementById('color-input').value = color;
+                applyCustomBackgroundColor(color);
+            });
+        });
+    }
+
+    function generateColorPresets() {
+        const presets = [
+            '#1a1a2e', '#16213e', '#0f3460', '#1f4068', '#1b1b2f',
+            '#e94560', '#f67280', '#ff7c7c', '#ff9a76', '#ffb997',
+            '#00b4d8', '#90e0ef', '#00cec9', '#55efc4', '#81ecec',
+            '#6a89cc', '#82ccdd', '#60a3bc', '#4a69bd', '#1e3799',
+            '#222f3e', '#1e272e', '#485460', '#808e9b', '#d2dae2',
+            '#ff9f1a', '#ffd32a', '#fbc531', '#e1b12c', '#f9ca24'
+        ];
+        
+        return presets.map(color => `
+            <div class="color-preset" data-color="${color}" style="background: ${color}"></div>
+        `).join('');
+    }
+
+    function applyCustomBackgroundColor(color) {
+        clearExistingBackground();
+    
+        document.body.style.background = color;
+        document.body.style.backgroundSize = 'auto';
+    
+        localStorage.setItem('customBackgroundColor', color);
+        localStorage.setItem('backgroundMode', 'color');
+    
+        const overlay = document.getElementById('color-picker-overlay');
+        if (overlay) overlay.remove();
+    }
+
+    function resetCustomBackgroundColor() {
+        localStorage.removeItem('customBackgroundColor');
+        localStorage.removeItem('backgroundMode');
+    
+        const overlay = document.getElementById('color-picker-overlay');
+        if (overlay) overlay.remove();
+    
+        const savedMode = localStorage.getItem('backgroundMode') || 'auto';
+        setMode(savedMode);
+    }
+
+    function isValidColor(strColor) {
+        const s = new Option().style;
+        s.color = strColor;
+        return s.color !== '';
     }
 
     function applyCSS(image) {
@@ -1070,7 +1366,11 @@ document.addEventListener("DOMContentLoaded", function () {
     });
 
     function clearExistingBackground() {
-        document.body.style.background = ''; 
+        const currentMode = localStorage.getItem('backgroundMode');
+        if (currentMode !== 'color') {
+            document.body.style.background = '';
+        }
+
         let existingVideoTag = document.getElementById("background-video");
         if (existingVideoTag) {
             existingVideoTag.remove(); 
@@ -1179,3 +1479,4 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     }
 });
+
