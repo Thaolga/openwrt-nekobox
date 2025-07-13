@@ -59,17 +59,7 @@
 
 <head>
 <style>
-header {
-        margin-top: 0px;
-}
 
-html, body {
-	height: 100%;
-	margin: 0;
-	padding: 0;
-	display: flex;
-	flex-direction: column;
-}
 
 .box {
 	width: 40px;
@@ -719,17 +709,6 @@ window.addEventListener('load', () => {
                 gray.style.display = 'inline';
             });
     });
-});
-</script>
-
-<script>
-document.addEventListener('DOMContentLoaded', function(){
-    if (/Mobi|Android|iPhone|iPad/i.test(navigator.userAgent)) {
-        var main = document.querySelector('.main');
-        if(main){
-            main.style.minHeight = window.innerHeight + 'px';
-        }
-    }
 });
 </script>
 

@@ -1424,7 +1424,7 @@ body:hover,
 @media (max-width: 768px) {
     .btn i {
         font-size: 0.8rem !important;
-        margin-left: -2px;
+        margin-left: 3px;
     }
 }
 
