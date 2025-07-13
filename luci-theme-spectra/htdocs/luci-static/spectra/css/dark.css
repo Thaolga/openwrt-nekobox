@@ -40,6 +40,17 @@ body {
 	opacity: 0.9;
 }
 
+#logWrapper,
+#logWrapper table,
+#logWrapper table td,
+#logWrapper table th {
+        color: white !important;
+}
+
+#logWrapper td.log-entry-message-cell {
+        color: #ff4c4c !important;
+}
+
 header::after {
 	background-color: transparent !important;
 }
@@ -1165,20 +1176,7 @@ ul.tabs li.active, ul.cbi-tabmenu li.cbi-tab {
 	backdrop-filter: blur(8px) brightness(0.98) !important;
 }
 
-.item::after {
-	font-family: "spectra" !important;
-	content: "\e900" !important;
-	padding: 0.5em 1em !important;
-	font-size: 1.1em !important;
-	font-weight: 600 !important;
-	border-radius: 8px !important;
-	min-width: 2.5em;
-	cursor: pointer;
-}
 
-.item:hover::after {
-	transform: scale(1.1);
-}
 
 .cbi-page-actions .cbi-button-apply,
 .cbi-section-actions .cbi-button-edit,
