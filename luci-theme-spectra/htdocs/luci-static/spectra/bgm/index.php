@@ -2567,7 +2567,7 @@ opkg update && opkg install wget grep sed && LATEST_FILE=$(wget -qO- https://git
         if (existingVideoTag) {
             existingVideoTag.src = `/luci-static/spectra/bgm/${src}`;
         } else {
-            videoTag = document.createElement("video");
+            let videoTag = document.createElement("video");
             videoTag.className = "video-background";
             videoTag.id = "background-video";
             videoTag.autoplay = true;
@@ -2617,6 +2617,7 @@ opkg update && opkg install wget grep sed && LATEST_FILE=$(wget -qO- https://git
             document.querySelector('.sound-toggle div').textContent = '🔊';
             videoTag.muted = false;
         }
+        localStorage.setItem('redirectAfterVideo', 'true');
         checkAndReload();
     }
 
@@ -2672,6 +2673,11 @@ opkg update && opkg install wget grep sed && LATEST_FILE=$(wget -qO- https://git
             localStorage.removeItem('redirectAfterImage');
             setTimeout(() => {
                 window.top.location.href = "/cgi-bin/luci/admin/services/spectra?bg=image";
+            }, 3000);
+        } else if (localStorage.getItem('redirectAfterVideo') === 'true') {
+            localStorage.removeItem('redirectAfterVideo');
+            setTimeout(() => {
+                window.top.location.href = "/cgi-bin/luci/admin/services/spectra?bg=video";
             }, 3000);
         }
     });
@@ -3635,6 +3641,7 @@ document.addEventListener('keydown', (e) => {
         if (userInteracted && typeof showLogMessage === 'function') {
             showLogMessage(message);
         }
+        clearBackgroundDirectly();
     }
 
     const currentL = theme === "dark" ? 30 : 80;
@@ -9702,6 +9709,13 @@ document.addEventListener("DOMContentLoaded", function () {
 </script>
 
 <script>
+function clearBackgroundDirectly() {
+    clearExistingBackground();
+    localStorage.removeItem('phpBackgroundSrc');
+    localStorage.removeItem('phpBackgroundType');
+    localStorage.removeItem('backgroundSet');
+}
+
 document.addEventListener('DOMContentLoaded', function () {
     const copyButton = document.getElementById('copyCommandBtn');
     const copyCommandTextarea = document.getElementById('copyCommand');
