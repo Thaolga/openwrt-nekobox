@@ -6879,18 +6879,30 @@ window.addEventListener('DOMContentLoaded', initializeColors);
 </script>
 
 <style>
-@font-face {
-	font-family: 'Cinzel Decorative';
-  font-style: normal;
-  font-weight: 700;
-  src: url('./assets/webfonts/cinzel-decorative-v17-latin-700.woff2') format('woff2');
+html, body {
+	overflow-y: scroll !important;
+	scrollbar-width: none !important;
+	-ms-overflow-style: none !important;
+}
+
+html::-webkit-scrollbar, body::-webkit-scrollbar {
+	display: none !important;
+	width: 0 !important;
+	background: transparent !important;
 }
 
 @font-face {
 	font-family: 'Cinzel Decorative';
-  font-style: normal;
-  font-weight: 900;
-  src: url('./assets/webfonts/cinzel-decorative-v17-latin-900.woff2') format('woff2');
+           font-style: normal;
+           font-weight: 700;
+           src: url('./assets/webfonts/cinzel-decorative-v17-latin-700.woff2') format('woff2');
+}
+
+@font-face {
+	font-family: 'Cinzel Decorative';
+           font-style: normal;
+           font-weight: 900;
+           src: url('./assets/webfonts/cinzel-decorative-v17-latin-900.woff2') format('woff2');
 }
 
 .btn-primary,
@@ -6913,7 +6925,7 @@ window.addEventListener('DOMContentLoaded', initializeColors);
 
 /* START .container-sm */
 .container-sm {
-    width: 1650px !important; 
+    width: 1800px !important; 
     max-width: 100%;
     margin: 0 auto;
 }
@@ -6921,7 +6933,7 @@ window.addEventListener('DOMContentLoaded', initializeColors);
 
 /* START .modal-xl */
 .modal-xl {
-    max-width: 1600px !important; 
+    max-width: 1400px !important; 
 }
 
 @media (max-width: 768px) {

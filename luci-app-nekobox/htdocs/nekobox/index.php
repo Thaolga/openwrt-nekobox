@@ -997,6 +997,12 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 }
 
+@media (max-width: 768px) {
+	#neko-title.royal-style {
+		font-size: 2.5rem !important;
+	}
+}
+
 </style>
 <div class="section-container">
     <div class="card">
@@ -1529,4 +1535,3 @@ window.onload = function() {
     </footer>
 </body>
 </html>
-
