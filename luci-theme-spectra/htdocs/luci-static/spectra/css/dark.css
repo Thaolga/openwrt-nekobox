@@ -40,15 +40,26 @@ body {
 	opacity: 0.9;
 }
 
-#logWrapper,
-#logWrapper table,
-#logWrapper table td,
-#logWrapper table th {
-        color: white !important;
+#logTable,
+#logTable th,
+#logTable td {
+	color: white !important;
 }
 
-#logWrapper td.log-entry-message-cell {
-        color: #ff4c4c !important;
+#logTable .log-err {
+	background-color: rgba(255, 0, 0, 0.25) !important;
+}
+
+#logTable .log-warn {
+	background-color: rgba(255, 255, 0, 0.25) !important;
+}
+
+#logTable .log-info {
+	background-color: rgba(0, 255, 0, 0.25) !important;
+}
+
+#logTable .log-notice {
+	background-color: rgba(0, 0, 255, 0.25) !important;
 }
 
 header::after {
