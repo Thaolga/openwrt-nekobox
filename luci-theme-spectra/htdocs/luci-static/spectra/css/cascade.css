@@ -5454,3 +5454,10 @@ pre.command-output {
         }
 }
 
+@media screen and (max-width: 600px) {
+	.cbi-section-table-row .cbi-value-field[data-name="remarks"] div {
+		display: block !important;
+		white-space: normal !important;
+		word-break: break-word !important;
+	}
+}
