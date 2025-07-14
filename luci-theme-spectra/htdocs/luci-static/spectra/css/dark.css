@@ -2276,5 +2276,14 @@ input[data-v-07bccc36].cbi-button {
 	}
 }
 
+@media screen and (max-width: 600px) {
+	.btn.cbi-button {
+		font-size: 0.75rem !important;
+		padding: 0.2rem 0.4rem !important;
+		height: auto !important;
+	}
 
-
+	.btn.cbi-button + .btn.cbi-button {
+		margin-left: 0.2rem !important;
+	}
+}
