@@ -80,7 +80,7 @@ img {
 }
 
 button,input,optgroup,select,textarea {
-	font-family: inherit;
+
 	font-size: 100%;
 	line-height: 1.15;
 	margin: 0
@@ -932,9 +932,59 @@ html {
 	font-display: block;
 }
 
+@font-face {
+        font-display: swap;
+        font-family: 'Fredoka One';
+        font-style: normal;
+        font-weight: 400;
+        src: url('/luci-static/spectra/fonts/fredoka-v16-latin-regular.woff2') format('woff2');
+}
+
+@font-face {
+        font-display: swap;
+        font-family: 'DM Serif Display';
+        font-style: normal;
+        font-weight: 400;
+        src: url('/luci-static/spectra/fonts/dm-serif-display-v15-latin-regular.woff2') format('woff2');
+}
+
+@font-face {
+        font-display: swap; 
+        font-family: 'Noto Serif SC';
+        font-style: normal;
+        font-weight: 400;
+        src: url('/luci-static/spectra/fonts/noto-serif-sc-v31-latin-regular.woff2') format('woff2'); 
+}
+
+@font-face {
+        font-display: swap; 
+        font-family: 'Comic Neue';
+        font-style: normal;
+        font-weight: 400;
+        src: url('/luci-static/spectra/fonts/comic-neue-v8-latin-regular.woff2') format('woff2'); 
+}
+
+#view > .spinning {
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 400px;
+        max-width: 90%;
+        background: #e8f5e9;
+        border: 2px solid #4caf50;
+        border-radius: 8px;
+        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        text-align: center;
+        padding: 20px;
+        font-size: 16px;
+        color: #2e7d32;
+        z-index: 9999;
+}
+
 [class^="icon-"],
 [class*=" icon-"] {
-	font-family: 'spectra' !important;
+	font-family: 'spectra';
 	font-style: normal;
 	font-weight: normal;
 	font-variant: normal;

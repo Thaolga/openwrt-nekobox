@@ -2,6 +2,12 @@ document.addEventListener("DOMContentLoaded", function () {
     let isEnabled = localStorage.getItem('backgroundEnabled') !== 'false';
     let videoTag, bgImages, bgIndex, availableImages, switchInterval;
 
+    const isAnimationEnabled = localStorage.getItem('animationEnabled') !== 'false';
+    toggleAnimation(isAnimationEnabled);
+
+    const savedFont = localStorage.getItem('selectedFont') || 'default';
+    applyFont(savedFont);
+
     const ipContainer = document.querySelector('.ip-container');
     const flag = document.getElementById('flag');
     const ipText = document.querySelector('.ip-text');
@@ -104,6 +110,23 @@ document.addEventListener("DOMContentLoaded", function () {
             'colorPanel': 'Color Panel',
             'apply': 'Apply',
             'reset': 'Reset',
+            'enableAnimation': 'Enable Animation',
+            'disableAnimation': 'Disable Animation',
+            'fontToggle': 'Font Style',
+            'fontDefault': 'Default',
+            'fontFredoka': 'Fredoka',
+            'fontDMSerif': 'DM Serif',
+            'fontNotoSerif': 'Noto Serif',
+            'fontComicNeue': 'Comic Neue',
+            'fontSize': 'Font Size',
+            'fontColor': 'Font Color',
+            'black': 'Black',
+            'white': 'White',
+            'red': 'Red',
+            'blue': 'Blue',
+            'green': 'Green',
+            'purple': 'Purple',
+            'customColor': 'Custom Color',
             'guide1': '1. Video Mode: Default name is "bg.mp4"',
             'guide2': '2. Image Mode: Default names are "bg1-20.jpg"',
             'guide3': '3. Solid Mode: Transparent background + spectrum animation',
@@ -136,6 +159,23 @@ document.addEventListener("DOMContentLoaded", function () {
             'colorPanel': '颜色面板',
             'apply': '应用',
             'reset': '重置',
+            'enableAnimation': '开启动画',  
+            'disableAnimation': '关闭动画',
+            'fontToggle': '字体切换',
+            'fontDefault': '默认字体',
+            'fontFredoka': '圆润字体',
+            'fontDMSerif': '衬线字体',
+            'fontNotoSerif': '思源宋体',
+            'fontComicNeue': '漫画字体',
+            'fontSize': '字体大小',
+            'fontColor': '字体颜色',
+            'black': '黑色',
+            'white': '白色',
+            'red': '红色',
+            'blue': '蓝色',
+            'green': '绿色',
+            'purple': '紫色',
+            'customColor': '自定义颜色',
             'usageGuide': '使用说明',
             'guide1': '1. 视频模式：默认名称为「bg.mp4」',
             'guide2': '2. 图片模式：默认名称为「bg1-20.jpg」',
@@ -144,17 +184,77 @@ document.addEventListener("DOMContentLoaded", function () {
             'guide5': '5. 主题设置：支持自定义背景，模式切换需清除背景',
             'guide6': '6. 项目地址：<a class="github-link" href="https://github.com/Thaolga/openwrt-nekobox" target="_blank">点击访问</a>',
             'themeTitle': 'Spectra 主题设置'
+        },
+        'zh-tw': {
+            'enabled': '已啟用',
+            'disabled': '已停用',
+            'themeToggle': '切換主題模式',
+            'currentTheme': '當前主題: ',
+            'darkMode': '暗色模式',
+            'lightMode': '亮色模式',
+            'themeSettings': '主題設定',
+            'videoMode': '影片模式',
+            'imageMode': '圖片模式',
+            'solidMode': '暗黑模式',
+            'autoMode': '自動模式',
+            'backgroundSound': '背景音效',
+            'displayRatio': '顯示比例：',
+            'normalRatio': '正常比例',
+            'stretchFill': '拉伸填充',
+            'originalSize': '原始尺寸',
+            'smartFit': '智能適應',
+            'defaultCrop': '預設裁剪',
+            'showIP': '顯示IP資訊',
+            'hideIP': '隱藏IP資訊',
+            'colorPanel': '顏色面板',
+            'apply': '套用',
+            'reset': '重置',
+            'enableAnimation': '啟用動畫',  
+            'disableAnimation': '關閉動畫',
+            'fontToggle': '字體切換',
+            'fontDefault': '預設字體',
+            'fontFredoka': '圓潤字體',
+            'fontDMSerif': '襯線字體',
+            'fontNotoSerif': '思源宋體',
+            'fontComicNeue': '漫畫字體',
+            'fontSize': '字體大小',
+            'fontColor': '字體顏色',
+            'black': '黑色',
+            'white': '白色',
+            'red': '紅色',
+            'blue': '藍色',
+            'green': '綠色',
+            'purple': '紫色',
+            'customColor': '自定義顏色',
+            'usageGuide': '使用說明',
+            'guide1': '1. 影片模式：預設名稱為「bg.mp4」',
+            'guide2': '2. 圖片模式：預設名稱為「bg1-20.jpg」',
+            'guide3': '3. 暗黑模式：透明背景+光譜動畫',
+            'guide4': '4. 亮色模式：主題設定進行切換，會自動關閉控制開關',
+            'guide5': '5. 主題設定：支援自訂背景，模式切換需清除背景',
+            'guide6': '6. 專案地址：<a class="github-link" href="https://github.com/Thaolga/openwrt-nekobox" target="_blank">點擊訪問</a>',
+            'themeTitle': 'Spectra 主題設定'
         }
     };
 
     let currentLanguage = localStorage.getItem('currentLanguage') || 'zh';
 
     function getLanguageButtonText() {
-        return currentLanguage === 'zh' ? 'English' : '中文';
+        switch(currentLanguage) {
+            case 'zh': return 'English';
+            case 'en': return '繁體中文';
+            case 'zh-tw': return '简体中文';
+            default: return 'English';
+        }
     }
 
     function getLanguageButtonColor() {
-        return currentLanguage === 'zh' ? '#f44336' : '#4CAF50';
+        switch(currentLanguage) {
+            case 'zh': return '#f44336';
+            case 'en': return '#4CAF50';
+            case 'zh-tw': return '#2196F3';
+            default: return '#4CAF50';
+        }
     }
 
     function translateText(key) {
@@ -255,6 +355,29 @@ document.addEventListener("DOMContentLoaded", function () {
         });
 
     function generateControlPanel() {
+        const isAnimationEnabled = localStorage.getItem('animationEnabled') !== 'false';
+        const animationText = isAnimationEnabled ? translateText('disableAnimation') : translateText('enableAnimation');
+
+        const currentFont = localStorage.getItem('selectedFont') || 'default';
+        let fontText;
+    
+        switch (currentFont) {
+            case 'fredoka':
+                fontText = translateText('fontFredoka');
+                break;
+            case 'dmserif':
+                fontText = translateText('fontDMSerif');
+                break;
+            case 'notoserif':
+                fontText = translateText('fontNotoSerif');
+                break;
+            case 'comicneue':
+                fontText = translateText('fontComicNeue');
+                break;
+            default:
+                fontText = translateText('fontDefault');
+        }
+
         return `
             <div id="settings-icon">⚙️</div>
             <div id="mode-popup">
@@ -266,11 +389,26 @@ document.addEventListener("DOMContentLoaded", function () {
                     <span>${isEnabled ? translateText('enabled') + ' ✅' : translateText('disabled') + ' ❌'}</span>
                     <div class="status-led" style="background:${isEnabled ? '#4CAF50' : '#f44336'}"></div>
                 </button>
-                <button class="theme-settings-btn">${translateText('themeSettings')}</button>
-                <button data-mode="video">${translateText('videoMode')}</button>
-                <button data-mode="image">${translateText('imageMode')}</button>
-                <button data-mode="solid">${translateText('solidMode')}</button>
-                <button data-mode="auto">${translateText('autoMode')}</button>
+                <button class="theme-settings-btn">
+                    <span>${translateText('themeSettings')}</span>
+                    <div><i class="bi bi-brush"></i></div>
+                </button>
+                <button data-mode="video">
+                    <span>${translateText('videoMode')}</span>
+                    <div><i class="bi bi-camera-video"></i></div>
+                </button>
+                <button data-mode="image">
+                    <span>${translateText('imageMode')}</span>
+                    <div><i class="bi bi-image"></i></div>
+                </button>
+                <button data-mode="solid">
+                    <span>${translateText('solidMode')}</span>
+                    <div><i class="bi bi-moon"></i></div>
+                </button>
+                <button data-mode="auto">
+                    <span>${translateText('autoMode')}</span>
+                    <div><i class="bi bi-stars"></i></div>
+                </button>
                 <button class="sound-toggle">
                     <span>${translateText('backgroundSound')}</span>
                     <div>${localStorage.getItem('videoMuted') === 'true' ? '🔇' : '🔊'}</div>
@@ -287,11 +425,26 @@ document.addEventListener("DOMContentLoaded", function () {
                     <span>${getLanguageButtonText()}</span>
                     <div class="status-led" style="background:${getLanguageButtonColor()}"></div>
                 </button>
+                <button id="animation-toggle" class="always-visible">
+                    <span>${animationText}</span>
+                    <div class="status-led" style="background:${isAnimationEnabled ? '#4CAF50' : '#f44336'}"></div>
+                </button>
+                <button id="font-toggle" class="always-visible">
+                    <span>${translateText('fontToggle')}: ${fontText}</span>
+                    <div class="status-led" style="background: #9C27B0"></div>
+                </button>
                 <button id="color-panel-btn">
                     <span>${translateText('colorPanel')}</span>
                     <div><i class="bi bi-palette"></i></div>
                 </button>
-                <button class="info-btn">${translateText('usageGuide')}</button>
+                <button id="font-settings-btn" class="always-visible">
+                    <span>${translateText('fontSize')} & ${translateText('fontColor')}</span>
+                    <div><i class="bi bi-fonts"></i></div>
+                </button>
+                <button class="info-btn">
+                    <span>${translateText('usageGuide')}</span>
+                    <div><i class="bi bi-info-circle"></i></div>
+                </button>
             </div>
         `;
     }
@@ -320,6 +473,63 @@ document.addEventListener("DOMContentLoaded", function () {
             openColorPicker();
         });
 
+        document.getElementById('font-settings-btn')?.addEventListener('click', function(e) {
+            e.stopPropagation();
+            showFontSettings();
+        });
+
+        document.getElementById('font-toggle')?.addEventListener('click', function(e) {
+            e.stopPropagation();
+        
+            const currentFont = localStorage.getItem('selectedFont') || 'default';
+            let nextFont;
+            let nextFontName;
+
+            switch (currentFont) {
+                case 'default':
+                    nextFont = 'fredoka';
+                    nextFontName = translateText('fontFredoka');
+                    break;
+                case 'fredoka':
+                    nextFont = 'dmserif';
+                    nextFontName = translateText('fontDMSerif');
+                    break;
+                case 'dmserif':
+                    nextFont = 'notoserif';
+                    nextFontName = translateText('fontNotoSerif');
+                    break;
+                case 'notoserif':
+                    nextFont = 'comicneue';
+                    nextFontName = translateText('fontComicNeue');
+                    break;
+                default:
+                    nextFont = 'default';
+                    nextFontName = translateText('fontDefault');
+            }
+
+            localStorage.setItem('selectedFont', nextFont);
+        
+            this.querySelector('span').textContent = `${translateText('fontToggle')}: ${nextFontName}`;
+        
+            applyFont(nextFont);
+        });
+
+        document.getElementById('animation-toggle')?.addEventListener('click', function(e) {
+            e.stopPropagation();
+        
+            const isAnimationEnabled = localStorage.getItem('animationEnabled') !== 'false';
+            const newState = !isAnimationEnabled;
+            localStorage.setItem('animationEnabled', newState);
+
+            this.querySelector('.status-led').style.background = newState ? '#4CAF50' : '#f44336';
+        
+            this.querySelector('span').textContent = newState ? 
+                translateText('disableAnimation') :
+                translateText('enableAnimation');
+        
+            toggleAnimation(newState);
+        });
+
         document.getElementById('theme-toggle')?.addEventListener('click', function(e) {
             e.stopPropagation();
             fetch("/luci-static/spectra/bgm/theme-switcher.php", { method: "POST" })
@@ -327,13 +537,9 @@ document.addEventListener("DOMContentLoaded", function () {
                 .then(data => {
                     if (data.success) {
                         updateThemeButton(data.mode);
-                    } else {
-                        console.error("模式切换失败:", data.error);
+                        setTimeout(() => location.reload(), 300); 
                     }
                 })
-                .catch(error => {
-                    console.error("请求出错:", error);
-                });
         });
 
         document.querySelector('.info-btn').addEventListener('click', () => {
@@ -348,23 +554,23 @@ document.addEventListener("DOMContentLoaded", function () {
         });
 
         document.getElementById('language-toggle').addEventListener('click', function() {
-            currentLanguage = currentLanguage === 'zh' ? 'en' : 'zh';
+            switch(currentLanguage) {
+                case 'zh': currentLanguage = 'en'; break;
+                case 'en': currentLanguage = 'zh-tw'; break;
+                case 'zh-tw': currentLanguage = 'zh'; break;
+                default: currentLanguage = 'zh';
+            }
             localStorage.setItem('currentLanguage', currentLanguage);
             
-            const oldPopup = document.getElementById('mode-popup');
-            const oldIcon = document.getElementById('settings-icon');
-            if (oldPopup) oldPopup.remove();
-            if (oldIcon) oldIcon.remove();
-            
-            document.body.insertAdjacentHTML('beforeend', generateControlPanel());
-            
-            bindControlPanelEvents();
-
-            if (isPopupVisible) {
-                document.getElementById('mode-popup').classList.add('show');
+            this.querySelector('span').textContent = getLanguageButtonText();
+            this.querySelector('.status-led').style.background = getLanguageButtonColor();
+    
+            updateControlPanelText();
+    
+            const fontSettingsOverlay = document.getElementById('font-settings-overlay');
+            if (fontSettingsOverlay) {
+                updateFontSettingsText();
             }
-
-            updateUIText();
         });
 
         document.getElementById('settings-icon').addEventListener('click', function(e) {
@@ -569,6 +775,28 @@ document.addEventListener("DOMContentLoaded", function () {
             pointer-events: auto !important;
         }
 
+        #mode-popup button.always-visible {
+            opacity: 1 !important;
+            pointer-events: auto !important;
+            background: #673AB7 !important;
+        }
+
+        #mode-popup button#font-toggle {
+            opacity: 1 !important;
+            pointer-events: auto !important;
+            background: #9C27B0 !important;
+        }
+
+        .no-animation * {
+            animation: none !important;
+            transition: none !important;
+        }
+
+        .no-animation * {
+            animation: none !important;
+            transition: none !important;
+        }
+
         @media (max-width: 600px) {
             #settings-icon {
                 right: 8%;
@@ -744,6 +972,40 @@ document.addEventListener("DOMContentLoaded", function () {
         document.body.style.background = '';
     }
 
+    function toggleAnimation(enabled) {
+        if (enabled) {
+            document.body.classList.remove('no-animation');
+        } else {
+            document.body.classList.add('no-animation');
+        }
+    }
+
+    function applyFont(font) {
+        const styleTag = document.querySelector("#font-style") || document.createElement("style");
+        styleTag.id = "font-style";
+    
+        let fontCSS;
+        switch (font) {
+            case 'fredoka':
+                fontCSS = `body { font-family: 'Fredoka One', cursive !important; }`;
+                break;
+            case 'dmserif':
+                fontCSS = `body { font-family: 'DM Serif Display', serif !important; }`;
+                break;
+            case 'notoserif':
+                fontCSS = `body { font-family: 'Noto Serif SC', serif !important; }`;
+                break;
+            case 'comicneue':
+                fontCSS = `body { font-family: 'Comic Neue', cursive !important; }`;
+                break;
+            default:
+                fontCSS = `body { font-family: -apple-system, BlinkMacSystemFont, sans-serif !important; }`;
+        }
+    
+        styleTag.textContent = fontCSS;
+        document.head.appendChild(styleTag);
+    }
+
     function setMode(mode) {
         if (!isEnabled) return;
         localStorage.setItem('backgroundMode', mode);
@@ -838,10 +1100,14 @@ document.addEventListener("DOMContentLoaded", function () {
                 </div>
                 <div class="color-preview" id="color-preview"></div>
                 <div class="color-controls">
-                    <input type="color" id="color-selector">
-                    <input type="text" id="color-input" placeholder="#RRGGBB">
-                    <button id="apply-color">${translateText('apply')}</button>
-                    <button id="reset-color">${translateText('reset')}</button>
+                    <div class="color-input-group">
+                        <input type="color" id="color-selector">
+                        <input type="text" id="color-input" placeholder="#RRGGBB">
+                    </div>
+                    <div class="button-group">
+                        <button id="apply-color">${translateText('apply')}</button>
+                        <button id="reset-color">${translateText('reset')}</button>
+                    </div>
                 </div>
                 <div class="preset-colors">
                     ${generateColorPresets()}
@@ -869,10 +1135,10 @@ document.addEventListener("DOMContentLoaded", function () {
             
             #color-picker-dialog {
                 background: rgba(0,0,0,0.9);
-                width: 320px;
-                padding: 20px;
-                border-radius: 8px;
-                box-shadow: 0 0 20px rgba(0,0,0,0.5);
+                width: 400px;
+                padding: 25px;
+                border-radius: 10px;
+                box-shadow: 0 0 25px rgba(0,0,0,0.6);
                 border: 1px solid #444;
             }
             
@@ -910,36 +1176,52 @@ document.addEventListener("DOMContentLoaded", function () {
             
             .color-controls {
                 display: flex;
-                flex-wrap: wrap;
-                gap: 10px;
-                margin-bottom: 15px;
+                flex-direction: column;
+                gap: 15px;
+                margin-bottom: 20px;
+                align-items: center; 
             }
-            
+
+            .color-input-group {
+                display: flex;
+                gap: 15px;
+                width: 100%;
+            }
+               
             #color-selector {
-                flex: 1;
-                height: 40px;
-                border: none;
-                cursor: pointer;
+                height: 50px;
+                min-width: 80px;
+                flex: none;
             }
             
             #color-input {
-                flex: 2;
-                padding: 8px;
+                flex: 1;
+                padding: 12px;
+                font-size: 16px;
                 background: #222;
                 border: 1px solid #444;
                 color: #fff;
                 border-radius: 4px;
+                min-width: 0;
+            }
+
+            .button-group {
+                display: flex;
+                gap: 10px;
+                width: 100%;
             }
             
             #apply-color, #reset-color {
                 flex: 1;
-                padding: 8px;
                 background: #4CAF50;
                 border: none;
                 color: white;
                 border-radius: 4px;
                 cursor: pointer;
                 transition: background 0.3s;
+                padding: 12px;
+                font-size: 16px;
+                white-space: nowrap; 
             }
             
             #reset-color {
@@ -956,12 +1238,12 @@ document.addEventListener("DOMContentLoaded", function () {
             
             .preset-colors {
                 display: grid;
-                grid-template-columns: repeat(6, 1fr);
-                gap: 5px;
+                grid-template-columns: repeat(8, 1fr);
+                gap: 8px;
             }
             
             .color-preset {
-                height: 30px;
+                height: 35px;
                 border-radius: 4px;
                 cursor: pointer;
                 border: 2px solid transparent;
@@ -975,6 +1257,11 @@ document.addEventListener("DOMContentLoaded", function () {
             @media (max-width: 480px) {
                 #color-picker-dialog {
                     width: 90%;
+                    padding: 15px;
+                }
+            
+                .preset-colors {
+                    grid-template-columns: repeat(5, 1fr);
                 }
             }
         `;
@@ -1008,6 +1295,7 @@ document.addEventListener("DOMContentLoaded", function () {
         
         document.getElementById('reset-color').addEventListener('click', function() {
             resetCustomBackgroundColor();
+            setTimeout(() => location.reload(), 300); 
         });
         
         document.querySelector('.close-btn').addEventListener('click', function() {
@@ -1048,6 +1336,376 @@ document.addEventListener("DOMContentLoaded", function () {
         `).join('');
     }
 
+    function showFontSettings() {
+        const existing = document.getElementById('font-settings-overlay');
+        if (existing) return;
+
+        const currentSize = localStorage.getItem('fontSize') || '16';
+        const currentColor = localStorage.getItem('fontColor') || '#ffffff';
+
+        const overlay = document.createElement('div');
+        overlay.id = 'font-settings-overlay';
+        overlay.innerHTML = `
+            <div id="font-settings-dialog">
+                <div class="dialog-header">
+                    <h3>${translateText('fontSize')} & ${translateText('fontColor')}</h3>
+                    <button class="close-btn">&times;</button>
+                </div>
+                <div class="font-controls">
+                    <div class="font-size-control">
+                        <label style="color: white">${translateText('fontSize')}: <span id="font-size-value" style="color: inherit">${currentSize}px</span></label>
+                        <input type="range" id="font-size-slider" min="10" max="30" value="${currentSize}" step="1">
+                    </div>
+                    <div class="font-color-control">
+                        <label>${translateText('fontColor')}:</label>
+                        <div class="color-presets">
+                            <button data-color="#000000" class="color-preset black">${translateText('black')}</button>
+                            <button data-color="#ffffff" class="color-preset white">${translateText('white')}</button>
+                            <button data-color="#ff0000" class="color-preset red">${translateText('red')}</button>
+                            <button data-color="#0000ff" class="color-preset blue">${translateText('blue')}</button>
+                            <button data-color="#00ff00" class="color-preset green">${translateText('green')}</button>
+                            <button data-color="#800080" class="color-preset purple">${translateText('purple')}</button>
+                            <button id="custom-color-btn" class="color-preset">${translateText('customColor')}</button>
+                        </div>
+                    </div>
+                    <div class="font-preview" style="font-size: ${currentSize}px; color: ${currentColor}">
+                        ${currentSize}px | ${currentColor}
+                    </div>
+                    <div class="button-group">
+                        <button id="apply-font">${translateText('apply')}</button>
+                        <button id="reset-font">${translateText('reset')}</button>
+                    </div>
+                </div>
+            </div>
+        `;
+
+        const style = document.createElement('style');
+        style.textContent = `
+            #font-settings-overlay {
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: rgba(0,0,0,0.7);
+                z-index: 9999;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                backdrop-filter: blur(3px);
+            }
+            
+            #font-settings-dialog {
+                background: rgba(0,0,0,0.9);
+                width: 400px;
+                padding: 25px;
+                border-radius: 10px;
+                box-shadow: 0 0 25px rgba(0,0,0,0.6);
+                border: 1px solid #444;
+            }
+            
+            .dialog-header {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                margin-bottom: 15px;
+                padding-bottom: 10px;
+                border-bottom: 1px solid #444;
+            }
+            
+            .dialog-header h3 {
+                margin: 0;
+                color: #9C27B0;
+                font-size: 1.2em;
+            }
+            
+            .close-btn {
+                background: none;
+                border: none;
+                color: #fff;
+                font-size: 24px;
+                cursor: pointer;
+            }
+            
+            .font-controls {
+                display: flex;
+                flex-direction: column;
+                gap: 20px;
+            }
+            
+            .font-size-control {
+                display: flex;
+                flex-direction: column;
+                gap: 10px;
+            }
+            
+            #font-size-slider {
+                width: 100%;
+                height: 8px;
+                -webkit-appearance: none;
+                background: #444;
+                border-radius: 4px;
+                outline: none;
+            }
+            
+            #font-size-slider::-webkit-slider-thumb {
+                -webkit-appearance: none;
+                width: 20px;
+                height: 20px;
+                background: #9C27B0;
+                border-radius: 50%;
+                cursor: pointer;
+            }
+            
+            .font-color-control {
+                display: flex;
+                flex-direction: column;
+                gap: 10px;
+            }
+            
+            .color-presets {
+                display: grid;
+                grid-template-columns: repeat(3, 1fr);
+                gap: 8px;
+            }
+            
+            .color-preset {
+                padding: 8px;
+                border: none;
+                border-radius: 4px;
+                cursor: pointer;
+                transition: transform 0.2s;
+                color: white;
+                text-align: center;
+            }
+            
+            .color-preset:hover {
+                transform: scale(1.05);
+            }
+            
+            .black { background: #000000; }
+            .white { background: #ffffff; color: #000 !important; }
+            .red { background: #ff0000; }
+            .blue { background: #0000ff; }
+            .green { background: #00ff00; color: #000 !important; }
+            .purple { background: #800080; }
+            
+            #custom-color-btn {
+                background: #555;
+                grid-column: span 3;
+            }
+            
+            .font-preview {
+                padding: 15px;
+                border: 1px solid #444;
+                border-radius: 4px;
+                text-align: center;
+                margin-top: 10px;
+            }
+            
+            .button-group {
+                display: flex;
+                gap: 10px;
+                margin-top: 15px;
+            }
+            
+            #apply-font, #reset-font {
+                flex: 1;
+                padding: 10px;
+                border: none;
+                border-radius: 4px;
+                cursor: pointer;
+                font-weight: bold;
+            }
+            
+            #apply-font {
+                background: #4CAF50;
+                color: white;
+            }
+            
+            #reset-font {
+                background: #f44336;
+                color: white;
+            }
+
+            .font-size-control label, 
+            .font-color-control label {
+                color: white !important;
+            }
+           
+            @media (max-width: 480px) {
+                #font-settings-dialog {
+                    width: 90%;
+                    padding: 15px;
+                }
+                
+                .color-presets {
+                    grid-template-columns: repeat(2, 1fr);
+                }
+                
+                #custom-color-btn {
+                    grid-column: span 2;
+                }
+            }
+        `;
+
+        document.body.appendChild(overlay);
+        document.head.appendChild(style);
+
+        const fontSizeSlider = document.getElementById('font-size-slider');
+        const fontSizeValue = document.getElementById('font-size-value');
+        const fontPreview = document.querySelector('.font-preview');
+
+        fontSizeSlider.addEventListener('input', function() {
+            const size = this.value;
+            fontSizeValue.textContent = `${size}px`;
+            fontPreview.style.fontSize = `${size}px`;
+            const currentColor = fontPreview.style.color || '#ffffff';
+            fontPreview.textContent = `${size}px | ${currentColor}`;
+        });
+
+        document.querySelectorAll('.color-preset:not(#custom-color-btn)').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const color = this.getAttribute('data-color');
+                fontPreview.style.color = color;
+                const currentSize = fontSizeSlider.value;
+                fontPreview.textContent = `${currentSize}px | ${color}`;
+            });
+        });
+
+        document.getElementById('custom-color-btn').addEventListener('click', function() {
+            const colorInput = document.createElement('input');
+            colorInput.type = 'color';
+            colorInput.value = fontPreview.style.color || '#ffffff';
+            colorInput.click();
+            
+            colorInput.addEventListener('input', function() {
+                fontPreview.style.color = this.value;
+                const currentSize = fontSizeSlider.value;
+                fontPreview.textContent = `${currentSize}px | ${this.value}`;
+            });
+        });
+
+        document.getElementById('apply-font').addEventListener('click', function() {
+            const fontSize = fontSizeSlider.value;
+            const fontColor = fontPreview.style.color || currentColor;
+            
+            localStorage.setItem('fontSize', fontSize);
+            localStorage.setItem('fontColor', fontColor);
+            
+            applyFontSettings(fontSize, fontColor);
+            
+            overlay.remove();
+            style.remove();
+        });
+
+        document.getElementById('reset-font').addEventListener('click', function() {
+            localStorage.removeItem('fontSize');
+            localStorage.removeItem('fontColor');
+            
+            applyFontSettings('16', '#ffffff');
+            
+            overlay.remove();
+            style.remove();
+            location.reload();
+        });
+
+        overlay.querySelector('.close-btn').addEventListener('click', function() {
+            overlay.remove();
+            style.remove();
+        });
+
+        overlay.addEventListener('click', function(e) {
+            if (e.target === overlay) {
+                overlay.remove();
+                style.remove();
+            }
+        });
+    }
+
+    function applyFontSettings(size, color) {
+        let styleTag = document.querySelector("#font-size-color-style") || document.createElement("style");
+        styleTag.id = "font-size-color-style";
+        styleTag.textContent = `
+            body {
+                font-size: ${size}px !important;
+                color: ${color} !important;
+            }
+        `;
+        document.head.appendChild(styleTag);
+    }
+
+    const savedFontSize = localStorage.getItem('fontSize');
+    const savedFontColor = localStorage.getItem('fontColor');
+    if (savedFontSize || savedFontColor) {
+        applyFontSettings(savedFontSize || '16', savedFontColor || '#ffffff');
+    }
+
+    function updateControlPanelText() {
+        const popup = document.getElementById('mode-popup');
+        if (!popup) return;
+    
+        const masterSwitch = popup.querySelector('#master-switch span');
+        if (masterSwitch) {
+            masterSwitch.textContent = isEnabled ? translateText('enabled') + ' ✅' : translateText('disabled') + ' ❌';
+        }
+    
+        const themeToggle = popup.querySelector('#theme-toggle');
+        if (themeToggle) {
+            themeToggle.innerHTML = `<i class="bi bi-moon"></i>&nbsp;&nbsp;${translateText('themeToggle')}&nbsp;&nbsp;&nbsp;`;
+        }
+    
+        const themeStatus = popup.querySelector('#theme-status');
+        if (themeStatus) {
+            themeStatus.textContent = `${translateText('currentTheme')}${document.body.classList.contains('dark') ? translateText('darkMode') : translateText('lightMode')}`;
+        }
+    
+        popup.querySelector('.theme-settings-btn span').textContent = translateText('themeSettings');
+        popup.querySelector('[data-mode="video"] span').textContent = translateText('videoMode');
+        popup.querySelector('[data-mode="image"] span').textContent = translateText('imageMode');
+        popup.querySelector('[data-mode="solid"] span').textContent = translateText('solidMode');
+        popup.querySelector('[data-mode="auto"] span').textContent = translateText('autoMode');
+        popup.querySelector('.sound-toggle span').textContent = translateText('backgroundSound');
+        popup.querySelector('.object-fit-btn span').textContent = translateText('displayRatio');
+        popup.querySelector('.object-fit-btn div').textContent = getFitButtonText();
+        popup.querySelector('.ip-toggle span').textContent = localStorage.getItem('hideIP') === 'true' ? translateText('showIP') : translateText('hideIP');
+        popup.querySelector('.info-btn span').textContent = translateText('usageGuide');
+        popup.querySelector('#font-settings-btn span').textContent = `${translateText('fontSize')} & ${translateText('fontColor')}`;
+        popup.querySelector('#color-panel-btn span').textContent = translateText('colorPanel');
+    
+        const isAnimationEnabled = localStorage.getItem('animationEnabled') !== 'false';
+        popup.querySelector('#animation-toggle span').textContent = isAnimationEnabled ? translateText('disableAnimation') : translateText('enableAnimation');
+    
+        const currentFont = localStorage.getItem('selectedFont') || 'default';
+        let fontText;
+        switch (currentFont) {
+            case 'fredoka': fontText = translateText('fontFredoka'); break;
+            case 'dmserif': fontText = translateText('fontDMSerif'); break;
+            case 'notoserif': fontText = translateText('fontNotoSerif'); break;
+            case 'comicneue': fontText = translateText('fontComicNeue'); break;
+            default: fontText = translateText('fontDefault');
+        }
+        popup.querySelector('#font-toggle span').textContent = `${translateText('fontToggle')}: ${fontText}`;
+    }
+
+    function updateFontSettingsText() {
+        const overlay = document.getElementById('font-settings-dialog');
+        if (!overlay) return;
+    
+        overlay.querySelector('h3').textContent = `${translateText('fontSize')} & ${translateText('fontColor')}`;
+        overlay.querySelector('.font-size-control label').innerHTML = `${translateText('fontSize')}: <span id="font-size-value" style="color: inherit">${localStorage.getItem('fontSize') || '16'}px</span>`;
+        overlay.querySelector('.font-color-control label').textContent = `${translateText('fontColor')}:`;
+        overlay.querySelector('.color-preset.black').textContent = translateText('black');
+        overlay.querySelector('.color-preset.white').textContent = translateText('white');
+        overlay.querySelector('.color-preset.red').textContent = translateText('red');
+        overlay.querySelector('.color-preset.blue').textContent = translateText('blue');
+        overlay.querySelector('.color-preset.green').textContent = translateText('green');
+        overlay.querySelector('.color-preset.purple').textContent = translateText('purple');
+        overlay.querySelector('#custom-color-btn').textContent = translateText('customColor');
+        overlay.querySelector('#apply-font').textContent = translateText('apply');
+        overlay.querySelector('#reset-font').textContent = translateText('reset');
+    }
+
     function applyCustomBackgroundColor(color) {
         clearExistingBackground();
     
@@ -1063,6 +1721,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     function resetCustomBackgroundColor() {
         localStorage.removeItem('customBackgroundColor');
+        localStorage.setItem('backgroundMode', 'auto');
         localStorage.removeItem('backgroundMode');
     
         const overlay = document.getElementById('color-picker-overlay');
