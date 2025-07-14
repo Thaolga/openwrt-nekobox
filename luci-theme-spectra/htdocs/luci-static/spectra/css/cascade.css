@@ -2228,6 +2228,67 @@ ul.cbi-tabmenu li.cbi-tab a {
         margin-left: -0.1px !important;
 }
 
+a[href="#"][onclick*="/passwall2/node_config/"],
+a[href="#"][onclick*="/passwall2/get_redir_log"],
+a[href="#"][onclick*="/passwall/node_config/"],
+a[href="#"][onclick*="/passwall/get_redir_log"],
+a[href="#"][onclick*="/cgi-bin/luci/admin/services/passwall2/get_socks_log"] {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	background-color: #3b82f6;
+	color: white !important;
+	font-weight: 500;
+	gap: 6px;
+	border-radius: 6px;
+	text-decoration: none;
+	transition: all 0.3s cubic-bezier(0.645, 0.045, 0.355, 1);
+	margin-right: 5px;
+	margin-bottom: 5px;
+	font-size: inherit;
+	padding: 0 10px;
+	height: 36px;
+	min-width: 60px;
+}
+
+a[href="#"][onclick*="/passwall2/node_config/"]:hover,
+a[href="#"][onclick*="/passwall2/get_redir_log"]:hover,
+a[href="#"][onclick*="/passwall/node_config/"]:hover,
+a[href="#"][onclick*="/passwall/get_redir_log"]:hover,
+a[href="#"][onclick*="/cgi-bin/luci/admin/services/passwall2/get_socks_log"]:hover {
+	background-color: #2563eb;
+	transform: translateY(-2px);
+	box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+a[href="#"][onclick*="/passwall2/node_config/"]:active,
+a[href="#"][onclick*="/passwall2/get_redir_log"]:active,
+a[href="#"][onclick*="/passwall/node_config/"]:active,
+a[href="#"][onclick*="/passwall/get_redir_log"]:active,
+a[href="#"][onclick*="/cgi-bin/luci/admin/services/passwall2/get_socks_log"]:active {
+	transform: translateY(0);
+	background-color: #1d4ed8;
+}
+
+[data-page="admin-system-opkg"] h2 {
+	color: #ccc !important;
+}
+[data-page="admin-system-startup"] textarea {
+	color: #ccc;
+	background-color: transparent;
+}
+[data-page="admin-system-startup"] textarea:focus-visible {
+	border: 1px solid var(--dark-primary);
+}
+[data-page="admin-network-firewall-custom"] #view p textarea,
+[data-page="admin-status-routes"] #view p textarea,
+[data-page="admin-system-crontab"] #view p textarea {
+	color: #ccc;
+	background: rgba(37, 37, 38, 0.1);
+	backdrop-filter: blur(10px);
+	-webkit-backdrop-filter: blur(10px);
+}
+
 h2[name="content"] {
 	color: #9C27B0;
 }
