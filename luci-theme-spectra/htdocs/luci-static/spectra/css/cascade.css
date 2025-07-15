@@ -2232,7 +2232,9 @@ a[href="#"][onclick*="/passwall2/node_config/"],
 a[href="#"][onclick*="/passwall2/get_redir_log"],
 a[href="#"][onclick*="/passwall/node_config/"],
 a[href="#"][onclick*="/passwall/get_redir_log"],
-a[href="#"][onclick*="/cgi-bin/luci/admin/services/passwall2/get_socks_log"] {
+a[href="#"][onclick*="/cgi-bin/luci/admin/services/passwall2/get_socks_log"],
+a[href="#"][onclick*="/cgi-bin/luci/admin/services/passwall/get_socks_log"],
+a[href="#"][onclick*="/cgi-bin/luci/admin/services/passwall/get_chinadns_log"] {
 	display: inline-flex;
 	align-items: center;
 	justify-content: center;
@@ -2255,7 +2257,9 @@ a[href="#"][onclick*="/passwall2/node_config/"]:hover,
 a[href="#"][onclick*="/passwall2/get_redir_log"]:hover,
 a[href="#"][onclick*="/passwall/node_config/"]:hover,
 a[href="#"][onclick*="/passwall/get_redir_log"]:hover,
-a[href="#"][onclick*="/cgi-bin/luci/admin/services/passwall2/get_socks_log"]:hover {
+a[href="#"][onclick*="/cgi-bin/luci/admin/services/passwall2/get_socks_log"]:hover,
+a[href="#"][onclick*="/cgi-bin/luci/admin/services/passwall/get_socks_log"]:hover,
+a[href="#"][onclick*="/cgi-bin/luci/admin/services/passwall/get_chinadns_log"]:hover {
 	background-color: #2563eb;
 	transform: translateY(-2px);
 	box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
@@ -2265,7 +2269,9 @@ a[href="#"][onclick*="/passwall2/node_config/"]:active,
 a[href="#"][onclick*="/passwall2/get_redir_log"]:active,
 a[href="#"][onclick*="/passwall/node_config/"]:active,
 a[href="#"][onclick*="/passwall/get_redir_log"]:active,
-a[href="#"][onclick*="/cgi-bin/luci/admin/services/passwall2/get_socks_log"]:active {
+a[href="#"][onclick*="/cgi-bin/luci/admin/services/passwall2/get_socks_log"]:active,
+a[href="#"][onclick*="/cgi-bin/luci/admin/services/passwall/get_socks_log"]:active,
+a[href="#"][onclick*="/cgi-bin/luci/admin/services/passwall/get_chinadns_log"]:active {
 	transform: translateY(0);
 	background-color: #1d4ed8;
 }

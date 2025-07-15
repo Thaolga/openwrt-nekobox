@@ -88,7 +88,6 @@ document.addEventListener("DOMContentLoaded", function () {
         'en': {
             'enabled': 'Enabled',
             'disabled': 'Disabled',
-            'themeToggle': 'Toggle Theme Mode',
             'currentTheme': 'Current Theme: ',
             'darkMode': 'Dark Mode',
             'lightMode': 'Light Mode',
@@ -98,7 +97,7 @@ document.addEventListener("DOMContentLoaded", function () {
             'solidMode': 'Solid Mode',
             'autoMode': 'Auto Mode',
             'backgroundSound': 'Background Sound',
-            'displayRatio': 'Display Ratio: ',
+            'displayRatio': 'Display Ratio',
             'normalRatio': 'Normal Ratio',
             'stretchFill': 'Stretch Fill',
             'originalSize': 'Original Size',
@@ -118,6 +117,7 @@ document.addEventListener("DOMContentLoaded", function () {
             'fontDMSerif': 'DM Serif',
             'fontNotoSerif': 'Noto Serif',
             'fontComicNeue': 'Comic Neue',
+            'fontSettings': 'Font Settings', 
             'fontSize': 'Font Size',
             'fontColor': 'Font Color',
             'black': 'Black',
@@ -132,13 +132,13 @@ document.addEventListener("DOMContentLoaded", function () {
             'guide3': '3. Solid Mode: Transparent background + spectrum animation',
             'guide4': '4. Light Mode: Switch in theme settings, will automatically turn off the control switch',
             'guide5': '5. Theme Settings: Supports custom backgrounds, mode switching requires clearing the background',
-            'guide6': '6. Project Address: <a class="github-link" href="https://github.com/Thaolga/openwrt-nekobox" target="_blank">Click to visit</a>',
+            'guide6': '6. Menu Settings: Press Ctrl + Alt + S to open the settings menu',
+            'guide7': '7. Project Address: <a class="github-link" href="https://github.com/Thaolga/openwrt-nekobox" target="_blank">Click to visit</a>',
             'themeTitle': 'Spectra Theme Settings'
         },
         'zh': {
             'enabled': '已启用',
             'disabled': '已禁用',
-            'themeToggle': '切换主题模式',
             'currentTheme': '当前主题: ',
             'darkMode': '暗色模式',
             'lightMode': '亮色模式',
@@ -148,7 +148,7 @@ document.addEventListener("DOMContentLoaded", function () {
             'solidMode': '暗黑模式',
             'autoMode': '自动模式',
             'backgroundSound': '背景音效',
-            'displayRatio': '显示比例：',
+            'displayRatio': '显示比例',
             'normalRatio': '正常比例',
             'stretchFill': '拉伸填充',
             'originalSize': '原始尺寸',
@@ -167,6 +167,7 @@ document.addEventListener("DOMContentLoaded", function () {
             'fontDMSerif': '衬线字体',
             'fontNotoSerif': '思源宋体',
             'fontComicNeue': '漫画字体',
+            'fontSettings': '字体设置', 
             'fontSize': '字体大小',
             'fontColor': '字体颜色',
             'black': '黑色',
@@ -182,13 +183,13 @@ document.addEventListener("DOMContentLoaded", function () {
             'guide3': '3. 暗黑模式：透明背景+光谱动画',
             'guide4': '4. 亮色模式：主题设置进行切换，会自动关闭控制开关',
             'guide5': '5. 主题设置：支持自定义背景，模式切换需清除背景',
-            'guide6': '6. 项目地址：<a class="github-link" href="https://github.com/Thaolga/openwrt-nekobox" target="_blank">点击访问</a>',
+            'guide6': '6. 菜单设置：Ctrl + Alt + S 打开设置菜单',
+            'guide7': '7. 项目地址：<a class="github-link" href="https://github.com/Thaolga/openwrt-nekobox" target="_blank">点击访问</a>',
             'themeTitle': 'Spectra 主题设置'
         },
         'zh-tw': {
             'enabled': '已啟用',
             'disabled': '已停用',
-            'themeToggle': '切換主題模式',
             'currentTheme': '當前主題: ',
             'darkMode': '暗色模式',
             'lightMode': '亮色模式',
@@ -198,7 +199,7 @@ document.addEventListener("DOMContentLoaded", function () {
             'solidMode': '暗黑模式',
             'autoMode': '自動模式',
             'backgroundSound': '背景音效',
-            'displayRatio': '顯示比例：',
+            'displayRatio': '顯示比例',
             'normalRatio': '正常比例',
             'stretchFill': '拉伸填充',
             'originalSize': '原始尺寸',
@@ -217,6 +218,7 @@ document.addEventListener("DOMContentLoaded", function () {
             'fontDMSerif': '襯線字體',
             'fontNotoSerif': '思源宋體',
             'fontComicNeue': '漫畫字體',
+            'fontSettings': '字型設定', 
             'fontSize': '字體大小',
             'fontColor': '字體顏色',
             'black': '黑色',
@@ -232,7 +234,8 @@ document.addEventListener("DOMContentLoaded", function () {
             'guide3': '3. 暗黑模式：透明背景+光譜動畫',
             'guide4': '4. 亮色模式：主題設定進行切換，會自動關閉控制開關',
             'guide5': '5. 主題設定：支援自訂背景，模式切換需清除背景',
-            'guide6': '6. 專案地址：<a class="github-link" href="https://github.com/Thaolga/openwrt-nekobox" target="_blank">點擊訪問</a>',
+            'guide6': '6. 功能選單設定：Ctrl + Alt + S 開啟設定選單',
+            'guide7': '7. 專案地址：<a class="github-link" href="https://github.com/Thaolga/openwrt-nekobox" target="_blank">點擊訪問</a>',
             'themeTitle': 'Spectra 主題設定'
         }
     };
@@ -261,33 +264,6 @@ document.addEventListener("DOMContentLoaded", function () {
         return languages[currentLanguage][key] || key;
     }
 
-    function updateUIText() {
-        document.getElementById('master-switch').querySelector('span').textContent = isEnabled ? translateText('enabled') + ' ✅' : translateText('disabled') + ' ❌';
-        document.getElementById('theme-toggle').querySelector('i').className = 'bi bi-moon';
-        document.getElementById('theme-toggle').textContent = translateText('themeToggle');
-        document.getElementById('theme-status').textContent = translateText('currentTheme') + (document.getElementById('theme-status').textContent.includes(translateText('darkMode')) ? translateText('darkMode') : translateText('lightMode'));
-        document.querySelector('.theme-settings-btn').textContent = translateText('themeSettings');
-        document.querySelector('[data-mode="video"]').textContent = translateText('videoMode');
-        document.querySelector('[data-mode="image"]').textContent = translateText('imageMode');
-        document.querySelector('[data-mode="solid"]').textContent = translateText('solidMode');
-        document.querySelector('[data-mode="auto"]').textContent = translateText('autoMode');
-        document.querySelector('.sound-toggle span').textContent = translateText('backgroundSound');
-        document.querySelector('.object-fit-btn span').textContent = translateText('displayRatio');
-        document.querySelector('.ip-toggle span').textContent = localStorage.getItem('hideIP') === 'true' ? translateText('showIP') : translateText('hideIP');
-        document.querySelector('.info-btn').textContent = translateText('usageGuide');
-
-        const objectFitBtn = document.querySelector('.object-fit-btn');
-        if (objectFitBtn) {
-            objectFitBtn.querySelector('div').textContent = getFitButtonText();
-        }
-
-        const languageToggle = document.getElementById('language-toggle');
-        if (languageToggle) {
-            languageToggle.querySelector('span').textContent = getLanguageButtonText();
-            languageToggle.querySelector('.status-led').style.background = getLanguageButtonColor();
-        }
-    }
-
     function getFitButtonText() {
         const savedFit = localStorage.getItem('videoObjectFit') || 'cover';
         const texts = {
@@ -302,17 +278,12 @@ document.addEventListener("DOMContentLoaded", function () {
 
     function updateThemeButton(mode) {
         const btn = document.getElementById('theme-toggle');
-        const status = document.getElementById('theme-status');
-        if (!btn || !status) return;
-
+        if (!btn) return;
+    
         if (mode === "dark") {
-            btn.innerHTML = `<i class="bi bi-sun"></i>&nbsp;&nbsp;${translateText('themeToggle')}&nbsp;&nbsp;&nbsp;`;
-            btn.className = "btn btn-primary light";
-            status.innerText = `${translateText('currentTheme')}${translateText('darkMode')}`;
+            btn.innerHTML = `${translateText('darkMode')}&nbsp;&nbsp;<i class="bi bi-moon-fill"></i>`;
         } else {
-            btn.innerHTML = `<i class="bi bi-moon"></i>&nbsp;&nbsp;${translateText('themeToggle')}&nbsp;&nbsp;&nbsp;`;
-            btn.className = "btn btn-primary dark";
-            status.innerText = `${translateText('currentTheme')}${translateText('lightMode')}`;
+            btn.innerHTML = `${translateText('lightMode')}&nbsp;&nbsp;<i class="bi bi-sun-fill"></i>`;
         }
     }
 
@@ -352,7 +323,7 @@ document.addEventListener("DOMContentLoaded", function () {
         })
         .catch(error => {
             console.error("获取主题模式失败:", error);
-        });
+    });
 
     function generateControlPanel() {
         const isAnimationEnabled = localStorage.getItem('animationEnabled') !== 'false';
@@ -381,17 +352,18 @@ document.addEventListener("DOMContentLoaded", function () {
         return `
             <div id="settings-icon">⚙️</div>
             <div id="mode-popup">
-                <button id="theme-toggle" style="opacity:1 !important;pointer-events:auto !important;background:#2196F3 !important">
-                    <i class="bi bi-moon"></i>&nbsp;&nbsp;${translateText('themeToggle')}&nbsp;&nbsp;&nbsp;
-                    <div id="theme-status" style="margin-left:8px;color:#FFEB3B">${translateText('currentTheme')}${translateText('darkMode')}</div>
-                </button>
-                <button id="master-switch">
-                    <span>${isEnabled ? translateText('enabled') + ' ✅' : translateText('disabled') + ' ❌'}</span>
-                    <div class="status-led" style="background:${isEnabled ? '#4CAF50' : '#f44336'}"></div>
+                <button id="theme-toggle" class="always-visible" style="background:#2196F3 !important">
+                    ${document.body.classList.contains('dark') ? 
+                        `${translateText('darkMode')}&nbsp;&nbsp;<i class="bi bi-moon-fill"></i>` : 
+                        `${translateText('lightMode')}&nbsp;&nbsp;<i class="bi bi-sun-fill"></i>`}
                 </button>
                 <button class="theme-settings-btn">
                     <span>${translateText('themeSettings')}</span>
                     <div><i class="bi bi-brush"></i></div>
+                </button>
+                <button id="master-switch">
+                    <span>${translateText(isEnabled ? 'enabled' : 'disabled')}</span>
+                    <div>${isEnabled ? '<i class="bi bi-power" style="color:#4CAF50"></i>' : '<i class="bi bi-power-off" style="color:#f44336"></i>'}</div>
                 </button>
                 <button data-mode="video">
                     <span>${translateText('videoMode')}</span>
@@ -429,17 +401,17 @@ document.addEventListener("DOMContentLoaded", function () {
                     <span>${animationText}</span>
                     <div class="status-led" style="background:${isAnimationEnabled ? '#4CAF50' : '#f44336'}"></div>
                 </button>
-                <button id="font-toggle" class="always-visible">
-                    <span>${translateText('fontToggle')}: ${fontText}</span>
-                    <div class="status-led" style="background: #9C27B0"></div>
+                <button id="font-toggle" class="object-fit-btn">
+                    <span>${translateText('fontToggle')}</span>
+                    <div>${getFontButtonText()}</div>
                 </button>
                 <button id="color-panel-btn">
                     <span>${translateText('colorPanel')}</span>
                     <div><i class="bi bi-palette"></i></div>
                 </button>
                 <button id="font-settings-btn" class="always-visible">
-                    <span>${translateText('fontSize')} & ${translateText('fontColor')}</span>
-                    <div><i class="bi bi-fonts"></i></div>
+                    <span>${translateText('fontSettings')}</span>
+                    <div><i class="bi bi-textarea-t"></i></div>
                 </button>
                 <button class="info-btn">
                     <span>${translateText('usageGuide')}</span>
@@ -456,6 +428,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 setMode(btn.dataset.mode);
                 document.querySelectorAll('[data-mode]').forEach(b => b.classList.remove('selected-mode'));
                 this.classList.add('selected-mode');
+                localStorage.setItem('selectedMode', btn.dataset.mode);
             });
         });
         document.querySelector('.sound-toggle').addEventListener('click', function() {
@@ -478,39 +451,30 @@ document.addEventListener("DOMContentLoaded", function () {
             showFontSettings();
         });
 
+        document.addEventListener('keydown', function(e) {
+            if ((e.ctrlKey || e.metaKey) && e.altKey && e.key.toLowerCase() === 's') {
+                e.preventDefault();
+                const popup = document.getElementById('mode-popup');
+                popup.classList.toggle('show');
+            }
+        });
+
         document.getElementById('font-toggle')?.addEventListener('click', function(e) {
             e.stopPropagation();
-        
+    
             const currentFont = localStorage.getItem('selectedFont') || 'default';
-            let nextFont;
-            let nextFontName;
-
+            let nextFont, nextFontName;
+    
             switch (currentFont) {
-                case 'default':
-                    nextFont = 'fredoka';
-                    nextFontName = translateText('fontFredoka');
-                    break;
-                case 'fredoka':
-                    nextFont = 'dmserif';
-                    nextFontName = translateText('fontDMSerif');
-                    break;
-                case 'dmserif':
-                    nextFont = 'notoserif';
-                    nextFontName = translateText('fontNotoSerif');
-                    break;
-                case 'notoserif':
-                    nextFont = 'comicneue';
-                    nextFontName = translateText('fontComicNeue');
-                    break;
-                default:
-                    nextFont = 'default';
-                    nextFontName = translateText('fontDefault');
+                case 'default': nextFont = 'fredoka'; break;
+                case 'fredoka': nextFont = 'dmserif'; break;
+                case 'dmserif': nextFont = 'notoserif'; break;
+                case 'notoserif': nextFont = 'comicneue'; break;
+                default: nextFont = 'default';
             }
-
+    
             localStorage.setItem('selectedFont', nextFont);
-        
-            this.querySelector('span').textContent = `${translateText('fontToggle')}: ${nextFontName}`;
-        
+            this.querySelector('div').textContent = getFontButtonText();
             applyFont(nextFont);
         });
 
@@ -532,12 +496,21 @@ document.addEventListener("DOMContentLoaded", function () {
 
         document.getElementById('theme-toggle')?.addEventListener('click', function(e) {
             e.stopPropagation();
+
+            const switchingToLight = document.body.classList.contains('dark');
+
             fetch("/luci-static/spectra/bgm/theme-switcher.php", { method: "POST" })
                 .then(response => response.json())
                 .then(data => {
                     if (data.success) {
+
+                        if (switchingToLight) {
+                            localStorage.setItem('backgroundEnabled', 'false');
+                            clearBackgroundSystem();
+                        }
+
                         updateThemeButton(data.mode);
-                        setTimeout(() => location.reload(), 300); 
+                        setTimeout(() => location.reload(), 300);
                     }
                 })
         });
@@ -549,7 +522,8 @@ document.addEventListener("DOMContentLoaded", function () {
                 translateText('guide3'),
                 translateText('guide4'),
                 translateText('guide5'),
-                translateText('guide6')
+                translateText('guide6'),
+                translateText('guide7')
             ]);
         });
 
@@ -585,14 +559,11 @@ document.addEventListener("DOMContentLoaded", function () {
             isEnabled = !isEnabled;
             localStorage.setItem('backgroundEnabled', isEnabled);
             this.style.background = isEnabled ? '#4CAF50' : '#f44336';
-            const led = this.querySelector('.status-led');
-            const circleColor = isEnabled ? '#4CAF50' : '#f44336';
-            led.style.boxShadow = `0 0 5px ${circleColor}`;
-            led.style.backgroundColor = circleColor;
-            led.style.borderColor = isEnabled ? '#ffffff' : '#000000'; 
-
-            this.querySelector('span').textContent = isEnabled ? translateText('enabled') + ' ✅' : translateText('disabled') + ' ❌';
-            document.querySelectorAll('#mode-popup button:not(#master-switch):not(.sound-toggle):not(#redirect-btn):not(.info-btn):not(#language-toggle)').forEach(btn => {
+            this.querySelector('span').textContent = translateText(isEnabled ? 'enabled' : 'disabled');
+            this.querySelector('div').innerHTML = isEnabled ? 
+                '<i class="bi bi-power" style="color:#4CAF50"></i>' : 
+                '<i class="bi bi-power-off" style="color:#f44336"></i>';
+            document.querySelectorAll('#mode-popup button:not(.always-visible):not(#master-switch):not(.sound-toggle):not(#redirect-btn):not(.info-btn):not(#language-toggle)').forEach(btn => {
                 btn.style.opacity = isEnabled ? 1 : 0.5;
                 btn.style.pointerEvents = isEnabled ? 'auto' : 'none';
             });
@@ -754,11 +725,11 @@ document.addEventListener("DOMContentLoaded", function () {
         #mode-popup button.ip-toggle {
             opacity: 1 !important;      
             pointer-events: auto !important;  
-            background: #2196F3 !important;  
+            background: #00A497 !important;  
         }
 
         #mode-popup button.theme-settings-btn {
-            background: #9C27B0 !important;
+            background: #EB6EA5 !important;
             opacity: 1 !important;
             pointer-events: auto !important;
         }
@@ -785,11 +756,6 @@ document.addEventListener("DOMContentLoaded", function () {
             opacity: 1 !important;
             pointer-events: auto !important;
             background: #9C27B0 !important;
-        }
-
-        .no-animation * {
-            animation: none !important;
-            transition: none !important;
         }
 
         .no-animation * {
@@ -952,6 +918,10 @@ document.addEventListener("DOMContentLoaded", function () {
         availableImages = [];
         
         const savedMode = localStorage.getItem('backgroundMode') || 'auto';
+        document.querySelectorAll('[data-mode]').forEach(btn => {
+            btn.classList.toggle('selected-mode', btn.dataset.mode === savedMode);
+        });
+
         if (savedMode === 'color') {
             const savedColor = localStorage.getItem('customBackgroundColor');
         if (savedColor) {
@@ -964,12 +934,27 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     function clearBackgroundSystem() {
+        const currentMode = localStorage.getItem('backgroundMode') || 'auto';
+    
         if (videoTag) {
+            videoTag.pause();
             videoTag.remove();
+            videoTag = null;
         }
+    
         document.querySelectorAll('#dynamic-style, #video-style').forEach(e => e.remove());
         clearInterval(switchInterval);
         document.body.style.background = '';
+        document.body.style.backgroundImage = '';
+        document.body.style.display = 'none';
+        document.body.offsetHeight;
+        document.body.style.display = '';
+    
+        localStorage.setItem('backgroundMode', currentMode);
+    
+        document.querySelectorAll('[data-mode]').forEach(btn => {
+            btn.classList.toggle('selected-mode', btn.dataset.mode === currentMode);
+        });
     }
 
     function toggleAnimation(enabled) {
@@ -1006,9 +991,21 @@ document.addEventListener("DOMContentLoaded", function () {
         document.head.appendChild(styleTag);
     }
 
+    function getFontButtonText() {
+        const currentFont = localStorage.getItem('selectedFont') || 'default';
+        switch (currentFont) {
+            case 'fredoka': return translateText('fontFredoka');
+            case 'dmserif': return translateText('fontDMSerif');
+            case 'notoserif': return translateText('fontNotoSerif');
+            case 'comicneue': return translateText('fontComicNeue');
+            default: return translateText('fontDefault');
+        }
+    }
+
     function setMode(mode) {
         if (!isEnabled) return;
         localStorage.setItem('backgroundMode', mode);
+        localStorage.setItem('selectedMode', mode); 
         clearExistingBackground();
 
         switch (mode) {
@@ -1348,7 +1345,7 @@ document.addEventListener("DOMContentLoaded", function () {
         overlay.innerHTML = `
             <div id="font-settings-dialog">
                 <div class="dialog-header">
-                    <h3>${translateText('fontSize')} & ${translateText('fontColor')}</h3>
+                    <h3>${translateText('fontSettings')}</h3>
                     <button class="close-btn">&times;</button>
                 </div>
                 <div class="font-controls">
@@ -1645,14 +1642,19 @@ document.addEventListener("DOMContentLoaded", function () {
         const popup = document.getElementById('mode-popup');
         if (!popup) return;
     
-        const masterSwitch = popup.querySelector('#master-switch span');
+        const masterSwitch = popup.querySelector('#master-switch');
         if (masterSwitch) {
-            masterSwitch.textContent = isEnabled ? translateText('enabled') + ' ✅' : translateText('disabled') + ' ❌';
+            masterSwitch.querySelector('span').textContent = translateText(isEnabled ? 'enabled' : 'disabled');
+            masterSwitch.querySelector('div').innerHTML = isEnabled ? 
+                '<i class="bi bi-power" style="color:#4CAF50"></i>' : 
+                '<i class="bi bi-power-off" style="color:#f44336"></i>';
         }
-    
+
         const themeToggle = popup.querySelector('#theme-toggle');
         if (themeToggle) {
-            themeToggle.innerHTML = `<i class="bi bi-moon"></i>&nbsp;&nbsp;${translateText('themeToggle')}&nbsp;&nbsp;&nbsp;`;
+            themeToggle.innerHTML = document.body.classList.contains('dark') ? 
+                `${translateText('darkMode')}&nbsp;&nbsp;<i class="bi bi-moon-fill"></i>` : 
+                `${translateText('lightMode')}&nbsp;&nbsp;<i class="bi bi-sun-fill"></i>`;
         }
     
         const themeStatus = popup.querySelector('#theme-status');
@@ -1671,6 +1673,8 @@ document.addEventListener("DOMContentLoaded", function () {
         popup.querySelector('.ip-toggle span').textContent = localStorage.getItem('hideIP') === 'true' ? translateText('showIP') : translateText('hideIP');
         popup.querySelector('.info-btn span').textContent = translateText('usageGuide');
         popup.querySelector('#font-settings-btn span').textContent = `${translateText('fontSize')} & ${translateText('fontColor')}`;
+        popup.querySelector('#font-settings-btn span').textContent = translateText('fontSettings');
+
         popup.querySelector('#color-panel-btn span').textContent = translateText('colorPanel');
     
         const isAnimationEnabled = localStorage.getItem('animationEnabled') !== 'false';
@@ -1685,7 +1689,12 @@ document.addEventListener("DOMContentLoaded", function () {
             case 'comicneue': fontText = translateText('fontComicNeue'); break;
             default: fontText = translateText('fontDefault');
         }
-        popup.querySelector('#font-toggle span').textContent = `${translateText('fontToggle')}: ${fontText}`;
+
+        const fontToggle = popup.querySelector('#font-toggle');
+        if (fontToggle) {
+            fontToggle.querySelector('span').textContent = translateText('fontToggle');
+            fontToggle.querySelector('div').textContent = fontText;
+        }
     }
 
     function updateFontSettingsText() {
