@@ -758,11 +758,6 @@ document.addEventListener("DOMContentLoaded", function () {
             background: #9C27B0 !important;
         }
 
-        .no-animation * {
-            animation: none !important;
-            transition: none !important;
-        }
-
         @media (max-width: 600px) {
             #settings-icon {
                 right: 8%;
@@ -958,10 +953,9 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     function toggleAnimation(enabled) {
-        if (enabled) {
-            document.body.classList.remove('no-animation');
-        } else {
-            document.body.classList.add('no-animation');
+        const wrapper = document.querySelector('.wrapper');
+        if (wrapper) {
+            wrapper.style.display = enabled ? 'block' : 'none';
         }
     }
 
@@ -2147,4 +2141,5 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     }
 });
+
 
