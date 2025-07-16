@@ -279,11 +279,17 @@ document.addEventListener("DOMContentLoaded", function () {
     function updateThemeButton(mode) {
         const btn = document.getElementById('theme-toggle');
         if (!btn) return;
-    
+
         if (mode === "dark") {
-            btn.innerHTML = `${translateText('darkMode')}&nbsp;&nbsp;<i class="bi bi-moon-fill"></i>`;
+            btn.innerHTML = `
+                ${translateText('darkMode')}
+                <div><i class="bi bi-moon-fill"></i></div>
+            `;
         } else {
-            btn.innerHTML = `${translateText('lightMode')}&nbsp;&nbsp;<i class="bi bi-sun-fill"></i>`;
+            btn.innerHTML = `
+                ${translateText('lightMode')}
+                <div><i class="bi bi-sun-fill"></i></div>
+            `;
         }
     }
 
@@ -328,7 +334,11 @@ document.addEventListener("DOMContentLoaded", function () {
     function generateControlPanel() {
         const isAnimationEnabled = localStorage.getItem('animationEnabled') !== 'false';
         const animationText = isAnimationEnabled ? translateText('disableAnimation') : translateText('enableAnimation');
-
+        const animationIcon = isAnimationEnabled ? '<i class="bi bi-toggle-on status-on" style="color: white"></i>' : '<i class="bi bi-toggle-off status-off" style="color: white"></i>';
+        const ipHidden = localStorage.getItem('hideIP') === 'true';
+        const ipIcon = ipHidden ? '<i class="bi bi-eye-slash status-off" style="color: white"></i>' : '<i class="bi bi-eye status-on" style="color: white"></i>';
+        const soundMuted = localStorage.getItem('videoMuted') === 'true';
+        const soundIcon = soundMuted ? '<i class="bi bi-volume-mute status-off" style="color: white"></i>' : '<i class="bi bi-volume-up status-on" style="color: white"></i>';
         const currentFont = localStorage.getItem('selectedFont') || 'default';
         let fontText;
     
@@ -350,12 +360,16 @@ document.addEventListener("DOMContentLoaded", function () {
         }
 
         return `
-            <div id="settings-icon">⚙️</div>
+            <div id="settings-icon" style="width: 40px; height: 40px; border-radius: 50%; background: rgba(0, 0, 0, 0.5); display: flex; align-items: center; justify-content: center; overflow: hidden;">
+                <img src="/luci-static/spectra/navbar/interface.gif" width="35" height="35" alt="Settings" style="border-radius: 50%; object-fit: cover;">
+            </div>
             <div id="mode-popup">
+            <div class="button-grid">
                 <button id="theme-toggle" class="always-visible" style="background:#2196F3 !important">
                     ${document.body.classList.contains('dark') ? 
-                        `${translateText('darkMode')}&nbsp;&nbsp;<i class="bi bi-moon-fill"></i>` : 
-                        `${translateText('lightMode')}&nbsp;&nbsp;<i class="bi bi-sun-fill"></i>`}
+                        `${translateText('darkMode')}` : 
+                        `${translateText('lightMode')}`}
+                    <div><i class="bi ${document.body.classList.contains('dark') ? 'bi-moon-fill' : 'bi-sun-fill'}"></i></div>
                 </button>
                 <button class="theme-settings-btn">
                     <span>${translateText('themeSettings')}</span>
@@ -363,8 +377,13 @@ document.addEventListener("DOMContentLoaded", function () {
                 </button>
                 <button id="master-switch">
                     <span>${translateText(isEnabled ? 'enabled' : 'disabled')}</span>
-                    <div>${isEnabled ? '<i class="bi bi-power" style="color:#4CAF50"></i>' : '<i class="bi bi-power-off" style="color:#f44336"></i>'}</div>
+                    <div>${isEnabled ? '<i class="bi bi-toggle-on" style="color: white"></i>' : '<i class="bi bi-toggle-off" style="color: white"></i>'}</div>
                 </button>
+                <button class="sound-toggle">
+                    <span>${translateText('backgroundSound')}</span>
+                    <div>${soundIcon}</div>
+                </button>
+
                 <button data-mode="video">
                     <span>${translateText('videoMode')}</span>
                     <div><i class="bi bi-camera-video"></i></div>
@@ -379,28 +398,27 @@ document.addEventListener("DOMContentLoaded", function () {
                 </button>
                 <button data-mode="auto">
                     <span>${translateText('autoMode')}</span>
-                    <div><i class="bi bi-stars"></i></div>
+                    <div><i class="bi bi-stars" style="color: white"></i></div>
                 </button>
-                <button class="sound-toggle">
-                    <span>${translateText('backgroundSound')}</span>
-                    <div>${localStorage.getItem('videoMuted') === 'true' ? '🔇' : '🔊'}</div>
-                </button>
+
+
                 <button class="object-fit-btn" style="opacity:1 !important;pointer-events:auto !important">
                     <span>${translateText('displayRatio')}</span>
                     <div>${getFitButtonText()}</div>
                 </button>
                 <button class="ip-toggle">
-                    <span>${localStorage.getItem('hideIP') === 'true' ? translateText('showIP') : translateText('hideIP')}</span>
-                    <div class="status-led" style="background:${localStorage.getItem('hideIP') !== 'true' ? '#4CAF50' : '#f44336'}"></div>
+                    <span>${ipHidden ? translateText('showIP') : translateText('hideIP')}</span>
+                    <div>${ipIcon}</div>
                 </button>
                 <button id="language-toggle">
                     <span>${getLanguageButtonText()}</span>
-                    <div class="status-led" style="background:${getLanguageButtonColor()}"></div>
+                    <div><i class="bi bi-translate" style="color:${getLanguageButtonColor()}"></i></div>
                 </button>
                 <button id="animation-toggle" class="always-visible">
                     <span>${animationText}</span>
-                    <div class="status-led" style="background:${isAnimationEnabled ? '#4CAF50' : '#f44336'}"></div>
+                    <div>${animationIcon}</div>
                 </button>
+
                 <button id="font-toggle" class="object-fit-btn">
                     <span>${translateText('fontToggle')}</span>
                     <div>${getFontButtonText()}</div>
@@ -418,6 +436,7 @@ document.addEventListener("DOMContentLoaded", function () {
                     <div><i class="bi bi-info-circle"></i></div>
                 </button>
             </div>
+        </div>
         `;
     }
 
@@ -431,12 +450,16 @@ document.addEventListener("DOMContentLoaded", function () {
                 localStorage.setItem('selectedMode', btn.dataset.mode);
             });
         });
-        document.querySelector('.sound-toggle').addEventListener('click', function() {
+
+        document.querySelector('.sound-toggle').addEventListener('click', function(e) {
+            e.stopPropagation();
             const newMuted = localStorage.getItem('videoMuted') !== 'true';
             localStorage.setItem('videoMuted', newMuted);
             
-            this.querySelector('div').textContent = newMuted ? '🔇' : '🔊';
-            
+            this.querySelector('div').innerHTML = newMuted ? 
+                '<i class="bi bi-volume-up status-on" style="color: white"></i>' : 
+                '<i class="bi bi-volume-mute status-off" style="color: white"></i>';
+                
             if (videoTag) {
                 videoTag.muted = newMuted;
             }
@@ -450,6 +473,7 @@ document.addEventListener("DOMContentLoaded", function () {
             e.stopPropagation();
             showFontSettings();
         });
+
 
         document.addEventListener('keydown', function(e) {
             if ((e.ctrlKey || e.metaKey) && e.altKey && e.key.toLowerCase() === 's') {
@@ -480,17 +504,19 @@ document.addEventListener("DOMContentLoaded", function () {
 
         document.getElementById('animation-toggle')?.addEventListener('click', function(e) {
             e.stopPropagation();
-        
+
             const isAnimationEnabled = localStorage.getItem('animationEnabled') !== 'false';
             const newState = !isAnimationEnabled;
             localStorage.setItem('animationEnabled', newState);
 
-            this.querySelector('.status-led').style.background = newState ? '#4CAF50' : '#f44336';
-        
             this.querySelector('span').textContent = newState ? 
-                translateText('disableAnimation') :
+                translateText('disableAnimation') : 
                 translateText('enableAnimation');
-        
+    
+            this.querySelector('div').innerHTML = newState ? 
+                '<i class="bi bi-toggle-on status-on"></i>' : 
+                '<i class="bi bi-toggle-off status-off"></i>';
+
             toggleAnimation(newState);
         });
 
@@ -510,6 +536,7 @@ document.addEventListener("DOMContentLoaded", function () {
                         }
 
                         updateThemeButton(data.mode);
+                        updateUIText(); 
                         setTimeout(() => location.reload(), 300);
                     }
                 })
@@ -527,7 +554,9 @@ document.addEventListener("DOMContentLoaded", function () {
             ]);
         });
 
-        document.getElementById('language-toggle').addEventListener('click', function() {
+        document.getElementById('language-toggle').addEventListener('click', function(e) {
+            e.stopPropagation();
+    
             switch(currentLanguage) {
                 case 'zh': currentLanguage = 'en'; break;
                 case 'en': currentLanguage = 'zh-tw'; break;
@@ -535,11 +564,11 @@ document.addEventListener("DOMContentLoaded", function () {
                 default: currentLanguage = 'zh';
             }
             localStorage.setItem('currentLanguage', currentLanguage);
-            
-            this.querySelector('span').textContent = getLanguageButtonText();
-            this.querySelector('.status-led').style.background = getLanguageButtonColor();
     
-            updateControlPanelText();
+            this.querySelector('span').textContent = getLanguageButtonText();
+            this.querySelector('div').innerHTML = `<i class="bi bi-translate" style="color:${getLanguageButtonColor()}"></i>`;
+    
+            updateUIText();
     
             const fontSettingsOverlay = document.getElementById('font-settings-overlay');
             if (fontSettingsOverlay) {
@@ -561,8 +590,8 @@ document.addEventListener("DOMContentLoaded", function () {
             this.style.background = isEnabled ? '#4CAF50' : '#f44336';
             this.querySelector('span').textContent = translateText(isEnabled ? 'enabled' : 'disabled');
             this.querySelector('div').innerHTML = isEnabled ? 
-                '<i class="bi bi-power" style="color:#4CAF50"></i>' : 
-                '<i class="bi bi-power-off" style="color:#f44336"></i>';
+                '<i class="bi bi-toggle-on" style="color: white"></i>' : 
+                '<i class="bi bi-toggle-off" style="color: white"></i>';
             document.querySelectorAll('#mode-popup button:not(.always-visible):not(#master-switch):not(.sound-toggle):not(#redirect-btn):not(.info-btn):not(#language-toggle)').forEach(btn => {
                 btn.style.opacity = isEnabled ? 1 : 0.5;
                 btn.style.pointerEvents = isEnabled ? 'auto' : 'none';
@@ -604,19 +633,43 @@ document.addEventListener("DOMContentLoaded", function () {
         document.addEventListener('click', function(e) {
             const toggleBtn = e.target.closest('.ip-toggle');
             if (toggleBtn && ipContainer) {
+                e.stopPropagation();
                 const currentState = localStorage.getItem('hideIP') === 'true';
                 const newState = !currentState;
-                
+        
                 ipContainer.style.display = newState ? 'none' : 'flex';
                 localStorage.setItem('hideIP', newState);
-                
+        
                 toggleBtn.querySelector('span').textContent = newState ? translateText('showIP') : translateText('hideIP');
-                toggleBtn.querySelector('.status-led').style.background = newState ? '#f44336' : '#4CAF50';
+                toggleBtn.querySelector('div').innerHTML = newState ? 
+                    '<i class="bi bi-eye-slash status-off" style="color: white"></i>' : 
+                    '<i class="bi bi-eye status-on" style="color: white"></i>';
             }
         });
+
     }
 
     const styles = `
+        .font-default {
+            font-family: -apple-system, BlinkMacSystemFont, sans-serif !important;
+        }
+
+        .font-fredoka {
+            font-family: 'Fredoka One', cursive !important;
+        }
+
+        .font-dmserif {
+            font-family: 'DM Serif Display', serif !important;
+        }
+
+        .font-notoserif {
+            font-family: 'Noto Serif SC', serif !important;
+        }
+
+        .font-comicneue {
+            font-family: 'Comic Neue', cursive !important;
+        }
+
         #settings-icon {
             position: fixed;
             right: 2%;
@@ -652,18 +705,29 @@ document.addEventListener("DOMContentLoaded", function () {
 
         #mode-popup {
             position: fixed;
-            right: 20px;
-            top: 70px;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
             background: rgba(0,0,0,0.9);
-            border-radius: 5px;
-            padding: 10px;
+            border-radius: 10px;
+            padding: 15px;
             color: white;
             z-index: 1002;
             display: none;
-            min-width: 150px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.5);
+            width: 95%;
+            max-width: 800px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.5);
             opacity: 0;
             transition: opacity 0.3s ease;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .button-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 12px;
+            justify-items: center;
         }
 
         #mode-popup.show {
@@ -673,24 +737,40 @@ document.addEventListener("DOMContentLoaded", function () {
 
         #mode-popup button {
             display: flex;
+            flex-direction: column;
             align-items: center;
-            justify-content: space-between;
+            justify-content: center;
             width: 100%;
-            padding: 8px;
-            margin: 4px 0;
+            min-width: 120px;
+            padding: 12px 8px;
+            min-height: 80px;
             border: none;
+            font-size: 14px !important; 
             color: white;
-            border-radius: 3px;
+            border-radius: 5px;
             cursor: pointer;
             background: #444;
             opacity: ${isEnabled ? 1 : 0.5};
             pointer-events: ${isEnabled ? 'auto' : 'none'};
-            transition: background 0.3s ease, transform 0.3s ease;
+            transition: all 0.3s ease;
+            text-align: center;
         }
 
         #mode-popup button:hover {
-            background: #555;
-            transform: scale(1.1);
+            transform: scale(1.05);
+            box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+        }
+
+        #mode-popup button span {
+            display: block;
+            margin-bottom: 6px;
+            font-size: 14px;
+            line-height: 1.2;
+        }
+
+        #mode-popup button div {
+            font-size: 20px;
+            margin-top: 5px;
         }
 
         #master-switch {
@@ -758,6 +838,115 @@ document.addEventListener("DOMContentLoaded", function () {
             background: #9C27B0 !important;
         }
 
+        #mode-popup,
+        #custom-alert,
+        #color-picker-dialog,
+        #font-settings-dialog,
+        #theme-settings-dialog {
+            font-family: inherit !important;
+        }
+
+        #mode-popup *,
+        #custom-alert *,
+        #color-picker-dialog *,
+        #font-settings-dialog *,
+        #theme-settings-dialog * {
+            font-family: inherit !important;
+        }
+
+        .status-indicator {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 20px;
+            height: 20px;
+            margin-left: 5px;
+            font-size: 14px;
+        }
+    
+        #master-switch i {
+            color: white !important;
+        }
+
+        .status-on, .status-off {
+            color: white !important;
+        }
+    
+        #theme-toggle div,
+        .theme-settings-btn div,
+        #color-panel-btn div,
+        #font-settings-btn div,
+        .info-btn div {
+            color: white !important;
+        }
+
+        #mode-popup button#language-toggle {
+            background: #FF9800 !important;
+            opacity: 1 !important;
+            pointer-events: auto !important;
+        }
+
+        #mode-popup button#language-toggle div i {
+            color: white !important;
+        }
+
+        body.video-mode [data-mode="video"],
+        body.video-mode .object-fit-btn,
+        body.video-mode .sound-toggle {
+            opacity: 1 !important;
+            pointer-events: auto !important;
+        }
+
+        [data-mode="video"].selected-mode {
+            background: #007BFF !important;
+        }
+
+        @media (max-width: 768px) {
+            #mode-popup {
+                position: fixed !important;
+                top: 20% !important;
+                left: 50% !important;
+                transform: translate(-50%, 0) !important;
+                width: 90% !important;
+                height: auto !important;
+                max-height: none !important;
+                overflow: visible !important;
+                padding: 10px !important;
+                box-sizing: border-box;
+            }
+        }
+       
+        .button-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 8px;
+        }
+        
+        #mode-popup button {
+                min-height: 60px;
+                padding: 8px 5px;
+            }
+        
+            #mode-popup button span {
+                font-size: 12px;
+            }
+        
+            #mode-popup button div {
+                font-size: 16px;
+            }
+        }
+
+        @media (min-width: 769px) and (max-width: 1024px) {
+            .button-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+
+        @media (min-width: 1025px) {
+            .button-grid {
+                grid-template-columns: repeat(4, 1fr);
+            }
+        }
+    
         @media (max-width: 600px) {
             #settings-icon {
                 right: 8%;
@@ -795,7 +984,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
         const alertHTML = `
             <div id="custom-alert-overlay">
-                <div id="custom-alert">
+                <div id="custom-alert" class="font-${localStorage.getItem('selectedFont') || 'default'}">
                     <div class="alert-header">
                         <h3>${translateText(title)}</h3>
                         <button class="close-btn">&times;</button>
@@ -911,21 +1100,40 @@ document.addEventListener("DOMContentLoaded", function () {
         bgImages = Array.from({length: 20}, (_, i) => `bg${i + 1}.jpg`);
         bgIndex = 0;
         availableImages = [];
-        
+    
         const savedMode = localStorage.getItem('backgroundMode') || 'auto';
+    
+        const phpBackgroundSrc = localStorage.getItem('phpBackgroundSrc');
+        const phpBackgroundType = localStorage.getItem('phpBackgroundType');
+    
+        if (phpBackgroundSrc && phpBackgroundType) {
+            if (phpBackgroundType === 'image') {
+                setImageBackground(phpBackgroundSrc);
+            } else if (phpBackgroundType === 'video') {
+                setVideoBackground(phpBackgroundSrc);
+            }
+        } else {
+            setMode(savedMode);
+        }
+    
         document.querySelectorAll('[data-mode]').forEach(btn => {
             btn.classList.toggle('selected-mode', btn.dataset.mode === savedMode);
         });
-
-        if (savedMode === 'color') {
-            const savedColor = localStorage.getItem('customBackgroundColor');
-        if (savedColor) {
-            document.body.style.background = savedColor;
-            document.body.style.backgroundSize = 'auto';
-            return;
-        }
     }
+
+    function clearCustomBackground() {
+        localStorage.removeItem('phpBackgroundSrc');
+        localStorage.removeItem('phpBackgroundType');
+    
+        const savedMode = localStorage.getItem('backgroundMode') || 'auto';
         setMode(savedMode);
+    }
+   
+    function updateModeButtons() {
+        const currentMode = localStorage.getItem('backgroundMode') || 'auto';
+        document.querySelectorAll('[data-mode]').forEach(btn => {
+            btn.classList.toggle('selected-mode', btn.dataset.mode === currentMode);
+        });
     }
 
     function clearBackgroundSystem() {
@@ -960,29 +1168,148 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     function applyFont(font) {
+        loadFont(font);
+    
         const styleTag = document.querySelector("#font-style") || document.createElement("style");
         styleTag.id = "font-style";
     
-        let fontCSS;
+        let fontFamily;
         switch (font) {
-            case 'fredoka':
-                fontCSS = `body { font-family: 'Fredoka One', cursive !important; }`;
+            case 'fredoka': 
+                fontFamily = "'Fredoka One', cursive";
                 break;
             case 'dmserif':
-                fontCSS = `body { font-family: 'DM Serif Display', serif !important; }`;
+                fontFamily = "'DM Serif Display', serif";
                 break;
             case 'notoserif':
-                fontCSS = `body { font-family: 'Noto Serif SC', serif !important; }`;
+                fontFamily = "'Noto Serif SC', serif";
                 break;
             case 'comicneue':
-                fontCSS = `body { font-family: 'Comic Neue', cursive !important; }`;
+                fontFamily = "'Comic Neue', cursive";
                 break;
             default:
-                fontCSS = `body { font-family: -apple-system, BlinkMacSystemFont, sans-serif !important; }`;
+                fontFamily = "-apple-system, BlinkMacSystemFont, sans-serif";
+        }
+
+        styleTag.textContent = `
+            body,
+            #mode-popup,
+            #custom-alert,
+            #color-picker-dialog,
+            #font-settings-dialog,
+            #theme-settings-dialog,
+            #mode-popup *,
+            #custom-alert *,
+            #color-picker-dialog *,
+            #font-settings-dialog *,
+            #theme-settings-dialog * {
+                font-family: ${fontFamily} !important;
+            }
+        `;
+    
+        const oldStyle = document.getElementById('font-style');
+        if (oldStyle) oldStyle.remove();
+        document.head.appendChild(styleTag);
+    
+        refreshOpenPopups(font);
+    }
+
+    function updateUIText() {
+        const popup = document.getElementById('mode-popup');
+        if (!popup) return;
+    
+        const masterSwitch = popup.querySelector('#master-switch');
+        if (masterSwitch) {
+            masterSwitch.querySelector('span').textContent = translateText(isEnabled ? 'enabled' : 'disabled');
+        }
+
+        const soundMuted = localStorage.getItem('videoMuted') === 'true';
+        const soundToggle = popup.querySelector('.sound-toggle');
+        if (soundToggle) {
+        soundToggle.querySelector('div').innerHTML = soundMuted ? 
+            '<i class="bi bi-volume-mute status-off" style="color: white"></i>' : 
+            '<i class="bi bi-volume-up status-on" style="color: white"></i>';
         }
     
-        styleTag.textContent = fontCSS;
-        document.head.appendChild(styleTag);
+        const themeToggle = popup.querySelector('#theme-toggle');
+        if (themeToggle) {
+            themeToggle.innerHTML = document.body.classList.contains('dark') ? 
+                `${translateText('darkMode')}<div><i class="bi bi-moon-fill"></i></div>` : 
+                `${translateText('lightMode')}<div><i class="bi bi-sun-fill"></i></div>`;
+        }
+    
+        popup.querySelector('.theme-settings-btn span').textContent = translateText('themeSettings');
+        popup.querySelector('[data-mode="video"] span').textContent = translateText('videoMode');
+        popup.querySelector('[data-mode="image"] span').textContent = translateText('imageMode');
+        popup.querySelector('[data-mode="solid"] span').textContent = translateText('solidMode');
+        popup.querySelector('[data-mode="auto"] span').textContent = translateText('autoMode');
+        popup.querySelector('.sound-toggle span').textContent = translateText('backgroundSound');
+        popup.querySelector('.object-fit-btn span').textContent = translateText('displayRatio');
+        popup.querySelector('.object-fit-btn div').textContent = getFitButtonText();
+    
+        const ipHidden = localStorage.getItem('hideIP') === 'true';
+        popup.querySelector('.ip-toggle span').textContent = ipHidden ? translateText('showIP') : translateText('hideIP');
+    
+        popup.querySelector('.info-btn span').textContent = translateText('usageGuide');
+        popup.querySelector('#font-settings-btn span').textContent = translateText('fontSettings');
+        popup.querySelector('#color-panel-btn span').textContent = translateText('colorPanel');
+    
+        const isAnimationEnabled = localStorage.getItem('animationEnabled') !== 'false';
+        popup.querySelector('#animation-toggle span').textContent = isAnimationEnabled ? 
+            translateText('disableAnimation') : 
+            translateText('enableAnimation');
+    
+        popup.querySelector('#font-toggle span').textContent = translateText('fontToggle');
+        popup.querySelector('#font-toggle div').textContent = getFontButtonText();
+    
+        const langBtn = popup.querySelector('#language-toggle');
+        if (langBtn) {
+            langBtn.querySelector('span').textContent = getLanguageButtonText();
+            langBtn.querySelector('div').innerHTML = `<i class="bi bi-translate" style="color:${getLanguageButtonColor()}"></i>`;
+        }
+    }
+
+    function loadFont(font) {
+        const fontMap = {
+            'fredoka': 'Fredoka+One',
+            'dmserif': 'DM+Serif+Display',
+            'notoserif': 'Noto+Serif+SC',
+            'comicneue': 'Comic+Neue'
+        };
+    
+        if (font !== 'default' && fontMap[font]) {
+            if (!document.querySelector(`link[href*="${fontMap[font]}"`)) {
+                const link = document.createElement('link');
+                link.href = `https://fonts.googleapis.com/css2?family=${fontMap[font]}&display=swap`;
+                link.rel = 'stylesheet';
+                document.head.appendChild(link);
+            }
+        }
+    }
+
+    function refreshOpenPopups(font) {
+        const fontClass = `font-${font}`;
+    
+        const popups = [
+            document.getElementById('mode-popup'),
+            document.getElementById('custom-alert'),
+            document.getElementById('color-picker-dialog'),
+            document.getElementById('font-settings-dialog'),
+            document.getElementById('theme-settings-dialog')
+        ];
+    
+        popups.forEach(popup => {
+            if (popup) {
+                popup.classList.remove(
+                    'font-default',
+                    'font-fredoka',
+                    'font-dmserif',
+                    'font-notoserif',
+                    'font-comicneue'
+                );
+                popup.classList.add(fontClass);
+            }
+        });
     }
 
     function getFontButtonText() {
@@ -997,9 +1324,11 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     function setMode(mode) {
-        if (!isEnabled) return;
+        if (!isEnabled && mode !== 'solid') return;
+    
         localStorage.setItem('backgroundMode', mode);
-        localStorage.setItem('selectedMode', mode); 
+        localStorage.setItem('selectedMode', mode);
+    
         clearExistingBackground();
 
         switch (mode) {
@@ -1016,20 +1345,38 @@ document.addEventListener("DOMContentLoaded", function () {
                 const savedColor = localStorage.getItem('customBackgroundColor') || '#333333';
                 document.body.style.background = savedColor;
                 document.body.style.backgroundSize = 'auto';
-            break;
+                break;
             case 'auto':
                 initAutoBackground();
                 break;
         }
+    
+        document.querySelectorAll('[data-mode]').forEach(btn => {
+            btn.classList.toggle('selected-mode', btn.dataset.mode === mode);
+        });
     }
 
     function clearExistingBackground() {
         if (videoTag) {
+            videoTag.pause();
             videoTag.remove();
             videoTag = null;
         }
+    
         document.querySelectorAll('#dynamic-style, #video-style').forEach(e => e.remove());
+    
         clearInterval(switchInterval);
+    
+        const currentMode = localStorage.getItem('backgroundMode');
+        if (currentMode !== 'color') {
+            document.body.style.background = '';
+            document.body.style.backgroundImage = '';
+        }
+    
+        const existingVideoTag = document.getElementById("background-video");
+        if (existingVideoTag && existingVideoTag !== videoTag) {
+            existingVideoTag.remove();
+        }
     }
 
     function initVideoBackground() {
@@ -1084,7 +1431,7 @@ document.addEventListener("DOMContentLoaded", function () {
         const overlay = document.createElement('div');
         overlay.id = 'color-picker-overlay';
         overlay.innerHTML = `
-            <div id="color-picker-dialog">
+            <div id="color-picker-dialog" class="font-${localStorage.getItem('selectedFont') || 'default'}">
                 <div class="dialog-header">
                     <h3>${translateText('colorPanel')}</h3>
                     <button class="close-btn">&times;</button>
@@ -1337,7 +1684,7 @@ document.addEventListener("DOMContentLoaded", function () {
         const overlay = document.createElement('div');
         overlay.id = 'font-settings-overlay';
         overlay.innerHTML = `
-            <div id="font-settings-dialog">
+            <div id="font-settings-dialog" class="font-${localStorage.getItem('selectedFont') || 'default'}">
                 <div class="dialog-header">
                     <h3>${translateText('fontSettings')}</h3>
                     <button class="close-btn">&times;</button>
@@ -1632,72 +1979,13 @@ document.addEventListener("DOMContentLoaded", function () {
         applyFontSettings(savedFontSize || '16', savedFontColor || '#ffffff');
     }
 
-    function updateControlPanelText() {
-        const popup = document.getElementById('mode-popup');
-        if (!popup) return;
-    
-        const masterSwitch = popup.querySelector('#master-switch');
-        if (masterSwitch) {
-            masterSwitch.querySelector('span').textContent = translateText(isEnabled ? 'enabled' : 'disabled');
-            masterSwitch.querySelector('div').innerHTML = isEnabled ? 
-                '<i class="bi bi-power" style="color:#4CAF50"></i>' : 
-                '<i class="bi bi-power-off" style="color:#f44336"></i>';
-        }
-
-        const themeToggle = popup.querySelector('#theme-toggle');
-        if (themeToggle) {
-            themeToggle.innerHTML = document.body.classList.contains('dark') ? 
-                `${translateText('darkMode')}&nbsp;&nbsp;<i class="bi bi-moon-fill"></i>` : 
-                `${translateText('lightMode')}&nbsp;&nbsp;<i class="bi bi-sun-fill"></i>`;
-        }
-    
-        const themeStatus = popup.querySelector('#theme-status');
-        if (themeStatus) {
-            themeStatus.textContent = `${translateText('currentTheme')}${document.body.classList.contains('dark') ? translateText('darkMode') : translateText('lightMode')}`;
-        }
-    
-        popup.querySelector('.theme-settings-btn span').textContent = translateText('themeSettings');
-        popup.querySelector('[data-mode="video"] span').textContent = translateText('videoMode');
-        popup.querySelector('[data-mode="image"] span').textContent = translateText('imageMode');
-        popup.querySelector('[data-mode="solid"] span').textContent = translateText('solidMode');
-        popup.querySelector('[data-mode="auto"] span').textContent = translateText('autoMode');
-        popup.querySelector('.sound-toggle span').textContent = translateText('backgroundSound');
-        popup.querySelector('.object-fit-btn span').textContent = translateText('displayRatio');
-        popup.querySelector('.object-fit-btn div').textContent = getFitButtonText();
-        popup.querySelector('.ip-toggle span').textContent = localStorage.getItem('hideIP') === 'true' ? translateText('showIP') : translateText('hideIP');
-        popup.querySelector('.info-btn span').textContent = translateText('usageGuide');
-        popup.querySelector('#font-settings-btn span').textContent = `${translateText('fontSize')} & ${translateText('fontColor')}`;
-        popup.querySelector('#font-settings-btn span').textContent = translateText('fontSettings');
-
-        popup.querySelector('#color-panel-btn span').textContent = translateText('colorPanel');
-    
-        const isAnimationEnabled = localStorage.getItem('animationEnabled') !== 'false';
-        popup.querySelector('#animation-toggle span').textContent = isAnimationEnabled ? translateText('disableAnimation') : translateText('enableAnimation');
-    
-        const currentFont = localStorage.getItem('selectedFont') || 'default';
-        let fontText;
-        switch (currentFont) {
-            case 'fredoka': fontText = translateText('fontFredoka'); break;
-            case 'dmserif': fontText = translateText('fontDMSerif'); break;
-            case 'notoserif': fontText = translateText('fontNotoSerif'); break;
-            case 'comicneue': fontText = translateText('fontComicNeue'); break;
-            default: fontText = translateText('fontDefault');
-        }
-
-        const fontToggle = popup.querySelector('#font-toggle');
-        if (fontToggle) {
-            fontToggle.querySelector('span').textContent = translateText('fontToggle');
-            fontToggle.querySelector('div').textContent = fontText;
-        }
-    }
-
     function updateFontSettingsText() {
         const overlay = document.getElementById('font-settings-dialog');
         if (!overlay) return;
-    
-        overlay.querySelector('h3').textContent = `${translateText('fontSize')} & ${translateText('fontColor')}`;
-        overlay.querySelector('.font-size-control label').innerHTML = `${translateText('fontSize')}: <span id="font-size-value" style="color: inherit">${localStorage.getItem('fontSize') || '16'}px</span>`;
-        overlay.querySelector('.font-color-control label').textContent = `${translateText('fontColor')}:`;
+
+        overlay.querySelector('h3').textContent = translateText('fontSettings');
+        overlay.querySelector('.font-size-control label').innerHTML = `${translateText('fontSize')}: <span id="font-size-value">${localStorage.getItem('fontSize') || '16'}px</span>`;
+        overlay.querySelector('.font-color-control label').textContent = translateText('fontColor');
         overlay.querySelector('.color-preset.black').textContent = translateText('black');
         overlay.querySelector('.color-preset.white').textContent = translateText('white');
         overlay.querySelector('.color-preset.red').textContent = translateText('red');
@@ -1848,29 +2136,19 @@ document.addEventListener("DOMContentLoaded", function () {
         `;
     }
 
-    function updateSoundToggle() {
-        const soundState = localStorage.getItem("videoMuted") === "false" ? false : true;
-        videoTag.muted = soundState;
-
-        const soundToggle = document.querySelector(".sound-toggle div");
-        if (!soundState) {
-            soundToggle.textContent = "🔊";
-        } else {
-            soundToggle.textContent = "🔇";
-        }
-    }
-
     function applyPHPBackground() {
         const phpBackgroundSrc = localStorage.getItem('phpBackgroundSrc');
         const phpBackgroundType = localStorage.getItem('phpBackgroundType');
+    
         if (phpBackgroundSrc && phpBackgroundType) {
             if (phpBackgroundType === 'image') {
-                clearExistingBackground();
-                applyCSS(phpBackgroundSrc);
+                setImageBackground(phpBackgroundSrc);
             } else if (phpBackgroundType === 'video') {
-                clearExistingBackground();
-                setVideoBackground(phpBackgroundSrc, true);
+                setVideoBackground(phpBackgroundSrc);
             }
+        } else {
+            const savedMode = localStorage.getItem('backgroundMode') || 'auto';
+            setMode(savedMode);
         }
     }
 
@@ -1904,12 +2182,32 @@ document.addEventListener("DOMContentLoaded", function () {
         document.body.style.backgroundSize = 'cover';
         localStorage.setItem('phpBackgroundSrc', src);
         localStorage.setItem('phpBackgroundType', 'image');
+        localStorage.setItem('backgroundMode', 'image');
+    }
+
+    function updateSoundToggle() {
+        const soundMuted = localStorage.getItem('videoMuted') === 'true';
+        const soundToggle = document.querySelector('.sound-toggle');
+    
+        if (soundToggle) {
+            soundToggle.querySelector('div').innerHTML = soundMuted ? 
+                '<i class="bi bi-volume-mute status-off" style="color: white"></i>' : 
+                '<i class="bi bi-volume-up status-on" style="color: white"></i>';
+        }
+    
+        if (videoTag) {
+            videoTag.muted = soundMuted;
+        }
     }
 
     function setVideoBackground(src, isPHP = false) {
-        clearExistingBackground();
-        let existingVideoTag = document.getElementById("background-video");
+        const wasEnabled = isEnabled;
     
+        clearExistingBackground();
+    
+        isEnabled = wasEnabled;
+    
+        let existingVideoTag = document.getElementById("background-video");
         const savedFit = localStorage.getItem('videoObjectFit') || 'cover'; 
 
         if (existingVideoTag) {
@@ -1952,6 +2250,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 height: 100vh;
                 overflow: hidden;
             }
+
             .video-background {
                 position: fixed;
                 top: 50%;
@@ -1963,6 +2262,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 transform: translate(-50%, -50%);
                 z-index: -1; 
             }
+
             .video-background + .wrapper span {
                 display: none !important;
             }
@@ -1980,9 +2280,50 @@ document.addEventListener("DOMContentLoaded", function () {
 
         localStorage.setItem('phpBackgroundSrc', src);
         localStorage.setItem('phpBackgroundType', 'video');
+        localStorage.setItem('backgroundMode', 'video');
     
-        const currentMuted = localStorage.getItem('videoMuted') === 'true';
-        document.querySelector('.sound-toggle div').textContent = currentMuted ? '🔇' : '🔊';
+        updateVideoModeUI(true);
+    
+        updateSoundToggle();
+    }
+
+    function updateVideoModeUI(isVideoMode = false) {
+        const masterSwitch = document.getElementById('master-switch');
+        if (masterSwitch) {
+            masterSwitch.style.background = isEnabled ? '#4CAF50' : '#f44336';
+            masterSwitch.querySelector('.status-led').style.background = isEnabled ? '#4CAF50' : '#f44336';
+            masterSwitch.querySelector('span').textContent = translateText(isEnabled ? 'enabled' : 'disabled');
+            masterSwitch.querySelector('div').innerHTML = isEnabled ? 
+                '<i class="bi bi-toggle-on" style="color: white"></i>' : 
+                '<i class="bi bi-toggle-off" style="color: white"></i>';
+        }
+    
+        const videoRelatedButtons = [
+            '[data-mode="video"]',
+            '.object-fit-btn',
+            '.sound-toggle'
+        ].join(',');
+    
+        document.querySelectorAll(videoRelatedButtons).forEach(btn => {
+            btn.style.opacity = 1;
+            btn.style.pointerEvents = 'auto';
+        
+            if (isVideoMode && btn.dataset.mode === 'video') {
+                btn.classList.add('selected-mode');
+            }
+        });
+    
+        const currentMode = localStorage.getItem('backgroundMode') || 'video';
+        document.querySelectorAll('[data-mode]').forEach(btn => {
+            btn.classList.toggle('selected-mode', btn.dataset.mode === currentMode);
+        });
+    
+        const fitBtn = document.querySelector('.object-fit-btn');
+        if (fitBtn) {
+            fitBtn.querySelector('div').textContent = getFitButtonText();
+        }
+    
+        updateUIText();
     }
 
     document.querySelector('.object-fit-btn')?.addEventListener('click', function() {
@@ -2015,35 +2356,6 @@ document.addEventListener("DOMContentLoaded", function () {
         this.querySelector('div').textContent = getFitButtonText();
     });
 
-    document.querySelector('.sound-toggle').addEventListener('click', function() {
-        const newMuted = !(localStorage.getItem('videoMuted') === 'true');
-    
-        localStorage.setItem('videoMuted', newMuted);
-    
-        document.querySelectorAll('video#background-video').forEach(video => {
-            video.muted = newMuted;
-        });
-    
-        this.querySelector('div').textContent = newMuted ? '🔇' : '🔊';
-    });
-
-    function clearExistingBackground() {
-        const currentMode = localStorage.getItem('backgroundMode');
-        if (currentMode !== 'color') {
-            document.body.style.background = '';
-        }
-
-        let existingVideoTag = document.getElementById("background-video");
-        if (existingVideoTag) {
-            existingVideoTag.remove(); 
-        }
-
-        let styleTag = document.querySelector("#video-style");
-        if (styleTag) {
-            styleTag.remove(); 
-        }
-    }
-
     function showThemeSettings() {
         const existing = document.getElementById('theme-settings-overlay');
         if (existing) return;
@@ -2051,7 +2363,7 @@ document.addEventListener("DOMContentLoaded", function () {
         const overlay = document.createElement('div');
         overlay.id = 'theme-settings-overlay';
         overlay.innerHTML = `
-            <div id="theme-settings-dialog">
+            <div id="theme-settings-dialog" class="font-${localStorage.getItem('selectedFont') || 'default'}">
                 <div class="dialog-header">
                     <h3>${translateText('themeTitle')}</h3>
                     <button class="close-btn">&times;</button>
@@ -2141,5 +2453,3 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     }
 });
-
-
