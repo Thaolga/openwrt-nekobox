@@ -22,7 +22,7 @@
 	local http = require "luci.http"
 	local disp = require "luci.dispatcher"
 	local ver = require "luci.version"
-
+        local mode = 'normal'
 	local boardinfo = util.ubus("system", "board")
 
 	local node = disp.context.dispatched
@@ -709,6 +709,41 @@ window.addEventListener('load', () => {
                 gray.style.display = 'inline';
             });
     });
+});
+</script>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const themeMode = '<%= mode %>';
+    let isDarkMode = false;
+
+    if (themeMode === 'dark') {
+        isDarkMode = true;
+    } else if (themeMode === 'normal' && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        isDarkMode = true;
+    }
+
+    const royalElements = document.querySelectorAll('.royal-style');
+    royalElements.forEach(el => {
+        el.style.setProperty('color', isDarkMode ? '#28edf0' : '#007bff', 'important');
+        
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes textColorChange {
+                0%, 100% { text-shadow: 2px 2px 5px rgba(0,0,0,0.2); }
+                50% { text-shadow: 3px 3px 7px rgba(0,0,0,0.3); }
+            }
+        `;
+        document.head.appendChild(style);
+    });
+
+    if (themeMode === 'normal') {
+        window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', e => {
+            royalElements.forEach(el => {
+                el.style.setProperty('color', e.matches ? '#28edf0' : '#007bff', 'important');
+            });
+        });
+    }
 });
 </script>
 
