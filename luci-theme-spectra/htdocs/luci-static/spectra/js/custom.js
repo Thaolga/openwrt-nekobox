@@ -904,7 +904,7 @@ document.addEventListener("DOMContentLoaded", function () {
         @media (max-width: 768px) {
             #mode-popup {
                 position: fixed !important;
-                top: 20% !important;
+                top: 15% !important;
                 left: 50% !important;
                 transform: translate(-50%, 0) !important;
                 width: 90% !important;
