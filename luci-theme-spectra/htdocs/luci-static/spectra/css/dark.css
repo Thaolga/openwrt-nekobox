@@ -116,9 +116,9 @@ header::after {
 	color: #FFDAB9 !important;
 }
 
-.main .main-left .nav .slide .slide-menu li a {
+/* .main .main-left .nav .slide .slide-menu li a {
 	color: #00ffcc !important;
-}
+} */
 
 .main .main-left .nav .slide .slide-menu .active a {
 	color: #ffcc00 !important;
@@ -196,6 +196,12 @@ header.bg-primary {
 
 .cbi-map-descr {
 	color: #ccc;
+}
+
+.cbi-dropdown > span.open,
+.cbi-dropdown > span.more,
+.cbi-dropdown {
+        color: white !important;
 }
 
 .cbi-section {
