@@ -2223,6 +2223,13 @@ ul.cbi-tabmenu li.cbi-tab a {
 	box-shadow: 0 0 6px rgba(102, 175, 233, 0.6);
 }
 
+div.pure-u-1-4:has(h4#status_udp_node),
+div.pure-u-1-4:has(h4#status_dns),
+div.pure-u-1-4:has(h4#status_haproxy),
+div.pure-u-1-4:has(h4#status_instagram) {
+        display: none !important;
+}
+
 #cbi-passwall2-cfg09b7d7-_stop .cbi-button-remove,
 #cbi-passwall-cfg0ab7d7-_stop .cbi-button-remove {
         margin-left: -0.1px !important;
