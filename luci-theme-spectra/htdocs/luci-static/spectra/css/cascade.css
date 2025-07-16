@@ -2232,7 +2232,7 @@ div.pure-u-1-4:has(h4#status_instagram) {
 
 div.pure-u-1-4.check:has(h4#status_baidu) div.img-con img {
     content: url('/luci-static/ipip/img/site_icon_01.png') !important;
-    width: 57.7px !important;
+    width: 57px !important;
     height: auto !important;
 }
 
