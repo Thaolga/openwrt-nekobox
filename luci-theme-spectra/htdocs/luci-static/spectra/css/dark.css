@@ -1,5 +1,5 @@
 body {
-	background: #111;
+	background: #0f3460;
 	height: 100vh;
 	overflow: hidden;
 	z-index: 9999;
@@ -64,6 +64,10 @@ body {
 
 header::after {
 	background-color: transparent !important;
+}
+
+span#ip-address {
+        margin-left: -0.9ch !important;
 }
 
 .main {
@@ -426,8 +430,9 @@ div > .table > .tbody > .tr:nth-of-type(2n) {
 
 select,
 input {
-	color: #ccc;
+	color: oklch(1 0 0) !important;
 	background-color: transparent !important;
+        text-shadow: 0 0 2px oklch(1 0 0), 0 0 4px oklch(1 0 0);
 	border: 1px solid #252526;
 	box-shadow: none;
 }
@@ -748,35 +753,6 @@ th:empty {
 	box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1) !important;
 }
 
-#tool_label {
-	background-color: #3498db !important;
-	padding: 5px 10px !important;
-	border-radius: 5px !important;
-	margin: 5px 0 !important;
-	border-bottom: none !important;
-}
-
-#tool_label .tool_label_span {
-	display: inline-block !important;
-	color: #ffffff !important;
-	line-height: 1.2 !important;
-}
-
-#tool_label .tool_label_select {
-	padding: 3px 5px !important;
-	border-radius: 5px !important;
-	border: none !important;
-}
-
-#tool_label .btn.cbi-button.cbi-button-apply {
-	background-color: #3498db !important;
-	color: #ffffff !important;
-	padding: 3px 10px !important;
-	border-radius: 5px !important;
-	border: none !important;
-	cursor: pointer !important;
-}
-
 .modal {
 	background-color: #0000009a;
 }
@@ -887,6 +863,7 @@ th:empty {
 
 .cbi-dynlist > .item > span {
 	border: 1px solid #3c3c3c !important;
+        color: #ffffff !important;   
 }
 
 .slide-menu li:before {

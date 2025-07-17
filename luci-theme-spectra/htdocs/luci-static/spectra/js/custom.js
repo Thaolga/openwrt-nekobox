@@ -1,13 +1,24 @@
 document.addEventListener("DOMContentLoaded", function () {
     let isEnabled = localStorage.getItem('backgroundEnabled') !== 'false';
-    let videoTag, bgImages, bgIndex, availableImages, switchInterval;
 
     const isAnimationEnabled = localStorage.getItem('animationEnabled') !== 'false';
     toggleAnimation(isAnimationEnabled);
 
+    const savedColor = localStorage.getItem('customBackgroundColor');
+    if (savedColor) {
+        const rgbColor = hexToRgb(savedColor);
+        const popupBgColor = `rgba(${rgbColor.r}, ${rgbColor.g}, ${rgbColor.b}, 0.9)`;
+        document.documentElement.style.setProperty('--popup-bg-color', popupBgColor);
+    } else {
+        document.documentElement.style.setProperty(
+            '--popup-bg-color', 
+            'rgba(27, 27, 47, 0.9)'
+        );
+    }
+
     const savedFont = localStorage.getItem('selectedFont') || 'default';
     applyFont(savedFont);
-
+    let videoTag, bgImages, bgIndex, availableImages, switchInterval;
     const ipContainer = document.querySelector('.ip-container');
     const flag = document.getElementById('flag');
     const ipText = document.querySelector('.ip-text');
@@ -72,7 +83,6 @@ document.addEventListener("DOMContentLoaded", function () {
         `;
     }
 
-    const savedColor = localStorage.getItem('customBackgroundColor');
     const savedMode = localStorage.getItem('backgroundMode');
     
     if (savedMode === 'color' && savedColor) {
@@ -126,6 +136,7 @@ document.addEventListener("DOMContentLoaded", function () {
             'blue': 'Blue',
             'green': 'Green',
             'purple': 'Purple',
+            'controlPanel': 'Control Panel',
             'customColor': 'Custom Color',
             'guide1': '1. Video Mode: Default name is "bg.mp4"',
             'guide2': '2. Image Mode: Default names are "bg1-20.jpg"',
@@ -177,6 +188,7 @@ document.addEventListener("DOMContentLoaded", function () {
             'green': '绿色',
             'purple': '紫色',
             'customColor': '自定义颜色',
+            'controlPanel': '控制面板',
             'usageGuide': '使用说明',
             'guide1': '1. 视频模式：默认名称为「bg.mp4」',
             'guide2': '2. 图片模式：默认名称为「bg1-20.jpg」',
@@ -228,6 +240,7 @@ document.addEventListener("DOMContentLoaded", function () {
             'green': '綠色',
             'purple': '紫色',
             'customColor': '自定義顏色',
+            'controlPanel': '控制面板',
             'usageGuide': '使用說明',
             'guide1': '1. 影片模式：預設名稱為「bg.mp4」',
             'guide2': '2. 圖片模式：預設名稱為「bg1-20.jpg」',
@@ -364,6 +377,11 @@ document.addEventListener("DOMContentLoaded", function () {
                 <img src="/luci-static/spectra/navbar/interface.gif" width="35" height="35" alt="Settings" style="border-radius: 50%; object-fit: cover;">
             </div>
             <div id="mode-popup">
+            <div class="modal-header">
+                <h5 class="modal-title" id="panel-title">
+                    <i class="bi bi-gear-fill"></i>${translateText('controlPanel')}
+                </h5>
+            </div>
             <div class="button-grid">
                 <button id="theme-toggle" class="always-visible" style="background:#2196F3 !important">
                     ${document.body.classList.contains('dark') ? 
@@ -625,7 +643,7 @@ document.addEventListener("DOMContentLoaded", function () {
                     video.style.minHeight = '100%';
                 }
             });
-        
+
             localStorage.setItem('videoObjectFit', newFit);
             this.querySelector('div').textContent = getFitButtonText();
         });
@@ -708,7 +726,7 @@ document.addEventListener("DOMContentLoaded", function () {
             left: 50%;
             top: 50%;
             transform: translate(-50%, -50%);
-            background: rgba(0,0,0,0.9);
+            background: var(--popup-bg-color, rgba(27, 27, 47, 0.9));
             border-radius: 10px;
             padding: 15px;
             color: white;
@@ -718,7 +736,7 @@ document.addEventListener("DOMContentLoaded", function () {
             max-width: 800px;
             box-shadow: 0 4px 20px rgba(0,0,0,0.5);
             opacity: 0;
-            transition: opacity 0.3s ease;
+            transition: opacity 0.3s ease, background 0.3s ease;
             max-height: 90vh;
             overflow-y: auto;
         }
@@ -901,6 +919,29 @@ document.addEventListener("DOMContentLoaded", function () {
             background: #007BFF !important;
         }
 
+        .modal-header {
+            display: flex;
+            justify-content: flex-start;
+            align-items: center;
+            padding: 15px 20px;
+            border-bottom: 1px solid #444;
+            background: rgba(0, 0, 0, 0.2);
+        }
+    
+        .modal-title {
+            margin: 0;
+            font-weight: bold;
+            color: #9C27B0;
+            font-size: 1.3rem !important;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+    
+        .modal-title i {
+            font-size: 1.1rem;
+        }
+
         @media (max-width: 768px) {
             #mode-popup {
                 position: fixed !important;
@@ -914,14 +955,13 @@ document.addEventListener("DOMContentLoaded", function () {
                 padding: 10px !important;
                 box-sizing: border-box;
             }
-        }
        
-        .button-grid {
+            .button-grid {
                 grid-template-columns: repeat(2, 1fr);
                 gap: 8px;
-        }
+            }
         
-        #mode-popup button {
+            #mode-popup button {
                 min-height: 60px;
                 padding: 8px 5px;
             }
@@ -1221,6 +1261,11 @@ document.addEventListener("DOMContentLoaded", function () {
         const masterSwitch = popup.querySelector('#master-switch');
         if (masterSwitch) {
             masterSwitch.querySelector('span').textContent = translateText(isEnabled ? 'enabled' : 'disabled');
+        }
+
+        const panelTitle = document.getElementById('panel-title');
+        if (panelTitle) {
+            panelTitle.innerHTML = `<i class="bi bi-gear-fill"></i>${translateText('controlPanel')}`;
         }
 
         const soundMuted = localStorage.getItem('videoMuted') === 'true';
@@ -1661,12 +1706,14 @@ document.addEventListener("DOMContentLoaded", function () {
 
     function generateColorPresets() {
         const presets = [
-            '#1a1a2e', '#16213e', '#0f3460', '#1f4068', '#1b1b2f',
+            '#0f3460', '#16213e', '#1a1a2e', '#1b1b2f', '#1e272e', '#1f4068', '#1e3799', '#222f3e', '#212529',
+            '#343a40', '#485460', '#495057', '#4a69bd', '#4361ee', '#4895ef', '#90e0ef',
+            '#00b4d8', '#00cec9', '#4cc9f0', '#60a3bc', '#6a89cc', '#82ccdd', '#81ecec',
+            '#1b4332', '#2d6a4f', '#40916c', '#52b788', '#55efc4', '#74c69d', '#95d5b2', '#b7e4c7', '#d8f3dc',
+            '#6c757d', '#808e9b', '#8d99ae', '#adb5bd', '#ced4da', '#d2dae2', '#dee2e6', '#e9ecef', '#f8f9fa', '#ffffff',
+            '#7209b7', '#560bad', '#3a0ca3', '#3f37c9', '#b5179e', '#f72585',
             '#e94560', '#f67280', '#ff7c7c', '#ff9a76', '#ffb997',
-            '#00b4d8', '#90e0ef', '#00cec9', '#55efc4', '#81ecec',
-            '#6a89cc', '#82ccdd', '#60a3bc', '#4a69bd', '#1e3799',
-            '#222f3e', '#1e272e', '#485460', '#808e9b', '#d2dae2',
-            '#ff9f1a', '#ffd32a', '#fbc531', '#e1b12c', '#f9ca24'
+            '#e1b12c', '#fbc531', '#f9ca24', '#ff9f1a', '#ffd32a'
         ];
         
         return presets.map(color => `
@@ -1998,28 +2045,49 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     function applyCustomBackgroundColor(color) {
-        clearExistingBackground();
-    
-        document.body.style.background = color;
-        document.body.style.backgroundSize = 'auto';
-    
+        const rgbColor = hexToRgb(color);
+        const popupBgColor = `rgba(${rgbColor.r}, ${rgbColor.g}, ${rgbColor.b}, 0.9)`;    
+        document.documentElement.style.setProperty('--popup-bg-color', popupBgColor);
+
         localStorage.setItem('customBackgroundColor', color);
         localStorage.setItem('backgroundMode', 'color');
-    
+
+        clearExistingBackground();
+        document.body.style.background = color;
+        document.body.style.backgroundSize = 'auto';
+
         const overlay = document.getElementById('color-picker-overlay');
         if (overlay) overlay.remove();
     }
 
+    function hexToRgb(hex) {
+        hex = hex.replace('#', '');
+    
+        if (hex.length === 3) {
+            hex = hex.split('').map(c => c + c).join('');
+        }
+    
+        const r = parseInt(hex.substring(0, 2), 16);
+        const g = parseInt(hex.substring(2, 4), 16);
+        const b = parseInt(hex.substring(4, 6), 16);
+    
+        return { r, g, b };
+    }
+
     function resetCustomBackgroundColor() {
         localStorage.removeItem('customBackgroundColor');
+    
+        document.documentElement.style.setProperty(
+            '--popup-bg-color', 
+            'rgba(27, 27, 47, 0.9)'
+        );
+
         localStorage.setItem('backgroundMode', 'auto');
-        localStorage.removeItem('backgroundMode');
     
         const overlay = document.getElementById('color-picker-overlay');
         if (overlay) overlay.remove();
     
-        const savedMode = localStorage.getItem('backgroundMode') || 'auto';
-        setMode(savedMode);
+        setMode('auto');
     }
 
     function isValidColor(strColor) {
@@ -2060,32 +2128,6 @@ document.addEventListener("DOMContentLoaded", function () {
             `;
         }
     }
-
-    document.querySelector('.object-fit-btn')?.addEventListener('click', function() {
-        const videos = document.querySelectorAll('video#background-video');
-        if (videos.length === 0) return;
-
-        const currentFit = videos[0].style.objectFit || localStorage.getItem('videoObjectFit') || 'cover';
-        const fitOrder = ['cover', 'contain', 'fill', 'none', 'scale-down'];
-        const newIndex = (fitOrder.indexOf(currentFit) + 1) % fitOrder.length;
-        const newFit = fitOrder[newIndex];
-
-        videos.forEach(video => {
-            video.style.objectFit = newFit;
-            if (newFit === 'none') {
-                video.style.minWidth = 'auto';
-                video.style.minHeight = 'auto';
-                video.style.width = '100%';
-                video.style.height = '100%';
-            } else {
-                video.style.minWidth = '100%';
-                video.style.minHeight = '100%';
-            }
-        });
-    
-        localStorage.setItem('videoObjectFit', newFit);
-        this.querySelector('div').textContent = getFitButtonText();
-    });
 
     function insertVideoBackground(src = 'bg.mp4') {
         document.querySelectorAll('video#background-video').forEach(v => v.remove());
@@ -2325,36 +2367,6 @@ document.addEventListener("DOMContentLoaded", function () {
     
         updateUIText();
     }
-
-    document.querySelector('.object-fit-btn')?.addEventListener('click', function() {
-        const videos = document.querySelectorAll('video#background-video');
-        if (videos.length === 0) return;
-
-        const currentFit = videos[0].style.objectFit || localStorage.getItem('videoObjectFit') || 'cover';
-        const fitOrder = ['cover', 'contain', 'fill', 'none', 'scale-down'];
-        const newIndex = (fitOrder.indexOf(currentFit) + 1) % fitOrder.length;
-        const newFit = fitOrder[newIndex];
-
-        videos.forEach(video => {
-            video.style.objectFit = newFit;
-            if (newFit === 'none') {
-                video.style.minWidth = 'auto';
-                video.style.minHeight = 'auto';
-                video.style.width = '100%';
-                video.style.height = '100%';
-            } else {
-                video.style.minWidth = '100%';
-                video.style.minHeight = '100%';
-            }
-        
-            if(video.src.includes('bg.mp4') === false) {
-                localStorage.setItem('phpBackgroundType', 'video');
-            }
-        });
-    
-        localStorage.setItem('videoObjectFit', newFit);
-        this.querySelector('div').textContent = getFitButtonText();
-    });
 
     function showThemeSettings() {
         const existing = document.getElementById('theme-settings-overlay');

@@ -1707,6 +1707,7 @@ ul.tabs li {
 	border-radius: 6px;
 	font-size: 14px;
 	font-weight: 500;
+        border-radius: 0.5rem !important;
 	transition: transform 0.15s ease, box-shadow 0.15s ease, background-color 0.15s ease;
 	box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 	border: none;
@@ -5534,4 +5535,15 @@ pre.command-output {
 		white-space: normal !important;
 		word-break: break-word !important;
 	}
+}
+
+@media (max-width: 768px) {
+        #logo {
+            margin: 0 auto !important;
+        }
+        .sidenav-header {
+            display: flex !important;
+            justify-content: center !important;
+            align-items: center !important;
+        }
 }

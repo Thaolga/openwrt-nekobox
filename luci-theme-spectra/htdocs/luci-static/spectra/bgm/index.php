@@ -1529,8 +1529,8 @@ body:hover,
         <div class="d-flex align-items-center mb-3 ps-2" id="selectAll-container">
             <input type="checkbox" id="selectAll" class="form-check-input me-2 shadow-sm" style="width: 1.05em; height: 1.05em; border-radius: 0.35em; margin-left: 1px; transform: scale(1.2)">
             <label for="selectAll" class="form-check-label fs-5 ms-1" style="margin-right: 10px;" data-translate="select_all">Select All</label>
-            <input type="color" id="colorPicker" style="margin-right: 10px;" value="#333333" data-translate-title="component_bg_color"/>
-            <input type="color" id="bodyBgColorPicker" value="#f0ffff" style="margin-right: 10px;" data-translate-title="page_bg_color" />
+            <input type="color" id="colorPicker" style="margin-right: 10px;" value="#0f3460" data-translate-title="component_bg_color"/>
+            <input type="color" id="bodyBgColorPicker" value="#ffffff" style="margin-right: 10px;" data-translate-title="page_bg_color" />
             <button class="btn btn-primary d-none d-sm-inline" id="advancedColorBtn" data-translate-title="advanced_color_settings"><i class="bi bi-palette"></i></button>
             <!--  <button class="btn btn-info ms-2" id="fontToggleBtn" data-translate-title="toggle_font"><i id="fontToggleIcon" class="fa-solid fa-font" style="color: white;"></i></button> -->
             <button class="btn btn-success ms-2 d-none d-sm-inline" id="toggleScreenBtn" data-translate-title="toggle_fullscreen"><i class="bi bi-arrows-fullscreen"></i></button>
@@ -3649,7 +3649,7 @@ document.addEventListener('keydown', (e) => {
 
     localStorage.setItem("theme", theme);
     const bodyBgKey = `${theme}BodyBgColor`;
-    const defaultBg = theme === "dark" ? "#333333" : "#f0ffff";
+    const defaultBg = theme === "dark" ? "#0f3460" : "#ffffff";
     document.body.style.background = localStorage.getItem(bodyBgKey) || defaultBg;
     
     document.getElementById("bodyBgColorPicker").value = document.body.style.background;
@@ -3723,8 +3723,8 @@ function setBackground(filename) {
 <script>
 document.addEventListener("DOMContentLoaded", () => {
     const initColorStorage = () => {
-        if (!localStorage.getItem("darkBodyBgColor")) localStorage.setItem("darkBodyBgColor", "#333333");
-        if (!localStorage.getItem("lightBodyBgColor")) localStorage.setItem("lightBodyBgColor", "#f0ffff");
+        if (!localStorage.getItem("darkBodyBgColor")) localStorage.setItem("darkBodyBgColor", "#0f3460");
+        if (!localStorage.getItem("lightBodyBgColor")) localStorage.setItem("lightBodyBgColor", "#ffffff");
     };
 
     const applyThemeColor = () => {
