@@ -2283,7 +2283,16 @@ input[data-v-07bccc36].cbi-button {
 }
 
 @media (max-width: 768px) {
-    div.pure-u-1-4.check:has(h4#status_baidu) div.img-con img {
-        margin-left: -0.3em !important;
-    }
+	div.pure-u-1-4.check:has(h4#status_baidu) div.img-con img {
+		margin-left: -0.3em !important;
+	}
 }
+
+@media (max-width: 768px) {
+	tr[id^="cbi-passwall-"] .cbi-input-checkbox,
+        tr[id^="cbi-passwall2-"] .cbi-input-checkbox {
+		position: relative;
+		top: -4px;
+	}
+}
+
