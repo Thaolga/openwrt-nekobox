@@ -5559,6 +5559,7 @@ pre.command-output {
 		padding-left: 1.5em;
 		font-size: 13px;
 		line-height: 1.4;
+
 	}
 
 	tr[id^="cbi-passwall-"] td,
@@ -5588,5 +5589,23 @@ pre.command-output {
 	tr[id^="cbi-passwall-"] .cbi-section-actions input,
         tr[id^="cbi-passwall2-"] .cbi-section-actions input {
 		font-size: 10px;
+	}
+}
+
+@media (max-width: 768px) {
+	.cbi-map-descr {
+		width: 100% !important;
+		box-sizing: border-box;
+		padding: 2px 6px;
+		border-radius: 8px;
+		margin: 1px 0;
+	}
+
+	.cbi-map-descr h3 {
+		font-size: 14px !important;
+		line-height: 1.2;
+		text-align: center;
+		word-break: break-all;
+		margin: 0;
 	}
 }
