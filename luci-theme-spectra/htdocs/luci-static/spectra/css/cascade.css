@@ -2019,6 +2019,35 @@ input[type="checkbox"]:hover {
 	background-color: #f1f1f1 !important;
 }
 
+.cbi-dropdown[disabled] {
+	pointer-events: auto !important;
+	opacity: 1 !important;
+}
+
+.cbi-dropdown ul {
+	bottom: 100% !important;
+	top: auto !important;
+        max-height: 300px !important;  
+        overflow-y: auto !important;
+        overflow-x: hidden !important;
+        scrollbar-width: thin !important;
+}
+
+.cbi-dynlist .item span {
+	user-select: text !important;
+	-webkit-user-select: text !important;
+	cursor: text !important;
+}
+
+.cbi-dropdown ul::-webkit-scrollbar {
+        width: 6px !important;
+}
+
+.cbi-dropdown ul::-webkit-scrollbar-thumb {
+        background: #ccc !important;
+        border-radius: 3px !important;
+}
+
 .cbi-page-actions {
 	display: flex !important;
 	justify-content: center !important;
