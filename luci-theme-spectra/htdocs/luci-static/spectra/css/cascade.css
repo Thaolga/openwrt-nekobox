@@ -5541,12 +5541,52 @@ pre.command-output {
 }
 
 @media (max-width: 768px) {
-        #logo {
-            margin: 0 auto !important;
-        }
-        .sidenav-header {
-            display: flex !important;
-            justify-content: center !important;
-            align-items: center !important;
-        }
+	#logo {
+		margin: 0 auto !important;
+	}
+
+	.sidenav-header {
+		display: flex !important;
+		justify-content: center !important;
+		align-items: center !important;
+	}
+}
+
+@media (max-width: 768px) {
+	tr[id^="cbi-passwall-"],
+        tr[id^="cbi-passwall2-"] {
+		display: block;
+		padding-left: 1.5em;
+		font-size: 13px;
+		line-height: 1.4;
+	}
+
+	tr[id^="cbi-passwall-"] td,
+        tr[id^="cbi-passwall2-"] td {
+		display: block;
+		width: 100% !important;
+		border: none !important;
+		padding: 2px 0;
+	}
+
+	div[id^="cbi-passwall-"][id$="-remarks"],
+        div[id^="cbi-passwall2-"][id$="-remarks"] {
+		font-weight: bold;
+	}
+
+	div[id^="cbi-passwall-"][id$="-ping"],
+        div[id^="cbi-passwall-"][id$="-tcping"],
+        div[id^="cbi-passwall-"][id$="-_url_test"],
+        div[id^="cbi-passwall2-"][id$="-ping"],
+        div[id^="cbi-passwall2-"][id$="-tcping"],
+        div[id^="cbi-passwall2-"][id$="-_url_test"] {
+		display: inline-block;
+		margin-right: 1em;
+		white-space: nowrap;
+	}
+
+	tr[id^="cbi-passwall-"] .cbi-section-actions input,
+        tr[id^="cbi-passwall2-"] .cbi-section-actions input {
+		font-size: 10px;
+	}
 }
