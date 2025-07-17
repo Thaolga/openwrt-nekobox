@@ -2231,6 +2231,12 @@ div.pure-u-1-4:has(h4#status_instagram) {
         display: none !important;
 }
 
+div.pure-u-1-4.check:has(h4#status_baidu) div.img-con img {
+    content: url('/luci-static/ipip/img/site_icon_01.png') !important;
+    width: 57px !important;
+    height: auto !important;
+}
+
 #cbi-passwall2-cfg09b7d7-_stop .cbi-button-remove,
 #cbi-passwall-cfg0ab7d7-_stop .cbi-button-remove {
         margin-left: -0.1px !important;
@@ -5524,9 +5530,6 @@ pre.command-output {
                 padding: 0.2rem !important;
         }
 
-        .block img {
-                width: 36px !important;
-        }
 }
 
 @media screen and (max-width: 600px) {
