@@ -2112,7 +2112,7 @@ button.cbi-button {
 
 ul.tabs, ul.cbi-tabmenu {
 	padding: 10px;
-	border-radius: 5px;
+	border-radius: 12px;
 	margin: 10px 0;
 	border-bottom: none !important;
 }
