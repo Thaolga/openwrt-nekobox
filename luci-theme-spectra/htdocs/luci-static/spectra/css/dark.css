@@ -2281,3 +2281,9 @@ input[data-v-07bccc36].cbi-button {
 		margin-left: 0.2rem !important;
 	}
 }
+
+@media (max-width: 768px) {
+    div.pure-u-1-4.check:has(h4#status_baidu) div.img-con img {
+        margin-left: -0.3em !important;
+    }
+}
