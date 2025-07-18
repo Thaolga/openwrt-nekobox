@@ -12,7 +12,7 @@ document.addEventListener("DOMContentLoaded", function () {
     } else {
         document.documentElement.style.setProperty(
             '--popup-bg-color', 
-            'rgba(27, 27, 47, 0.9)'
+            'linear-gradient(to bottom, #7dd3fc, #3b82f6, #1d4ed8)'
         );
     }
 
@@ -917,8 +917,8 @@ document.addEventListener("DOMContentLoaded", function () {
                 <img src="/luci-static/spectra/navbar/interface.gif" width="35" height="35" alt="Settings" style="border-radius: 50%; object-fit: cover;">
             </div>
             <div id="mode-popup">
-            <div class="modal-header">
-                <h5 class="modal-title" id="panel-title">
+            <div class="control-panel-header-container">
+                <h5 class="control-panel-title" id="control-panel-header">
                     <i class="bi bi-gear-fill"></i>${translateText('controlPanel')}
                 </h5>
             </div>
@@ -1013,11 +1013,9 @@ document.addEventListener("DOMContentLoaded", function () {
             e.stopPropagation();
             const newMuted = localStorage.getItem('videoMuted') !== 'true';
             localStorage.setItem('videoMuted', newMuted);
+
+            updateSoundToggleState();
             
-            this.querySelector('div').innerHTML = newMuted ? 
-                '<i class="bi bi-volume-up status-on" style="color: white"></i>' : 
-                '<i class="bi bi-volume-mute status-off" style="color: white"></i>';
-                
             if (videoTag) {
                 videoTag.muted = newMuted;
             }
@@ -1074,6 +1072,7 @@ document.addEventListener("DOMContentLoaded", function () {
             this.querySelector('div').innerHTML = newState ? 
                 '<i class="bi bi-toggle-on status-on"></i>' : 
                 '<i class="bi bi-toggle-off status-off"></i>';
+            this.classList.toggle('disabled', !newState);
 
             toggleAnimation(newState);
         });
@@ -1213,7 +1212,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 toggleBtn.querySelector('div').innerHTML = newState ? 
                     '<i class="bi bi-eye-slash status-off" style="color: white"></i>' : 
                     '<i class="bi bi-eye status-on" style="color: white"></i>';
-            }
+             }
         });
 
     }
@@ -1260,6 +1259,11 @@ document.addEventListener("DOMContentLoaded", function () {
         #mode-popup button.sound-toggle {
             opacity: 1 !important;
             pointer-events: auto !important;
+            background: #4CAF50 !important; 
+        }
+
+        #mode-popup button.sound-toggle.muted {
+            background: #f44336 !important;
         }
 
         #redirect-btn,
@@ -1277,7 +1281,7 @@ document.addEventListener("DOMContentLoaded", function () {
             left: 50%;
             top: 50%;
             transform: translate(-50%, -50%);
-            background: var(--popup-bg-color, rgba(27, 27, 47, 0.9));
+            background: var(--popup-bg-color, linear-gradient(to bottom, #7dd3fc, #3b82f6, #1d4ed8));
             border-radius: 10px;
             padding: 15px;
             color: white;
@@ -1377,6 +1381,10 @@ document.addEventListener("DOMContentLoaded", function () {
             background: #00A497 !important;  
         }
 
+        #mode-popup button.ip-toggle.hidden {
+            background: #f44336 !important;
+        }
+
         #mode-popup button.theme-settings-btn {
             background: #EB6EA5 !important;
             opacity: 1 !important;
@@ -1393,6 +1401,16 @@ document.addEventListener("DOMContentLoaded", function () {
             background: #795548 !important;
             opacity: 1 !important;
             pointer-events: auto !important;
+        }
+
+        #mode-popup button#animation-toggle {
+            opacity: 1 !important;
+            pointer-events: auto !important;
+            background: #673AB7 !important;
+        }
+
+        #mode-popup button#animation-toggle.disabled {
+            background: #f44336 !important;
         }
 
         #mode-popup button.always-visible {
@@ -1470,30 +1488,27 @@ document.addEventListener("DOMContentLoaded", function () {
             background: #007BFF !important;
         }
 
-        .modal-header {
+        .control-panel-header-container {
             display: flex;
             justify-content: flex-start;
             align-items: center;
-            padding: 15px 20px;
-            border-bottom: 1px solid #444;
-            background: rgba(0, 0, 0, 0.2);
-            border-top-left-radius: 0.5rem;
-            border-top-right-radius: 0.5rem;
+            padding: 4px 10px;
         }
     
-        .modal-title {
+        .control-panel-title {
             margin: 0;
             font-weight: bold;
-            color: #9C27B0;
+            color: rgb(40, 237, 240);
             font-size: 1.3rem !important;
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 6px;
+            padding-top: 4px;
         }
     
-        .modal-title i {
+        .control-panel-title i {
             font-size: 1.1rem;
-        }
+        } 
 
         @media (max-width: 768px) {
             #mode-popup {
@@ -1608,7 +1623,7 @@ document.addEventListener("DOMContentLoaded", function () {
             }
 
             #custom-alert {
-                background: rgba(0,0,0,0.95);
+                background: linear-gradient(to bottom, #7dd3fc, #3b82f6, #1d4ed8);
                 border: 1px solid #333;
                 border-radius: 8px;
                 width: 90%;
@@ -1629,22 +1644,8 @@ document.addEventListener("DOMContentLoaded", function () {
 
             .alert-header h3 {
                 margin: 0;
-                color: #4CAF50;
+                color: rgb(255, 0, 255) !important;
                 font-size: 1.3em;
-            }
-
-            .close-btn {
-                background: none;
-                border: none;
-                color: #fff;
-                font-size: 24px;
-                cursor: pointer;
-                padding: 0 8px;
-                transition: color 0.3s;
-            }
-
-            .close-btn:hover {
-                color: #4CAF50;
             }
 
             .alert-content {
@@ -1657,6 +1658,16 @@ document.addEventListener("DOMContentLoaded", function () {
                 margin: 10px 0;
                 color: #ddd;
                 font-size: 14px;
+            }
+
+            .alert-content p a.github-link {
+                color: #ff69b4;
+                text-decoration: none;
+                transition: color 0.3s ease;
+            }
+
+            .alert-content p a.github-link:hover {
+                color: #ff1493;
             }
 
             @media (max-width: 480px) {
@@ -1760,6 +1771,17 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     }
 
+    function updateSoundToggleState() {
+        const soundMuted = localStorage.getItem('videoMuted') === 'true';
+        const soundToggle = document.querySelector('.sound-toggle');
+        if (soundToggle) {
+            soundToggle.querySelector('div').innerHTML = soundMuted ? 
+                '<i class="bi bi-volume-mute status-off" style="color: white"></i>' : 
+                '<i class="bi bi-volume-up status-on" style="color: white"></i>';
+            soundToggle.classList.toggle('muted', soundMuted);
+        }
+    }
+
     function applyFont(font) {
         loadFont(font);
     
@@ -1816,17 +1838,21 @@ document.addEventListener("DOMContentLoaded", function () {
             masterSwitch.querySelector('span').textContent = translateText(isEnabled ? 'enabled' : 'disabled');
         }
 
-        const panelTitle = document.getElementById('panel-title');
+
+        const panelTitle = document.getElementById('control-panel-header');
         if (panelTitle) {
             panelTitle.innerHTML = `<i class="bi bi-gear-fill"></i>${translateText('controlPanel')}`;
         }
 
+        updateSoundToggleState();
+
         const soundMuted = localStorage.getItem('videoMuted') === 'true';
         const soundToggle = popup.querySelector('.sound-toggle');
         if (soundToggle) {
-        soundToggle.querySelector('div').innerHTML = soundMuted ? 
-            '<i class="bi bi-volume-mute status-off" style="color: white"></i>' : 
-            '<i class="bi bi-volume-up status-on" style="color: white"></i>';
+            soundToggle.querySelector('div').innerHTML = soundMuted ? 
+                '<i class="bi bi-volume-mute status-off" style="color: white"></i>' : 
+                '<i class="bi bi-volume-up status-on" style="color: white"></i>';
+            soundToggle.classList.toggle('muted', soundMuted);
         }
     
         const themeToggle = popup.querySelector('#theme-toggle');
@@ -1856,6 +1882,10 @@ document.addEventListener("DOMContentLoaded", function () {
         popup.querySelector('#animation-toggle span').textContent = isAnimationEnabled ? 
             translateText('disableAnimation') : 
             translateText('enableAnimation');
+        const animationToggle = popup.querySelector('#animation-toggle');
+        if (animationToggle) {
+            animationToggle.classList.toggle('disabled', !isAnimationEnabled);
+        }
     
         popup.querySelector('#font-toggle span').textContent = translateText('fontToggle');
         popup.querySelector('#font-toggle div').textContent = getFontButtonText();
@@ -2070,8 +2100,8 @@ document.addEventListener("DOMContentLoaded", function () {
             }
             
             #color-picker-dialog {
-                background: rgba(0,0,0,0.9);
-                width: 400px;
+                background: linear-gradient(to bottom, #7dd3fc, #3b82f6, #1d4ed8);
+                width: 900px;
                 padding: 25px;
                 border-radius: 10px;
                 box-shadow: 0 0 25px rgba(0,0,0,0.6);
@@ -2089,18 +2119,10 @@ document.addEventListener("DOMContentLoaded", function () {
             
             .dialog-header h3 {
                 margin: 0;
-                color: #9C27B0;
+                color: rgb(255, 0, 255) !important;
                 font-size: 1.2em;
             }
-            
-            .close-btn {
-                background: none;
-                border: none;
-                color: #fff;
-                font-size: 24px;
-                cursor: pointer;
-            }
-            
+                        
             .color-preview {
                 width: 100%;
                 height: 100px;
@@ -2174,8 +2196,8 @@ document.addEventListener("DOMContentLoaded", function () {
             
             .preset-colors {
                 display: grid;
-                grid-template-columns: repeat(8, 1fr);
-                gap: 8px;
+                grid-template-columns: repeat(15, 1fr);
+                gap: 6px;
             }
             
             .color-preset {
@@ -2189,17 +2211,30 @@ document.addEventListener("DOMContentLoaded", function () {
             .color-preset:hover {
                 transform: scale(1.1);
             }
-            
-            @media (max-width: 480px) {
+
+            @media (max-width: 1600px) {
                 #color-picker-dialog {
-                    width: 90%;
-                    padding: 15px;
+                    width: 800px;
                 }
-            
                 .preset-colors {
-                    grid-template-columns: repeat(5, 1fr);
+                    grid-template-columns: repeat(12, 1fr);
                 }
             }
+        
+            @media (max-width: 768px) {
+                #color-picker-dialog {
+                    width: 90%;
+                }
+
+                .preset-colors {
+                    grid-template-columns: repeat(10, 1fr);
+                }
+
+                .color-preview {
+                    height: 50px;
+                }
+
+            }          
         `;
         document.head.appendChild(style);
         
@@ -2259,14 +2294,24 @@ document.addEventListener("DOMContentLoaded", function () {
 
     function generateColorPresets() {
         const presets = [
-            '#0f3460', '#16213e', '#1a1a2e', '#1b1b2f', '#1e272e', '#1f4068', '#1e3799', '#222f3e', '#212529',
-            '#343a40', '#485460', '#495057', '#4a69bd', '#4361ee', '#4895ef', '#90e0ef',
-            '#00b4d8', '#00cec9', '#4cc9f0', '#60a3bc', '#6a89cc', '#82ccdd', '#81ecec',
-            '#1b4332', '#2d6a4f', '#40916c', '#52b788', '#55efc4', '#74c69d', '#95d5b2', '#b7e4c7', '#d8f3dc',
-            '#6c757d', '#808e9b', '#8d99ae', '#adb5bd', '#ced4da', '#ffffff',
-            '#7209b7', '#560bad', '#3a0ca3', '#3f37c9', '#b5179e', '#f72585',
-            '#e94560', '#f67280', '#ff7c7c', '#ff9a76', '#ffb997',
-            '#e1b12c', '#fbc531', '#f9ca24', '#ff9f1a', '#ffd32a'
+            '#0f3460', '#0f172a', '#1e293b', '#1e3a8a', '#1d4ed8', '#2563eb',
+            '#3b82f6', '#1e40af', '#3730a3', '#4c1d95', '#5b21b6', '#6d28d9',
+            '#7c3aed', '#0369a1', '#0284c7', '#0ea5e9', '#38bdf8', '#7dd3fc',
+            '#bae6fd', '#1d4ed8', '#60a5fa', '#93c5fd', '#bfdbfe',
+            '#064e3b', '#047857', '#059669', '#10b981', '#34d399', '#6ee7b7',
+            '#a7f3d0', '#d1fae5', '#166534', '#22c55e',
+            '#854d0e', '#a16207', '#ca8a04', '#eab308', '#facc15', '#fde047',
+            '#fef08a', '#fef9c3', '#ea580c', '#f97316', '#fb923c', '#fdba74',      
+            '#7f1d1d', '#b91c1c', '#dc2626', '#ef4444', '#f87171', '#fca5a5',
+            '#fecaca', '#fee2e2', '#9d174d', '#be185d', '#db2777', '#ec4899',        
+            '#581c87', '#6b21a8', '#7e22ce', '#9333ea', '#a855f7', '#c084fc',
+            '#d8b4fe', '#e9d5ff', '#5b21b6', '#7c3aed',        
+            '#111827', '#1f2937', '#374151', '#4b5563', '#6b7280', '#9ca3af',
+            '#d1d5db', '#e5e7eb', '#f3f4f6', '#f9fafb', '#ffffff',       
+            '#134e4a', '#0d9488', '#14b8a6', '#2dd4bf', '#5eead4', '#99f6e4',
+            '#ccfbf1', '#ecfdf5', '#0891b2', '#06b6d4',       
+            '#4338ca', '#4f46e5', '#6366f1', '#8b5cf6', '#a855f7', '#d946ef',
+            '#ec4899', '#f43f5e', '#ef4444', '#f97316', '#f59e0b', '#eab308'
         ];
         
         return presets.map(color => `
@@ -2334,7 +2379,7 @@ document.addEventListener("DOMContentLoaded", function () {
             }
             
             #font-settings-dialog {
-                background: rgba(0,0,0,0.9);
+                background: linear-gradient(to bottom, #7dd3fc, #3b82f6, #1d4ed8);
                 width: 400px;
                 padding: 25px;
                 border-radius: 10px;
@@ -2353,18 +2398,10 @@ document.addEventListener("DOMContentLoaded", function () {
             
             .dialog-header h3 {
                 margin: 0;
-                color: #9C27B0;
+                color: rgb(255, 0, 255) !important;
                 font-size: 1.2em;
             }
-            
-            .close-btn {
-                background: none;
-                border: none;
-                color: #fff;
-                font-size: 24px;
-                cursor: pointer;
-            }
-            
+                        
             .font-controls {
                 display: flex;
                 flex-direction: column;
@@ -2632,7 +2669,7 @@ document.addEventListener("DOMContentLoaded", function () {
     
         document.documentElement.style.setProperty(
             '--popup-bg-color', 
-            'rgba(27, 27, 47, 0.9)'
+            'linear-gradient(to bottom, #7dd3fc, #3b82f6, #1d4ed8)'
         );
 
         localStorage.setItem('backgroundMode', 'auto');
@@ -2975,16 +3012,8 @@ document.addEventListener("DOMContentLoaded", function () {
             }
             .dialog-header h3 {
                 margin: 0;
-                color: #9C27B0;
+                color: rgb(255, 0, 255) !important;
                 font-size: 1.2em;
-            }
-            .close-btn {
-                background: none;
-                border: none;
-                color: white;
-                font-size: 24px;
-                cursor: pointer;
-                padding: 0 8px;
             }
 
             @media (max-width: 768px) {

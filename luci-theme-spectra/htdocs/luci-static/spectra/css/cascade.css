@@ -1925,6 +1925,53 @@ input.btn.cbi-button[type="button"]:hover {
 	background-color: #c82333 !important;
 }
 
+.close-btn {
+	box-sizing: border-box !important;
+	flex-shrink: 0 !important;
+	left: 10px !important;
+	position: relative !important;
+	width: 36px !important;
+	height: 36px !important;
+	border: none !important;
+	background: #ff4757 !important;
+	border-radius: 50% !important;
+	cursor: pointer !important;
+	transition: all 0.3s ease !important;
+	box-shadow: 0 2px 5px rgba(0,0,0,0.2) !important;
+	display: flex !important;
+	align-items: center !important;
+	justify-content: center !important;
+	padding: 0 !important;
+}
+
+.close-btn::before, 
+.close-btn::after {
+	content: '' !important;
+	position: absolute !important;
+	width: 18px !important;
+	height: 2px !important;
+	background: white !important;
+	border-radius: 1px !important;
+}
+
+.close-btn::before {
+	transform: rotate(45deg) !important;
+}
+
+.close-btn::after {
+	transform: rotate(-45deg) !important;
+}
+
+.close-btn:hover {
+	background: #ff2e43 !important;
+	transform: rotate(90deg) scale(1.1) !important;
+	box-shadow: 0 3px 8px rgba(0,0,0,0.3) !important;
+}
+
+.close-btn:active {
+	transform: scale(0.95) !important;
+}
+
 a.food[data-title="Log_out"]::before {
 	content: none !important;
 }
@@ -5636,5 +5683,18 @@ pre.command-output {
 		text-align: center;
 		word-break: break-all;
 		margin: 0;
+	}
+}
+
+@media (max-width: 768px) {
+	.cbi-value-field .control-group {
+		display: flex !important;
+		flex-wrap: nowrap !important;
+		gap: 8px !important;
+	}
+
+	.cbi-value-field .control-group .cbi-button {
+		flex: 1 1 auto !important;
+		white-space: nowrap !important;
 	}
 }
