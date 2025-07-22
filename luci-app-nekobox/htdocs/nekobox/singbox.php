@@ -202,7 +202,7 @@ EOL;
 }
 
 </style>
-<div class="container-sm container-bg callout border border-3 rounded-4 col-11">
+<div class="container-sm container-bg mt-4">
     <div class="row">
         <a href="./index.php" class="col btn btn-lg text-nowrap"><i class="bi bi-house-door"></i> <span data-translate="home">Home</span></a>
         <a href="./mihomo_manager.php" class="col btn btn-lg text-nowrap"><i class="bi bi-folder"></i> <span data-translate="manager">Manager</span></a>
@@ -211,7 +211,7 @@ EOL;
         <a href="./mihomo.php" class="col btn btn-lg text-nowrap"><i class="bi bi-building"></i> <span data-translate="template_iii">Template III</span></a>
 <div class="outer-container section-container">
     <div class="container-fluid">
-        <h1 class="title text-center" style="margin-top: 3rem; margin-bottom: 2rem;" data-translate="title">Sing-box Conversion Template One</h1>
+        <h2 class="title text-center" style="margin-top: 3rem; margin-bottom: 2rem;" data-translate="title">Sing-box Conversion Template One</h2>
         <div class="alert alert-info">
             <h4 class="alert-heading" data-translate="helpInfoHeading">Help Information</h4>
             <ul>
@@ -495,7 +495,7 @@ EOL;
             echo "<div class='container'>";
             echo "<div class='card'>";
             echo "<div class='card-body'>";
-            echo "<h2 class='card-title'>" . $translations['data_saved'] . "</h2>";
+            echo "<h3 class='card-title'>" . $translations['data_saved'] . "</h3>";
             echo "<pre>" . htmlspecialchars($savedData) . "</pre>";
             echo "<form method='post' action=''>";
             echo '<input type="hidden" name="lang" value="' . $currentLang . '">'; 

@@ -36,15 +36,6 @@
 		}
 	},
 	
-	"admin/services/nekobox/configs": {
-		"title": "Configs",
-		"order": 4,
-		"action": {
-			"type": "view",
-			"path": "nekobox/configs"
-		}
-	},
-
 	"admin/services/nekobox/filekit": {
 		"title": "Manager",
 		"order": 5,

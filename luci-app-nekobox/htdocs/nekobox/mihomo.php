@@ -649,14 +649,14 @@ function getSubscriptionUrlFromFile($file) {
     width: 100%;
 }
 </style>
-<div class="container-sm container-bg callout border border-3 rounded-4 col-11">
+<div class="container-sm container-bg mt-4">
     <div class="row">
         <a href="./index.php" class="col btn btn-lg text-nowrap"><i class="bi bi-house-door"></i> <span data-translate="home">Home</span></a>
         <a href="./mihomo_manager.php" class="col btn btn-lg text-nowrap"><i class="bi bi-folder"></i> <span data-translate="manager">Manager</span></a>
         <a href="./singbox.php" class="col btn btn-lg text-nowrap"><i class="bi bi-shop"></i> <span data-translate="template_i">Template I</span></a>
         <a href="./subscription.php" class="col btn btn-lg text-nowrap"><i class="bi bi-bank"></i> <span data-translate="template_ii">Template II</span></a>
         <a href="./mihomo.php" class="col btn btn-lg text-nowrap"><i class="bi bi-building"></i> <span data-translate="template_iii">Template III</span></a>
-        <h1 class="text-center p-2" style="margin-top: 2rem; margin-bottom: 1rem;"><?php echo $translations['mihomo_conversion_template']; ?></h1>
+        <h2 class="text-center p-2" style="margin-top: 2rem; margin-bottom: 1rem;" data-translate="mihomo_conversion_template"></h2>
 
         <div class="col-12 custom-padding">
             <div class="form-section">
