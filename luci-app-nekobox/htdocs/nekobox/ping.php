@@ -5594,10 +5594,6 @@ label {
 	margin-top: 1rem !important;
 }
 
-.scrollable-container:hover {
-	overflow: auto;
-}
-
 .royal-style {
 	font-family: 'Cinzel Decorative', cursive;
 	font-weight: 900;
@@ -5716,7 +5712,6 @@ svg.feather:hover,
 }
 
 body {
-        background: var(--body-bg-color, #f0ffff);
         color: var(--text-primary);
         -webkit-backdrop-filter: blur(10px);
         transition: all 0.3s ease;
@@ -5836,13 +5831,14 @@ body.dm-serif-font {
 		display: none !important;
 	}
 }
-</style>
 
-<style>
+.scrollable-container:hover {
+	overflow: auto;
+}
 
 /* START .container-sm */
 .container-sm {
-    width: 1500px !important; 
+    width: 1550px !important; 
     max-width: 100%;
     margin: 0 auto;
 }
@@ -5850,7 +5846,7 @@ body.dm-serif-font {
 
 /* START .modal-xl */
 .modal-xl {
-    max-width: 1250px !important; 
+    max-width: 1050px !important; 
 }
 
 @media (max-width: 768px) {
@@ -5859,8 +5855,4 @@ body.dm-serif-font {
     }
 }
 /* END .modal-xl */
-
 </style>
-
-
-
