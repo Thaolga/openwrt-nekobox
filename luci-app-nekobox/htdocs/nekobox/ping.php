@@ -188,12 +188,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <div id="modalWidthValue" class="mt-2" style="color: #00FF00;" data-translate="current_max_width">Current Max Width: 800px</div>
           </div>
         </div>
-<!--
-        <div class="form-check mb-3">
-          <input class="form-check-input" type="checkbox" id="openwrtTheme" />
-          <label class="form-check-label" for="openwrtTheme" data-translate="enable_openwrt_theme">Enable OpenWRT Theme Compatibility</label>
-        </div>
--->
         <div id="color-preview" class="rounded border mb-3" style="height: 100px; background: #333;"></div>
         <div class="d-flex align-items-center gap-2 mb-3">
           <div class="d-flex align-items-center justify-content-center rounded"
@@ -3672,7 +3666,6 @@ function generateColorPresets() {
 
     const container = document.getElementById('preset-colors');
     container.innerHTML = '';
-
     container.style.gridTemplateColumns = window.innerWidth < 768 ? 'repeat(10, 1fr)' : 'repeat(15, 1fr)';
 
     presets.forEach(color => {
@@ -3689,6 +3682,10 @@ function generateColorPresets() {
             document.getElementById('color-input').value = color;
             document.getElementById('current-color-block').style.background = color;
             applyCustomBackgroundColor(color);
+            const msgTemplate = translations['apply_color_success'] || 'Background color %s has been applied successfully.';
+            const msg = msgTemplate.replace('%s', color);
+            if (typeof showLogMessage === 'function') showLogMessage(msg);
+            if (typeof speakMessage === 'function') speakMessage(msg);
         });
         container.appendChild(div);
     });
@@ -3734,10 +3731,8 @@ document.addEventListener('DOMContentLoaded', () => {
         const color = document.getElementById('color-input').value;
         if (isValidColor(color)) {
             applyCustomBackgroundColor(color);
-
             const successMsgTemplate = translations['apply_color_success'] || 'Background color %s has been applied successfully.';
             const successMsg = successMsgTemplate.replace('%s', color);
-
             if (typeof showLogMessage === 'function') showLogMessage(successMsg);
             if (typeof speakMessage === 'function') speakMessage(successMsg);
         } else {
@@ -3750,30 +3745,26 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('reset-color').addEventListener('click', () => {
         resetCustomBackgroundColor();
         const defaultColor = '';
-        document.getElementById('color-preview').style.background = defaultColor;
-        document.getElementById('color-selector').value = defaultColor;
-        document.getElementById('color-input').value = defaultColor;
-        document.getElementById('current-color-block').style.background = defaultColor;
-    
+        preview.style.background = defaultColor;
+        selector.value = defaultColor;
+        input.value = defaultColor;
+        colorBlock.style.background = defaultColor;
         const successMsg = translations['reset_color_success'] || 'Background color has been reset to default.';
         if (typeof showLogMessage === 'function') showLogMessage(successMsg);
         if (typeof speakMessage === 'function') speakMessage(successMsg);
     });
 
     generateColorPresets();
-
     window.addEventListener('resize', generateColorPresets);
 
     const slider = document.getElementById("containerWidth");
     const widthValue = document.getElementById("widthValue");
     const modalSlider = document.getElementById("modalMaxWidth");
     const modalWidthValue = document.getElementById("modalWidthValue");
-    const openwrtThemeCheckbox = document.getElementById("openwrtTheme");
 
     function updateSliderColor(value, slider, valueElement) {
         let red = Math.min(Math.max((value - 800) / (5400 - 800) * 255, 0), 255);
         let green = 255 - red;
-
         slider.style.background = `linear-gradient(to right, rgb(${red}, ${green}, 255), rgb(${255 - red}, ${green}, ${255 - red}))`;
         slider.style.setProperty('--thumb-color', `rgb(${red}, ${green}, 255)`);
         valueElement.textContent = translations['current_width'].replace('%s', value);
@@ -3783,12 +3774,8 @@ document.addEventListener('DOMContentLoaded', () => {
     let savedWidth = localStorage.getItem('containerWidth');
     let savedModalWidth = localStorage.getItem('modalMaxWidth');
 
-    if (savedWidth) {
-        slider.value = savedWidth;
-    }
-    if (savedModalWidth) {
-        modalSlider.value = savedModalWidth;
-    }
+    if (savedWidth) slider.value = savedWidth;
+    if (savedModalWidth) modalSlider.value = savedModalWidth;
 
     updateSliderColor(slider.value, slider, widthValue);
     updateSliderColor(modalSlider.value, modalSlider, modalWidthValue);
@@ -3797,49 +3784,34 @@ document.addEventListener('DOMContentLoaded', () => {
         updateSliderColor(slider.value, slider, widthValue);
         localStorage.setItem('containerWidth', slider.value);
         sendCSSUpdate();
-        showLogMessage(translations['page_width_updated'].replace('%s', slider.value));
+        const msg = translations['page_width_updated'].replace('%s', slider.value);
+        showLogMessage(msg);
+        if (typeof speakMessage === 'function') speakMessage(msg);
     };
 
     modalSlider.oninput = function() {
         updateSliderColor(modalSlider.value, modalSlider, modalWidthValue);
         localStorage.setItem('modalMaxWidth', modalSlider.value);
         sendCSSUpdate();
-        showLogMessage(translations['modal_width_updated'].replace('%s', modalSlider.value));
-    };
-
-    const savedOpenwrtTheme = localStorage.getItem('openwrtTheme');
-    if (savedOpenwrtTheme !== null) {
-        openwrtThemeCheckbox.checked = savedOpenwrtTheme === '1';
-    }
-
-    openwrtThemeCheckbox.onchange = function () {
-        localStorage.setItem('openwrtTheme', openwrtThemeCheckbox.checked ? '1' : '0');
-        sendCSSUpdate();
-        showLogMessage(openwrtThemeCheckbox.checked ? 'OpenWRT theme enabled' : 'OpenWRT theme disabled');
-        setTimeout(() => location.reload(), 300);
+        const msg = translations['modal_width_updated'].replace('%s', modalSlider.value);
+        showLogMessage(msg);
+        if (typeof speakMessage === 'function') speakMessage(msg);
     };
 
     function sendCSSUpdate() {
         const width = slider.value;
         const modalWidth = modalSlider.value;
-        const group1 = 0;
-        const bodyBackground = 0;
-
         fetch('update-css.php', {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
+            headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
                 width: width,
-                modalWidth: modalWidth,
-                group1: group1,
-                bodyBackground: bodyBackground,
-                openwrtTheme: openwrtThemeCheckbox.checked ? 1 : 0
+                modalWidth: modalWidth
             })
-        }).then(response => response.json())
-          .then(data => console.log('CSS 更新成功:', data))
-          .catch(error => console.error('Error updating CSS:', error));
+        })
+        .then(response => response.json())
+        .then(data => console.log('CSS 更新成功:', data))
+        .catch(error => console.error('Error updating CSS:', error));
     }
 });
 
