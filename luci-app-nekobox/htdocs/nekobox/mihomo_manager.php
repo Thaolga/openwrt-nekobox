@@ -470,6 +470,24 @@ function download_file($url, $destination) {
     <?php include './ping.php'; ?>
 </head>
 <style>
+#updateNotification {
+    background: linear-gradient(135deg, #1e3a8a, #2563eb);
+    color: #fff;
+    border: none;
+    border-radius: 0.5rem;
+    padding: 1rem;
+    position: relative;
+}
+
+#updateNotification .alert-info {
+    background: rgba(255, 255, 255, 0.1);
+    color: #fff;
+    border: none;
+}
+
+#updateNotification .spinner-border {
+    filter: invert(1);
+}
 
 #dropZone i {
     font-size: 50px;
@@ -525,7 +543,6 @@ function download_file($url, $destination) {
 
         <div id="updateLogContainer" class="small mt-2"></div>
 
-        <button type="button" class="btn-close custom-btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
     </div>
 </div>
 
@@ -549,11 +566,20 @@ function displayUpdateNotification() {
     }, 5000);
 }
 
-<?php if (!empty($notificationMessage)): ?>
-    $(document).ready(function() {
-        displayUpdateNotification();
-    });
-<?php endif; ?>
+$(document).ready(function() {
+    const notificationMessageExists = <?php echo json_encode(!empty($notificationMessage)); ?>;
+
+    if (notificationMessageExists) {
+        const lastNotificationTime = localStorage.getItem('lastUpdateNotificationTime');
+        const now = Date.now();
+        const twentyFourHours = 24 * 60 * 60 * 1000;
+
+        if (!lastNotificationTime || now - parseInt(lastNotificationTime, 10) > twentyFourHours) {
+            displayUpdateNotification();
+            localStorage.setItem('lastUpdateNotificationTime', now.toString());
+        }
+    }
+});
 </script>
 <div class="container-sm container-bg mt-4">
     <div class="row">

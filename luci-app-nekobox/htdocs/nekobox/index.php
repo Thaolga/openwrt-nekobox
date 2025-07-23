@@ -851,7 +851,7 @@ function startUpdateTimer() {
     const lastCheck = localStorage.getItem('lastUpdateCheck');
 
     let timeSinceLastCheck = lastCheck ? now - parseInt(lastCheck, 10) : Infinity;
-    let timeUntilNextCheck = Math.max(28800000 - timeSinceLastCheck, 0); 
+    let timeUntilNextCheck = Math.max(14400000 - timeSinceLastCheck, 0); 
 
     console.log('Time until next check:', timeUntilNextCheck / 1000 / 60, 'minutes');
 
@@ -1493,7 +1493,8 @@ window.onload = function() {
 <script>
     document.addEventListener('DOMContentLoaded', function() {
         const autoRefreshCheckbox = document.getElementById('autoRefresh');
-        const isChecked = localStorage.getItem('autoRefresh') === 'true';
+        const autoRefreshSetting = localStorage.getItem('autoRefresh');
+        const isChecked = autoRefreshSetting === null || autoRefreshSetting === 'true';
         autoRefreshCheckbox.checked = isChecked;
 
         if (isChecked) {

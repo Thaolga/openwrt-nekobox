@@ -1,4 +1,5 @@
-<?php include './language.php'; ?>
+
+<?php include './language.php'; include './cfg.php'; ?>
 <html lang="<?php echo $currentLang; ?>">
 <div class="modal fade" id="langModal" tabindex="-1" aria-labelledby="langModalLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
     <div class="modal-dialog modal-lg">
@@ -120,8 +121,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 </div>
                 
                 <div class="mt-3">
-                  <button class="btn btn-secondary w-100" id="resetColorBtn" data-translate="reset_to_default">
-                    <i class="bi bi-arrow-counterclockwise"></i> Reset to Default
+                  <button class="btn btn-secondary w-100" id="resetColorBtn">
+                    <i class="bi bi-arrow-counterclockwise"></i> <span data-translate="reset_to_default">Reset to Default</span>
                   </button>
                 </div>
               </div>
@@ -153,11 +154,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         </div>
       </div>
       <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" data-translate="cancel">
-          <i class="bi bi-x"></i> Cancel
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+          <i class="bi bi-x"></i> <span data-translate="cancel">Cancel</span>
         </button>
-        <button type="button" class="btn btn-primary" id="applyColorBtn" data-translate="apply_color">
-          <i class="bi bi-check"></i> Apply Color
+        <button type="button" class="btn btn-danger" id="removeAppColorBtn">
+          <i class="bi bi-eraser"></i> <span data-translate="reset">Reset</span>
+        </button>
+        <button type="button" class="btn btn-primary" id="applyColorBtn">
+          <i class="bi bi-check"></i> <span data-translate="apply_color">Apply Color</span>
         </button>
       </div>
     </div>
@@ -184,10 +188,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <div id="modalWidthValue" class="mt-2" style="color: #00FF00;" data-translate="current_max_width">Current Max Width: 800px</div>
           </div>
         </div>
+<!--
         <div class="form-check mb-3">
           <input class="form-check-input" type="checkbox" id="openwrtTheme" />
           <label class="form-check-label" for="openwrtTheme" data-translate="enable_openwrt_theme">Enable OpenWRT Theme Compatibility</label>
         </div>
+-->
         <div id="color-preview" class="rounded border mb-3" style="height: 100px; background: #333;"></div>
         <div class="d-flex align-items-center gap-2 mb-3">
           <div class="d-flex align-items-center justify-content-center rounded"
@@ -209,13 +215,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
           </div>
         </div>
         <div class="d-flex gap-2 mb-3">
-          <button id="apply-color" class="btn btn-success flex-fill"data-translate="apply_color">Apply</button>
-          <button id="reset-color" class="btn btn-danger flex-fill"data-translate="reset">Reset</button>
+          <button id="apply-color" class="btn btn-success flex-fill"><i class="fa fa-paint-brush"></i> <span data-translate="apply_color">Apply</span> </button>
+          <button id="reset-color" class="btn btn-danger flex-fill"><i class="fa fa-undo"></i><span data-translate="reset">Reset</span></button>
         </div>
         <div id="preset-colors" class="d-grid gap-2"></div>
       </div>
       <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" data-translate="close">Close</button>
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal"><i class="fa fa-times"></i><span data-translate="close">Close</span></button>
       </div>
     </div>
   </div>
@@ -458,6 +464,24 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     </div>
 </div>
 
+<div class="modal fade" id="confirmModal" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" data-translate="confirm_title">Confirm Action</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body" id="confirmModalMessage"></div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" data-translate="cancel">Cancel</button>
+                <button type="button" class="btn btn-danger" id="confirmModalYes" data-translate="confirm">Confirm</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <script>
 document.addEventListener("DOMContentLoaded", function () {
     const animationModal = document.getElementById('animationModal');
@@ -652,10 +676,7 @@ logMessages.forEach(message => {
 });
 </script>
 
-
-
 <style>
-
 .img-con {
 	width: 65px;
 	height: 55px;
@@ -1739,13 +1760,6 @@ let isManualScroll = false;
 let isSmallScreen = window.innerWidth < 768;
 
 const showLogMessage = (function() {
-    const bgColors = [
-        'var(--ocean-bg)',
-        'var(--forest-bg)',
-        'var(--lavender-bg)',
-        'var(--sand-bg)'
-    ];
-    
     let currentIndex = 0;
     const activeLogs = new Set();
     const BASE_OFFSET = 20;
@@ -1757,9 +1771,9 @@ const showLogMessage = (function() {
             warning: 'M1 21h22L12 2 1 21zm12-3h-2v-2h2v2zm0-4h-2v-4h2v4z',
             info: 'M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z'
         };
-    
+
         const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path fill="#fff" d="${icons[type] || icons.info}"/></svg>`;
-    
+
         return `data:image/svg+xml;base64,${btoa(svg)}`;
     }
 
@@ -1774,10 +1788,9 @@ const showLogMessage = (function() {
     return function(message, type = '') {
         const logBox = document.createElement('div');
         logBox.className = `log-box ${type}`;
-        
+
         if (!type) {
-            logBox.style.background = bgColors[currentIndex];
-            currentIndex = (currentIndex + 1) % bgColors.length;
+            logBox.dataset.dynamicBg = 'true';
         }
 
         logBox.innerHTML = `
@@ -1790,17 +1803,21 @@ const showLogMessage = (function() {
 
         logBox.querySelector('.log-close-btn').onclick = () => {
             logBox.classList.add('exiting');
-            setTimeout(() => logBox.remove(), 300);
+            setTimeout(() => {
+                logBox.remove();
+                activeLogs.delete(logBox);
+                updatePositions();
+            }, 300);
         };
 
-        logBox.addEventListener('mouseenter', () => 
+        logBox.addEventListener('mouseenter', () =>
             logBox.style.animationPlayState = 'paused');
-        logBox.addEventListener('mouseleave', () => 
+        logBox.addEventListener('mouseleave', () =>
             logBox.style.animationPlayState = 'running');
 
         document.body.appendChild(logBox);
         activeLogs.add(logBox);
-        
+
         requestAnimationFrame(() => {
             logBox.classList.add('active');
             updatePositions();
@@ -3714,19 +3731,33 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     document.getElementById('apply-color').addEventListener('click', () => {
-        const color = input.value;
+        const color = document.getElementById('color-input').value;
         if (isValidColor(color)) {
             applyCustomBackgroundColor(color);
+
+            const successMsgTemplate = translations['apply_color_success'] || 'Background color %s has been applied successfully.';
+            const successMsg = successMsgTemplate.replace('%s', color);
+
+            if (typeof showLogMessage === 'function') showLogMessage(successMsg);
+            if (typeof speakMessage === 'function') speakMessage(successMsg);
+        } else {
+            const invalidMsg = translations['invalid_color'] || 'The color entered is invalid.';
+            if (typeof showLogMessage === 'function') showLogMessage(invalidMsg);
+            if (typeof speakMessage === 'function') speakMessage(invalidMsg);
         }
     });
 
     document.getElementById('reset-color').addEventListener('click', () => {
         resetCustomBackgroundColor();
         const defaultColor = '';
-        preview.style.background = defaultColor;
-        selector.value = defaultColor;
-        input.value = defaultColor;
-        colorBlock.style.background = defaultColor;
+        document.getElementById('color-preview').style.background = defaultColor;
+        document.getElementById('color-selector').value = defaultColor;
+        document.getElementById('color-input').value = defaultColor;
+        document.getElementById('current-color-block').style.background = defaultColor;
+    
+        const successMsg = translations['reset_color_success'] || 'Background color has been reset to default.';
+        if (typeof showLogMessage === 'function') showLogMessage(successMsg);
+        if (typeof speakMessage === 'function') speakMessage(successMsg);
     });
 
     generateColorPresets();
@@ -3810,6 +3841,19 @@ document.addEventListener('DOMContentLoaded', () => {
           .then(data => console.log('CSS 更新成功:', data))
           .catch(error => console.error('Error updating CSS:', error));
     }
+});
+
+function updateRangeBackground(range) {
+    const val = range.value;
+    const min = range.min ? range.min : 0;
+    const max = range.max ? range.max : 100;
+    const percent = (val - min) / (max - min) * 100;
+    range.style.background = `linear-gradient(to right, #00ff00 0%, #00ff00 ${percent}%, #ffffff ${percent}%, #ffffff 100%)`;
+}
+
+document.querySelectorAll('input[type=range]').forEach(range => {
+    updateRangeBackground(range);
+    range.addEventListener('input', () => updateRangeBackground(range));
 });
 </script>
 
@@ -4093,36 +4137,46 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   document.getElementById('applyColorBtn').addEventListener('click', function() {
-    const settings = {
-        hue: currentHue,
-        chroma: currentChroma,
-        lightness: currentLightness,
-        recentColors: recentColors || []
-    };
-    localStorage.setItem('appColorSettings', JSON.stringify(settings));
-    document.documentElement.style.setProperty('--base-hue', currentHue);
-    document.documentElement.style.setProperty('--base-chroma', currentChroma);
-    document.getElementById('colorPicker').value = oklchToHex(currentHue, currentChroma, currentLightness);
-    localStorage.setItem('appColorSettings', JSON.stringify({ recentColors, hue: currentHue, chroma: currentChroma, lightness: currentLightness }));
-    updateTextPrimary(currentLightness);
-    colorModal.hide();
+      const settings = {
+          hue: currentHue,
+          chroma: currentChroma,
+          lightness: currentLightness,
+          recentColors: recentColors || []
+      };
+      localStorage.setItem('appColorSettings', JSON.stringify(settings));
+
+      document.documentElement.style.setProperty('--base-hue', currentHue);
+      document.documentElement.style.setProperty('--base-chroma', currentChroma);
+      document.getElementById('colorPicker').value = oklchToHex(currentHue, currentChroma, currentLightness);
+      updateTextPrimary(currentLightness);
+
+      const hexColor = oklchToHex(currentHue, currentChroma, currentLightness);
+      const successMsg = (translations['apply_color_success'] || 'Background color %s has been applied successfully.').replace('%s', hexColor);
+      if (typeof showLogMessage === 'function') showLogMessage(successMsg);
+      if (typeof speakMessage === 'function') speakMessage(successMsg);
+
+      colorModal.hide();
   });
 
   document.getElementById('resetColorBtn').addEventListener('click', function() {
-    currentHue = 260;
-    currentChroma = 0.10;
-    currentLightness = 30;
-    document.getElementById('hueSlider').value = currentHue;
-    document.getElementById('chromaSlider').value = currentChroma;
-    document.getElementById('lightnessSlider').value = currentLightness;
-    document.getElementById('hueValue').textContent = currentHue + '°';
-    document.getElementById('chromaValue').textContent = currentChroma.toFixed(2);
-    document.getElementById('lightnessValue').textContent = currentLightness + '%';
-    updateColorPreview();
-    document.getElementById('colorPicker').value = oklchToHex(currentHue, currentChroma, currentLightness);
-    document.documentElement.style.setProperty('--base-hue', currentHue);
-    document.documentElement.style.setProperty('--base-chroma', currentChroma);
-    updateTextPrimary(currentLightness);
+      currentHue = 260;
+      currentChroma = 0.10;
+      currentLightness = 30;
+      document.getElementById('hueSlider').value = currentHue;
+      document.getElementById('chromaSlider').value = currentChroma;
+      document.getElementById('lightnessSlider').value = currentLightness;
+      document.getElementById('hueValue').textContent = currentHue + '°';
+      document.getElementById('chromaValue').textContent = currentChroma.toFixed(2);
+      document.getElementById('lightnessValue').textContent = currentLightness + '%';
+      updateColorPreview();
+      document.getElementById('colorPicker').value = oklchToHex(currentHue, currentChroma, currentLightness);
+      document.documentElement.style.setProperty('--base-hue', currentHue);
+      document.documentElement.style.setProperty('--base-chroma', currentChroma);
+      updateTextPrimary(currentLightness);
+
+      const resetMsg = translations['reset_color_success'] || 'Application color settings have been reset to default.';
+      if (typeof showLogMessage === 'function') showLogMessage(resetMsg);
+      if (typeof speakMessage === 'function') speakMessage(resetMsg);
   });
 
   initRecentColors();
@@ -4135,13 +4189,79 @@ document.addEventListener("DOMContentLoaded", () => {
     updateTextPrimary(settings.lightness || 30);
   }
 });
+
+document.getElementById('removeAppColorBtn').addEventListener('click', function() {
+    const confirmMsg = translations['confirm_reset_color'] || 'Are you sure you want to reset color settings to default?';
+
+    showConfirmation(confirmMsg, function() {
+        localStorage.removeItem('appColorSettings');
+
+        let defaultHue = 260;
+        let defaultChroma = 0.10;
+        let defaultLightness = 30;
+        document.getElementById('hueSlider').value = defaultHue;
+        document.getElementById('chromaSlider').value = defaultChroma;
+        document.getElementById('lightnessSlider').value = defaultLightness;
+        document.getElementById('hueValue').textContent = defaultHue + '°';
+        document.getElementById('chromaValue').textContent = defaultChroma.toFixed(2);
+        document.getElementById('lightnessValue').textContent = defaultLightness + '%';
+
+        if (typeof oklchToHex === 'function') {
+            const hex = oklchToHex(defaultHue, defaultChroma, defaultLightness);
+            document.getElementById('colorPreview').style.backgroundColor = hex;
+            document.getElementById('colorPicker').value = hex;
+        } else {
+            document.getElementById('colorPreview').style.backgroundColor = '';
+            document.getElementById('colorPicker').value = '';
+        }
+
+        let recentColorsDiv = document.getElementById('recentColors');
+        if (recentColorsDiv) recentColorsDiv.innerHTML = '';
+
+        document.documentElement.style.setProperty('--base-hue', defaultHue);
+        document.documentElement.style.setProperty('--base-chroma', defaultChroma);
+
+        document.documentElement.setAttribute('data-theme', defaultLightness > 60 ? 'light' : 'dark');
+
+        const successMsg = translations['reset_color_success'] || 'Application color settings have been reset to default.';
+        if (typeof showLogMessage === 'function') showLogMessage(successMsg);
+        if (typeof speakMessage === 'function') speakMessage(successMsg);
+    });
+});
 </script>
+
+<script>
+window.showConfirmation = function(message, onConfirm) {
+    const decodedMessage = decodeURIComponent(message);
+    const modalElement = document.getElementById('confirmModal');
+    document.getElementById('confirmModalMessage').innerText = decodedMessage;
+
+    const oldBtn = document.getElementById('confirmModalYes');
+    const newBtn = oldBtn.cloneNode(true);
+    oldBtn.parentNode.replaceChild(newBtn, oldBtn);
+
+    newBtn.addEventListener('click', () => {
+        const modal = bootstrap.Modal.getInstance(modalElement);
+        modal.hide();
+        if (typeof onConfirm === 'function') onConfirm();
+    });
+
+    let modal = bootstrap.Modal.getInstance(modalElement);
+    if (!modal) {
+        modal = new bootstrap.Modal(modalElement);
+    }
+    modal.show();
+};
+</script>
+
+
 
 <script>
 const currentSong = document.querySelector('#currentSong');
 const floatingCurrentSong = document.getElementById('floatingCurrentSong');
 
 let usedColors = [];
+let usedLogBoxColors = [];
 
 function getColorListFromTheme() {
     const styles = getComputedStyle(document.documentElement);
@@ -4161,7 +4281,6 @@ function getNextColor(colorList) {
     if (usedColors.length === colorList.length) {
         usedColors = [];
     }
-
     const remaining = colorList.filter(c => !usedColors.includes(c));
     const next = remaining[Math.floor(Math.random() * remaining.length)];
     usedColors.push(next);
@@ -4174,13 +4293,105 @@ function rotateColors() {
     if (currentSong) {
         currentSong.style.color = getNextColor(colorList);
     }
-
     if (floatingCurrentSong) {
         floatingCurrentSong.style.color = getNextColor(colorList);
     }
 }
+
+function getLogBoxColorListFromTheme() {
+    const styles = getComputedStyle(document.documentElement);
+    const lightness = '35%';
+    const chroma = styles.getPropertyValue('--c').trim();
+
+    const colors = new Set();
+    for (let i = 1; i <= 7; i++) {
+        let hue = styles.getPropertyValue(`--base-hue-${i}`).trim();
+        if (!hue) continue;
+        let color = `oklch(${lightness} ${chroma} ${hue})`;
+        colors.add(color);
+    }
+    return Array.from(colors);
+}
+
+function getNextLogBoxColor(colorList) {
+    if (usedLogBoxColors.length >= colorList.length) {
+        usedLogBoxColors = [];
+    }
+    const remaining = colorList.filter(c => !usedLogBoxColors.includes(c));
+    const next = remaining[Math.floor(Math.random() * remaining.length)];
+    usedLogBoxColors.push(next);
+    return next;
+}
+
+function rotateLogBoxColors() {
+    const colorList = getLogBoxColorListFromTheme();
+    if (colorList.length === 0) return;
+
+    document.querySelectorAll('.log-box[data-dynamic-bg="true"]').forEach(box => {
+        const color = getNextLogBoxColor(colorList);
+        box.style.background = color;
+    });
+}
+
 rotateColors();
+rotateLogBoxColors();
 setInterval(rotateColors, 4000);
+setInterval(rotateLogBoxColors, 4000);
+</script>
+
+<style>
+.lyrics-mode {
+    .non-lyrics-content {
+        display: none !important;
+    }
+
+    #lyricsContainer {
+        height: calc(70vh - 150px) !important; 
+        position: relative;
+        z-index: 1000;
+    }
+
+    #currentSong {
+        font-size: 1.5rem;
+        margin-bottom: 1rem;
+    }
+
+    #floatingLyrics {
+        display: none;
+    }
+}
+
+#lyricsToggle .bi {
+    transition: transform 0.3s;
+}
+.lyrics-mode #lyricsToggle .bi {
+    transform: rotate(180deg);
+}
+</style>
+
+<script>
+let isLyricsMode = localStorage.getItem('lyricsMode') === 'true';
+
+function toggleLyricsMode() {
+    const modal = document.getElementById('musicModal');
+    const icon = document.getElementById('lyricsIcon');
+
+    isLyricsMode = !isLyricsMode;
+    modal.classList.toggle('lyrics-mode', isLyricsMode);
+    localStorage.setItem('lyricsMode', isLyricsMode);
+
+    icon.className = isLyricsMode ? 'bi bi-chevron-up' : 'bi bi-chevron-down';
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    const icon = document.getElementById('lyricsIcon');
+    document.getElementById('lyricsToggle').addEventListener('click', toggleLyricsMode);
+
+    if (isLyricsMode) {
+        document.getElementById('musicModal').classList.add('lyrics-mode');
+        icon.className = 'bi bi-chevron-up';
+    }
+});
 </script>
 
 <script>
@@ -4246,14 +4457,6 @@ document.addEventListener("DOMContentLoaded", () => {
 	--c: 0.18;
 	--glass-blur: blur(20px);
 	--radius: 20px;
-  --color-1: #3b5998;
-  --color-2: #1c75bc;
-  --color-3: #2f8f2f;
-  --color-4: #d94f4f;
-  --color-5: #9a32cd;
-  --color-6: #cc8400;
-  --color-7: #b32e2e;
-
 
 	--bg-body: oklch(40% var(--base-chroma) var(--base-hue) / 90%);
 	--bg-container: oklch(30% var(--base-chroma) var(--base-hue));
@@ -4302,14 +4505,7 @@ document.addEventListener("DOMContentLoaded", () => {
 	--base-chroma: 0.01;
 	--l: 60%;
 	--c: 0.25;
-  --color-1: #4d79ff;
-  --color-2: #20a0ff;
-  --color-3: #38b000;
-  --color-4: #ff6f61;
-  --color-5: #ba55d3;
-  --color-6: #ffa500;
-  --color-7: #e63946;
-	
+
 	--bg-body: oklch(95% var(--base-chroma) var(--base-hue) / 90%);
 	--bg-container: oklch(99% var(--base-chroma) var(--base-hue));
 	--text-primary: oklch(25% var(--base-chroma) var(--base-hue));
@@ -5627,7 +5823,7 @@ label {
 
 .alert.alert-info {
 	background-color: transparent !important;
-	border: 1px solid rgba(255, 255, 255, 0.2) !important;
+	border: 1px solid rgba(255, 255, 255, 0.6) !important;
 }
 
 .form-control::placeholder {
@@ -5635,10 +5831,23 @@ label {
 	opacity: 1;
 }
 
-h2 {
-	color: var(--sand-bg) !important;
+.form-label, legend.form-label {
+        font-size: 1rem !important;
+        font-weight: 500 !important;
+        line-height: 1.5 !important;
 }
 
+#customTemplateUrl {
+        display: none;
+}
+
+.row > a.btn:hover,
+h5,
+h6 {
+	color: var(--btn-primary-bg) !important;
+}
+
+h2,
 h3,
 h4 {
 	color: var(--sand-bg) !important;
@@ -5665,27 +5874,27 @@ input.btn:focus {
 }
 
 svg.feather {
-    width: 20px !important;
-    height: 20px !important;
-    vertical-align: middle !important;
-    margin-right: 5px !important;
-    stroke: var(--btn-primary-bg) !important;
-    fill: none !important;
-}
-
-
-.custom-icon {
-    color: var(--accent-color);   
-    font-size: 18px;           
-    vertical-align: middle;
-    margin-right: 5px;
-    transition: color 0.25s ease;
+        width: 20px !important;
+        height: 20px !important;
+        vertical-align: middle !important;
+        margin-right: 5px !important;
+        stroke: var(--btn-primary-bg) !important;
+        fill: none !important;
 }
 
 svg.feather:hover,
 .custom-icon:hover {
-    color: var(--btn-primary-bg); 
+        color: var(--btn-primary-bg); 
 }
+
+.custom-icon {
+        color: var(--accent-color);   
+        font-size: 18px;           
+        vertical-align: middle;
+        margin-right: 5px;
+        transition: color 0.25s ease;
+}
+
 
 * {
 	scrollbar-width: thin;
@@ -5702,13 +5911,13 @@ svg.feather:hover,
 }
 
 *::-webkit-scrollbar-thumb {
-	background: var(--bg-container) !important;
+	background: var(--accent-color) !important;
 	border-radius: 4px;
 	transition: background 0.3s ease;
 }
 
 *::-webkit-scrollbar-thumb:hover {
-	background: rgba(255, 255, 255, 0.4);
+	background: var(--accent-color) !important;
 }
 
 body {
@@ -5763,6 +5972,78 @@ body.dm-serif-font {
 		color: oklch(0.95 0 0) !important;
 	}
 }
+
+input[type=range] {
+	-webkit-appearance: none;
+	width: 100%;
+	height: 8px;
+	border-radius: 5px;
+	background: var(--accent-color) !important;
+	outline: none;
+	transition: background 0.3s ease;
+}
+
+input[type=range]:hover {
+	background: linear-gradient(
+        to right,
+        var(--btn-primary-bg),
+        var(--accent-color)
+    ) !important;
+}
+
+input[type=range]::-webkit-slider-thumb {
+	-webkit-appearance: none;
+	appearance: none;
+	width: 18px;
+	height: 18px;
+	border-radius: 50%;
+	background: #ffffff !important;
+	border: 2px solid var(--accent-color) !important;
+	cursor: pointer;
+	transition: background 0.3s ease, transform 0.2s ease, border-color 0.3s ease;
+}
+
+input[type=range]::-webkit-slider-thumb:hover {
+	background: #f0f0f0 !important;
+	transform: scale(1.2);
+}
+
+input[type=range]::-moz-range-thumb {
+	width: 18px;
+	height: 18px;
+	border-radius: 50%;
+	background: #ffffff !important;
+	border: 2px solid var(--accent-color) !important;
+	cursor: pointer;
+	transition: background 0.3s ease, transform 0.2s ease, border-color 0.3s ease;
+}
+
+input[type=range]::-moz-range-thumb:hover {
+	background: #f0f0f0 !important;
+	transform: scale(1.2);
+}
+
+input[type=range]::-ms-thumb {
+	width: 18px;
+	height: 18px;
+	border-radius: 50%;
+	background: #ffffff !important;
+	border: 2px solid var(--accent-color) !important;
+	cursor: pointer;
+	transition: background 0.3s ease, transform 0.2s ease, border-color 0.3s ease;
+}
+
+.panel-header h3,
+.panel-header button.close-icon,
+.panel-header button.close-icon i {
+	color: var(--accent-color) !important;
+}
+
+#modalWidthValue,
+#widthValue {
+	color: var(--text-primary) !important;
+}
+
 
 .btn-close {
 	width: 15px !important;
@@ -5838,7 +6119,7 @@ body.dm-serif-font {
 
 /* START .container-sm */
 .container-sm {
-    width: 1550px !important; 
+    width: 1600px !important; 
     max-width: 100%;
     margin: 0 auto;
 }
@@ -5846,7 +6127,7 @@ body.dm-serif-font {
 
 /* START .modal-xl */
 .modal-xl {
-    max-width: 1050px !important; 
+    max-width: 1100px !important; 
 }
 
 @media (max-width: 768px) {
