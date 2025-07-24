@@ -4367,6 +4367,48 @@ document.addEventListener('DOMContentLoaded', () => {
 </script>
 
 <script>
+function updateIpStatusButton(hidden) {
+    const btn = document.getElementById('toggleIpStatusBtn');
+    const icon = btn.querySelector('i');
+    const text = btn.querySelector('span');
+
+    if (hidden) {
+        icon.className = 'bi bi-eye';
+        text.textContent = translations['show_ip_info'] || 'Show IP Information';
+    } else {
+        icon.className = 'bi bi-eye-slash';
+        text.textContent = translations['hide_ip_info'] || 'Hide IP Information';
+    }
+}
+
+function toggleIpStatusBar() {
+    const ipStatusBar = document.getElementById('status-bar-component');
+    const isHidden = ipStatusBar.style.display === 'none';
+
+    if (isHidden) {
+        ipStatusBar.style.display = '';
+        localStorage.setItem('ipStatusHidden', 'false');
+        speakMessage(translations['ip_info_shown'] || 'IP Information Shown');
+        showLogMessage(translations['ip_info_shown'] || 'IP Information Shown');
+    } else {
+        ipStatusBar.style.display = 'none';
+        localStorage.setItem('ipStatusHidden', 'true');
+        speakMessage(translations['ip_info_hidden'] || 'IP Information Hidden');
+        showLogMessage(translations['ip_info_hidden'] || 'IP Information Hidden');
+    }
+    updateIpStatusButton(!isHidden);
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    const ipStatusHidden = localStorage.getItem('ipStatusHidden') === 'true';
+    const ipStatusBar = document.getElementById('status-bar-component');
+    ipStatusBar.style.display = ipStatusHidden ? 'none' : '';
+    updateIpStatusButton(ipStatusHidden);
+});
+</script>
+
+
+<script>
 document.addEventListener("DOMContentLoaded", () => {
   const btn = document.getElementById("fontSwitchBtn");
   const icon = document.getElementById("fontSwitchIcon");

@@ -173,10 +173,10 @@ function deleteDirectory($dir) {
     <a href="./dashboard.php" class="col btn btn-lg text-nowrap"><i class="bi bi-bar-chart"></i> <span data-translate="panel">Panel</span></a>
     <a href="./singbox.php" class="col btn btn-lg text-nowrap"><i class="bi bi-box"></i> <span data-translate="document">Document</span></a> 
     <a href="./settings.php" class="col btn btn-lg text-nowrap"><i class="bi bi-gear"></i> <span data-translate="settings">Settings</span></a>
-
-
-<div class="container px-4 theme-settings-container">
-  <h2 class="text-center p-2 mb-4" data-translate="component_update">Component Update</h2>
+<div class="container px-4 theme-settings-container text-center">
+  <h2 class="text-center p-2 mb-2" data-translate="component_update">Component Update</h2>
+  <button type="button" class="btn btn-success mb-3 me-3" onclick="toggleControlPanel()"><i class="bi bi-eyedropper"> </i><span data-translate="control_panel">Control_Panel</span></button>
+  <button type="button" id="toggleIpStatusBtn" class="btn btn-warning mb-3" onclick="toggleIpStatusBar()"><i class="bi bi-eye-slash"> </i><span data-translate="hide_ip_info">Hide IP Information</span></button>
   <div class="row g-4">
     <div class="col-md-6">
       <div class="card shadow-sm">
