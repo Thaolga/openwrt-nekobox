@@ -24,9 +24,10 @@ $dash_link = $neko_cfg['ctrl_host'] . ':' . $neko_cfg['ctrl_port'] . '/ui/dashbo
 <style>
 #iframeMeta {
     width: 100%;
-    max-width: 2400px;
+    height: 80vh;
     transition: height 0.3s ease;
 }
+
 body, html {
     height: 100%;
 }
@@ -45,7 +46,7 @@ footer {
     padding: 8px 0;
 }
 </style>
-<div class="container-sm container-bg text-center mt-4">
+<div  id="mainNavbar" class="container-sm container-bg text-center mt-4">
     <div class="row">
         <a href="./index.php" class="col btn btn-lg text-nowrap"><i class="bi bi-house-door"></i> <span data-translate="home">Home</span></a>
         <a href="./dashboard.php" class="col btn btn-lg text-nowrap"><i class="bi bi-bar-chart"></i> <span data-translate="panel">Panel</span></a>
@@ -129,13 +130,15 @@ document.addEventListener("DOMContentLoaded", function () {
         const footerHeight = footer ? footer.offsetHeight : 0;
         const extraMargin = 40;
 
-        const newHeight = viewportHeight - buttonHeight - footerHeight - extraMargin;
-        iframe.style.height = newHeight + 'px';
+        const availableHeight = viewportHeight - buttonHeight - footerHeight - extraMargin;
+        const defaultHeight = viewportHeight * 0.8;
+
+        const finalHeight = Math.min(defaultHeight, availableHeight);
+
+        iframe.style.height = finalHeight + 'px';
     }
 
     adjustIframeHeight();
     window.addEventListener('resize', adjustIframeHeight);
 });
 </script>
-
-
