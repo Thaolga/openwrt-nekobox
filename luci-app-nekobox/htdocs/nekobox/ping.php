@@ -206,16 +206,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                    class="form-control text-center border-0 bg-transparent text-white p-0 m-0"
                    value=" "
                    style="width: 100%; font-size: 0.9rem;">
+                   <span class="fake-cursor">|</span>
           </div>
         </div>
         <div class="d-flex gap-2 mb-3">
           <button id="apply-color" class="btn btn-success flex-fill"><i class="fa fa-paint-brush"></i> <span data-translate="apply_color">Apply</span> </button>
-          <button id="reset-color" class="btn btn-danger flex-fill"><i class="fa fa-undo"></i><span data-translate="reset">Reset</span></button>
+          <button id="reset-color" class="btn btn-danger flex-fill"><i class="fa fa-undo"></i> <span data-translate="reset">Reset</span></button>
         </div>
         <div id="preset-colors" class="d-grid gap-2"></div>
       </div>
       <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal"><i class="fa fa-times"></i><span data-translate="close">Close</span></button>
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal"><i class="fa fa-times"></i> <span data-translate="close">Close</span></button>
       </div>
     </div>
   </div>
@@ -391,22 +392,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     <span id="duration">0:00</span>
                 </div>          
                 <div class="controls d-flex justify-content-center gap-3 mt-4">
-                    <button class="btn btn-outline-light control-btn toggleFloatingLyricsBtn" data-translate-title="toggle_floating_lyrics">
+                    <button class="control-btn toggleFloatingLyricsBtn" data-translate-title="toggle_floating_lyrics">
                         <i class="bi bi-display floatingIcon"></i>
                     </button>
-                    <button class="btn btn-outline-light control-btn" id="repeatBtn" onclick="toggleRepeat()">
+                    <button class="control-btn" id="repeatBtn" onclick="toggleRepeat()">
                         <i class="bi bi-arrow-repeat"></i>
                     </button>
-                    <button class="btn btn-outline-light control-btn" onclick="changeTrack(-1, true)" data-translate-title="previous_track">
+                    <button class="control-btn" onclick="changeTrack(-1, true)" data-translate-title="previous_track">
                         <i class="bi bi-caret-left-fill"></i>
                     </button>
-                    <button class="btn btn-success control-btn" id="playPauseBtn" onclick="togglePlay()" data-translate-title="play_pause">
+                    <button class="control-btn" id="playPauseBtn" onclick="togglePlay()" data-translate-title="play_pause">
                         <i class="bi bi-play-fill"></i>
                     </button>
-                    <button class="btn btn-outline-light control-btn" onclick="changeTrack(1, true)" data-translate-title="next_track">
+                    <button class="control-btn" onclick="changeTrack(1, true)" data-translate-title="next_track">
                         <i class="bi bi-caret-right-fill"></i>
                     </button>
-                    <button class="btn btn-outline-light control-btn" type="button" data-bs-toggle="modal" data-bs-target="#urlModal" data-translate-title="custom_playlist">
+                    <button class="control-btn" type="button" data-bs-toggle="modal" data-bs-target="#urlModal" data-translate-title="custom_playlist">
                         <i class="bi bi-music-note-list"></i>
                     </button>
                     <button class="btn btn-volume position-relative" id="volumeToggle" data-translate-title="volume">
@@ -4418,6 +4419,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const fonts = [
     { class: "default-font", key: "font_default", icon: "fa-font" },
     { class: "fredoka-font", key: "font_fredoka", icon: "fa-child-reaching" },
+    { class: "cinzel-font", key: "font_cinzel", icon: "fa-crown" },
     { class: "system-nofo-font", key: "font_noto", icon: "fa-language" },
     { class: "system-mono-font", key: "font_mono", icon: "fa-code" },
     { class: "dm-serif-font", key: "font_dm_serif", icon: "fa-feather-pointed" }
@@ -5820,23 +5822,23 @@ label {
 }
 
 .form-select {
-	background-color: transparent !important;
+	background-color: var(--card-bg) !important;
 	background-image: none;
 }
 
 .form-control {
-	background-color: transparent !important;
+	background-color: var(--card-bg) !important;
 	color: var(--text-primary) !important;
 }
 
 .form-control:focus {
-	background-color: transparent !important;
+	background-color: var(--card-bg) !important;
 	border-color: #4eedf9 !important;
 	box-shadow: none !important;
 }
 
-.alert.alert-info {
-	background-color: transparent !important;
+ table td,.alert.alert-info {
+	background-color: var(--card-bg) !important;
 	border: 1px solid rgba(255, 255, 255, 0.6) !important;
 }
 
@@ -5855,16 +5857,170 @@ label {
         display: none;
 }
 
-.row > a.btn:hover,
-h5,
-h6 {
-	color: var(--btn-primary-bg) !important;
+input[type="text"] {
+	background-color: var(--header-bg);
+	color: var(--text-primary);
+	border: 1px solid var(--border-color);
 }
 
-h2,
-h3,
-h4 {
-	color: var(--sand-bg) !important;
+#color-input {
+	background: transparent !important;
+	border: none !important;
+	color: white !important;
+	font-size: 0.9rem !important;
+	width: 100% !important;
+	text-align: center !important;
+	padding: 0 !important;
+	margin: 0 !important;
+	box-shadow: none !important;
+	outline: none !important;
+}
+
+.input-wrapper {
+	position: relative;
+	display: inline-block;
+	width: 100%;
+}
+
+.fake-cursor {
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	transform: translate(calc(-50% + 3.7ch), -50%);
+	color: white;
+	animation: blinkCursor 1s step-start infinite;
+	pointer-events: none;
+	font-size: 0.9rem;
+	font-weight: normal;
+}
+
+@keyframes blinkCursor {
+	50% {
+		opacity: 0;
+	}
+}
+
+footer {
+	margin-top: 10px !important;
+	padding: 8px 0;
+	color: var(--btn-primary-bg);
+	font-size: 1.1rem;
+	font-weight: 500;
+}
+
+footer p {
+	margin: 0;
+}
+
+h1 {
+	color: oklch(var(--l) var(--c) var(--base-hue)) !important;
+	font-weight: 900;
+}
+
+h2 {
+	color: oklch(
+        calc(var(--l) - 5%) 
+        calc(var(--c) * 0.9) 
+        calc(var(--base-hue) + 30)
+      ) !important;
+	    font-weight: 800;
+}
+
+h3, h4 {
+	color: oklch(
+        calc(var(--l) - 10%) 
+        calc(var(--c) * 0.7) 
+        calc(var(--base-hue) + 60)
+      ) !important;
+}
+
+h5, h6 {
+	color: oklch(
+        calc(var(--l) - 15%) 
+        calc(var(--c) * 0.5) 
+        calc(var(--base-hue) + 90)
+      ) !important;
+}
+
+[data-theme="light"] {
+	h5 {
+    color: oklch(40% 0.4 var(--base-hue)) !important;
+}
+
+h2 {
+	color: oklch(75% 0.25 var(--base-hue)) !important;
+} 
+}
+
+h1:hover, h2:hover {
+	opacity: 0.9;
+	transform: translateY(-1px);
+}
+
+.row > a.btn:hover {
+	color: oklch(75% 0.25 var(--base-hue)) !important;
+}
+
+.triangle-icon {
+	border-top: 12px solid var(--accent-color) !important;
+}
+
+table {
+	border-collapse: separate;
+	border-spacing: 0;
+}
+
+thead.table-light {
+	background: var(--card-bg) !important;
+	border-radius: var(--radius) var(--radius) var(--radius) var(--radius);
+	overflow: hidden;
+}
+
+thead.table-light th:hover {
+	background: var(--card-bg) !important;
+	color: var(--accent-color) !important;
+}
+
+thead.table-light tr:first-child th:first-child {
+	border-top-left-radius: var(--radius) !important;
+}
+
+thead.table-light tr:first-child th:last-child {
+	border-top-right-radius: var(--radius) !important;
+}
+
+thead.table-light th {
+	font-weight: 600;
+	padding: 0.75rem 1rem;
+	border: none !important;
+	position: relative;
+}
+
+thead.table-light th:not(:last-child)::after {
+	content: "";
+	position: absolute;
+	right: 0;
+	top: 25%;
+	height: 50%;
+	width: 1px;
+	background: var(--border-color);
+}
+
+.btn-primary,
+.btn-primary svg,
+.btn-primary svg * {
+	color: white !important;
+	stroke: white !important;
+}
+
+@media (max-width: 768px) {
+	h1 {
+		font-size: 1.8rem;
+	}
+
+	h2 {
+		font-size: 1.5rem;
+	}
 }
 
 .alert.alert-info ul,
@@ -5909,7 +6065,6 @@ svg.feather:hover,
         transition: color 0.25s ease;
 }
 
-
 * {
 	scrollbar-width: thin;
 	scrollbar-color: rgba(255, 255, 255, 0.3) transparent;
@@ -5953,7 +6108,6 @@ body.system-nofo-font {
         font-weight: 400;
 }
 
-
 body.system-mono-font {
         font-family: 'Comic Neue';
         font-weight: 400;
@@ -5962,6 +6116,11 @@ body.system-mono-font {
 body.dm-serif-font {
 	font-family: 'DM Serif Display';
 	font-weight: 400;
+}
+
+body.cinzel-font {
+        font-family: 'Cinzel Decorative';
+        font-weight: 700;
 }
 
 .modal-backdrop {
@@ -6058,6 +6217,120 @@ input[type=range]::-ms-thumb {
 	color: var(--text-primary) !important;
 }
 
+.btn {
+	border: none;
+	border-radius: var(--radius);
+	transition: var(--transition);
+	font-weight: 500;
+	position: relative;
+	overflow: visible;
+}
+
+.btn-primary {
+	background: var(--btn-primary-bg);
+	color: var(--text-primary);
+}
+
+.btn-primary:hover {
+	background: var(--btn-primary-hover);
+	box-shadow: var(--item-hover-shadow);
+}
+
+.btn-success {
+	background: var(--btn-success-bg);
+	color: var(--success-text);
+}
+
+.btn-success:hover {
+	background: color-mix(in oklch, var(--btn-success-bg), white 10%);
+	box-shadow: var(--item-hover-shadow);
+}
+
+.btn-info {
+	background: var(--btn-info-bg);
+	color: var(--info-text);
+}
+
+.btn-info:hover {
+	background: color-mix(in oklch, var(--btn-info-bg), white 10%);
+	box-shadow: var(--item-hover-shadow);
+}
+
+.btn-danger {
+	background: oklch(55% 0.25 25);
+	color: oklch(95% 0.05 25);
+}
+
+.btn-danger:hover {
+	background: oklch(60% 0.25 25);
+}
+
+.btn-warning {
+	background: oklch(75% 0.22 80);
+	color: oklch(25% 0.05 80);
+}
+
+.btn-warning:hover {
+	background: oklch(80% 0.22 80);
+}
+
+[data-theme="light"] {
+	--danger-text: oklch(95% 0.05 25);
+	--warning-text: oklch(20% 0.15 80);
+	.btn-danger {
+    background: oklch(60% 0.3 25);
+	color: var(--danger-text);
+}
+
+.btn-warning {
+	background: oklch(85% 0.25 80);
+	color: var(--warning-text);
+}
+}
+
+.btn-outline-primary {
+	border: 1px solid var(--btn-primary-bg);
+	color: var(--btn-primary-bg);
+	background: transparent;
+}
+
+.btn-outline-primary:hover {
+	background: var(--btn-primary-bg);
+	color: var(--text-primary);
+}
+
+.btn-sm {
+	padding: 0.25rem 0.5rem;
+	font-size: 0.875rem;
+}
+
+.btn-lg {
+	padding: 0.5rem 1rem;
+	font-size: 1.25rem;
+}
+
+#editorStatus {
+	font-weight: bold !important;
+	font-size: 0.9rem !important;
+	color: var(--text-secondary) !important;
+}
+
+#editorStatus #lineColumnDisplay,
+#editorStatus #charCountDisplay {
+	font-size: 1.1rem !important;
+	color: var(--info-text) !important;
+	transition: var(--transition) !important;
+}
+
+#editorStatus:hover #lineColumnDisplay,
+#editorStatus:hover #charCountDisplay {
+	color: var(--accent-color) !important;
+}
+
+[data-theme="light"] #editorStatus #lineColumnDisplay,
+[data-theme="light"] #editorStatus #charCountDisplay {
+	color: var(--info-text) !important;
+}
 
 .btn-close {
 	width: 15px !important;

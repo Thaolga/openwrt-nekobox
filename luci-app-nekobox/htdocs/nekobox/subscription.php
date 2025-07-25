@@ -827,7 +827,10 @@ EOL;
         </div>
         <div class="result mt-4 custom-padding">
             <?php echo nl2br(htmlspecialchars($result)); ?>
-        </div>
+                <footer class="text-center">
+                    <p><?php echo $footer ?></p>
+                </footer>
+            </div>
         </div>
     </div>
 </div>
@@ -902,6 +905,3 @@ function toggleCustomBackendInput() {
     }
 }
 </script>
-      <footer class="text-center">
-    <p><?php echo $footer ?></p>
-</footer>

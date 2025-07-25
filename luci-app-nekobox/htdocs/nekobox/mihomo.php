@@ -888,9 +888,9 @@ function getSubscriptionUrlFromFile($file) {
         </div>
 
         <div class="help mt-4 custom-padding">
-            <p style="color: red;" data-translate="warning1"></p>
+            <p  style="color: red;" data-translate="warning1"></p>
             <p data-translate="subscription_conversion"></p>
-            <a href="https://github.com/youshandefeiyang/sub-web-modify" target="_blank" class="btn btn-primary" style="color: white;">
+            <a href="https://github.com/youshandefeiyang/sub-web-modify" target="_blank" class="btn btn-primary" style="color: #fff !important;">
             <i data-feather="github"></i> <span data-translate="visit_link"></span>
             </a>
         </div>
@@ -900,10 +900,12 @@ function getSubscriptionUrlFromFile($file) {
         </div>
         <div class="result mt-2 custom-padding">
             <?php echo nl2br(htmlspecialchars($cron_result)); ?>
+                <footer class="text-center">
+                    <p><?php echo $footer ?></p>
+                </footer>
+            </div>
         </div>
     </div>
-</div>
-
 <script>
 document.addEventListener("DOMContentLoaded", function() {
     const formInputs = [
@@ -973,6 +975,3 @@ function toggleCustomBackendInput() {
     }
 }
 </script>
-      <footer class="text-center">
-    <p><?php echo $footer ?></p>
-</footer>

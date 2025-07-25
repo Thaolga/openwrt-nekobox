@@ -675,6 +675,17 @@ foreach ($allFiles as $index => $file):
 </div>
 
 <h2 class="text-center mt-4 mb-4" data-translate="subscriptionManagement"></h2>
+<div class="text-center my-4">
+    <button type="button" class="btn btn-primary mx-1 mb-2" data-bs-toggle="modal" data-bs-target="#cronModal">
+        <i class="bi bi-clock"></i> <span data-translate="set_cron_job"></span>
+    </button>
+    <button type="submit" name="createShellScript" value="true" class="btn btn-success mx-1 mb-2">
+        <i class="bi bi-terminal"></i> <span data-translate="generate_update_script"></span>
+    </button>
+    <button type="button" class="btn btn-info mx-1 mb-2" data-bs-toggle="modal" data-bs-target="#downloadModal">
+        <i class="bi bi-download"></i> <span data-translate="update_database"></span>
+    </button>
+</div>
 <div class="container-fluid text-center px-2 px-md-3">
 <?php if (isset($message) && $message): ?>
     <div class="alert alert-info">
@@ -721,6 +732,9 @@ foreach ($allFiles as $index => $file):
 <?php else: ?>
     <p>未找到订阅信息。</p>
 <?php endif; ?>
+<footer class="text-center">
+    <p><?php echo $footer ?></p>
+</footer>
 
 <div class="modal fade" id="uploadModal" tabindex="-1" aria-labelledby="uploadModalLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
     <div class="modal-dialog modal-lg">
@@ -1167,31 +1181,6 @@ function initializeAceEditor() {
         return confirm(langData[currentLang]['confirmDelete']);
     }
 </script>
-
-<!DOCTYPE html>
-<html lang="zh">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-</head>
-<body>
-    <div class="container">
-        <h2 class="mt-4 mb-4 text-center" data-translate="auto_update_title"></h2>
-        <form method="post" class="text-center">
-        <div class="d-flex flex-wrap justify-content-center gap-2">
-            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#cronModal">
-                <i class="bi bi-clock"></i> <span data-translate="set_cron_job"></span>
-            </button>
-            <button type="submit" name="createShellScript" value="true" class="btn btn-success">
-                <i class="bi bi-terminal"></i> <span data-translate="generate_update_script"></span>
-            </button>
-            <button type="button" class="btn btn-info" data-bs-toggle="modal" data-bs-target="#downloadModal">
-                <i class="bi bi-download"></i> <span data-translate="update_database"></span>
-            </button>
-        </div>
-        </form>
-    </div>
-
     <div class="modal fade" id="downloadModal" tabindex="-1" aria-labelledby="downloadModalLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
@@ -1211,7 +1200,8 @@ function initializeAceEditor() {
                                 <option value="cache">cache.db</option>
                             </select>
                         </div>
-                        <div class="d-flex justify-content-end">
+                    </div>
+                        <div class="modal-footer d-flex justify-content-end gap-3">
                             <button type="submit" class="btn btn-primary me-2" data-translate="download_button"></button>
                             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" data-translate="cancel_button"></button>
                         </div>
@@ -1220,8 +1210,6 @@ function initializeAceEditor() {
             </div>
         </div>
     </div>
-</div>
-
 <form method="POST">
     <div class="modal fade" id="cronModal" tabindex="-1" aria-labelledby="cronModalLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
         <div class="modal-dialog modal-lg" role="document">
@@ -1253,18 +1241,5 @@ function initializeAceEditor() {
         </div>
     </div>
 </form>
-    </div>
-<script>
-    document.getElementById('pasteButton').onclick = function() {
-        window.open('https://paste.gg', '_blank');
-    }
-    document.getElementById('base64Button').onclick = function() {
-        window.open('https://base64.us', '_blank');
-    }
-</script>
-
-
 </div>
-      <footer class="text-center">
-    <p><?php echo $footer ?></p>
-</footer>
+

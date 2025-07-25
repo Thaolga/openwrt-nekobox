@@ -275,7 +275,6 @@ EOL;
                     </form>
                 </div>
             </div>
-        </form>
         <div class="modal fade" id="cronModal" tabindex="-1" aria-labelledby="cronModalLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
             <div class="modal-dialog modal-lg">
                 <div class="modal-content">
@@ -499,10 +498,10 @@ EOL;
             echo "</div>";
         }
         ?>
-    </div>
-</div>
-    </div>
-</form>
+      <footer class="text-center">
+    <p><?php echo $footer ?></p>
+</footer>
+
 <script src="./assets/bootstrap/jquery.min.js"></script>
 <script>
     function copyToClipboard() {
@@ -581,9 +580,6 @@ document.addEventListener("DOMContentLoaded", function () {
     });
 });
 </script>
-</div>
-      <footer class="text-center">
-    <p><?php echo $footer ?></p>
-</footer>
-</body>
-</html>
+
+
+
