@@ -231,6 +231,8 @@ install_core() {
 }
 
 install_singbox() {
+    local type=$1
+
     GREEN='\033[0;32m'
     RED='\033[0;31m'
     NC='\033[0m'
@@ -239,9 +241,14 @@ install_singbox() {
     local temp_dir='/tmp/singbox_temp'
     local temp_file='/tmp/sing-box.tar.gz'
 
-    latest_version=$(curl -s https://api.github.com/repos/SagerNet/sing-box/releases | grep '"tag_name":' | head -n 1 | sed -E 's/.*"([^"]+)".*/\1/')
+    if [ "$type" = "stable" ]; then
+        latest_version=$(curl -s https://api.github.com/repos/SagerNet/sing-box/releases/latest | grep '"tag_name":' | sed -E 's/.*"([^"]+)".*/\1/')
+    else
+        latest_version=$(curl -s https://api.github.com/repos/SagerNet/sing-box/releases | grep '"tag_name":' | head -n 1 | sed -E 's/.*"([^"]+)".*/\1/')
+    fi
+
     if [ -z "$latest_version" ]; then
-        echo -e "${RED}Unable to fetch the latest version number. Please check your network connection.${NC}"
+        echo -e "${RED}Unable to fetch the latest ${type:-prerelease} version. Please check your network connection.${NC}"
         exit 1
     fi
 
@@ -521,23 +528,73 @@ reboot_router() {
 install_core_menu() {
     local language=$1
     while true; do
-        echo -e "${CLCyan}╔════════════════════════════════════════════════════════╗"
+        echo -e "${CLCyan}╔════════════════════════════════════════════════════════╗${NC}"
         if [ "$language" = "cn" ]; then
-            printf "${CLCyan}  %-54s ${NC}\n" "1. 安装 Sing-box 核心"
-            printf "${CLCyan}  %-54s ${NC}\n" "2. 安装 puernya 核心"
-            printf "${CLCyan}  %-54s ${NC}\n" "4. 返回主菜单"
-            echo -e "${CLCyan}╚════════════════════════════════════════════════════════╝"
+            echo -e "${CLCyan}║                  Sing-box / Puernya 核心安装菜单                 ║${NC}"
+            echo -e "${CLCyan}╠════════════════════════════════════════════════════════╣${NC}"
+            echo -e "${CLCyan}║  1. 安装 Sing-box 核心                                  ║${NC}"
+            echo -e "${CLCyan}║  2. 安装 puernya 核心                                   ║${NC}"
+            echo -e "${CLCyan}║  4. 返回主菜单                                         ║${NC}"
+        else
+            echo -e "${CLCyan}║                  Sing-box / Puernya Core Install Menu         ║${NC}"
+            echo -e "${CLCyan}╠════════════════════════════════════════════════════════╣${NC}"
+            echo -e "${CLCyan}║  1. Install Sing-box Core                              ║${NC}"
+            echo -e "${CLCyan}║  2. Install puernya Core                               ║${NC}"
+            echo -e "${CLCyan}║  4. Return to Main Menu                                ║${NC}"
+        fi
+        echo -e "${CLCyan}╚════════════════════════════════════════════════════════╝${NC}"
+
+        if [ "$language" = "cn" ]; then
             read -p "请选择要安装的核心: " core_choice
         else
-            printf "${CLCyan}  %-54s ${NC}\n" "1. Install Sing-box Core"
-            printf "${CLCyan}  %-54s ${NC}\n" "2. Install puernya Core"
-            printf "${CLCyan}  %-54s ${NC}\n" "4. Return to Main Menu"
-            echo -e "${CLCyan}╚════════════════════════════════════════════════════════╝"
             read -p "Please select a core to install: " core_choice
         fi
+
         case $core_choice in
             1)
-                install_singbox
+                while true; do
+                    echo -e "${CLCyan}╔════════════════════════════════════════════════════════╗${NC}"
+                    if [ "$language" = "cn" ]; then
+                        echo -e "${CLCyan}║              请选择要安装的 Sing-box 版本                 ║${NC}"
+                        echo -e "${CLCyan}╠════════════════════════════════════════════════════════╣${NC}"
+                        echo -e "${CLCyan}║  1. 安装正式版                                        ║${NC}"
+                        echo -e "${CLCyan}║  2. 安装预览版                                        ║${NC}"
+                        echo -e "${CLCyan}║  3. 返回上级菜单                                      ║${NC}"
+                    else
+                        echo -e "${CLCyan}║              Please select the Sing-box version         ║${NC}"
+                        echo -e "${CLCyan}╠════════════════════════════════════════════════════════╣${NC}"
+                        echo -e "${CLCyan}║  1. Install Stable Version                            ║${NC}"
+                        echo -e "${CLCyan}║  2. Install Pre-release Version                       ║${NC}"
+                        echo -e "${CLCyan}║  3. Return to Previous Menu                           ║${NC}"
+                    fi
+                    echo -e "${CLCyan}╚════════════════════════════════════════════════════════╝${NC}"
+
+                    if [ "$language" = "cn" ]; then
+                        read -p "请输入选择: " sub_choice
+                    else
+                        read -p "Enter your choice: " sub_choice
+                    fi
+
+                    case $sub_choice in
+                        1)
+                            install_singbox stable
+                            ;;
+                        2)
+                            install_singbox
+                            ;;
+                        3)
+                            break
+                            ;;
+                        *)
+                            if [ "$language" = "cn" ]; then
+                                echo -e "${RED}无效选项，请重试。${NC}"
+                            else
+                                echo -e "${RED}Invalid option, please try again.${NC}"
+                            fi
+                            ;;
+                    esac
+                    echo ""
+                done
                 ;;
             2)
                 install_puernya
@@ -556,6 +613,7 @@ install_core_menu() {
                 fi
                 ;;
         esac
+        echo ""
     done
 }
 
