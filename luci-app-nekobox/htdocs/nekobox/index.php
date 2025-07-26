@@ -1001,7 +1001,7 @@ document.addEventListener('DOMContentLoaded', function () {
 }
 
 @media (max-width: 768px) {
-	#neko-title.royal-style {
+	#neko-title.neko-title-style {
 		font-size: 2.5rem !important;
 	}
 }
