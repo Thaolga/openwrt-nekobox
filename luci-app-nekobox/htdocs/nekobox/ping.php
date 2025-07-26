@@ -5915,14 +5915,6 @@ h1 {
 	font-weight: 900;
 }
 
-h2 {
-	color: oklch(
-        calc(var(--l) - 5%) 
-        calc(var(--c) * 0.9) 
-        calc(var(--base-hue) + 30)
-      ) !important;
-	    font-weight: 800;
-}
 
 h3, h4 {
 	color: oklch(
@@ -5932,22 +5924,9 @@ h3, h4 {
       ) !important;
 }
 
-h5, h6 {
-	color: oklch(
-        calc(var(--l) - 15%) 
-        calc(var(--c) * 0.5) 
-        calc(var(--base-hue) + 90)
-      ) !important;
-}
-
-[data-theme="light"] {
-	h5 {
-    color: oklch(40% 0.4 var(--base-hue)) !important;
-}
-
-h2 {
-	color: oklch(75% 0.25 var(--base-hue)) !important;
-} 
+h2 ,h5, h6 {
+        color: var(--accent-color) !important;
+        font-weight: bold;
 }
 
 h1:hover, h2:hover {
