@@ -24,7 +24,7 @@ $dash_link = $neko_cfg['ctrl_host'] . ':' . $neko_cfg['ctrl_port'] . '/ui/dashbo
 <style>
 #iframeMeta {
     width: 100%;
-    height: 80vh;
+    height: 83vh;
     transition: height 0.3s ease;
 }
 
@@ -59,11 +59,6 @@ footer {
         <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#panelModal" data-translate="panel_settings">Panel Settings</button>
     </div>
 </main>
-
-<footer class="text-center">
-    <p><?=$footer?></p>
-</footer>
-
 <div class="modal fade" id="panelModal" tabindex="-1" aria-labelledby="panelModalLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
@@ -131,7 +126,7 @@ document.addEventListener("DOMContentLoaded", function () {
         const extraMargin = 40;
 
         const availableHeight = viewportHeight - buttonHeight - footerHeight - extraMargin;
-        const defaultHeight = viewportHeight * 0.8;
+        const defaultHeight = viewportHeight * 0.83;
 
         const finalHeight = Math.min(defaultHeight, availableHeight);
 

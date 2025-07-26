@@ -4009,16 +4009,9 @@ document.addEventListener("DOMContentLoaded", () => {
           initialTheme = currentLightness > 60 ? 'light' : 'dark';
       } else {
           recentColors = [
-              { hex: '#4d79ff', hue: 240, diff: 0 },
-              { hex: '#ff4d94', hue: 340, diff: 100 },
-              { hex: '#4dff88', hue: 150, diff: -190 },
-              { hex: '#ffb84d', hue: 40, diff: -110 },
-              { hex: '#bf4dff', hue: 280, diff: 240 },
-              { hex: '#ff6b6b', hue: 10, diff: -270 },
-              { hex: '#4eca9e', hue: 160, diff: 150 },
-              { hex: '#ff9ff3', hue: 310, diff: 150 },
-              { hex: '#6c757d', hue: 200, diff: -110 },
-              { hex: '#ffc107', hue: 50, diff: -150 }
+              '#4d79ff', '#ff4d94', '#4dff88', '#ffb84d', 
+              '#bf4dff', '#ff6b6b', '#4eca9e', '#ff9ff3',
+              '#6c757d', '#ffc107'
           ];
       }
       document.documentElement.setAttribute('data-theme', initialTheme);
@@ -4036,12 +4029,17 @@ document.addEventListener("DOMContentLoaded", () => {
     currentHue = h;
     currentChroma = c;
     currentLightness = l;
+    
     document.getElementById('hueSlider').value = h;
     document.getElementById('chromaSlider').value = c;
     document.getElementById('lightnessSlider').value = l;
     document.getElementById('hueValue').textContent = Math.round(h) + '°';
     document.getElementById('chromaValue').textContent = c.toFixed(2);
     document.getElementById('lightnessValue').textContent = l + '%';
+    
+    const theme = l > 60 ? 'light' : 'dark';
+    document.documentElement.setAttribute('data-theme', theme);
+    
     updateColorPreview();
     document.documentElement.style.setProperty('--base-hue', currentHue);
     document.documentElement.style.setProperty('--base-chroma', currentChroma);
