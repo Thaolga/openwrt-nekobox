@@ -209,36 +209,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <link href="/luci-static/spectra/css/weather-icons.min.css" rel="stylesheet">
     <script src="/luci-static/spectra/js/jquery.min.js"></script>
     <script src="/luci-static/spectra/js/bootstrap.bundle.min.js"></script>
-    <script src="/luci-static/spectra/js/custom.js"></script>
     <script src="/luci-static/spectra/js/interact.min.js"></script>
     <script src="/luci-static/spectra/js/Sortable.min.js"></script>
     <script>
         const phpBackgroundType = '<?= $background_type ?>';
         const phpBackgroundSrc = '<?= $background_src ?>';
     </script>
-    <script>
-      (function() {
-        const root = document.documentElement;
-        const theme = localStorage.getItem("theme") || "dark";
-        root.setAttribute("data-theme", theme);
 
-        const hueKey = `${theme}BaseHue`;
-        const chromaKey = `${theme}BaseChroma`;
-
-        const defaultHue = theme === "dark" ? 260 : 200;
-        const defaultChroma = theme === "dark" ? 0.14 : 0.18;
-
-        const storedHue    = parseFloat(localStorage.getItem(hueKey));
-        const storedChroma = parseFloat(localStorage.getItem(chromaKey));
-
-        const baseHue    = !isNaN(storedHue)   ? storedHue   : defaultHue;
-        const baseChroma = !isNaN(storedChroma)? storedChroma: defaultChroma;
-
-        root.style.setProperty("--base-hue", baseHue);
-        root.style.setProperty("--base-chroma", baseChroma);
-      })();
-    </script>
-    
     <style>
       #mainContainer { display: none; }
     </style>
@@ -402,13 +379,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 }
 
 body {
-        background: var(--body-bg-color, #f0ffff);
         color: var(--text-primary);
         -webkit-backdrop-filter: blur(10px);
         transition: all 0.3s ease;
         font-family: 'Fredoka One', cursive;
         font-weight: 400; 
-        background: oklch(var(--bg-l) var(--base-chroma) var(--base-hue));
+        background: inherit !important;
 }
 
 body.default-font {
@@ -420,7 +396,6 @@ body.system-nofo-font {
         font-family: 'Noto Serif SC';
         font-weight: 400;
 }
-
 
 body.system-mono-font {
         font-family: 'Comic Neue';
@@ -1529,8 +1504,7 @@ body:hover,
         <div class="d-flex align-items-center mb-3 ps-2" id="selectAll-container">
             <input type="checkbox" id="selectAll" class="form-check-input me-2 shadow-sm" style="width: 1.05em; height: 1.05em; border-radius: 0.35em; margin-left: 1px; transform: scale(1.2)">
             <label for="selectAll" class="form-check-label fs-5 ms-1" style="margin-right: 10px;" data-translate="select_all">Select All</label>
-            <input type="color" id="colorPicker" style="margin-right: 10px;" value="#0f3460" data-translate-title="component_bg_color"/>
-            <input type="color" id="bodyBgColorPicker" value="#ffffff" style="margin-right: 10px;" data-translate-title="page_bg_color" />
+           <input type="color" id="colorPicker" style="margin-right: 10px;" value="#0f3460" data-translate-title="component_bg_color"/>
             <button class="btn btn-primary d-none d-sm-inline" id="advancedColorBtn" data-translate-title="advanced_color_settings"><i class="bi bi-palette"></i></button>
             <!--  <button class="btn btn-info ms-2" id="fontToggleBtn" data-translate-title="toggle_font"><i id="fontToggleIcon" class="fa-solid fa-font" style="color: white;"></i></button> -->
             <button class="btn btn-success ms-2 d-none d-sm-inline" id="toggleScreenBtn" data-translate-title="toggle_fullscreen"><i class="bi bi-arrows-fullscreen"></i></button>
@@ -2269,61 +2243,48 @@ opkg update && opkg install wget grep sed && LATEST_FILE=$(wget -qO- https://git
                 </div>
                 
                 <div class="mb-3">
-                  <label class="form-label" data-translate="or_use_palette">Or use palette：</label>
+                  <label class="form-label" data-translate="or_use_palette">Or use palette:</label>
                   <div class="d-flex flex-wrap gap-2">
-                    <button class="btn btn-sm p-2" style="background-color:#4d79ff" data-h="240" data-c="0.2" data-l="30"></button>
-                    <button class="btn btn-sm p-2" style="background-color:#ff4d94" data-h="340" data-c="0.25" data-l="35"></button>
-                    <button class="btn btn-sm p-2" style="background-color:#4dff88" data-h="150" data-c="0.18" data-l="40"></button>
-                    <button class="btn btn-sm p-2" style="background-color:#ffb84d" data-h="40" data-c="0.22" data-l="45"></button>
-                    <button class="btn btn-sm p-2" style="background-color:#bf4dff" data-h="280" data-c="0.23" data-l="50"></button>
+                    <button class="btn btn-sm p-3 rounded-circle" style="background-color:#4d79ff" data-h="240" data-c="0.2" data-l="30"></button>
+                    <button class="btn btn-sm p-3 rounded-circle" style="background-color:#ff4d94" data-h="340" data-c="0.25" data-l="35"></button>
+                    <button class="btn btn-sm p-3 rounded-circle" style="background-color:#4dff88" data-h="150" data-c="0.18" data-l="40"></button>
+                    <button class="btn btn-sm p-3 rounded-circle" style="background-color:#ffb84d" data-h="40" data-c="0.22" data-l="45"></button>
+                    <button class="btn btn-sm p-3 rounded-circle" style="background-color:#bf4dff" data-h="280" data-c="0.23" data-l="50"></button>
+                    <button class="btn btn-sm p-3 rounded-circle" style="background-color:#ff6b6b" data-h="10" data-c="0.24" data-l="55"></button>
+                    <button class="btn btn-sm p-3 rounded-circle" style="background-color:#4eca9e" data-h="160" data-c="0.19" data-l="60"></button>
+                    <button class="btn btn-sm p-3 rounded-circle" style="background-color:#ff9ff3" data-h="310" data-c="0.21" data-l="65"></button>
+                    <button class="btn btn-sm p-3 rounded-circle" style="background-color:#6c757d" data-h="200" data-c="0.05" data-l="50"></button>
+                    <button class="btn btn-sm p-3 rounded-circle" style="background-color:#ffc107" data-h="50" data-c="0.26" data-l="70"></button>
                   </div>
                 </div>
                 
                 <div class="mt-3">
-                  <button class="btn btn-secondary w-100" id="resetColorBtn" data-translate="reset_to_default">
-                    <i class="bi bi-arrow-counterclockwise"></i> Reset to Default
+                  <button class="btn btn-secondary w-100" id="resetColorBtn">
+                    <i class="bi bi-arrow-counterclockwise"></i> <span data-translate="reset_to_default">Reset to Default</span>
                   </button>
                 </div>
               </div>
             </div>
           </div>
-          
           <div class="col-md-6">
             <div class="card h-100">
-              <div class="card-header bg-info text-white">
-                <i class="bi bi-eye"></i> <span data-translate="preview_and_contrast">Preview & Contrast</span>
+              <div class="card-header bg-primary text-white">
+                <i class="bi bi-eye"></i> <span data-translate="color_preview">Color Preview</span>
               </div>
               <div class="card-body">
+                <div id="colorPreview" style="height: 100px; border-radius: 5px; margin-bottom: 15px;"></div>
                 <div class="mb-3">
-                  <label class="form-label" data-translate="color_preview">Color Preview</label>
-                  <div id="colorPreview" class="d-flex justify-content-center align-items-center text-center" style="height: 80px; border: 1px solid #ddd; border-radius: 4px;">
-                  <span id="oklchValue" class="small text-white">(OKLCH)</span>
+                  <label class="form-label" data-translate="oklch_values">OKLCH Values:</label>
+                  <div id="oklchValue" class="text-monospace">OKLCH(30%, 0.10, 260°)</div>
                 </div>
-                
                 <div class="mb-3">
-                  <label class="form-label" data-translate="readability_check">Readability Check</label>
-                  <div class="bg-light p-2 rounded">
-                    <div class="d-flex justify-content-between">
-                      <span data-translate="contrast_between_text_and_bg" style="color: #000;">Contrast between text and background：</span>
-                      <strong id="contrastRatio" style="color: #000;">4.5:1</strong>
-                    </div>
-                    <div class="mt-1" id="contrastRating">Good (AA)</div>
-                  </div>
+                  <label class="form-label" data-translate="contrast_ratio">Contrast Ratio:</label>
+                  <div id="contrastRatio">21.00:1</div>
+                  <div id="contrastRating" class="mt-1 text-success fw-bold"><i class="bi bi-check-circle-fill"></i> Excellent (AAA)</div>
                 </div>
-                
                 <div class="mb-3">
-                  <label class="form-label" data-translate="hue_adjustment">Hue Adjustment</label>
-                  <div class="d-flex justify-content-between">
-                    <button class="btn btn-outline-primary" id="hueMinus5">-5°</button>
-                    <button class="btn btn-outline-primary" id="hueMinus1">-1°</button>
-                    <button class="btn btn-outline-primary" id="huePlus1">+1°</button>
-                    <button class="btn btn-outline-primary" id="huePlus5">+5°</button>
-                  </div>
-                </div>
-                
-                <div class="mb-3">
-                  <label class="form-label" data-translate="recent_colors">Recently Used Colors：</label>
-                  <div class="d-flex flex-wrap gap-2" id="recentColors"></div>
+                  <label class="form-label" data-translate="recent_colors">Recent Colors:</label>
+                  <div id="recentColors" class="d-flex flex-wrap gap-2"></div>
                 </div>
               </div>
             </div>
@@ -2331,8 +2292,15 @@ opkg update && opkg install wget grep sed && LATEST_FILE=$(wget -qO- https://git
         </div>
       </div>
       <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" data-translate="cancel">Cancel</button>
-        <button type="button" class="btn btn-primary" id="applyColorBtn" data-translate="apply">Apply</button>
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+          <i class="bi bi-x"></i> <span data-translate="cancel">Cancel</span>
+        </button>
+        <button type="button" class="btn btn-danger" id="removeAppColorBtn">
+          <i class="bi bi-eraser"></i> <span data-translate="reset">Reset</span>
+        </button>
+        <button type="button" class="btn btn-primary" id="applyColorBtn">
+          <i class="bi bi-check"></i> <span data-translate="apply">Apply Color</span>
+        </button>
       </div>
     </div>
   </div>
@@ -3480,236 +3448,6 @@ document.addEventListener('keydown', (e) => {
 </script>
 
 <script>
-  let userInteracted = false;
-
-  function hexToRgb(hex) {
-    const fullHex = hex.replace(/^#?([a-f\d])([a-f\d])([a-f\d])$/i, 
-      (_, r, g, b) => `#${r}${r}${g}${g}${b}${b}`);
-    
-    const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(fullHex);
-    return result ? {
-      r: parseInt(result[1], 16),
-      g: parseInt(result[2], 16),
-      b: parseInt(result[3], 16)
-    } : { r: 0, g: 0, b: 0 };
-  }
-
-  function rgbToLinear(c) {
-    const normalized = c / 255;
-    return normalized <= 0.04045 
-      ? normalized / 12.92 
-      : Math.pow((normalized + 0.055) / 1.055, 2.4);
-  }
-
-  function rgbToOklch(r, g, b) {
-    const [lr, lg, lb] = [r, g, b].map(rgbToLinear);
-    
-    const l = 0.4122214708 * lr + 0.5363325363 * lg + 0.0514459929 * lb;
-    const m = 0.2119034982 * lr + 0.6806995451 * lg + 0.1073969566 * lb;
-    const s = 0.0883024619 * lr + 0.2817188376 * lg + 0.6299787005 * lb;
-
-    const l_ = Math.cbrt(l);
-    const m_ = Math.cbrt(m);
-    const s_ = Math.cbrt(s);
-
-    const L = 0.2104542553 * l_ + 0.7936177850 * m_ - 0.0040720468 * s_;
-    const a = 1.9779984951 * l_ - 2.4285922050 * m_ + 0.4505937099 * s_;
-    const b_ = 0.0259040371 * l_ + 0.7827717662 * m_ - 0.8086757660 * s_;
-
-    const c = Math.sqrt(a ** 2 + b_ ** 2);
-    let h = Math.atan2(b_, a) * 180 / Math.PI;
-    h = h >= 0 ? h : h + 360;
-
-    return { 
-      l: L * 100,
-      c: c,
-      h: h
-    };
-  }
-
-  function hexToOklch(hex) {
-    const { r, g, b } = hexToRgb(hex);
-    return rgbToOklch(r, g, b);
-  }
-
-  function oklchToHex(h, c, l = 50) {
-    const L = l / 100;
-    const a = c * Math.cos(h * Math.PI / 180);
-    const b = c * Math.sin(h * Math.PI / 180);
-
-    const l_ = L + 0.3963377774 * a + 0.2158037573 * b;
-    const m_ = L - 0.1055613458 * a - 0.0638541728 * b;
-    const s_ = L - 0.0894841775 * a - 1.2914855480 * b;
-
-    const [lr, lg, lb] = [l_, m_, s_].map(v => v ** 3);
-    
-    const r = 4.0767416621 * lr - 3.3077115913 * lg + 0.2309699292 * lb;
-    const g = -1.2684380046 * lr + 2.6097574011 * lg - 0.3413193965 * lb;
-    const bLinear = -0.0041960863 * lr - 0.7034186147 * lg + 1.7076147010 * lb;
-
-    const toSRGB = (v) => {
-      v = Math.min(Math.max(v, 0), 1);
-      return v > 0.0031308 
-        ? 1.055 * (v ** (1/2.4)) - 0.055 
-        : 12.92 * v;
-    };
-
-    const [R, G, B] = [r, g, bLinear].map(v => 
-      Math.round(toSRGB(v) * 255)
-    );
-
-    return `#${[R, G, B]
-      .map(x => x.toString(16).padStart(2, '0'))
-      .join('')}`.toUpperCase();
-  }
-
-  function updateTextPrimary(currentL) {
-    const textL = currentL > 60 ? 20 : 95;
-    document.documentElement.style.setProperty('--text-primary', `oklch(${textL}% 0 0)`);
-  }
-
-  function updateBaseHueFromColorPicker(event) {
-    const color = event.target.value;
-    const { h, c } = hexToOklch(color);
-    const theme = document.documentElement.getAttribute("data-theme") || "dark";
-    const currentL = theme === "dark" ? 30 : 80;
-
-    document.documentElement.style.setProperty('--base-hue', h);
-    document.documentElement.style.setProperty('--base-chroma', c);
-    localStorage.setItem(`${theme}BaseHue`, h);
-    localStorage.setItem(`${theme}BaseChroma`, c);
-
-    updateTextPrimary(currentL);
-  }
-
-  function toggleConfig() {
-    fetch("/luci-static/spectra/bgm/theme-switcher.php", { method: "POST" })
-      .then(response => response.json())
-      .then(data => {
-        if (data.success) {
-          updateButton(data.mode);
-        } else {
-          document.getElementById("status").innerText = "Update failed: " + data.error;
-        }
-      })
-      .catch(error => {
-        document.getElementById("status").innerText = "Request error: " + error;
-      });
-  }
-
-  function updateButton(theme) {
-    const body = document.documentElement;
-    const btn = document.getElementById("toggleButton");
-    const status = document.getElementById("status");
-    const oldTheme = body.getAttribute("data-theme") || "dark";
-
-    localStorage.setItem(`${oldTheme}BaseHue`, parseFloat(getComputedStyle(body).getPropertyValue('--base-hue')));
-    localStorage.setItem(`${oldTheme}BaseChroma`, parseFloat(getComputedStyle(body).getPropertyValue('--base-chroma')));
-
-    const hueKey = `${theme}BaseHue`;
-    const chromaKey = `${theme}BaseChroma`;
-    const baseHue   = parseFloat(localStorage.getItem(hueKey))   ?? (theme==="dark"?260:200);
-    const baseChroma= parseFloat(localStorage.getItem(chromaKey))?? (theme==="dark"?0.10:0.05);
-
-    body.style.setProperty('--base-hue', baseHue);
-    body.style.setProperty('--base-chroma', baseChroma);
-    body.setAttribute("data-theme", theme);
-
-    const l = theme === "dark" ? 30 : 80;
-    document.getElementById("colorPicker").value = oklchToHex(baseHue, baseChroma, l);
-
-    if (theme === "dark") {
-        const message = translations['current_mode_dark'] || "Current Mode: Dark Mode";
-        btn.innerHTML = `<i class="bi bi-sun"></i> ${translations['switch_to_light_mode'] || 'Switch to Light Mode'}`;
-        btn.className = "btn btn-primary light";
-        status.innerText = message;
-
-        if (userInteracted && typeof speakMessage === 'function') {
-            speakMessage(message);
-        }
-        if (userInteracted && typeof showLogMessage === 'function') {
-            showLogMessage(message);
-        }
-    } else {
-        const message = translations['current_mode_light'] || "Current Mode: Light Mode";
-        btn.innerHTML = `<i class="bi bi-moon"></i> ${translations['switch_to_dark_mode'] || 'Switch to Dark Mode'}`;
-        btn.className = "btn btn-primary dark";
-        status.innerText = message;
-        if (userInteracted && typeof speakMessage === 'function') {
-            speakMessage(message);
-        }
-        if (userInteracted && typeof showLogMessage === 'function') {
-            showLogMessage(message);
-        }
-        clearBackgroundDirectly();
-    }
-
-    const currentL = theme === "dark" ? 30 : 80;
-    updateTextPrimary(currentL);
-
-    localStorage.setItem("theme", theme);
-    const bodyBgKey = `${theme}BodyBgColor`;
-    const defaultBg = theme === "dark" ? "#0f3460" : "#ffffff";
-    document.body.style.background = localStorage.getItem(bodyBgKey) || defaultBg;
-    
-    document.getElementById("bodyBgColorPicker").value = document.body.style.background;
-  }
-
-  function getContrastColor(hex) {
-    const rgb = hexToRgb(hex);
-    const luminance = (0.2126 * rgb.r + 0.7152 * rgb.g + 0.0722 * rgb.b) / 255;
-    return luminance > 0.45 ? '#000000' : '#FFFFFF';
-  }
-
-  document.addEventListener("DOMContentLoaded", () => {
-    const saved = localStorage.getItem("theme") || "dark";
-    document.documentElement.setAttribute("data-theme", saved);
-
-    const hueKey    = `${saved}BaseHue`;
-    const chromaKey = `${saved}BaseChroma`;
-    const defaultHue    = saved==="dark"?260:0;
-    const defaultChroma = saved==="dark"?0.10:0.05;
-
-    const hVal = parseFloat(localStorage.getItem(hueKey))    || defaultHue;
-    const cVal = parseFloat(localStorage.getItem(chromaKey)) || defaultChroma;
-    document.documentElement.style.setProperty('--base-hue', hVal);
-    document.documentElement.style.setProperty('--base-chroma', cVal);
-
-    const picker = document.getElementById("colorPicker");
-    const l = saved==="dark"?30:80;
-    picker.value = oklchToHex(hVal, cVal, l);
-    picker.addEventListener('input', updateBaseHueFromColorPicker);
-    document.getElementById("penIcon")?.addEventListener("click", () => picker.click());
-
-    const toggleBtn = document.getElementById("toggleButton");
-    toggleBtn.addEventListener("click", () => {
-      userInteracted = true;
-
-      setTimeout(() => {
-        window.top.location.href = "/cgi-bin/luci/admin/services/spectra";
-      }, 3000);
-    });
-
-    document.addEventListener("keydown", (e) => {
-      if (e.key === "ArrowDown" || e.keyCode === 40) {
-        userInteracted = true;
-      }
-    });
-
-    fetch("/luci-static/spectra/bgm/theme-switcher.php")
-      .then(res => res.json())
-      .then(data => {
-        if(data.mode) {
-          updateButton(data.mode);
-        }
-      })
-      .catch(error => {
-        document.getElementById("status").innerText = "Failed to read: " + error;
-      });
-  });
-</script>
-
-<script>
 function setBackground(filename) {
     fetch('set_background.php', {
         method: 'POST',
@@ -3718,44 +3456,6 @@ function setBackground(filename) {
     }).then(() => location.reload()) 
       .catch(error => console.error('Request failed:', error));
 }
-</script>
-
-<script>
-document.addEventListener("DOMContentLoaded", () => {
-    const initColorStorage = () => {
-        if (!localStorage.getItem("darkBodyBgColor")) localStorage.setItem("darkBodyBgColor", "#0f3460");
-        if (!localStorage.getItem("lightBodyBgColor")) localStorage.setItem("lightBodyBgColor", "#ffffff");
-    };
-
-    const applyThemeColor = () => {
-        const currentTheme = document.documentElement.getAttribute("data-theme") || "dark";
-        const colorKey = `${currentTheme}BodyBgColor`;
-        document.body.style.background = localStorage.getItem(colorKey);
-        document.getElementById("bodyBgColorPicker").value = localStorage.getItem(colorKey);
-    };
-
-    initColorStorage();
-
-    applyThemeColor();
-
-    const themeObserver = new MutationObserver((mutations) => {
-        mutations.forEach(mutation => {
-            if (mutation.attributeName === "data-theme") {
-                applyThemeColor();
-            }
-        });
-    });
-    themeObserver.observe(document.documentElement, { attributes: true });
-
-    document.getElementById("bodyBgColorPicker").addEventListener("input", (e) => {
-        const currentTheme = document.documentElement.getAttribute("data-theme") || "dark";
-        const colorKey = `${currentTheme}BodyBgColor`;
-        const newColor = e.target.value;
-        
-        document.body.style.background = newColor;
-        localStorage.setItem(colorKey, newColor);
-    });
-});
 </script>
 
 <script>
@@ -4126,7 +3826,6 @@ setInterval(rotateColors, 4000);
 
 body {
     margin: 0;
-    background: linear-gradient(145deg, var(--bg-body), var(--bg-container));
     color: var(--text-color);
     background-attachment: fixed;
 }
@@ -6066,6 +5765,9 @@ $langData = [
         'bangladesh'             => '孟加拉语',
         'close'                  => '关闭',
         'save'                   => '保存',
+        'oklch_values'     => 'OKLCH 值：',
+        'contrast_ratio'   => '對比度：',
+        'reset'            => '重設',
         'theme_download'         => '主题下载',
         'select_all'             => '全选',
         'batch_delete'           => '批量删除选中文件',
@@ -6336,6 +6038,9 @@ $langData = [
         'close'                  => '關閉',
         'save'                   => '保存',
         'theme_download'         => '主題下載',
+        'oklch_values'     => 'OKLCH 值：',
+        'contrast_ratio'   => '對比度：',
+        'reset'            => '重設',
         'select_all'             => '全選',
         'batch_delete'           => '批量刪除選中文件',
         'total'                  => '總共：',
@@ -6603,6 +6308,9 @@ $langData = [
         'arabic'                 => '아랍어',
         'spanish'                => '스페인어',
         'bangladesh'             => '벵골어',
+        'oklch_values'     => 'OKLCH 값:',
+        'contrast_ratio'   => '명암비:',
+        'reset'            => '초기화',
         'close'                  => '닫기',
         'save'                   => '저장',
         'theme_download'         => '테마 다운로드',
@@ -6873,6 +6581,9 @@ $langData = [
         'arabic'                 => 'アラビア語',
         'spanish'                => 'スペイン語',
         'bangladesh'             => 'ベンガル語',
+        'oklch_values'     => 'OKLCH 値：',
+        'contrast_ratio'   => 'コントラスト比：',
+        'reset'            => 'リセット',
         'close'                  => '閉じる',
         'save'                   => '保存',
         'theme_download'         => 'テーマのダウンロード',
@@ -7142,6 +6853,9 @@ $langData = [
         'arabic'                 => 'Tiếng Ả Rập',
         'spanish'                => 'Tiếng Tây Ban Nha',
         'bangladesh'             => 'Tiếng Bangladesh',
+        'oklch_values'     => 'Giá trị OKLCH:',
+        'contrast_ratio'   => 'Tỷ lệ tương phản:',
+        'reset'            => 'Đặt lại',
         'close'                  => 'Đóng',
         'save'                   => 'Lưu',
         'theme_download'         => 'Tải chủ đề',
@@ -7410,6 +7124,9 @@ $langData = [
         'arabic'                 => 'ภาษาอาหรับ',
         'spanish'                => 'ภาษาสเปน',
         'bangladesh'             => 'เบงกาลี',
+        'oklch_values'     => 'ค่า OKLCH:',
+        'contrast_ratio'   => 'อัตราความเปรียบต่าง:',
+        'reset'            => 'รีเซ็ต',
         'close'                  => 'ปิด',
         'save'                   => 'บันทึก',
         'theme_download'         => 'ดาวน์โหลดธีม',
@@ -7664,6 +7381,9 @@ $langData = [
         'arabic'                 => 'Арабский',
         'spanish'                => 'Испанский',
         'bangladesh'             => 'Бенгальский',
+        'oklch_values'     => 'Значения OKLCH:',
+        'contrast_ratio'   => 'Контрастность:',
+        'reset'            => 'Сброс',
         'close'                  => 'Закрыть',
         'save'                   => 'Сохранить',
         'theme_download'         => 'Скачать тему',
@@ -7919,6 +7639,9 @@ $langData = [
         'arabic'                 => 'العربية',
         'spanish'                => 'الإسبانية',
         'bangladesh'             => 'البنغالية',
+        'oklch_values'     => 'قِيَم OKLCH:',
+        'contrast_ratio'   => 'نسبة التباين:',
+        'reset'            => 'إعادة تعيين',
         'close'                  => 'إغلاق',
         'save'                   => 'حفظ',
         'theme_download'         => 'تنزيل السمة',
@@ -8179,6 +7902,9 @@ $langData = [
         'arabic'                 => 'Árabe',
         'spanish'                => 'Español',
         'bangladesh'             => 'Bengalí',
+        'oklch_values'     => 'Valores OKLCH:',
+        'contrast_ratio'   => 'Relación de contraste:',
+        'reset'            => 'Restablecer',
         'close'                  => 'Cerrar',
         'save'                   => 'Guardar',
         'theme_download'         => 'Descargar tema',
@@ -8433,6 +8159,9 @@ $langData = [
         'arabic'                 => 'Arabisch',
         'spanish'                => 'Spanisch',
         'bangladesh'             => 'Bengalisch',
+        'oklch_values'     => 'OKLCH-Werte:',
+        'contrast_ratio'   => 'Kontrastverhältnis:',
+        'reset'            => 'Zurücksetzen',
         'close'                  => 'Schließen',
         'save'                   => 'Speichern',
         'theme_download'         => 'Theme herunterladen',
@@ -8687,6 +8416,9 @@ $langData = [
         'arabic'                 => 'Arabe',
         'spanish'                => 'Espagnol',
         'bangladesh'             => 'Bengali',
+        'oklch_values'     => 'Valeurs OKLCH :',
+        'contrast_ratio'   => 'Taux de contraste :',
+        'reset'            => 'Réinitialiser',
         'close'                  => 'Fermer',
         'save'                   => 'Enregistrer',
         'theme_download'         => 'Télécharger le thème',
@@ -8941,6 +8673,9 @@ $langData = [
         'arabic'                 => 'Arabic',
         'spanish'                => 'Spanish',
         'bangladesh'             => 'Bengali',
+        'oklch_values'     => 'OKLCH Values:',
+        'contrast_ratio'   => 'Contrast Ratio:',
+        'reset'            => 'Reset',
         'close'                  => 'Close',
         'save'                   => 'Save',
         'theme_download'         => 'Theme Download',
@@ -9207,6 +8942,9 @@ $langData = [
         'arabic'                 => 'আরবি',
         'spanish'                => 'স্প্যানিশ',
         'bangladesh'             => 'বাংলা',
+        'oklch_values'     => 'OKLCH মান:',
+        'contrast_ratio'   => 'কনট্রাস্ট অনুপাত:',
+        'reset'            => 'রিসেট করুন',
         'close'                  => 'বন্ধ',
         'save'                   => 'সংরক্ষণ',
         'theme_download'         => 'থিম ডাউনলোড',
@@ -10314,212 +10052,440 @@ async function showIpDetailModal() {
 </script>
 
 <script>
-  document.addEventListener("DOMContentLoaded", () => {   
-    const colorModal = new bootstrap.Modal(document.getElementById('colorModal'));
-    let currentHue, currentChroma, currentLightness;
-    let recentColors = [];
+document.addEventListener("DOMContentLoaded", () => {
+  const colorModal = new bootstrap.Modal(document.getElementById('colorModal'));
+  let currentHue = 260, currentChroma = 0.10, currentLightness = 30;
+  let recentColors = [];
+
+  function hexToRgb(hex) {
+    const fullHex = hex.replace(/^#?([a-f\d])([a-f\d])([a-f\d])$/i, 
+      (_, r, g, b) => `#${r}${r}${g}${g}${b}${b}`);
+    const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(fullHex);
+    return result ? {
+      r: parseInt(result[1], 16),
+      g: parseInt(result[2], 16),
+      b: parseInt(result[3], 16)
+    } : { r: 0, g: 0, b: 0 };
+  }
+
+  function rgbToLinear(c) {
+    const normalized = c / 255;
+    return normalized <= 0.04045 
+      ? normalized / 12.92 
+      : Math.pow((normalized + 0.055) / 1.055, 2.4);
+  }
+
+  function rgbToOklch(r, g, b) {
+    const [lr, lg, lb] = [r, g, b].map(rgbToLinear);
+    const l = 0.4122214708 * lr + 0.5363325363 * lg + 0.0514459929 * lb;
+    const m = 0.2119034982 * lr + 0.6806995451 * lg + 0.1073969566 * lb;
+    const s = 0.0883024619 * lr + 0.2817188376 * lg + 0.6299787005 * lb;
+    const l_ = Math.cbrt(l);
+    const m_ = Math.cbrt(m);
+    const s_ = Math.cbrt(s);
+    const L = 0.2104542553 * l_ + 0.7936177850 * m_ - 0.0040720468 * s_;
+    const a = 1.9779984951 * l_ - 2.4285922050 * m_ + 0.4505937099 * s_;
+    const b_ = 0.0259040371 * l_ + 0.7827717662 * m_ - 0.8086757660 * s_;
+    const c = Math.sqrt(a ** 2 + b_ ** 2);
+    let h = Math.atan2(b_, a) * 180 / Math.PI;
+    h = h >= 0 ? h : h + 360;
+    return { l: L * 100, c: c, h: h };
+  }
+
+  function hexToOklch(hex) {
+    const { r, g, b } = hexToRgb(hex);
+    return rgbToOklch(r, g, b);
+  }
+
+  function oklchToHex(h, c, l = 50) {
+    const L = l / 100;
+    const a = c * Math.cos(h * Math.PI / 180);
+    const b = c * Math.sin(h * Math.PI / 180);
+    const l_ = L + 0.3963377774 * a + 0.2158037573 * b;
+    const m_ = L - 0.1055613458 * a - 0.0638541728 * b;
+    const s_ = L - 0.0894841775 * a - 1.2914855480 * b;
+    const [lr, lg, lb] = [l_, m_, s_].map(v => v ** 3);
+    const r = 4.0767416621 * lr - 3.3077115913 * lg + 0.2309699292 * lb;
+    const g = -1.2684380046 * lr + 2.6097574011 * lg - 0.3413193965 * lb;
+    const bLinear = -0.0041960863 * lr - 0.7034186147 * lg + 1.7076147010 * lb;
+    const toSRGB = (v) => {
+      v = Math.min(Math.max(v, 0), 1);
+      return v > 0.0031308 
+        ? 1.055 * (v ** (1/2.4)) - 0.055 
+        : 12.92 * v;
+    };
+    const [R, G, B] = [r, g, bLinear].map(v => Math.round(toSRGB(v) * 255));
+    return `#${[R, G, B].map(x => x.toString(16).padStart(2, '0')).join('')}`.toUpperCase();
+  }
+
+  function updateTextPrimary(currentL) {
+    const textL = currentL > 60 ? 20 : 95;
+    document.documentElement.style.setProperty('--text-primary', `oklch(${textL}% 0 0)`);
+    document.body.offsetHeight;
+  }
+
+  function updateColorPreview() {
+    const hexColor = oklchToHex(currentHue, currentChroma, currentLightness);
+    document.getElementById('colorPreview').style.backgroundColor = hexColor;
+    const contrastRatio = calculateContrast(hexColor);
+    document.getElementById('contrastRatio').textContent = contrastRatio;
+    updateContrastRating(parseFloat(contrastRatio.split(':')[0]));
+    document.getElementById('oklchValue').textContent = `OKLCH(${currentLightness.toFixed(0)}%, ${currentChroma.toFixed(2)}, ${Math.round(currentHue)}°)`;
+  }
+
+  function calculateContrast(hexColor) {
+    const rgb = hexToRgb(hexColor);
+    const luminance = (0.2126 * rgb.r + 0.7152 * rgb.g + 0.0722 * rgb.b) / 255;
+    const textLuminance = luminance > 0.5 ? 0 : 1;
+    const contrast = (Math.max(luminance, textLuminance) + 0.05) / (Math.min(luminance, textLuminance) + 0.05);
+    return contrast.toFixed(2) + ":1";
+  }
+
+  function updateContrastRating(contrast) {
+    const container = document.getElementById('contrastRating');
+    let icon = '';
+    if (contrast >= 7) {
+      icon = '<i class="bi bi-check-circle-fill"></i> ';
+      container.className = "mt-1 text-success fw-bold";
+      container.innerHTML = `${icon}${translations['excellent_aaa'] || 'Excellent (AAA)'}`;
+    } else if (contrast >= 4.5) {
+      icon = '<i class="bi bi-check-circle"></i> ';
+      container.className = "mt-1 text-primary fw-bold";
+      container.innerHTML = `${icon}${translations['good_aa'] || 'Good (AA)'}`;
+    } else {
+      icon = '<i class="bi bi-exclamation-triangle-fill"></i> ';
+      container.className = "mt-1 text-danger fw-bold";
+      container.innerHTML = `${icon}${translations['poor_needs_improvement'] || 'Needs Improvement'}`;
+    }
+  }
+
+  function adjustHue(amount) {
+    currentHue = (currentHue + amount + 360) % 360;
+    document.getElementById('hueSlider').value = currentHue;
+    document.getElementById('hueValue').textContent = Math.round(currentHue) + '°';
+    updateColorPreview();
+  }
+
+  function addToRecentColors(color) {
+    recentColors = recentColors.filter(c => c !== color);
+    recentColors.unshift(color);
+  
+    if (recentColors.length > 10) {
+      recentColors.pop();
+    }
+  
+    updateRecentColors();
+    localStorage.setItem('appColorSettings', JSON.stringify({
+      recentColors,
+      hue: currentHue,
+      chroma: currentChroma,
+      lightness: currentLightness
+    }));
+  }
+
+  function updateRecentColors() {
+    const container = document.getElementById('recentColors');
+    container.innerHTML = '';
+    recentColors.forEach(color => {
+      const swatch = document.createElement('button');
+      swatch.className = 'btn btn-sm p-2';
+      swatch.style.backgroundColor = color;
+      swatch.style.width = '30px';
+      swatch.style.height = '30px';
+      swatch.title = color;
+      swatch.addEventListener('click', function() {
+        const { h, c, l } = hexToOklch(color);
+        document.getElementById('hueSlider').value = h;
+        document.getElementById('chromaSlider').value = c;
+        document.getElementById('lightnessSlider').value = l;
+        document.getElementById('hueValue').textContent = Math.round(h) + '°';
+        document.getElementById('chromaValue').textContent = c.toFixed(2);
+        document.getElementById('lightnessValue').textContent = l + '%';
+        currentHue = h;
+        currentChroma = c;
+        currentLightness = l;
+        updateColorPreview();
+        document.getElementById('colorPicker').value = color;
+        document.documentElement.style.setProperty('--base-hue', currentHue);
+        document.documentElement.style.setProperty('--base-chroma', currentChroma);
+        updateTextPrimary(currentLightness);
+        addToRecentColors(color);
+      });
+      container.appendChild(swatch);
+    });
+  }
+
+  function initRecentColors() {
+      const savedSettings = localStorage.getItem('appColorSettings');
+      let initialTheme = 'dark';
+      if (savedSettings) {
+          const settings = JSON.parse(savedSettings);
+          recentColors = settings.recentColors || [];
+          if (recentColors.length > 10) {
+              recentColors = recentColors.slice(0, 10);
+          }
+          currentHue = settings.hue || 260;
+          currentChroma = settings.chroma || 0.10;
+          currentLightness = settings.lightness || 30;
+          initialTheme = currentLightness > 60 ? 'light' : 'dark';
+      } else {
+          recentColors = [
+              '#4d79ff', '#ff4d94', '#4dff88', '#ffb84d', 
+              '#bf4dff', '#ff6b6b', '#4eca9e', '#ff9ff3',
+              '#6c757d', '#ffc107'
+          ];
+      }
+      document.documentElement.setAttribute('data-theme', initialTheme);
+      document.getElementById('lightnessSlider').value = currentLightness;
+      document.getElementById('lightnessValue').textContent = currentLightness + '%';
+      updateColorPreview();
+      updateTextPrimary(currentLightness);
+      updateRecentColors();
+  }
+
+  const picker = document.getElementById("colorPicker");
+  picker.addEventListener('input', (event) => {
+    const color = event.target.value;
+    const { h, c, l } = hexToOklch(color);
+    currentHue = h;
+    currentChroma = c;
+    currentLightness = l;
     
-    document.getElementById('advancedColorBtn').addEventListener('click', () => {
-      const theme = document.documentElement.getAttribute("data-theme") || "dark";
-      currentLightness = parseFloat(localStorage.getItem(`${theme}BaseLightness`)) || (theme === "dark" ? 30 : 80);
-      currentHue = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--base-hue'));
-      currentChroma = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--base-chroma'));
-      
+    document.getElementById('hueSlider').value = h;
+    document.getElementById('chromaSlider').value = c;
+    document.getElementById('lightnessSlider').value = l;
+    document.getElementById('hueValue').textContent = Math.round(h) + '°';
+    document.getElementById('chromaValue').textContent = c.toFixed(2);
+    document.getElementById('lightnessValue').textContent = l + '%';
+    
+    const theme = l > 60 ? 'light' : 'dark';
+    document.documentElement.setAttribute('data-theme', theme);
+    
+    updateColorPreview();
+    document.documentElement.style.setProperty('--base-hue', currentHue);
+    document.documentElement.style.setProperty('--base-chroma', currentChroma);
+    updateTextPrimary(currentLightness);
+    addToRecentColors(color);
+  });
+
+  document.getElementById('advancedColorBtn').addEventListener('click', () => {
+    document.getElementById('hueSlider').value = currentHue;
+    document.getElementById('chromaSlider').value = currentChroma;
+    document.getElementById('lightnessSlider').value = currentLightness;
+    document.getElementById('hueValue').textContent = Math.round(currentHue) + '°';
+    document.getElementById('chromaValue').textContent = currentChroma.toFixed(2);
+    document.getElementById('lightnessValue').textContent = currentLightness + '%';
+    updateColorPreview();
+    colorModal.show();
+  });
+
+  document.getElementById('hueSlider').addEventListener('input', function() {
+    currentHue = parseFloat(this.value);
+    document.getElementById('hueValue').textContent = Math.round(currentHue) + '°';
+    updateColorPreview();
+    document.getElementById('colorPicker').value = oklchToHex(currentHue, currentChroma, currentLightness);
+    document.documentElement.style.setProperty('--base-hue', currentHue);
+    updateTextPrimary(currentLightness);
+  });
+
+  document.getElementById('chromaSlider').addEventListener('input', function() {
+    currentChroma = parseFloat(this.value);
+    document.getElementById('chromaValue').textContent = currentChroma.toFixed(2);
+    updateColorPreview();
+    document.getElementById('colorPicker').value = oklchToHex(currentHue, currentChroma, currentLightness);
+    document.documentElement.style.setProperty('--base-chroma', currentChroma);
+    updateTextPrimary(currentLightness);
+  });
+
+  document.getElementById('lightnessSlider').addEventListener('input', function() {
+    currentLightness = parseFloat(this.value);
+    document.getElementById('lightnessValue').textContent = currentLightness + '%';
+    updateColorPreview();
+    document.getElementById('colorPicker').value = oklchToHex(currentHue, currentChroma, currentLightness);
+    updateTextPrimary(currentLightness);
+
+    const theme = currentLightness > 60 ? 'light' : 'dark';
+    document.documentElement.setAttribute('data-theme', theme);
+  });
+
+  document.querySelectorAll('[data-h]').forEach(button => {
+    button.addEventListener('click', function() {
+      currentHue = parseFloat(this.dataset.h);
+      currentChroma = parseFloat(this.dataset.c);
+      currentLightness = parseFloat(this.dataset.l);
       document.getElementById('hueSlider').value = currentHue;
       document.getElementById('chromaSlider').value = currentChroma;
       document.getElementById('lightnessSlider').value = currentLightness;
       document.getElementById('hueValue').textContent = Math.round(currentHue) + '°';
       document.getElementById('chromaValue').textContent = currentChroma.toFixed(2);
       document.getElementById('lightnessValue').textContent = currentLightness + '%';
-      
+      addToRecentColors(oklchToHex(currentHue, currentChroma, currentLightness));
       updateColorPreview();
-      
-      colorModal.show();
+      document.getElementById('colorPicker').value = oklchToHex(currentHue, currentChroma, currentLightness);
+      document.documentElement.style.setProperty('--base-hue', currentHue);
+      document.documentElement.style.setProperty('--base-chroma', currentChroma);
+      updateTextPrimary(currentLightness);
     });
-    
-    document.getElementById('hueSlider').addEventListener('input', function() {
-      currentHue = parseFloat(this.value);
-      document.getElementById('hueValue').textContent = Math.round(currentHue) + '°';
-      updateColorPreview();
-    });
-    
-    document.getElementById('chromaSlider').addEventListener('input', function() {
-      currentChroma = parseFloat(this.value);
-      document.getElementById('chromaValue').textContent = currentChroma.toFixed(2);
-      updateColorPreview();
-    });
-    
-    document.getElementById('lightnessSlider').addEventListener('input', function() {
-      currentLightness = parseFloat(this.value);
-      document.getElementById('lightnessValue').textContent = currentLightness + '%';
-      updateColorPreview();
-    });
-    
-    document.getElementById('hueMinus5').addEventListener('click', () => adjustHue(-5));
-    document.getElementById('hueMinus1').addEventListener('click', () => adjustHue(-1));
-    document.getElementById('huePlus1').addEventListener('click', () => adjustHue(1));
-    document.getElementById('huePlus5').addEventListener('click', () => adjustHue(5));
-    
-    document.querySelectorAll('[data-h]').forEach(button => {
-      button.addEventListener('click', function() {
-        currentHue = parseFloat(this.dataset.h);
-        currentChroma = parseFloat(this.dataset.c);
-        currentLightness = parseFloat(this.dataset.l);
-        
-        document.getElementById('hueSlider').value = currentHue;
-        document.getElementById('chromaSlider').value = currentChroma;
-        document.getElementById('lightnessSlider').value = currentLightness;
-        document.getElementById('hueValue').textContent = Math.round(currentHue) + '°';
-        document.getElementById('chromaValue').textContent = currentChroma.toFixed(2);
-        document.getElementById('lightnessValue').textContent = currentLightness + '%';
-        
-        addToRecentColors(oklchToHex(currentHue, currentChroma, currentLightness));
-        updateColorPreview();
-      });
-    });
-    
-    document.getElementById('applyColorBtn').addEventListener('click', function() {
+  });
+
+  document.getElementById('applyColorBtn').addEventListener('click', function() {
+      const settings = {
+          hue: currentHue,
+          chroma: currentChroma,
+          lightness: currentLightness,
+          recentColors: recentColors || []
+      };
+      localStorage.setItem('appColorSettings', JSON.stringify(settings));
+
       document.documentElement.style.setProperty('--base-hue', currentHue);
       document.documentElement.style.setProperty('--base-chroma', currentChroma);
       document.getElementById('colorPicker').value = oklchToHex(currentHue, currentChroma, currentLightness);
-      
-      const theme = document.documentElement.getAttribute("data-theme") || "dark";
-      localStorage.setItem(`${theme}BaseHue`, currentHue);
-      localStorage.setItem(`${theme}BaseChroma`, currentChroma);
-      localStorage.setItem(`${theme}BaseLightness`, currentLightness);
-
       updateTextPrimary(currentLightness);
-      
-      colorModal.hide();
-    });
-    
-    document.getElementById('resetColorBtn').addEventListener('click', function() {
-      const theme = document.documentElement.getAttribute("data-theme") || "dark";
-      const defaultHue = theme === "dark" ? 260 : 200;
-      const defaultChroma = theme === "dark" ? 0.10 : 0.05;
-      const defaultLightness = theme === "dark" ? 30 : 80;
-      
-      document.getElementById('hueSlider').value = defaultHue;
-      document.getElementById('chromaSlider').value = defaultChroma;
-      document.getElementById('lightnessSlider').value = defaultLightness;
-      document.getElementById('hueValue').textContent = defaultHue + '°';
-      document.getElementById('chromaValue').textContent = defaultChroma.toFixed(2);
-      document.getElementById('lightnessValue').textContent = defaultLightness + '%';
-      
-      currentHue = defaultHue;
-      currentChroma = defaultChroma;
-      currentLightness = defaultLightness;
-      
-      updateColorPreview();
-    });
-    
-    function updateColorPreview() {
-      const hexColor = oklchToHex(currentHue, currentChroma, currentLightness);
-      document.getElementById('colorPreview').style.backgroundColor = hexColor;
-      
-      const contrastRatio = calculateContrast(hexColor);
-      document.getElementById('contrastRatio').textContent = contrastRatio;
-      
-      updateContrastRating(parseFloat(contrastRatio));
-      document.getElementById('oklchValue').textContent = 
-        `OKLCH(${currentLightness.toFixed(0)}%, ${currentChroma.toFixed(2)}, ${Math.round(currentHue)}°)`;
- }
-    
-    function calculateContrast(hexColor) {
-      const rgb = hexToRgb(hexColor);
-      const luminance = (0.2126 * rgb.r + 0.7152 * rgb.g + 0.0722 * rgb.b) / 255;
-      const textLuminance = luminance > 0.5 ? 0 : 1;
-      const contrast = (Math.max(luminance, textLuminance) + 0.05) / (Math.min(luminance, textLuminance) + 0.05);
-      return contrast.toFixed(2) + ":1";
-    }
-    
-    function updateContrastRating(contrast) {
-        const container = document.getElementById('contrastRating');
-        let icon = '';
 
-        if (contrast >= 7) {
-            icon = '<i class="bi bi-check-circle-fill"></i> ';
-            container.className = "mt-1 text-success fw-bold";
-            container.innerHTML = `${icon}${translations['excellent_aaa'] || 'Excellent (AAA)'}`;
-        } else if (contrast >= 4.5) {
-            icon = '<i class="bi bi-check-circle"></i> ';
-            container.className = "mt-1 text-primary fw-bold";
-            container.innerHTML = `${icon}${translations['good_aa'] || 'Good (AA)'}`;
+      const hexColor = oklchToHex(currentHue, currentChroma, currentLightness);
+      const successMsg = (translations['apply_color_success'] || 'Background color %s has been applied successfully.').replace('%s', hexColor);
+      if (typeof showLogMessage === 'function') showLogMessage(successMsg);
+      if (typeof speakMessage === 'function') speakMessage(successMsg);
+
+      colorModal.hide();
+  });
+
+  document.getElementById('resetColorBtn').addEventListener('click', function() {
+      currentHue = 260;
+      currentChroma = 0.10;
+      currentLightness = 30;
+      document.getElementById('hueSlider').value = currentHue;
+      document.getElementById('chromaSlider').value = currentChroma;
+      document.getElementById('lightnessSlider').value = currentLightness;
+      document.getElementById('hueValue').textContent = currentHue + '°';
+      document.getElementById('chromaValue').textContent = currentChroma.toFixed(2);
+      document.getElementById('lightnessValue').textContent = currentLightness + '%';
+      updateColorPreview();
+      document.getElementById('colorPicker').value = oklchToHex(currentHue, currentChroma, currentLightness);
+      document.documentElement.style.setProperty('--base-hue', currentHue);
+      document.documentElement.style.setProperty('--base-chroma', currentChroma);
+      updateTextPrimary(currentLightness);
+
+      const resetMsg = translations['reset_color_success'] || 'Application color settings have been reset to default.';
+      if (typeof showLogMessage === 'function') showLogMessage(resetMsg);
+      if (typeof speakMessage === 'function') speakMessage(resetMsg);
+  });
+
+  initRecentColors();
+  const savedSettings = localStorage.getItem('appColorSettings');
+  if (savedSettings) {
+    const settings = JSON.parse(savedSettings);
+    document.documentElement.style.setProperty('--base-hue', settings.hue || 260);
+    document.documentElement.style.setProperty('--base-chroma', settings.chroma || 0.10);
+    document.getElementById('colorPicker').value = oklchToHex(settings.hue || 260, settings.chroma || 0.10, settings.lightness || 30);
+    updateTextPrimary(settings.lightness || 30);
+  }
+});
+
+document.getElementById('removeAppColorBtn').addEventListener('click', function() {
+    const confirmMsg = translations['confirm_reset_color'] || 'Are you sure you want to reset color settings to default?';
+
+    showConfirmation(confirmMsg, function() {
+        localStorage.removeItem('appColorSettings');
+
+        let defaultHue = 260;
+        let defaultChroma = 0.10;
+        let defaultLightness = 30;
+        document.getElementById('hueSlider').value = defaultHue;
+        document.getElementById('chromaSlider').value = defaultChroma;
+        document.getElementById('lightnessSlider').value = defaultLightness;
+        document.getElementById('hueValue').textContent = defaultHue + '°';
+        document.getElementById('chromaValue').textContent = defaultChroma.toFixed(2);
+        document.getElementById('lightnessValue').textContent = defaultLightness + '%';
+
+        if (typeof oklchToHex === 'function') {
+            const hex = oklchToHex(defaultHue, defaultChroma, defaultLightness);
+            document.getElementById('colorPreview').style.backgroundColor = hex;
+            document.getElementById('colorPicker').value = hex;
         } else {
-            icon = '<i class="bi bi-exclamation-triangle-fill"></i> ';
-            container.className = "mt-1 text-danger fw-bold";
-            container.innerHTML = `${icon}${translations['poor_needs_improvement'] || 'Needs Improvement'}`;
+            document.getElementById('colorPreview').style.backgroundColor = '';
+            document.getElementById('colorPicker').value = '';
+        }
+
+        let recentColorsDiv = document.getElementById('recentColors');
+        if (recentColorsDiv) recentColorsDiv.innerHTML = '';
+
+        document.documentElement.style.setProperty('--base-hue', defaultHue);
+        document.documentElement.style.setProperty('--base-chroma', defaultChroma);
+
+        document.documentElement.setAttribute('data-theme', defaultLightness > 60 ? 'light' : 'dark');
+
+        const successMsg = translations['reset_color_success'] || 'Application color settings have been reset to default.';
+        if (typeof showLogMessage === 'function') showLogMessage(successMsg);
+        if (typeof speakMessage === 'function') speakMessage(successMsg);
+    });
+});
+</script>
+
+<script>
+let userInteracted = false;
+
+function toggleConfig() {
+    fetch("/luci-static/spectra/bgm/theme-switcher.php", { 
+        method: "POST",
+        headers: {
+            'Content-Type': 'application/json'
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            userInteracted = true;
+            updateStatus(data.mode);
+            
+            setTimeout(() => {
+                window.top.location.href = "/cgi-bin/luci/admin/services/spectra";
+            }, 3000);
+        } else {
+            document.getElementById("status").innerText = "Switch failed: " + data.error;
+        }
+    })
+    .catch(error => {
+        document.getElementById("status").innerText = "Request error: " + error;
+    });
+}
+
+function updateStatus(theme) {
+    const btn = document.getElementById("toggleButton");
+    const status = document.getElementById("status");
+    
+    if (theme === "dark") {
+        const message = translations['current_mode_dark'] || "Current Mode: Dark Mode";
+        btn.innerHTML = `<i class="bi bi-sun"></i> ${translations['switch_to_light_mode'] || 'Switch to Light Mode'}`;
+        status.innerText = message;
+
+        if (userInteracted && typeof showLogMessage === 'function') {
+            showLogMessage(message);
+        }
+        if (userInteracted && typeof speakMessage === 'function') {
+            speakMessage(message);
+        }
+    } else {
+        const message = translations['current_mode_light'] || "Current Mode: Light Mode";
+        btn.innerHTML = `<i class="bi bi-moon"></i> ${translations['switch_to_dark_mode'] || 'Switch to Dark Mode'}`;
+        status.innerText = message;
+        if (userInteracted && typeof showLogMessage === 'function') {
+            showLogMessage(message);
+        }
+        if (userInteracted && typeof speakMessage === 'function') {
+            speakMessage(message);
         }
     }
-  
-    function adjustHue(amount) {
-      currentHue = (currentHue + amount + 360) % 360;
-      document.getElementById('hueSlider').value = currentHue;
-      document.getElementById('hueValue').textContent = Math.round(currentHue) + '°';
-      updateColorPreview();
-    }
-    
-    function addToRecentColors(color) {
-      recentColors = recentColors.filter(c => c !== color);
-      
-      recentColors.unshift(color);
-      
-      if (recentColors.length > 6) {
-        recentColors.pop();
-      }
-      
-      updateRecentColors();
-      
-      localStorage.setItem('recentColors', JSON.stringify(recentColors));
-    }
-    
-    function updateRecentColors() {
-      const container = document.getElementById('recentColors');
-      container.innerHTML = '';
-      
-      recentColors.forEach(color => {
-        const swatch = document.createElement('button');
-        swatch.className = 'btn btn-sm p-2';
-        swatch.style.backgroundColor = color;
-        swatch.style.width = '30px';
-        swatch.style.height = '30px';
-        swatch.title = color;
-        swatch.addEventListener('click', function() {
-          const { h, c } = hexToOklch(color);
-          const theme = document.documentElement.getAttribute("data-theme") || "dark";
-          const l = theme === "dark" ? 30 : 80;
-          
-          document.getElementById('hueSlider').value = h;
-          document.getElementById('chromaSlider').value = c;
-          document.getElementById('lightnessSlider').value = l;
-          
-          document.getElementById('hueValue').textContent = Math.round(h) + '°';
-          document.getElementById('chromaValue').textContent = c.toFixed(2);
-          document.getElementById('lightnessValue').textContent = l + '%';
-          
-          currentHue = h;
-          currentChroma = c;
-          currentLightness = l;
-          
-          updateColorPreview();
-        });
-        container.appendChild(swatch);
-      });
-    }
-    
-    function initRecentColors() {
-      const savedColors = localStorage.getItem('recentColors');
-      if (savedColors) {
-        recentColors = JSON.parse(savedColors);
-      } else {
-        recentColors = [
-          '#4d79ff', '#ff4d94', '#4dff88', 
-          '#ffb84d', '#bf4dff', '#4dc2ff'
-        ];
-      }
-      updateRecentColors();
-    }
-    
-    initRecentColors();
-  });
+}
+
+fetch("/luci-static/spectra/bgm/theme-switcher.php")
+    .then(res => res.json())
+    .then(data => {
+        if(data.mode) {
+            updateStatus(data.mode);
+        }
+    })
+    .catch(error => {
+        document.getElementById("status").innerText = "Error retrieving mode: " + error;
+    });
 </script>

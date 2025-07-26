@@ -3932,7 +3932,7 @@ function formatJSON() {
         session.clearAnnotations();
         if (session.$errorMarker) {
             session.removeMarker(session.$errorMarker);
-        }+
+        }
 
         showNotification('JSON 已成功格式化', 'success');
     } catch (e) {
