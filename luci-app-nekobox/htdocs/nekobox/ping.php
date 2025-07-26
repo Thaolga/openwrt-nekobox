@@ -5678,7 +5678,7 @@ html::-webkit-scrollbar, body::-webkit-scrollbar {
 	color: var(--accent-color) !important;
 }
 
-h2#neko-title.royal-style {
+h2#neko-title.neko-title-style {
 	color: var(--accent-color) !important;
 }
 
@@ -5804,7 +5804,7 @@ label {
 	margin-top: 1rem !important;
 }
 
-.royal-style {
+.neko-title-style {
 	font-family: 'Cinzel Decorative', cursive;
 	font-weight: 900;
 	font-size: 80px;
@@ -5814,7 +5814,7 @@ label {
 	transition: all var(--bs-transition-speed);
 }
 
-.royal-style:hover {
+.neko-title-style:hover {
 	transform: skew(-5deg);
 	text-shadow: 3px 3px 6px rgba(0,0,0,0.2);
 }
