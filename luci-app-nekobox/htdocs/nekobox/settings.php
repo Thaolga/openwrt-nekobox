@@ -162,10 +162,14 @@ function deleteDirectory($dir) {
     return rmdir($dir);
 }
 ?>
-<head>
-  <title>Settings - Nekobox</title>
-  <?php include './ping.php'; ?>
-</head>
+<title>Settings - Nekobox</title>
+<?php include './ping.php'; ?>
+
+<style>
+  #portModal table tbody td {
+    color: var(--text-primary) !important;
+  }
+</style>
 
 <div class="container-sm container-bg mt-4">
   <div class="row">
@@ -176,7 +180,8 @@ function deleteDirectory($dir) {
 <div class="container px-4 theme-settings-container text-center">
   <h2 class="text-center p-2 mb-2" data-translate="component_update">Component Update</h2>
   <button type="button" class="btn btn-success mb-3 me-3" onclick="toggleControlPanel()"><i class="bi bi-eyedropper"> </i><span data-translate="control_panel">Control_Panel</span></button>
-  <button type="button" id="toggleIpStatusBtn" class="btn btn-warning mb-3" onclick="toggleIpStatusBar()"><i class="bi bi-eye-slash"> </i><span data-translate="hide_ip_info">Hide IP Information</span></button>
+  <button type="button" id="toggleIpStatusBtn" class="btn btn-warning mb-3 me-3" onclick="toggleIpStatusBar()"><i class="bi bi-eye-slash"> </i><span data-translate="hide_ip_info">Hide IP Information</span></button>
+  <button type="button" class="btn btn-primary mb-3" data-bs-toggle="modal" data-bs-target="#portModal"><i class="bi bi-plug"></i> <span data-translate="viewPortInfoButton">View Port Information</span></button>
   <div class="row g-4">
     <div class="col-md-6">
       <div class="card shadow-sm">
@@ -614,6 +619,52 @@ function deleteDirectory($dir) {
             </div>
         </div>
     </div>
+</div>
+
+<div class="modal fade" id="portModal" tabindex="-1" aria-labelledby="portModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="portModalLabel" data-translate="portInfoTitle">Port Information</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <table class="table table-bordered table-striped text-center align-middle" style="width: 100%;">
+          <thead class="table-dark">
+            <tr>
+              <th style="width: 20%;" data-translate="componentName">Component name</th>
+              <th style="width: 20%;">socks-port</th>
+              <th style="width: 20%;">mixed-port</th>
+              <th style="width: 13%;">redir-port</th>
+              <th style="width: 13%;">port</th>
+              <th style="width: 14%;">tproxy-port</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Mihomo</td>
+              <td><?= htmlspecialchars($neko_cfg['socks']) ?></td>
+              <td><?= htmlspecialchars($neko_cfg['mixed']) ?></td>
+              <td><?= htmlspecialchars($neko_cfg['redir']) ?></td>
+              <td><?= htmlspecialchars($neko_cfg['port']) ?></td>
+              <td><?= htmlspecialchars($neko_cfg['tproxy']) ?></td>
+            </tr>
+            <tr>
+              <td>Sing-box</td>
+              <td><?= htmlspecialchars($http_port) ?></td>
+              <td><?= htmlspecialchars($mixed_port) ?></td>
+              <td>—</td>
+              <td>—</td>
+              <td>—</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" data-translate="closeButton">Close</button>
+      </div>
+    </div>
+  </div>
 </div>
 
 <script>
