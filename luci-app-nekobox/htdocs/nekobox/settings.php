@@ -622,7 +622,7 @@ function deleteDirectory($dir) {
 </div>
 
 <div class="modal fade" id="portModal" tabindex="-1" aria-labelledby="portModalLabel" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-centered modal-lg">
+  <div class="modal-dialog modal-dialog-centered modal-xl">
     <div class="modal-content">
       <div class="modal-header">
         <h5 class="modal-title" id="portModalLabel" data-translate="portInfoTitle">Port Information</h5>
