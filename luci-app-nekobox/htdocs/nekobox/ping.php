@@ -5812,11 +5812,25 @@ label {
 	text-align: center;
 	margin-top: 20px;
 	transition: all var(--bs-transition-speed);
+	color: #fff;
+	text-shadow:
+		1px 1px 0 #999,
+		2px 2px 0 #888,
+		3px 3px 0 #777,
+		4px 4px 0 #666,
+		5px 5px 10px rgba(0,0,0,0.3);
+	transform-style: preserve-3d;
+	perspective: 1000px;
 }
 
 .neko-title-style:hover {
-	transform: skew(-5deg);
-	text-shadow: 3px 3px 6px rgba(0,0,0,0.2);
+	transform: rotateX(5deg) rotateY(-5deg) skew(-5deg);
+	text-shadow:
+		1px 1px 1px #999,
+		2px 2px 1px #888,
+		3px 3px 2px #777,
+		4px 4px 2px #666,
+		5px 5px 10px rgba(0,0,0,0.4);
 }
 
 .form-select {
