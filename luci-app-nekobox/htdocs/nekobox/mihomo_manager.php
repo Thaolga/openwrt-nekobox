@@ -464,7 +464,6 @@ function download_file($url, $destination) {
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Mihomo - NekoBox</title>
     <link rel="icon" href="./assets/img/nekobox.png">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.4.12/ace.js" crossorigin="anonymous"></script>
     <script src="./assets/bootstrap/beautify.min.js"></script> 
     <script src="./assets/bootstrap/js-yaml.min.js"></script>
     <?php include './ping.php'; ?>
@@ -807,6 +806,7 @@ foreach ($allFiles as $index => $file):
                     <div class="mt-3 d-flex justify-content-start gap-2">
                         <button type="submit" class="btn btn-primary" data-translate="save"></button>
                         <button type="button" class="btn btn-pink" onclick="openFullScreenEditor()" data-translate="advancedEdit"></button>
+                        <button id="aceScriptToggleBtn" class="btn btn-secondary" onclick="toggleAceScript()"><i id="aceIcon" class="bi bi-code-slash"></i> <span id="aceLabel"></span></button>
                     </div>
                 </form>
             </div>
@@ -890,6 +890,51 @@ foreach ($allFiles as $index => $file):
         </div>
     </div>
 </div>
+
+<script>
+let aceEnabled = null;
+
+function checkAceScript() {
+    fetch('ace_loader.php?action=check')
+        .then(response => response.text())
+        .then(result => {
+            aceEnabled = (result.trim() === '1');
+            updateAceButton();
+        });
+}
+
+function toggleAceScript() {
+    const action = aceEnabled ? 'remove' : 'add';
+    fetch('ace_loader.php?action=' + action)
+        .then(response => response.text())
+        .then(result => {
+            aceEnabled = !aceEnabled;
+            updateAceButton();
+            document.getElementById('aceScriptStatus').innerText = result;
+        })
+        .catch(error => {
+            document.getElementById('aceScriptStatus').innerText = '请求失败: ' + error;
+        });
+}
+
+function updateAceButton() {
+    const btn = document.getElementById('aceScriptToggleBtn');
+    const icon = document.getElementById('aceIcon');
+    const label = document.getElementById('aceLabel');
+
+    if (aceEnabled) {
+        btn.className = 'btn btn-danger';
+        icon.className = 'bi bi-x-circle';
+        label.textContent = langData[currentLang]?.remove_ace || 'Remove Ace Component';
+    } else {
+        btn.className = 'btn btn-success';
+        icon.className = 'bi bi-plus-circle';
+        label.textContent = langData[currentLang]?.add_ace || 'Add Ace Component';
+    }
+}
+
+checkAceScript();
+</script>
 
 <script>
 let isJsonDetected = false;
@@ -1242,4 +1287,3 @@ function initializeAceEditor() {
     </div>
 </form>
 </div>
-
