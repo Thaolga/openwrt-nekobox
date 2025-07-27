@@ -28,11 +28,19 @@ if (file_exists($singbox_config_path)) {
 
     if (is_array($config) && isset($config['inbounds'])) {
         foreach ($config['inbounds'] as $inbound) {
-            if (isset($inbound['type']) && $inbound['type'] === 'mixed' && isset($inbound['listen_port'])) {
+            if (
+                isset($inbound['type']) && $inbound['type'] === 'mixed' &&
+                isset($inbound['tag']) && $inbound['tag'] === 'mixed' &&
+                isset($inbound['listen_port'])
+            ) {
                 $mixed_port = $inbound['listen_port'];
             }
-            if (isset($inbound['platform']['http_proxy']['server_port'])) {
-                $http_port = $inbound['platform']['http_proxy']['server_port'];
+
+            if (
+                isset($inbound['type']) && $inbound['type'] === 'http' &&
+                isset($inbound['listen_port'])
+            ) {
+                $http_port = $inbound['listen_port'];
             }
         }
     }
@@ -41,5 +49,5 @@ if (file_exists($singbox_config_path)) {
     $mixed_port = "Config file not found";
 }
 
-$footer = '<span style="color: red;">©2025 <b>Thaolga</b></span>';
+$footer = '<span class="footer-text">©2025 <b>Thaolga</b></span>';
 ?>

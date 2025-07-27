@@ -498,7 +498,6 @@ function deleteDirectory($dir) {
     </div>
 </div>
 
-
 <div class="modal fade" id="versionSelectionModal" tabindex="-1" aria-labelledby="versionSelectionModalLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
@@ -520,8 +519,9 @@ function deleteDirectory($dir) {
                     <option value="v1.11.0-beta.10">v1.11.0-beta.10</option>
                     <option value="v1.11.0-beta.15">v1.11.0-beta.15</option>
                     <option value="v1.11.0-beta.20">v1.11.0-beta.20</option>
+                    <option value="v1.12.0-rc.3">v1.12.0-rc.3</option>
                 </select>
-                <input type="text" id="manualVersionInput" class="form-control mt-2" placeholder="For example: v1.11.0-beta.10">
+                <input type="text" id="manualVersionInput" class="form-control mt-2" placeholder="For example: v1.12.0-rc.3">
                 <button type="button" class="btn btn-secondary mt-2" onclick="addManualVersion()" data-translate="addVersionButton">Add Version</button>
             </div>
             <div class="modal-footer">
@@ -543,8 +543,8 @@ function deleteDirectory($dir) {
                 <div class="form-group">
                     <label for="singboxVersionSelectForChannelTwo" data-translate="singboxVersionModalTitle">Select version</label>
                     <select id="singboxVersionSelectForChannelTwo" class="form-select">
-                        <option value="preview" selected>Preview</option>  
-                        <option value="stable">Stable</option>
+                        <option value="stable" data-translate="stable">Stable</option>
+                        <option value="preview" data-translate="preview">Preview</option>  
                     </select>
                 </div>
             </div>
@@ -624,45 +624,51 @@ function deleteDirectory($dir) {
 <div class="modal fade" id="portModal" tabindex="-1" aria-labelledby="portModalLabel" aria-hidden="true">
   <div class="modal-dialog modal-dialog-centered modal-xl">
     <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="portModalLabel" data-translate="portInfoTitle">Port Information</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-      </div>
-      <div class="modal-body">
-        <table class="table table-bordered table-striped text-center align-middle" style="width: 100%;">
-          <thead class="table-dark">
-            <tr>
-              <th style="width: 20%;" data-translate="componentName">Component name</th>
-              <th style="width: 20%;">socks-port</th>
-              <th style="width: 20%;">mixed-port</th>
-              <th style="width: 13%;">redir-port</th>
-              <th style="width: 13%;">port</th>
-              <th style="width: 14%;">tproxy-port</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td>Mihomo</td>
-              <td><?= htmlspecialchars($neko_cfg['socks']) ?></td>
-              <td><?= htmlspecialchars($neko_cfg['mixed']) ?></td>
-              <td><?= htmlspecialchars($neko_cfg['redir']) ?></td>
-              <td><?= htmlspecialchars($neko_cfg['port']) ?></td>
-              <td><?= htmlspecialchars($neko_cfg['tproxy']) ?></td>
-            </tr>
-            <tr>
-              <td>Sing-box</td>
-              <td><?= htmlspecialchars($http_port) ?></td>
-              <td><?= htmlspecialchars($mixed_port) ?></td>
-              <td>—</td>
-              <td>—</td>
-              <td>—</td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" data-translate="closeButton">Close</button>
-      </div>
+      <form id="portForm" method="POST" action="./save_ports.php">
+        <div class="modal-header">
+          <h5 class="modal-title" id="portModalLabel" data-translate="portInfoTitle">Port Information</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <table class="table table-bordered table-striped text-center align-middle w-100">
+            <thead class="table-dark">
+              <tr>
+                <th style="width: 20%;" data-translate="componentName">Component Name</th>
+                <th style="width: 20%;">socks-port</th>
+                <th style="width: 20%;">mixed-port</th>
+                <th style="width: 13%;">redir-port</th>
+                <th style="width: 13%;">port</th>
+                <th style="width: 14%;">tproxy-port</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Mihomo</td>
+                <td><input type="number" class="form-control text-center" name="mihomo_socks" value="<?= htmlspecialchars($neko_cfg['socks']) ?>"></td>
+                <td><input type="number" class="form-control text-center" name="mihomo_mixed" value="<?= htmlspecialchars($neko_cfg['mixed']) ?>"></td>
+                <td><input type="number" class="form-control text-center" name="mihomo_redir" value="<?= htmlspecialchars($neko_cfg['redir']) ?>"></td>
+                <td><input type="number" class="form-control text-center" name="mihomo_port" value="<?= htmlspecialchars($neko_cfg['port']) ?>"></td>
+                <td><input type="number" class="form-control text-center" name="mihomo_tproxy" value="<?= htmlspecialchars($neko_cfg['tproxy']) ?>"></td>
+              </tr>
+              <tr>
+                <td>Sing-box</td>
+                <td><input type="number" class="form-control text-center" name="singbox_http" value="<?= htmlspecialchars($http_port) ?>"></td>
+                <td><input type="number" class="form-control text-center" name="singbox_mixed" value="<?= htmlspecialchars($mixed_port) ?>"></td>
+                <td>—</td>
+                <td>—</td>
+                <td>—</td>
+              </tr>
+            </tbody>
+          </table>
+          <div class="text-danger text-center fw-bold my-3" data-translate="portChangeNotice">
+            Port changes will take effect after restarting the service.
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" data-translate="closeButton">Close</button>
+          <button type="submit" class="btn btn-primary" data-translate="save">Save</button>
+        </div>
+      </form>
     </div>
   </div>
 </div>

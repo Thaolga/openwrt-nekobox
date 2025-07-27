@@ -767,15 +767,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['selected_config'])) {
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Home - Nekobox</title>
     <link rel="icon" href="./assets/img/nekobox.png">
-    <link href="./assets/css/bootstrap.min.css" rel="stylesheet">
-    <link href="./assets/css/custom.css" rel="stylesheet">
-    <link href="./assets/theme/<?php echo $neko_theme ?>" rel="stylesheet">
-    <link href="./assets/bootstrap/bootstrap-icons.css" rel="stylesheet">
-    <script type="text/javascript" src="./assets/js/feather.min.js"></script>
-    <script type="text/javascript" src="./assets/js/jquery-2.1.3.min.js"></script>
-    <script type="text/javascript" src="./assets/js/neko.js"></script>
-    <script type="text/javascript" src="./assets/bootstrap/bootstrap.min.js"></script>
-    <script src="./assets/js/bootstrap.bundle.min.js"></script>
     <?php include './ping.php'; ?>
   </head>
 <body>
@@ -1391,21 +1382,19 @@ window.onload = function() {
                         <label class="form-check-label" for="autoRefresh"><span data-translate="autoRefresh"></span></label>
                     </div>
                     <button type="submit" name="clear_singbox_log" class="btn btn-danger me-2"><i class="bi bi-trash"></i> <span data-translate="clearLog"></span></button>
-                    <button type="button" class="btn btn-primary me-2" data-toggle="modal" data-target="#cronModal"><i class="bi bi-clock"></i> <span data-translate="scheduledRestart"></span></button>
+                    <button type="button" class="btn btn-primary me-2" data-bs-toggle="modal" data-bs-target="#cronModal"><i class="bi bi-clock"></i> <span data-translate="scheduledRestart"></span></button>
                 </form>
             </div>
         </div>
     </div>
 </div>
 
-<div class="modal fade" id="cronModal" tabindex="-1" role="dialog" aria-labelledby="cronModalLabel" aria-hidden="true" data-backdrop="static" data-keyboard="false">
+<div class="modal fade" id="cronModal" tabindex="-1" role="dialog" aria-labelledby="cronModalLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
   <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
     <div class="modal-content">
       <div class="modal-header">
         <h5 class="modal-title" id="cronModalLabel" data-translate="setCronTitle"></h5>
-        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-          <span aria-hidden="true">&times;</span>
-        </button>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <div class="modal-body">
         <form id="cronForm" method="POST">
@@ -1426,7 +1415,7 @@ window.onload = function() {
         <div id="resultMessage" class="mt-3"></div>
       </div>
       <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-dismiss="modal" data-translate="cancel"></button>
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" data-translate="cancel"></button>
         <button type="submit" class="btn btn-primary" form="cronForm" data-translate="save"></button>
       </div>
     </div>
