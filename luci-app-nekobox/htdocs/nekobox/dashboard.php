@@ -19,7 +19,8 @@ $meta_link = $neko_cfg['ctrl_host'] . ':' . $neko_cfg['ctrl_port'] . '/ui/metacu
 $dash_link = $neko_cfg['ctrl_host'] . ':' . $neko_cfg['ctrl_port'] . '/ui/dashboard?hostname=' . $neko_cfg['ctrl_host'] . '&port=' . $neko_cfg['ctrl_port'] . '&secret=' . $neko_cfg['secret'];
 
 ?>
-<title>Dashboard - Nekobox</title>
+<title>Panel - Nekobox</title>
+<link rel="icon" href="./assets/img/nekobox.png">
 <?php include './ping.php'; ?>
 <style>
 #iframeMeta {

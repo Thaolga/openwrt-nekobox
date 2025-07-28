@@ -224,7 +224,7 @@ if (isset($_POST['update'])) {
         if ($return_var === 0) {
             $_SESSION['update_logs'] = [];
             storeUpdateLog('<span data-translate="subscription_downloaded" data-dynamic-content="' . htmlspecialchars($url) . '"></span> <span data-translate="saved_to_temp_file" data-dynamic-content="' . htmlspecialchars($tempPath) . '"></span>');
-            echo '<div id="log-message"  class="alert alert-info"><span data-translate="subscription_downloaded" data-dynamic-content="' . htmlspecialchars($url) . '"></span> <span data-translate="saved_to_temp_file" data-dynamic-content="' . htmlspecialchars($tempPath) . '"></span></div>';
+            echo '<div id="log-message"  class="alert alert-warning custom-alert-success"><span data-translate="subscription_downloaded" data-dynamic-content="' . htmlspecialchars($url) . '"></span> <span data-translate="saved_to_temp_file" data-dynamic-content="' . htmlspecialchars($tempPath) . '"></span></div>';
             $fileContent = file_get_contents($tempPath);
 
             if (base64_encode(base64_decode($fileContent, true)) === $fileContent) {
@@ -232,13 +232,13 @@ if (isset($_POST['update'])) {
                 if ($decodedContent !== false && strlen($decodedContent) > 0) {
                     file_put_contents($finalPath, "# Clash Meta Config\n\n" . $decodedContent);
                     storeUpdateLog('<span data-translate="base64_decode_success" data-dynamic-content="' . htmlspecialchars($finalPath) . '"></span>');
-                    echo '<div id="log-message" class="alert alert-info"><span data-translate="base64_decode_success" data-dynamic-content="' . htmlspecialchars($finalPath) . '"></span></div>';
+                    echo '<div id="log-message" class="alert alert-warning custom-alert-success"><span data-translate="base64_decode_success" data-dynamic-content="' . htmlspecialchars($finalPath) . '"></span></div>';
                     unlink($tempPath); 
                     $notificationMessage = '<span data-translate="update_success"></span>';
                     $updateCompleted = true;
                 } else {
                     storeUpdateLog('<span data-translate="base64_decode_failed"></span>');
-                    echo '<div id="log-message" class="alert alert-info"><span data-translate="base64_decode_failed"></span></div>';
+                    echo '<div id="log-message" class="alert alert-warning custom-alert-success"><span data-translate="base64_decode_failed"></span></div>';
                     unlink($tempPath); 
                     $notificationMessage = '<span data-translate="update_failed"></span>';
                 }
@@ -248,13 +248,13 @@ if (isset($_POST['update'])) {
                 if ($decompressedContent !== false) {
                     file_put_contents($finalPath, "# Clash Meta Config\n\n" . $decompressedContent);
                     storeUpdateLog('<span data-translate="gzip_decompress_success" data-dynamic-content="' . htmlspecialchars($finalPath) . '"></span>');
-                    echo '<div id="log-message" class="alert alert-info"><span data-translate="gzip_decompress_success" data-dynamic-content="' . htmlspecialchars($finalPath) . '"></span></div>';
+                    echo '<div id="log-message" class="alert alert-warning custom-alert-success"><span data-translate="gzip_decompress_success" data-dynamic-content="' . htmlspecialchars($finalPath) . '"></span></div>';
                     unlink($tempPath); 
                     $notificationMessage = '<span data-translate="update_success"></span>';
                     $updateCompleted = true;
                 } else {
                     storeUpdateLog('<span data-translate="gzip_decompress_failed"></span>');
-                    echo '<div id="log-message" class="alert alert-info"><span data-translate="gzip_decompress_failed"></span></div>';
+                    echo '<div id="log-message" class="alert alert-warning custom-alert-success"><span data-translate="gzip_decompress_failed"></span></div>';
                     unlink($tempPath); 
                     $notificationMessage = '<span data-translate="update_failed"></span>';
                 }
@@ -262,13 +262,13 @@ if (isset($_POST['update'])) {
             else {
                 rename($tempPath, $finalPath); 
                 storeUpdateLog('<span data-translate="subscription_downloaded_no_decode"></span>');
-                echo '<div id="log-message" class="alert alert-info"><span data-translate="subscription_downloaded_no_decode"></span></div>';
+                echo '<div id="log-message" class="alert alert-warning custom-alert-success"><span data-translate="subscription_downloaded_no_decode"></span></div>';
                 $notificationMessage = '<span data-translate="update_success"></span>';
                 $updateCompleted = true;
             }
         } else {
             storeUpdateLog('<span data-translate="subscription_update_failed" data-dynamic-content="' . htmlspecialchars(implode("\n", $output)) . '"></span>');
-            echo '<div id="log-message" class="alert alert-info"><span data-translate="subscription_update_failed" data-dynamic-content="' . htmlspecialchars(implode("\n", $output)) . '"></span></div>';
+            echo '<div id="log-message" class="alert alert-warning custom-alert-success"><span data-translate="subscription_update_failed" data-dynamic-content="' . htmlspecialchars(implode("\n", $output)) . '"></span></div>';
             unlink($tempPath); 
             $notificationMessage = '<span data-translate="update_failed"></span>';
         }
@@ -457,8 +457,6 @@ function download_file($url, $destination) {
 }
 ?>
 
-<!doctype html>
-<html lang="en" data-bs-theme="<?php echo substr($neko_theme, 0, -4) ?>">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -466,9 +464,35 @@ function download_file($url, $destination) {
     <link rel="icon" href="./assets/img/nekobox.png">
     <script src="./assets/bootstrap/beautify.min.js"></script> 
     <script src="./assets/bootstrap/js-yaml.min.js"></script>
+    <script src="./assets/bootstrap/jquery.min.js"></script>
     <?php include './ping.php'; ?>
 </head>
 <style>
+.custom-alert-success {
+    background-color: #d4edda !important;
+    border-color: #c3e6cb !important;
+    color: #155724 !important;
+}
+
+.icon-btn-group {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    justify-content: flex-start;
+}
+.icon-btn {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    width: 2rem !important;
+    height: 2rem !important;
+    padding: 0 !important;
+    border-radius: 1rem !important;
+    font-size: 1rem !important;
+    line-height: 1 !important;
+    flex-shrink: 0;
+}
+
 #updateNotification {
     background: linear-gradient(135deg, #1e3a8a, #2563eb);
     color: #fff;
@@ -588,149 +612,142 @@ $(document).ready(function() {
         <a href="./subscription.php" class="col btn btn-lg text-nowrap"><i class="bi bi-bank"></i> <span data-translate="template_ii">Template II</span></a>
         <a href="./mihomo.php" class="col btn btn-lg text-nowrap"><i class="bi bi-building"></i> <span data-translate="template_iii">Template III</span></a>
     </div>
-<h2 class="text-center mt-4 mb-3" data-translate="fileManagement">File Management</h2>
-<div class="container-fluid px-2 px-md-3">
-    <div class="card shadow-sm">
-        <div class="card-body p-3">
-            <div class="table-responsive">
-                <table class="table table-hover align-middle text-center mb-0">
-                    <thead class="table-light">
-                        <tr>
-                            <th style="width: 20%;" data-translate="fileName">File Name</th>
-                            <th style="width: 10%;" data-translate="fileSize">Size</th>
-                            <th style="width: 20%;" data-translate="lastModified">Last Modified</th>
-                            <th style="width: 10%;" data-translate="fileType">Type</th>
-                            <th style="width: 40%;" data-translate="actions">Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-<?php
-$proxyFiles = $proxyFiles ?? [];
-$configFiles = $configFiles ?? [];
-$uploadDir = $uploadDir ?? '';
-$configDir = $configDir ?? '';
-$langData = $langData ?? [];
-$currentLang = $currentLang ?? 'en';
-$translations = $translations ?? [];
-$allFiles = array_merge($proxyFiles, $configFiles);
 
-$allFilePaths = array_merge(
-    array_map(fn($file) => $uploadDir . $file, $proxyFiles),
-    array_map(fn($file) => $configDir . $file, $configFiles)
-);
-
-$fileTypes = array_merge(
-    array_fill(0, count($proxyFiles), $langData[$currentLang]['file_type_proxy'] ?? 'Proxy'),
-    array_fill(0, count($configFiles), $langData[$currentLang]['file_type_config'] ?? 'Config')
-);
-
-foreach ($allFiles as $index => $file):
-    $filePath = $allFilePaths[$index];
-    $isProxy = ($index < count($proxyFiles));
-?>
-<tr>
-    <td><?= htmlspecialchars($file) ?></td>
-    <td><?= file_exists($filePath) ? formatSize(filesize($filePath)) : ($translations['fileNotExist'] ?? 'Not Exist') ?></td>
-    <td><?= file_exists($filePath) ? date('Y-m-d H:i:s', filemtime($filePath)) : '-' ?></td>
-    <td><span class="badge <?= $isProxy ? 'bg-primary' : 'bg-success' ?>"><?= htmlspecialchars($fileTypes[$index]) ?></span></td>
-    <td>
-        <div class="d-flex flex-wrap justify-content-center gap-1">
-        <?php if ($isProxy): ?>
-            <form method="post" class="d-inline">
-                <input type="hidden" name="deleteFile" value="<?= htmlspecialchars($file) ?>">
-                <button type="submit" class="btn btn-danger btn-sm" onclick="return confirmDelete()" data-translate-title="delete"><i class="bi bi-trash"></i></button>
-            </form>
-            <button type="button" class="btn btn-success btn-sm btn-rename" data-bs-toggle="modal" data-bs-target="#renameModal" data-filename="<?= htmlspecialchars($file) ?>" data-filetype="proxy" data-translate-title="rename"><i class="bi bi-pencil"></i></button>
-            <button type="button" class="btn btn-warning btn-sm" onclick="openEditModal('<?= htmlspecialchars($file) ?>','proxy')" data-translate-title="edit"><i class="bi bi-pen"></i></button>
-            <button type="button" class="btn btn-info btn-sm" onclick="openUploadModal('proxy')" data-translate-title="upload"><i class="bi bi-upload"></i></button>
-            <form method="get" class="d-inline">
-                <input type="hidden" name="downloadFile" value="<?= htmlspecialchars($file) ?>">
-                <input type="hidden" name="fileType" value="proxy">
-                <button type="submit" class="btn btn-primary btn-sm" data-translate-title="download"><i class="bi bi-download"></i></button>
-            </form>
-        <?php else: ?>
-            <form method="post" class="d-inline">
-                <input type="hidden" name="deleteConfigFile" value="<?= htmlspecialchars($file) ?>">
-                <button type="submit" class="btn btn-danger btn-sm" onclick="return confirmDelete()" data-translate-title="delete"><i class="bi bi-trash"></i></button>
-            </form>
-            <button type="button" class="btn btn-success btn-sm btn-rename" data-bs-toggle="modal" data-bs-target="#renameModal" data-filename="<?= htmlspecialchars($file) ?>" data-filetype="config" data-translate-title="rename"><i class="bi bi-pencil"></i></button>
-            <button type="button" class="btn btn-warning btn-sm" onclick="openEditModal('<?= htmlspecialchars($file) ?>','config')" data-translate-title="edit"><i class="bi bi-pen"></i></button>
-            <button type="button" class="btn btn-info btn-sm" onclick="openUploadModal('config')" data-translate-title="upload"><i class="bi bi-upload"></i></button>
-            <form method="get" class="d-inline">
-                <input type="hidden" name="downloadFile" value="<?= htmlspecialchars($file) ?>">
-                <input type="hidden" name="fileType" value="config">
-                <button type="submit" class="btn btn-primary btn-sm" data-translate-title="download"><i class="bi bi-download"></i></button>
-            </form>
-        <?php endif; ?>
-        </div>
-    </td>
-</tr>
-<?php endforeach; ?>
-                    </tbody>
-                </table>
-            </div>
-        </div>
-    </div>
-</div>
-
-<h2 class="text-center mt-4 mb-4" data-translate="subscriptionManagement"></h2>
-<div class="text-center my-4">
-    <button type="button" class="btn btn-primary mx-1 mb-2" data-bs-toggle="modal" data-bs-target="#cronModal">
-        <i class="bi bi-clock"></i> <span data-translate="set_cron_job"></span>
-    </button>
-    <button type="submit" name="createShellScript" value="true" class="btn btn-success mx-1 mb-2">
-        <i class="bi bi-terminal"></i> <span data-translate="generate_update_script"></span>
-    </button>
-    <button type="button" class="btn btn-info mx-1 mb-2" data-bs-toggle="modal" data-bs-target="#downloadModal">
-        <i class="bi bi-download"></i> <span data-translate="update_database"></span>
-    </button>
-</div>
-<div class="container-fluid text-center px-2 px-md-3">
+<h2 class="container-fluid text-center mt-4 mb-4" data-translate="subscriptionManagement"></h2>
+<div class="container-fluid text-center px-md-3">
 <?php if (isset($message) && $message): ?>
     <div class="alert alert-info">
         <?php echo nl2br(htmlspecialchars($message)); ?>
     </div>
 <?php endif; ?>
-
 <?php if (isset($subscriptions) && is_array($subscriptions)): ?>
-    <div class="container-fluid section-settings">
-        <div class="row">
-            <?php 
-            $maxSubscriptions = 6; 
-            for ($i = 0; $i < $maxSubscriptions; $i++): 
-                $displayIndex = $i + 1; 
-                $url = $subscriptions[$i]['url'] ?? '';
-                $fileName = $subscriptions[$i]['file_name'] ?? "subscription_" . ($displayIndex) . ".yaml"; 
-            ?>
-                <div class="col-md-4 mb-3 px-1">
-                    <form method="post" class="card shadow-sm">
-                        <div class="card-body">
-                            <div class="form-group">
-                                <h5 for="subscription_url_<?php echo $displayIndex; ?>" class="mb-2" data-translate="subscriptionLink"><?php echo $displayIndex; ?></h5>
-                                <input type="text" name="subscription_url" id="subscription_url_<?php echo $displayIndex; ?>" value="<?php echo htmlspecialchars($url); ?>" class="form-control" data-translate-placeholder="enterSubscriptionUrl">
-                            </div>
-                            <div class="form-group">
-                                <label for="custom_file_name_<?php echo $displayIndex; ?>"data-translate="customFileName"></label>
-                                <input type="text" name="custom_file_name" id="custom_file_name_<?php echo $displayIndex; ?>" value="<?php echo htmlspecialchars($fileName); ?>" class="form-control">
-                            </div>
-                            <input type="hidden" name="index" value="<?php echo $i; ?>">
-                            <div class="text-center mt-3"> 
-                                <button type="submit" name="update" class="btn btn-info btn-block"><i class="bi bi-arrow-repeat"></i> <span data-translate="updateSubscription">Settings</span> <?php echo $displayIndex; ?></button>
-                            </div>
+    <div class="container-fluid px-4">
+        <?php 
+        $maxSubscriptions = 6;
+        for ($i = 0; $i < $maxSubscriptions; $i++):
+            $displayIndex = $i + 1;
+            $url = $subscriptions[$i]['url'] ?? '';
+            $fileName = $subscriptions[$i]['file_name'] ?? "subscription_" . $displayIndex . ".yaml";
+            
+            if ($i % 3 == 0) echo '<div class="row">';
+        ?>
+            <div class="col-md-4 mb-3 px-1">
+                <form method="post" class="card shadow-sm">
+                    <div class="card-body">
+                        <div class="form-group">
+                            <h5 class="mb-2" data-translate="subscriptionLink"><?php echo $displayIndex; ?></h5>
+                            <input type="text" name="subscription_url" id="subscription_url_<?php echo $displayIndex; ?>" value="<?php echo htmlspecialchars($url); ?>" class="form-control" data-translate-placeholder="enterSubscriptionUrl">
                         </div>
-                    </form>
-                </div>
-
-                <?php if (($displayIndex) % 3 == 0 && $displayIndex < $maxSubscriptions): ?>
-                    </div><div class="row">
-                <?php endif; ?>
-
-            <?php endfor; ?>
-        </div>
+                        <div class="form-group">
+                            <label for="custom_file_name_<?php echo $displayIndex; ?>" data-translate="customFileName"></label>
+                            <input type="text" name="custom_file_name" id="custom_file_name_<?php echo $displayIndex; ?>" value="<?php echo htmlspecialchars($fileName); ?>" class="form-control">
+                        </div>
+                        <input type="hidden" name="index" value="<?php echo $i; ?>">
+                        <div class="text-center mt-3">
+                            <button type="submit" name="update" class="btn btn-info btn-block">
+                                <i class="bi bi-arrow-repeat"></i> <span data-translate="updateSubscription">Settings</span> <?php echo $displayIndex; ?>
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        <?php 
+            if ($i % 3 == 2 || $i == $maxSubscriptions - 1) echo '</div>';
+        endfor;
+        ?>
     </div>
 <?php else: ?>
-    <p>未找到订阅信息。</p>
 <?php endif; ?>
+
+<div class="text-center mt-1 mb-1">
+    <form method="post">
+        <button type="button" class="btn btn-primary mx-1 mb-2" data-bs-toggle="modal" data-bs-target="#cronModal">
+            <i class="bi bi-clock"></i> <span data-translate="set_cron_job"></span>
+        </button>
+        
+        <button type="submit" name="createShellScript" value="true" class="btn btn-success mx-1 mb-2">
+            <i class="bi bi-terminal"></i> <span data-translate="generate_update_script"></span>
+        </button>
+        
+        <button type="button" class="btn btn-info mx-1 mb-2" data-bs-toggle="modal" data-bs-target="#downloadModal">
+            <i class="bi bi-download"></i> <span data-translate="update_database"></span>
+        </button>
+    </form>
+</div>
+
+<h2 class="text-center mt-4 mb-3" data-translate="fileManagement">File Management</h2>
+
+<div class="container-fluid px-2 px-md-3">
+  <div class="row g-3">
+    <?php
+    $proxyFiles = $proxyFiles ?? [];
+    $configFiles = $configFiles ?? [];
+    $uploadDir = $uploadDir ?? '';
+    $configDir = $configDir ?? '';
+    $langData = $langData ?? [];
+    $currentLang = $currentLang ?? 'en';
+    $translations = $translations ?? [];
+
+    $allFiles = array_merge($proxyFiles, $configFiles);
+    $allFilePaths = array_merge(
+      array_map(fn($file) => $uploadDir . $file, $proxyFiles),
+      array_map(fn($file) => $configDir . $file, $configFiles)
+    );
+
+    $fileTypes = array_merge(
+      array_fill(0, count($proxyFiles), $langData[$currentLang]['file_type_proxy'] ?? 'Proxy'),
+      array_fill(0, count($configFiles), $langData[$currentLang]['file_type_config'] ?? 'Config')
+    );
+
+    foreach ($allFiles as $index => $file):
+      $filePath = $allFilePaths[$index];
+      $isProxy = ($index < count($proxyFiles));
+      $size = file_exists($filePath) ? formatSize(filesize($filePath)) : ($translations['fileNotExist'] ?? 'Not Exist');
+      $modified = file_exists($filePath) ? date('Y-m-d H:i:s', filemtime($filePath)) : '-';
+    ?>
+    <div class="col-12 col-md-6 col-lg-3">
+      <div class="card shadow-sm h-100 text-start">
+        <div class="card-body d-flex flex-column justify-content-between">
+          <h5 class="card-title mb-2" data-translate-title="fileName"><?= htmlspecialchars($file) ?></h5>
+          <p class="card-text mb-1"><strong data-translate="fileSize">Size</strong>: <?= $size ?></p>
+          <p class="card-text mb-1"><strong data-translate="lastModified">Last Modified</strong>: <?= $modified ?></p>
+          <p class="card-text mb-2"><strong data-translate="fileType">Type</strong>: <span class="badge <?= $isProxy ? 'bg-primary' : 'bg-success' ?>"><?= htmlspecialchars($fileTypes[$index]) ?></span></p>
+          <div class="icon-btn-group mt-2" style="gap:0.4rem; display:flex; flex-wrap: wrap;">
+            <?php if ($isProxy): ?>
+              <form method="post" class="d-inline m-0 p-0">
+                <input type="hidden" name="deleteFile" value="<?= htmlspecialchars($file) ?>">
+                <button type="submit" class="btn btn-danger icon-btn" onclick="return confirmDelete()" data-translate-title="delete"><i class="bi bi-trash"></i></button>
+              </form>
+              <button type="button" class="btn btn-success icon-btn" data-bs-toggle="modal" data-bs-target="#renameModal" data-filename="<?= htmlspecialchars($file) ?>" data-filetype="proxy" data-translate-title="rename"><i class="bi bi-pencil"></i></button>
+              <button type="button" class="btn btn-warning icon-btn" onclick="openEditModal('<?= htmlspecialchars($file) ?>','proxy')" data-translate-title="edit"><i class="bi bi-pen"></i></button>
+              <button type="button" class="btn btn-info icon-btn" onclick="openUploadModal('proxy')" data-translate-title="upload"><i class="bi bi-upload"></i></button>
+              <form method="get" class="d-inline m-0 p-0">
+                <input type="hidden" name="downloadFile" value="<?= htmlspecialchars($file) ?>">
+                <input type="hidden" name="fileType" value="proxy">
+                <button type="submit" class="btn btn-primary icon-btn" data-translate-title="download"><i class="bi bi-download"></i></button>
+              </form>
+            <?php else: ?>
+              <form method="post" class="d-inline m-0 p-0">
+                <input type="hidden" name="deleteConfigFile" value="<?= htmlspecialchars($file) ?>">
+                <button type="submit" class="btn btn-danger icon-btn" onclick="return confirmDelete()" data-translate-title="delete"><i class="bi bi-trash"></i></button>
+              </form>
+              <button type="button" class="btn btn-success icon-btn" data-bs-toggle="modal" data-bs-target="#renameModal" data-filename="<?= htmlspecialchars($file) ?>" data-filetype="config" data-translate-title="rename"><i class="bi bi-pencil"></i></button>
+              <button type="button" class="btn btn-warning icon-btn" onclick="openEditModal('<?= htmlspecialchars($file) ?>','config')" data-translate-title="edit"><i class="bi bi-pen"></i></button>
+              <button type="button" class="btn btn-info icon-btn" onclick="openUploadModal('config')" data-translate-title="upload"><i class="bi bi-upload"></i></button>
+              <form method="get" class="d-inline m-0 p-0">
+                <input type="hidden" name="downloadFile" value="<?= htmlspecialchars($file) ?>">
+                <input type="hidden" name="fileType" value="config">
+                <button type="submit" class="btn btn-primary icon-btn" data-translate-title="download"><i class="bi bi-download"></i></button>
+              </form>
+            <?php endif; ?>
+          </div>
+        </div>
+      </div>
+    </div>
+    <?php endforeach; ?>
+  </div>
+</div>
+
 <footer class="text-center">
     <p><?php echo $footer ?></p>
 </footer>
@@ -764,9 +781,7 @@ foreach ($allFiles as $index => $file):
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title" id="renameModalLabel" data-translate="rename_file"></h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
                 <form id="renameForm" action="" method="post">
@@ -777,12 +792,11 @@ foreach ($allFiles as $index => $file):
                         <label for="newFileName" class="form-label" data-translate="new_file_name"></label>
                         <input type="text" class="form-control" id="newFileName" name="newFileName" required>
                     </div>
-
-                    <div class="d-flex justify-content-end gap-2">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" data-translate="cancel"></button>
-                        <button type="submit" class="btn btn-primary" data-translate="save"></button>
-                    </div>
                 </form>
+            </div>
+            <div class="modal-footer justify-content-end">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" data-translate="cancel"></button>
+                <button type="submit" form="renameForm" class="btn btn-primary" data-translate="save"></button>
             </div>
         </div>
     </div>
@@ -793,22 +807,20 @@ foreach ($allFiles as $index => $file):
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title" id="editModalLabel"><?php echo $langData[$currentLang]['editFile']; ?>: <span id="editingFileName"></span></h5>
-
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
                 <form id="editForm" action="" method="post" onsubmit="syncEditorContent()">
                     <textarea name="saveContent" id="fileContent" class="form-control" style="height: 500px;"></textarea>
                     <input type="hidden" name="fileName" id="hiddenFileName">
                     <input type="hidden" name="fileType" id="hiddenFileType">
-                    <div class="mt-3 d-flex justify-content-start gap-2">
-                        <button type="submit" class="btn btn-primary" data-translate="save"></button>
-                        <button type="button" class="btn btn-pink" onclick="openFullScreenEditor()" data-translate="advancedEdit"></button>
-                        <button id="aceScriptToggleBtn" class="btn btn-secondary" onclick="toggleAceScript()"><i id="aceIcon" class="bi bi-code-slash"></i> <span id="aceLabel"></span></button>
-                    </div>
                 </form>
+            </div>
+            <div class="modal-footer justify-content-end">
+                <button type="button" class="btn btn-pink" onclick="openFullScreenEditor()" data-translate="advancedEdit"></button>
+                <button id="aceScriptToggleBtn" class="btn btn-secondary" onclick="toggleAceScript()"><i id="aceIcon" class="bi bi-code-slash"></i> <span id="aceLabel"></span></button>
+                <button type="submit" form="editForm" class="btn btn-primary" data-translate="save"></button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" data-translate="close"></button>
             </div>
         </div>
     </div>
@@ -1135,17 +1147,16 @@ function initializeAceEditor() {
         initializeAceEditor();
     });
 
-    document.addEventListener("DOMContentLoaded", function() {
-        const renameButtons = document.querySelectorAll(".btn-rename");
-        renameButtons.forEach(button => {
-            button.addEventListener("click", function() {
-                const oldFileName = this.getAttribute("data-filename");
-                const fileType = this.getAttribute("data-filetype");
-                document.getElementById("oldFileName").value = oldFileName;
-                document.getElementById("fileType").value = fileType;
-                document.getElementById("newFileName").value = oldFileName;
-                $('#renameModal').modal('show');
-            });
+    document.addEventListener('DOMContentLoaded', function () {
+        const renameModal = document.getElementById('renameModal');
+        renameModal.addEventListener('show.bs.modal', function (event) {
+            const button = event.relatedTarget;
+            const oldFileName = button.getAttribute('data-filename');
+            const fileType = button.getAttribute('data-filetype');
+
+            document.getElementById("oldFileName").value = oldFileName;
+            document.getElementById("fileType").value = fileType;
+            document.getElementById("newFileName").value = oldFileName;
         });
     });
 
@@ -1287,3 +1298,4 @@ function initializeAceEditor() {
     </div>
 </form>
 </div>
+

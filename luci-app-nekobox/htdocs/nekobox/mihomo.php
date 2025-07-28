@@ -608,25 +608,12 @@ function getSubscriptionUrlFromFile($file) {
 
 ?>
 
-<!doctype html>
-<html lang="en" data-bs-theme="<?php echo substr($neko_theme, 0, -4) ?>">
-<head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Mihomo - Nekobox</title>
-    <link rel="icon" href="./assets/img/nekobox.png">
-    <link href="./assets/css/bootstrap.min.css" rel="stylesheet">
-    <link href="./assets/css/custom.css" rel="stylesheet">
-    <link href="./assets/bootstrap/bootstrap-icons.css" rel="stylesheet">
-    <link href="./assets/theme/<?php echo $neko_theme ?>" rel="stylesheet">
-    <script type="text/javascript" src="./assets/js/bootstrap.min.js"></script>
-    <script type="text/javascript" src="./assets/js/feather.min.js"></script>
-    <script type="text/javascript" src="./assets/bootstrap/bootstrap.bundle.min.js"></script>
-    <script type="text/javascript" src="./assets/js/jquery-2.1.3.min.js"></script>
-    <script type="text/javascript" src="./assets/js/neko.js"></script>
-    <?php include './ping.php'; ?>
-</head>
-<body>
+<meta charset="utf-8">
+<title>Mihomo - Nekobox</title>
+<link rel="icon" href="./assets/img/nekobox.png">
+<script src="./assets/bootstrap/jquery.min.js"></script>
+<?php include './ping.php'; ?>
+
 <style>
 .custom-padding {
     padding-left: 5ch;  
@@ -870,7 +857,7 @@ function getSubscriptionUrlFromFile($file) {
                                value="<?php echo htmlspecialchars(isset($_POST['rename']) ? $_POST['rename'] : ''); ?>"
                                placeholder="输入重命名内容（举例：`a@b``1@2`，|符可用\转义）" data-translate-placeholder="rename_placeholder">
                     </div>
-                    <button type="submit" class="btn btn-primary" name="action" value="generate_subscription"><i class="bi bi-file-earmark-text"></i> <span data-translate="generate_configuration_file"></span></button>
+                    <button type="submit" class="btn btn-success" name="action" value="generate_subscription"><i class="bi bi-file-earmark-text"></i> <span data-translate="generate_configuration_file"></span></button>
                 </form>
             </div>
         </div>
@@ -883,7 +870,7 @@ function getSubscriptionUrlFromFile($file) {
                            value="<?php echo htmlspecialchars(isset($_POST['cron_time']) ? $_POST['cron_time'] : '0 3 * * *'); ?>"
                            placeholder="0 3 * * *">
                 </div>
-                <button type="submit" class="btn btn-primary" name="action" value="update_cron"><i class="bi bi-clock"></i> <span data-translate="set_scheduled_task"></span></button>
+                <button type="submit" class="btn btn-info" name="action" value="update_cron"><i class="bi bi-clock"></i> <span data-translate="set_scheduled_task"></span></button>
             </form>
         </div>
 

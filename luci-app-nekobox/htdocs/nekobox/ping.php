@@ -336,7 +336,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     </div>
 </div>
 
-<div id="floatingLyrics">
+<div id="floatingLyrics" style="display: none;">
     <div class="floating-controls">
         <button class="ctrl-btn" onclick="changeTrack(-1, true)" data-translate-title="previous_track">
             <i class="fas fa-backward"></i>
@@ -667,7 +667,7 @@ logMessages.forEach(message => {
         setTimeout(() => {
             message.remove(); 
         }, 500); 
-    }, 4000); 
+    }, 5000); 
 });
 </script>
 
@@ -883,31 +883,24 @@ logMessages.forEach(message => {
 }
 </style>
 
-<link rel="stylesheet" href="./assets/bootstrap/leaflet.css" />
+<link rel="stylesheet" href="./assets/bootstrap/bootstrap.min.css">
 <link rel="stylesheet" href="./assets/bootstrap/all.min.css">
-<link href="./assets/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link rel="icon" href="./assets/img/nekobox.png">
+<link rel="stylesheet" href="./assets/bootstrap/bootstrap-icons.css">
+<link rel="stylesheet" href="./assets/bootstrap/leaflet.css">
 <link rel="stylesheet" href="./assets/bootstrap/Control.FullScreen.min.css">
-<link href="./assets/css/bootstrap.min.css" rel="stylesheet">
-<link href="./assets/theme/<?php echo $neko_theme ?>" rel="stylesheet">
-<link href="./assets/css/custom.css" rel="stylesheet">
-<link href="./assets/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link rel="stylesheet" href="styles.css?v=<?php echo time(); ?>" />
-<script src="script.js?v=<?php echo time(); ?>"></script>
-<script type="text/javascript" src="./assets/js/bootstrap.min.js"></script>
-<script type="text/javascript" src="./assets/js/feather.min.js"></script>
-<script type="text/javascript" src="./assets/bootstrap/bootstrap.bundle.min.js"></script>
-<script type="text/javascript" src="./assets/js/jquery-2.1.3.min.js"></script>
-<script type="text/javascript" src="./assets/js/neko.js"></script>
+<link rel="stylesheet" href="./assets/bootstrap/custom.css">
+<link rel="icon" href="./assets/img/nekobox.png">
+
+<script src="./assets/bootstrap/jquery.min.js"></script>
 <script src="./assets/bootstrap/bootstrap.bundle.min.js"></script>
+<script src="./assets/js/feather.min.js"></script>
 <script src="./assets/bootstrap/interact.min.js"></script>
 <script src="./assets/bootstrap/Sortable.min.js"></script>
-<script src="./assets/neko/js/jquery.min.js"></script>
 <script src="./assets/bootstrap/leaflet.js"></script>
 <script src="./assets/bootstrap/Control.FullScreen.min.js"></script>
+<script src="./assets/js/neko.js"></script>
 
 <?php
-ob_start();
 $translate = [
 
 ];
@@ -915,7 +908,7 @@ $lang = $_GET['lang'] ?? 'en';
 ?>
 
 <?php if (in_array($currentLang, ['zh', 'en', 'hk', 'vi', 'ja', 'ru', 'ar', 'es', 'ko', 'de', 'fr'])): ?>
-    <div id="status-bar-component" class="container-sm container-bg mt-4">
+    <div id="status-bar-component" class="container-sm container-bg mt-4" style="display: none;">
         <div class="row align-items-center">
             <div class="col-auto">
                 <div class="img-con">
@@ -1722,25 +1715,26 @@ synthWave();
 </script> 
 
 <script>
-function toggleFloating() {
-    const floating = document.getElementById('floatingLyrics');
-    const icon = document.getElementById('floatingIcon');
-    const isVisible = floating.classList.toggle('visible');
-    icon.className = isVisible ? 'bi bi-display-fill' : 'bi bi-display';
-    localStorage.setItem('floatingLyricsVisible', isVisible);
+function toggleFloatingLyrics() {
+    const lyrics = document.getElementById('floatingLyrics');
+    const icon = document.querySelector('#toggleFloatingLyricsBtn i');
+
+    const isHidden = lyrics.style.display === 'none';
+    lyrics.style.display = isHidden ? '' : 'none';
+    localStorage.setItem('floatingLyricsVisible', isHidden ? 'true' : 'false');
+
+    icon.className = isHidden ? 'bi bi-display-fill' : 'bi bi-display';
 }
 
-window.addEventListener('DOMContentLoaded', () => {
-    const floating = document.getElementById('floatingLyrics');
-    const icon = document.getElementById('floatingIcon');
-    const saved = localStorage.getItem('floatingLyricsVisible') === 'true';
+document.addEventListener('DOMContentLoaded', () => {
+    const lyrics = document.getElementById('floatingLyrics');
+    const icon = document.querySelector('#toggleFloatingLyricsBtn i');
+    const isVisible = localStorage.getItem('floatingLyricsVisible') === 'true';
 
-    if (saved) {
-        floating.classList.add('visible');
-        icon.className = 'bi bi-display-fill';
-    } else {
-        icon.className = 'bi bi-display';
-    }
+    lyrics.style.display = isVisible ? '' : 'none';
+    icon.className = isVisible ? 'bi bi-display-fill' : 'bi bi-display';
+
+    document.getElementById('toggleFloatingLyricsBtn').addEventListener('click', toggleFloatingLyrics);
 });
 </script>
 
@@ -4225,8 +4219,6 @@ window.showConfirmation = function(message, onConfirm) {
 };
 </script>
 
-
-
 <script>
 const currentSong = document.querySelector('#currentSong');
 const floatingCurrentSong = document.getElementById('floatingCurrentSong');
@@ -4386,12 +4378,12 @@ function toggleIpStatusBar() {
 
     if (isHidden) {
         ipStatusBar.style.display = '';
-        localStorage.setItem('ipStatusHidden', 'false');
+        localStorage.setItem('neko_ip_status_hidden', 'false');
         speakMessage(translations['ip_info_shown'] || 'IP Information Shown');
         showLogMessage(translations['ip_info_shown'] || 'IP Information Shown');
     } else {
         ipStatusBar.style.display = 'none';
-        localStorage.setItem('ipStatusHidden', 'true');
+        localStorage.setItem('neko_ip_status_hidden', 'true');
         speakMessage(translations['ip_info_hidden'] || 'IP Information Hidden');
         showLogMessage(translations['ip_info_hidden'] || 'IP Information Hidden');
     }
@@ -4399,13 +4391,12 @@ function toggleIpStatusBar() {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-    const ipStatusHidden = localStorage.getItem('ipStatusHidden') === 'true';
+    const ipStatusHidden = localStorage.getItem('neko_ip_status_hidden') === 'true';
     const ipStatusBar = document.getElementById('status-bar-component');
     ipStatusBar.style.display = ipStatusHidden ? 'none' : '';
     updateIpStatusButton(ipStatusHidden);
 });
 </script>
-
 
 <script>
 document.addEventListener("DOMContentLoaded", () => {

@@ -149,25 +149,12 @@ EOL;
 }
 ?>
 
-<!doctype html>
-<html lang="en" data-bs-theme="<?php echo substr($neko_theme, 0, -4) ?>">
-<head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>singbox - Nekobox</title>
-    <link rel="icon" href="./assets/img/nekobox.png">
-    <link href="./assets/css/bootstrap.min.css" rel="stylesheet">
-    <link href="./assets/css/custom.css" rel="stylesheet">
-    <link href="./assets/theme/<?php echo $neko_theme ?>" rel="stylesheet">
-    <script type="text/javascript" src="./assets/js/bootstrap.min.js"></script>
-    <script type="text/javascript" src="./assets/js/feather.min.js"></script>
-    <script type="text/javascript" src="./assets/bootstrap/bootstrap.bundle.min.js"></script>
-    <script type="text/javascript" src="./assets/js/jquery-2.1.3.min.js"></script>
-    <script type="text/javascript" src="./assets/js/neko.js"></script>
-    <link href="./assets/bootstrap/bootstrap-icons.css" rel="stylesheet">
-    <?php include './ping.php'; ?>
-</head>
-<body>
+<meta charset="utf-8">
+<title>singbox - Nekobox</title>
+<link rel="icon" href="./assets/img/nekobox.png">
+<script src="./assets/bootstrap/jquery.min.js"></script>
+<?php include './ping.php'; ?>
+
 <style>
 .container-fluid {
     max-width: 2400px;
@@ -502,7 +489,6 @@ EOL;
     <p><?php echo $footer ?></p>
 </footer>
 
-<script src="./assets/bootstrap/jquery.min.js"></script>
 <script>
     function copyToClipboard() {
         const copyText = document.getElementById("configContent");

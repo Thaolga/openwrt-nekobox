@@ -496,25 +496,12 @@ EOL;
 }
 ?>
 
-<!doctype html>
-<html lang="en" data-bs-theme="<?php echo substr($neko_theme, 0, -4) ?>">
-<head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>singbox - Nekobox</title>
-    <link rel="icon" href="./assets/img/nekobox.png">
-    <link href="./assets/css/bootstrap.min.css" rel="stylesheet">
-    <link href="./assets/css/custom.css" rel="stylesheet">
-    <link href="./assets/bootstrap/bootstrap-icons.css" rel="stylesheet">
-    <link href="./assets/theme/<?php echo $neko_theme ?>" rel="stylesheet">
-    <script type="text/javascript" src="./assets/js/bootstrap.min.js"></script>
-    <script type="text/javascript" src="./assets/js/feather.min.js"></script>
-    <script type="text/javascript" src="./assets/bootstrap/bootstrap.bundle.min.js"></script>
-    <script type="text/javascript" src="./assets/js/jquery-2.1.3.min.js"></script>
-    <script type="text/javascript" src="./assets/js/neko.js"></script>
-    <?php include './ping.php'; ?>
-</head>
-<body>
+<meta charset="utf-8">
+<title>singbox - Nekobox</title>
+<script src="./assets/bootstrap/jquery.min.js"></script>
+<link rel="icon" href="./assets/img/nekobox.png">
+<?php include './ping.php'; ?>
+
 <style>
 .custom-padding {
     padding-left: 5ch;  
@@ -780,7 +767,7 @@ EOL;
         <form method="post">
             <h5 style="margin-top: 20px;" data-translate="scheduled_tasks"></h5>
             <button type="button" class="btn btn-primary mx-2" data-bs-toggle="modal" data-bs-target="#cronModal"><i class="bi bi-clock"></i> <span data-translate="set_scheduled_task"></span></button>
-            <button type="submit" name="createShellScript" value="true" class="btn btn-success"><i class="bi bi-terminal"></i> <span data-translate="generate_update_script"></span></button>
+            <button type="submit" name="createShellScript" value="true" class="btn btn-info"><i class="bi bi-terminal"></i> <span data-translate="generate_update_script"></span></button>
         </form>
     </div>
         <div class="modal fade" id="cronModal" tabindex="-1" aria-labelledby="cronModalLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">

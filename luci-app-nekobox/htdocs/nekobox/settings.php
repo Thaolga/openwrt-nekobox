@@ -630,7 +630,7 @@ function deleteDirectory($dir) {
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
         <div class="modal-body">
-          <table class="table table-bordered table-striped text-center align-middle w-100">
+          <table class="table table-bordered table-striped text-center align-middle w-100 mb-0">
             <thead class="table-dark">
               <tr>
                 <th style="width: 20%;" data-translate="componentName">Component Name</th>
@@ -660,15 +660,15 @@ function deleteDirectory($dir) {
               </tr>
             </tbody>
           </table>
-          <div class="text-danger text-center fw-bold my-3" data-translate="portChangeNotice">
+          <div class="text-danger text-center fw-bold mt-3 mb-1" data-translate="portChangeNotice">
             Port changes will take effect after restarting the service.
           </div>
         </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" data-translate="closeButton">Close</button>
-          <button type="submit" class="btn btn-primary" data-translate="save">Save</button>
-        </div>
       </form>
+      <div class="modal-footer justify-content-end">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" data-translate="closeButton">Close</button>
+        <button type="submit" form="portForm" class="btn btn-primary" data-translate="save">Save</button>
+      </div>
     </div>
   </div>
 </div>
