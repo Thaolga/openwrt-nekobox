@@ -360,7 +360,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 data-translate-title="update_playlist">
             <i class="fa fa-sync-alt"></i>
         </button>
-        <button class="ctrl-btn toggleFloatingLyricsBtn" data-translate-title="toggle_floating_lyrics">
+        <button id="toggleFloatingLyricsBtn" class="ctrl-btn toggleFloatingLyricsBtn" data-translate-title="toggle_floating_lyrics">
             <i class="bi bi-display floatingIcon"></i>
         </button>
     </div>
@@ -1717,24 +1717,28 @@ synthWave();
 <script>
 function toggleFloatingLyrics() {
     const lyrics = document.getElementById('floatingLyrics');
-    const icon = document.querySelector('#toggleFloatingLyricsBtn i');
-
     const isHidden = lyrics.style.display === 'none';
     lyrics.style.display = isHidden ? '' : 'none';
     localStorage.setItem('floatingLyricsVisible', isHidden ? 'true' : 'false');
 
-    icon.className = isHidden ? 'bi bi-display-fill' : 'bi bi-display';
+    document.querySelectorAll('.toggleFloatingLyricsBtn i').forEach(icon => {
+        icon.className = isHidden ? 'bi bi-display-fill floatingIcon' : 'bi bi-display floatingIcon';
+    });
 }
 
 document.addEventListener('DOMContentLoaded', () => {
     const lyrics = document.getElementById('floatingLyrics');
-    const icon = document.querySelector('#toggleFloatingLyricsBtn i');
     const isVisible = localStorage.getItem('floatingLyricsVisible') === 'true';
 
     lyrics.style.display = isVisible ? '' : 'none';
-    icon.className = isVisible ? 'bi bi-display-fill' : 'bi bi-display';
 
-    document.getElementById('toggleFloatingLyricsBtn').addEventListener('click', toggleFloatingLyrics);
+    document.querySelectorAll('.toggleFloatingLyricsBtn i').forEach(icon => {
+        icon.className = isVisible ? 'bi bi-display-fill floatingIcon' : 'bi bi-display floatingIcon';
+    });
+
+    document.querySelectorAll('.toggleFloatingLyricsBtn').forEach(btn => {
+        btn.addEventListener('click', toggleFloatingLyrics);
+    });
 });
 </script>
 
