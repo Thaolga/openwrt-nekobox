@@ -274,7 +274,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <div>
                     <div data-translate="start_check">Start Website Check</div>
                     <small class="opacity-75" data-translate="check_desc">Diagnose website status</small>
-                </div>
+               </div>
+                    <i class="bi bi-toggle-off" id="autoCheckIcon"  style="cursor: pointer; margin-left: 10px;"></i>
             </button>
             <button class="panel-btn" id="openModalBtn" data-translate-title="open_animation">
                 <div class="btn-icon">
@@ -311,7 +312,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     <i class="bi bi-toggle-off"></i>
                 </div>
                 <div>
-                    <div id="translationToggleText">enable</div>
+                    <div data-translate="ip_info">IP Info</div>
+                    <div class="opacity-75" id="translationToggleText" style="font-size: 0.85rem;">enable</div>
                 </div>
             </button>
         </div>
@@ -2993,10 +2995,77 @@ function checkWebsiteAccess(urls) {
     });
 }
 
-setInterval(() => {
-    speakMessage(translations['startCheck']);
-    checkWebsiteAccess(websites);  
-}, 3600000);  
+let autoCheckInterval;
+let isAutoCheckEnabled = localStorage.getItem('autoCheckEnabled') === 'true';
+let userInteracted = localStorage.getItem('userInteracted') === 'true';
+
+function updateToggleIcon() {
+    const icon = document.getElementById('autoCheckIcon');
+    if (isAutoCheckEnabled) {
+        icon.classList.replace('bi-toggle-off', 'bi-toggle-on');
+    } else {
+        icon.classList.replace('bi-toggle-on', 'bi-toggle-off');
+    }
+}
+
+function startAutoCheck() {
+    if (autoCheckInterval) clearInterval(autoCheckInterval);
+    autoCheckInterval = setInterval(() => {
+        if (userInteracted) {
+            speakMessage(translations['startCheck']);
+            showLogMessage(translations['startCheck']);
+        }
+        checkWebsiteAccess(websites);
+    }, 3600000);
+    
+    isAutoCheckEnabled = true;
+    localStorage.setItem('autoCheckEnabled', 'true');
+    updateToggleIcon();
+    
+    if (userInteracted) {
+        const msg = translations['autoCheckEnabled'] || "Auto check enabled";
+        speakMessage(msg);
+        showLogMessage(msg);
+    }
+}
+
+function stopAutoCheck() {
+    if (autoCheckInterval) {
+        clearInterval(autoCheckInterval);
+        autoCheckInterval = null;
+    }
+    
+    isAutoCheckEnabled = false;
+    localStorage.setItem('autoCheckEnabled', 'false');
+    updateToggleIcon();
+    
+    if (userInteracted) {
+        const msg = translations['autoCheckDisabled'] || "Auto check disabled";
+        speakMessage(msg);
+        showLogMessage(msg);
+    }
+}
+
+document.addEventListener('click', function() {
+    if (!userInteracted) {
+        userInteracted = true;
+        localStorage.setItem('userInteracted', 'true');
+    }
+});
+
+document.getElementById('autoCheckIcon').addEventListener('click', function(event) {
+    event.stopPropagation();
+    if (isAutoCheckEnabled) {
+        stopAutoCheck();
+    } else {
+        startAutoCheck();
+    }
+});
+
+updateToggleIcon();
+if (isAutoCheckEnabled) {
+    startAutoCheck();
+}
 
 let isDetectionStarted = false;
 
