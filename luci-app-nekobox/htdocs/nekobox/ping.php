@@ -6201,6 +6201,13 @@ body.cinzel-font {
 	}
 }
 
+input,
+textarea,
+select,
+button {
+        font-family: inherit !important;
+}
+
 input[type=range] {
 	-webkit-appearance: none;
 	width: 100%;
