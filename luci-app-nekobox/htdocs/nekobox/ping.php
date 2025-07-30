@@ -1,3 +1,14 @@
+<style>
+.modal {
+    opacity: 0;
+    visibility: hidden;
+}
+
+.modal.show {
+    opacity: 1;
+    visibility: visible;
+}
+</style>
 
 <?php include './language.php'; include './cfg.php'; ?>
 <html lang="<?php echo $currentLang; ?>">
@@ -329,7 +340,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     </div>
 </div>
 
-<div id="animationModal" class="animation-modal">
+<div id="animationModal" class="animation-modal" style="display: none;">
     <div class="animation-modal-content">
         <button id="toggleAnimationBtn" data-translate="start_cube_animation">🖥️ Start Cube Animation</button>
         <button id="toggleSnowBtn" data-translate="start_snow_animation">❄️ Start Snow Animation</button>
@@ -826,62 +837,54 @@ logMessages.forEach(message => {
 }
 
 .animation-modal {
-	position: fixed;
-	top: 0;
-	left: 0;
-	width: 100%;
-	height: 100%;
-	display: none;
-	align-items: center;
-	justify-content: center;
-	background: rgba(0, 0, 0, 0.5);
-	z-index: 9999;
-	backdrop-filter: blur(4px);
+        position: absolute;
+        top: 100px;
+        left: 50%;
+        transform: translateX(-50%);
+        z-index: 1050;
+        display: none;
 }
 
 .animation-modal-content {
-	background: #111;
-	color: #fff;
-	border-radius: 16px;
-	padding: 24px;
-	max-width: 600px;
-	width: 90%;
-	box-shadow: 0 8px 24px rgba(0,0,0,0.5);
-	display: flex;
-	flex-wrap: wrap;
-	gap: 12px;
-	justify-content: center;
-	align-items: center;
-}
-
-@media (min-width: 600px) {
-	.animation-modal-content {
-		flex-direction: row;
-	}
-}
-
-@media (max-width: 599px) {
-	.animation-modal-content {
-		flex-direction: column;
-	}
+        background: linear-gradient(135deg, #1e3c72, #2a5298);
+        padding: 30px 40px;
+        border-radius: 20px;
+        box-shadow: 0 15px 30px rgba(0, 0, 0, 0.15);
+        max-width: 400px;
+        width: 90%;
+        text-align: center;
+        color: white;
+        animation: scaleIn 0.3s ease;
 }
 
 .animation-modal-content button {
-	background: linear-gradient(135deg, #4d79ff, #6dd5ed);
-	border: none;
-	color: #fff;
-	padding: 12px 20px;
-	font-size: 1rem;
-	border-radius: 12px;
-	cursor: pointer;
-	transition: transform 0.2s, box-shadow 0.2s;
-	width: 100%;
-	max-width: 220px;
+        display: block;
+        width: 100%;
+        padding: 12px 20px;
+        margin: 10px 0;
+        font-size: 1rem;
+        border: none;
+        border-radius: 12px;
+        background: rgba(255, 255, 255, 0.2);
+        color: white;
+        cursor: pointer;
+        transition: background 0.3s, transform 0.2s;
 }
 
 .animation-modal-content button:hover {
-	transform: scale(1.05);
-	box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+        background: rgba(255, 255, 255, 0.3);
+        transform: scale(1.03);
+}
+
+@keyframes scaleIn {
+        from {
+            transform: scale(0.85);
+            opacity: 0;
+        }
+        to {
+            transform: scale(1);
+            opacity: 1;
+        }
 }
 </style>
 
