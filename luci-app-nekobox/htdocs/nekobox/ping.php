@@ -3008,7 +3008,7 @@ function updateToggleIcon() {
     }
 }
 
-function startAutoCheck() {
+function startAutoCheck(shouldAnnounce = false) {
     if (autoCheckInterval) clearInterval(autoCheckInterval);
     autoCheckInterval = setInterval(() => {
         if (userInteracted) {
@@ -3022,14 +3022,14 @@ function startAutoCheck() {
     localStorage.setItem('autoCheckEnabled', 'true');
     updateToggleIcon();
     
-    if (userInteracted) {
+    if (shouldAnnounce && userInteracted) {
         const msg = translations['autoCheckEnabled'] || "Auto check enabled";
         speakMessage(msg);
         showLogMessage(msg);
     }
 }
 
-function stopAutoCheck() {
+function stopAutoCheck(shouldAnnounce = false) {
     if (autoCheckInterval) {
         clearInterval(autoCheckInterval);
         autoCheckInterval = null;
@@ -3039,7 +3039,7 @@ function stopAutoCheck() {
     localStorage.setItem('autoCheckEnabled', 'false');
     updateToggleIcon();
     
-    if (userInteracted) {
+    if (shouldAnnounce && userInteracted) {
         const msg = translations['autoCheckDisabled'] || "Auto check disabled";
         speakMessage(msg);
         showLogMessage(msg);
@@ -3056,15 +3056,15 @@ document.addEventListener('click', function() {
 document.getElementById('autoCheckIcon').addEventListener('click', function(event) {
     event.stopPropagation();
     if (isAutoCheckEnabled) {
-        stopAutoCheck();
+        stopAutoCheck(true);
     } else {
-        startAutoCheck();
+        startAutoCheck(true);
     }
 });
 
 updateToggleIcon();
 if (isAutoCheckEnabled) {
-    startAutoCheck();
+    startAutoCheck(false);
 }
 
 let isDetectionStarted = false;
