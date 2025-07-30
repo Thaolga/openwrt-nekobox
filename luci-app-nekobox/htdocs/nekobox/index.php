@@ -806,8 +806,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['selected_config'])) {
         <a href="./dashboard.php" class="col btn btn-lg text-nowrap"><i class="bi bi-bar-chart"></i> <span data-translate="panel">Panel</span></a>
         <a href="./singbox.php" class="col btn btn-lg text-nowrap"><i class="bi bi-box"></i> <span data-translate="document">Document</span></a> 
         <a href="./settings.php" class="col btn btn-lg text-nowrap"><i class="bi bi-gear"></i> <span data-translate="settings">Settings</span></a>
-    <div class="container-sm text-center col-8">
-  <img src="./assets/img/nekobox.png">
+<div class="container-sm text-center col-8">
+  <img src="./assets/img/nekobox.png" alt="Icon" class="centered-img">
 <div id="version-info">
     <a id="version-link" href="https://github.com/Thaolga/openwrt-nekobox/releases" target="_blank">
         <img id="current-version" src="./assets/img/curent.svg" alt="Current Version" style="max-width: 100%; height: auto;" />
@@ -872,123 +872,138 @@ document.addEventListener('DOMContentLoaded', function () {
     <span id="control-panel-text" class="ms-2 text-success d-none" data-translate="control_panel">Control_Panel</span>
 </h2>
 <style>
+.centered-img {
+	display: block;
+	margin-left: auto;
+	margin-right: auto;
+	width: 12%;
+	height: auto;
+	min-width: 40px;
+	max-width: 100%;
+}
 
-    .nav-pills .nav-link {
-        background-color: transparent !important;
-        color: inherit;
-        font-size: 1.25rem; 
-    }
+@media (max-width: 576px) {
+	.centered-img {
+		width: 30%;
+	}
+}
 
-    .nav-pills .nav-link.active {
-        background-color: transparent !important; 
-        font-size: 1.25rem; 
-    }
+.nav-pills .nav-link {
+	background-color: transparent !important;
+	color: inherit;
+	font-size: 1.25rem;
+}
 
-   .section-container {
-       padding-left: 42px;  
-       padding-right: 42px;
-   }
+.nav-pills .nav-link.active {
+	background-color: transparent !important;
+	font-size: 1.25rem;
+}
 
-   .btn-group .btn {
-       width: 120%;
-   }
+.section-container {
+	padding-left: 42px;
+	padding-right: 42px;
+}
 
-   .log-container {
-       height: 270px; 
-       overflow-y: auto;
-       overflow-x: hidden;
-       white-space: pre-wrap;
-       word-wrap: break-word;
-   }
+.btn-group .btn {
+	width: 120%;
+}
 
-   .log-card {
-       margin-bottom: 20px;
-   }
+.log-container {
+	height: 270px;
+	overflow-y: auto;
+	overflow-x: hidden;
+	white-space: pre-wrap;
+	word-wrap: break-word;
+}
 
-    .custom-icon {
-        width: 20px !important;
-        height: 20px !important;
-        vertical-align: middle !important;
-        margin-right: 5px !important;
-        stroke: #FF00FF !important; 
-        fill: none !important;
-        }
+.log-card {
+	margin-bottom: 20px;
+}
 
-   @media (max-width: 768px) {
-      .section-container {
-         padding-left: 15px;
-         padding-right: 15px;
-      }
-   }
+.custom-icon {
+	width: 20px !important;
+	height: 20px !important;
+	vertical-align: middle !important;
+	margin-right: 5px !important;
+	stroke: #FF00FF !important;
+	fill: none !important;
+}
 
-   @media (max-width: 768px) {
-      tr {
-          margin-bottom: 15px;
-          display: block;
-      }
-   }
+@media (max-width: 768px) {
+	.section-container {
+		padding-left: 15px;
+		padding-right: 15px;
+	}
+}
 
-@media (max-width: 767px) {
-    .section-container .table {
-        display: block;
-        width: 100%;
-    }
-
-    .section-container .table tbody,
-    .section-container .table thead,
-    .section-container .table tr {
-        display: block;
-    }
-
-    .section-container .table td {
-        display: block;
-        width: 100%;
-        padding: 10px;
-        border: 1px solid #ddd;
-        margin-bottom: 10px;
-    }
-
-    .section-container .table td:first-child {
-        font-weight: bold;
-        background-color: #f8f9fa;
-    }
-
-    .section-container .btn-group {
-        display: flex;
-        flex-direction: column;
-        gap: 10px;
-    }
-
-    .section-container .form-select,
-    .section-container .form-control,
-    .section-container .input-group {
-        width: 100%;
-    }
-
-    .section-container .btn {
-        width: 100%;
-    }
+@media (max-width: 768px) {
+	tr {
+		margin-bottom: 15px;
+		display: block;
+	}
 }
 
 @media (max-width: 767px) {
-    .section-container .table td {
-        background-color: #fff;
-        border-radius: 5px;
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    }
+	.section-container .table {
+		display: block;
+		width: 100%;
+	}
 
-    .section-container .table td:first-child {
-        background-color: #f0f0f0;
-        font-size: 1.1em;
-    }
+	.section-container .table tbody,
+        .section-container .table thead,
+        .section-container .table tr {
+		display: block;
+	}
 
-    .section-container .btn {
-        border-radius: 5px;
-    }
+	.section-container .table td {
+		display: block;
+		width: 100%;
+		padding: 10px;
+		border: 1px solid #ddd;
+		margin-bottom: 10px;
+	}
 
-    .section-container .btn-group {
-        gap: 15px;
-    }
+	.section-container .table td:first-child {
+		font-weight: bold;
+		background-color: #f8f9fa;
+	}
+
+	.section-container .btn-group {
+		display: flex;
+		flex-direction: column;
+		gap: 10px;
+	}
+
+	.section-container .form-select,
+        .section-container .form-control,
+        .section-container .input-group {
+		width: 100%;
+	}
+
+	.section-container .btn {
+		width: 100%;
+	}
+}
+
+@media (max-width: 767px) {
+	.section-container .table td {
+		background-color: #fff;
+		border-radius: 5px;
+		box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+	}
+
+	.section-container .table td:first-child {
+		background-color: #f0f0f0;
+		font-size: 1.1em;
+	}
+
+	.section-container .btn {
+		border-radius: 5px;
+	}
+
+	.section-container .btn-group {
+		gap: 15px;
+	}
 }
 
 @media (max-width: 768px) {
@@ -996,7 +1011,6 @@ document.addEventListener('DOMContentLoaded', function () {
 		font-size: 2.5rem !important;
 	}
 }
-
 </style>
 <div class="section-container">
     <div class="card">
