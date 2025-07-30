@@ -77,7 +77,7 @@
 <div id="theme-loader" style="display: none;">
   <div class="theme-loader-content">
     <div class="loader-icon">🚀</div>
-    <div class="loader-title">Welcome...</div>
+    <div class="loader-title">Updating...</div>
   </div>
 </div>
 
