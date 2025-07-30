@@ -1,5 +1,5 @@
 <h1 align="center">
-<img src="https://raw.githubusercontent.com/Thaolga/neko/refs/heads/main/nekobox.png" alt="nekobox" width="200"> <br>NeKoBox<br>
+<img src="https://raw.githubusercontent.com/Thaolga/openwrt-nekobox/main/luci-app-nekobox/htdocs/nekobox/assets/img/nekobox.png" alt="nekobox" width="200"> <br>NeKoBox<br>
 </h1>
 
 <div align="center">
