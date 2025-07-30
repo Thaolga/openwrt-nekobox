@@ -1,14 +1,99 @@
 <style>
 .modal {
-    opacity: 0;
-    visibility: hidden;
+        opacity: 0;
+        visibility: hidden;
 }
 
 .modal.show {
-    opacity: 1;
-    visibility: visible;
+        opacity: 1;
+        visibility: visible;
+}
+
+#theme-loader {
+	position: fixed;
+	inset: 0;
+	background: linear-gradient(
+        135deg,
+        var(--accent-color),
+        color-mix(in oklch, var(--accent-color), white 30%),
+        color-mix(in oklch, var(--accent-color), black 30%)
+        );
+	background-size: 300% 300%;
+	animation: animated-gradient 6s ease infinite;
+	z-index: 9999;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	transition: opacity 0.6s ease;
+	color: var(--text-primary);
+	font-family: "Segoe UI", sans-serif;
+}
+
+.theme-loader-content {
+	text-align: center;
+	backdrop-filter: var(--glass-blur);
+	padding: 2rem 3rem;
+	border-radius: var(--radius);
+	background: color-mix(in oklch, var(--bg-container), white 10%);
+	box-shadow: 0 0 20px oklch(0 0 0 / 0.2);
+}
+
+.loader-icon {
+	font-size: 3.5rem;
+	animation: bounceIn 1s ease-in-out infinite alternate;
+}
+
+.loader-title {
+	font-size: 1.25rem;
+	margin-top: 1rem;
+	opacity: 0.85;
+}
+
+@keyframes animated-gradient {
+	0% {
+		background-position: 0% 50%;
+	}
+
+	50% {
+		background-position: 100% 50%;
+	}
+
+	100% {
+		background-position: 0% 50%;
+	}
+}
+
+@keyframes bounceIn {
+	0% {
+		transform: scale(1) translateY(0);
+	}
+
+	100% {
+		transform: scale(1.1) translateY(-10px);
+	}
 }
 </style>
+
+<div id="theme-loader" style="display: none;">
+  <div class="theme-loader-content">
+    <div class="loader-icon">🚀</div>
+    <div class="loader-title">Welcome...</div>
+  </div>
+</div>
+
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+  const loader = document.getElementById("theme-loader");
+
+  document.querySelectorAll("form").forEach(form => {
+    form.addEventListener("submit", () => {
+      if (loader) {
+        loader.style.display = "flex";
+      }
+    });
+  });
+});
+</script>
 
 <?php include './language.php'; include './cfg.php'; ?>
 <html lang="<?php echo $currentLang; ?>">
