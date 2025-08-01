@@ -55,7 +55,7 @@ footer {
         <a href="./settings.php" class="col btn btn-lg text-nowrap"><i class="bi bi-gear"></i> <span data-translate="settings">Settings</span></a>
     </div>
 <main class="container-fluid text-left p-3">
-    <iframe id="iframeMeta" class="border border-3 rounded-4 w-100" src="http://<?=$zash_link?>" title="zash" allowfullscreen></iframe>
+    <iframe id="iframeMeta" class="w-100" src="http://<?=$zash_link?>" title="zash" allowfullscreen style="border-radius: 10px;"></iframe>
     <div class="mt-3 mb-0">
         <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#panelModal" data-translate="panel_settings">Panel Settings</button>
     </div>
