@@ -1240,7 +1240,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
         #settings-icon {
             position: fixed;
-            right: 2%;
+            right: 25px !important;
             bottom: 20px;
             cursor: pointer;
             z-index: 1001;
