@@ -690,6 +690,15 @@ function updateLanguage(lang) {
         }
     });
 
+    document.querySelectorAll('pre[data-translate]').forEach(el => {
+        const translationKey = el.getAttribute('data-translate');
+        if (translationKey && translations[translationKey]) {
+            const text = el.innerText;
+            const suffix = text.includes(':') ? text.split(':').slice(1).join(':').trim() : '';
+            el.innerText = translations[translationKey] + (suffix ? ': ' + suffix : '');
+        }
+    });
+
     document.querySelectorAll('[data-translate]').forEach(el => {
         const translationKey = el.getAttribute('data-translate');
         if (translationKey && translations[translationKey]) {
@@ -3943,6 +3952,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const msg = translations['page_width_updated'].replace('%s', slider.value);
         showLogMessage(msg);
         if (typeof speakMessage === 'function') speakMessage(msg);
+        setTimeout(() => location.reload(), 3500);
     };
 
     modalSlider.oninput = function() {
@@ -3952,6 +3962,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const msg = translations['modal_width_updated'].replace('%s', modalSlider.value);
         showLogMessage(msg);
         if (typeof speakMessage === 'function') speakMessage(msg);
+        setTimeout(() => location.reload(), 3500);
     };
 
     function sendCSSUpdate() {

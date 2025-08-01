@@ -1895,7 +1895,7 @@ body:hover,
     </div>
 </div>
 
-<div id="floatingLyrics">
+<div id="floatingLyrics" style="display: none;">
     <div class="floating-controls">
         <button class="ctrl-btn" onclick="changeTrack(-1, true)" data-translate-title="previous_track">
             <i class="fas fa-backward"></i>
@@ -4443,27 +4443,175 @@ body {
 </style>
 
 <script>
-function toggleFloating() {
-    const floating = document.getElementById('floatingLyrics');
-    const icon = document.getElementById('floatingIcon');
-    const isVisible = floating.classList.toggle('visible');
-    icon.className = isVisible ? 'bi bi-display-fill' : 'bi bi-display';
-    localStorage.setItem('floatingLyricsVisible', isVisible);
+function toggleFloatingLyrics() {
+    const lyrics = document.getElementById('floatingLyrics');
+    const isHidden = lyrics.style.display === 'none';
+    lyrics.style.display = isHidden ? '' : 'none';
+    localStorage.setItem('floatingLyricsVisible', isHidden ? 'true' : 'false');
+
+    document.querySelectorAll('.toggleFloatingLyricsBtn i').forEach(icon => {
+        icon.className = isHidden ? 'bi bi-display-fill floatingIcon' : 'bi bi-display floatingIcon';
+    });
 }
 
-window.addEventListener('DOMContentLoaded', () => {
-    const floating = document.getElementById('floatingLyrics');
-    const icon = document.getElementById('floatingIcon');
-    const saved = localStorage.getItem('floatingLyricsVisible') === 'true';
+document.addEventListener('DOMContentLoaded', () => {
+    const lyrics = document.getElementById('floatingLyrics');
+    const isVisible = localStorage.getItem('floatingLyricsVisible') === 'true';
 
-    if (saved) {
-        floating.classList.add('visible');
-        icon.className = 'bi bi-display-fill';
-    } else {
-        icon.className = 'bi bi-display';
-    }
+    lyrics.style.display = isVisible ? '' : 'none';
+
+    document.querySelectorAll('.toggleFloatingLyricsBtn i').forEach(icon => {
+        icon.className = isVisible ? 'bi bi-display-fill floatingIcon' : 'bi bi-display floatingIcon';
+    });
+
+    document.querySelectorAll('.toggleFloatingLyricsBtn').forEach(btn => {
+        btn.addEventListener('click', toggleFloatingLyrics);
+    });
 });
 </script>
+
+<style>
+
+@media (max-width: 767.98px) {
+	#musicModal .modal-dialog {
+		margin: 0.5rem;
+		max-width: calc(100% - 1rem);
+		max-height: 90vh;
+	}
+
+	#musicModal .modal-content {
+		max-height: 90vh;
+		display: flex;
+		flex-direction: column;
+	}
+
+	#musicModal .modal-body {
+		overflow-y: auto;
+		max-height: calc(90vh - 120px);
+		padding: 15px;
+	}
+
+	#musicModal #floatingLyrics {
+		font-size: 1.1rem;
+		padding: 8px 12px;
+		margin-bottom: 10px;
+	}
+
+	#musicModal #currentSong {
+		font-size: 1.1rem;
+		margin-bottom: 8px;
+		white-space: nowrap;
+		overflow: hidden;
+		text-overflow: ellipsis;
+	}
+
+	#musicModal .lyrics-container {
+		height: 200px;
+		font-size: 0.95rem;
+		line-height: 1.6;
+		padding: 10px;
+		overflow-y: auto;
+	}
+
+	#musicModal .progress-container {
+		margin-top: 12px;
+	}
+
+	#musicModal .d-flex.justify-content-between {
+		font-size: 0.85rem;
+	}
+
+	#musicModal .controls {
+		display: flex;
+		flex-wrap: nowrap;
+		justify-content: space-between;
+		gap: 4px;
+		margin-top: 15px;
+		overflow-x: auto;
+		padding-bottom: 5px;
+	}
+
+	#musicModal .control-btn,
+        #musicModal .btn-volume {
+		width: 35px;
+		height: 35px;
+		min-width: 35px;
+		padding: 0;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		font-size: 1rem;
+	}
+
+	#musicModal #playPauseBtn {
+		width: 35px;
+		height: 35px;
+		min-width: 35px;
+		font-size: 1rem;
+	}
+
+	#musicModal .btn-volume {
+		position: relative;
+	}
+
+	#musicModal #volumePanel {
+		position: absolute;
+		bottom: 100%;
+		left: 50%;
+		transform: translateX(-50%);
+		width: 100px;
+		z-index: 10;
+		background: rgba(0, 0, 0, 0.8);
+		border-radius: 5px;
+		display: none;
+		padding: 8px;
+	}
+
+	#musicModal .btn-volume:hover #volumePanel,
+        #musicModal .btn-volume:focus-within #volumePanel {
+		display: block;
+	}
+
+	#musicModal .playlist {
+		margin-top: 15px;
+		max-height: 150px;
+		overflow-y: auto;
+	}
+
+	#musicModal .playlist-item {
+		padding: 6px 10px;
+		font-size: 0.9rem;
+	}
+
+	#musicModal .modal-footer {
+		padding: 10px 15px;
+	}
+
+	#musicModal .modal-footer .btn {
+		padding: 5px 10px;
+		font-size: 0.85rem;
+	}
+
+	#musicModal .modal-body::-webkit-scrollbar,
+        #musicModal .lyrics-container::-webkit-scrollbar,
+        #musicModal .playlist::-webkit-scrollbar {
+		width: 6px;
+	}
+
+	#musicModal .modal-body::-webkit-scrollbar-track,
+        #musicModal .lyrics-container::-webkit-scrollbar-track,
+        #musicModal .playlist::-webkit-scrollbar-track {
+		background: rgba(0, 0, 0, 0.1);
+	}
+
+	#musicModal .modal-body::-webkit-scrollbar-thumb,
+        #musicModal .lyrics-container::-webkit-scrollbar-thumb,
+        #musicModal .playlist::-webkit-scrollbar-thumb {
+		background: #4ecca3;
+		border-radius: 3px;
+	}
+}
+</style>
 
 <script>
 const audioPlayer = new Audio();

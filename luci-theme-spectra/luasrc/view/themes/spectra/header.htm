@@ -450,7 +450,7 @@
             return text;
         }
 
-        const browserLang = navigator.language || navigator.userLanguage;
+        const currentLanguage = localStorage.getItem('currentLanguage') || 'zh-CN';
 
         const langMap = {
             'zh-CN': 'zh-CN', 
@@ -488,7 +488,7 @@
             'uk': 'uk',
         };
 
-        const targetLang = langMap[browserLang] || browserLang.split('-')[0];
+        const targetLang = langMap[currentLanguage] || currentLanguage.split('-')[0];
 
         if (targetLang.startsWith('en')) {
             return text;
