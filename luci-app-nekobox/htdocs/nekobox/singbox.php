@@ -167,6 +167,7 @@ EOL;
    padding-right: 32px;
 }
 
+.result-container,
 .container {
    padding-left: 40px;  
    padding-right: 40px;
