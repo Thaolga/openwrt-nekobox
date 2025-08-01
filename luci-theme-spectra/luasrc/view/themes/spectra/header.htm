@@ -773,7 +773,7 @@ function pingHost(id, name, url) {
         });
 }
 
-window.addEventListener('load', () => {
+function checkAllSites() {
     const sites = [
         {id: 'baidu', name: 'Baidu', url: 'https://www.baidu.com'},
         {id: 'taobao', name: 'Taobao', url: 'https://www.taobao.com'},
@@ -793,6 +793,12 @@ window.addEventListener('load', () => {
                 gray.style.display = 'inline';
             });
     });
+}
+
+window.addEventListener('load', () => {
+    checkAllSites();
+    
+    setInterval(checkAllSites, 180000);
 });
 </script>
 
