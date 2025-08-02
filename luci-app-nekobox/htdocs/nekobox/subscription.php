@@ -331,7 +331,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
     if (isset($result)) {
-        echo "<div id='log-message' class='alert alert-success'>" . nl2br(htmlspecialchars($result)) . "</div>";
+        echo "<div class='log-message alert alert-success'>" . nl2br(htmlspecialchars($result)) . "</div>";
     }
 
     $download_option = $_POST['download_option'] ?? 'none';
@@ -372,7 +372,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         $cronJob = "$cronExpression /etc/neko/core/update_singbox.sh > /dev/null 2>&1";
         exec("crontab -l | grep -v '/etc/neko/core/update_singbox.sh' | crontab -");
         exec("(crontab -l; echo '$cronJob') | crontab -");
-        echo "<div class='alert alert-success'>The cron job has been successfully added or updated.</div>";
+        echo "<div class='log-message alert alert-success'>The cron job has been successfully added or updated.</div>";
     }
 }
 ?>
@@ -488,9 +488,9 @@ EOL;
 
         if (file_put_contents($shellScriptPath, $shellScriptContent) !== false) {
             chmod($shellScriptPath, 0755); 
-            echo "<div class='alert alert-success' data-translate='shell_script_created' data-dynamic-content='$shellScriptPath'></div>";
+            echo "<div class='log-message alert alert-success' data-translate='shell_script_created' data-dynamic-content='$shellScriptPath'></div>";
         } else {
-            echo "<div class='alert alert-danger' data-translate='shell_script_failed'></div>";
+            echo "<div class='log-message alert alert-danger' data-translate='shell_script_failed'></div>";
         }
     }
 }

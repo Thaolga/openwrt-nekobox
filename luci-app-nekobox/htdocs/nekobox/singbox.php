@@ -46,11 +46,11 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['setCron'])) {
 
         $timestamp = date('[ H:i:s ]');
         file_put_contents($logFile, "$timestamp Cron job successfully set. Sing-box will update at $cronExpression.\n", FILE_APPEND);
-        echo "<div id='log-message' class='alert alert-success' data-translate='cron_job_set' data-dynamic-content='$cronExpression'></div>";
+        echo "<div class='log-message alert alert-success' data-translate='cron_job_set' data-dynamic-content='$cronExpression'></div>";
     } else {
         $timestamp = date('[ H:i:s ]');
         file_put_contents($logFile, "$timestamp Invalid Cron expression: $cronExpression\n", FILE_APPEND);
-        echo "<div id='log-message' class='alert alert-danger' data-translate='cron_job_added_failed'></div>";
+        echo "<div class='log-message alert alert-danger' data-translate='cron_job_added_failed'></div>";
     }
 }
 ?>
@@ -89,11 +89,11 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         $SUBSCRIBE_URL = trim($_POST['subscribeUrl']);
         
         if (empty($SUBSCRIBE_URL)) {
-            echo "<div class='alert alert-warning' data-translate='subscribe_url_empty'></div>";
+            echo "<div class='log-message alert alert-warning' data-translate='subscribe_url_empty'></div>";
             exit;
         }
         
-        echo '<div id="log-message" class="alert alert-success" data-translate="subscribe_url_saved" data-dynamic-content="' . $SUBSCRIBE_URL . '"></div>';
+        echo '<div class="log-message alert alert-success" data-translate="subscribe_url_saved" data-dynamic-content="' . $SUBSCRIBE_URL . '"></div>';
     }
 
     if (isset($_POST['createShellScript'])) {
@@ -141,9 +141,9 @@ EOL;
 
         if (file_put_contents($shellScriptPath, $shellScriptContent) !== false) {
             chmod($shellScriptPath, 0755);
-            echo "<div id='log-message' class='alert alert-success' data-translate='shell_script_created' data-dynamic-content='$shellScriptPath'></div>";
+            echo "<div class='log-message alert alert-success' data-translate='shell_script_created' data-dynamic-content='$shellScriptPath'></div>";
         } else {
-            echo "<div id='log-message' class='alert alert-danger' data-translate='shell_script_failed'></div>";
+            echo "<div class='log-message alert alert-danger' data-translate='shell_script_failed'></div>";
         }
     }
 }

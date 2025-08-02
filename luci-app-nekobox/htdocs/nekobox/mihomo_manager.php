@@ -21,12 +21,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         if ($file['error'] === UPLOAD_ERR_OK) {
             if (move_uploaded_file($file['tmp_name'], $uploadFilePath)) {
-                echo '<div id="log-message" class="alert alert-success" role="alert" data-translate="file_upload_success" data-dynamic-content="' . htmlspecialchars(basename($file['name'])) . '"></div>';
+                echo '<div class="log-message alert alert-success" role="alert" data-translate="file_upload_success" data-dynamic-content="' . htmlspecialchars(basename($file['name'])) . '"></div>';
             } else {
-                echo '<div id="log-message" class="alert alert-danger" role="alert" data-translate="file_upload_failed"></div>';
+                echo '<div class="log-message alert alert-danger" role="alert" data-translate="file_upload_failed"></div>';
             }
         } else {
-            echo '<div id="log-message" class="alert alert-danger" role="alert" data-translate="file_upload_error" data-dynamic-content="' . $file['error'] . '"></div>';
+            echo '<div class="log-message alert alert-danger" role="alert" data-translate="file_upload_error" data-dynamic-content="' . $file['error'] . '"></div>';
         }
     }
 
@@ -36,30 +36,30 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         if ($file['error'] === UPLOAD_ERR_OK) {
             if (move_uploaded_file($file['tmp_name'], $uploadFilePath)) {
-                echo '<div id="log-message" class="alert alert-success" role="alert" data-translate="config_upload_success" data-dynamic-content="' . htmlspecialchars(basename($file['name'])) . '"></div>';
+                echo '<div class="log-message alert alert-success" role="alert" data-translate="config_upload_success" data-dynamic-content="' . htmlspecialchars(basename($file['name'])) . '"></div>';
             } else {
-                echo '<div id="log-message" class="alert alert-danger" role="alert" data-translate="config_upload_failed"></div>';
+                echo '<div class="log-message alert alert-danger" role="alert" data-translate="config_upload_failed"></div>';
             }
         } else {
-            echo '<div id="log-message" class="alert alert-danger" role="alert" data-translate="file_upload_error" data-dynamic-content="' . $file['error'] . '"></div>';
+            echo '<div class="log-message alert alert-danger" role="alert" data-translate="file_upload_error" data-dynamic-content="' . $file['error'] . '"></div>';
         }
     }
 
     if (isset($_POST['deleteFile'])) {
         $fileToDelete = $uploadDir . basename($_POST['deleteFile']);
         if (file_exists($fileToDelete) && unlink($fileToDelete)) {
-            echo '<div id="log-message" class="alert alert-success" role="alert" data-translate="file_delete_success" data-dynamic-content="' . htmlspecialchars(basename($_POST['deleteFile'])) . '"></div>';
+            echo '<div class="log-message alert alert-success" role="alert" data-translate="file_delete_success" data-dynamic-content="' . htmlspecialchars(basename($_POST['deleteFile'])) . '"></div>';
         } else {
-            echo '<div id="log-message" class="alert alert-danger" role="alert" data-translate="file_delete_failed"></div>';
+            echo '<div class="log-message alert alert-danger" role="alert" data-translate="file_delete_failed"></div>';
         }
     }
 
     if (isset($_POST['deleteConfigFile'])) {
         $fileToDelete = $configDir . basename($_POST['deleteConfigFile']);
         if (file_exists($fileToDelete) && unlink($fileToDelete)) {
-            echo '<div id="log-message" class="alert alert-success" role="alert" data-translate="config_delete_success" data-dynamic-content="' . htmlspecialchars(basename($_POST['deleteConfigFile'])) . '"></div>';
+            echo '<div class="log-message alert alert-success" role="alert" data-translate="config_delete_success" data-dynamic-content="' . htmlspecialchars(basename($_POST['deleteConfigFile'])) . '"></div>';
         } else {
-            echo '<div id="log-message" class="alert alert-danger" role="alert" data-translate="config_delete_failed"></div>';
+            echo '<div class="log-message alert alert-danger" role="alert" data-translate="config_delete_failed"></div>';
         }
     }
 
@@ -75,18 +75,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $oldFilePath = $configDir . $oldFileName;
             $newFilePath = $configDir . $newFileName;
         } else {
-            echo '<div id="log-message" class="alert alert-danger" role="alert" data-translate="file_not_found"></div>';
+            echo '<div class="log-message alert alert-danger" role="alert" data-translate="file_not_found"></div>';
             exit;
         }
 
         if (file_exists($oldFilePath) && !file_exists($newFilePath)) {
             if (rename($oldFilePath, $newFilePath)) {
-                echo '<div id="log-message" class="alert alert-success" role="alert" data-translate="file_rename_success" data-dynamic-content="' . htmlspecialchars($oldFileName) . ' -> ' . htmlspecialchars($newFileName) . '"></div>';
+                echo '<div class="log-message alert alert-success" role="alert" data-translate="file_rename_success" data-dynamic-content="' . htmlspecialchars($oldFileName) . ' -> ' . htmlspecialchars($newFileName) . '"></div>';
             } else {
-                echo '<div id="log-message"  class="alert alert-danger" role="alert" data-translate="file_rename_failed"></div>';
+                echo '<div class="log-message alert alert-danger" role="alert" data-translate="file_rename_failed"></div>';
             }
         } else {
-            echo '<div id="log-message"  class="alert alert-danger" role="alert" data-translate="file_rename_exists"></div>';
+            echo '<div class="log-message alert alert-danger" role="alert" data-translate="file_rename_exists"></div>';
         }
     }
 
@@ -94,7 +94,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $fileToSave = ($_POST['fileType'] === 'proxy') ? $uploadDir . basename($_POST['fileName']) : $configDir . basename($_POST['fileName']);
         $contentToSave = $_POST['saveContent'];
         file_put_contents($fileToSave, $contentToSave);
-        echo '<div id="log-message" class="alert alert-info" role="alert" data-translate="file_save_success" data-dynamic-content="' . htmlspecialchars(basename($fileToSave)) . '"></div>';
+        echo '<div class="log-message alert alert-info" role="alert" data-translate="file_save_success" data-dynamic-content="' . htmlspecialchars(basename($fileToSave)) . '"></div>';
     }
 }
 
@@ -224,7 +224,7 @@ if (isset($_POST['update'])) {
         if ($return_var === 0) {
             $_SESSION['update_logs'] = [];
             storeUpdateLog('<span data-translate="subscription_downloaded" data-dynamic-content="' . htmlspecialchars($url) . '"></span> <span data-translate="saved_to_temp_file" data-dynamic-content="' . htmlspecialchars($tempPath) . '"></span>');
-            echo '<div id="log-message"  class="alert alert-warning custom-alert-success"><span data-translate="subscription_downloaded" data-dynamic-content="' . htmlspecialchars($url) . '"></span> <span data-translate="saved_to_temp_file" data-dynamic-content="' . htmlspecialchars($tempPath) . '"></span></div>';
+            //echo '<div class="log-message alert alert-warning custom-alert-success"><span data-translate="subscription_downloaded" data-dynamic-content="' . htmlspecialchars($url) . '"></span> <span data-translate="saved_to_temp_file" data-dynamic-content="' . htmlspecialchars($tempPath) . '"></span></div>';
             $fileContent = file_get_contents($tempPath);
 
             if (base64_encode(base64_decode($fileContent, true)) === $fileContent) {
@@ -232,13 +232,13 @@ if (isset($_POST['update'])) {
                 if ($decodedContent !== false && strlen($decodedContent) > 0) {
                     file_put_contents($finalPath, "# Clash Meta Config\n\n" . $decodedContent);
                     storeUpdateLog('<span data-translate="base64_decode_success" data-dynamic-content="' . htmlspecialchars($finalPath) . '"></span>');
-                    echo '<div id="log-message" class="alert alert-warning custom-alert-success"><span data-translate="base64_decode_success" data-dynamic-content="' . htmlspecialchars($finalPath) . '"></span></div>';
+                    echo '<div class="log-message alert alert-warning custom-alert-success"><span data-translate="base64_decode_success" data-dynamic-content="' . htmlspecialchars($finalPath) . '"></span></div>';
                     unlink($tempPath); 
                     $notificationMessage = '<span data-translate="update_success"></span>';
                     $updateCompleted = true;
                 } else {
                     storeUpdateLog('<span data-translate="base64_decode_failed"></span>');
-                    echo '<div id="log-message" class="alert alert-warning custom-alert-success"><span data-translate="base64_decode_failed"></span></div>';
+                    echo '<div class="log-message alert alert-warning custom-alert-success"><span data-translate="base64_decode_failed"></span></div>';
                     unlink($tempPath); 
                     $notificationMessage = '<span data-translate="update_failed"></span>';
                 }
@@ -248,13 +248,13 @@ if (isset($_POST['update'])) {
                 if ($decompressedContent !== false) {
                     file_put_contents($finalPath, "# Clash Meta Config\n\n" . $decompressedContent);
                     storeUpdateLog('<span data-translate="gzip_decompress_success" data-dynamic-content="' . htmlspecialchars($finalPath) . '"></span>');
-                    echo '<div id="log-message" class="alert alert-warning custom-alert-success"><span data-translate="gzip_decompress_success" data-dynamic-content="' . htmlspecialchars($finalPath) . '"></span></div>';
+                    echo '<div  class="log-message alert alert-warning custom-alert-success"><span data-translate="gzip_decompress_success" data-dynamic-content="' . htmlspecialchars($finalPath) . '"></span></div>';
                     unlink($tempPath); 
                     $notificationMessage = '<span data-translate="update_success"></span>';
                     $updateCompleted = true;
                 } else {
                     storeUpdateLog('<span data-translate="gzip_decompress_failed"></span>');
-                    echo '<div id="log-message" class="alert alert-warning custom-alert-success"><span data-translate="gzip_decompress_failed"></span></div>';
+                    echo '<div class="log-message alert alert-warning custom-alert-success"><span data-translate="gzip_decompress_failed"></span></div>';
                     unlink($tempPath); 
                     $notificationMessage = '<span data-translate="update_failed"></span>';
                 }
@@ -262,13 +262,13 @@ if (isset($_POST['update'])) {
             else {
                 rename($tempPath, $finalPath); 
                 storeUpdateLog('<span data-translate="subscription_downloaded_no_decode"></span>');
-                echo '<div id="log-message" class="alert alert-warning custom-alert-success"><span data-translate="subscription_downloaded_no_decode"></span></div>';
+                echo '<div class="log-message alert alert-warning custom-alert-success"><span data-translate="subscription_downloaded_no_decode"></span></div>';
                 $notificationMessage = '<span data-translate="update_success"></span>';
                 $updateCompleted = true;
             }
         } else {
             storeUpdateLog('<span data-translate="subscription_update_failed" data-dynamic-content="' . htmlspecialchars(implode("\n", $output)) . '"></span>');
-            echo '<div id="log-message" class="alert alert-warning custom-alert-success"><span data-translate="subscription_update_failed" data-dynamic-content="' . htmlspecialchars(implode("\n", $output)) . '"></span></div>';
+            echo '<div class="log-message alert alert-warning custom-alert-success"><span data-translate="subscription_update_failed" data-dynamic-content="' . htmlspecialchars(implode("\n", $output)) . '"></span></div>';
             unlink($tempPath); 
             $notificationMessage = '<span data-translate="update_failed"></span>';
         }
@@ -368,9 +368,9 @@ EOL;
 
         if (file_put_contents($shellScriptPath, $shellScriptContent) !== false) {
             chmod($shellScriptPath, 0755); 
-            echo "<div id='log-message' class='alert alert-success' data-translate='shell_script_created' data-dynamic-content='$shellScriptPath'></div>";
+            echo "<div class='log-message alert alert-success' data-translate='shell_script_created' data-dynamic-content='$shellScriptPath'></div>";
         } else {
-            echo "<div id='log-message' class='alert alert-danger' data-translate='shell_script_failed'></div>";
+            echo "<div class='log-message alert alert-danger' data-translate='shell_script_failed'></div>";
         }
     }
 }
@@ -385,7 +385,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
         if (empty($cronExpression)) {
             file_put_contents($CRON_LOG_FILE, date('[ H:i:s ] ') . "Error: Cron expression cannot be empty.\n", FILE_APPEND);
-            echo "<div id='log-message' class='alert alert-warning' data-translate='cron_expression_empty'></div>";
+            echo "<div class='log-message alert alert-warning' data-translate='cron_expression_empty'></div>";
             exit;
         }
 
@@ -401,10 +401,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         exec("(crontab -l; echo '$cronJob') | crontab -", $output, $returnVarAdd);
         if ($returnVarAdd === 0) {
             file_put_contents($CRON_LOG_FILE, date('[ H:i:s ] ') . "Successfully added new Cron job: $cronJob\n", FILE_APPEND);
-            echo "<div id='log-message' class='alert alert-success' data-translate='cron_job_added_success'></div>";
+            echo "<div class='log-message alert alert-success' data-translate='cron_job_added_success'></div>";
         } else {
             file_put_contents($CRON_LOG_FILE, date('[ H:i:s ] ') . "Failed to add new Cron job.\n", FILE_APPEND);
-            echo "<div id='log-message' class='alert alert-danger' data-translate='cron_job_added_failed'></div>";
+            echo "<div class='log-message alert alert-danger' data-translate='cron_job_added_failed'></div>";
         }
     }
 }
@@ -432,12 +432,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['file'])) {
         $destination_path = $destination_directory . basename($file_url);
 
         if (download_file($file_url, $destination_path)) {
-            echo "<div id='log-message' class='alert alert-success' data-translate='file_download_success' data-dynamic-content='$destination_path'></div>";
+            echo "<div class='log-message alert alert-success' data-translate='file_download_success' data-dynamic-content='$destination_path'></div>";
         } else {
-            echo "<div id='log-message' class='alert alert-danger' data-translate='file_download_failed'></div>";
+            echo "<div class='log-message alert alert-danger' data-translate='file_download_failed'></div>";
         }
     } else {
-        echo "<div id='log-message' class='alert alert-warning' data-translate='invalid_file_request'></div>";
+        echo "<div class='log-message alert alert-warning' data-translate='invalid_file_request'></div>";
     }
 }
 
@@ -712,6 +712,64 @@ $(document).ready(function() {
           <p class="card-text mb-1"><strong data-translate="fileSize">Size</strong>: <?= $size ?></p>
           <p class="card-text mb-1"><strong data-translate="lastModified">Last Modified</strong>: <?= $modified ?></p>
           <p class="card-text mb-2"><strong data-translate="fileType">Type</strong>: <span class="badge <?= $isProxy ? 'bg-primary' : 'bg-success' ?>"><?= htmlspecialchars($fileTypes[$index]) ?></span></p>
+          <?php
+
+          $lines = file($filePath, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
+
+          $flowLeft = '';
+          $resetDaysLeft = '';
+          $expireDateText = '';
+
+          $hasInfo = false;
+
+          foreach ($lines as $line) {
+              if (preg_match('/#(.*)$/', $line, $matches)) {
+                  $hashComment = urldecode(trim($matches[1]));
+
+                  if (preg_match('/剩余流量[:：]\s*([\d.]+)\s*GB/u', $hashComment, $flowMatch)) {
+                      $flowLeft = $flowMatch[1] . 'GB';
+                      $hasInfo = true;
+                  }
+
+                  if (preg_match('/距离下次重置剩余[:：]\s*(\d+)\s*天/u', $hashComment, $resetMatch)) {
+                      $resetDaysLeft = $resetMatch[1];
+                      $hasInfo = true;
+                  }
+
+                  if (preg_match('/套餐到期[:：]\s*(\d{4}-\d{2}-\d{2})/u', $hashComment, $dateMatch)) {
+                      $expireDateText = $dateMatch[1];
+                      $hasInfo = true;
+                  }
+              }
+          }
+
+          if ($hasInfo) {
+              $infoParts = [];
+
+              if ($flowLeft) {
+                  $infoParts[] = $flowLeft;
+              }
+
+              if ($resetDaysLeft !== '') {
+                  $infoParts[] = 
+                      ($translations['resetDaysLeftLabel'] ?? 'Remaining') . ' ' 
+                      . $resetDaysLeft . ' ' 
+                      . ($translations['daysUnit'] ?? 'days');
+              }
+
+              if ($expireDateText) {
+                  $infoParts[] = 
+                      ($translations['expireDateLabel'] ?? 'Expires') . ' ' 
+                      . $expireDateText;
+              }
+
+              $infoText = implode(' / ', $infoParts);
+
+              echo '<p class="card-text mb-2"><strong data-translate="subscriptionInfo">'
+                  . ($translations['subscriptionInfo'] ?? 'Subscription Info') 
+                  . '</strong>: ' . htmlspecialchars($infoText) . '</p>';
+          }
+          ?>
           <div class="icon-btn-group mt-2" style="gap:0.4rem; display:flex; flex-wrap: wrap;">
             <?php if ($isProxy): ?>
               <form method="post" class="d-inline m-0 p-0">
@@ -1298,4 +1356,3 @@ function initializeAceEditor() {
     </div>
 </form>
 </div>
-

@@ -9,6 +9,48 @@
         visibility: visible;
 }
 
+.log-message.alert {
+	position: fixed !important;
+	top: 50% !important;
+	left: 50% !important;
+	transform: translate(-50%, -50%) !important;
+	z-index: 9999 !important;
+	max-width: 90vw !important;
+	padding: 1rem 2rem !important;
+	font-size: 1.1rem !important;
+	border-radius: 8px !important;
+	opacity: 1 !important;
+	color: #000 !important;
+	white-space: pre-wrap !important;
+	word-wrap: break-word !important;
+	overflow-wrap: break-word !important;
+	line-height: 1.4 !important;
+	pointer-events: none !important;
+}
+
+.log-message.alert-danger {
+	background-color: #f8d7da;
+	color: #842029;
+	box-shadow: 0 0 15px rgba(220, 53, 69, 0.7);
+}
+
+.log-message.alert-success {
+	background-color: #d1e7dd;
+	color: #0f5132;
+	box-shadow: 0 0 15px rgba(25, 135, 84, 0.7);
+}
+
+.log-message {
+	opacity: 0;
+	pointer-events: none;
+	transition: opacity 0.5s ease-in-out;
+}
+
+.log-message.show {
+	opacity: 1;
+	pointer-events: auto;
+}
+
 #theme-loader {
 	position: fixed;
 	inset: 0;
@@ -766,15 +808,15 @@ function changeLanguage(lang) {
 </script>
 
 <script>
-const logMessages = document.querySelectorAll('#log-message');
+const logMessages = document.querySelectorAll('.log-message');
 
 logMessages.forEach(message => {
+  setTimeout(() => {
+    message.classList.remove('show');
     setTimeout(() => {
-        message.style.opacity = '0'; 
-        setTimeout(() => {
-            message.remove(); 
-        }, 500); 
-    }, 5000); 
+      message.remove();
+    }, 500);
+  }, 5000);
 });
 </script>
 
@@ -4582,6 +4624,7 @@ document.addEventListener("DOMContentLoaded", () => {
     { class: "fredoka-font", key: "font_fredoka", icon: "fa-child-reaching" },
     { class: "cinzel-font", key: "font_cinzel", icon: "fa-crown" },
     { class: "system-nofo-font", key: "font_noto", icon: "fa-language" },
+    { class: "noto-sans-font", key: "font_noto_sans", icon: "fa-globe" },
     { class: "system-mono-font", key: "font_mono", icon: "fa-code" },
     { class: "dm-serif-font", key: "font_dm_serif", icon: "fa-feather-pointed" }
   ];
@@ -4602,6 +4645,13 @@ document.addEventListener("DOMContentLoaded", () => {
 
     fonts.forEach(f => body.classList.remove(f.class));
     body.classList.add(nextFont.class);
+
+    body.classList.add("font-transition");
+
+    setTimeout(() => {
+      body.classList.remove("font-transition");
+    }, 400);
+
     localStorage.setItem(storageKey, nextFont.class);
 
     updateIcon(nextFont.icon);
@@ -4757,6 +4807,22 @@ document.addEventListener("DOMContentLoaded", () => {
         font-style: normal;
         font-weight: 400;
            src: url('./assets/webfonts/dm-serif-display-v15-latin-regular.woff2') format('woff2');
+}
+
+@font-face {
+  font-display: swap;
+  font-family: 'Noto Sans';
+  font-style: normal;
+  font-weight: 400;
+  src: url('./assets/webfonts/noto-sans-v39-cyrillic_cyrillic-ext_devanagari_greek_greek-ext_latin_latin-ext_vietnamese-regular.woff2') format('woff2');
+}
+
+@font-face {
+  font-display: swap;
+  font-family: 'Noto Sans';
+  font-style: normal;
+  font-weight: 500;
+  src: url('./assets/webfonts/noto-sans-v39-cyrillic_cyrillic-ext_devanagari_greek_greek-ext_latin_latin-ext_vietnamese-500.woff2') format('woff2');
 }
 
 body {
@@ -5532,22 +5598,35 @@ body {
 }
 
 .close-icon {
-	background: rgba(255, 255, 255, 0.1);
+	background: #e74c3c;
 	border: none;
 	color: white;
-	width: 40px;
-	height: 40px;
+	width: 35px;
+	height: 35px;
 	border-radius: 50%;
 	display: flex;
 	align-items: center;
 	justify-content: center;
 	cursor: pointer;
-	transition: all 0.3s ease;
+	transition: transform 0.3s ease, box-shadow 0.3s ease;
+	transform: scale(1);
 }
 
 .close-icon:hover {
-	background: rgba(231, 76, 60, 0.2);
-	transform: translateY(-3px);
+	transform: scale(1.1);
+	box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2);
+}
+
+.close-icon i,
+.close-icon svg,
+.close-icon span {
+	transition: transform 0.3s ease;
+	transform: rotate(0deg);
+}
+
+.close-icon:hover i,
+.close-icon:hover svg {
+	transform: rotate(180deg);
 }
 
 .buttons-grid {
@@ -5661,7 +5740,7 @@ body {
 
 .panel-close-btn:hover {
 	background: rgba(231, 76, 60, 0.2);
-	transform: translateY(-3px);
+	transform: translateY(-3px) scale(1.05);
 	box-shadow: 0 7px 20px rgba(0, 0, 0, 0.2);
 }
 
@@ -6111,8 +6190,26 @@ h1:hover, h2:hover {
 	transform: translateY(-1px);
 }
 
-.row > a.btn:hover {
-	color: oklch(75% 0.25 var(--base-hue)) !important;
+a.link-primary:hover {
+        color: var(--ocean-bg) !important;
+}
+
+a.link-primary:hover svg,
+a.link-primary:hover svg path {
+        stroke: var(--ocean-bg) !important;
+        fill: var(--ocean-bg) !important;
+}
+
+.row > a.btn,
+.row > a.btn i,
+.row > a.btn span {
+	transition: color 0.3s ease;
+}
+
+.row > a.btn:hover,
+.row > a.btn:hover i,
+.row > a.btn:hover span {
+	color: var(--ocean-bg) !important;
 }
 
 .triangle-icon {
@@ -6197,6 +6294,11 @@ input.btn:focus {
 	transform: scale(1.1) !important;
 }
 
+#logTabs .nav-link:hover {
+	color: var(--ocean-bg) !important;
+}
+
+
 svg.feather {
         width: 20px !important;
         height: 20px !important;
@@ -6275,6 +6377,26 @@ body.dm-serif-font {
 body.cinzel-font {
         font-family: 'Cinzel Decorative';
         font-weight: 700;
+}
+
+body.noto-sans-font {
+        font-family: 'Noto Sans';
+        font-weight: 400;
+}
+
+body.font-transition {
+        animation: fontFade 0.4s ease-in-out;
+}
+
+@keyframes fontFade {
+        0% {
+          opacity: 0.3;
+          transform: scale(0.98);
+        }
+        100% {
+          opacity: 1;
+          transform: scale(1);
+        }
 }
 
 .modal-backdrop {
