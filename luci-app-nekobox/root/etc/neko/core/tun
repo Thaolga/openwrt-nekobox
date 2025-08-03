@@ -20,7 +20,7 @@ PORT_TPROXY=7893
 PORT_DNS=1053
 
 start_tun() {
-    echo "[$(date +%T)] - Starting iptables rules"
+    echo "[ $(date +%T) ] Starting iptables rules"
     
     ip rule add fwmark ${id} table ${id}
     ip route add default dev ${tun_device} table ${id}
@@ -59,11 +59,11 @@ start_tun() {
     ${iptables} -t nat -A PREROUTING -j PROXY_DNS
     ${iptables} -t nat -A OUTPUT -j PROXY_DNS
     
-    echo "[$(date +%T)] - iptables rules applied successfully"
+    echo "[ $(date +%T) ] iptables rules applied successfully"
 }
 
 stop_tun() {
-    echo "[$(date +%T)] - Cleaning iptables rules"
+    echo "[ $(date +%T) ] Cleaning iptables rules"
     
     ip rule del fwmark ${id} table ${id} 2>/dev/null
     ip route del default dev ${tun_device} table ${id} 2>/dev/null
@@ -88,11 +88,11 @@ stop_tun() {
     ${iptables} -t nat -F PROXY_DNS 2>/dev/null
     ${iptables} -t nat -X PROXY_DNS 2>/dev/null
     
-    echo "[$(date +%T)] - iptables rules cleaned successfully"
+    echo "[ $(date +%T) ] iptables rules cleaned successfully"
 }
 
 start_tun_fw4() {
-    echo "[$(date +%T)] - Starting nftables rules"
+    echo "[ $(date +%T) ] Starting nftables rules"
     
     $nft insert rule inet fw4 forward position 0 meta l4proto { tcp, udp } oifname ${tun_device} counter accept comment \"Neko TUN Forward\"
     $nft insert rule inet fw4 forward position 0 meta l4proto { tcp, udp } iifname ${tun_device} counter accept comment \"Neko TUN Forward\"
@@ -120,11 +120,11 @@ start_tun_fw4() {
     
     $nft add rule inet proxy prerouting meta l4proto { tcp, udp } th dport 53 redirect to :${PORT_DNS}
     
-    echo "[$(date +%T)] - nftables rules applied successfully"
+    echo "[ $(date +%T) ] nftables rules applied successfully"
 }
 
 stop_tun_fw4() {
-    echo "[$(date +%T)] - Cleaning nftables rules"
+    echo "[ $(date +%T) ] Cleaning nftables rules"
     
     ip rule del fwmark ${id} table ${id} 2>/dev/null
     ip route del default dev ${tun_device} table ${id} 2>/dev/null
@@ -139,26 +139,26 @@ stop_tun_fw4() {
     
     $nft delete table inet proxy 2>/dev/null
     
-    echo "[$(date +%T)] - nftables rules cleaned successfully"
+    echo "[ $(date +%T) ] nftables rules cleaned successfully"
 }
 
 while getopts ":sk" signal; do
     case ${signal} in
         s)
             if [[ -n $fw4 ]]; then
-                echo "[$(date +%T)] - FW4 Detected"
+                echo "[ $(date +%T) ] FW4 Detected"
                 start_tun_fw4
             else 
-                echo "[$(date +%T)] - FW3 Detected"
+                echo "[ $(date +%T) ] FW3 Detected"
                 start_tun
             fi
             ;;
         k)
             if [[ -n $fw4 ]]; then
-                echo "[$(date +%T)] - FW4 Detected"
+                echo "[ $(date +%T) ] FW4 Detected"
                 stop_tun_fw4
             else 
-                echo "[$(date +%T)] - FW3 Detected"
+                echo "[ $(date +%T) ] FW3 Detected"
                 stop_tun
             fi
             ;;
@@ -168,4 +168,4 @@ done
 echo 1 > /proc/sys/net/ipv4/ip_forward
 echo 1 > /proc/sys/net/ipv6/conf/all/forwarding 2>/dev/null
 
-echo "[$(date +%T)] - Script executed successfully"
+echo "[ $(date +%T) ] Script executed successfully"
