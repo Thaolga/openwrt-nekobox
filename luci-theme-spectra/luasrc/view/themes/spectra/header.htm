@@ -22,7 +22,7 @@
 	local http = require "luci.http"
 	local disp = require "luci.dispatcher"
 	local ver = require "luci.version"
-
+        local mode = 'normal'
 	local boardinfo = util.ubus("system", "board")
 
 	local node = disp.context.dispatched
@@ -59,159 +59,224 @@
 
 <head>
 <style>
-body,
-        body *:not(script):not(style):not(link) {
-	font-family: system-ui,
-            -apple-system,               
-            "Segoe UI Variable",            
-            "Microsoft YaHei UI",         
-            "HarmonyOS Sans SC",         
-            "PingFang SC", 
-            "Noto Sans CJK SC",
-            "Source Han Sans SC",
-            sans-serif !important;
-	font-synthesis: none !important;
+.navbar-container {
+    align-items: center;
+    display: flex;
+    height: 60px;
+    justify-content: space-between;
+    padding-left: 250px;
+    padding-right: 5px;
+    width: 100%;
+}
+
+.navbar-left,
+.navbar-right {
+    align-items: center;
+    display: flex;
+    gap: 15px;
+}
+
+@media (max-width: 768px) {
+    .navbar-container {
+        padding-left: 5px;
+    }
+    .navbar-left,
+    .navbar-right {
+        gap: 11.5px;
+    }
+}
+
+.ip-container {
+    align-items: center;
+    display: flex;
+    gap: 6px;
+    white-space: nowrap;
+}
+
+.ip-container img {
+    border-radius: 4px;
+    cursor: pointer;
+    height: 20px;
+    object-fit: cover;
+    width: 32px;
+}
+
+.ip-container .ip-text {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    line-height: 1.2;
+}
+
+.ip-container #d-ip {
+    color: #18a558;
+    font-family: 'Comic Neue', cursive !important;
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.ip-container #ipip {
+    color: #e83e8c;
+    font-family: 'Comic Neue', cursive !important;
+    font-size: 13px;
+}
+
+@media (max-width: 768px) {
+    .ip-container {
+        display: none !important;
+    }
+}
+
+.nav-icon {
+    align-items: center;
+    background: transparent;
+    border-radius: 6px;
+    box-shadow: 0 4px 4px 2px #00ffff9a;
+    cursor: pointer;
+    display: flex;
+    height: 40px;
+    justify-content: center;
+    overflow: hidden;
+    position: relative;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    width: 40px;
+}
+
+.nav-icon img {
+    height: 40px;
+    left: 50%;
+    object-fit: cover;
+    position: absolute;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    transition: filter 0.2s ease-in-out;
+    width: 40px;
+}
+
+.nav-icon:hover img {
+    filter: drop-shadow(0 0 5px cyan);
+}
+
+.site-icon {
+    cursor: pointer;
+    height: 48px;
+    position: relative;
+    width: 48px;
+}
+
+.site-icon img {
+    border-radius: 50%;
+    height: 48px;
+    left: 0;
+    object-fit: cover;
+    position: absolute;
+    top: 0;
+    width: 48px;
+}
+
+.site-icon img#github-normal,
+.site-icon img#github-gray {
+    height: 55px;
+    width: 55px;
+}
+
+.navbar-right .site-icon {
+    position: relative;
+    top: 3px;
+}
+
+@media (max-width: 1044px) {
+    .site-icon {
+        display: none !important;
+    }
+}
+
+#result-overlay {
+    backdrop-filter: blur(4px);
+    background: rgba(0, 0, 0, 0.5);
+    border-radius: 8px;
+    color: #fff;
+    display: none;
+    font-size: 18px;
+    font-weight: bold;
+    left: 50%;
+    max-width: 90%;
+    padding: 8px 16px;
+    pointer-events: none;
+    position: fixed;
+    text-align: center;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    word-break: break-word;
+    z-index: 9999;
 }
 
 @font-face {
-	font-family: "Fallback Sans";
-          src: local("Arial"), local("Liberation Sans");
-          ascent-override: 95%;
-          descent-override: 20%;
-          line-gap-override: 0;
-}
-
-body {
-	font-family: var(--system-font-stack), 
-            "Fallback Sans" !important;
-	-webkit-font-smoothing: auto !important;
-	font-smooth: never !important;
-}
-
-:lang(zh) {
-	hanging-punctuation: first allow-end !important;
-}
-
-h2:not(.keep-default) {
-	font-family: ui-sans-serif,     
-            "HarmonyOS Sans SC Bold",
-            "Microsoft YaHei Bold",
-            sans-serif !important;
-	font-size: 1.8em !important;
-	font-weight: bolder !important;
-}
-
-h3:not(.keep-default) {
-	font-family: ui-sans-serif,
-            "HarmonyOS Sans SC Medium",
-            "Microsoft YaHei",
-            sans-serif !important;
-	font-size: 1.2em !important;
-	font-weight: normal !important;
-	font-style: oblique 8deg !important;
-}
-
-header {
-	background-color: transparent;
-	color: #fff;
-	padding: 20px;
-}
-
-.box {
-	width: 40px;
-	height: 40px;
-	margin: 0 8px;
-	background: transparent;
-	margin: 0 10px;
-	display: flex;
-	justify-content: center;
-	align-items: center;
-	text-align: center;
-	position: relative;
-	overflow: hidden;
-	box-shadow: 0 6px 6px 3px #00ffff9a;
-}
-
-.box img {
-	display: block;
-	margin: auto;
-	position: absolute;
-	top: 50%;
-	left: 50%;
-	transform: translate(-50%, -50%);
-	transition: filter 0.2s ease-in-out;
-}
-
-.box:hover img {
-	filter: drop-shadow(0 0 5px cyan);
-}
-
-.box i {
-	z-index: 5;
-	font-size: 45px;
-	color: #fff;
-}
-
-.box-area {
-	display: flex;
-	justify-content: space-evenly;
-	align-items: center;
-	margin: 30px 0 40px;
-	padding: 0 15px;
-}
-
-.inner {
-	display: none !important;
-}
-
-@font-face {
-	font-display: swap; 
-  font-family: 'Fredoka One';
-  font-style: normal;
-  font-weight: 700;
-  src: url('/luci-static/spectra/fonts/fredoka-v16-latin-700.woff2') format('woff2');
+    font-display: swap;
+    font-family: 'Fredoka One';
+    font-style: normal;
+    font-weight: 700;
+    src: url('/luci-static/spectra/fonts/fredoka-v16-latin-700.woff2') format('woff2');
 }
 
 @keyframes textColorChange {
-	0% {
-		color: #28edf0;
-	}
-
-	50% {
-		color: #28edf0;
-	}
-
-	100% {
-		color: #28edf0;
-	}
+    0%, 100% { color: #28edf0; }
+    50% { color: #28edf0; }
 }
 
 .royal-style {
-	font-family: 'Fredoka One', cursive !important;
-	font-weight: 700;
-	font-size: 35px;
-	display: inline-flex;
-	align-items: center;
-	justify-content: center;
-	min-width: 220px;
-	padding: 2px 5px;
-	line-height: 1.1;
-	letter-spacing: 2px;
-	text-decoration: none !important;
-	box-sizing: border-box;
-	color: #28edf0;
-	-webkit-text-stroke: 1px rgba(0, 0, 0, 0.5);
-	animation: textColorChange 3s infinite linear;
-	text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.2),  
-                 -2px -2px 5px rgba(255, 255, 255, 0.5);
-	transition: all 0.3s;
+    align-items: center;
+    animation: textColorChange 3s infinite linear;
+    box-sizing: border-box;
+    color: #28edf0;
+    display: inline-flex;
+    font-family: 'Fredoka One', cursive !important;
+    font-size: 35px;
+    font-weight: 700;
+    justify-content: center;
+    letter-spacing: 2px;
+    line-height: 1.1;
+    min-width: 220px;
+    padding: 2px 5px;
+    text-decoration: none !important;
+    text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.2),
+                -2px -2px 5px rgba(255, 255, 255, 0.5);
+    transition: all 0.3s;
+    -webkit-text-stroke: 1px rgba(0, 0, 0, 0.5);
 }
 
 .royal-style:hover {
-	transform: skew(-5deg);
-	filter: drop-shadow(2px 2px 3px rgba(0, 0, 0, 0.3));
+    filter: drop-shadow(2px 2px 3px rgba(0, 0, 0, 0.3));
+    transform: skew(-5deg);
 }
 
+.inner {
+    display: none !important;
+}
+
+@media screen and (max-width: 600px) {
+    .block h4 {
+        font-size: 0.7rem !important;
+    }
+    .block {
+        padding: 0.3rem !important;
+    }
+    .block img {
+        width: 36px !important;
+    }
+}
+
+@supports (-webkit-touch-callout: none) {
+    .main {
+        min-height: 100vh;
+    }
+}
+
+@media (max-width: 768px) {
+    .main {
+        min-height: 100vh;
+    }
+}
 </style>
     <meta charset="utf-8">
     <title>
@@ -303,37 +368,75 @@ header {
     <div class="fill">
         <div class="container">
             <a class="showSide"></a>
-            <a id="logo" href="#" class="royal-style"><%=brand_name%></a>
-        <div class="box-area">
-            <div class="box">
-                <a id="oc" href='/cgi-bin/luci/admin/services/openclash'><img src="<%=media%>/navbar/clash.gif" width="35" height="35"></a>
+        <div class="navbar-container">
+            <div class="navbar-left">
+                <div class="nav-icon">
+                    <a id="oc" href="/cgi-bin/luci/admin/services/openclash">
+                        <img src="<%=media%>/navbar/clash.gif" alt="OpenClash">
+                    </a>
+                </div>
+                <div class="nav-icon">
+                    <a href="/nekobox" target="_blank">
+                        <img src="<%=media%>/navbar/yacd.gif" alt="NekoBox">
+                    </a>
+                </div>
+                <div class="nav-icon">
+                    <a href="/luci-static/spectra/bgm/index.php" target="_blank">
+                        <img src="<%=media%>/navbar/tinyfm.gif" alt="TinyFM">
+                    </a>
+                </div>
+                <div class="nav-icon">
+                    <a href="/cgi-bin/luci/admin/status/realtime">
+                        <img src="<%=media%>/navbar/netmon.gif" alt="NetMon">
+                    </a>
+                </div>
+                <div class="nav-icon">
+                    <a href="/cgi-bin/luci/admin/services/ttyd">
+                        <img src="<%=media%>/navbar/terminal.gif" alt="TTYD">
+                    </a>
+                </div>
+                <div class="nav-icon">
+                    <a href="/cgi-bin/luci/admin/services/homeproxy">
+                        <img src="<%=media%>/navbar/modem.gif" alt="HomeProxy">
+                    </a>
+                </div>
+                <div class="nav-icon">
+                    <a href="/cgi-bin/luci/admin/network/network">
+                        <img src="<%=media%>/navbar/interface.gif" alt="Interface">
+                    </a>
+                </div>
             </div>
-            <div class="box">
-                <a href='/nekobox' target='_blank'><img src="<%=media%>/navbar/yacd.gif" width="35" height="35"></a>
+            <div class="ip-container" style="display: none;">
+                <img id="flag" src="path/to/flag.png" alt="IP Flag" title="<%:Click to refresh IP address%>">
+                <div class="ip-text">
+                    <span id="d-ip">Checking...</span>
+                    <span id="ipip"></span>
+                </div>
             </div>
-            <div class="box">
-                <a href='/cgi-bin/luci/admin/services/spectra'><img src="<%=media%>/navbar/tinyfm.gif" width="35" height="35"></a>
+
+            <div id="result-overlay"></div>
+
+            <div id="result" class="navbar-right">
+                <div class="site-icon" onclick="pingHost('baidu', 'Baidu', 'https://www.baidu.com')">
+                    <img src="/luci-static/ipip/img/site_icon_01.png" id="baidu-normal" alt="Baidu">
+                    <img src="/luci-static/ipip/img/site_icon1_01.png" id="baidu-gray" alt="Baidu">
+                </div>
+                <div class="site-icon" onclick="pingHost('taobao', 'Taobao', 'https://www.taobao.com')">
+                    <img src="/luci-static/ipip/img/site_icon_02.png" id="taobao-normal" alt="Taobao">
+                    <img src="/luci-static/ipip/img/site_icon1_02.png" id="taobao-gray" alt="Taobao">
+                </div>
+                <div class="site-icon" onclick="pingHost('google', 'Google', 'https://www.google.com')">
+                    <img src="/luci-static/ipip/img/site_icon_03.png" id="google-normal" alt="Google">
+                    <img src="/luci-static/ipip/img/site_icon1_03.png" id="google-gray" alt="Google">
+                </div>
+                <div class="site-icon" onclick="pingHost('youtube', 'YouTube', 'https://www.youtube.com')">
+                    <img src="/luci-static/ipip/img/site_icon_04.png" id="youtube-normal" alt="YouTube">
+                    <img src="/luci-static/ipip/img/site_icon1_04.png" id="youtube-gray" alt="YouTube">
+                </div>
             </div>
-            <div class="box">
-                <a href='/cgi-bin/luci/admin/status/realtime'><img src="<%=media%>/navbar/netmon.gif" width="35" height="35"></a>
-            </div>
-            <div class="box">
-                <a href='/cgi-bin/luci/admin/services/ttyd'><img src="<%=media%>/navbar/terminal.gif" width="35" height="35"></a>
-            </div>
-            <div class="box">
-                <a href='/cgi-bin/luci/admin/services/homeproxy'><img src="<%=media%>/navbar/modem.gif" width="35" height="35"></a>
-            </div>
-            <div class="box">
-                <a href='/cgi-bin/luci/admin/network/network'><img src="<%=media%>/navbar/interface.gif" width="35" height="35"></a>
-            </div>
-        </div>
-    <div class="ip-container" style="display: none;">
-        <img id="flag" src="path/to/flag.png" alt="IP Flag" title="<%:Click to refresh IP address%>">
-        <div class="ip-text">
-            <span id="d-ip">Checking...</span>
-            <span id="ipip"></span>
         </div>
     </div>
+</div>
 <script type="text/javascript">
     const _IMG = '/luci-static/ipip/';
     const translate = {
@@ -347,7 +450,7 @@ header {
             return text;
         }
 
-        const browserLang = navigator.language || navigator.userLanguage;
+        const currentLanguage = localStorage.getItem('currentLanguage') || 'zh-CN';
 
         const langMap = {
             'zh-CN': 'zh-CN', 
@@ -385,7 +488,7 @@ header {
             'uk': 'uk',
         };
 
-        const targetLang = langMap[browserLang] || browserLang.split('-')[0];
+        const targetLang = langMap[currentLanguage] || currentLanguage.split('-')[0];
 
         if (targetLang.startsWith('en')) {
             return text;
@@ -629,6 +732,112 @@ header {
 </script>
 
 <script>
+function pingHost(id, name, url) {
+    const normal = document.getElementById(`${id}-normal`);
+    const gray = document.getElementById(`${id}-gray`);
+    const overlay = document.getElementById('result-overlay');
+    const start = performance.now();
+
+    fetch(url, { mode: 'no-cors' })
+        .then(() => {
+            const end = performance.now();
+            const ping = Math.round(end - start);
+            normal.style.display = 'inline';
+            gray.style.display = 'none';
+
+            let color = '#00c800';
+            if (ping > 300) {
+                color = 'red';
+            } else if (ping > 150) {
+                color = 'orange';
+            }
+
+            overlay.innerHTML = `${name} 延迟: ${ping} ms`;
+            overlay.style.color = color;
+            overlay.style.display = 'block';
+            clearTimeout(overlay.timer);
+            overlay.timer = setTimeout(() => {
+                overlay.style.display = 'none';
+            }, 5000);
+        })
+        .catch(() => {
+            normal.style.display = 'none';
+            gray.style.display = 'inline';
+            overlay.innerHTML = `${name} 连接超时`;
+            overlay.style.color = 'red';
+            overlay.style.display = 'block';
+            clearTimeout(overlay.timer);
+            overlay.timer = setTimeout(() => {
+                overlay.style.display = 'none';
+            }, 5000);
+        });
+}
+
+function checkAllSites() {
+    const sites = [
+        {id: 'baidu', name: 'Baidu', url: 'https://www.baidu.com'},
+        {id: 'taobao', name: 'Taobao', url: 'https://www.taobao.com'},
+        {id: 'google', name: 'Google', url: 'https://www.google.com'},
+        {id: 'youtube', name: 'YouTube', url: 'https://www.youtube.com'}
+    ];
+    sites.forEach(site => {
+        const normal = document.getElementById(`${site.id}-normal`);
+        const gray = document.getElementById(`${site.id}-gray`);
+        fetch(site.url, { mode: 'no-cors' })
+            .then(() => {
+                normal.style.display = 'inline';
+                gray.style.display = 'none';
+            })
+            .catch(() => {
+                normal.style.display = 'none';
+                gray.style.display = 'inline';
+            });
+    });
+}
+
+window.addEventListener('load', () => {
+    checkAllSites();
+    
+    setInterval(checkAllSites, 180000);
+});
+</script>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const themeMode = '<%= mode %>';
+    let isDarkMode = false;
+
+    if (themeMode === 'dark') {
+        isDarkMode = true;
+    } else if (themeMode === 'normal' && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        isDarkMode = true;
+    }
+
+    const royalElements = document.querySelectorAll('.royal-style');
+    royalElements.forEach(el => {
+        el.style.setProperty('color', isDarkMode ? '#28edf0' : '#007bff', 'important');
+        
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes textColorChange {
+                0%, 100% { text-shadow: 2px 2px 5px rgba(0,0,0,0.2); }
+                50% { text-shadow: 3px 3px 7px rgba(0,0,0,0.3); }
+            }
+        `;
+        document.head.appendChild(style);
+    });
+
+    if (themeMode === 'normal') {
+        window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', e => {
+            royalElements.forEach(el => {
+                el.style.setProperty('color', e.matches ? '#28edf0' : '#007bff', 'important');
+            });
+        });
+    }
+});
+</script>
+
+<script>
 function updatemenu(){1==document.getElementById("responsive-menu").checked?(document.getElementById("menu").style.borderBottomRightRadius="0",document.getElementById("menu").style.borderBottomLeftRadius="0"):document.getElementById("menu").style.borderRadius="0px"}
 </script>
 
@@ -637,7 +846,7 @@ function updatemenu(){1==document.getElementById("responsive-menu").checked?(doc
 	<div class="main">
 		<div class="main-left" id="mainmenu" style="display:none">
 			<div class="sidenav-header d-flex align-items-center">
-					
+				<a id="logo" href="#" class="royal-style"><%=brand_name%></a>	
 				<div class="ml-auto">
 					<!-- Sidenav toggler -->
 					<div class="sidenav-toggler d-none d-xl-block active" data-action="sidenav-unpin"

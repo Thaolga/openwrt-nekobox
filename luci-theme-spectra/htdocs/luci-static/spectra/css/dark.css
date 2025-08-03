@@ -1,5 +1,5 @@
 body {
-	background: #111;
+	background: #0f3460;
 	height: 100vh;
 	overflow: hidden;
 	z-index: 9999;
@@ -40,8 +40,34 @@ body {
 	opacity: 0.9;
 }
 
+#logTable,
+#logTable th,
+#logTable td {
+	color: white !important;
+}
+
+#logTable .log-err {
+	background-color: rgba(255, 0, 0, 0.25) !important;
+}
+
+#logTable .log-warn {
+	background-color: rgba(255, 255, 0, 0.25) !important;
+}
+
+#logTable .log-info {
+	background-color: rgba(0, 255, 0, 0.25) !important;
+}
+
+#logTable .log-notice {
+	background-color: rgba(0, 0, 255, 0.25) !important;
+}
+
 header::after {
 	background-color: transparent !important;
+}
+
+span#ip-address {
+        margin-left: -0.9ch !important;
 }
 
 .main {
@@ -94,9 +120,9 @@ header::after {
 	color: #FFDAB9 !important;
 }
 
-.main .main-left .nav .slide .slide-menu li a {
+/* .main .main-left .nav .slide .slide-menu li a {
 	color: #00ffcc !important;
-}
+} */
 
 .main .main-left .nav .slide .slide-menu .active a {
 	color: #ffcc00 !important;
@@ -174,6 +200,12 @@ header.bg-primary {
 
 .cbi-map-descr {
 	color: #ccc;
+}
+
+.cbi-dropdown > span.open,
+.cbi-dropdown > span.more,
+.cbi-dropdown {
+        color: white !important;
 }
 
 .cbi-section {
@@ -398,8 +430,9 @@ div > .table > .tbody > .tr:nth-of-type(2n) {
 
 select,
 input {
-	color: #ccc;
+	color: oklch(1 0 0) !important;
 	background-color: transparent !important;
+        text-shadow: 0 0 2px oklch(1 0 0), 0 0 4px oklch(1 0 0);
 	border: 1px solid #252526;
 	box-shadow: none;
 }
@@ -720,35 +753,6 @@ th:empty {
 	box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1) !important;
 }
 
-#tool_label {
-	background-color: #3498db !important;
-	padding: 5px 10px !important;
-	border-radius: 5px !important;
-	margin: 5px 0 !important;
-	border-bottom: none !important;
-}
-
-#tool_label .tool_label_span {
-	display: inline-block !important;
-	color: #ffffff !important;
-	line-height: 1.2 !important;
-}
-
-#tool_label .tool_label_select {
-	padding: 3px 5px !important;
-	border-radius: 5px !important;
-	border: none !important;
-}
-
-#tool_label .btn.cbi-button.cbi-button-apply {
-	background-color: #3498db !important;
-	color: #ffffff !important;
-	padding: 3px 10px !important;
-	border-radius: 5px !important;
-	border: none !important;
-	cursor: pointer !important;
-}
-
 .modal {
 	background-color: #0000009a;
 }
@@ -859,6 +863,7 @@ th:empty {
 
 .cbi-dynlist > .item > span {
 	border: 1px solid #3c3c3c !important;
+        color: #ffffff !important;   
 }
 
 .slide-menu li:before {
@@ -1000,6 +1005,7 @@ h6 {
 		margin-right: -3px;
 	}
 }
+
 
 .modal.alert-message.notice {
 	position: fixed;
@@ -1165,21 +1171,6 @@ ul.tabs li.active, ul.cbi-tabmenu li.cbi-tab {
 	backdrop-filter: blur(8px) brightness(0.98) !important;
 }
 
-.item::after {
-	font-family: "spectra" !important;
-	content: "\e900" !important;
-	padding: 0.5em 1em !important;
-	font-size: 1.1em !important;
-	font-weight: 600 !important;
-	border-radius: 8px !important;
-	min-width: 2.5em;
-	cursor: pointer;
-}
-
-.item:hover::after {
-	transform: scale(1.1);
-}
-
 .cbi-page-actions .cbi-button-apply,
 .cbi-section-actions .cbi-button-edit,
 .cbi-button-edit,
@@ -1304,11 +1295,6 @@ input[type="button"][value="To Top"],
 	color: white !important;
 }
 
-#cbi-passwall-nodes .nodes_select,
-#cbi-passwall2-nodes .nodes_select {
-	margin-top: 8px;
-}
-
 .cbi-button:hover {
 	transform: scale(1.1);
 }
@@ -1339,82 +1325,6 @@ html {
 
 button.cbi-button {
 	margin: 0 10px !important;
-}
-
-.pure-g {
-	letter-spacing: -0.31em !important;
-	text-rendering: optimizespeed !important;
-	display: flex !important;
-	flex-flow: row wrap !important;
-	align-content: flex-start !important;
-	padding: 10px !important;
-}
-
-.block {
-	margin: 0.5rem !important;
-	padding: 1rem !important;
-	background-color: #ffffff !important;
-	border-radius: 8px !important;
-	box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1) !important;
-	transition: transform 0.3s ease, box-shadow 0.3s ease !important;
-	display: flex !important;
-	align-items: center !important;
-	justify-content: space-between !important;
-}
-
-.block:hover {
-	transform: translateY(-5px) !important;
-	box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15) !important;
-}
-
-.block > .pure-u-2-3 {
-	order: 1 !important;
-	flex: 1 !important;
-	margin-right: 1rem !important;
-	overflow: hidden !important;
-	white-space: nowrap !important;
-	text-overflow: ellipsis !important;
-}
-
-.pure-u-2-3 h4 {
-	border-radius: 8px !important;
-	padding: 8px !important;
-	background: #E6E6FA !important;
-}
-
-.block > .pure-u-1-3 {
-	order: 2 !important;
-	flex: 0 0 auto !important;
-	text-align: right !important;
-}
-
-.img-con {
-	margin: 0 !important;
-}
-
-.green {
-	color: #2dce89 !important;
-}
-
-.red {
-	color: #fb6340 !important;
-}
-
-.yellow {
-	color: #fb9a05 !important;
-}
-
-.block h4 {
-	font-size: 0.9rem !important;
-	font-weight: 600 !important;
-	color: #2c3e50 !important;
-	line-height: 1.6 !important;
-	margin: 0 !important;
-}
-
-.block img {
-	width: 48px !important;
-	height: auto !important;
 }
 
 .check {
@@ -1800,82 +1710,6 @@ footer a.version {
 	color: #FF00FF !important;
 	text-decoration: none !important;
 	display: inline-block;
-}
-
-a[href="#"][onclick*="/passwall2/node_config/"],
-a[href="#"][onclick*="/passwall2/get_redir_log"],
-a[href="#"][onclick*="/passwall/node_config/"],
-a[href="#"][onclick*="/passwall/get_redir_log"],
-a[href="#"][onclick*="/cgi-bin/luci/admin/services/passwall2/get_socks_log"] {
-	display: inline-flex;
-	align-items: center;
-	justify-content: center;
-	background-color: #3b82f6;
-	color: white !important;
-	font-weight: 500;
-	gap: 6px;
-	border-radius: 6px;
-	text-decoration: none;
-	transition: all 0.3s cubic-bezier(0.645, 0.045, 0.355, 1);
-	margin-right: 5px;
-	margin-bottom: 5px;
-	font-size: inherit;
-	padding: 0 10px;
-	height: 36px;
-	min-width: 60px;
-}
-
-a[href="#"][onclick*="/passwall2/node_config/"]:hover,
-a[href="#"][onclick*="/passwall2/get_redir_log"]:hover,
-a[href="#"][onclick*="/passwall/node_config/"]:hover,
-a[href="#"][onclick*="/passwall/get_redir_log"]:hover,
-a[href="#"][onclick*="/cgi-bin/luci/admin/services/passwall2/get_socks_log"]:hover {
-	background-color: #2563eb;
-	transform: translateY(-2px);
-	box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-}
-
-a[href="#"][onclick*="/passwall2/node_config/"]:active,
-a[href="#"][onclick*="/passwall2/get_redir_log"]:active,
-a[href="#"][onclick*="/passwall/node_config/"]:active,
-a[href="#"][onclick*="/passwall/get_redir_log"]:active,
-a[href="#"][onclick*="/cgi-bin/luci/admin/services/passwall2/get_socks_log"]:active {
-	transform: translateY(0);
-	background-color: #1d4ed8;
-}
-
-[data-page="admin-system-opkg"] h2 {
-	color: #ccc !important;
-}
-[data-page="admin-system-startup"] textarea {
-	color: #ccc;
-	background-color: transparent;
-}
-[data-page="admin-system-startup"] textarea:focus-visible {
-	border: 1px solid var(--dark-primary);
-}
-[data-page="admin-network-firewall-custom"] #view p textarea,
-[data-page="admin-status-routes"] #view p textarea,
-[data-page="admin-system-crontab"] #view p textarea {
-	color: #ccc;
-	background: rgba(37, 37, 38, 0.1);
-	backdrop-filter: blur(10px);
-	-webkit-backdrop-filter: blur(10px);
-}
-
-#view > .spinning {
-	width: 300px;
-	height: auto;
-	position: absolute;
-	top: 10%;
-	background: #e8f5e9;
-	border: 2px solid #4caf50;
-	border-radius: 8px;
-	box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-	text-align: center;
-	padding: 20px;
-	font-size: 16px;
-	color: #2e7d32;
 }
 
 .wrapper span {
@@ -2397,39 +2231,14 @@ input[data-v-07bccc36].cbi-button {
 	color: #FF6347 !important;
 }
 
+#log_textarea {
+        color: #cccccc !important;
+}
+
 @media screen and (max-width: 600px) {
 	.wrapper span {
 		display: none !important;
 	}
-}
-
-@media (max-width: 600px) {
-	td p {
-		white-space: nowrap;
-		text-align: center;
-	}
-
-	td p img {
-		margin: 0;
-		width: auto;
-		height: auto;
-	}
-}
-
-@media (max-width: 600px) {
-	.tr {
-		display: flex;
-		flex-wrap: nowrap;
-	}
-
-	div[style*="display: flex"] {
-		display: none !important;
-	}
-}
-
-p[style*="float: right; margin: 0.5% 2.5% 0 0;"] {
-	display: none !important;
-}
 }
 
 @media screen and (min-width: 600px) {
@@ -2461,43 +2270,29 @@ p[style*="float: right; margin: 0.5% 2.5% 0 0;"] {
 	}
 }
 
-@media screen and (max-width: 480px) {
-	.pure-g {
-		display: flex !important;
-		flex-wrap: wrap !important; 
-		padding: 8px !important;
-		margin: 0 -10px !important;
-	}
-
-	.pure-u-1-4 {
-		display: inline-block !important;
-		width: calc(50% - 20px) !important; 
-		margin: 0 10px 8px 10px !important; 
-	}
-
-	.block {
-		flex-wrap: nowrap !important;
-		padding: 0.8rem !important;
-		min-width: 0 !important;
-	}
-
-	.block h4 {
+@media screen and (max-width: 600px) {
+	.btn.cbi-button {
 		font-size: 0.75rem !important;
-		white-space: nowrap !important;
-		text-overflow: ellipsis !important;
+		padding: 0.2rem 0.4rem !important;
+		height: auto !important;
 	}
 
-	.pure-g .pure-u-1-4 img {
-		display: inline-block;
-		width: 100%;
-		margin-right: 10px; 
-	}
-
-	.pure-g .pure-u-1-4:last-child img {
-		margin-right: 0;
-	}
-
-	.img-con:not(:first-child) {
-		display: block !important; 
+	.btn.cbi-button + .btn.cbi-button {
+		margin-left: 0.2rem !important;
 	}
 }
+
+@media (max-width: 768px) {
+	div.pure-u-1-4.check:has(h4#status_baidu) div.img-con img {
+		margin-left: -0.3em !important;
+	}
+}
+
+@media (max-width: 768px) {
+	tr[id^="cbi-passwall-"] .cbi-input-checkbox,
+        tr[id^="cbi-passwall2-"] .cbi-input-checkbox {
+		position: relative;
+		top: -4px;
+	}
+}
+
