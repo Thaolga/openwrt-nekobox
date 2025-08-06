@@ -128,7 +128,15 @@ document.addEventListener("DOMContentLoaded", () => {
   const loader = document.getElementById("theme-loader");
 
   document.querySelectorAll("form").forEach(form => {
-    form.addEventListener("submit", () => {
+    form.addEventListener("submit", (e) => {
+      if (e.submitter && e.submitter.classList.contains('cancel-btn')) {
+        return;
+      }
+
+      if (form.classList.contains('no-loader')) {
+        return;
+      }
+      
       if (loader) {
         loader.style.display = "flex";
       }
@@ -599,7 +607,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     </div>
 </div>
 
-<div class="modal fade" id="confirmModal" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false">
+<div class="modal fade" id="confirmModal" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false" style="z-index: 9999;">
     <div class="modal-dialog modal-lg modal-dialog-centered">
         <div class="modal-content">
             <div class="modal-header">
@@ -6323,26 +6331,32 @@ svg.feather:hover,
 
 * {
 	scrollbar-width: thin;
-	scrollbar-color: rgba(255, 255, 255, 0.3) transparent;
+	scrollbar-color: var(--accent-color) var(--header-bg);
 }
 
 *::-webkit-scrollbar {
 	width: 6px;
 	height: 6px;
-}
 
-*::-webkit-scrollbar-track {
 	background: transparent;
 }
 
+*::-webkit-scrollbar-track {
+	background: var(--header-bg);
+	border-radius: 3px;
+	margin: 4px 0;
+}
+
 *::-webkit-scrollbar-thumb {
-	background: var(--accent-color) !important;
-	border-radius: 4px;
+	background: var(--accent-color);
+	border-radius: 3px;
 	transition: background 0.3s ease;
+	min-height: 40px;
+	min-width: 40px;
 }
 
 *::-webkit-scrollbar-thumb:hover {
-	background: var(--accent-color) !important;
+	background: color-mix(in oklch, var(--accent-color), white 20%);
 }
 
 body {
@@ -6590,6 +6604,169 @@ input[type=range]::-ms-thumb {
 .btn-lg {
 	padding: 0.5rem 1rem;
 	font-size: 1.25rem;
+}
+
+.ace_search {
+	background: var(--bg-container) !important;
+	border: 1px solid var(--border-color) !important;
+	border-radius: var(--radius);
+	box-shadow: var(--item-hover-shadow);
+	padding: 8px 12px !important;
+	color: var(--text-primary);
+	backdrop-filter: var(--glass-blur);
+	transition: var(--transition);
+}
+
+.ace_search_form, .ace_replace_form {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	margin-bottom: 8px;
+}
+
+.ace_search_field {
+	background: var(--card-bg) !important;
+	border: 1px solid var(--border-color) !important;
+	color: var(--text-primary) !important;
+	padding: 6px 12px !important;
+	border-radius: calc(var(--radius) - 4px) !important;
+	font-size: 14px !important;
+	min-width: 200px;
+	transition: var(--transition);
+}
+
+.ace_search_field:focus {
+	border-color: var(--accent-color) !important;
+	outline: none;
+	box-shadow: 0 0 0 2px color-mix(in oklch, var(--accent-color), transparent 70%);
+}
+
+.ace_searchbtn {
+	background: var(--btn-primary-bg) !important;
+	color: white !important;
+	border: none !important;
+	border-radius: calc(var(--radius) - 4px) !important;
+	background-image: none !important;
+	padding: 6px 12px !important;
+	font-size: 13px !important;
+	cursor: pointer;
+	transition: var(--transition);
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	min-width: 60px;
+	filter: contrast(1.2) brightness(1.1);
+}
+
+.ace_searchbtn:hover {
+	background: var(--btn-primary-hover) !important;
+	color: white !important;
+}
+
+.ace_searchbtn.prev,
+.ace_searchbtn.next {
+	position: relative;
+}
+
+.ace_searchbtn.prev::before,
+.ace_searchbtn.next::before {
+	content: "";
+	font-size: 14px;
+	color: white !important;
+	filter: contrast(1.3);
+	display: inline-block;
+	line-height: 1;
+}
+
+.ace_searchbtn.prev::before {
+	content: "↑";
+}
+
+.ace_searchbtn.next::before {
+	content: "↓";
+}
+
+.ace_searchbtn .ace_icon,
+.ace_searchbtn::after {
+	display: none !important;
+	opacity: 0 !important;
+}
+
+.ace_searchbtn_close {
+	background: transparent !important;
+	color: var(--text-secondary) !important;
+	position: absolute;
+	right: 12px;
+	top: 12px;
+	cursor: pointer;
+	font-size: 16px;
+	transition: var(--transition);
+	width: 20px;
+	height: 20px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	border-radius: 3px;
+}
+
+.ace_searchbtn_close:hover {
+	color: white !important;
+	background: var(--btn-primary-bg) !important;
+}
+
+.ace_searchbtn_close::before {
+	content: "×";
+}
+
+.ace_search_options {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	margin-top: 8px;
+}
+
+.ace_button {
+	background: var(--btn-primary-bg) !important;
+	color: white !important;
+	border: none !important;
+	border-radius: calc(var(--radius) - 4px) !important;
+	padding: 4px 8px !important;
+	font-size: 12px !important;
+	cursor: pointer;
+	transition: var(--transition);
+	filter: contrast(1.2);
+}
+
+.ace_button:hover {
+	background: var(--btn-primary-hover) !important;
+	color: white !important;
+}
+
+.ace_search_counter {
+	color: var(--text-secondary);
+	font-size: 12px;
+	margin-right: auto;
+}
+
+[action="toggleRegexpMode"] {
+	background: var(--btn-info-bg) !important;
+	color: white !important;
+}
+[action="toggleCaseSensitive"] {
+	background: var(--btn-warning-bg) !important;
+	color: white !important;
+}
+[action="toggleWholeWords"] {
+	background: var(--btn-success-bg) !important;
+	color: white !important;
+}
+[action="searchInSelection"] {
+	background: var(--ocean-bg) !important;
+	color: white !important;
+}
+[action="toggleReplace"] {
+	background: var(--lavender-bg) !important;
+	color: white !important;
 }
 
 #editorStatus {

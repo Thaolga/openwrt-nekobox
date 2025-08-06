@@ -1030,292 +1030,384 @@ checkAceScript();
 
 <script>
 let isJsonDetected = false;
-
 let aceEditorInstance;
 
 function initializeAceEditor() {
     aceEditorInstance = ace.edit("aceEditorContainer");
     const savedTheme = localStorage.getItem("editorTheme") || "ace/theme/vibrant_ink";
     aceEditorInstance.setTheme(savedTheme);
-    aceEditorInstance.session.setMode("ace/mode/javascript"); 
+    aceEditorInstance.session.setMode("ace/mode/javascript");
     aceEditorInstance.setOptions({
         fontSize: "20px",
         wrap: true
     });
 
     document.getElementById("editorTheme").value = savedTheme;
+
     aceEditorInstance.getSession().on('change', () => {
         updateEditorStatus();
         detectContentFormat();
     });
+
     aceEditorInstance.selection.on('changeCursor', updateEditorStatus);
-    detectContentFormat(); 
+    detectContentFormat();
+}
+
+function openFullScreenEditor() {
+    aceEditorInstance.setValue(document.getElementById('fileContent').value, -1);
+    $('#fullScreenEditorModal').modal('show');
+    updateEditorStatus();
+}
+
+function saveFullScreenContent() {
+    document.getElementById('fileContent').value = aceEditorInstance.getValue();
+    $('#fullScreenEditorModal').modal('hide');
+    $('#editModal').modal('hide');
+    document.getElementById('editForm').submit();
+}
+
+function closeFullScreenEditor() {
+    $('#fullScreenEditorModal').modal('hide');
+}
+
+function changeFontSize() {
+    const fontSize = document.getElementById("fontSize").value;
+    aceEditorInstance.setFontSize(fontSize);
+}
+
+function changeEditorTheme() {
+    const theme = document.getElementById("editorTheme").value;
+    aceEditorInstance.setTheme(theme);
+    localStorage.setItem("editorTheme", theme);
+}
+
+function openSearch() {
+    if (!aceEditorInstance) {
+        console.error("Ace Editor instance not initialized.");
+        return;
     }
 
-    function openFullScreenEditor() {
-        aceEditorInstance.setValue(document.getElementById('fileContent').value, -1); 
-        $('#fullScreenEditorModal').modal('show'); 
-        updateEditorStatus(); 
-    }
+    aceEditorInstance.execCommand("find");
 
-    function saveFullScreenContent() {
-        document.getElementById('fileContent').value = aceEditorInstance.getValue();
-        $('#fullScreenEditorModal').modal('hide'); 
-        $('#editModal').modal('hide'); 
-        document.getElementById('editForm').submit(); 
-    }
+    setTimeout(() => {
+        const searchBox = document.querySelector(".ace_search");
+        if (!searchBox) return;
 
-    function closeFullScreenEditor() {
-        $('#fullScreenEditorModal').modal('hide');
-    }
+        const searchInput = searchBox.querySelector(".ace_search_form .ace_search_field");
+        if (searchInput) {
+            searchInput.placeholder = translations['search_placeholder'] || 'Search...';
+        }
 
-    function changeFontSize() {
-        const fontSize = document.getElementById("fontSize").value;
-        aceEditorInstance.setFontSize(fontSize);
-    }
+        const replaceInput = searchBox.querySelector(".ace_replace_form .ace_search_field");
+        if (replaceInput) {
+            replaceInput.placeholder = translations['replace_placeholder'] || 'Replace with...';
+        }
 
-    function changeEditorTheme() {
-        const theme = document.getElementById("editorTheme").value;
-        aceEditorInstance.setTheme(theme);
-        localStorage.setItem("editorTheme", theme); 
-    }
+        const buttons = searchBox.querySelectorAll(".ace_searchbtn");
+        buttons.forEach(button => {
+            const action = button.getAttribute("action");
+            switch (action) {
+                case "findPrev":
+                    button.textContent = "";
+                    button.onclick = () => {
+                        aceEditorInstance.execCommand("findprevious");
+                        aceEditorInstance.scrollToLine(
+                            aceEditorInstance.getCursorPosition().row,
+                            true,
+                            true
+                        );
+                    };
+                    break;
+                case "findNext":
+                    button.textContent = "";
+                    button.onclick = () => {
+                        aceEditorInstance.execCommand("findnext");
+                        aceEditorInstance.scrollToLine(
+                            aceEditorInstance.getCursorPosition().row,
+                            true,
+                            true
+                        );
+                    };
+                    break;
+                case "findAll":
+                    button.textContent = translations['find_all'] || 'All';
+                    break;
+                case "replaceAndFindNext":
+                    button.textContent = translations['replace'] || 'Replace';
+                    break;
+                case "replaceAll":
+                    button.textContent = translations['replace_all'] || 'Replace All';
+                    break;
+            }
+        });
 
-    function openSearch() {
-        aceEditorInstance.execCommand("find");
-    }
+        const optionButtons = searchBox.querySelectorAll(".ace_button");
+        optionButtons.forEach(button => {
+            const action = button.getAttribute("action");
+            switch (action) {
+                case "toggleReplace":
+                    button.title = translations['toggle_replace_mode'] || 'Toggle Replace Mode';
+                    break;
+                case "toggleRegexpMode":
+                    button.title = translations['toggle_regexp_mode'] || 'Regular Expression Search';
+                    break;
+                case "toggleCaseSensitive":
+                    button.title = translations['toggle_case_sensitive'] || 'Case-Sensitive Search';
+                    break;
+                case "toggleWholeWords":
+                    button.title = translations['toggle_whole_words'] || 'Whole Word Search';
+                    break;
+                case "searchInSelection":
+                    button.title = translations['search_in_selection'] || 'Search in Selection';
+                    break;
+            }
+        });
 
-    function isYamlFormat(content) {
-            const yamlPattern = /^(---|\w+:\s)/m;
-            return yamlPattern.test(content);
-    }
+        const counter = searchBox.querySelector(".ace_search_counter");
+        if (counter && counter.textContent.includes("of")) {
+            counter.textContent = counter.textContent.replace(
+                "of",
+                translations['search_counter_of'] || 'of'
+            );
+        }
+    }, 100);
+}
 
-    function validateJsonSyntax() {
-            const content = aceEditorInstance.getValue();
-            let annotations = [];
-        try {
-            JSON.parse(content);
-            alert(langData[currentLang]['validateJson'] + " " + langData[currentLang]['jsonSyntaxCorrect']); 
-        } catch (e) {
-            const line = e.lineNumber ? e.lineNumber - 1 : 0;
-            annotations.push({
+function isYamlFormat(content) {
+    const yamlPattern = /^(---|\w+:\s)/m;
+    return yamlPattern.test(content);
+}
+
+function validateJsonSyntax() {
+    const content = aceEditorInstance.getValue();
+    const annotations = [];
+    try {
+        JSON.parse(content);
+        alert(`${langData[currentLang]['validateJson']} ${langData[currentLang]['jsonSyntaxCorrect']}`);
+    } catch (e) {
+        const line = e.lineNumber ? e.lineNumber - 1 : 0;
+        annotations.push({
             row: line,
             column: 0,
             text: e.message,
             type: "error"
         });
         aceEditorInstance.session.setAnnotations(annotations);
-        alert(langData[currentLang]['validateJson'] + " " + langData[currentLang]['jsonSyntaxError'] + ": " + e.message); 
-        }
+        alert(
+            `${langData[currentLang]['validateJson']} ${langData[currentLang]['jsonSyntaxError']}: ${e.message}`
+        );
     }
+}
 
-    function validateYamlSyntax() {
-            const content = aceEditorInstance.getValue();
-            let annotations = [];
-        try {
-            jsyaml.load(content); 
-            alert(langData[currentLang]['validateYaml'] + " " + langData[currentLang]['yamlSyntaxCorrect']);
-        } catch (e) {
-            const line = e.mark ? e.mark.line : 0;
-            annotations.push({
+function validateYamlSyntax() {
+    const content = aceEditorInstance.getValue();
+    const annotations = [];
+    try {
+        jsyaml.load(content);
+        alert(`${langData[currentLang]['validateYaml']} ${langData[currentLang]['yamlSyntaxCorrect']}`);
+    } catch (e) {
+        const line = e.mark ? e.mark.line : 0;
+        annotations.push({
             row: line,
             column: 0,
             text: e.message,
             type: "error"
         });
         aceEditorInstance.session.setAnnotations(annotations);
-        alert(langData[currentLang]['validateYaml'] + " " + langData[currentLang]['yamlSyntaxError'] + ": " + e.message); 
-        }
+        alert(
+            `${langData[currentLang]['validateYaml']} ${langData[currentLang]['yamlSyntaxError']}: ${e.message}`
+        );
     }
+}
 
-    function formatContent() {
-        const content = aceEditorInstance.getValue();
-        const mode = aceEditorInstance.session.$modeId;
-        let formattedContent;
+function formatContent() {
+    const content = aceEditorInstance.getValue();
+    const mode = aceEditorInstance.session.$modeId;
+    let formattedContent;
 
-        try {
-            if (mode === "ace/mode/json") {
-                formattedContent = JSON.stringify(JSON.parse(content), null, 4);
-                aceEditorInstance.setValue(formattedContent, -1);
-                alert(langData[currentLang]['formatIndentation'] + " " + langData[currentLang]['jsonFormatSuccess']);
-            } else if (mode === "ace/mode/javascript") {
-                formattedContent = js_beautify(content, { indent_size: 4 });
-                aceEditorInstance.setValue(formattedContent, -1);
-                alert(langData[currentLang]['formatIndentation'] + " " + langData[currentLang]['jsFormatSuccess']); 
-            } else {
-                alert(langData[currentLang]['formatIndentation'] + " " + langData[currentLang]['unsupportedMode']);
-            }
-        } catch (e) {
-            alert(langData[currentLang]['formatIndentation'] + " " + langData[currentLang]['formatError'] + ": " + e.message); 
-        }
-    }
-
-
-    function formatYamlContent() {
-        const content = aceEditorInstance.getValue();
-        
-        try {
-            const yamlObject = jsyaml.load(content); 
-            const formattedYaml = jsyaml.dump(yamlObject, { indent: 4 }); 
-            aceEditorInstance.setValue(formattedYaml, -1);
-            alert(langData[currentLang]['yamlFormatSuccess']);
-        } catch (e) {
-            alert(langData[currentLang]['yamlSyntaxError'] + ": " + e.message);
-        }
-    }
-
-    function detectContentFormat() {
-        const content = aceEditorInstance.getValue().trim();
-
-        if (isJsonDetected) {
-            document.getElementById("jsonValidationBtn").style.display = "inline-block";
-            document.getElementById("yamlValidationBtn").style.display = "none";
-            document.getElementById("yamlFormatBtn").style.display = "none"; 
-            return;
-        }
-
-        try {
-            JSON.parse(content);
-            document.getElementById("jsonValidationBtn").style.display = "inline-block";
-            document.getElementById("yamlValidationBtn").style.display = "none";
-            document.getElementById("yamlFormatBtn").style.display = "none"; 
-            isJsonDetected = true; 
-        } catch {
-            if (isYamlFormat(content)) {
-                document.getElementById("jsonValidationBtn").style.display = "none";
-                document.getElementById("yamlValidationBtn").style.display = "inline-block";
-                document.getElementById("yamlFormatBtn").style.display = "inline-block"; 
-            } else {
-                document.getElementById("jsonValidationBtn").style.display = "none";
-                document.getElementById("yamlValidationBtn").style.display = "none";
-                document.getElementById("yamlFormatBtn").style.display = "none"; 
-            }
-        }
-    }
-
-    function openEditModal(fileName, fileType) {
-        document.getElementById('editingFileName').textContent = fileName;
-        document.getElementById('hiddenFileName').value = fileName;
-        document.getElementById('hiddenFileType').value = fileType;
-
-        fetch(`?editFile=${encodeURIComponent(fileName)}&fileType=${fileType}`)
-            .then(response => response.text())
-            .then(data => {
-                document.getElementById('fileContent').value = data; 
-                $('#editModal').modal('show');
-            })
-            .catch(error => console.error('Failed to retrieve file content:', error));
-    }
-
-    function syncEditorContent() {
-        document.getElementById('fileContent').value = document.getElementById('fileContent').value;
-    }
-
-    function updateEditorStatus() {
-        const cursor = aceEditorInstance.getCursorPosition();
-        const line = cursor.row + 1;
-        const column = cursor.column + 1;
-        const charCount = aceEditorInstance.getValue().length;
-
-        const lineColumnText = langData[currentLang]['lineColumnDisplay'].replace("{line}", line).replace("{column}", column);
-        const charCountText = langData[currentLang]['charCountDisplay'].replace("{charCount}", charCount);
-
-        document.getElementById('lineColumnDisplay').textContent = lineColumnText;
-        document.getElementById('charCountDisplay').textContent = charCountText;
-    }
-
-    $(document).ready(function() {
-        initializeAceEditor();
-    });
-
-    document.addEventListener('DOMContentLoaded', function () {
-        const renameModal = document.getElementById('renameModal');
-        renameModal.addEventListener('show.bs.modal', function (event) {
-            const button = event.relatedTarget;
-            const oldFileName = button.getAttribute('data-filename');
-            const fileType = button.getAttribute('data-filetype');
-
-            document.getElementById("oldFileName").value = oldFileName;
-            document.getElementById("fileType").value = fileType;
-            document.getElementById("newFileName").value = oldFileName;
-        });
-    });
-
-    function toggleFullscreen() {
-        const modal = document.getElementById('fullScreenEditorModal');
-    
-        if (!document.fullscreenElement) {
-            modal.requestFullscreen()
-                .then(() => {
-                    document.getElementById('toggleFullscreenBtn').textContent = 'Exit Fullscreen';
-                })
-                .catch((err) => console.error(`Error attempting to enable full-screen mode: ${err.message}`));
+    try {
+        if (mode === "ace/mode/json") {
+            formattedContent = JSON.stringify(JSON.parse(content), null, 4);
+            aceEditorInstance.setValue(formattedContent, -1);
+            alert(`${langData[currentLang]['formatIndentation']} ${langData[currentLang]['jsonFormatSuccess']}`);
+        } else if (mode === "ace/mode/javascript") {
+            formattedContent = js_beautify(content, { indent_size: 4 });
+            aceEditorInstance.setValue(formattedContent, -1);
+            alert(`${langData[currentLang]['formatIndentation']} ${langData[currentLang]['jsFormatSuccess']}`);
         } else {
-            document.exitFullscreen()
-                .then(() => {
-                    document.getElementById('toggleFullscreenBtn').textContent = 'Fullscreen';
-                })
-                .catch((err) => console.error(`Error attempting to exit full-screen mode: ${err.message}`));
-            }
-       }
+            alert(`${langData[currentLang]['formatIndentation']} ${langData[currentLang]['unsupportedMode']}`);
+        }
+    } catch (e) {
+        alert(`${langData[currentLang]['formatIndentation']} ${langData[currentLang]['formatError']}: ${e.message}`);
+    }
+}
 
-    let fileType = ''; 
-    function openUploadModal(type) {
-        fileType = type;
-        const modal = new bootstrap.Modal(document.getElementById('uploadModal'));
-        modal.show();
+function formatYamlContent() {
+    const content = aceEditorInstance.getValue();
+    try {
+        const yamlObject = jsyaml.load(content);
+        const formattedYaml = jsyaml.dump(yamlObject, { indent: 4 });
+        aceEditorInstance.setValue(formattedYaml, -1);
+        alert(langData[currentLang]['yamlFormatSuccess']);
+    } catch (e) {
+        alert(`${langData[currentLang]['yamlSyntaxError']}: ${e.message}`);
+    }
+}
+
+function detectContentFormat() {
+    const content = aceEditorInstance.getValue().trim();
+
+    if (isJsonDetected) {
+        document.getElementById("jsonValidationBtn").style.display = "inline-block";
+        document.getElementById("yamlValidationBtn").style.display = "none";
+        document.getElementById("yamlFormatBtn").style.display = "none";
+        return;
     }
 
-    const dropZone = document.getElementById('dropZone');
-    dropZone.addEventListener('dragover', (event) => {
-        event.preventDefault();
-        dropZone.classList.add('bg-light');
-    });
-
-    dropZone.addEventListener('dragleave', () => {
-        dropZone.classList.remove('bg-light');
-    });
-
-    dropZone.addEventListener('drop', (event) => {
-        event.preventDefault();
-        dropZone.classList.remove('bg-light');
-        const files = event.dataTransfer.files;
-        if (files.length > 0) {
-            handleFileUpload(files[0]);
+    try {
+        JSON.parse(content);
+        document.getElementById("jsonValidationBtn").style.display = "inline-block";
+        document.getElementById("yamlValidationBtn").style.display = "none";
+        document.getElementById("yamlFormatBtn").style.display = "none";
+        isJsonDetected = true;
+    } catch {
+        if (isYamlFormat(content)) {
+            document.getElementById("jsonValidationBtn").style.display = "none";
+            document.getElementById("yamlValidationBtn").style.display = "inline-block";
+            document.getElementById("yamlFormatBtn").style.display = "inline-block";
+        } else {
+            document.getElementById("jsonValidationBtn").style.display = "none";
+            document.getElementById("yamlValidationBtn").style.display = "none";
+            document.getElementById("yamlFormatBtn").style.display = "none";
         }
-    });
+    }
+}
 
-    document.getElementById('selectFileBtn').addEventListener('click', () => {
-        document.getElementById('fileInputModal').click();
-    });
+function openEditModal(fileName, fileType) {
+    document.getElementById('editingFileName').textContent = fileName;
+    document.getElementById('hiddenFileName').value = fileName;
+    document.getElementById('hiddenFileType').value = fileType;
 
-    document.getElementById('fileInputModal').addEventListener('change', (event) => {
-        const files = event.target.files;
-        if (files.length > 0) {
-            handleFileUpload(files[0]);
-        }
-    });
-
-    function handleFileUpload(file) {
-        const formData = new FormData();
-        formData.append(fileType === 'proxy' ? 'fileInput' : 'configFileInput', file);
-
-        fetch('', {
-            method: 'POST',
-            body: formData,
+    fetch(`?editFile=${encodeURIComponent(fileName)}&fileType=${fileType}`)
+        .then(res => res.text())
+        .then(data => {
+            document.getElementById('fileContent').value = data;
+            $('#editModal').modal('show');
         })
-            .then((response) => response.text())
-            .then((result) => {
-                alert(result);
-                location.reload(); 
+        .catch(err => console.error('Failed to retrieve file content:', err));
+}
+
+function syncEditorContent() {
+    document.getElementById('fileContent').value = document.getElementById('fileContent').value;
+}
+
+function updateEditorStatus() {
+    const cursor = aceEditorInstance.getCursorPosition();
+    const line = cursor.row + 1;
+    const column = cursor.column + 1;
+    const charCount = aceEditorInstance.getValue().length;
+
+    const lineColumnText = langData[currentLang]['lineColumnDisplay']
+        .replace("{line}", line)
+        .replace("{column}", column);
+    const charCountText = langData[currentLang]['charCountDisplay']
+        .replace("{charCount}", charCount);
+
+    document.getElementById('lineColumnDisplay').textContent = lineColumnText;
+    document.getElementById('charCountDisplay').textContent = charCountText;
+}
+
+$(document).ready(() => {
+    initializeAceEditor();
+});
+
+document.addEventListener('DOMContentLoaded', () => {
+    const renameModal = document.getElementById('renameModal');
+    renameModal.addEventListener('show.bs.modal', event => {
+        const button = event.relatedTarget;
+        const oldFileName = button.getAttribute('data-filename');
+        const fileType = button.getAttribute('data-filetype');
+
+        document.getElementById("oldFileName").value = oldFileName;
+        document.getElementById("fileType").value = fileType;
+        document.getElementById("newFileName").value = oldFileName;
+    });
+});
+
+function toggleFullscreen() {
+    const modal = document.getElementById('fullScreenEditorModal');
+
+    if (!document.fullscreenElement) {
+        modal.requestFullscreen()
+            .then(() => {
+                document.getElementById('toggleFullscreenBtn').textContent = 'Exit Fullscreen';
+            })
+            .catch(err => console.error(`Error attempting to enable full-screen mode: ${err.message}`));
+    } else {
+        document.exitFullscreen()
+            .then(() => {
+                document.getElementById('toggleFullscreenBtn').textContent = 'Fullscreen';
+            })
+            .catch(err => console.error(`Error attempting to exit full-screen mode: ${err.message}`));
+    }
+}
+
+let fileType = '';
+
+function openUploadModal(type) {
+    fileType = type;
+    const modal = new bootstrap.Modal(document.getElementById('uploadModal'));
+    modal.show();
+}
+
+const dropZone = document.getElementById('dropZone');
+
+dropZone.addEventListener('dragover', e => {
+    e.preventDefault();
+    dropZone.classList.add('bg-light');
+});
+
+dropZone.addEventListener('dragleave', () => {
+    dropZone.classList.remove('bg-light');
+});
+
+dropZone.addEventListener('drop', e => {
+    e.preventDefault();
+    dropZone.classList.remove('bg-light');
+    const files = e.dataTransfer.files;
+    if (files.length > 0) handleFileUpload(files[0]);
+});
+
+document.getElementById('selectFileBtn').addEventListener('click', () => {
+    document.getElementById('fileInputModal').click();
+});
+
+document.getElementById('fileInputModal').addEventListener('change', e => {
+    const files = e.target.files;
+    if (files.length > 0) handleFileUpload(files[0]);
+});
+
+function handleFileUpload(file) {
+    const formData = new FormData();
+    formData.append(fileType === 'proxy' ? 'fileInput' : 'configFileInput', file);
+
+    fetch('', {
+        method: 'POST',
+        body: formData
+    })
+        .then(res => res.text())
+        .then(result => {
+            alert(result);
+            location.reload();
         })
-            .catch((error) => {
-                alert('上传失败：' + error.message);
+        .catch(error => {
+            alert('上传失败：' + error.message);
         });
-    }
+}
 
-    function confirmDelete() {
-        return confirm(langData[currentLang]['confirmDelete']);
-    }
+function confirmDelete() {
+    return confirm(langData[currentLang]['confirmDelete']);
+}
 </script>
     <div class="modal fade" id="downloadModal" tabindex="-1" aria-labelledby="downloadModalLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
         <div class="modal-dialog modal-lg">
@@ -1378,3 +1470,4 @@ function initializeAceEditor() {
     </div>
 </form>
 </div>
+

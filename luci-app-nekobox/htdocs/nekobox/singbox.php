@@ -189,7 +189,7 @@ EOL;
         <a href="./index.php" class="col btn btn-lg text-nowrap"><i class="bi bi-house-door"></i> <span data-translate="home">Home</span></a>
         <a href="./mihomo_manager.php" class="col btn btn-lg text-nowrap"><i class="bi bi-folder"></i> <span data-translate="manager">Manager</span></a>
         <a href="./singbox.php" class="col btn btn-lg text-nowrap"><i class="bi bi-shop"></i> <span data-translate="template_i">Template I</span></a>
-        <a href="./subscription.php" class="col btn btn-lg text-nowrap"><i class="bi bi-bank"></i> <span data-translate="template_ii">Template II</span></a>
+        <a href="./filekit.php" class="col btn btn-lg text-nowrap"><i class="bi bi-bank"></i> <span data-translate="pageTitle">File Assistant</span></a>
         <a href="./mihomo.php" class="col btn btn-lg text-nowrap"><i class="bi bi-building"></i> <span data-translate="template_iii">Template III</span></a>
 <div class="outer-container section-container">
     <div class="container-fluid">
