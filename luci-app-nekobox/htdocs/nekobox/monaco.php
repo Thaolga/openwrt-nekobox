@@ -557,7 +557,7 @@ button.editor-btn:hover {
 }
 
 .upload-drop-zone {
-	border: 2px dashed #ccc;
+	border: 2px dashed #ccc !important;
 	border-radius: 8px;
 	padding: 25px;
 	text-align: center;
@@ -660,50 +660,75 @@ table.table tbody tr:nth-child(odd) td {
 #charCountDisplay .number {
 	font-size: 1.3rem;
 }
+
+table.table tbody tr td.folder-icon,
+table.table tbody tr td.file-icon {
+	text-align: left !important;
+}
+
+.section-wrapper {
+	padding-left: 1rem;
+	padding-right: 1rem;
+}
+
+#siteLogo {
+        max-height: 50px;
+        height: auto;
+        margin-top: -25px;
+}
 </style>
 
-<div class="row">
-    <div class="col-12">  
-        <div class="container-sm container-bg border border-2 rounded-4 p-3">
-            <div class="row align-items-center mb-3">
-                <div class="col-md-3 text-center text-md-start">
-                    <img src="./assets/img/nekobox.png" alt="Neko Box" class="img-fluid" style="max-height: 100px;">
+<div class="container-sm container-bg mt-4">
+    <div class="row">
+        <a href="./index.php" class="col btn btn-lg text-nowrap"><i class="bi bi-house-door"></i> <span data-translate="home">Home</span></a>
+        <a href="./mihomo_manager.php" class="col btn btn-lg text-nowrap"><i class="bi bi-folder"></i> <span data-translate="manager">Manager</span></a>
+        <a href="./singbox.php" class="col btn btn-lg text-nowrap"><i class="bi bi-shop"></i> <span data-translate="template_i">Template I</span></a>
+        <a href="./subscription.php" class="col btn btn-lg text-nowrap"><i class="bi bi-bank"></i> <span data-translate="template_ii">Template II</span></a>
+        <a href="./mihomo.php" class="col btn btn-lg text-nowrap"><i class="bi bi-building"></i> <span data-translate="template_iii">Template III</span></a>
+
+    <div class="row align-items-center mb-4 p-3">
+        <div class="col-md-3 text-center  text-md-start">
+            <img src="./assets/img/nekobox.png" id="siteLogo" alt="Neko Box" class="img-fluid" style="max-height: 100px;">
+        </div>
+        <div class="col-md-6 text-center">
+            <h2 class="mb-0" id="pageTitle" data-translate="pageTitle">File Assistant</h2>
+        </div>
+        <div class="col-md-3"></div>
+    </div>
+
+    <div class="row mb-3 px-2 mt-3">
+        <div class="col-12">
+            <div class="btn-toolbar justify-content-between">
+                <div class="btn-group">
+                    <button type="button" class="btn btn-outline-secondary" onclick="goToParentDirectory()" title="Go Back" data-translate-title="goToParentDirectoryTitle">
+                        <i class="fas fa-arrow-left"></i>
+                    </button>
+                    <button type="button" class="btn btn-outline-secondary" onclick="location.href='?dir=/'" title="Return to Root Directory" data-translate-title="rootDirectoryTitle">
+                        <i class="fas fa-home"></i>
+                    </button>
+                    <button type="button" class="btn btn-outline-secondary" onclick="location.href='?dir=/root'" title="Return to Home Directory" data-translate-title="homeDirectoryTitle">
+                        <i class="fas fa-user"></i>
+                    </button>
+                    <button type="button" class="btn btn-outline-secondary" onclick="location.reload()" title="Refresh Directory Content" data-translate-title="refreshDirectoryTitle">
+                        <i class="fas fa-sync-alt"></i>
+                    </button>
                 </div>
-                <div class="col-md-6 text-center"> 
-                    <h2 class="mb-0" id="pageTitle" data-translate="pageTitle">File Assistant</h2>
-                </div>
-                <div class="col-md-3">
+
+                <div class="btn-group">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#searchModal" id="searchBtn" title="Search" data-translate-title="searchTitle">
+                        <i class="fas fa-search"></i>
+                    </button>
+                    <button type="button" class="btn btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#createModal" id="createBtn" title="Create New" data-translate-title="createTitle">
+                        <i class="fas fa-plus"></i>
+                    </button>
+                    <button type="button" class="btn btn-outline-secondary" onclick="showUploadArea()" id="uploadBtn" title="Upload" data-translate-title="uploadTitle">
+                        <i class="fas fa-upload"></i>
+                    </button>
                 </div>
             </div>
-            
-            <div class="row mt-5 mb-3">
-                <div class="col-12">
-                    <div class="btn-toolbar justify-content-between px-3">
-                        <div class="btn-group">
-                            <button type="button" class="btn btn-outline-secondary" onclick="goToParentDirectory()" title="Go Back" data-translate-title="goToParentDirectoryTitle">
-                                <i class="fas fa-arrow-left"></i>
-                            </button>
-                            <button type="button" class="btn btn-outline-secondary" onclick="location.href='?dir=/'" title="Return to Root Directory"  data-translate-title="rootDirectoryTitle">
-                                <i class="fas fa-home"></i> 
-                            </button>
-                            <button type="button" class="btn btn-outline-secondary" onclick="location.href='?dir=/root'" title="Return to Home Directory"  data-translate-title="homeDirectoryTitle">
-                                <i class="fas fa-user"></i>
-                            </button>
-                            <button type="button" class="btn btn-outline-secondary" onclick="location.reload()" title="Refresh Directory Content"  data-translate-title="refreshDirectoryTitle">
-                                <i class="fas fa-sync-alt"></i>
-                            </button>
-                        </div>
-                       
-                        <div class="btn-group">
-                            <button type="button" class="btn btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#searchModal" id="searchBtn" title="Search" data-translate-title="searchTitle"><i class="fas fa-search"></i></button>
-                            <button type="button" class="btn btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#createModal" id="createBtn" title="Create New" data-translate-title="createTitle"> <i class="fas fa-plus"></i></button>
-                            <button type="button" class="btn btn-outline-secondary" onclick="showUploadArea()" id="uploadBtn" title="Upload"  data-translate-title="uploadTitle">
-                                <i class="fas fa-upload"></i>
-                            </button>
-                        </div>
-                  </div>
-            </div>
-     </div>
+        </div>
+    </div>
+</div>
 <nav aria-label="breadcrumb">
   <ol class="breadcrumb">
     <li class="breadcrumb-item"><a href="?dir=">root</a></li>
@@ -720,29 +745,36 @@ table.table tbody tr:nth-child(odd) td {
   </ol>
 </nav>
 
-<div class="upload-container">
-  <div class="upload-area" id="uploadArea" style="display: none;">
-    <p class="upload-instructions">
-      <span data-translate="dragHint">Drag files here or click to select files to upload</span>
-    </p>
-    <form action="" method="post" enctype="multipart/form-data" id="uploadForm">
-      <input type="file" name="upload[]" id="fileInput" style="display: none;" multiple required>
-      <div class="upload-drop-zone" id="dropZone">
-        <i class="fas fa-cloud-upload-alt upload-icon"></i>
+<div class="section-wrapper">
+  <div class="upload-container">
+    <div class="upload-area" id="uploadArea" style="display: none;">
+      <div class="d-flex justify-content-between align-items-center mb-2">
+        <p class="upload-instructions mb-0">
+          <span data-translate="dragHint">Drag files here or click to select files to upload</span>
+        </p>
+        <button type="button" class="btn btn-secondary btn-sm ms-2" onclick="hideUploadArea()" data-translate="cancel">Cancel</button>
       </div>
-    </form>
-    <button type="button" class="btn btn-secondary mt-2" onclick="hideUploadArea()" data-translate="cancel">Cancel</button>
+
+      <form action="" method="post" enctype="multipart/form-data" id="uploadForm">
+        <input type="file" name="upload[]" id="fileInput" style="display: none;" multiple required>
+        <div class="upload-drop-zone p-4 border rounded bg-light" id="dropZone">
+          <i class="fas fa-cloud-upload-alt upload-icon"></i>
+        </div>
+      </form>
+    </div>
   </div>
 </div>
 
-<div class="alert alert-secondary d-none mb-3" id="toolbar">
+<div class="section-wrapper">
+  <div class="alert alert-secondary d-none mb-3" id="toolbar">
     <div class="d-flex justify-content-between flex-column flex-sm-row align-items-center">
-        <div class="mb-2 mb-sm-0">
-            <button class="btn btn-outline-primary btn-sm me-2" id="selectAllBtn" data-translate="select_all">Deselect All</button>
-            <span id="selectedInfo" class="text-muted small" data-translate="selected_info">{0} item(s) selected</span>
-        </div>
-        <button class="btn btn-danger btn-sm" id="batchDeleteBtn" data-translate="batch_delete">Batch Delete</button>
+      <div class="mb-2 mb-sm-0">
+        <button class="btn btn-outline-primary btn-sm me-2" id="selectAllBtn" data-translate="select_all">Deselect All</button>
+        <span id="selectedInfo" class="text-muted small" data-translate="selected_info">{0} item(s) selected</span>
+      </div>
+      <button class="btn btn-danger btn-sm" id="batchDeleteBtn"><i class="fas fa-trash-alt me-1"></i><span data-translate="batch_delete">Batch Delete</span></button>
     </div>
+  </div>
 </div>
 
 <form id="batchDeleteForm" method="post" action="?dir=<?php echo urlencode($current_dir); ?>" style="display: none;"></form>
