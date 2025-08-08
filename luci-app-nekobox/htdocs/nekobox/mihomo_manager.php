@@ -474,25 +474,6 @@ function download_file($url, $destination) {
     color: #155724 !important;
 }
 
-.icon-btn-group {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.4rem;
-    justify-content: flex-start;
-}
-.icon-btn {
-    display: inline-flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-    width: 2rem !important;
-    height: 2rem !important;
-    padding: 0 !important;
-    border-radius: 1rem !important;
-    font-size: 1rem !important;
-    line-height: 1 !important;
-    flex-shrink: 0;
-}
-
 #updateNotification {
     background: linear-gradient(135deg, #1e3a8a, #2563eb);
     color: #fff;
@@ -605,16 +586,51 @@ $(document).ready(function() {
 });
 </script>
 <div class="container-sm container-bg mt-4">
-    <div class="row">
-        <a href="./index.php" class="col btn btn-lg text-nowrap"><i class="bi bi-house-door"></i> <span data-translate="home">Home</span></a>
-        <a href="./mihomo_manager.php" class="col btn btn-lg text-nowrap"><i class="bi bi-folder"></i> <span data-translate="manager">Manager</span></a>
-        <a href="./singbox.php" class="col btn btn-lg text-nowrap"><i class="bi bi-shop"></i> <span data-translate="template_i">Template I</span></a>
-        <a href="./monaco.php" class="col btn btn-lg text-nowrap"><i class="bi bi-bank"></i> <span data-translate="pageTitle">File Assistant</span></a>
-        <a href="./mihomo.php" class="col btn btn-lg text-nowrap"><i class="bi bi-building"></i> <span data-translate="template_iii">Template III</span></a>
+<nav class="navbar navbar-expand-lg sticky-top">
+    <div class="container-sm container">
+        <a class="navbar-brand d-flex align-items-center" href="#">
+            <i class="bi bi-palette-fill me-2" style="color: var(--accent-color); font-size: 1.8rem;"></i>
+            <span style="color: var(--accent-color); letter-spacing: 1px;"><?= htmlspecialchars($title) ?></span>
+        </a>
+        <button class="navbar-toggler" type="button" style="position: relative; z-index: 1;" data-bs-toggle="collapse" data-bs-target="#navbarContent">
+            <i class="bi bi-list" style="color: var(--accent-color); font-size: 1.8rem;"></i>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarContent">
+            <ul class="navbar-nav me-auto mb-2 mb-lg-0" style="font-size: 18px;">
+                <li class="nav-item">
+                    <a class="nav-link <?= $current == 'index.php' ? 'active' : '' ?>" href="./index.php"><i class="bi bi-house-door"></i> <span data-translate="home">Home</span></a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link <?= $current == 'mihomo_manager.php' ? 'active' : '' ?>" href="./mihomo_manager.php"><i class="bi bi-folder"></i> <span data-translate="manager">Manager</span></a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link <?= $current == 'singbox.php' ? 'active' : '' ?>" href="./singbox.php"><i class="bi bi-shop"></i> <span data-translate="template_i">Template I</span></a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link <?= $current == 'subscription.php' ? 'active' : '' ?>" href="./subscription.php"><i class="bi bi-bank"></i> <span data-translate="template_ii">Template II</span></a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link <?= $current == 'mihomo.php' ? 'active' : '' ?>" href="./mihomo.php"><i class="bi bi-building"></i> <span data-translate="template_iii">Template III</span></a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link <?= $current == 'monaco.php' ? 'active' : '' ?>" href="./monaco.php"><i class="bi bi-bank"></i> <span data-translate="pageTitle">File Assistant</span></a>
+                </li>
+            </ul>
+            <div class="d-flex align-items-center">
+                <div class="me-3 d-block">
+                    <button type="button" class="btn btn-primary icon-btn me-2" onclick="toggleControlPanel()" data-translate-title="control_panel"><i class="bi bi-gear"> </i></button>
+                    <button type="button" class="btn btn-danger icon-btn me-2" data-bs-toggle="modal" data-bs-target="#langModal"  data-translate-title="set_language"><i class="bi bi-translate"></i></button>
+                    <button type="button" class="btn btn-success icon-btn me-2" data-bs-toggle="modal" data-bs-target="#musicModal" data-translate-title="music_player"><i class="bi bi-music-note-beamed"></i></button>
+                    <button type="button" id="toggleIpStatusBtn" class="btn btn-warning icon-btn me-2" onclick="toggleIpStatusBar()" data-translate-title="hide_ip_info"><i class="bi bi-eye-slash"> </i></button>
+                    <button type="button" class="btn btn-pink icon-btn me-2" data-bs-toggle="modal" data-bs-target="#portModal" data-translate-title="viewPortInfoButton"><i class="bi bi-plug"></i></button>
+                    <button type="button" class="btn btn-info icon-btn me-2" onclick="document.getElementById('colorPicker').click()" data-translate-title="component_bg_color"><i class="bi bi-palette"></i></button>
+                    <input type="color" id="colorPicker" value="#0f3460" style="display: none;">
+            </div>
+        </div>
     </div>
-
+</nav>
 <h2 class="container-fluid text-center mt-4 mb-4" data-translate="subscriptionManagement"></h2>
-<div class="container-fluid text-center px-md-3">
+<div class="container-sm text-center px-md-3">
 <?php if (isset($message) && $message): ?>
     <div class="alert alert-info">
         <?php echo nl2br(htmlspecialchars($message)); ?>
@@ -677,7 +693,7 @@ $(document).ready(function() {
 
 <h2 class="text-center mt-4 mb-3" data-translate="fileManagement">File Management</h2>
 
-<div class="container-fluid px-2 px-md-3">
+<div class="container-sm px-2 px-md-3">
   <div class="row g-3">
     <?php
     $proxyFiles = $proxyFiles ?? [];
