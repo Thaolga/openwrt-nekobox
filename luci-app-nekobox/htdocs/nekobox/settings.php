@@ -463,7 +463,7 @@ $razordVersion = getRazordVersion();
                     <option value="v1.11.0-beta.15">v1.11.0-beta.15</option>
                     <option value="v1.11.0-beta.20">v1.11.0-beta.20</option>
                     <option value="v1.12.0-rc.3">v1.12.0-rc.3</option>
-                    <option value="v1.12.0-rc.3">v1.12.0-rc.4</option>
+                    <option value="v1.12.0-rc.4">v1.12.0-rc.4</option>
                 </select>
                 <input type="text" id="manualVersionInput" class="form-control mt-2" placeholder="For example: v1.12.0-rc.3">
                 <button type="button" class="btn btn-secondary mt-2" onclick="addManualVersion()" data-translate="addVersionButton">Add Version</button>
