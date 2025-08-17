@@ -248,10 +248,12 @@ EOL;
                         <label class="form-check-label ms-2" for="useDefaultTemplate4" data-translate="template4Label">Template 4</label>
                     </div>
                 </div>
-                <div class="mt-3 d-flex align-items-center">
-                    <input type="radio" class="form-check-input" id="useCustomTemplate" name="templateOption" value="custom">
-                    <label class="form-check-label ms-2 mb-0" for="useCustomTemplate" data-translate="useCustomTemplateLabel">Use Custom Template URL</label>
-                    <input type="text" class="form-control ms-3" id="customTemplateUrl" name="customTemplateUrl" placeholder="Enter custom template URL" data-translate-placeholder="customTemplateUrlPlaceholder">
+                <div class="mt-3">
+                    <div class="d-flex align-items-center">
+                        <input type="radio" class="form-check-input" id="useCustomTemplate" name="templateOption" value="custom">
+                        <label class="form-check-label ms-2 mb-0" for="useCustomTemplate" data-translate="useCustomTemplateLabel">Use Custom Template URL</label>
+                    </div>
+                    <input type="text" class="form-control mt-2" id="customTemplateUrl" name="customTemplateUrl" placeholder="Enter custom template URL" data-translate-placeholder="customTemplateUrlPlaceholder">
                 </div>
             </fieldset>
             <div class="d-flex flex-wrap gap-2 mb-4">
