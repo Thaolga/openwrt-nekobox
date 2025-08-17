@@ -550,54 +550,73 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['clearData'])) {
  <footer class="text-center"><p><?php echo $footer ?></p></footer>
 
 <script>
-document.addEventListener('DOMContentLoaded', () => {
-    function copyToClipboard() {
-        const copyText = document.getElementById("configContent");
-        copyText.select();
-        document.execCommand("copy");
-        alert("<?php echo $translations['copyToClipboardAlert']; ?>");
-    }
+function copyToClipboard() {
+    const copyText = document.getElementById("configContent");
+    copyText.select();
+    document.execCommand("copy");
+    alert("<?php echo $translations['copyToClipboardAlert']; ?>");
+}
 
+document.addEventListener('DOMContentLoaded', () => {
     const customTemplateRadio = document.getElementById('useCustomTemplate');
     const customTemplateInput = document.getElementById('customTemplateUrl');
-    const allTemplateRadios = document.querySelectorAll('input[name="templateOption"], input[name="defaultTemplate"]');
+    const defaultTemplateRadios = document.querySelectorAll('input[name="defaultTemplate"]');
 
     function toggleCustomInput() {
         customTemplateInput.style.display = customTemplateRadio.checked ? 'block' : 'none';
     }
 
+    function updateTemplateState() {
+        if (customTemplateRadio.checked) {
+            defaultTemplateRadios.forEach(radio => {
+                radio.checked = false;
+            });
+        }
+        const isDefaultSelected = Array.from(defaultTemplateRadios).some(radio => radio.checked);
+        if (isDefaultSelected) {
+            customTemplateRadio.checked = false;
+        }
+        toggleCustomInput();
+    }
+
     const fileNameInput = document.getElementById('customFileName');
     const savedFileName = localStorage.getItem('customFileName');
-    
     if (savedFileName) {
         fileNameInput.value = savedFileName;
     }
-
     fileNameInput.addEventListener('input', function() {
         localStorage.setItem('customFileName', this.value.trim());
     });
 
     const savedTemplate = localStorage.getItem("selectedTemplate");
     const customTemplateUrl = localStorage.getItem("customTemplateUrl");
-
     if (savedTemplate === "custom" && customTemplateUrl) {
-        document.getElementById("useCustomTemplate").checked = true;
-        document.getElementById("customTemplateUrl").value = customTemplateUrl;
+        customTemplateRadio.checked = true;
+        customTemplateInput.value = customTemplateUrl;
     } else if (savedTemplate) {
         const templateInput = document.querySelector(`input[name="defaultTemplate"][value="${savedTemplate}"]`);
         if (templateInput) templateInput.checked = true;
     }
 
-    allTemplateRadios.forEach(radio => {
+    defaultTemplateRadios.forEach(radio => {
         radio.addEventListener('change', function() {
-            if (this === customTemplateRadio) {
-                localStorage.setItem("selectedTemplate", "custom");
-            } else if (this.name === "defaultTemplate") {
+            if (this.checked) {
                 localStorage.setItem("selectedTemplate", this.value);
                 localStorage.removeItem("customTemplateUrl");
+                customTemplateRadio.checked = false;
+                toggleCustomInput();
             }
-            toggleCustomInput();
         });
+    });
+
+    customTemplateRadio.addEventListener('change', function() {
+        if (this.checked) {
+            localStorage.setItem("selectedTemplate", "custom");
+            defaultTemplateRadios.forEach(radio => {
+                radio.checked = false;
+            });
+        }
+        toggleCustomInput();
     });
 
     customTemplateInput.addEventListener('input', function() {
@@ -605,16 +624,5 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     toggleCustomInput();
-
-    document.querySelectorAll('input[name="defaultTemplate"]').forEach((elem) => {
-        elem.addEventListener('change', function () {
-            const customTemplateDiv = document.getElementById('customTemplateUrlDiv');
-            if (this.value === 'custom') {
-                customTemplateDiv.style.display = 'block';
-            } else {
-                customTemplateDiv.style.display = 'none';
-            }
-        });
-    });
 });
 </script>
