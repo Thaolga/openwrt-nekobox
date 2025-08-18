@@ -1140,7 +1140,7 @@ table.table tbody tr td.file-icon {
                             <?php else: ?>
                                 <?php
                                     $ext = strtolower(pathinfo($item['name'], PATHINFO_EXTENSION));
-                                    if (in_array($ext, ['jpg','jpeg','png','gif','svg','mp3','mp4'])):
+                                    if (in_array($ext, ['jpg','jpeg','png','gif','svg','bmp','webp','mp3','wav','ogg','flac','mp4','webm','avi','mkv'])):
                                         $clean_path = ltrim(str_replace('//', '/', $item['path']), '/');
                                 ?>
                                     <a href="#"
