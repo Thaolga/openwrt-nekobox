@@ -378,7 +378,7 @@ function searchFiles($dir, $term) {
 }
 ?>
 
-<title>Filekit - Nekobox</title>
+<title>Monaco - Nekobox</title>
 <?php include './ping.php'; ?>
 <link rel="icon" href="./assets/img/nekobox.png">
 <script src="./assets/js/js-yaml.min.js"></script>
