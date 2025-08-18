@@ -384,8 +384,6 @@ function searchFiles($dir, $term) {
 <script src="./assets/js/js-yaml.min.js"></script>
 
 <style>
-.folder-icon::before{content:"📁";}.file-icon::before{content:"📄";}.file-icon.file-pdf::before{content:"📕";}.file-icon.file-doc::before,.file-icon.file-docx::before{content:"📘";}.file-icon.file-xls::before,.file-icon.file-xlsx::before{content:"📗";}.file-icon.file-ppt::before,.file-icon.file-pptx::before{content:"📙";}.file-icon.file-zip::before,.file-icon.file-rar::before,.file-icon.file-7z::before{content:"🗜️";}.file-icon.file-mp3::before,.file-icon.file-wav::before,.file-icon.file-ogg::before,.file-icon.file-flac::before{content:"🎵";}.file-icon.file-mp4::before,.file-icon.file-avi::before,.file-icon.file-mov::before,.file-icon.file-wmv::before,.file-icon.file-flv::before{content:"🎞️";}.file-icon.file-jpg::before,.file-icon.file-jpeg::before,.file-icon.file-png::before,.file-icon.file-gif::before,.file-icon.file-bmp::before,.file-icon.file-tiff::before{content:"🖼️";}.file-icon.file-txt::before{content:"📝";}.file-icon.file-rtf::before{content:"📄";}.file-icon.file-md::before,.file-icon.file-markdown::before{content:"📑";}.file-icon.file-exe::before,.file-icon.file-msi::before{content:"⚙️";}.file-icon.file-bat::before,.file-icon.file-sh::before,.file-icon.file-command::before{content:"📜";}.file-icon.file-iso::before,.file-icon.file-img::before{content:"💿";}.file-icon.file-sql::before,.file-icon.file-db::before,.file-icon.file-dbf::before{content:"🗃️";}.file-icon.file-font::before,.file-icon.file-ttf::before,.file-icon.file-otf::before,.file-icon.file-woff::before,.file-icon.file-woff2::before{content:"🔤";}.file-icon.file-cfg::before,.file-icon.file-conf::before,.file-icon.file-ini::before{content:"🔧";}.file-icon.file-psd::before,.file-icon.file-ai::before,.file-icon.file-eps::before,.file-icon.file-svg::before{content:"🎨";}.file-icon.file-dll::before,.file-icon.file-so::before{content:"🧩";}.file-icon.file-css::before{content:"🎨";}.file-icon.file-js::before{content:"🟨";}.file-icon.file-php::before{content:"🐘";}.file-icon.file-json::before{content:"📊";}.file-icon.file-html::before,.file-icon.file-htm::before{content:"🌐";}.file-icon.file-bin::before{content:"👾";}
-
 #monacoEditor {
 	position: fixed;
 	top: 0;
@@ -928,6 +926,42 @@ table.table tbody tr td.file-icon {
 		transform: scale(1);
 	}
 }
+
+.table td i.folder-icon {
+        color: #FFA726;
+        font-size: 1.1em;
+}
+
+.table td i.file-icon {
+        color: #4285F4;
+        font-size: 1.1em;
+}
+
+.table td i.file-icon:hover,
+.table td i.folder-icon:hover {
+        opacity: 0.8;
+        transform: scale(1.1);
+        transition: all 0.3s;
+}
+
+.table td i.file-icon.fa-file-pdf { color: #FF4136; }
+.table td i.file-icon.fa-file-word { color: #2B579A; }
+.table td i.file-icon.fa-file-excel { color: #217346; }
+.table td i.file-icon.fa-file-powerpoint { color: #D24726; }
+.table td i.file-icon.fa-file-archive { color: #795548; }
+.table td i.file-icon.fa-file-image { color: #9C27B0; }
+.table td i.file-icon.fa-music { color: #673AB7; }
+.table td i.file-icon.fa-file-video { color: #E91E63; }
+.table td i.file-icon.fa-file-code { color: #607D8B; }
+.table td i.file-icon.fa-file-alt { color: #757575; }
+.table td i.file-icon.fa-cog { color: #555; }
+.table td i.file-icon.fa-file-csv { color: #4CAF50; }
+.table td i.file-icon.fa-html5 { color: #E44D26; }
+.table td i.file-icon.fa-js { color: #E0A800; }
+.table td i.file-icon.fa-terminal { color: #28a745; }
+.table td i.file-icon.fa-list-alt { color: #007bff; }
+.table td i.file-icon.fa-apple { color: #343a40; }
+.table td i.file-icon.fa-android { color: #28a745; }
 </style>
 
 <div class="container-sm container-bg mt-4">
@@ -1125,24 +1159,129 @@ table.table tbody tr td.file-icon {
                         </td>
 
                         <?php
-                            $icon_class = $item['is_dir'] ? 'folder-icon' : 'file-icon';
-                            if (!$item['is_dir']) {
+                            if ($item['is_dir']) {
+                                $icon_class = 'fas fa-folder';
+                            } else {
                                 $ext = strtolower(pathinfo($item['name'], PATHINFO_EXTENSION));
-                                $icon_class .= ' file-' . $ext;
+                                switch ($ext) {
+                                    case 'pdf': $icon_class = 'fas fa-file-pdf'; break;
+                                    case 'doc':
+                                    case 'docx': $icon_class = 'fas fa-file-word'; break;
+                                    case 'xls':
+                                    case 'xlsx': $icon_class = 'fas fa-file-excel'; break;
+                                    case 'ppt':
+                                    case 'pptx': $icon_class = 'fas fa-file-powerpoint'; break;
+                                    case 'txt': $icon_class = 'fas fa-file-alt'; break;
+                                    case 'rtf': $icon_class = 'fas fa-file-word'; break;
+                                    case 'md':
+                                    case 'markdown': $icon_class = 'fas fa-file-code'; break;
+
+                                    case 'zip':
+                                    case 'rar':
+                                    case '7z':
+                                    case 'tar':
+                                    case 'gz': $icon_class = 'fas fa-file-archive'; break;
+
+                                    case 'mp3':
+                                    case 'wav':
+                                    case 'ogg':
+                                    case 'flac':
+                                    case 'aac': $icon_class = 'fas fa-music'; break;
+
+                                    case 'mp4':
+                                    case 'avi':
+                                    case 'mov':
+                                    case 'wmv':
+                                    case 'flv':
+                                    case 'mkv':
+                                    case 'webm': $icon_class = 'fas fa-file-video'; break;
+
+                                    case 'jpg':
+                                    case 'jpeg':
+                                    case 'png':
+                                    case 'gif':
+                                    case 'bmp':
+                                    case 'tiff':
+                                    case 'webp':
+                                    case 'svg':
+                                    case 'ico': $icon_class = 'fas fa-file-image'; break;
+
+                                    case 'exe':
+                                    case 'msi': $icon_class = 'fas fa-cogs'; break;
+                                    case 'sh':
+                                    case 'bash':
+                                    case 'zsh': $icon_class = 'fas fa-terminal'; break;
+
+                                    case 'bat':
+                                    case 'cmd': $icon_class = 'fas fa-list-alt'; break;
+
+                                    case 'ps1': $icon_class = 'fab fa-microsoft'; break;
+                                    case 'dll':
+                                    case 'so': $icon_class = 'fas fa-cube'; break;
+                                    case 'apk': $icon_class = 'fab fa-android'; break;
+                                    case 'ipa': $icon_class = 'fab fa-apple'; break;
+
+                                    case 'iso':
+                                    case 'img':
+                                    case 'dmg': $icon_class = 'fas fa-compact-disc'; break;
+
+                                    case 'sql':
+                                    case 'db':
+                                    case 'dbf':
+                                    case 'sqlite': $icon_class = 'fas fa-database'; break;
+
+                                    case 'ttf':
+                                    case 'otf':
+                                    case 'woff':
+                                    case 'woff2': $icon_class = 'fas fa-font'; break;
+
+                                    case 'cfg':
+                                    case 'conf':
+                                    case 'ini':
+                                    case 'yaml':
+                                    case 'yml': $icon_class = 'fas fa-cog'; break;
+
+                                    case 'psd':
+                                    case 'ai':
+                                    case 'eps': $icon_class = 'fas fa-paint-brush'; break;
+                                    case 'css': $icon_class = 'fab fa-css3-alt'; break;
+                                    case 'js': $icon_class = 'fab fa-js'; break;
+                                    case 'php': $icon_class = 'fab fa-php'; break;
+                                    case 'html':
+                                    case 'htm': $icon_class = 'fab fa-html5'; break;
+                                    case 'json': $icon_class = 'fas fa-file-code'; break;
+                                    case 'xml': $icon_class = 'fas fa-file-code'; break;
+                                    case 'py': $icon_class = 'fab fa-python'; break;
+                                    case 'java': $icon_class = 'fab fa-java'; break;
+                                    case 'c':
+                                    case 'cpp':
+                                    case 'h': $icon_class = 'fas fa-file-code'; break;
+
+                                    case 'bin': $icon_class = 'fas fa-microchip'; break;
+                                    case 'log': $icon_class = 'fas fa-scroll'; break;
+                                    case 'csv': $icon_class = 'fas fa-file-csv'; break;
+                                    case 'torrent': $icon_class = 'fas fa-magnet'; break;
+                                    case 'bak': $icon_class = 'fas fa-history'; break;
+
+                                    default: $icon_class = 'fas fa-file'; break;
+                                }
                             }
+
                         ?>
 
-                        <td class="<?php echo $icon_class; ?>">
+                        <td>
                             <?php if ($item['is_dir']): ?>
+                                <i class="<?php echo $icon_class; ?> folder-icon me-2"></i>
                                 <a href="?dir=<?php echo urlencode($current_dir . $item['path']); ?>">
                                     <?php echo htmlspecialchars($item['name']); ?>
                                 </a>
                             <?php else: ?>
                                 <?php
                                     $ext = strtolower(pathinfo($item['name'], PATHINFO_EXTENSION));
-                                    if (in_array($ext, ['jpg','jpeg','png','gif','svg','bmp','webp','mp3','wav','ogg','flac','mp4','webm','avi','mkv'])):
-                                        $clean_path = ltrim(str_replace('//', '/', $item['path']), '/');
+                                    $clean_path = ltrim(str_replace('//', '/', $item['path']), '/');
                                 ?>
+                                <i class="<?php echo $icon_class; ?> file-icon me-2"></i>
+                                <?php if (in_array($ext, ['jpg','jpeg','png','gif','svg','bmp','webp','mp3','wav','ogg','flac','mp4','webm','avi','mkv'])): ?>
                                     <a href="#"
                                        onclick="previewFile('<?php echo htmlspecialchars($clean_path); ?>', '<?php echo $ext; ?>')">
                                         <?php echo htmlspecialchars($item['name']); ?>
