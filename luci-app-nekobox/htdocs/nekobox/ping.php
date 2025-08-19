@@ -326,6 +326,10 @@ function deleteNekoTmpDirectory($dir) {
 		font-size: 0.8rem;
 	}
 }
+
+.modal-body .alert.alert-warning .note-text {
+        color: #ff0000 !important;
+}
 </style>
 
 <div id="theme-loader" style="display: none;">
