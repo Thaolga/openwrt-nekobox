@@ -143,7 +143,7 @@ if (isset($_POST['batch_delete'])) {
 $files = array_diff(scandir($upload_dir), ['..', '.', '.htaccess', 'index.php']);
 $files = array_filter($files, function ($file) use ($upload_dir) {
     $ext = pathinfo($file, PATHINFO_EXTENSION);
-    return !in_array(strtolower($ext), ['php', 'txt']) && basename($file) !== 'shares' && !is_dir($upload_dir . DIRECTORY_SEPARATOR . $file);
+    return !in_array(strtolower($ext), ['php', 'txt', 'json']) && basename($file) !== 'shares' && !is_dir($upload_dir . DIRECTORY_SEPARATOR . $file);
 });
 
 if (isset($_GET['background'])) {
