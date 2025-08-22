@@ -543,20 +543,40 @@ async function myAppTranslate(text) {
     if (cachedTranslation) return cachedTranslation;
 
     const apis = [
-        { url: `https://api.mymemory.translated.net/get?q=${encodeURIComponent(text)}&langpair=en|${targetLang}`, method: 'GET', parseResponse: d=>d.responseData.translatedText },
-        { url: 'https://libretranslate.com/translate', method:'POST', body: JSON.stringify({q:text,source:'en',target:targetLang,format:'text'}), headers:{'Content-Type':'application/json'}, parseResponse:d=>d.translatedText }
+        { 
+            url: `https://api.mymemory.translated.net/get?q=${encodeURIComponent(text)}&langpair=en|${targetLang}`, 
+            method: 'GET', 
+            parseResponse: d => d && d.responseData && d.responseData.translatedText ? d.responseData.translatedText : text
+        },
+        { 
+            url: `https://translate.googleapis.com/translate_a/single?client=gtx&sl=en&tl=${targetLang}&dt=t&q=${encodeURIComponent(text)}`, 
+            method: 'GET', 
+            parseResponse: d => Array.isArray(d) && d[0]?.[0]?.[0] ? d[0][0][0] : text
+        }
     ];
 
     for(const api of apis){
         try{
-            const response = await fetch(api.url,{method:api.method,headers:api.headers||{},body:api.body||null});
+            const response = await fetch(api.url, {
+                method: api.method,
+                headers: api.headers || {},
+                body: api.body || null,
+                signal: AbortSignal.timeout(3000)
+            });
+            
             if(response.ok){
                 const data = await response.json();
                 const translatedText = api.parseResponse(data);
-                localStorage.setItem(cacheKey, translatedText);
-                return translatedText;
+                
+                if (translatedText && translatedText !== text) {
+                    localStorage.setItem(cacheKey, translatedText);
+                    return translatedText;
+                }
             }
-        } catch(e){ continue; }
+        } catch(e){ 
+            console.warn(`Translation API ${api.url} failed:`, e);
+            continue; 
+        }
     }
     return text;
 }
@@ -574,6 +594,9 @@ async function saveIPCache(data) {
         asn: data.asn || '',
         asn_organization: data.asn_organization || '',
         country_code: data.country_code || '',
+        timezone: data.timezone || data.time_zone || '',
+        latitude: data.latitude || data.lat || '',
+        longitude: data.longitude || data.lon || data.lng || '',
         language: data.language,
         translatedCountry: data.translatedCountry || '',
         translatedRegion: data.translatedRegion || '',
@@ -640,7 +663,11 @@ let myAppIP = {
         {url:'http://pv.sohu.com/cityjson',type:'text'},
         {url:'https://ipinfo.io/json',type:'json',key:'ip'},
         {url:'https://ipapi.co/json/',type:'json'},
-        {url:'https://freegeoip.app/json/',type:'json'}
+        {url:'https://freegeoip.app/json/',type:'json'},
+        {url: ip => `https://ipapi.com/${ip}/json`, type: 'json', concurrent: true},
+        {url: ip => `https://api.ip.sb/geoip/${ip}`, type: 'json', concurrent: true},
+        {url: ip => `https://ipwho.is/${ip}`, type: 'json', concurrent: true},
+        {url: ip => `https://api.ipapi.is/?q=${ip}`, type: 'json', concurrent: true}
     ],
 
     get:(url,type)=>fetch(url,{method:'GET',cache:'no-store'})
@@ -648,9 +675,67 @@ let myAppIP = {
         .then(([ok,status,data,headers])=>ok?{ok,status,data,headers}:Promise.reject(data.error))
         .catch(e=>{console.error("Error fetching data:",e);throw e;}),
 
+    concurrentGeoQuery: async function(ip) {
+        const concurrentApis = this.ipApis.filter(api => api.concurrent);
+        if (!concurrentApis.length) throw new Error("No concurrent APIs configured");
+
+        return new Promise((resolve, reject) => {
+            let resolved = false;
+            let completed = 0;
+
+            concurrentApis.forEach(api => {
+                const apiUrl = typeof api.url === 'function' ? api.url(ip) : api.url;
+                this.get(apiUrl, api.type)
+                    .then(resp => {
+                        if (!resolved && resp.data) {
+                            resolved = true;
+                            resolve(resp.data);
+                        }
+                    })
+                    .catch(err => console.warn("Concurrent API failed:", apiUrl, err))
+                    .finally(() => {
+                        completed++;
+                        if (completed === concurrentApis.length && !resolved) {
+                            reject(new Error("All concurrent APIs failed"));
+                        }
+                    });
+            });
+        });
+    },
+
+    concurrentGeoQuery: async function(ip) {
+        const concurrentApis = this.ipApis.filter(api => api.concurrent);
+        if (!concurrentApis.length) throw new Error("No concurrent APIs configured");
+
+        return new Promise((resolve, reject) => {
+            let resolved = false;
+            let completed = 0;
+
+            concurrentApis.forEach(api => {
+                const apiUrl = typeof api.url === 'function' ? api.url(ip) : api.url;
+                this.get(apiUrl, api.type)
+                    .then(resp => {
+                        if (!resolved && resp.data) {
+                            resolved = true;
+                            resolve(resp.data);
+                        }
+                    })
+                    .catch(err => console.warn("Concurrent API failed:", apiUrl, err))
+                    .finally(() => {
+                        completed++;
+                        if (completed === concurrentApis.length && !resolved) {
+                            reject(new Error("All concurrent APIs failed"));
+                        }
+                    });
+            });
+        });
+    },
+
     fetchIP: async ()=>{
         let error;
         for(let api of myAppIP.ipApis){
+            if (api.concurrent) continue;
+            
             try{
                 const response = await myAppIP.get(api.url,api.type);
                 let ipData = api.type==='json' ? (api.key?response.data[api.key]:response.data) : response.data.match(/\d+\.\d+\.\d+\.\d+/)?.[0];
@@ -683,7 +768,10 @@ let myAppIP = {
                 isp: cachedData.isp || '',
                 asn_organization: cachedData.asn_organization || '',
                 asn: cachedData.asn || '',
-                country_code: cachedData.country_code || ''
+                country_code: cachedData.country_code || '',
+                timezone: cachedData.timezone || '',
+                latitude: cachedData.latitude || '',
+                longitude: cachedData.longitude || ''
             };
             
             myAppIP.lastGeoData = {...baseData};
@@ -707,40 +795,79 @@ let myAppIP = {
             return;
         }
 
-        const geoApis = [
-            {url:`https://api.ip.sb/geoip/${ip}`,type:'json'},
-            {url:'https://myip.ipip.net',type:'text'},
-            {url:`http://ip-api.com/json/${ip}`,type:'json'},
-            {url:`https://ipinfo.io/${ip}/json`,type:'json'},
-            {url:`https://ipapi.co/${ip}/json`,type:'json'},
-            {url:`https://freegeoip.app/json/${ip}`,type:'json'}
-        ];
+        try {
+            const geoData = await this.concurrentGeoQuery(ip);
+            cachedIP=ip;
+            myAppIP.lastGeoData=geoData;
 
-        let geoData=null,error;
-        for(let api of geoApis){
-            try{ 
-                const response = await myAppIP.get(api.url,api.type); 
-                geoData=response.data; 
-                break; 
+            const standardizedData = {
+                ip: geoData.ip || ip,
+                country: geoData.country || geoData.country_name || '',
+                region: geoData.region || geoData.region_name || geoData.state || '',
+                city: geoData.city || '',
+                isp: geoData.isp || geoData.connection?.isp || geoData.org || '',
+                asn: geoData.asn || geoData.connection?.asn || '',
+                asn_organization: geoData.org || geoData.connection?.org || geoData.connection?.isp || '',
+                country_code: geoData.country_code || geoData.countryCode || geoData.country_code || '',
+                timezone: geoData.timezone || geoData.time_zone || '',
+                latitude: geoData.latitude || geoData.lat || '',
+                longitude: geoData.longitude || geoData.lon || geoData.lng || ''
+            };
+
+            if(translationEnabled){
+                standardizedData.translatedCountry = await myAppTranslate(standardizedData.country||'');
+                standardizedData.translatedRegion  = await myAppTranslate(standardizedData.region||'');
+                standardizedData.translatedCity    = await myAppTranslate(standardizedData.city||'');
+                standardizedData.translatedISP     = await myAppTranslate(standardizedData.isp||'');
+                standardizedData.translatedASNOrg  = await myAppTranslate(standardizedData.asn_organization||'');
+                standardizedData.language = currentLang;
             }
-            catch(e){ error=e; continue; }
+
+            await myAppIP.updateUI(standardizedData,elID);
+            saveIPCache(standardizedData);
+            
+        } catch(concurrentError) {
+            console.log("Concurrent query failed, falling back to sequential:", concurrentError);
+            
+            const geoApis = [
+                {url:`https://api.ip.sb/geoip/${ip}`,type:'json'},
+                {url:'https://myip.ipip.net',type:'text'},
+                {url:`http://ip-api.com/json/${ip}`,type:'json'},
+                {url:`https://ipinfo.io/${ip}/json`,type:'json'},
+                {url:`https://ipapi.co/${ip}/json`,type:'json'},
+                {url:`https://freegeoip.app/json/${ip}`,type:'json'}
+            ];
+
+            let geoData=null,error;
+            for(let api of geoApis){
+                try{ 
+                    const response = await myAppIP.get(api.url,api.type); 
+                    geoData=response.data; 
+                    break; 
+                }
+                catch(e){ error=e; continue; }
+            }
+            if(!geoData) throw error||new Error("All Geo APIs failed");
+
+            cachedIP=ip;
+            myAppIP.lastGeoData=geoData;
+
+            geoData.timezone = geoData.timezone || geoData.time_zone || '';
+            geoData.latitude = geoData.latitude || geoData.lat || '';
+            geoData.longitude = geoData.longitude || geoData.lon || geoData.lng || '';
+
+            if(translationEnabled){
+                geoData.translatedCountry = await myAppTranslate(geoData.country||'');
+                geoData.translatedRegion  = await myAppTranslate(geoData.region||'');
+                geoData.translatedCity    = await myAppTranslate(geoData.city||'');
+                geoData.translatedISP     = await myAppTranslate(geoData.isp||'');
+                geoData.translatedASNOrg  = await myAppTranslate(geoData.asn_organization||'');
+                geoData.language = currentLang;
+            }
+
+            await myAppIP.updateUI(geoData,elID);
+            saveIPCache(geoData);
         }
-        if(!geoData) throw error||new Error("All Geo APIs failed");
-
-        cachedIP=ip;
-        myAppIP.lastGeoData=geoData;
-
-        if(translationEnabled){
-            geoData.translatedCountry = await myAppTranslate(geoData.country||'');
-            geoData.translatedRegion  = await myAppTranslate(geoData.region||'');
-            geoData.translatedCity    = await myAppTranslate(geoData.city||'');
-            geoData.translatedISP     = await myAppTranslate(geoData.isp||'');
-            geoData.translatedASNOrg  = await myAppTranslate(geoData.asn_organization||'');
-            geoData.language = currentLang;
-        }
-
-        await myAppIP.updateUI(geoData,elID);
-        saveIPCache(geoData);
     },
 
     updateUI: async(data,elID)=>{
@@ -791,7 +918,7 @@ let myAppIP = {
         } catch(e){
             console.error("updateUI error:",e);
             document.getElementById('d-ip').innerHTML="<%:Failed to update IP information%>";
-            $("#flag").attr("src","/luci-static/ipip/flags/mo.png");
+            $("#flag").attr("src","/luci-static/ipip/flags/cn.png");
         }
     },
 
@@ -817,26 +944,26 @@ let myAppIP = {
             const city = translationEnabled && data.translatedCity ? data.translatedCity : data.city || "";
             const isp = translationEnabled && data.translatedISP ? data.translatedISP : data.isp || "";
             const asnOrg = translationEnabled && data.translatedASNOrg ? data.translatedASNOrg : data.asn_organization || "";
-            let timezone = 'N/A';
-            let latitude = 'N/A';
-            let longitude = 'N/A';
-    
-            try {
-                const apiUrl = `https://ipapi.co/${cachedIP}/json/`;
-                const response = await fetch(apiUrl, {cache: 'no-store'});
-        
-                if (response.ok) {
-                    const geoData = await response.json();
-                    timezone = geoData.timezone || 'N/A';
-                    latitude = geoData.latitude || 'N/A';
-                    longitude = geoData.longitude || 'N/A';          
-                    console.log('Real-time geo data:', {timezone, latitude, longitude});
-                }  
-            } catch (error) {
-                console.error('Failed to fetch real-time geo data:', error);
-                timezone = data.timezone || data.time_zone || 'N/A';
-                latitude = data.latitude || data.lat || 'N/A';
-                longitude = data.longitude || data.lon || data.lng || 'N/A';
+            const timezone = data.timezone || data.time_zone || 'N/A';
+            const latitude = data.latitude || data.lat || 'N/A';
+            const longitude = data.longitude || data.lon || data.lng || 'N/A';
+
+            let locationDisplay = '';
+            if (region && city) {
+                if (region === city) {
+                    locationDisplay = region;
+                } else {
+                    locationDisplay = `${region} ${city}`;
+                }
+            } else {
+                locationDisplay = region || city || '';
+            }
+
+            let countryCode = data.country_code || 'unknown';
+            if (countryCode.toUpperCase() === 'TW') {
+                countryCode = 'CN';
+            } else if (countryCode.toUpperCase() === 'HK' || countryCode.toUpperCase() === 'MO') {
+                countryCode = 'CN';
             }
 
         const translations = {
@@ -1219,7 +1346,7 @@ let myAppIP = {
                             </div>
                             <div class="detail-item" style="margin-bottom: 10px; display: flex; gap: 20px;">
                                 <span style="width: 180px; font-weight: 500; color: #6c757d;"><i class="bi bi-geo-alt"></i>  ${langText.location}:</span>
-                                <span style="flex: 1;">${region} ${city}</span>
+                                <span style="flex: 1;">${locationDisplay}</span>
                             </div>
                             <div class="detail-item" style="margin-bottom: 10px; display: flex; gap: 20px;">
                                 <span style="width: 180px; font-weight: 500; color: #6c757d;"><i class="bi bi-building"></i>  ${langText.isp}:</span>
@@ -1231,7 +1358,7 @@ let myAppIP = {
                             </div>
                             <div class="detail-item" style="margin-bottom: 10px; display: flex; gap: 20px;">
                                 <span style="width: 180px; font-weight: 500; color: #6c757d;"><i class="bi bi-flag"></i>  ${langText.countryCode}:</span>
-                                <span style="flex: 1;">${data.country_code || 'N/A'}</span>
+                                <span style="flex: 1;">${countryCode}</span>
                             </div>
                             <div class="detail-item" style="margin-bottom: 10px; display: flex; gap: 20px;">
                                 <span style="width: 180px; font-weight: 500; color: #6c757d;"><i class="bi bi-clock"></i>  ${langText.timezone}:</span>

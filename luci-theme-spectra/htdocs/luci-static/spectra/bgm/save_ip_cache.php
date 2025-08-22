@@ -44,6 +44,9 @@ foreach ($data as $item) {
     $ipIndex[$ip]['asn'] = $item['asn'] ?? $ipIndex[$ip]['asn'] ?? '';
     $ipIndex[$ip]['asn_organization'] = $item['asn_organization'] ?? $ipIndex[$ip]['asn_organization'] ?? '';
     $ipIndex[$ip]['country_code'] = $item['country_code'] ?? $ipIndex[$ip]['country_code'] ?? '';
+    $ipIndex[$ip]['timezone'] = $item['timezone'] ?? $ipIndex[$ip]['timezone'] ?? '';
+    $ipIndex[$ip]['latitude'] = $item['latitude'] ?? $ipIndex[$ip]['latitude'] ?? '';
+    $ipIndex[$ip]['longitude'] = $item['longitude'] ?? $ipIndex[$ip]['longitude'] ?? '';
     
     $language = $item['language'] ?? 'zh-CN';
     
