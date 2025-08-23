@@ -920,16 +920,17 @@ let myAppIP = {
             const latitude = data.latitude || data.lat || 'N/A';
             const longitude = data.longitude || data.lon || data.lng || 'N/A';
 
-            let locationDisplay = '';
-            if (region && city) {
-                if (region === city) {
-                    locationDisplay = region;
-                } else {
-                    locationDisplay = `${region} ${city}`;
-                }
-            } else {
-                locationDisplay = region || city || '';
+            let locationParts = [country];
+    
+            if (region && region !== country) {
+                locationParts.push(region);
             }
+    
+            if (city && city !== region && city !== country) {
+                locationParts.push(city);
+            }
+    
+            const locationDisplay = locationParts.join(' ');
 
             let countryCode = data.country_code || 'unknown';
             if (countryCode.toUpperCase() === 'TW') {
