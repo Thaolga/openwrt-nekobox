@@ -63,6 +63,7 @@ foreach ($data as $item) {
     ];
     
     $ipIndex[$ip]['default_language'] = $language;
+    $ipIndex[$ip]['last_updated'] = date('Y-m-d H:i:s');
 }
 
 $cache = array_values($ipIndex);
