@@ -5698,3 +5698,15 @@ pre.command-output {
 		white-space: nowrap !important;
 	}
 }
+
+#view textarea {
+        background-color: #1e1e1e !important;
+        color: #ffffff !important;
+        font-family: monospace !important;
+        font-size: 14px !important;
+        border-radius: 6px;
+        padding: 8px;
+        margin-top: 10px;
+        margin-left: 10px;
+}
+
