@@ -2972,7 +2972,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 </div>
                 <iframe id="theme-iframe" 
                     src="${window.location.protocol}//${window.location.host}/luci-static/spectra/bgm/index.php"
-                    style="width: 100%; height: calc(100% - 40px); border: none; border-radius: 0 0 5px 5px;">
+                    style="width: 100%; height: calc(100% - 100px); border: none; border-radius: 0 0 5px 5px;">
                 </iframe>
             </div>
         `;
@@ -2994,7 +2994,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 backdrop-filter: blur(3px);
             }
             #theme-settings-dialog {
-                background: rgba(0,0,0,0.9);
+                background: #0f3460;
                 width: 70%;
                 height: 80vh;
                 margin-top: 0;

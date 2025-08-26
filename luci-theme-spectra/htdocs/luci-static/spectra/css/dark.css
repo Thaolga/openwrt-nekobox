@@ -939,7 +939,7 @@ h3 {
 	font-size: 1.3rem !important;
 	font-weight: 500 !important;
 	margin-bottom: 0.6rem !important;
-	color: var(--h3-color) !important;
+	color: #fff !important;
 }
 
 h4 {
@@ -1171,6 +1171,11 @@ ul.tabs li.active, ul.cbi-tabmenu li.cbi-tab {
 	backdrop-filter: blur(8px) brightness(0.98) !important;
 }
 
+div.cbi-dropdown.btn.cbi-button.cbi-button-apply {
+        height: 40px !important;
+        line-height: 40px !important;
+}
+
 .cbi-page-actions .cbi-button-apply,
 .cbi-section-actions .cbi-button-edit,
 .cbi-button-edit,
@@ -1199,8 +1204,6 @@ ul.tabs li.active, ul.cbi-tabmenu li.cbi-tab {
 	background: #483d8b;
 	background: var(--dark-primary);
 	border: none;
-	box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.3), 
-              -1px -1px 3px rgba(255, 255, 255, 0.5);
 }
 
 .cbi-button,
@@ -1218,8 +1221,7 @@ ul.tabs li.active, ul.cbi-tabmenu li.cbi-tab {
 	justify-content: center;
 	text-decoration: none !important;
 	transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
-	box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.3), 
-              -1px -1px 3px rgba(255, 255, 255, 0.5);
+
 }
 
 .btn.cbi-button-positive,
@@ -1228,8 +1230,7 @@ ul.tabs li.active, ul.cbi-tabmenu li.cbi-tab {
 	border-radius: 8px;
 	overflow: hidden;
 	transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-	box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.3), 
-              -1px -1px 3px rgba(255, 255, 255, 0.5);
+
 }
 
 .btn.cbi-button-positive:hover,
@@ -1251,8 +1252,7 @@ ul.tabs li.active, ul.cbi-tabmenu li.cbi-tab {
 	vertical-align: middle;
 	cursor: pointer;
 	transition: transform 0.3s;
-	box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.3), 
-              -1px -1px 3px rgba(255, 255, 255, 0.5);
+
 }
 
 input[type="button"][value="全选"],
@@ -1262,8 +1262,6 @@ input[type="button"][value="To Top"],
 .btn.cbi-button.cbi-button-link {
 	background-color: #FFA500 !important;
 	color: white !important;
-	box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.3), 
-              -1px -1px 3px rgba(255, 255, 255, 0.5);
 }
 
 .cbi-button-up,
@@ -1699,6 +1697,7 @@ span.devise[data-v-08006dd5] {
 
 footer {
 	text-align: center;
+        display: none !important;
 }
 
 footer a.powered-by {

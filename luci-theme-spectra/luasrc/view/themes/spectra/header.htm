@@ -410,8 +410,9 @@
                     </a>
                 </div>
             </div>
+
             <div class="ip-container" style="display: none;">
-                <img id="flag" src="path/to/flag.png" alt="IP Flag" title="<%:Click to refresh IP address%>">
+                <img id="flag" title="">
                 <div class="ip-text">
                     <span id="d-ip">Checking...</span>
                     <span id="ipip"></span>
@@ -448,6 +449,137 @@ const translate = {};
 let cachedIP = null;
 let translationEnabled = localStorage.getItem('translationEnabled') !== 'false';
 let currentLanguage = 'zh-CN';
+
+const translationsIP = {
+    zh: {
+        unknown: '未知',
+        clickRefresh: '点击刷新 IP 地址',
+        failedUpdate: '更新 IP 信息失败',
+        checking: '检查中...',
+        failed: '获取 IP 信息失败',
+        translate: '翻译',
+        editDatabase: '编辑数据库'
+    },
+    en: {
+        unknown: 'Unknown',
+        clickRefresh: 'Click to refresh IP address',
+        failedUpdate: 'Failed to update IP information',
+        checking: 'Checking...',
+        failed: 'Failed to get IP information',
+        translate: 'Translate',
+        editDatabase: 'Edit Database'
+    },
+    hk: {
+        unknown: '未知',
+        clickRefresh: '點擊刷新 IP 地址',
+        failedUpdate: '更新 IP 資訊失敗',
+        checking: '檢查中...',
+        failed: '獲取 IP 資訊失敗',
+        translate: '翻譯',
+        editDatabase: '編輯資料庫'
+    },
+    de: {
+        unknown: 'Unbekannt',
+        clickRefresh: 'Klicken, um die IP-Adresse zu aktualisieren',
+        failedUpdate: 'IP-Informationen konnten nicht aktualisiert werden',
+        checking: 'Überprüfung...',
+        failed: 'IP-Informationen konnten nicht abgerufen werden',
+        translate: 'Übersetzen',
+        editDatabase: 'Datenbank bearbeiten'
+    },
+    fr: {
+        unknown: 'Inconnu',
+        clickRefresh: 'Cliquez pour actualiser l\'adresse IP',
+        failedUpdate: 'Échec de la mise à jour des informations IP',
+        checking: 'Vérification...',
+        failed: 'Impossible d\'obtenir les informations IP',
+        translate: 'Traduire',
+        editDatabase: 'Modifier la base de données'
+    },
+    ko: {
+        unknown: '알 수 없음',
+        clickRefresh: 'IP 주소를 새로 고치려면 클릭',
+        failedUpdate: 'IP 정보 업데이트 실패',
+        checking: '확인 중...',
+        failed: 'IP 정보 가져오기 실패',
+        translate: '번역',
+        editDatabase: '데이터베이스 편집'
+    },
+    ja: {
+        unknown: '不明',
+        clickRefresh: 'クリックして IP アドレスを更新',
+        failedUpdate: 'IP 情報の更新に失敗しました',
+        checking: '確認中...',
+        failed: 'IP 情報の取得に失敗しました',
+        translate: '翻訳',
+        editDatabase: 'データベースを編集'
+    },
+    bn: {
+        unknown: 'অজানা',
+        clickRefresh: 'IP ঠিকানা রিফ্রেশ করতে ক্লিক করুন',
+        failedUpdate: 'IP তথ্য আপডেট করতে ব্যর্থ',
+        checking: 'চেক করা হচ্ছে...',
+        failed: 'IP তথ্য পেতে ব্যর্থ',
+        translate: 'অনুবাদ',
+        editDatabase: 'ডাটাবেস সম্পাদনা করুন'
+    },
+    vi: {
+        unknown: 'Không xác định',
+        clickRefresh: 'Nhấn để làm mới địa chỉ IP',
+        failedUpdate: 'Cập nhật thông tin IP thất bại',
+        checking: 'Đang kiểm tra...',
+        failed: 'Không thể lấy thông tin IP',
+        translate: 'Dịch',
+        editDatabase: 'Chỉnh sửa cơ sở dữ liệu'
+    },
+    th: {
+        unknown: 'ไม่ทราบ',
+        clickRefresh: 'คลิกเพื่อรีเฟรชที่อยู่ IP',
+        failedUpdate: 'อัปเดตข้อมูล IP ล้มเหลว',
+        checking: 'กำลังตรวจสอบ...',
+        failed: 'ไม่สามารถรับข้อมูล IP ได้',
+        translate: 'แปล',
+        editDatabase: 'แก้ไขฐานข้อมูล'
+    },
+    ar: {
+        unknown: 'غير معروف',
+        clickRefresh: 'انقر لتحديث عنوان IP',
+        failedUpdate: 'فشل تحديث معلومات IP',
+        checking: 'جارٍ التحقق...',
+        failed: 'فشل الحصول على معلومات IP',
+        translate: 'ترجمة',
+        editDatabase: 'تحرير قاعدة البيانات'
+    },
+    ru: {
+        unknown: 'Неизвестно',
+        clickRefresh: 'Нажмите, чтобы обновить IP-адрес',
+        failedUpdate: 'Не удалось обновить информацию об IP',
+        checking: 'Проверка...',
+        failed: 'Не удалось получить информацию об IP',
+        translate: 'Перевести',
+        editDatabase: 'Редактировать базу данных'
+    },
+    es: {
+        unknown: 'Desconocido',
+        clickRefresh: 'Haga clic para actualizar la dirección IP',
+        failedUpdate: 'Error al actualizar la información IP',
+        checking: 'Comprobando...',
+        failed: 'Error al obtener información IP',
+        translate: 'Traducir',
+        editDatabase: 'Editar base de datos'
+    }
+};
+
+async function initIPDisplay() {
+    const lang = await getRealTimeLanguage();
+    const text = translationsIP[lang] || translationsIP['zh'];
+
+    document.getElementById('flag').title = text.clickRefresh;
+}
+
+window.addEventListener('load', () => {
+    initIPDisplay();
+});
 
 async function getCurrentLanguage() {
     try {
@@ -844,7 +976,9 @@ let myAppIP = {
 
     updateUI: async(data,elID)=>{
         try{
-            const country = translationEnabled && data.translatedCountry ? data.translatedCountry : data.country || "<%:Unknown%>";
+            const lang = await getRealTimeLanguage();
+            const text = translationsIP[lang] || translationsIP['zh'];
+            const country = translationEnabled && data.translatedCountry ? data.translatedCountry : data.country || text.unknown;
             const region  = translationEnabled && data.translatedRegion  ? data.translatedRegion  : data.region  || "";
             const city    = translationEnabled && data.translatedCity    ? data.translatedCity    : data.city    || "";
             const isp     = translationEnabled && data.translatedISP     ? data.translatedISP     : data.isp     || "";
@@ -860,7 +994,7 @@ let myAppIP = {
                 <div class="ip-main" style="cursor:pointer;" onclick="myAppIP.showDetailModal()">
                     ${cachedIP} <span class="badge badge-primary" style="color:#fd7e14;background:#f8f9fa;border-radius:4px;padding:2px 6px;border:1px solid #ddd;">${country}</span>
                 </div>`;
-            document.getElementById('ipip').innerHTML = `<span style="margin-left:8px;">${location} ${displayISP} ${data.asn||''} ${displayASN}</span>`;
+            document.getElementById('ipip').innerHTML = `<span style="margin-left:8px; position: relative; top: -3px;">${location} ${displayISP} ${data.asn||''} ${displayASN}</span>`;
 
             const countryContainer = document.querySelector('.ip-main');
             if(countryContainer && !document.querySelector('.translation-toggle')){
@@ -872,16 +1006,58 @@ let myAppIP = {
                 toggle.style.height='20px';
                 toggle.style.marginLeft='8px';
                 toggle.style.border='1px solid #ddd';
-                toggle.style.borderRadius='3px';
+                toggle.style.borderRadius='5px';
                 toggle.style.backgroundColor='#f8f9fa';
                 toggle.style.fontSize='12px';
                 toggle.style.verticalAlign='middle';
                 toggle.style.lineHeight='1';
                 toggle.style.padding='0';
                 toggle.style.textAlign='center';
+                toggle.title = text.translate || 'Translate';
                 countryContainer.appendChild(toggle);
                 setTimeout(setupHoverEffect,100);
             }
+
+            const oldBtn = document.getElementById('openEditModal');
+            if(oldBtn) oldBtn.remove();
+
+            const editBtn = document.createElement('button');
+            editBtn.id = 'openEditModal';
+            editBtn.innerHTML = '<i class="bi bi-file-earmark-code"></i>';
+            editBtn.title = text.editDatabase;
+
+            Object.assign(editBtn.style, {
+                display: 'inline-flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                width: '24px',
+                height: '20px',
+                border: '1px solid #ddd',
+                borderRadius: '5px',
+                backgroundColor: '#f8f9fa',
+                fontSize: '12px',
+                lineHeight: '1',
+                padding: '0',
+                textAlign: 'center',
+                cursor: 'pointer',
+                opacity: '0',
+                transition: 'opacity 0.2s',
+                marginLeft: '8px'
+            });
+
+            editBtn.onclick = (event) => {
+                event.stopPropagation();
+                showEditModal();
+            };
+
+            countryContainer.appendChild(editBtn);
+
+            countryContainer.addEventListener('mouseenter', () => {
+                editBtn.style.opacity = '1';
+            });
+            countryContainer.addEventListener('mouseleave', () => {
+                editBtn.style.opacity = '0';
+            });
 
             const countryCode = data.country_code||'unknown';
             const flagSrc = (countryCode!=='unknown')?_IMG+"flags/"+countryCode.toLowerCase()+".png":'/luci-static/ipip/flags/cn.png';
@@ -889,29 +1065,48 @@ let myAppIP = {
 
         } catch(e){
             console.error("updateUI error:",e);
-            document.getElementById('d-ip').innerHTML="<%:Failed to update IP information%>";
+            document.getElementById('d-ip').innerHTML = text.failedUpdate;   
             $("#flag").attr("src","/luci-static/ipip/flags/cn.png");
         }
     },
 
     getIpipnetIP: async ()=>{
         if(myAppIP.isRefreshing) return;
-        myAppIP.isRefreshing=true;
-        document.getElementById('d-ip').innerHTML=`<div class="ip-main"><span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span><%:Checking...%></div>`;
+        myAppIP.isRefhing=true;
+        const lang = await getRealTimeLanguage();
+        const text = translationsIP[lang] || translationsIP['zh'];
+        document.getElementById('d-ip').innerHTML=`<div class="ip-main"><span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>${text.checking}</div>`;  
         document.getElementById('ipip').innerHTML="";
-        $("#flag").attr("src",_IMG+"img/loading.svg");
-        try{
+    
+        const loadingIcon = document.createElement('img');
+        loadingIcon.src = _IMG + "img/loading.svg";
+        loadingIcon.style.width = "50px";
+        loadingIcon.style.height = "50px";
+        loadingIcon.className = "loading-icon";
+        loadingIcon.id = "loading-icon";
+    
+        $("#flag").hide();
+        $("#flag").after(loadingIcon);
+
+        try {
             const ip = await myAppIP.fetchIP();
-            await myAppIP.Ipip(ip,'ipip');
-        }catch(e){ console.error("getIpipnetIP error:",e); document.getElementById('ipip').innerHTML="<%:Failed to get IP information%>"; }
-        finally{ myAppIP.isRefreshing=false; }
+            await myAppIP.Ipip(ip, 'ipip');
+        } catch (e) {
+            console.error("getIpipnetIP error:", e);
+            document.getElementById('ipip').innerHTML = text.failed;
+        } finally {
+            myAppIP.isRefreshing = false;
+            $("#loading-icon").remove();
+            $("#flag").show();
+        }
     },
 
     showDetailModal: async function() {
         if (!myAppIP.lastGeoData) return;
-    
+            const lang = await getRealTimeLanguage();
+            const text = translationsIP[lang] || translationsIP['zh'];
             const data = myAppIP.lastGeoData;
-            const country = translationEnabled && data.translatedCountry ? data.translatedCountry : data.country || "<%:Unknown%>";
+            const country = translationEnabled && data.translatedCountry ? data.translatedCountry : data.country || text.unknown;
             const region = translationEnabled && data.translatedRegion ? data.translatedRegion : data.region || "";
             const city = translationEnabled && data.translatedCity ? data.translatedCity : data.city || "";
             const isp = translationEnabled && data.translatedISP ? data.translatedISP : data.isp || "";
@@ -941,8 +1136,8 @@ let myAppIP = {
 
         const translations = {
             'zh': {
-                title: 'IP地址详情',
-                ip: 'IP地址',
+                title: 'IP 地址详情',
+                ip: 'IP 地址',
                 location: '地理位置',
                 isp: '网络服务商',
                 asn: '自治系统号',
@@ -998,8 +1193,8 @@ let myAppIP = {
                 longitude: '経度'
             },
             'hk': {
-                title: 'IP地址詳情',
-                ip: 'IP地址',
+                title: 'IP 地址詳情',
+                ip: 'IP 地址',
                 location: '地理位置',
                 isp: '網絡服務商',
                 asn: '自治系統號',
@@ -1285,23 +1480,28 @@ let myAppIP = {
                     justify-content: space-between;
                     align-items: center;
                 ">
-                    <h3 style="margin: 0; font-size: 1.2em;">
+                    <h3 style="margin: 0; font-size: 1.3em;  font-weight:600; background:none; border:none; color:white;">
                         <span style="margin-right: 10px;"><i class="bi bi-clipboard"></i></span>
                         ${langText.title}
                     </h3>
                     <button class="ip-modal-close" style="
-                        background: none;
-                        border: none;
-                        color: white;
-                        font-size: 1.5em;
-                        cursor: pointer;
-                        padding: 0;
-                        width: 30px;
-                        height: 30px;
-                        display: flex;
-                        align-items: center;
-                        justify-content: center;
-                    ">×</button>
+                        background:white;
+                        border:none;
+                        color:#4a6cf7;
+                        font-size:1.1em;
+                        cursor:pointer;
+                        width:25px;
+                        height:25px;
+                        border-radius:6px;
+                        display:flex;
+                        align-items:center;
+                        justify-content:center;
+                        transition: transform 0.2s, color 0.2s;
+                    "
+                    onmouseover="this.firstElementChild.style.color='#1a73e8'; this.style.transform='scale(1.1)';"
+                    onmouseout="this.firstElementChild.style.color='#4a6cf7'; this.style.transform='scale(1)';">
+                        <i class="bi bi-x-lg"></i>
+                    </button>
                 </div>
             
                 <div class="ip-modal-body" style="padding: 20px; max-height: 60vh; overflow-y: auto;">
@@ -1386,35 +1586,11 @@ let myAppIP = {
                     background: #f8f9fa;
                     display: flex;
                     justify-content: flex-end;
-                    gap: 10px;
                     border-top: 1px solid #dee2e6;
                 ">
-                    <button class="ip-modal-btn ip-modal-btn-secondary" style="
-                        padding: 6px 12px;
-                        font-size: 14px; 
-                        border: 1px solid #ff6b6b;
-                        background-color: #ff6b6b; 
-                        color: white;
-                        border-radius: 8px;
-                        cursor: pointer;
-                        transition: background-color 0.2s ease, transform 0.2s ease;
-                    "
-                    onmouseenter="this.style.backgroundColor='#ff4c4c'; this.style.transform='scale(1.1)';"
-                    onmouseleave="this.style.backgroundColor='#ff6b6b'; this.style.transform='scale(1)';
-                    ">${langText.close}</button>
-                    <button class="ip-modal-btn ip-modal-btn-info" style="
-                        padding: 6px 12px;
-                        font-size: 14px; 
-                        border: 1px solid #4ecdc4;
-                        background-color: #4ecdc4;
-                        color: white;
-                        border-radius: 8px;
-                        cursor: pointer;
-                        transition: background-color 0.2s ease, transform 0.2s ease;
-                    "
-                    onmouseenter="this.style.backgroundColor='#38b9af'; this.style.transform='scale(1.1)';"
-                    onmouseleave="this.style.backgroundColor='#4ecdc4'; this.style.transform='scale(1)';
-                    ">${langText.refresh}</button>
+
+                    <button class="cbi-button cbi-button-remove">${langText.close}</button>
+                    <button class="cbi-button cbi-button-apply">${langText.refresh}</button>
                 </div>
             `;
 
@@ -1425,7 +1601,7 @@ let myAppIP = {
 
         const setupModalEvents = (overlay, content) => {
             const closeBtn = content.querySelector('.ip-modal-close');
-            const closeModalBtn = content.querySelector('.ip-modal-btn-secondary');
+            const closeModalBtn = content.querySelector('.cbi-button-remove');
         
             const closeModal = () => {
                 overlay.style.opacity = '0';
@@ -1446,7 +1622,7 @@ let myAppIP = {
                 }
             });
 
-            const refreshBtn = content.querySelector('.ip-modal-btn-info');
+            const refreshBtn = content.querySelector('.cbi-button-apply');
             refreshBtn.addEventListener('click', () => {
                 closeModal();
                 setTimeout(() => {
@@ -1474,7 +1650,475 @@ document.addEventListener('DOMContentLoaded', function() {
 </script>
 
 <script>
-function pingHost(id, name, url) {
+const translations = {
+    zh: { title: '编辑 IP 数据库', close: '关闭', save: '保存', fullscreen: '全屏 (F11)', 
+          jsonError: 'JSON格式错误，请检查！', saveSuccess: '保存成功', saveFail: '保存失败', loading: '加载编辑器中...',
+          clear: '清空', clearConfirm: '确定要清空 IP 数据库吗？', clearSuccess: '已清空 IP 数据库', clearFail: '清空失败' },
+    en: { title: 'Edit IP Database', close: 'Close', save: 'Save', fullscreen: 'Fullscreen (F11)', 
+          jsonError: 'Invalid JSON format!', saveSuccess: 'Saved successfully', saveFail: 'Save failed', loading: 'Loading editor...',
+          clear: 'Clear', clearConfirm: 'Are you sure to clear the IP database?', clearSuccess: 'IP database cleared', clearFail: 'Clear failed' },
+    hk: { title: '編輯 IP 數據庫', close: '關閉', save: '儲存', fullscreen: '全螢幕 (F11)', 
+          jsonError: 'JSON格式錯誤，請檢查！', saveSuccess: '儲存成功', saveFail: '儲存失敗', loading: '載入編輯器中...',
+          clear: '清空', clearConfirm: '確定要清空 IP 數據庫嗎？', clearSuccess: '已清空 IP 數據庫', clearFail: '清空失敗' },
+    de: { title: 'IP-Datenbank bearbeiten', close: 'Schließen', save: 'Speichern', fullscreen: 'Vollbild (F11)', 
+          jsonError: 'Ungültiges JSON-Format!', saveSuccess: 'Erfolgreich gespeichert', saveFail: 'Speichern fehlgeschlagen', loading: 'Editor wird geladen...',
+          clear: 'Leeren', clearConfirm: 'Möchten Sie die IP-Datenbank wirklich leeren?', clearSuccess: 'IP-Datenbank geleert', clearFail: 'Leeren fehlgeschlagen' },
+    fr: { title: 'Modifier la base IP', close: 'Fermer', save: 'Enregistrer', fullscreen: 'Plein écran (F11)', 
+          jsonError: 'Format JSON invalide !', saveSuccess: 'Enregistrement réussi', saveFail: 'Échec de l\'enregistrement', loading: 'Chargement de l\'éditeur...',
+          clear: 'Vider', clearConfirm: 'Êtes-vous sûr de vouloir vider la base IP ?', clearSuccess: 'Base IP vidée', clearFail: 'Échec du vidage' },
+    ko: { title: 'IP 데이터베이스 편집', close: '닫기', save: '저장', fullscreen: '전체 화면 (F11)', 
+          jsonError: 'JSON 형식 오류!', saveSuccess: '저장 성공', saveFail: '저장 실패', loading: '편집기 로딩 중...',
+          clear: '초기화', clearConfirm: 'IP 데이터베이스를 초기화하시겠습니까?', clearSuccess: 'IP 데이터베이스가 초기화되었습니다', clearFail: '초기화 실패' },
+    ja: { title: 'IPデータベースを編集', close: '閉じる', save: '保存', fullscreen: '全画面 (F11)', 
+          jsonError: 'JSON形式が正しくありません！', saveSuccess: '保存しました', saveFail: '保存に失敗しました', loading: 'エディターを読み込み中...',
+          clear: 'クリア', clearConfirm: 'IPデータベースをクリアしてもよろしいですか？', clearSuccess: 'IPデータベースをクリアしました', clearFail: 'クリアに失敗しました' },
+    bn: { title: 'IP ডাটাবেস সম্পাদনা', close: 'বন্ধ', save: 'সংরক্ষণ', fullscreen: 'পূর্ণ স্ক্রিন (F11)', 
+          jsonError: 'অবৈধ JSON ফরম্যাট!', saveSuccess: 'সফলভাবে সংরক্ষিত', saveFail: 'সংরক্ষণ ব্যর্থ', loading: 'সম্পাদক লোড হচ্ছে...',
+          clear: 'সাফ করুন', clearConfirm: 'IP ডাটাবেস মুছে ফেলতে চান?', clearSuccess: 'IP ডাটাবেস মুছে ফেলা হয়েছে', clearFail: 'মুছে ফেলতে ব্যর্থ' },
+    vi: { title: 'Chỉnh sửa cơ sở dữ liệu IP', close: 'Đóng', save: 'Lưu', fullscreen: 'Toàn màn hình (F11)', 
+          jsonError: 'Định dạng JSON không hợp lệ!', saveSuccess: 'Lưu thành công', saveFail: 'Lưu thất bại', loading: 'Đang tải trình chỉnh sửa...',
+          clear: 'Xóa', clearConfirm: 'Bạn có chắc muốn xóa cơ sở dữ liệu IP không?', clearSuccess: 'Đã xóa cơ sở dữ liệu IP', clearFail: 'Xóa thất bại' },
+    th: { title: 'แก้ไขฐานข้อมูล IP', close: 'ปิด', save: 'บันทึก', fullscreen: 'เต็มจอ (F11)', 
+          jsonError: 'รูปแบบ JSON ไม่ถูกต้อง!', saveSuccess: 'บันทึกสำเร็จ', saveFail: 'บันทึกไม่สำเร็จ', loading: 'กำลังโหลดตัวแก้ไข...',
+          clear: 'ล้าง', clearConfirm: 'คุณแน่ใจหรือไม่ว่าจะล้างฐานข้อมูล IP?', clearSuccess: 'ล้างฐานข้อมูล IP เรียบร้อย', clearFail: 'ล้างไม่สำเร็จ' },
+    ar: { title: 'تحرير قاعدة بيانات IP', close: 'إغلاق', save: 'حفظ', fullscreen: 'ملء الشاشة (F11)', 
+          jsonError: 'تنسيق JSON غير صالح!', saveSuccess: 'تم الحفظ بنجاح', saveFail: 'فشل الحفظ', loading: 'جاري تحميل المحرر...',
+          clear: 'مسح', clearConfirm: 'هل أنت متأكد من مسح قاعدة بيانات IP؟', clearSuccess: 'تم مسح قاعدة بيانات IP', clearFail: 'فشل المسح' },
+    ru: { title: 'Редактировать базу IP', close: 'Закрыть', save: 'Сохранить', fullscreen: 'Полный экран (F11)', 
+          jsonError: 'Неверный формат JSON!', saveSuccess: 'Успешно сохранено', saveFail: 'Ошибка сохранения', loading: 'Загрузка редактора...',
+          clear: 'Очистить', clearConfirm: 'Вы уверены, что хотите очистить базу IP?', clearSuccess: 'База IP очищена', clearFail: 'Не удалось очистить' },
+    es: { title: 'Editar base de datos IP', close: 'Cerrar', save: 'Guardar', fullscreen: 'Pantalla completa (F11)', 
+          jsonError: '¡Formato JSON inválido!', saveSuccess: 'Guardado exitosamente', saveFail: 'Error al guardar', loading: 'Cargando editor...',
+          clear: 'Borrar', clearConfirm: '¿Está seguro de borrar la base de datos IP?', clearSuccess: 'Base de datos IP borrada', clearFail: 'Error al borrar' }
+};
+
+let isCodeMirrorLoaded = false;
+let codeMirrorLoadingPromise = null;
+
+async function loadCodeMirror() {
+    if (isCodeMirrorLoaded) {
+        return Promise.resolve();
+    }
+    
+    if (codeMirrorLoadingPromise) {
+        return codeMirrorLoadingPromise;
+    }
+    
+    codeMirrorLoadingPromise = new Promise((resolve, reject) => {
+        const cssLink = document.createElement('link');
+        cssLink.rel = 'stylesheet';
+        cssLink.href = 'https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/codemirror.min.css';
+        document.head.appendChild(cssLink);
+        
+        const script = document.createElement('script');
+        script.src = 'https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/codemirror.min.js';
+        script.onload = () => {
+            const jsonModeScript = document.createElement('script');
+            jsonModeScript.src = 'https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/mode/javascript/javascript.min.js';
+            jsonModeScript.onload = () => {
+                const themeLink = document.createElement('link');
+                themeLink.rel = 'stylesheet';
+                themeLink.href = 'https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/theme/material.min.css';
+                document.head.appendChild(themeLink);
+                
+                const lintScript = document.createElement('script');
+                lintScript.src = 'https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/addon/lint/lint.min.js';
+                lintScript.onload = () => {
+                    const lintCss = document.createElement('link');
+                    lintCss.rel = 'stylesheet';
+                    lintCss.href = 'https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/addon/lint/lint.min.css';
+                    document.head.appendChild(lintCss);
+                    
+                    CodeMirror.registerHelper("lint", "json", function(text) {
+                        const found = [];
+                        if (!text) return found;
+                        
+                        try {
+                            JSON.parse(text);
+                        } catch (e) {
+                            const match = e.message.match(/line (\d+)/);
+                            const line = match ? parseInt(match[1]) - 1 : 0;
+                            
+                            let errorLine = line;
+                            let errorChar = 0;
+                            
+                            const lines = text.split('\n');
+                            if (e.message.includes('Unexpected token')) {
+                                const token = e.message.match(/Unexpected token (.+?) in/);
+                                if (token) {
+                                    for (let i = 0; i < lines.length; i++) {
+                                        const pos = lines[i].indexOf(token[1]);
+                                        if (pos !== -1) {
+                                            errorLine = i;
+                                            errorChar = pos;
+                                            break;
+                                        }
+                                    }
+                                }
+                            }
+                            
+                            found.push({
+                                from: CodeMirror.Pos(errorLine, errorChar),
+                                to: CodeMirror.Pos(errorLine, errorChar + 1),
+                                message: e.message,
+                                severity: "error"
+                            });
+                        }
+                        return found;
+                    });
+                    
+                    const foldScript = document.createElement('script');
+                    foldScript.src = 'https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/addon/fold/foldcode.min.js';
+                    foldScript.onload = () => {
+                        const foldGutterScript = document.createElement('script');
+                        foldGutterScript.src = 'https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/addon/fold/foldgutter.min.js';
+                        foldGutterScript.onload = () => {
+                            const braceFoldScript = document.createElement('script');
+                            braceFoldScript.src = 'https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/addon/fold/brace-fold.min.js';
+                            braceFoldScript.onload = () => {
+                                const foldGutterCss = document.createElement('link');
+                                foldGutterCss.rel = 'stylesheet';
+                                foldGutterCss.href = 'https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/addon/fold/foldgutter.min.css';
+                                document.head.appendChild(foldGutterCss);
+                                
+                                isCodeMirrorLoaded = true;
+                                resolve();
+                            };
+                            braceFoldScript.onerror = reject;
+                            document.head.appendChild(braceFoldScript);
+                        };
+                        foldGutterScript.onerror = reject;
+                        document.head.appendChild(foldGutterScript);
+                    };
+                    foldScript.onerror = reject;
+                    document.head.appendChild(foldScript);
+                };
+                lintScript.onerror = reject;
+                document.head.appendChild(lintScript);
+            };
+            jsonModeScript.onerror = reject;
+            document.head.appendChild(jsonModeScript);
+        };
+        script.onerror = reject;
+        document.head.appendChild(script);
+    });
+    
+    return codeMirrorLoadingPromise;
+}
+
+async function getCurrentLangText() {
+    try {
+        const lang = await getRealTimeLanguage();
+        return translations[lang] || translations['zh'];
+    } catch (e) {
+        console.error('Failed to get language:', e);
+        return translations['zh'];
+    }
+}
+
+async function showEditModal() {
+    const lang = await getCurrentLangText();
+
+    const overlay = document.createElement('div');
+    overlay.style.cssText = `
+        position: fixed; top:0; left:0; width:100%; height:100%;
+        background: rgba(0,0,0,0.5); display:flex; justify-content:center; align-items:center;
+        z-index:10000; opacity:0; transition: opacity 0.3s;
+    `;
+
+    const content = document.createElement('div');
+    content.style.cssText = `
+        background:white; border-radius:8px; width:90%; max-width:900px; max-height:80vh;
+        display:flex; flex-direction:column; box-shadow:0 5px 20px rgba(0,0,0,0.15);
+        transform: scale(0.9); transition: transform 0.3s ease; overflow: hidden;
+    `;
+
+    content.innerHTML = `
+        <div style="background:#4a6cf7; color:white; padding:12px 16px; display:flex; justify-content:space-between; align-items:center;">
+            <h3 style="margin:0; font-size:1.3em; font-weight:500; background:none; border:none; color:white;"><i class="bi bi-server"></i> ${lang.title}</h3>
+            <div style="display:flex; align-items:center; gap:8px;">
+                <button class="fullscreenBtn" title="${lang.fullscreen}" style="
+                    background:white;
+                    border:none;
+                    color:#4a6cf7;
+                    font-size:1.1em;
+                    cursor:pointer;
+                    width:25px;
+                    height:25px;
+                    border-radius:6px;
+                    display:flex;
+                    align-items:center;
+                    justify-content:center;
+                    transition: transform 0.2s, color 0.2s;
+                "
+                onmouseover="this.firstElementChild.style.color='#1a73e8'; this.style.transform='scale(1.1)';"
+                onmouseout="this.firstElementChild.style.color='#4a6cf7'; this.style.transform='scale(1)';">
+                    <i class="bi bi-arrows-fullscreen"></i>
+                </button>
+        
+                <button class="closeBtn" title="${lang.close}" style="
+                    background:white;
+                    border:none;
+                    color:#4a6cf7;
+                    font-size:1.1em;
+                    cursor:pointer;
+                    width:25px;
+                    height:25px;
+                    border-radius:6px;
+                    display:flex;
+                    align-items:center;
+                    justify-content:center;
+                    transition: transform 0.2s, color 0.2s;
+                "
+                onmouseover="this.firstElementChild.style.color='#1a73e8'; this.style.transform='scale(1.1)';"
+                onmouseout="this.firstElementChild.style.color='#4a6cf7'; this.style.transform='scale(1)';">
+                    <i class="bi bi-x-lg"></i>
+                </button>
+            </div>
+        </div>
+
+        <div style="flex:1; position:relative;">
+            <div id="loadingIndicator" style="
+                position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+                text-align: center; color: #666; font-size: 14px; z-index: 10;
+            ">
+                <div style="margin-bottom: 10px;">
+                    <div style="display: inline-block; width: 20px; height: 20px; border: 2px solid #f3f3f3; border-top: 2px solid #4a6cf7; border-radius: 50%; animation: spin 1s linear infinite;"></div>
+                </div>
+                ${lang.loading}
+            </div>
+            <div id="editorContainer" style="display: none; width:100%; height:450px;"></div>
+        </div>
+        <div style="padding:12px 16px; background:#f8f9fa; display:flex; justify-content:flex-end; border-radius:0 0 8px 8px;">
+            <button class="cbi-button cbi-button-apply">${lang.clear}</button>
+            <button class="cbi-button cbi-button-remove">${lang.close}</button>
+            <button class="cbi-button cbi-button-save">${lang.save}</button>
+        </div>
+        <style>
+            @keyframes spin {
+                0% { transform: rotate(0deg); }
+                100% { transform: rotate(360deg); }
+            }
+            .fullscreen-mode {
+                position: fixed !important;
+                top: 0 !important;
+                left: 0 !important;
+                width: 100vw !important;
+                height: 100vh !important;
+                max-width: none !important;
+                max-height: none !important;
+                border-radius: 0 !important;
+                z-index: 20000 !important;
+            }
+            .fullscreen-mode .fullscreenBtn svg {
+                transform: rotate(180deg);
+            }
+        </style>
+    `;
+
+    overlay.appendChild(content);
+    document.body.appendChild(overlay);
+    setTimeout(() => { overlay.style.opacity='1'; content.style.transform='scale(1)'; }, 10);
+
+    let codeMirrorEditor = null;
+    let isFullscreen = false;
+
+    const toggleFullscreen = () => {
+        isFullscreen = !isFullscreen;
+        if (isFullscreen) {
+            content.classList.add('fullscreen-mode');
+            setTimeout(() => {
+                if (codeMirrorEditor) {
+                    codeMirrorEditor.setSize('100%', 'calc(100vh - 140px)');
+                    codeMirrorEditor.refresh();
+                }
+            }, 100);
+        } else {
+            content.classList.remove('fullscreen-mode');
+            setTimeout(() => {
+                if (codeMirrorEditor) {
+                    codeMirrorEditor.setSize('100%', '450px');
+                    codeMirrorEditor.refresh();
+                }
+            }, 100);
+        }
+    };
+
+    content.querySelector('.cbi-button-apply').addEventListener('click', async () => {
+        if (!confirm(lang.clearConfirm || 'Are you sure to clear the IP database?')) return;
+
+        try {
+            const res = await fetch('/luci-static/spectra/bgm/edit_ip_cache.php', {
+                method: 'POST',
+                headers: {'Content-Type':'application/json'},
+                body: JSON.stringify({})
+            });
+            const data = await res.json();
+            if (data.success) {
+                alert(lang.clearSuccess || 'IP database cleared');
+                if (codeMirrorEditor) {
+                    codeMirrorEditor.setValue('{}');
+                }
+            } else {
+                alert(lang.clearFail || 'Clear failed');
+            }
+        } catch(e) {
+            alert(lang.clearFail || 'Clear failed');
+            console.error(e);
+        }
+    });
+
+    const closeModal = () => {
+        overlay.style.opacity='0';
+        content.style.transform='scale(0.9)';
+        setTimeout(() => {
+            if (codeMirrorEditor && typeof codeMirrorEditor.toTextArea === 'function') {
+                try {
+                    codeMirrorEditor.toTextArea();
+                } catch(e) {
+                    console.warn('Error destroying CodeMirror:', e);
+                }
+            }
+            codeMirrorEditor = null;
+            if (overlay.parentNode) {
+                overlay.parentNode.removeChild(overlay);
+            }
+        }, 300);
+    };
+
+    content.querySelector('.fullscreenBtn').addEventListener('click', toggleFullscreen);
+    content.querySelector('.closeBtn').addEventListener('click', closeModal);
+    content.querySelector('.cbi-button-remove').addEventListener('click', closeModal);
+
+    try {
+        const [_, jsonData] = await Promise.all([
+            loadCodeMirror(),
+            fetch('/luci-static/spectra/bgm/ip_cache.json?_=' + Date.now())
+                .then(r => r.json())
+                .catch(() => ({}))
+        ]);
+
+        content.querySelector('#loadingIndicator').style.display = 'none';
+        content.querySelector('#editorContainer').style.display = 'block';
+
+        const editorContainer = content.querySelector('#editorContainer');
+        codeMirrorEditor = CodeMirror(editorContainer, {
+            value: JSON.stringify(jsonData, null, 2),
+            mode: 'application/json',
+            theme: 'material',
+            lineNumbers: true,
+            lineWrapping: true,
+            indentUnit: 2,
+            tabSize: 2,
+            autoCloseBrackets: true,
+            matchBrackets: true,
+            foldGutter: true,
+            lint: {delay: 300},
+            gutters: ['CodeMirror-lint-markers', 'CodeMirror-linenumbers', 'CodeMirror-foldgutter'],
+            extraKeys: {
+                'Ctrl-Q': function(cm) {
+                    cm.foldCode(cm.getCursor());
+                },
+                'F11': function(cm) {
+                    toggleFullscreen();
+                },
+                'Esc': function(cm) {
+                    if (isFullscreen) {
+                        toggleFullscreen();
+                    }
+                }
+            }
+        });
+
+        codeMirrorEditor.setSize('100%', '450px');
+        
+        setTimeout(() => {
+            if (codeMirrorEditor && codeMirrorEditor.getValue) {
+                try {
+                    const currentValue = codeMirrorEditor.getValue();
+                    if (currentValue.trim()) {
+                        const formatted = JSON.stringify(JSON.parse(currentValue), null, 2);
+                        codeMirrorEditor.setValue(formatted);
+                        codeMirrorEditor.setCursor(0, 0);
+                    }
+                } catch(e) {
+                    console.warn('JSON formatting failed:', e);
+                }
+            }
+        }, 200);
+
+    } catch (error) {
+        console.error('Failed to load CodeMirror or JSON data:', error);
+        content.querySelector('#loadingIndicator').innerHTML = `
+            <div style="color: #d32f2f;">
+            </div>
+        `;
+    }
+
+    content.querySelector('.cbi-button-save').addEventListener('click', () => {
+        if (!codeMirrorEditor) {
+            alert(lang.saveFail);
+            return;
+        }
+
+        let newContent;
+        try { 
+            newContent = JSON.parse(codeMirrorEditor.getValue()); 
+        } catch(e) { 
+            alert(lang.jsonError); 
+            return; 
+        }
+
+        fetch('/luci-static/spectra/bgm/edit_ip_cache.php', {
+            method:'POST',
+            headers:{'Content-Type':'application/json'},
+            body: JSON.stringify(newContent)
+        })
+        .then(r => r.json())
+        .then(res => {
+            if(res.success) { 
+                alert(lang.saveSuccess); 
+                closeModal(); 
+            } else {
+                alert(lang.saveFail);
+            }
+        })
+        .catch(() => alert(lang.saveFail));
+    });
+}
+
+document.getElementById('openEditModal').addEventListener('click', showEditModal);
+</script>
+
+<script>
+const translationsPing = {
+    zh: { ping: '延迟', timeout: '连接超时' },
+    en: { ping: 'Ping', timeout: 'Connection timeout' },
+    hk: { ping: '延遲', timeout: '連接超時' },
+    de: { ping: 'Ping', timeout: 'Verbindungszeitüberschreitung' },
+    fr: { ping: 'Ping', timeout: 'Délai de connexion' },
+    ko: { ping: '핑', timeout: '연결 시간 초과' },
+    ja: { ping: 'ピング', timeout: '接続タイムアウト' },
+    bn: { ping: 'পিং', timeout: 'কানেকশন টাইমআউট' },
+    vi: { ping: 'Độ trễ', timeout: 'Hết thời gian kết nối' },
+    th: { ping: 'ดีเลย์', timeout: 'หมดเวลาการเชื่อมต่อ' },
+    ar: { ping: 'تأخير', timeout: 'انتهت مهلة الاتصال' },
+    ru: { ping: 'Пинг', timeout: 'Время ожидания соединения' },
+    es: { ping: 'Ping', timeout: 'Tiempo de conexión agotado' }
+};
+
+async function getPingLangText() {
+    try {
+        const lang = await getRealTimeLanguage();
+        return translationsPing[lang] || translationsPing['zh'];
+    } catch (e) {
+        console.error('Failed to get ping language:', e);
+        return translationsPing['zh'];
+    }
+}
+
+async function pingHost(id, name, url) {    
+    const lang = await getPingLangText(); 
     const normal = document.getElementById(`${id}-normal`);
     const gray = document.getElementById(`${id}-gray`);
     const overlay = document.getElementById('result-overlay');
@@ -1494,7 +2138,7 @@ function pingHost(id, name, url) {
                 color = 'orange';
             }
 
-            overlay.innerHTML = `${name} 延迟: ${ping} ms`;
+            overlay.innerHTML = `${name} ${lang.ping}: ${ping} ms`;
             overlay.style.color = color;
             overlay.style.display = 'block';
             clearTimeout(overlay.timer);
@@ -1505,7 +2149,7 @@ function pingHost(id, name, url) {
         .catch(() => {
             normal.style.display = 'none';
             gray.style.display = 'inline';
-            overlay.innerHTML = `${name} 连接超时`;
+            overlay.innerHTML = `${name} ${lang.timeout}`;
             overlay.style.color = 'red';
             overlay.style.display = 'block';
             clearTimeout(overlay.timer);
