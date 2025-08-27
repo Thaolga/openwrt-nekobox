@@ -913,9 +913,9 @@ document.addEventListener("DOMContentLoaded", function () {
         }
 
         return `
-            // <div id="settings-icon" style="width: 40px; height: 40px; border-radius: 50%; background: rgba(0, 0, 0, 0.5); display: flex; align-items: center; justify-content: center; overflow: hidden;">
-            //     <img src="/luci-static/spectra/navbar/interface.gif" width="35" height="35" alt="Settings" style="border-radius: 50%; object-fit: cover;">
-            // </div>
+            <!-- <div id="settings-icon" style="width: 40px; height: 40px; border-radius: 50%; background: rgba(0, 0, 0, 0.5); display: flex; align-items: center; justify-content: center; overflow: hidden;">
+                   <img src="/luci-static/spectra/navbar/interface.gif" width="35" height="35" alt="Settings" style="border-radius: 50%; object-fit: cover;">
+               </div> -->
             <div id="mode-popup">
             <div class="control-panel-header-container">
                 <h5 class="control-panel-title" id="control-panel-header">
@@ -1238,23 +1238,23 @@ document.addEventListener("DOMContentLoaded", function () {
             font-family: 'Comic Neue', cursive !important;
         }
 
-        // #settings-icon {
-        //     position: fixed;
-        //     right: 25px !important;
-        //     bottom: 20px;
-        //     cursor: pointer;
-        //     z-index: 1001;
-        //     font-size: 24px;
-        //     background: rgba(0,0,0,0.5);
-        //     width: 40px;
-        //     height: 40px;
-        //     border-radius: 50%;
-        //     display: flex;
-        //     align-items: center;
-        //     justify-content: center;
-        //     color: white;
-        //     transition: transform 0.3s ease;
-        // }
+        /* #settings-icon {
+            position: fixed;
+            right: 25px !important;
+            bottom: 20px;
+            cursor: pointer;
+            z-index: 1001;
+            font-size: 24px;
+            background: rgba(0,0,0,0.5);
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            transition: transform 0.3s ease;
+        } */    
 
         #mode-popup button.sound-toggle {
             opacity: 1 !important;
@@ -1272,9 +1272,9 @@ document.addEventListener("DOMContentLoaded", function () {
             pointer-events: auto !important;
         }
 
-        // #settings-icon:hover {
-        //     transform: rotate(90deg);
-        // }
+        /* #settings-icon:hover {
+            transform: rotate(90deg);
+        } */
 
         #mode-popup {
             position: fixed;
@@ -1555,14 +1555,14 @@ document.addEventListener("DOMContentLoaded", function () {
             }
         }
     
-        @media (max-width: 600px) {
-            // #settings-icon {
-            //     right: 8%;
-            //     bottom: 10px;
-            //     width: 30px;
-            //     height: 30px;
-            //     font-size: 18px;
-            // }
+        /* @media (max-width: 600px) {
+            #settings-icon {
+                right: 8%;
+                bottom: 10px;
+                width: 30px;
+                height: 30px;
+                font-size: 18px;
+            }
             #mode-popup {
                 right: 10px;
                 top: 50px;
@@ -1572,7 +1572,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 padding: 6px;
                 font-size: 12px;
             }
-        }
+        } */ 
     `;
 
     const styleTag = document.createElement('style');
