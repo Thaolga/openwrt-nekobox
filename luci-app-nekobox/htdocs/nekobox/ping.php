@@ -330,6 +330,26 @@ function deleteNekoTmpDirectory($dir) {
 .modal-body .alert.alert-warning .note-text {
         color: #ff0000 !important;
 }
+
+@media (max-width: 600px) {
+	.navbar-brand {
+		flex-shrink: 1;
+		min-width: 0;
+		white-space: nowrap;
+	}
+
+	#dynamicTitle {
+		white-space: nowrap;
+	}
+
+	.navbar-toggler i {
+		font-size: 1.2rem !important;
+	}
+
+	.navbar-toggler {
+		padding: 0.15rem 0.35rem;
+	}
+}
 </style>
 
 <div id="theme-loader" style="display: none;">
