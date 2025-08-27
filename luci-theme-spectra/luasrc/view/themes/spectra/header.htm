@@ -281,6 +281,12 @@
         min-height: 100vh;
     }
 }
+
+@media (max-width: 768px) {
+    #wifiIcon {
+        display: none;
+    }
+}
 </style>
     <meta charset="utf-8">
     <title>
@@ -376,38 +382,41 @@
             <div class="navbar-left">
                 <div class="nav-icon">
                     <a id="oc" href="/cgi-bin/luci/admin/services/openclash">
-                        <img src="<%=media%>/navbar/clash.gif" alt="OpenClash">
+                        <img src="<%=media%>/navbar/clash.gif" title="OpenClash">
                     </a>
                 </div>
                 <div class="nav-icon">
-                    <a href="/nekobox" target="_blank">
-                        <img src="<%=media%>/navbar/yacd.gif" alt="NekoBox">
+                    <a href="/cgi-bin/luci/admin/services/nekobox">
+                        <img src="<%=media%>/navbar/yacd.gif" title="NekoBox">
                     </a>
                 </div>
                 <div class="nav-icon">
-                    <a href="/luci-static/spectra/bgm/index.php" target="_blank">
-                        <img src="<%=media%>/navbar/tinyfm.gif" alt="TinyFM">
+                    <a href="/cgi-bin/luci/admin/services/spectra">
+                        <img src="<%=media%>/navbar/tinyfm.gif" title="Spectra">
                     </a>
                 </div>
                 <div class="nav-icon">
                     <a href="/cgi-bin/luci/admin/status/realtime">
-                        <img src="<%=media%>/navbar/netmon.gif" alt="NetMon">
+                        <img src="<%=media%>/navbar/netmon.gif" title="Realtime">
                     </a>
                 </div>
                 <div class="nav-icon">
                     <a href="/cgi-bin/luci/admin/services/ttyd">
-                        <img src="<%=media%>/navbar/terminal.gif" alt="TTYD">
+                        <img src="<%=media%>/navbar/terminal.gif" title="TTYD">
                     </a>
                 </div>
                 <div class="nav-icon">
                     <a href="/cgi-bin/luci/admin/services/homeproxy">
-                        <img src="<%=media%>/navbar/modem.gif" alt="HomeProxy">
+                        <img src="<%=media%>/navbar/modem.gif" title="HomeProxy">
                     </a>
                 </div>
                 <div class="nav-icon">
                     <a href="/cgi-bin/luci/admin/network/network">
-                        <img src="<%=media%>/navbar/interface.gif" alt="Interface">
+                        <img src="<%=media%>/navbar/wifi.gif" title="Interface">
                     </a>
+                </div>
+                <div class="nav-icon" id="wifiIcon">
+                        <img id="settings-icon" src="<%=media%>/navbar/interface.gif" alt="Interface" style="cursor:pointer;">
                 </div>
             </div>
 
@@ -453,6 +462,7 @@ let currentLanguage = 'zh-CN';
 const translationsIP = {
     zh: {
         unknown: '未知',
+        panel: '控制面板',
         clickRefresh: '点击刷新 IP 地址',
         failedUpdate: '更新 IP 信息失败',
         checking: '检查中...',
@@ -462,6 +472,7 @@ const translationsIP = {
     },
     en: {
         unknown: 'Unknown',
+        panel: 'Control Panel',
         clickRefresh: 'Click to refresh IP address',
         failedUpdate: 'Failed to update IP information',
         checking: 'Checking...',
@@ -471,6 +482,7 @@ const translationsIP = {
     },
     hk: {
         unknown: '未知',
+        panel: '控制面板',
         clickRefresh: '點擊刷新 IP 地址',
         failedUpdate: '更新 IP 資訊失敗',
         checking: '檢查中...',
@@ -480,6 +492,7 @@ const translationsIP = {
     },
     de: {
         unknown: 'Unbekannt',
+        panel: 'Systemsteuerung',
         clickRefresh: 'Klicken, um die IP-Adresse zu aktualisieren',
         failedUpdate: 'IP-Informationen konnten nicht aktualisiert werden',
         checking: 'Überprüfung...',
@@ -489,6 +502,7 @@ const translationsIP = {
     },
     fr: {
         unknown: 'Inconnu',
+        panel: 'Panneau de configuration',
         clickRefresh: 'Cliquez pour actualiser l\'adresse IP',
         failedUpdate: 'Échec de la mise à jour des informations IP',
         checking: 'Vérification...',
@@ -498,6 +512,7 @@ const translationsIP = {
     },
     ko: {
         unknown: '알 수 없음',
+        panel: '제어판',
         clickRefresh: 'IP 주소를 새로 고치려면 클릭',
         failedUpdate: 'IP 정보 업데이트 실패',
         checking: '확인 중...',
@@ -507,6 +522,7 @@ const translationsIP = {
     },
     ja: {
         unknown: '不明',
+        panel: 'コントロールパネル',
         clickRefresh: 'クリックして IP アドレスを更新',
         failedUpdate: 'IP 情報の更新に失敗しました',
         checking: '確認中...',
@@ -516,6 +532,7 @@ const translationsIP = {
     },
     bn: {
         unknown: 'অজানা',
+        panel: 'কন্ট্রোল প্যানেল',
         clickRefresh: 'IP ঠিকানা রিফ্রেশ করতে ক্লিক করুন',
         failedUpdate: 'IP তথ্য আপডেট করতে ব্যর্থ',
         checking: 'চেক করা হচ্ছে...',
@@ -525,6 +542,7 @@ const translationsIP = {
     },
     vi: {
         unknown: 'Không xác định',
+        panel: 'Bảng điều khiển',
         clickRefresh: 'Nhấn để làm mới địa chỉ IP',
         failedUpdate: 'Cập nhật thông tin IP thất bại',
         checking: 'Đang kiểm tra...',
@@ -534,6 +552,7 @@ const translationsIP = {
     },
     th: {
         unknown: 'ไม่ทราบ',
+        panel: 'แผงควบคุม',
         clickRefresh: 'คลิกเพื่อรีเฟรชที่อยู่ IP',
         failedUpdate: 'อัปเดตข้อมูล IP ล้มเหลว',
         checking: 'กำลังตรวจสอบ...',
@@ -543,6 +562,7 @@ const translationsIP = {
     },
     ar: {
         unknown: 'غير معروف',
+        panel: 'لوحة التحكم',
         clickRefresh: 'انقر لتحديث عنوان IP',
         failedUpdate: 'فشل تحديث معلومات IP',
         checking: 'جارٍ التحقق...',
@@ -552,6 +572,7 @@ const translationsIP = {
     },
     ru: {
         unknown: 'Неизвестно',
+        panel: 'Панель управления',
         clickRefresh: 'Нажмите, чтобы обновить IP-адрес',
         failedUpdate: 'Не удалось обновить информацию об IP',
         checking: 'Проверка...',
@@ -561,6 +582,7 @@ const translationsIP = {
     },
     es: {
         unknown: 'Desconocido',
+        panel: 'Panel de control',
         clickRefresh: 'Haga clic para actualizar la dirección IP',
         failedUpdate: 'Error al actualizar la información IP',
         checking: 'Comprobando...',
@@ -575,6 +597,10 @@ async function initIPDisplay() {
     const text = translationsIP[lang] || translationsIP['zh'];
 
     document.getElementById('flag').title = text.clickRefresh;
+    const wifiIcon = document.getElementById('settings-icon');
+    if (wifiIcon) {
+        wifiIcon.title = text.panel || 'Panel';
+    }
 }
 
 window.addEventListener('load', () => {
