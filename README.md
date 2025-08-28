@@ -65,6 +65,12 @@ wget -O /root/nekobox.sh https://raw.githubusercontent.com/Thaolga/openwrt-nekob
 
 ```bash
 
+wget -O /usr/bin/nekobox https://raw.githubusercontent.com/Thaolga/openwrt-nekobox/main/luci-app-nekobox/root/usr/bin/nekobox && chmod 755 /usr/bin/nekobox && nekobox
+
+```
+
+```bash
+
 curl -o /root/nekobox.sh https://raw.githubusercontent.com/Thaolga/openwrt-nekobox/nekobox/nekobox.sh && chmod 0755 /root/nekobox.sh && /root/nekobox.sh
 
 ```
