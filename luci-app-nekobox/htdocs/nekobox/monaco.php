@@ -97,7 +97,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 break;
             case 'edit':
                 $content = $_POST['content'];
-                $encoding = $_POST['encoding'] ?? 'UTF-8'; 
+                $encoding = $_POST['encoding'];
                 $result = editFile($current_path . $_POST['path'], $content, $encoding);
                 if (!$result) {
                     echo "<script>alert('Error: Unable to save the file.');</script>";
@@ -214,22 +214,10 @@ function renameItem($old_path, $new_path) {
 }
 
 function editFile($path, $content, $encoding) {
-    if (!file_exists($path) || !is_writable($path)) {
-        return false;
+    if (file_exists($path) && is_writable($path)) {
+        return file_put_contents($path, $content) !== false;
     }
-    
-    if ($encoding && $encoding !== 'UTF-8') {
-        $converted_content = @mb_convert_encoding($content, $encoding, 'UTF-8');
-        if ($converted_content !== false) {
-            $final_content = $converted_content;
-        } else {
-            $final_content = $content;
-        }
-    } else {
-        $final_content = $content;
-    }
-    
-    return file_put_contents($path, $final_content) !== false;
+    return false;
 }
 
 function chmodItem($path, $permissions) {
@@ -2175,8 +2163,6 @@ function openMonacoEditor() {
 
     const content = document.getElementById('editContent').value;
     const path = document.getElementById('editPath').value;
-
-    window.currentFileEncoding = document.getElementById('editEncoding').value || 'UTF-8';
     
     const editorContainer = document.createElement('div');
     editorContainer.id = 'monacoEditorContainer';
@@ -2385,28 +2371,10 @@ function closeMonacoEditor() {
 
 function saveFullScreenContent() {
     if (monacoEditorInstance) {
-        const content = monacoEditorInstance.getValue();
-        const path = document.getElementById('editPath').value;
-        const encoding = window.currentFileEncoding || document.getElementById('editEncoding').value || 'UTF-8';
-        
-        const formData = new FormData();
-        formData.append('action', 'edit');
-        formData.append('content', content);
-        formData.append('path', path);
-        formData.append('encoding', encoding);
-        
-        fetch(window.location.href, {
-            method: 'POST',
-            body: formData
-        })
-        .then(response => response.text())
-        .then(data => {
-            closeMonacoEditor();
-            showLogMessage(translations['save_success'] || 'Saved successfully');
-        })
-        .catch(error => {
-            alert('Save failed: ' + error.message);
-        });
+        document.getElementById('editContent').value = monacoEditorInstance.getValue();
+        closeMonacoEditor();
+        document.getElementById('editForm').submit();
+        showLogMessage(translations['save_success'] || 'Saved successfully');
     }
 }
 
