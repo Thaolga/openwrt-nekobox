@@ -1008,6 +1008,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 data-tooltip="update_playlist">
             <i class="fa fa-sync-alt"></i>
         </button>
+        <button class="ctrl-btn" id="goFirstBtn">
+          <i class="fas fa-circle-left"></i>
+        </button>
         <button id="toggleFloatingLyricsBtn" class="ctrl-btn toggleFloatingLyricsBtn" data-tooltip="toggle_floating_lyrics">
             <i class="bi bi-display floatingIcon"></i>
         </button>
@@ -3718,6 +3721,16 @@ document.addEventListener('keydown', function (event) {
             speakMessage(translations['clear_confirm'] || 'Are you sure you want to clear the configuration?');
             break;
     }
+});
+
+document.getElementById('goFirstBtn')?.addEventListener('click', function() {
+    if (currentTrackIndex !== 0) {
+        currentTrackIndex = 0;
+        loadTrack(songs[0]);
+    }
+    const message = translations['back_to_first'] || 'Returned to the first song in the playlist';
+    showLogMessage(message);
+    speakMessage(message);
 });
 </script>
 
