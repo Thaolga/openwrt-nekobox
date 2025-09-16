@@ -5827,10 +5827,10 @@ body {
 	font-size: 1.8rem;
 	font-weight: 700;
 	writing-mode: vertical-rl;
-        padding-right: 0.5em;
-        margin-left: auto;
-        margin-right: auto;
-        text-shadow: 0px 1px 2px rgba(0, 0, 0, 0.3), 
+	padding-right: 0.5em;
+	margin-left: auto;
+	margin-right: auto;
+	text-shadow: 0px 1px 2px rgba(0, 0, 0, 0.3), 
                  0px -1px 2px rgba(255, 255, 255, 0.4);
 }
 
@@ -5857,7 +5857,7 @@ body {
 
 .ctrl-btn {
 	background: var(--bg-body);
-        border: 1px solid var(--border-color);
+	border: 1px solid var(--border-color);
 	color: var(--text-primary) !important;
 	border-radius: 50%;
 	width: 36px;
