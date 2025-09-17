@@ -4333,6 +4333,10 @@ th:hover .resizer {
         font-size: .625rem
     }
 
+    .-bottom-2 {
+        bottom: calc(var(--spacing)*-2)
+    }
+
     .bottom-0 {
         bottom: calc(var(--spacing)*0)
     }
@@ -4355,6 +4359,10 @@ th:hover .resizer {
 
     .left-0 {
         left: calc(var(--spacing)*0)
+    }
+
+    .left-1 {
+        left: calc(var(--spacing)*1)
     }
 
     .left-6 {
@@ -4503,6 +4511,10 @@ th:hover .resizer {
     .z-9999,
     .z-\[9999\] {
         z-index: 9999
+    }
+
+    .col-span-full {
+        grid-column: 1/-1
     }
 
     .modal-box {
@@ -4712,6 +4724,10 @@ th:hover .resizer {
 
     .mb-1 {
         margin-bottom: calc(var(--spacing)*1)
+    }
+
+    .mb-2 {
+        margin-bottom: calc(var(--spacing)*2)
     }
 
     .mb-\[env\(safe-area-inset-bottom\)\] {
@@ -5554,7 +5570,7 @@ th:hover .resizer {
     .truncate {
         text-overflow: ellipsis;
         white-space: nowrap;
-        overflow: hidden;
+        overflow: hidden
         width: calc(100% + 1ch);
     }
 
@@ -5894,12 +5910,23 @@ th:hover .resizer {
         background-color: var(--color-neutral)
     }
 
-    .bg-primary {
+    .bg-primary,
+    .bg-primary\/30 {
         background-color: var(--color-primary)
+    }
+
+    @supports (color:color-mix(in lab, red, red)) {
+        .bg-primary\/30 {
+            background-color: color-mix(in oklab, var(--color-primary)30%, transparent)
+        }
     }
 
     .bg-secondary {
         background-color: var(--color-secondary)
+    }
+
+    .bg-transparent {
+        background-color: #0000
     }
 
     .bg-white {
@@ -6191,12 +6218,12 @@ th:hover .resizer {
         word-break: break-all
     }
 
-    .whitespace-normal {
-        white-space: normal
-    }
-
     .whitespace-nowrap {
         white-space: nowrap
+    }
+
+    .whitespace-pre {
+        white-space: pre
     }
 
     .text-accent {
@@ -6405,6 +6432,11 @@ th:hover .resizer {
         transition-duration: var(--tw-duration, var(--default-transition-duration))
     }
 
+    .duration-100 {
+        --tw-duration: .1s;
+        transition-duration: .1s
+    }
+
     .duration-200 {
         --tw-duration: .2s;
         transition-duration: .2s
@@ -6413,6 +6445,11 @@ th:hover .resizer {
     .duration-1500 {
         --tw-duration: 1.5s;
         transition-duration: 1.5s
+    }
+
+    .ease-linear {
+        --tw-ease: linear;
+        transition-timing-function: linear
     }
 
     .ease-out {
@@ -18288,6 +18325,16 @@ div {
 @media screen and (min-width:1024px) {
     .bounce-in {
         animation: .4s ease-out bounceInForPC
+    }
+}
+
+@keyframes progressBar {
+    0% {
+        width: 100%
+    }
+
+    to {
+        width: 0%
     }
 }
 
