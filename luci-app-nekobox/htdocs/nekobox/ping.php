@@ -402,16 +402,14 @@ if (isset($_POST['save_autostart'])) {
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     const img = document.querySelector('.centered-img');
-    let currentRotation = 0;
+
+    const savedRotation = parseInt(localStorage.getItem('rotation')) || 0;
+    img.style.transform = `rotateY(${savedRotation}deg)`;
 
     img.addEventListener('mouseenter', function() {
-        currentRotation += 180;
-        img.style.transform = `rotateY(${currentRotation}deg)`;
-    });
-
-    img.addEventListener('mouseleave', function() {
-        img.style.transform = 'rotateY(0deg)';
-        currentRotation = 0;
+        const newRotation = savedRotation + 180;
+        img.style.transform = `rotateY(${newRotation}deg)`;
+        localStorage.setItem('rotation', newRotation);
     });
 });
 
@@ -1030,7 +1028,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <i class="fa fa-sync-alt"></i>
         </button>
         <button class="ctrl-btn" id="goFirstBtn">
-          <i class="fas fa-circle-left"></i>
+            <i class="fas fa-circle-left"></i>
         </button>
         <button id="toggleFloatingLyricsBtn" class="ctrl-btn toggleFloatingLyricsBtn" data-tooltip="toggle_floating_lyrics">
             <i class="bi bi-display floatingIcon"></i>
