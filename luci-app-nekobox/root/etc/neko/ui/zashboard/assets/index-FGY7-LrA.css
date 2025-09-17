@@ -5571,7 +5571,7 @@ th:hover .resizer {
         text-overflow: ellipsis;
         white-space: nowrap;
         overflow: hidden
-        width: calc(100% + 1ch);
+        font-size: 0.85rem;
     }
 
     .overflow-auto {
