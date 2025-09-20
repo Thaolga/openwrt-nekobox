@@ -2522,7 +2522,6 @@ h2[name="content"] {
 .main-right {
 	float: right;
 	width: 85%;
-        margin-top: 15px;
 	width: calc(100% - 15rem);
 	height: 100%;
 	transition: all .2s
