@@ -2256,12 +2256,18 @@ function moveNavbar() {
     const navbar = document.querySelector('.navbar-container');
     const screenWidth = window.innerWidth;
 
-    if (screenWidth <= 1633) {
+    if (screenWidth < 768) {
+        navbar.style.marginLeft = '0';
+        navbar.style.width = '100%';
+    } else if (screenWidth <= 1633) {
         navbar.style.marginLeft = 'calc(15rem - 32px)';
+        navbar.style.width = '';
     } else if (screenWidth > 1700) {
         navbar.style.marginLeft = '15rem';
+        navbar.style.width = ''; 
     } else {
         navbar.style.marginLeft = '15rem';
+        navbar.style.width = '';
     }
 }
 
