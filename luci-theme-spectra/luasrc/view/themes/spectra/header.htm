@@ -2251,6 +2251,22 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 });
+
+function moveNavbar() {
+    const navbar = document.querySelector('.navbar-container');
+    const screenWidth = window.innerWidth;
+
+    if (screenWidth <= 1633) {
+        navbar.style.marginLeft = 'calc(15rem - 32px)';
+    } else if (screenWidth > 1700) {
+        navbar.style.marginLeft = '15rem';
+    } else {
+        navbar.style.marginLeft = '15rem';
+    }
+}
+
+window.addEventListener('load', moveNavbar);
+window.addEventListener('resize', moveNavbar);
 </script>
 
 <script>
