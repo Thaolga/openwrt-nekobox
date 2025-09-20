@@ -643,13 +643,139 @@ $(document).ready(function() {
         </div>
     </div>
 </nav>
+<?php
+function formatBytes($bytes, $precision = 2) {
+    if ($bytes === INF || $bytes === "∞") return "∞";
+    if ($bytes <= 0) return "0 B";
+    $units = ['B', 'KB', 'MB', 'GB', 'TB'];
+    $pow = floor(log($bytes, 1024));
+    $pow = min($pow, count($units) - 1);
+    $bytes /= pow(1024, $pow);
+    return round($bytes, $precision) . ' ' . $units[$pow];
+}
+
+function getSubInfo($subUrl, $userAgent = "Clash") {
+    $ch = curl_init();
+    curl_setopt($ch, CURLOPT_URL, $subUrl);
+    curl_setopt($ch, CURLOPT_NOBODY, true);
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    curl_setopt($ch, CURLOPT_HEADER, true);
+    curl_setopt($ch, CURLOPT_TIMEOUT, 10);
+    curl_setopt($ch, CURLOPT_USERAGENT, $userAgent);
+
+    $response = curl_exec($ch);
+    $http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    curl_close($ch);
+
+    if ($http_code !== 200 || !$response) {
+        return [
+            "http_code" => $http_code,
+            "sub_info" => "Request Failed",
+            "get_time" => time()
+        ];
+    }
+
+    if (!preg_match("/subscription-userinfo: (.*)/i", $response, $matches)) {
+        return [
+            "http_code" => $http_code,
+            "sub_info" => "No Sub Info Found",
+            "get_time" => time()
+        ];
+    }
+
+    $info = $matches[1];
+    preg_match("/upload=(\d+)/", $info, $m);   $upload   = isset($m[1]) ? (int)$m[1] : 0;
+    preg_match("/download=(\d+)/", $info, $m); $download = isset($m[1]) ? (int)$m[1] : 0;
+    preg_match("/total=(\d+)/", $info, $m);    $total    = isset($m[1]) ? (int)$m[1] : 0;
+    preg_match("/expire=(\d+)/", $info, $m);   $expire   = isset($m[1]) ? (int)$m[1] : 0;
+
+    $used = $upload + $download;
+    $surplus = ($total > 0) ? $total - $used : INF;
+    $percent = ($total > 0) ? (($total - $used) / $total) * 100 : 100;
+
+    $expireDate = "null";
+    $day_left = "null";
+    if ($expire > 0) {
+        $expireDate = date("Y-m-d H:i:s", $expire);
+        $day_left = $expire > time() ? ceil(($expire - time()) / (3600*24)) : 0;
+    } elseif ($expire === 0) {
+        $expireDate = "Long-term";
+        $day_left = "∞";
+    }
+
+    return [
+        "http_code" => $http_code,
+        "sub_info" => "Successful",
+        "upload" => $upload,
+        "download" => $download,
+        "used" => $used,
+        "total" => $total > 0 ? $total : "∞",
+        "surplus" => $surplus,
+        "percent" => round($percent, 1),
+        "day_left" => $day_left,
+        "expire" => $expireDate,
+        "get_time" => time()
+    ];
+}
+
+function saveSubInfoToFile($index, $subInfo) {
+    $libDir = __DIR__ . '/lib';
+    if (!is_dir($libDir)) mkdir($libDir, 0755, true);
+    $filePath = $libDir . '/sub_info_' . $index . '.json';
+    file_put_contents($filePath, json_encode($subInfo));
+}
+
+function getSubInfoFromFile($index) {
+    $filePath = __DIR__ . '/lib/sub_info_' . $index . '.json';
+    if (file_exists($filePath)) {
+        return json_decode(file_get_contents($filePath), true);
+    }
+    return null;
+}
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update'])) {
+    $index = $_POST['index'] ?? 0;
+    $url = $_POST['subscription_url'] ?? '';
+
+    if (!empty($url)) {
+        $userAgents = ["Clash","clash","ClashVerge","Stash","NekoBox","Quantumult%20X","Surge","Shadowrocket","V2rayU","Sub-Store","Mozilla/5.0"];
+        $subInfo = null;
+        foreach ($userAgents as $ua) {
+            $subInfo = getSubInfo($url, $ua);
+            if ($subInfo['sub_info'] === "Successful") break;
+        }
+        saveSubInfoToFile($index, $subInfo);
+    }
+}
+?>
+
+<style>
+.card {
+    position: relative;
+}
+
+.sub-info {
+    display: none;
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    background: var(--accent-color);
+    color: #fff;
+    padding: 5px 10px;
+    border-top: 1px solid #ccc;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+    white-space: nowrap;
+    z-index: 10;
+}
+
+.card:hover .sub-info {
+    display: block;
+}
+</style>
+
 <h2 class="container-fluid text-center mt-4 mb-4" data-translate="subscriptionManagement"></h2>
 <div class="container-sm text-center px-2 px-md-3">
-    <?php if (isset($message) && $message): ?>
-        <div class="alert alert-info">
-            <?php echo nl2br(htmlspecialchars($message)); ?>
-        </div>
-    <?php endif; ?>
     <?php if (isset($subscriptions) && is_array($subscriptions)): ?>
         <div class="container-fluid px-3">
             <?php 
@@ -658,7 +784,9 @@ $(document).ready(function() {
                 $displayIndex = $i + 1;
                 $url = $subscriptions[$i]['url'] ?? '';
                 $fileName = $subscriptions[$i]['file_name'] ?? "subscription_" . $displayIndex . ".yaml";
-                
+
+                $subInfo = getSubInfoFromFile($i);
+
                 if ($i % 3 == 0) echo '<div class="row">';
             ?>
                 <div class="col-md-4 mb-3 px-1">
@@ -669,14 +797,38 @@ $(document).ready(function() {
                                     <h5 class="mb-2" data-translate="subscriptionLink"><?php echo $displayIndex; ?></h5>
                                     <input type="text" name="subscription_url" id="subscription_url_<?php echo $displayIndex; ?>" value="<?php echo htmlspecialchars($url); ?>" class="form-control" data-translate-placeholder="enterSubscriptionUrl">
                                 </div>
+
                                 <div class="form-group">
                                     <label for="custom_file_name_<?php echo $displayIndex; ?>" data-translate="customFileName"></label>
                                     <input type="text" name="custom_file_name" id="custom_file_name_<?php echo $displayIndex; ?>" value="<?php echo htmlspecialchars($fileName); ?>" class="form-control">
                                 </div>
+
                                 <input type="hidden" name="index" value="<?php echo $i; ?>">
+
+                                <?php if (!empty($subInfo) && $subInfo['sub_info'] === "Successful"): ?>
+                                    <div class="sub-info">
+                                        <?php
+                                        $total   = formatBytes($subInfo['total']);
+                                        $used    = formatBytes($subInfo['used']);
+                                        $percent = $subInfo['percent'];
+                                        $dayLeft = $subInfo['day_left'];
+                                        $expire  = $subInfo['expire'];
+                                        $remainingLabel = $translations['resetDaysLeftLabel'] ?? 'Remaining';
+                                        $daysUnit       = $translations['daysUnit'] ?? 'days';
+                                        $expireLabel    = $translations['expireDateLabel'] ?? 'Expires';
+                                        echo "{$used} / {$total} ({$percent}%) • {$remainingLabel} {$dayLeft} {$daysUnit} • {$expireLabel}: {$expire}";
+                                        ?>
+                                    </div>
+                                <?php elseif (!empty($subInfo)): ?>
+                                    <div class="sub-info">
+                                        <span data-translate="subscriptionFetchFailed"></span>: <?php echo htmlspecialchars($subInfo['sub_info']); ?>
+                                    </div>
+                                <?php endif; ?>
+
                                 <div class="text-center mt-3">
                                     <button type="submit" name="update" class="btn btn-primary btn-block">
-                                        <i class="bi bi-arrow-repeat"></i> <span data-translate="updateSubscription">Settings</span> <?php echo $displayIndex; ?>
+                                        <i class="bi bi-arrow-repeat"></i> 
+                                        <span data-translate="updateSubscription">Settings</span> <?php echo $displayIndex; ?>
                                     </button>
                                 </div>
                             </div>
@@ -685,10 +837,8 @@ $(document).ready(function() {
                 </div>
             <?php 
                 if ($i % 3 == 2 || $i == $maxSubscriptions - 1) echo '</div>';
-            endfor;
-            ?>
+            endfor; ?>
         </div>
-    <?php else: ?>
     <?php endif; ?>
 </div>
 
