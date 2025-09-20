@@ -62,11 +62,12 @@
 .navbar-container {
     align-items: center;
     display: flex;
-    height: 60px;
     justify-content: space-between;
-    padding-left: 250px;
-    padding-right: 5px;
-    width: 100%;
+    width: calc(100% - 15rem);
+    margin-left: 15rem; 
+    margin-top: 20px;
+    padding: 10px 5px;
+    transition: all 0.3s ease;
 }
 
 .navbar-left,
@@ -78,7 +79,10 @@
 
 @media (max-width: 768px) {
     .navbar-container {
+        width: 100%;
+        margin-left: 0;
         padding-left: 5px;
+        margin-top: -2px; 
     }
     .navbar-left,
     .navbar-right {

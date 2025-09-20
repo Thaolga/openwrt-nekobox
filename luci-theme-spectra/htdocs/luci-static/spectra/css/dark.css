@@ -2295,3 +2295,6 @@ input[data-v-07bccc36].cbi-button {
 	}
 }
 
+#view textarea {
+        color: #ffffff !important;
+}

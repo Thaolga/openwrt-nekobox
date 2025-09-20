@@ -1691,7 +1691,7 @@ ul.tabs li {
 .cbi-page-actions {
 	display: flex !important;
 	justify-content: center !important;
-	gap: 12px !important;
+	gap: 8px !important;
 }
 
 .btn.cbi-button-remove {
@@ -2103,11 +2103,11 @@ input[type="checkbox"]:hover {
 }
 
 .cbi-dropdown.btn.cbi-button.cbi-button-apply.important {
-	margin: 0 10px !important;
+	margin: 0 8px !important;
 }
 
 button.cbi-button {
-	margin: 0 10px !important;
+	margin: 0 8px !important;
 }
 
 .pure-g {
@@ -2379,8 +2379,13 @@ a[href="#"][onclick*="/cgi-bin/luci/admin/services/passwall/get_chinadns_log"]:a
 [data-page="admin-network-firewall-custom"] #view p textarea,
 [data-page="admin-status-routes"] #view p textarea,
 [data-page="admin-system-crontab"] #view p textarea {
-	color: #ccc;
-	background: rgba(37, 37, 38, 0.1);
+	color: #000;
+        font-size: 14px !important;
+        border-radius: 6px;
+        padding: 8px;
+        margin-top: 10px;
+        margin-left: 10px;
+	background: rgba(255, 255, 255, 0.1);
 	backdrop-filter: blur(10px);
 	-webkit-backdrop-filter: blur(10px);
 }
@@ -2475,7 +2480,7 @@ h2[name="content"] {
 }
 
 .main-left .sidenav-header {
-        padding: 0.5rem 0.5rem 1rem 0.5rem !important;
+        padding: 1.2rem 0.5rem 1rem 0.5rem !important;
         text-align: center;
 }
 
@@ -2517,6 +2522,7 @@ h2[name="content"] {
 .main-right {
 	float: right;
 	width: 85%;
+        margin-top: 15px;
 	width: calc(100% - 15rem);
 	height: 100%;
 	transition: all .2s
@@ -5428,14 +5434,19 @@ pre.command-output {
 		display: block
 	}
 
+        .main-right {
+                margin-top: 0px;
+	}
+
 	.showSide {
-		padding: .1rem;
+                padding: 0.1rem;
 		position: relative;
 		z-index: 99;
 		display: inline-block !important
 	}
 
 	.showSide::before {
+		content: "\e20e";
 		font-family: 'spectra' !important;
 		font-style: normal !important;
 		font-weight: normal !important;
@@ -5444,10 +5455,12 @@ pre.command-output {
 		line-height: 1;
 		-webkit-font-smoothing: antialiased;
 		-moz-osx-font-smoothing: grayscale;
-		content: "\e20e";
                 color: #5A8DEE;
-		font-size: 1.7rem
-	}
+		font-size: 1.7rem;
+                position: relative;
+                left: -8px;
+                display: inline-block;
+        }
 
 	header>.fill>.container>.flex1>.brand {
 		display: inline-block
@@ -5699,14 +5712,4 @@ pre.command-output {
 	}
 }
 
-#view textarea {
-        background-color: #1e1e1e !important;
-        color: #ffffff !important;
-        font-family: monospace !important;
-        font-size: 14px !important;
-        border-radius: 6px;
-        padding: 8px;
-        margin-top: 10px;
-        margin-left: 10px;
-}
 
