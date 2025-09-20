@@ -2380,11 +2380,11 @@ a[href="#"][onclick*="/cgi-bin/luci/admin/services/passwall/get_chinadns_log"]:a
 [data-page="admin-status-routes"] #view p textarea,
 [data-page="admin-system-crontab"] #view p textarea {
 	color: #000;
-        font-size: 14px !important;
-        border-radius: 6px;
-        padding: 8px;
-        margin-top: 10px;
-        margin-left: 10px;
+	font-size: 14px !important;
+	border-radius: 6px;
+	padding: 8px;
+	margin-top: 10px;
+	margin-left: 10px;
 	background: rgba(255, 255, 255, 0.1);
 	backdrop-filter: blur(10px);
 	-webkit-backdrop-filter: blur(10px);
@@ -5434,12 +5434,12 @@ pre.command-output {
 		display: block
 	}
 
-        .main-right {
-                margin-top: 0px;
+	.main-right {
+		margin-top: 0px;
 	}
 
 	.showSide {
-                padding: 0.1rem;
+		padding: 0.1rem;
 		position: relative;
 		z-index: 99;
 		display: inline-block !important
@@ -5455,12 +5455,12 @@ pre.command-output {
 		line-height: 1;
 		-webkit-font-smoothing: antialiased;
 		-moz-osx-font-smoothing: grayscale;
-                color: #5A8DEE;
+		color: #5A8DEE;
 		font-size: 1.7rem;
-                position: relative;
-                left: -8px;
-                display: inline-block;
-        }
+		position: relative;
+		left: -8px;
+		display: inline-block;
+	}
 
 	header>.fill>.container>.flex1>.brand {
 		display: inline-block
