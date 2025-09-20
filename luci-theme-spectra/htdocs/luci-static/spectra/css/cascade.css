@@ -3859,18 +3859,19 @@ table table,.table .table,.cbi-value-field table,.cbi-value-field .table,td>tabl
 	font-size: 1.2rem;
 	display: flex;
 	align-items: center;
+	justify-content: center;
 	line-height: 1.5rem;
 	padding: .5rem .76rem;
 	margin: .25rem .1rem .25rem 0;
+	margin: .25rem 0.25rem .25rem 0.5rem;
 	color: #fff;
-	border: 1px solid #5e72e4;
-	border: 1px solid var(--primary);
 	border-radius: .25rem;
 	outline: 0;
 	background-image: none;
 	box-shadow: none;
-	border-top-left-radius: 0;
-	border-bottom-left-radius: 0
+	border-radius: 0 .4rem .4rem 0 !important;
+	width: 2.3em;
+	min-width: 2.3rem;
 }
 
 .cbi-dynlist>.add-item:not([ondrop])>input {
