@@ -59,13 +59,19 @@
 
 <head>
 <style>
+.fill, 
+.fill .container {
+    height: auto;
+    min-height: 50px;
+    overflow: visible;
+}
+
 .navbar-container {
     align-items: center;
     display: flex;
     justify-content: space-between;
     width: calc(100% - 15rem);
     margin-left: 15rem; 
-    margin-top: 20px;
     padding: 10px 5px;
     transition: all 0.3s ease;
 }
