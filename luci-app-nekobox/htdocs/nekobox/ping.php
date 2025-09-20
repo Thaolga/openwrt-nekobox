@@ -7963,7 +7963,7 @@ input[type=range]::-ms-thumb {
 }
 
 :root {
-	--container-width: 1600px;
+	--container-width: 1700px;
 	--modal-max-width: 1100px;
 }
 
