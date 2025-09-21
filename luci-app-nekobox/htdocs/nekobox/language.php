@@ -1049,6 +1049,7 @@
         'confirmClearJson' => 'Möchten Sie alle Abonnement-Links löschen?',
         'clearJsonTooltip' => 'JSON-Datei löschen',   
         'traffic_monitor_title' => 'OpenWrt Echtzeit-Verkehrsmonitor',
+        'subscriptionClearedSuccess' => 'Abonnementinformationen erfolgreich gelöscht',
         'save_file_error' => 'Fehler beim Speichern der Datei: {message}'
     ],
     'fr' => [
@@ -2104,6 +2105,7 @@
         'range_30min'          => '30 minutes',
         
         'traffic_monitor_title' => 'Moniteur de trafic OpenWrt en temps réel',
+        'subscriptionClearedSuccess' => "Informations d'abonnement effacées avec succès",
         'save_file_error' => 'Erreur de sauvegarde : {message}'
     ],
     'zh' => [
@@ -3047,6 +3049,7 @@
         'confirmClearJson' => '确定要清空所有订阅链接吗？',
         'clearJsonTooltip' => '清空 JSON 文件',
         'traffic_monitor_title' => 'OpenWrt 实时流量监控',
+        'subscriptionClearedSuccess' => '订阅信息已清空成功',
         'save_file_error' => '保存文件出错：{message}'
     ],
     'en' => [
@@ -4177,6 +4180,7 @@
         'confirmClearJson' => 'Are you sure to clear all subscription links?',
         'clearJsonTooltip' => 'Clear JSON file',       
         'traffic_monitor_title' => 'OpenWrt Real-time Traffic Monitor',
+        'subscriptionClearedSuccess' => 'Subscription information cleared successfully',
         'save_file_error' => 'Save error: {message}'
     ],
     'hk' => [
@@ -5208,6 +5212,7 @@
         'clearJsonTooltip' => '清空 JSON 文件',
         
         'traffic_monitor_title' => 'OpenWrt 即時流量監控',
+        'subscriptionClearedSuccess' => '訂閱信息已清空成功',
         'save_file_error' => '儲存檔案時發生錯誤：{message}'
     ],
     'ko' => [
@@ -6277,6 +6282,7 @@
         'clearJsonTooltip' => 'JSON 파일 삭제',
         
         'traffic_monitor_title' => 'OpenWrt 실시간 트래픽 모니터',
+        'subscriptionClearedSuccess' => '구독 정보가 성공적으로 삭제되었습니다',
         'save_file_error' => '파일 저장 오류: {message}'
     ],
     'ja' => [
@@ -7333,6 +7339,7 @@
         'clearJsonTooltip' => 'JSONファイルを削除',
         
         'traffic_monitor_title' => 'OpenWrt リアルタイムトラフィック監視',
+        'subscriptionClearedSuccess' => 'サブスクリプション情報が正常にクリアされました',
         'save_file_error' => 'ファイルの保存中にエラーが発生しました：{message}'
    ],
     'ru' => [
@@ -8412,6 +8419,7 @@
         'clearJsonTooltip' => 'Очистить JSON-файл',
         
         'traffic_monitor_title' => 'Монитор трафика OpenWrt в реальном времени',
+        'subscriptionClearedSuccess' => 'Информация о подписках успешно очищена',
         'save_file_error' => 'Ошибка сохранения файла: {message}'
     ],
     'ar' => [
@@ -9464,6 +9472,7 @@
         'clearJsonTooltip' => 'مسح ملف JSON',
         
         'traffic_monitor_title' => 'مراقب حركة المرور OpenWrt في الوقت الفعلي',
+        'subscriptionClearedSuccess' => 'تم مسح معلومات الاشتراك بنجاح',
         'save_file_error' => 'خطأ في حفظ الملف: {message}'
     ],
     'es' => [
@@ -10557,6 +10566,7 @@
         'clearJsonTooltip' => 'Borrar archivo JSON',
         
         'traffic_monitor_title' => 'Monitor de tráfico OpenWrt en tiempo real',
+        'subscriptionClearedSuccess' => 'Información de suscripción borrada con éxito',
         'save_file_error' => 'Error al guardar: {message}'
     ],
     'vi' => [
@@ -11646,6 +11656,7 @@
         'clearJsonTooltip' => 'Xóa tệp JSON',
         
         'traffic_monitor_title' => 'Giám sát lưu lượng OpenWrt thời gian thực',
+        'subscriptionClearedSuccess' => 'Thông tin đăng ký đã được xóa thành công',
         'save_file_error' => 'Lỗi khi lưu: {message}'
     ]
 ];

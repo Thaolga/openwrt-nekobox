@@ -677,6 +677,19 @@ function download_file($url, $destination) {
 }
 ?>
 
+<?php
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['clearJsonFile'])) {
+    $fileToClear = $_POST['clearJsonFile'];
+    if ($fileToClear === 'subscriptions.json') {
+        $filePath = '/etc/neko/proxy_provider/subscriptions.json';
+        if (file_exists($filePath)) {
+            file_put_contents($filePath, '[]');
+            echo '<div class="log-message alert alert-warning custom-alert-success"><span data-translate="subscriptionClearedSuccess">Subscription information cleared successfully</span></div>';
+        }
+    }
+}
+?>
+
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -947,6 +960,31 @@ $(document).ready(function() {
         box-shadow: 0 0 0 0 rgba(220, 53, 69, 0);
     }
 }
+
+.clear-json-btn {
+    padding: 0.25rem 0.5rem;
+    font-size: 0.95rem;
+    min-height: 1.5em;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #dc3545;
+    color: #fff;
+    border: none;
+    border-radius: 0.5rem;
+    z-index: 11;
+    line-height: 1;
+}
+
+.clear-json-btn i {
+    display: block;
+    font-size: inherit;
+    line-height: 1;
+}
+
+.clear-json-btn:hover {
+    background-color: #c82333;
+}
 </style>
 
 <h2 class="container-fluid text-center mt-4 mb-4" data-translate="subscriptionManagement"></h2>
@@ -1173,10 +1211,21 @@ $(document).ready(function() {
       }
     ?>
     <div class="col-12 col-md-6 col-lg-3">
-      <div class="card h-100 text-start">
+      <div class="card h-100 text-start position-relative">
+        <?php if ($file === 'subscriptions.json'): ?>
+        <form method="post" class="position-absolute m-0 p-0" 
+              style="top: 1.4rem; right: 5.2rem;">
+            <input type="hidden" name="clearJsonFile" value="<?= htmlspecialchars($file) ?>">
+            <button type="submit" class="btn btn-sm btn-outline-danger clear-json-btn" 
+                    onclick="return confirm('<?= htmlspecialchars($translations['confirmClearJson'] ?? 'Are you sure to clear all subscription links?') ?>');" 
+                    data-tooltip="clearJsonTooltip">
+              <i class="bi bi-trash"></i>
+            </button>
+        </form>
+        <?php endif; ?>
         <span class="node-count-badge"><span class="node-number"><?= $nodeCount ?></span> <span data-translate="nodesLabel">Nodes</span></span>
         <div class="card-body d-flex flex-column justify-content-between">
-          <h5 class="card-title mb-2" data-tooltip="fileName"><?= htmlspecialchars($file) ?></h5>
+          <h5 class="card-title mb-2" <?= $file === 'subscriptions.json' ? '' : 'data-tooltip="fileName"' ?>><?= htmlspecialchars($file) ?></h5>
           <p class="card-text mb-1"><strong data-translate="fileSize">Size</strong>: <?= $size ?></p>
           <p class="card-text mb-1"><strong data-translate="lastModified">Last Modified</strong>: <?= $modified ?></p>
           <p class="card-text mb-2"><strong data-translate="fileType">Type</strong>: <span class="badge <?= $isProxy ? 'bg-primary' : 'bg-success' ?>"><?= htmlspecialchars($fileTypes[$index]) ?></span></p>
