@@ -1294,10 +1294,22 @@ function updateLanguage(lang) {
         const dynamicContent = el.getAttribute('data-dynamic-content') || '';
 
         if (translations[translationKey]) {
+            let translatedText = translations[translationKey];
+        
+            const indexValue = el.getAttribute('data-index');
+            if (indexValue) {
+                translatedText = translatedText.replace('{index}', indexValue);
+            }
+        
+            const countValue = el.getAttribute('data-count');
+            if (countValue) {
+                translatedText = translatedText.replace('{count}', countValue);
+            }
+
             if (el.tagName === 'OPTGROUP') {
-                el.setAttribute('label', translations[translationKey]);
+                el.setAttribute('label', translatedText);
             } else {
-                el.innerText = translations[translationKey] + dynamicContent; 
+                el.innerText = translatedText + dynamicContent; 
             }
         }
     });
