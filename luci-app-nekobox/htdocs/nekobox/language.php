@@ -1046,7 +1046,8 @@
         'range_5min'           => '5 Minuten',
         'range_15min'          => '15 Minuten',
         'range_30min'          => '30 Minuten',
-        
+        'confirmClearJson' => 'Möchten Sie alle Abonnement-Links löschen?',
+        'clearJsonTooltip' => 'JSON-Datei löschen',   
         'traffic_monitor_title' => 'OpenWrt Echtzeit-Verkehrsmonitor',
         'save_file_error' => 'Fehler beim Speichern der Datei: {message}'
     ],
@@ -2095,7 +2096,8 @@
         'download_bandwidth'   => 'Bande passante de téléchargement en temps réel',
         'upload_total_desc'    => 'Trafic envoyé cumulé',
         'download_total_desc'  => 'Trafic reçu cumulé',
-        
+        'confirmClearJson' => 'Voulez-vous vraiment supprimer tous les liens d’abonnement ?',
+        'clearJsonTooltip' => 'Effacer le fichier JSON',
         'range_1min'           => '1 minute',
         'range_5min'           => '5 minutes',
         'range_15min'          => '15 minutes',
@@ -3042,7 +3044,8 @@
         'range_5min'           => '5分钟',
         'range_15min'          => '15分钟',
         'range_30min'          => '30分钟',
-
+        'confirmClearJson' => '确定要清空所有订阅链接吗？',
+        'clearJsonTooltip' => '清空 JSON 文件',
         'traffic_monitor_title' => 'OpenWrt 实时流量监控',
         'save_file_error' => '保存文件出错：{message}'
     ],
@@ -4171,7 +4174,8 @@
         'range_5min'           => '5 Minutes',
         'range_15min'          => '15 Minutes',
         'range_30min'          => '30 Minutes',
-        
+        'confirmClearJson' => 'Are you sure to clear all subscription links?',
+        'clearJsonTooltip' => 'Clear JSON file',       
         'traffic_monitor_title' => 'OpenWrt Real-time Traffic Monitor',
         'save_file_error' => 'Save error: {message}'
     ],
@@ -5200,6 +5204,8 @@
         'range_5min'           => '5分鐘',
         'range_15min'          => '15分鐘',
         'range_30min'          => '30分鐘',
+        'confirmClearJson' => '確定要清空所有訂閱連結嗎？',
+        'clearJsonTooltip' => '清空 JSON 文件',
         
         'traffic_monitor_title' => 'OpenWrt 即時流量監控',
         'save_file_error' => '儲存檔案時發生錯誤：{message}'
@@ -6267,6 +6273,8 @@
         'range_5min'           => '5분',
         'range_15min'          => '15분',
         'range_30min'          => '30분',
+        'confirmClearJson' => '모든 구독 링크를 삭제하시겠습니까?',
+        'clearJsonTooltip' => 'JSON 파일 삭제',
         
         'traffic_monitor_title' => 'OpenWrt 실시간 트래픽 모니터',
         'save_file_error' => '파일 저장 오류: {message}'
@@ -7321,6 +7329,8 @@
         'range_5min'           => '5分',
         'range_15min'          => '15分',
         'range_30min'          => '30分',
+        'confirmClearJson' => 'すべてのサブスクリプションリンクを削除してもよろしいですか？',
+        'clearJsonTooltip' => 'JSONファイルを削除',
         
         'traffic_monitor_title' => 'OpenWrt リアルタイムトラフィック監視',
         'save_file_error' => 'ファイルの保存中にエラーが発生しました：{message}'
@@ -8398,6 +8408,8 @@
         'range_5min'           => '5 минут',
         'range_15min'          => '15 минут',
         'range_30min'          => '30 минут',
+        'confirmClearJson' => 'Вы уверены, что хотите очистить все ссылки на подписки?',
+        'clearJsonTooltip' => 'Очистить JSON-файл',
         
         'traffic_monitor_title' => 'Монитор трафика OpenWrt в реальном времени',
         'save_file_error' => 'Ошибка сохранения файла: {message}'
@@ -9448,6 +9460,8 @@
         'range_5min'           => '5 دقائق',
         'range_15min'          => '15 دقيقة',
         'range_30min'          => '30 دقيقة',
+        'confirmClearJson' => 'هل أنت متأكد من مسح جميع روابط الاشتراك؟',
+        'clearJsonTooltip' => 'مسح ملف JSON',
         
         'traffic_monitor_title' => 'مراقب حركة المرور OpenWrt في الوقت الفعلي',
         'save_file_error' => 'خطأ في حفظ الملف: {message}'
@@ -10539,6 +10553,8 @@
         'range_5min'           => '5 minutos',
         'range_15min'          => '15 minutos',
         'range_30min'          => '30 minutos',
+        'confirmClearJson' => '¿Está seguro de borrar todos los enlaces de suscripción?',
+        'clearJsonTooltip' => 'Borrar archivo JSON',
         
         'traffic_monitor_title' => 'Monitor de tráfico OpenWrt en tiempo real',
         'save_file_error' => 'Error al guardar: {message}'
@@ -11626,6 +11642,8 @@
         'range_5min'           => '5 phút',
         'range_15min'          => '15 phút',
         'range_30min'          => '30 phút',
+        'confirmClearJson' => 'Bạn có chắc chắn muốn xóa tất cả liên kết đăng ký không?',
+        'clearJsonTooltip' => 'Xóa tệp JSON',
         
         'traffic_monitor_title' => 'Giám sát lưu lượng OpenWrt thời gian thực',
         'save_file_error' => 'Lỗi khi lưu: {message}'
