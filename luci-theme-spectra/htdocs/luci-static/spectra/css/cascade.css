@@ -2204,6 +2204,7 @@ ul.tabs li, ul.cbi-tabmenu li {
 	line-height: 1.5 !important;
 	box-sizing: border-box;
 	border-bottom: none !important;
+        transform: translateY(2px);
 }
 
 ul.tabs li {
