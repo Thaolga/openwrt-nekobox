@@ -204,31 +204,46 @@ function getSubInfo($subUrl, $userAgent = "Clash") {
     }
 
     return [
-        "http_code"=>$http_code,"sub_info"=>"Successful",
-        "upload"=>$upload,"download"=>$download,"used"=>$used,
+        "http_code"=>$http_code,
+        "sub_info"=>"Successful",
+        "upload"=>$upload,
+        "download"=>$download,
+        "used"=>$used,
         "total"=>$total > 0 ? $total : "∞",
-        "percent"=>round($percent,1),"day_left"=>$day_left,
-        "expire"=>$expireDate,"get_time"=>time()
+        "percent"=>round($percent,1),
+        "day_left"=>$day_left,
+        "expire"=>$expireDate,
+        "get_time"=>time(),
+        "url"=>$subUrl
     ];
 }
 
-function saveSubInfoToFile($url,$subInfo) {
-    $libDir = __DIR__.'/lib';
-    if (!is_dir($libDir)) mkdir($libDir,0755,true);
-    $fileName = 'sub_info_'.md5($url).'.json';
-    $filePath = $libDir.'/'.$fileName;
-    $subInfo['url'] = $url;
-    file_put_contents($filePath,json_encode($subInfo));
+function saveAllSubInfos($results) {
+    $libDir = __DIR__ . '/lib';
+    if (!is_dir($libDir)) mkdir($libDir, 0755, true);
+    $filePath = $libDir . '/sub_info.json';
+    file_put_contents($filePath, json_encode($results, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
     return $filePath;
 }
 
-function clearOldSubFiles() {
-    $libDir = __DIR__.'/lib';
-    if (is_dir($libDir)) {
-        foreach (glob($libDir.'/sub_info_*.json') as $file) {
-            unlink($file);
+function loadAllSubInfosFromFile(&$lastUpdateTime = null) {
+    $libDir = __DIR__ . '/lib';
+    $filePath = $libDir . '/sub_info.json';
+    $results = [];
+    if (file_exists($filePath)) {
+        $results = json_decode(file_get_contents($filePath), true);
+        if ($results) {
+            $times = array_column($results, 'get_time');
+            if (!empty($times)) $lastUpdateTime = max($times);
         }
     }
+    return $results;
+}
+
+function clearSubFile() {
+    $libDir = __DIR__ . '/lib';
+    $filePath = $libDir . '/sub_info.json';
+    if (file_exists($filePath)) unlink($filePath);
 }
 
 function fetchAllSubInfos($urls) {
@@ -241,31 +256,14 @@ function fetchAllSubInfos($urls) {
             $subInfo = getSubInfo($url,$ua);
             if ($subInfo['sub_info']==="Successful") break;
         }
-        saveSubInfoToFile($url,$subInfo);
         $results[$url] = $subInfo;
     }
-    return $results;
-}
-
-function loadAllSubInfosFromFile(&$lastUpdateTime = null) {
-    $libDir = __DIR__.'/lib';
-    $results = [];
-    $times = [];
-    if (is_dir($libDir)) {
-        foreach (glob($libDir.'/sub_info_*.json') as $file) {
-            $data = json_decode(file_get_contents($file),true);
-            if ($data && isset($data['url'])) {
-                $results[$data['url']] = $data;
-                if (!empty($data['get_time'])) $times[] = $data['get_time'];
-            }
-        }
-    }
-    if (!empty($times)) $lastUpdateTime = max($times);
+    saveAllSubInfos($results);
     return $results;
 }
 
 if ($_SERVER['REQUEST_METHOD']=='POST' && isset($_POST['clearSubscriptions'])) {
-    clearOldSubFiles();
+    clearSubFile();
     header("Location: ".$_SERVER['PHP_SELF']);
     exit;
 }
@@ -462,7 +460,6 @@ if ($_SERVER['REQUEST_METHOD']=='POST' && isset($_POST['generateConfig'])) {
             </h5>
             <div class="rounded-3 p-2 border mx-3">
                 <?php foreach ($allSubInfos as $url => $subInfo): ?>
-                    <?php if (str_contains($url, '|')) continue; ?>
                     <?php
                         $total   = formatBytes($subInfo['total'] ?? 0);
                         $used    = formatBytes($subInfo['used'] ?? 0);
