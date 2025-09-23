@@ -153,6 +153,29 @@ EOL;
 $dataFilePath = '/etc/neko/proxy_provider/subscription_data.txt';
 $lastUpdateTime = null;
 
+$validUrls = [];
+if (file_exists($dataFilePath)) {
+    $lines = file($dataFilePath, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
+    foreach ($lines as $line) {
+        $line = trim($line);
+        if (empty($line)) continue;
+
+        $parts = explode('|', $line);
+        foreach ($parts as $part) {
+            $part = trim($part);
+            if (!empty($part) && preg_match('/^https?:\/\//i', $part)) {
+                $validUrls[] = $part;
+            }
+        }
+    }
+}
+
+$libDir = __DIR__ . '/lib';
+$cacheFile = $libDir . '/sub_info.json';
+if (empty($validUrls) && file_exists($cacheFile)) {
+    unlink($cacheFile);
+}
+
 function formatBytes($bytes, $precision = 2) {
     if ($bytes === INF || $bytes === "∞") return "∞";
     if ($bytes <= 0) return "0 B";
