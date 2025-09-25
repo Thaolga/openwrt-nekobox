@@ -17,19 +17,60 @@ function getCurrentVersion() {
 }
 
 function getLatestVersion() {
-    $url = "https://github.com/Thaolga/openwrt-nekobox/releases";
-    $html = shell_exec("curl -m 10 -s $url");
+    $cacheFile = __DIR__ . '/lib/version_cache.json';
+    $cacheTime = 300;
 
-    if ($html === null || empty($html)) {
-        return "Error";
+    if (file_exists($cacheFile)) {
+        $cacheData = json_decode(file_get_contents($cacheFile), true);
+        if ($cacheData && isset($cacheData['version'], $cacheData['timestamp'])) {
+            if (time() - $cacheData['timestamp'] < $cacheTime) {
+                return $cacheData['version'];
+            }
+        }
     }
 
-    preg_match('/\/releases\/tag\/([\d\.]+)/', $html, $matches);
-    if (isset($matches[1])) {
-        return cleanVersion($matches[1]);
+    $urls = [
+        "https://api.github.com/repos/Thaolga/openwrt-nekobox/releases/latest",
+
+        "https://ghproxy.com/https://api.github.com/repos/Thaolga/openwrt-nekobox/releases/latest",
+
+        "https://data.jsdelivr.com/v1/package/gh/Thaolga/openwrt-nekobox"
+    ];
+
+    $latestVersion = "Error";
+
+    foreach ($urls as $url) {
+        $cmd = "curl -m 10 -s -H 'User-Agent: PHP' '$url'";
+        $json = shell_exec($cmd);
+
+        if ($json === null || empty($json)) {
+            continue;
+        }
+
+        $data = json_decode($json, true);
+        if (!$data) {
+            continue;
+        }
+
+        if (isset($data['tag_name'])) {
+            $latestVersion = cleanVersion($data['tag_name']);
+            break;
+        }
+
+        if (isset($data['tags']['latest'])) {
+            $latestVersion = cleanVersion($data['tags']['latest']);
+            break;
+        }
     }
 
-    return "Error";
+    if ($latestVersion !== "Error") {
+        file_put_contents($cacheFile, json_encode([
+            'version' => $latestVersion,
+            'timestamp' => time()
+        ]));
+    }
+
+    return $latestVersion;
 }
 
 function cleanVersion($version) {
