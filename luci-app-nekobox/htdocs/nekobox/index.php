@@ -1447,22 +1447,13 @@ $(document).ready(function() {
             method: 'GET',
             dataType: 'json',
             success: function(data) {
-                if (data.hasUpdate) {
-                    setTimeout(function() {
-                        const img = new Image();
-                        img.onload = function() {
-                            $('#current-version').attr('src', latestIcon);
-                        };
-                        img.onerror = function() {
-                            $('#current-version').attr('src', defaultIcon);
-                        };
-                        img.src = latestIcon;
-                    }, 1000);
-                }
+                setTimeout(function() {
+                    const iconSrc = data.hasUpdate ? latestIcon : defaultIcon;
+                    $('#current-version').attr('src', iconSrc);
+                }, 1000);
             },
             error: function() {
                 $('#current-version').attr('src', defaultIcon);
-                console.error('Failed to check update, using default icon.');
             },
             complete: function() {
                 $('#update-spinner').hide();
