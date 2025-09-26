@@ -1,95 +1,48 @@
 <?php
-function getCurrentVersion() {
-    $packageName = 'luci-app-nekobox';
-    $command = "opkg list-installed | grep $packageName";
-    $output = shell_exec($command . ' 2>&1');
+$repo_owner = "Thaolga";
+$repo_name = "openwrt-nekobox";
+$package_name = "luci-app-nekobox";
+$json_file = __DIR__ . "/version_debug.json";
 
-    if ($output === null || empty($output)) {
-        return "Error";
+function getCurrentVersion($package_name) {
+    $output = shell_exec("opkg list-installed | grep " . escapeshellarg($package_name) . " 2>&1");
+    if (!$output) return "Error";
+    foreach (explode("\n", $output) as $line) {
+        if (preg_match('/' . preg_quote($package_name, '/') . '\s*-\s*([^\s]+)/', $line, $m)) {
+            return $m[1];
+        }
     }
-
-    if (preg_match('/(\d+\.\d+\.\d+-(?:r|rc)\d+)/', $output, $matches)) {
-        return $matches[1];
-    }
-
     return "Error";
 }
 
-function getLatestVersion() {
-    $url = "https://github.com/Thaolga/openwrt-nekobox/releases";
-    $html = shell_exec("curl -m 10 -s $url");
-
-    if ($html === null || empty($html)) {
-        return "Error";
+function getLatestVersionFromAssets($repo_owner, $repo_name, $package_name) {
+    $api_url = "https://api.github.com/repos/$repo_owner/$repo_name/releases/latest";
+    $json = shell_exec("curl -H 'User-Agent: PHP' -s " . escapeshellarg($api_url) . " 2>/dev/null");
+    if (!$json) return "Error";
+    $data = json_decode($json, true);
+    if (!isset($data['assets'])) return "Error";
+    foreach ($data['assets'] as $asset) {
+        $name = $asset['name'] ?? '';
+        if (strpos($name, $package_name) !== false) {
+            if (preg_match('/' . preg_quote($package_name, '/') . '[_-]v?(\d+\.\d+\.\d+(?:-(?:r|rc)\d+)?)/i', $name, $m)) {
+                return $m[1];
+            }
+        }
     }
-
-    if (preg_match('/luci-app-nekobox_(\d+\.\d+\.\d+-(?:r|rc)\d+)/', $html, $matches)) {
-        return $matches[1];
-    }
-
     return "Error";
 }
 
-function compareVersions($ver1, $ver2) {
-    if ($ver1 === $ver2) {
-        return 0;
-    }
-    
-    list($main1, $rel1) = explode('-', $ver1 . '-');
-    list($main2, $rel2) = explode('-', $ver2 . '-');
-    
-    $rel1 = rtrim($rel1, '-');
-    $rel2 = rtrim($rel2, '-');
-    
-    $mainCompare = version_compare($main1, $main2);
-    if ($mainCompare !== 0) {
-        return $mainCompare;
-    }
-    
-    return compareReleases($rel1, $rel2);
-}
+$current = getCurrentVersion($package_name);
+$latest  = getLatestVersionFromAssets($repo_owner, $repo_name, $package_name);
 
-function compareReleases($rel1, $rel2) {
-    if (empty($rel1) && empty($rel2)) return 0;
-    if (empty($rel1)) return -1;
-    if (empty($rel2)) return 1;
-    
-    preg_match('/(r|rc)(\d+)/', $rel1, $m1);
-    preg_match('/(r|rc)(\d+)/', $rel2, $m2);
-    
-    $type1 = $m1[1] ?? '';
-    $type2 = $m2[1] ?? '';
-    $num1 = intval($m1[2] ?? 0);
-    $num2 = intval($m2[2] ?? 0);
-    
-    $priority = ['r' => 1, 'rc' => 2];
-    $pri1 = $priority[$type1] ?? 0;
-    $pri2 = $priority[$type2] ?? 0;
-    
-    if ($pri1 !== $pri2) {
-        return $pri1 - $pri2;
-    }
-    
-    return $num1 - $num2;
-}
-
-$currentVersion = getCurrentVersion();
-$latestVersion = getLatestVersion();
-
-$response = [
-    'currentVersion' => $currentVersion,
-    'latestVersion' => $latestVersion,
-    'hasUpdate' => false
+$result = [
+    'currentVersion' => $current,
+    'latestVersion'  => $latest,
+    'timestamp'      => time()
 ];
 
-if ($currentVersion !== "Error" && $latestVersion !== "Error") {
-    $compare = compareVersions($currentVersion, $latestVersion);
-    $response['hasUpdate'] = ($compare < 0);
-    $response['compareResult'] = $compare;
-} else {
-    $response['error'] = 'Version fetch failed';
-}
+file_put_contents($json_file, json_encode($result, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES));
 
-header('Content-Type: application/json');
-echo json_encode($response);
+header("Content-Type: application/json");
+echo json_encode($result, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
 ?>
