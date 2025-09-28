@@ -314,6 +314,40 @@
         vertical-align: middle;
     }
 }
+
+#flag[src*="loading.svg"] {
+    height: 50px !important;
+    width: auto !important;
+    border: none !important;
+    background: none !important;
+    background-color: transparent !important;
+    outline: none !important;
+    box-shadow: none !important;
+    border-radius: 0 !important;
+    padding: 0 !important;
+    margin: 0 !important;
+}
+
+.loading-icon {
+  animation: spin 1s linear infinite;
+  color: #FFD700;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg);}
+  100% { transform: rotate(360deg);}
+}
+
+@media (max-width: 768px), (max-width: 1680px) and (min-width: 769px) {
+  .weather-card {
+    display: none !important;
+  }
+}
+
+#cityNameDisplay, #weatherText {
+    font-family: 'Fredoka One', cursive !important;
+    font-weight: bold;
+}
 </style>
     <meta charset="utf-8">
     <title>
@@ -345,6 +379,7 @@
     <link rel="stylesheet" href="<%=media%>/css/cascade.css?v=2.2.10.10">
     <script src="/luci-static/spectra/js/custom.js"></script>
     <link href="/luci-static/spectra/css/bootstrap-icons.css" rel="stylesheet">
+    <link href="/luci-static/spectra/css/weather-icons.min.css" rel="stylesheet">
     <style title="text/css">
         <% if mode == 'normal' then %>
             @media (prefers-color-scheme: dark) {
@@ -445,6 +480,20 @@
                 <div class="nav-icon" id="wifiIcon">
                         <img id="settings-icon" src="<%=media%>/navbar/interface.gif" alt="Interface" style="cursor:pointer;">
                 </div>
+            </div>
+
+            <div class="weather-card" style="position:relative; display:flex; align-items:center; padding:10px; border-radius:8px; color:white; width:280px; height:50px; margin-top:3px;">
+              <div style="flex:1; display:flex; align-items:center;">   
+                <i id="loadingIcon" class="wi wi-refresh loading-icon" style="font-size:40px; margin-right:10px;"></i>
+                <i id="weatherIcon" class="wi" style="font-size:40px; margin-right:10px; display:none;"></i>
+                <div style="display:flex; flex-direction:column; justify-content:center; line-height:1;">
+                  <div id="cityNameDisplay" style="font-weight:bold; font-size:18px; color:rgb(9, 182, 63); margin-bottom:3px;">
+                  </div>
+                  <div id="weatherText" style="font-size:16px; color:rgb(255, 0, 255);">
+                  </div>
+                </div>
+              </div>
+              <button id="setCityBtn" style="position:absolute; top:50%; right:5px; transform:translateY(-50%); background:#FFD700; border:none; border-radius:50%; width:28px; height:28px; cursor:pointer; display:flex; align-items:center; justify-content:center; line-height:1; font-size:16px;"> ⚙ </button>
             </div>
 
             <div class="ip-container" style="display: none;">
@@ -1125,21 +1174,13 @@ let myAppIP = {
 
     getIpipnetIP: async ()=>{
         if(myAppIP.isRefreshing) return;
-        myAppIP.isRefhing=true;
+        myAppIP.isRefreshing = true;
         const lang = await getRealTimeLanguage();
         const text = translationsIP[lang] || translationsIP['zh'];
         document.getElementById('d-ip').innerHTML=`<div class="ip-main"><span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>${text.checking}</div>`;  
         document.getElementById('ipip').innerHTML="";
     
-        const loadingIcon = document.createElement('img');
-        loadingIcon.src = _IMG + "img/loading.svg";
-        loadingIcon.style.width = "50px";
-        loadingIcon.style.height = "50px";
-        loadingIcon.className = "loading-icon";
-        loadingIcon.id = "loading-icon";
-    
-        $("#flag").hide();
-        $("#flag").after(loadingIcon);
+        $("#flag").attr("src", _IMG + "img/loading.svg");
 
         try {
             const ip = await myAppIP.fetchIP();
@@ -1149,8 +1190,6 @@ let myAppIP = {
             document.getElementById('ipip').innerHTML = text.failed;
         } finally {
             myAppIP.isRefreshing = false;
-            $("#loading-icon").remove();
-            $("#flag").show();
         }
     },
 
@@ -1647,6 +1686,13 @@ let myAppIP = {
                 </div>
             `;
 
+        const translationMsg = translationEnabled 
+            ? `${langText.translation} ${langText.enabled}` 
+            : `${langText.translation} ${langText.disabled}`;
+
+        showWeatherLog(encodeURIComponent(translationMsg), 'info');
+        if (typeof speakWeatherMessage === 'function') speakWeatherMessage(translationMsg);
+
             setupModalEvents(modalOverlay, modalContent);
         }).catch(error => {
             console.error('Failed to load language:', error);
@@ -1699,7 +1745,6 @@ document.addEventListener('DOMContentLoaded', function() {
     myAppIP.getIpipnetIP();
     setInterval(() => myAppIP.getIpipnetIP(), 180000);
 });
-
 </script>
 
 <script>
@@ -2297,6 +2342,668 @@ function moveNavbar() {
 window.addEventListener('load', moveNavbar);
 window.addEventListener('resize', moveNavbar);
 </script>
+
+<style>
+.weather-log-box {
+    position: fixed;
+    left: 20px;
+    padding: 12px 16px;
+    background: var(--sand-bg);
+    color: white;
+    border-radius: 8px;
+    z-index: 9999;
+    max-width: 320px;
+    font-size: 15px;
+    word-wrap: break-word;
+    line-height: 1.5;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.15);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(2px);
+    transform: translateY(0);
+    opacity: 0;
+    animation: scrollUp 12s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+    display: inline-block;
+    margin-bottom: 10px;
+    transition: transform 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+@keyframes scrollUp {
+    0% { top: 90%; opacity: 0; }
+    20% { opacity: 1; }
+    80% { top: 50%; opacity: 1; }
+    100% { top: 45%; opacity: 0; }
+}
+.weather-log-box.exiting { animation: fadeOut 0.3s forwards; }
+@keyframes fadeOut { to { opacity: 0; transform: translateY(-20px) scale(0.95); } }
+.weather-log-content { padding: 6px 20px 6px 8px; color: white; }
+.weather-close-btn {
+    position: absolute;
+    top: 6px;
+    right: 10px;
+    background: transparent;
+    border: none;
+    color: inherit;
+    cursor: pointer;
+    font-size: 20px;
+    line-height: 1;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s;
+}
+.weather-log-box:hover .weather-close-btn { opacity: 0.7; pointer-events: auto; }
+.weather-log-box:hover .weather-close-btn:hover { opacity: 1; }
+.weather-log-icon { display: inline-block; width: 20px; height: 20px; margin-right: 3px; vertical-align: middle; }
+.weather-log-box.error { background: linear-gradient(145deg, #ff4444, #cc0000); }
+.weather-log-box.warning { background: linear-gradient(145deg, #ffc107, #ffab00); }
+.weather-log-box.info { background: linear-gradient(145deg, #2196F3, #1976D2); }
+</style>
+
+<script>
+const showWeatherLog = (function() {
+    const activeLogs = new Set();
+    const BASE_OFFSET = 20;
+    const MARGIN = 10;
+
+    function createIcon(type) {
+        const icons = {
+            error: 'M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z',
+            warning: 'M1 21h22L12 2 1 21zm12-3h-2v-2h2v2zm0-4h-2v-4h2v4z',
+            info: 'M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z'
+        };
+        const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path fill="#fff" d="${icons[type] || icons.info}"/></svg>`;
+        return `data:image/svg+xml;base64,${btoa(svg)}`;
+    }
+
+    function updatePositions() {
+        let verticalPos = BASE_OFFSET;
+        activeLogs.forEach(log => {
+            log.style.transform = `translateY(${verticalPos}px)`;
+            verticalPos += log.offsetHeight + MARGIN;
+        });
+    }
+
+    return function(message, type='info') {
+        const logBox = document.createElement('div');
+        logBox.className = `weather-log-box ${type}`;
+        logBox.innerHTML = `
+            <div class="weather-log-content">
+                <span class="weather-log-icon" style="background-image:url('${createIcon(type)}')"></span>
+                ${decodeURIComponent(message)}
+                <button class="weather-close-btn">&times;</button>
+            </div>
+        `;
+        logBox.querySelector('.weather-close-btn').onclick = () => {
+            logBox.classList.add('exiting');
+            setTimeout(() => { logBox.remove(); activeLogs.delete(logBox); updatePositions(); }, 300);
+        };
+        logBox.addEventListener('mouseenter', () => logBox.style.animationPlayState = 'paused');
+        logBox.addEventListener('mouseleave', () => logBox.style.animationPlayState = 'running');
+
+        document.body.appendChild(logBox);
+        activeLogs.add(logBox);
+        requestAnimationFrame(() => { updatePositions(); });
+
+        setTimeout(() => {
+            logBox.classList.add('exiting');
+            setTimeout(() => { logBox.remove(); activeLogs.delete(logBox); updatePositions(); }, 300);
+        }, 12000);
+    };
+})();
+
+function speakWeatherMessage(message, lang='zh-CN') {
+    const utterance = new SpeechSynthesisUtterance(message);
+    utterance.lang = lang;
+    speechSynthesis.speak(utterance);
+}
+</script>
+
+<div id="cityModal" 
+     style="display:none; 
+            position:fixed; 
+            top:50%; 
+            left:50%; 
+            transform:translate(-50%, -50%); 
+            width:350px; 
+            padding:20px; 
+            border-radius:12px; 
+            background: linear-gradient(135deg, #1E90FF, #00BFFF); 
+            color:white;
+            box-shadow:0 4px 15px rgba(0,0,0,0.4); 
+            z-index:9999;">
+  <h3 id="modalTitle" style="margin-bottom:15px;"></h3>
+  <input id="cityInput" placeholder="" 
+         style="padding:8px; width:100%; border-radius:6px; border:none; margin-bottom:15px;">
+  <div style="text-align:right;">
+    <button id="saveCityBtn" class="cbi-button cbi-button-save"></button>
+    <button id="closeCityModal" class="cbi-button cbi-button-remove"></button>
+  </div>
+</div>
+
+<audio id="bell-audio" preload="auto">
+  <source src="/luci-static/spectra/img/bells.mp3" type="audio/mp3">
+</audio>
+
+<script>
+let city = localStorage.getItem('city') || 'Beijing';
+const apiKey = 'fc8bd2637768c286c6f1ed5f1915eb22';
+let currentWeatherData = null;
+
+const weatherIcon = document.getElementById('weatherIcon');
+const weatherText = document.getElementById('weatherText');
+const cityNameDisplay = document.getElementById('cityNameDisplay');
+const cityInput = document.getElementById('cityInput');
+const saveCityBtn = document.getElementById('saveCityBtn');
+const setCityBtn = document.getElementById('setCityBtn');
+const cityModal = document.getElementById('cityModal');
+const closeCityModal = document.getElementById('closeCityModal');
+const modalTitle = document.getElementById('modalTitle');
+
+const modalTranslations = {
+  zh: {
+    modalTitle: "设置城市",
+    saveBtn: "保存",
+    cancelBtn: "取消",
+    invalidCityEmpty: "城市不能为空",
+    invalidCityChinese: "城市不能包含中文",
+    invalidCityFormat: "城市必须以大写英文字母开头",
+    citySaved: "已保存城市: {city}"
+  },
+  en: {
+    modalTitle: "Set City",
+    saveBtn: "Save",
+    cancelBtn: "Cancel",
+    invalidCityEmpty: "City cannot be empty",
+    invalidCityChinese: "City cannot contain Chinese characters",
+    invalidCityFormat: "City must start with uppercase English letter",
+    citySaved: "City saved: {city}"
+  },
+  hk: {
+    modalTitle: "設置城市",
+    saveBtn: "儲存",
+    cancelBtn: "取消",
+    invalidCityEmpty: "城市不能為空",
+    invalidCityChinese: "城市不能包含中文",
+    invalidCityFormat: "城市必須以大寫英文字母開頭",
+    citySaved: "已儲存城市: {city}"
+  },
+  de: {
+    modalTitle: "Stadt festlegen",
+    saveBtn: "Speichern",
+    cancelBtn: "Abbrechen",
+    invalidCityEmpty: "Stadt darf nicht leer sein",
+    invalidCityChinese: "Stadt darf keine chinesischen Zeichen enthalten",
+    invalidCityFormat: "Stadt muss mit einem Großbuchstaben beginnen",
+    citySaved: "Stadt gespeichert: {city}"
+  },
+  fr: {
+    modalTitle: "Définir la ville",
+    saveBtn: "Enregistrer",
+    cancelBtn: "Annuler",
+    invalidCityEmpty: "La ville ne peut pas être vide",
+    invalidCityChinese: "La ville ne peut pas contenir de caractères chinois",
+    invalidCityFormat: "La ville doit commencer par une lettre majuscule",
+    citySaved: "Ville enregistrée: {city}"
+  },
+  ko: {
+    modalTitle: "도시 설정",
+    saveBtn: "저장",
+    cancelBtn: "취소",
+    invalidCityEmpty: "도시는 비어 있을 수 없습니다",
+    invalidCityChinese: "도시에는 한자(중국어)를 포함할 수 없습니다",
+    invalidCityFormat: "도시는 영어 대문자로 시작해야 합니다",
+    citySaved: "도시 저장됨: {city}"
+  },
+  ja: {
+    modalTitle: "都市設定",
+    saveBtn: "保存",
+    cancelBtn: "キャンセル",
+    invalidCityEmpty: "都市は空にできません",
+    invalidCityChinese: "都市に漢字を含めることはできません",
+    invalidCityFormat: "都市は英語の大文字で始まる必要があります",
+    citySaved: "都市を保存しました: {city}"
+  },
+  bn: {
+    modalTitle: "শহর সেট করুন",
+    saveBtn: "সংরক্ষণ",
+    cancelBtn: "বাতিল",
+    invalidCityEmpty: "শহর খালি থাকতে পারে না",
+    invalidCityChinese: "শহরে চীনা অক্ষর থাকতে পারে না",
+    invalidCityFormat: "শহরটি ইংরেজি বড় হাতের অক্ষর দিয়ে শুরু করতে হবে",
+    citySaved: "শহর সংরক্ষিত: {city}"
+  },
+  vi: {
+    modalTitle: "Đặt thành phố",
+    saveBtn: "Lưu",
+    cancelBtn: "Hủy",
+    invalidCityEmpty: "Thành phố không được để trống",
+    invalidCityChinese: "Thành phố không được chứa chữ Hán",
+    invalidCityFormat: "Thành phố phải bắt đầu bằng chữ cái tiếng Anh viết hoa",
+    citySaved: "Đã lưu thành phố: {city}"
+  },
+  tr: {
+    modalTitle: "Şehir Ayarla",
+    saveBtn: "Kaydet",
+    cancelBtn: "İptal",
+    invalidCityEmpty: "Şehir boş olamaz",
+    invalidCityChinese: "Şehir Çince karakter içeremez",
+    invalidCityFormat: "Şehir büyük İngilizce harf ile başlamalı",
+    citySaved: "Şehir kaydedildi: {city}"
+  },
+  ar: {
+    modalTitle: "تعيين المدينة",
+    saveBtn: "حفظ",
+    cancelBtn: "إلغاء",
+    invalidCityEmpty: "لا يمكن أن تكون المدينة فارغة",
+    invalidCityChinese: "لا يمكن أن تحتوي المدينة على أحرف صينية",
+    invalidCityFormat: "يجب أن تبدأ المدينة بحرف إنجليزي كبير",
+    citySaved: "تم حفظ المدينة: {city}"
+  },
+  ru: {
+    modalTitle: "Установить город",
+    saveBtn: "Сохранить",
+    cancelBtn: "Отмена",
+    invalidCityEmpty: "Город не может быть пустым",
+    invalidCityChinese: "Город не может содержать китайские иероглифы",
+    invalidCityFormat: "Город должен начинаться с заглавной английской буквы",
+    citySaved: "Город сохранен: {city}"
+  },
+  es: {
+    modalTitle: "Establecer ciudad",
+    saveBtn: "Guardar",
+    cancelBtn: "Cancelar",
+    invalidCityEmpty: "La ciudad no puede estar vacía",
+    invalidCityChinese: "La ciudad no puede contener caracteres chinos",
+    invalidCityFormat: "La ciudad debe comenzar con letra mayúscula",
+    citySaved: "Ciudad guardada: {city}"
+  }
+};
+
+async function getModalLang() {
+  try {
+    const lang = await getRealTimeLanguage();
+    return modalTranslations[lang] ? lang : 'en';
+  } catch(e) {
+    return 'en';
+  }
+}
+
+async function updateModalLanguage() {
+  const lang = await getModalLang();
+  modalTitle.textContent = modalTranslations[lang].modalTitle;
+  saveCityBtn.textContent = modalTranslations[lang].saveBtn;
+  closeCityModal.textContent = modalTranslations[lang].cancelBtn;
+  cityInput.placeholder = modalTranslations[lang].modalTitle;
+}
+
+async function showModalMessage(key, params={}) {
+  const lang = await getModalLang();
+  let msg = modalTranslations[lang][key] || key;
+  for(const k in params) msg = msg.replace(`{${k}}`, params[k]);
+  showWeatherLog(encodeURIComponent(msg), key === 'citySaved' ? 'info' : 'warning');
+  if (typeof speakWeatherMessage === 'function') speakWeatherMessage(msg);
+}
+
+function validateCity(value){
+  const chinesePattern = /[\u4e00-\u9fff]/;
+  const startsUpper = /^[A-Z]/;
+  if(!value) return "invalidCityEmpty";
+  if(chinesePattern.test(value)) return "invalidCityChinese";
+  if(!startsUpper.test(value)) return "invalidCityFormat";
+  return null;
+}
+
+async function saveCity(){
+  const value = cityInput.value.trim();
+  const errKey = validateCity(value);
+  if(errKey){
+    await showModalMessage(errKey);
+    return;
+  }
+  city = value;
+  localStorage.setItem('city', city);
+  await showModalMessage("citySaved",{city});
+  fetchWeather();
+  closeModal();
+}
+
+function openCityModal(){
+  cityInput.value = city;
+  cityModal.style.display = 'block';
+  updateModalLanguage();
+}
+function closeModal(){
+  cityModal.style.display = 'none';
+}
+
+function owmCodeToWiClass(code) {
+  const map = {
+    '01d': 'wi-day-sunny',    '01n': 'wi-night-clear',
+    '02d': 'wi-day-cloudy',   '02n': 'wi-night-cloudy',
+    '03d': 'wi-cloud',        '03n': 'wi-cloud',
+    '04d': 'wi-cloudy',       '04n': 'wi-cloudy',
+    '09d': 'wi-showers',      '09n': 'wi-showers',
+    '10d': 'wi-day-rain',     '10n': 'wi-night-alt-rain',
+    '11d': 'wi-thunderstorm', '11n': 'wi-thunderstorm',
+    '13d': 'wi-snow',         '13n': 'wi-snow',
+    '50d': 'wi-fog',          '50n': 'wi-fog'
+  };
+  return map[code] || 'wi-na';
+}
+
+async function getWeatherLangParam() {
+  try {
+    let lang = (await getRealTimeLanguage()).toLowerCase();
+    const map = {
+      'zh': 'zh_cn',
+      'hk': 'zh_tw',
+      'en': 'en',
+      'ja': 'ja',
+      'ko': 'kr',
+      'fr': 'fr',
+      'de': 'de',
+      'es': 'es',
+      'ru': 'ru',
+      'th': 'th',
+      'bn': 'bn',
+      'ar': 'ar',
+      'vi': 'vi'
+    };
+
+    return map[lang] || 'en';
+  } catch(e) {
+    return 'en';
+  }
+}
+
+const CACHE_REFRESH_INTERVAL = 5 * 60 * 1000;
+
+async function getTranslationCache(cityName) {
+  try {
+    const res = await fetch('/luci-static/spectra/bgm/weather_translation.php');
+    if (!res.ok) throw 'Failed to load cache';
+    const data = await res.json();
+    const cityData = data.cities?.[cityName] || {};
+    
+    return {
+      translations: cityData.translations || {},
+      default_language: cityData.default_language || 'en',
+      updated: cityData.updated || null
+    };
+  } catch (e) {
+    return {
+      translations: {},
+      default_language: 'en',
+      updated: null
+    };
+  }
+}
+
+async function updateTranslationCache(cityName, translations) {
+  try {
+    await fetch('/luci-static/spectra/bgm/weather_translation.php', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        city: cityName,
+        translations: translations
+      })
+    });
+  } catch (e) {
+    console.error('Failed to update translation cache', e);
+  }
+}
+
+function isCacheExpired(updatedTime) {
+  if (!updatedTime) return true;
+  const updated = new Date(updatedTime);
+  return (Date.now() - updated.getTime()) > CACHE_REFRESH_INTERVAL;
+}
+
+async function translateWeatherDesc(descList) {
+  if (!Array.isArray(descList) || descList.length === 0) return { text: '', city };
+
+  const cache = await getTranslationCache(city);
+  const lang = (await getRealTimeLanguage()).toLowerCase();
+
+  const cachedLangData = cache.translations?.[lang] || { weather: {}, city: '' };
+  const cachedWeather = cachedLangData.weather || {};
+  let cachedCity = cachedLangData.city || '';
+
+  const result = [];
+  const translationsToUpdate = { weather: {}, city: cachedCity };
+
+  for (const desc of descList) {
+    if (cachedWeather[desc]) {
+      result.push(cachedWeather[desc]);
+    } else {
+      try {
+        const t = await myAppTranslate(desc, lang);
+        translationsToUpdate.weather[desc] = t;
+        result.push(t);
+      } catch {
+        translationsToUpdate.weather[desc] = desc;
+        result.push(desc);
+      }
+    }
+  }
+
+  if (!cachedCity) {
+    try {
+      const tCity = await myAppTranslate(city, lang);
+      translationsToUpdate.city = tCity;
+      cachedCity = tCity;
+    } catch {
+      translationsToUpdate.city = city;
+      cachedCity = city;
+    }
+  } else {
+    translationsToUpdate.city = cachedCity;
+  }
+
+  const updatedCache = {
+    ...cache.translations,
+    [lang]: {
+      weather: { ...cachedWeather, ...translationsToUpdate.weather },
+      city: translationsToUpdate.city
+    },
+    default_language: lang
+  };
+
+  await updateTranslationCache(city, updatedCache);
+
+  return { text: result.join('，'), city: cachedCity };
+}
+
+function hasUntranslatedContent(langData) {
+  if (!langData || !langData.weather) return true;
+  
+  for (const [key, value] of Object.entries(langData.weather)) {
+    if (!isProperlyTranslated(value, key, 'any')) {
+      return true;
+    }
+  }
+  
+  if (langData.city && !isProperlyTranslated(langData.city, langData.city, 'any')) {
+    return true;
+  }
+  
+  return false;
+}
+
+function isProperlyTranslated(translatedText, originalText, lang) {
+  if (translatedText === originalText) {
+    return false;
+  }
+  
+  if (lang !== 'en' && isMostlyEnglish(translatedText)) {
+    return false;
+  }
+  
+  if (['zh', 'ja', 'ko', 'hk', 'tw'].includes(lang) && !containsNonLatin(translatedText)) {
+    return false;
+  }
+  
+  return true;
+}
+
+function isMostlyEnglish(text) {
+  const englishPattern = /^[a-zA-Z\s.,!?']+$/;
+  return englishPattern.test(text);
+}
+
+function containsNonLatin(text) {
+  const nonLatinPattern = /[^\u0000-\u007F]/;
+  return nonLatinPattern.test(text);
+}
+
+setInterval(async () => {
+  const cache = await getTranslationCache();
+  if (cache.city !== city || isCacheExpired(cache.updated)) {
+    if (currentWeatherData) {
+      const descList = currentWeatherData.weather.map(w => w.description);
+      await translateWeatherDesc(descList);
+    }
+  }
+}, CACHE_REFRESH_INTERVAL);
+
+async function updateWeatherUI(data) {
+  document.getElementById('loadingIcon').style.display = 'none';
+
+  const iconCode = data.weather[0].icon;
+  const weatherIcon = document.getElementById('weatherIcon');
+  weatherIcon.className = `wi ${owmCodeToWiClass(iconCode)}`;
+  weatherIcon.style.display = 'inline-block';
+  weatherIcon.style.color = '#FFD700';
+
+  const temp = Math.round(data.main.temp);
+  const descList = data.weather.map(w => w.description);
+  const { text: translatedDesc, city: translatedCity } = await translateWeatherDesc(descList);
+
+  document.getElementById('weatherText').textContent = `${translatedDesc} ${temp}℃`;
+  cityNameDisplay.textContent = translatedCity;
+}
+
+async function updateCityNameDisplay(name) {
+  try {
+    const lang = await getRealTimeLanguage();
+    const translatedCityName = await myAppTranslate(name, lang);
+    cityNameDisplay.textContent = translatedCityName;
+  } catch(e) {
+    cityNameDisplay.textContent = name;
+  }
+}
+
+async function fetchWeather() {
+  const url = `https://api.openweathermap.org/data/2.5/weather?q=${encodeURIComponent(city)}&appid=${apiKey}&units=metric&lang=en`;
+  fetch(url)
+    .then(res => res.ok ? res.json() : Promise.reject('Network not OK'))
+    .then(data => {
+      if(data.weather && data.main){
+        currentWeatherData = data;
+        updateWeatherUI(data);
+      }
+    })
+    .catch(err => showWeatherLog(encodeURIComponent('Error fetching weather'), 'error'));
+}
+
+setCityBtn.addEventListener('click', openCityModal);
+closeCityModal.addEventListener('click', closeModal);
+saveCityBtn.addEventListener('click', saveCity);
+
+document.addEventListener('DOMContentLoaded', async () => {
+  await updateModalLanguage();
+  fetchWeather();
+  setInterval(fetchWeather, 10*60*1000);
+});
+
+let lastSpokenHour = null;
+const audio = document.getElementById("bell-audio");
+
+document.addEventListener("click", () => {
+  audio.muted = false;
+  audio.play().then(() => {
+    audio.pause();
+    audio.currentTime = 0;
+  }).catch(() => {});
+}, { once: true });
+
+async function speakTimeNow() {
+  const now = new Date();
+  const hour = now.getHours();
+  const minute = now.getMinutes();
+  const second = now.getSeconds();
+
+  if (minute === 59 && second === 50 && lastSpokenHour !== (hour + 1) % 24) {
+    lastSpokenHour = (hour + 1) % 24;
+    try {
+      audio.currentTime = 0;
+      await audio.play();
+
+      setTimeout(() => {
+        doSpeak(lastSpokenHour);
+      }, 10000);
+    } catch {}
+  }
+}
+
+async function doSpeak(hour) {
+  const lang = await getRealTimeLanguage();
+  let message = '';
+
+  if (lang.startsWith('zh') || lang.startsWith('zh-tw') || lang.startsWith('hk')) {
+    let period = '';
+    if (hour >= 0 && hour < 6) period = '凌晨';
+    else if (hour >= 6 && hour < 12) period = '早上';
+    else if (hour >= 12 && hour < 18) period = '下午';
+    else period = '晚上';
+    message = `整点报时，现在是北京时间${period}${hour}点整`;
+  } else {
+    const displayHour = hour % 12 || 12;
+    const period = hour >= 12 ? 'PM' : 'AM';
+    message = `It is now ${displayHour} ${period}.`;
+  }
+
+  if (typeof speakWeatherMessage === 'function') {
+    speakWeatherMessage(message);
+  }
+}
+
+setInterval(speakTimeNow, 1000);
+
+async function refreshUIAfterLanguageChange() {
+    await updateModalLanguage();
+
+    if (currentWeatherData) {
+        await updateWeatherUI(currentWeatherData);
+    }
+}
+
+let lastLang = null;
+setInterval(async () => {
+    const lang = await getRealTimeLanguage();
+    if (lang !== lastLang) {
+        lastLang = lang;
+        refreshUIAfterLanguageChange();
+    }
+}, 8000);
+
+const weatherCard = document.querySelector('.weather-card');
+const loadingIcon = document.getElementById('loadingIcon');
+
+weatherCard.style.cursor = 'pointer';
+
+weatherCard.addEventListener('click', async (event) => {
+  if (event.target.closest('#setCityBtn') || event.target.closest('#saveCityBtn')) return;
+
+  loadingIcon.style.display = 'inline-block';
+
+  try {
+    await fetchWeather();
+  } finally {
+    loadingIcon.style.display = 'none';
+  }
+});
+</script> 
 
 <script>
 function updatemenu(){1==document.getElementById("responsive-menu").checked?(document.getElementById("menu").style.borderBottomRightRadius="0",document.getElementById("menu").style.borderBottomLeftRadius="0"):document.getElementById("menu").style.borderRadius="0px"}
