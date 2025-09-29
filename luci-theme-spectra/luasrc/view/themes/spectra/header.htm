@@ -97,38 +97,82 @@
 }
 
 .ip-container {
-    align-items: center;
     display: flex;
-    gap: 6px;
+    align-items: center;
+    position: relative;
+    z-index: 1;
+    padding: 15px 20px;
+    min-width: 300px;
+    transition: all 0.3s ease;
+    gap: 20px;
     white-space: nowrap;
 }
 
-.ip-container img {
-    border-radius: 4px;
-    cursor: pointer;
-    height: 20px;
-    object-fit: cover;
-    width: 32px;
+.img-con {
+    width: 60px;
+    height: 40px;
+    min-width: 60px;
+    min-height: 40px;
+    box-sizing: border-box;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+}
+
+.img-con img#flag {
+    width: 60px;
+    height: 40px;
+    object-fit: contain;
+    display: block;
+}
+
+.img-con .loading {
+    position: absolute;
+    left: 0; top: 0;
+    width: 100%; height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: transparent;
+    z-index: 10;
+}
+
+.img-con .loading img {
+    max-width: 50px;
+    max-height: 50px;
+    width: auto;
+    height: auto;
 }
 
 .ip-container .ip-text {
+    line-height: 1.4;
+    min-width: 180px;
+    transform: translateY(3px);
     display: flex;
     flex-direction: column;
     justify-content: center;
-    line-height: 1.2;
 }
 
 .ip-container #d-ip {
-    color: #18a558;
+    color: #09B63F !important;
     font-family: 'Comic Neue', cursive !important;
-    font-size: 14px;
-    font-weight: 600;
+    font-weight: 900;
+    font-size: 15px;
+    position: relative;
+    left: 1em;
+    margin-bottom: 3px;
+    text-indent: -0.7ch;
 }
 
 .ip-container #ipip {
-    color: #e83e8c;
+    color: #FF00FF !important;
     font-family: 'Comic Neue', cursive !important;
-    font-size: 13px;
+    font-weight: bold;
+    font-size: 15px;
+    display: block;
+    margin-top: 3px;
+    margin-bottom: 3px;
 }
 
 @media (max-width: 768px) {
@@ -315,29 +359,6 @@
     }
 }
 
-#flag[src*="loading.svg"] {
-    height: 50px !important;
-    width: auto !important;
-    border: none !important;
-    background: none !important;
-    background-color: transparent !important;
-    outline: none !important;
-    box-shadow: none !important;
-    border-radius: 0 !important;
-    padding: 0 !important;
-    margin: 0 !important;
-}
-
-.loading-icon {
-  animation: spin 1s linear infinite;
-  color: #FFD700;
-}
-
-@keyframes spin {
-  0% { transform: rotate(0deg);}
-  100% { transform: rotate(360deg);}
-}
-
 @media (max-width: 768px), (max-width: 1680px) and (min-width: 769px) {
   .weather-card {
     display: none !important;
@@ -347,6 +368,11 @@
 #cityNameDisplay, #weatherText {
     font-family: 'Fredoka One', cursive !important;
     font-weight: bold;
+}
+
+.navbar-left, .ip-container, .weather-card, .navbar-right {
+    flex-shrink: 0;
+    flex-grow: 0;
 }
 </style>
     <meta charset="utf-8">
@@ -483,23 +509,30 @@
             </div>
 
             <div class="weather-card" style="position:relative; display:flex; align-items:center; padding:10px; border-radius:8px; color:white; width:280px; height:50px; margin-top:3px;">
-              <div style="flex:1; display:flex; align-items:center;">   
-                <i id="loadingIcon" class="wi wi-refresh loading-icon" style="font-size:40px; margin-right:10px;"></i>
-                <i id="weatherIcon" class="wi" style="font-size:40px; margin-right:10px; display:none;"></i>
-                <div style="display:flex; flex-direction:column; justify-content:center; line-height:1;">
-                  <div id="cityNameDisplay" style="font-weight:bold; font-size:18px; color:rgb(9, 182, 63); margin-bottom:3px;">
+              <div style="flex:1; display:flex; align-items:center; gap:25px;">   
+                  <div id="iconContainer" style="position:relative; width:50px; height:50px;"> 
+                      <img id="loadingIcon" src="/luci-static/ipip/img/loading.svg" style="position:absolute; top:50%; left:50%; transform:translate(-50%, -50%); width:50px; height:50px;" />
+                      <i id="weatherIcon" class="wi" style="position:absolute; top:50%; left:50%; transform:translate(-50%, -50%); font-size:40px; width:40px; height:40px; display:none; color:#FFD700;"></i>
                   </div>
-                  <div id="weatherText" style="font-size:16px; color:rgb(255, 0, 255);">
+                <div style="display:flex; flex-direction:column; justify-content:center; line-height:1;">
+                  <div id="cityNameDisplay" style="font-weight:bold; font-size:16px; color:rgb(9, 182, 63); margin-bottom:5px;">
+                  </div>
+                  <div id="weatherText" style="font-size:14px; color:rgb(255, 0, 255);">
                   </div>
                 </div>
               </div>
-              <button id="setCityBtn" style="position:absolute; top:50%; right:5px; transform:translateY(-50%); background:#FFD700; border:none; border-radius:50%; width:28px; height:28px; cursor:pointer; display:flex; align-items:center; justify-content:center; line-height:1; font-size:16px;"> ⚙ </button>
+              <button id="setCityBtn" style="position:absolute; top:50%; right:8px; transform:translateY(calc(-50% - 4px)); background:#FFD700; border:none; border-radius:50%; width:28px; height:28px; cursor:pointer; display:flex; align-items:center; justify-content:center; line-height:1; font-size:16px;"> ⚙ </button>
             </div>
 
             <div class="ip-container" style="display: none;">
-                <img id="flag" title="">
+                <div class="img-con">
+                    <img id="flag" title="">
+                    <div class="loading" id="loading" style="display:none;">
+                        <img src="/luci-static/ipip/img/loading.svg" alt="loading">
+                     </div>
+                </div>
                 <div class="ip-text">
-                    <span id="d-ip">Checking...</span>
+                    <span id="d-ip"></span>
                     <span id="ipip"></span>
                 </div>
             </div>
@@ -541,7 +574,7 @@ const translationsIP = {
         panel: '控制面板',
         clickRefresh: '点击刷新 IP 地址',
         failedUpdate: '更新 IP 信息失败',
-        checking: '检查中...',
+        checking: '获取中...',
         failed: '获取 IP 信息失败',
         translate: '翻译',
         editDatabase: '编辑数据库'
@@ -561,7 +594,7 @@ const translationsIP = {
         panel: '控制面板',
         clickRefresh: '點擊刷新 IP 地址',
         failedUpdate: '更新 IP 資訊失敗',
-        checking: '檢查中...',
+        checking: '獲取中...',
         failed: '獲取 IP 資訊失敗',
         translate: '翻譯',
         editDatabase: '編輯資料庫'
@@ -676,6 +709,11 @@ async function initIPDisplay() {
     const wifiIcon = document.getElementById('settings-icon');
     if (wifiIcon) {
         wifiIcon.title = text.panel || 'Panel';
+    }
+    const setCityBtn = document.getElementById('setCityBtn');
+    if (setCityBtn) {
+        const modalText = modalTranslations[lang] || modalTranslations['zh'];
+        setCityBtn.title = modalText.modalTitle || 'Set City';
     }
 }
 
@@ -1177,10 +1215,15 @@ let myAppIP = {
         myAppIP.isRefreshing = true;
         const lang = await getRealTimeLanguage();
         const text = translationsIP[lang] || translationsIP['zh'];
-        document.getElementById('d-ip').innerHTML=`<div class="ip-main"><span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>${text.checking}</div>`;  
+
+        document.getElementById('d-ip').textContent = text.checking;
         document.getElementById('ipip').innerHTML="";
-    
-        $("#flag").attr("src", _IMG + "img/loading.svg");
+
+        const flag = document.getElementById("flag");
+        const loading = document.getElementById("loading");
+
+        loading.style.display = 'flex';
+        flag.style.visibility = 'hidden';
 
         try {
             const ip = await myAppIP.fetchIP();
@@ -1189,6 +1232,8 @@ let myAppIP = {
             console.error("getIpipnetIP error:", e);
             document.getElementById('ipip').innerHTML = text.failed;
         } finally {
+            loading.style.display = 'none';
+            flag.style.visibility = 'visible';
             myAppIP.isRefreshing = false;
         }
     },
