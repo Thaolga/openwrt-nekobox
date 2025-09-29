@@ -20,67 +20,10 @@ document.addEventListener("DOMContentLoaded", function () {
     applyFont(savedFont);
     let videoTag, bgImages, bgIndex, availableImages, switchInterval;
     const ipContainer = document.querySelector('.ip-container');
-    const flag = document.getElementById('flag');
-    const ipText = document.querySelector('.ip-text');
 
-    const dIp = document.getElementById('d-ip');
-    if (dIp) {
-        dIp.style.cssText = `
-            color: #09B63F !important;
-            font-weight: bold;
-            font-size: 15px;
-            position: relative;
-            left: 1em; 
-            margin-bottom: 3px;
-            text-indent: -0.7ch; 
-        `;
-    }
-
-    const ipip = document.getElementById('ipip');
-    if (ipip) {
-        ipip.style.cssText = `
-            color: #FF00FF !important;
-            font-weight: bold;
-            font-size: 15px;
-            display: block;
-            margin-top: 3px;
-            margin-bottom: 3px;
-        `;
-    }
-
-    if (ipContainer) {
-        ipContainer.style.cssText = `
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            position: relative;
-            z-index: 1;
-            padding: 15px 20px;
-            min-width: 300px;
-            transition: all 0.3s ease;
-        `;
-        
+    if (ipContainer) {       
         const shouldHide = localStorage.getItem('hideIP') === 'true';
         ipContainer.style.display = shouldHide ? 'none' : 'flex';
-    }
-
-    if (flag) {
-        flag.style.cssText = `
-            width: 60px;
-            height: 40px;
-            margin-right: 25px;
-            margin-left: 15px;
-            flex-shrink: 0;
-        `;
-    }
-
-    if (ipText) {
-        ipText.style.cssText = `
-            font-family: Arial, sans-serif;
-            line-height: 1.4;
-            min-width: 180px;
-            transform: translateY(1px); 
-        `;
     }
 
     const savedMode = localStorage.getItem('backgroundMode');
