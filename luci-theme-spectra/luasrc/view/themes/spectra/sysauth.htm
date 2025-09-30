@@ -406,6 +406,7 @@
 	}
 }
 </style>
+<link href="/luci-static/spectra/css/bootstrap-icons.css" rel="stylesheet">
 <% local ver = require("luci.version") %>
 <div class="login-root">
     <div class="dynamic-background">
@@ -450,13 +451,16 @@
             <div class="form-group">
                 <div class="icon-container">
                     <span class="auth-icon pass"></span>
-                    <div class="input-field">
+                    <div class="input-field" style="position: relative;">
                         <input type="password" 
                                id="authPassword" 
                                name="luci_password" 
                                placeholder="<%:Password%>"
                                onfocus="this.style.borderColor='#4f46e5'; this.style.boxShadow='0 0 0 3px rgba(79,70,229,0.1)'"
                                onblur="this.style.borderColor='#e2e8f0'; this.style.boxShadow='none'">
+                        <i class="bi bi-eye-slash toggle-password" 
+                            style="position:absolute; right:10px; top:50%; transform:translateY(-50%); cursor:pointer; color:#666;">
+                        </i>
                     </div>
                 </div>
             </div>
@@ -540,5 +544,17 @@ async function translateLoginElements() {
 }
 
 document.addEventListener('DOMContentLoaded', translateLoginElements);
+
+document.addEventListener("DOMContentLoaded", function() {
+    const toggle = document.querySelector(".toggle-password");
+    const password = document.getElementById("authPassword");
+
+    toggle.addEventListener("click", function() {
+        const isPassword = password.getAttribute("type") === "password";
+        password.setAttribute("type", isPassword ? "text" : "password");
+        this.classList.toggle("bi-eye");
+        this.classList.toggle("bi-eye-slash");
+    });
+});
 </script>
 
