@@ -741,7 +741,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['generateConfig'])) {
                     $logMessages[] = "Failed to encode JSON: " . json_last_error_msg();
                 } else {
                     if (!isValidSubscriptionContent($downloadedContent)) {
-                        $logMessages[] = $translations['update_failed'];
+                        $logMessages[] = $translations['update_fail'];
                     } else {
                         $tmpFileSavePath = '/etc/neko/proxy_provider/' . $fixedFileName;
                         if (file_put_contents($tmpFileSavePath, $completeSubscribeUrl) === false) {
