@@ -743,19 +743,6 @@ const translationsIP = {
     }
 };
 
-async function translateLoginButton() {
-    const lang = await getRealTimeLanguage();
-    const text = translationsIP[lang] || translationsIP['zh'];
-
-    const loginButton = document.querySelector('button.submit-btn');
-    if (loginButton) {
-        loginButton.textContent = text.login || 'Login';
-    }
-}
-
-document.addEventListener('DOMContentLoaded', translateLoginButton);
-
-
 async function initIPDisplay() {
     const lang = await getRealTimeLanguage();
     const text = translationsIP[lang] || translationsIP['zh'];
