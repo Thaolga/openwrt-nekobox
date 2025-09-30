@@ -324,6 +324,16 @@ function autoCleanInvalidSubInfo($subscriptions) {
     return $cleaned;
 }
 
+function isValidSubscriptionContent($content) {
+    $keywords = ['ss', 'shadowsocks', 'vmess', 'vless', 'trojan', 'hysteria2', 'socks5', 'http'];
+    foreach ($keywords as $keyword) {
+        if (stripos($content, $keyword) !== false) {
+            return true;
+        }
+    }
+    return false;
+}
+
 autoCleanInvalidSubInfo($subscriptions);
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update'])) {
@@ -353,7 +363,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update'])) {
 
             if (base64_encode(base64_decode($fileContent, true)) === $fileContent) {
                 $decodedContent = base64_decode($fileContent);
-                if ($decodedContent !== false && strlen($decodedContent) > 0) {
+                if ($decodedContent !== false && strlen($decodedContent) > 0 && isValidSubscriptionContent($decodedContent)) {
                     file_put_contents($finalPath, "# Clash Meta Config\n\n" . $decodedContent);
                     echo '<div class="log-message alert alert-warning custom-alert-success"><span data-translate="base64_decode_success" data-dynamic-content="' . htmlspecialchars($finalPath) . '"></span></div>';
                     $notificationMessage = '<span data-translate="update_success"></span>';
@@ -365,7 +375,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update'])) {
             } 
             elseif (substr($fileContent, 0, 2) === "\x1f\x8b") {
                 $decompressedContent = gzdecode($fileContent);
-                if ($decompressedContent !== false) {
+                if ($decompressedContent !== false && isValidSubscriptionContent($decompressedContent)) {
                     file_put_contents($finalPath, "# Clash Meta Config\n\n" . $decompressedContent);
                     echo '<div class="log-message alert alert-warning custom-alert-success"><span data-translate="gzip_decompress_success" data-dynamic-content="' . htmlspecialchars($finalPath) . '"></span></div>';
                     $notificationMessage = '<span data-translate="update_success"></span>';
@@ -376,10 +386,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update'])) {
                 }
             } 
             else {
-                if (rename($tempPath, $finalPath)) {
+                if (isValidSubscriptionContent($fileContent) && rename($tempPath, $finalPath)) {
                     echo '<div class="log-message alert alert-warning custom-alert-success"><span data-translate="subscription_downloaded_no_decode"></span></div>';
                     $notificationMessage = '<span data-translate="update_success"></span>';
                     $updateCompleted = true;
+                } else {
+                    echo '<div class="log-message alert alert-warning custom-alert-success"><span data-translate="subscription_update_failed" data-dynamic-content="' . htmlspecialchars(implode("\n", $output)) . '"></span></div>';
+                    $notificationMessage = '<span data-translate="update_failed"></span>';
                 }
             }
             
@@ -437,20 +450,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['updateAll'])) {
                 
                 if (base64_encode(base64_decode($fileContent, true)) === $fileContent) {
                     $decodedContent = base64_decode($fileContent);
-                    if ($decodedContent !== false && strlen($decodedContent) > 0) {
+                    if ($decodedContent !== false && strlen($decodedContent) > 0 && isValidSubscriptionContent($decodedContent)) {
                         file_put_contents($finalPath, "# Clash Meta Config\n\n" . $decodedContent);
                         $success = true;
                     }
                 } 
                 elseif (substr($fileContent, 0, 2) === "\x1f\x8b") {
                     $decompressedContent = gzdecode($fileContent);
-                    if ($decompressedContent !== false) {
+                    if ($decompressedContent !== false && isValidSubscriptionContent($decompressedContent)) {
                         file_put_contents($finalPath, "# Clash Meta Config\n\n" . $decompressedContent);
                         $success = true;
                     }
                 } 
                 else {
-                    if (rename($tempPath, $finalPath)) {
+                    if (isValidSubscriptionContent($fileContent) && rename($tempPath, $finalPath)) {
                         $success = true;
                     }
                 }

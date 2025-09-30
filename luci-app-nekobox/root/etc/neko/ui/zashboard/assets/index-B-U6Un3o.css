@@ -15,7 +15,7 @@
 }
 
 .tippy-box[data-animation=scale][data-state=hidden] {
-    transform: scale(.5);
+    transform: scale(.5);	
     opacity: 0
 }
 
@@ -311,6 +311,15 @@
     white-space: nowrap
 }
 
+.tooltip[data-v-c5b75165]:before {
+    z-index: 20
+}
+
+.tooltip[data-v-51b6cabc]:before {
+    left: 0;
+    transform: translate(-10px)
+}
+
 th .resizer {
     opacity: 0
 }
@@ -326,15 +335,6 @@ th:hover .resizer {
 .vjs-tree-node.is-highlight,
 .vjs-tree-node:hover {
     background-color: var(--color-base-200)
-}
-
-.tooltip[data-v-c5b75165]:before {
-    z-index: 20
-}
-
-.tooltip[data-v-51b6cabc]:before {
-    left: 0;
-    transform: translate(-10px)
 }
 
 @layer properties {
@@ -1970,7 +1970,7 @@ th:hover .resizer {
     }
 
     :root {
-        --fx-noise: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='a'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='1.34' numOctaves='4' stitchTiles='stitch'%3E%3C/feTurbulence%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23a)' opacity='0.2'%3E%3C/rect%3E%3C/svg%3E")
+        --fx-noise: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 200'%3E%3Cfilter id='a'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='1.34' numOctaves='4' stitchTiles='stitch'%3E%3C/feTurbulence%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23a)' opacity='0.2'%3E%3C/rect%3E%3C/svg%3E")
     }
 
     :root,
@@ -2897,12 +2897,12 @@ th:hover .resizer {
         transition: background-color .2s ease-out
     }
 
-    .collapse:is([open], :focus:not(.collapse-close)),
+    .collapse:is([open], :focus:not(.collapse-close), :focus-within:not(.collapse-close)),
     .collapse:not(.collapse-close):has(>input:is([type=checkbox], [type=radio]):checked) {
         grid-template-rows: max-content 1fr
     }
 
-    .collapse:is([open], :focus:not(.collapse-close))>.collapse-content,
+    .collapse:is([open], :focus:not(.collapse-close), :focus-within:not(.collapse-close))>.collapse-content,
     .collapse:not(.collapse-close)>:where(input:is([type=checkbox], [type=radio]):checked~.collapse-content) {
         visibility: visible;
         min-height: fit-content
@@ -2922,18 +2922,18 @@ th:hover .resizer {
         cursor: pointer
     }
 
-    .collapse:focus:not(.collapse-close, .collapse[open])>.collapse-title {
+    :is(.collapse:focus:not(.collapse-close, .collapse[open]), .collapse:focus-within:not(.collapse-close, .collapse[open]))>.collapse-title {
         cursor: unset
     }
 
-    .collapse:is([open], :focus:not(.collapse-close))>:where(.collapse-content),
+    .collapse:is([open], :focus:not(.collapse-close), :focus-within:not(.collapse-close))>:where(.collapse-content),
     .collapse:not(.collapse-close)>:where(input:is([type=checkbox], [type=radio]):checked~.collapse-content) {
         padding-bottom: 1rem
     }
 
     @media (prefers-reduced-motion:no-preference) {
 
-        .collapse:is([open], :focus:not(.collapse-close))>:where(.collapse-content),
+        .collapse:is([open], :focus:not(.collapse-close), :focus-within:not(.collapse-close))>:where(.collapse-content),
         .collapse:not(.collapse-close)>:where(input:is([type=checkbox], [type=radio]):checked~.collapse-content) {
             transition: padding .2s ease-out, background-color .2s ease-out
         }
@@ -2948,7 +2948,7 @@ th:hover .resizer {
         content: "−"
     }
 
-    .collapse.collapse-arrow:focus:not(.collapse-close)>.collapse-title:after,
+    :is(.collapse.collapse-arrow:focus:not(.collapse-close), .collapse.collapse-arrow:focus-within:not(.collapse-close))>.collapse-title:after,
     .collapse.collapse-arrow:not(.collapse-close)>input:is([type=checkbox], [type=radio]):checked~.collapse-title:after {
         transform: translateY(-50%)rotate(225deg)
     }
@@ -3818,7 +3818,7 @@ th:hover .resizer {
         flex-shrink: 1;
         align-items: center;
         gap: .375rem;
-        padding-inline: 1rem 1.75rem;
+        padding-inline: .75rem 1.75rem;
         font-size: .875rem;
         display: inline-flex;
         position: relative
@@ -3849,6 +3849,13 @@ th:hover .resizer {
         background-position: 12px calc(1px + 50%), 16px calc(1px + 50%)
     }
 
+    .select[multiple] {
+        background-image: none;
+        height: auto;
+        padding-block: .75rem;
+        padding-inline-end: .75rem
+    }
+
     .select select {
         appearance: none;
         width: calc(100% + 2.75rem);
@@ -3857,8 +3864,8 @@ th:hover .resizer {
         border-radius: inherit;
         border-style: none;
         align-items: center;
-        margin-inline: -1rem -1.75rem;
-        padding-inline: 1rem 1.75rem
+        margin-inline: -.75rem -1.75rem;
+        padding-inline: .75rem 1.75rem
     }
 
     .select select:focus,
@@ -3952,7 +3959,7 @@ th:hover .resizer {
         border: var(--border)solid var(--color-base-200);
         border-radius: var(--radius-box);
         background-color: inherit;
-        max-height: 70dvh;
+        max-height: min(24rem, 70dvh);
         box-shadow: 0 2px calc(var(--depth)*3px) -2px #0003;
         box-shadow: 0 20px 25px -5px rgb(0 0 0/calc(var(--depth)*.1)), 0 8px 10px -6px rgb(0 0 0/calc(var(--depth)*.1));
         margin-block: .5rem;
@@ -4573,6 +4580,10 @@ th:hover .resizer {
 
     .divider:not(:empty) {
         gap: 1rem
+    }
+
+    .m-0 {
+        margin: calc(var(--spacing)*0)
     }
 
     .m-2 {
@@ -5322,6 +5333,14 @@ th:hover .resizer {
         max-width: calc(var(--spacing)*96)
     }
 
+    .max-w-128 {
+        max-width: calc(var(--spacing)*128)
+    }
+
+    .max-w-256 {
+        max-width: calc(var(--spacing)*256)
+    }
+
     .max-w-\[90\%\] {
         max-width: 90%
     }
@@ -5473,6 +5492,10 @@ th:hover .resizer {
 
     .cursor-move {
         cursor: move
+    }
+
+    .cursor-not-allowed {
+        cursor: not-allowed
     }
 
     .cursor-pointer {
@@ -5729,6 +5752,11 @@ th:hover .resizer {
         border-top-width: 1px
     }
 
+    .border-b {
+        border-bottom-style: var(--tw-border-style);
+        border-bottom-width: 1px
+    }
+
     .btn {
         --tw-border-style: none;
         border-style: none
@@ -5763,6 +5791,16 @@ th:hover .resizer {
     }
 
     .border-base-content,
+    .border-base-content\/15 {
+        border-color: var(--color-base-content)
+    }
+
+    @supports (color:color-mix(in lab, red, red)) {
+        .border-base-content\/15 {
+            border-color: color-mix(in oklab, var(--color-base-content)15%, transparent)
+        }
+    }
+
     .border-base-content\/30 {
         border-color: var(--color-base-content)
     }
@@ -6398,7 +6436,7 @@ th:hover .resizer {
     }
 
     .transition {
-        transition-property: color, background-color, border-color, outline-color, text-decoration-color, fill, stroke, --tw-gradient-from, --tw-gradient-via, --tw-gradient-to, opacity, box-shadow, transform, translate, scale, rotate, filter, -webkit-backdrop-filter, backdrop-filter, display, visibility, content-visibility, overlay, pointer-events;
+        transition-property: color, background-color, border-color, outline-color, text-decoration-color, fill, stroke, --tw-gradient-from, --tw-gradient-via, --tw-gradient-to, opacity, box-shadow, transform, translate, scale, rotate, filter, -webkit-backdrop-filter, backdrop-filter, display, content-visibility, overlay, pointer-events;
         transition-timing-function: var(--tw-ease, var(--default-transition-timing-function));
         transition-duration: var(--tw-duration, var(--default-transition-duration))
     }
@@ -6597,6 +6635,10 @@ th:hover .resizer {
         .max-md\:max-h-\[70dvh\] {
             max-height: 70dvh
         }
+
+        .max-md\:scrollbar-hidden {
+            scrollbar-width: none !important
+        }
     }
 
     @media not all and (min-width:40rem) {
@@ -6622,10 +6664,6 @@ th:hover .resizer {
 
         .max-sm\:px-2 {
             padding-inline: calc(var(--spacing)*2)
-        }
-
-        .max-sm\:scrollbar-hidden {
-            scrollbar-width: none !important
         }
     }
 
@@ -6662,10 +6700,6 @@ th:hover .resizer {
             flex-direction: row
         }
 
-        .sm\:pr-1 {
-            padding-right: calc(var(--spacing)*1)
-        }
-
         @media (hover:hover) {
             .sm\:hover\:bg-base-300:hover {
                 background-color: var(--color-base-300)
@@ -6684,6 +6718,10 @@ th:hover .resizer {
     }
 
     @media (min-width:48rem) {
+        .md\:m-0 {
+            margin: calc(var(--spacing)*0)
+        }
+
         .md\:ml-2 {
             margin-left: calc(var(--spacing)*2)
         }
@@ -6692,8 +6730,32 @@ th:hover .resizer {
             display: none
         }
 
+        .md\:divider-horizontal {
+            --divider-m: 0 1rem
+        }
+
+        .md\:divider-horizontal.divider {
+            flex-direction: column;
+            width: 1rem;
+            height: auto
+        }
+
+        .md\:divider-horizontal.divider:before,
+        .md\:divider-horizontal.divider:after {
+            width: .125rem;
+            height: 100%
+        }
+
         .md\:max-h-\[89dvh\] {
             max-height: 89dvh
+        }
+
+        .md\:w-128 {
+            width: calc(var(--spacing)*128)
+        }
+
+        .md\:max-w-96 {
+            max-width: calc(var(--spacing)*96)
         }
 
         .md\:translate-y-8 {
@@ -6713,8 +6775,16 @@ th:hover .resizer {
             grid-template-columns: repeat(4, minmax(0, 1fr))
         }
 
+        .md\:flex-row {
+            flex-direction: row
+        }
+
         .md\:p-2 {
             padding: calc(var(--spacing)*2)
+        }
+
+        .md\:pr-1 {
+            padding-right: calc(var(--spacing)*1)
         }
 
         .md\:text-sm {
@@ -18719,7 +18789,7 @@ div {
     }
 }
 
-/*! tailwindcss v4.1.12 | MIT License | https://tailwindcss.com */
+/*! tailwindcss v4.1.13 | MIT License | https://tailwindcss.com */
 @layer base {
 
     :root:has(input.theme-controller[value=dark-legacy]:checked),

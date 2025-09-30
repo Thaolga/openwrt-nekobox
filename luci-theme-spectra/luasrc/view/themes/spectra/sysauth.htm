@@ -494,5 +494,51 @@ window.addEventListener('load', function() {
         audio.play();
     }, 2000);
 });
+
+const translationsIP = {
+    zh: { login: '登录', password: '密码' },
+    en: { login: 'Login', password: 'Password' },
+    hk: { login: '登入', password: '密碼' },
+    de: { login: 'Anmelden', password: 'Passwort' },
+    fr: { login: 'Connexion', password: 'Mot de passe' },
+    ko: { login: '로그인', password: '비밀번호' },
+    ja: { login: 'ログイン', password: 'パスワード' },
+    bn: { login: 'লগইন', password: 'পাসওয়ার্ড' },
+    vi: { login: 'Đăng nhập', password: 'Mật khẩu' },
+    th: { login: 'เข้าสู่ระบบ', password: 'รหัสผ่าน' },
+    ar: { login: 'تسجيل الدخول', password: 'كلمة المرور' },
+    ru: { login: 'Вход', password: 'Пароль' },
+    es: { login: 'Iniciar sesión', password: 'Contraseña' }
+};
+
+async function getRealTimeLanguage() {
+    try {
+        const response = await fetch('/luci-static/spectra/bgm/language.txt', {cache: 'no-store'});
+        if (response.ok) {
+            const lang = await response.text();
+            return lang.trim() || 'zh-CN';
+        }
+    } catch (error) {
+        console.error('Failed to read language file:', error);
+    }
+    return 'zh-CN';
+}
+
+async function translateLoginElements() {
+    const lang = await getRealTimeLanguage(); 
+    const text = translationsIP[lang] || translationsIP['zh'];
+
+    const loginButton = document.querySelector('button.submit-btn');
+    if (loginButton) {
+        loginButton.textContent = text.login || 'Login';
+    }
+
+    const passwordInput = document.getElementById('authPassword');
+    if (passwordInput) {
+        passwordInput.placeholder = text.password || 'Password';
+    }
+}
+
+document.addEventListener('DOMContentLoaded', translateLoginElements);
 </script>
 

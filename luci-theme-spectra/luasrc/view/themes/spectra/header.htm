@@ -108,7 +108,7 @@
     white-space: nowrap;
 }
 
-.img-con {
+.imgBox {
     width: 60px;
     height: 40px;
     min-width: 60px;
@@ -120,14 +120,14 @@
     position: relative;
 }
 
-.img-con img#flag {
+.imgBox img#flag {
     width: 60px;
     height: 40px;
     object-fit: contain;
     display: block;
 }
 
-.img-con .loading {
+.imgBox .loading {
     position: absolute;
     left: 0; top: 0;
     width: 100%; height: 100%;
@@ -138,7 +138,7 @@
     z-index: 10;
 }
 
-.img-con .loading img {
+.imgBox .loading img {
     max-width: 50px;
     max-height: 50px;
     width: auto;
@@ -525,7 +525,7 @@
             </div>
 
             <div class="ip-container" style="display: none;">
-                <div class="img-con">
+                <div class="imgBox">
                     <img id="flag" title="">
                     <div class="loading" id="loading" style="display:none;">
                         <img src="/luci-static/ipip/img/loading.svg" alt="loading">
@@ -577,7 +577,11 @@ const translationsIP = {
         checking: '获取中...',
         failed: '获取 IP 信息失败',
         translate: '翻译',
-        editDatabase: '编辑数据库'
+        spectraConfig: "Spectra 主题设置",
+        home: "首页",
+        manager: "文件助手",
+        editDatabase: '编辑数据库',
+        login: '登录'
     },
     en: {
         unknown: 'Unknown',
@@ -587,7 +591,11 @@ const translationsIP = {
         checking: 'Checking...',
         failed: 'Failed to get IP information',
         translate: 'Translate',
-        editDatabase: 'Edit Database'
+        spectraConfig: 'Spectra Config',
+        home: 'Home',
+        manager: 'Manager',
+        editDatabase: 'Edit Database',
+        login: 'Login'
     },
     hk: {
         unknown: '未知',
@@ -597,7 +605,11 @@ const translationsIP = {
         checking: '獲取中...',
         failed: '獲取 IP 資訊失敗',
         translate: '翻譯',
-        editDatabase: '編輯資料庫'
+        spectraConfig: 'Spectra 主題設定',
+        home: '首頁',
+        manager: '檔案管理',
+        editDatabase: '編輯資料庫',
+        login: '登入'
     },
     de: {
         unknown: 'Unbekannt',
@@ -607,6 +619,9 @@ const translationsIP = {
         checking: 'Überprüfung...',
         failed: 'IP-Informationen konnten nicht abgerufen werden',
         translate: 'Übersetzen',
+        spectraConfig: 'Spectra Konfiguration',
+        home: 'Startseite',
+        manager: 'Dateimanager',
         editDatabase: 'Datenbank bearbeiten'
     },
     fr: {
@@ -617,6 +632,9 @@ const translationsIP = {
         checking: 'Vérification...',
         failed: 'Impossible d\'obtenir les informations IP',
         translate: 'Traduire',
+        spectraConfig: 'Configuration Spectra',
+        home: 'Accueil',
+        manager: 'Gestionnaire de fichiers',
         editDatabase: 'Modifier la base de données'
     },
     ko: {
@@ -627,6 +645,9 @@ const translationsIP = {
         checking: '확인 중...',
         failed: 'IP 정보 가져오기 실패',
         translate: '번역',
+        spectraConfig: 'Spectra 설정',
+        home: '홈',
+        manager: '파일 관리자',
         editDatabase: '데이터베이스 편집'
     },
     ja: {
@@ -637,6 +658,9 @@ const translationsIP = {
         checking: '確認中...',
         failed: 'IP 情報の取得に失敗しました',
         translate: '翻訳',
+        spectraConfig: 'Spectra 設定',
+        home: 'ホーム',
+        manager: 'ファイルマネージャー',
         editDatabase: 'データベースを編集'
     },
     bn: {
@@ -647,6 +671,9 @@ const translationsIP = {
         checking: 'চেক করা হচ্ছে...',
         failed: 'IP তথ্য পেতে ব্যর্থ',
         translate: 'অনুবাদ',
+        spectraConfig: 'Spectra কনফিগারেশন',
+        home: 'হোম',
+        manager: 'ফাইল ম্যানেজার',
         editDatabase: 'ডাটাবেস সম্পাদনা করুন'
     },
     vi: {
@@ -657,6 +684,9 @@ const translationsIP = {
         checking: 'Đang kiểm tra...',
         failed: 'Không thể lấy thông tin IP',
         translate: 'Dịch',
+        spectraConfig: 'Cấu hình Spectra',
+        home: 'Trang chủ',
+        manager: 'Trình quản lý tệp',
         editDatabase: 'Chỉnh sửa cơ sở dữ liệu'
     },
     th: {
@@ -667,6 +697,9 @@ const translationsIP = {
         checking: 'กำลังตรวจสอบ...',
         failed: 'ไม่สามารถรับข้อมูล IP ได้',
         translate: 'แปล',
+        spectraConfig: 'การตั้งค่า Spectra',
+        home: 'หน้าหลัก',
+        manager: 'ตัวจัดการไฟล์',
         editDatabase: 'แก้ไขฐานข้อมูล'
     },
     ar: {
@@ -677,6 +710,9 @@ const translationsIP = {
         checking: 'جارٍ التحقق...',
         failed: 'فشل الحصول على معلومات IP',
         translate: 'ترجمة',
+        spectraConfig: 'إعدادات Spectra',
+        home: 'الصفحة الرئيسية',
+        manager: 'مدير الملفات',
         editDatabase: 'تحرير قاعدة البيانات'
     },
     ru: {
@@ -687,6 +723,9 @@ const translationsIP = {
         checking: 'Проверка...',
         failed: 'Не удалось получить информацию об IP',
         translate: 'Перевести',
+        spectraConfig: 'Конфигурация Spectra',
+        home: 'Главная',
+        manager: 'Файловый менеджер',
         editDatabase: 'Редактировать базу данных'
     },
     es: {
@@ -697,27 +736,58 @@ const translationsIP = {
         checking: 'Comprobando...',
         failed: 'Error al obtener información IP',
         translate: 'Traducir',
+        spectraConfig: 'Configuración de Spectra',
+        home: 'Inicio',
+        manager: 'Administrador de archivos',
         editDatabase: 'Editar base de datos'
     }
 };
 
-async function initIPDisplay() {
+async function translateLoginButton() {
     const lang = await getRealTimeLanguage();
     const text = translationsIP[lang] || translationsIP['zh'];
 
-    document.getElementById('flag').title = text.clickRefresh;
-    const wifiIcon = document.getElementById('settings-icon');
-    if (wifiIcon) {
-        wifiIcon.title = text.panel || 'Panel';
-    }
-    const setCityBtn = document.getElementById('setCityBtn');
-    if (setCityBtn) {
-        const modalText = modalTranslations[lang] || modalTranslations['zh'];
-        setCityBtn.title = modalText.modalTitle || 'Set City';
+    const loginButton = document.querySelector('button.submit-btn');
+    if (loginButton) {
+        loginButton.textContent = text.login || 'Login';
     }
 }
 
-window.addEventListener('load', () => {
+document.addEventListener('DOMContentLoaded', translateLoginButton);
+
+
+async function initIPDisplay() {
+    const lang = await getRealTimeLanguage();
+    const text = translationsIP[lang] || translationsIP['zh'];
+    const modalText = modalTranslations[lang] || modalTranslations['zh'];
+
+    const flag = document.getElementById('flag');
+    if (flag) flag.title = text.clickRefresh || 'Click to Refresh';
+
+    const wifiIcon = document.getElementById('settings-icon');
+    if (wifiIcon) wifiIcon.title = text.panel || 'Panel';
+
+    const setCityBtn = document.getElementById('setCityBtn');
+    if (setCityBtn) setCityBtn.title = modalText.modalTitle || 'Set City';
+
+    const spectraConfigLink = document.querySelector('a[data-title="Spectra_Config"]');
+    if (spectraConfigLink) {
+        spectraConfigLink.textContent = text.spectraConfig || 'Spectra Config';
+    }
+
+    const homeLink = document.querySelector('li.tabmenu-item-index a[href$="/spectra/index"]');
+    if (homeLink) {
+        homeLink.textContent = text.home || 'Home';
+    }
+
+    const managerLink = document.querySelector('li.tabmenu-item-filekit a[href$="/spectra/filekit"]');
+    if (managerLink) {
+        managerLink.textContent = text.manager || 'Manager';
+
+    }
+}
+
+document.addEventListener('DOMContentLoaded', () => {
     initIPDisplay();
 });
 
