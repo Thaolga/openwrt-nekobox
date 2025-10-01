@@ -5,6 +5,10 @@ body {
 	z-index: 9999;
 }
 
+.float-list,.btn,button,select,input,.cbi-dropdown {
+        background-color: transparent !important;
+}
+
 .login-page .login-container .login-form {
 	background-color: transparent;
 	-webkit-backdrop-filter: blur(var(--blur-radius-dark));

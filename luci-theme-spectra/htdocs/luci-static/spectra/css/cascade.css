@@ -1164,7 +1164,7 @@ html,body {
 	margin: 0px;
 	padding: 0px;
 	height: 100%;
-	font-size: 16px;
+
 	font-family: "Google Sans","Microsoft Yahei","WenQuanYi Micro Hei","sans-serif","Helvetica Neue","Helvetica","Hiragino Sans GB";
 	font-family: var(--font-family-sans-serif)
 }
@@ -1176,10 +1176,6 @@ html {
 
 body {
 	font-size: .875rem;
-	background-color: #f4f5f7;
-	background-color: var(--background-color);
-	color: #32325d;
-	color: var(--gray-dark);
 	-webkit-tap-highlight-color: transparent
 }
 
@@ -1197,8 +1193,7 @@ body {
 }
 
 a:link,a:visited,a:active {
-	color: #5e72e4;
-	color: var(--primary);
+	color: var(--accent-color);
 	text-decoration: none
 }
 
@@ -1326,17 +1321,21 @@ li {
 
 select {
 	padding: .36rem .8rem;
-	color: #555;
+	color: var(--text-primary) !important;
 	border: thin solid #ccc;
-	background-color: #fff;
-	background-image: none
+	background-color: var(--card-bg) !important;
+	background-image: none;
+        font-family: inherit !important;
+        font-size: inherit !important;
+        font-weight: inherit !important;
 }
 
 .float-list,.btn,button,select,input,.cbi-dropdown {
 	line-height: 1.5rem;
 	padding: .5rem .75rem;
 	margin: .25rem .1rem;
-	color: #8898aa;
+	color: var(--text-primary) !important;
+        background-color: var(--card-bg);
 	border: 1px solid #dee2e6;
 	border-radius: .25rem;
 	outline: 0;
@@ -2148,7 +2147,7 @@ button.cbi-button {
 .pure-u-2-3 h4 {
 	border-radius: 8px !important;
 	padding: 8px !important;
-	background: #E6E6FA !important;
+	background: var(--bg-container) !important;
 }
 
 .block > .pure-u-1-3 {
@@ -2176,9 +2175,19 @@ button.cbi-button {
 .block h4 {
 	font-size: 0.9rem !important;
 	font-weight: 600 !important;
-	color: #2c3e50 !important;
 	line-height: 1.6 !important;
 	margin: 0 !important;
+        color: inherit !important; 
+        color: var(--text-primary) !important;
+}
+
+#status_github,
+#status_google,
+#status_baidu, 
+#status_tcp_node {
+        font-family: 'Fredoka One', cursive !important;
+        color: inherit !important;
+        color: var(--text-primary) !important;
 }
 
 .block img {
@@ -2282,13 +2291,12 @@ ul.cbi-tabmenu li.cbi-tab a {
 }
 
 #log_textarea {
-	font-family: Consolas, "Courier New", monospace;
 	font-size: 13px;
 	line-height: 1.4;
 	padding: 10px;
 	border: 1px solid #ccc !important;
 	border-radius: 5px !important;
-	color: #222 !important;
+	color: var(--text-primary) !important;
 	box-shadow: inset 0 1px 2px rgb(0 0 0 / 0.05);
 	resize: vertical;
 	box-sizing: border-box;
@@ -2314,10 +2322,6 @@ div.pure-u-1-4.check:has(h4#status_baidu) div.img-con img {
     height: auto !important;
 }
 
-#cbi-passwall2-cfg09b7d7-_stop .cbi-button-remove,
-#cbi-passwall-cfg0ab7d7-_stop .cbi-button-remove {
-        margin-left: -0.1px !important;
-}
 
 a[href="#"][onclick*="/passwall2/node_config/"],
 a[href="#"][onclick*="/passwall2/get_redir_log"],
@@ -2368,7 +2372,7 @@ a[href="#"][onclick*="/cgi-bin/luci/admin/services/passwall/get_chinadns_log"]:a
 }
 
 [data-page="admin-system-opkg"] h2 {
-	color: #ccc !important;
+	color: var(--accent-color) !important;
 }
 [data-page="admin-system-startup"] textarea {
 	color: #ccc;
@@ -2380,7 +2384,7 @@ a[href="#"][onclick*="/cgi-bin/luci/admin/services/passwall/get_chinadns_log"]:a
 [data-page="admin-network-firewall-custom"] #view p textarea,
 [data-page="admin-status-routes"] #view p textarea,
 [data-page="admin-system-crontab"] #view p textarea {
-	color: #000;
+	color: var(--text-primary);
 	font-size: 14px !important;
 	border-radius: 6px;
 	padding: 8px;
@@ -2392,7 +2396,7 @@ a[href="#"][onclick*="/cgi-bin/luci/admin/services/passwall/get_chinadns_log"]:a
 }
 
 h2[name="content"] {
-	color: #9C27B0;
+	color: var(--accent-color) !important;
 }
 
 #cbid\.diskman\.1\._rescan {
@@ -2472,8 +2476,6 @@ h2[name="content"] {
 	width: 15%;
 	width: calc(0% + 15rem);
 	height: 100%;
-	background-color: #fff;
-	background-color: var(--menu-bg-color);
 	box-shadow: rgba(0,0,0,0.75) 0 0 15px -5px;
 	overflow-x: auto;
 	position: fixed;
@@ -2681,11 +2683,11 @@ div[style="width:100%;height:300px;border:1px solid #000;background:#fff"] {
 
 .alert,.alert-message {
 	font-weight: bold;
-	margin-bottom: 1.25rem;
+	margin: 0 20px 1.25rem 20px;
 	padding: 1rem 1.25rem;
 	border: 0;
 	border-radius: .375rem !important;
-	background-color: #fff;
+	background-color: var(--bg-container);
 	box-shadow: 0 2px 2px 0 rgba(0,0,0,0.16),0 0 2px 0 rgba(0,0,0,0.12);
 	text-shadow: 1px 1px rgba(0,0,0,0.1)
 }
@@ -2743,8 +2745,7 @@ div[style="width:100%;height:300px;border:1px solid #000;background:#fff"] {
 
 .main .main-left .nav>li>a:first-child.active {
 	color: #fff;
-	background: #5e72e4;
-	background: var(--primary)
+	background: var(--accent-color);
 }
 
 .main .main-left .nav>li>a:first-child.active::before {
@@ -2759,8 +2760,7 @@ div[style="width:100%;height:300px;border:1px solid #000;background:#fff"] {
 .main .main-left .nav>li>a:first-child:hover {
 	cursor: pointer;
 	color: #fff;
-	background: #5e72e4;
-	background: var(--primary)
+	background: var(--btn-success-bg);
 }
 
 .main .main-left .nav>li>a:first-child:hover::before {
@@ -2781,8 +2781,7 @@ div[style="width:100%;height:300px;border:1px solid #000;background:#fff"] {
 	padding-top: 3px;
 	transition: all .3s;
 	content: "\e915";
-	color: #5e72e4;
-	color: var(--primary)
+	color: var(--accent-color)
 }
 
 .main .main-left .nav li {
@@ -2798,7 +2797,7 @@ div[style="width:100%;height:300px;border:1px solid #000;background:#fff"] {
 .main .main-left .nav li a {
 	display: block;
 	color: #5f6368;
-	color: var(--menu-color)
+	color: var(--text-primary)
 }
 
 .main .main-left .nav li.slide {
@@ -2858,11 +2857,11 @@ div[style="width:100%;height:300px;border:1px solid #000;background:#fff"] {
 
 .main .main-left .nav li.slide .slide-menu .active {
 	background: none;
-	color: var(--menu-color)
+	color: var(--text-primary)
 }
 
 .main .main-left .nav li.slide .slide-menu .active a {
-	color: var(--menu-color)
+	color: var(--accent-color)
 }
 
 .main .main-left .nav li.slide .slide-menu .active::after {
@@ -3090,9 +3089,9 @@ h2 {
 	font-size: 1.25rem;
 	letter-spacing: .1rem;
 	padding: 1rem 1.25rem;
-	color: #32325d;
+	color: var(--accent-color) !important;
 	border-radius: .375rem;
-	background: #fff;
+	background: var(--bg-container);
 	box-shadow: 0 4px 8px rgba(0,0,0,0.03);
 	font-weight: bold
 }
@@ -3105,10 +3104,10 @@ h3 {
 	margin: 0;
 	margin-bottom: 0;
 	padding: .8755rem 1.25rem;
-	color: #32325d;
-	color: var(--gray-dark);
+	color: var(--accent-color) !important;
+	color: var(--text-color);
 	border-radius: .375rem;
-	background: #fff;
+	background: var(--bg-container);
 	font-weight: bold
 }
 
@@ -3117,9 +3116,8 @@ h4 {
 	padding: .75rem 1.25rem;
 	font-size: .7rem;
 	font-weight: 600;
-	color: #525f7f;
-	background-color: #e9ecef;
-	background-color: var(--lighter);
+	color: var(--accent-color) !important;
+	background: var(--bg-container);
 	font-weight: bold
 }
 
@@ -3143,7 +3141,7 @@ h5 {
 	padding: 0rem;
 	border: 0;
 	border-radius: .375rem;
-	background-color: #fff;
+	background-color: var(--bg-container);
 	box-shadow: 0 0 1rem 0 rgba(136,152,170,0.15)
 }
 
@@ -3253,7 +3251,8 @@ tr>td,tr>th,.tr>.td,.tr>.th,.cbi-section-table-row::before,#cbi-wireless>#wifi_a
 
 #cbi-wireless .td,#cbi-network .tr:first-child>.td,.table[width="100%"]>.tr:first-child>.td,[data-page="admin-network-diagnostics"] .tr>.td,.tr.table-titles>.th,.tr.cbi-section-table-titles>.th {
 	border-top: 0 !important;
-	background-color: #f6f9fc;
+	background-color: var(--bg-container) !important;
+        color: var(--text-primary) !important;
 	padding: 1.1em 1.25rem;
 	line-height: 1.3rem
 }
@@ -3265,7 +3264,7 @@ tr>td,tr>th,.tr>.td,.tr>.th,.cbi-section-table-row::before,#cbi-wireless>#wifi_a
 .cbi-section-table-row {
 	margin-bottom: 1rem;
 	text-align: center !important;
-	background: #f4f4f4
+	background-color: var(--card-bg) !important;
 }
 
 .cbi-section-table-row:last-child {
@@ -3304,7 +3303,7 @@ tr>td,tr>th,.tr>.td,.tr>.th,.cbi-section-table-row::before,#cbi-wireless>#wifi_a
 }
 
 div>table>tbody>tr:nth-of-type(2n),div>.table>.tr:nth-of-type(2n) {
-	background-color: #f9f9f9
+	background-color: var(--bg-container);
 }
 
 table table,.table .table,.cbi-value-field table,.cbi-value-field .table,td>table>tbody>tr>td,.td>.table>.tbody>.tr>.td,.cbi-value-field>table>tbody>tr>td,.cbi-value-field>.table>.tbody>.tr>.td {
@@ -3327,10 +3326,10 @@ table table,.table .table,.cbi-value-field table,.cbi-value-field .table,td>tabl
 	white-space: nowrap;
 	text-decoration: none;
 	text-transform: uppercase;
-	color: rgba(0,0,0,0.87);
+	color: #fff !important;   
 	border: 0;
 	border-radius: .2rem;
-	background-color: #f0f0f0;
+	background-color: red;
 	background-image: none;
 	-webkit-appearance: none;
 	-ms-touch-action: manipulation;
@@ -3386,7 +3385,7 @@ table table,.table .table,.cbi-value-field table,.cbi-value-field .table,td>tabl
 
 .alert-message [class="btn"],.modal div[class="btn"],.cbi-button-find,.cbi-button-link,.cbi-button-up,.cbi-button-down,.cbi-button-neutral,.cbi-button[name="zero"],.cbi-button[name="restart"],.cbi-button[onclick="hide_empty(this)"] {
 	font-weight: bold;
-	color: #fff;
+	color: #fff !important;
 	border: thin solid #8898aa;
 	background-color: #8898aa
 }
@@ -3394,8 +3393,6 @@ table table,.table .table,.cbi-value-field table,.cbi-value-field .table,td>tabl
 .btn.primary,.cbi-page-actions .cbi-button-save,.cbi-page-actions .cbi-button-apply+.cbi-button-save,.cbi-button-add,.cbi-button-save,.cbi-button-positive,.cbi-button-link,.cbi-button[value="Enable"],.cbi-button[value="Scan"],.cbi-button[value^="Back"],.cbi-button-neutral[onclick="handleConfig(event)"] {
 	font-weight: normal;
 	color: #fff !important;
-	border: thin solid #5e72e4;
-	border: thin solid var(--primary);
 	background-color: #5e72e4;
 	background-color: var(--primary)
 }
@@ -3403,8 +3400,6 @@ table table,.table .table,.cbi-value-field table,.cbi-value-field .table,td>tabl
 .cbi-page-actions .cbi-button-apply,.cbi-section-actions .cbi-button-edit,.cbi-button-edit,.cbi-button-apply,.cbi-button-reload,.cbi-button-action,.cbi-button[value="Submit"],.cbi-button[value="Upload"],.cbi-button[value$="Apply"],.cbi-button[onclick="addKey(event)"] {
 	font-weight: normal;
 	color: #fff !important;
-	border: thin solid #5e72e4;
-	border: thin solid var(--primary);
 	background-color: #5e72e4;
 	background-color: var(--primary)
 }
@@ -3451,7 +3446,7 @@ table table,.table .table,.cbi-value-field table,.cbi-value-field .table,td>tabl
 .tabs {
 	margin: 0 0 1rem 0;
 	padding: 0 1rem;
-	background-color: #FFFFFF;
+	background-color: var(--bg-container);
 	border-radius: .375rem;
 	box-shadow: 0 4px 8px rgba(0,0,0,0.03);
 	white-space: nowrap;
@@ -3581,7 +3576,7 @@ table table,.table .table,.cbi-value-field table,.cbi-value-field .table,td>tabl
 }
 
 .cbi-section .cbi-section-remove:nth-of-type(2n),.container>.cbi-section .cbi-section-node:nth-of-type(2n) {
-	background-color: #f9f9f9
+	background-color: var(--bg-container);
 }[data-tab-title] {
 	overflow: hidden;
 	height: 0;
@@ -3600,7 +3595,7 @@ table table,.table .table,.cbi-value-field table,.cbi-value-field .table,td>tabl
 }
 
 .cbi-section[id] .cbi-section-remove:nth-of-type(4n+3),.cbi-section[id] .cbi-section-node:nth-of-type(4n+4) {
-	background-color: #f9f9f9
+	background-color: var(--bg-container);
 }
 
 .cbi-section-node-tabbed {
@@ -3611,21 +3606,22 @@ table table,.table .table,.cbi-value-field table,.cbi-value-field .table,td>tabl
 }
 
 .cbi-tabcontainer>.cbi-value:nth-of-type(2n) {
-	background-color: #f9f9f9
+	background-color: var(--card-bg);
 }
 
 .cbi-value-field {
-	display: table-cell
+	display: table-cell;
 }
 
 .cbi-value-description {
 	line-height: 1.25;
-	display: table-cell
+        color: var(--accent-color);
+        opacity: 1 !important;
+	display: table-cell;
 }
 
 .cbi-value-description abbr {
-	color: #32325d;
-	color: var(--gray-dark)
+	color: var(--text-primary);
 }
 
 .cbi-value-description {
@@ -3948,10 +3944,8 @@ table table,.table .table,.cbi-value-field table,.cbi-value-field .table,td>tabl
 }
 
 .cbi-dropdown>.more,.cbi-dropdown>ul>li[placeholder] {
-	font-weight: bold;
 	display: none;
-	color: #777;
-	text-shadow: 1px 1px 0 #fff
+	color: var(--text-primary);	
 }
 
 .cbi-dropdown>ul>li {
@@ -3965,6 +3959,7 @@ table table,.table .table,.cbi-value-field table,.cbi-value-field .table,td>tabl
 	padding: .25em;
 	white-space: nowrap;
 	text-overflow: ellipsis
+        color: var(--text-primary) !important;
 }
 
 .cbi-dropdown>ul>li .hide-open {
@@ -4028,7 +4023,8 @@ table table,.table .table,.cbi-value-field table,.cbi-value-field .table,td>tabl
 }
 
 .cbi-dropdown[open]>ul.dropdown li {
-	color: #000
+        color: var(--text-primary) !important;
+        background-color: var(--card-bg) !important;
 }
 
 .cbi-dropdown>ul>li[display],.cbi-dropdown[open]>ul.preview,.cbi-dropdown[open]>ul.dropdown>li,.cbi-dropdown[multiple]>ul>li>label,.cbi-dropdown[multiple][open]>ul.dropdown>li,.cbi-dropdown[multiple][more]>.more,.cbi-dropdown[multiple][empty]>.more {
@@ -4098,8 +4094,9 @@ table table,.table .table,.cbi-value-field table,.cbi-value-field .table,td>tabl
 	min-width: 11rem;
 	height: 1.5rem;
 	margin: 0 0;
+	font-size: 1.3em;
 	border: thin solid #999;
-	background: #eee;
+        color: var(--text-primary) !important;
 	border-radius: 4px;
 	overflow: hidden
 }
@@ -4108,8 +4105,7 @@ table table,.table .table,.cbi-value-field table,.cbi-value-field .table,td>tabl
 	width: 0;
 	height: 100%;
 	transition: width .25s ease-in;
-	background: #5bc0de;
-	background: var(--bar-bg)
+	background: var(--accent-color)
 }
 
 .cbi-progressbar::after {
@@ -4140,7 +4136,7 @@ table table,.table .table,.cbi-value-field table,.cbi-value-field .table,td>tabl
 	overflow-y: scroll;
 	transition: opacity .125s ease-in;
 	opacity: 0;
-	background: rgba(0,0,0,0.7);
+
 	-webkit-overflow-scrolling: touch
 }
 
@@ -4155,7 +4151,7 @@ table table,.table .table,.cbi-value-field table,.cbi-value-field .table,td>tabl
 	margin: 5em auto;
 	padding: 1em;
 	border-radius: 3px !important;
-	background: #fff;
+	background: var(--card-bg);
 	box-shadow: 0 2px 2px 0 rgba(0,0,0,0.16),0 0 2px 0 rgba(0,0,0,0.12)
 }
 
@@ -4308,14 +4304,14 @@ body.modal-overlay-active #modal_overlay {
 	gap: .2rem;
 	padding: .5rem .8rem;
 	border-bottom: thin solid #ccc;
-	background: #eee;
+	background: var(--card-bg);
 	box-shadow: inset 0 1px 0 rgba(255,255,255,0.2),0 1px 2px rgba(0,0,0,0.05);
 	border-radius: 4px
 }
 
 td>.ifacebadge,.td>.ifacebadge {
 	font-size: .8rem;
-	background-color: #f0f0f0
+	background-color: var(--card-bg);
 }
 
 .ifacebadge>em,.ifacebadge>img {
@@ -4379,7 +4375,8 @@ td>.ifacebadge,.td>.ifacebadge {
 	font-size: .875rem;
 	min-height: 14rem;
 	padding: .8rem;
-	color: #000
+	color: var(--text-primary);
+        background-color: var(--card-bg);
 }
 
 #syslog {
@@ -4485,7 +4482,7 @@ td>.ifacebadge,.td>.ifacebadge {
 	border-radius: 4px;
 	min-width: 100px;
 	border-bottom: thin solid #ccc;
-	background-color: #f9f9f9;
+	background-color: var(--card-bg);
 	box-shadow: inset 0 1px 0 rgba(255,255,255,0.4),0 1px 2px rgba(0,0,0,0.2)
 }
 

@@ -59,6 +59,106 @@
 
 <head>
 <style>
+[data-theme="dark"] {
+    --base-hue: 260;
+    --base-chroma: 0.03;
+    --danger-base: 15;
+    --base-hue-1: 20;
+    --base-hue-2: 200;
+    --base-hue-3: 135;
+    --base-hue-4: 80;
+    --base-hue-5: 270;
+    --base-hue-6: 170;
+    --base-hue-7: 340;
+    --l: 85%;
+    --c: 0.18;
+    --glass-blur: blur(20px);
+    --radius: 20px;
+    --glass-opacity: 0.85;
+    --glass-border: 1px solid rgba(255, 255, 255, 0.1);
+    --shadow-intensity: 0.25;
+    --text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+    --transition-speed: 0.3s;
+    --highlight-intensity: 0.8;
+
+    --bg-body: oklch(40% var(--base-chroma) var(--base-hue) / 90%);
+    --bg-container: oklch(30% var(--base-chroma) var(--base-hue));
+    --text-primary: oklch(95% 0 0);
+    --accent-color: oklch(70% 0.2 calc(var(--base-hue) + 0));
+    --card-bg: oklch(25% var(--base-chroma) var(--base-hue));
+    --header-bg: oklch(35% var(--base-chroma) var(--base-hue));
+    --border-color: oklch(40% var(--base-chroma) var(--base-hue));
+
+    --btn-primary-bg: oklch(50% 0.18 var(--base-hue));
+    --btn-primary-hover: color-mix(in oklch, var(--btn-primary-bg), white 12%);
+    --btn-success-bg: oklch(55% 0.22 140);
+    --btn-info-bg: oklch(55% 0.22 220);
+    --btn-warning-bg: oklch(65% 0.18 80);
+    --btn-danger-bg: oklch(55% 0.25 var(--danger-base));
+
+    --item-hover-bg: color-mix(in oklch, var(--btn-primary-bg), white 15%);
+    --item-hover-shadow: 0 4px 12px oklch(0 0 0 / 0.4);
+    --drag-over-bg: oklch(35% 0.05 var(--base-hue) / 0.3);
+    --drag-over-shadow: 0 0 25px oklch(var(--base-hue) 0.2 0.4 / 0.3);
+
+    --text-secondary: oklch(75% 0.03 0);
+    --success-text: oklch(75% 0.22 140);
+    --info-text: oklch(75% 0.22 220);
+    --warning-text: oklch(80% 0.22 80);
+    --danger-text: oklch(70% 0.28 30);
+
+    --ocean-bg: oklch(48% 0.32 calc(var(--base-hue) + 220));
+    --forest-bg: oklch(42% 0.32 calc(var(--base-hue) + 140));
+    --rose-bg: oklch(48% 0.32 calc(var(--base-hue) + 350));
+    --lavender-bg: oklch(46% 0.32 calc(var(--base-hue) + 270));
+    --sand-bg: oklch(45% 0.32 calc(var(--base-hue) + 60));
+
+    --glass-blur: blur(20px);
+    --radius: 16px;
+    --transition: all 0.25s ease;
+
+    --primary-color: var(--accent-color);
+    --secondary-color: var(--btn-primary-bg);
+    --background: var(--bg-body);
+    --text-color: var(--text-primary);
+}
+
+[data-theme="light"] {
+    --base-hue: 200;
+    --base-chroma: 0.01;
+    --l: 60%;
+    --c: 0.25;
+
+    --bg-body: oklch(95% var(--base-chroma) var(--base-hue) / 90%);
+    --bg-container: oklch(99% var(--base-chroma) var(--base-hue));
+    --text-primary: oklch(25% var(--base-chroma) var(--base-hue));
+    --accent-color: oklch(60% 0.2 calc(var(--base-hue) + 60));
+    --card-bg: oklch(96% var(--base-chroma) var(--base-hue));
+    --header-bg: oklch(88% var(--base-chroma) var(--base-hue));
+    --border-color: oklch(85% 0.03 var(--base-hue));
+
+    --btn-primary-bg: oklch(60% 0.35 var(--base-hue));
+    --btn-success-bg: oklch(75% 0.25 140);
+    --btn-info-bg: oklch(65% 0.3 220);
+    --btn-warning-bg: oklch(65% 0.25 80);
+    --btn-danger-bg: oklch(55% 0.35 var(--danger-base));
+
+    --item-hover-bg: color-mix(in oklch, var(--accent-color), white 25%);
+    --item-hover-shadow: 0 2px 15px oklch(0 0 0 / 0.15);
+    --drag-over-bg: oklch(92% 0.01 var(--base-hue) / 0.3);
+    --drag-over-shadow: 0 0 20px oklch(0 0 0 / 0.1);
+
+    --text-secondary: oklch(45% 0.03 0);
+    --success-text: oklch(40% 0.25 140);
+    --info-text: oklch(40% 0.25 220);
+    --warning-text: oklch(45% 0.25 80);
+    --danger-text: oklch(45% 0.35 30);
+
+    --ocean-bg: oklch(85% 0.18 calc(var(--base-hue) + 220));
+    --highlight-color: oklch(90% 0.15 calc(var(--base-hue) + 90));
+    --soft-highlight: oklch(85% 0.1 calc(var(--base-hue) + 90));
+}
+
 .fill, 
 .fill .container {
     height: auto;
@@ -374,6 +474,96 @@
     flex-shrink: 0;
     flex-grow: 0;
 }
+
+.cbi-section,
+.main-left {
+    background-color: var(--bg-container);
+}
+
+body {
+  color: var(--text-primary) !important;
+    background-color: var(--card-bg) !important;
+}
+
+.cbi-section-create .cbi-button-add {
+    background: #007BFF !important;
+    color: #FFFFFF !important;
+    opacity: 1 !important;
+}
+
+.tr.cbi-rowstyle-2 {
+    background-color: var(--card-bg) !important;
+}
+
+.controls .pager.center {
+    background-color: var(--card-bg) !important;
+    opacity: 1 !important;
+}
+
+.app-container_status-label_bg[data-v-17b89cb7] {
+    background-color: var(--card-bg) !important;
+}
+
+.container .table-wrapper .table-header[data-v-4ec945e0] {
+    background-color: var(--bg-container) !important;
+}
+
+fieldset.cbi-section > textarea, 
+div#command-output > textarea {
+    background-color: var(--card-bg) !important;
+    color: var(--text-primary) !important;
+    border: 1px solid var(--border-color) !important;
+    border-radius: var(--radius) !important;
+    padding: 12px !important;
+}
+
+div.nft-chain-hook {
+    margin-left: 10px !important;
+    padding-left: 10px !important;
+}
+
+div.nav-container > button.btn_styles {
+    color: white !important;
+}
+
+.block.pure-g {
+    background-color: var(--card-bg) !important;
+}
+
+.developer-container {
+  background-color: var(--card-bg) !important;
+}
+
+.developer-container img,
+.developer-container i {
+  margin-top: 15px;
+}
+
+#logo.royal-style {
+    color: var(--accent-color) !important;
+}
+
+.detail-item span {
+  color: black !important;
+}
+
+.detail-item span i {
+  color: #6c757d !important;
+}
+
+#openEditModal,
+#openEditModal .bi,
+#openEditModal svg {
+  color: #000 !important;
+  fill: #000 !important;
+  stroke: #000 !important;
+}
+
+#mode-popup .button-grid button span,
+#mode-popup .button-grid button {
+  color: white !important;
+}
+
 </style>
     <meta charset="utf-8">
     <title>
@@ -515,13 +705,15 @@
                       <i id="weatherIcon" class="wi" style="position:absolute; top:50%; left:50%; transform:translate(-50%, -50%); font-size:40px; width:40px; height:40px; display:none; color:#FFD700;"></i>
                   </div>
                 <div style="display:flex; flex-direction:column; justify-content:center; line-height:1;">
-                  <div id="cityNameDisplay" style="font-weight:bold; font-size:16px; color:rgb(9, 182, 63); margin-bottom:5px;">
+                  <div id="cityNameDisplay" style="font-weight:bold; font-size:16px; color:rgb(9, 182, 63); margin-bottom:8px;">
                   </div>
-                  <div id="weatherText" style="font-size:14px; color:rgb(255, 0, 255);">
+                  <div id="weatherText" style="font-size:16px; color:rgb(255, 0, 255);">
                   </div>
                 </div>
               </div>
-              <button id="setCityBtn" style="position:absolute; top:50%; right:8px; transform:translateY(calc(-50% - 4px)); background:#FFD700; border:none; border-radius:50%; width:28px; height:28px; cursor:pointer; display:flex; align-items:center; justify-content:center; line-height:1; font-size:16px;"> ⚙ </button>
+              <button id="setCityBtn"style="background:var(--accent-color); border:none; border-radius:50%; width:28px; height:28px; cursor:pointer; display:flex; align-items:center; justify-content:center; line-height:1; font-size:14px; margin-right:8px;"><i class="bi bi-gear-fill" style="color:white;"></i></button>
+              <button type="button" onclick="document.getElementById('colorPicker').click()" style="background:var(--accent-color); border:none; border-radius:50%; width:28px; height:28px; cursor:pointer; display:flex; align-items:center; justify-content:center; line-height:1; font-size:14px;"><i class="bi bi-palette-fill" style="color:white;"></i></button>
+              <input type="color" id="colorPicker" value="#0f3460" style="display: none;">
             </div>
 
             <div class="ip-container" style="display: none;">
@@ -560,6 +752,258 @@
         </div>
     </div>
 </div>
+
+<script>
+const translationsbackground = {
+    zh: "背景颜色 %s 已成功应用。",
+    en: "Background color %s has been applied successfully.",
+    hk: "背景顏色 %s 已成功應用。",
+    de: "Hintergrundfarbe %s wurde erfolgreich angewendet.",
+    fr: "La couleur d'arrière-plan %s a été appliquée avec succès.",
+    ko: "배경색 %s 이(가) 성공적으로 적용되었습니다.",
+    ja: "背景色 %s が正常に適用されました。",
+    bn: "ব্যাকগ্রাউন্ড কালার %s সফলভাবে প্রয়োগ করা হয়েছে।",
+    vi: "Màu nền %s đã được áp dụng thành công.",
+    th: "สีพื้นหลัง %s ถูกนำไปใช้สำเร็จแล้ว",
+    ar: "تم تطبيق لون الخلفية %s بنجاح.",
+    ru: "Фоновый цвет %s был успешно применен.",
+    es: "El color de fondo %s se ha aplicado correctamente."
+};
+
+async function getbackgroundLangText() {
+    try {
+        const lang = await getRealTimeLanguage();
+        return translationsbackground[lang] || translationsbackground['zh'];
+    } catch (e) {
+        console.error('Failed to get background language:', e);
+        return translationsbackground['zh'];
+    }
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+    let currentHue = 260, currentChroma = 0.10, currentLightness = 30;
+    let recentColors = [];
+
+    function hexToRgb(hex) {
+        const fullHex = hex.replace(/^#?([a-f\d])([a-f\d])([a-f\d])$/i, 
+            (_, r, g, b) => `#${r}${r}${g}${g}${b}${b}`);
+        const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(fullHex);
+        return result ? {
+            r: parseInt(result[1], 16),
+            g: parseInt(result[2], 16),
+            b: parseInt(result[3], 16)
+        } : { r: 0, g: 0, b: 0 };
+    }
+
+    function rgbToLinear(c) {
+        const normalized = c / 255;
+        return normalized <= 0.04045 
+            ? normalized / 12.92 
+            : Math.pow((normalized + 0.055) / 1.055, 2.4);
+    }
+
+    function rgbToOklch(r, g, b) {
+        const [lr, lg, lb] = [r, g, b].map(rgbToLinear);
+        const l = 0.4122214708 * lr + 0.5363325363 * lg + 0.0514459929 * lb;
+        const m = 0.2119034982 * lr + 0.6806995451 * lg + 0.1073969566 * lb;
+        const s = 0.0883024619 * lr + 0.2817188376 * lg + 0.6299787005 * lb;
+        const l_ = Math.cbrt(l);
+        const m_ = Math.cbrt(m);
+        const s_ = Math.cbrt(s);
+        const L = 0.2104542553 * l_ + 0.7936177850 * m_ - 0.0040720468 * s_;
+        const a = 1.9779984951 * l_ - 2.4285922050 * m_ + 0.4505937099 * s_;
+        const b_ = 0.0259040371 * l_ + 0.7827717662 * m_ - 0.8086757660 * s_;
+        const c = Math.sqrt(a ** 2 + b_ ** 2);
+        let h = Math.atan2(b_, a) * 180 / Math.PI;
+        h = h >= 0 ? h : h + 360;
+        return { l: L * 100, c: c, h: h };
+    }
+
+    function hexToOklch(hex) {
+        const { r, g, b } = hexToRgb(hex);
+        return rgbToOklch(r, g, b);
+    }
+
+    function oklchToHex(h, c, l = 50) {
+        const L = l / 100;
+        const a = c * Math.cos(h * Math.PI / 180);
+        const b = c * Math.sin(h * Math.PI / 180);
+        const l_ = L + 0.3963377774 * a + 0.2158037573 * b;
+        const m_ = L - 0.1055613458 * a - 0.0638541728 * b;
+        const s_ = L - 0.0894841775 * a - 1.2914855480 * b;
+        const [lr, lg, lb] = [l_, m_, s_].map(v => v ** 3);
+        const r = 4.0767416621 * lr - 3.3077115913 * lg + 0.2309699292 * lb;
+        const g = -1.2684380046 * lr + 2.6097574011 * lg - 0.3413193965 * lb;
+        const bLinear = -0.0041960863 * lr - 0.7034186147 * lg + 1.7076147010 * lb;
+        const toSRGB = (v) => {
+            v = Math.min(Math.max(v, 0), 1);
+            return v > 0.0031308 
+                ? 1.055 * (v ** (1/2.4)) - 0.055 
+                : 12.92 * v;
+        };
+        const [R, G, B] = [r, g, bLinear].map(v => Math.round(toSRGB(v) * 255));
+        return `#${[R, G, B].map(x => x.toString(16).padStart(2, '0')).join('')}`.toUpperCase();
+    }
+
+    function updateAllCSSVariables() {
+        const root = document.documentElement;
+
+        root.style.setProperty('--base-hue', currentHue);
+        root.style.setProperty('--base-chroma', currentChroma);
+        root.style.setProperty('--base-hue-1', currentHue + 20);
+        root.style.setProperty('--base-hue-2', currentHue + 200);
+        root.style.setProperty('--base-hue-3', currentHue + 135);
+        root.style.setProperty('--base-hue-4', currentHue + 80);
+        root.style.setProperty('--base-hue-5', currentHue + 270);
+        root.style.setProperty('--base-hue-6', currentHue + 170);
+        root.style.setProperty('--base-hue-7', currentHue + 340);
+        
+        const isLight = currentLightness > 60;
+        const theme = isLight ? 'light' : 'dark';
+        root.setAttribute('data-theme', theme);
+        console.log('Updated theme to:', theme);
+    }
+
+    async function applyColorSettings(showMessage = false) {
+        const settings = {
+            hue: currentHue,
+            chroma: currentChroma,
+            lightness: currentLightness,
+            recentColors: recentColors || []
+        };
+        localStorage.setItem('appColorSettings', JSON.stringify(settings));
+
+        updateAllCSSVariables();
+        updateTextPrimary(currentLightness);
+
+        if (showMessage) {
+            const hexColor = oklchToHex(currentHue, currentChroma, currentLightness);
+        
+            const messageTemplate = await getbackgroundLangText();
+            const successMsg = messageTemplate.replace('%s', hexColor);
+        
+            console.log(successMsg);
+        
+            if (typeof showWeatherLog === 'function') {
+                showWeatherLog(successMsg);
+            }
+            if (typeof speakWeatherMessage === 'function') {
+                speakWeatherMessage(successMsg);
+            }
+        }
+    }
+
+    function updateTextPrimary(currentL) {
+        const textL = currentL > 60 ? 20 : 95;
+        document.documentElement.style.setProperty('--text-primary', `oklch(${textL}% 0 0)`);
+    }
+
+    function addToRecentColors(color) {
+        recentColors = recentColors.filter(c => c !== color);
+        recentColors.unshift(color);
+    
+        if (recentColors.length > 10) {
+            recentColors.pop();
+        }
+    
+        localStorage.setItem('appColorSettings', JSON.stringify({
+            recentColors,
+            hue: currentHue,
+            chroma: currentChroma,
+            lightness: currentLightness
+        }));
+    }
+
+    function initColorSettings() {
+        const savedSettings = localStorage.getItem('appColorSettings');
+        if (savedSettings) {
+            const settings = JSON.parse(savedSettings);
+            recentColors = settings.recentColors || [];
+            currentHue = settings.hue || 260;
+            currentChroma = settings.chroma || 0.10;
+            currentLightness = settings.lightness || 30;
+        
+            document.getElementById('colorPicker').value = oklchToHex(currentHue, currentChroma, currentLightness);
+            applyColorSettings(false);
+        } else {
+            currentHue = 260;
+            currentChroma = 0.10;
+            currentLightness = 30;
+            document.getElementById('colorPicker').value = oklchToHex(currentHue, currentChroma, currentLightness);
+            applyColorSettings(false);
+        }
+
+        initColorPickerButton();
+    }
+
+    function initColorSettings() {
+        const savedSettings = localStorage.getItem('appColorSettings');
+        if (savedSettings) {
+            const settings = JSON.parse(savedSettings);
+            recentColors = settings.recentColors || [];
+            currentHue = settings.hue || 260;
+            currentChroma = settings.chroma || 0.10;
+            currentLightness = settings.lightness || 30;
+        
+            document.getElementById('colorPicker').value = oklchToHex(currentHue, currentChroma, currentLightness);
+            applyColorSettings(false);
+        } else {
+            currentHue = 260;
+            currentChroma = 0.10;
+            currentLightness = 30;
+            document.getElementById('colorPicker').value = oklchToHex(currentHue, currentChroma, currentLightness);
+            applyColorSettings(false);
+        }    
+        initColorPickerButton();
+
+    }
+
+    async function initColorPickerButton() {
+        const colorButton = document.querySelector('button[onclick*="colorPicker"]');
+        if (!colorButton) return;
+
+        const translations = {
+            zh: "选择背景颜色",
+            en: "Select background color",
+            hk: "選擇背景顏色",
+            de: "Hintergrundfarbe auswählen",
+            fr: "Sélectionner la couleur d'arrière-plan",
+            ko: "배경색 선택",
+            ja: "背景色を選択",
+            bn: "ব্যাকগ্রাউন্ড কালার নির্বাচন করুন",
+            vi: "Chọn màu nền",
+            th: "เลือกสีพื้นหลัง",
+            ar: "اختر لون الخلفية",
+            ru: "Выбрать цвет фона",
+            es: "Seleccionar color de fondo"
+        };
+
+        try {
+            const lang = await getRealTimeLanguage();
+            colorButton.title = translations[lang] || translations['zh'];
+        } catch (e) {
+            colorButton.title = translations['zh'];
+        }
+    }
+
+    const picker = document.getElementById("colorPicker");
+    picker.addEventListener('input', (event) => {
+        const color = event.target.value;
+        console.log('Color picker selected:', color);
+        
+        const { h, c, l } = hexToOklch(color);
+        currentHue = h;
+        currentChroma = c;
+        currentLightness = l;
+        
+        applyColorSettings(true);
+        addToRecentColors(color);
+    });
+
+    initColorSettings();
+});
+</script>
+
 <script type="text/javascript">
 const _IMG = '/luci-static/ipip/';
 const translate = {};
@@ -1704,7 +2148,7 @@ let myAppIP = {
                             <img src="${_IMG}flags/${(data.country_code || 'unknown').toLowerCase()}.png" 
                                 style="max-height: 80px; border: 1px solid #ddd; border-radius: 4px;" 
                                 onerror="this.src='/luci-static/ipip/flags/unknown.png'">
-                            <div style="margin-top: 10px; font-weight: bold;">${country}</div>
+                            <div style="margin-top: 10px; font-weight: bold; color: black;">${country}</div>
                         </div>
                         <div style="flex: 2; margin-left: 20px;">
                             <div class="detail-item" style="margin-bottom: 10px; display: flex; gap: 20px;">
@@ -1747,7 +2191,7 @@ let myAppIP = {
                                         border-radius: 4px;
                                         font-size: 0.9em;
                                         background: ${translationEnabled ? '#28a745' : '#6c757d'};
-                                        color: white;
+                                        color: white !important;
                                     ">
                                         ${translationEnabled ? langText.enabled : langText.disabled}
                                     </span>
@@ -2045,6 +2489,7 @@ async function showEditModal() {
                     cursor:pointer;
                     width:25px;
                     height:25px;
+                    opacity: 1 !important;
                     border-radius:6px;
                     display:flex;
                     align-items:center;
@@ -2389,39 +2834,6 @@ window.addEventListener('load', () => {
 </script>
 
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-    const themeMode = '<%= mode %>';
-    let isDarkMode = false;
-
-    if (themeMode === 'dark') {
-        isDarkMode = true;
-    } else if (themeMode === 'normal' && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-        isDarkMode = true;
-    }
-
-    const royalElements = document.querySelectorAll('.royal-style');
-    royalElements.forEach(el => {
-        el.style.setProperty('color', isDarkMode ? '#28edf0' : '#007bff', 'important');
-        
-        const style = document.createElement('style');
-        style.textContent = `
-            @keyframes textColorChange {
-                0%, 100% { text-shadow: 2px 2px 5px rgba(0,0,0,0.2); }
-                50% { text-shadow: 3px 3px 7px rgba(0,0,0,0.3); }
-            }
-        `;
-        document.head.appendChild(style);
-    });
-
-    if (themeMode === 'normal') {
-        window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', e => {
-            royalElements.forEach(el => {
-                el.style.setProperty('color', e.matches ? '#28edf0' : '#007bff', 'important');
-            });
-        });
-    }
-});
-
 function moveNavbar() {
     const navbar = document.querySelector('.navbar-container');
     const screenWidth = window.innerWidth;

@@ -256,7 +256,7 @@
 }
 
 .footer-info p {
-	color: #A9A9A9 !important;
+	color: #4f46e5 !important;
 }
 
 @keyframes pulse {
@@ -312,7 +312,7 @@
 	width: 100%;
 	padding: 14px;
 	background: #4f46e5;
-	color: white;
+	color: white !important;
 	border: none;
 	border-radius: 8px;
 	font-size: 1rem;
@@ -423,7 +423,7 @@
         <div class="brand-section" style="text-align: center; margin-bottom: 2rem;">
             <a class="brand-logo" href="/" style="display: inline-flex; align-items: center; text-decoration: none; color: #2c3e50;">
                 <img src="<%=media%>/img/spectra.svg" style="height: 40px; margin-right: 12px;">
-                <span style="font-family: 'TypoGraphica', sans-serif; font-size: 1.8rem; font-weight: 600; letter-spacing: -0.5px;"><%=striptags( (boardinfo.hostname or "?") ) %></span>
+                <span style="font-family: 'TypoGraphica', sans-serif; font-size: 1.8rem; font-weight: 600; color: #4f46e5; letter-spacing: -0.5px;"><%=striptags( (boardinfo.hostname or "?") ) %></span>
             </a>
         </div>
         <% if fuser then %>
