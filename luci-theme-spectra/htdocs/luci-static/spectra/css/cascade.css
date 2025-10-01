@@ -2181,6 +2181,7 @@ button.cbi-button {
         color: var(--text-primary) !important;
 }
 
+#status_node,
 #status_github,
 #status_google,
 #status_baidu, 
