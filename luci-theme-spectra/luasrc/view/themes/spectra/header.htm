@@ -470,7 +470,10 @@
     font-weight: bold;
 }
 
-.navbar-left, .ip-container, .weather-card, .navbar-right {
+.navbar-left,
+.ip-container,
+.weather-card,
+.navbar-right {
     flex-shrink: 0;
     flex-grow: 0;
 }
@@ -481,7 +484,7 @@
 }
 
 body {
-  color: var(--text-primary) !important;
+    color: var(--text-primary) !important;
     background-color: var(--card-bg) !important;
 }
 
@@ -508,7 +511,7 @@ body {
     background-color: var(--bg-container) !important;
 }
 
-fieldset.cbi-section > textarea, 
+fieldset.cbi-section > textarea,
 div#command-output > textarea {
     background-color: var(--card-bg) !important;
     color: var(--text-primary) !important;
@@ -531,12 +534,12 @@ div.nav-container > button.btn_styles {
 }
 
 .developer-container {
-  background-color: var(--card-bg) !important;
+    background-color: var(--card-bg) !important;
 }
 
 .developer-container img,
 .developer-container i {
-  margin-top: 15px;
+    margin-top: 15px;
 }
 
 #logo.royal-style {
@@ -544,26 +547,49 @@ div.nav-container > button.btn_styles {
 }
 
 .detail-item span {
-  color: black !important;
+    color: black !important;
 }
 
 .detail-item span i {
-  color: #6c757d !important;
+    color: #6c757d !important;
 }
 
 #openEditModal,
 #openEditModal .bi,
 #openEditModal svg {
-  color: #000 !important;
-  fill: #000 !important;
-  stroke: #000 !important;
+    color: #000 !important;
+    fill: #000 !important;
+    stroke: #000 !important;
 }
 
 #mode-popup .button-grid button span,
 #mode-popup .button-grid button {
-  color: white !important;
+    color: white !important;
 }
 
+.nav-container .btn_styles,
+.nav-container .btn_styles * {
+    color: white !important;
+}
+
+[data-theme="dark"] .block.pure-g {
+    background-color: white !important;
+}
+
+[data-theme="dark"] .pure-u-2-3 h4 {
+    background-color: #E6E6FA !important;
+}
+
+[data-theme="dark"] {
+    #status_node,
+    #status_github,
+    #status_google,
+    #status_baidu,
+    #status_tcp_node {
+        color: black !important;
+        font-weight: 600 !important;
+    }
+}
 </style>
     <meta charset="utf-8">
     <title>
