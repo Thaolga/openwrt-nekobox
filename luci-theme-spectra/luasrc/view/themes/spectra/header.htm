@@ -2990,10 +2990,17 @@ const showWeatherLog = (function() {
     };
 })();
 
-function speakWeatherMessage(message, lang='zh-CN') {
-    const utterance = new SpeechSynthesisUtterance(message);
-    utterance.lang = lang;
-    speechSynthesis.speak(utterance);
+function speakWeatherMessage(message) {
+    const xhr = new XMLHttpRequest();
+    xhr.open('GET', '/luci-static/spectra/bgm/language.txt', false);
+    xhr.send();
+    
+    if (xhr.status === 200) {
+        const lang = xhr.responseText.trim();
+        const utterance = new SpeechSynthesisUtterance(message);
+        utterance.lang = lang;
+        speechSynthesis.speak(utterance);
+    }
 }
 </script>
 
