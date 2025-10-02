@@ -2083,16 +2083,15 @@ input.btn.cbi-button-add[type="submit"] {
 input.btn.cbi-button-add[type="submit"]:hover {
 	background-color: #0069d9 !important;
 	transform: scale(1.05);
-	box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
 }
 
-input.btn.cbi-button[type="button"] {
-	background-color: #007bff;
-	color: white;
+.cbi-section-actions input.cbi-button-down {
+        background-color: #8898aa;
+        color: white;
 }
 
 input.btn.cbi-button[type="button"]:hover {
-	background-color: #0056b3;
+	background-color: #667788;
 	transform: scale(1.05);
 }
 
@@ -2112,6 +2111,57 @@ input.btn.cbi-button[type="button"]:hover {
 .cbi-button.cbi-button-button:hover {
 	background-color: #0056b3;
 	transform: scale(1.05);
+}
+
+[data-theme="dark"] .config-selector .config-select {
+        color: #ffffff !important;
+}
+
+div#tab-header ul.cbi-tabmenu li.cbi-tab a,
+div#tab-header ul.cbi-tabmenu li.cbi-tab-disabled a {
+        color: white !important;
+}
+
+div#tab-header ul.cbi-tabmenu li.cbi-tab a:hover,
+div#tab-header ul.cbi-tabmenu li.cbi-tab-disabled a:hover {
+        color: white !important;
+        background-color: rgba(255, 255, 255, 0.1) !important;
+}
+
+div.radio-button input[type="radio"] + label,
+.radio-button input[type="radio"] + label {
+        background-color: #3182ce !important;
+        color: white !important;
+        border: none !important;
+}
+
+div.radio-button input[type="radio"]:checked + label,
+.radio-button input[type="radio"]:checked + label {
+        background-color: #e53e3e !important;
+        border: none !important;
+}
+
+input.cbi-input-file[type="file"]::file-selector-button:hover {
+        background-color: #2b6cb0 !important;
+        border-radius: 6px !important;
+}
+
+input#ulfile.cbi-input-file[type="file"]::file-selector-button {
+        background-color: #3182ce !important;
+        color: white !important;
+        border: none !important;
+        border-radius: 6px !important;
+}
+
+ul.cbi-tabmenu li.cbi-tab,
+ul.cbi-tabmenu li.cbi-tab-disabled {
+        margin-bottom: 10px !important;
+}
+
+div > div[style*="display:grid"] {
+        margin-left: auto !important;
+        margin-right: auto !important;
+        width: fit-content !important;
 }
 
 #cbi-passwall-nodes .nodes_select,
@@ -3556,8 +3606,11 @@ tr>th,
 .tr>.th,
 .cbi-section-table-row::before,
 #cbi-wireless>#wifi_assoclist_table>.tr:nth-child(2) {
-	border-top: thin solid #ddd;
 	padding: 1.1em 1.25rem
+}
+
+.table.cbi-section-table .cbi-section-table-row:nth-of-type(odd) {
+    background-color: var(--bg-container) !important;
 }
 
 #cbi-wireless .td,

@@ -913,7 +913,7 @@ document.addEventListener("DOMContentLoaded", () => {
             if (typeof showWeatherLog === 'function') {
                 showWeatherLog(successMsg);
             }
-            if (typeof speakWeatherMessage === 'function') {
+            if (colorVoiceEnabled) {
                 speakWeatherMessage(successMsg);
             }
         }
@@ -2938,6 +2938,34 @@ window.addEventListener('resize', moveNavbar);
 .weather-log-box.info { background: linear-gradient(145deg, #2196F3, #1976D2); }
 </style>
 
+<div id="cityModal" 
+     style="display:none; 
+            position:fixed; 
+            top:50%; 
+            left:50%; 
+            transform:translate(-50%, -50%); 
+            width:350px; 
+            padding:20px; 
+            border-radius:12px; 
+            background: linear-gradient(135deg, #1E90FF, #00BFFF); 
+            color:white;
+            box-shadow:0 4px 15px rgba(0,0,0,0.4); 
+            z-index:9999;">
+  <h3 id="modalTitle" style="margin-bottom:15px;"></h3>
+  <input id="cityInput" placeholder="" 
+         style="padding:8px; width:100%; border-radius:6px; border:none; margin-bottom:15px;">
+  
+  <div style="display:flex; align-items:baseline; margin-bottom:15px;">
+    <input type="checkbox" id="voiceToggle" checked style="margin:0;">
+    <label for="voiceToggle" id="voiceLabel" style="margin-left:8px;"></label>
+  </div>
+  
+  <div style="text-align:right;">
+    <button id="saveCityBtn" class="cbi-button cbi-button-save"></button>
+    <button id="closeCityModal" class="cbi-button cbi-button-remove"></button>
+  </div>
+</div>
+
 <script>
 const showWeatherLog = (function() {
     const activeLogs = new Set();
@@ -2990,11 +3018,15 @@ const showWeatherLog = (function() {
     };
 })();
 
+let voiceEnabled = localStorage.getItem('voiceEnabled') !== 'false';
+
 function speakWeatherMessage(message) {
+    if (!voiceEnabled) return;
+
     const xhr = new XMLHttpRequest();
     xhr.open('GET', '/luci-static/spectra/bgm/language.txt', false);
     xhr.send();
-    
+
     if (xhr.status === 200) {
         const lang = xhr.responseText.trim();
         const utterance = new SpeechSynthesisUtterance(message);
@@ -3002,29 +3034,57 @@ function speakWeatherMessage(message) {
         speechSynthesis.speak(utterance);
     }
 }
-</script>
 
-<div id="cityModal" 
-     style="display:none; 
-            position:fixed; 
-            top:50%; 
-            left:50%; 
-            transform:translate(-50%, -50%); 
-            width:350px; 
-            padding:20px; 
-            border-radius:12px; 
-            background: linear-gradient(135deg, #1E90FF, #00BFFF); 
-            color:white;
-            box-shadow:0 4px 15px rgba(0,0,0,0.4); 
-            z-index:9999;">
-  <h3 id="modalTitle" style="margin-bottom:15px;"></h3>
-  <input id="cityInput" placeholder="" 
-         style="padding:8px; width:100%; border-radius:6px; border:none; margin-bottom:15px;">
-  <div style="text-align:right;">
-    <button id="saveCityBtn" class="cbi-button cbi-button-save"></button>
-    <button id="closeCityModal" class="cbi-button cbi-button-remove"></button>
-  </div>
-</div>
+let colorVoiceEnabled = localStorage.getItem('colorVoiceEnabled') !== 'false';
+const toggleBtn = document.getElementById('voiceToggle');
+toggleBtn.checked = colorVoiceEnabled;
+const voiceLabel = document.getElementById('voiceLabel');
+
+const voiceTranslations = {
+    zh: { label: '颜色语音播报', enable: '颜色语音播报已启用', disable: '颜色语音播报已禁用' },
+    en: { label: 'Color Voice Broadcast', enable: 'Color voice broadcast enabled', disable: 'Color voice broadcast disabled' },
+    hk: { label: '顏色語音播报', enable: '顏色語音播报已啟用', disable: '顏色語音播报已禁用' },
+    de: { label: 'Farb-Sprachansage', enable: 'Farb-Sprachansage aktiviert', disable: 'Farb-Sprachansage deaktiviert' },
+    fr: { label: 'Diffusion vocale des couleurs', enable: 'Diffusion vocale des couleurs activée', disable: 'Diffusion vocale des couleurs désactivée' },
+    ko: { label: '색상 음성 방송', enable: '색상 음성 방송이 활성화되었습니다', disable: '색상 음성 방송이 비활성화되었습니다' },
+    ja: { label: '色の音声放送', enable: '色の音声放送が有効になりました', disable: '色の音声放送が無効になりました' },
+    bn: { label: 'রঙের ভয়েস সম্প্রচার', enable: 'রঙের ভয়েস সম্প্রচার সক্ষম হয়েছে', disable: 'রঙের ভয়েস সম্প্রচার অক্ষম হয়েছে' },
+    vi: { label: 'Phát thanh giọng nói màu sắc', enable: 'Phát thanh giọng nói màu sắc đã bật', disable: 'Phát thanh giọng nói màu sắc đã tắt' },
+    th: { label: 'การอ่านสีด้วยเสียง', enable: 'เปิดใช้งานการอ่านสีด้วยเสียงแล้ว', disable: 'ปิดการอ่านสีด้วยเสียงแล้ว' },
+    ar: { label: 'البث الصوتي للألوان', enable: 'تم تمكين البث الصوتي للألوان', disable: 'تم تعطيل البث الصوتي للألوان' },
+    ru: { label: 'Голосовая трансляция цвета', enable: 'Голосовая трансляция цвета включена', disable: 'Голосовая трансляция цвета отключена' },
+    es: { label: 'Transmisión de voz de color', enable: 'Transmisión de voz de color habilitada', disable: 'Transmisión de voz de color deshabilitada' }
+};
+
+async function getLangText() {
+    try {
+        const lang = await getRealTimeLanguage();
+        return voiceTranslations[lang] || voiceTranslations['zh'];
+    } catch (e) {
+        console.error('Failed to get language text:', e);
+        return voiceTranslations['zh'];
+    }
+}
+
+(async function initLabel() {
+    const text = await getLangText();
+    voiceLabel.textContent = text.label;
+})();
+
+toggleBtn.addEventListener('change', async function() {
+    colorVoiceEnabled = this.checked;
+    localStorage.setItem('colorVoiceEnabled', colorVoiceEnabled);
+
+    const text = await getLangText();
+
+    if (colorVoiceEnabled) {
+        showWeatherLog(text.enable);
+        speakWeatherMessage(text.enable);
+    } else {
+        showWeatherLog(text.disable);
+    }
+});
+</script>
 
 <audio id="bell-audio" preload="auto">
   <source src="/luci-static/spectra/img/bells.mp3" type="audio/mp3">
