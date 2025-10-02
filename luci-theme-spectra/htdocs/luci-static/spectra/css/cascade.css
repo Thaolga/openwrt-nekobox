@@ -3422,18 +3422,13 @@ h2 {
 }
 
 h3 {
-	font-size: 1.1rem;
+	font-size: 0.9rem;
 	line-height: 1;
 	display: block;
-	width: 100%;
 	margin: 0;
 	margin-bottom: 0;
-	padding: .8755rem 1.25rem;
-	color: var(--accent-color) !important;
+	padding: 0.3rem 0.5rem;
 	color: var(--text-color);
-	border-radius: .375rem;
-	background: var(--bg-container);
-	font-weight: bold
 }
 
 h4 {
