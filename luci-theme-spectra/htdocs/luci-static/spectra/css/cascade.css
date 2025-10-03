@@ -3702,7 +3702,7 @@ tr th {
 
 .cbi-section-node .cbi-value:nth-child(even),
 .cbi-section .tr:nth-child(even):not(:first-child) .td {
-	background-color: var(--card-bg) !important;
+	background-color: var(--card-bg);
 }
 
 .cbi-section>h3:first-child,
