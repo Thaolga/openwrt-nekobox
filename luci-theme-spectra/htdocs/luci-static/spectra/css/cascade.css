@@ -3701,6 +3701,10 @@ tr th {
 	color: var(--text-primary) !important;
 }
 
+[data-page="admin-system-flash"] .cbi-section-descr {
+	color: var(--text-secondary) !important;
+}
+
 [data-theme="dark"] #page h2.title,
 [data-theme="dark"] #page h3.desc {
 	color: #000 !important;
