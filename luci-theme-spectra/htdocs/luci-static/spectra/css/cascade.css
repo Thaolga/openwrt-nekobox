@@ -3700,6 +3700,11 @@ tr th {
         color: #fff !important;
 }
 
+.cbi-section-node .cbi-value:nth-child(even),
+.cbi-section .tr:nth-child(even):not(:first-child) .td {
+	background-color: var(--card-bg) !important;
+}
+
 .cbi-section>h3:first-child,
 .cbi-section>h4:first-child,
 .cbi-section>p:first-child,
