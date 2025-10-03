@@ -21,6 +21,11 @@
 	background-color: transparent !important;
 }
 
+.cbi-section-node .cbi-value:nth-child(even),
+.cbi-section .tr:nth-child(even):not(:first-child) .td {
+	background-color: transparent !important;
+}
+
 #cbi-wireless .td,
 #cbi-network .tr:first-child>.td,
 .table[width="100%"]>.tr:first-child>.td,
