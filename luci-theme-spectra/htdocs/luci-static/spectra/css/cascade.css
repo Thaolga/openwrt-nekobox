@@ -3608,8 +3608,9 @@ td.cbi-section-actions>div>button.cbi-button-neutral.down:nth-child(2) {
 }
 
 .nas-container_card,
+.app-container_status-label_item,
+.app-container_status-container,
 .network-container_flow,
-.network-container_status,
 .app-container {
 	box-shadow:
 		0 -4px 12px rgba(0, 0, 0, 0.1),
@@ -3620,8 +3621,9 @@ td.cbi-section-actions>div>button.cbi-button-neutral.down:nth-child(2) {
 
 
 [data-theme="dark"] .nas-container_card,
+[data-theme="dark"] .app-container_status-label_item,
+[data-theme="dark"] .app-container_status-container,
 [data-theme="dark"] .network-container_flow,
-[data-theme="dark"] .network-container_status,
 [data-theme="dark"] .app-container {
 	box-shadow:
 		0 -4px 12px rgba(0, 0, 0, 0.2),
