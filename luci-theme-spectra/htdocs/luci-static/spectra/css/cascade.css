@@ -2058,6 +2058,17 @@ ul.tabs li {
 .cbi-value-field input.btn.cbi-button-add {
 	background-color: #28a745 !important;
 	color: white !important;
+	border: none !important;
+	border-radius: 6px;
+	height: 40px;
+	line-height: 40px;
+	padding: 0 16px;
+	font-size: 14px;
+	font-weight: 500;
+	box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+	transition: transform 0.15s ease, box-shadow 0.15s ease, background-color 0.15s ease;
+	cursor: pointer;
+	box-sizing: border-box;
 }
 
 .cbi-value-field input.btn.cbi-button-add:hover {
