@@ -1945,7 +1945,7 @@ ul.tabs li {
 }
 
 .btn.cbi-button-remove {
-	background-color: red !important;
+	background-color: #d9534f !important;
 	color: white !important;
 }
 
@@ -2058,17 +2058,6 @@ ul.tabs li {
 .cbi-value-field input.btn.cbi-button-add {
 	background-color: #28a745 !important;
 	color: white !important;
-	border: none !important;
-	border-radius: 6px;
-	height: 40px;
-	line-height: 40px;
-	padding: 0 16px;
-	font-size: 14px;
-	font-weight: 500;
-	box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-	transition: transform 0.15s ease, box-shadow 0.15s ease, background-color 0.15s ease;
-	cursor: pointer;
-	box-sizing: border-box;
 }
 
 .cbi-value-field input.btn.cbi-button-add:hover {
@@ -2082,15 +2071,12 @@ input.btn.cbi-button-add[type="submit"] {
 	color: white !important;
 	border: none !important;
 	border-radius: 6px;
-	height: 40px;
-	line-height: 40px;
-	padding: 0 16px;
+	padding: 8px 16px;
 	font-size: 14px;
 	font-weight: 500;
 	box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 	transition: transform 0.15s ease, box-shadow 0.15s ease, background-color 0.15s ease;
 	cursor: pointer;
-	box-sizing: border-box;
 }
 
 input.btn.cbi-button-add[type="submit"]:hover {
@@ -2099,8 +2085,8 @@ input.btn.cbi-button-add[type="submit"]:hover {
 }
 
 .cbi-section-actions input.cbi-button-down {
-	background-color: #8898aa;
-	color: white;
+        background-color: #8898aa;
+        color: white;
 }
 
 input.btn.cbi-button[type="button"]:hover {
@@ -2127,54 +2113,54 @@ input.btn.cbi-button[type="button"]:hover {
 }
 
 [data-theme="dark"] .config-selector .config-select {
-	color: #ffffff !important;
+        color: #ffffff !important;
 }
 
 div#tab-header ul.cbi-tabmenu li.cbi-tab a,
 div#tab-header ul.cbi-tabmenu li.cbi-tab-disabled a {
-	color: white !important;
+        color: white !important;
 }
 
 div#tab-header ul.cbi-tabmenu li.cbi-tab a:hover,
 div#tab-header ul.cbi-tabmenu li.cbi-tab-disabled a:hover {
-	color: white !important;
-	background-color: rgba(255, 255, 255, 0.1) !important;
+        color: white !important;
+        background-color: rgba(255, 255, 255, 0.1) !important;
 }
 
-div.radio-button input[type="radio"]+label,
-.radio-button input[type="radio"]+label {
-	background-color: #3182ce !important;
-	color: white !important;
-	border: none !important;
+div.radio-button input[type="radio"] + label,
+.radio-button input[type="radio"] + label {
+        background-color: #3182ce !important;
+        color: white !important;
+        border: none !important;
 }
 
-div.radio-button input[type="radio"]:checked+label,
-.radio-button input[type="radio"]:checked+label {
-	background-color: #e53e3e !important;
-	border: none !important;
+div.radio-button input[type="radio"]:checked + label,
+.radio-button input[type="radio"]:checked + label {
+        background-color: #e53e3e !important;
+        border: none !important;
 }
 
 input.cbi-input-file[type="file"]::file-selector-button:hover {
-	background-color: #2b6cb0 !important;
-	border-radius: 6px !important;
+        background-color: #2b6cb0 !important;
+        border-radius: 6px !important;
 }
 
 input#ulfile.cbi-input-file[type="file"]::file-selector-button {
-	background-color: #3182ce !important;
-	color: white !important;
-	border: none !important;
-	border-radius: 6px !important;
+        background-color: #3182ce !important;
+        color: white !important;
+        border: none !important;
+        border-radius: 6px !important;
 }
 
 ul.cbi-tabmenu li.cbi-tab,
 ul.cbi-tabmenu li.cbi-tab-disabled {
-	margin-bottom: 10px !important;
+        margin-bottom: 10px !important;
 }
 
-div>div[style*="display:grid"] {
-	margin-left: auto !important;
-	margin-right: auto !important;
-	width: fit-content !important;
+div > div[style*="display:grid"] {
+        margin-left: auto !important;
+        margin-right: auto !important;
+        width: fit-content !important;
 }
 
 #cbi-passwall-nodes .nodes_select,
@@ -3192,6 +3178,15 @@ div[style="width:100%;height:300px;border:1px solid #000;background:#fff"] {
 	width: 100%
 }
 
+.main .main-left .nav li.slide .slide-menu .active {
+	background: none;
+	color: var(--text-primary)
+}
+
+.main .main-left .nav li.slide .slide-menu .active a {
+	color: var(--accent-color)
+}
+
 .main .main-left .nav li.slide .slide-menu .active::after {
 	content: "";
 	position: absolute;
@@ -3209,15 +3204,6 @@ div[style="width:100%;height:300px;border:1px solid #000;background:#fff"] {
 
 .main .main-left .nav li.slide .slide-menu .active:hover::after {
 	width: 100%
-}
-
-.main .main-left .nav li.slide .slide-menu .active {
-	background: none;
-	color: var(--text-primary)
-}
-
-.main .main-left .nav li.slide .slide-menu .active a {
-	color: var(--accent-color)
 }
 
 .main .main-left .nav li .menu {
@@ -3540,6 +3526,15 @@ fieldset>fieldset,
 	color: var(--accent-color)
 }
 
+.btn,
+.cbi-button,
+.cbi-button-apply,
+.cbi-button-save,
+.cbi-button-reset,
+.cbi-button-add {
+      font-family: inherit !important;
+}
+
 div#moreEntriesBar>button.cbi-button.btn {
 	background-color: #3182ce !important;
 	color: white !important;
@@ -3568,32 +3563,6 @@ td.cbi-section-actions button.cbi-button-action:nth-child(5) {
 	background-color: #e53e3e !important;
 }
 
-.cbi-button-apply+.cbi-button-add {
-	display: inline-flex;
-	align-items: center;
-	justify-content: center;
-	height: 42px;
-	padding: 0 1em;
-	margin-left: 0.5em;
-	font-size: 0.8rem;
-	font-weight: 500;
-	color: #fff;
-	background-color: #1e90ff;
-	border: 1px solid #1e90ff;
-	border-radius: 6px;
-	cursor: pointer;
-	transition: background 0.2s ease, box-shadow 0.2s ease, transform 0.1s ease;
-	box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
-	box-sizing: border-box;
-
-}
-
-.cbi-button-apply+.cbi-button-add:hover {
-	background-color: #0d6efd !important;
-	border-color: #0d6efd;
-	box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
-	transform: translateY(-1px);
-}
 
 td.cbi-section-actions>div>button.cbi-button-neutral.down:nth-child(2) {
 	background-color: #e53e3e !important;
@@ -4400,60 +4369,6 @@ td>table>tbody>tr>td,
 	word-wrap: break-word
 }
 
-.cbi-button-add {
-	position: relative;
-	color: #fff;
-	font-size: 0;
-	width: 2.3em;
-	height: 2.3em;
-	display: inline-flex;
-	align-items: center;
-	justify-content: center;
-	padding: 0;
-	border: none;
-	background: #007bff;
-	border-radius: 4px;
-	cursor: pointer;
-}
-
-.cbi-button-add::before {
-	content: "";
-	position: absolute;
-	width: 0.65em;
-	height: 0.65em;
-	border: 0.12em solid currentColor;
-	border-top: none;
-	border-bottom: none;
-}
-
-.cbi-button-add::after {
-	content: "";
-	position: absolute;
-	width: 0.65em;
-	height: 0.65em;
-	border: 0.12em solid currentColor;
-	border-left: none;
-	border-right: none;
-}
-
-.cbi-button-add::before,
-.cbi-button-add::after {
-	top: calc(50% + 1.5px);
-	left: 50%;
-	transform: translate(-50%, -50%);
-}
-
-#go-button {
-	background: #007bff;
-	border-radius: 8px;
-	color: white !important;
-	transition: background 0.3s;
-}
-
-#go-button:hover {
-	background: #0056b3;
-}
-
 .cbi-rowstyle-1 {
 	background-color: #f9f9f9
 }
@@ -4588,9 +4503,8 @@ body:not(.Interfaces) .cbi-rowstyle-2:first-child {
 	justify-content: center;
 	line-height: 1.5rem;
 	padding: .5rem .76rem;
-	margin: .25rem 0.1rem .25rem 0.5rem;
-	margin-right: 0;
-	margin-left: 0.2rem;
+	margin: .25rem .1rem .25rem 0;
+	margin: .25rem 0.25rem .25rem 0.5rem;
 	color: #fff;
 	border-radius: .25rem;
 	outline: 0;
@@ -4603,8 +4517,7 @@ body:not(.Interfaces) .cbi-rowstyle-2:first-child {
 
 .cbi-dynlist>.add-item:not([ondrop])>input {
 	overflow: hidden;
-	width: 22rem;
-	max-width: 25rem;
+	width: 100%;
 	min-width: 15rem;
 	white-space: nowrap;
 	text-overflow: ellipsis
