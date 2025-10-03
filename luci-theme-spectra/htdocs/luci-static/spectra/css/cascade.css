@@ -3686,6 +3686,20 @@ tr th {
         border: 1px solid #ccc !important;
 }
 
+.title,
+.desc {
+        color: var(--text-primary) !important;
+}
+
+[data-theme="dark"] #page h2.title,
+[data-theme="dark"] #page h3.desc {
+        color: #000 !important;
+}
+
+[data-theme="dark"] #page .network-message {
+        color: #fff !important;
+}
+
 .cbi-section>h3:first-child,
 .cbi-section>h4:first-child,
 .cbi-section>p:first-child,
