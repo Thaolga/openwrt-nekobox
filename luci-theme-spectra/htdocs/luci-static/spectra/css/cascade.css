@@ -2071,12 +2071,15 @@ input.btn.cbi-button-add[type="submit"] {
 	color: white !important;
 	border: none !important;
 	border-radius: 6px;
-	padding: 8px 16px;
+	height: 40px;
+	line-height: 40px;
+	padding: 0 16px;
 	font-size: 14px;
 	font-weight: 500;
 	box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 	transition: transform 0.15s ease, box-shadow 0.15s ease, background-color 0.15s ease;
 	cursor: pointer;
+	box-sizing: border-box;
 }
 
 input.btn.cbi-button-add[type="submit"]:hover {
@@ -3554,6 +3557,33 @@ td.cbi-section-actions button.cbi-button-action:nth-child(5) {
 	background-color: #e53e3e !important;
 }
 
+.cbi-button-apply+.cbi-button-add {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	height: 42px;
+	padding: 0 1em;
+	margin-left: 0.5em;
+	font-size: 0.8rem;
+	font-weight: 500;
+	color: #fff;
+	background-color: #1e90ff;
+	border: 1px solid #1e90ff;
+	border-radius: 6px;
+	cursor: pointer;
+	transition: background 0.2s ease, box-shadow 0.2s ease, transform 0.1s ease;
+	box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
+	box-sizing: border-box;
+
+}
+
+.cbi-button-apply+.cbi-button-add:hover {
+	background-color: #0d6efd !important;
+	border-color: #0d6efd;
+	box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+	transform: translateY(-1px);
+}
+
 td.cbi-section-actions>div>button.cbi-button-neutral.down:nth-child(2) {
 	background-color: #e53e3e !important;
 	border-color: #e53e3e !important;
@@ -3683,21 +3713,21 @@ tr th {
 }
 
 #core_status {
-        border: 1px solid #ccc !important;
+	border: 1px solid #ccc !important;
 }
 
 .title,
 .desc {
-        color: var(--text-primary) !important;
+	color: var(--text-primary) !important;
 }
 
 [data-theme="dark"] #page h2.title,
 [data-theme="dark"] #page h3.desc {
-        color: #000 !important;
+	color: #000 !important;
 }
 
 [data-theme="dark"] #page .network-message {
-        color: #fff !important;
+	color: #fff !important;
 }
 
 .cbi-section-node .cbi-value:nth-child(even),
