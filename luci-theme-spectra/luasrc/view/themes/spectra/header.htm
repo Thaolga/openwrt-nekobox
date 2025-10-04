@@ -728,7 +728,7 @@ div.nav-container > button.btn_styles {
                 </div>
             </div>
 
-            <div class="weather-card" style="position:relative; display:flex; align-items:center; padding:10px; border-radius:8px; color:white; width:350px; height:50px; margin-top:3px;">
+            <div class="weather-card" style="position:relative; display:flex; align-items:center; padding:10px; border-radius:8px; color:white; width:390px; height:50px; margin-top:3px;">
               <div style="flex:1; display:flex; align-items:center; gap:25px;">   
                   <div id="iconContainer" style="position:relative; width:50px; height:50px;"> 
                       <img id="loadingIcon" src="/luci-static/ipip/img/loading.svg" style="position:absolute; top:50%; left:50%; transform:translate(-50%, -50%); width:50px; height:50px;" />
@@ -742,8 +742,9 @@ div.nav-container > button.btn_styles {
                 </div>
               </div>
               <button id="setCityBtn"style="background:var(--accent-color); border:none; border-radius:50%; width:28px; height:28px; cursor:pointer; display:flex; align-items:center; justify-content:center; line-height:1; font-size:14px; margin-right:8px;"><i class="bi bi-gear-fill" style="color:white;"></i></button>
-              <button type="button" onclick="document.getElementById('colorPicker').click()" style="background:var(--accent-color); border:none; border-radius:50%; width:28px; height:28px; cursor:pointer; display:flex; align-items:center; justify-content:center; line-height:1; font-size:14px;"><i class="bi bi-palette-fill" style="color:white;"></i></button>
+              <button type="button" onclick="document.getElementById('colorPicker').click()" style="background:var(--accent-color); border:none; border-radius:50%; width:28px; height:28px; cursor:pointer; display:flex; align-items:center; justify-content:center; line-height:1; font-size:14px; margin-right:8px;"><i class="bi bi-palette-fill" style="color:white;"></i></button>
               <input type="color" id="colorPicker" value="#0f3460" style="display: none;">
+              <button type="button" onclick="openLanguageModal()" style="background:var(--accent-color); border:none; border-radius:50%; width:28px; height:28px; cursor:pointer; display:flex; align-items:center; justify-content:center; line-height:1; font-size:14px;"><i class="bi bi-translate" style="color:white;"></i></button>
             </div>
 
             <div class="ip-container" style="display: none;">
@@ -3614,7 +3615,519 @@ weatherCard.addEventListener('click', async (event) => {
     loadingIcon.style.display = 'none';
   }
 });
+
+const CACHE_MAX_AGE = 60 * 60 * 1000;
+
+async function clearWeatherTranslationCacheIfExpired() {
+    try {
+        const res = await fetch('/luci-static/spectra/bgm/weather_translation.php');
+        if (!res.ok) throw 'Failed to load cache';
+        const data = await res.json();
+
+        const now = Date.now();
+        let shouldClear = false;
+
+        if (!data.updated) {
+            shouldClear = true;
+        } else {
+            const updatedTime = new Date(data.updated).getTime();
+            if (now - updatedTime > CACHE_MAX_AGE) shouldClear = true;
+        }
+
+        if (shouldClear) {
+            console.log('Cache expired, clearing weather_translation_cache.json');
+            await fetch('/luci-static/spectra/bgm/weather_translation.php', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ cities: {}, updated: new Date().toISOString() })
+            });
+        }
+    } catch (e) {
+        console.error('Error checking/clearing cache', e);
+    }
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    clearWeatherTranslationCacheIfExpired();
+});
+
+setInterval(clearWeatherTranslationCacheIfExpired, 30 * 60 * 1000); 
 </script> 
+
+<div id="languageModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 9999;">
+    <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background: linear-gradient(135deg, #1E90FF, #00BFFF); padding: 20px; border-radius: 8px; min-width: 350px;">
+        <div style="display: flex; align-items: center; margin-bottom: 15px;">
+            <img id="currentFlag" src="/luci-static/ipip/flags/cn.png" style="width: 45px; height: 34px; margin-right: 10px;">
+            <h3 style="margin: 0;">Select Language</h3>
+        </div>
+        <select id="languageSelect" style="width: 100%; padding: 8px; margin: 10px 0;">
+            <option value="zh">简体中文</option>
+            <option value="hk">繁体中文</option>
+            <option value="en">English</option>
+            <option value="ko">Korean</option>
+            <option value="vi">Vietnamese</option>
+            <option value="th">Thailand</option>
+            <option value="ja">Japanese</option>
+            <option value="ru">Russian</option>
+            <option value="de">Germany</option>
+            <option value="fr">France</option>
+            <option value="ar">Arabic</option>
+            <option value="es">Spanish</option>
+            <option value="bn">Bangladesh</option>
+        </select>
+        <div style="text-align: right; margin-top: 15px;">
+            <button type="button" class="cbi-button cbi-button-remove" onclick="closeLanguageModal()" style="margin-right: 10px;">Cancel</button>
+            <button type="button" class="cbi-button cbi-button-save" onclick="saveLanguage()">Save</button>
+        </div>
+    </div>
+</div>
+
+<script>
+const languageTranslations = {
+    'zh': {
+        'select_language': '选择语言',
+        'simplified_chinese': '简体中文',
+        'traditional_chinese': '繁体中文',
+        'english': 'English',
+        'korean': '韩语',
+        'vietnamese': '越南语',
+        'thailand': '泰语',
+        'japanese': '日语',
+        'russian': '俄语',
+        'germany': '德语',
+        'france': '法语',
+        'arabic': '阿拉伯语',
+        'spanish': '西班牙语',
+        'bangladesh': '孟加拉语',
+        'cancel': '取消',
+        'save': '保存',
+        'language_saved': '语言设置已保存',
+        'language_save_failed': '语言设置保存失败'
+    },
+    'hk': {
+        'select_language': '選擇語言',
+        'simplified_chinese': '簡體中文',
+        'traditional_chinese': '繁體中文',
+        'english': 'English',
+        'korean': '韓語',
+        'vietnamese': '越南語',
+        'thailand': '泰語',
+        'japanese': '日語',
+        'russian': '俄語',
+        'germany': '德語',
+        'france': '法語',
+        'arabic': '阿拉伯語',
+        'spanish': '西班牙語',
+        'bangladesh': '孟加拉語',
+        'cancel': '取消',
+        'save': '保存',
+        'language_saved': '語言設置已保存',
+        'language_save_failed': '語言設置保存失敗'
+    },
+    'en': {
+        'select_language': 'Select Language',
+        'simplified_chinese': 'Simplified Chinese',
+        'traditional_chinese': 'Traditional Chinese',
+        'english': 'English',
+        'korean': 'Korean',
+        'vietnamese': 'Vietnamese',
+        'thailand': 'Thai',
+        'japanese': 'Japanese',
+        'russian': 'Russian',
+        'germany': 'German',
+        'france': 'French',
+        'arabic': 'Arabic',
+        'spanish': 'Spanish',
+        'bangladesh': 'Bengali',
+        'cancel': 'Cancel',
+        'save': 'Save',
+        'language_saved': 'Language settings saved',
+        'language_save_failed': 'Language settings save failed'
+    },
+    'ko': {
+        'select_language': '언어 선택',
+        'simplified_chinese': '간체 중국어',
+        'traditional_chinese': '번체 중국어',
+        'english': '영어',
+        'korean': '한국어',
+        'vietnamese': '베트남어',
+        'thailand': '태국어',
+        'japanese': '일본어',
+        'russian': '러시아어',
+        'germany': '독일어',
+        'france': '프랑스어',
+        'arabic': '아랍어',
+        'spanish': '스페인어',
+        'bangladesh': '벵골어',
+        'cancel': '취소',
+        'save': '저장',
+        'language_saved': '언어 설정이 저장되었습니다',
+        'language_save_failed': '언어 설정 저장 실패'
+    },
+    'vi': {
+        'select_language': 'Chọn ngôn ngữ',
+        'simplified_chinese': 'Tiếng Trung Giản Thể',
+        'traditional_chinese': 'Tiếng Trung Phồn Thể',
+        'english': 'Tiếng Anh',
+        'korean': 'Tiếng Hàn',
+        'vietnamese': 'Tiếng Việt',
+        'thailand': 'Tiếng Thái',
+        'japanese': 'Tiếng Nhật',
+        'russian': 'Tiếng Nga',
+        'germany': 'Tiếng Đức',
+        'france': 'Tiếng Pháp',
+        'arabic': 'Tiếng Ả Rập',
+        'spanish': 'Tiếng Tây Ban Nha',
+        'bangladesh': 'Tiếng Bengal',
+        'cancel': 'Hủy',
+        'save': 'Lưu',
+        'language_saved': 'Đã lưu cài đặt ngôn ngữ',
+        'language_save_failed': 'Lưu cài đặt ngôn ngữ thất bại'
+    },
+    'th': {
+        'select_language': 'เลือกภาษา',
+        'simplified_chinese': 'ภาษาจีนตัวย่อ',
+        'traditional_chinese': 'ภาษาจีนตัวเต็ม',
+        'english': 'ภาษาอังกฤษ',
+        'korean': 'ภาษาเกาหลี',
+        'vietnamese': 'ภาษาเวียดนาม',
+        'thailand': 'ภาษาไทย',
+        'japanese': 'ภาษาญี่ปุ่น',
+        'russian': 'ภาษารัสเซีย',
+        'germany': 'ภาษาเยอรมัน',
+        'france': 'ภาษาฝรั่งเศส',
+        'arabic': 'ภาษาอาหรับ',
+        'spanish': 'ภาษาสเปน',
+        'bangladesh': 'ภาษาเบงกาลี',
+        'cancel': 'ยกเลิก',
+        'save': 'บันทึก',
+        'language_saved': 'บันทึกการตั้งค่าภาษาเรียบร้อยแล้ว',
+        'language_save_failed': 'บันทึกการตั้งค่าภาษาไม่สำเร็จ'
+    },
+    'ja': {
+        'select_language': '言語を選択',
+        'simplified_chinese': '簡体字中国語',
+        'traditional_chinese': '繁体字中国語',
+        'english': '英語',
+        'korean': '韓国語',
+        'vietnamese': 'ベトナム語',
+        'thailand': 'タイ語',
+        'japanese': '日本語',
+        'russian': 'ロシア語',
+        'germany': 'ドイツ語',
+        'france': 'フランス語',
+        'arabic': 'アラビア語',
+        'spanish': 'スペイン語',
+        'bangladesh': 'ベンガル語',
+        'cancel': 'キャンセル',
+        'save': '保存',
+        'language_saved': '言語設定が保存されました',
+        'language_save_failed': '言語設定の保存に失敗しました'
+    },
+    'ru': {
+        'select_language': 'Выберите язык',
+        'simplified_chinese': 'Упрощенный китайский',
+        'traditional_chinese': 'Традиционный китайский',
+        'english': 'Английский',
+        'korean': 'Корейский',
+        'vietnamese': 'Вьетнамский',
+        'thailand': 'Тайский',
+        'japanese': 'Японский',
+        'russian': 'Русский',
+        'germany': 'Немецкий',
+        'france': 'Французский',
+        'arabic': 'Арабский',
+        'spanish': 'Испанский',
+        'bangladesh': 'Бенгальский',
+        'cancel': 'Отмена',
+        'save': 'Сохранить',
+        'language_saved': 'Настройки языка сохранены',
+        'language_save_failed': 'Не удалось сохранить настройки языка'
+    },
+    'ar': {
+        'select_language': 'اختر اللغة',
+        'simplified_chinese': 'الصينية المبسطة',
+        'traditional_chinese': 'الصينية التقليدية',
+        'english': 'الإنجليزية',
+        'korean': 'الكورية',
+        'vietnamese': 'الفيتنامية',
+        'thailand': 'التايلاندية',
+        'japanese': 'اليابانية',
+        'russian': 'الروسية',
+        'germany': 'الألمانية',
+        'france': 'الفرنسية',
+        'arabic': 'العربية',
+        'spanish': 'الإسبانية',
+        'bangladesh': 'البنغالية',
+        'cancel': 'إلغاء',
+        'save': 'حفظ',
+        'language_saved': 'تم حفظ إعدادات اللغة',
+        'language_save_failed': 'فشل حفظ إعدادات اللغة'
+    },
+    'es': {
+        'select_language': 'Seleccionar idioma',
+        'simplified_chinese': 'Chino simplificado',
+        'traditional_chinese': 'Chino tradicional',
+        'english': 'Inglés',
+        'korean': 'Coreano',
+        'vietnamese': 'Vietnamita',
+        'thailand': 'Tailandés',
+        'japanese': 'Japonés',
+        'russian': 'Ruso',
+        'germany': 'Alemán',
+        'france': 'Francés',
+        'arabic': 'Árabe',
+        'spanish': 'Español',
+        'bangladesh': 'Bengalí',
+        'cancel': 'Cancelar',
+        'save': 'Guardar',
+        'language_saved': 'Configuración de idioma guardada',
+        'language_save_failed': 'Error al guardar la configuración de idioma'
+    },
+    'de': {
+        'select_language': 'Sprache auswählen',
+        'simplified_chinese': 'Vereinfachtes Chinesisch',
+        'traditional_chinese': 'Traditionelles Chinesisch',
+        'english': 'Englisch',
+        'korean': 'Koreanisch',
+        'vietnamese': 'Vietnamesisch',
+        'thailand': 'Thailändisch',
+        'japanese': 'Japanisch',
+        'russian': 'Russisch',
+        'germany': 'Deutsch',
+        'france': 'Französisch',
+        'arabic': 'Arabisch',
+        'spanish': 'Spanisch',
+        'bangladesh': 'Bengalisch',
+        'cancel': 'Abbrechen',
+        'save': 'Speichern',
+        'language_saved': 'Spracheinstellungen gespeichert',
+        'language_save_failed': 'Speichern der Spracheinstellungen fehlgeschlagen'
+    },
+    'fr': {
+        'select_language': 'Choisir la langue',
+        'simplified_chinese': 'Chinois simplifié',
+        'traditional_chinese': 'Chinois traditionnel',
+        'english': 'Anglais',
+        'korean': 'Coréen',
+        'vietnamese': 'Vietnamien',
+        'thailand': 'Thaïlandais',
+        'japanese': 'Japonais',
+        'russian': 'Russe',
+        'germany': 'Allemand',
+        'france': 'Français',
+        'arabic': 'Arabe',
+        'spanish': 'Espagnol',
+        'bangladesh': 'Bengali',
+        'cancel': 'Annuler',
+        'save': 'Enregistrer',
+        'language_saved': 'Paramètres de langue enregistrés',
+        'language_save_failed': 'Échec de l\'enregistrement des paramètres de langue'
+    },
+    'bn': {
+        'select_language': 'ভাষা নির্বাচন করুন',
+        'simplified_chinese': 'সরলীকৃত চাইনিজ',
+        'traditional_chinese': 'পরম্পরাগত চাইনিজ',
+        'english': 'ইংরেজি',
+        'korean': 'কোরিয়ান',
+        'vietnamese': 'ভিয়েতনামী',
+        'thailand': 'থাই',
+        'japanese': 'জাপানি',
+        'russian': 'রাশিয়ান',
+        'germany': 'জার্মান',
+        'france': 'ফরাসি',
+        'arabic': 'আরবি',
+        'spanish': 'স্প্যানিশ',
+        'bangladesh': 'বাংলা',
+        'cancel': 'বাতিল',
+        'save': 'সংরক্ষণ',
+        'language_saved': 'ভাষা সেটিংস সংরক্ষণ করা হয়েছে',
+        'language_save_failed': 'ভাষা সেটিংস সংরক্ষণ ব্যর্থ হয়েছে'
+    },
+};
+
+let currentLang = 'zh';
+
+const languageStandardMap = {
+    'zh': 'zh-CN',
+    'hk': 'zh-HK', 
+    'en': 'en-US',
+    'ko': 'ko-KR',
+    'ja': 'ja-JP',
+    'ru': 'ru-RU',
+    'ar': 'ar-EG',
+    'es': 'es-ES',
+    'de': 'de-DE',
+    'fr': 'fr-FR',
+    'th': 'th-TH',
+    'bn': 'bn-BD',
+    'vi': 'vi-VN'
+};
+
+const flagMap = {
+    'zh': '/luci-static/ipip/flags/cn.png',
+    'hk': '/luci-static/ipip/flags/hk.png',
+    'en': '/luci-static/ipip/flags/us.png',
+    'ko': '/luci-static/ipip/flags/kr.png',
+    'ja': '/luci-static/ipip/flags/jp.png',
+    'ru': '/luci-static/ipip/flags/ru.png',
+    'ar': '/luci-static/ipip/flags/sa.png',
+    'es': '/luci-static/ipip/flags/es.png',
+    'de': '/luci-static/ipip/flags/de.png',
+    'fr': '/luci-static/ipip/flags/fr.png',
+    'th': '/luci-static/ipip/flags/th.png',
+    'bn': '/luci-static/ipip/flags/bd.png',
+    'vi': '/luci-static/ipip/flags/vn.png'
+};
+
+function updateFlagIcon(lang) {
+    const flagImg = document.getElementById('currentFlag');
+    if (flagImg && flagMap[lang]) {
+        flagImg.src = flagMap[lang];
+    }
+}
+
+function updateUIText() {
+    const translations = languageTranslations[currentLang] || languageTranslations['zh'];
+    
+    const languageBtn = document.querySelector('button[onclick="openLanguageModal()"]');
+    if (languageBtn) {
+        languageBtn.setAttribute('title', translations['select_language']);
+    }
+    
+    const modalTitle = document.querySelector('#languageModal h3');
+    if (modalTitle) {
+        modalTitle.textContent = translations['select_language'];
+    }
+    
+    const options = document.querySelectorAll('#languageSelect option');
+    options.forEach(option => {
+        const key = getOptionTranslationKey(option.value);
+        if (translations[key]) {
+            option.textContent = translations[key];
+        }
+    });
+    
+    const cancelBtn = document.querySelector('button[onclick="closeLanguageModal()"]');
+    const saveBtn = document.querySelector('button[onclick="saveLanguage()"]');
+    if (cancelBtn) cancelBtn.textContent = translations['cancel'];
+    if (saveBtn) saveBtn.textContent = translations['save'];
+    
+    updateFlagIcon(currentLang);
+}
+
+function getOptionTranslationKey(value) {
+    const keyMap = {
+        'zh': 'simplified_chinese',
+        'hk': 'traditional_chinese',
+        'en': 'english',
+        'ko': 'korean',
+        'vi': 'vietnamese',
+        'th': 'thailand',
+        'ja': 'japanese',
+        'ru': 'russian',
+        'de': 'germany',
+        'fr': 'france',
+        'ar': 'arabic',
+        'es': 'spanish',
+        'bn': 'bangladesh'
+    };
+    return keyMap[value] || value;
+}
+
+function closeLanguageModal() {
+    document.getElementById('languageModal').style.display = 'none';
+}
+
+function saveLanguage() {
+    const language = document.getElementById('languageSelect').value;
+    const translations = languageTranslations[language] || languageTranslations['zh'];
+    
+    const languageKey = getOptionTranslationKey(language);
+    const languageText = translations[languageKey] || language;
+    const standardCode = languageStandardMap[language] || language;
+    
+    fetch('/luci-static/spectra/bgm/save_language.php', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: 'action=save_language&language=' + language
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            const message = `${translations['language_saved']}: ${languageText} (${standardCode})`;
+            showWeatherLog(message);
+            speakWeatherMessage(message);
+            closeLanguageModal();
+            
+            currentLang = language;
+            updateUIText();
+            
+            setTimeout(() => {
+                location.reload();
+            }, 5000);
+        } else {
+            const message = `${translations['language_save_failed']}: ${languageText} (${standardCode})`;
+            showWeatherLog(message);
+            speakWeatherMessage(message);
+        }
+    });
+}
+
+function openLanguageModal() {
+    fetch('/luci-static/spectra/bgm/save_language.php', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: 'action=get_language'
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success && data.language) {
+            document.getElementById('languageSelect').value = data.language;
+            currentLang = data.language;
+            updateUIText();
+        }
+        document.getElementById('languageModal').style.display = 'block';
+    })
+    .catch(error => {
+        document.getElementById('languageModal').style.display = 'block';
+    });
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    const languageSelect = document.getElementById('languageSelect');
+    if (languageSelect) {
+        languageSelect.addEventListener('change', function() {
+            updateFlagIcon(this.value);
+        });
+    }
+
+    fetch('/luci-static/spectra/bgm/save_language.php', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: 'action=get_language'
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success && data.language) {
+            currentLang = data.language;
+            updateUIText();
+        }
+    });
+
+    document.getElementById('languageModal').addEventListener('click', function(e) {
+        if (e.target === this) {
+            closeLanguageModal();
+        }
+    });
+});
+</script>
 
 <script>
 function updatemenu(){1==document.getElementById("responsive-menu").checked?(document.getElementById("menu").style.borderBottomRightRadius="0",document.getElementById("menu").style.borderBottomLeftRadius="0"):document.getElementById("menu").style.borderRadius="0px"}

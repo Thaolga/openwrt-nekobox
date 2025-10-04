@@ -473,13 +473,13 @@ body.dm-serif-font {
         padding: 6px 10px;
         border-radius: 6px;
         font-size: 0.875rem;
-        white-space: pre-wrap;
+        white-space: nowrap;
         line-height: 1.4;
         z-index: 999;
         opacity: 0;
         pointer-events: none;
         transition: opacity 0.2s ease;
-        max-width: 300px;
+        max-width: none;
         box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
 }
 
@@ -1482,7 +1482,7 @@ body:hover,
             }
             ?>  
             <div class="me-3 d-flex gap-2 mt-2 ps-2 custom-tooltip-wrapper gap-2" 
-                 data-tooltip="挂载点：<?= $mountPoint ?>｜已用空间：<?= formatSize($usedSpace) ?>">
+                 data-translate-tooltip="mount_info" data-mount-point="<?= $mountPoint ?>" data-used-space="<?= $usedSpace ? formatSize($usedSpace) : 'N/A' ?>" data-tooltip="">
                 <span class="btn btn-primary btn-sm mb-2 d-none d-sm-inline"><i class="bi bi-hdd"></i> <span data-translate="total">Total：</span><?= $totalSpace ? formatSize($totalSpace) : 'N/A' ?></span>
                 <span class="btn btn-success btn-sm mb-2  d-none d-sm-inline"><i class="bi bi-hdd"></i> <span data-translate="free">Free：</span><?= $freeSpace ? formatSize($freeSpace) : 'N/A' ?></span>
             </div>
@@ -4702,12 +4702,6 @@ const showLogMessage = (function() {
     };
 })();
 
-function speakMessage(message) {
-    const utterance = new SpeechSynthesisUtterance(message);
-    utterance.lang = currentLang;  
-    speechSynthesis.speak(utterance);
-} 
-
 function togglePlay() {
     if (isPlaying) {
         audioPlayer.pause();
@@ -6165,6 +6159,8 @@ $langData = [
         'excellent_aaa' => '优秀 (AAA)',
         'good_aa' => '良好 (AA)',
         'poor_needs_improvement' => '不足 (需要改进)',
+        'mount_point' => '挂载点：',
+        'used_space' => '已用空间：',
         'selected_info' => '已选择 %d 个文件，合计 %s MB'
     ],
 
@@ -6438,6 +6434,8 @@ $langData = [
         'excellent_aaa' => '優秀 (AAA)',
         'good_aa' => '良好 (AA)',
         'poor_needs_improvement' => '不足 (需要改進)',
+        'mount_point' => '掛載點：',
+        'used_space'  => '已用空間：',
         'selected_info' => '已選擇 %d 個文件，合計 %s MB'
     ],
 
@@ -6711,6 +6709,8 @@ $langData = [
         'excellent_aaa' => '우수 (AAA)',
         'good_aa' => '양호 (AA)',
         'poor_needs_improvement' => '미흡 (개선 필요)',
+        'mount_point' => '마운트 지점:',
+        'used_space'  => '사용된 공간:',
         'selected_info' => '선택된 파일: %d개, 총합: %s MB'
     ],
 
@@ -6983,6 +6983,8 @@ $langData = [
         'good_aa' => '良好 (AA)',
         'poor_needs_improvement' => '不十分 (改善が必要)',
         'update_failed'     => 'プレイリストの更新に失敗しました',
+        'mount_point' => 'マウントポイント：',
+        'used_space'  => '使用済み容量：',
         'selected_info' => '%dファイル選択（%s MB）'
     ],
 
@@ -7255,6 +7257,8 @@ $langData = [
         'good_aa' => 'Tốt (AA)',
         'poor_needs_improvement' => 'Kém (Cần cải thiện)',
         'update_failed'     => 'Cập nhật danh sách phát thất bại',
+        'mount_point' => 'Điểm gắn:',
+        'used_space'  => 'Dung lượng đã sử dụng:',
         'selected_info' => 'Đã chọn %d tệp (%s MB)'
     ],
 
@@ -7511,6 +7515,8 @@ $langData = [
         'excellent_aaa' => 'ยอดเยี่ยม (AAA)',
         'good_aa' => 'ดี (AA)',
         'poor_needs_improvement' => 'ต่ำ (ต้องปรับปรุง)',
+        'mount_point' => 'จุดเมานท์:',
+        'used_space'  => 'พื้นที่ที่ใช้:',
         'selected_info' => 'เลือกไฟล์แล้ว %d ไฟล์ รวมทั้งหมด %s MB'
     ],
 
@@ -7769,6 +7775,8 @@ $langData = [
         'excellent_aaa' => 'Отлично (AAA)',
         'good_aa' => 'Хорошо (AA)',
         'poor_needs_improvement' => 'Низкий (нуждается в улучшении)',
+        'mount_point' => 'Точка монтирования:',
+        'used_space'  => 'Используемое место:',
         'selected_info' => 'Выбрано %d файлов, всего %s MB'
     ],
 
@@ -8032,6 +8040,8 @@ $langData = [
         'excellent_aaa' => 'ممتاز (AAA)',
         'good_aa' => 'جيد (AA)',
         'poor_needs_improvement' => 'ضعيف (بحاجة إلى تحسين)',
+        'mount_point' => 'نقطة التركيب:',
+        'used_space'  => 'المساحة المستخدمة:',
         'selected_info' => 'تم اختيار %d ملفات (%s ميجابايت)'
     ],
 
@@ -8289,6 +8299,8 @@ $langData = [
         'excellent_aaa' => 'Excelente (AAA)',
         'good_aa' => 'Bueno (AA)',
         'poor_needs_improvement' => 'Pobre (Necesita mejora)',
+        'mount_point' => 'Punto de montaje:',
+        'used_space'  => 'Espacio usado:',
         'selected_info' => 'Seleccionados %d archivos, en total %s MB'
     ],
 
@@ -8546,6 +8558,8 @@ $langData = [
         'excellent_aaa' => 'Ausgezeichnet (AAA)',
         'good_aa' => 'Gut (AA)',
         'poor_needs_improvement' => 'Schlecht (Verbesserung nötig)',
+        'mount_point' => 'Einbindungspunkt:',
+        'used_space'  => 'Verwendeter Speicher:',
         'selected_info' => '%d Dateien ausgewählt, insgesamt %s MB'
     ],
 
@@ -8803,6 +8817,8 @@ $langData = [
         'excellent_aaa' => 'Excellent (AAA)',
         'good_aa' => 'Bon (AA)',
         'poor_needs_improvement' => 'Insuffisant (À améliorer)',
+        'mount_point' => 'Point de montage :',
+        'used_space'  => 'Espace utilisé :',
         'selected_info' => '%d fichiers sélectionnés, total de %s Mo'
     ],
 
@@ -9073,6 +9089,8 @@ $langData = [
         'excellent_aaa' => 'Excellent (AAA)',
         'good_aa' => 'Good (AA)',
         'poor_needs_improvement' => 'Poor (Needs Improvement)',
+        'mount_point' => 'Mount Point:',
+        'used_space' => 'Used Space:',
         'selected_info' => 'Selected %d files, total %s MB'
     ],
     'bn' => [
@@ -9329,6 +9347,8 @@ $langData = [
         'excellent_aaa' => 'চমৎকার (AAA)',
         'good_aa' => 'ভাল (AA)',
         'poor_needs_improvement' => 'খারাপ (উন্নতি প্রয়োজন)',
+        'mount_point' => 'মাউন্ট পয়েন্ট:',
+        'used_space'  => 'ব্যবহৃত স্থান:',
         'selected_info' => '%d টি ফাইল নির্বাচিত, মোট %s MB'
     ]
 ];
@@ -9372,11 +9392,26 @@ const currentLang = "<?php echo $currentLang; ?>";
 let translations = langData[currentLang] || langData['en'];
 
 document.addEventListener("DOMContentLoaded", () => {
-    const userLang = localStorage.getItem('language') || currentLang;
-
-    updateLanguage(userLang); 
-    updateFlagIcon(userLang);  
-    document.getElementById("langSelect").value = userLang; 
+    fetch('/luci-static/spectra/bgm/save_language.php', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: 'action=get_language'
+    })
+    .then(response => response.json())
+    .then(data => {
+        const userLang = (data.success && data.language) ? data.language : currentLang;
+        updateLanguage(userLang); 
+        updateFlagIcon(userLang);  
+        document.getElementById("langSelect").value = userLang; 
+        localStorage.setItem('language', userLang);
+    })
+    .catch(error => {
+        updateLanguage(currentLang); 
+        updateFlagIcon(currentLang);  
+        document.getElementById("langSelect").value = currentLang; 
+    });
 });
 
 function updateLanguage(lang) {
@@ -9422,6 +9457,41 @@ function updateLanguage(lang) {
             el.setAttribute('label', translations[translationKey]);  
         }
     });
+
+    document.querySelectorAll('[data-translate-tooltip]').forEach(el => {
+        const mountPoint = el.getAttribute('data-mount-point');
+        const usedSpace = el.getAttribute('data-used-space');
+    
+        if (mountPoint && usedSpace) {
+            const translatedTooltip = `${translations['mount_point']}${mountPoint}｜${translations['used_space']}${usedSpace}`;
+            el.setAttribute('data-tooltip', translatedTooltip);
+        }
+    });
+
+    fetch("/luci-static/spectra/bgm/theme-switcher.php")
+        .then(res => res.json())
+        .then(data => {
+            if(data.mode) {
+                updateStatus(data.mode);
+            }
+        })
+        .catch(error => {
+            console.error("Error retrieving mode: " + error);
+        });
+}
+
+function speakMessage(message) {
+    const xhr = new XMLHttpRequest();
+    xhr.open('GET', './language.txt', true);
+    xhr.onreadystatechange = function() {
+        if (xhr.readyState === 4 && xhr.status === 200) {
+            const lang = xhr.responseText.trim();
+            const utterance = new SpeechSynthesisUtterance(message);
+            utterance.lang = lang;
+            speechSynthesis.speak(utterance);
+        }
+    };
+    xhr.send();
 }
 
 function updateFlagIcon(lang) {
@@ -9448,43 +9518,48 @@ function updateFlagIcon(lang) {
 }
 
 function changeLanguage(lang) {
-    fetch('', {
+    const languageText = document.querySelector(`#langSelect option[value="${lang}"]`)?.text || lang;
+    
+    fetch('/luci-static/spectra/bgm/save_language.php', {
         method: 'POST',
         headers: {
-            'Content-Type': 'application/x-www-form-urlencoded'
+            'Content-Type': 'application/x-www-form-urlencoded',
         },
-        body: 'lang=' + lang
-    }).then(response => response.text())
-      .then(data => {
-          console.log(data); 
-          updateLanguage(lang);  
-          updateFlagIcon(lang);  
+        body: 'action=save_language&language=' + lang
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            updateLanguage(lang);  
+            updateFlagIcon(lang);  
+            localStorage.setItem('language', lang);
+            
+            const langLabelMap = {
+                'zh': '语言已切换为简体中文',
+                'hk': '語言已切換為繁體中文',
+                'en': 'Language switched to English',
+                'ko': '언어가 한국어로 변경되었습니다',
+                'ja': '言語が日本語に変更されました',
+                'ru': 'Язык переключен на русский',
+                'ar': 'تم تغيير اللغة إلى العربية',
+                'es': 'El idioma ha cambiado a español',
+                'de': 'Sprache auf Deutsch umgestellt',
+                'fr': 'Langue changée en français',
+                'th': 'เปลี่ยนภาษาเป็นภาษาไทยแล้ว',
+                'bn': 'ভাষা বাংলাতে পরিবর্তন করা হয়েছে',
+                'vi': 'Đã chuyển ngôn ngữ sang tiếng Việt'
+            };
 
-          const langLabelMap = {
-              'zh': '语言已切换为简体中文',
-              'hk': '語言已切換為繁體中文',
-              'en': 'Language switched to English',
-              'ko': '언어가 한국어로 변경되었습니다',
-              'ja': '言語が日本語に変更されました',
-              'ru': 'Язык переключен на русский',
-              'ar': 'تم تغيير اللغة إلى العربية',
-              'es': 'El idioma ha cambiado a español',
-              'de': 'Sprache auf Deutsch umgestellt',
-              'fr': 'Langue changée en français',
-              'th': 'เปลี่ยนภาษาเป็นภาษาไทยแล้ว',
-              'bn': 'ভাষা বাংলাতে পরিবর্তন করা হয়েছে',
-              'vi': 'Đã chuyển ngôn ngữ sang tiếng Việt'
-          };
+            const message = langLabelMap[lang] || 'Language switched';
 
-          const message = langLabelMap[lang] || 'Language switched';
-
-          if (typeof speakMessage === 'function') {
-              speakMessage(message);
-          }
-          if (typeof showLogMessage === 'function') {
-              showLogMessage(message);
-          }
-      });
+            if (typeof speakMessage === 'function') {
+                speakMessage(message);
+            }
+            if (typeof showLogMessage === 'function') {
+                showLogMessage(message);
+            }
+        }
+    });
 }
 </script>
 

@@ -86,7 +86,7 @@ document.addEventListener("DOMContentLoaded", function () {
             'guide3': '3. Solid Mode: Transparent background + spectrum animation',
             'guide4': '4. Light Mode: Switch in theme settings, will automatically turn off the control switch',
             'guide5': '5. Theme Settings: Supports custom backgrounds, mode switching requires clearing the background',
-            'guide6': '6. Menu Settings: Press Ctrl + Alt + S to open the settings menu',
+            'guide6': '6. Mode switching: Image/Video mode, only applicable to dark mode',
             'guide7': '7. Project Address: <a class="github-link" href="https://github.com/Thaolga/openwrt-nekobox" target="_blank">Click to visit</a>',
             'themeTitle': 'Spectra Theme Settings'
         },
@@ -138,7 +138,7 @@ document.addEventListener("DOMContentLoaded", function () {
             'guide3': '3. 暗黑模式：透明背景+光谱动画',
             'guide4': '4. 亮色模式：主题设置进行切换，会自动关闭控制开关',
             'guide5': '5. 主题设置：支持自定义背景，模式切换需清除背景',
-            'guide6': '6. 菜单设置：Ctrl + Alt + S 打开设置菜单',
+            'guide6': '6. 模式切换：图片/视频模式，只适用于暗色模式',
             'guide7': '7. 项目地址：<a class="github-link" href="https://github.com/Thaolga/openwrt-nekobox" target="_blank">点击访问</a>',
             'themeTitle': 'Spectra 主题设置'
         },
@@ -190,7 +190,7 @@ document.addEventListener("DOMContentLoaded", function () {
             'guide3': '3. 暗黑模式：透明背景+光譜動畫',
             'guide4': '4. 亮色模式：主題設定進行切換，會自動關閉控制開關',
             'guide5': '5. 主題設定：支援自訂背景，模式切換需清除背景',
-            'guide6': '6. 功能選單設定：Ctrl + Alt + S 開啟設定選單',
+            'guide6': '6. 模式切換：圖片/影片模式，只適用於暗色模式',
             'guide7': '7. 專案地址：<a class="github-link" href="https://github.com/Thaolga/openwrt-nekobox" target="_blank">點擊訪問</a>',
             'themeTitle': 'Spectra 主題設定'
         },
@@ -242,7 +242,7 @@ document.addEventListener("DOMContentLoaded", function () {
             'guide3': '3. 솔리드 모드: 투명 배경 + 스펙트럼 애니메이션',
             'guide4': '4. 라이트 모드: 테마 설정에서 전환, 제어 스위치가 자동으로 꺼집니다',
             'guide5': '5. 테마 설정: 사용자 정의 배경 지원, 모드 전환 시 배경을 지워야 함',
-            'guide6': '6. 메뉴 설정: Ctrl + Alt + S를 눌러 설정 메뉴 열기',
+            'guide6': '6. 모드 전환: 이미지/비디오 모드, 다크 모드에서만 적용',
             'guide7': '7. 프로젝트 주소: <a class="github-link" href="https://github.com/Thaolga/openwrt-nekobox" target="_blank">방문하기</a>',
             'themeTitle': 'Spectra 테마 설정'
         },
@@ -294,7 +294,7 @@ document.addEventListener("DOMContentLoaded", function () {
             'guide3': '3. ソリッドモード: 透明背景+スペクトルアニメーション',
             'guide4': '4. ライトモード: テーマ設定で切り替えると、コントロールスイッチが自動的にオフになります',
             'guide5': '5. テーマ設定: カスタム背景をサポートし、モード切り替えには背景のクリアが必要です',
-            'guide6': '6. メニュー設定: Ctrl + Alt + Sで設定メニューを開きます',
+            'guide6': '6. モード切替：画像/動画モード、ダークモードのみ適用',
             'guide7': '7. プロジェクトアドレス: <a class="github-link" href="https://github.com/Thaolga/openwrt-nekobox" target="_blank">クリックして訪問</a>',
             'themeTitle': 'Spectra テーマ設定'
         },
@@ -346,7 +346,7 @@ document.addEventListener("DOMContentLoaded", function () {
             'guide3': '3. Chế độ đặc: Nền trong suốt + hoạt ảnh quang phổ',
             'guide4': '4. Chế độ sáng: Chuyển đổi trong cài đặt chủ đề sẽ tự động tắt công tắc điều khiển',
             'guide5': '5. Cài đặt chủ đề: Hỗ trợ nền tùy chỉnh, chuyển đổi chế độ yêu cầu xóa nền',
-            'guide6': '6. Cài đặt menu: Nhấn Ctrl + Alt + S để mở menu cài đặt',
+            'guide6': '6. Chuyển đổi chế độ: Chế độ hình ảnh/video, chỉ áp dụng cho chế độ tối',
             'guide7': '7. Địa chỉ dự án: <a class="github-link" href="https://github.com/Thaolga/openwrt-nekobox" target="_blank">Nhấn để truy cập</a>',
             'themeTitle': 'Cài đặt chủ đề Spectra'
         },
@@ -398,7 +398,7 @@ document.addEventListener("DOMContentLoaded", function () {
             'guide3': '3. โหมดทึบ: พื้นหลังโปร่งใส + แอนิเมชันสเปกตรัม',
             'guide4': '4. โหมดสว่าง: สลับในการตั้งค่าธีม จะปิดสวิตช์ควบคุมโดยอัตโนมัติ',
             'guide5': '5. การตั้งค่าธีม: รองรับพื้นหลังที่กำหนดเอง การเปลี่ยนโหมดต้องล้างพื้นหลัง',
-            'guide6': '6. การตั้งค่าเมนู: กด Ctrl + Alt + S เพื่อเปิดเมนูการตั้งค่า',
+            'guide6': '6. การเปลี่ยนโหมด: โหมดรูปภาพ/วิดีโอ ใช้ได้เฉพาะโหมดมืด',
             'guide7': '7. ที่อยู่โครงการ: <a class="github-link" href="https://github.com/Thaolga/openwrt-nekobox" target="_blank">คลิกเพื่อเยี่ยมชม</a>',
             'themeTitle': 'การตั้งค่าธีม Spectra'
         },
@@ -450,7 +450,7 @@ document.addEventListener("DOMContentLoaded", function () {
             'guide3': '3. Сплошной режим: Прозрачный фон + анимация спектра',
             'guide4': '4. Светлый режим: Переключение в настройках темы автоматически отключит переключатель',
             'guide5': '5. Настройки темы: Поддержка пользовательского фона, для смены режима нужно очистить фон',
-            'guide6': '6. Настройки меню: Нажмите Ctrl + Alt + S, чтобы открыть меню настроек',
+            'guide6': '6. Переключение режимов: Режим изображения/видео, применяется только к темному режиму',
             'guide7': '7. Адрес проекта: <a class="github-link" href="https://github.com/Thaolga/openwrt-nekobox" target="_blank">Перейти</a>',
             'themeTitle': 'Настройки темы Spectra'
         },
@@ -502,7 +502,7 @@ document.addEventListener("DOMContentLoaded", function () {
             'guide3': '3. Einheitlicher Modus: Transparenter Hintergrund + Spektralanimation',
             'guide4': '4. Hellmodus: Wechsel in den Theme-Einstellungen schaltet den Kontrollschalter automatisch aus',
             'guide5': '5. Theme-Einstellungen: Unterstützt benutzerdefinierte Hintergründe, Moduswechsel erfordert Löschen des Hintergrunds',
-            'guide6': '6. Menü-Einstellungen: Drücken Sie Strg + Alt + S, um das Einstellungsmenü zu öffnen',
+            'guide6': '6. Moduswechsel: Bild/Video-Modus, gilt nur für den Dunkelmodus',
             'guide7': '7. Projektadresse: <a class="github-link" href="https://github.com/Thaolga/openwrt-nekobox" target="_blank">Besuchen</a>',
             'themeTitle': 'Spectra Theme-Einstellungen'
         },
@@ -554,7 +554,7 @@ document.addEventListener("DOMContentLoaded", function () {
             'guide3': '3. Mode uni: Fond transparent + animation spectrale',
             'guide4': '4. Mode clair: Basculer dans les paramètres de thème désactive automatiquement le contrôle',
             'guide5': '5. Paramètres thème: Prise en charge des arrière-plans personnalisés, changement de mode nécessite d\'effacer l\'arrière-plan',
-            'guide6': '6. Paramètres menu: Ctrl + Alt + S pour ouvrir le menu des paramètres',
+            'guide6': '6. Changement de mode : Mode image/vidéo, applicable uniquement au mode sombre',
             'guide7': '7. Adresse projet: <a class="github-link" href="https://github.com/Thaolga/openwrt-nekobox" target="_blank">Visiter</a>',
             'themeTitle': 'Paramètres du thème Spectra'
         },
@@ -606,7 +606,7 @@ document.addEventListener("DOMContentLoaded", function () {
             'guide3': '3. الوضع الصلب: خلفية شفافة + رسوم متحركة طيفية',
             'guide4': '4. الوضع الفاتح: التبديل في إعدادات السمة سيوقف مفتاح التحكم تلقائيًا',
             'guide5': '5. إعدادات السمة: يدعم الخلفيات المخصصة، تغيير الوضع يتطلب مسح الخلفية',
-            'guide6': '6. إعدادات القائمة: اضغط Ctrl + Alt + S لفتح قائمة الإعدادات',
+            'guide6': '6. تبديل الوضع: وضع الصورة/الفيديو، ينطبق فقط على الوضع المظلم',
             'guide7': '7. عنوان المشروع: <a class="github-link" href="https://github.com/Thaolga/openwrt-nekobox" target="_blank">زيارة</a>',
             'themeTitle': 'إعدادات سمة Spectra'
         },
@@ -658,7 +658,7 @@ document.addEventListener("DOMContentLoaded", function () {
             'guide3': '3. Modo sólido: Fondo transparente + animación de espectro',
             'guide4': '4. Modo claro: Cambiar en la configuración de tema, desactivará automáticamente el interruptor de control',
             'guide5': '5. Configuración de tema: Admite fondos personalizados, el cambio de modo requiere borrar el fondo',
-            'guide6': '6. Configuración de menú: Presiona Ctrl + Alt + S para abrir el menú de configuración',
+            'guide6': '6. Cambio de modo: Modo imagen/video, solo aplicable al modo oscuro',
             'guide7': '7. Dirección del proyecto: <a class="github-link" href="https://github.com/Thaolga/openwrt-nekobox" target="_blank">Haz clic para visitar</a>',
             'themeTitle': 'Configuración de tema Spectra'
         },
@@ -710,7 +710,7 @@ document.addEventListener("DOMContentLoaded", function () {
             'guide3': '3. সলিড মোড: স্বচ্ছ পটভূমি + স্পেকট্রাম অ্যানিমেশন',
             'guide4': '4. লাইট মোড: থিম সেটিংসে সুইচ করুন, নিয়ন্ত্রণ সুইচ স্বয়ংক্রিয়ভাবে বন্ধ হবে',
             'guide5': '5. থিম সেটিংস: কাস্টম পটভূমি সমর্থন করে, মোড সুইচিংয়ের জন্য পটভূমি মুছে ফেলা প্রয়োজন',
-            'guide6': '6. মেনু সেটিংস: সেটিংস মেনু খুলতে Ctrl + Alt + S চাপুন',
+            'guide6': '6. মোড সুইচিং: ইমেজ/ভিডিও মোড, শুধুমাত্র ডার্ক মোডে প্রযোজ্য',
             'guide7': '7. প্রকল্পের ঠিকানা: <a class="github-link" href="https://github.com/Thaolga/openwrt-nekobox" target="_blank">দেখার জন্য ক্লিক করুন</a>',
             'themeTitle': 'Spectra থিম সেটিংস'
         }
@@ -924,14 +924,18 @@ document.addEventListener("DOMContentLoaded", function () {
                     <span>${translateText('fontToggle')}</span>
                     <div>${getFontButtonText()}</div>
                 </button>
+                <!--
                 <button id="color-panel-btn">
                     <span>${translateText('colorPanel')}</span>
                     <div><i class="bi bi-palette"></i></div>
                 </button>
+                -->
+                <!--
                 <button id="font-settings-btn" class="always-visible">
                     <span>${translateText('fontSettings')}</span>
                     <div><i class="bi bi-textarea-t"></i></div>
                 </button>
+                -->
                 <button class="info-btn">
                     <span>${translateText('usageGuide')}</span>
                     <div><i class="bi bi-info-circle"></i></div>
