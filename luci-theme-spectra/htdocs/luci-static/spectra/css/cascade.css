@@ -4507,8 +4507,7 @@ body:not(.Interfaces) .cbi-rowstyle-2:first-child {
 	justify-content: center;
 	line-height: 1.5rem;
 	padding: .5rem .76rem;
-	margin: .25rem .1rem .25rem 0;
-	margin: .25rem 0.25rem .25rem 0.5rem;
+        margin: .25rem 0.1rem .25rem 0.1rem;
 	color: #fff;
 	border-radius: .25rem;
 	outline: 0;
