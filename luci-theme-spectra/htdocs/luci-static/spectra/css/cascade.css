@@ -2226,6 +2226,109 @@ div > label {
         vertical-align: middle;
 }
 
+.myip-content-grid {
+	background: var(--bg-container) !important;
+}
+
+.myip-ip-section,
+.myip-check-section {
+	background: var(--bg-container) !important;
+	color: var(--text-primary) !important;
+}
+
+.myip-ip-item,
+.myip-check-item {
+	background: var(--bg-body) !important;
+	color: var(--text-primary) !important;
+}
+
+[data-theme="dark"] .myip-section-title,
+[data-theme="dark"] .ip-title,
+[data-theme="dark"] .ip-result,
+[data-theme="dark"] .ip-geo,
+[data-theme="dark"] .ip-state_title {
+	color: #ffffff !important;
+}
+
+html[data-theme="dark"] .myip-section-title {
+	color: #ffffff !important;
+}
+
+.oc .main-cards-container {
+	background: var(--bg-container) !important;
+}
+
+.oc .main-card,
+.oc .announcement-card {
+	background: var(--bg-container) !important;
+}
+
+.oc .sub-card {
+	background: var(--bg-body) !important;
+}
+
+.subscription-info-container,
+.config-file-content {
+	background-color: transparent !important;
+}
+
+.icon-btn, 
+.action-btn, 
+.copy-btn,
+#edit_overwrite,
+#restart_core,
+#go_wiki,
+#go_tutorials,
+#go_star,
+#go_telegram,
+#go_sponsor,
+#logo_btn {
+	background-color: var(--bg-container)  !important;
+
+}
+
+[data-theme="dark"] .main-cards-container {
+	color: white !important;
+}
+
+[data-theme="dark"] .main-cards-container * {
+	color: inherit !important;
+}
+
+[data-theme="dark"] #_daip b,
+[data-theme="dark"] #_mix_proxy b,
+[data-theme="dark"] #_mode b,
+[data-theme="dark"] .stat-value {
+        color: var(--success-color) !important;
+}
+
+.subscription-info-main {
+	background: var(--bg-body) !important;
+	border-radius: 12px;
+}
+
+.cbi-button-group {
+	background: var(--bg-container) !important;
+}
+
+.oc .config-select  {
+	background: var(--bg-container) !important;
+}
+
+#_clash,
+#_oclog,
+#_daip,
+#_mix_proxy,
+#_mode,
+#plugin-version-display,
+#core-version-display {
+	background-color: var(--bg-container) !important;
+}
+
+fieldset.cbi-section {
+	background: var(--bg-container) !important;
+}
+
 .cbi-button-remove {
 	background-color: #dc3545 !important;
 	color: #fff !important;
