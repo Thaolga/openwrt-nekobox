@@ -5711,7 +5711,7 @@ input[type="checkbox"] {
 	padding: 0;
 	cursor: pointer;
 	transition: all .2s;
-	margin: 1rem 0 0 0
+	margin: 1rem 8px 0 0
 }
 
 input[type="checkbox"]:checked {
