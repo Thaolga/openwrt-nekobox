@@ -2207,7 +2207,7 @@ div > div[style*="display:grid"] {
 }
 
 .cbi-button-edit:hover {
-	background-color: #e8590c !important;
+	background-color: #138da1 !important;
 }
 
 .cbi-button-remove {
@@ -2222,6 +2222,14 @@ div > div[style*="display:grid"] {
 
 .cbi-button-remove:hover {
 	background-color: #c82333 !important;
+}
+
+.btn.cbi-button.cbi-button-add[onclick*="copy_node"] {
+	transition: background-color 0.2s ease;
+}
+
+.btn.cbi-button.cbi-button-add[onclick*="copy_node"]:hover {
+	background-color: #4a5cd4 !important;
 }
 
 .close-btn {
@@ -3415,7 +3423,7 @@ h2 {
 	border-radius: .375rem;
 	background: var(--bg-container);
 	box-shadow: 0 4px 8px rgba(0, 0, 0, 0.03);
-	font-weight: bold
+	font-weight: 700;
 }
 
 h3 {
@@ -3426,6 +3434,7 @@ h3 {
 	margin-bottom: 0;
 	padding: 0.3rem 0.5rem;
 	color: var(--text-color);
+	font-weight: 700;
 }
 
 h4 {
@@ -3532,7 +3541,8 @@ fieldset>fieldset,
 .cbi-button-save,
 .cbi-button-reset,
 .cbi-button-add {
-      font-family: inherit !important;
+        font-family: inherit !important;
+	font-weight: 700 !important;
 }
 
 div#moreEntriesBar>button.cbi-button.btn {
@@ -4001,7 +4011,7 @@ td>table>tbody>tr>td,
 	font-weight: normal;
 	color: #fff !important;
 	background-color: #5e72e4;
-	background-color: var(--primary)
+	background-color: var(--primary);
 }
 
 .cbi-page-actions .cbi-button-apply,
