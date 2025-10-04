@@ -76,6 +76,12 @@
     --radius: 20px;
     --glass-opacity: 0.85;
     --glass-border: 1px solid rgba(255, 255, 255, 0.1);
+    --border-color: oklch(40% var(--base-chroma) var(--base-hue));
+    --border-light: 1px solid oklch(60% 0.05 var(--base-hue) / 0.3);
+    --border-strong: 2px solid oklch(70% 0.1 var(--base-hue) / 0.6);
+
+    --border-glow: 0 0 12px oklch(70% 0.2 var(--base-hue) / 0.8),
+                   0 0 24px oklch(70% 0.2 var(--base-hue) / 0.6);
     --shadow-intensity: 0.25;
     --text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
     --transition-speed: 0.3s;
@@ -128,6 +134,13 @@
     --base-chroma: 0.01;
     --l: 60%;
     --c: 0.25;
+
+    --glass-border: 1px solid rgba(0, 0, 0, 0.05);
+    --border-color: oklch(85% 0.03 var(--base-hue));
+    --border-light: 1px solid oklch(90% 0.02 var(--base-hue) / 0.4);
+    --border-strong: 2px solid oklch(75% 0.05 var(--base-hue) / 0.8);
+    --border-glow: 0 0 8px oklch(85% 0.2 var(--base-hue) / 0.4),
+                   0 0 16px oklch(90% 0.25 var(--base-hue) / 0.3);
 
     --bg-body: oklch(95% var(--base-chroma) var(--base-hue) / 90%);
     --bg-container: oklch(99% var(--base-chroma) var(--base-hue));
@@ -347,7 +360,7 @@
 
 #result-overlay {
     backdrop-filter: blur(4px);
-    background: rgba(0, 0, 0, 0.5);
+    background: var(--bg-container);
     border-radius: 8px;
     color: #fff;
     display: none;
@@ -367,6 +380,8 @@
     text-orientation: mixed;
     height: auto;
     white-space: nowrap;
+    border: var(--glass-border);
+    box-shadow: var(--border-glow);
 }
 
 @font-face {
@@ -594,6 +609,41 @@ div.nav-container > button.btn_styles {
 [data-page="admin-system-flash"] .cbi-section-descr {
     color: var(--text-primary) !important;
 }
+
+.app-icon-btn {
+    background: var(--accent-color);
+    border: var(--glass-border);
+    border-radius: 50%;
+    width: 28px;
+    height: 28px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
+    font-size: 14px;
+    margin-right: 8px;
+    color: white;
+    transition: var(--transition);
+}
+
+.app-icon-btn:hover {
+    filter: brightness(1.2);
+}
+
+.app-icon-btn:active {
+    transform: scale(0.9);
+}
+
+.app-icon-btn i {
+    color: white;
+    pointer-events: none;
+}
+
+[data-theme="dark"] .app-icon-btn {
+    border: var(--glass-border);
+    box-shadow: var(--border-glow);
+} 
 </style>
     <meta charset="utf-8">
     <title>
@@ -741,10 +791,10 @@ div.nav-container > button.btn_styles {
                   </div>
                 </div>
               </div>
-              <button id="setCityBtn"style="background:var(--accent-color); border:none; border-radius:50%; width:28px; height:28px; cursor:pointer; display:flex; align-items:center; justify-content:center; line-height:1; font-size:14px; margin-right:8px;"><i class="bi bi-gear-fill" style="color:white;"></i></button>
-              <button type="button" onclick="document.getElementById('colorPicker').click()" style="background:var(--accent-color); border:none; border-radius:50%; width:28px; height:28px; cursor:pointer; display:flex; align-items:center; justify-content:center; line-height:1; font-size:14px; margin-right:8px;"><i class="bi bi-palette-fill" style="color:white;"></i></button>
+              <button id="setCityBtn" class="app-icon-btn"><i class="bi bi-gear-fill"></i></button>
+              <button type="button" class="app-icon-btn" onclick="document.getElementById('colorPicker').click()"><i class="bi bi-palette-fill"></i></button>
               <input type="color" id="colorPicker" value="#0f3460" style="display: none;">
-              <button type="button" onclick="openLanguageModal()" style="background:var(--accent-color); border:none; border-radius:50%; width:28px; height:28px; cursor:pointer; display:flex; align-items:center; justify-content:center; line-height:1; font-size:14px;"><i class="bi bi-translate" style="color:white;"></i></button>
+              <button type="button" class="app-icon-btn" onclick="openLanguageModal()"><i class="bi bi-translate"></i></button>
             </div>
 
             <div class="ip-container" style="display: none;">
