@@ -2333,10 +2333,6 @@ html[data-theme="dark"] .myip-section-title {
 	background-color: var(--bg-container) !important;
 }
 
-fieldset.cbi-section {
-	background: var(--bg-container) !important;
-}
-
 .cbi-button-remove {
 	background-color: #dc3545 !important;
 	color: #fff !important;
