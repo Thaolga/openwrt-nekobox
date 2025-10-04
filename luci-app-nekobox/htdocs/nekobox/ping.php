@@ -1260,6 +1260,20 @@ function updateLanguage(lang) {
     });
 }
 
+function speakMessage(message) {
+    const xhr = new XMLHttpRequest();
+    xhr.open('GET', './lib/language.txt', true);
+    xhr.onreadystatechange = function() {
+        if (xhr.readyState === 4 && xhr.status === 200) {
+            const lang = xhr.responseText.trim();
+            const utterance = new SpeechSynthesisUtterance(message);
+            utterance.lang = lang;
+            speechSynthesis.speak(utterance);
+        }
+    };
+    xhr.send();
+}
+
 function updateFlagIcon(lang) {
     const flagImg = document.getElementById('flagIcon');
     if (!flagImg) return; 
@@ -2527,12 +2541,6 @@ const showLogMessage = (function() {
     };
 })();
 
-function speakMessage(message) {
-    const utterance = new SpeechSynthesisUtterance(message);
-    utterance.lang = currentLang;  
-    speechSynthesis.speak(utterance);
-} 
-
 function togglePlay() {
     if (isPlaying) {
         audioPlayer.pause();
@@ -3702,22 +3710,16 @@ document.getElementById('resetButton').addEventListener('click', function() {
 </script>
 
 <script>
-    const websites = [
-        'https://www.baidu.com/', 
-        'https://www.cloudflare.com/', 
-        'https://openai.com/',
-        'https://www.youtube.com/',
-        'https://www.google.com/',
-        'https://www.facebook.com/',
-        'https://www.twitter.com/',
-        'https://www.github.com/'
-    ];
-
-function speakMessage(message) {
-    const utterance = new SpeechSynthesisUtterance(message);
-    utterance.lang = currentLang;  
-    speechSynthesis.speak(utterance);
-}
+const websites = [
+    'https://www.baidu.com/', 
+    'https://www.cloudflare.com/', 
+    'https://openai.com/',
+    'https://www.youtube.com/',
+    'https://www.google.com/',
+    'https://www.facebook.com/',
+    'https://www.twitter.com/',
+    'https://www.github.com/'
+];
 
 function getWebsiteStatusMessage(url, status) {
     const statusMessages = translations['statusMessages'][url] || {};
@@ -3989,12 +3991,6 @@ setInterval(speakTimeNow, 1000);
     }
     updateButtonText();
     })();
-
-function speakMessage(message) {
-    const utterance = new SpeechSynthesisUtterance(message);
-    utterance.lang = currentLang;  
-    speechSynthesis.speak(utterance);
-}
 </script>
 
 <style>
@@ -4123,12 +4119,6 @@ function speakMessage(message) {
     function stopSnowflakes() {
         let snowflakes = document.querySelectorAll('.snowflake');
         snowflakes.forEach(snowflake => snowflake.remove());
-    }
-
-    function speakMessage(message) {
-        const utterance = new SpeechSynthesisUtterance(message);
-        utterance.lang = 'zh-CN';
-        speechSynthesis.speak(utterance);
     }
 
     function getSnowingState() {
@@ -4268,12 +4258,6 @@ function speakMessage(message) {
         setTimeout(() => {
             notification.remove();
         }, 3000);
-    }
-
-    function speakMessage(message) {
-        const utterance = new SpeechSynthesisUtterance(message);
-        utterance.lang = 'zh-CN';
-        speechSynthesis.speak(utterance);
     }
 
     function toggleLightEffect() {
