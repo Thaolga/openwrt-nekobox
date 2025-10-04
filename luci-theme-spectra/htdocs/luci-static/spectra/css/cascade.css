@@ -2284,7 +2284,6 @@ html[data-theme="dark"] .myip-section-title {
 #go_sponsor,
 #logo_btn {
 	background-color: var(--bg-container)  !important;
-
 }
 
 [data-theme="dark"] .main-cards-container {
@@ -2293,6 +2292,15 @@ html[data-theme="dark"] .myip-section-title {
 
 [data-theme="dark"] .main-cards-container * {
 	color: inherit !important;
+}
+
+[data-theme="dark"] .myip-footer p {
+	color: white !important;
+}
+
+[data-theme="dark"] #mode-icon * {
+	fill: white !important;
+	stroke: white !important;
 }
 
 [data-theme="dark"] #_daip b,
