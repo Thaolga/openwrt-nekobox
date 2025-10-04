@@ -2311,8 +2311,8 @@ html[data-theme="dark"] .myip-section-title {
 }
 
 .subscription-info-main {
-	background: var(--bg-body) !important;
-	border-radius: 12px;
+	background: var(--bg-container) !important;
+	border-radius: 8px;
 }
 
 .cbi-button-group {
