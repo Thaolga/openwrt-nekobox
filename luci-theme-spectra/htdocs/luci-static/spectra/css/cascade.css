@@ -1578,7 +1578,7 @@ input,
 	line-height: 1.5rem;
 	padding: .5rem .75rem;
 	margin: .25rem .1rem;
-	color: var(--text-primary) !important;
+	color: var(--text-primary);
 	background-color: var(--card-bg);
 	border: 1px solid #dee2e6;
 	border-radius: .25rem;
