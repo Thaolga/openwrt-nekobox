@@ -902,7 +902,6 @@ document.addEventListener("DOMContentLoaded", function () {
                     <div><i class="bi bi-stars" style="color: white"></i></div>
                 </button>
 
-
                 <button class="object-fit-btn" style="opacity:1 !important;pointer-events:auto !important">
                     <span>${translateText('displayRatio')}</span>
                     <div>${getFitButtonText()}</div>
@@ -924,18 +923,14 @@ document.addEventListener("DOMContentLoaded", function () {
                     <span>${translateText('fontToggle')}</span>
                     <div>${getFontButtonText()}</div>
                 </button>
-                <!--
                 <button id="color-panel-btn">
                     <span>${translateText('colorPanel')}</span>
                     <div><i class="bi bi-palette"></i></div>
                 </button>
-                -->
-                <!--
                 <button id="font-settings-btn" class="always-visible">
                     <span>${translateText('fontSettings')}</span>
                     <div><i class="bi bi-textarea-t"></i></div>
                 </button>
-                -->
                 <button class="info-btn">
                     <span>${translateText('usageGuide')}</span>
                     <div><i class="bi bi-info-circle"></i></div>
