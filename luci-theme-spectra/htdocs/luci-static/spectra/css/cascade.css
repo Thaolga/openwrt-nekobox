@@ -1538,15 +1538,6 @@ li {
 	box-sizing: border-box;
 	margin: 0;
 	padding: 0;
-        scrollbar-color: var(--accent-color) var(--bg-container) !important;
-}
-
-::-webkit-scrollbar-thumb {
-        background-color: var(--accent-color) !important;
-}
-
-::-webkit-scrollbar-track {
-        background-color: var(--bg-container)) !important;
 }
 
 .h1,
