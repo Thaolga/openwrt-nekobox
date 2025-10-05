@@ -1981,7 +1981,7 @@ ul.tabs li {
 }
 
 .cbi-button-apply {
-	background-color: #28a745 !important;
+	background-color: #23bd70 !important;
 	color: #fff !important;
 }
 
@@ -2044,7 +2044,7 @@ ul.tabs li {
 }
 
 .control-group>input+.btn.cbi-button {
-	background-color: #dc3545 !important;
+	background-color: #23bd70 !important;
 	color: white !important;
 }
 
@@ -3628,8 +3628,7 @@ h5 {
 }
 
 .cbi-section-descr:not(:empty) {
-	font-size: small;
-	line-height: 1.5;
+	font-size: 0.85rem;
 	padding: 1rem 1.25rem 0 1.25rem
 }
 
@@ -3656,7 +3655,7 @@ fieldset>fieldset,
 
 .cbi-section>h3:first-child,
 .panel-title {
-	font-size: 1.1rem;
+	font-size: 1.2rem;
 	line-height: 1;
 	display: block;
 	width: 100%;
@@ -6605,6 +6604,12 @@ li[name="tab-header"]:hover {
 }
 
 fieldset.diag-style {
-  background-color: var(--bg-container) !important;
-  border: 1px solid #ccc !important;
+	background-color: var(--bg-container) !important;
+	border: 1px solid #ccc !important;
+}
+
+.cbi-section-node .cbi-value span:first-child {
+	display: inline-block;
+	width: 150px;
+	text-align: left;
 }
