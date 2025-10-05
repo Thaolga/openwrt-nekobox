@@ -1573,14 +1573,14 @@ document.addEventListener("DOMContentLoaded", function () {
             }
 
             #custom-alert {
-                background: linear-gradient(to bottom, #7dd3fc, #3b82f6, #1d4ed8);
+                background: var(--bg-container);
                 border: 1px solid #333;
                 border-radius: 8px;
                 width: 90%;
-                max-width: 500px;
+                max-width: 550px;
                 padding: 20px;
                 box-shadow: 0 0 20px rgba(0,0,0,0.5);
-                color: #fff;
+                color: var(--text-primary) !important;
             }
 
             .alert-header {
@@ -1594,8 +1594,8 @@ document.addEventListener("DOMContentLoaded", function () {
 
             .alert-header h3 {
                 margin: 0;
-                color: rgb(255, 0, 255) !important;
-                font-size: 1.3em;
+                color: var(--accent-color) !important;
+                font-size: 1.4em;
             }
 
             .alert-content {
@@ -1606,12 +1606,12 @@ document.addEventListener("DOMContentLoaded", function () {
             .alert-content p {
                 line-height: 1.6;
                 margin: 10px 0;
-                color: #ddd;
+                color: var(--text-primary) !important;
                 font-size: 14px;
             }
 
             .alert-content p a.github-link {
-                color: #ff69b4;
+                color: var(--accent-color);
                 text-decoration: none;
                 transition: color 0.3s ease;
             }
@@ -2946,7 +2946,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 backdrop-filter: blur(3px);
             }
             #theme-settings-dialog {
-                background: #0f3460;
+                background: var(--bg-container);
                 width: 70%;
                 height: 80vh;
                 margin-top: 0;
