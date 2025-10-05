@@ -610,25 +610,35 @@ div.nav-container > button.btn_styles {
     color: var(--text-primary) !important;
 }
 
+.icon-group {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    position: relative;
+    top: 1px;
+}
+
 .app-icon-btn {
-    background: var(--accent-color);
-    border: var(--glass-border);
-    border-radius: 50%;
-    width: 28px;
-    height: 28px;
+    background: white;
+    border: none;
+    border-radius: 6px;
+    width: 40px;
+    height: 40px;
     cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
-    line-height: 1;
-    font-size: 14px;
-    margin-right: 8px;
-    color: white;
-    transition: var(--transition);
+    color: black;
+    font-size: 20px;
+    box-shadow: 0 4px 4px 2px #00ffff9a;
+    transition: transform 0.2s ease, box-shadow 0.2s ease, filter 0.2s ease;
+    position: relative;
+    overflow: hidden;
 }
 
 .app-icon-btn:hover {
-    filter: brightness(1.2);
+    filter: drop-shadow(0 0 5px cyan);
+    box-shadow: 0 4px 6px 2px #00ffffd0;
 }
 
 .app-icon-btn:active {
@@ -636,14 +646,22 @@ div.nav-container > button.btn_styles {
 }
 
 .app-icon-btn i {
-    color: white;
+    color: inherit;
     pointer-events: none;
+    position: relative;
+    top: 1px;
 }
 
 [data-theme="dark"] .app-icon-btn {
-    border: var(--glass-border);
-    box-shadow: var(--border-glow);
-} 
+    background: #fff;
+    box-shadow: 0 4px 4px 2px #00ffff9a;
+}
+
+@media (max-width: 768px) {
+    .icon-group {
+        display: none;
+    }
+}
 </style>
     <meta charset="utf-8">
     <title>
@@ -776,9 +794,15 @@ div.nav-container > button.btn_styles {
                 <div class="nav-icon" id="wifiIcon">
                         <img id="settings-icon" src="<%=media%>/navbar/interface.gif" alt="Interface" style="cursor:pointer;">
                 </div>
+                <div class="icon-group">
+                        <button id="setCityBtn" class="app-icon-btn"><i class="bi bi-cloud-lightning-fill"></i></button>
+                        <button type="button" class="app-icon-btn" id="colorPickerBtn" onclick="document.getElementById('colorPicker').click()"><i class="bi bi-moon-fill"></i></button>
+                        <input type="color" id="colorPicker" value="#0f3460" style="display: none;">
+                        <button type="button" class="app-icon-btn" onclick="openLanguageModal()"><i class="bi bi-translate"></i></button>
+                </div>
             </div>
 
-            <div class="weather-card" style="position:relative; display:flex; align-items:center; padding:10px; border-radius:8px; color:white; width:390px; height:50px; margin-top:3px;">
+            <div class="weather-card" style="position:relative; display:flex; align-items:center; padding:10px; border-radius:8px; color:white;  height:50px; margin-top:3px;">
               <div style="flex:1; display:flex; align-items:center; gap:25px;">   
                   <div id="iconContainer" style="position:relative; width:50px; height:50px;"> 
                       <img id="loadingIcon" src="/luci-static/ipip/img/loading.svg" style="position:absolute; top:50%; left:50%; transform:translate(-50%, -50%); width:50px; height:50px;" />
@@ -791,10 +815,6 @@ div.nav-container > button.btn_styles {
                   </div>
                 </div>
               </div>
-              <button id="setCityBtn" class="app-icon-btn"><i class="bi bi-gear-fill"></i></button>
-              <button type="button" class="app-icon-btn" onclick="document.getElementById('colorPicker').click()"><i class="bi bi-palette-fill"></i></button>
-              <input type="color" id="colorPicker" value="#0f3460" style="display: none;">
-              <button type="button" class="app-icon-btn" onclick="openLanguageModal()"><i class="bi bi-translate"></i></button>
             </div>
 
             <div class="ip-container" style="display: none;">
@@ -956,6 +976,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
         updateAllCSSVariables();
         updateTextPrimary(currentLightness);
+        updateThemeIcon(currentLightness);
 
         if (showMessage) {
             const hexColor = oklchToHex(currentHue, currentChroma, currentLightness);
@@ -1015,6 +1036,21 @@ document.addEventListener("DOMContentLoaded", () => {
         }
 
         initColorPickerButton();
+        initThemeToggleButton();
+    }
+
+    function updateThemeIcon(lightness) {
+        const colorPickerBtn = document.getElementById('colorPickerBtn');
+        if (!colorPickerBtn) return;
+    
+        const isLight = lightness > 60;
+        const icon = colorPickerBtn.querySelector('i');
+    
+        if (isLight) {
+            icon.className = 'bi bi-sun-fill';
+        } else {
+            icon.className = 'bi bi-moon-fill';
+        }
     }
 
     function initColorSettings() {
