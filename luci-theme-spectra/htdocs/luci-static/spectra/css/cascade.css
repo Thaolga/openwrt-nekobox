@@ -1184,6 +1184,29 @@ a.pure-button-selected {
 	src: url('/luci-static/spectra/fonts/comic-neue-v8-latin-regular.woff2') format('woff2');
 }
 
+@font-face {
+        font-display: swap;
+        font-family: 'Noto Sans';
+        font-style: normal;
+        font-weight: 400;
+        src: url('/luci-static/spectra/fonts/noto-sans-v39-regular.woff2') format('woff2');
+}
+
+@font-face {
+        font-family: 'Cinzel Decorative';
+        font-style: normal;
+        font-weight: 700;
+        src: url('/luci-static/spectra/fonts/cinzel-decorative-v17-latin-700.woff2') format('woff2');
+}
+
+.font-notosans {
+        font-family: 'Noto Sans', sans-serif !important;
+}
+
+.font-cinzeldecorative {
+        font-family: 'Cinzel Decorative', cursive !important;
+}
+
 #view>.spinning {
 	position: fixed;
 	top: 50%;
