@@ -923,11 +923,11 @@ document.addEventListener("DOMContentLoaded", function () {
                     <span>${translateText('fontToggle')}</span>
                     <div>${getFontButtonText()}</div>
                 </button>
-                <button id="color-panel-btn">
+                <button id="color-panel-btn" disabled style="opacity:0.5 !important;pointer-events:none !important">
                     <span>${translateText('colorPanel')}</span>
                     <div><i class="bi bi-palette"></i></div>
                 </button>
-                <button id="font-settings-btn" class="always-visible">
+                <button id="font-settings-btn" class="always-visible" disabled style="opacity:0.5 !important;pointer-events:none !important">
                     <span>${translateText('fontSettings')}</span>
                     <div><i class="bi bi-textarea-t"></i></div>
                 </button>
@@ -1223,7 +1223,7 @@ document.addEventListener("DOMContentLoaded", function () {
             left: 50%;
             top: 50%;
             transform: translate(-50%, -50%);
-            background: var(--popup-bg-color, linear-gradient(to bottom, #7dd3fc, #3b82f6, #1d4ed8));
+            background: var(--bg-container);
             border-radius: 10px;
             padding: 15px;
             color: white;
@@ -1440,7 +1440,7 @@ document.addEventListener("DOMContentLoaded", function () {
         .control-panel-title {
             margin: 0;
             font-weight: bold;
-            color: rgb(40, 237, 240);
+            color: var(--accent-color);
             font-size: 1.3rem !important;
             display: flex;
             align-items: center;
@@ -1451,6 +1451,14 @@ document.addEventListener("DOMContentLoaded", function () {
         .control-panel-title i {
             font-size: 1.1rem;
         } 
+
+        #color-panel-btn,
+        #font-settings-btn {
+            opacity: 0.5 !important;
+            pointer-events: none !important;
+            cursor: not-allowed !important;
+            background: #666 !important;
+        }
 
         @media (max-width: 768px) {
             #mode-popup {
@@ -1725,7 +1733,7 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     function applyFont(font) {
-        loadFont(font);
+        // loadFont(font); // 
     
         const styleTag = document.querySelector("#font-style") || document.createElement("style");
         styleTag.id = "font-style";
@@ -1840,6 +1848,7 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     function loadFont(font) {
+    /*
         const fontMap = {
             'fredoka': 'Fredoka+One',
             'dmserif': 'DM+Serif+Display',
@@ -1855,6 +1864,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 document.head.appendChild(link);
             }
         }
+    */
     }
 
     function refreshOpenPopups(font) {

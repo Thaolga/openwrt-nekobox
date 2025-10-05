@@ -489,72 +489,135 @@
     Your browser does not support audio playback.
 </audio>
 
+<div class="audio-control" id="audioControl" style="
+    position: fixed;
+    top: 20px;
+    left: 20px;
+    z-index: 1000;
+    cursor: pointer;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 50%;
+    width: 48px;
+    height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    transition: all 0.3s ease;
+">
+    <i class="bi bi-volume-mute" style="font-size: 2rem; color: #666;"></i>
+</div>
+
 <script>
-window.addEventListener('load', function() {
+document.addEventListener('DOMContentLoaded', function() {
     let audio = document.getElementById("background-audio");
-    setTimeout(() => {
-        audio.muted = false;
-        audio.volume = 1.0;
-        audio.play();
-    }, 2000);
-});
+    let audioStarted = false;
+    let isMuted = false;
+    const audioControl = document.getElementById("audioControl");
+    const audioIcon = audioControl.querySelector("i");
 
-const translationsIP = {
-    zh: { login: '登录', password: '密码' },
-    en: { login: 'Login', password: 'Password' },
-    hk: { login: '登入', password: '密碼' },
-    de: { login: 'Anmelden', password: 'Passwort' },
-    fr: { login: 'Connexion', password: 'Mot de passe' },
-    ko: { login: '로그인', password: '비밀번호' },
-    ja: { login: 'ログイン', password: 'パスワード' },
-    bn: { login: 'লগইন', password: 'পাসওয়ার্ড' },
-    vi: { login: 'Đăng nhập', password: 'Mật khẩu' },
-    th: { login: 'เข้าสู่ระบบ', password: 'รหัสผ่าน' },
-    ar: { login: 'تسجيل الدخول', password: 'كلمة المرور' },
-    ru: { login: 'Вход', password: 'Пароль' },
-    es: { login: 'Iniciar sesión', password: 'Contraseña' }
-};
-
-async function getRealTimeLanguage() {
-    try {
-        const response = await fetch('/luci-static/spectra/bgm/language.txt', {cache: 'no-store'});
-        if (response.ok) {
-            const lang = await response.text();
-            return lang.trim() || 'zh-CN';
+    function startAudio() {
+        if (!audioStarted) {
+            audio.muted = false;
+            audio.volume = 1.0;
+            audio.play().catch(e => console.log('Audio play failed:', e));
+            audioStarted = true;
+            isMuted = false;
+            updateAudioIcon();          
+            document.removeEventListener('click', startAudio);
         }
-    } catch (error) {
-        console.error('Failed to read language file:', error);
-    }
-    return 'zh-CN';
-}
-
-async function translateLoginElements() {
-    const lang = await getRealTimeLanguage(); 
-    const text = translationsIP[lang] || translationsIP['zh'];
-
-    const loginButton = document.querySelector('button.submit-btn');
-    if (loginButton) {
-        loginButton.textContent = text.login || 'Login';
     }
 
-    const passwordInput = document.getElementById('authPassword');
-    if (passwordInput) {
-        passwordInput.placeholder = text.password || 'Password';
+    function toggleAudio() {
+        if (audioStarted) {
+            isMuted = !isMuted;
+            audio.muted = isMuted;
+            updateAudioIcon();
+        }
     }
-}
 
-document.addEventListener('DOMContentLoaded', translateLoginElements);
+    function updateAudioIcon() {
+        if (!audioStarted) {
+            audioIcon.className = "bi bi-volume-mute";
+            audioIcon.style.color = "#666";
+        } else if (isMuted) {
+            audioIcon.className = "bi bi-volume-mute";
+            audioIcon.style.color = "#ff4444";
+        } else {
+            audioIcon.className = "bi bi-volume-up";
+            audioIcon.style.color = "#4CAF50";
+        }
+    }
 
-document.addEventListener("DOMContentLoaded", function() {
+    audioControl.addEventListener('click', function(e) {
+        e.stopPropagation();
+        if (!audioStarted) {
+            startAudio();
+        } else {
+            toggleAudio();
+        }
+    });
+
+    document.addEventListener('click', startAudio, { once: true });
+    updateAudioIcon();
+
+    const translationsIP = {
+        zh: { login: '登录', password: '密码' },
+        en: { login: 'Login', password: 'Password' },
+        hk: { login: '登入', password: '密碼' },
+        de: { login: 'Anmelden', password: 'Passwort' },
+        fr: { login: 'Connexion', password: 'Mot de passe' },
+        ko: { login: '로그인', password: '비밀번호' },
+        ja: { login: 'ログイン', password: 'パスワード' },
+        bn: { login: 'লগইন', password: 'পাসওয়ার্ড' },
+        vi: { login: 'Đăng nhập', password: 'Mật khẩu' },
+        th: { login: 'เข้าสู่ระบบ', password: 'รหัสผ่าน' },
+        ar: { login: 'تسجيل الدخول', password: 'كلمة المرور' },
+        ru: { login: 'Вход', password: 'Пароль' },
+        es: { login: 'Iniciar sesión', password: 'Contraseña' }
+    };
+
+    async function getRealTimeLanguage() {
+        try {
+            const response = await fetch('/luci-static/spectra/bgm/language.txt', {cache: 'no-store'});
+            if (response.ok) {
+                const lang = await response.text();
+                return lang.trim() || 'zh-CN';
+            }
+        } catch (error) {
+            console.error('Failed to read language file:', error);
+        }
+        return 'zh-CN';
+    }
+
+    async function translateLoginElements() {
+        const lang = await getRealTimeLanguage(); 
+        const text = translationsIP[lang] || translationsIP['zh'];
+
+        const loginButton = document.querySelector('button.submit-btn');
+        if (loginButton) {
+            loginButton.textContent = text.login || 'Login';
+        }
+
+        const passwordInput = document.getElementById('authPassword');
+        if (passwordInput) {
+            passwordInput.placeholder = text.password || 'Password';
+        }
+    }
+
+    translateLoginElements();
+
     const toggle = document.querySelector(".toggle-password");
     const password = document.getElementById("authPassword");
 
-    toggle.addEventListener("click", function() {
-        const isPassword = password.getAttribute("type") === "password";
-        password.setAttribute("type", isPassword ? "text" : "password");
-        this.classList.toggle("bi-eye");
-        this.classList.toggle("bi-eye-slash");
-    });
+    if (toggle && password) {
+        toggle.addEventListener("click", function() {
+            const isPassword = password.getAttribute("type") === "password";
+            password.setAttribute("type", isPassword ? "text" : "password");
+            this.classList.toggle("bi-eye");
+            this.classList.toggle("bi-eye-slash");
+        });
+    }
 });
 </script>
-
