@@ -2975,20 +2975,16 @@ function checkAllSites() {
 
 window.addEventListener('load', () => {
     checkAllSites();
-    
     setInterval(checkAllSites, 180000);
-});
-
-window.addEventListener('load', function() {
-    setTimeout(function() {
-        var elements = document.querySelectorAll('[id*="_status"]');
+    setTimeout(() => {
+        const elements = document.querySelectorAll('[id*="_status"]');
         
-        elements.forEach(function(element, index) {
-            setTimeout(function() {
+        elements.forEach((element, index) => {
+            setTimeout(() => {
                 element.click();
             }, index * 1000);
         });
-    }, 1000);
+    }, 3000);
 });
 </script>
 
