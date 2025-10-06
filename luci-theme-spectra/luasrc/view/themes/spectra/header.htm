@@ -58,6 +58,38 @@
 <html lang="<%=luci.i18n.context.lang%>">
 
 <head>
+<script>
+(function() {
+    try {
+        const savedSettings = localStorage.getItem('appColorSettings');
+        if (savedSettings) {
+            const settings = JSON.parse(savedSettings);
+            const root = document.documentElement;
+            
+            root.style.setProperty('--base-hue', settings.hue || 260);
+            root.style.setProperty('--base-chroma', settings.chroma || 0.10);
+            root.style.setProperty('--base-lightness', settings.lightness || 30);
+            
+            const hue = settings.hue || 260;
+            root.style.setProperty('--base-hue-1', hue + 20);
+            root.style.setProperty('--base-hue-2', hue + 200);
+            root.style.setProperty('--base-hue-3', hue + 135);
+            root.style.setProperty('--base-hue-4', hue + 80);
+            root.style.setProperty('--base-hue-5', hue + 270);
+            root.style.setProperty('--base-hue-6', hue + 170);
+            root.style.setProperty('--base-hue-7', hue + 340);
+            
+            const isLight = (settings.lightness || 30) > 60;
+            root.setAttribute('data-theme', isLight ? 'light' : 'dark');
+            
+            const textL = isLight ? 20 : 95;
+            root.style.setProperty('--text-primary', `oklch(${textL}% 0 0)`);
+        }
+    } catch (e) {
+        console.error('Error loading saved colors:', e);
+    }
+})();
+</script>
 <style>
 [data-theme="dark"] {
     --base-hue: 260;
