@@ -1,5 +1,24 @@
 document.addEventListener("DOMContentLoaded", function () {
     let isEnabled = localStorage.getItem('backgroundEnabled') !== 'false';
+    let currentLanguage = 'zh';
+
+    fetch('/luci-static/spectra/bgm/save_language.php', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: 'action=get_language'
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success && data.language) {
+            currentLanguage = data.language;
+        }
+        updateUIText();
+    })
+    .catch(error => {
+        updateUIText();
+    });
 
     const isAnimationEnabled = localStorage.getItem('animationEnabled') !== 'false';
     toggleAnimation(isAnimationEnabled);
@@ -146,7 +165,7 @@ document.addEventListener("DOMContentLoaded", function () {
             'guide7': '7. 项目地址：<a class="github-link" href="https://github.com/Thaolga/openwrt-nekobox" target="_blank">点击访问</a>',
             'themeTitle': 'Spectra 主题设置'
         },
-        'zh-tw': {
+        'hk': {
             'enabled': '已啟用',
             'disabled': '已停用',
             'currentTheme': '當前主題: ',
@@ -742,12 +761,11 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     };
 
-    let currentLanguage = localStorage.getItem('currentLanguage') || 'zh';
 
     function getLanguageButtonText() {
         switch(currentLanguage) {
             case 'zh': return '繁體中文';
-            case 'zh-tw': return 'English';
+            case 'hk': return 'English';
             case 'en': return '한국어';
             case 'ko': return '日本語';
             case 'ja': return 'Tiếng Việt';
@@ -766,7 +784,7 @@ document.addEventListener("DOMContentLoaded", function () {
     function getLanguageButtonColor() {
         switch(currentLanguage) {
             case 'zh': return '#f44336';
-            case 'zh-tw': return '#2196F3';
+            case 'hk': return '#2196F3';
             case 'en': return '#4CAF50';
             case 'ko': return '#FF9800';
             case 'ja': return '#9C27B0';
@@ -1085,8 +1103,8 @@ document.addEventListener("DOMContentLoaded", function () {
             e.stopPropagation();
     
             switch(currentLanguage) {
-                case 'zh': currentLanguage = 'zh-tw'; break;
-                case 'zh-tw': currentLanguage = 'en'; break;
+                case 'zh': currentLanguage = 'hk'; break;
+                case 'hk': currentLanguage = 'en'; break;
                 case 'en': currentLanguage = 'ko'; break;
                 case 'ko': currentLanguage = 'ja'; break;
                 case 'ja': currentLanguage = 'vi'; break;
@@ -1101,17 +1119,28 @@ document.addEventListener("DOMContentLoaded", function () {
                 default: currentLanguage = 'zh';
 
             }
-            localStorage.setItem('currentLanguage', currentLanguage);
-    
-            this.querySelector('span').textContent = getLanguageButtonText();
-            this.querySelector('div').innerHTML = `<i class="bi bi-translate" style="color:${getLanguageButtonColor()}"></i>`;
-    
-            updateUIText();
-    
-            const fontSettingsOverlay = document.getElementById('font-settings-overlay');
-            if (fontSettingsOverlay) {
-                updateFontSettingsText();
-            }
+
+            fetch('/luci-static/spectra/bgm/save_language.php', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: 'action=save_language&language=' + encodeURIComponent(currentLanguage)
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    this.querySelector('span').textContent = getLanguageButtonText();
+                    this.querySelector('div').innerHTML = `<i class="bi bi-translate" style="color:${getLanguageButtonColor()}"></i>`;
+            
+                    updateUIText();
+                }
+            })
+            .catch(error => {
+                this.querySelector('span').textContent = getLanguageButtonText();
+                this.querySelector('div').innerHTML = `<i class="bi bi-translate" style="color:${getLanguageButtonColor()}"></i>`;
+                updateUIText();
+            });
         });
 
         document.getElementById('settings-icon').addEventListener('click', function(e) {

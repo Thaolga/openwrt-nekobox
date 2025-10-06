@@ -3717,7 +3717,6 @@ td.cbi-section-actions button.cbi-button-action:nth-child(5) {
 	background-color: #e53e3e !important;
 }
 
-
 td.cbi-section-actions>div>button.cbi-button-neutral.down:nth-child(2) {
 	background-color: #e53e3e !important;
 	border-color: #e53e3e !important;
@@ -3733,6 +3732,13 @@ td.cbi-section-actions>div>button.cbi-button-neutral.down:nth-child(2) {
 	background-image: none !important;
 	box-shadow: none !important;
 	opacity: 1 !important;
+	transition: all 0.3s ease !important;
+	transform: scale(1);
+}
+
+.nav-container .btn_styles:nth-child(1):hover {
+	transform: scale(1.05);
+	background-color: #2c5aa0 !important;
 }
 
 .nav-container .btn_styles:nth-child(2) {
@@ -3741,6 +3747,13 @@ td.cbi-section-actions>div>button.cbi-button-neutral.down:nth-child(2) {
 	background-image: none !important;
 	box-shadow: none !important;
 	opacity: 1 !important;
+	transition: all 0.3s ease !important;
+	transform: scale(1);
+}
+
+.nav-container .btn_styles:nth-child(2):hover {
+	transform: scale(1.05);
+	background-color: #2f855a !important;
 }
 
 .nav-container .btn_styles:nth-child(3) {
@@ -3749,6 +3762,13 @@ td.cbi-section-actions>div>button.cbi-button-neutral.down:nth-child(2) {
 	background-image: none !important;
 	box-shadow: none !important;
 	opacity: 1 !important;
+	transition: all 0.3s ease !important;
+	transform: scale(1);
+}
+
+.nav-container .btn_styles:nth-child(3):hover {
+	transform: scale(1.05);
+	background-color: #b7791f !important;
 }
 
 .nav-container .btn_styles:nth-child(4) {
@@ -3757,6 +3777,13 @@ td.cbi-section-actions>div>button.cbi-button-neutral.down:nth-child(2) {
 	background-image: none !important;
 	box-shadow: none !important;
 	opacity: 1 !important;
+	transition: all 0.3s ease !important;
+	transform: scale(1);
+}
+
+.nav-container .btn_styles:nth-child(4):hover {
+	transform: scale(1.05);
+	background-color: #6b46c1 !important;
 }
 
 .nav-container .btn_styles:nth-child(5) {
@@ -3765,34 +3792,44 @@ td.cbi-section-actions>div>button.cbi-button-neutral.down:nth-child(2) {
 	background-image: none !important;
 	box-shadow: none !important;
 	opacity: 1 !important;
+	transition: all 0.3s ease !important;
+	transform: scale(1);
+}
+
+.nav-container .btn_styles:nth-child(5):hover {
+	transform: scale(1.05);
+	background-color: #c53030 !important;
 }
 
 .nav-container .btn_styles {
 	color: white !important;
 }
 
-.nas-container_card,
-.app-container_status-label_item,
-.app-container_status-container,
-.network-container_flow,
-.app-container {
-	box-shadow:
-		0 -4px 12px rgba(0, 0, 0, 0.1),
-		0 4px 12px rgba(0, 0, 0, 0.1),
-		0 8px 24px rgba(0, 0, 0, 0.08) !important;
-	border-radius: 8px !important;
+a.item_btn[href*="kooldns.cn"] {
+        background-color: #38a169 !important;
+        border-color: #38a169 !important;
+        color: white !important;
+        text-decoration: none !important;
+        padding: 8px 16px !important;
+        border-radius: 6px !important;
+        transition: all 0.3s ease !important;
 }
 
+a.item_btn[href*="kooldns.cn"]:hover {
+        background-color: #2f855a !important;
+        transform: scale(1.05);
+}
 
-[data-theme="dark"] .nas-container_card,
-[data-theme="dark"] .app-container_status-label_item,
+.app-container_status-container,
+.app-container {
+        box-shadow: rgba(0, 0, 0, 0.75) 0 0 15px -5px !important;
+        border-radius: 10px !important;
+}
+
 [data-theme="dark"] .app-container_status-container,
-[data-theme="dark"] .network-container_flow,
 [data-theme="dark"] .app-container {
-	box-shadow:
-		0 -4px 12px rgba(0, 0, 0, 0.2),
-		0 4px 12px rgba(0, 0, 0, 0.2),
-		0 8px 24px rgba(0, 0, 0, 0.15) !important;
+        box-shadow: var(--border-glow) !important;
+        animation: var(--breathing-animation) !important;
 }
 
 .nas-container,
@@ -3835,6 +3872,25 @@ td.cbi-section-actions>div>button.cbi-button-neutral.down:nth-child(2) {
 div.app-container_configure {
 	background-color: #3182ce !important;
 	color: white !important;
+	transition: all 0.3s ease !important;
+	transform: scale(1);
+}
+
+div.app-container_configure:hover {
+	transform: scale(1.05);
+	background-color: #2c5aa0 !important;
+}
+
+[data-theme="dark"] div.app-container_configure {
+	background-color: oklch(50% 0.18 var(--base-hue)) !important;
+	color: var(--text-primary) !important;
+	box-shadow: 0 0 15px oklch(70% 0.2 var(--base-hue) / 0.4) !important;
+}
+
+[data-theme="dark"] div.app-container_configure:hover {
+	transform: scale(1.05);
+	background-color: oklch(45% 0.18 var(--base-hue)) !important;
+	box-shadow: 0 0 25px oklch(75% 0.25 var(--base-hue) / 0.6) !important;
 }
 
 #status-bar {
@@ -6626,4 +6682,27 @@ fieldset.diag-style {
 	display: inline-block;
 	width: 150px;
 	text-align: left;
+}
+
+.oc .config-editor-footer, .oc .config-editor-footer * {
+        font-size: 17px !important;
+        font-weight: bold !important;
+}
+
+.config-upload-model .cancel-btn {
+        background-color: #6c757d !important;
+}
+
+.config-upload-model .upload-btn {
+        background-color: #007bff !important;
+}
+
+.item-label_value .progress {
+        background-color: white !important;
+        border-radius: 10px !important;
+}
+
+.actioner-container_footer .close {
+        background-color: #e53e3e !important;
+        color: #fff !important;
 }

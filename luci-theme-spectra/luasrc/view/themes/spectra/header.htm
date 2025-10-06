@@ -79,9 +79,18 @@
     --border-color: oklch(40% var(--base-chroma) var(--base-hue));
     --border-light: 1px solid oklch(60% 0.05 var(--base-hue) / 0.3);
     --border-strong: 2px solid oklch(70% 0.1 var(--base-hue) / 0.6);
+    --glow-base: var(--base-hue);
+    --glow-primary: oklch(88% 0.35 var(--glow-base));
+    --glow-secondary: oklch(85% 0.3 calc(var(--glow-base) + 15));
 
+    --breathing-glow: 0 0 20px oklch(70% 0.3 var(--base-hue) / 0.6),
+                      0 0 40px oklch(70% 0.25 var(--base-hue) / 0.4),
+                      0 0 60px oklch(70% 0.2 var(--base-hue) / 0.3);
+    
     --border-glow: 0 0 12px oklch(70% 0.2 var(--base-hue) / 0.8),
                    0 0 24px oklch(70% 0.2 var(--base-hue) / 0.6);
+    
+    --breathing-animation: breathing 3s ease-in-out infinite;
     --shadow-intensity: 0.25;
     --text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
     --transition-speed: 0.3s;
@@ -127,6 +136,19 @@
     --secondary-color: var(--btn-primary-bg);
     --background: var(--bg-body);
     --text-color: var(--text-primary);
+}
+
+@keyframes breathing-shadow {
+    0%, 100% {
+        box-shadow: 0 0 15px oklch(70% 0.3 var(--base-hue) / 0.4),
+                    0 0 30px oklch(70% 0.25 var(--base-hue) / 0.3),
+                    0 0 45px oklch(70% 0.2 var(--base-hue) / 0.2);
+    }
+    50% {
+        box-shadow: 0 0 25px oklch(85% 0.35 265 / 0.8),
+                    0 0 50px oklch(85% 0.3 265 / 0.6),
+                    0 0 75px oklch(85% 0.25 265 / 0.4);
+    }
 }
 
 [data-theme="light"] {
@@ -528,7 +550,7 @@ body {
 
 fieldset.cbi-section > textarea,
 div#command-output > textarea {
-    background-color: var(--card-bg) !important;
+    background-color: var(--bg-container) !important;
     color: var(--text-primary) !important;
     border: 1px solid var(--border-color) !important;
     border-radius: var(--radius) !important;
@@ -661,6 +683,10 @@ div.nav-container > button.btn_styles {
     .icon-group {
         display: none;
     }
+}
+
+.announcement-content.scrolling {
+    animation-duration: 45000ms !important;
 }
 </style>
     <meta charset="utf-8">
@@ -2951,6 +2977,18 @@ window.addEventListener('load', () => {
     checkAllSites();
     
     setInterval(checkAllSites, 180000);
+});
+
+window.addEventListener('load', function() {
+    setTimeout(function() {
+        var elements = document.querySelectorAll('[id*="_status"]');
+        
+        elements.forEach(function(element, index) {
+            setTimeout(function() {
+                element.click();
+            }, index * 1000);
+        });
+    }, 1000);
 });
 </script>
 
