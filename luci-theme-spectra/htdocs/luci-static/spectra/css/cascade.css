@@ -6706,3 +6706,29 @@ fieldset.diag-style {
         background-color: #e53e3e !important;
         color: #fff !important;
 }
+
+.cbi-value-description {
+	position: relative;
+	padding-left: 22px;
+}
+
+.cbi-value-description::before {
+	content: "";
+	position: absolute;
+	left: 0;
+	top: 50%;
+	transform: translateY(-50%);
+	width: 17px;
+	height: 17px;
+	display: inline-block;
+	background-repeat: no-repeat;
+	background-size: contain;
+	background-color: var(--accent-color) !important;
+	border-radius: 50%;
+	background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='white'%3E%3Cpath d='M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z'/%3E%3C/svg%3E");
+}
+
+[data-theme="dark"] .cbi-value-description::before {
+	background-color: var(--accent-color) !important;
+	background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='white'%3E%3Cpath d='M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z'/%3E%3C/svg%3E");
+}
