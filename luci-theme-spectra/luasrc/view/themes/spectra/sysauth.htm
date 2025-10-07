@@ -128,14 +128,14 @@
 <style>
 @font-face {
 	font-family: "spectra";
-  src: url("/luci-static/spectra/fonts/spectra.eot?u6kthm");
-  src: url("/luci-static/spectra/fonts/spectra.eot?u6kthm#iefix") format("embedded-opentype"),
-    url("/luci-static/spectra/fonts/spectra.ttf?u6kthm") format("truetype"),
-    url("/luci-static/spectra/fonts/spectra.woff?u6kthm") format("woff"),
-    url("/luci-static/spectra/fonts/spectra.svg?u6kthm#spectra") format("svg");
-  font-weight: normal;
-  font-style: normal;
-  font-display: block;
+       src: url("/luci-static/spectra/fonts/spectra.eot?u6kthm");
+       src: url("/luci-static/spectra/fonts/spectra.eot?u6kthm#iefix") format("embedded-opentype"),
+             url("/luci-static/spectra/fonts/spectra.ttf?u6kthm") format("truetype"),
+             url("/luci-static/spectra/fonts/spectra.woff?u6kthm") format("woff"),
+             url("/luci-static/spectra/fonts/spectra.svg?u6kthm#spectra") format("svg");
+       font-weight: normal;
+       font-style: normal;
+       font-display: block;
 }
 
 .auth-icon {
@@ -485,7 +485,7 @@
 </div>
 
 <audio id="background-audio" autoplay loop muted>
-    <source src='/luci-static/spectra/img/bgm.mp3' type='audio/mp3'>
+    <source src="" type="audio/mp3">
     Your browser does not support audio playback.
 </audio>
 
@@ -511,11 +511,23 @@
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
+    const songs = [
+        { src: '/luci-static/spectra/img/bgm.mp3', type: 'audio/mp3' },
+        { src: '/luci-static/spectra/img/bgm2.webm', type: 'audio/webm' }
+    ];
+    
     let audio = document.getElementById("background-audio");
+    let audioSource = audio.querySelector("source");
     let audioStarted = false;
     let isMuted = false;
     const audioControl = document.getElementById("audioControl");
     const audioIcon = audioControl.querySelector("i");
+
+    const randomSong = songs[Math.floor(Math.random() * songs.length)];
+    
+    audioSource.src = randomSong.src;
+    audioSource.type = randomSong.type;
+    audio.load();
 
     function startAudio() {
         if (!audioStarted) {
