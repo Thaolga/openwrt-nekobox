@@ -2955,7 +2955,13 @@ h2[name="content"] {
 	box-shadow: rgba(0, 0, 0, 0.75) 0 0 15px -5px;
 	overflow-x: auto;
 	position: fixed;
-	z-index: 100
+	z-index: 100;
+	scrollbar-width: none;
+	-ms-overflow-style: none;
+}
+
+.main-left::-webkit-scrollbar {
+	display: none;
 }
 
 .main-left .sidenav-header {
