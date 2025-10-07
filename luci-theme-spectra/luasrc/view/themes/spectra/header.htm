@@ -3194,10 +3194,13 @@ window.addEventListener('resize', moveNavbar);
     <input type="checkbox" id="voiceToggle" checked style="margin:0;">
     <label for="voiceToggle" id="voiceLabel" style="margin-left:8px;"></label>
   </div>
-  
+
+  <div id="lastUpdated" style="font-size:13px; color:var(--text-secondary); margin-bottom:15px; display:none;"></div>
+
   <div style="text-align:right;">
+    <button id="clearCacheBtn" class="cbi-button cbi-button-remove" style="margin-right:8px;"></button>
     <button id="saveCityBtn" class="cbi-button cbi-button-save"></button>
-    <button id="closeCityModal" class="cbi-button cbi-button-remove"></button>
+    <button id="closeCityModal" class="btn cbi-button-neutral"></button>
   </div>
 </div>
 
@@ -3330,6 +3333,8 @@ let city = localStorage.getItem('city') || 'Beijing';
 const apiKey = 'fc8bd2637768c286c6f1ed5f1915eb22';
 let currentWeatherData = null;
 
+const CACHE_REFRESH_INTERVAL = 30 * 60 * 1000;
+
 const weatherIcon = document.getElementById('weatherIcon');
 const weatherText = document.getElementById('weatherText');
 const cityNameDisplay = document.getElementById('cityNameDisplay');
@@ -3339,467 +3344,558 @@ const setCityBtn = document.getElementById('setCityBtn');
 const cityModal = document.getElementById('cityModal');
 const closeCityModal = document.getElementById('closeCityModal');
 const modalTitle = document.getElementById('modalTitle');
+const clearCacheBtn = document.getElementById('clearCacheBtn');
+const lastUpdatedDiv = document.getElementById('lastUpdated');
 
 const unifiedLanguageMap = {
-  'zh': { api: 'zh-CN', weather: 'zh_cn', display: 'zh' },
-  'hk': { api: 'zh-TW', weather: 'zh_tw', display: 'hk' },
-  'en': { api: 'en-US', weather: 'en', display: 'en' },
-  'ja': { api: 'ja-JP', weather: 'ja', display: 'ja' },
-  'ko': { api: 'ko-KR', weather: 'kr', display: 'ko' },
-  'fr': { api: 'fr-FR', weather: 'fr', display: 'fr' },
-  'de': { api: 'de-DE', weather: 'de', display: 'de' },
-  'es': { api: 'es-ES', weather: 'es', display: 'es' },
-  'ru': { api: 'ru-RU', weather: 'ru', display: 'ru' },
-  'th': { api: 'th-TH', weather: 'th', display: 'th' },
-  'bn': { api: 'bn-IN', weather: 'bn', display: 'bn' },
-  'ar': { api: 'ar-SA', weather: 'ar', display: 'ar' },
-  'vi': { api: 'vi-VN', weather: 'vi', display: 'vi' }
+    'zh': { api: 'zh-CN', weather: 'zh_cn', display: 'zh' },
+    'hk': { api: 'zh-TW', weather: 'zh_tw', display: 'hk' },
+    'en': { api: 'en-US', weather: 'en', display: 'en' },
+    'ja': { api: 'ja-JP', weather: 'ja', display: 'ja' },
+    'ko': { api: 'ko-KR', weather: 'kr', display: 'ko' },
+    'fr': { api: 'fr-FR', weather: 'fr', display: 'fr' },
+    'de': { api: 'de-DE', weather: 'de', display: 'de' },
+    'es': { api: 'es-ES', weather: 'es', display: 'es' },
+    'ru': { api: 'ru-RU', weather: 'ru', display: 'ru' },
+    'th': { api: 'th-TH', weather: 'th', display: 'th' },
+    'bn': { api: 'bn-IN', weather: 'bn', display: 'bn' },
+    'ar': { api: 'ar-SA', weather: 'ar', display: 'ar' },
+    'vi': { api: 'vi-VN', weather: 'vi', display: 'vi' }
 };
 
 const modalTranslations = {
-  zh: {
-    modalTitle: "设置城市",
-    saveBtn: "保存",
-    cancelBtn: "取消",
-    invalidCityEmpty: "城市不能为空",
-    invalidCityChinese: "城市不能包含中文",
-    invalidCityFormat: "城市必须以大写英文字母开头",
-    citySaved: "已保存城市: {city}"
-  },
-  en: {
-    modalTitle: "Set City",
-    saveBtn: "Save",
-    cancelBtn: "Cancel",
-    invalidCityEmpty: "City cannot be empty",
-    invalidCityChinese: "City cannot contain Chinese characters",
-    invalidCityFormat: "City must start with uppercase English letter",
-    citySaved: "City saved: {city}"
-  },
-  hk: {
-    modalTitle: "設置城市",
-    saveBtn: "儲存",
-    cancelBtn: "取消",
-    invalidCityEmpty: "城市不能為空",
-    invalidCityChinese: "城市不能包含中文",
-    invalidCityFormat: "城市必須以大寫英文字母開頭",
-    citySaved: "已儲存城市: {city}"
-  },
-  de: {
-    modalTitle: "Stadt festlegen",
-    saveBtn: "Speichern",
-    cancelBtn: "Abbrechen",
-    invalidCityEmpty: "Stadt darf nicht leer sein",
-    invalidCityChinese: "Stadt darf keine chinesischen Zeichen enthalten",
-    invalidCityFormat: "Stadt muss mit einem Großbuchstaben beginnen",
-    citySaved: "Stadt gespeichert: {city}"
-  },
-  fr: {
-    modalTitle: "Définir la ville",
-    saveBtn: "Enregistrer",
-    cancelBtn: "Annuler",
-    invalidCityEmpty: "La ville ne peut pas être vide",
-    invalidCityChinese: "La ville ne peut pas contenir de caractères chinois",
-    invalidCityFormat: "La ville doit commencer par une lettre majuscule",
-    citySaved: "Ville enregistrée: {city}"
-  },
-  ko: {
-    modalTitle: "도시 설정",
-    saveBtn: "저장",
-    cancelBtn: "취소",
-    invalidCityEmpty: "도시는 비어 있을 수 없습니다",
-    invalidCityChinese: "도시에는 한자(중국어)를 포함할 수 없습니다",
-    invalidCityFormat: "도시는 영어 대문자로 시작해야 합니다",
-    citySaved: "도시 저장됨: {city}"
-  },
-  ja: {
-    modalTitle: "都市設定",
-    saveBtn: "保存",
-    cancelBtn: "キャンセル",
-    invalidCityEmpty: "都市は空にできません",
-    invalidCityChinese: "都市に漢字を含めることはできません",
-    invalidCityFormat: "都市は英語の大文字で始まる必要があります",
-    citySaved: "都市を保存しました: {city}"
-  },
-  bn: {
-    modalTitle: "শহর সেট করুন",
-    saveBtn: "সংরক্ষণ",
-    cancelBtn: "বাতিল",
-    invalidCityEmpty: "শহর খালি থাকতে পারে না",
-    invalidCityChinese: "শহরে চীনা অক্ষর থাকতে পারে না",
-    invalidCityFormat: "শহরটি ইংরেজি বড় হাতের অক্ষর দিয়ে শুরু করতে হবে",
-    citySaved: "শহর সংরক্ষিত: {city}"
-  },
-  vi: {
-    modalTitle: "Đặt thành phố",
-    saveBtn: "Lưu",
-    cancelBtn: "Hủy",
-    invalidCityEmpty: "Thành phố không được để trống",
-    invalidCityChinese: "Thành phố không được chứa chữ Hán",
-    invalidCityFormat: "Thành phố phải bắt đầu bằng chữ cái tiếng Anh viết hoa",
-    citySaved: "Đã lưu thành phố: {city}"
-  },
-  tr: {
-    modalTitle: "Şehir Ayarla",
-    saveBtn: "Kaydet",
-    cancelBtn: "İptal",
-    invalidCityEmpty: "Şehir boş olamaz",
-    invalidCityChinese: "Şehir Çince karakter içeremez",
-    invalidCityFormat: "Şehir büyük İngilizce harf ile başlamalı",
-    citySaved: "Şehir kaydedildi: {city}"
-  },
-  ar: {
-    modalTitle: "تعيين المدينة",
-    saveBtn: "حفظ",
-    cancelBtn: "إلغاء",
-    invalidCityEmpty: "لا يمكن أن تكون المدينة فارغة",
-    invalidCityChinese: "لا يمكن أن تحتوي المدينة على أحرف صينية",
-    invalidCityFormat: "يجب أن تبدأ المدينة بحرف إنجليزي كبير",
-    citySaved: "تم حفظ المدينة: {city}"
-  },
-  ru: {
-    modalTitle: "Установить город",
-    saveBtn: "Сохранить",
-    cancelBtn: "Отмена",
-    invalidCityEmpty: "Город не может быть пустым",
-    invalidCityChinese: "Город не может содержать китайские иероглифы",
-    invalidCityFormat: "Город должен начинаться с заглавной английской буквы",
-    citySaved: "Город сохранен: {city}"
-  },
-  es: {
-    modalTitle: "Establecer ciudad",
-    saveBtn: "Guardar",
-    cancelBtn: "Cancelar",
-    invalidCityEmpty: "La ciudad no puede estar vacía",
-    invalidCityChinese: "La ciudad no puede contener caracteres chinos",
-    invalidCityFormat: "La ciudad debe comenzar con letra mayúscula",
-    citySaved: "Ciudad guardada: {city}"
-  }
+    zh: {
+        modalTitle: "设置城市",
+        saveBtn: "保存",
+        cancelBtn: "取消",
+        clearBtn: "清空缓存",
+        invalidCityEmpty: "城市不能为空",
+        invalidCityChinese: "城市不能包含中文",
+        invalidCityFormat: "城市必须以大写英文字母开头",
+        citySaved: "已保存城市: {city}",
+        cacheCleared: "天气信息已被清空",
+        lastUpdated: "最后更新: {time}",
+        neverUpdated: "从未更新"
+    },
+    en: {
+        modalTitle: "Set City",
+        saveBtn: "Save",
+        cancelBtn: "Cancel",
+        clearBtn: "Clear Cache",
+        invalidCityEmpty: "City cannot be empty",
+        invalidCityChinese: "City cannot contain Chinese characters",
+        invalidCityFormat: "City must start with uppercase English letter",
+        citySaved: "City saved: {city}",
+        cacheCleared: "Weather data has been cleared",
+        lastUpdated: "Last updated: {time}",
+        neverUpdated: "Never updated"
+    },
+    hk: {
+        modalTitle: "設置城市",
+        saveBtn: "儲存",
+        cancelBtn: "取消",
+        clearBtn: "清空緩存",
+        invalidCityEmpty: "城市不能為空",
+        invalidCityChinese: "城市不能包含中文",
+        invalidCityFormat: "城市必須以大寫英文字母開頭",
+        citySaved: "已儲存城市: {city}",
+        cacheCleared: "天氣信息已被清空",
+        lastUpdated: "最後更新: {time}",
+        neverUpdated: "從未更新"
+    },
+    de: {
+        modalTitle: "Stadt festlegen",
+        saveBtn: "Speichern",
+        cancelBtn: "Abbrechen",
+        clearBtn: "Cache löschen",
+        invalidCityEmpty: "Stadt darf nicht leer sein",
+        invalidCityChinese: "Stadt darf keine chinesischen Zeichen enthalten",
+        invalidCityFormat: "Stadt muss mit einem Großbuchstaben beginnen",
+        citySaved: "Stadt gespeichert: {city}",
+        cacheCleared: "Wetterdaten wurden gelöscht",
+        lastUpdated: "Zuletzt aktualisiert: {time}",
+        neverUpdated: "Nie aktualisiert"
+    },
+    fr: {
+        modalTitle: "Définir la ville",
+        saveBtn: "Enregistrer",
+        cancelBtn: "Annuler",
+        clearBtn: "Effacer le cache",
+        invalidCityEmpty: "La ville ne peut pas être vide",
+        invalidCityChinese: "La ville ne peut pas contenir de caractères chinois",
+        invalidCityFormat: "La ville doit commencer par une lettre majuscule",
+        citySaved: "Ville enregistrée: {city}",
+        cacheCleared: "Les données météo ont été effacées",
+        lastUpdated: "Dernière mise à jour: {time}",
+        neverUpdated: "Jamais mis à jour"
+    },
+    ko: {
+        modalTitle: "도시 설정",
+        saveBtn: "저장",
+        cancelBtn: "취소",
+        clearBtn: "캐시 지우기",
+        invalidCityEmpty: "도시는 비어 있을 수 없습니다",
+        invalidCityChinese: "도시에는 한자(중국어)를 포함할 수 없습니다",
+        invalidCityFormat: "도시는 영어 대문자로 시작해야 합니다",
+        citySaved: "도시 저장됨: {city}",
+        cacheCleared: "날씨 정보가 지워졌습니다",
+        lastUpdated: "마지막 업데이트: {time}",
+        neverUpdated: "업데이트되지 않음"
+    },
+    ja: {
+        modalTitle: "都市設定",
+        saveBtn: "保存",
+        cancelBtn: "キャンセル",
+        clearBtn: "キャッシュをクリア",
+        invalidCityEmpty: "都市は空にできません",
+        invalidCityChinese: "都市に漢字を含めることはできません",
+        invalidCityFormat: "都市は英語の大文字で始まる必要があります",
+        citySaved: "都市を保存しました: {city}",
+        cacheCleared: "天気情報がクリアされました",
+        lastUpdated: "最終更新: {time}",
+        neverUpdated: "更新されていません"
+    },
+    bn: {
+        modalTitle: "শহর সেট করুন",
+        saveBtn: "সংরক্ষণ",
+        cancelBtn: "বাতিল",
+        clearBtn: "ক্যাশে সাফ করুন",
+        invalidCityEmpty: "শহর খালি থাকতে পারে না",
+        invalidCityChinese: "শহরে চীনা অক্ষর থাকতে পারে না",
+        invalidCityFormat: "শহরটি ইংরেজি বড় হাতের অক্ষর দিয়ে শুরু করতে হবে",
+        citySaved: "শহর সংরক্ষিত: {city}",
+        cacheCleared: "আবহাওয়ার তথ্য সাফ করা হয়েছে",
+        lastUpdated: "সর্বশেষ আপডেট: {time}",
+        neverUpdated: "কখনও আপডেট করা হয়নি"
+    },
+    vi: {
+        modalTitle: "Đặt thành phố",
+        saveBtn: "Lưu",
+        cancelBtn: "Hủy",
+        clearBtn: "Xóa bộ nhớ cache",
+        invalidCityEmpty: "Thành phố không được để trống",
+        invalidCityChinese: "Thành phố không được chứa chữ Hán",
+        invalidCityFormat: "Thành phố phải bắt đầu bằng chữ cái tiếng Anh viết hoa",
+        citySaved: "Đã lưu thành phố: {city}",
+        cacheCleared: "Thông tin thời tiết đã được xóa",
+        lastUpdated: "Cập nhật lần cuối: {time}",
+        neverUpdated: "Chưa bao giờ cập nhật"
+    },
+    tr: {
+        modalTitle: "Şehir Ayarla",
+        saveBtn: "Kaydet",
+        cancelBtn: "İptal",
+        clearBtn: "Önbelleği Temizle",
+        invalidCityEmpty: "Şehir boş olamaz",
+        invalidCityChinese: "Şehir Çince karakter içeremez",
+        invalidCityFormat: "Şehir büyük İngilizce harf ile başlamalı",
+        citySaved: "Şehir kaydedildi: {city}",
+        cacheCleared: "Hava durumu bilgileri temizlendi",
+        lastUpdated: "Son güncelleme: {time}",
+        neverUpdated: "Hiç güncellenmedi"
+    },
+    ar: {
+        modalTitle: "تعيين المدينة",
+        saveBtn: "حفظ",
+        cancelBtn: "إلغاء",
+        clearBtn: "مسح الذاكرة المؤقتة",
+        invalidCityEmpty: "لا يمكن أن تكون المدينة فارغة",
+        invalidCityChinese: "لا يمكن أن تحتوي المدينة على أحرف صينية",
+        invalidCityFormat: "يجب أن تبدأ المدينة بحرف إنجليزي كبير",
+        citySaved: "تم حفظ المدينة: {city}",
+        cacheCleared: "تم مسح معلومات الطقس",
+        lastUpdated: "آخر تحديث: {time}",
+        neverUpdated: "لم يتم التحديث مطلقًا"
+    },
+    ru: {
+        modalTitle: "Установить город",
+        saveBtn: "Сохранить",
+        cancelBtn: "Отмена",
+        clearBtn: "Очистить кэш",
+        invalidCityEmpty: "Город не может быть пустым",
+        invalidCityChinese: "Город не может содержать китайские иероглифы",
+        invalidCityFormat: "Город должен начинаться с заглавной английской буквы",
+        citySaved: "Город сохранен: {city}",
+        cacheCleared: "Информация о погоде была очищена",
+        lastUpdated: "Последнее обновление: {time}",
+        neverUpdated: "Никогда не обновлялось"
+    },
+    es: {
+        modalTitle: "Establecer ciudad",
+        saveBtn: "Guardar",
+        cancelBtn: "Cancelar",
+        clearBtn: "Limpiar caché",
+        invalidCityEmpty: "La ciudad no puede estar vacía",
+        invalidCityChinese: "La ciudad no puede contener caracteres chinos",
+        invalidCityFormat: "La ciudad debe comenzar con letra mayúscula",
+        citySaved: "Ciudad guardada: {city}",
+        cacheCleared: "La información del clima ha sido borrada",
+        lastUpdated: "Última actualización: {time}",
+        neverUpdated: "Nunca actualizado"
+    }
 };
 
 async function getModalLang() {
-  try {
-    const lang = await getRealTimeLanguage();
-    return modalTranslations[lang] ? lang : 'en';
-  } catch(e) {
-    return 'en';
-  }
+    try {
+        const lang = await getRealTimeLanguage();
+        return modalTranslations[lang] ? lang : 'en';
+    } catch(e) {
+        return 'en';
+    }
 }
 
 async function performTranslation(text, targetLang) {
-  if (!text) return text;
-  const apiTargetLang = unifiedLanguageMap[targetLang.toLowerCase()]?.api || targetLang.toLowerCase();
-  const sourceLang = 'en';
-  
-  try {
-    const url = `https://api.mymemory.translated.net/get?q=${encodeURIComponent(text)}&langpair=${sourceLang}|${apiTargetLang}`;
-    const response = await fetch(url);
-    if (!response.ok) throw new Error('Translation API error');
-    const data = await response.json();
-    
-    if (data.responseStatus === 200 && data.responseData && data.responseData.translatedText) {
-      return data.responseData.translatedText;
-    } else {
-      throw new Error('Invalid translation response');
+    if (!text) return text;
+    const apiTargetLang = unifiedLanguageMap[targetLang.toLowerCase()]?.api || targetLang.toLowerCase();
+    const sourceLang = 'en';
+    try {
+        const url = `https://api.mymemory.translated.net/get?q=${encodeURIComponent(text)}&langpair=${sourceLang}|${apiTargetLang}`;
+        const response = await fetch(url);
+        if (!response.ok) throw new Error('Translation API error');
+        const data = await response.json();
+        if (data.responseStatus === 200 && data.responseData && data.responseData.translatedText) {
+            return data.responseData.translatedText;
+        } else {
+            throw new Error('Invalid translation response');
+        }
+    } catch (error) {
+        console.error('Translation error:', error);
+        return text;
     }
-  } catch (error) {
-    console.error('Translation error:', error);
-    return text;
-  }
 }
 
 async function updateModalLanguage() {
-  const lang = await getModalLang();
-  modalTitle.textContent = modalTranslations[lang].modalTitle;
-  saveCityBtn.textContent = modalTranslations[lang].saveBtn;
-  closeCityModal.textContent = modalTranslations[lang].cancelBtn;
-  cityInput.placeholder = modalTranslations[lang].modalTitle;
+    const lang = await getModalLang();
+    modalTitle.textContent = modalTranslations[lang].modalTitle;
+    saveCityBtn.textContent = modalTranslations[lang].saveBtn;
+    closeCityModal.textContent = modalTranslations[lang].cancelBtn;
+    clearCacheBtn.textContent = modalTranslations[lang].clearBtn; 
+    cityInput.placeholder = modalTranslations[lang].modalTitle;
+}
+
+async function clearWeatherCache() {
+    try {
+        const response = await fetch('/luci-static/spectra/bgm/weather_translation.php?action=clear');
+        if (response.ok) {
+            await showModalMessage("cacheCleared");           
+            await updateLastUpdatedDisplay();
+            console.log('Weather cache cleared successfully');
+        } else {
+            throw new Error('Failed to clear cache');
+        }
+    } catch (error) {
+        console.error('Error clearing weather cache:', error);
+        showWeatherLog(encodeURIComponent('Failed to clear cache'), 'error');
+    }
+}
+
+async function updateLastUpdatedDisplay() {
+    try {
+        const cache = await readTranslationCache(city);
+        const lang = await getModalLang();
+        
+        if (cache.updated) {
+            const date = new Date(cache.updated);
+            const formattedTime = date.toLocaleString('zh-CN', {
+                year: 'numeric',
+                month: 'numeric',
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit',
+                hour12: false
+            }).replace(/\//g, '/');
+            
+            lastUpdatedDiv.textContent = modalTranslations[lang].lastUpdated.replace('{time}', formattedTime);
+            lastUpdatedDiv.style.display = 'block';
+        } else {
+            lastUpdatedDiv.textContent = modalTranslations[lang].neverUpdated;
+            lastUpdatedDiv.style.display = 'block';
+        }
+    } catch (error) {
+        console.error('Error updating last updated display:', error);
+        lastUpdatedDiv.style.display = 'none';
+    }
 }
 
 async function showModalMessage(key, params={}) {
-  const lang = await getModalLang();
-  let msg = modalTranslations[lang][key] || key;
-  for(const k in params) msg = msg.replace(`{${k}}`, params[k]);
-  showWeatherLog(encodeURIComponent(msg), key === 'citySaved' ? 'info' : 'warning');
-  if (typeof speakWeatherMessage === 'function') speakWeatherMessage(msg);
+    const lang = await getModalLang();
+    let msg = modalTranslations[lang][key] || key;
+    for(const k in params) msg = msg.replace(`{${k}}`, params[k]);
+    showWeatherLog(encodeURIComponent(msg), key === 'citySaved' || key === 'cacheCleared' ? 'info' : 'warning');
+    if (typeof speakWeatherMessage === 'function') speakWeatherMessage(msg);
 }
 
-function validateCity(value){
-  const chinesePattern = /[\u4e00-\u9fff]/;
-  const startsUpper = /^[A-Z]/;
-  if(!value) return "invalidCityEmpty";
-  if(chinesePattern.test(value)) return "invalidCityChinese";
-  if(!startsUpper.test(value)) return "invalidCityFormat";
-  return null;
+function validateCity(value) {
+    const chinesePattern = /[\u4e00-\u9fff]/;
+    const startsUpper = /^[A-Z]/;
+    if(!value) return "invalidCityEmpty";
+    if(chinesePattern.test(value)) return "invalidCityChinese";
+    if(!startsUpper.test(value)) return "invalidCityFormat";
+    return null;
 }
 
-async function saveCity(){
-  const value = cityInput.value.trim();
-  const errKey = validateCity(value);
-  if(errKey){
-    await showModalMessage(errKey);
-    return;
-  }
-  city = value;
-  localStorage.setItem('city', city);
-  await showModalMessage("citySaved",{city});
-  fetchWeather();
-  closeModal();
+async function saveCity() {
+    const value = cityInput.value.trim();
+    const errKey = validateCity(value);
+    if(errKey) {
+        await showModalMessage(errKey);
+        return;
+    }
+    city = value;
+    localStorage.setItem('city', city);
+    await showModalMessage("citySaved", {city});
+    fetchWeather();
+    closeModal();
 }
 
-function openCityModal(){
-  cityInput.value = city;
-  cityModal.style.display = 'block';
-  updateModalLanguage();
+async function openCityModal() {
+    cityInput.value = city;
+    cityModal.style.display = 'block';
+    await updateModalLanguage();
+    await updateLastUpdatedDisplay(); 
 }
-function closeModal(){
-  cityModal.style.display = 'none';
+
+clearCacheBtn.addEventListener('click', clearWeatherCache);
+
+function closeModal() {
+    cityModal.style.display = 'none';
 }
 
 function getWeatherColor(iconCode) {
     const root = document.documentElement;
     const lBase = parseFloat(getComputedStyle(root).getPropertyValue('--l'));
     const cBase = parseFloat(getComputedStyle(root).getPropertyValue('--c'));
-
     const weatherVars = {
         '01d': { l: lBase + 10, c: cBase + 0.05, h: parseFloat(getComputedStyle(root).getPropertyValue('--base-hue-1')) },
         '01n': { l: lBase - 15, c: cBase - 0.03, h: parseFloat(getComputedStyle(root).getPropertyValue('--base-hue')) },
-        '02d': { l: lBase - 5,  c: cBase - 0.05, h: parseFloat(getComputedStyle(root).getPropertyValue('--base-hue-2')) },
+        '02d': { l: lBase - 5, c: cBase - 0.05, h: parseFloat(getComputedStyle(root).getPropertyValue('--base-hue-2')) },
         '02n': { l: lBase - 10, c: cBase - 0.05, h: parseFloat(getComputedStyle(root).getPropertyValue('--base-hue-2')) },
         '03d': { l: lBase - 10, c: cBase - 0.08, h: parseFloat(getComputedStyle(root).getPropertyValue('--base-hue-3')) },
         '03n': { l: lBase - 15, c: cBase - 0.08, h: parseFloat(getComputedStyle(root).getPropertyValue('--base-hue-3')) },
-        '04d': { l: lBase - 20, c: cBase - 0.1,  h: parseFloat(getComputedStyle(root).getPropertyValue('--base-hue-4')) },
-        '04n': { l: lBase - 25, c: cBase - 0.1,  h: parseFloat(getComputedStyle(root).getPropertyValue('--base-hue-4')) },
-        '09d': { l: lBase - 5,  c: cBase + 0.08, h: parseFloat(getComputedStyle(root).getPropertyValue('--base-hue-5')) },
+        '04d': { l: lBase - 20, c: cBase - 0.1, h: parseFloat(getComputedStyle(root).getPropertyValue('--base-hue-4')) },
+        '04n': { l: lBase - 25, c: cBase - 0.1, h: parseFloat(getComputedStyle(root).getPropertyValue('--base-hue-4')) },
+        '09d': { l: lBase - 5, c: cBase + 0.08, h: parseFloat(getComputedStyle(root).getPropertyValue('--base-hue-5')) },
         '09n': { l: lBase - 10, c: cBase + 0.08, h: parseFloat(getComputedStyle(root).getPropertyValue('--base-hue-5')) },
-        '10d': { l: lBase - 10, c: cBase,        h: parseFloat(getComputedStyle(root).getPropertyValue('--base-hue-6')) },
-        '10n': { l: lBase - 15, c: cBase,        h: parseFloat(getComputedStyle(root).getPropertyValue('--base-hue-6')) },
-        '11d': { l: lBase - 5,  c: cBase + 0.08, h: parseFloat(getComputedStyle(root).getPropertyValue('--base-hue-7')) },
+        '10d': { l: lBase - 10, c: cBase, h: parseFloat(getComputedStyle(root).getPropertyValue('--base-hue-6')) },
+        '10n': { l: lBase - 15, c: cBase, h: parseFloat(getComputedStyle(root).getPropertyValue('--base-hue-6')) },
+        '11d': { l: lBase - 5, c: cBase + 0.08, h: parseFloat(getComputedStyle(root).getPropertyValue('--base-hue-7')) },
         '11n': { l: lBase - 10, c: cBase + 0.08, h: parseFloat(getComputedStyle(root).getPropertyValue('--base-hue-7')) },
-        '13d': { l: lBase + 5,  c: cBase - 0.1,  h: parseFloat(getComputedStyle(root).getPropertyValue('--base-hue-1')) },
-        '13n': { l: lBase + 5,  c: cBase - 0.1,  h: parseFloat(getComputedStyle(root).getPropertyValue('--base-hue-1')) },
-        '50d': { l: lBase,      c: cBase - 0.08, h: parseFloat(getComputedStyle(root).getPropertyValue('--base-hue-2')) },
-        '50n': { l: lBase - 5,  c: cBase - 0.08, h: parseFloat(getComputedStyle(root).getPropertyValue('--base-hue-2')) }
+        '13d': { l: lBase + 5, c: cBase - 0.1, h: parseFloat(getComputedStyle(root).getPropertyValue('--base-hue-1')) },
+        '13n': { l: lBase + 5, c: cBase - 0.1, h: parseFloat(getComputedStyle(root).getPropertyValue('--base-hue-1')) },
+        '50d': { l: lBase, c: cBase - 0.08, h: parseFloat(getComputedStyle(root).getPropertyValue('--base-hue-2')) },
+        '50n': { l: lBase - 5, c: cBase - 0.08, h: parseFloat(getComputedStyle(root).getPropertyValue('--base-hue-2')) }
     };
-
     const w = weatherVars[iconCode] || { l: lBase, c: cBase, h: parseFloat(getComputedStyle(root).getPropertyValue('--base-hue')) };
-
     return `oklch(${w.l}% ${w.c} ${w.h})`;
 }
 
 function owmCodeToWiClass(code) {
-  const map = {
-    '01d': 'wi-day-sunny',    '01n': 'wi-night-clear',
-    '02d': 'wi-day-cloudy',   '02n': 'wi-night-cloudy',
-    '03d': 'wi-cloud',        '03n': 'wi-cloud',
-    '04d': 'wi-cloudy',       '04n': 'wi-cloudy',
-    '09d': 'wi-showers',      '09n': 'wi-showers',
-    '10d': 'wi-day-rain',     '10n': 'wi-night-alt-rain',
-    '11d': 'wi-thunderstorm', '11n': 'wi-thunderstorm',
-    '13d': 'wi-snow',         '13n': 'wi-snow',
-    '50d': 'wi-fog',          '50n': 'wi-fog'
-  };
-  return map[code] || 'wi-na';
+    const map = {
+        '01d': 'wi-day-sunny', '01n': 'wi-night-clear',
+        '02d': 'wi-day-cloudy', '02n': 'wi-night-cloudy',
+        '03d': 'wi-cloud', '03n': 'wi-cloud',
+        '04d': 'wi-cloudy', '04n': 'wi-cloudy',
+        '09d': 'wi-showers', '09n': 'wi-showers',
+        '10d': 'wi-day-rain', '10n': 'wi-night-alt-rain',
+        '11d': 'wi-thunderstorm', '11n': 'wi-thunderstorm',
+        '13d': 'wi-snow', '13n': 'wi-snow',
+        '50d': 'wi-fog', '50n': 'wi-fog'
+    };
+    return map[code] || 'wi-na';
 }
 
 async function getWeatherLangParam() {
-  try {
-    let lang = (await getRealTimeLanguage()).toLowerCase();
-    return unifiedLanguageMap[lang]?.weather || 'en';
-  } catch (e) {
-    return 'en';
-  }
+    try {
+        let lang = (await getRealTimeLanguage()).toLowerCase();
+        return unifiedLanguageMap[lang]?.weather || 'en';
+    } catch (e) {
+        return 'en';
+    }
 }
 
-const CACHE_REFRESH_INTERVAL = 5 * 60 * 1000;
-
-async function getTranslationCache(cityName) {
-  try {
-    const res = await fetch('/luci-static/spectra/bgm/weather_translation.php');
-    if (!res.ok) throw 'Failed to load cache';
-    const data = await res.json();
-    const cityData = data.cities?.[cityName] || {};
-    
-    return {
-      translations: cityData.translations || {},
-      default_language: cityData.default_language || 'en',
-      updated: cityData.updated || null
-    };
-  } catch (e) {
-    return {
-      translations: {},
-      default_language: 'en',
-      updated: null
-    };
-  }
+async function readTranslationCache(city) {
+    try {
+        const res = await fetch('/luci-static/spectra/bgm/weather_translation.php');
+        if (!res.ok) throw new Error('Failed to load cache: ' + res.status);
+        const data = await res.json();
+        const cityData = data.cities?.[city] || {};
+        return {
+            translations: cityData.translations || {},
+            updated: cityData.updated || null
+        };
+    } catch (e) {
+        console.error('readTranslationCache error:', e);
+        return { translations: {}, updated: null };
+    }
 }
 
-async function updateTranslationCache(cityName, translations) {
-  try {
-    await fetch('/luci-static/spectra/bgm/weather_translation.php', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        city: cityName,
-        translations: translations
-      })
-    });
-  } catch (e) {
-    console.error('Failed to update translation cache', e);
-  }
+async function saveTranslationCache(city, translations, extra = {}) {
+    try {
+        const payload = { 
+            city: city, 
+            translations: translations,
+            icon: extra.icon || ''
+        };
+        const res = await fetch('/luci-static/spectra/bgm/weather_translation.php', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+        });
+        const text = await res.text();
+        console.log('saveTranslationCache resp:', res.status, text);
+        return res.ok;
+    } catch (e) {
+        console.error('saveTranslationCache error:', e);
+        return false;
+    }
 }
 
 function isCacheExpired(updatedTime) {
-  if (!updatedTime) return true;
-  const updated = new Date(updatedTime);
-  return (Date.now() - updated.getTime()) > CACHE_REFRESH_INTERVAL;
+    if (!updatedTime) return true;
+    const updated = new Date(updatedTime);
+    return (Date.now() - updated.getTime()) > CACHE_REFRESH_INTERVAL;
 }
 
 async function translateWeatherDesc(descList) {
-  if (!Array.isArray(descList) || descList.length === 0) return { text: '', city: city };
-
-  const cache = await getTranslationCache(city);
-  const lang = (await getRealTimeLanguage()).toLowerCase();
-
-  const cachedLangData = cache.translations?.[lang] || { weather: {}, city: '' };
-  const cachedWeather = cachedLangData.weather || {};
-  let cachedCity = cachedLangData.city || '';
-
-  const result = [];
-  const translationsToUpdate = { weather: {}, city: cachedCity };
-
-  const fullDesc = descList.join(', ');
-
-  if (cachedWeather[fullDesc]) {
-    result.push(cachedWeather[fullDesc]);
-  } else {
-    try {
-      const t = await performTranslation(fullDesc, lang);
-      translationsToUpdate.weather[fullDesc] = t;
-      result.push(t);
-    } catch {
-      translationsToUpdate.weather[fullDesc] = fullDesc;
-      result.push(fullDesc);
+    if (!Array.isArray(descList) || descList.length === 0) return { text: '', city: city };
+    const cache = await readTranslationCache(city);
+    const lang = (await getRealTimeLanguage()).toLowerCase();
+    const existingTranslations = cache.translations || {};
+    const currentLangData = existingTranslations[lang]
+        ? JSON.parse(JSON.stringify(existingTranslations[lang]))
+        : { weather: {}, city: '' };
+    const cachedWeather = currentLangData.weather || {};
+    let cachedCity = currentLangData.city || '';
+    const result = [];
+    const translationsToUpdate = { weather: {}, city: cachedCity };
+    const fullDesc = descList.join(', ');
+    if (cachedWeather[fullDesc]) {
+        result.push(cachedWeather[fullDesc]);
+    } else {
+        try {
+            const t = await performTranslation(fullDesc, lang);
+            translationsToUpdate.weather[fullDesc] = t;
+            result.push(t);
+        } catch {
+            translationsToUpdate.weather[fullDesc] = fullDesc;
+            result.push(fullDesc);
+        }
     }
-  }
-
-  if (!cachedCity) {
-    try {
-      const tCity = await performTranslation(city, lang);
-      translationsToUpdate.city = tCity;
-      cachedCity = tCity;
-    } catch {
-      translationsToUpdate.city = city;
-      cachedCity = city;
+    if (!cachedCity) {
+        try {
+            const tCity = await performTranslation(city, lang);
+            translationsToUpdate.city = tCity;
+            cachedCity = tCity;
+        } catch {
+            translationsToUpdate.city = city;
+            cachedCity = city;
+        }
+    } else {
+        translationsToUpdate.city = cachedCity;
     }
-  } else {
-    translationsToUpdate.city = cachedCity;
-  }
-
-  const updatedCache = {
-    ...cache.translations,
-    [lang]: {
-      weather: { ...cachedWeather, ...translationsToUpdate.weather },
-      city: translationsToUpdate.city
-    },
-    default_language: lang
-  };
-
-  await updateTranslationCache(city, updatedCache);
-
-  return { text: result.join('，'), city: cachedCity };
+    const updatedCache = JSON.parse(JSON.stringify(existingTranslations));
+    updatedCache[lang] = {
+        weather: { ...cachedWeather, ...translationsToUpdate.weather },
+        city: translationsToUpdate.city
+    };
+    await saveTranslationCache(city, updatedCache);
+    return { text: result.join('，'), city: cachedCity };
 }
 
 function hasUntranslatedContent(langData) {
-  if (!langData || !langData.weather) return true;
-  
-  for (const [key, value] of Object.entries(langData.weather)) {
-    if (!isProperlyTranslated(value, key, 'any')) {
-      return true;
+    if (!langData || !langData.weather) return true;
+    for (const [key, value] of Object.entries(langData.weather)) {
+        if (!isProperlyTranslated(value, key, 'any')) {
+            return true;
+        }
     }
-  }
-  
-  if (langData.city && !isProperlyTranslated(langData.city, langData.city, 'any')) {
-    return true;
-  }
-  
-  return false;
+    if (langData.city && !isProperlyTranslated(langData.city, langData.city, 'any')) {
+        return true;
+    }
+    return false;
 }
 
 function isProperlyTranslated(translatedText, originalText, lang) {
-  if (translatedText === originalText) {
-    return false;
-  }
-  
-  if (lang !== 'en' && isMostlyEnglish(translatedText)) {
-    return false;
-  }
-  
-  if (['zh', 'ja', 'ko', 'hk', 'tw'].includes(lang) && !containsNonLatin(translatedText)) {
-    return false;
-  }
-  
-  return true;
+    if (translatedText === originalText) {
+        return false;
+    }
+    if (lang !== 'en' && isMostlyEnglish(translatedText)) {
+        return false;
+    }
+    if (['zh', 'ja', 'ko', 'hk', 'tw'].includes(lang) && !containsNonLatin(translatedText)) {
+        return false;
+    }
+    return true;
 }
 
 function isMostlyEnglish(text) {
-  const englishPattern = /^[a-zA-Z\s.,!?']+$/;
-  return englishPattern.test(text);
+    const englishPattern = /^[a-zA-Z\s.,!?']+$/;
+    return englishPattern.test(text);
 }
 
 function containsNonLatin(text) {
-  const nonLatinPattern = /[^\u0000-\u007F]/;
-  return nonLatinPattern.test(text);
+    const nonLatinPattern = /[^\u0000-\u007F]/;
+    return nonLatinPattern.test(text);
 }
 
 setInterval(async () => {
-  const cache = await getTranslationCache();
-  if (cache.city !== city || isCacheExpired(cache.updated)) {
-    if (currentWeatherData) {
-      const descList = currentWeatherData.weather.map(w => w.description);
-      await translateWeatherDesc(descList);
+    const cache = await readTranslationCache(city);
+    if (isCacheExpired(cache.updated)) {
+        if (currentWeatherData) {
+            const descList = currentWeatherData.weather.map(w => w.description);
+            await translateWeatherDesc(descList);
+        }
     }
-  }
 }, CACHE_REFRESH_INTERVAL);
 
-async function updateWeatherUI(data) {
+async function updateWeatherUI(data, iconCode) {
     document.getElementById('loadingIcon').style.display = 'none';
-
-    const iconCode = data.weather[0].icon;
+    const cache = await readTranslationCache(city);
+    const lang = (await getRealTimeLanguage()).toLowerCase();
+    const cachedIcon = cache.translations?.[lang]?.lastIcon || iconCode;
     const weatherIcon = document.getElementById('weatherIcon');
-    weatherIcon.className = `wi ${owmCodeToWiClass(iconCode)}`;
+    weatherIcon.className = `wi ${owmCodeToWiClass(cachedIcon)}`;
     weatherIcon.style.display = 'inline-block';
-    weatherIcon.style.color = getWeatherColor(iconCode);
-
+    weatherIcon.style.color = getWeatherColor(cachedIcon);
     const temp = Math.round(data.main.temp);
     const descList = data.weather.map(w => w.description);
     const { text: translatedDesc, city: translatedCity } = await translateWeatherDesc(descList);
-
     document.getElementById('weatherText').textContent = `${translatedDesc} ${temp}℃`;
     cityNameDisplay.textContent = translatedCity;
+    const updatedCache = {
+        ...cache.translations,
+        [lang]: {
+            ...cache.translations?.[lang],
+            lastIcon: cachedIcon
+        }
+    };
+    await saveTranslationCache(city, updatedCache, { icon: cachedIcon });
 }
 
 async function updateCityNameDisplay(name) {
-  try {
-    const lang = await getRealTimeLanguage();
-    const translatedCityName = await performTranslation(name, lang);
-    cityNameDisplay.textContent = translatedCityName;
-  } catch(e) {
-    cityNameDisplay.textContent = name;
-  }
+    try {
+        const lang = await getRealTimeLanguage();
+        const translatedCityName = await performTranslation(name, lang);
+        cityNameDisplay.textContent = translatedCityName;
+    } catch(e) {
+        cityNameDisplay.textContent = name;
+    }
 }
 
 async function fetchWeather() {
-  const langParam = await getWeatherLangParam();
-  const url = `https://api.openweathermap.org/data/2.5/weather?q=${encodeURIComponent(city)}&appid=${apiKey}&units=metric&lang=${langParam}`;
-  fetch(url)
-    .then(res => res.ok ? res.json() : Promise.reject('Network not OK'))
-    .then(data => {
-      if (data.weather && data.main) {
-        currentWeatherData = data;
-        updateWeatherUI(data);
-      }
-    })
-    .catch(err => showWeatherLog(encodeURIComponent('Error fetching weather'), 'error'));
+    const langParam = await getWeatherLangParam();
+    const url = `https://api.openweathermap.org/data/2.5/weather?q=${encodeURIComponent(city)}&appid=${apiKey}&units=metric&lang=${langParam}`;
+    fetch(url)
+        .then(res => res.ok ? res.json() : Promise.reject('Network not OK'))
+        .then(data => {
+            if (data.weather && data.main) {
+                currentWeatherData = data;
+                const iconCode = data.weather[0].icon || '';
+                updateWeatherUI(data, iconCode);
+            }
+        })
+        .catch(err => showWeatherLog(encodeURIComponent('Error fetching weather'), 'error'));
 }
 
 setCityBtn.addEventListener('click', openCityModal);
@@ -3807,68 +3903,63 @@ closeCityModal.addEventListener('click', closeModal);
 saveCityBtn.addEventListener('click', saveCity);
 
 document.addEventListener('DOMContentLoaded', async () => {
-  await updateModalLanguage();
-  fetchWeather();
-  setInterval(fetchWeather, 10*60*1000);
+    await updateModalLanguage();
+    fetchWeather();
+    setInterval(fetchWeather, 10*60*1000);
 });
 
 let lastSpokenHour = null;
 const audio = document.getElementById("bell-audio");
 
 document.addEventListener("click", () => {
-  audio.muted = false;
-  audio.play().then(() => {
-    audio.pause();
-    audio.currentTime = 0;
-  }).catch(() => {});
+    audio.muted = false;
+    audio.play().then(() => {
+        audio.pause();
+        audio.currentTime = 0;
+    }).catch(() => {});
 }, { once: true });
 
 async function speakTimeNow() {
-  const now = new Date();
-  const hour = now.getHours();
-  const minute = now.getMinutes();
-  const second = now.getSeconds();
-
-  if (minute === 59 && second === 50 && lastSpokenHour !== (hour + 1) % 24) {
-    lastSpokenHour = (hour + 1) % 24;
-    try {
-      audio.currentTime = 0;
-      await audio.play();
-
-      setTimeout(() => {
-        doSpeak(lastSpokenHour);
-      }, 10000);
-    } catch {}
-  }
+    const now = new Date();
+    const hour = now.getHours();
+    const minute = now.getMinutes();
+    const second = now.getSeconds();
+    if (minute === 59 && second === 50 && lastSpokenHour !== (hour + 1) % 24) {
+        lastSpokenHour = (hour + 1) % 24;
+        try {
+            audio.currentTime = 0;
+            await audio.play();
+            setTimeout(() => {
+                doSpeak(lastSpokenHour);
+            }, 10000);
+        } catch {}
+    }
 }
 
 async function doSpeak(hour) {
-  const lang = await getRealTimeLanguage();
-  let message = '';
-
-  if (lang.startsWith('zh') || lang.startsWith('zh-tw') || lang.startsWith('hk')) {
-    let period = '';
-    if (hour >= 0 && hour < 6) period = '凌晨';
-    else if (hour >= 6 && hour < 12) period = '早上';
-    else if (hour >= 12 && hour < 18) period = '下午';
-    else period = '晚上';
-    message = `整点报时，现在是北京时间${period}${hour}点整`;
-  } else {
-    const displayHour = hour % 12 || 12;
-    const period = hour >= 12 ? 'PM' : 'AM';
-    message = `It is now ${displayHour} ${period}.`;
-  }
-
-  if (typeof speakWeatherMessage === 'function') {
-    speakWeatherMessage(message);
-  }
+    const lang = await getRealTimeLanguage();
+    let message = '';
+    if (lang.startsWith('zh') || lang.startsWith('zh-tw') || lang.startsWith('hk')) {
+        let period = '';
+        if (hour >= 0 && hour < 6) period = '凌晨';
+        else if (hour >= 6 && hour < 12) period = '早上';
+        else if (hour >= 12 && hour < 18) period = '下午';
+        else period = '晚上';
+        message = `整点报时，现在是北京时间${period}${hour}点整`;
+    } else {
+        const displayHour = hour % 12 || 12;
+        const period = hour >= 12 ? 'PM' : 'AM';
+        message = `It is now ${displayHour} ${period}.`;
+    }
+    if (typeof speakWeatherMessage === 'function') {
+        speakWeatherMessage(message);
+    }
 }
 
 setInterval(speakTimeNow, 1000);
 
 async function refreshUIAfterLanguageChange() {
     await updateModalLanguage();
-
     if (currentWeatherData) {
         await updateWeatherUI(currentWeatherData);
     }
@@ -3889,54 +3980,15 @@ const loadingIcon = document.getElementById('loadingIcon');
 weatherCard.style.cursor = 'pointer';
 
 weatherCard.addEventListener('click', async (event) => {
-  if (event.target.closest('#setCityBtn') || event.target.closest('#saveCityBtn')) return;
-
-  loadingIcon.style.display = 'inline-block';
-
-  try {
-    await fetchWeather();
-  } finally {
-    loadingIcon.style.display = 'none';
-  }
-});
-
-const CACHE_MAX_AGE = 60 * 60 * 1000;
-
-async function clearWeatherTranslationCacheIfExpired() {
+    if (event.target.closest('#setCityBtn') || event.target.closest('#saveCityBtn')) return;
+    loadingIcon.style.display = 'inline-block';
     try {
-        const res = await fetch('/luci-static/spectra/bgm/weather_translation.php');
-        if (!res.ok) throw 'Failed to load cache';
-        const data = await res.json();
-
-        const now = Date.now();
-        let shouldClear = false;
-
-        if (!data.updated) {
-            shouldClear = true;
-        } else {
-            const updatedTime = new Date(data.updated).getTime();
-            if (now - updatedTime > CACHE_MAX_AGE) shouldClear = true;
-        }
-
-        if (shouldClear) {
-            console.log('Cache expired, clearing weather_translation_cache.json');
-            await fetch('/luci-static/spectra/bgm/weather_translation.php', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ cities: {}, updated: new Date().toISOString() })
-            });
-        }
-    } catch (e) {
-        console.error('Error checking/clearing cache', e);
+        await fetchWeather();
+    } finally {
+        loadingIcon.style.display = 'none';
     }
-}
-
-document.addEventListener('DOMContentLoaded', () => {
-    clearWeatherTranslationCacheIfExpired();
 });
-
-setInterval(clearWeatherTranslationCacheIfExpired, 30 * 60 * 1000); 
-</script> 
+</script>
 
 <div id="languageModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 9999;">
     <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background: var(--bg-container); padding: 20px; border-radius: 8px; min-width: 450px;">
