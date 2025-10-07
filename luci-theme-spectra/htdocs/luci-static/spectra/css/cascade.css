@@ -1207,6 +1207,15 @@ a.pure-button-selected {
         font-family: 'Cinzel Decorative', cursive !important;
 }
 
+@font-face {
+	font-family: 'bootstrap-icons';
+        src: url('../fonts/bootstrap-icons.woff2') format('woff2'),
+             url('../fonts/bootstrap-icons.woff') format('woff');
+        font-weight: normal;
+        font-style: normal;
+        font-display: block;
+}
+
 #view>.spinning {
 	position: fixed;
 	top: 50%;
@@ -2063,7 +2072,7 @@ ul.tabs li {
 }
 
 .control-group>input+.btn.cbi-button:hover {
-	background-color: #c82333 !important;
+	background-color: #2ecc71 !important;
 }
 
 .cbi-value-field .btn.cbi-button {
@@ -2437,8 +2446,8 @@ a.food[data-title="Log_out"] {
 }
 
 a.food[data-title="Log_out"]::after {
-	content: "\e907";
-	font-family: "spectra" !important;
+	content: "\F77C";
+	font-family: "bootstrap-icons" !important;
 	position: absolute;
 	left: 14px;
 	top: 50%;
@@ -2450,7 +2459,6 @@ a.food[data-title="Log_out"]::after {
 }
 
 a.food[data-title="Log_out"]:hover::after {
-	color: #ff4444;
 	transform: translateY(-50%) scale(1.1);
 }
 
@@ -3434,65 +3442,75 @@ div[style="width:100%;height:300px;border:1px solid #000;background:#fff"] {
 }
 
 .main .main-left .nav li .menu[data-title=Status]:before {
-	content: "\e906";
-	color: #5e72e4;
-	color: var(--primary)
+	font-family: 'bootstrap-icons' !important;
+	content: "\F62E";
+	color: var(--color-violet);
 }
 
 .main .main-left .nav li .menu[data-title=System]:before {
-	content: "\e90a";
-	color: #fb6340
+	font-family: 'bootstrap-icons' !important;
+	content: "\F7D5";
+	color: var(--btn-warning-bg);
 }
 
 .main .main-left .nav li .menu[data-title=Services]:before {
-	content: "\e909";
-	color: #11cdef
+	font-family: 'bootstrap-icons' !important;
+	content: "\f3e5";
+	color: var(--accent-color);
 }
 
 .main .main-left .nav li .menu[data-title=NAS]:before {
-	content: "\e90c";
-	color: #f3a4b5
+	font-family: 'bootstrap-icons' !important;
+	content: "\F412";
+	color: var(--color-pink);
 }
 
 .main .main-left .nav li .menu[data-title=VPN]:before {
-	content: "\e90b";
-	color: #8965e0
+	font-family: 'bootstrap-icons' !important;
+	content: "\f52f";
+	color: var(--btn-info-bg);
 }
 
 .main .main-left .nav li .menu[data-title=Network]:before {
-	content: "\e908";
-	color: #8965e0
+	font-family: 'bootstrap-icons' !important;
+	content: "\f3ee";
+	color: var(--ocean-bg);
 }
 
 .main .main-left .nav li .menu[data-title=Bandwidth_Monitor]:before {
-	content: "\e90d";
-	color: #2dce89
+	font-family: 'bootstrap-icons' !important;
+	content: "\f3c1";
+	color: var(--btn-success-bg);
 }
 
 .main .main-left .nav li .menu[data-title=Docker]:before {
-	content: "\e911";
-	color: #6699ff
+	font-family: 'bootstrap-icons' !important;
+	content: "\f1c9";
+	color: var(--lavender-bg);
 }
 
 .main .main-left .nav li .menu[data-title=Statistics]:before {
-	content: "\e913";
-	color: #8965e0
+	font-family: 'bootstrap-icons' !important;
+	content: "\f183";
+	color: var(--accent-color);
 }
 
 .main .main-left .nav li .menu[data-title=Control]:before {
-	content: "\e912";
-	color: #5e72e4;
-	color: var(--primary)
+	font-family: 'bootstrap-icons' !important;
+	content: "\f5b3";
+	color: var(--btn-primary-bg);
 }
 
 .main .main-left .nav li .menu[data-title=Asterisk]:before {
-	content: "\e914";
-	color: #fb6340
+	font-family: 'bootstrap-icons' !important;
+	content: "\f5c1";
+	color: var(--btn-danger-bg);
 }
 
 .main .main-left .nav li a[data-title=Logout]:before {
-	content: "\e907";
-	color: #adb5bd
+	font-family: 'bootstrap-icons' !important;
+	content: "\f1c3";
+	color: var(--sand-bg);
 }
 
 .lg {
@@ -3509,23 +3527,6 @@ div[style="width:100%;height:300px;border:1px solid #000;background:#fff"] {
 	font-size: 1rem;
 	transition: all .2s;
 	position: relative
-}
-
-.logout:before {
-	font-family: 'spectra' !important;
-	font-style: normal;
-	font-weight: normal;
-	font-variant: normal;
-	text-transform: none;
-	line-height: 1;
-	-webkit-font-smoothing: antialiased;
-	-moz-osx-font-smoothing: grayscale;
-	position: absolute;
-	left: .8rem;
-	padding-top: 3px;
-	transition: all .3s;
-	content: "\e907";
-	color: #32325d !important
 }
 
 body[class*="node-"]>.main>.main-left>.nav>.slide>.menu::before {
@@ -4092,7 +4093,7 @@ td>table>tbody>tr>td,
 	font-size: .8rem;
 	display: inline-block;
 	width: auto !important;
-	padding: .45rem .8rem;
+	padding: 0.5rem 0.75rem;
 	cursor: pointer;
 	-webkit-user-select: none;
 	-moz-user-select: none;
@@ -4515,12 +4516,11 @@ td>table>tbody>tr>td,
 	margin-right: 0
 }
 
-.cbi-value input[type="password"]+.cbi-button-neutral {
-	height: 42px;
-	border-bottom-left-radius: 0;
-	border-top-left-radius: 0;
-	margin-left: 0;
-	border: 0
+.control-group input + button {
+        border-bottom-left-radius: 0;
+        border-top-left-radius: 0;
+        margin-left: 0 !important;
+        border-left-width: 0;
 }
 
 #cbi-firewall-zone .cbi-input-select,
@@ -4646,13 +4646,13 @@ body:not(.Interfaces) .cbi-rowstyle-2:first-child {
 }
 
 .cbi-dynlist>.item::after {
-	font-family: "spectra" !important;
+	font-family: "bootstrap-icons" !important;
 	position: absolute;
 	width: 2.2rem !important;
 	height: calc(100% - 10px) !important;
 	right: 0;
 	bottom: 0;
-	content: "\e900";
+	content: "\F5DE";
 	pointer-events: auto;
 	background-color: var(--red);
 	font-weight: normal;
@@ -5179,9 +5179,9 @@ body.modal-overlay-active #modal_overlay {
 	gap: .2rem;
 	padding: .5rem .8rem;
 	border-bottom: thin solid #ccc;
-	background: var(--card-bg);
+	background: var(--bg-container) !important;
 	box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2), 0 1px 2px rgba(0, 0, 0, 0.05);
-	border-radius: 4px
+	border-radius: 6px
 }
 
 td>.ifacebadge,
@@ -6396,8 +6396,8 @@ pre.command-output {
 	}
 
 	.showSide::before {
-		content: "\e20e";
-		font-family: 'spectra' !important;
+		content: "\F5C5";
+		font-family: 'bootstrap-icons' !important;
 		font-style: normal !important;
 		font-weight: normal !important;
 		font-variant: normal !important;
@@ -6405,7 +6405,7 @@ pre.command-output {
 		line-height: 1;
 		-webkit-font-smoothing: antialiased;
 		-moz-osx-font-smoothing: grayscale;
-		color: #5A8DEE;
+		color: var(--accent-color);
 		font-size: 1.7rem;
 		position: relative;
 		left: -8px;
@@ -6713,7 +6713,8 @@ fieldset.diag-style {
 }
 
 .cbi-value-description::before {
-	content: "";
+	content: "\F431";
+	font-family: 'bootstrap-icons' !important;
 	position: absolute;
 	left: 0;
 	top: 50%;
@@ -6721,14 +6722,34 @@ fieldset.diag-style {
 	width: 17px;
 	height: 17px;
 	display: inline-block;
-	background-repeat: no-repeat;
-	background-size: contain;
-	background-color: var(--accent-color) !important;
-	border-radius: 50%;
-	background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='white'%3E%3Cpath d='M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z'/%3E%3C/svg%3E");
+	color: var(--accent-color) !important;
+	font-size: 17px;
+	line-height: 1;
+	text-align: center;
+	text-shadow: none;
+	transition: text-shadow 0.3s ease;
 }
 
-[data-theme="dark"] .cbi-value-description::before {
-	background-color: var(--accent-color) !important;
-	background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='white'%3E%3Cpath d='M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z'/%3E%3C/svg%3E");
+[data-theme="dark"] .cbi-value-description:hover::before {
+	text-shadow: 0 0 2px var(--accent-color),
+        0 0 6px var(--accent-color),
+        0 0 10px var(--accent-color);
+}
+
+@media screen and (max-width: 768px) {
+	.cbi-section .cbi-value-description,
+	.cbi-value .cbi-value-description {
+		padding-left: 25px !important;
+	}
+}
+
+@media screen and (max-width: 480px) {
+	.cbi-section .cbi-value-description,
+	.cbi-value .cbi-value-description {
+		padding-left: 28px !important;
+	}
+}
+
+.cbi-value-description:empty {
+        display: none;
 }

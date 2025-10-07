@@ -168,6 +168,23 @@
     --secondary-color: var(--btn-primary-bg);
     --background: var(--bg-body);
     --text-color: var(--text-primary);
+
+    --color-red: oklch(65% 0.25 25);
+    --color-orange: oklch(75% 0.2 55);
+    --color-yellow: oklch(85% 0.2 90);
+    --color-green: oklch(75% 0.25 140);
+    --color-blue: oklch(65% 0.25 240);
+    --color-indigo: oklch(55% 0.3 280);
+    --color-violet: oklch(65% 0.3 310);
+    
+    --color-cyan: oklch(80% 0.15 200);
+    --color-magenta: oklch(70% 0.3 330);
+    --color-pink: oklch(75% 0.25 350);
+    --color-brown: oklch(55% 0.1 45);
+    --color-gray: oklch(60% 0.02 0);
+    --color-black: oklch(20% 0.02 0);
+    --color-white: oklch(95% 0.01 0);
+
 }
 
 @keyframes breathing-shadow {
@@ -186,15 +203,41 @@
 [data-theme="light"] {
     --base-hue: 200;
     --base-chroma: 0.01;
+    --danger-base: 15;
+    --base-hue-1: 220;
+    --base-hue-2: 280;
+    --base-hue-3: 315;
+    --base-hue-4: 260;
+    --base-hue-5: 350;
+    --base-hue-6: 290;
+    --base-hue-7: 400;
     --l: 60%;
     --c: 0.25;
 
+    --glass-blur: blur(20px);
+    --radius: 20px;
+    --glass-opacity: 0.85;
     --glass-border: 1px solid rgba(0, 0, 0, 0.05);
     --border-color: oklch(85% 0.03 var(--base-hue));
     --border-light: 1px solid oklch(90% 0.02 var(--base-hue) / 0.4);
     --border-strong: 2px solid oklch(75% 0.05 var(--base-hue) / 0.8);
+
+    --glow-base: var(--base-hue);
+    --glow-primary: oklch(75% 0.25 var(--glow-base));
+    --glow-secondary: oklch(70% 0.2 calc(var(--glow-base) + 15));
+
+    --breathing-glow: 0 0 15px oklch(85% 0.2 var(--base-hue) / 0.4),
+                      0 0 30px oklch(85% 0.15 var(--base-hue) / 0.3),
+                      0 0 45px oklch(85% 0.1 var(--base-hue) / 0.2);
+    
     --border-glow: 0 0 8px oklch(85% 0.2 var(--base-hue) / 0.4),
                    0 0 16px oklch(90% 0.25 var(--base-hue) / 0.3);
+    
+    --breathing-animation: breathing 3s ease-in-out infinite;
+    --shadow-intensity: 0.15;
+    --text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+    --transition-speed: 0.3s;
+    --highlight-intensity: 0.6;
 
     --bg-body: oklch(95% var(--base-chroma) var(--base-hue) / 90%);
     --bg-container: oklch(99% var(--base-chroma) var(--base-hue));
@@ -205,12 +248,13 @@
     --border-color: oklch(85% 0.03 var(--base-hue));
 
     --btn-primary-bg: oklch(60% 0.35 var(--base-hue));
+    --btn-primary-hover: color-mix(in oklch, var(--btn-primary-bg), black 12%);
     --btn-success-bg: oklch(75% 0.25 140);
     --btn-info-bg: oklch(65% 0.3 220);
     --btn-warning-bg: oklch(65% 0.25 80);
     --btn-danger-bg: oklch(55% 0.35 var(--danger-base));
 
-    --item-hover-bg: color-mix(in oklch, var(--accent-color), white 25%);
+    --item-hover-bg: color-mix(in oklch, var(--btn-primary-bg), white 25%);
     --item-hover-shadow: 0 2px 15px oklch(0 0 0 / 0.15);
     --drag-over-bg: oklch(92% 0.01 var(--base-hue) / 0.3);
     --drag-over-shadow: 0 0 20px oklch(0 0 0 / 0.1);
@@ -222,8 +266,38 @@
     --danger-text: oklch(45% 0.35 30);
 
     --ocean-bg: oklch(85% 0.18 calc(var(--base-hue) + 220));
+    --forest-bg: oklch(82% 0.18 calc(var(--base-hue) + 140));
+    --rose-bg: oklch(88% 0.18 calc(var(--base-hue) + 350));
+    --lavender-bg: oklch(86% 0.18 calc(var(--base-hue) + 270));
+    --sand-bg: oklch(85% 0.18 calc(var(--base-hue) + 60));
+
+    --glass-blur: blur(20px);
+    --radius: 16px;
+    --transition: all 0.25s ease;
+
+    --primary-color: var(--accent-color);
+    --secondary-color: var(--btn-primary-bg);
+    --background: var(--bg-body);
+    --text-color: var(--text-primary);
+    
     --highlight-color: oklch(90% 0.15 calc(var(--base-hue) + 90));
     --soft-highlight: oklch(85% 0.1 calc(var(--base-hue) + 90));
+
+    --color-red: oklch(55% 0.3 25);
+    --color-orange: oklch(65% 0.25 55);
+    --color-yellow: oklch(75% 0.25 90);
+    --color-green: oklch(65% 0.3 140);
+    --color-blue: oklch(55% 0.3 240);
+    --color-indigo: oklch(45% 0.35 280);
+    --color-violet: oklch(55% 0.35 310);
+    
+    --color-cyan: oklch(70% 0.2 200);
+    --color-magenta: oklch(60% 0.35 330);
+    --color-pink: oklch(65% 0.3 350);
+    --color-brown: oklch(45% 0.15 45);
+    --color-gray: oklch(50% 0.05 0);
+    --color-black: oklch(15% 0.05 0);
+    --color-white: oklch(98% 0.01 0);
 }
 
 .fill, 
@@ -853,7 +927,7 @@ div.nav-container > button.btn_styles {
                         <img id="settings-icon" src="<%=media%>/navbar/interface.gif" alt="Interface" style="cursor:pointer;">
                 </div>
                 <div class="icon-group">
-                        <button id="setCityBtn" class="app-icon-btn"><i class="bi bi-cloud-lightning-fill"></i></button>
+                        <button id="setCityBtn" class="app-icon-btn"><i class="bi bi-geo-alt"></i></button>
                         <button type="button" class="app-icon-btn" id="colorPickerBtn" onclick="document.getElementById('colorPicker').click()"><i class="bi bi-moon-fill"></i></button>
                         <input type="color" id="colorPicker" value="#0f3460" style="display: none;">
                         <button type="button" class="app-icon-btn" onclick="openLanguageModal()"><i class="bi bi-translate"></i></button>
@@ -862,9 +936,9 @@ div.nav-container > button.btn_styles {
 
             <div class="weather-card" style="position:relative; display:flex; align-items:center; padding:10px; border-radius:8px; color:white;  height:50px; margin-top:3px;">
               <div style="flex:1; display:flex; align-items:center; gap:25px;">   
-                  <div id="iconContainer" style="position:relative; width:50px; height:50px;"> 
+                  <div id="iconContainer" style="position:relative; width:50px; height:48px; overflow:hidden;"> 
                       <img id="loadingIcon" src="/luci-static/ipip/img/loading.svg" style="position:absolute; top:50%; left:50%; transform:translate(-50%, -50%); width:50px; height:50px;" />
-                      <i id="weatherIcon" class="wi" style="position:absolute; top:50%; left:50%; transform:translate(-50%, -50%); font-size:40px; width:40px; height:40px; display:none; color:#FFD700;"></i>
+                      <i id="weatherIcon" class="wi" style="position:absolute; top:57%; left:50%; transform:translate(-50%, -50%); font-size:35px; width:40px; height:40px; display:none; color:#FFD700;"></i>
                   </div>
                 <div style="display:flex; flex-direction:column; justify-content:center; line-height:1;">
                   <div id="cityNameDisplay" style="font-weight:bold; font-size:16px; color:rgb(9, 182, 63); margin-bottom:8px;">
@@ -1107,7 +1181,7 @@ document.addEventListener("DOMContentLoaded", () => {
         if (isLight) {
             icon.className = 'bi bi-sun-fill';
         } else {
-            icon.className = 'bi bi-moon-fill';
+            icon.className = 'bi bi-moon-stars-fill';
         }
     }
 
@@ -3266,6 +3340,22 @@ const cityModal = document.getElementById('cityModal');
 const closeCityModal = document.getElementById('closeCityModal');
 const modalTitle = document.getElementById('modalTitle');
 
+const unifiedLanguageMap = {
+  'zh': { api: 'zh-CN', weather: 'zh_cn', display: 'zh' },
+  'hk': { api: 'zh-TW', weather: 'zh_tw', display: 'hk' },
+  'en': { api: 'en-US', weather: 'en', display: 'en' },
+  'ja': { api: 'ja-JP', weather: 'ja', display: 'ja' },
+  'ko': { api: 'ko-KR', weather: 'kr', display: 'ko' },
+  'fr': { api: 'fr-FR', weather: 'fr', display: 'fr' },
+  'de': { api: 'de-DE', weather: 'de', display: 'de' },
+  'es': { api: 'es-ES', weather: 'es', display: 'es' },
+  'ru': { api: 'ru-RU', weather: 'ru', display: 'ru' },
+  'th': { api: 'th-TH', weather: 'th', display: 'th' },
+  'bn': { api: 'bn-IN', weather: 'bn', display: 'bn' },
+  'ar': { api: 'ar-SA', weather: 'ar', display: 'ar' },
+  'vi': { api: 'vi-VN', weather: 'vi', display: 'vi' }
+};
+
 const modalTranslations = {
   zh: {
     modalTitle: "设置城市",
@@ -3395,6 +3485,28 @@ async function getModalLang() {
   }
 }
 
+async function performTranslation(text, targetLang) {
+  if (!text) return text;
+  const apiTargetLang = unifiedLanguageMap[targetLang.toLowerCase()]?.api || targetLang.toLowerCase();
+  const sourceLang = 'en';
+  
+  try {
+    const url = `https://api.mymemory.translated.net/get?q=${encodeURIComponent(text)}&langpair=${sourceLang}|${apiTargetLang}`;
+    const response = await fetch(url);
+    if (!response.ok) throw new Error('Translation API error');
+    const data = await response.json();
+    
+    if (data.responseStatus === 200 && data.responseData && data.responseData.translatedText) {
+      return data.responseData.translatedText;
+    } else {
+      throw new Error('Invalid translation response');
+    }
+  } catch (error) {
+    console.error('Translation error:', error);
+    return text;
+  }
+}
+
 async function updateModalLanguage() {
   const lang = await getModalLang();
   modalTitle.textContent = modalTranslations[lang].modalTitle;
@@ -3443,6 +3555,37 @@ function closeModal(){
   cityModal.style.display = 'none';
 }
 
+function getWeatherColor(iconCode) {
+    const root = document.documentElement;
+    const lBase = parseFloat(getComputedStyle(root).getPropertyValue('--l'));
+    const cBase = parseFloat(getComputedStyle(root).getPropertyValue('--c'));
+
+    const weatherVars = {
+        '01d': { l: lBase + 10, c: cBase + 0.05, h: parseFloat(getComputedStyle(root).getPropertyValue('--base-hue-1')) },
+        '01n': { l: lBase - 15, c: cBase - 0.03, h: parseFloat(getComputedStyle(root).getPropertyValue('--base-hue')) },
+        '02d': { l: lBase - 5,  c: cBase - 0.05, h: parseFloat(getComputedStyle(root).getPropertyValue('--base-hue-2')) },
+        '02n': { l: lBase - 10, c: cBase - 0.05, h: parseFloat(getComputedStyle(root).getPropertyValue('--base-hue-2')) },
+        '03d': { l: lBase - 10, c: cBase - 0.08, h: parseFloat(getComputedStyle(root).getPropertyValue('--base-hue-3')) },
+        '03n': { l: lBase - 15, c: cBase - 0.08, h: parseFloat(getComputedStyle(root).getPropertyValue('--base-hue-3')) },
+        '04d': { l: lBase - 20, c: cBase - 0.1,  h: parseFloat(getComputedStyle(root).getPropertyValue('--base-hue-4')) },
+        '04n': { l: lBase - 25, c: cBase - 0.1,  h: parseFloat(getComputedStyle(root).getPropertyValue('--base-hue-4')) },
+        '09d': { l: lBase - 5,  c: cBase + 0.08, h: parseFloat(getComputedStyle(root).getPropertyValue('--base-hue-5')) },
+        '09n': { l: lBase - 10, c: cBase + 0.08, h: parseFloat(getComputedStyle(root).getPropertyValue('--base-hue-5')) },
+        '10d': { l: lBase - 10, c: cBase,        h: parseFloat(getComputedStyle(root).getPropertyValue('--base-hue-6')) },
+        '10n': { l: lBase - 15, c: cBase,        h: parseFloat(getComputedStyle(root).getPropertyValue('--base-hue-6')) },
+        '11d': { l: lBase - 5,  c: cBase + 0.08, h: parseFloat(getComputedStyle(root).getPropertyValue('--base-hue-7')) },
+        '11n': { l: lBase - 10, c: cBase + 0.08, h: parseFloat(getComputedStyle(root).getPropertyValue('--base-hue-7')) },
+        '13d': { l: lBase + 5,  c: cBase - 0.1,  h: parseFloat(getComputedStyle(root).getPropertyValue('--base-hue-1')) },
+        '13n': { l: lBase + 5,  c: cBase - 0.1,  h: parseFloat(getComputedStyle(root).getPropertyValue('--base-hue-1')) },
+        '50d': { l: lBase,      c: cBase - 0.08, h: parseFloat(getComputedStyle(root).getPropertyValue('--base-hue-2')) },
+        '50n': { l: lBase - 5,  c: cBase - 0.08, h: parseFloat(getComputedStyle(root).getPropertyValue('--base-hue-2')) }
+    };
+
+    const w = weatherVars[iconCode] || { l: lBase, c: cBase, h: parseFloat(getComputedStyle(root).getPropertyValue('--base-hue')) };
+
+    return `oklch(${w.l}% ${w.c} ${w.h})`;
+}
+
 function owmCodeToWiClass(code) {
   const map = {
     '01d': 'wi-day-sunny',    '01n': 'wi-night-clear',
@@ -3461,24 +3604,8 @@ function owmCodeToWiClass(code) {
 async function getWeatherLangParam() {
   try {
     let lang = (await getRealTimeLanguage()).toLowerCase();
-    const map = {
-      'zh': 'zh_cn',
-      'hk': 'zh_tw',
-      'en': 'en',
-      'ja': 'ja',
-      'ko': 'kr',
-      'fr': 'fr',
-      'de': 'de',
-      'es': 'es',
-      'ru': 'ru',
-      'th': 'th',
-      'bn': 'bn',
-      'ar': 'ar',
-      'vi': 'vi'
-    };
-
-    return map[lang] || 'en';
-  } catch(e) {
+    return unifiedLanguageMap[lang]?.weather || 'en';
+  } catch (e) {
     return 'en';
   }
 }
@@ -3528,7 +3655,7 @@ function isCacheExpired(updatedTime) {
 }
 
 async function translateWeatherDesc(descList) {
-  if (!Array.isArray(descList) || descList.length === 0) return { text: '', city };
+  if (!Array.isArray(descList) || descList.length === 0) return { text: '', city: city };
 
   const cache = await getTranslationCache(city);
   const lang = (await getRealTimeLanguage()).toLowerCase();
@@ -3540,24 +3667,24 @@ async function translateWeatherDesc(descList) {
   const result = [];
   const translationsToUpdate = { weather: {}, city: cachedCity };
 
-  for (const desc of descList) {
-    if (cachedWeather[desc]) {
-      result.push(cachedWeather[desc]);
-    } else {
-      try {
-        const t = await myAppTranslate(desc, lang);
-        translationsToUpdate.weather[desc] = t;
-        result.push(t);
-      } catch {
-        translationsToUpdate.weather[desc] = desc;
-        result.push(desc);
-      }
+  const fullDesc = descList.join(', ');
+
+  if (cachedWeather[fullDesc]) {
+    result.push(cachedWeather[fullDesc]);
+  } else {
+    try {
+      const t = await performTranslation(fullDesc, lang);
+      translationsToUpdate.weather[fullDesc] = t;
+      result.push(t);
+    } catch {
+      translationsToUpdate.weather[fullDesc] = fullDesc;
+      result.push(fullDesc);
     }
   }
 
   if (!cachedCity) {
     try {
-      const tCity = await myAppTranslate(city, lang);
+      const tCity = await performTranslation(city, lang);
       translationsToUpdate.city = tCity;
       cachedCity = tCity;
     } catch {
@@ -3635,26 +3762,26 @@ setInterval(async () => {
 }, CACHE_REFRESH_INTERVAL);
 
 async function updateWeatherUI(data) {
-  document.getElementById('loadingIcon').style.display = 'none';
+    document.getElementById('loadingIcon').style.display = 'none';
 
-  const iconCode = data.weather[0].icon;
-  const weatherIcon = document.getElementById('weatherIcon');
-  weatherIcon.className = `wi ${owmCodeToWiClass(iconCode)}`;
-  weatherIcon.style.display = 'inline-block';
-  weatherIcon.style.color = '#FFD700';
+    const iconCode = data.weather[0].icon;
+    const weatherIcon = document.getElementById('weatherIcon');
+    weatherIcon.className = `wi ${owmCodeToWiClass(iconCode)}`;
+    weatherIcon.style.display = 'inline-block';
+    weatherIcon.style.color = getWeatherColor(iconCode);
 
-  const temp = Math.round(data.main.temp);
-  const descList = data.weather.map(w => w.description);
-  const { text: translatedDesc, city: translatedCity } = await translateWeatherDesc(descList);
+    const temp = Math.round(data.main.temp);
+    const descList = data.weather.map(w => w.description);
+    const { text: translatedDesc, city: translatedCity } = await translateWeatherDesc(descList);
 
-  document.getElementById('weatherText').textContent = `${translatedDesc} ${temp}℃`;
-  cityNameDisplay.textContent = translatedCity;
+    document.getElementById('weatherText').textContent = `${translatedDesc} ${temp}℃`;
+    cityNameDisplay.textContent = translatedCity;
 }
 
 async function updateCityNameDisplay(name) {
   try {
     const lang = await getRealTimeLanguage();
-    const translatedCityName = await myAppTranslate(name, lang);
+    const translatedCityName = await performTranslation(name, lang);
     cityNameDisplay.textContent = translatedCityName;
   } catch(e) {
     cityNameDisplay.textContent = name;
@@ -3662,11 +3789,12 @@ async function updateCityNameDisplay(name) {
 }
 
 async function fetchWeather() {
-  const url = `https://api.openweathermap.org/data/2.5/weather?q=${encodeURIComponent(city)}&appid=${apiKey}&units=metric&lang=en`;
+  const langParam = await getWeatherLangParam();
+  const url = `https://api.openweathermap.org/data/2.5/weather?q=${encodeURIComponent(city)}&appid=${apiKey}&units=metric&lang=${langParam}`;
   fetch(url)
     .then(res => res.ok ? res.json() : Promise.reject('Network not OK'))
     .then(data => {
-      if(data.weather && data.main){
+      if (data.weather && data.main) {
         currentWeatherData = data;
         updateWeatherUI(data);
       }
