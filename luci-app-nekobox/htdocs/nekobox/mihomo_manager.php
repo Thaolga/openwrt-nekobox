@@ -2024,35 +2024,36 @@ function confirmDelete(name, event) {
     return false;
 }
 </script>
-    <div class="modal fade" id="downloadModal" tabindex="-1" aria-labelledby="downloadModalLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
-        <div class="modal-dialog modal-lg">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="downloadModalLabel" data-translate="select_database_download"></h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-                </div>
-                <div class="modal-body">
-                    <form method="GET" action="">
-                        <div class="mb-3">
-                            <label for="fileSelect" class="form-label" data-translate="select_file"></label>
-                            <select class="form-select" id="fileSelect" name="file">
-                                <option value="geoip">geoip.metadb</option>
-                                <option value="geosite">geosite.dat</option>
-                                <option value="cache">cache.db</option>
-                            </select>
-                        </div>
-                    </div>
-                        <div class="modal-footer d-flex justify-content-end gap-3">
-                            <button type="submit" class="btn btn-primary me-2" data-translate="download_button"></button>
-                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" data-translate="cancel_button"></button>
-                        </div>
-                    </form>
-                </div>
-            </div>
+
+<div class="modal fade" id="downloadModal" tabindex="-1" aria-labelledby="downloadModalLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+  <div class="modal-dialog modal-lg">
+    <form method="GET" action="" class="no-loader">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="downloadModalLabel" data-translate="select_database_download"></h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
         </div>
-    </div>
+        <div class="modal-body">
+          <div class="mb-3">
+            <label for="fileSelect" class="form-label" data-translate="select_file"></label>
+            <select class="form-select" id="fileSelect" name="file">
+              <option value="geoip">geoip.metadb</option>
+              <option value="geosite">geosite.dat</option>
+              <option value="cache">cache.db</option>
+            </select>
+          </div>
+        </div>
+        <div class="modal-footer d-flex justify-content-end gap-3">
+          <button type="submit" class="btn btn-primary me-2" data-translate="download_button"></button>
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" data-translate="cancel_button"></button>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>
+
 <form method="POST">
     <div class="modal fade" id="cronModal" tabindex="-1" aria-labelledby="cronModalLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
         <div class="modal-dialog modal-lg" role="document">
