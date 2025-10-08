@@ -400,28 +400,21 @@ if (isset($_POST['save_autostart'])) {
 </div>
 
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-    const img = document.querySelector('.centered-img');
-
-    const savedRotation = parseInt(localStorage.getItem('rotation')) || 0;
-    img.style.transform = `rotateY(${savedRotation}deg)`;
-
-    img.addEventListener('mouseenter', function() {
-        const newRotation = savedRotation + 180;
-        img.style.transform = `rotateY(${newRotation}deg)`;
-        localStorage.setItem('rotation', newRotation);
-    });
-});
-
 document.addEventListener("DOMContentLoaded", () => {
   const loader = document.getElementById("theme-loader");
   const MAX_WAIT_TIME = 15000;
 
   document.querySelectorAll("form").forEach(form => {
     form.addEventListener("submit", (e) => {
-      if (e.submitter?.classList.contains('cancel-btn') || 
-         form.classList.contains('no-loader')) return;
-      
+      if (e.submitter?.classList.contains('cancel-btn')) {
+        e.preventDefault();
+        return;
+      }
+
+      if (form.classList.contains('no-loader')) {
+        return;
+      }
+
       if (loader) {
         loader.style.display = "flex";
         setTimeout(() => {
