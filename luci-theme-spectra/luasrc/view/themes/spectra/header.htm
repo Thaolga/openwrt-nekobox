@@ -112,16 +112,18 @@
     --border-light: 1px solid oklch(60% 0.05 var(--base-hue) / 0.3);
     --border-strong: 2px solid oklch(70% 0.1 var(--base-hue) / 0.6);
     --glow-base: var(--base-hue);
-    --glow-primary: oklch(88% 0.35 var(--glow-base));
-    --glow-secondary: oklch(85% 0.3 calc(var(--glow-base) + 15));
+    --glow-primary: oklch(82% 0.32 var(--glow-base));
+    --glow-secondary: oklch(78% 0.28 calc(var(--glow-base) + 10));
+    --breath-animation: breath 3s ease-in-out infinite;
 
     --breathing-glow: 0 0 20px oklch(70% 0.3 var(--base-hue) / 0.6),
                       0 0 40px oklch(70% 0.25 var(--base-hue) / 0.4),
                       0 0 60px oklch(70% 0.2 var(--base-hue) / 0.3);
     
-    --border-glow: 0 0 12px oklch(70% 0.2 var(--base-hue) / 0.8),
-                   0 0 24px oklch(70% 0.2 var(--base-hue) / 0.6);
-    
+    --border-glow: 0 2px 8px 1px color-mix(in oklch, var(--glow-primary), transparent 40%),
+                   0 4px 24px 2px color-mix(in oklch, var(--glow-secondary), transparent 60%),
+                   inset 0 0 12px color-mix(in oklch, var(--glow-primary), transparent 70%);
+
     --breathing-animation: breathing 3s ease-in-out infinite;
     --shadow-intensity: 0.25;
     --text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
@@ -187,16 +189,16 @@
 
 }
 
-@keyframes breathing-shadow {
+@keyframes breath {
     0%, 100% {
-        box-shadow: 0 0 15px oklch(70% 0.3 var(--base-hue) / 0.4),
-                    0 0 30px oklch(70% 0.25 var(--base-hue) / 0.3),
-                    0 0 45px oklch(70% 0.2 var(--base-hue) / 0.2);
+        box-shadow: 0 2px 8px 1px color-mix(in oklch, oklch(82% 0.32 260), transparent 40%),
+                    0 4px 24px 2px color-mix(in oklch, oklch(82% 0.32 260), transparent 60%),
+                    inset 0 0 12px color-mix(in oklch, oklch(82% 0.32 260), transparent 70%);
     }
     50% {
-        box-shadow: 0 0 25px oklch(85% 0.35 265 / 0.8),
-                    0 0 50px oklch(85% 0.3 265 / 0.6),
-                    0 0 75px oklch(85% 0.25 265 / 0.4);
+        box-shadow: 0 4px 16px 2px color-mix(in oklch, oklch(82% 0.32 260), transparent 30%),
+                    0 8px 32px 4px color-mix(in oklch, oklch(82% 0.32 260), transparent 50%),
+                    inset 0 0 24px color-mix(in oklch, oklch(82% 0.32 260), transparent 60%);
     }
 }
 
@@ -322,6 +324,7 @@
     align-items: center;
     display: flex;
     gap: 15px;
+    flex: 0 0 auto;
 }
 
 @media (max-width: 768px) {
@@ -334,6 +337,20 @@
     .navbar-left,
     .navbar-right {
         gap: 11.5px;
+    }
+}
+
+@media (min-width: 769px) and (max-width: 1633px) {
+    .navbar-container {
+        margin-left: calc(15rem - 32px);
+        width: calc(100% - 15rem + 32px);
+    }
+}
+
+@media (min-width: 1701px) {
+    .navbar-container {
+        margin-left: 15rem;
+        width: calc(100% - 15rem);
     }
 }
 
@@ -396,7 +413,7 @@
 }
 
 .ip-container #d-ip {
-    color: #09B63F !important;
+    color: var(--color-green); !important;
     font-family: 'Comic Neue', cursive !important;
     font-weight: 900;
     font-size: 15px;
@@ -941,7 +958,7 @@ div.nav-container > button.btn_styles {
                       <i id="weatherIcon" class="wi" style="position:absolute; top:57%; left:50%; transform:translate(-50%, -50%); font-size:35px; width:40px; height:40px; display:none; color:#FFD700;"></i>
                   </div>
                 <div style="display:flex; flex-direction:column; justify-content:center; line-height:1;">
-                  <div id="cityNameDisplay" style="font-weight:bold; font-size:16px; color:rgb(9, 182, 63); margin-bottom:8px;">
+                  <div id="cityNameDisplay" style="font-weight:bold; font-size:16px; color:var(--color-green); margin-bottom:8px;">
                   </div>
                   <div id="weatherText" style="font-size:16px; color:rgb(255, 0, 255);">
                   </div>
@@ -1183,28 +1200,6 @@ document.addEventListener("DOMContentLoaded", () => {
         } else {
             icon.className = 'bi bi-moon-stars-fill';
         }
-    }
-
-    function initColorSettings() {
-        const savedSettings = localStorage.getItem('appColorSettings');
-        if (savedSettings) {
-            const settings = JSON.parse(savedSettings);
-            recentColors = settings.recentColors || [];
-            currentHue = settings.hue || 260;
-            currentChroma = settings.chroma || 0.10;
-            currentLightness = settings.lightness || 30;
-        
-            document.getElementById('colorPicker').value = oklchToHex(currentHue, currentChroma, currentLightness);
-            applyColorSettings(false);
-        } else {
-            currentHue = 260;
-            currentChroma = 0.10;
-            currentLightness = 30;
-            document.getElementById('colorPicker').value = oklchToHex(currentHue, currentChroma, currentLightness);
-            applyColorSettings(false);
-        }    
-        initColorPickerButton();
-
     }
 
     async function initColorPickerButton() {
@@ -3094,30 +3089,6 @@ window.addEventListener('load', () => {
 });
 </script>
 
-<script>
-function moveNavbar() {
-    const navbar = document.querySelector('.navbar-container');
-    const screenWidth = window.innerWidth;
-
-    if (screenWidth < 768) {
-        navbar.style.marginLeft = '0';
-        navbar.style.width = '100%';
-    } else if (screenWidth <= 1633) {
-        navbar.style.marginLeft = 'calc(15rem - 32px)';
-        navbar.style.width = '';
-    } else if (screenWidth > 1700) {
-        navbar.style.marginLeft = '15rem';
-        navbar.style.width = ''; 
-    } else {
-        navbar.style.marginLeft = '15rem';
-        navbar.style.width = '';
-    }
-}
-
-window.addEventListener('load', moveNavbar);
-window.addEventListener('resize', moveNavbar);
-</script>
-
 <style>
 .weather-log-box {
     position: fixed;
@@ -3195,10 +3166,10 @@ window.addEventListener('resize', moveNavbar);
     <label for="voiceToggle" id="voiceLabel" style="margin-left:8px;"></label>
   </div>
 
-  <div id="lastUpdated" style="font-size:13px; color:var(--text-secondary); margin-bottom:15px; display:none;"></div>
+  <div id="lastUpdated" class="cbi-value-description" style="font-size:13px; color:var(--text-secondary); margin-bottom:15px; display:none;"></div>
 
   <div style="text-align:right;">
-    <button id="clearCacheBtn" class="cbi-button cbi-button-remove" style="margin-right:8px;"></button>
+    <button id="clearCacheBtn" class="cbi-button cbi-button-remove"></button>
     <button id="saveCityBtn" class="cbi-button cbi-button-save"></button>
     <button id="closeCityModal" class="btn cbi-button-neutral"></button>
   </div>
@@ -3663,31 +3634,27 @@ function closeModal() {
 }
 
 function getWeatherColor(iconCode) {
-    const root = document.documentElement;
-    const lBase = parseFloat(getComputedStyle(root).getPropertyValue('--l'));
-    const cBase = parseFloat(getComputedStyle(root).getPropertyValue('--c'));
-    const weatherVars = {
-        '01d': { l: lBase + 10, c: cBase + 0.05, h: parseFloat(getComputedStyle(root).getPropertyValue('--base-hue-1')) },
-        '01n': { l: lBase - 15, c: cBase - 0.03, h: parseFloat(getComputedStyle(root).getPropertyValue('--base-hue')) },
-        '02d': { l: lBase - 5, c: cBase - 0.05, h: parseFloat(getComputedStyle(root).getPropertyValue('--base-hue-2')) },
-        '02n': { l: lBase - 10, c: cBase - 0.05, h: parseFloat(getComputedStyle(root).getPropertyValue('--base-hue-2')) },
-        '03d': { l: lBase - 10, c: cBase - 0.08, h: parseFloat(getComputedStyle(root).getPropertyValue('--base-hue-3')) },
-        '03n': { l: lBase - 15, c: cBase - 0.08, h: parseFloat(getComputedStyle(root).getPropertyValue('--base-hue-3')) },
-        '04d': { l: lBase - 20, c: cBase - 0.1, h: parseFloat(getComputedStyle(root).getPropertyValue('--base-hue-4')) },
-        '04n': { l: lBase - 25, c: cBase - 0.1, h: parseFloat(getComputedStyle(root).getPropertyValue('--base-hue-4')) },
-        '09d': { l: lBase - 5, c: cBase + 0.08, h: parseFloat(getComputedStyle(root).getPropertyValue('--base-hue-5')) },
-        '09n': { l: lBase - 10, c: cBase + 0.08, h: parseFloat(getComputedStyle(root).getPropertyValue('--base-hue-5')) },
-        '10d': { l: lBase - 10, c: cBase, h: parseFloat(getComputedStyle(root).getPropertyValue('--base-hue-6')) },
-        '10n': { l: lBase - 15, c: cBase, h: parseFloat(getComputedStyle(root).getPropertyValue('--base-hue-6')) },
-        '11d': { l: lBase - 5, c: cBase + 0.08, h: parseFloat(getComputedStyle(root).getPropertyValue('--base-hue-7')) },
-        '11n': { l: lBase - 10, c: cBase + 0.08, h: parseFloat(getComputedStyle(root).getPropertyValue('--base-hue-7')) },
-        '13d': { l: lBase + 5, c: cBase - 0.1, h: parseFloat(getComputedStyle(root).getPropertyValue('--base-hue-1')) },
-        '13n': { l: lBase + 5, c: cBase - 0.1, h: parseFloat(getComputedStyle(root).getPropertyValue('--base-hue-1')) },
-        '50d': { l: lBase, c: cBase - 0.08, h: parseFloat(getComputedStyle(root).getPropertyValue('--base-hue-2')) },
-        '50n': { l: lBase - 5, c: cBase - 0.08, h: parseFloat(getComputedStyle(root).getPropertyValue('--base-hue-2')) }
-    };
-    const w = weatherVars[iconCode] || { l: lBase, c: cBase, h: parseFloat(getComputedStyle(root).getPropertyValue('--base-hue')) };
-    return `oklch(${w.l}% ${w.c} ${w.h})`;
+    switch(iconCode) {
+        case '01d': return 'oklch(var(--l) var(--c) var(--base-hue-1))';
+        case '01n': return 'oklch(var(--l) var(--c) var(--base-hue))';
+        case '02d': return 'oklch(var(--l) var(--c) var(--base-hue-2))';
+        case '02n': return 'oklch(var(--l) var(--c) var(--base-hue-2))';
+        case '03d': return 'oklch(var(--l) var(--c) var(--base-hue-3))';
+        case '03n': return 'oklch(var(--l) var(--c) var(--base-hue-3))';
+        case '04d': return 'oklch(var(--l) var(--c) var(--base-hue-4))';
+        case '04n': return 'oklch(var(--l) var(--c) var(--base-hue-4))';
+        case '09d': return 'oklch(var(--l) var(--c) var(--base-hue-5))';
+        case '09n': return 'oklch(var(--l) var(--c) var(--base-hue-5))';
+        case '10d': return 'oklch(var(--l) var(--c) var(--base-hue-6))';
+        case '10n': return 'oklch(var(--l) var(--c) var(--base-hue-6))';
+        case '11d': return 'oklch(var(--l) var(--c) var(--base-hue-7))';
+        case '11n': return 'oklch(var(--l) var(--c) var(--base-hue-7))';
+        case '13d': return 'oklch(var(--l) var(--c) var(--base-hue-1))';
+        case '13n': return 'oklch(var(--l) var(--c) var(--base-hue-1))';
+        case '50d': return 'oklch(var(--l) var(--c) var(--base-hue-2))';
+        case '50n': return 'oklch(var(--l) var(--c) var(--base-hue-2))';
+        default: return 'oklch(var(--l) var(--c) var(--base-hue))';
+    }
 }
 
 function owmCodeToWiClass(code) {

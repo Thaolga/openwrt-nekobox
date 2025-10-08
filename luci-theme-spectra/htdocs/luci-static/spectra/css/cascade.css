@@ -1216,6 +1216,13 @@ a.pure-button-selected {
         font-display: block;
 }
 
+@font-face {
+	font-family: "easeicon";
+        src: url('../fonts/iconfont.woff2') format('woff2'),
+             url('../fonts/iconfont.woff') format('woff'),
+             url('../fonts/iconfont.ttf') format('truetype');
+}
+
 #view>.spinning {
 	position: fixed;
 	top: 50%;
@@ -1390,7 +1397,6 @@ a.pure-button-selected {
 	--info: #11cdef;
 	--warning: #fb6340;
 	--danger: #f5365c;
-	--light: #adb5bd;
 	--dark: #212529;
 	--default: #172b4d;
 	--white: #fff;
@@ -1419,7 +1425,6 @@ body {
 	height: 100%;
 
 	font-family: "Google Sans", "Microsoft Yahei", "WenQuanYi Micro Hei", "sans-serif", "Helvetica Neue", "Helvetica", "Hiragino Sans GB";
-	font-family: var(--font-family-sans-serif)
 }
 
 html {
@@ -1868,7 +1873,6 @@ hr {
 	color: #fff;
 	color: var(--white);
 	text-align: center;
-	width: 100%;
 	cursor: pointer;
 	min-height: 50px;
 	background-color: #5e72e4 !important;
@@ -2669,7 +2673,7 @@ ul.cbi-tabmenu {
 
 ul.tabs li,
 ul.cbi-tabmenu li {
-	background-color: #3498db !important;
+	background-color: oklch(var(--l) var(--c) var(--base-hue-1)) !important;
 	margin-right: 5px;
 	border-radius: 8px !important;
 	text-decoration: none !important;
@@ -2694,13 +2698,13 @@ ul.cbi-tabmenu li {
 
 ul.tabs li:hover,
 ul.cbi-tabmenu li:hover {
-	background-color: #2980b9 !important;
+	background-color: oklch(var(--l) var(--c) var(--base-hue-6)) !important;
 	transform: scale(1.1);
 }
 
 ul.tabs li.active,
 ul.cbi-tabmenu li.cbi-tab {
-	background-color: #e74c3c !important;
+	background-color: oklch(var(--l) var(--c) var(--base-hue-2))  !important;
 }
 
 ul.tabs li a,
@@ -3250,7 +3254,7 @@ div[style="width:100%;height:300px;border:1px solid #000;background:#fff"] {
 .main .main-left .nav>li>a:first-child:hover {
 	cursor: pointer;
 	color: #fff;
-	background: var(--btn-success-bg);
+	background: oklch(var(--l) var(--c) var(--base-hue-5));
 }
 
 .main .main-left .nav>li>a:first-child:hover::before {
@@ -3450,37 +3454,37 @@ div[style="width:100%;height:300px;border:1px solid #000;background:#fff"] {
 .main .main-left .nav li .menu[data-title=Status]:before {
 	font-family: 'bootstrap-icons' !important;
 	content: "\F62E";
-	color: var(--color-violet);
+	color: oklch(var(--l) var(--c) var(--base-hue-1));
 }
 
 .main .main-left .nav li .menu[data-title=System]:before {
 	font-family: 'bootstrap-icons' !important;
 	content: "\F7D5";
-	color: var(--btn-warning-bg);
+	color: oklch(var(--l) var(--c) var(--base-hue-2));
 }
 
 .main .main-left .nav li .menu[data-title=Services]:before {
 	font-family: 'bootstrap-icons' !important;
 	content: "\f3e5";
-	color: var(--accent-color);
+	color: oklch(var(--l) var(--c) var(--base-hue-3));
 }
 
 .main .main-left .nav li .menu[data-title=NAS]:before {
 	font-family: 'bootstrap-icons' !important;
 	content: "\F412";
-	color: var(--color-pink);
+	color: oklch(var(--l) var(--c) var(--base-hue-4));
 }
 
 .main .main-left .nav li .menu[data-title=VPN]:before {
 	font-family: 'bootstrap-icons' !important;
 	content: "\f52f";
-	color: var(--btn-info-bg);
+	color: oklch(var(--l) var(--c) var(--base-hue-5));
 }
 
 .main .main-left .nav li .menu[data-title=Network]:before {
 	font-family: 'bootstrap-icons' !important;
 	content: "\f3ee";
-	color: var(--ocean-bg);
+	color: oklch(var(--l) var(--c) var(--base-hue-6));
 }
 
 .main .main-left .nav li .menu[data-title=Bandwidth_Monitor]:before {
@@ -3489,10 +3493,36 @@ div[style="width:100%;height:300px;border:1px solid #000;background:#fff"] {
 	color: var(--btn-success-bg);
 }
 
-.main .main-left .nav li .menu[data-title=Docker]:before {
-	font-family: 'bootstrap-icons' !important;
-	content: "\f1c9";
-	color: var(--lavender-bg);
+.main>.main-left>.nav>li.slide>.menu[data-title=Docker]:before {
+	font-family: 'easeicon' !important;
+	content: "\e659" !important;
+	color: #0c93f3;
+	font-size: 18px;
+}
+
+.main>.main-left>.nav>li.slide>.menu[data-title=iStore]:before,
+.main>.main-left>.nav>li>a[data-title=iStore]:before {
+	font-family: 'easeicon' !important;
+	content: "\e60f" !important;
+	color: oklch(var(--l) var(--c) var(--base-hue-4));
+	font-size: 18px;
+}
+
+.main > .main-left > .nav > li.slide > .menu[data-title="QuickStart"]:before,
+.main > .main-left > .nav > li > a[data-title="QuickStart"]:before,
+.main > .main-left > .nav > li > a[data-title="Home"]:before {
+	font-family: 'easeicon' !important;
+	content: "\e664" !important;
+	color: #11cdef !important;
+	font-size: 18px;
+}
+
+.main>.main-left>.nav>li.slide>.menu[data-title=NetworkGuide]:before,
+.main>.main-left>.nav>li>a[data-title=NetworkGuide]:before {
+	font-family: 'easeicon' !important;
+	content: "\ecc7" !important;
+	color: #fb6340;
+	font-size: 18px;
 }
 
 .main .main-left .nav li .menu[data-title=Statistics]:before {
@@ -3516,7 +3546,7 @@ div[style="width:100%;height:300px;border:1px solid #000;background:#fff"] {
 .main .main-left .nav li a[data-title=Logout]:before {
 	font-family: 'bootstrap-icons' !important;
 	content: "\f1c3";
-	color: var(--sand-bg);
+	color: oklch(var(--l) var(--c) var(--base-hue-7));
 }
 
 .lg {
@@ -3863,17 +3893,31 @@ a.item_btn[href*="kooldns.cn"]:hover {
 	margin-bottom: 20px !important;
 }
 
-.app-container_nas-menu button {
-	background-color: #3182ce !important;
+div.app-container_body ul.app-container_nas-menu button {
+	background-color: oklch(var(--l) var(--c) var(--base-hue-7)) !important;
 	color: white !important;
+	border-radius: 0 !important;
+	border: none !important;
+	padding: 8px 16px !important;
+	cursor: pointer !important;
 }
 
-.app-container_nas-menu button.on {
-	background-color: #2c5aa0 !important;
+div.app-container_body ul.app-container_nas-menu button:first-child {
+	border-top-left-radius: 10px !important;
+	border-bottom-left-radius: 10px !important;
 }
 
-.app-container_nas-menu button:hover {
-	background-color: #2b6cb0 !important;
+div.app-container_body ul.app-container_nas-menu button:last-child {
+	border-top-right-radius: 10px !important;
+	border-bottom-right-radius: 10px !important;
+}
+
+div.app-container_body ul.app-container_nas-menu button.on {
+	background-color: oklch(var(--l) var(--c) var(--base-hue-1)) !important;
+}
+
+div.app-container_body ul.app-container_nas-menu button:hover {
+	background-color: oklch(var(--l) var(--c) var(--base-hue-5)) !important;
 }
 
 div.app-container_configure {
@@ -6758,4 +6802,51 @@ fieldset.diag-style {
 
 .cbi-value-description:empty {
         display: none;
+}
+
+.td a {
+	text-decoration: none !important;
+	padding: 8px 16px !important;
+	border-radius: 8px !important;
+	color: white !important;
+	font-weight: bold !important;
+	display: inline-block !important;
+	transition: transform 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease;
+}
+
+.td a:hover {
+	transform: scale(1.05);
+	box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+}
+
+.td:first-child a {
+	background-color: #3498db !important;
+}
+
+.td:first-child a:hover {
+	background-color: #5dade2 !important;
+}
+
+.td:nth-child(2) a {
+	background-color: #e74c3c !important;
+}
+
+.td:nth-child(2) a:hover {
+	background-color: #ec7063 !important;
+}
+
+.td:nth-child(3) a {
+	background-color: #2ecc71 !important;
+}
+
+.td:nth-child(3) a:hover {
+	background-color: #58d68d !important;
+}
+
+.td:last-child a {
+	background-color: #9b59b6 !important;
+}
+
+.td:last-child a:hover {
+	background-color: #af7ac5 !important;
 }
