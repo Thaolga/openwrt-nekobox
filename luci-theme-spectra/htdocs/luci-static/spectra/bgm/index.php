@@ -1811,9 +1811,7 @@ body:hover,
         </div>
     </div>
 <?php endforeach; ?>
-
 <html lang="<?php echo $currentLang; ?>">
-
 <div class="modal fade" id="langModal" tabindex="-1" aria-labelledby="langModalLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
   <div class="modal-dialog modal-lg">
     <div class="modal-content">
@@ -1838,7 +1836,6 @@ body:hover,
           <option value="bn" data-translate="bangladesh">Bangladesh</option>
         </select>
         <hr>
-<!--
         <div id="chineseVoiceSelect" style="margin-top:10px;">
           <label style="font-weight:bold; color:var(--accent-color);" data-translate="chinese_voice_preference">
             中文语音播报首选：
@@ -1856,7 +1853,6 @@ body:hover,
           </div>
         </div>
       </div>
--->
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" data-translate="close">Close</button>
       </div>
