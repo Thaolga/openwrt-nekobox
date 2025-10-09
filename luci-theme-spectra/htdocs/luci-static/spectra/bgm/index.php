@@ -1813,51 +1813,34 @@ body:hover,
 <?php endforeach; ?>
 <html lang="<?php echo $currentLang; ?>">
 <div class="modal fade" id="langModal" tabindex="-1" aria-labelledby="langModalLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
-  <div class="modal-dialog modal-lg">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="langModalLabel" data-translate="select_language">Select Language</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-      </div>
-      <div class="modal-body">
-        <select id="langSelect" class="form-select" onchange="changeLanguage(this.value)">
-          <option value="zh" data-translate="simplified_chinese">Simplified Chinese</option>
-          <option value="hk" data-translate="traditional_chinese">Traditional Chinese</option>
-          <option value="en" data-translate="english">English</option>
-          <option value="ko" data-translate="korean">Korean</option>
-          <option value="vi" data-translate="vietnamese">Vietnamese</option>
-          <option value="th" data-translate="thailand">Thailand</option>
-          <option value="ja" data-translate="japanese">Japanese</option>
-          <option value="ru" data-translate="russian">Russian</option>
-          <option value="de" data-translate="germany">Germany</option>
-          <option value="fr" data-translate="france">France</option>
-          <option value="ar" data-translate="arabic">Arabic</option>
-          <option value="es" data-translate="spanish">Spanish</option>
-          <option value="bn" data-translate="bangladesh">Bangladesh</option>
-        </select>
-        <hr>
-        <div id="chineseVoiceSelect" style="margin-top:10px;">
-          <label style="font-weight:bold; color:var(--accent-color);" data-translate="chinese_voice_preference">
-            中文语音播报首选：
-          </label>
-          <div style="margin-top:8px;">
-            <label style="margin-right:12px;">
-              <input type="radio" name="chineseVoice" value="zh-CN"> 普通话 (zh-CN)
-            </label>
-            <label style="margin-right:12px;">
-              <input type="radio" name="chineseVoice" value="zh-HK"> 粤语 (zh-HK)
-            </label>
-            <label>
-              <input type="radio" name="chineseVoice" value="zh-TW">  (zh-TW)
-            </label>
-          </div>
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="langModalLabel" data-translate="select_language">Select Language</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <select id="langSelect" class="form-select" onchange="changeLanguage(this.value)">
+                    <option value="zh" data-translate="simplified_chinese">Simplified Chinese</option>
+                    <option value="hk" data-translate="traditional_chinese">Traditional Chinese</option>
+                    <option value="en" data-translate="english">English</option>
+                    <option value="ko" data-translate="korean">Korean</option>
+                    <option value="vi" data-translate="vietnamese">Vietnamese</option>
+                    <option value="th" data-translate="thailand">Thailand</option>
+                    <option value="ja" data-translate="japanese"></option>
+                    <option value="ru" data-translate="russian"></option>
+                    <option value="de" data-translate="germany">Germany</option>
+                    <option value="fr" data-translate="france">France</option>
+                    <option value="ar" data-translate="arabic"></option>
+                    <option value="es" data-translate="spanish">spanish</option>
+                    <option value="bn" data-translate="bangladesh">Bangladesh</option>
+                </select>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" data-translate="close">Close</button>
+            </div>
         </div>
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" data-translate="close">Close</button>
-      </div>
     </div>
-  </div>
 </div>
 
 <div class="modal fade" id="playerModal" tabindex="-1" aria-labelledby="playerModalLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
