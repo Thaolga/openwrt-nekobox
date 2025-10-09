@@ -1813,35 +1813,55 @@ body:hover,
 <?php endforeach; ?>
 
 <html lang="<?php echo $currentLang; ?>">
+
 <div class="modal fade" id="langModal" tabindex="-1" aria-labelledby="langModalLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="langModalLabel" data-translate="select_language">Select Language</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <select id="langSelect" class="form-select" onchange="changeLanguage(this.value)">
-                    <option value="zh" data-translate="simplified_chinese">Simplified Chinese</option>
-                    <option value="hk" data-translate="traditional_chinese">Traditional Chinese</option>
-                    <option value="en" data-translate="english">English</option>
-                    <option value="ko" data-translate="korean">Korean</option>
-                    <option value="vi" data-translate="vietnamese">Vietnamese</option>
-                    <option value="th" data-translate="thailand">Thailand</option>
-                    <option value="ja" data-translate="japanese"></option>
-                    <option value="ru" data-translate="russian"></option>
-                    <option value="de" data-translate="germany">Germany</option>
-                    <option value="fr" data-translate="france">France</option>
-                    <option value="ar" data-translate="arabic"></option>
-                    <option value="es" data-translate="spanish">spanish</option>
-                    <option value="bn" data-translate="bangladesh">Bangladesh</option>
-                </select>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" data-translate="close">Close</button>
-            </div>
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="langModalLabel" data-translate="select_language">Select Language</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <select id="langSelect" class="form-select" onchange="changeLanguage(this.value)">
+          <option value="zh" data-translate="simplified_chinese">Simplified Chinese</option>
+          <option value="hk" data-translate="traditional_chinese">Traditional Chinese</option>
+          <option value="en" data-translate="english">English</option>
+          <option value="ko" data-translate="korean">Korean</option>
+          <option value="vi" data-translate="vietnamese">Vietnamese</option>
+          <option value="th" data-translate="thailand">Thailand</option>
+          <option value="ja" data-translate="japanese">Japanese</option>
+          <option value="ru" data-translate="russian">Russian</option>
+          <option value="de" data-translate="germany">Germany</option>
+          <option value="fr" data-translate="france">France</option>
+          <option value="ar" data-translate="arabic">Arabic</option>
+          <option value="es" data-translate="spanish">Spanish</option>
+          <option value="bn" data-translate="bangladesh">Bangladesh</option>
+        </select>
+        <hr>
+<!--
+        <div id="chineseVoiceSelect" style="margin-top:10px;">
+          <label style="font-weight:bold; color:var(--accent-color);" data-translate="chinese_voice_preference">
+            中文语音播报首选：
+          </label>
+          <div style="margin-top:8px;">
+            <label style="margin-right:12px;">
+              <input type="radio" name="chineseVoice" value="zh-CN"> 普通话 (zh-CN)
+            </label>
+            <label style="margin-right:12px;">
+              <input type="radio" name="chineseVoice" value="zh-HK"> 粤语 (zh-HK)
+            </label>
+            <label>
+              <input type="radio" name="chineseVoice" value="zh-TW">  (zh-TW)
+            </label>
+          </div>
         </div>
+      </div>
+-->
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" data-translate="close">Close</button>
+      </div>
     </div>
+  </div>
 </div>
 
 <div class="modal fade" id="playerModal" tabindex="-1" aria-labelledby="playerModalLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
@@ -9391,6 +9411,37 @@ const langData = <?php echo json_encode($langData); ?>;
 const currentLang = "<?php echo $currentLang; ?>";
 let translations = langData[currentLang] || langData['en'];
 
+function startLanguageMonitoring() {
+    let currentLanguage = localStorage.getItem('language') || currentLang;   
+    setInterval(() => {
+        fetch('/luci-static/spectra/bgm/save_language.php', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+            },
+            body: 'action=get_language'
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success && data.language) {
+                const newLanguage = data.language;
+                if (newLanguage !== currentLanguage) {
+                    currentLanguage = newLanguage;
+                    updateLanguage(newLanguage);
+                    updateFlagIcon(newLanguage);
+                    document.getElementById("langSelect").value = newLanguage;
+                    localStorage.setItem('language', newLanguage);
+                    
+                    console.log('Language updated to:', newLanguage);
+                }
+            }
+        })
+        .catch(error => {
+            console.error('Error checking language:', error);
+        });
+    }, 2000);
+}
+
 document.addEventListener("DOMContentLoaded", () => {
     fetch('/luci-static/spectra/bgm/save_language.php', {
         method: 'POST',
@@ -9406,11 +9457,14 @@ document.addEventListener("DOMContentLoaded", () => {
         updateFlagIcon(userLang);  
         document.getElementById("langSelect").value = userLang; 
         localStorage.setItem('language', userLang);
+        startLanguageMonitoring();
     })
     .catch(error => {
         updateLanguage(currentLang); 
         updateFlagIcon(currentLang);  
         document.getElementById("langSelect").value = currentLang; 
+        localStorage.setItem('language', currentLang);
+        startLanguageMonitoring();
     });
 });
 
@@ -9481,18 +9535,51 @@ function updateLanguage(lang) {
 }
 
 function speakMessage(message) {
-    const xhr = new XMLHttpRequest();
-    xhr.open('GET', './language.txt', true);
-    xhr.onreadystatechange = function() {
-        if (xhr.readyState === 4 && xhr.status === 200) {
-            const lang = xhr.responseText.trim();
-            const utterance = new SpeechSynthesisUtterance(message);
-            utterance.lang = lang;
-            speechSynthesis.speak(utterance);
-        }
-    };
-    xhr.send();
+  const langToVoiceMap = {
+    zh: getChineseVoicePreference(),
+    hk: getChineseVoicePreference(),
+    en: 'en-US',
+    ko: 'ko-KR',
+    ja: 'ja-JP',
+    vi: 'vi-VN',
+    th: 'th-TH',
+    ru: 'ru-RU',
+    ar: 'ar-SA',
+    es: 'es-ES',
+    de: 'de-DE',
+    fr: 'fr-FR',
+    bn: 'bn-BD'
+  };
+
+  const xhr = new XMLHttpRequest();
+  xhr.open('GET', './language.txt', true);
+  xhr.onreadystatechange = function() {
+    if (xhr.readyState === 4 && xhr.status === 200) {
+      const lang = xhr.responseText.trim();
+      const voiceLang = langToVoiceMap[lang] || 'zh-HK';
+      const utterance = new SpeechSynthesisUtterance(message);
+      utterance.lang = voiceLang;
+      speechSynthesis.speak(utterance);
+    }
+  };
+  xhr.send();
 }
+
+function getChineseVoicePreference() {
+  return localStorage.getItem('chineseVoiceLang') || 'zh-HK';
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+  const radios = document.querySelectorAll('input[name="chineseVoice"]');
+  const saved = getChineseVoicePreference();
+  radios.forEach(radio => {
+    if (radio.value === saved) radio.checked = true;
+    radio.addEventListener('change', function() {
+      localStorage.setItem('chineseVoiceLang', this.value);
+      speakMessage(`中文语音已切换为 ${this.value}`);
+    });
+  });
+});
 
 function updateFlagIcon(lang) {
     const flagImg = document.getElementById('flagIcon');

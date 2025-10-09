@@ -3161,11 +3161,6 @@ window.addEventListener('load', () => {
   <input id="cityInput" placeholder="" 
          style="padding:8px; width:100%; border-radius:6px; border:1px solid #ccc; margin-bottom:15px;">
   
-  <div style="display:flex; align-items:baseline; margin-bottom:15px;">
-    <input type="checkbox" id="voiceToggle" checked style="margin:0;">
-    <label for="voiceToggle" id="voiceLabel" style="margin-left:8px;"></label>
-  </div>
-
   <div id="lastUpdated" class="cbi-value-description" style="font-size:13px; color:var(--text-secondary); margin-bottom:15px; display:none;"></div>
 
   <div style="text-align:right;">
@@ -3226,73 +3221,6 @@ const showWeatherLog = (function() {
         }, 12000);
     };
 })();
-
-let voiceEnabled = localStorage.getItem('voiceEnabled') !== 'false';
-
-function speakWeatherMessage(message) {
-    if (!voiceEnabled) return;
-
-    const xhr = new XMLHttpRequest();
-    xhr.open('GET', '/luci-static/spectra/bgm/language.txt', false);
-    xhr.send();
-
-    if (xhr.status === 200) {
-        const lang = xhr.responseText.trim();
-        const utterance = new SpeechSynthesisUtterance(message);
-        utterance.lang = lang;
-        speechSynthesis.speak(utterance);
-    }
-}
-
-let colorVoiceEnabled = localStorage.getItem('colorVoiceEnabled') !== 'false';
-const toggleBtn = document.getElementById('voiceToggle');
-toggleBtn.checked = colorVoiceEnabled;
-const voiceLabel = document.getElementById('voiceLabel');
-
-const voiceTranslations = {
-    zh: { label: '颜色语音播报', enable: '颜色语音播报已启用', disable: '颜色语音播报已禁用' },
-    en: { label: 'Color Voice Broadcast', enable: 'Color voice broadcast enabled', disable: 'Color voice broadcast disabled' },
-    hk: { label: '顏色語音播报', enable: '顏色語音播报已啟用', disable: '顏色語音播报已禁用' },
-    de: { label: 'Farb-Sprachansage', enable: 'Farb-Sprachansage aktiviert', disable: 'Farb-Sprachansage deaktiviert' },
-    fr: { label: 'Diffusion vocale des couleurs', enable: 'Diffusion vocale des couleurs activée', disable: 'Diffusion vocale des couleurs désactivée' },
-    ko: { label: '색상 음성 방송', enable: '색상 음성 방송이 활성화되었습니다', disable: '색상 음성 방송이 비활성화되었습니다' },
-    ja: { label: '色の音声放送', enable: '色の音声放送が有効になりました', disable: '色の音声放送が無効になりました' },
-    bn: { label: 'রঙের ভয়েস সম্প্রচার', enable: 'রঙের ভয়েস সম্প্রচার সক্ষম হয়েছে', disable: 'রঙের ভয়েস সম্প্রচার অক্ষম হয়েছে' },
-    vi: { label: 'Phát thanh giọng nói màu sắc', enable: 'Phát thanh giọng nói màu sắc đã bật', disable: 'Phát thanh giọng nói màu sắc đã tắt' },
-    th: { label: 'การอ่านสีด้วยเสียง', enable: 'เปิดใช้งานการอ่านสีด้วยเสียงแล้ว', disable: 'ปิดการอ่านสีด้วยเสียงแล้ว' },
-    ar: { label: 'البث الصوتي للألوان', enable: 'تم تمكين البث الصوتي للألوان', disable: 'تم تعطيل البث الصوتي للألوان' },
-    ru: { label: 'Голосовая трансляция цвета', enable: 'Голосовая трансляция цвета включена', disable: 'Голосовая трансляция цвета отключена' },
-    es: { label: 'Transmisión de voz de color', enable: 'Transmisión de voz de color habilitada', disable: 'Transmisión de voz de color deshabilitada' }
-};
-
-async function getLangText() {
-    try {
-        const lang = await getRealTimeLanguage();
-        return voiceTranslations[lang] || voiceTranslations['zh'];
-    } catch (e) {
-        console.error('Failed to get language text:', e);
-        return voiceTranslations['zh'];
-    }
-}
-
-(async function initLabel() {
-    const text = await getLangText();
-    voiceLabel.textContent = text.label;
-})();
-
-toggleBtn.addEventListener('change', async function() {
-    colorVoiceEnabled = this.checked;
-    localStorage.setItem('colorVoiceEnabled', colorVoiceEnabled);
-
-    const text = await getLangText();
-
-    if (colorVoiceEnabled) {
-        showWeatherLog(text.enable);
-        speakWeatherMessage(text.enable);
-    } else {
-        showWeatherLog(text.disable);
-    }
-});
 </script>
 
 <audio id="bell-audio" preload="auto">
@@ -3346,7 +3274,8 @@ const modalTranslations = {
         citySaved: "已保存城市: {city}",
         cacheCleared: "天气信息已被清空",
         lastUpdated: "最后更新: {time}",
-        neverUpdated: "从未更新"
+        neverUpdated: "从未更新",
+        weatherError: "无法获取天气数据"
     },
     en: {
         modalTitle: "Set City",
@@ -3359,7 +3288,8 @@ const modalTranslations = {
         citySaved: "City saved: {city}",
         cacheCleared: "Weather data has been cleared",
         lastUpdated: "Last updated: {time}",
-        neverUpdated: "Never updated"
+        neverUpdated: "Never updated",
+        weatherError: "Unable to fetch weather data"
     },
     hk: {
         modalTitle: "設置城市",
@@ -3372,7 +3302,8 @@ const modalTranslations = {
         citySaved: "已儲存城市: {city}",
         cacheCleared: "天氣信息已被清空",
         lastUpdated: "最後更新: {time}",
-        neverUpdated: "從未更新"
+        neverUpdated: "從未更新",
+        weatherError: "無法獲取天氣資料"
     },
     de: {
         modalTitle: "Stadt festlegen",
@@ -3385,7 +3316,8 @@ const modalTranslations = {
         citySaved: "Stadt gespeichert: {city}",
         cacheCleared: "Wetterdaten wurden gelöscht",
         lastUpdated: "Zuletzt aktualisiert: {time}",
-        neverUpdated: "Nie aktualisiert"
+        neverUpdated: "Nie aktualisiert",
+        weatherError: "Wetterdaten konnten nicht abgerufen werden"
     },
     fr: {
         modalTitle: "Définir la ville",
@@ -3398,7 +3330,8 @@ const modalTranslations = {
         citySaved: "Ville enregistrée: {city}",
         cacheCleared: "Les données météo ont été effacées",
         lastUpdated: "Dernière mise à jour: {time}",
-        neverUpdated: "Jamais mis à jour"
+        neverUpdated: "Jamais mis à jour",
+        weatherError: "Impossible d’obtenir les données météo"
     },
     ko: {
         modalTitle: "도시 설정",
@@ -3411,7 +3344,8 @@ const modalTranslations = {
         citySaved: "도시 저장됨: {city}",
         cacheCleared: "날씨 정보가 지워졌습니다",
         lastUpdated: "마지막 업데이트: {time}",
-        neverUpdated: "업데이트되지 않음"
+        neverUpdated: "업데이트되지 않음",
+        weatherError: "날씨 데이터를 가져올 수 없습니다"
     },
     ja: {
         modalTitle: "都市設定",
@@ -3424,7 +3358,8 @@ const modalTranslations = {
         citySaved: "都市を保存しました: {city}",
         cacheCleared: "天気情報がクリアされました",
         lastUpdated: "最終更新: {time}",
-        neverUpdated: "更新されていません"
+        neverUpdated: "更新されていません",
+        weatherError: "天気データを取得できませんでした"
     },
     bn: {
         modalTitle: "শহর সেট করুন",
@@ -3437,7 +3372,8 @@ const modalTranslations = {
         citySaved: "শহর সংরক্ষিত: {city}",
         cacheCleared: "আবহাওয়ার তথ্য সাফ করা হয়েছে",
         lastUpdated: "সর্বশেষ আপডেট: {time}",
-        neverUpdated: "কখনও আপডেট করা হয়নি"
+        neverUpdated: "কখনও আপডেট করা হয়নি",
+        weatherError: "আবহাওয়ার ডেটা আনতে ব্যর্থ"
     },
     vi: {
         modalTitle: "Đặt thành phố",
@@ -3450,7 +3386,8 @@ const modalTranslations = {
         citySaved: "Đã lưu thành phố: {city}",
         cacheCleared: "Thông tin thời tiết đã được xóa",
         lastUpdated: "Cập nhật lần cuối: {time}",
-        neverUpdated: "Chưa bao giờ cập nhật"
+        neverUpdated: "Chưa bao giờ cập nhật",
+        weatherError: "Không thể lấy dữ liệu thời tiết"
     },
     tr: {
         modalTitle: "Şehir Ayarla",
@@ -3463,7 +3400,8 @@ const modalTranslations = {
         citySaved: "Şehir kaydedildi: {city}",
         cacheCleared: "Hava durumu bilgileri temizlendi",
         lastUpdated: "Son güncelleme: {time}",
-        neverUpdated: "Hiç güncellenmedi"
+        neverUpdated: "Hiç güncellenmedi",
+        weatherError: "Hava durumu verileri alınamadı"
     },
     ar: {
         modalTitle: "تعيين المدينة",
@@ -3476,7 +3414,8 @@ const modalTranslations = {
         citySaved: "تم حفظ المدينة: {city}",
         cacheCleared: "تم مسح معلومات الطقس",
         lastUpdated: "آخر تحديث: {time}",
-        neverUpdated: "لم يتم التحديث مطلقًا"
+        neverUpdated: "لم يتم التحديث مطلقًا",
+        weatherError: "تعذر الحصول على بيانات الطقس"
     },
     ru: {
         modalTitle: "Установить город",
@@ -3489,7 +3428,8 @@ const modalTranslations = {
         citySaved: "Город сохранен: {city}",
         cacheCleared: "Информация о погоде была очищена",
         lastUpdated: "Последнее обновление: {time}",
-        neverUpdated: "Никогда не обновлялось"
+        neverUpdated: "Никогда не обновлялось",
+        weatherError: "Не удалось получить данные о погоде"
     },
     es: {
         modalTitle: "Establecer ciudad",
@@ -3502,7 +3442,8 @@ const modalTranslations = {
         citySaved: "Ciudad guardada: {city}",
         cacheCleared: "La información del clima ha sido borrada",
         lastUpdated: "Última actualización: {time}",
-        neverUpdated: "Nunca actualizado"
+        neverUpdated: "Nunca actualizado",
+        weatherError: "No se pudieron obtener los datos del clima"
     }
 };
 
@@ -3853,16 +3794,31 @@ async function updateCityNameDisplay(name) {
 async function fetchWeather() {
     const langParam = await getWeatherLangParam();
     const url = `https://api.openweathermap.org/data/2.5/weather?q=${encodeURIComponent(city)}&appid=${apiKey}&units=metric&lang=${langParam}`;
-    fetch(url)
-        .then(res => res.ok ? res.json() : Promise.reject('Network not OK'))
-        .then(data => {
-            if (data.weather && data.main) {
-                currentWeatherData = data;
-                const iconCode = data.weather[0].icon || '';
-                updateWeatherUI(data, iconCode);
-            }
-        })
-        .catch(err => showWeatherLog(encodeURIComponent('Error fetching weather'), 'error'));
+    const loadingIcon = document.getElementById('loadingIcon');
+    loadingIcon.style.display = 'inline-block';
+    try {
+        const res = await fetch(url);
+        if (!res.ok) {
+            throw new Error('Network not OK');
+        }
+        const data = await res.json();
+        if (data.weather && data.main) {
+            currentWeatherData = data;
+            const iconCode = data.weather[0].icon || '';
+            await updateWeatherUI(data, iconCode);
+        } else {
+            throw new Error('Invalid data');
+        }
+    } catch (err) {
+        const lang = await getModalLang();
+        weatherText.textContent = modalTranslations[lang].weatherError;
+        weatherIcon.style.display = 'none';
+        if (typeof speakWeatherMessage === 'function') {
+            speakWeatherMessage(modalTranslations[lang].weatherError);
+        }
+    } finally {
+        loadingIcon.style.display = 'none';
+    }
 }
 
 setCityBtn.addEventListener('click', openCityModal);
@@ -3958,7 +3914,7 @@ weatherCard.addEventListener('click', async (event) => {
 </script>
 
 <div id="languageModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 9999;">
-    <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background: var(--bg-container); padding: 20px; border-radius: 8px; min-width: 450px;">
+    <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background: var(--bg-container); padding: 20px; border-radius: 8px; min-width: 550px;">
         <div style="display: flex; align-items: center; margin-bottom: 15px;">
             <img id="currentFlag" src="/luci-static/ipip/flags/cn.png" style="width: 45px; height: 34px; margin-right: 10px; object-fit: contain;">
             <h3 style="margin: 0; font-size:20px; color:var(--accent-color);">Select Language</h3>
@@ -3978,6 +3934,24 @@ weatherCard.addEventListener('click', async (event) => {
             <option value="es">Spanish</option>
             <option value="bn">Bangladesh</option>
         </select>
+        <div id="chineseVoiceSelect" style="margin-top:15px; display:none;">
+          <label style="font-weight:bold; color:var(--accent-color);" id="chineseVoiceTitle">Preferred Chinese Voice：</label>
+          <div style="margin-top:8px; color: var(--text-primary)">
+            <label style="margin-right:12px;">
+              <input type="radio" name="chineseVoice" value="zh-CN"> Mandarin (zh-CN)
+            </label>
+            <label style="margin-right:12px;">
+              <input type="radio" name="chineseVoice" value="zh-HK"> Cantonese (zh-HK)
+            </label>
+            <label>
+          <input type="radio" name="chineseVoice" value="zh-TW"> Traditional Chinese (zh-TW)
+            </label>
+          </div>
+        </div>
+        <div style="display:flex; align-items:baseline; margin: 25px 0;">
+            <input type="checkbox" id="voiceToggle" checked style="margin:0;">
+            <label for="voiceToggle" id="voiceLabel" style="margin-left:8px; color: var(--text-primary)";></label>
+        </div>
         <div style="text-align: right; margin-top: 15px;">
             <button type="button" class="cbi-button cbi-button-remove" onclick="closeLanguageModal()" style="margin-right: 10px;">Cancel</button>
             <button type="button" class="cbi-button cbi-button-save" onclick="saveLanguage()">Save</button>
@@ -3991,6 +3965,10 @@ const languageTranslations = {
         'select_language': '选择语言',
         'simplified_chinese': '简体中文',
         'traditional_chinese': '繁体中文',
+        'chinese_voice_title': '中文语音播报首选：',
+        'chinese_voice_mandarin': '普通话 (zh-CN)',
+        'chinese_voice_cantonese': '粤语 (zh-HK)',
+        'chinese_voice_taiwan': '繁体中文 (zh-TW)',
         'english': 'English',
         'korean': '韩语',
         'vietnamese': '越南语',
@@ -4005,12 +3983,19 @@ const languageTranslations = {
         'cancel': '取消',
         'save': '保存',
         'language_saved': '语言设置已保存',
-        'language_save_failed': '语言设置保存失败'
+        'language_save_failed': '语言设置保存失败',
+        'voice_label': '语音播报',
+        'voice_enable': '语音播报已启用',
+        'voice_disable': '语音播报已禁用'
     },
     'hk': {
         'select_language': '選擇語言',
         'simplified_chinese': '簡體中文',
         'traditional_chinese': '繁體中文',
+        'chinese_voice_title': '中文語音播報首選：',
+        'chinese_voice_mandarin': '普通話 (zh-CN)',
+        'chinese_voice_cantonese': '粵語 (zh-HK)',
+        'chinese_voice_taiwan': '繁體中文 (zh-TW)',
         'english': 'English',
         'korean': '韓語',
         'vietnamese': '越南語',
@@ -4025,7 +4010,10 @@ const languageTranslations = {
         'cancel': '取消',
         'save': '保存',
         'language_saved': '語言設置已保存',
-        'language_save_failed': '語言設置保存失敗'
+        'language_save_failed': '語言設置保存失敗',
+        'voice_label': '語音播報',
+        'voice_enable': '語音播報已啟用',
+        'voice_disable': '語音播報已禁用'
     },
     'en': {
         'select_language': 'Select Language',
@@ -4045,7 +4033,10 @@ const languageTranslations = {
         'cancel': 'Cancel',
         'save': 'Save',
         'language_saved': 'Language settings saved',
-        'language_save_failed': 'Language settings save failed'
+        'language_save_failed': 'Language settings save failed',
+        'voice_label': 'Voice Broadcast',
+        'voice_enable': 'Voice broadcast enabled',
+        'voice_disable': 'Voice broadcast disabled'
     },
     'ko': {
         'select_language': '언어 선택',
@@ -4065,7 +4056,10 @@ const languageTranslations = {
         'cancel': '취소',
         'save': '저장',
         'language_saved': '언어 설정이 저장되었습니다',
-        'language_save_failed': '언어 설정 저장 실패'
+        'language_save_failed': '언어 설정 저장 실패',
+        'voice_label': '음성 방송',
+        'voice_enable': '음성 방송이 활성화되었습니다',
+        'voice_disable': '음성 방송이 비활성화되었습니다'
     },
     'vi': {
         'select_language': 'Chọn ngôn ngữ',
@@ -4085,7 +4079,10 @@ const languageTranslations = {
         'cancel': 'Hủy',
         'save': 'Lưu',
         'language_saved': 'Đã lưu cài đặt ngôn ngữ',
-        'language_save_failed': 'Lưu cài đặt ngôn ngữ thất bại'
+        'language_save_failed': 'Lưu cài đặt ngôn ngữ thất bại',
+        'voice_label': 'Phát thanh giọng nói',
+        'voice_enable': 'Phát thanh giọng nói đã bật',
+        'voice_disable': 'Phát thanh giọng nói đã tắt'
     },
     'th': {
         'select_language': 'เลือกภาษา',
@@ -4105,7 +4102,10 @@ const languageTranslations = {
         'cancel': 'ยกเลิก',
         'save': 'บันทึก',
         'language_saved': 'บันทึกการตั้งค่าภาษาเรียบร้อยแล้ว',
-        'language_save_failed': 'บันทึกการตั้งค่าภาษาไม่สำเร็จ'
+        'language_save_failed': 'บันทึกการตั้งค่าภาษาไม่สำเร็จ',
+        'voice_label': 'การอ่านเสียง',
+        'voice_enable': 'การอ่านเสียงถูกเปิดใช้งาน',
+        'voice_disable': 'การอ่านเสียงถูกปิดใช้งาน'
     },
     'ja': {
         'select_language': '言語を選択',
@@ -4125,7 +4125,10 @@ const languageTranslations = {
         'cancel': 'キャンセル',
         'save': '保存',
         'language_saved': '言語設定が保存されました',
-        'language_save_failed': '言語設定の保存に失敗しました'
+        'language_save_failed': '言語設定の保存に失敗しました',
+        'voice_label': '音声放送',
+        'voice_enable': '音声放送が有効になりました',
+        'voice_disable': '音声放送が無効になりました'
     },
     'ru': {
         'select_language': 'Выберите язык',
@@ -4145,7 +4148,10 @@ const languageTranslations = {
         'cancel': 'Отмена',
         'save': 'Сохранить',
         'language_saved': 'Настройки языка сохранены',
-        'language_save_failed': 'Не удалось сохранить настройки языка'
+        'language_save_failed': 'Не удалось сохранить настройки языка',
+        'voice_label': 'Голосовая трансляция',
+        'voice_enable': 'Голосовая трансляция включена',
+        'voice_disable': 'Голосовая трансляция отключена'
     },
     'ar': {
         'select_language': 'اختر اللغة',
@@ -4165,7 +4171,10 @@ const languageTranslations = {
         'cancel': 'إلغاء',
         'save': 'حفظ',
         'language_saved': 'تم حفظ إعدادات اللغة',
-        'language_save_failed': 'فشل حفظ إعدادات اللغة'
+        'language_save_failed': 'فشل حفظ إعدادات اللغة',
+        'voice_label': 'البث الصوتي',
+        'voice_enable': 'تم تمكين البث الصوتي',
+        'voice_disable': 'تم تعطيل البث الصوتي'
     },
     'es': {
         'select_language': 'Seleccionar idioma',
@@ -4185,7 +4194,10 @@ const languageTranslations = {
         'cancel': 'Cancelar',
         'save': 'Guardar',
         'language_saved': 'Configuración de idioma guardada',
-        'language_save_failed': 'Error al guardar la configuración de idioma'
+        'language_save_failed': 'Error al guardar la configuración de idioma',
+        'voice_label': 'Transmisión de voz',
+        'voice_enable': 'Transmisión de voz habilitada',
+        'voice_disable': 'Transmisión de voz deshabilitada'
     },
     'de': {
         'select_language': 'Sprache auswählen',
@@ -4205,7 +4217,10 @@ const languageTranslations = {
         'cancel': 'Abbrechen',
         'save': 'Speichern',
         'language_saved': 'Spracheinstellungen gespeichert',
-        'language_save_failed': 'Speichern der Spracheinstellungen fehlgeschlagen'
+        'language_save_failed': 'Speichern der Spracheinstellungen fehlgeschlagen',
+        'voice_label': 'Sprachansage',
+        'voice_enable': 'Sprachansage aktiviert',
+        'voice_disable': 'Sprachansage deaktiviert'
     },
     'fr': {
         'select_language': 'Choisir la langue',
@@ -4225,7 +4240,10 @@ const languageTranslations = {
         'cancel': 'Annuler',
         'save': 'Enregistrer',
         'language_saved': 'Paramètres de langue enregistrés',
-        'language_save_failed': 'Échec de l\'enregistrement des paramètres de langue'
+        'language_save_failed': 'Échec de l\'enregistrement des paramètres de langue',
+        'voice_label': 'Diffusion vocale',
+        'voice_enable': 'Diffusion vocale activée',
+        'voice_disable': 'Diffusion vocale désactivée'
     },
     'bn': {
         'select_language': 'ভাষা নির্বাচন করুন',
@@ -4245,15 +4263,16 @@ const languageTranslations = {
         'cancel': 'বাতিল',
         'save': 'সংরক্ষণ',
         'language_saved': 'ভাষা সেটিংস সংরক্ষণ করা হয়েছে',
-        'language_save_failed': 'ভাষা সেটিংস সংরক্ষণ ব্যর্থ হয়েছে'
-    },
+        'language_save_failed': 'ভাষা সেটিংস সংরক্ষণ ব্যর্থ হয়েছে',
+        'voice_label': 'ভয়েস সম্প্রচার',
+        'voice_enable': 'ভয়েস সম্প্রচার সক্ষম হয়েছে',
+        'voice_disable': 'ভয়েস সম্প্রচার অক্ষম হয়েছে'
+    }
 };
-
-let currentLang = 'zh';
 
 const languageStandardMap = {
     'zh': 'zh-CN',
-    'hk': 'zh-HK', 
+    'hk': 'zh-TW', 
     'en': 'en-US',
     'ko': 'ko-KR',
     'ja': 'ja-JP',
@@ -4282,6 +4301,25 @@ const flagMap = {
     'bn': '/luci-static/ipip/flags/bd.png',
     'vi': '/luci-static/ipip/flags/vn.png'
 };
+
+const langToVoiceMap = {
+    'zh': 'zh-CN',
+    'en': 'en-US',
+    'hk': 'zh-TW',
+    'de': 'de-DE',
+    'fr': 'fr-FR',
+    'ko': 'ko-KR',
+    'ja': 'ja-JP',
+    'bn': 'bn-BD',
+    'vi': 'vi-VN',
+    'th': 'th-TH',
+    'ar': 'ar-SA',
+    'ru': 'ru-RU',
+    'es': 'es-ES'
+};
+
+let currentLang = 'zh';
+let colorVoiceEnabled = localStorage.getItem('colorVoiceEnabled') !== 'false';
 
 function updateFlagIcon(lang) {
     const flagImg = document.getElementById('currentFlag');
@@ -4316,7 +4354,33 @@ function updateUIText() {
     if (cancelBtn) cancelBtn.textContent = translations['cancel'];
     if (saveBtn) saveBtn.textContent = translations['save'];
     
+    const voiceLabel = document.getElementById('voiceLabel');
+    if (voiceLabel) voiceLabel.textContent = translations['voice_label'];
+    
     updateFlagIcon(currentLang);
+
+    const chineseVoiceTitle = document.getElementById('chineseVoiceTitle');
+    if (chineseVoiceTitle && translations['chinese_voice_title']) {
+        chineseVoiceTitle.textContent = translations['chinese_voice_title'];
+    }
+
+    const labels = document.querySelectorAll('#chineseVoiceSelect label');
+    labels.forEach(label => {
+        const radio = label.querySelector('input[name="chineseVoice"]');
+        if (!radio) return;
+
+        let key = '';
+        if (radio.value === 'zh-CN') key = 'chinese_voice_mandarin';
+        else if (radio.value === 'zh-HK') key = 'chinese_voice_cantonese';
+        else if (radio.value === 'zh-TW') key = 'chinese_voice_taiwan';
+
+        if (key && translations[key]) {
+            Array.from(label.childNodes).forEach(node => {
+                if (node.nodeType === Node.TEXT_NODE) node.remove();
+            });
+            label.appendChild(document.createTextNode(' ' + translations[key]));
+        }
+    });
 }
 
 function getOptionTranslationKey(value) {
@@ -4343,92 +4407,158 @@ function closeLanguageModal() {
 }
 
 function saveLanguage() {
-    const language = document.getElementById('languageSelect').value;
-    const translations = languageTranslations[language] || languageTranslations['zh'];
-    
-    const languageKey = getOptionTranslationKey(language);
-    const languageText = translations[languageKey] || language;
-    const standardCode = languageStandardMap[language] || language;
-    
-    fetch('/luci-static/spectra/bgm/save_language.php', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/x-www-form-urlencoded',
-        },
-        body: 'action=save_language&language=' + language
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            const message = `${translations['language_saved']}: ${languageText} (${standardCode})`;
-            showWeatherLog(message);
-            speakWeatherMessage(message);
-            closeLanguageModal();
-            
-            currentLang = language;
-            updateUIText();
-            
-            setTimeout(() => {
-                location.reload();
-            }, 8000);
-        } else {
-            const message = `${translations['language_save_failed']}: ${languageText} (${standardCode})`;
-            showWeatherLog(message);
-            speakWeatherMessage(message);
-        }
-    });
+  const language = document.getElementById('languageSelect').value;
+  const translations = languageTranslations[language] || languageTranslations['zh'];
+  const languageKey = getOptionTranslationKey(language);
+  const languageText = translations[languageKey] || language;
+  const standardCode = getVoiceLang(language);
+
+  fetch('/luci-static/spectra/bgm/save_language.php', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+    body: 'action=save_language&language=' + language
+  })
+  .then(response => response.json())
+  .then(data => {
+    const msg = data.success
+      ? `${translations['language_saved']}: ${languageText} (${standardCode})`
+      : `${translations['language_save_failed']}: ${languageText} (${standardCode})`;
+
+    showWeatherLog(msg);
+    speakWeatherMessage(msg);
+
+    if (data.success) {
+      currentLang = language;
+      updateUIText();
+      setTimeout(() => location.reload(), 8000);
+      closeLanguageModal();
+    }
+  });
 }
 
 function openLanguageModal() {
-    fetch('/luci-static/spectra/bgm/save_language.php', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/x-www-form-urlencoded',
-        },
-        body: 'action=get_language'
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success && data.language) {
-            document.getElementById('languageSelect').value = data.language;
-            currentLang = data.language;
-            updateUIText();
-        }
-        document.getElementById('languageModal').style.display = 'block';
-    })
-    .catch(error => {
-        document.getElementById('languageModal').style.display = 'block';
+  fetch('/luci-static/spectra/bgm/save_language.php', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+    body: 'action=get_language'
+  })
+  .then(response => response.json())
+  .then(data => {
+    if (data.success && data.language) {
+      document.getElementById('languageSelect').value = data.language;
+      currentLang = data.language;
+      updateUIText();
+    }
+
+    const voiceToggle = document.getElementById('voiceToggle');
+    voiceToggle.checked = colorVoiceEnabled;
+    const isChinese = ['zh', 'hk'].includes(currentLang);
+    document.getElementById('chineseVoiceSelect').style.display = isChinese ? 'block' : 'none';
+
+    const radios = document.querySelectorAll('input[name="chineseVoice"]');
+    const saved = getChineseVoicePreference();
+    radios.forEach(radio => {
+      radio.checked = (radio.value === saved);
+      radio.removeEventListener('change', handleChineseVoiceChange);
+      radio.addEventListener('change', handleChineseVoiceChange);
     });
+
+    document.getElementById('languageModal').style.display = 'block';
+  })
+  .catch(() => document.getElementById('languageModal').style.display = 'block');
+}
+
+function handleChineseVoiceChange() {
+  localStorage.setItem('chineseVoiceLang', this.value);
+  const t = languageTranslations[currentLang] || languageTranslations['zh'];
+  let voicePreferenceText = this.value;
+  if (this.value === 'zh-CN') {
+    voicePreferenceText = t['chinese_voice_mandarin'] || '普通话 (zh-CN)';
+  } else if (this.value === 'zh-HK') {
+    voicePreferenceText = t['chinese_voice_cantonese'] || '粤语 (zh-HK)';
+  } else if (this.value === 'zh-TW') {
+    voicePreferenceText = t['chinese_voice_taiwan'] || '繁體中文 (zh-TW)';
+  }
+  const msg = `${t['language_saved']}: ${voicePreferenceText}`;
+  if (colorVoiceEnabled) {
+    showWeatherLog(msg);
+    speakWeatherMessage(msg);
+  }
+}
+
+function getChineseVoicePreference() {
+  return localStorage.getItem('chineseVoiceLang') || 'zh-CN';
+}
+
+function getVoiceLang(lang) {
+  const map = {
+    zh: getChineseVoicePreference(),
+    hk: getChineseVoicePreference(),
+    en: 'en-US',
+    ko: 'ko-KR',
+    ja: 'ja-JP',
+    vi: 'vi-VN',
+    th: 'th-TH',
+    ru: 'ru-RU',
+    ar: 'ar-SA',
+    es: 'es-ES',
+    de: 'de-DE',
+    fr: 'fr-FR',
+    bn: 'bn-BD'
+  };
+  return map[lang] || 'zh-CN';
+}
+
+function speakWeatherMessage(message) {
+  if (!colorVoiceEnabled) return;
+
+  const xhr = new XMLHttpRequest();
+  xhr.open('GET', '/luci-static/spectra/bgm/language.txt', false);
+  xhr.send();
+
+  if (xhr.status === 200) {
+    const lang = xhr.responseText.trim();
+    const utterance = new SpeechSynthesisUtterance(message);
+    utterance.lang = getVoiceLang(lang);
+    speechSynthesis.speak(utterance);
+  }
 }
 
 document.addEventListener('DOMContentLoaded', function() {
-    const languageSelect = document.getElementById('languageSelect');
-    if (languageSelect) {
-        languageSelect.addEventListener('change', function() {
-            updateFlagIcon(this.value);
-        });
+  const languageSelect = document.getElementById('languageSelect');
+  languageSelect.addEventListener('change', function() {
+    updateFlagIcon(this.value);
+    document.getElementById('chineseVoiceSelect').style.display = ['zh', 'hk'].includes(this.value) ? 'block' : 'none';
+    currentLang = this.value;
+    updateUIText();
+  });
+
+  const voiceToggle = document.getElementById('voiceToggle');
+  voiceToggle.addEventListener('change', function() {
+    colorVoiceEnabled = this.checked;
+    localStorage.setItem('colorVoiceEnabled', colorVoiceEnabled);
+    const t = languageTranslations[currentLang] || languageTranslations['zh'];
+    const msg = colorVoiceEnabled ? t['voice_enable'] : t['voice_disable'];
+    showWeatherLog(msg);
+    speakWeatherMessage(msg);
+  });
+
+  fetch('/luci-static/spectra/bgm/save_language.php', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+    body: 'action=get_language'
+  })
+  .then(response => response.json())
+  .then(data => {
+    if (data.success && data.language) {
+      currentLang = data.language;
+      updateUIText();
     }
+  });
 
-    fetch('/luci-static/spectra/bgm/save_language.php', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/x-www-form-urlencoded',
-        },
-        body: 'action=get_language'
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success && data.language) {
-            currentLang = data.language;
-            updateUIText();
-        }
-    });
-
-    document.getElementById('languageModal').addEventListener('click', function(e) {
-        if (e.target === this) {
-            closeLanguageModal();
-        }
-    });
+  document.getElementById('languageModal').addEventListener('click', function(e) {
+    if (e.target === this) closeLanguageModal();
+  });
 });
 </script>
 
