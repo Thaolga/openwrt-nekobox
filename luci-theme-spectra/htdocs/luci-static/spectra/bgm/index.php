@@ -4008,7 +4008,7 @@ body {
     position: fixed;
     top: 2%;
     right: 4.5%;
-    background: var(--bg-body);
+    background: var(--bg-container);
     padding: 15px 10px;
     border-radius: 20px;
     backdrop-filter: var(--glass-blur);
@@ -4027,6 +4027,8 @@ body {
     resize: none;
     overflow: auto;
     user-select: none;
+    border: 1px solid var(--bg-container);
+    box-shadow: 0 0 8px color-mix(in oklch, var(--bg-container), black 30%);
 }
 
 #floatingLyrics.visible {
