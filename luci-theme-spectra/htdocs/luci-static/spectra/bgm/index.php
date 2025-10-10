@@ -4079,7 +4079,7 @@ body {
     display: flex;
     align-items: center;
     justify-content: center;
-    color: #fff;
+    color: var(--text-primary);
     transition: all 0.3s ease;
     backdrop-filter: blur(5px);
 }

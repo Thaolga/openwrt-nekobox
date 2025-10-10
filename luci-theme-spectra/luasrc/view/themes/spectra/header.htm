@@ -3150,7 +3150,7 @@ window.addEventListener('load', () => {
             top:50%; 
             left:50%; 
             transform:translate(-50%, -50%); 
-            width:450px; 
+            width:550px; 
             padding:20px; 
             border-radius:12px; 
             background: var(--bg-container);
@@ -3936,21 +3936,21 @@ weatherCard.addEventListener('click', async (event) => {
         </select>
         <div id="chineseVoiceSelect" style="margin-top:15px; display:none;">
           <label style="font-weight:bold; color:var(--accent-color);" id="chineseVoiceTitle">Preferred Chinese Voice：</label>
-          <div style="margin-top:8px; color: var(--text-primary)">
-            <label style="margin-right:12px;">
-              <input type="radio" name="chineseVoice" value="zh-CN"> Mandarin (zh-CN)
+          <div style="margin-top:8px; color: var(--text-primary); display: flex; align-items: center; padding-left:4px;">
+            <label style="display:inline-flex; align-items:center; margin-right:12px;">
+              <input type="radio" name="chineseVoice" value="zh-CN" style="vertical-align: middle; margin:0 2px 0 0; position: relative; top: -0.1px;"> Mandarin (zh-CN)
             </label>
-            <label style="margin-right:12px;">
-              <input type="radio" name="chineseVoice" value="zh-HK"> Cantonese (zh-HK)
+            <label style="display:inline-flex; align-items:center; margin-right:12px;">
+              <input type="radio" name="chineseVoice" value="zh-HK" style="vertical-align: middle; margin:0 2px 0 0; position: relative; top: -0.1px;"> Cantonese (zh-HK)
             </label>
-            <label>
-          <input type="radio" name="chineseVoice" value="zh-TW"> Traditional Chinese (zh-TW)
+            <label style="display:inline-flex; align-items:center;">
+              <input type="radio" name="chineseVoice" value="zh-TW" style="vertical-align: middle; margin:0 2px 0 0; position: relative; top: -0.1px;"> Traditional Chinese (zh-TW)
             </label>
           </div>
         </div>
-        <div style="display:flex; align-items:baseline; margin: 25px 0;">
-            <input type="checkbox" id="voiceToggle" checked style="margin:0;">
-            <label for="voiceToggle" id="voiceLabel" style="margin-left:8px; color: var(--text-primary)";></label>
+        <div style="display:flex; align-items: center; margin: 25px 0;">
+            <input type="checkbox" id="voiceToggle" checked style="vertical-align: middle; margin:0;">
+            <label for="voiceToggle" id="voiceLabel" style="margin-left:8px; color: var(--text-primary); display:inline-flex; align-items:center;"></label>
         </div>
         <div style="text-align: right; margin-top: 15px;">
             <button type="button" class="cbi-button cbi-button-remove" onclick="closeLanguageModal()" style="margin-right: 10px;">Cancel</button>
