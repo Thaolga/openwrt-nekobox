@@ -420,6 +420,8 @@ body.dm-serif-font {
 	border-radius: 10px;
 	background: var(--bg-container);
 	box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        margin-top: 5px !important;
+	border: var(--border-strong);
 }
 
 .time-display {

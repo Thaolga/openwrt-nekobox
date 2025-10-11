@@ -110,7 +110,7 @@
     --glass-border: 1px solid rgba(255, 255, 255, 0.1);
     --border-color: oklch(40% var(--base-chroma) var(--base-hue));
     --border-light: 1px solid oklch(60% 0.05 var(--base-hue) / 0.3);
-    --border-strong: 2px solid oklch(70% 0.1 var(--base-hue) / 0.6);
+    --border-strong: 1px solid oklch(70% 0.1 var(--base-hue) / 0.6);
     --glow-base: var(--base-hue);
     --glow-primary: oklch(82% 0.32 var(--glow-base));
     --glow-secondary: oklch(78% 0.28 calc(var(--glow-base) + 10));
@@ -222,7 +222,7 @@
     --glass-border: 1px solid rgba(0, 0, 0, 0.05);
     --border-color: oklch(85% 0.03 var(--base-hue));
     --border-light: 1px solid oklch(90% 0.02 var(--base-hue) / 0.4);
-    --border-strong: 2px solid oklch(75% 0.05 var(--base-hue) / 0.8);
+    --border-strong: 1px solid oklch(75% 0.05 var(--base-hue) / 0.8);
 
     --glow-base: var(--base-hue);
     --glow-primary: oklch(75% 0.25 var(--glow-base));
@@ -302,10 +302,10 @@
     --color-white: oklch(98% 0.01 0);
 }
 
-.fill, 
+.fill,
 .fill .container {
     height: auto;
-    min-height: 50px;
+    min-height: 60px;
     overflow: visible;
 }
 
@@ -317,6 +317,25 @@
     margin-left: 15rem; 
     padding: 10px 5px;
     transition: all 0.3s ease;
+    background-color: var(--bg-container);
+    position: relative;
+    height: 60px;
+    min-height: 60px;
+    box-sizing: border-box;
+
+}
+
+.navbar-container::before {
+    content: '';
+    position: absolute;
+    top: -12px;
+    left: -19.7px;
+    right: -20px;
+    bottom: -15px;
+    background-color: var(--bg-container);
+    z-index: -1;
+    border: 1px solid var(--bg-container);
+    box-shadow: 0 1px 3px -2px color-mix(in oklch, var(--bg-container), black 30%);
 }
 
 .navbar-left,
@@ -333,6 +352,10 @@
         margin-left: 0;
         padding-left: 5px;
         margin-top: -2px; 
+    }
+    .navbar-container::before {
+    left: -50px;
+
     }
     .navbar-left,
     .navbar-right {
@@ -358,6 +381,7 @@
     display: flex;
     align-items: center;
     position: relative;
+    height: 100%;
     z-index: 1;
     padding: 15px 20px;
     min-width: 300px;
@@ -694,7 +718,7 @@ div.nav-container > button.btn_styles {
 }
 
 .developer-container {
-    background-color: var(--card-bg) !important;
+    background-color: var(--bg-container) !important;
 }
 
 .developer-container img,
@@ -1877,7 +1901,7 @@ let myAppIP = {
 
             document.getElementById('d-ip').innerHTML = `
                 <div class="ip-main" style="cursor:pointer;" onclick="myAppIP.showDetailModal()">
-                    ${cachedIP} <span class="badge badge-primary" style="color:#fd7e14;background:#f8f9fa;border-radius:4px;padding:2px 6px;border:1px solid #ddd;">${country}</span>
+                    ${cachedIP} <span class="badge-primary" style="color:#fd7e14;background:#f8f9fa;border-radius:4px;padding:2px 6px;border:1px solid #ddd;">${country}</span>
                 </div>`;
             document.getElementById('ipip').innerHTML = `<span style="margin-left:8px; position: relative; top: -3px;">${location} ${displayISP} ${data.asn||''} ${displayASN}</span>`;
 
