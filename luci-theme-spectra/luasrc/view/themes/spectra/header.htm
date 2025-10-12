@@ -1841,15 +1841,21 @@ async function showEditModal() {
             });
             const data = await res.json();
             if (data.success) {
-                alert(translations["clear_confirm"] || "IP database cleared");
+                const message = translations["clear_success"] || "IP database cleared";
+                showWeatherLog(message);
+                speakWeatherMessage(message);
                 if (codeMirrorEditor) {
                     codeMirrorEditor.setValue('{}');
                 }
             } else {
-                alert(translations["clear_fail"] || "Clear failed");
+                const message = translations["clear_fail"] || "Clear failed";
+                showWeatherLog(message);
+                speakWeatherMessage(message);
             }
         } catch(e) {
-            alert(translations["clear_fail"] || "Clear failed");
+            const message = translations["clear_fail"] || "Clear failed";
+            showWeatherLog(message);
+            speakWeatherMessage(message);
             console.error(e);
         }
     });
