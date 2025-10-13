@@ -224,7 +224,14 @@
                 <div class="nav-icon" id="wifiIcon">
                         <img id="settings-icon" src="<%=media%>/navbar/interface.gif" alt="Interface" style="cursor:pointer;">
                 </div>
+                <div class="app-icon-btn"  id="panel">
+                   <a onclick="openControlPanel()" style="cursor: pointer;" data-title="ui_control">
+                       <i class="fas fa-sliders-h"></i>
+                   </a>
+               </div>
+
                 <div class="icon-group">
+                        <button class="app-icon-btn" id="themeLoaderToggle" data-title="theme_loader_btn_title"> <i class="fa fa-atom"></i> </button>
                         <button class="app-icon-btn" onclick="myAppIP.showDetailModal()" data-title="ip_details"><i class="fas fa-globe"></i></button>
                         <button class="translation-toggle app-icon-btn" onclick="toggleTranslation()" data-title="online_translation"><i class="fas fa-language"></i></button>
                         <button type="button" class="app-icon-btn" id="openEditModal" data-title="edit_ip_database"><i class="fas fa-edit"></i></button>
@@ -250,7 +257,7 @@
               </div>
             </div>
 
-            <div class="ip-container" style="display: none;">
+            <div class="ip-container">
                 <div class="imgBox">
                     <img id="flag" title="">
                     <div class="loading" id="loading" style="display:none;">
@@ -332,6 +339,300 @@
         </div>
     </div>
 </div>
+<style>
+.control-panel {
+    display: none;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 90%;
+    max-width: 800px;
+    background: var(--bg-container);
+    backdrop-filter: var(--glass-blur);
+    border: var(--glass-border);
+    border-radius: var(--radius);
+    box-shadow: var(--breathing-glow);
+    z-index: 10001;
+    padding: 20px;
+    color: var(--text-primary);
+}
+
+.control-panel-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: var(--border-light);
+    padding-bottom: 15px;
+    margin-bottom: 20px;
+}
+
+.control-panel-title {
+    margin: 0;
+    font-size: 1.3rem;
+    color: var(--accent-color);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.control-panel-close {
+    background: none;
+    border: none;
+    color: var(--text-secondary);
+    font-size: 1.2rem;
+    cursor: pointer;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: var(--transition);
+}
+
+.control-panel-close:hover {
+    background: var(--color-red);
+    color: white;
+}
+
+.control-panel-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+}
+
+.control-card {
+    background: var(--bg-body);
+    border-radius: var(--radius);
+    padding: 15px;
+    border: var(--border-light);
+    text-align: center;
+    cursor: pointer;
+    transition: var(--transition);
+    box-shadow: 0 2px 8px color-mix(in oklch, var(--bg-container), black 20%);
+}
+
+.control-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px color-mix(in oklch, var(--bg-container), black 30%);
+}
+
+.control-card-icon {
+    font-size: 20px;
+    margin-bottom: 8px;
+}
+
+.control-card-title {
+    font-size: 13px;
+    margin-bottom: 5px;
+}
+
+.control-card-status {
+    font-size: 11px;
+    color: var(--text-secondary);
+}
+
+.reset-button {
+    background: var(--btn-danger-bg);
+    color: #fff;
+    border: none;
+    padding: 8px 20px;
+    border-radius: var(--radius);
+    cursor: pointer;
+    font-size: 13px;
+    transition: var(--transition);
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    box-shadow: 0 2px 6px color-mix(in oklch, var(--btn-danger-bg), black 40%);
+}
+
+.reset-button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px color-mix(in oklch, var(--btn-danger-bg), black 50%);
+}
+
+.overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 10000;
+}
+</style>
+
+<div id="controlPanel" class="control-panel">
+    <div class="control-panel-header">
+        <h6 class="control-panel-title">
+            <i class="fas fa-sliders-h"></i>
+            <span data-translate="ui_control">UI Control</span>
+        </h6>
+        <button onclick="closeControlPanel()" class="control-panel-close">
+            &times;
+        </button>
+    </div>
+
+    <div class="control-panel-grid">
+        <div class="control-card" onclick="toggleVisibility('.icon-group')">
+            <i class="fas fa-icons control-card-icon" style="color: var(--color-green);"></i>
+            <div class="control-card-title" data-translate="tool_icons">Tool Icons</div>
+            <div id="iconGroupStatus" class="control-card-status"  data-translate="status_show">Show</div>
+        </div>
+
+        <div class="control-card" onclick="toggleVisibility('.weather-card')">
+            <i class="fas fa-cloud control-card-icon" style="color: var(--color-blue);"></i>
+            <div class="control-card-title" data-translate="weather_info">Weather Info</div>
+            <div id="weatherStatus" class="control-card-status" data-translate="status_show">Show</div>
+        </div>
+
+        <div class="control-card" onclick="toggleVisibility('.ip-container')">
+            <i class="fas fa-globe control-card-icon" style="color: var(--color-violet);"></i>
+            <div class="control-card-title" data-translate="ip_info">IP Info</div>
+            <div id="ipStatus" class="control-card-status" data-translate="status_show">Show</div>
+        </div>
+
+        <div class="control-card" onclick="toggleVisibility('#result')">
+            <i class="fas fa-star control-card-icon" style="color: var(--color-yellow);"></i>
+            <div class="control-card-title" data-translate="site_status">Site Status</div>
+            <div id="navbarRightStatus" class="control-card-status" data-translate="status_show">Show</div>
+        </div>
+    </div>
+
+    <div style="margin-top: 20px; text-align: center;">
+        <button onclick="resetAllSettings()" class="reset-button">
+            <i class="fas fa-undo-alt"></i>
+            <span data-translate="reset_all">Reset All Settings</span>
+        </button>
+    </div>
+</div>
+
+<div id="overlay" class="overlay" onclick="closeControlPanel()"></div>
+
+<script>
+const defaultSettings = {
+    '.icon-group': true,
+    '.weather-card': true,
+    '.ip-container': true,
+    '#result': true
+};
+
+function handlePanelVisibility() {
+    const panel = document.getElementById('panel');
+    if (!panel) return;
+    
+    if (window.innerWidth <= 768) {
+        panel.style.display = 'none';
+    } else {
+        panel.style.display = '';
+    }
+}
+
+function openControlPanel() {
+    document.getElementById('controlPanel').style.display = 'block';
+    document.getElementById('overlay').style.display = 'block';
+    updateStatusDisplay();
+}
+
+function closeControlPanel() {
+    document.getElementById('controlPanel').style.display = 'none';
+    document.getElementById('overlay').style.display = 'none';
+}
+
+function toggleVisibility(selector) {
+    const element = document.querySelector(selector);
+    const currentState = localStorage.getItem(selector);
+    const newState = currentState === 'hidden' ? 'visible' : 'hidden';
+    
+    if (newState === 'hidden') {
+        element.classList.add('control-panel-hidden');
+    } else {
+        element.classList.remove('control-panel-hidden');
+    }
+    
+    localStorage.setItem(selector, newState);
+    updateStatusDisplay();
+    
+    const statusText = newState === 'hidden' ? languageTranslations[currentLang]['status_hide'] : languageTranslations[currentLang]['status_show'];
+    const statusMap = {
+        '.icon-group': languageTranslations[currentLang]['tool_icons'],
+        '.weather-card': languageTranslations[currentLang]['weather_info'],
+        '.ip-container': languageTranslations[currentLang]['ip_info'],
+        '#result': languageTranslations[currentLang]['site_status']
+    };
+    const panelName = statusMap[selector] || selector;
+
+    const logMsg = `${panelName} ${statusText}`;
+    if (typeof showWeatherLog === 'function') showWeatherLog(logMsg);
+    if (typeof speakWeatherMessage === 'function') speakWeatherMessage(logMsg);
+}
+
+function updateStatusDisplay() {
+    const statusMap = {
+        '.icon-group': 'iconGroupStatus',
+        '.weather-card': 'weatherStatus', 
+        '.ip-container': 'ipStatus',
+        '#result': 'navbarRightStatus'
+    };
+    
+    Object.entries(statusMap).forEach(([selector, statusId]) => {
+        const element = document.querySelector(selector);
+        const statusElement = document.getElementById(statusId);
+        const savedState = localStorage.getItem(selector);
+
+        if (statusElement) {
+            if (savedState === 'hidden' || (element && element.classList.contains('control-panel-hidden'))) {
+                statusElement.textContent = languageTranslations[currentLang]['status_hide'];
+                statusElement.style.color = 'var(--color-red)';
+            } else {
+                statusElement.textContent = languageTranslations[currentLang]['status_show'];
+                statusElement.style.color = 'var(--color-green)';
+            }
+        }
+    });
+}
+
+function resetAllSettings() {
+    Object.keys(defaultSettings).forEach(selector => {
+        localStorage.removeItem(selector);
+        const element = document.querySelector(selector);
+        if (element) {
+            element.classList.remove('control-panel-hidden');
+        }
+    });
+    updateStatusDisplay();
+    const resetText = languageTranslations[currentLang]['reset_all'];
+    const logMsg = `${resetText}`;
+    if (typeof showWeatherLog === 'function') showWeatherLog(logMsg);
+    if (typeof speakWeatherMessage === 'function') speakWeatherMessage(logMsg);
+}
+
+(function() {
+    const style = document.createElement('style');
+    style.textContent = '.control-panel-hidden { display: none !important; }';
+    document.head.appendChild(style);
+    
+    const selectors = ['.icon-group', '.weather-card', '.ip-container', '#result'];
+    selectors.forEach(selector => {
+        if (localStorage.getItem(selector) === 'hidden') {
+            const element = document.querySelector(selector);
+            if (element) {
+                element.classList.add('control-panel-hidden');
+            }
+        }
+    });
+})();
+
+document.addEventListener('DOMContentLoaded', function() {
+    handlePanelVisibility();
+    updateStatusDisplay();
+});
+
+window.addEventListener('resize', handlePanelVisibility);
+</script>
 
 <script type="text/javascript">
 const _IMG = '/luci-static/ipip/';
@@ -2885,6 +3186,330 @@ weatherCard.addEventListener('click', async (event) => {
         loadingIcon.style.display = 'none';
     }
 });
+</script>
+
+<script>
+let themeLoaderEnabled = localStorage.getItem('themeLoaderEnabled') !== 'false';
+
+function createThemeLoader() {
+    const loader = document.createElement('div');
+    loader.id = 'theme-loader';
+    loader.style.cssText = `
+        position: fixed;
+        inset: 0;
+        background: linear-gradient(
+            135deg,
+            color-mix(in oklch, var(--bg-body), white 20%),
+            color-mix(in oklch, var(--bg-container), white 15%),
+            color-mix(in oklch, var(--bg-body), var(--color-cyan) 5%)
+        );
+        background-size: 400% 400%;
+        animation: theme-gradient-move 8s ease infinite;
+        z-index: 9999;
+        display: none;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+        color: var(--text-primary);
+        font-family: "Segoe UI", system-ui, sans-serif;
+        backdrop-filter: var(--glass-blur);
+    `;
+
+    const content = document.createElement('div');
+    content.className = 'theme-loader-content';
+    content.style.cssText = `
+        text-align: center;
+        backdrop-filter: var(--glass-blur);
+        padding: 3rem 4rem;
+        border-radius: var(--radius);
+        background: color-mix(in oklch, var(--bg-container), transparent 40%);
+        border: var(--glass-border);
+        box-shadow: var(--breathing-glow),
+                    0 20px 60px oklch(0 0 0 / calc(var(--shadow-intensity) + 0.2));
+        animation: theme-loader-float 3s ease-in-out infinite;
+        position: relative;
+        overflow: hidden;
+    `;
+
+    const backgroundEffect = document.createElement('div');
+    backgroundEffect.style.cssText = `
+        position: absolute;
+        top: -50%;
+        left: -50%;
+        width: 200%;
+        height: 200%;
+        background: conic-gradient(
+            from 0deg,
+            var(--accent-color),
+            var(--color-cyan),
+            var(--color-magenta),
+            var(--accent-color)
+        );
+        opacity: 0.1;
+        animation: theme-rotate 10s linear infinite;
+        z-index: -1;
+    `;
+
+    const iconContainer = document.createElement('div');
+    iconContainer.className = 'loader-icon-container';
+    iconContainer.style.cssText = `
+        position: relative;
+        margin-bottom: 2rem;
+    `;
+
+    const halo = document.createElement('div');
+    halo.style.cssText = `
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 120px;
+        height: 120px;
+        border: 2px solid var(--accent-color);
+        border-radius: 50%;
+        animation: theme-pulse 2s ease-out infinite;
+        opacity: 0.6;
+    `;
+
+    const icon = document.createElement('div');
+    icon.className = 'loader-icon';
+    icon.style.cssText = `
+        font-size: 4rem;
+        animation: theme-bounce 1.5s ease-in-out infinite alternate;
+        filter: drop-shadow(0 4px 12px oklch(0 0 0 / 0.3));
+        position: relative;
+        z-index: 2;
+    `;
+    icon.textContent = '🌌';
+
+    const title = document.createElement('div');
+    title.className = 'loader-title';
+    title.style.cssText = `
+        font-size: 2.5rem;
+        font-weight: 700;
+        margin-bottom: 0.5rem;
+        font-family: 'Cinzel Decorative', serif;
+        background: linear-gradient(135deg, var(--text-primary), var(--accent-color), var(--color-magenta));
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        text-shadow: 0 2px 4px oklch(0 0 0 / 0.2);
+        letter-spacing: 2px;
+        animation: theme-title-glow 2s ease-in-out infinite alternate;
+    `;
+    title.textContent = 'SPECTRA';
+
+    const subtitle = document.createElement('div');
+    subtitle.className = 'loader-subtitle';
+    subtitle.style.cssText = `
+        font-size: 1rem;
+        opacity: 0.8;
+        color: var(--text-secondary);
+        font-family: 'Cinzel Decorative', serif;
+        letter-spacing: 1px;
+        margin-top: 0.5rem;
+    `;
+    subtitle.textContent = 'Loading Interface';
+
+    const progressContainer = document.createElement('div');
+    progressContainer.style.cssText = `
+        width: 200px;
+        height: 4px;
+        background: color-mix(in oklch, var(--bg-container), transparent 60%);
+        border-radius: 2px;
+        margin: 2rem auto 0;
+        overflow: hidden;
+        position: relative;
+    `;
+
+    const progressBar = document.createElement('div');
+    progressBar.className = 'loader-progress';
+    progressBar.style.cssText = `
+        position: absolute;
+        top: 0;
+        left: 0;
+        height: 100%;
+        width: 30%;
+        background: linear-gradient(90deg, 
+            var(--accent-color), 
+            var(--color-cyan),
+            var(--accent-color)
+        );
+        background-size: 200% 100%;
+        animation: theme-progress 2s ease-in-out infinite, theme-shimmer 3s ease-in-out infinite;
+        border-radius: 2px;
+    `;
+
+    iconContainer.appendChild(halo);
+    iconContainer.appendChild(icon);
+    content.appendChild(backgroundEffect);
+    content.appendChild(iconContainer);
+    content.appendChild(title);
+    content.appendChild(subtitle);
+    content.appendChild(progressContainer);
+    progressContainer.appendChild(progressBar);
+    loader.appendChild(content);
+    document.body.appendChild(loader);
+
+    const style = document.createElement('style');
+    style.textContent = `
+        @keyframes theme-gradient-move {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+        }
+        
+        @keyframes theme-rotate {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        @keyframes theme-bounce {
+            0% { 
+                transform: scale(1) translateY(0px) rotate(0deg);
+                filter: drop-shadow(0 4px 12px oklch(0 0 0 / 0.3));
+            }
+            100% { 
+                transform: scale(1.1) translateY(-10px) rotate(5deg);
+                filter: drop-shadow(0 8px 24px var(--accent-color));
+            }
+        }
+        
+        @keyframes theme-pulse {
+            0%, 100% { 
+                transform: translate(-50%, -50%) scale(1);
+                opacity: 0.3;
+                box-shadow: 0 0 0 0 var(--accent-color);
+            }
+            50% { 
+                transform: translate(-50%, -50%) scale(1.1);
+                opacity: 0.6;
+                box-shadow: 0 0 0 10px transparent;
+            }
+        }
+        
+        @keyframes theme-loader-float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+        }
+        
+        @keyframes theme-progress {
+            0% { left: -30%; }
+            100% { left: 100%; }
+        }
+        
+        @keyframes theme-shimmer {
+            0%, 100% { background-position: -200% 0; }
+            50% { background-position: 200% 0; }
+        }
+        
+        @keyframes theme-title-glow {
+            0% {
+                filter: drop-shadow(0 0 5px color-mix(in oklch, var(--accent-color), transparent 50%));
+                background-position: 0% 50%;
+            }
+            100% {
+                filter: drop-shadow(0 0 20px var(--accent-color)) 
+                        drop-shadow(0 0 30px color-mix(in oklch, var(--color-magenta), transparent 60%));
+                background-position: 100% 50%;
+            }
+        }
+        
+        .theme-loader-content::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(
+                90deg,
+                transparent,
+                color-mix(in oklch, var(--color-white), transparent 80%),
+                transparent
+            );
+            animation: theme-shine 3s ease-in-out infinite;
+        }
+        
+        @keyframes theme-shine {
+            0% { left: -100%; }
+            100% { left: 200%; }
+        }
+    `;
+    document.head.appendChild(style);
+
+    return loader;
+}
+
+function initThemeLoaderControl() {
+    const toggleBtn = document.getElementById('themeLoaderToggle');
+    if (!toggleBtn) return;
+    
+    const icon = toggleBtn.querySelector('i');
+    updateToggleIcon(icon);
+    
+    toggleBtn.addEventListener('click', function() {
+        themeLoaderEnabled = !themeLoaderEnabled;
+        localStorage.setItem('themeLoaderEnabled', themeLoaderEnabled.toString());
+        
+        updateToggleIcon(icon);
+        
+        const translations = languageTranslations[currentLang] || languageTranslations['zh'];
+        const logKey = themeLoaderEnabled ? 'theme_loader_enabled_log' : 'theme_loader_disabled_log';
+        
+        if (translations[logKey]) {
+            showWeatherLog(translations[logKey]);
+            speakWeatherMessage(translations[logKey]);
+        }
+    });
+}
+
+function updateToggleIcon(icon) {
+    if (icon) {
+        icon.style.color = themeLoaderEnabled ? '#0fcc45' : '#666666';
+    }
+}
+
+function enhanceNavigation() {
+    const loader = createThemeLoader();
+    initThemeLoaderControl();
+    document.addEventListener('click', (e) => {
+        const link = e.target.closest('a');
+        if (link && link.href && link.href.includes('/cgi-bin/luci/')) {
+            if (!themeLoaderEnabled) {
+                return;
+            }
+            
+            e.preventDefault();
+            
+            loader.style.display = 'flex';
+            setTimeout(() => {
+                loader.style.opacity = '1';
+            }, 10);
+            
+            const content = document.querySelector('.main-content') || document.body;
+            content.classList.add('page-transition', 'page-hidden');
+            
+            setTimeout(() => {
+                window.location.href = link.href;
+            }, 800);
+        }
+    });
+    
+    window.addEventListener('load', () => {
+        const content = document.querySelector('.main-content') || document.body;
+        content.classList.add('page-transition');
+        content.classList.remove('page-hidden');
+        
+        if (loader.style.display === 'flex') {
+            loader.style.opacity = '0';
+            setTimeout(() => {
+                loader.style.display = 'none';
+            }, 600);
+        }
+    });
+}
+
+enhanceNavigation();
 </script>
 
 <script>

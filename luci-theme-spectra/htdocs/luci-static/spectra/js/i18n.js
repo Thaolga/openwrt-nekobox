@@ -43,7 +43,19 @@ const languageTranslations = {
         'clear': '清空',
         'clear_confirm': '确定要清空 IP 数据库吗？',
         'clear_success': '已清空 IP 数据库',
-        'clear_fail': '清空失败'
+        'clear_fail': '清空失败',
+        'ui_control': "界面控制",
+        'tool_icons': "工具图标", 
+        'weather_info': "天气信息",
+        'ip_info': "IP信息",
+        'site_status': "网站状态",
+        'status_show': "显示",
+        'status_hide': "隐藏",
+        'reset_all': "重置所有设置",
+        'theme_loader_enabled_log': '主题加载器已开启',
+        'theme_loader_disabled_log': '主题加载器已关闭',
+        'theme_loader_btn_title': '主题加载器开关',
+        'close_panel': "关闭面板"
     },
     'hk': {
         'select_language': '選擇語言',
@@ -89,7 +101,20 @@ const languageTranslations = {
         'clear': '清空',
         'clear_confirm': '確定要清空 IP 數據庫嗎？',
         'clear_success': '已清空 IP 數據庫',
-        'clear_fail': '清空失敗'
+        'clear_fail': '清空失敗',
+        ui_control: "介面控制",
+        'ui_control': "介面控制",
+        'tool_icons': "工具圖標",
+        'weather_info': "天氣資訊", 
+        'ip_info': "IP資訊",
+        'site_status': "網站狀態",
+        'status_show': "顯示",
+        'status_hide': "隱藏",
+        'reset_all': "重設所有設定",
+        'theme_loader_enabled_log': '主題加載器已開啟',
+        'theme_loader_disabled_log': '主題加載器已關閉',
+        'theme_loader_btn_title': '主題加載器開關',
+        'close_panel': "關閉面板"
     },
     'en': {
         'select_language': 'Select Language',
@@ -131,7 +156,28 @@ const languageTranslations = {
         'clear': 'Clear',
         'clear_confirm': 'Are you sure to clear the IP database?',
         'clear_success': 'IP database cleared',
-        'clear_fail': 'Clear failed'
+        'clear_fail': 'Clear failed',
+        ui_control: "UI Control",
+        tool_icons: "Tool Icons",
+        weather_info: "Weather Info",
+        ip_info: "IP Info",
+        site_status: "Site Status",
+        status_show: "Show",
+        status_hide: "Hide",
+        reset_all: "Reset All Settings",
+        close_panel: "Close Panel",
+        'ui_control': "UI Control",
+        'tool_icons': "Tool Icons",
+        'weather_info': "Weather Info",
+        'ip_info': "IP Info", 
+        'site_status': "Site Status",
+        'status_show': "Show",
+        'status_hide': "Hide",
+        'reset_all': "Reset All Settings",
+        'theme_loader_enabled_log': 'Theme loader enabled',
+        'theme_loader_disabled_log': 'Theme loader disabled',
+        'theme_loader_btn_title': 'Theme Loader Toggle',
+        'close_panel': "Close Panel"
     },
     'ko': {
         'select_language': '언어 선택',
@@ -172,7 +218,19 @@ const languageTranslations = {
         'clear': '초기화',
         'clear_confirm': 'IP 데이터베이스를 초기화하시겠습니까?',
         'clear_success': 'IP 데이터베이스가 초기화되었습니다',
-        'clear_fail': '초기화 실패'
+        'clear_fail': '초기화 실패',
+        'ui_control': "인터페이스 제어",
+        'tool_icons': "도구 아이콘",
+        'weather_info': "날씨 정보",
+        'ip_info': "IP 정보",
+        'site_status': "사이트 상태", 
+        'status_show': "표시",
+        'status_hide': "숨김",
+        'reset_all': "모든 설정 초기화",
+        'theme_loader_enabled_log': '테마 로더가 활성화되었습니다',
+        'theme_loader_disabled_log': '테마 로더가 비활성화되었습니다',
+        'theme_loader_btn_title': '테마 로더 전환',
+        'close_panel': "패널 닫기"
     },
     'vi': {
         'select_language': 'Chọn ngôn ngữ',
@@ -214,8 +272,19 @@ const languageTranslations = {
         'clear': 'Xóa',
         'clear_confirm': 'Bạn có chắc muốn xóa cơ sở dữ liệu IP không?',
         'clear_success': 'Đã xóa cơ sở dữ liệu IP',
-        'clear_fail': 'Xóa thất bại'
-
+        'clear_fail': 'Xóa thất bại',
+        'ui_control': "Điều khiển giao diện",
+        'tool_icons': "Biểu tượng công cụ",
+        'weather_info': "Thông tin thời tiết",
+        'ip_info': "Thông tin IP",
+        'site_status': "Trạng thái trang web",
+        'status_show': "Hiển thị", 
+        'status_hide': "Ẩn",
+        'reset_all': "Đặt lại tất cả cài đặt",
+        'theme_loader_enabled_log': 'Trình tải chủ đề đã bật',
+        'theme_loader_disabled_log': 'Trình tải chủ đề đã tắt',
+        'theme_loader_btn_title': 'Chuyển đổi trình tải chủ đề',
+        'close_panel': "Đóng bảng điều khiển"
     },
     'th': {
         'select_language': 'เลือกภาษา',
@@ -257,8 +326,19 @@ const languageTranslations = {
         'clear': 'ล้าง',
         'clear_confirm': 'คุณแน่ใจหรือไม่ว่าจะล้างฐานข้อมูล IP?',
         'clear_success': 'ล้างฐานข้อมูล IP เรียบร้อย',
-        'clear_fail': 'ล้างไม่สำเร็จ'
-
+        'clear_fail': 'ล้างไม่สำเร็จ',
+        'ui_control': "ควบคุมอินเทอร์เฟซ",
+        'tool_icons': "ไอคอนเครื่องมือ",
+        'weather_info': "ข้อมูลสภาพอากาศ",
+        'ip_info': "ข้อมูล IP",
+        'site_status': "สถานะเว็บไซต์",
+        'status_show': "แสดง",
+        'status_hide': "ซ่อน", 
+        'reset_all': "รีเซ็ตการตั้งค่าทั้งหมด",
+        'theme_loader_enabled_log': 'ตัวโหลดธีมเปิดใช้งานแล้ว',
+        'theme_loader_disabled_log': 'ตัวโหลดธีมถูกปิดใช้งาน',
+        'theme_loader_btn_title': 'สลับตัวโหลดธีม',
+        'close_panel': "ปิดแผงควบคุม"
     },
     'ja': {
         'select_language': '言語を選択',
@@ -300,8 +380,19 @@ const languageTranslations = {
         'clear': 'クリア',
         'clear_confirm': 'IPデータベースをクリアしてもよろしいですか？',
         'clear_success': 'IPデータベースをクリアしました',
-        'clear_fail': 'クリアに失敗しました'
-
+        'clear_fail': 'クリアに失敗しました',
+        'ui_control': "インターフェース制御",
+        'tool_icons': "ツールアイコン",
+        'weather_info': "天気情報",
+        'ip_info': "IP情報",
+        'site_status': "サイトの状態",
+        'status_show': "表示", 
+        'status_hide': "非表示",
+        'reset_all': "すべての設定をリセット",
+        'theme_loader_enabled_log': 'テーマローダーが有効になりました',
+        'theme_loader_disabled_log': 'テーマローダーが無効になりました',
+        'theme_loader_btn_title': 'テーマローダー切り替え',
+        'close_panel': "パネルを閉じる"
     },
     'ru': {
         'select_language': 'Выберите язык',
@@ -343,7 +434,19 @@ const languageTranslations = {
         'clear': 'Очистить',
         'clear_confirm': 'Вы уверены, что хотите очистить базу IP?',
         'clear_success': 'База IP очищена',
-        'clear_fail': 'Не удалось очистить'
+        'clear_fail': 'Не удалось очистить',
+        'ui_control': "Управление интерфейсом",
+        'tool_icons': "Значки инструментов",
+        'weather_info': "Информация о погоде",
+        'ip_info': "Информация об IP",
+        'site_status': "Статус сайта",
+        'status_show': "Показать",
+        'status_hide': "Скрыть", 
+        'reset_all': "Сбросить все настройки",
+        'theme_loader_enabled_log': 'Загрузчик тем включен',
+        'theme_loader_disabled_log': 'Загрузчик тем отключен',
+        'theme_loader_btn_title': 'Переключатель загрузчика темы',
+        'close_panel': "Закрыть панель"
     },
     'ar': {
         'select_language': 'اختر اللغة',
@@ -385,7 +488,19 @@ const languageTranslations = {
         'clear': 'مسح',
         'clear_confirm': 'هل أنت متأكد من مسح قاعدة بيانات IP؟',
         'clear_success': 'تم مسح قاعدة بيانات IP',
-        'clear_fail': 'فشل المسح'
+        'clear_fail': 'فشل المسح',
+        'ui_control': "التحكم في الواجهة",
+        'tool_icons': "رموز الأدوات",
+        'weather_info': "معلومات الطقس",
+        'ip_info': "معلومات IP",
+        'site_status': "حالة الموقع",
+        'status_show': "إظهار",
+        'status_hide': "إخفاء", 
+        'reset_all': "إعادة تعيين جميع الإعدادات",
+        'theme_loader_enabled_log': 'تم تمكين محمل السمات',
+        'theme_loader_disabled_log': 'تم تعطيل محمل السمات',
+        'theme_loader_btn_title': 'تبديل محمل السمات',
+        'close_panel': "إغلاق اللوحة"
     },
     'es': {
         'select_language': 'Seleccionar idioma',
@@ -427,7 +542,19 @@ const languageTranslations = {
         'clear': 'Borrar',
         'clear_confirm': '¿Está seguro de borrar la base de datos IP?',
         'clear_success': 'Base de datos IP borrada',
-        'clear_fail': 'Error al borrar'
+        'clear_fail': 'Error al borrar',
+        'ui_control': "Control de interfaz",
+        'tool_icons': "Iconos de herramientas",
+        'weather_info': "Información del clima",
+        'ip_info': "Información IP",
+        'site_status': "Estado del sitio",
+        'status_show': "Mostrar",
+        'status_hide': "Ocultar", 
+        'reset_all': "Restablecer todos los ajustes",
+        'theme_loader_enabled_log': 'Cargador de tema activado',
+        'theme_loader_disabled_log': 'Cargador de tema desactivado',
+        'theme_loader_btn_title': 'Alternar cargador de tema',
+        'close_panel': "Cerrar panel"
     },
     'de': {
         'select_language': 'Sprache auswählen',
@@ -469,7 +596,19 @@ const languageTranslations = {
         'clear': 'Leeren',
         'clear_confirm': 'Möchten Sie die IP-Datenbank wirklich leeren?',
         'clear_success': 'IP-Datenbank geleert',
-        'clear_fail': 'Leeren fehlgeschlagen'
+        'clear_fail': 'Leeren fehlgeschlagen',
+        'ui_control': "Oberflächensteuerung",
+        'tool_icons': "Werkzeugsymbole",
+        'weather_info': "Wetterinformation",
+        'ip_info': "IP-Information",
+        'site_status': "Website-Status",
+        'status_show': "Anzeigen",
+        'status_hide': "Ausblenden", 
+        'reset_all': "Alle Einstellungen zurücksetzen",
+        'theme_loader_enabled_log': 'Theme-Loader aktiviert',
+        'theme_loader_disabled_log': 'Theme-Loader deaktiviert',
+        'theme_loader_btn_title': 'Theme-Loader umschalten',
+        'close_panel': "Panel schließen"
 
     },
     'fr': {
@@ -512,8 +651,19 @@ const languageTranslations = {
         'clear': 'Vider',
         'clear_confirm': 'Êtes-vous sûr de vouloir vider la base IP ?',
         'clear_success': 'Base IP vidée',
-        'clear_fail': 'Échec du vidage'
-
+        'clear_fail': 'Échec du vidage',
+        'ui_control': "Contrôle d'interface",
+        'tool_icons': "Icônes d'outils",
+        'weather_info': "Informations météo",
+        'ip_info': "Infos IP",
+        'site_status': "Statut du site",
+        'status_show': "Afficher",
+        'status_hide': "Masquer", 
+        'reset_all': "Réinitialiser tous les paramètres",
+        'theme_loader_enabled_log': 'Chargeur de thème activé',
+        'theme_loader_disabled_log': 'Chargeur de thème désactivé',
+        'theme_loader_btn_title': 'Bascule du chargeur de thème',
+        'close_panel': "Fermer le panneau"
     },
     'bn': {
         'select_language': 'ভাষা নির্বাচন করুন',
@@ -556,8 +706,19 @@ const languageTranslations = {
         'clear': 'সাফ করুন',
         'clear_confirm': 'IP ডাটাবেস মুছে ফেলতে চান?',
         'clear_success': 'IP ডাটাবেস মুছে ফেলা হয়েছে',
-        'clear_fail': 'মুছে ফেলতে ব্যর্থ'
-
+        'clear_fail': 'মুছে ফেলতে ব্যর্থ',
+        'ui_control': "ইন্টারফেস নিয়ন্ত্রণ",
+        'tool_icons': "টুল আইকন",
+        'weather_info': "আবহাওয়ার তথ্য",
+        'ip_info': "IP তথ্য",
+        'site_status': "সাইট অবস্থা",
+        'status_show': "প্রদর্শন",
+        'status_hide': "লুকান", 
+        'reset_all': "সমস্ত সেটিংস পুনরায় সেট করুন",
+        'theme_loader_enabled_log': 'থিম লোডার সক্রিয় হয়েছে',
+        'theme_loader_disabled_log': 'থিম লোডার নিষ্ক্রিয় হয়েছে',
+        'theme_loader_btn_title': 'থিম লোডার টগল',
+        'close_panel': "প্যানেল বন্ধ করুন"
     }
 };
 
@@ -1013,3 +1174,52 @@ document.addEventListener('DOMContentLoaded', function() {
 
     initColorSettings();
 });
+
+const style = document.createElement('style');
+style.textContent = `
+.card-container .feature-card {
+    display: flex !important;
+    align-items: center !important;
+    position: relative !important;
+    padding: 20px !important;
+}
+
+.card-container .header {
+    display: flex !important;
+    align-items: center !important;
+    margin-right: 15px !important;
+    position: relative !important;
+}
+
+.card-container .icon-svg {
+    width: 48px !important;
+    height: 48px !important;
+}
+
+.card-container .content {
+    flex: 1 !important;
+    margin: 0 !important;
+}
+
+.card-container .footer {
+    position: absolute !important;
+    top: 12px !important;
+    right: 12px !important;
+    margin: 0 !important;
+}
+
+.card-container .right-arrow {
+    margin-left: 15px !important;
+    width: 24px !important;
+    height: 24px !important;
+}
+
+.card-container .feature-card.blue .footer {
+    top: 10px !important;
+    right: 12px !important;
+    bottom: auto !important;
+}
+
+`;
+document.head.appendChild(style);
+

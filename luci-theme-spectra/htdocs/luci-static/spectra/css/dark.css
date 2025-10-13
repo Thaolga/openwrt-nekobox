@@ -1,4 +1,6 @@
 .cbi-section,
+.navbar-container::before,
+.navbar-container,
 .tabs,
 .main-left {
 	background-color: transparent !important;
@@ -139,6 +141,11 @@ select {
 
 .container .table-wrapper .table-header {
 	background-color: transparent !important;
+}
+
+.cbi-value:hover,
+.cbi-section-table tr.cbi-section-table-row:hover td {
+        background-color: transparent !important;
 }
 
 .wrapper span {
