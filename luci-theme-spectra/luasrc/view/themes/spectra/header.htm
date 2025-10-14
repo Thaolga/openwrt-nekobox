@@ -831,20 +831,19 @@ async function initIPDisplay() {
     const setCityBtn = document.getElementById('setCityBtn');
     if (setCityBtn) setCityBtn.title = modalText.modalTitle || 'Set City';
 
-    const spectraConfigLink = document.querySelector('a[data-title="Spectra_Config"]');
-    if (spectraConfigLink) {
-        spectraConfigLink.textContent = text.spectraConfig || 'Spectra Config';
+    const spectraConfigLink = document.querySelector('a[href*="/spectra"][data-title="Spectra_Config"], a[data-title="Spectra_Config"]');
+    if (spectraConfigLink && text.spectraConfig) {
+        spectraConfigLink.textContent = text.spectraConfig;
     }
 
-    const homeLink = document.querySelector('li.tabmenu-item-index a[href$="/spectra/index"]');
-    if (homeLink) {
-        homeLink.textContent = text.home || 'Home';
+    const homeLink = document.querySelector('a[href$="/spectra/index"], a[href*="/spectra/index"]');
+    if (homeLink && text.home) {
+        homeLink.textContent = text.home;
     }
 
-    const managerLink = document.querySelector('li.tabmenu-item-filekit a[href$="/spectra/filekit"]');
-    if (managerLink) {
-        managerLink.textContent = text.manager || 'Manager';
-
+    const managerLink = document.querySelector('a[href$="/spectra/filekit"], a[href*="/spectra/filekit"]');
+    if (managerLink && text.manager) {
+        managerLink.textContent = text.manager;
     }
 }
 
