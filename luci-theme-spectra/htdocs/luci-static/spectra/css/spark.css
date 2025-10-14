@@ -753,3 +753,37 @@ div.nav-container > button.btn_styles {
 [data-theme="dark"] .cbi-dropdown > .open::before {
     color: #fff !important;
 }
+
+.action span,
+.action .roots .root,
+.action .roots_tit  {
+    color: var(--text-primary) !important;
+}
+
+.tooltip-trigger svg path,
+.card-header .settings-wrapper .settings-btn .btn_settings svg path,
+.card-header .settings-wrapper .settings-btn .rotation svg path {
+    fill: var(--accent-color) !important;
+}
+
+.tooltip-trigger:hover svg path,
+.card-header .settings-wrapper .settings-btn:hover svg path,
+.card-header .settings-wrapper .settings-btn .rotation:hover svg path {
+    fill: var(--success-text) !important;
+}
+
+.cbi-value-field {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+}
+
+.cbi-value-field span {
+    width: 120px;
+    display: inline-block;
+}
+
+.cbi-value-field input[type="button"] {
+    margin-left: 20px;
+    flex: 0 0 auto;
+}
