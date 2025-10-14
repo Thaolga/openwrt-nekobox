@@ -772,18 +772,9 @@ div.nav-container > button.btn_styles {
     fill: var(--success-text) !important;
 }
 
-.cbi-value-field {
-    display: flex;
-    align-items: center;
-    justify-content: flex-start;
-}
-
-.cbi-value-field span {
-    width: 120px;
+.cbi-value-field > span:first-child {
     display: inline-block;
-}
-
-.cbi-value-field input[type="button"] {
-    margin-left: 20px;
-    flex: 0 0 auto;
+    width: 150px;
+    min-width: 150px;
+    text-align: left;
 }
