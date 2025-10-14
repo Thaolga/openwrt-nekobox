@@ -748,3 +748,8 @@ div.nav-container > button.btn_styles {
     background-color: var(--bg-container) !important;
     transition: background-color 0.2s ease, color 0.2s ease;
 }
+
+[data-theme="dark"] .cbi-dropdown[open] > .open::before,
+[data-theme="dark"] .cbi-dropdown > .open::before {
+    color: #fff !important;
+}
