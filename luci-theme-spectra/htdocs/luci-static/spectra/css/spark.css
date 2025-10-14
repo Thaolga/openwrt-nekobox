@@ -778,3 +778,7 @@ div.nav-container > button.btn_styles {
     min-width: 150px;
     text-align: left;
 }
+
+.app-description.cbi-value-description::before {
+    display: none !important;
+}
