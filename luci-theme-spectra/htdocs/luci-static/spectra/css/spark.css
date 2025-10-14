@@ -782,3 +782,13 @@ div.nav-container > button.btn_styles {
 .app-description.cbi-value-description::before {
     display: none !important;
 }
+
+.app-container,
+.reusable-card {
+    transition: transform 0.3s ease;
+}
+
+.app-container:hover,
+.reusable-card:hover {
+    transform: translateY(-2px);
+}
