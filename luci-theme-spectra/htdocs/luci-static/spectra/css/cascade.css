@@ -2540,7 +2540,7 @@ input[type="checkbox"]:hover {
 .cbi-dropdown ul {
 	bottom: 100% !important;
 	top: auto !important;
-	max-height: 300px !important;
+	max-height: 200px !important;
 	overflow-y: auto !important;
 	overflow-x: hidden !important;
 	scrollbar-width: thin !important;
@@ -4952,7 +4952,7 @@ body:not(.Interfaces) .cbi-rowstyle-2:first-child {
 	width: 100%;
 	min-width: 100%;
 	max-width: none;
-	max-height: 300px !important;
+	max-height: 150px !important;
 	border: 0 solid #918e8c;
 	background: #ffffff;
 	box-shadow: 0 -2px 6px rgba(0, 0, 0, 0.15);
