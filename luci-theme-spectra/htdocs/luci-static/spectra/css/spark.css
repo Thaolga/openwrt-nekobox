@@ -840,3 +840,33 @@ textarea:focus {
     border-width: 1px !important;
     outline: none !important;
 }
+
+.nav-container .btn_styles:nth-child(6) {
+    background-color: #0bc5ea !important;
+    border-color: #0bc5ea !important;
+    background-image: none !important;
+    box-shadow: none !important;
+    opacity: 1 !important;
+    transition: all 0.3s ease !important;
+    transform: scale(1);
+}
+
+.nav-container .btn_styles:nth-child(6):hover {
+    transform: scale(1.05);
+    background-color: #00a3c4 !important;
+}
+
+.nav-container .btn_styles:nth-child(7) {
+    background-color: #ed64a6 !important;
+    border-color: #ed64a6 !important;
+    background-image: none !important;
+    box-shadow: none !important;
+    opacity: 1 !important;
+    transition: all 0.3s ease !important;
+    transform: scale(1);
+}
+
+.nav-container .btn_styles:nth-child(7):hover {
+    transform: scale(1.05);
+    background-color: #d53f8c !important;
+}
