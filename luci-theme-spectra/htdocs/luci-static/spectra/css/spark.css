@@ -792,3 +792,40 @@ div.nav-container > button.btn_styles {
 .reusable-card:hover {
     transform: translateY(-2px);
 }
+
+.cbi-dropdown {
+    z-index: 1000;
+}
+
+.cbi-dropdown ul {
+    z-index: 9999;
+}
+
+.cbi-value-field {
+    position: relative;
+    z-index: 1000;
+}
+
+.cbi-section, 
+.cbi-map, 
+.cbi-section-node {
+    overflow: visible !important;
+}
+
+.cbi-input-select::-webkit-scrollbar-thumb {
+    background-color: #3498db !important;
+    border-radius: 10px !important;
+}
+
+.cbi-input-select::-webkit-scrollbar-track {
+    background-color: #f1f1f1 !important;
+}
+
+.cbi-input-select::-webkit-scrollbar {
+    width: 8px !important;
+}
+
+.cbi-input-select {
+    scrollbar-color: #3498db #f1f1f1 !important;
+    scrollbar-width: thin !important;
+}
