@@ -6856,7 +6856,7 @@ fieldset.diag-style {
 }
 
 .item-label_value .progress {
-        background-color: white !important;
+        background-color: #f8fafc !important;
         border-radius: 10px !important;
 }
 
