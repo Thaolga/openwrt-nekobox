@@ -829,3 +829,15 @@ div.nav-container > button.btn_styles {
     scrollbar-color: #3498db #f1f1f1 !important;
     scrollbar-width: thin !important;
 }
+
+textarea {
+    border: var(--border-strong) !important;
+
+}
+
+textarea:focus {
+    box-shadow: 0 0 2px 0 #00ffff !important;
+    border-color: #00ffff !important;
+    border-width: 1px !important;
+    outline: none !important;
+}
