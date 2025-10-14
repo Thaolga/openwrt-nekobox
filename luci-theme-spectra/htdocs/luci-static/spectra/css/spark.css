@@ -832,7 +832,6 @@ div.nav-container > button.btn_styles {
 
 textarea {
     border: var(--border-strong) !important;
-
 }
 
 textarea:focus {
