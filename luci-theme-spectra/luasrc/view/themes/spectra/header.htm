@@ -1681,13 +1681,48 @@ let isManualScroll = false;
 let isSmallScreen = window.innerWidth < 768;
 let currentPlaylistUrl = 'https://raw.githubusercontent.com/Thaolga/Rules/main/music/songs.txt';
 
+function throttle(func, limit) {
+    let lastFunc;
+    let lastRan;
+    return function(...args) {
+        const context = this;
+        if (!lastRan) {
+            func.apply(context, args);
+            lastRan = Date.now();
+        } else {
+            clearTimeout(lastFunc);
+            lastFunc = setTimeout(function() {
+                if (Date.now() - lastRan >= limit) {
+                    func.apply(context, args);
+                    lastRan = Date.now();
+                }
+            }, limit - (Date.now() - lastRan));
+        }
+    };
+}
+
+function saveCurrentTime(currentTrack, currentTime) {
+    const playbackData = {
+        currentTrack: currentTrack,
+        currentTime: currentTime
+    };
+    localStorage.setItem(`${STORAGE_PREFIX}currentPlayback`, JSON.stringify(playbackData));
+}
+
+function loadCurrentTime(currentTrack) {
+    const playbackData = JSON.parse(localStorage.getItem(`${STORAGE_PREFIX}currentPlayback`) || '{}');
+    return playbackData.currentTrack === currentTrack ? playbackData.currentTime || 0 : 0;
+}
+
 document.addEventListener('DOMContentLoaded', () => {
     loadPlayerState();
     loadPlaylistUrl();
     initializePlayer();
-    audioPlayer.addEventListener('timeupdate', () => {
-        savePlayerState();
-    });
+    audioPlayer.addEventListener('timeupdate', throttle(() => {
+        if (songs[currentTrackIndex]) {
+            saveCurrentTime(songs[currentTrackIndex], audioPlayer.currentTime);
+        }
+    }, 1000));
 });
 
 function loadPlaylistUrl() {
@@ -2266,10 +2301,7 @@ function loadTrack(url) {
     audioPlayer.src = url;
     audioPlayer.load();
     audioPlayer.addEventListener('canplaythrough', () => {
-        const savedState = JSON.parse(localStorage.getItem(`${STORAGE_PREFIX}playerState`) || '{}');
-        if (savedState.currentTrack === url && savedState.currentTime) {
-            audioPlayer.currentTime = savedState.currentTime;
-        }
+        audioPlayer.currentTime = loadCurrentTime(url);
         audioPlayer.play().catch((error) => {
             console.log(`${translations['autoplay_blocked'] || 'Autoplay Blocked'}:`, error);
             showWeatherLog(translations['click_to_play'] || 'Click play button to start');
@@ -2289,10 +2321,7 @@ function initializePlayer() {
     const translations = languageTranslations[currentLang] || languageTranslations['zh'];    
     if (songs.length > 0 && songs[currentTrackIndex]) {
         audioPlayer.src = songs[currentTrackIndex];
-        const savedState = JSON.parse(localStorage.getItem(`${STORAGE_PREFIX}playerState`) || '{}');
-        if (savedState.currentTrack === songs[currentTrackIndex] && savedState.currentTime) {
-            audioPlayer.currentTime = savedState.currentTime || 0;
-        }
+        audioPlayer.currentTime = loadCurrentTime(songs[currentTrackIndex]);
         audioPlayer.addEventListener('loadedmetadata', () => {
             loadLyrics(songs[currentTrackIndex]); 
             updateCurrentSong(songs[currentTrackIndex]);
@@ -2366,7 +2395,6 @@ function savePlayerState() {
         isPlaying: isPlaying,
         repeatMode: repeatMode,
         currentTrackIndex: currentTrackIndex,
-        currentTime: audioPlayer.currentTime,
         currentTrack: songs[currentTrackIndex] || ''
     }));
 }
