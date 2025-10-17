@@ -1493,7 +1493,6 @@ body:hover,
             <button class="btn btn-primary ms-2" id="openPlayerBtn" data-bs-toggle="modal" data-bs-target="#playerModal" data-translate-title="add_to_playlist"><i class="bi bi-play-btn"></i> <span class="btn-label"></span></button>
 
             <button type="button" class="btn btn-primary ms-2 d-none d-sm-inline" onclick="showIpDetailModal()" data-translate-title="ip_info"><i class="fa-solid fa-satellite-dish"></i></button>
-            <button class="btn btn-danger ms-2" id="clear-cache-btn" data-translate-title="clear_config"><i class="bi bi-trash3-fill"></i></button>
             <button class="btn btn-danger ms-2" id="clearBackgroundBtn" data-translate-title="clear_background"><i class="bi bi-trash"></i> <span class="btn-label"></span></button> 
         </div>
     </div>
@@ -3864,34 +3863,6 @@ body {
 </style>
 
 <script>
-function toggleFloatingLyrics() {
-    const lyrics = document.getElementById('floatingLyrics');
-    const isHidden = lyrics.style.display === 'none';
-    lyrics.style.display = isHidden ? '' : 'none';
-    localStorage.setItem('floatingLyricsVisible', isHidden ? 'true' : 'false');
-
-    document.querySelectorAll('.toggleFloatingLyricsBtn i').forEach(icon => {
-        icon.className = isHidden ? 'bi bi-display-fill floatingIcon' : 'bi bi-display floatingIcon';
-    });
-}
-
-document.addEventListener('DOMContentLoaded', () => {
-    const lyrics = document.getElementById('floatingLyrics');
-    const isVisible = localStorage.getItem('floatingLyricsVisible') === 'true';
-
-    lyrics.style.display = isVisible ? '' : 'none';
-
-    document.querySelectorAll('.toggleFloatingLyricsBtn i').forEach(icon => {
-        icon.className = isVisible ? 'bi bi-display-fill floatingIcon' : 'bi bi-display floatingIcon';
-    });
-
-    document.querySelectorAll('.toggleFloatingLyricsBtn').forEach(btn => {
-        btn.addEventListener('click', toggleFloatingLyrics);
-    });
-});
-</script>
-
-<script>
 const showLogMessage = (function() {
     const bgColors = [
         'var(--ocean-bg)',
@@ -3985,53 +3956,6 @@ document.addEventListener("DOMContentLoaded", function () {
         }, 4000); 
     });
 });
-</script>
-
-<script>
-document.addEventListener('keydown', function(event) {
-    if (event.ctrlKey && event.shiftKey && event.code === 'KeyC') {
-        confirmAndClearCache();
-        event.preventDefault();
-    }
-});
-
-document.getElementById('clear-cache-btn').addEventListener('click', function() {
-    confirmAndClearCache();
-});
-
-function confirmAndClearCache() {
-    const confirmText = translations['clear_confirm'] || 'Are you sure you want to clear the configuration?';
-    speakMessage(translations['clear_confirm'] || 'Are you sure you want to clear the configuration?');
-    showConfirmation(confirmText, () => {
-        clearCache();
-    });
-}
-
-function clearCache() {
-    localStorage.clear();
-    sessionStorage.clear();
-    sessionStorage.setItem('cacheCleared', 'true');
-    location.reload(true);
-}
-
-window.addEventListener('load', function() {
-    if (sessionStorage.getItem('cacheCleared') === 'true') {
-        const message = translations['cache_cleared'] || 'Cache Cleared';
-        showLogMessage(message);
-        speakMessage(message);
-        sessionStorage.removeItem('cacheCleared');
-        setTimeout(() => {
-            window.top.location.href = "/cgi-bin/luci/admin/services/spectra";
-        }, 3000);
-    }
-});
-
-function speakMessage(text) {
-    if ('speechSynthesis' in window) {
-        const utterance = new SpeechSynthesisUtterance(text);
-        speechSynthesis.speak(utterance);
-    }
-}
 </script>
 
 <script>
@@ -8483,58 +8407,6 @@ async function showIpDetailModal() {
     fetchWeather();
     setInterval(fetchWeather, 10 * 60 * 1000);
   });
-</script>
-
-<script>
-(function() {
-  const toggleBtns = document.querySelectorAll('.toggleFloatingLyricsBtn');
-  const box = document.getElementById('floatingLyrics');
-
-  const savedState = localStorage.getItem('floatingLyricsVisible') === 'true';
-  box.classList.toggle('visible', savedState);
-
-  box.style.resize   = 'none';
-  box.style.overflow = 'auto';
-  box.style.position = 'absolute';
-
-  toggleBtns.forEach(btn => {
-    btn.addEventListener('click', e => {
-      e.stopPropagation();
-      const isNowVisible = box.classList.toggle('visible');
-      localStorage.setItem('floatingLyricsVisible', isNowVisible);
-
-      const msgKey = isNowVisible
-        ? 'floating_lyrics_enabled'
-        : 'floating_lyrics_disabled';
-      const message = translations[msgKey] ||
-        (isNowVisible
-          ? "Floating lyrics enabled"
-          : "Floating lyrics disabled");
-      showLogMessage(message);
-      speakMessage(message);
-    });
-  });
-
-  let isDragging = false, offsetX = 0, offsetY = 0;
-
-  box.addEventListener('mousedown', e => {
-    if (e.target.closest('.ctrl-btn')) return;
-    e.preventDefault();
-    isDragging = true;
-    offsetX = e.clientX - box.offsetLeft;
-    offsetY = e.clientY - box.offsetTop;
-  });
-
-  document.addEventListener('mousemove', e => {
-    if (!isDragging) return;
-    box.style.left = (e.clientX - offsetX) + 'px';
-    box.style.top  = (e.clientY - offsetY) + 'px';
-  });
-
-  document.addEventListener('mouseup', () => {
-    isDragging = false;
-  });
-})();
 </script>
 
 <script>

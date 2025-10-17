@@ -231,6 +231,7 @@
                </div>
 
                 <div class="icon-group">
+                        <button  class="app-icon-btn" id="clear-cache-btn" onclick="clearCache()" data-title="clear_button"><i class="fa-solid fa-broom"></i></button>
                         <button class="app-icon-btn" onclick="openMusicModal()" data-title="music_player"><i class="bi bi-music-note-beamed"></i></button>
                         <button class="app-icon-btn" id="themeLoaderToggle" data-title="theme_loader_btn_title"> <i class="fa fa-atom"></i> </button>
                         <button class="app-icon-btn" onclick="myAppIP.showDetailModal()" data-title="ip_details"><i class="fas fa-globe"></i></button>
@@ -379,7 +380,7 @@
 <div class="music-modal" id="musicModal">
     <div class="modal-content">
         <div class="music-modal-header">
-            <h5 class="modal-title" data-translate="music_player">Music Player</h5>
+            <h5 class="modal-title"><i class="fa-solid fa-music"></i> <span data-translate="music_player">Music Player</span></h5>
             <button type="button" class="close-btn" onclick="closeMusicModal()">&times;</button>
         </div>
         <div class="modal-body">
@@ -629,7 +630,7 @@
 }
 
 .lyric-line .char.played {
-    color: var(--text-secondary);
+    color: var(--text-primary);
     opacity: 0.5;
     transform: scale(0.95);
     filter: grayscale(0.3);
@@ -759,7 +760,7 @@
 
 #no-lyrics {
     text-align: center;
-    color: var(--text-secondary);
+    color: var(--text-primary);
     padding: 3rem 2rem;
     font-size: 1.6rem;
     font-weight: 300;
@@ -772,7 +773,7 @@
     justify-content: center;
     align-items: center;
     min-height: 200px;
-    color: var(--text-secondary);
+    color: var(--text-primary);
     font-size: 1.2rem;
 }
 
@@ -851,7 +852,7 @@
     justify-content: space-between;
     align-items: center;
     padding: 15px 25px;
-    */ background: var(--header-bg);
+    background: var(--header-bg);
     border-bottom: 1px solid var(--border-color);
     height: 70px;
     box-sizing: border-box;
@@ -925,7 +926,7 @@
     display: flex;
     justify-content: space-between;
     font-size: 0.9rem;
-    color: var(--text-secondary);
+    color: var(--text-primary);
     font-weight: 500;
 
 }
@@ -941,7 +942,7 @@
 #volumeToggle {
     background: var(--card-bg);
     border: 1px solid var(--border-color);
-    color: var(--text-color);
+    color: var(--text-primary);
     width: 48px;
     height: 48px;
     border-radius: 50%;
@@ -1097,7 +1098,7 @@
 
 .music-modal-footer {
     display: flex;
-    justify-content: space-between;
+    justify-content: flex-end;
     align-items: center;
     padding: 10px 25px;
     background: var(--header-bg);
@@ -1105,6 +1106,7 @@
     height: 70px;
     box-sizing: border-box;
     flex-shrink: 0;
+    gap: 10px; 
 }
 
 .lyrics-toggle-btn,
@@ -1432,7 +1434,7 @@
 
 #no-lyrics {
     text-align: center;
-    color: var(--text-secondary);
+    color: var(--text-primary);
     padding: 2rem;
     font-size: 1.8em;
 }
@@ -1534,6 +1536,53 @@
         opacity: 0;
     }
 }
+
+.global-modal {
+    display: none;
+    position: fixed;
+    z-index: 100000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0,0,0,0.5);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.global-modal-content {
+    background-color: var(--bg-container);
+    color: var(--text-primary);
+    margin: 10% auto;
+    padding: 0;
+    border-radius: var(--radius);
+    width: 600px;
+    max-width: 90%;
+    text-align: left;
+    position: relative;
+    box-shadow: var(--glow-shadow-default);
+    border: var(--glow-border);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    opacity: 0;
+    transition: opacity 0.3s ease;}
+
+#global-modal-text {
+    padding: 20px 25px;
+    font-size: 1rem;
+    line-height: 1.4;
+    flex: 1;
+    overflow-y: auto;
+}
+
+.global-modal.show {
+    opacity: 1;
+}
+
+.global-modal.show .global-modal-content {
+    opacity: 1;
+}
 </style>
 
 <div id="controlPanel" class="control-panel">
@@ -1587,9 +1636,11 @@
 document.addEventListener('DOMContentLoaded', () => {
     const currentSong = document.querySelector('#currentSong');
     const floatingCurrentSong = document.getElementById('floatingCurrentSong');
+    const logo = document.querySelector('#logo.royal-style');
 
     let usedColors = [];
     let usedLogBoxColors = [];
+    let usedWeatherColors = [];
 
     function getColorListFromTheme() {
         const styles = getComputedStyle(document.documentElement);
@@ -1624,6 +1675,9 @@ document.addEventListener('DOMContentLoaded', () => {
         if (floatingCurrentSong) {
             floatingCurrentSong.style.color = getNextColor(colorList);
         }
+        if (logo) {
+            logo.style.color = getNextColor(colorList);
+        }
     }
 
     function getLogBoxColorListFromTheme() {
@@ -1651,6 +1705,34 @@ document.addEventListener('DOMContentLoaded', () => {
         return next;
     }
 
+    function getWeatherGradientColors() {
+        const styles = getComputedStyle(document.documentElement);
+        const colors = [];
+        
+        for (let i = 1; i <= 7; i++) {
+            const hue = styles.getPropertyValue(`--base-hue-${i}`).trim();
+            if (!hue) continue;
+            
+            const mainColor = `oklch(60% 0.2 ${hue})`;
+            const darkColor = `oklch(45% 0.2 ${hue})`;
+            colors.push([mainColor, darkColor]);
+        }
+        return colors;
+    }
+
+    function getNextWeatherGradient(colorList) {
+        if (usedWeatherColors.length >= colorList.length) {
+            usedWeatherColors = [];
+        }
+        const remaining = colorList.filter((c, index) => !usedWeatherColors.includes(index));
+        const nextIndex = remaining.length > 0 ? 
+            colorList.indexOf(remaining[Math.floor(Math.random() * remaining.length)]) : 
+            Math.floor(Math.random() * colorList.length);
+        
+        usedWeatherColors.push(nextIndex);
+        return colorList[nextIndex];
+    }
+
     function rotateLogBoxColors() {
         const colorList = getLogBoxColorListFromTheme();
         if (colorList.length === 0) return;
@@ -1661,10 +1743,94 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    function rotateWeatherBoxColors() {
+        const gradientColors = getWeatherGradientColors();
+        if (gradientColors.length === 0) return;
+
+        document.querySelectorAll('.weather-log-box.info').forEach(box => {
+            const [color1, color2] = getNextWeatherGradient(gradientColors);
+            box.style.background = `linear-gradient(145deg, ${color1}, ${color2})`;
+        });
+    }
+
     rotateColors();
     rotateLogBoxColors();
+    rotateWeatherBoxColors();
+    
     setInterval(rotateColors, 4000);
     setInterval(rotateLogBoxColors, 4000);
+    setInterval(rotateWeatherBoxColors, 2000);
+});
+</script>
+
+<div id="global-modal" class="global-modal">
+    <div class="global-modal-content">
+        <div class="music-modal-header">
+            <h3 style="margin:0; font-size:20px; color:var(--accent-color);"><i class="bi bi-lightning-charge-fill"></i> <span data-translate="modal_title">Confirm Modal</span></h3>
+            <span class="close-btn">&times;</span>
+        </div>
+        <p id="global-modal-text"></p>
+        <div class="music-modal-footer">
+            <button class="cbi-button cbi-button-save" id="global-modal-confirm-btn" data-translate="modal_confirm">Confirm</button>
+            <button class="cbi-button cbi-button-remove" id="global-modal-cancel-btn" data-translate="cancel">Cancel</button>
+        </div>
+    </div>
+</div>
+
+<script>
+function showGlobalModal(options = {}) {
+    const modal = document.getElementById('global-modal');
+    const modalText = document.getElementById('global-modal-text');
+    const confirmBtn = document.getElementById('global-modal-confirm-btn');
+    const cancelBtn = document.getElementById('global-modal-cancel-btn');
+    const closeBtn = modal.querySelector('.close-btn');
+
+    modalText.innerHTML = (options.iconHTML || '') + (options.defaultText || '');
+    confirmBtn.style.display = options.showConfirm === false ? 'none' : 'inline-block';
+
+    modal.style.display = 'block';
+    setTimeout(() => modal.classList.add('show'), 10);
+
+    const hideModal = () => {
+        modal.classList.remove('show');
+        setTimeout(() => modal.style.display = 'none', 300);
+    };
+
+    confirmBtn.onclick = () => { hideModal(); options.onConfirm && options.onConfirm(); };
+    cancelBtn.onclick = () => { hideModal(); options.onCancel && options.onCancel(); };
+    closeBtn.onclick = () => { hideModal(); options.onCancel && options.onCancel(); };
+
+    if (typeof updateUIText === 'function') updateUIText();
+}
+</script>
+
+<script>
+function clearCache() {
+    const translations = languageTranslations[currentLang] || languageTranslations['zh'];
+    const confirmText = translations.cache_clear_confirm || 'Are you sure you want to clear the cache?';
+
+    speakMessage(confirmText);
+
+    showGlobalModal({
+        iconHTML: '<i class="fa-solid fa-broom" style="margin-right:5px;"></i>',
+        defaultText: confirmText,
+        onConfirm: () => {
+            localStorage.clear();
+            sessionStorage.clear();
+            sessionStorage.setItem('cacheCleared', 'true');
+            location.reload(true);
+        }
+    });
+}
+
+window.addEventListener('load', function() {
+    const translations = languageTranslations[currentLang] || languageTranslations['zh'];  
+    if (sessionStorage.getItem('cacheCleared') === 'true') {
+        const message = translations['cache_clear_done'] || 'Cache cleared';
+        showLogMessage(message);
+        speakMessage(message);
+        sessionStorage.removeItem('cacheCleared');
+    }
 });
 </script>
 
@@ -1788,21 +1954,21 @@ function savePlaylistUrl() {
                 if (data.success) {
                     currentPlaylistUrl = newUrl;
                     loadDefaultPlaylist();
-                    showWeatherLog(translations['playlist_url_saved'] || 'Playlist URL saved successfully');
-                    speakWeatherMessage(translations['playlist_url_saved'] || 'Playlist URL saved successfully');
+                    showLogMessage(translations['playlist_url_saved'] || 'Playlist URL saved successfully');
+                    speakMessage(translations['playlist_url_saved'] || 'Playlist URL saved successfully');
                 } else {
-                    showWeatherLog(translations['save_fail'] || data.message || 'Failed to save playlist URL', 'error');
-                    speakWeatherMessage(translations['save_fail'] || data.message || 'Failed to save playlist URL');
+                    showLogMessage(translations['save_fail'] || data.message || 'Failed to save playlist URL', 'error');
+                    speakMessage(translations['save_fail'] || data.message || 'Failed to save playlist URL');
                 }
             })
             .catch(error => {
                 console.error('Failed to save playlist URL:', error);
-                showWeatherLog(translations['save_fail'] || 'Failed to save playlist URL', 'error');
-                speakWeatherMessage(translations['save_fail'] || 'Failed to save playlist URL');
+                showLogMessage(translations['save_fail'] || 'Failed to save playlist URL', 'error');
+                speakMessage(translations['save_fail'] || 'Failed to save playlist URL');
             });
     } else {
-        showWeatherLog(translations['invalid_url'] || 'Please enter a valid URL', 'error');
-        speakWeatherMessage(translations['invalid_url'] || 'Please enter a valid URL');
+        showLogMessage(translations['invalid_url'] || 'Please enter a valid URL', 'error');
+        speakMessage(translations['invalid_url'] || 'Please enter a valid URL');
     }
     closeUrlModal();
 }
@@ -1823,17 +1989,17 @@ function resetToDefault() {
                 currentPlaylistUrl = defaultUrl;
                 document.getElementById('playlistUrl').value = defaultUrl;
                 loadDefaultPlaylist();
-                showWeatherLog(translations['reset_to_default'] || 'Reset to default playlist');
-                speakWeatherMessage(translations['reset_to_default'] || 'Reset to default playlist');
+                showLogMessage(translations['reset_to_default'] || 'Reset to default playlist');
+                speakMessage(translations['reset_to_default'] || 'Reset to default playlist');
             } else {
-                showWeatherLog(translations['reset_failed'] || data.message || 'Failed to reset to default playlist', 'error');
-                speakWeatherMessage(translations['reset_failed'] || data.message || 'Failed to reset to default playlist');
+                showLogMessage(translations['reset_failed'] || data.message || 'Failed to reset to default playlist', 'error');
+                speakMessage(translations['reset_failed'] || data.message || 'Failed to reset to default playlist');
             }
         })
         .catch(error => {
             console.error('Failed to reset playlist URL:', error);
-            showWeatherLog(translations['reset_failed'] || 'Failed to reset to default playlist', 'error');
-            speakWeatherMessage(translations['reset_failed'] || 'Failed to reset to default playlist');
+            showLogMessage(translations['reset_failed'] || 'Failed to reset to default playlist', 'error');
+            speakMessage(translations['reset_failed'] || 'Failed to reset to default playlist');
         });
     closeUrlModal();
 }
@@ -1861,13 +2027,13 @@ function togglePlay() {
     if (isPlaying) {
         audioPlayer.pause();
         const pauseMessage = translations['pause_playing'] || 'Pause_Playing';
-        showWeatherLog(pauseMessage);
-        speakWeatherMessage(pauseMessage);
+        showLogMessage(pauseMessage);
+        speakMessage(pauseMessage);
     } else {
         audioPlayer.play();
         const playMessage = translations['start_playing'] || 'Start_Playing';
-        showWeatherLog(playMessage);
-        speakWeatherMessage(playMessage);
+        showLogMessage(playMessage);
+        speakMessage(playMessage);
     }
     isPlaying = !isPlaying;
     updatePlayButton();
@@ -1905,11 +2071,11 @@ function changeTrack(direction, isManual = false) {
         const action = direction === -1
             ? translations['previous_track'] || 'Previous Track'
             : translations['next_track'] || 'Next Track';
-        showWeatherLog(`${translations['manual_switch'] || 'Manual Switch'}${action}：${songName}`);
-        speakWeatherMessage(`${translations['switch_to'] || 'Switch to'}${action}：${songName}`);
+        showLogMessage(`${translations['manual_switch'] || 'Manual Switch'}${action}：${songName}`);
+        speakMessage(`${translations['switch_to'] || 'Switch to'}${action}：${songName}`);
     } else {
-        showWeatherLog(`${translations['auto_switch'] || 'Auto Switch to'}：${songName}`);
-        speakWeatherMessage(`${translations['auto_play'] || 'Auto Play'}：${songName}`);
+        showLogMessage(`${translations['auto_switch'] || 'Auto Switch to'}：${songName}`);
+        speakMessage(`${translations['auto_play'] || 'Auto Play'}：${songName}`);
     }
 
     loadTrack(songs[currentTrackIndex]);
@@ -1946,12 +2112,12 @@ function toggleRepeat() {
         }
     });
 
-    showWeatherLog([
+    showLogMessage([
         translations['order_play'] || 'Order_Play',
         translations['single_loop'] || 'Single_Loop',
         translations['shuffle_play'] || 'Shuffle_Play'
     ][repeatMode]);
-    speakWeatherMessage([
+    speakMessage([
         translations['order_play'] || 'Order_Play',
         translations['single_loop'] || 'Single_Loop',
         translations['shuffle_play'] || 'Shuffle_Play'
@@ -1996,16 +2162,16 @@ function updatePlaylist() {
                 btn.innerHTML = originalHTML;
                 const successMsg = translations['playlist_updated'] || 'Playlist updated successfully';
                 const songCountMsg = translations['song_count']?.replace('{count}', songs.length) || `Total ${songs.length} songs`;
-                showWeatherLog(`${successMsg}，${songCountMsg}`);
-                speakWeatherMessage(`${successMsg}，${songCountMsg}`);
+                showLogMessage(`${successMsg}，${songCountMsg}`);
+                speakMessage(`${successMsg}，${songCountMsg}`);
             })
             .catch(error => {
                 console.error('Playlist update failed:', error);
                 btn.innerHTML = '<i class="bi bi-x-circle"></i>';
                 setTimeout(() => btn.innerHTML = originalHTML, 1000);
                 const errorMsg = translations['update_failed'] || 'Playlist update failed';
-                showWeatherLog(errorMsg, 'error');
-                speakWeatherMessage(errorMsg);
+                showLogMessage(errorMsg, 'error');
+                speakMessage(errorMsg);
             });
     }
 }
@@ -2023,8 +2189,8 @@ function playTrack(index) {
     });
     updatePlayButton();
     savePlayerState();
-    showWeatherLog(message);
-    speakWeatherMessage(message);
+    showLogMessage(message);
+    speakMessage(message);
     event.target.classList.add('clicked');
     setTimeout(() => event.target.classList.remove('clicked'), 200);
 }
@@ -2304,7 +2470,7 @@ function loadTrack(url) {
         audioPlayer.currentTime = loadCurrentTime(url);
         audioPlayer.play().catch((error) => {
             console.log(`${translations['autoplay_blocked'] || 'Autoplay Blocked'}:`, error);
-            showWeatherLog(translations['click_to_play'] || 'Click play button to start');
+            showLogMessage(translations['click_to_play'] || 'Click play button to start');
         });
         isPlaying = true;
         updatePlayButton();
@@ -2559,8 +2725,8 @@ document.getElementById('goFirstBtn')?.addEventListener('click', function() {
         loadTrack(songs[0]);
     }
     const message = translations['back_to_first'] || 'Returned to the first song in the playlist';
-    showWeatherLog(message);
-    speakWeatherMessage(message);
+    showLogMessage(message);
+    speakMessage(message);
 });
 </script>
 
@@ -2602,8 +2768,8 @@ document.getElementById('goFirstBtn')?.addEventListener('click', function() {
         (isNowVisible
           ? "Floating lyrics enabled"
           : "Floating lyrics disabled");
-      showWeatherLog(message);
-      speakWeatherMessage(message); 
+      showLogMessage(message);
+      speakMessage(message); 
    });
   });
 
@@ -2896,8 +3062,8 @@ function toggleVisibility(selector) {
     const panelName = statusMap[selector] || selector;
 
     const logMsg = `${panelName} ${statusText}`;
-    if (typeof showWeatherLog === 'function') showWeatherLog(logMsg);
-    if (typeof speakWeatherMessage === 'function') speakWeatherMessage(logMsg);
+    if (typeof showLogMessage === 'function') showLogMessage(logMsg);
+    if (typeof speakMessage === 'function') speakMessage(logMsg);
 }
 
 function updateStatusDisplay() {
@@ -2936,8 +3102,8 @@ function resetAllSettings() {
     updateStatusDisplay();
     const resetText = languageTranslations[currentLang]['reset_all'];
     const logMsg = `${resetText}`;
-    if (typeof showWeatherLog === 'function') showWeatherLog(logMsg);
-    if (typeof speakWeatherMessage === 'function') speakWeatherMessage(logMsg);
+    if (typeof showLogMessage === 'function') showLogMessage(logMsg);
+    if (typeof speakMessage === 'function') speakMessage(logMsg);
 }
 
 (function() {
@@ -3257,12 +3423,12 @@ function toggleTranslation() {
         ? translations['translation_enabled'] 
         : translations['translation_disabled'];
     
-    if (typeof showWeatherLog === 'function') {
-        showWeatherLog(encodeURIComponent(translationMsg), 'info');
+    if (typeof showLogMessage === 'function') {
+        showLogMessage(encodeURIComponent(translationMsg), 'info');
     }
     
-    if (typeof speakWeatherMessage === 'function') {
-        speakWeatherMessage(translationMsg);
+    if (typeof speakMessage === 'function') {
+        speakMessage(translationMsg);
     }
     
     if (cachedIP) {
@@ -4461,33 +4627,41 @@ async function showEditModal() {
 
     content.querySelector('.cbi-button-apply').addEventListener('click', async () => {
         const translations = languageTranslations[currentLang] || languageTranslations['zh'];
-        if (!confirm(translations["clear_confirm"] || "Are you sure to clear the IP database?")) return;
+        const defaultText = translations["clear_confirm"] || "Are you sure to clear the IP database?";
 
-        try {
-            const res = await fetch('/luci-static/spectra/bgm/edit_ip_cache.php', {
-                method: 'POST',
-                headers: {'Content-Type':'application/json'},
-                body: JSON.stringify({})
-            });
-            const data = await res.json();
-            if (data.success) {
-                const message = translations["clear_success"] || "IP database cleared";
-                showWeatherLog(message);
-                speakWeatherMessage(message);
-                if (codeMirrorEditor) {
-                    codeMirrorEditor.setValue('{}');
+        showGlobalModal({
+            iconHTML: '<i class="fa-solid fa-broom" style="margin-right:5px;"></i>',
+            defaultText: defaultText,
+            onConfirm: async () => {
+                try {
+                    const res = await fetch('/luci-static/spectra/bgm/edit_ip_cache.php', {
+                        method: 'POST',
+                        headers: {'Content-Type':'application/json'},
+                        body: JSON.stringify({})
+                    });
+                    const data = await res.json();
+
+                    if (data.success) {
+                        const message = translations["clear_success"] || "IP database cleared";
+                        showLogMessage(message);
+                        speakMessage(message);
+
+                        if (codeMirrorEditor) {
+                            codeMirrorEditor.setValue('{}');
+                        }
+                    } else {
+                        const message = translations["clear_fail"] || "Clear failed";
+                        showLogMessage(message);
+                        speakMessage(message);
+                    }
+                } catch(e) {
+                    const message = translations["clear_fail"] || "Clear failed";
+                    showLogMessage(message);
+                    speakMessage(message);
+                    console.error(e);
                 }
-            } else {
-                const message = translations["clear_fail"] || "Clear failed";
-                showWeatherLog(message);
-                speakWeatherMessage(message);
             }
-        } catch(e) {
-            const message = translations["clear_fail"] || "Clear failed";
-            showWeatherLog(message);
-            speakWeatherMessage(message);
-            console.error(e);
-        }
+        });
     });
 
     const closeModal = () => {
@@ -4755,19 +4929,23 @@ window.addEventListener('load', () => {
             left:50%; 
             transform:translate(-50%, -50%); 
             width:550px; 
-            padding:20px; 
-            border-radius:12px; 
             background: var(--bg-container);
             color: var(--text-primary);
             box-shadow:0 4px 15px rgba(0,0,0,0.4); 
-            z-index:9999;">
-  <h3 id="modalTitle" style="margin-bottom:15px; font-size:20px; color:var(--accent-color);"></h3>
-  <input id="cityInput" placeholder="" 
-         style="padding:8px; width:100%; border-radius:6px; border:1px solid #ccc; margin-bottom:15px;">
-  
-  <div id="lastUpdated" class="cbi-value-description" style="font-size:13px; color:var(--text-secondary); margin-bottom:15px; display:none;"></div>
-
-  <div style="text-align:right;">
+            z-index:9999;
+            border-radius:12px;">
+  <div class="music-modal-header" style="border-top-left-radius:12px; border-top-right-radius:12px;">
+      <h3 id="modalTitle" style="margin-bottom:15px; font-size:20px; color:var(--accent-color);"></h3>
+  </div>
+  <div style="padding:10px 20px 5px 20px; flex:1; display:flex; flex-direction:column; gap:15px;">
+      <input id="cityInput" placeholder="" 
+             style="padding:8px; width:100%; border-radius:6px; border:1px solid #ccc;">
+      
+      <div id="lastUpdated" class="cbi-value-description" 
+           style="font-size:13px; color:var(--text-primary); display:none;">
+      </div>
+  </div>
+  <div class="music-modal-footer" style="border-bottom-left-radius:12px; border-bottom-right-radius:12px;">
     <button id="clearCacheBtn" class="cbi-button cbi-button-remove"></button>
     <button id="saveCityBtn" class="cbi-button cbi-button-save"></button>
     <button id="closeCityModal" class="btn cbi-button-neutral"></button>
@@ -4775,7 +4953,7 @@ window.addEventListener('load', () => {
 </div>
 
 <script>
-const showWeatherLog = (function() {
+const showLogMessage = (function() {
     const activeLogs = new Set();
     const BASE_OFFSET = 20;
     const MARGIN = 10;
@@ -5101,7 +5279,7 @@ async function clearWeatherCache() {
         }
     } catch (error) {
         console.error('Error clearing weather cache:', error);
-        showWeatherLog(encodeURIComponent('Failed to clear cache'), 'error');
+        showLogMessage(encodeURIComponent('Failed to clear cache'), 'error');
     }
 }
 
@@ -5138,8 +5316,8 @@ async function showModalMessage(key, params={}) {
     const lang = await getModalLang();
     let msg = modalTranslations[lang][key] || key;
     for(const k in params) msg = msg.replace(`{${k}}`, params[k]);
-    showWeatherLog(encodeURIComponent(msg), key === 'citySaved' || key === 'cacheCleared' ? 'info' : 'warning');
-    if (typeof speakWeatherMessage === 'function') speakWeatherMessage(msg);
+    showLogMessage(encodeURIComponent(msg), key === 'citySaved' || key === 'cacheCleared' ? 'info' : 'warning');
+    if (typeof speakMessage === 'function') speakMessage(msg);
 }
 
 function validateCity(value) {
@@ -5417,8 +5595,8 @@ async function fetchWeather() {
         const lang = await getModalLang();
         weatherText.textContent = modalTranslations[lang].weatherError;
         weatherIcon.style.display = 'none';
-        if (typeof speakWeatherMessage === 'function') {
-            speakWeatherMessage(modalTranslations[lang].weatherError);
+        if (typeof speakMessage === 'function') {
+            speakMessage(modalTranslations[lang].weatherError);
         }
     } finally {
         loadingIcon.style.display = 'none';
@@ -5478,8 +5656,8 @@ async function doSpeak(hour) {
         const period = hour >= 12 ? 'PM' : 'AM';
         message = `It is now ${displayHour} ${period}.`;
     }
-    if (typeof speakWeatherMessage === 'function') {
-        speakWeatherMessage(message);
+    if (typeof speakMessage === 'function') {
+        speakMessage(message);
     }
 }
 
@@ -5523,6 +5701,16 @@ weatherCard.addEventListener('click', async (event) => {
 
 <script>
 let themeLoaderEnabled = localStorage.getItem('themeLoaderEnabled') !== 'false';
+let navigationInProgress = false;
+let navigationTimeout = null;
+
+const excludedPages = [
+    '/admin/system/package-manager',
+    '/admin/status/processes',
+    '/admin/status/realtime',
+    '/admin/system/system-log',
+    '/admin/network/diagnostics'
+];
 
 function createThemeLoader() {
     const loader = document.createElement('div');
@@ -5790,8 +5978,8 @@ function initThemeLoaderControl() {
         const logKey = themeLoaderEnabled ? 'theme_loader_enabled_log' : 'theme_loader_disabled_log';
         
         if (translations[logKey]) {
-            showWeatherLog(translations[logKey]);
-            speakWeatherMessage(translations[logKey]);
+            showLogMessage(translations[logKey]);
+            speakMessage(translations[logKey]);
         }
     });
 }
@@ -5802,44 +5990,142 @@ function updateToggleIcon(icon) {
     }
 }
 
+function shouldUseLoader(url) {
+    if (!themeLoaderEnabled) {
+        return false;
+    }
+    
+    const isExcluded = excludedPages.some(path => url.includes(path));
+    if (isExcluded) {
+        console.log('Theme loader: Page excluded from loader:', url);
+        return false;
+    }
+    
+    if (url.includes('#') || !url.includes('/cgi-bin/luci/')) {
+        return false;
+    }
+    
+    return true;
+}
+
+function hideLoader() {
+    const loader = document.getElementById('theme-loader');
+    if (!loader) return;
+    
+    navigationInProgress = false;
+    
+    if (navigationTimeout) {
+        clearTimeout(navigationTimeout);
+        navigationTimeout = null;
+    }
+    
+    if (loader.style.display === 'flex') {
+        loader.style.opacity = '0';
+        setTimeout(() => {
+            loader.style.display = 'none';
+        }, 600);
+    }
+}
+
+function showLoader() {
+    const loader = document.getElementById('theme-loader');
+    if (!loader) return;
+    
+    loader.style.display = 'flex';
+    setTimeout(() => {
+        loader.style.opacity = '1';
+    }, 10);
+}
+
 function enhanceNavigation() {
     const loader = createThemeLoader();
     initThemeLoaderControl();
+    
     document.addEventListener('click', (e) => {
         const link = e.target.closest('a');
-        if (link && link.href && link.href.includes('/cgi-bin/luci/')) {
-            if (!themeLoaderEnabled) {
-                return;
+        if (!link || !link.href) return;
+        
+        const targetUrl = link.href;
+        
+        if (!targetUrl.includes('/cgi-bin/luci/')) {
+            return;
+        }
+        
+        if (!shouldUseLoader(targetUrl)) {
+            return;
+        }
+        
+        e.preventDefault();
+        
+        if (navigationInProgress) {
+            console.log('Theme loader: Navigation already in progress');
+            return;
+        }
+        
+        navigationInProgress = true;
+        
+        console.log('Theme loader: Starting navigation to', targetUrl);
+        
+        showLoader();
+        
+        navigationTimeout = setTimeout(() => {
+            console.warn('Theme loader: Navigation timeout, forcing redirect to', targetUrl);
+            hideLoader();
+            window.location.href = targetUrl;
+        }, 6000);
+        
+        const content = document.querySelector('.main-content') || document.body;
+        content.classList.add('page-transition', 'page-hidden');
+        
+        setTimeout(() => {
+            try {
+                console.log('Theme loader: Executing navigation to', targetUrl);
+                window.location.href = targetUrl;
+            } catch (error) {
+                console.error('Theme loader: Navigation error:', error);
+                hideLoader();
+                window.location.href = targetUrl;
             }
-            
-            e.preventDefault();
-            
-            loader.style.display = 'flex';
-            setTimeout(() => {
-                loader.style.opacity = '1';
-            }, 10);
-            
-            const content = document.querySelector('.main-content') || document.body;
-            content.classList.add('page-transition', 'page-hidden');
-            
-            setTimeout(() => {
-                window.location.href = link.href;
-            }, 800);
+        }, 800);
+    });
+    
+    function handlePageLoad() {
+        console.log('Theme loader: Page loaded, hiding loader');
+        hideLoader();
+        
+        const content = document.querySelector('.main-content') || document.body;
+        if (content) {
+            content.classList.add('page-transition');
+            content.classList.remove('page-hidden');
+        }
+    }
+    
+    window.addEventListener('load', handlePageLoad);
+    document.addEventListener('DOMContentLoaded', handlePageLoad);
+    
+    document.addEventListener('visibilitychange', function() {
+        if (!document.hidden) {
+            setTimeout(handlePageLoad, 100);
         }
     });
     
-    window.addEventListener('load', () => {
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', function() {
+            const content = document.querySelector('.main-content') || document.body;
+            if (content) {
+                content.classList.add('page-transition');
+                content.classList.remove('page-hidden');
+            }
+        });
+    } else {
         const content = document.querySelector('.main-content') || document.body;
-        content.classList.add('page-transition');
-        content.classList.remove('page-hidden');
-        
-        if (loader.style.display === 'flex') {
-            loader.style.opacity = '0';
-            setTimeout(() => {
-                loader.style.display = 'none';
-            }, 600);
+        if (content) {
+            content.classList.add('page-transition');
+            content.classList.remove('page-hidden');
         }
-    });
+    }
+    
+    setTimeout(handlePageLoad, 3000);
 }
 
 enhanceNavigation();
@@ -5890,8 +6176,8 @@ const muteToggle    = document.getElementById('muteToggle');
     const muteMessage = audioPlayer.muted
       ? (translations['mute_on']  || 'Audio muted')
       : (translations['mute_off'] || 'Audio unmuted');
-    showWeatherLog(muteMessage);
-    speakWeatherMessage(muteMessage);
+    showLogMessage(muteMessage);
+    speakMessage(muteMessage);
   }
 
   function updateVolumeIcon() {
@@ -5946,8 +6232,8 @@ const muteToggle    = document.getElementById('muteToggle');
     const volumeMessage = translations['volume_change']
       ? translations['volume_change'].replace('{vol}', vol)
       : `Volume adjusted to ${vol}%`;
-    showWeatherLog(volumeMessage);
-    speakWeatherMessage(volumeMessage);
+    showLogMessage(volumeMessage);
+    speakMessage(volumeMessage);
   });
 
   const speedToggle = document.getElementById('speedToggle');
@@ -5978,8 +6264,8 @@ const muteToggle    = document.getElementById('muteToggle');
     const speedMessage = translations['speed_change']
       ? translations['speed_change'].replace('{rate}', rate)
       : `Playback speed changed to ${rate}x`;
-    showWeatherLog(speedMessage);
-    speakWeatherMessage(speedMessage);
+    showLogMessage(speedMessage);
+    speakMessage(speedMessage);
   }
 
   speedToggle.addEventListener('click', e => {

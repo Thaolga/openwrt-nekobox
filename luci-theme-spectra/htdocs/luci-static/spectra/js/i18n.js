@@ -107,7 +107,13 @@ const languageTranslations = {
         'reset_failed': '重置失败',
         'lyrics_load_failed': '歌词加载失败',
         'autoplay_blocked': '自动播放被阻止',
-        'click_to_play': '请点击播放按钮开始'
+        'click_to_play': '请点击播放按钮开始',
+        'cache_clear_confirm': '确定要清除缓存吗？',
+        'cache_clear_done': '缓存已清除',
+        'clear_button': '清除本地缓存',
+        'modal_title': '确认弹窗',
+        'modal_confirm': '确认'
+
     },
     'hk': {
         'select_language': '選擇語言',
@@ -218,7 +224,12 @@ const languageTranslations = {
         'reset_failed': '重設失敗',
         'lyrics_load_failed': '歌詞載入失敗',
         'autoplay_blocked': '自動播放被阻擋',
-        'click_to_play': '請點擊播放按鈕開始'
+        'click_to_play': '請點擊播放按鈕開始',
+        'cache_clear_confirm': '確定要清除快取嗎？',
+        'cache_clear_done': '快取已清除',
+        'clear_button': '清除本地快取',
+        'modal_title': '確認彈窗',
+        'modal_confirm': '確認'
     },
     'en': {
         'select_language': 'Select Language',
@@ -333,7 +344,12 @@ const languageTranslations = {
         'reset_failed': 'Reset failed',
         'lyrics_load_failed': 'Failed to load lyrics',
         'autoplay_blocked': 'Autoplay was blocked',
-        'click_to_play': 'Please click the play button to start'
+        'click_to_play': 'Please click the play button to start',
+        'cache_clear_confirm': 'Are you sure you want to clear the cache?',
+        'cache_clear_done': 'Cache cleared successfully',
+        'clear_button': 'Clear Local Cache',
+        'modal_title': 'Confirm Modal',
+        'modal_confirm': 'Confirm'
     },
     'ko': {
         'select_language': '언어 선택',
@@ -438,7 +454,13 @@ const languageTranslations = {
         'reset_failed': '재설정 실패',
         'lyrics_load_failed': '가사를 불러오지 못했습니다',
         'autoplay_blocked': '자동 재생이 차단되었습니다',
-        'click_to_play': '시작하려면 재생 버튼을 클릭하세요'
+        'click_to_play': '시작하려면 재생 버튼을 클릭하세요',
+        'cache_clear_confirm': '캐시를 지우시겠습니까?',
+        'cache_clear_done': '캐시가 성공적으로 지워졌습니다',
+        'clear_button': '로컬 캐시 지우기',
+        'modal_title': '확인 창',
+        'modal_confirm': '확인'
+
     },
     'vi': {
         'select_language': 'Chọn ngôn ngữ',
@@ -544,7 +566,13 @@ const languageTranslations = {
         'reset_failed': 'Đặt lại thất bại',
         'lyrics_load_failed': 'Tải lời bài hát thất bại',
         'autoplay_blocked': 'Tự động phát đã bị chặn',
-        'click_to_play': 'Vui lòng nhấp nút phát để bắt đầu'
+        'click_to_play': 'Vui lòng nhấp nút phát để bắt đầu',
+        'cache_clear_confirm': 'Bạn có chắc chắn muốn xóa bộ nhớ đệm không?',
+        'cache_clear_done': 'Bộ nhớ đệm đã được xóa',
+        'clear_button': 'Xóa bộ nhớ đệm cục bộ',
+        'modal_title': 'Xác nhận cửa sổ',
+        'modal_confirm': 'Xác nhận'
+
     },
     'th': {
         'select_language': 'เลือกภาษา',
@@ -650,7 +678,13 @@ const languageTranslations = {
         'reset_failed': 'รีเซ็ตไม่สำเร็จ',
         'lyrics_load_failed': 'ไม่สามารถโหลดเนื้อเพลงได้',
         'autoplay_blocked': 'การเล่นอัตโนมัติถูกบล็อก',
-        'click_to_play': 'กรุณาคลิกปุ่มเล่นเพื่อเริ่มต้น'
+        'click_to_play': 'กรุณาคลิกปุ่มเล่นเพื่อเริ่มต้น',
+        'cache_clear_confirm': 'คุณแน่ใจหรือว่าต้องการล้างแคช?',
+        'cache_clear_done': 'ล้างแคชเรียบร้อยแล้ว',
+        'clear_button': 'ล้างแคชท้องถิ่น',
+        'modal_title': 'ยืนยันหน้าต่าง',
+        'modal_confirm': 'ยืนยัน'
+
 
     },
     'ja': {
@@ -757,7 +791,13 @@ const languageTranslations = {
         'reset_failed': 'リセットに失敗しました',
         'lyrics_load_failed': '歌詞の読み込みに失敗しました',
         'autoplay_blocked': '自動再生がブロックされました',
-        'click_to_play': '再生ボタンをクリックして開始してください'
+        'click_to_play': '再生ボタンをクリックして開始してください',
+        'cache_clear_confirm': 'キャッシュを削除してもよろしいですか？',
+        'cache_clear_done': 'キャッシュが正常に削除されました',
+        'clear_button': 'ローカルキャッシュをクリア',
+        'modal_title': '確認モーダル',
+        'modal_confirm': '確認'
+
     },
     'ru': {
         'select_language': 'Выберите язык',
@@ -863,7 +903,14 @@ const languageTranslations = {
         'reset_failed': 'Сброс не удался',
         'lyrics_load_failed': 'Не удалось загрузить текст песни',
         'autoplay_blocked': 'Автовоспроизведение было заблокировано',
-        'click_to_play': 'Пожалуйста, нажмите кнопку воспроизведения, чтобы начать'
+        'click_to_play': 'Пожалуйста, нажмите кнопку воспроизведения, чтобы начать',
+        'cache_clear_confirm': 'Вы уверены, что хотите очистить кэш?',
+        'cache_clear_done': 'Кэш успешно очищен',
+        'clear_button': 'Очистить локальный кэш',
+        'modal_title': 'Подтвердить окно',
+        'modal_confirm': 'Подтвердить'
+
+
     },
     'ar': {
         'select_language': 'اختر اللغة',
@@ -969,7 +1016,13 @@ const languageTranslations = {
         'reset_failed': 'فشل في إعادة التعيين',
         'lyrics_load_failed': 'فشل تحميل كلمات الأغاني',
         'autoplay_blocked': 'تم حظر التشغيل التلقائي',
-        'click_to_play': 'يرجى النقر على زر التشغيل للبدء'
+        'click_to_play': 'يرجى النقر على زر التشغيل للبدء',
+        'cache_clear_confirm': 'هل أنت متأكد أنك تريد مسح ذاكرة التخزين المؤقت؟',
+        'cache_clear_done': 'تم مسح ذاكرة التخزين المؤقت بنجاح',
+        'clear_button': 'مسح ذاكرة التخزين المحلية',
+        'modal_title': 'نافذة التأكيد',
+        'modal_confirm': 'تأكيد'
+
     },
     'es': {
         'select_language': 'Seleccionar idioma',
@@ -1075,7 +1128,13 @@ const languageTranslations = {
         'reset_failed': 'Error al restablecer',
         'lyrics_load_failed': 'Error al cargar la letra',
         'autoplay_blocked': 'La reproducción automática fue bloqueada',
-        'click_to_play': 'Haga clic en el botón de reproducción para comenzar'
+        'click_to_play': 'Haga clic en el botón de reproducción para comenzar',
+        'cache_clear_confirm': '¿Está seguro de que desea borrar la caché?',
+        'cache_clear_done': 'Caché borrada con éxito',
+        'clear_button': 'Borrar caché local',
+        'modal_title': 'Ventana de confirmación',
+        'modal_confirm': 'Confirmar'
+
     },
     'de': {
         'select_language': 'Sprache auswählen',
@@ -1181,7 +1240,13 @@ const languageTranslations = {
         'reset_failed': 'Zurücksetzen fehlgeschlagen',
         'lyrics_load_failed': 'Laden der Liedtexte fehlgeschlagen',
         'autoplay_blocked': 'Automatische Wiedergabe wurde blockiert',
-        'click_to_play': 'Bitte klicken Sie auf die Wiedergabetaste, um zu starten'
+        'click_to_play': 'Bitte klicken Sie auf die Wiedergabetaste, um zu starten',
+        'cache_clear_confirm': 'Möchten Sie den Cache wirklich löschen?',
+        'cache_clear_done': 'Cache erfolgreich gelöscht',
+        'clear_button': 'Lokalen Cache löschen',
+        'modal_title': 'Bestätigungsfenster',
+        'modal_confirm': 'Bestätigen'
+
 
     },
     'fr': {
@@ -1288,7 +1353,13 @@ const languageTranslations = {
         'reset_failed': 'Échec de la réinitialisation',
         'lyrics_load_failed': 'Échec du chargement des paroles',
         'autoplay_blocked': 'La lecture automatique a été bloquée',
-        'click_to_play': 'Veuillez cliquer sur le bouton lecture pour démarrer'
+        'click_to_play': 'Veuillez cliquer sur le bouton lecture pour démarrer',
+        'cache_clear_confirm': 'Voulez-vous vraiment effacer le cache ?',
+        'cache_clear_done': 'Cache effacé avec succès',
+        'clear_button': 'Effacer le cache local',
+        'modal_title': 'Fenêtre de confirmation',
+        'modal_confirm': 'Confirmer'
+
 
     },
     'bn': {
@@ -1396,7 +1467,13 @@ const languageTranslations = {
         'reset_failed': 'রিসেট ব্যর্থ হয়েছে',
         'lyrics_load_failed': 'গানের কথা লোড করতে ব্যর্থ হয়েছে',
         'autoplay_blocked': 'স্বয়ংক্রিয় প্লে ব্লক করা হয়েছে',
-        'click_to_play': 'শুরু করতে প্লে বোতামে ক্লিক করুন'
+        'click_to_play': 'শুরু করতে প্লে বোতামে ক্লিক করুন',
+        'cache_clear_confirm': 'আপনি কি ক্যাশ মুছে দিতে চান?',
+        'cache_clear_done': 'ক্যাশ সফলভাবে মুছে ফেলা হয়েছে',
+        'clear_button': 'স্থানীয় ক্যাশ মুছুন',
+        'modal_title': 'নিশ্চিতকরণ পপআপ',
+        'modal_confirm': 'নিশ্চিত করুন'
+
     }
 };
 
@@ -1513,8 +1590,8 @@ function saveLanguage() {
             ? `${translations['language_saved']}: ${languageText} (${standardCode})`
             : `${translations['language_save_failed']}: ${languageText} (${standardCode})`;
 
-        showWeatherLog(msg);
-        speakWeatherMessage(msg);
+        showLogMessage(msg);
+        speakMessage(msg);
 
         if (data.success) {
             currentLang = language;
@@ -1570,8 +1647,8 @@ function handleChineseVoiceChange() {
     }
     const msg = `${t['language_saved']}: ${voicePreferenceText}`;
     if (colorVoiceEnabled) {
-        showWeatherLog(msg);
-        speakWeatherMessage(msg);
+        showLogMessage(msg);
+        speakMessage(msg);
     }
 }
 
@@ -1617,7 +1694,7 @@ function getOptionTranslationKey(value) {
     return keyMap[value] || value;
 }
 
-function speakWeatherMessage(message) {
+function speakMessage(message) {
     if (!colorVoiceEnabled) return;
 
     const xhr = new XMLHttpRequest();
@@ -1647,8 +1724,8 @@ document.addEventListener('DOMContentLoaded', function() {
         localStorage.setItem('colorVoiceEnabled', colorVoiceEnabled);
         const t = languageTranslations[currentLang] || languageTranslations['zh'];
         const msg = colorVoiceEnabled ? t['voice_enable'] : t['voice_disable'];
-        showWeatherLog(msg);
-        speakWeatherMessage(msg);
+        showLogMessage(msg);
+        speakMessage(msg);
     });
 
     fetch('/luci-static/spectra/bgm/save_language.php', {
@@ -1771,11 +1848,11 @@ document.addEventListener('DOMContentLoaded', function() {
         
             console.log(successMsg);
         
-            if (typeof showWeatherLog === 'function') {
-                showWeatherLog(successMsg);
+            if (typeof showLogMessage === 'function') {
+                showLogMessage(successMsg);
             }
             if (colorVoiceEnabled) {
-                speakWeatherMessage(successMsg);
+                speakMessage(successMsg);
             }
         }
     }

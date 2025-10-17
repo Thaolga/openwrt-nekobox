@@ -1155,10 +1155,7 @@ function searchFiles($dir, $term) {
     <div class="col-12">  
         <div class="container container-bg mt-4">
             <div class="row align-items-center mb-3">
-                <div class="col-md-3 text-center text-md-start">
-                    <img src="/luci-static/spectra/img/nekobox.png" alt="Neko Box" class="img-fluid" style="max-height: 100px;">
-                </div>
-                <div class="col-md-6 text-center"> 
+                <div class="col-12 text-center"> 
                     <h1 class="mb-0" id="pageTitle">NeKoBox File Assistant</h1>
                 </div>
                 <div class="col-md-3">
