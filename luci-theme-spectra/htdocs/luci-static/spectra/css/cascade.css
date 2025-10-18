@@ -2681,7 +2681,7 @@ h2[name="content"] ,
 h2,
 ul.tabs {
         border: 1px solid var(--bg-container);
-        box-shadow: 0 2px 6px -2px color-mix(in oklch, var(--bg-container), black 30%);
+        box-shadow: 0 1px 3px -2px color-mix(in oklch, var(--bg-container), black 30%);
 }
 
 ul.tabs li,
@@ -2884,7 +2884,7 @@ a[href="#"][onclick*="/cgi-bin/luci/admin/services/passwall/get_chinadns_log"]:a
 	padding: 8px;
 	margin-top: 10px;
 	margin-left: 10px;
-	background: rgba(255, 255, 255, 0.1);
+	background:  var(--bg-container) !important;
 	backdrop-filter: blur(10px);
 	-webkit-backdrop-filter: blur(10px);
 }
@@ -3874,10 +3874,31 @@ a.item_btn[href*="kooldns.cn"]:hover {
         transform: scale(1.05);
 }
 
+a[href="https://www.istoreos.com/"] {
+        color: var(--accent-color) !important;
+        font-size: 18px;
+        font-weight: 700;
+}
+
+.nas-container_card,
 .app-container_status-container,
 .app-container {
-        box-shadow: rgba(0, 0, 0, 0.75) 0 0 15px -5px !important;
+	background-color: var(--card-bg) !important;
+        border: var(--border-strong) !important;
+        box-shadow: 0 2px 6px -2px color-mix(in oklch, var(-bg-container), black 30%) !important;
+	color: var(--text-primary) !important;
         border-radius: 10px !important;
+        transition: box-shadow 0.3s ease, transform 0.3s ease;
+}
+
+.nas-container_card:hover,
+.app-container_status-container:hover {
+        box-shadow: 0 2px 6px -2px color-mix(in oklch, var(--bg-container), black 40%);
+}
+
+.app-container:hover {
+        box-shadow: 0 2px 6px -2px color-mix(in oklch, var(--bg-container), black 40%);
+        transform: none  !important;
 }
 
 [data-theme="dark"] .app-container_status-container,
@@ -3886,18 +3907,9 @@ a.item_btn[href*="kooldns.cn"]:hover {
         animation: var(--breathing-animation) !important;
 }
 
-.nas-container,
-.nas-container_card,
-.app-container,
-[class*="nas-container"],
-[class*="app-container"] {
-	background-color: var(--bg-body) !important;
-	color: var(--text-primary) !important;
-}
-
 [data-theme="dark"] [class*="nas-container"],
 [data-theme="dark"] [class*="app-container"] {
-	background-color: var(--card-bg) !important;
+	background-color: var(--bg-container) !important;
 }
 
 [data-theme="dark"] .network-container_status *,
@@ -6981,7 +6993,7 @@ div.card-row .dashboard-btn:hover {
 #cbi-network>.cbi-section-node,
 #cbi-wireless>.cbi-section-node {
 	border: 1px solid var(--bg-container);
-	box-shadow: 0 2px 6px -2px color-mix(in oklch, var(--bg-container), black 30%);
+	box-shadow: 0 1px 3px -2px color-mix(in oklch, var(--bg-container), black 30%);
 }
 
 .reusable-card, .feature-card,  .item_container .item {

@@ -1602,7 +1602,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 <div id="custom-alert" class="font-${localStorage.getItem('selectedFont') || 'default'}">
                     <div class="alert-header">
                         <h3>${translateText(title)}</h3>
-                        <button class="close-btn">&times;</button>
+                        <button class="alert-close-btn">&times;</button>
                     </div>
                     <div class="alert-content">
                         ${messages.map(msg => `<p>${translateText(msg)}</p>`).join('')}
@@ -1677,6 +1677,53 @@ document.addEventListener("DOMContentLoaded", function () {
                 color: #ff1493;
             }
 
+            .alert-close-btn {
+                box-sizing: border-box;
+                flex-shrink: 0;
+                left: 10px;
+                position: relative;
+                width: 36px;
+                height: 36px;
+                border: none;
+                background: #ff4757;
+                border-radius: 50%;
+                cursor: pointer;
+                transition: all 0.3s ease;
+                box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                padding: 0;
+            }
+
+            .alert-close-btn::before,
+            .alert-close-btn::after {
+                content: '';
+                position: absolute;
+                width: 18px;
+                height: 2px;
+                background: white;
+                border-radius: 1px;
+            }
+
+            .alert-close-btn::before {
+                transform: rotate(45deg);
+            }
+
+            .alert-close-btn::after {
+                 transform: rotate(-45deg);
+            }
+
+            .alert-close-btn:hover {
+                background: #ff2e43;
+                transform: rotate(90deg) scale(1.1);
+                box-shadow: 0 3px 8px rgba(0, 0, 0, 0.3);
+            }
+
+            .alert-close-btn:active {
+                transform: scale(0.95);
+            }
+
             @media (max-width: 480px) {
                 #custom-alert {
                     width: 95%;
@@ -1694,7 +1741,7 @@ document.addEventListener("DOMContentLoaded", function () {
         `;
         document.head.appendChild(style);
 
-        document.querySelector('.close-btn').addEventListener('click', () => {
+        document.querySelector('.alert-close-btn').addEventListener('click', () => {
             document.getElementById('custom-alert-overlay').remove();
             style.remove();
         });

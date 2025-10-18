@@ -4139,7 +4139,7 @@ let myAppIP = {
         const modalContent = document.createElement('div');
         modalContent.className = 'ip-modal-content';
         modalContent.style.cssText = `
-            background: white;
+            background: var(--bg-container);
             border-radius: 12px;
             width: 90%;
             max-width: 800px;
@@ -4198,21 +4198,21 @@ let myAppIP = {
         getLanguageText().then(langText => {
             modalContent.innerHTML = `
                 <div class="ip-modal-header" style="
-                    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); 
+                    background: var(--header-bg); 
                     color: white;
                     padding: 20px;
                     display: flex;
                     justify-content: space-between;
                     align-items: center;
                 ">
-                    <h3 style="margin: 0; font-size: 1.3em;  font-weight:600; background:none; border:none; color:white;">
+                    <h3 style="margin: 0; font-size: 1.3em;  font-weight:600; background:none; border:none; color:var(--accent-color);">
                         <span style="margin-right: 10px;"><i class="bi bi-clipboard"></i></span>
                         ${langText.title}
                     </h3>
                     <button class="ip-modal-close" style="
                         background:white;
                         border:none;
-                        color:#4a6cf7;
+                        color:var(--accent-color);
                         font-size:1.1em;
                         cursor:pointer;
                         width:25px;
@@ -4233,37 +4233,37 @@ let myAppIP = {
                     <div style="display: flex; margin-bottom: 20px;">
                         <div style="flex: 1; text-align: center;">
                             <img src="${_IMG}flags/${(data.country_code || 'unknown').toLowerCase()}.png" 
-                                style="max-height: 80px; border: 1px solid #ddd; border-radius: 4px;" 
+                                style="max-height: 80px;" 
                                 onerror="this.src='/luci-static/ipip/flags/unknown.png'">
-                            <div style="margin-top: 10px; font-weight: bold; color: black;">${country}</div>
+                            <div style="margin-top: 10px; font-weight: bold; color: var(--text-primary);">${country}</div>
                         </div>
                         <div style="flex: 2; margin-left: 20px;">
                             <div class="detail-item" style="margin-bottom: 10px; display: flex; gap: 20px;">
-                                <span style="width: 180px; font-weight: 500; color: #6c757d;"><i class="bi bi-globe2"></i>  ${langText.ip}:</span>
+                                <span style="width: 180px; font-weight: 500;"><i class="bi bi-globe2"></i>  ${langText.ip}:</span>
                                 <span style="flex: 1; word-break: break-word;">${cachedIP}</span>
                             </div>
                             <div class="detail-item" style="margin-bottom: 10px; display: flex; gap: 20px;">
-                                <span style="width: 180px; font-weight: 500; color: #6c757d;"><i class="bi bi-geo-alt"></i>  ${langText.location}:</span>
+                                <span style="width: 180px; font-weight: 500;"><i class="bi bi-geo-alt"></i>  ${langText.location}:</span>
                                 <span style="flex: 1;">${locationDisplay}</span>
                             </div>
                             <div class="detail-item" style="margin-bottom: 10px; display: flex; gap: 20px;">
-                                <span style="width: 180px; font-weight: 500; color: #6c757d;"><i class="bi bi-building"></i>  ${langText.isp}:</span>
+                                <span style="width: 180px; font-weight: 500;"><i class="bi bi-building"></i>  ${langText.isp}:</span>
                                 <span style="flex: 1;">${isp}</span>
                             </div>
                             <div class="detail-item" style="margin-bottom: 10px; display: flex; gap: 20px;">
-                                <span style="width: 180px; font-weight: 500; color: #6c757d;"><i class="bi bi-link-45deg"></i>  ${langText.asn}:</span>
+                                <span style="width: 180px; font-weight: 500;"><i class="bi bi-link-45deg"></i>  ${langText.asn}:</span>
                                 <span style="flex: 1;">${data.asn || ''} ${asnOrg}</span>
                             </div>
                             <div class="detail-item" style="margin-bottom: 10px; display: flex; gap: 20px;">
-                                <span style="width: 180px; font-weight: 500; color: #6c757d;"><i class="bi bi-flag"></i>  ${langText.countryCode}:</span>
+                                <span style="width: 180px; font-weight: 500;"><i class="bi bi-flag"></i>  ${langText.countryCode}:</span>
                                 <span style="flex: 1;">${countryCode}</span>
                             </div>
                             <div class="detail-item" style="margin-bottom: 10px; display: flex; gap: 20px;">
-                                <span style="width: 180px; font-weight: 500; color: #6c757d;"><i class="bi bi-clock"></i>  ${langText.timezone}:</span>
+                                <span style="width: 180px; font-weight: 500;"><i class="bi bi-clock"></i>  ${langText.timezone}:</span>
                                 <span style="flex: 1;">${timezone}</span>
                             </div>
                             <div class="detail-item" style="margin-bottom: 10px; display: flex; gap: 20px;">
-                                <span style="width: 180px; font-weight: 500; color: #6c757d;"><i class="bi bi-geo"></i>  ${langText.coordinates}:</span>
+                                <span style="width: 180px; font-weight: 500;"><i class="bi bi-geo"></i>  ${langText.coordinates}:</span>
                                 <span style="flex: 1;">
                                     ${latitude !== 'N/A' && longitude !== 'N/A' ? 
                                         `${latitude}, ${longitude}` : 
@@ -4288,18 +4288,18 @@ let myAppIP = {
                     </div>
 
                     ${latitude !== 'N/A' && longitude !== 'N/A' ? `
-                    <div style="margin-top: 20px; padding: 15px; background: #f8f9fa; border-radius: 8px;">
+                    <div style="margin-top: 20px; padding: 15px; background: var(--card-bg); border-radius: 8px;">
                         <div style="display: flex; align-items: center; margin-bottom: 10px;">
-                            <span style="font-weight: 500; color: #6c757d; margin-right: 10px;"><i class="bi bi-map"></i>  ${langText.mapView}:</span>
+                            <span style="font-weight: 500; color: var(--text-primary); margin-right: 10px;"><i class="bi bi-map"></i>  ${langText.mapView}:</span>
                             <a href="https://maps.google.com/?q=${latitude},${longitude}" 
                                target="_blank" 
-                               style="color: #007bff; text-decoration: none;"
+                               style="color: var(--accent-color); text-decoration: none;"
                                onmouseover="this.style.textDecoration='underline'" 
                                onmouseout="this.style.textDecoration='none'">
                                 ${langText.viewOnGoogleMaps}
                             </a>
                         </div>
-                        <div style="font-size: 0.9em; color: #6c757d;">
+                        <div style="font-size: 0.9em; color: var(--text-primary);">
                             ${langText.latitude}: ${latitude}, ${langText.longitude}: ${longitude}
                         </div>
                     </div>
@@ -4308,10 +4308,10 @@ let myAppIP = {
             
                 <div class="ip-modal-footer" style="
                     padding: 15px 20px;
-                    background: #f8f9fa;
+                    background: var(--header-bg);
                     display: flex;
                     justify-content: flex-end;
-                    border-top: 1px solid #dee2e6;
+                    border-top: 1px solid var(--header-bg);
                 ">
 
                     <button class="cbi-button cbi-button-remove">${langText.close}</button>
@@ -4500,14 +4500,14 @@ async function showEditModal() {
 
     const content = document.createElement('div');
     content.style.cssText = `
-        background:white; border-radius:8px; width:90%; max-width:900px; max-height:80vh;
+        background:var(--secondary-color); border-radius:8px; width:90%; max-width:900px; max-height:80vh;
         display:flex; flex-direction:column; box-shadow:0 5px 20px rgba(0,0,0,0.15);
         transform: scale(0.9); transition: transform 0.3s ease; overflow: hidden;
     `;
 
     content.innerHTML = `
         <div style="background:#4a6cf7; color:white; padding:12px 16px; display:flex; justify-content:space-between; align-items:center;">
-            <h3 style="margin:0; font-size:1.3em; font-weight:500; background:none; border:none; color:white;"><i class="bi bi-server"></i> <span data-translate="edit_ip_database"></h3>
+            <h3 style="margin:0; font-size:1.3em; font-weight:500; background:none; border:none; color:white;"><i class="bi bi-server"></i> <span data-translate="edit_ip_database"></span></h3>
             <div style="display:flex; align-items:center; gap:8px;">
                 <button class="fullscreenBtn" data-title="fullscreen" style="
                     background:white;
