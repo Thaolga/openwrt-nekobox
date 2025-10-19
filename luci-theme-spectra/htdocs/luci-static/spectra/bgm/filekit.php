@@ -1087,6 +1087,53 @@ table.table tbody tr td.file-icon {
 .btn-close:active {
 	transform: scale(0.9) !important;
 }
+
+@font-face {
+	font-display: swap;
+	font-family: 'Fredoka One';
+	font-style: normal;
+	font-weight: 400;
+	src: url('/luci-static/spectra/fonts/fredoka-v16-latin-regular.woff2') format('woff2');
+}
+
+@font-face {
+	font-display: swap;
+	font-family: 'DM Serif Display';
+	font-style: normal;
+	font-weight: 400;
+	src: url('/luci-static/spectra/fonts/dm-serif-display-v15-latin-regular.woff2') format('woff2');
+}
+
+@font-face {
+	font-display: swap;
+	font-family: 'Noto Serif SC';
+	font-style: normal;
+	font-weight: 400;
+	src: url('/luci-static/spectra/fonts/noto-serif-sc-v31-latin-regular.woff2') format('woff2');
+}
+
+@font-face {
+	font-display: swap;
+	font-family: 'Comic Neue';
+	font-style: normal;
+	font-weight: 400;
+	src: url('/luci-static/spectra/fonts/comic-neue-v8-latin-regular.woff2') format('woff2');
+}
+
+@font-face {
+        font-display: swap;
+        font-family: 'Noto Sans';
+        font-style: normal;
+        font-weight: 400;
+        src: url('/luci-static/spectra/fonts/noto-sans-v39-regular.woff2') format('woff2');
+}
+
+@font-face {
+        font-family: 'Cinzel Decorative';
+        font-style: normal;
+        font-weight: 700;
+        src: url('/luci-static/spectra/fonts/cinzel-decorative-v17-latin-700.woff2') format('woff2');
+}
 </style>
 
 <div class="container-sm container-bg px-2 px-sm-4 mt-4">
@@ -2846,4 +2893,23 @@ function uniqueConfirmDelete(event, name) {
     return false;
 }
 
+document.addEventListener('DOMContentLoaded', function() {
+    const savedFont = localStorage.getItem('selectedFont');
+    
+    if (savedFont && savedFont !== 'default') {
+        const fontMap = {
+            'fredoka': 'Fredoka, sans-serif',
+            'dmserif': '"DM Serif Display", serif',
+            'notoserif': '"Noto Serif", serif',
+            'comicneue': '"Comic Neue", cursive',
+            'notosans': '"Noto Sans", sans-serif',
+            'cinzeldecorative': '"Cinzel Decorative", cursive'
+        };
+        
+        const fontFamily = fontMap[savedFont];
+        if (fontFamily) {
+            document.body.style.fontFamily = fontFamily;
+        }
+    }
+});
 </script>
