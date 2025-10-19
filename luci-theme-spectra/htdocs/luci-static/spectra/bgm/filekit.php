@@ -377,9 +377,9 @@ function searchFiles($dir, $term) {
 }
 ?>
 
-<title>Monaco - Nekobox</title>
+<title>Monaco - Spectra</title>
 <?php include './spectra.php'; ?>
-<script src="./assets/js/js-yaml.min.js"></script>
+<script src="/luci-static/spectra/js/js-yaml.min.js"></script>
 
 <style>
 #monacoEditor {
