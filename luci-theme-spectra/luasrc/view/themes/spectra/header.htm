@@ -231,6 +231,7 @@
                </div>
 
                 <div class="icon-group">
+                        <button id="themeOpenUpdateConfirmBtn" class="app-icon-btn" data-title="theme_download"><i class="fas fa-cloud-download-alt"></i> <span class="btn-label"></span></button>
                         <button  class="app-icon-btn" id="clear-cache-btn" onclick="clearCache()" data-title="clear_button"><i class="fa-solid fa-broom"></i></button>
                         <button class="app-icon-btn" onclick="openMusicModal()" data-title="music_player"><i class="bi bi-music-note-beamed"></i></button>
                         <button class="app-icon-btn" id="themeLoaderToggle" data-title="theme_loader_btn_title"> <i class="fa fa-atom"></i> </button>
@@ -4875,7 +4876,7 @@ window.addEventListener('load', () => {
     background: var(--sand-bg);
     color: white;
     border-radius: 8px;
-    z-index: 9999;
+    z-index: 200000;
     max-width: 320px;
     font-size: 15px;
     word-wrap: break-word;
@@ -6275,6 +6276,271 @@ const muteToggle    = document.getElementById('muteToggle');
 
   speedToggle.addEventListener('click', e => e.stopPropagation());
 
+</script>
+
+<style>
+.theme-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: none;
+    justify-content: center;
+    align-items: center;
+    background: rgba(0, 0, 0, 0.7);
+    z-index: 9999;
+    backdrop-filter: blur(3px);
+}
+
+.theme-modal-content {
+    background-color: var(--bg-container);
+    color: var(--text-primary);
+    border-radius: 10px;
+    box-shadow: 0 5px 20px rgba(0,0,0,0.3);
+    width: 90%;
+    max-width: 600px;
+    max-height: 80vh;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    animation: theme-modal-fade 0.25s ease-out;
+}
+
+.alert-info {
+    background-color: #d9edf7;
+    padding: 10px;
+    border-radius: 6px;
+    margin-bottom: 10px;
+    color: #000;
+}
+
+.alert-warning {
+    background-color: #fcf8e3;
+    padding: 10px;
+    border-radius: 6px;
+    margin-bottom: 10px;
+    color: #000;
+}
+
+.alert-info, .alert-warning {
+    min-height: 40px;
+    display: flex;
+    align-items: center;
+}
+
+pre {
+    background-color: var(--bg-container);
+    color: var(--text-primary);
+    padding: 10px;
+    border-radius: 6px;
+    max-height: 600px;
+    overflow-y: auto;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+}
+
+@keyframes theme-modal-fade {
+    from { opacity: 0; transform: translateY(-10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.theme-copy-command {
+    display: block;
+    width: 100%;
+    box-sizing: border-box;
+    border: var(--border-strong);
+    border-radius: 6px;
+    padding: 8px;
+    font-family: monospace;
+    font-size: 14px;
+    resize: none;
+}
+
+.theme-copy-command:focus {
+    border: 1px solid var(--accent-color);
+    box-shadow: 0 0 4px 0 var(--accent-color);
+    outline: none;
+}
+.theme-modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px;
+    background: var(--header-bg);
+    color: var(--accent-color);
+    font-weight: 500;
+}
+
+.theme-modal-header h3 {
+    margin: 0;
+    font-size: 1.3em;
+}
+
+.theme-modal-body {
+    padding: 16px;
+    flex: 1;
+    overflow-y: auto;
+}
+
+.theme-modal-footer {
+    text-align: right;
+    padding: 12px 16px;
+    border-top: 1px solid rgba(0,0,0,0.1);
+    background-color: var(--header-bg);
+}
+</style>
+
+<div id="themeUpdateConfirmModal" class="theme-modal" style="display:none;">
+    <div class="theme-modal-content">
+        <div class="theme-modal-header">
+            <h3 style="color: var(--accent-color); font-weight: 700;"><i class="bi bi-palette"></i> <span data-translate="theme_download"></span></h3>
+            <button class="close-btn"></button>
+        </div>
+        <div class="theme-modal-body">
+            <div style="font-weight: 700; margin-top: 8px; margin-bottom: 12px;" data-translate="version_check_label">Version Check</div>
+            <div id="themeCurrentVersionInfo" class="alert-info" data-translate="current_version"></div>
+            <div id="themeLatestVersionInfo" class="alert-warning" data-translate="fetching_version"></div>
+            <div style="font-weight: 700; margin-top: 10px; margin-bottom: 12px;" data-translate="command_install_label">Command Installation</div>
+            <textarea id="themeCopyCommand" class="theme-copy-command" rows="3" readonly>
+wget -O /root/nekobox.sh https://raw.githubusercontent.com/Thaolga/openwrt-nekobox/nekobox/nekobox.sh && chmod 0755 /root/nekobox.sh && /root/nekobox.sh
+            </textarea>
+        </div>
+        <div class="theme-modal-footer">
+            <button id="themeCopyCommandBtn" class="btn cbi-button cbi-button-apply" data-translate="copy_command"></button>
+            <a id="themeConfirmUpdateLink" href="#" target="_blank" class="btn cbi-button cbi-button-add" data-translate="download_local"></a>
+            <button id="themeUpdateBtn" class="btn cbi-button cbi-button-edit" data-translate="update_plugin"></button>
+        </div>
+    </div>
+</div>
+
+<div id="themeUpdateStatusModal" class="theme-modal" style="display:none;">
+    <div class="theme-modal-content">
+        <div class="theme-modal-header">
+            <h3 id="themeUpdateStatusLabel" data-translate="updateModalLabel"></h3>
+            <button class="close-btn"></button>
+        </div>
+        <div class="theme-modal-body">
+            <div id="themeUpdateDescription" class="alert-info" data-translate="updateDescription"></div>
+            <pre id="themeLogOutput">Waiting for the operation to begin...</pre>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    function openThemeModal(id) { 
+        document.getElementById(id).style.display = 'flex'; 
+        updateUIText();
+    }
+
+    function closeThemeModal(id) { 
+        document.getElementById(id).style.display = 'none'; 
+    }
+
+    document.querySelectorAll('.close-btn').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            const modal = e.target.closest('.theme-modal');
+            closeThemeModal(modal.id);
+        });
+    });
+
+    const themeOpenBtn = document.getElementById('themeOpenUpdateConfirmBtn');
+    themeOpenBtn.addEventListener('click', () => {
+        openThemeModal('themeUpdateConfirmModal');
+        checkThemeUpdate();
+    });
+
+    document.getElementById('themeCopyCommandBtn').addEventListener('click', () => {
+        const copyTextarea = document.getElementById('themeCopyCommand');
+        copyTextarea.select();
+        document.execCommand('copy');
+        const translations = languageTranslations[currentLang] || languageTranslations['zh'];
+        const message = translations['command_copied'] || 'Command copied to clipboard!';
+        showLogMessage(message);
+        speakMessage(message);
+    });
+
+    document.getElementById('themeUpdateBtn').addEventListener('click', () => {
+        closeThemeModal('themeUpdateConfirmModal');
+        openThemeModal('themeUpdateStatusModal');
+
+        const logOutput = document.getElementById('themeLogOutput');
+        const translations = languageTranslations[currentLang] || languageTranslations['zh'];
+        logOutput.textContent = '🔄 Starting installation...\n';
+
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 180000);
+
+        fetch('/luci-static/spectra/bgm/install_theme.php', { 
+            method: 'POST',
+            signal: controller.signal
+        })
+        .then(response => {
+            clearTimeout(timeoutId);
+            const reader = response.body.getReader();
+            const decoder = new TextDecoder();
+            function read() {
+                return reader.read().then(({ done, value }) => {
+                    if (done) {
+                        if (logOutput.textContent.includes('🎉 INSTALLATION_SUCCESS')) {
+                            const message = translations['installation_complete'] || 'Installation complete!';
+                            if (typeof showLogMessage === 'function') showLogMessage(message);
+                            if (typeof speakMessage === 'function') speakMessage(message);
+                            setTimeout(() => closeThemeModal('themeUpdateStatusModal'), 5000);
+                        } else {
+                            setTimeout(() => closeThemeModal('themeUpdateStatusModal'), 5000);
+                        }
+                        return;
+                    }
+                    const text = decoder.decode(value, { stream: true });
+                    logOutput.textContent += text;
+                    logOutput.scrollTop = logOutput.scrollHeight;
+                    return read();
+                });
+            }
+            return read();
+        })
+        .catch(error => {
+            clearTimeout(timeoutId);
+            const message = translations['installation_complete'] || 'Installation complete!';
+            if (typeof showLogMessage === 'function') showLogMessage(message);
+            if (typeof speakMessage === 'function') speakMessage(message);
+            setTimeout(() => closeThemeModal('themeUpdateStatusModal'), 8000);
+        });
+    });
+
+   function checkThemeUpdate() {
+        const translations = languageTranslations[currentLang] || languageTranslations['zh'];
+        const versionInfo = document.getElementById('themeLatestVersionInfo');
+        const currentVersionInfo = document.getElementById('themeCurrentVersionInfo');
+        const downloadLink = document.getElementById('themeConfirmUpdateLink');
+
+        currentVersionInfo.textContent = translations['unable_to_fetch_current_version'] || 'Fetching current version...';
+        versionInfo.textContent = translations['fetching_version'] || 'Fetching version info...';
+        downloadLink.href = '#';
+
+        fetch('/luci-static/spectra/bgm/check_theme_update.php')
+            .then(response => response.json())
+            .then(data => {
+                if (data.currentVersion) {
+                    currentVersionInfo.textContent = `${translations['current_version'] || 'Current Version'}: ${data.currentVersion}`;
+                } else {
+                    currentVersionInfo.textContent = translations['unable_to_fetch_current_version'] || 'Unable to fetch the current version info';
+                }
+
+                if (data.version && data.url) {
+                    versionInfo.textContent = `${translations['latest_version'] || 'Latest Version'}: ${data.version}`;
+                    downloadLink.href = data.url;
+                } else {
+                    versionInfo.textContent = translations['unable_to_fetch_version'] || 'Unable to fetch the latest version info';
+                }
+            })
+            .catch(() => {
+                versionInfo.textContent = translations['request_failed'] || 'Request failed, please try again later';
+            });
+    }
+});
 </script>
 
 <script>

@@ -165,41 +165,6 @@ if (!empty($_GET['error'])) {
 }
 ?>
 
-<?php
-$default_url = 'https://raw.githubusercontent.com/Thaolga/Rules/main/music/songs.txt';
-$file_path = __DIR__ . '/url_config.txt'; 
-$message = '';
-
-if (!file_exists($file_path)) {
-    if (file_put_contents($file_path, $default_url) !== false) {
-        chmod($file_path, 0644); 
-    }
-}
-
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    if (isset($_POST['new_url'])) {
-        $new_url = $_POST['new_url'];
-        if (file_put_contents($file_path, $new_url) !== false) {
-            chmod($file_path, 0644);  
-            $message = 'Update successful!';
-        } else {
-            $message = 'Update failed, please check permissions.';
-        }
-    }
-
-    if (isset($_POST['reset_default'])) {
-        if (file_put_contents($file_path, $default_url) !== false) {
-            chmod($file_path, 0644);
-            $message = 'Default URL restored!';
-        } else {
-            $message = 'Restore failed, please check permissions.';
-        }
-    }
-} else {
-    $new_url = file_exists($file_path) ? file_get_contents($file_path) : $default_url;
-}
-?>
-
 <head>
     <meta charset="utf-8">
     <title>Media File Management</title>
@@ -207,7 +172,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <link href="/luci-static/spectra/css/all.min.css" rel="stylesheet">
     <link href="/luci-static/spectra/css/bootstrap.min.css" rel="stylesheet">
     <link href="/luci-static/spectra/css/weather-icons.min.css" rel="stylesheet">
-    <script src="/luci-static/spectra/js/jquery.min.js"></script>
     <script src="/luci-static/spectra/js/bootstrap.bundle.min.js"></script>
     <script src="/luci-static/spectra/js/interact.min.js"></script>
     <script src="/luci-static/spectra/js/Sortable.min.js"></script>
@@ -492,11 +456,27 @@ body.dm-serif-font {
 .card {
 	background: var(--card-bg);
 	border: 1px solid var(--border-color);
+        border-radius: 1rem;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+        transition: all 0.3s ease;
+        overflow: hidden;
+
+}
+
+.card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.card img,
+.card video {
+        border-top-left-radius: 1rem;
+        border-top-right-radius: 1rem;
 }
 
 .card-header {
-	background: var(--header-bg) !important;
-	border-bottom: 1px solid var(--border-color);
+	background: var(--card-bg) !important;
+	border-bottom: 1px solid var(--card-bg);
 }
 
 .table {
@@ -1509,7 +1489,6 @@ body:hover,
             <button class="btn btn-primary d-none d-sm-inline" id="advancedColorBtn" data-translate-title="advanced_color_settings"><i class="bi bi-palette"></i></button>
             <!--  <button class="btn btn-info ms-2" id="fontToggleBtn" data-translate-title="toggle_font"><i id="fontToggleIcon" class="fa-solid fa-font" style="color: white;"></i></button> -->
             <button class="btn btn-success ms-2 d-none d-sm-inline" id="toggleScreenBtn" data-translate-title="toggle_fullscreen"><i class="bi bi-arrows-fullscreen"></i></button>
-            <button class="btn btn-warning ms-2 d-none d-sm-inline" id="weatherBtn" data-bs-toggle="modal" data-bs-target="#cityModal" data-translate-title="set_city"><i class="bi bi-geo-alt"></i></button>
 
         <div class="ms-auto" style="margin-right: 20px;">
             <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#langModal">
@@ -1691,27 +1670,6 @@ body:hover,
             <?php endforeach; ?>
         </div>
     </div>
-</div>
-
-<div class="modal fade" id="cityModal" tabindex="-1" aria-labelledby="cityModalLabel" aria-hidden="true">
-  <div class="modal-dialog modal-lg">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="cityModalLabel" data-translate="set_city">Set City</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-      </div>
-      <div class="modal-body">
-        <div class="mb-3">
-          <label for="cityInput" class="form-label" data-translate="input_label">City Name</label>
-          <input type="text" class="form-control" id="cityInput" data-translate-placeholder="input_placeholder">
-        </div>
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" data-translate="cancel">Cancel</button>
-        <button type="button" class="btn btn-primary" id="saveCityBtn" data-translate="save">Save</button>
-      </div>
-    </div>
-  </div>
 </div>
 
 <div class="modal fade" id="previewModal" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false">
@@ -1917,32 +1875,6 @@ opkg update && opkg install wget grep sed && LATEST_FILE=$(wget -qO- https://git
             </div>
         </div>
     </div>
-</div>
-
-<div class="modal fade" id="weatherModal" tabindex="-1" aria-hidden="true">
-  <div class="modal-dialog modal-lg">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="modalCityName">—</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-      </div>
-      <div class="modal-body">
-        <ul class="list-unstyled mb-0">
-          <li><strong data-translate="weather_label">Weather</strong>：<span id="modalDesc">—</span></li>
-          <li><strong data-translate="temperature_label">Temperature</strong>：<span id="modalTemp">—</span>℃</li>
-          <li><strong data-translate="feels_like_label">Feels like</strong>：<span id="modalFeels">—</span>℃</li>
-          <li><strong data-translate="humidity_label">Humidity</strong>：<span id="modalHumidity">—</span>%</li>
-          <li><strong data-translate="pressure_label">Pressure</strong>：<span id="modalPressure">—</span> hPa</li>
-          <li><strong data-translate="wind_label">Wind speed</strong>：<span id="modalWind">—</span> m/s</li>
-          <li><strong data-translate="sunrise_label">Sunrise</strong>：<span id="modalSunrise">—</span></li>
-          <li><strong data-translate="sunset_label">Sunset</strong>：<span id="modalSunset">—</span></li>
-        </ul>
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" data-translate="cancel">Cancel</button>
-      </div>
-    </div>
-  </div>
 </div>
 
 <div class="modal fade custom-modal" id="ipDetailModal" tabindex="-1" role="dialog" aria-labelledby="ipDetailModalLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
@@ -8263,150 +8195,86 @@ async function showIpDetailModal() {
 </style>
 
 <script>
-  let city = localStorage.getItem('city') || 'Beijing';
-  const apiKey = 'fc8bd2637768c286c6f1ed5f1915eb22';
-  let currentWeatherData = null;
-
-  const countryToLang = {
-    CN: 'zh_cn', ZH: 'zh_cn', HK: 'zh_tw',
-    EN: 'en', KO: 'kr', VI: 'vi', TH: 'th',
-    JA: 'ja', RU: 'ru', DE: 'de', FR: 'fr',
-    AR: 'ar', ES: 'es', BN: 'en'
-  };
-  let rawLang = localStorage.getItem('language') || 'CN';
-  const targetLang = countryToLang[rawLang.toUpperCase()] || rawLang;
-
-  const localeMap = {
-    zh_cn: 'zh-CN', zh_tw: 'zh-TW', en: 'en-US', kr: 'ko-KR',
-    vi: 'vi-VN', th: 'th-TH', ja: 'ja-JP', ru: 'ru-RU',
-    de: 'de-DE', fr: 'fr-FR', ar: 'ar-EG', es: 'es-ES'
-  };
-  const locale = localeMap[targetLang] || 'en-US';
-  const timeFormatter = new Intl.DateTimeFormat(locale, { hour: 'numeric', minute: '2-digit', hour12: true });
-
-  const weatherIcon    = document.getElementById('weatherIcon');
-  const weatherText    = document.getElementById('weatherText');
-  const cityInput      = document.getElementById('cityInput');
-  const saveCityBtn    = document.getElementById('saveCityBtn');
-  const weatherDisplay = document.querySelector('.weather-display');
+document.addEventListener("DOMContentLoaded", async () => {
+  const weatherIcon = document.getElementById("weatherIcon");
+  const cityNameDisplay = document.getElementById("cityNameDisplay");
+  const weatherText = document.getElementById("weatherText");
 
   function owmCodeToWiClass(code) {
     const map = {
-      '01d': 'wi-day-sunny',    '01n': 'wi-night-clear',
-      '02d': 'wi-day-cloudy',   '02n': 'wi-night-cloudy',
-      '03d': 'wi-cloud',        '03n': 'wi-cloud',
-      '04d': 'wi-cloudy',       '04n': 'wi-cloudy',
-      '09d': 'wi-showers',      '09n': 'wi-showers',
-      '10d': 'wi-day-rain',     '10n': 'wi-night-alt-rain',
-      '11d': 'wi-thunderstorm', '11n': 'wi-thunderstorm',
-      '13d': 'wi-snow',         '13n': 'wi-snow',
-      '50d': 'wi-fog',          '50n': 'wi-fog'
+      '01d': 'day-sunny',    '01n': 'night-clear',
+      '02d': 'day-cloudy',   '02n': 'night-cloudy',
+      '03d': 'cloud',        '03n': 'cloud',
+      '04d': 'cloudy',       '04n': 'cloudy',
+      '09d': 'showers',      '09n': 'showers',
+      '10d': 'day-rain',     '10n': 'night-alt-rain',
+      '11d': 'thunderstorm', '11n': 'thunderstorm',
+      '13d': 'snow',         '13n': 'snow',
+      '50d': 'fog',          '50n': 'fog'
     };
-    return map[code] || 'wi-na';
+    return map[code] || 'na';
   }
 
-  const cityNameDisplay = document.getElementById('cityNameDisplay'); 
-
-  function updateWeatherUI(data) {
-    const iconCode = data.weather[0].icon;
-    const temp     = Math.round(data.main.temp);
-    const desc     = data.weather[0].description;
-
-    weatherIcon.className = `wi ${owmCodeToWiClass(iconCode)}`;
-    const colorMap = { '01d':'#FFD700','02d':'#C0C0C0','09d':'#00BFFF','13d':'#ADD8E6' };
-    weatherIcon.style.color = colorMap[iconCode] || '#FFF';
-    weatherIcon.title       = desc;
-    weatherText.textContent = `${desc} ${temp}℃`;
-    updateCityNameDisplay(data.name);
+  async function getCurrentLanguage() {
+    try {
+      const res = await fetch('/luci-static/spectra/bgm/save_language.php', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: 'action=get_language'
+      });
+      const data = await res.json();
+      if (data.success && data.language) return data.language;
+    } catch (_) {}
+    return 'zh';
   }
 
-  function fetchWeather() {
-    const url = `https://api.openweathermap.org/data/2.5/weather`
-              + `?q=${encodeURIComponent(city)}`
-              + `&appid=${apiKey}`
-              + `&units=metric`
-              + `&lang=${targetLang}`;
-    fetch(url)
-      .then(res => res.ok ? res.json() : Promise.reject('Network not OK'))
-      .then(data => {
-        if (data.weather && data.main) {
-          currentWeatherData = data;
-          updateWeatherUI(data);
-        }
-      })
-      .catch(err => console.error('Error fetching weather：', err));
-  }
+  async function loadWeather() {
+    try {
+      const lang = await getCurrentLanguage();
+      const localCity = localStorage.getItem('city');
+      const res = await fetch("/luci-static/spectra/bgm/weather_translation.php");
+      if (!res.ok) return;
 
-  function saveCity() {
-    const value = cityInput.value.trim();
-    const chineseCharPattern = /[\u4e00-\u9fff]/;
-    const startsUpper = /^[A-Z]/;
+      const data = await res.json();
+      const cities = data.cities || {};
 
-    if (chineseCharPattern.test(value)) {
-      const msg = translations['invalid_city_non_chinese'];
-      speakMessage(msg); showLogMessage(msg);
-    }
-    else if (!startsUpper.test(value)) {
-      const msg = translations['invalid_city_uppercase'];
-      speakMessage(msg); showLogMessage(msg);
-    }
-    else if (value) {
-      city = value;
-      localStorage.setItem('city', city);
-      const savedMsg = translations['city_saved'].replace('{city}', city);
-      const speakMsg = translations['city_saved_speak'].replace('{city}', city);
-      showLogMessage(savedMsg);
-      speakMessage(speakMsg);
-      fetchWeather();
-      bootstrap.Modal.getInstance(document.getElementById('cityModal')).hide();
-    }
-    else {
-      const msg = translations['invalid_city'];
-      speakMessage(msg);
+      let cityKey = localCity && cities[localCity] ? localCity : Object.keys(cities)[0];
+      if (!cityKey) return;
+
+      const cityData = cities[cityKey];
+      const translations = cityData.translations || {};
+      const langData = translations[lang] || translations["zh"] || {};
+
+      const cityName = langData.city || cityKey;
+      const weatherDict = langData.weather || {};
+      const lastIcon = langData.lastIcon || "na";
+
+      const weatherKey = Object.keys(weatherDict)[0];
+      const weatherValue = weatherDict[weatherKey] || "";
+
+      cityNameDisplay.textContent = cityName + " ";
+      weatherText.textContent = weatherValue;
+
+      const wiClass = owmCodeToWiClass(lastIcon);
+      weatherIcon.className = `wi wi-${wiClass}`;
+
+      const colorMap = {
+        '01d':'#FFD700','01n':'#FFE4B5',
+        '02d':'#C0C0C0','02n':'#A9A9A9',
+        '09d':'#00BFFF','09n':'#1E90FF',
+        '10d':'#1E90FF','10n':'#104E8B',
+        '11d':'#FFA500','11n':'#FF8C00',
+        '13d':'#ADD8E6','13n':'#B0E0E6',
+        '50d':'#C0C0C0','50n':'#808080'
+      };
+      weatherIcon.style.color = colorMap[lastIcon] || '#FFF';
+
+    } catch (_) {
     }
   }
 
-  async function updateCityNameDisplay(name) {
-      try {
-          const translatedCityName = await translateText(name, rawLang);
-          document.getElementById('cityNameDisplay').textContent = translatedCityName;
-      } catch (e) {
-          console.error('City name translation failed:', e);
-          document.getElementById('cityNameDisplay').textContent = name;
-      }
-  }
-
-  async function openWeatherModal() {
-    if (!currentWeatherData) return;
-    const d = currentWeatherData;
-
-    const translatedCityName = await translateText(d.name, rawLang);
-    document.getElementById('cityNameDisplay').textContent = translatedCityName;
-    document.getElementById('modalCityName').textContent = translatedCityName;
-    document.getElementById('modalDesc').textContent      = d.weather[0].description;
-    document.getElementById('modalTemp').textContent      = Math.round(d.main.temp);
-    document.getElementById('modalFeels').textContent     = Math.round(d.main.feels_like);
-    document.getElementById('modalHumidity').textContent  = d.main.humidity;
-    document.getElementById('modalPressure').textContent  = d.main.pressure;
-    document.getElementById('modalWind').textContent      = d.wind.speed;
-
-    const toTime = ts => timeFormatter.format(new Date(ts * 1000));
-    document.getElementById('modalSunrise').textContent   = toTime(d.sys.sunrise);
-    document.getElementById('modalSunset').textContent    = toTime(d.sys.sunset);
-
-    bootstrap.Modal.getOrCreateInstance(
-      document.getElementById('weatherModal')
-    ).show();
-  }
-
-  saveCityBtn.addEventListener('click', saveCity);
-  weatherDisplay.addEventListener('click', openWeatherModal);
-
-  document.addEventListener('DOMContentLoaded', () => {
-    cityInput.value = city;
-    fetchWeather();
-    setInterval(fetchWeather, 10 * 60 * 1000);
-  });
+  await loadWeather();
+});
 </script>
 
 <script>
