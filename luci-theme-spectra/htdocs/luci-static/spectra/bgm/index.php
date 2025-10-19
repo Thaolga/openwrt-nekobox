@@ -175,6 +175,7 @@ if (!empty($_GET['error'])) {
     <script src="/luci-static/spectra/js/bootstrap.bundle.min.js"></script>
     <script src="/luci-static/spectra/js/interact.min.js"></script>
     <script src="/luci-static/spectra/js/Sortable.min.js"></script>
+    <script src="/luci-static/spectra/js/jquery.min.js"></script>
     <script>
         const phpBackgroundType = '<?= $background_type ?>';
         const phpBackgroundSrc = '<?= $background_src ?>';
