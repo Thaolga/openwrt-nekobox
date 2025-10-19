@@ -6,6 +6,17 @@
 	background-color: transparent !important;
 }
 
+.cbi-input-select,
+.cbi-value-field select,
+.cbi-dropdown-open select {
+        background-color: transparent !important;
+}
+
+.cbi-input-select option {
+        background-color: #000000 !important;
+        color: #ffffff !important;
+}
+
 .cbi-section,
 .cbi-section-error,
 #iptables,
