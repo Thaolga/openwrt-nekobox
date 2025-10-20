@@ -1647,28 +1647,68 @@ document.addEventListener('DOMContentLoaded', () => {
         const styles = getComputedStyle(document.documentElement);
         const lightness = styles.getPropertyValue('--l').trim();
         const chroma = styles.getPropertyValue('--c').trim();
-
         const colors = [];
         for (let i = 1; i <= 7; i++) {
             const hue = styles.getPropertyValue(`--base-hue-${i}`).trim();
-            const color = `oklch(${lightness} ${chroma} ${hue})`;
-            colors.push(color);
+            if (hue) {
+                const color = `oklch(${lightness} ${chroma} ${hue})`;
+                colors.push(color);
+            }
         }
         return colors;
     }
-
-    function getNextColor(colorList) {
-        if (usedColors.length === colorList.length) {
+ 
+   function getNextColor(colorList) {
+        if (usedColors.length >= colorList.length) {
             usedColors = [];
         }
+        
         const remaining = colorList.filter(c => !usedColors.includes(c));
+        if (remaining.length === 0) {
+            usedColors = [];
+            return colorList[Math.floor(Math.random() * colorList.length)];
+        }
+        
         const next = remaining[Math.floor(Math.random() * remaining.length)];
         usedColors.push(next);
         return next;
     }
 
+    let isLogoSplit = false;
+    function splitLogo() {
+        if (!logo || isLogoSplit) return;
+
+        const text = logo.textContent?.trim();
+        if (!text) return;
+
+        const style = document.createElement('style');
+        style.textContent = `
+        @keyframes floaty {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-4px); }
+        }`;
+        document.head.appendChild(style);
+
+        logo.innerHTML = '';
+        [...text].forEach((char, i) => {
+            const span = document.createElement('span');
+            span.textContent = char;
+            span.style.transition = 'color 0.8s ease';
+            span.style.animation = 'floaty 2.5s ease-in-out infinite';
+            span.style.animationDelay = `${i * 0.1}s`;
+            logo.appendChild(span);
+        });
+
+        isLogoSplit = true;
+    }
+
     function rotateColors() {
         const colorList = getColorListFromTheme();
+        if (colorList.length === 0) return;
+
+        if (logo && !isLogoSplit) {
+            splitLogo();
+        }
 
         if (currentSong) {
             currentSong.style.color = getNextColor(colorList);
@@ -1676,8 +1716,11 @@ document.addEventListener('DOMContentLoaded', () => {
         if (floatingCurrentSong) {
             floatingCurrentSong.style.color = getNextColor(colorList);
         }
-        if (logo) {
-            logo.style.color = getNextColor(colorList);
+
+        if (logo && isLogoSplit) {
+            logo.querySelectorAll('span').forEach(span => {
+                span.style.color = getNextColor(colorList);
+            });
         }
     }
 
@@ -1685,7 +1728,6 @@ document.addEventListener('DOMContentLoaded', () => {
         const styles = getComputedStyle(document.documentElement);
         const lightness = '35%';
         const chroma = styles.getPropertyValue('--c').trim();
-
         const colors = new Set();
         for (let i = 1; i <= 7; i++) {
             let hue = styles.getPropertyValue(`--base-hue-${i}`).trim();
@@ -1709,11 +1751,9 @@ document.addEventListener('DOMContentLoaded', () => {
     function getWeatherGradientColors() {
         const styles = getComputedStyle(document.documentElement);
         const colors = [];
-        
         for (let i = 1; i <= 7; i++) {
             const hue = styles.getPropertyValue(`--base-hue-${i}`).trim();
             if (!hue) continue;
-            
             const mainColor = `oklch(60% 0.2 ${hue})`;
             const darkColor = `oklch(45% 0.2 ${hue})`;
             colors.push([mainColor, darkColor]);
@@ -1729,7 +1769,6 @@ document.addEventListener('DOMContentLoaded', () => {
         const nextIndex = remaining.length > 0 ? 
             colorList.indexOf(remaining[Math.floor(Math.random() * remaining.length)]) : 
             Math.floor(Math.random() * colorList.length);
-        
         usedWeatherColors.push(nextIndex);
         return colorList[nextIndex];
     }
@@ -1737,7 +1776,6 @@ document.addEventListener('DOMContentLoaded', () => {
     function rotateLogBoxColors() {
         const colorList = getLogBoxColorListFromTheme();
         if (colorList.length === 0) return;
-
         document.querySelectorAll('.log-box[data-dynamic-bg="true"]').forEach(box => {
             const color = getNextLogBoxColor(colorList);
             box.style.background = color;
@@ -1747,18 +1785,18 @@ document.addEventListener('DOMContentLoaded', () => {
     function rotateWeatherBoxColors() {
         const gradientColors = getWeatherGradientColors();
         if (gradientColors.length === 0) return;
-
         document.querySelectorAll('.weather-log-box.info').forEach(box => {
             const [color1, color2] = getNextWeatherGradient(gradientColors);
             box.style.background = `linear-gradient(145deg, ${color1}, ${color2})`;
         });
     }
 
+    splitLogo();
     rotateColors();
     rotateLogBoxColors();
     rotateWeatherBoxColors();
-    
-    setInterval(rotateColors, 4000);
+
+    setInterval(rotateColors, 2000);
     setInterval(rotateLogBoxColors, 4000);
     setInterval(rotateWeatherBoxColors, 2000);
 });
