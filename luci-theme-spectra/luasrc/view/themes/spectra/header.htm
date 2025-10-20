@@ -224,8 +224,8 @@
                 <div class="nav-icon" id="wifiIcon">
                         <img id="settings-icon" src="<%=media%>/navbar/interface.gif" alt="Interface" style="cursor:pointer;">
                 </div>
-                <div class="app-icon-btn"  id="panel">
-                   <a onclick="openControlPanel()" style="cursor: pointer;" data-title="ui_control">
+                <div class="app-icon-btn"  id="panel" onclick="openControlPanel()">
+                   <a  style="cursor: pointer;" data-title="ui_control">
                        <i class="fas fa-sliders-h"></i>
                    </a>
                </div>
@@ -448,19 +448,24 @@
     backdrop-filter: var(--glass-blur);
     border: var(--glass-border);
     border-radius: var(--radius);
-    box-shadow: var(--breathing-glow);
+
     z-index: 10001;
-    padding: 20px;
+    padding: 0;
     color: var(--text-primary);
+    overflow: hidden;
 }
 
 .control-panel-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
+    background: var(--header-bg);
     border-bottom: var(--border-light);
-    padding-bottom: 15px;
-    margin-bottom: 20px;
+    padding: 15px 20px;
+    width: 100%;
+    box-sizing: border-box;
+    position: relative;
+    z-index: 1;
 }
 
 .control-panel-title {
@@ -470,12 +475,13 @@
     display: flex;
     align-items: center;
     gap: 10px;
+    z-index: 2;
 }
 
 .control-panel-close {
-    background: none;
+    background: red;
     border: none;
-    color: var(--text-secondary);
+    color: white;
     font-size: 1.2rem;
     cursor: pointer;
     width: 32px;
@@ -485,11 +491,27 @@
     align-items: center;
     justify-content: center;
     transition: var(--transition);
+    position: relative;
+    z-index: 10;
+    margin: 0;
 }
 
 .control-panel-close:hover {
-    background: var(--color-red);
+    background: red;
     color: white;
+}
+
+.control-panel-body {
+    padding: 20px;
+}
+
+.control-panel-footer {
+    background: var(--header-bg);
+    border-top: var(--border-light);
+    padding: 15px 20px;
+    text-align: center;
+    width: 100%;
+    box-sizing: border-box;
 }
 
 .control-panel-grid {
@@ -501,12 +523,59 @@
 .control-card {
     background: var(--bg-body);
     border-radius: var(--radius);
-    padding: 15px;
+    padding: 18px 15px;
     border: var(--border-light);
     text-align: center;
     cursor: pointer;
     transition: var(--transition);
     box-shadow: 0 2px 8px color-mix(in oklch, var(--bg-container), black 20%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 90px;
+    gap: 12px;
+}
+
+.control-card-icon {
+    font-size: 24px;
+    flex-shrink: 0;
+}
+
+.control-card-content {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    width: 100%;
+}
+
+.control-card-title {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin: 0;
+}
+
+.control-card-status {
+    font-size: 11px;
+    color: var(--text-secondary);
+    margin: 0;
+}
+
+.control-card:nth-child(1) .control-card-icon {
+    color: var(--color-green);
+}
+
+.control-card:nth-child(2) .control-card-icon {
+    color: var(--color-blue);
+}
+
+.control-card:nth-child(3) .control-card-icon {
+    color: var(--color-violet);
+}
+
+.control-card:nth-child(4) .control-card-icon {
+    color: var(--color-yellow);
 }
 
 .control-card:hover {
@@ -514,39 +583,20 @@
     box-shadow: 0 4px 12px color-mix(in oklch, var(--bg-container), black 30%);
 }
 
-.control-card-icon {
-    font-size: 20px;
-    margin-bottom: 8px;
-}
-
-.control-card-title {
-    font-size: 13px;
-    margin-bottom: 5px;
-}
-
-.control-card-status {
-    font-size: 11px;
-    color: var(--text-secondary);
-}
-
 .reset-button {
-    background: var(--btn-danger-bg);
-    color: #fff;
+    background: var(--color-red);
+    color: white;
     border: none;
-    padding: 8px 20px;
+    padding: 8px 16px;
     border-radius: var(--radius);
     cursor: pointer;
-    font-size: 13px;
     transition: var(--transition);
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    box-shadow: 0 2px 6px color-mix(in oklch, var(--btn-danger-bg), black 40%);
+    font-size: 0.9rem;
 }
 
 .reset-button:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px color-mix(in oklch, var(--btn-danger-bg), black 50%);
+    background: color-mix(in oklch, var(--color-red), black 20%);
+    transform: translateY(-1px);
 }
 
 .overlay {
@@ -1587,48 +1637,58 @@
 </style>
 
 <div id="controlPanel" class="control-panel">
-    <div class="control-panel-header">
+    <header class="control-panel-header">
         <h6 class="control-panel-title">
             <i class="fas fa-sliders-h"></i>
             <span data-translate="ui_control">UI Control</span>
         </h6>
-        <button onclick="closeControlPanel()" class="control-panel-close">
+        <button id="controlPanelClose" class="control-panel-close">
             &times;
         </button>
-    </div>
+    </header>
 
-    <div class="control-panel-grid">
-        <div class="control-card" onclick="toggleVisibility('.icon-group')">
-            <i class="fas fa-icons control-card-icon" style="color: var(--color-green);"></i>
-            <div class="control-card-title" data-translate="tool_icons">Tool Icons</div>
-            <div id="iconGroupStatus" class="control-card-status"  data-translate="status_show">Show</div>
+    <main class="control-panel-body">
+        <div class="control-panel-grid">
+            <div class="control-card" onclick="toggleVisibility('.icon-group')">
+                <i class="fas fa-icons control-card-icon"></i>
+                <div class="control-card-content">
+                    <div class="control-card-title" data-translate="tool_icons">Tool Icons</div>
+                    <div id="iconGroupStatus" class="control-card-status" data-translate="status_show">Show</div>
+                </div>
+            </div>
+
+            <div class="control-card" onclick="toggleVisibility('.weather-card')">
+                <i class="fas fa-cloud control-card-icon"></i>
+                <div class="control-card-content">
+                    <div class="control-card-title" data-translate="weather_info">Weather Info</div>
+                    <div id="weatherStatus" class="control-card-status" data-translate="status_show">Show</div>
+                </div>
+            </div>
+
+            <div class="control-card" onclick="toggleVisibility('.ip-container')">
+                <i class="fas fa-globe control-card-icon"></i>
+                <div class="control-card-content">
+                    <div class="control-card-title" data-translate="ip_info">IP Info</div>
+                    <div id="ipStatus" class="control-card-status" data-translate="status_show">Show</div>
+                </div>
+            </div>
+
+            <div class="control-card" onclick="toggleVisibility('#result')">
+                <i class="fas fa-star control-card-icon"></i>
+                <div class="control-card-content">
+                    <div class="control-card-title" data-translate="site_status">Site Status</div>
+                    <div id="navbarRightStatus" class="control-card-status" data-translate="status_show">Show</div>
+                </div>
+            </div>
         </div>
+    </main>
 
-        <div class="control-card" onclick="toggleVisibility('.weather-card')">
-            <i class="fas fa-cloud control-card-icon" style="color: var(--color-blue);"></i>
-            <div class="control-card-title" data-translate="weather_info">Weather Info</div>
-            <div id="weatherStatus" class="control-card-status" data-translate="status_show">Show</div>
-        </div>
-
-        <div class="control-card" onclick="toggleVisibility('.ip-container')">
-            <i class="fas fa-globe control-card-icon" style="color: var(--color-violet);"></i>
-            <div class="control-card-title" data-translate="ip_info">IP Info</div>
-            <div id="ipStatus" class="control-card-status" data-translate="status_show">Show</div>
-        </div>
-
-        <div class="control-card" onclick="toggleVisibility('#result')">
-            <i class="fas fa-star control-card-icon" style="color: var(--color-yellow);"></i>
-            <div class="control-card-title" data-translate="site_status">Site Status</div>
-            <div id="navbarRightStatus" class="control-card-status" data-translate="status_show">Show</div>
-        </div>
-    </div>
-
-    <div style="margin-top: 20px; text-align: center;">
+    <footer class="control-panel-footer">
         <button onclick="resetAllSettings()" class="reset-button">
             <i class="fas fa-undo-alt"></i>
             <span data-translate="reset_all">Reset All Settings</span>
         </button>
-    </div>
+    </footer>
 </div>
 
 <div id="overlay" class="overlay" onclick="closeControlPanel()"></div>
@@ -3145,6 +3205,18 @@ function resetAllSettings() {
     if (typeof speakMessage === 'function') speakMessage(logMsg);
 }
 
+function initControlPanelEvents() {
+    const closeBtn = document.getElementById('controlPanelClose');
+    if (closeBtn) {
+        closeBtn.replaceWith(closeBtn.cloneNode(true));
+        document.getElementById('controlPanelClose').onclick = function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            closeControlPanel();
+        };
+    }
+}
+
 (function() {
     const style = document.createElement('style');
     style.textContent = '.control-panel-hidden { display: none !important; }';
@@ -3164,9 +3236,16 @@ function resetAllSettings() {
 document.addEventListener('DOMContentLoaded', function() {
     handlePanelVisibility();
     updateStatusDisplay();
+    initControlPanelEvents(); 
 });
 
 window.addEventListener('resize', handlePanelVisibility);
+
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape' && document.getElementById('controlPanel').style.display === 'block') {
+        closeControlPanel();
+    }
+});
 </script>
 
 <script type="text/javascript">
