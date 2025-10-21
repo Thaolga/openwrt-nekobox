@@ -245,7 +245,7 @@
                 </div>
             </div>
 
-            <div class="weather-card" style="position:relative; display:flex; align-items:center; padding:10px; border-radius:8px; color:white;  height:50px; margin-top:3px;">
+            <div class="weather-card" style="position:relative; display:flex; align-items:center; padding:10px; border-radius:8px; color:white;  height:50px; margin-top:5px;">
               <div style="flex:1; display:flex; align-items:center; gap:25px;">   
                   <div id="iconContainer" style="position:relative; width:50px; height:48px; overflow:hidden;"> 
                       <img id="loadingIcon" src="/luci-static/ipip/img/loading.svg" style="position:absolute; top:50%; left:50%; transform:translate(-50%, -50%); width:50px; height:50px;" />
@@ -260,7 +260,7 @@
               </div>
             </div>
 
-            <div class="ip-container">
+            <div class="ip-container" style="transform: translateY(4px);">
                 <div class="imgBox">
                     <img id="flag" title="">
                     <div class="loading" id="loading" style="display:none;">
@@ -5132,7 +5132,7 @@ let city = localStorage.getItem('city') || 'Beijing';
 const apiKey = 'fc8bd2637768c286c6f1ed5f1915eb22';
 let currentWeatherData = null;
 
-const CACHE_REFRESH_INTERVAL = 30 * 60 * 1000;
+const CACHE_REFRESH_INTERVAL = 10 * 60 * 1000;
 
 const weatherIcon = document.getElementById('weatherIcon');
 const weatherText = document.getElementById('weatherText');
@@ -5347,6 +5347,8 @@ const modalTranslations = {
     }
 };
 
+let forceRefresh = false;
+
 async function getModalLang() {
     try {
         const lang = await getRealTimeLanguage();
@@ -5457,6 +5459,7 @@ async function saveCity() {
     city = value;
     localStorage.setItem('city', city);
     await showModalMessage("citySaved", {city});
+    forceRefresh = true;
     fetchWeather();
     closeModal();
 }
@@ -5543,7 +5546,8 @@ async function saveTranslationCache(city, translations, extra = {}) {
         const payload = { 
             city: city, 
             translations: translations,
-            icon: extra.icon || ''
+            icon: extra.icon || '',
+            forceUpdate: forceRefresh
         };
         const res = await fetch('/luci-static/spectra/bgm/weather_translation.php', {
             method: 'POST',
@@ -5578,9 +5582,8 @@ async function translateWeatherDesc(descList) {
     const result = [];
     const translationsToUpdate = { weather: {}, city: cachedCity };
     const fullDesc = descList.join(', ');
-    if (cachedWeather[fullDesc]) {
-        result.push(cachedWeather[fullDesc]);
-    } else {
+
+    if (forceRefresh || !cachedWeather[fullDesc]) {
         try {
             const t = await performTranslation(fullDesc, lang);
             translationsToUpdate.weather[fullDesc] = t;
@@ -5589,8 +5592,11 @@ async function translateWeatherDesc(descList) {
             translationsToUpdate.weather[fullDesc] = fullDesc;
             result.push(fullDesc);
         }
+    } else {
+        result.push(cachedWeather[fullDesc]);
     }
-    if (!cachedCity) {
+    
+    if (forceRefresh || !cachedCity) {
         try {
             const tCity = await performTranslation(city, lang);
             translationsToUpdate.city = tCity;
@@ -5602,6 +5608,7 @@ async function translateWeatherDesc(descList) {
     } else {
         translationsToUpdate.city = cachedCity;
     }
+    
     const updatedCache = JSON.parse(JSON.stringify(existingTranslations));
     updatedCache[lang] = {
         weather: { ...cachedWeather, ...translationsToUpdate.weather },
@@ -5648,13 +5655,9 @@ function containsNonLatin(text) {
 }
 
 setInterval(async () => {
-    const cache = await readTranslationCache(city);
-    if (isCacheExpired(cache.updated)) {
-        if (currentWeatherData) {
-            const descList = currentWeatherData.weather.map(w => w.description);
-            await translateWeatherDesc(descList);
-        }
-    }
+    forceRefresh = true;
+    await fetchWeather();
+    forceRefresh = false;
 }, CACHE_REFRESH_INTERVAL);
 
 async function updateWeatherUI(data, iconCode) {
@@ -5706,6 +5709,10 @@ async function fetchWeather() {
             currentWeatherData = data;
             const iconCode = data.weather[0].icon || '';
             await updateWeatherUI(data, iconCode);
+            
+            if (forceRefresh) {
+                await updateLastUpdatedDisplay();
+            }
         } else {
             throw new Error('Invalid data');
         }
@@ -5718,9 +5725,9 @@ async function fetchWeather() {
         }
     } finally {
         loadingIcon.style.display = 'none';
+        forceRefresh = false;
     }
 }
-
 setCityBtn.addEventListener('click', openCityModal);
 closeCityModal.addEventListener('click', closeModal);
 saveCityBtn.addEventListener('click', saveCity);
@@ -5728,7 +5735,7 @@ saveCityBtn.addEventListener('click', saveCity);
 document.addEventListener('DOMContentLoaded', async () => {
     await updateModalLanguage();
     fetchWeather();
-    setInterval(fetchWeather, 10*60*1000);
+    setInterval(fetchWeather, CACHE_REFRESH_INTERVAL);
 });
 
 let lastSpokenHour = null;
