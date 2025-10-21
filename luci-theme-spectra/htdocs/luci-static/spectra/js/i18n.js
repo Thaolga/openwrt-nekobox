@@ -21,6 +21,7 @@ const languageTranslations = {
         'cancel': '取消',
         'save': '保存',
         'language_saved': '语言设置已保存',
+        "voice_saved": "语音设置已保存",
         'language_save_failed': '语言设置保存失败',
         'voice_label': '语音播报',
         'voice_enable': '语音播报已启用',
@@ -157,6 +158,7 @@ const languageTranslations = {
         'cancel': '取消',
         'save': '保存',
         'language_saved': '語言設置已保存',
+        "voice_saved": "語音設置已保存",
         'language_save_failed': '語言設置保存失敗',
         'voice_label': '語音播報',
         'voice_enable': '語音播報已啟用',
@@ -290,6 +292,7 @@ const languageTranslations = {
         'cancel': 'Cancel',
         'save': 'Save',
         'language_saved': 'Language settings saved',
+        "voice_saved": "Voice settings saved",
         'language_save_failed': 'Language settings save failed',
         'translation_enabled': 'IP information online translation enabled',
         'translation_disabled': 'IP information online translation disabled',
@@ -431,6 +434,7 @@ const languageTranslations = {
         'cancel': '취소',
         'save': '저장',
         'language_saved': '언어 설정이 저장되었습니다',
+        "voice_saved": "음성 설정이 저장되었습니다",
         'language_save_failed': '언어 설정 저장 실패',
         'translation_enabled': 'IP 정보 온라인 번역 사용',
         'translation_disabled': 'IP 정보 온라인 번역 사용 안 함',
@@ -562,6 +566,7 @@ const languageTranslations = {
         'cancel': 'Hủy',
         'save': 'Lưu',
         'language_saved': 'Đã lưu cài đặt ngôn ngữ',
+        "voice_saved": "Cài đặt giọng nói đã được lưu",
         'language_save_failed': 'Lưu cài đặt ngôn ngữ thất bại',
         'translation_enabled': 'Dịch trực tuyến thông tin IP đã bật',
         'translation_disabled': 'Dịch trực tuyến thông tin IP đã tắt',
@@ -694,6 +699,7 @@ const languageTranslations = {
         'cancel': 'ยกเลิก',
         'save': 'บันทึก',
         'language_saved': 'บันทึกการตั้งค่าภาษาเรียบร้อยแล้ว',
+        "voice_saved": "บันทึกการตั้งค่าเสียงแล้ว",
         'language_save_failed': 'บันทึกการตั้งค่าภาษาไม่สำเร็จ',
         'translation_enabled': 'เปิดใช้งานการแปลออนไลน์ข้อมูล IP แล้ว',
         'translation_disabled': 'ปิดใช้งานการแปลออนไลน์ข้อมูล IP แล้ว',
@@ -826,6 +832,7 @@ const languageTranslations = {
         'cancel': 'キャンセル',
         'save': '保存',
         'language_saved': '言語設定が保存されました',
+        "voice_saved": "音声設定が保存されました",
         'language_save_failed': '言語設定の保存に失敗しました',
         'translation_enabled': 'IP情報オンライン翻訳が有効になりました',
         'translation_disabled': 'IP情報オンライン翻訳が無効になりました',
@@ -958,6 +965,7 @@ const languageTranslations = {
         'cancel': 'Отмена',
         'save': 'Сохранить',
         'language_saved': 'Настройки языка сохранены',
+        "voice_saved": "Настройки голоса сохранены",
         'language_save_failed': 'Не удалось сохранить настройки языка',
         'translation_enabled': 'Онлайн-перевод IP-информации включен',
         'translation_disabled': 'Онлайн-перевод IP-информации отключен',
@@ -1090,6 +1098,7 @@ const languageTranslations = {
         'cancel': 'إلغاء',
         'save': 'حفظ',
         'language_saved': 'تم حفظ إعدادات اللغة',
+        "voice_saved": "تم حفظ إعدادات الصوت",
         'language_save_failed': 'فشل حفظ إعدادات اللغة',
         'translation_enabled': 'تم تمكين الترجمة عبر الإنترنت لمعلومات IP',
         'translation_disabled': 'تم تعطيل الترجمة عبر الإنترنت لمعلومات IP',
@@ -1222,6 +1231,7 @@ const languageTranslations = {
         'cancel': 'Cancelar',
         'save': 'Guardar',
         'language_saved': 'Configuración de idioma guardada',
+        "voice_saved": "Configuración de voz guardada",
         'language_save_failed': 'Error al guardar la configuración de idioma',
         'translation_enabled': 'Traducción en línea de información IP habilitada',
         'translation_disabled': 'Traducción en línea de información IP deshabilitada',
@@ -1354,6 +1364,7 @@ const languageTranslations = {
         'cancel': 'Abbrechen',
         'save': 'Speichern',
         'language_saved': 'Spracheinstellungen gespeichert',
+        "voice_saved": "Spracheneinstellungen gespeichert",
         'language_save_failed': 'Speichern der Spracheinstellungen fehlgeschlagen',
         'translation_enabled': 'IP-Informationen Online-Übersetzung aktiviert',
         'translation_disabled': 'IP-Informationen Online-Übersetzung deaktiviert',
@@ -1486,6 +1497,7 @@ const languageTranslations = {
         'cancel': 'Annuler',
         'save': 'Enregistrer',
         'language_saved': 'Paramètres de langue enregistrés',
+        "voice_saved": "Paramètres vocaux enregistrés",
         'language_save_failed': 'Échec de l\'enregistrement des paramètres de langue',
         'translation_enabled': 'Traduction en ligne des informations IP activée',
         'translation_disabled': 'Traduction en ligne des informations IP désactivée',
@@ -1618,6 +1630,7 @@ const languageTranslations = {
         'cancel': 'বাতিল',
         'save': 'সংরক্ষণ',
         'language_saved': 'ভাষা সেটিংস সংরক্ষণ করা হয়েছে',
+        "voice_saved": "ভয়েস সেটিং সংরক্ষিত হয়েছে",
         'language_save_failed': 'ভাষা সেটিংস সংরক্ষণ ব্যর্থ হয়েছে',
         'translation_enabled': 'IP তথ্য অনলাইন অনুবাদ সক্ষম হয়েছে',
         'translation_disabled': 'IP তথ্য অনলাইন অনুবাদ অক্ষম হয়েছে',
@@ -1835,7 +1848,7 @@ function saveLanguage() {
     const translations = languageTranslations[language] || languageTranslations['zh'];
     const languageKey = getOptionTranslationKey(language);
     const languageText = translations[languageKey] || language;
-    const standardCode = getVoiceLang(language);
+    const standardCode = languageStandardMap[language] || language;
 
     fetch('/luci-static/spectra/bgm/save_language.php', {
         method: 'POST',
@@ -1903,7 +1916,7 @@ function handleChineseVoiceChange() {
     } else if (this.value === 'zh-TW') {
         voicePreferenceText = t['chinese_voice_taiwan'] || '繁體中文 (zh-TW)';
     }
-    const msg = `${t['language_saved']}: ${voicePreferenceText}`;
+    const msg = `${t['voice_saved']}: ${voicePreferenceText}`;
     if (colorVoiceEnabled) {
         showLogMessage(msg);
         speakMessage(msg);
