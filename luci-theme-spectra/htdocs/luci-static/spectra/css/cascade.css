@@ -4496,6 +4496,10 @@ td>table>tbody>tr>td,
 	padding: 1rem 0
 }
 
+.cbi-section-node > * {
+        padding-left: 2rem;
+}
+
 .cbi-section .cbi-section-remove:nth-of-type(2n),
 .container>.cbi-section .cbi-section-node:nth-of-type(2n) {
 	background-color: var(--bg-container);
