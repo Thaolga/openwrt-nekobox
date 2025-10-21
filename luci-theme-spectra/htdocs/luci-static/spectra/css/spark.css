@@ -917,3 +917,8 @@ textarea:focus {
     animation-play-state: paused;
 }
 
+.reusable-card > .card-body > .content > .info > .status > span {
+    color: var(--text-primary) !important;
+    background-color: var(--card-bg) !important;
+}
+
