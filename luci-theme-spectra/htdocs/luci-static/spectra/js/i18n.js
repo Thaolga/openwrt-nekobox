@@ -133,6 +133,15 @@ const languageTranslations = {
         'starting_installation': '开始安装...',
         'installation_complete': '安装完成！',
         'theme_download': '主题下载',
+        "voice_select_title": "语音播报首选",
+        "select_voice_placeholder": "请选择语音...",
+        "no_suitable_voice": "未找到适合的语音",
+        "voice_type": "类型",
+        "voice_type_default": "默认语音",
+        "voice_type_natural": "自然语音",
+        "voice_type_online": "在线语音",
+        "voice_type_local": "本地语音",
+        "voice_type_other": "其他语音",
         'version_check_label': '版本检测',
         'command_install_label': '命令安装'
     },
@@ -272,6 +281,15 @@ const languageTranslations = {
         'installation_complete': '安裝完成！',
         'version_check_label': '版本檢測',
         'command_install_label': '命令安裝',
+        "voice_select_title": "語音播放首選",
+        "select_voice_placeholder": "請選擇語音...",
+        "no_suitable_voice": "未找到合適的語音",
+        "voice_type": "類型",
+        "voice_type_default": "預設語音",
+        "voice_type_natural": "自然語音",
+        "voice_type_online": "在線語音",
+        "voice_type_local": "本地語音",
+        "voice_type_other": "其他語音",
         'theme_download': '主題下載'
     },
     'en': {
@@ -414,6 +432,15 @@ const languageTranslations = {
         'installation_complete': 'Installation complete!',
         'version_check_label': 'Version Check',
         'command_install_label': 'Command Installation',
+        "voice_select_title": "Voice Preference",
+        "select_voice_placeholder": "Please select a voice...",
+        "no_suitable_voice": "No suitable voice found",
+        "voice_type": "Type",
+        "voice_type_default": "Default Voice",
+        "voice_type_natural": "Natural Voice",
+        "voice_type_online": "Online Voice",
+        "voice_type_local": "Local Voice",
+        "voice_type_other": "Other Voice",
         'theme_download': 'Theme download'
     },
     'ko': {
@@ -546,6 +573,15 @@ const languageTranslations = {
         'installation_complete': '설치가 완료되었습니다!',
         'version_check_label': '버전 확인',
         'command_install_label': '명령어 설치',
+        "voice_select_title": "음성 설정",
+        "select_voice_placeholder": "음성을 선택하세요...",
+        "no_suitable_voice": "적절한 음성을 찾을 수 없습니다",
+        "voice_type": "유형",
+        "voice_type_default": "기본 음성",
+        "voice_type_natural": "자연스러운 음성",
+        "voice_type_online": "온라인 음성",
+        "voice_type_local": "로컬 음성",
+        "voice_type_other": "기타 음성",
         'theme_download': '테마 다운로드'
     },
     'vi': {
@@ -678,6 +714,15 @@ const languageTranslations = {
         'starting_installation': 'Bắt đầu cài đặt...',
         'installation_complete': 'Cài đặt hoàn tất!',
         'version_check_label': 'Kiểm tra phiên bản',
+        "voice_select_title": "Tùy chọn giọng nói",
+        "select_voice_placeholder": "Vui lòng chọn giọng nói...",
+        "no_suitable_voice": "Không tìm thấy giọng nói phù hợp",
+        "voice_type": "Loại",
+        "voice_type_default": "Giọng mặc định",
+        "voice_type_natural": "Giọng tự nhiên",
+        "voice_type_online": "Giọng trực tuyến",
+        "voice_type_local": "Giọng cục bộ",
+        "voice_type_other": "Giọng khác",   
         'command_install_label': 'Cài đặt lệnh',
         'theme_download': 'Tải chủ đề'
     },
@@ -812,6 +857,15 @@ const languageTranslations = {
         'installation_complete': 'ติดตั้งเสร็จสิ้น!',
         'version_check_label': 'ตรวจสอบเวอร์ชัน',
         'command_install_label': 'ติดตั้งคำสั่ง',
+        "voice_select_title": "การตั้งค่าเสียงพูด",
+        "select_voice_placeholder": "โปรดเลือกเสียง...",
+        "no_suitable_voice": "ไม่พบเสียงที่เหมาะสม",
+        "voice_type": "ประเภท",
+        "voice_type_default": "เสียงเริ่มต้น",
+        "voice_type_natural": "เสียงธรรมชาติ",
+        "voice_type_online": "เสียงออนไลน์",
+        "voice_type_local": "เสียงในเครื่อง",
+        "voice_type_other": "เสียงอื่นๆ",
         'theme_download': 'ดาวน์โหลดธีม'
     },
     'ja': {
@@ -944,7 +998,16 @@ const languageTranslations = {
         'starting_installation': 'インストールを開始しています...',
         'installation_complete': 'インストールが完了しました！',
         'version_check_label': 'バージョン確認',
-        'command_install_label': 'コマンドインストール',   
+        'command_install_label': 'コマンドインストール',  
+        "voice_select_title": "音声設定",
+        "select_voice_placeholder": "音声を選択してください...",
+        "no_suitable_voice": "適切な音声が見つかりません",
+        "voice_type": "種類",
+        "voice_type_default": "デフォルト音声",
+        "voice_type_natural": "ナチュラル音声",
+        "voice_type_online": "オンライン音声",
+        "voice_type_local": "ローカル音声",
+        "voice_type_other": "その他の音声",
         'theme_download': 'テーマダウンロード'
     },
     'ru': {
@@ -1078,6 +1141,15 @@ const languageTranslations = {
         'installation_complete': 'Установка завершена!',
         'version_check_label': 'Проверка версии',
         'command_install_label': 'Установка команды',
+        "voice_select_title": "Предпочтительный голос",
+        "select_voice_placeholder": "Выберите голос...",
+        "no_suitable_voice": "Подходящий голос не найден",
+        "voice_type": "Тип",
+        "voice_type_default": "Голос по умолчанию",
+        "voice_type_natural": "Естественный голос",
+        "voice_type_online": "Онлайн голос",
+        "voice_type_local": "Локальный голос",
+        "voice_type_other": "Другой голос",
         'theme_download': 'Скачать тему'
     },
     'ar': {
@@ -1211,6 +1283,15 @@ const languageTranslations = {
         'installation_complete': 'اكتمل التثبيت!',
         'version_check_label': 'التحقق من الإصدار',
         'command_install_label': 'تثبيت الأمر',
+        "voice_select_title": "تفضيل الصوت",
+        "select_voice_placeholder": "يرجى اختيار صوت...",
+        "no_suitable_voice": "لم يتم العثور على صوت مناسب",
+        "voice_type": "النوع",
+        "voice_type_default": "الصوت الافتراضي",
+        "voice_type_natural": "الصوت الطبيعي",
+        "voice_type_online": "الصوت عبر الإنترنت",
+        "voice_type_local": "الصوت المحلي",
+        "voice_type_other": "أصوات أخرى",
         'theme_download': 'تحميل السمة'
     },
     'es': {
@@ -1344,6 +1425,15 @@ const languageTranslations = {
         'installation_complete': '¡Instalación completada!',
         'version_check_label': 'Comprobación de versión',
         'command_install_label': 'Instalación de comando',
+        "voice_select_title": "Preferencia de voz",
+        "select_voice_placeholder": "Seleccione una voz...",
+        "no_suitable_voice": "No se encontró una voz adecuada",
+        "voice_type": "Tipo",
+        "voice_type_default": "Voz predeterminada",
+        "voice_type_natural": "Voz natural",
+        "voice_type_online": "Voz en línea",
+        "voice_type_local": "Voz local",
+        "voice_type_other": "Otra voz",
         'theme_download': 'Descarga del tema'
     },
     'de': {
@@ -1477,6 +1567,15 @@ const languageTranslations = {
         'installation_complete': 'Installation abgeschlossen!',
         'version_check_label': 'Versionsprüfung',
         'command_install_label': 'Befehlsinstallation',
+        "voice_select_title": "Sprachpräferenz",
+        "select_voice_placeholder": "Bitte wählen Sie eine Stimme...",
+        "no_suitable_voice": "Keine passende Stimme gefunden",
+        "voice_type": "Typ",
+        "voice_type_default": "Standardstimme",
+        "voice_type_natural": "Natürliche Stimme",
+        "voice_type_online": "Online-Stimme",
+        "voice_type_local": "Lokale Stimme",
+        "voice_type_other": "Andere Stimme",
         'theme_download': 'Thema herunterladen'
     },
     'fr': {
@@ -1610,6 +1709,15 @@ const languageTranslations = {
         'installation_complete': 'Installation terminée !',
         'version_check_label': 'Vérification de version',
         'command_install_label': 'Installation de commande',
+        "voice_select_title": "Préférence de voix",
+        "select_voice_placeholder": "Veuillez sélectionner une voix...",
+        "no_suitable_voice": "Aucune voix appropriée trouvée",
+        "voice_type": "Type",
+        "voice_type_default": "Voix par défaut",
+        "voice_type_natural": "Voix naturelle",
+        "voice_type_online": "Voix en ligne",
+        "voice_type_local": "Voix locale",
+        "voice_type_other": "Autre voix",
         'theme_download': 'Télécharger le thème'
     },
     'bn': {
@@ -1744,6 +1852,15 @@ const languageTranslations = {
         'installation_complete': 'ইনস্টলেশন সম্পূর্ণ!',
         'version_check_label': 'সংস্করণ পরীক্ষা',
         'command_install_label': 'কমান্ড ইনস্টলেশন',
+        "voice_select_title": "ভয়েস পছন্দ",
+        "select_voice_placeholder": "একটি ভয়েস নির্বাচন করুন...",
+        "no_suitable_voice": "উপযুক্ত কোনো ভয়েস পাওয়া যায়নি",
+        "voice_type": "ধরন",
+        "voice_type_default": "ডিফল্ট ভয়েস",
+        "voice_type_natural": "প্রাকৃতিক ভয়েস",
+        "voice_type_online": "অনলাইন ভয়েস",
+        "voice_type_local": "স্থানীয় ভয়েস",
+        "voice_type_other": "অন্যান্য ভয়েস",
         'theme_download': 'থিম ডাউনলোড'
     }
 };
@@ -1780,30 +1897,148 @@ const flagMap = {
     'vi': '/luci-static/ipip/flags/vn.png'
 };
 
-const langToVoiceMap = {
-    'zh': 'zh-CN',
-    'en': 'en-US',
-    'hk': 'zh-TW',
-    'de': 'de-DE',
-    'fr': 'fr-FR',
-    'ko': 'ko-KR',
-    'ja': 'ja-JP',
-    'bn': 'bn-BD',
-    'vi': 'vi-VN',
-    'th': 'th-TH',
-    'ar': 'ar-SA',
-    'ru': 'ru-RU',
-    'es': 'es-ES'
+const langToVoiceLangMap = {
+    'zh': ['zh-CN', 'zh-HK', 'zh-TW'],
+    'hk': ['zh-CN', 'zh-HK', 'zh-TW'],
+    'en': ['en-US', 'en-GB', 'en-AU', 'en-CA', 'en-IN'],
+    'ko': ['ko-KR'],
+    'ja': ['ja-JP'],
+    'vi': ['vi-VN'],
+    'th': ['th-TH'],
+    'ru': ['ru-RU'],
+    'ar': ['ar-SA', 'ar-EG', 'ar-AE'],
+    'es': ['es-ES', 'es-MX', 'es-US'],
+    'de': ['de-DE', 'de-AT', 'de-CH'],
+    'fr': ['fr-FR', 'fr-CA', 'fr-CH'],
+    'bn': ['bn-BD', 'bn-IN']
 };
 
 let currentLang = 'zh';
 let colorVoiceEnabled = localStorage.getItem('colorVoiceEnabled') !== 'false';
+let availableVoices = [];
 
-function updateFlagIcon(lang) {
-    const flagImg = document.getElementById('currentFlag');
-    if (flagImg && flagMap[lang]) {
-        flagImg.src = flagMap[lang];
+function getChineseVoiceKey() {
+    return 'voicePreference_chinese';
+}
+
+function getVoicePreferenceKey(lang) {
+    if (lang === 'zh' || lang === 'hk') {
+        return getChineseVoiceKey();
     }
+    return `voicePreference_${lang}`;
+}
+
+function loadVoices() {
+    return new Promise(resolve => {
+        const voices = speechSynthesis.getVoices();
+        if (voices.length > 0) {
+            availableVoices = voices;
+            resolve(voices);
+        } else {
+            speechSynthesis.addEventListener('voiceschanged', () => {
+                availableVoices = speechSynthesis.getVoices();
+                resolve(availableVoices);
+            }, { once: true });
+        }
+    });
+}
+
+function detectVoiceType(voice) {
+    const name = voice.name.toLowerCase();
+    if (voice.default) return 'default';
+    if (name.includes('online') && name.includes('natural')) return 'natural';
+    if (name.includes('online')) return 'online';
+    if (voice.localService) return 'local';
+    return 'other';
+}
+
+function filterVoicesByLanguage(lang) {
+    const targetLangs = langToVoiceLangMap[lang] || [languageStandardMap[lang] || lang];
+    return availableVoices.filter(voice => 
+        targetLangs.some(targetLang => voice.lang.startsWith(targetLang))
+    );
+}
+
+function populateVoiceSelect(lang) {
+    const voiceSelect = document.getElementById('voiceSelect');
+    const translations = languageTranslations[currentLang] || languageTranslations['zh'];
+    
+    voiceSelect.innerHTML = `<option value="" data-translate="select_voice_placeholder">${translations['select_voice_placeholder'] || 'Please select a voice...'}</option>`;
+    
+    const filteredVoices = filterVoicesByLanguage(lang);
+    // const sortedVoices = sortVoices(filteredVoices);
+    
+    if (filteredVoices.length === 0) {
+        const option = document.createElement('option');
+        option.value = "";
+        option.textContent = translations['no_suitable_voice'] || 'No suitable voice found';
+        option.disabled = true;
+        voiceSelect.appendChild(option);
+        return;
+    }
+    
+    filteredVoices.forEach((voice, index) => {
+        const option = document.createElement('option');
+        option.value = index;
+        const type = detectVoiceType(voice);
+        const typeIcon = getVoiceTypeIcon(type);
+        const typeText = getVoiceTypeText(type);
+        const displayText = `${typeIcon} ${voice.name} (${voice.lang})`;
+        option.textContent = displayText;
+        option.title = `${translations['voice_type'] || 'Type'}: ${typeText}`;
+        option.setAttribute('data-display-text', displayText);
+        voiceSelect.appendChild(option);
+    });
+    
+    const voiceKey = getVoicePreferenceKey(lang);
+    const savedVoiceIndex = localStorage.getItem(voiceKey);
+    console.log(`Loading voice preference for ${lang} (key: ${voiceKey}):`, savedVoiceIndex);
+    if (savedVoiceIndex !== null && filteredVoices[savedVoiceIndex]) {
+        voiceSelect.value = savedVoiceIndex;
+    } else if (filteredVoices.length > 0) {
+        voiceSelect.value = "0";
+    }
+}
+
+/*
+function sortVoices(voices) {
+    return voices.sort((a, b) => {
+        if (a.default && !b.default) return -1;
+        if (!a.default && b.default) return 1;
+        
+        const aType = detectVoiceType(a);
+        const bType = detectVoiceType(b);
+        const typeOrder = { 'default': 0, 'natural': 1, 'online': 2, 'local': 3, 'other': 4 };
+        if (typeOrder[aType] !== typeOrder[bType]) {
+            return typeOrder[aType] - typeOrder[bType];
+        }
+        
+        return a.name.localeCompare(b.name);
+    });
+}
+*/
+
+function getVoiceTypeIcon(type) {
+    const icons = {
+        'default': '⚙️',
+        'natural': '🧠',
+        'online': '🌐',
+        'local': '💻',
+        'other': '🗣️'
+    };
+    return icons[type] || '🗣️';
+}
+
+function getVoiceTypeText(type) {
+    const translations = languageTranslations[currentLang] || languageTranslations['zh'];
+    const texts = {
+        'default': translations['voice_type_default'] || 'Default Voice',
+        'natural': translations['voice_type_natural'] || 'Natural Voice',
+        'online': translations['voice_type_online'] || 'Online Voice',
+        'local': translations['voice_type_local'] || 'Local Voice',
+        'other': translations['voice_type_other'] || 'Other Voice'
+    };
+    return texts[type] || translations['voice_type_other'] || 'Other Voice';
 }
 
 function updateUIText() {
@@ -1839,12 +2074,27 @@ function updateUIText() {
     updateFlagIcon(currentLang);
 }
 
+function updateFlagIcon(lang) {
+    const flagImg = document.getElementById('currentFlag');
+    if (flagImg && flagMap[lang]) {
+        flagImg.src = flagMap[lang];
+    }
+}
+
 function closeLanguageModal() {
     document.getElementById('languageModal').style.display = 'none';
 }
 
 function saveLanguage() {
     const language = document.getElementById('languageSelect').value;
+    const voiceSelect = document.getElementById('voiceSelect');
+    const voiceIndex = voiceSelect.value;
+    
+    if (voiceIndex !== '' && voiceIndex !== null) {
+        const voiceKey = getVoicePreferenceKey(language);
+        localStorage.setItem(voiceKey, voiceIndex);
+    }
+    
     const translations = languageTranslations[language] || languageTranslations['zh'];
     const languageKey = getOptionTranslationKey(language);
     const languageText = translations[languageKey] || language;
@@ -1857,12 +2107,23 @@ function saveLanguage() {
     })
     .then(response => response.json())
     .then(data => {
+        const selectedOption = voiceSelect.options[voiceSelect.selectedIndex];
+        const voiceDisplayText = selectedOption ? selectedOption.getAttribute('data-display-text') || selectedOption.textContent : '';
+        
         const msg = data.success
-            ? `${translations['language_saved']}: ${languageText} (${standardCode})`
+            ? `${translations['language_saved']}: ${languageText} (${standardCode}) - ${voiceDisplayText}`
             : `${translations['language_save_failed']}: ${languageText} (${standardCode})`;
 
         showLogMessage(msg);
-        speakMessage(msg);
+        
+        if (colorVoiceEnabled) {
+            const utterance = new SpeechSynthesisUtterance(msg);
+            const voice = getCurrentVoice();
+            if (voice) {
+                utterance.voice = voice;
+            }
+            speechSynthesis.speak(utterance);
+        }
 
         if (data.success) {
             currentLang = language;
@@ -1881,69 +2142,90 @@ function openLanguageModal() {
     })
     .then(response => response.json())
     .then(data => {
+        let selectedLanguage = 'zh';
         if (data.success && data.language) {
-            document.getElementById('languageSelect').value = data.language;
-            currentLang = data.language;
-            updateUIText();
+            selectedLanguage = data.language;
+            document.getElementById('languageSelect').value = selectedLanguage;
         }
+        
+        currentLang = selectedLanguage;
+        updateUIText();
 
         const voiceToggle = document.getElementById('voiceToggle');
         voiceToggle.checked = colorVoiceEnabled;
-        const isChinese = ['zh', 'hk'].includes(currentLang);
-        document.getElementById('chineseVoiceSelect').style.display = isChinese ? 'block' : 'none';
 
-        const radios = document.querySelectorAll('input[name="chineseVoice"]');
-        const saved = getChineseVoicePreference();
-        radios.forEach(radio => {
-            radio.checked = (radio.value === saved);
-            radio.removeEventListener('change', handleChineseVoiceChange);
-            radio.addEventListener('change', handleChineseVoiceChange);
+        loadVoices().then(() => {
+            const voiceSelectContainer = document.getElementById('voiceSelectContainer');
+            voiceSelectContainer.style.display = 'block';
+            populateVoiceSelect(selectedLanguage);
         });
 
         document.getElementById('languageModal').style.display = 'block';
     })
-    .catch(() => document.getElementById('languageModal').style.display = 'block');
+    .catch(() => {
+        document.getElementById('languageModal').style.display = 'block';
+        loadVoices().then(() => {
+            const voiceSelectContainer = document.getElementById('voiceSelectContainer');
+            voiceSelectContainer.style.display = 'block';
+            populateVoiceSelect(currentLang);
+        });
+    });
 }
 
-function handleChineseVoiceChange() {
-    localStorage.setItem('chineseVoiceLang', this.value);
-    const t = languageTranslations[currentLang] || languageTranslations['zh'];
-    let voicePreferenceText = this.value;
-    if (this.value === 'zh-CN') {
-        voicePreferenceText = t['chinese_voice_mandarin'] || '普通话 (zh-CN)';
-    } else if (this.value === 'zh-HK') {
-        voicePreferenceText = t['chinese_voice_cantonese'] || '粤语 (zh-HK)';
-    } else if (this.value === 'zh-TW') {
-        voicePreferenceText = t['chinese_voice_taiwan'] || '繁體中文 (zh-TW)';
+function getCurrentVoice() {
+    const voiceKey = getVoicePreferenceKey(currentLang);
+    const savedVoiceIndex = localStorage.getItem(voiceKey);
+    
+    if (savedVoiceIndex !== null) {
+        const filteredVoices = filterVoicesByLanguage(currentLang);
+        const selectedVoice = filteredVoices[savedVoiceIndex];
+        if (selectedVoice) {
+            return selectedVoice;
+        }
     }
-    const msg = `${t['voice_saved']}: ${voicePreferenceText}`;
-    if (colorVoiceEnabled) {
-        showLogMessage(msg);
-        speakMessage(msg);
+    
+    const filteredVoices = filterVoicesByLanguage(currentLang);
+    const defaultVoice = filteredVoices.find(voice => voice.default) || filteredVoices[0];
+    
+    if (!defaultVoice) {
+        return getChineseFallbackVoice();
     }
+    
+    return defaultVoice;
 }
 
-function getChineseVoicePreference() {
-    return localStorage.getItem('chineseVoiceLang') || 'zh-CN';
+function getChineseFallbackVoice() {
+    const chineseVoiceKey = getChineseVoiceKey();
+    const savedChineseIndex = localStorage.getItem(chineseVoiceKey);
+    
+    if (savedChineseIndex !== null) {
+        const chineseVoices = filterVoicesByLanguage('zh');
+        const savedChineseVoice = chineseVoices[savedChineseIndex];
+        if (savedChineseVoice) {
+            return savedChineseVoice;
+        }
+    }
+    
+    const chineseVoices = filterVoicesByLanguage('zh');
+    const chineseDefault = chineseVoices.find(voice => voice.default) || chineseVoices[0];
+    
+    if (chineseDefault) {
+        return chineseDefault;
+    }
+    
+    return availableVoices.find(voice => voice.lang.includes('zh')) || availableVoices[0];
 }
 
-function getVoiceLang(lang) {
-    const map = {
-        zh: getChineseVoicePreference(),
-        hk: getChineseVoicePreference(),
-        en: 'en-US',
-        ko: 'ko-KR',
-        ja: 'ja-JP',
-        vi: 'vi-VN',
-        th: 'th-TH',
-        ru: 'ru-RU',
-        ar: 'ar-SA',
-        es: 'es-ES',
-        de: 'de-DE',
-        fr: 'fr-FR',
-        bn: 'bn-BD'
-    };
-    return map[lang] || 'zh-CN';
+function speakMessage(message) {
+    if (!colorVoiceEnabled) return;
+
+    const voice = getCurrentVoice();
+    console.log('Speaking message with voice:', voice);
+    if (voice) {
+        const utterance = new SpeechSynthesisUtterance(message);
+        utterance.voice = voice;
+        speechSynthesis.speak(utterance);
+    }
 }
 
 function getOptionTranslationKey(value) {
@@ -1965,28 +2247,37 @@ function getOptionTranslationKey(value) {
     return keyMap[value] || value;
 }
 
-function speakMessage(message) {
-    if (!colorVoiceEnabled) return;
-
-    const xhr = new XMLHttpRequest();
-    xhr.open('GET', '/luci-static/spectra/bgm/language.txt', false);
-    xhr.send();
-
-    if (xhr.status === 200) {
-        const lang = xhr.responseText.trim();
-        const utterance = new SpeechSynthesisUtterance(message);
-        utterance.lang = getVoiceLang(lang);
-        speechSynthesis.speak(utterance);
-    }
-}
-
 document.addEventListener('DOMContentLoaded', function() {
     const languageSelect = document.getElementById('languageSelect');
     languageSelect.addEventListener('change', function() {
-        updateFlagIcon(this.value);
-        document.getElementById('chineseVoiceSelect').style.display = ['zh', 'hk'].includes(this.value) ? 'block' : 'none';
-        currentLang = this.value;
+        const newLang = this.value;
+        updateFlagIcon(newLang);
+        currentLang = newLang;
         updateUIText();
+        populateVoiceSelect(newLang);
+    });
+
+    const voiceSelect = document.getElementById('voiceSelect');
+    voiceSelect.addEventListener('change', function() {
+        if (this.value !== '' && this.value !== null) {
+            const filteredVoices = filterVoicesByLanguage(currentLang);
+            const selectedVoice = filteredVoices[this.value];
+            if (selectedVoice && colorVoiceEnabled) {
+                const translations = languageTranslations[currentLang] || languageTranslations['zh'];
+                const selectedOption = this.options[this.selectedIndex];
+                const voiceDisplayText = selectedOption ? selectedOption.getAttribute('data-display-text') || selectedOption.textContent : '';
+                
+                const msg = `${translations['voice_saved']}: ${voiceDisplayText}`;
+                showLogMessage(msg);
+                
+                const voiceKey = getVoicePreferenceKey(currentLang);
+                localStorage.setItem(voiceKey, this.value);
+                
+                const utterance = new SpeechSynthesisUtterance(msg);
+                utterance.voice = selectedVoice;
+                speechSynthesis.speak(utterance);
+            }
+        }
     });
 
     const voiceToggle = document.getElementById('voiceToggle');
@@ -2015,6 +2306,8 @@ document.addEventListener('DOMContentLoaded', function() {
     document.getElementById('languageModal').addEventListener('click', function(e) {
         if (e.target === this) closeLanguageModal();
     });
+
+    loadVoices();
 
     let currentHue = 260, currentChroma = 0.10, currentLightness = 30;
     let recentColors = [];

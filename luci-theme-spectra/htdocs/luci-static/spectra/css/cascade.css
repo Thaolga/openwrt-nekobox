@@ -40,7 +40,7 @@ pre {
 }
 
 a {
-	background-color: transparent
+        background-color: transparent;
 }
 
 abbr[title] {
@@ -2664,99 +2664,6 @@ button.cbi-button {
 	height: auto !important;
 }
 
-ul.tabs {
-	padding: 10px;
-	border-radius: 12px;
-	background-color: var(--bg-container);
-	margin: 20px 0 10px 0;
-	border-bottom: none !important;
-}
-
-ul.cbi-tabmenu {
-	margin: 10px 0 10px 0;
-
-}
-
-h2[name="content"] ,
-h2,
-ul.tabs {
-        border: 1px solid var(--bg-container);
-        box-shadow: 0 1px 3px -2px color-mix(in oklch, var(--bg-container), black 30%);
-}
-
-ul.tabs li,
-ul.cbi-tabmenu li {
-	background-color: oklch(var(--l) var(--c) var(--base-hue-1)) !important;
-	margin-right: 5px;
-	border-radius: 8px !important;
-	text-decoration: none !important;
-	transition: 0.3s transform ease-in-out;
-	display: inline-block;
-	color: #ffffff !important;
-	line-height: 1.5 !important;
-	box-sizing: border-box;
-	border-bottom: none !important;
-	transform: translateY(2px);
-        border: 1px solid var(--bg-container);
-        box-shadow: 0 2px 6px -2px color-mix(in oklch, var(--bg-container), black 30%);
-}
-
-ul.tabs li {
-	color: #ffffff !important;
-	padding: 8px 10px !important;
-}
-
-ul.cbi-tabmenu li {
-	color: #ffffff !important;
-	padding: 4px 6px !important;
-}
-
-ul.tabs li:hover,
-ul.cbi-tabmenu li:hover {
-	background-color: oklch(var(--l) var(--c) var(--base-hue-6)) !important;
-	transform: scale(1.1);
-}
-
-ul.tabs li.active,
-ul.cbi-tabmenu li.cbi-tab {
-	background-color: oklch(var(--l) var(--c) var(--base-hue-2))  !important;
-}
-
-ul.tabs li a,
-ul.cbi-tabmenu li a {
-	color: #ffffff !important;
-	text-decoration: none !important;
-}
-
-ul.tabs li.active a,
-ul.cbi-tabmenu li.cbi-tab a {
-	color: #ffffff !important;
-}
-
-@media (max-width: 768px) {
-
-	ul.tabs,
-	ul.cbi-tabmenu {
-		overflow-x: auto;
-		white-space: nowrap;
-		-webkit-overflow-scrolling: touch;
-	}
-
-	ul.tabs li,
-	ul.cbi-tabmenu li {
-		min-width: auto !important;
-		font-size: 12px !important;
-		padding: 4px 6px !important;
-	}
-
-	ul.tabs li a,
-	ul.cbi-tabmenu li a {
-		white-space: nowrap;
-		text-align: center !important;
-		display: block !important;
-	}
-}
-
 #_log_fieldset {
 	border: 1px solid #ddd;
 	border-radius: 6px;
@@ -2807,12 +2714,18 @@ div.pure-u-1-4:has(h4#status_instagram) {
 	display: none !important;
 }
 
-div.pure-u-1-4.check:has(h4#status_baidu) div.img-con img {
-	content: url('/luci-static/ipip/img/site_icon_01.png') !important;
-	width: 57px !important;
-	height: auto !important;
+.cbi-input-password + .cbi-button-neutral {
+        line-height: 1.5rem !important;
+        padding: .5rem .75rem !important;
+        margin: .25rem .1rem !important;
+        margin-left: 4px !important;
+        height: auto !important;
+        min-height: auto !important;
+        display: inline-flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        vertical-align: top !important;
 }
-
 
 a[href="#"][onclick*="/passwall2/node_config/"],
 a[href="#"][onclick*="/passwall2/get_redir_log"],
@@ -2824,19 +2737,26 @@ a[href="#"][onclick*="/cgi-bin/luci/admin/services/passwall/get_chinadns_log"] {
 	display: inline-flex;
 	align-items: center;
 	justify-content: center;
-	background-color: #3b82f6;
-	color: white !important;
+	background: oklch(65% 0.2 250 / 0.8);
+	backdrop-filter: blur(10px);
+	border: 1px solid oklch(65% 0.2 250 / 0.9);
+	color: #fff !important;
 	font-weight: 500;
-	gap: 6px;
 	border-radius: 6px;
-	text-decoration: none;
-	transition: all 0.3s cubic-bezier(0.645, 0.045, 0.355, 1);
-	margin-right: 5px;
-	margin-bottom: 5px;
-	font-size: inherit;
+	text-decoration: none !important;
+	transition: all 0.25s ease;
+	user-select: none;
+	gap: 4px;
+	margin-right: 2px;
+	margin-bottom: 8px;
 	padding: 0 10px;
-	height: 36px;
-	min-width: 60px;
+	height: 2rem;
+	min-width: 30px !important;
+	white-space: nowrap;
+	line-height: 1.5;
+	white-space: nowrap;
+	cursor: pointer;
+	font-size: 13px;
 }
 
 a[href="#"][onclick*="/passwall2/node_config/"]:hover,
@@ -2846,9 +2766,12 @@ a[href="#"][onclick*="/passwall/get_redir_log"]:hover,
 a[href="#"][onclick*="/cgi-bin/luci/admin/services/passwall2/get_socks_log"]:hover,
 a[href="#"][onclick*="/cgi-bin/luci/admin/services/passwall/get_socks_log"]:hover,
 a[href="#"][onclick*="/cgi-bin/luci/admin/services/passwall/get_chinadns_log"]:hover {
-	background-color: #2563eb;
-	transform: translateY(-2px);
-	box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+	background: oklch(65% 0.2 250 / 0.4);
+	border-color: oklch(65% 0.2 250 / 0.6);
+	transform: translateY(-1px);
+	box-shadow:
+		0 4px 12px oklch(0% 0 0 / 0.15),
+		0 0 0 1px oklch(65% 0.2 250 / 0.3);
 }
 
 a[href="#"][onclick*="/passwall2/node_config/"]:active,
@@ -2859,7 +2782,10 @@ a[href="#"][onclick*="/cgi-bin/luci/admin/services/passwall2/get_socks_log"]:act
 a[href="#"][onclick*="/cgi-bin/luci/admin/services/passwall/get_socks_log"]:active,
 a[href="#"][onclick*="/cgi-bin/luci/admin/services/passwall/get_chinadns_log"]:active {
 	transform: translateY(0);
-	background-color: #1d4ed8;
+	background: oklch(65% 0.2 250 / 0.9);
+	box-shadow:
+		0 2px 4px oklch(0% 0 0 / 0.1),
+		inset 0 1px 2px oklch(0% 0 0 / 0.1);
 }
 
 [data-page="admin-system-opkg"] h2 {
@@ -7348,5 +7274,114 @@ div.btns {
 	cursor: pointer;
 	background-color: var(--accent-color) !important;
 	color: #fff !important;
+}
+
+ul.tabs {
+	padding: 10px;
+	border-radius: 12px;
+	background-color: var(--bg-container);
+	margin: 20px 0 10px 0;
+	border-bottom: none !important;
+}
+
+ul.cbi-tabmenu {
+	margin: 10px 0 10px 0;
+
+}
+
+h2[name="content"] ,
+h2,
+ul.tabs {
+        border: 1px solid var(--bg-container);
+        box-shadow: 0 1px 3px -2px color-mix(in oklch, var(--bg-container), black 30%);
+}
+
+ul.tabs li,
+ul.cbi-tabmenu li {
+	position: relative;
+	background: color-mix(in oklch, var(--btn-primary-bg), transparent 10%);
+	backdrop-filter: var(--glass-blur);
+	border: var(--glass-border);
+	color: var(--text-primary);
+	cursor: pointer;
+	font-weight: 500;
+	border-radius: var(--radius);
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	padding: 6px 12px;
+	transition: var(--transition);
+	user-select: none;
+	min-height: 32px;
+	line-height: 1.4;
+	text-decoration: none !important;
+	white-space: nowrap;
+	margin-right: 8px;
+}
+
+ul.tabs li:hover,
+ul.cbi-tabmenu li:hover {
+	background: color-mix(in oklch, var(--btn-primary-hover), transparent 20%);
+	border-color: var(--glow-primary);
+	color: var(--text-primary);
+	transform: translateY(-1px);
+	box-shadow: var(--glow-shadow-default);
+}
+
+ul.tabs li.active,
+ul.cbi-tabmenu li.cbi-tab {
+	background: var(--color-pink);
+	border-color: var(--color-pink);
+	color: var(--text-primary);
+	transform: translateY(-1px);
+}
+
+ul.tabs li:active,
+ul.cbi-tabmenu li:active {
+	transform: translateY(0);
+	box-shadow:
+		0 2px 4px oklch(0% 0 0 / 0.1),
+		inset 0 1px 2px oklch(0% 0 0 / 0.1);
+}
+
+ul.tabs li:last-child,
+ul.cbi-tabmenu li:last-child {
+	margin-right: 0;
+}
+
+ul.tabs li a,
+ul.cbi-tabmenu li a {
+	color: var(--color-white-strong) !important;
+	text-decoration: none !important;
+	display: inline-block;
+	font-size: 14px;
+	line-height: 1;
+	text-align: center;
+	padding: 0;
+}
+
+@media (max-width: 768px) {
+	ul.tabs,
+	ul.cbi-tabmenu {
+		display: block;
+		overflow-x: auto;
+		overflow-y: hidden;
+		white-space: nowrap;
+		-webkit-overflow-scrolling: touch;
+		scrollbar-width: none;
+	}
+	ul.tabs::-webkit-scrollbar,
+	ul.cbi-tabmenu::-webkit-scrollbar {
+		display: none;
+	}
+	ul.tabs li,
+	ul.cbi-tabmenu li {
+		display: inline-flex;
+		font-size: 13px !important;
+		padding: 5px 10px !important;
+		margin-right: 6px;
+		flex: none;
+		min-height: 30px;
+	}
 }
 

@@ -298,7 +298,7 @@
 </div>
 
 <div id="languageModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 9999;">
-    <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background: var(--bg-container); padding: 20px; border-radius: 8px; min-width: 550px;">
+    <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background: var(--bg-container); padding: 20px; border-radius: 8px; min-width: 650px;">
         <div style="display: flex; align-items: center; margin-bottom: 15px;">
             <img id="currentFlag" src="/luci-static/ipip/flags/cn.png" style="width: 45px; height: 34px; margin-right: 10px; object-fit: contain;">
             <h3 style="margin: 0; font-size:20px; color:var(--accent-color);" data-translate="select_language"></h3>
@@ -318,19 +318,11 @@
             <option value="es" data-translate="spanish"></option>
             <option value="bn" data-translate="bangladesh"></option>
         </select>
-        <div id="chineseVoiceSelect" style="margin-top:15px; display:none;">
-          <label style="font-weight:bold; color:var(--accent-color);" id="chineseVoiceTitle" data-translate="chinese_voice_title"></label>
-          <div style="margin-top:8px; color: var(--text-primary); display: flex; align-items: center; padding-left:4px;">
-            <label style="display:inline-flex; align-items:center; margin-right:12px;">
-              <input type="radio" name="chineseVoice" value="zh-CN" style="vertical-align: middle; margin:0 2px 0 0; position: relative; top: -0.1px;"> <span data-translate="chinese_voice_mandarin"></span>
-            </label>
-            <label style="display:inline-flex; align-items:center; margin-right:12px;">
-              <input type="radio" name="chineseVoice" value="zh-HK" style="vertical-align: middle; margin:0 2px 0 0; position: relative; top: -0.1px;"> <span data-translate="chinese_voice_cantonese"></span>
-            </label>
-            <label style="display:inline-flex; align-items:center;">
-              <input type="radio" name="chineseVoice" value="zh-TW" style="vertical-align: middle; margin:0 2px 0 0; position: relative; top: -0.1px;"> <span data-translate="chinese_voice_taiwan"></span>
-            </label>
-          </div>
+        <div id="voiceSelectContainer" style="margin-top:15px; display:none;">
+            <label style="font-weight:bold; color:var(--accent-color);" id="voiceSelectTitle" data-translate="voice_select_title"></label>
+            <select id="voiceSelect" style="width: 100%; padding: 8px; margin-top: 8px; border:1px solid #ccc;">
+                <option value="" data-translate="select_voice_placeholder"></option>
+            </select>
         </div>
         <div style="display:flex; align-items: center; margin: 25px 0;">
             <input type="checkbox" id="voiceToggle" checked style="vertical-align: middle; margin:0;">
@@ -4994,10 +4986,11 @@ window.addEventListener('load', () => {
     color: white;
     border-radius: 8px;
     z-index: 200000;
-    max-width: 320px;
+    width: 350px;
     font-size: 15px;
-    word-wrap: break-word;
     line-height: 1.5;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.15);
     border: 1px solid rgba(255, 255, 255, 0.15);
     text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
@@ -5009,6 +5002,7 @@ window.addEventListener('load', () => {
     margin-bottom: 10px;
     transition: transform 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
 }
+
 @keyframes scrollUp {
     0% { top: 90%; opacity: 0; }
     20% { opacity: 1; }
@@ -5022,22 +5016,54 @@ window.addEventListener('load', () => {
     position: absolute;
     top: 6px;
     right: 10px;
-    background: transparent;
+    width: 24px;
+    height: 24px;
+    background: rgba(0, 0, 0, 0.3);
     border: none;
-    color: inherit;
+    border-radius: 50%;
     cursor: pointer;
-    font-size: 20px;
-    line-height: 1;
     opacity: 0;
     pointer-events: none;
-    transition: opacity 0.2s;
+    transition: opacity 0.2s, background 0.2s;
 }
+
+.weather-close-btn::before,
+.weather-close-btn::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 12px;
+    height: 2px;
+    background: white;
+    border-radius: 1px;
+}
+
+.weather-close-btn::before {
+    transform: translate(-50%, -50%) rotate(45deg);
+}
+
+.weather-close-btn::after {
+    transform: translate(-50%, -50%) rotate(-45deg);
+}
+
+.weather-close-btn:hover {
+    background: rgba(0, 0, 0, 0.5);
+}
+
 .weather-log-box:hover .weather-close-btn { opacity: 0.7; pointer-events: auto; }
 .weather-log-box:hover .weather-close-btn:hover { opacity: 1; }
 .weather-log-icon { display: inline-block; width: 20px; height: 20px; margin-right: 3px; vertical-align: middle; }
 .weather-log-box.error { background: linear-gradient(145deg, #ff4444, #cc0000); }
 .weather-log-box.warning { background: linear-gradient(145deg, #ffc107, #ffab00); }
 .weather-log-box.info { background: linear-gradient(145deg, #2196F3, #1976D2); }
+
+@media (max-width: 520px) {
+    .weather-log-box {
+        width: calc(100% - 20px);
+        left: 10px;
+    }
+}
 </style>
 
 <div id="cityModal" 
@@ -5101,7 +5127,7 @@ const showLogMessage = (function() {
             <div class="weather-log-content">
                 <span class="weather-log-icon" style="background-image:url('${createIcon(type)}')"></span>
                 ${decodeURIComponent(message)}
-                <button class="weather-close-btn">&times;</button>
+                <button class="weather-close-btn"></button>
             </div>
         `;
         logBox.querySelector('.weather-close-btn').onclick = () => {
@@ -5721,7 +5747,7 @@ async function fetchWeather() {
         weatherText.textContent = modalTranslations[lang].weatherError;
         weatherIcon.style.display = 'none';
         if (typeof speakMessage === 'function') {
-            speakMessage(modalTranslations[lang].weatherError);
+            //speakMessage(modalTranslations[lang].weatherError);
         }
     } finally {
         loadingIcon.style.display = 'none';

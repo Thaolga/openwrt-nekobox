@@ -44,6 +44,8 @@
     --card-bg: oklch(25% var(--base-chroma) var(--base-hue));
     --header-bg: oklch(35% var(--base-chroma) var(--base-hue));
     --border-color: oklch(40% var(--base-chroma) var(--base-hue));
+    --color-white: oklch(95% 0.01 0);
+    --color-white-strong: oklch(98% 0.02 250);
 
     --btn-primary-bg: oklch(50% 0.18 var(--base-hue));
     --btn-primary-hover: color-mix(in oklch, var(--btn-primary-bg), white 12%);
@@ -193,6 +195,8 @@
     --card-bg: oklch(96% var(--base-chroma) var(--base-hue));
     --header-bg: oklch(88% var(--base-chroma) var(--base-hue));
     --border-color: oklch(85% 0.03 var(--base-hue));
+    --color-white: oklch(98% 0.01 0);
+    --color-white-strong: oklch(99% 0.015 95);
 
     --btn-primary-bg: oklch(60% 0.35 var(--base-hue));
     --btn-primary-hover: color-mix(in oklch, var(--btn-primary-bg), black 12%);
