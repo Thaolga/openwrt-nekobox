@@ -1346,11 +1346,10 @@
 }
 
 .playlist-item:hover {
-    background: var(--item-hover-bg);
+    background: var(--forest-bg);
     color: #fff;
-    border-color: color-mix(in oklch, var(--accent-color), transparent 70%);
     transform: translateX(5px);
-    box-shadow: 0 4px 12px color-mix(in oklch, var(--item-hover-bg), transparent 70%);
+    box-shadow: 0 4px 12px color-mix(in oklch, var(--forest-bg), transparent 70%);
 }
 
 .playlist-item.active {
@@ -6106,7 +6105,7 @@ weatherCard.addEventListener('click', async (event) => {
 </script>
 
 <script>
-let themeLoaderEnabled = localStorage.getItem('themeLoaderEnabled') !== 'false';
+let themeLoaderEnabled = localStorage.getItem('themeLoaderEnabled') === 'true';
 let navigationInProgress = false;
 let navigationTimeout = null;
 
