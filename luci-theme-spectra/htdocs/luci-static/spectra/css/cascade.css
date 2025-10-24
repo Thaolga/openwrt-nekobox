@@ -4990,7 +4990,7 @@ button:hover {
 }
 
 div.card-row .dashboard-btn {
-	background-color: oklch(var(--l) var(--c) var(--base-hue-1)) !important;
+	background-color: var(--accent-color) !important;
 	color: white !important;
 	border-radius: 6px !important;
 	border: none !important;
@@ -4998,12 +4998,12 @@ div.card-row .dashboard-btn {
 }
 
 div.card-row .dashboard-btn:hover {
-	background-color: oklch(var(--l) var(--c) var(--base-hue-2)) !important;
+	background-color: var(--rose-bg) !important;
 }
 
 .oc .announcement-banner,
 .oc input[type="radio"]:checked+.cbi-button-option {
-	background-color: oklch(var(--l) var(--c) var(--base-hue-1)) !important;
+	background-color: var(--accent-color) !important;
 }
 
 .announcement-banner {
