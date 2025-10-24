@@ -1217,26 +1217,6 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     const styles = `
-        .font-default {
-            font-family: -apple-system, BlinkMacSystemFont, sans-serif !important;
-        }
-
-        .font-fredoka {
-            font-family: 'Fredoka One', cursive !important;
-        }
-
-        .font-dmserif {
-            font-family: 'DM Serif Display', serif !important;
-        }
-
-        .font-notoserif {
-            font-family: 'Noto Serif SC', serif !important;
-        }
-
-        .font-comicneue {
-            font-family: 'Comic Neue', cursive !important;
-        }
-
         /* #settings-icon {
             position: fixed;
             right: 25px !important;

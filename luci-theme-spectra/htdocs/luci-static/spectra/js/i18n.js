@@ -2082,7 +2082,13 @@ function updateFlagIcon(lang) {
 }
 
 function closeLanguageModal() {
-    document.getElementById('languageModal').style.display = 'none';
+    const modal = document.getElementById('languageModal');
+    if (modal) {
+        modal.classList.remove('show');
+        setTimeout(() => {
+            modal.style.display = 'none';
+        }, 300);
+    }
 }
 
 function saveLanguage() {
@@ -2128,13 +2134,19 @@ function saveLanguage() {
         if (data.success) {
             currentLang = language;
             updateUIText();
-            setTimeout(() => location.reload(), 8000);
             closeLanguageModal();
         }
     });
 }
 
 function openLanguageModal() {
+    const modal = document.getElementById('languageModal');
+    if (modal) {
+        modal.style.display = 'flex';
+        void modal.offsetWidth;
+        modal.classList.add('show');
+    }
+
     fetch('/luci-static/spectra/bgm/save_language.php', {
         method: 'POST',
         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
@@ -2159,11 +2171,8 @@ function openLanguageModal() {
             voiceSelectContainer.style.display = 'block';
             populateVoiceSelect(selectedLanguage);
         });
-
-        document.getElementById('languageModal').style.display = 'block';
     })
     .catch(() => {
-        document.getElementById('languageModal').style.display = 'block';
         loadVoices().then(() => {
             const voiceSelectContainer = document.getElementById('voiceSelectContainer');
             voiceSelectContainer.style.display = 'block';
@@ -2249,46 +2258,52 @@ function getOptionTranslationKey(value) {
 
 document.addEventListener('DOMContentLoaded', function() {
     const languageSelect = document.getElementById('languageSelect');
-    languageSelect.addEventListener('change', function() {
-        const newLang = this.value;
-        updateFlagIcon(newLang);
-        currentLang = newLang;
-        updateUIText();
-        populateVoiceSelect(newLang);
-    });
+    if (languageSelect) {
+        languageSelect.addEventListener('change', function() {
+            const newLang = this.value;
+            updateFlagIcon(newLang);
+            currentLang = newLang;
+            updateUIText();
+            populateVoiceSelect(newLang);
+        });
+    }
 
     const voiceSelect = document.getElementById('voiceSelect');
-    voiceSelect.addEventListener('change', function() {
-        if (this.value !== '' && this.value !== null) {
-            const filteredVoices = filterVoicesByLanguage(currentLang);
-            const selectedVoice = filteredVoices[this.value];
-            if (selectedVoice && colorVoiceEnabled) {
-                const translations = languageTranslations[currentLang] || languageTranslations['zh'];
-                const selectedOption = this.options[this.selectedIndex];
-                const voiceDisplayText = selectedOption ? selectedOption.getAttribute('data-display-text') || selectedOption.textContent : '';
-                
-                const msg = `${translations['voice_saved']}: ${voiceDisplayText}`;
-                showLogMessage(msg);
-                
-                const voiceKey = getVoicePreferenceKey(currentLang);
-                localStorage.setItem(voiceKey, this.value);
-                
-                const utterance = new SpeechSynthesisUtterance(msg);
-                utterance.voice = selectedVoice;
-                speechSynthesis.speak(utterance);
+    if (voiceSelect) {
+        voiceSelect.addEventListener('change', function() {
+            if (this.value !== '' && this.value !== null) {
+                const filteredVoices = filterVoicesByLanguage(currentLang);
+                const selectedVoice = filteredVoices[this.value];
+                if (selectedVoice && colorVoiceEnabled) {
+                    const translations = languageTranslations[currentLang] || languageTranslations['zh'];
+                    const selectedOption = this.options[this.selectedIndex];
+                    const voiceDisplayText = selectedOption ? selectedOption.getAttribute('data-display-text') || selectedOption.textContent : '';
+                    
+                    const msg = `${translations['voice_saved']}: ${voiceDisplayText}`;
+                    showLogMessage(msg);
+                    
+                    const voiceKey = getVoicePreferenceKey(currentLang);
+                    localStorage.setItem(voiceKey, this.value);
+                    
+                    const utterance = new SpeechSynthesisUtterance(msg);
+                    utterance.voice = selectedVoice;
+                    speechSynthesis.speak(utterance);
+                }
             }
-        }
-    });
+        });
+    }
 
     const voiceToggle = document.getElementById('voiceToggle');
-    voiceToggle.addEventListener('change', function() {
-        colorVoiceEnabled = this.checked;
-        localStorage.setItem('colorVoiceEnabled', colorVoiceEnabled);
-        const t = languageTranslations[currentLang] || languageTranslations['zh'];
-        const msg = colorVoiceEnabled ? t['voice_enable'] : t['voice_disable'];
-        showLogMessage(msg);
-        speakMessage(msg);
-    });
+    if (voiceToggle) {
+        voiceToggle.addEventListener('change', function() {
+            colorVoiceEnabled = this.checked;
+            localStorage.setItem('colorVoiceEnabled', colorVoiceEnabled);
+            const t = languageTranslations[currentLang] || languageTranslations['zh'];
+            const msg = colorVoiceEnabled ? t['voice_enable'] : t['voice_disable'];
+            showLogMessage(msg);
+            speakMessage(msg);
+        });
+    }
 
     fetch('/luci-static/spectra/bgm/save_language.php', {
         method: 'POST',
@@ -2303,14 +2318,24 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
-    document.getElementById('languageModal').addEventListener('click', function(e) {
-        if (e.target === this) closeLanguageModal();
-    });
-
     loadVoices();
 
     let currentHue = 260, currentChroma = 0.10, currentLightness = 30;
     let recentColors = [];
+
+    function debounce(func, wait, immediate) {
+        let timeout;
+        return function executedFunction(...args) {
+            const later = () => {
+                timeout = null;
+                if (!immediate) func(...args);
+            };
+            const callNow = immediate && !timeout;
+            clearTimeout(timeout);
+            timeout = setTimeout(later, wait);
+            if (callNow) func(...args);
+        };
+    }
 
     function hexToRgb(hex) {
         const fullHex = hex.replace(/^#?([a-f\d])([a-f\d])([a-f\d])$/i, 
@@ -2477,67 +2502,57 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-    const picker = document.getElementById("colorPicker");
-    picker.addEventListener('input', (event) => {
-        const color = event.target.value;
+    const handleColorChange = debounce((color) => {
         console.log('Color picker selected:', color);
-        
+    
         const { h, c, l } = hexToOklch(color);
         currentHue = h;
         currentChroma = c;
         currentLightness = l;
-        
+    
         applyColorSettings(true);
         addToRecentColors(color);
-    });
+    }, 150);
+
+    const picker = document.getElementById("colorPicker");
+    if (picker) {
+        picker.addEventListener('input', (event) => {
+            const color = event.target.value;
+            handleColorChange(color);
+        });
+    }
 
     initColorSettings();
+
+    function setGlassEffect(element, intensity = 'medium') {
+      const intensities = {
+        light: { opacity: 0.7, blur: '12px' },
+        medium: { opacity: 0.85, blur: '20px' },
+        heavy: { opacity: 0.9, blur: '30px' }
+      };
+  
+      const config = intensities[intensity] || intensities.medium;
+  
+      element.style.setProperty('--glass-opacity', config.opacity);
+      element.style.setProperty('--glass-blur', `blur(${config.blur})`);
+    }
+
+    function applyGlassToElement(selector, intensity = 'medium') {
+      const elements = document.querySelectorAll(selector);
+      elements.forEach(element => {
+        element.classList.add('glass-effect');
+        setGlassEffect(element, intensity);
+      });
+    }
+
+    function initGlassEffects() {
+      applyGlassToElement('.card', 'medium');
+      applyGlassToElement('header', 'light');
+      applyGlassToElement('.sidebar', 'heavy');
+      applyGlassToElement('button, .btn', 'light');
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+      initGlassEffects();
+    });
 });
-
-const style = document.createElement('style');
-style.textContent = `
-.card-container .feature-card {
-    display: flex !important;
-    align-items: center !important;
-    position: relative !important;
-    padding: 20px !important;
-}
-
-.card-container .header {
-    display: flex !important;
-    align-items: center !important;
-    margin-right: 15px !important;
-    position: relative !important;
-}
-
-.card-container .icon-svg {
-    width: 48px !important;
-    height: 48px !important;
-}
-
-.card-container .content {
-    flex: 1 !important;
-    margin: 0 !important;
-}
-
-.card-container .footer {
-    position: absolute !important;
-    top: 12px !important;
-    right: 12px !important;
-    margin: 0 !important;
-}
-
-.card-container .right-arrow {
-    margin-left: 15px !important;
-    width: 24px !important;
-    height: 24px !important;
-}
-
-.card-container .feature-card.blue .footer {
-    top: 10px !important;
-    right: 12px !important;
-    bottom: auto !important;
-}
-
-`;
-document.head.appendChild(style);

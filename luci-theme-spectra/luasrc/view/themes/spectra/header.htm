@@ -297,13 +297,14 @@
     </div>
 </div>
 
-<div id="languageModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 9999;">
-    <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background: var(--bg-container); padding: 20px; border-radius: 8px; min-width: 650px;">
-        <div style="display: flex; align-items: center; margin-bottom: 15px;">
-            <img id="currentFlag" src="/luci-static/ipip/flags/cn.png" style="width: 45px; height: 34px; margin-right: 10px; object-fit: contain;">
-            <h3 style="margin: 0; font-size:20px; color:var(--accent-color);" data-translate="select_language"></h3>
+<div id="languageModal" class="glass-modal-overlay" style="display: none;">
+    <div class="glass-modal-container">
+        <div class="glass-modal-header">
+            <img id="currentFlag" src="/luci-static/ipip/flags/cn.png" class="modal-flag">
+            <h3 class="modal-title" data-translate="select_language"></h3>
         </div>
-        <select id="languageSelect" style="width: 100%; padding: 8px; margin: 10px 0; border:1px solid #ccc;">
+        
+        <select id="languageSelect" class="glass-input modal-select">
             <option value="zh" data-translate="simplified_chinese"></option>
             <option value="hk" data-translate="traditional_chinese"></option>
             <option value="en" data-translate="english"></option>
@@ -318,19 +319,22 @@
             <option value="es" data-translate="spanish"></option>
             <option value="bn" data-translate="bangladesh"></option>
         </select>
-        <div id="voiceSelectContainer" style="margin-top:15px; display:none;">
-            <label style="font-weight:bold; color:var(--accent-color);" id="voiceSelectTitle" data-translate="voice_select_title"></label>
-            <select id="voiceSelect" style="width: 100%; padding: 8px; margin-top: 8px; border:1px solid #ccc;">
+        
+        <div id="voiceSelectContainer" class="voice-container">
+            <label class="voice-title" id="voiceSelectTitle" data-translate="voice_select_title"></label>
+            <select id="voiceSelect" class="glass-input modal-select">
                 <option value="" data-translate="select_voice_placeholder"></option>
             </select>
         </div>
-        <div style="display:flex; align-items: center; margin: 25px 0;">
-            <input type="checkbox" id="voiceToggle" checked style="vertical-align: middle; margin:0;">
-            <label for="voiceToggle" id="voiceLabel" data-translate="voice_label" style="margin-left:8px; color: var(--text-primary); display:inline-flex; align-items:center;"></label>
+        
+        <div class="voice-toggle-container">
+            <input type="checkbox" id="voiceToggle" checked class="voice-checkbox">
+            <label for="voiceToggle" id="voiceLabel" data-translate="voice_label" class="voice-label"></label>
         </div>
-        <div style="text-align: right; margin-top: 15px;">
-            <button type="button" class="cbi-button cbi-button-remove" onclick="closeLanguageModal()" data-translate="cancel" style="margin-right: 10px;"></button>
-            <button type="button" class="cbi-button cbi-button-save" onclick="saveLanguage()" data-translate="save"></button>
+        
+        <div class="modal-actions">
+            <button type="button" class="modal-btn modal-btn-cancel" onclick="closeLanguageModal()" data-translate="cancel"></button>
+            <button type="button" class="modal-btn modal-btn-save" onclick="saveLanguage()" data-translate="save"></button>
         </div>
     </div>
 </div>
@@ -428,6 +432,257 @@
     </div>
 </div>
 <style>
+.glass-modal-overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    z-index: 9999;
+    align-items: center;
+    justify-content: center;
+}
+
+.glass-modal-overlay.show {
+    display: flex;
+}
+
+.glass-modal-container {
+    background: color-mix(in oklch, var(--bg-container), transparent 20%);
+    backdrop-filter: blur(25px);
+    -webkit-backdrop-filter: blur(25px);
+    border: var(--glass-border, 1px solid rgba(255, 255, 255, 0.1));
+    border-radius: var(--radius, 20px);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+    padding: 20px;
+    min-width: 650px;
+    max-width: 90vw;
+    position: relative;
+}
+
+.glass-modal-header {
+    display: flex;
+    align-items: center;
+    margin-bottom: 15px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.modal-flag {
+    width: 45px;
+    height: 34px;
+    margin-right: 15px;
+    object-fit: contain;
+    border-radius: 4px;
+}
+
+.modal-title {
+    margin: 0;
+    font-size: 20px;
+    color: var(--accent-color);
+    font-weight: 600;
+}
+
+.modal-select {
+    width: 100%;
+    padding: 10px 14px;
+    margin: 6px 0;
+    background: color-mix(in oklch, var(--bg-container), transparent 50%);
+    backdrop-filter: blur(15px);
+    -webkit-backdrop-filter: blur(15px);
+    border: var(--glass-border, 1px solid rgba(255, 255, 255, 0.1));
+    border-radius: calc(var(--radius, 20px) - 4px);
+    color: var(--text-primary);
+    font-size: 14px;
+}
+
+.modal-select option:checked {
+    background: var(--accent-color) !important;
+    color: var(--color-white-strong);
+}
+
+.modal-select:focus {
+    outline: none;
+    border-color: var(--accent-color);
+    box-shadow: 0 0 0 2px color-mix(in oklch, var(--accent-color), transparent 70%);
+}
+
+.modal-select option {
+    background: color-mix(in oklch, var(--bg-container), transparent 20%);
+    color: var(--text-primary);
+    border-radius: 8px;
+    margin: 2px 0;
+    padding: 8px 12px;
+}
+
+.modal-select {
+    border-radius: calc(var(--radius, 20px) - 4px);
+}
+
+.modal-select:focus {
+    border-radius: calc(var(--radius, 20px) - 4px) calc(var(--radius, 20px) - 4px) 0 0;
+}
+
+.modal-select::-webkit-scrollbar {
+    width: 8px;
+}
+
+.modal-select::-webkit-scrollbar-track {
+    background: color-mix(in oklch, var(--bg-container), transparent 80%);
+    backdrop-filter: blur(10px);
+    border-radius: 4px;
+}
+
+.modal-select::-webkit-scrollbar-thumb {
+    background: color-mix(in oklch, var(--accent-color), transparent 50%);
+    backdrop-filter: blur(10px);
+    border-radius: 4px;
+    border: 1px solid color-mix(in oklch, var(--accent-color), transparent 30%);
+}
+
+.voice-container {
+    margin-top: 10px;
+    padding-top: 8px;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.voice-title {
+    font-weight: 600;
+    color: var(--accent-color);
+    display: block;
+    margin-bottom: 5px;
+    font-size: 16px;
+}
+
+.voice-toggle-container {
+    display: flex;
+    align-items: center;
+    margin: 12px 0;
+    padding: 12px;
+    background: color-mix(in oklch, var(--card-bg), transparent 50%);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border-radius: calc(var(--radius, 20px) - 8px);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.voice-checkbox {
+    vertical-align: middle;
+    margin: 0 !important;
+    transform: scale(1.2);
+}
+
+.voice-label {
+    margin-left: 12px;
+    color: var(--text-primary);
+    display: inline-flex;
+    align-items: center;
+    font-size: 14px;
+}
+
+.modal-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+    margin-top: 8px;
+    padding-top: 6px;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.modal-btn {
+    backdrop-filter: blur(10px);
+    border:  var(--border-strong);
+    color: var(--color-white-strong);
+    font-weight: 600;
+    cursor: pointer;
+    padding: 8px 20px;
+    font-size: 13px;
+    border-radius: 8px;
+    transition: all 0.2s ease;
+    min-width: 80px;
+    letter-spacing: 0.3px;
+}
+
+.modal-btn-cancel {
+    background: var(--btn-danger-bg);
+}
+
+.modal-btn-save {
+    background: var(--btn-success-bg);
+}
+
+.modal-btn:hover {
+    transform: translateY(-2px) scale(1.02);
+    box-shadow: var(--glow-shadow-default);
+}
+
+.modal-btn-cancel:hover {
+    background: color-mix(in oklch, var(--btn-danger-bg), white 20%);
+    border-color: color-mix(in oklch, var(--btn-danger-bg), white 10%);
+}
+
+.modal-btn-save:hover {
+    background: color-mix(in oklch, var(--btn-success-bg), white 20%);
+    border-color: color-mix(in oklch, var(--btn-success-bg), white 10%);
+}
+
+.modal-btn:active {
+    transform: translateY(0) scale(0.98);
+    box-shadow:
+        0 2px 6px oklch(0% 0 0 / 0.2),
+        inset 0 1px 3px oklch(0% 0 0 / 0.2);
+}
+
+@media (max-width: 768px) {
+    .glass-modal-container {
+        min-width: 90% !important;
+        max-width: 95% !important;
+        padding: 20px !important;
+        margin: 20px !important;
+    }
+    
+    .glass-modal-header {
+        flex-direction: column !important;
+        text-align: center !important;
+    }
+    
+    .modal-flag {
+        margin-right: 0 !important;
+        margin-bottom: 10px !important;
+    }
+    
+    .modal-actions {
+        flex-direction: column !important;
+        gap: 10px !important;
+    }
+    
+    .modal-actions .glass-button {
+        width: 100% !important;
+    }
+}
+
+.glass-modal-overlay {
+    display: none;
+}
+
+.glass-modal-overlay.show {
+    display: flex;
+    animation: fadeIn 0.2s ease;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+.glass-modal-container {
+    animation: fadeIn 0.2s ease;
+}
+
 .control-panel {
     display: none;
     position: fixed;
