@@ -3581,13 +3581,11 @@ td>.ifacebadge,
 }
 
 .ifacebox-head.active {
-	background: #5e72e4;
-	background: var(--primary)
+	background: var(--accent-color);
 }
 
 .ifacebox-head.active * {
-	color: #fff;
-	color: var(--white)
+	color: #fff !important;
 }
 
 .ifacebox-body {
