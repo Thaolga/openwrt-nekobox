@@ -1027,7 +1027,7 @@ div.pure-u-1-4:has(h4#status_instagram) {
 	line-height: 1.5rem !important;
 	padding: .5rem .75rem !important;
 	margin: .25rem .1rem !important;
-	margin-left: 4px !important;
+	margin-left: 0px !important;
 	height: auto !important;
 	min-height: auto !important;
 	display: inline-flex !important;
@@ -2619,9 +2619,9 @@ div>.table>.tr:nth-of-type(2n) {
 
 .control-group input+button {
 	border-bottom-left-radius: 0;
-	border-top-left-radius: 0;
+	border-top-left-radius: 0 !important;
 	margin-left: 0 !important;
-	border-left-width: 0;
+	border-left-width: 0 !important;
 }
 
 #cbi-firewall-zone .cbi-input-select,
@@ -2695,7 +2695,7 @@ div>.table>.tr:nth-of-type(2n) {
 .cbi-rowstyle-2 .cbi-button-up,
 .cbi-rowstyle-2 .cbi-button-down,
 body:not(.Interfaces) .cbi-rowstyle-2:first-child {
-	background-color: #fff !important
+	background-color: var(--color-orange) !important
 }
 
 .cbi-section-table .cbi-section-table-titles .cbi-section-table-cell {
@@ -5388,8 +5388,9 @@ ul.tabs {
 
 ul.tabs {
 	background-color: var(--bg-container);
+	margin: 10px 0 10px 0;
 }
 
 ul.cbi-tabmenu {
-	margin: 5px 0 10px 0 !important;
+	margin: 10px 0 0 10px !important;
 }
