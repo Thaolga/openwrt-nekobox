@@ -308,6 +308,11 @@ html {
 	z-index: 9999;
 }
 
+#view > .spinning {
+        display: none !important;
+        visibility: hidden !important;
+}
+
 html,
 body {
 	margin: 0px;
