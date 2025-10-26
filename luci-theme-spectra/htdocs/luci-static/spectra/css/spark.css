@@ -1174,7 +1174,8 @@ textarea:focus {
 .cbi-button-up:focus {
     background-color: var(--btn-primary-hover);
     box-shadow: var(--glow-shadow-hover);
-    transform: scaleY(-1) translateY(-1px);
+    transform: translateY(-1px);
+    transition: all var(--transition-speed) ease;
 }
 
 .cbi-button-up:active {
