@@ -308,9 +308,9 @@ html {
 	z-index: 9999;
 }
 
-#view > .spinning {
-        display: none !important;
-        visibility: hidden !important;
+#view>.spinning {
+	display: none !important;
+	visibility: hidden !important;
 }
 
 html,
@@ -830,64 +830,6 @@ body::-webkit-scrollbar,
 .main::-webkit-scrollbar,
 #maincontent::-webkit-scrollbar {
 	display: none;
-}
-
-input[type="checkbox"] {
-	width: 18px !important;
-	height: 18px !important;
-	border: 2px solid #888 !important;
-	background-color: #fff !important;
-	appearance: none !important;
-	outline: none !important;
-	border-radius: 3px !important;
-	cursor: pointer !important;
-	transition: background-color 0.3s ease, border-color 0.3s ease !important;
-}
-
-input[type="checkbox"]:checked {
-	background-color: #4CAF50 !important;
-	border-color: #4CAF50 !important;
-}
-
-input[type="checkbox"]:hover {
-	background-color: #f1f1f1 !important;
-}
-
-.cbi-dropdown[disabled] {
-	pointer-events: auto !important;
-	opacity: 1 !important;
-}
-
-.cbi-dropdown ul {
-	bottom: 100% !important;
-	top: auto !important;
-	max-height: 200px !important;
-	overflow-y: auto !important;
-	overflow-x: hidden !important;
-	scrollbar-width: thin !important;
-}
-
-.cbi-dynlist .item span {
-	user-select: text !important;
-	-webkit-user-select: text !important;
-	cursor: text !important;
-}
-
-.cbi-dropdown ul::-webkit-scrollbar {
-	width: 6px !important;
-}
-
-.cbi-dropdown ul::-webkit-scrollbar-thumb {
-	background: #ccc !important;
-	border-radius: 3px !important;
-}
-
-.cbi-dropdown.btn.cbi-button.cbi-button-apply.important {
-	margin: 0 8px !important;
-}
-
-button.cbi-button {
-	margin: 0 8px !important;
 }
 
 .pure-g {
@@ -2259,16 +2201,13 @@ div>.table>.tr:nth-of-type(2n) {
 	background-color: var(--bg-container);
 }
 
-.tabs {
+.tabs,
+.cbi-tabmenu {
 	margin: 0 0 1.5rem 0;
 	padding: 0.6rem;
 	border-radius: var(--radius);
 	white-space: nowrap;
 	overflow-x: auto;
-	background: var(--card-bg);
-	border: var(--glass-border);
-	backdrop-filter: var(--glass-blur);
-	-webkit-backdrop-filter: var(--glass-blur);
 	scrollbar-width: none;
 	-ms-overflow-style: none;
 	display: flex;
@@ -2276,138 +2215,42 @@ div>.table>.tr:nth-of-type(2n) {
 	gap: 0.4rem;
 }
 
-.tabs::-webkit-scrollbar {
-	display: none;
-}
-
-.tabs li {
-	font-size: 0.85rem;
-	padding: 0.6rem 1.2rem;
-	border-radius: calc(var(--radius) - 6px);
-	transition: all var(--transition-speed) ease;
-	background: var(--btn-primary-bg);
-	border: var(--glow-border);
-	box-shadow: var(--glow-shadow-default);
-	position: relative;
-	overflow: hidden;
-	line-height: 1.3;
-	flex-shrink: 0;
-	flex-grow: 0;
-	flex-basis: auto;
-	min-width: min-content;
-	height: auto;
-	display: flex;
-	align-items: center;
-	justify-content: center;
-}
-
-.tabs li::before {
-	content: '';
-	position: absolute;
-	top: 0;
-	left: -100%;
-	width: 100%;
-	height: 100%;
-	background: linear-gradient(90deg, transparent, var(--glow-primary), transparent);
-	transition: left 0.5s ease;
-	opacity: 0.3;
-}
-
-.tabs li:hover::before {
-	left: 100%;
-}
-
-.tabs li a {
-	text-decoration: none;
-	color: var(--color-white-strong);
-	font-weight: 500;
-	position: relative;
-	z-index: 1;
-	text-shadow: var(--text-shadow);
-	transition: all var(--transition-speed) ease;
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	width: 100%;
-	height: 100%;
-	white-space: nowrap;
-}
-
-.tabs li:hover {
-	cursor: pointer;
-	background: var(--btn-primary-hover);
-	box-shadow: var(--glow-shadow-hover);
-	transform: translateY(-1px);
-	border-color: var(--glow-primary);
-}
-
-.tabs li:hover a {
-	color: var(--color-white-strong);
-	text-shadow: var(--text-shadow);
-}
-
-.tabs li[class~="active"],
-.tabs li.cbi-tab-active {
-	background: var(--accent-color);
-	border: var(--glow-border);
-	box-shadow: var(--glow-shadow-default);
-}
-
-[data-theme="dark"] .tabs li[class~="active"],
-[data-theme="dark"] .tabs li.cbi-tab-active {
-	animation: var(--breath-animation);
-}
-
-.tabs li[class~="active"] a,
-.tabs li.cbi-tab-active a {
-	color: var(--color-white-strong);
-	font-weight: 600;
-	text-shadow: var(--text-shadow);
-}
-
-.cbi-tabmenu {
-	color: var(--text-primary);
-	padding: 0.5rem 0.6rem;
-	white-space: nowrap;
-	overflow-x: auto;
-	margin-bottom: 1.2rem;
-	border-radius: calc(var(--radius) - 4px);
-	background: transparent;
-	border: none;
-	backdrop-filter: none;
-	-webkit-backdrop-filter: none;
-	scrollbar-width: none;
-	-ms-overflow-style: none;
-	display: flex;
-	flex-wrap: nowrap;
-	gap: 0.3rem;
-}
-
+.tabs::-webkit-scrollbar,
 .cbi-tabmenu::-webkit-scrollbar {
 	display: none;
 }
 
+.tabs {
+	margin-bottom: 1.8rem;
+	padding: 0.7rem;
+	gap: 0.5rem;
+}
+
+.tabs li,
 .cbi-tabmenu li {
-	background: var(--btn-primary-bg);
-	padding: 0.5rem 1rem;
+	font-size: 0.8rem;
+	padding: 0.6rem 1.2rem;
+	background-color: var(--btn-primary-bg);
 	border-radius: calc(var(--radius) - 6px);
+	transition: all var(--transition-speed) ease;
 	border: var(--glow-border);
 	box-shadow: var(--glow-shadow-default);
-	transition: all var(--transition-speed) ease;
 	position: relative;
 	overflow: hidden;
 	line-height: 1.2;
 	flex-shrink: 0;
-	flex-grow: 0;
-	flex-basis: auto;
 	min-width: min-content;
-	height: auto;
 	display: flex;
 	align-items: center;
 	justify-content: center;
-	font-size: 0.8rem;
 }
 
+.cbi-tabmenu li {
+	font-size: 0.75rem;
+	padding: 0.5rem 1rem;
+}
+
+.tabs li::before,
 .cbi-tabmenu li::before {
 	content: '';
 	position: absolute;
@@ -2420,16 +2263,18 @@ div>.table>.tr:nth-of-type(2n) {
 	opacity: 0.3;
 }
 
+.tabs li:hover::before,
 .cbi-tabmenu li:hover::before {
 	left: 100%;
 }
 
+.tabs li a,
 .cbi-tabmenu li a {
 	text-decoration: none;
 	color: var(--color-white-strong);
 	font-weight: 500;
 	position: relative;
-	z-index: 1;
+	z-index: 2;
 	text-shadow: var(--text-shadow);
 	transition: all var(--transition-speed) ease;
 	display: flex;
@@ -2438,79 +2283,49 @@ div>.table>.tr:nth-of-type(2n) {
 	width: 100%;
 	height: 100%;
 	white-space: nowrap;
+	pointer-events: none;
 }
 
-.cbi-tabmenu li:hover {
+.tabs li a::after,
+.cbi-tabmenu li a::after {
+	content: '';
+	position: absolute;
+	top: -10px;
+	left: -10px;
+	right: -10px;
+	bottom: -10px;
+	z-index: 1;
+	background: transparent;
 	cursor: pointer;
-	background: var(--btn-primary-hover);
+	pointer-events: auto;
+}
+
+.tabs li:hover,
+.cbi-tabmenu li:hover {
+	background-color: var(--btn-primary-hover);
 	box-shadow: var(--glow-shadow-hover);
 	transform: translateY(-1px);
 	border-color: var(--glow-primary);
 }
 
-.cbi-tabmenu li:hover a {
-	color: var(--color-white-strong);
-	text-shadow: var(--text-shadow);
-}
-
+.tabs li[class~="active"],
+.tabs li.cbi-tab-active,
 .cbi-tabmenu li[class~="cbi-tab"],
 .cbi-tabmenu li.cbi-tab-active {
-	background: var(--accent-color);
-	border: var(--glow-border);
-	box-shadow: var(--glow-shadow-default);
+	background-color: var(--accent-color);
 }
 
-[data-theme="dark"] .cbi-tabmenu li[class~="cbi-tab"],
-[data-theme="dark"] .cbi-tabmenu li.cbi-tab-active {
-	animation: var(--breath-animation);
-}
-
+.tabs li[class~="active"] a,
+.tabs li.cbi-tab-active a,
 .cbi-tabmenu li[class~="cbi-tab"] a,
 .cbi-tabmenu li.cbi-tab-active a {
 	color: var(--color-white-strong);
 	font-weight: 600;
-	text-shadow: var(--text-shadow);
 }
 
-@media (max-width: 768px) {
-	.tabs {
-		padding: 0.5rem;
-		gap: 0.3rem;
-	}
-
-	.cbi-tabmenu {
-		padding: 0.4rem 0.5rem;
-		gap: 0.2rem;
-	}
-
-	.tabs li {
-		padding: 0.5rem 1rem;
-		font-size: 0.8rem;
-		min-width: max-content;
-	}
-
-	.cbi-tabmenu li {
-		padding: 0.4rem 0.8rem;
-		font-size: 0.75rem;
-		min-width: max-content;
-	}
-}
-
-@media (max-width: 480px) {
-	.tabs li {
-		padding: 0.45rem 0.9rem;
-		font-size: 0.75rem;
-	}
-
-	.cbi-tabmenu li {
-		padding: 0.35rem 0.7rem;
-		font-size: 0.7rem;
-	}
-}
-
-.tabs li a,
-.cbi-tabmenu li a {
-	filter: brightness(1.1) contrast(1.1);
+[data-theme="dark"] .tabs li[class~="active"],
+[data-theme="dark"] .tabs li.cbi-tab-active {
+	animation: var(--breath-animation);
 }
 
 .cbi-tab-descr {
@@ -4117,23 +3932,39 @@ input[type="checkbox"] {
 	appearance: none !important;
 	-webkit-appearance: none !important;
 	border: var(--border-strong);
-	width: 16px !important;
-	height: 16px !important;
+	width: 18px !important;
+	height: 18px !important;
 	padding: 0;
 	cursor: pointer;
 	transition: all .2s;
-	margin: 1rem 8px 0 0
+	margin: 0 8px 0 0;
+	vertical-align: middle;
+	position: relative;
+	transform: translateX(-2px);
 }
 
 input[type="checkbox"]:checked {
-	border: 1px solid #5e72e4;
-	border: 1px solid var(--primary);
+	border: var(--border-strong);
 	background-image: url('data:image/svg+xml,%3csvg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 8 8\'%3e%3cpath fill=\'%23fff\' d=\'M6.564.75l-3.59 3.612-1.538-1.55L0 4.26 2.974 7.25 8 2.193z\'/%3e%3c/svg%3e') !important;
-	background-color: #5e72e4;
-	background-color: var(--primary);
+	background-color: var(--accent-color);
 	background-size: 70%;
 	background-repeat: no-repeat;
-	background-position: center
+	background-position: center;
+}
+
+[data-theme="dark"] input[type="checkbox"] {
+	border: 1px solid color-mix(in oklch, var(--glow-primary), transparent 50%);
+	background-color: color-mix(in oklch, var(--bg-body), transparent 20%);
+	box-shadow: 0 0 6px color-mix(in oklch, var(--glow-primary), transparent 70%);
+	transition: all 0.3s ease;
+}
+
+[data-theme="dark"] input[type="checkbox"]:checked {
+	background-color: var(--glow-primary);
+	border-color: var(--glow-primary);
+	box-shadow:
+		0 0 8px var(--glow-primary),
+		inset 0 0 4px white;
 }
 
 .fb-container .cbi-button {
@@ -4277,11 +4108,6 @@ pre.command-output {
 
 	.main-right {
 		width: calc(100% - 13rem)
-	}
-
-	.tabs>li>a,
-	.cbi-tabmenu>li>a {
-		padding: .2rem .8rem
 	}
 
 	.panel-title {
@@ -4675,16 +4501,10 @@ pre.command-output {
 		height: 0px;
 	}
 
-	.cbi-value-field,
-	.cbi-value-description {
-		display: block !important;
-		padding-left: 0 !important;
-		padding-right: 0 !important;
-	}
-
 	[data-page="admin-system-admin-password"] .cbi-value-field {
 		display: table-cell !important;
 	}
+
 
 	.modal.cbi-modal {
 		max-width: 100%;
@@ -5398,4 +5218,37 @@ ul.tabs {
 
 ul.cbi-tabmenu {
 	margin: 10px 0 0 10px !important;
+}
+
+@media (max-width: 768px) {
+
+	html,
+	body {
+		overflow-x: hidden !important;
+		max-width: 100vw !important;
+	}
+
+	* {
+		box-sizing: border-box;
+		min-width: 0;
+	}
+
+	.cbi-value-field {
+		display: block !important;
+	}
+
+	.cbi-value-field .cbi-button {
+		display: block !important;
+		width: 100% !important;
+		margin: 0.2rem 0 !important;
+		padding: 0.5rem 0.8rem !important;
+		font-size: 0.7rem !important;
+		text-align: left !important;
+		box-sizing: border-box !important;
+	}
+
+	#div_node_count {
+		margin: 0.5rem 0 !important;
+		text-align: left !important;
+	}
 }
