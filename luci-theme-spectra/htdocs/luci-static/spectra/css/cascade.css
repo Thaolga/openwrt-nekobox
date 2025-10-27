@@ -838,7 +838,7 @@ body::-webkit-scrollbar,
 	display: flex !important;
 	flex-flow: row wrap !important;
 	align-content: flex-start !important;
-	padding: 10px !important;
+	padding: 1px 3px !important;
 }
 
 .block {
@@ -2792,7 +2792,7 @@ body:not(.Interfaces) .cbi-rowstyle-2:first-child {
 
 .cbi-input-select {
 	width: 10em;
-	padding: 0.5rem 0.75rem;
+	padding: 0.5rem 2rem 0.5rem 0.75rem !important;
 	line-height: 1.5;
 	height: 2.5rem;
 	border: var(--border-strong);
@@ -2804,6 +2804,26 @@ body:not(.Interfaces) .cbi-rowstyle-2:first-child {
 	display: inline-block;
 	vertical-align: middle;
 	white-space: nowrap;
+	appearance: none;
+	-webkit-appearance: none;
+	-moz-appearance: none;
+	background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%23000' viewBox='0 0 16 16'%3E%3Cpath fill-rule='evenodd' d='M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z'/%3E%3C/svg%3E");
+	background-repeat: no-repeat;
+	background-position: right 0.75rem center;
+	background-size: 12px 12px;
+	color: var(--text-primary) !important;
+}
+
+[data-theme="dark"] .cbi-input-select {
+	background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%23fff' viewBox='0 0 16 16'%3E%3Cpath fill-rule='evenodd' d='M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z'/%3E%3C/svg%3E") !important;
+}
+
+.cbi-input-select:focus {
+	background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%23000' viewBox='0 0 16 16'%3E%3Cpath d='M4.646 1.646a.5.5 0 0 1 .708 0l6 6a.5.5 0 0 1 0 .708l-6 6a.5.5 0 0 1-.708-.708L10.293 8 4.646 2.354a.5.5 0 0 1 0-.708z'/%3E%3C/svg%3E");
+}
+
+[data-theme="dark"] .cbi-input-select:focus {
+	background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%23fff' viewBox='0 0 16 16'%3E%3Cpath d='M4.646 1.646a.5.5 0 0 1 .708 0l6 6a.5.5 0 0 1 0 .708l-6 6a.5.5 0 0 1-.708-.708L10.293 8 4.646 2.354a.5.5 0 0 1 0-.708z'/%3E%3C/svg%3E") !important;
 }
 
 .cbi-dropdown[open]>ul.dropdown {
@@ -2866,19 +2886,21 @@ body:not(.Interfaces) .cbi-rowstyle-2:first-child {
 	content: "\f282";
 	font-family: 'bootstrap-icons';
 	font-style: normal;
-	font-weight: 900;
-	font-size: 0.65em;
+	font-weight: 500;
 	color: #111;
+	font-size: 0.8em;
 	position: absolute;
-	right: 0.25em;
+	right: 0.75rem;
 	top: 50%;
 	transform: translateY(-50%);
 }
 
 .cbi-dropdown[open]>.open::before {
 	content: "\f285";
-	font-weight: 900;
+	font-weight: 500;
 	color: #111;
+	font-size: 0.8em;
+	right: 0.75rem !important;
 }
 
 .cbi-dropdown.btn.cbi-button.cbi-button-apply>.open::before {
@@ -4814,28 +4836,6 @@ button:hover {
 	padding-left: 10px !important;
 }
 
-div.card-row .dashboard-btn {
-	background-color: var(--accent-color) !important;
-	color: white !important;
-	border-radius: 6px !important;
-	border: none !important;
-	transition: background-color 0.25s ease-in-out !important;
-}
-
-div.card-row .dashboard-btn:hover {
-	background-color: var(--rose-bg) !important;
-}
-
-.oc .announcement-banner,
-.oc input[type="radio"]:checked+.cbi-button-option {
-	background-color: var(--accent-color) !important;
-}
-
-.announcement-banner {
-	background-color: transparent !important;
-	background: transparent !important;
-}
-
 .cbi-section,
 .cbi-section-error,
 #iptables,
@@ -5213,7 +5213,7 @@ ul.tabs {
 
 ul.tabs {
 	background-color: var(--bg-container);
-	margin: 10px 0 10px 0;
+	margin: 4px 0 10px 0 !important; 
 }
 
 ul.cbi-tabmenu {

@@ -577,6 +577,8 @@
 }
 
 @media (max-width: 768px) {
+    #homeproxy,
+    #realtime,
     #networkIcon {
         display: none;
     }
@@ -1108,10 +1110,8 @@ textarea:focus {
     padding: 0.4rem 0.8rem;
     font-size: 0;
     color: transparent !important;
-    border: var(--glow-border);
     border-radius: calc(var(--radius) - 4px);
     background: var(--btn-primary-bg);
-    box-shadow: var(--glow-shadow-default);
     transition: all var(--transition-speed) ease;
     flex-shrink: 0;
     background-repeat: no-repeat;
@@ -1458,4 +1458,10 @@ div>div[style*="display:grid"] {
 .cbi-value-field label {
     display: inline-flex;
     align-items: center;
+}
+
+@media (max-width: 768px) {
+    #logo.royal-style {
+        font-size: 1.7rem !important;
+    }
 }

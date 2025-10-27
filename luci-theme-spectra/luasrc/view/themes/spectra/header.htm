@@ -201,7 +201,7 @@
                         <img src="<%=media%>/navbar/tinyfm.gif" title="Spectra">
                     </a>
                 </div>
-                <div class="nav-icon">
+                <div class="nav-icon" id="realtime">
                     <a href="/cgi-bin/luci/admin/status/realtime">
                         <img src="<%=media%>/navbar/netmon.gif" title="Realtime">
                     </a>
@@ -211,7 +211,7 @@
                         <img src="<%=media%>/navbar/terminal.gif" title="TTYD">
                     </a>
                 </div>
-                <div class="nav-icon">
+                <div class="nav-icon" id="homeproxy">
                     <a href="/cgi-bin/luci/admin/services/homeproxy">
                         <img src="<%=media%>/navbar/modem.gif" title="HomeProxy">
                     </a>
@@ -230,6 +230,19 @@
                    </a>
                </div>
 
+                <div class="app-icon-btn"  id="colorPickerBtn" onclick="document.getElementById('colorPicker').click()">
+                   <a  style="cursor: pointer;" data-title="selectBackgroundColor">
+                       <i class="fas fa-moon"></i>
+                   </a>
+                       <input type="color" id="colorPicker" value="#0f3460" style="display: none;">
+               </div>
+
+                <div class="app-icon-btn"  id="panel" onclick="openLanguageModal()">
+                   <a  style="cursor: pointer;" data-title="select_language">
+                       <i class="bi bi-translate"></i>
+                   </a>
+               </div>
+
                 <div class="icon-group">
                         <button id="themeOpenUpdateConfirmBtn" class="app-icon-btn" data-title="theme_download"><i class="fas fa-cloud-download-alt"></i> <span class="btn-label"></span></button>
                         <button  class="app-icon-btn" id="clear-cache-btn" onclick="clearCache()" data-title="clear_button"><i class="fa-solid fa-broom"></i></button>
@@ -239,9 +252,6 @@
                         <button class="translation-toggle app-icon-btn" onclick="toggleTranslation()" data-title="online_translation"><i class="fas fa-language"></i></button>
                         <button type="button" class="app-icon-btn" id="openEditModal" data-title="edit_ip_database"><i class="fas fa-edit"></i></button>
                         <button id="setCityBtn" class="app-icon-btn"><i class="fas fa-location-dot"></i></button>
-                        <button type="button" class="app-icon-btn" id="colorPickerBtn" onclick="document.getElementById('colorPicker').click()" data-title="selectBackgroundColor"><i class="fas fa-moon"></i></button>
-                        <input type="color" id="colorPicker" value="#0f3460" style="display: none;">
-                        <button type="button" class="app-icon-btn" onclick="openLanguageModal()" data-title="select_language"><i class="bi bi-translate"></i></button>
                 </div>
             </div>
 
@@ -3355,8 +3365,8 @@ function closeMusicModal() {
 
 <script>
 const defaultSettings = {
-    '.icon-group': true,
-    '.weather-card': true,
+    '.icon-group': false,
+    '.weather-card': false,
     '.ip-container': true,
     '#result': true
 };
@@ -3470,10 +3480,13 @@ function initControlPanelEvents() {
     
     const selectors = ['.icon-group', '.weather-card', '.ip-container', '#result'];
     selectors.forEach(selector => {
-        if (localStorage.getItem(selector) === 'hidden') {
-            const element = document.querySelector(selector);
+        const element = document.querySelector(selector);
+        const savedState = localStorage.getItem(selector);
+
+        if (savedState === 'hidden' || (savedState === null && defaultSettings[selector] === false)) {
             if (element) {
                 element.classList.add('control-panel-hidden');
+                localStorage.setItem(selector, 'hidden');
             }
         }
     });
