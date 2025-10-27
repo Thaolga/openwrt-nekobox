@@ -717,6 +717,7 @@ div.nav-container>button.btn_styles {
 }
 
 [data-theme="dark"] {
+
     #status_node,
     #status_github,
     #status_google,
@@ -1067,14 +1068,12 @@ textarea:focus {
     text-decoration: none;
     text-transform: uppercase;
     color: var(--color-white-strong);
-    border: var(--glow-border);
     border-radius: calc(var(--radius) - 4px);
     background-color: var(--btn-primary-bg);
     background-image: none;
     -webkit-appearance: none;
     -ms-touch-action: manipulation;
     touch-action: manipulation;
-    box-shadow: var(--glow-shadow-default);
     position: relative;
     overflow: hidden;
     min-width: max-content;
@@ -1248,7 +1247,6 @@ textarea:focus {
 .cbi-button-neutral[value="Restart"] {
     font-weight: normal;
     color: var(--color-white-strong);
-    border: var(--glow-border);
     background-color: var(--btn-danger-bg);
 }
 
@@ -1301,12 +1299,10 @@ textarea:focus {
 .cbi-button-remove {
     background-color: var(--btn-danger-bg) !important;
     color: var(--color-white-strong) !important;
-    border: var(--glow-border) !important;
     border-radius: calc(var(--radius) - 4px) !important;
     padding: 0.4rem 0.8rem;
     cursor: pointer;
     transition: all var(--transition-speed) ease;
-    box-shadow: var(--glow-shadow-default);
 }
 
 .cbi-button-remove:hover {
@@ -1326,12 +1322,13 @@ textarea:focus {
     transform: translateY(-1px);
 }
 
-[data-theme="dark"] .btn.primary:hover,
-[data-theme="dark"] .cbi-button-save:hover,
-[data-theme="dark"] .cbi-button-apply:hover,
-[data-theme="dark"] .cbi-button-action:hover,
-[data-theme="dark"] .cbi-button-positive:hover {
+[data-theme="dark"] .cbi-button:hover {
     animation: var(--breath-animation);
+}
+
+[data-theme="dark"] .tabs *,
+[data-theme="dark"] .cbi-tabmenu * {
+    animation: none !important;
 }
 
 @media (max-width: 768px) {
@@ -1462,4 +1459,3 @@ div>div[style*="display:grid"] {
     display: inline-flex;
     align-items: center;
 }
-
