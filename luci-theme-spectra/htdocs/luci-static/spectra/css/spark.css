@@ -43,8 +43,6 @@
     --accent-color: oklch(70% 0.2 calc(var(--base-hue) + 0));
     --card-bg: oklch(25% var(--base-chroma) var(--base-hue));
     --header-bg: oklch(35% var(--base-chroma) var(--base-hue));
-    --border-color: oklch(40% var(--base-chroma) var(--base-hue));
-    --color-white: oklch(95% 0.01 0);
     --color-white-strong: oklch(98% 0.02 250);
 
     --btn-primary-bg: oklch(50% 0.18 var(--base-hue));
@@ -71,8 +69,6 @@
     --lavender-bg: oklch(46% 0.32 calc(var(--base-hue) + 270));
     --sand-bg: oklch(45% 0.32 calc(var(--base-hue) + 60));
 
-    --glass-blur: blur(20px);
-    --radius: 16px;
     --transition: all 0.25s ease;
 
     --primary-color: var(--accent-color);
@@ -173,7 +169,6 @@
     --radius: 20px;
     --glass-opacity: 0.85;
     --glass-border: 1px solid rgba(0, 0, 0, 0.05);
-    --border-color: oklch(85% 0.03 var(--base-hue));
     --border-light: 1px solid oklch(90% 0.02 var(--base-hue) / 0.4);
     --border-strong: 1px solid oklch(75% 0.05 var(--base-hue) / 0.8);
 
@@ -201,7 +196,6 @@
     --card-bg: oklch(96% var(--base-chroma) var(--base-hue));
     --header-bg: oklch(88% var(--base-chroma) var(--base-hue));
     --border-color: oklch(85% 0.03 var(--base-hue));
-    --color-white: oklch(98% 0.01 0);
     --color-white-strong: oklch(99% 0.015 95);
 
     --btn-primary-bg: oklch(60% 0.35 var(--base-hue));
@@ -228,8 +222,6 @@
     --lavender-bg: oklch(86% 0.18 calc(var(--base-hue) + 270));
     --sand-bg: oklch(85% 0.18 calc(var(--base-hue) + 60));
 
-    --glass-blur: blur(20px);
-    --radius: 16px;
     --transition: all 0.25s ease;
 
     --primary-color: var(--accent-color);
@@ -310,8 +302,7 @@
     }
 
     .navbar-container::before {
-        left: -50px;
-
+        display: none;
     }
 
     .navbar-left,
@@ -577,6 +568,7 @@
 }
 
 @media (max-width: 768px) {
+
     #homeproxy,
     #realtime,
     #networkIcon {
@@ -839,25 +831,6 @@ div.nav-container>button.btn_styles {
 .app-container:hover,
 .reusable-card:hover {
     transform: translateY(-2px);
-}
-
-.cbi-dropdown {
-    z-index: 1000;
-}
-
-.cbi-dropdown ul {
-    z-index: 9999;
-}
-
-.cbi-value-field {
-    position: relative;
-    z-index: 1000;
-}
-
-.cbi-section,
-.cbi-map,
-.cbi-section-node {
-    overflow: visible !important;
 }
 
 .cbi-input-select::-webkit-scrollbar-thumb {
@@ -1202,7 +1175,21 @@ textarea:focus {
 .cbi-button[onclick="hide_empty(this)"] {
     font-weight: bold;
     color: var(--color-white-strong) !important;
-    background-color: var(--color-cyan);
+    background-color: var(--color-pink);
+}
+
+.alert-message [class="btn"]:hover,
+.modal div[class="btn"]:hover,
+.cbi-button-find:hover,
+.cbi-button-link:hover,
+.cbi-button-up:hover,
+.cbi-button-down:hover,
+.cbi-button-neutral:hover,
+.cbi-button[name="zero"]:hover,
+.cbi-button[name="restart"]:hover,
+.cbi-button[onclick="hide_empty(this)"]:hover {
+    background-color: color-mix(in oklch, var(--color-pink), white 12%);
+    color: var(--color-white);
 }
 
 .btn.primary,
@@ -1218,28 +1205,54 @@ textarea:focus {
 .cbi-button-neutral[onclick="handleConfig(event)"] {
     font-weight: normal;
     color: var(--color-white-strong) !important;
-    background-color: var(--btn-primary-bg);
+    background-color: var(--btn-info-bg);
 }
 
-.cbi-page-actions .cbi-button-apply,
+.btn.primary:hover,
+.cbi-page-actions .cbi-button-save:hover,
+.cbi-page-actions .cbi-button-apply+.cbi-button-save:hover,
+.cbi-button-add:hover,
+.cbi-button-save:hover,
+.cbi-button-positive:hover,
+.cbi-button-link:hover,
+.cbi-button[value="Enable"]:hover,
+.cbi-button[value="Scan"]:hover,
+.cbi-button[value^="Back"]:hover,
+.cbi-button-neutral[onclick="handleConfig(event)"]:hover {
+    background-color: color-mix(in oklch, var(--btn-info-bg), white 12%);
+    color: var(--color-white);
+}
+
 .cbi-section-actions .cbi-button-edit,
 .cbi-button-edit,
-.cbi-button-apply,
 .cbi-button-reload,
 .cbi-button-action,
+.cbi-button-up,
+.cbi-button-down,
 .cbi-button[value="Submit"],
 .cbi-button[value="Upload"],
-.cbi-button[value$="Apply"],
 .cbi-button[onclick="addKey(event)"] {
     font-weight: normal;
     color: var(--color-white-strong) !important;
-    background-color: var(--color-indigo);
+    background-color: var(--color-cyan);
+}
+
+.cbi-section-actions .cbi-button-edit:hover,
+.cbi-button-edit:hover,
+.cbi-button-reload:hover,
+.cbi-button-action:hover,
+.cbi-button-up:hover,
+.cbi-button-down:hover,
+.cbi-button[value="Submit"]:hover,
+.cbi-button[value="Upload"]:hover,
+.cbi-button[onclick="addKey(event)"]:hover {
+    background-color: color-mix(in oklch, var(--color-cyan), white 12%);
+    color: var(--color-white);
 }
 
 .btn.danger,
 .cbi-section-remove>.cbi-button,
 .cbi-button-remove,
-.cbi-button-reset,
 .cbi-button-negative,
 .cbi-button[value="Stop"],
 .cbi-button[value="Kill"],
@@ -1248,6 +1261,32 @@ textarea:focus {
     font-weight: normal;
     color: var(--color-white-strong);
     background-color: var(--btn-danger-bg);
+}
+
+.cbi-page-actions .cbi-button-apply,
+.cbi-button[value$="Apply"],
+.cbi-button-apply {
+    font-weight: normal;
+    color: var(--color-white-strong) !important;
+    background-color: var(--btn-success-bg);
+}
+
+.cbi-page-actions .cbi-button-apply:hover,
+.cbi-button[value$="Apply"]:hover,
+.cbi-button-apply:hover {
+    background-color: color-mix(in oklch, var(--btn-success-bg), white 12%);
+    color: var(--color-white) !important;
+}
+
+.cbi-button-reset {
+    font-weight: normal;
+    color: var(--color-white-strong);
+    background-color: var(--btn-warning-bg);
+}
+
+.cbi-button-reset:hover {
+    background-color: color-mix(in oklch, var(--btn-warning-bg), white 12%);
+    color: var(--color-white);
 }
 
 .btn[value="Dismiss"],
@@ -1311,15 +1350,8 @@ textarea:focus {
     transform: translateY(-1px);
 }
 
-.btn.cbi-button.cbi-button-add[onclick*="copy_node"] {
-    transition: all var(--transition-speed) ease;
-    background-color: var(--color-green);
-}
-
-.btn.cbi-button.cbi-button-add[onclick*="copy_node"]:hover {
-    background-color: color-mix(in oklch, var(--color-green), black 10%) !important;
-    box-shadow: var(--glow-shadow-hover);
-    transform: translateY(-1px);
+.cbi-button+.cbi-button {
+    margin-left: 8px;
 }
 
 [data-theme="dark"] .cbi-button:hover {
@@ -1332,7 +1364,6 @@ textarea:focus {
 }
 
 @media (max-width: 768px) {
-
     .btn,
     .cbi-button,
     .cbi-dropdown>.open,
@@ -1444,6 +1475,10 @@ textarea:focus {
     animation: none !important;
 }
 
+.app-tags .block:last-child {
+    display: none !important;
+}
+
 div>div[style*="display:grid"] {
     margin-left: auto !important;
     margin-right: auto !important;
@@ -1460,8 +1495,128 @@ div>div[style*="display:grid"] {
     align-items: center;
 }
 
+.cbi-input-select {
+    transition: border-radius 0.2s ease;
+}
+
+.cbi-input-select:focus {
+    border-bottom-left-radius: 0 !important;
+    border-bottom-right-radius: 0 !important;
+}
+
+.cbi-dropdown {
+    transition: border-radius 0.2s ease;
+}
+
+.cbi-dropdown[open] {
+    border-bottom-left-radius: 0 !important;
+    border-bottom-right-radius: 0 !important;
+}
+
+.cbi-dropdown[open]>ul.dropdown {
+    border-top-left-radius: 0 !important;
+    border-top-right-radius: 0 !important;
+    margin-top: -1px !important;
+}
+
 @media (max-width: 768px) {
     #logo.royal-style {
         font-size: 1.7rem !important;
     }
+}
+
+.cbi-dynlist>.item>span {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    border-radius: 12px !important;
+    box-sizing: border-box !important;
+    padding-right: 2.5rem !important;
+}
+
+.cbi-dynlist>.item::after {
+    border-radius: 0 12px 12px 0 !important;
+    width: 2.2rem !important;
+    right: 0;
+}
+
+.cbi-dynlist>.add-item input[type="text"] {
+    border-radius: 12px 0 0 12px !important;
+    padding-right: 0.5rem !important;
+}
+
+.cbi-dynlist>.add-item .cbi-button-add {
+    border-radius: 0 12px 12px 0 !important;
+}
+
+.cbi-value input[type="text"],
+.cbi-value input[type="password"],
+.cbi-section-table-row>.cbi-value-field .cbi-input-text,
+.cbi-section-table-row>.cbi-value-field .cbi-input-password,
+#cbi-network-switch_vlan .cbi-input-text {
+    width: 23em !important;
+    min-width: 23em !important;
+    max-width: 23em !important;
+    border-radius: 12px;
+    box-sizing: border-box !important;
+}
+
+#core_status,
+.cbi-value-field input[readonly] {
+    border-radius: 12px !important;
+}
+
+.cbi-dropdown:not(.btn):not(.cbi-button):not(.cbi-button-apply) {
+    width: 23em !important;
+    min-width: 23em !important;
+    max-width: 23em !important;
+    border-radius: 12px !important;
+    transition: border-radius 0.2s ease;
+}
+
+.cbi-input-select {
+    width: 23em !important;
+    min-width: 23em !important;
+    max-width: 23em !important;
+    border-radius: 12px !important;
+    transition: border-radius 0.2s ease;
+}
+
+.cbi-input-select:focus {
+    border-bottom-left-radius: 0 !important;
+    border-bottom-right-radius: 0 !important;
+}
+
+.cbi-dropdown:not(.btn):not(.cbi-button):not(.cbi-button-apply)[open] {
+    border-bottom-left-radius: 0 !important;
+    border-bottom-right-radius: 0 !important;
+}
+
+.cbi-dropdown[open]>ul.dropdown {
+    border-top-left-radius: 0 !important;
+    border-top-right-radius: 0 !important;
+    margin-top: -1px !important;
+}
+
+.cbi-input-password {
+    border-radius: 12px 0 0 12px !important;
+    border-right: none !important;
+}
+
+.cbi-value-field > div > .control-group > .cbi-input-password + .cbi-button.cbi-button-neutral {
+    border-radius: 0 12px 12px 0 !important;
+    border-left: none !important;
+    margin-left: 0 !important;
+}
+
+.control-group {
+    display: inline-flex !important;
+    align-items: stretch !important;
+}
+
+.modal textarea,
+#syslog {
+    background: var(--bg-container) !important;
+    border-radius: 6px !important;
+    color: var(--text-primary) !important;
 }
