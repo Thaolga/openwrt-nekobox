@@ -1615,8 +1615,14 @@ header.bg-primary {
 header::after {
     content: "";
     position: absolute;
-    height: 2rem;
-    width: 100%;
+    top: 0 !important;
+    height: 4.5em;
+    z-index: 1;
+    left: 15rem;
+    right: 0;
+    background: var(--bg-container);
+    border: 1px solid var(--bg-container);
+    box-shadow: 0 1px 3px -2px color-mix(in oklch, var(--bg-container), black 30%);
 }
 
 header .fill {
@@ -2124,15 +2130,12 @@ h1 {
 }
 
 h2 {
-    margin: 0 0 1rem 0;
-    font-size: 1.25rem;
+    margin: 0 0 0.5rem 0;
+    font-size: 1.35rem;
     letter-spacing: .1rem;
-    padding: 1rem 1.25rem;
+    padding: 0.5rem 1.25rem;
     color: var(--accent-color);
-    border-radius: .375rem;
     margin-top: 10px;
-    background: var(--bg-container);
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.03);
 }
 
 h3 {
@@ -2420,13 +2423,12 @@ td>table>tbody>tr>td,
 
 .tabs li,
 .cbi-tabmenu li {
-    font-size: 0.8rem;
+    font-size: 0.95rem;
     padding: 0.6rem 1.2rem;
-    background-color: var(--btn-primary-bg);
-    border-radius: calc(var(--radius) - 6px);
+    border-radius: 0;
     transition: all var(--transition-speed) ease;
-    border: var(--glow-border);
-    box-shadow: var(--glow-shadow-default);
+    border: none;
+    box-shadow: none;
     position: relative;
     overflow: hidden;
     line-height: 1.2;
@@ -2435,35 +2437,23 @@ td>table>tbody>tr>td,
     display: flex;
     align-items: center;
     justify-content: center;
+    background: transparent;
 }
 
 .cbi-tabmenu li {
-    font-size: 0.75rem;
+    font-size: 0.9rem;
     padding: 0.5rem 1rem;
 }
 
 .tabs li::before,
 .cbi-tabmenu li::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: -100%;
-    width: 100%;
-    height: 100%;
-    background: linear-gradient(90deg, transparent, var(--glow-primary), transparent);
-    transition: left 0.5s ease;
-    opacity: 0.3;
-}
-
-.tabs li:hover::before,
-.cbi-tabmenu li:hover::before {
-    left: 100%;
+    display: none;
 }
 
 .tabs li a,
 .cbi-tabmenu li a {
     text-decoration: none;
-    color: var(--color-white-strong);
+    color: var(---text-primary);
     font-weight: 500;
     position: relative;
     z-index: 2;
@@ -2492,32 +2482,68 @@ td>table>tbody>tr>td,
     pointer-events: auto;
 }
 
-.tabs li:hover,
-.cbi-tabmenu li:hover {
-    background-color: var(--btn-primary-hover);
-    box-shadow: var(--glow-shadow-hover);
-    transform: translateY(-1px);
-    border-color: var(--glow-primary);
+.tabs li:hover::after,
+.cbi-tabmenu li:hover::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    width: 100%;
+    height: 2px;
+    background: linear-gradient(90deg,
+            oklch(var(--l) var(--c) var(--base-hue-1)),
+            oklch(var(--l) var(--c) var(--base-hue-2)),
+            oklch(var(--l) var(--c) var(--base-hue-3)),
+            oklch(var(--l) var(--c) var(--base-hue-4)),
+            oklch(var(--l) var(--c) var(--base-hue-5)),
+            oklch(var(--l) var(--c) var(--base-hue-6)),
+            oklch(var(--l) var(--c) var(--base-hue-7)),
+            oklch(var(--l) var(--c) var(--base-hue-1)));
+    background-size: 400% auto;
+    box-shadow:
+        0 0 6px color-mix(in oklch, var(--accent-color), transparent 50%),
+        0 0 16px color-mix(in oklch, var(--accent-color), transparent 60%);
+    transform: translateZ(0);
+    will-change: transform, background-position, box-shadow;
+    animation: rainbow-energy 6s linear infinite, pulse 1.5s ease-in-out infinite;
+    transition: var(--transition);
 }
 
-.tabs li[class~="active"],
-.tabs li.cbi-tab-active,
-.cbi-tabmenu li[class~="cbi-tab"],
-.cbi-tabmenu li.cbi-tab-active {
-    background-color: var(--accent-color);
+.tabs li[class~="active"]::after,
+.tabs li.cbi-tab-active::after,
+.cbi-tabmenu li[class~="cbi-tab"]::after,
+.cbi-tabmenu li.cbi-tab-active::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    width: 100%;
+    height: 2px;
+    background: linear-gradient(90deg,
+            oklch(var(--l) var(--c) var(--base-hue-1)),
+            oklch(var(--l) var(--c) var(--base-hue-2)),
+            oklch(var(--l) var(--c) var(--base-hue-3)),
+            oklch(var(--l) var(--c) var(--base-hue-4)),
+            oklch(var(--l) var(--c) var(--base-hue-5)),
+            oklch(var(--l) var(--c) var(--base-hue-6)),
+            oklch(var(--l) var(--c) var(--base-hue-7)),
+            oklch(var(--l) var(--c) var(--base-hue-1)));
+    background-size: 400% auto;
+    box-shadow:
+        0 0 6px color-mix(in oklch, var(--accent-color), transparent 50%),
+        0 0 16px color-mix(in oklch, var(--accent-color), transparent 60%);
+    transform: translateZ(0);
+    will-change: transform, background-position, box-shadow;
+    animation: rainbow-energy 6s linear infinite, pulse 1.5s ease-in-out infinite;
+    transition: var(--transition);
 }
 
 .tabs li[class~="active"] a,
 .tabs li.cbi-tab-active a,
 .cbi-tabmenu li[class~="cbi-tab"] a,
 .cbi-tabmenu li.cbi-tab-active a {
-    color: var(--color-white-strong);
-    font-weight: 600;
-}
-
-[data-theme="dark"] .tabs li[class~="active"],
-[data-theme="dark"] .tabs li.cbi-tab-active {
-    animation: var(--breath-animation);
+    color: var(--accent-color);
+    font-weight: 700;
 }
 
 .cbi-tab-descr {
@@ -4269,6 +4295,11 @@ pre.command-output {
         width: calc(100% - 13rem)
     }
 
+    header::after {
+        left: 13rem;
+
+    }
+
     .btn:not(button),
     .cbi-button {
         font-size: .8rem
@@ -4316,6 +4347,10 @@ pre.command-output {
         width: calc(100% - 13rem)
     }
 
+    header::after {
+        left: 13rem;
+
+    }
 
     .panel-title {
         font-size: 1.1rem;
@@ -4404,6 +4439,11 @@ pre.command-output {
 
     .main-right {
         width: calc(100% - 13rem)
+    }
+
+    header::after {
+        left: 13rem;
+
     }
 
     body:not(.logged-in) .showSide {
@@ -4603,6 +4643,11 @@ pre.command-output {
         position: fixed;
         z-index: 100;
         width: 0
+    }
+
+    header::after {
+        left: 0rem;
+
     }
 
     .main-left.active {
@@ -5402,17 +5447,8 @@ div.btns {
     color: #fff !important;
 }
 
-h2[name="content"],
-h2,
 ul.tabs {
-    border-radius: var(--radius);
-    border: 1px solid var(--bg-container);
-    box-shadow: 0 1px 3px -2px color-mix(in oklch, var(--bg-container), black 30%);
-}
-
-ul.tabs {
-    background-color: var(--bg-container);
-    margin: 4px 0 10px 0 !important;
+    margin: 0 0 -9px 0 !important;
 }
 
 ul.cbi-tabmenu {
@@ -5821,11 +5857,6 @@ div.pure-u-1-4:has(h4#status_instagram) {
     background: var(--bg-container) !important;
     backdrop-filter: blur(10px);
     -webkit-backdrop-filter: blur(10px);
-}
-
-h2[name="content"] {
-    background-color: var(--bg-container) !important;
-    margin-top: 10px;
 }
 
 #cbid\.diskman\.1\._rescan {
