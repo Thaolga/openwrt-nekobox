@@ -868,7 +868,6 @@ document.addEventListener("DOMContentLoaded", function () {
             updateUIText();
         })
         .catch(error => {
-            console.error("获取主题模式失败:", error);
     });
 
     function generateControlPanel() {
