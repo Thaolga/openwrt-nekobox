@@ -6,6 +6,7 @@
 	background-color: transparent !important;
 }
 
+header::after,
 .cbi-input-select,
 .cbi-value-field select,
 .cbi-dropdown-open select {
