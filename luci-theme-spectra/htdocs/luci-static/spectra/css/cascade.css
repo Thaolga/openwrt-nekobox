@@ -5086,7 +5086,7 @@ button:hover {
 .Firewall form,
 #cbi-network>.cbi-section-node,
 #cbi-wireless>.cbi-section-node {
-    border-radius: var(--radius);
+    border-radius: 12px;
     border: 1px solid var(--bg-container);
     box-shadow: 0 1px 3px -2px color-mix(in oklch, var(--bg-container), black 30%);
 }
@@ -5783,16 +5783,15 @@ body::-webkit-scrollbar,
 }
 
 #_log_fieldset {
-    border: 1px solid #ddd;
-    border-radius: 6px;
+    border: 1px solid var(--bg-container);
+    border-radius: 12px;
     padding: 12px 16px;
     color: #333;
-    font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
 }
 
 #_log_fieldset .btn {
     background-color: transparent;
-    border: 1px solid #bbb;
+    border: 1px solid var(--bg-container);
     color: #444;
     border-radius: 5px;
     cursor: pointer;
