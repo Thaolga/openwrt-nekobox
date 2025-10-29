@@ -4,20 +4,21 @@
 .tabs,
 .main-left {
 	background-color: transparent !important;
+	border: transparent !important;
 }
 
-header::after,
 .cbi-input-select,
 .cbi-value-field select,
 .cbi-dropdown-open select {
-        background-color: transparent !important;
+	background-color: transparent !important;
 }
 
 .cbi-input-select option {
-        background-color: #000000 !important;
-        color: #ffffff !important;
+	background-color: #000000 !important;
+	color: #ffffff !important;
 }
 
+header::after,
 .cbi-section,
 .cbi-section-error,
 #iptables,
@@ -29,6 +30,7 @@ header::after,
 [data-page^="admin-system-admin"]:not(.node-main-login) .cbi-map:not(#cbi-dropbear),
 [data-page="admin-system-opkg"] #maincontent>.container {
 	background-color: transparent !important;
+	border: transparent !important;
 }
 
 .cbi-tabcontainer>.cbi-value:nth-of-type(2n) {
@@ -157,7 +159,7 @@ select {
 
 .cbi-value:hover,
 .cbi-section-table tr.cbi-section-table-row:hover td {
-        background-color: transparent !important;
+	background-color: transparent !important;
 }
 
 .wrapper span {
