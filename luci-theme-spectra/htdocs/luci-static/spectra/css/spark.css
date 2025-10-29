@@ -249,40 +249,18 @@
     --color-white: oklch(98% 0.01 0);
 }
 
-.fill,
-.fill .container {
-    height: auto;
-    min-height: 60px;
-    overflow: visible;
-}
-
 .navbar-container {
     align-items: center;
     display: flex;
     justify-content: space-between;
-    width: calc(100% - 15rem);
     margin-left: 15rem;
     padding: 10px 5px;
     transition: all 0.3s ease;
-    background-color: var(--bg-container);
     position: relative;
     height: 60px;
     min-height: 60px;
     box-sizing: border-box;
-    margin-top: -20px;
-}
-
-.navbar-container::before {
-    content: '';
-    position: absolute;
-    top: -2px;
-    left: -19.7px;
-    right: -20px;
-    bottom: -10px;
-    background-color: var(--bg-container);
-    z-index: -1;
-    border: 1px solid var(--bg-container);
-    box-shadow: 0 1px 3px -2px color-mix(in oklch, var(--bg-container), black 30%);
+    z-index: 2;
 }
 
 .navbar-left,
@@ -621,7 +599,7 @@
 
 body {
     color: var(--text-primary) !important;
-    background-color: var(--card-bg) !important;
+    background-color: var(--card-bg);
 }
 
 .tr.cbi-rowstyle-2 {
@@ -1364,6 +1342,7 @@ textarea:focus {
 }
 
 @media (max-width: 768px) {
+
     .btn,
     .cbi-button,
     .cbi-dropdown>.open,
@@ -1603,7 +1582,7 @@ div>div[style*="display:grid"] {
     border-right: none !important;
 }
 
-.cbi-value-field > div > .control-group > .cbi-input-password + .cbi-button.cbi-button-neutral {
+.cbi-value-field>div>.control-group>.cbi-input-password+.cbi-button.cbi-button-neutral {
     border-radius: 0 12px 12px 0 !important;
     border-left: none !important;
     margin-left: 0 !important;
