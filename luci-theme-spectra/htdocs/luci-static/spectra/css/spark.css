@@ -167,6 +167,7 @@
 
     --glass-blur: blur(20px);
     --radius: 20px;
+    --radius-small: 12px;
     --glass-opacity: 0.85;
     --glass-border: 1px solid rgba(0, 0, 0, 0.05);
     --border-light: 1px solid oklch(90% 0.02 var(--base-hue) / 0.4);
@@ -1599,3 +1600,22 @@ div>div[style*="display:grid"] {
     border-radius: 6px !important;
     color: var(--text-primary) !important;
 }
+
+.cbi-dynlist .item {
+     width: 25.8em !important;
+}
+
+.controls > div .control-group input[type="text"] {
+    border-radius: 12px 0 0 12px !important;
+    height: 2.5rem;
+    box-sizing: border-box;
+}
+
+.controls > div .control-group .cbi-button {
+    border-radius: 0 12px 12px 0 !important;
+    height: 2.5rem;
+    line-height: 2.5rem;
+    padding: 0 1rem;
+}
+
+

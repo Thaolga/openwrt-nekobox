@@ -1741,13 +1741,15 @@ div[style="width:100%;height:300px;border:1px solid #000;background:#fff"] {
 .alert,
 .alert-message {
     font-weight: bold;
-    margin-bottom: 1.25rem;
+    margin: 1.25rem 20px 1.25rem 20px !important;
     padding: 1rem 1.25rem;
     border: 0;
-    border-radius: .375rem !important;
-    background-color: #fff;
+    border-radius: var(--radius-small) !important;
+    background-color: var(--bg-container);
+    color: var(--text-primary) !important;
+    border: 1px solid rgba(0,0,0,0.1);
     box-shadow: 0 2px 2px 0 rgba(0, 0, 0, 0.16), 0 0 2px 0 rgba(0, 0, 0, 0.12);
-    text-shadow: 1px 1px rgba(0, 0, 0, 0.1)
+    text-shadow: 1px 1px rgba(0, 0, 0, 0.1);
 }
 
 .alert.error,
@@ -2153,6 +2155,7 @@ h4 {
     padding: .75rem 1.25rem;
     font-size: 1rem;
     font-weight: 600;
+    border-radius: var(--radius-small);
     color: var(--accent-color) !important;
     background: var(--bg-container);
 }
@@ -3293,6 +3296,7 @@ body:not(.Interfaces) .cbi-rowstyle-2:first-child {
 }
 
 .modal>h4 {
+    border-radius: var(--radius-small);
     margin: .5em 0
 }
 
@@ -3432,7 +3436,7 @@ body.modal-overlay-active #modal_overlay {
     background: var(--card-bg) !important;
     color: var(--text-primary) !important;
     box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2), 0 1px 2px rgba(0, 0, 0, 0.05);
-    border-radius: 4px
+    border-radius: var(--radius-small);
 }
 
 td>.ifacebadge,
@@ -3624,7 +3628,7 @@ td>.ifacebadge,
     display: inline-flex;
     overflow: hidden;
     flex-direction: column;
-    border-radius: 4px;
+    border-radius: 8px;
     min-width: 100px;
     border-bottom: thin solid #ccc;
     background-color: var(--card-bg);

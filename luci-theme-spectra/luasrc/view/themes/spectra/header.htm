@@ -395,12 +395,16 @@
             <div id="floatingLyrics"></div>
             <div id="currentSong" class="current-song"></div>
             <div class="lyrics-container" id="lyricsContainer"></div>
+            <div class="visualizer-container" id="visualizerContainer" style="display: none;">
+                <canvas id="audioVisualizer"></canvas>
+            </div>
             <div class="non-lyrics-content">
                 <div class="progress-container">
                     <div class="progress">
                         <div class="progress-bar" id="progressBar"></div>
                     </div>
                 </div>
+
                 <div class="time-display">
                     <span id="currentTime">0:00</span>
                     <span id="duration">0:00</span>
@@ -424,7 +428,10 @@
                     <button class="control-btn" onclick="openUrlModal()" data-title="custom_playlist">
                         <i class="bi bi-music-note-list"></i>
                     </button>
-                    <button class="control-btn volume-btn" id="volumeToggle" data-title="volume">
+                    <button class="control-btn" onclick="toggleVisualizer()" data-title="toggle_visualizer">
+                        <i class="bi bi-bar-chart"></i>
+                    </button>
+                    <button class="control-btn" id="volumeToggle" data-title="volume">
                         <i class="bi bi-volume-up-fill"></i>
                         <div class="volume-slider-container" id="volumePanel">
                             <input type="range" class="volume-slider" id="volumeSlider" min="0" max="1" step="0.01" value="1">
@@ -443,6 +450,25 @@
     </div>
 </div>
 <style>
+.visualizer-container {
+    position: relative;
+    height: 120px;
+    min-height: 60px;
+    margin: 0;
+    background: var(--bg-container);
+    border-radius: var(--radius);
+    border: var(--glass-border);
+    backdrop-filter: var(--glass-blur);
+    overflow: hidden;
+    transition: all var(--transition-speed) ease;
+}
+
+#audioVisualizer {
+    width: 100%;
+    height: 100%;
+    display: block;
+}
+
 .glass-modal-overlay {
     display: none;
     position: fixed;
@@ -875,7 +901,7 @@
     padding: 20px;
     margin: 15px 0;
     border-radius: var(--radius);
-    background: var(--card-bg);
+    background: var(--bg-container);
     border: var(--glass-border);
     backdrop-filter: var(--glass-blur);
     display: flex;
@@ -885,8 +911,10 @@
     transition: all var(--transition-speed) ease;
 }
 
+#no-lyrics:hover,
+.visualizer-container:hover,
 .lyrics-container:hover {
-    transform: translateY(-1px);
+    transform: translateY(-3px);
 }
 
 .lyric-line {
@@ -921,7 +949,7 @@
 .lyric-line .char {
     display: inline-block;
     white-space: nowrap;
-    margin: 0 2px;
+    margin: 0 4px;
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     position: relative;
     font-weight: inherit;
@@ -960,10 +988,6 @@
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     animation: shimmer 2s ease-in-out infinite, float 3s ease-in-out infinite;
-    text-shadow:
-        0 0 20px color-mix(in oklch, var(--accent-color), transparent 30%),
-        0 0 40px color-mix(in oklch, var(--accent-color), transparent 50%),
-        0 0 60px color-mix(in oklch, var(--accent-color), transparent 20%);
     position: relative;
     z-index: 3;
 }
@@ -990,17 +1014,17 @@
 
 .char.space {
     display: inline;
-    min-width: 0.4em;
-    margin: 0 1px;
+    min-width: 0.6em;
+    margin: 0 2px;
 }
 
 .lyric-line .word {
     display: inline-block;
-    margin: 0 4px;
+    margin: 0 8px;
 }
 
 .lyric-line .word .char {
-    margin: 0 1px;
+    margin: 0 2px;
     display: inline;
 }
 
@@ -1129,14 +1153,15 @@
 
 .modal-content {
     position: relative;
-    background: var(--bg-container);
+    background: var(--card-bg);
     border-radius: var(--radius);
     box-shadow:
         0 25px 50px color-mix(in oklch, var(--bg-container), black 60%),
         0 0 0 1px color-mix(in oklch, var(--border-color), transparent 50%);
-    width: 90%;
-    max-width: 1200px;
-    max-height: 90vh;
+    width: 1200px;
+    height: auto; 
+    max-width: 1200px;  
+    max-height: none;
     overflow: hidden;
     backdrop-filter: var(--glass-blur);
     border: var(--glass-border);
@@ -1163,7 +1188,7 @@
     padding: 15px 25px;
     background: var(--header-bg);
     border-bottom: 1px solid var(--border-color);
-    height: 70px;
+    height: auto;
     box-sizing: border-box;
     flex-shrink: 0;
 }
@@ -1172,9 +1197,11 @@
     color: var(--accent-color);
     font-size: 1.5rem;
     font-weight: 700;
-    line-height: 70px;
+    line-height: 1.2;
     margin: 0;
     text-shadow: var(--text-shadow);
+    position: relative;
+    top: 4px;
 }
 
 .modal-body {
@@ -1337,8 +1364,8 @@
     overflow-y: auto;
     padding: 10px;
     border-radius: var(--radius);
-    background: var(--card-bg);
-    border: 1px solid var(--border-color);
+    background: var(--bg-container);
+    border: var(--glass-border);
 }
 
 .playlist:hover {
@@ -1357,8 +1384,9 @@
 }
 
 .playlist-item:hover {
-    background: var(--forest-bg);
+    background: oklch(var(--l) var(--c) var(--base-hue-5));
     color: #fff;
+    font-weight: bold;
     transform: translateX(5px);
     box-shadow: 0 4px 12px color-mix(in oklch, var(--forest-bg), transparent 70%);
 }
@@ -1378,7 +1406,7 @@
 .lyrics-container::-webkit-scrollbar-track,
 .playlist::-webkit-scrollbar-track,
 #floatingLyrics::-webkit-scrollbar-track {
-    background: var(--card-bg);
+    background: var(--header-bg);
     border-radius: 3px;
 }
 
@@ -1394,14 +1422,14 @@
 .playlist::-webkit-scrollbar-thumb:hover,
 #floatingLyrics::-webkit-scrollbar-thumb:hover {
     background: var(--accent-color);
-    opacity: 0.8;
+    opacity: 0.9;
 }
 
 .lyrics-container,
 .playlist,
 #floatingLyrics {
     scrollbar-width: thin;
-    scrollbar-color: var(--accent-color) var(--card-bg);
+    scrollbar-color: var(--accent-color) var(--header-bg);
 }
 
 .music-modal-footer {
@@ -1411,7 +1439,7 @@
     padding: 10px 25px;
     background: var(--header-bg);
     border-top: 1px solid var(--border-color);
-    height: 70px;
+    height: auto;
     box-sizing: border-box;
     flex-shrink: 0;
     gap: 10px; 
@@ -1422,8 +1450,8 @@
     background: var(--btn-primary-bg);
     border: 1px solid var(--border-color);
     color: #fff;
-    padding: 10px 20px;
-    border-radius: 25px;
+    padding: 6px 16px; 
+    border-radius: 20px;
     cursor: pointer;
     font-size: 0.9rem;
     font-weight: 500;
@@ -1446,7 +1474,7 @@
 }
 
 .cancel-btn:hover {
-    background: color-mix(in oklch, var(--btn-danger-bg), transparent 60%);
+    background: #b20000;
 }
 
 @media (max-width: 768px) {
@@ -1591,7 +1619,7 @@
 }
 
 #floatingLyrics #floatingCurrentSong.vertical-title {
-    font-size: 1.8rem;
+    font-size: 2rem;
     font-weight: 700;
     color: var(--accent-color);
     writing-mode: vertical-rl;
@@ -1808,7 +1836,7 @@
 
 #volumeSlider {
     width: 100%;
-    accent-color: var(--text-color);
+    accent-color: var(--accent-color);
 }
 
 #volumeLabel {
@@ -1894,7 +1922,7 @@
 </style>
 
 <div id="controlPanel" class="control-panel">
-    <header class="control-panel-header">
+    <div class="control-panel-header">
         <h6 class="control-panel-title">
             <i class="fas fa-sliders-h"></i>
             <span data-translate="ui_control">UI Control</span>
@@ -1902,7 +1930,7 @@
         <button id="controlPanelClose" class="control-panel-close">
             &times;
         </button>
-    </header>
+    </div>
 
     <main class="control-panel-body">
         <div class="control-panel-grid">
@@ -2121,7 +2149,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 <div id="global-modal" class="global-modal">
     <div class="global-modal-content">
-        <div class="music-modal-header">
+        <div class="control-panel-header">
             <h3 style="margin:0; font-size:20px; color:var(--accent-color);"><i class="bi bi-lightning-charge-fill"></i> <span data-translate="modal_title">Confirm Modal</span></h3>
             <span class="close-btn">&times;</span>
         </div>
@@ -2203,6 +2231,190 @@ let isManualScroll = false;
 let isSmallScreen = window.innerWidth < 768;
 let currentPlaylistUrl = 'https://raw.githubusercontent.com/Thaolga/Rules/main/music/songs.txt';
 
+class AudioVisualizer {
+    constructor() {
+        this.canvas = document.getElementById('audioVisualizer');
+        this.ctx = null;
+        this.isVisualizing = false;
+        this.animationId = null;
+        this.mockData = new Uint8Array(32);
+        this.isEnabled = false;
+        this.debugCounter = 0;
+        this.isVisible = false;
+        
+        if (this.canvas) {
+            this.ctx = this.canvas.getContext('2d');
+            console.log('Audio visualizer created');
+        } else {
+            console.error('Canvas element not found!');
+        }
+    }
+    
+    enable() {
+        if (this.isEnabled || !this.canvas) return;
+        this.isEnabled = true;
+        this.isVisible = true;
+        this.init();
+    }
+    
+    disable() {
+        this.isEnabled = false;
+        this.isVisible = false;
+        this.stop();
+        if (this.ctx && this.canvas) {
+            this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+        }
+    }
+    
+    init() {
+        if (!this.isEnabled || !this.canvas) return;
+        
+        this.resizeCanvas();
+        window.addEventListener('resize', () => this.resizeCanvas());
+    }
+    
+    resizeCanvas() {
+        if (this.canvas && this.canvas.parentElement && this.isEnabled) {
+            const width = this.canvas.parentElement.clientWidth;
+            const height = this.canvas.parentElement.clientHeight;
+            this.canvas.width = width;
+            this.canvas.height = height;
+        }
+    }
+    
+    generateMockData() {
+        if (!this.isEnabled) return;
+        
+        this.debugCounter++;
+        const time = Date.now() / 150;
+        
+        for (let i = 0; i < 32; i++) {
+            const wave1 = Math.sin(time * 1.5 + i * 0.25) * 60;
+            const wave2 = Math.cos(time * 0.8 + i * 0.15) * 40;
+            const wave3 = Math.sin(time * 2.2 + i * 0.1) * 20;
+            const wave4 = Math.sin(time * 0.5 + i * 0.05) * 30;
+            
+            let value = 50 + wave1 + wave2 + wave3 + wave4;
+            value += Math.random() * 25;
+            
+            const curve = 1 - Math.pow((i - 16) / 16, 4);
+            value *= (0.3 + 0.7 * curve);
+            
+            this.mockData[i] = Math.max(10, Math.min(255, value));
+        }
+    }
+    
+    start() {
+        if (this.isVisualizing || !this.isEnabled || !this.isVisible) return;
+        
+        this.isVisualizing = true;
+        this.draw();
+    }
+    
+    stop() {
+        this.isVisualizing = false;
+        if (this.animationId) {
+            cancelAnimationFrame(this.animationId);
+            this.animationId = null;
+        }
+        if (this.ctx && this.canvas) {
+            this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+        }
+    }
+    
+    draw() {
+        if (!this.isVisualizing || !this.isEnabled || !this.isVisible || !this.ctx) return;
+        
+        this.animationId = requestAnimationFrame(() => this.draw());
+        this.generateMockData();
+        
+        this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+        
+        //this.ctx.fillStyle = 'rgba(30, 30, 60, 0.3)';
+        //this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+        
+        this.drawBars();
+    }
+    
+    drawBars() {
+        const barCount = 32;
+        const barWidth = this.canvas.width / barCount;
+        
+        for (let i = 0; i < barCount; i++) {
+            const barHeight = (this.mockData[i] / 255) * this.canvas.height;
+            const x = i * barWidth;
+            const y = this.canvas.height - barHeight;
+            
+            this.ctx.fillStyle = `hsl(${i * 10}, 100%, 60%)`;
+            this.ctx.fillRect(x + 1, y, barWidth - 2, barHeight);
+            
+            this.ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
+            this.ctx.fillRect(x + 1, y, barWidth - 2, 3);
+        }
+    }
+}
+
+let audioVisualizer = null;
+
+function initVisualizer() {
+    const container = document.getElementById('visualizerContainer');
+    if (!container) {
+        return;
+    }
+    
+    if (!audioVisualizer) {
+        audioVisualizer = new AudioVisualizer();
+    }
+    container.style.display = 'none';
+}
+
+function toggleVisualizer() {
+    const container = document.getElementById('visualizerContainer');
+    const button = document.querySelector('[data-title="toggle_visualizer"]');
+    
+    if (!container || !button) {
+        return;
+    }
+    
+    if (!audioVisualizer) {
+        initVisualizer();
+    }
+    
+    const isCurrentlyHidden = container.style.display === 'none' || 
+                             container.style.display === '';
+    
+    if (isCurrentlyHidden) {
+        container.style.display = 'block';
+        
+        setTimeout(() => {
+            if (audioVisualizer) {
+                audioVisualizer.enable();
+                setTimeout(() => {
+                    audioVisualizer.resizeCanvas();
+                    if (isPlaying) {
+                        audioVisualizer.start();
+                    }
+                }, 100);
+            }
+        }, 50);
+        
+        button.innerHTML = '<i class="bi bi-bar-chart-fill"></i>';
+        button.classList.add('visualizer-active');
+        
+    } else {
+        container.style.display = 'none';
+        
+        if (audioVisualizer) {
+            audioVisualizer.disable();
+        }
+        
+        button.innerHTML = '<i class="bi bi-bar-chart"></i>';
+        button.classList.remove('visualizer-active');
+    }
+    
+    //savePlayerState();
+}
+
 function throttle(func, limit) {
     let lastFunc;
     let lastRan;
@@ -2240,6 +2452,11 @@ document.addEventListener('DOMContentLoaded', () => {
     loadPlayerState();
     loadPlaylistUrl();
     initializePlayer();
+    
+    setTimeout(() => {
+        initVisualizer();
+    }, 1000);
+    
     audioPlayer.addEventListener('timeupdate', throttle(() => {
         if (songs[currentTrackIndex]) {
             saveCurrentTime(songs[currentTrackIndex], audioPlayer.currentTime);
@@ -2385,11 +2602,23 @@ function togglePlay() {
         const pauseMessage = translations['pause_playing'] || 'Pause_Playing';
         showLogMessage(pauseMessage);
         speakMessage(pauseMessage);
+        
+        if (audioVisualizer && audioVisualizer.isEnabled && audioVisualizer.isVisible) {
+            audioVisualizer.stop();
+        }
     } else {
-        audioPlayer.play();
-        const playMessage = translations['start_playing'] || 'Start_Playing';
-        showLogMessage(playMessage);
-        speakMessage(playMessage);
+        audioPlayer.play().then(() => {
+            const playMessage = translations['start_playing'] || 'Start_Playing';
+            showLogMessage(playMessage);
+            speakMessage(playMessage);
+            
+            if (audioVisualizer && audioVisualizer.isEnabled && audioVisualizer.isVisible) {
+                audioVisualizer.start();
+            }
+        }).catch((error) => {
+            console.log(`${translations['autoplay_blocked'] || 'Autoplay Blocked'}:`, error);
+            showLogMessage(translations['click_to_play'] || 'Click play button to start');
+        });
     }
     isPlaying = !isPlaying;
     updatePlayButton();
@@ -2536,6 +2765,11 @@ function playTrack(index) {
     const translations = languageTranslations[currentLang] || languageTranslations['zh'];    
     const songName = decodeURIComponent(songs[index].split('/').pop().replace(/\.\w+$/, ''));
     const message = `${translations['playlist_click'] || 'Playlist Click'}：${translations['index'] || 'Index'}：${index + 1}，${translations['song_name'] || 'Song Name'}：${songName}`;
+    
+    if (audioVisualizer && audioVisualizer.isEnabled && audioVisualizer.isVisible) {
+        audioVisualizer.stop();
+    }
+    
     audioPlayer.pause();
     currentTrackIndex = index;
     loadTrack(songs[index]);
@@ -2718,6 +2952,17 @@ function syncLyrics() {
     lines.forEach(line => {
         line.classList.remove('highlight', 'played');
         line.style.color = 'white'; 
+        
+        const chars = line.querySelectorAll('.char');
+        chars.forEach(char => {
+            char.classList.remove('active', 'played');
+            char.style.transform = '';
+            char.style.opacity = '';
+            char.style.color = '';
+            char.style.background = '';
+            char.style.textShadow = '';
+            char.style.animation = '';
+        });
     });
 
     for (let i = lines.length - 1; i >= 0; i--) {
@@ -2733,14 +2978,29 @@ function syncLyrics() {
 
     if (currentLine) {
         const chars = currentLine.querySelectorAll('.char');
+        
+        chars.forEach(char => {
+            char.classList.remove('active');
+        });
+        
         chars.forEach(char => {
             const start = parseFloat(char.dataset.start);
             const end = parseFloat(char.dataset.end);
             if (currentTime >= start && currentTime <= end) {
                 char.classList.add('active');
-            } else if (currentTime > end && !char.classList.contains('played')) {
+            } else if (currentTime > end) {
                 char.classList.add('played');
-                spawnHeartAbove(char); 
+                if (!char.classList.contains('played')) {
+                    spawnHeartAbove(char); 
+                }
+            } else {
+                char.classList.remove('active', 'played');
+                char.style.transform = '';
+                char.style.opacity = '';
+                char.style.color = '';
+                char.style.background = '';
+                char.style.textShadow = '';
+                char.style.animation = '';
             }
         });
 
@@ -2755,6 +3015,11 @@ function syncLyrics() {
             }
 
             const floatingChars = floatingLyrics.querySelectorAll('.char');
+            floatingChars.forEach(floatingChar => {
+                floatingChar.classList.remove('active');
+                floatingChar.style.transform = '';
+            });
+            
             chars.forEach((char, index) => {
                 const floatingChar = floatingChars[index];
                 if (!floatingChar) return;
@@ -2819,18 +3084,32 @@ function loadTrack(url) {
             container.innerHTML = `<div class="no-lyrics">${translations['loading_lyrics'] || 'Loading Lyrics...'}</div>`;
         }
     });
+    
     audioPlayer.pause();
+    
+    if (audioVisualizer && audioVisualizer.isEnabled && audioVisualizer.isVisible) {
+        audioVisualizer.stop();
+    }
+    
     audioPlayer.src = url;
     audioPlayer.load();
     audioPlayer.addEventListener('canplaythrough', () => {
         audioPlayer.currentTime = loadCurrentTime(url);
-        audioPlayer.play().catch((error) => {
+        audioPlayer.play().then(() => {
+            isPlaying = true;
+            updatePlayButton();
+            
+            if (audioVisualizer && audioVisualizer.isEnabled && audioVisualizer.isVisible) {
+                audioVisualizer.start();
+            }
+        }).catch((error) => {
             console.log(`${translations['autoplay_blocked'] || 'Autoplay Blocked'}:`, error);
             showLogMessage(translations['click_to_play'] || 'Click play button to start');
+            isPlaying = false;
+            updatePlayButton();
         });
-        isPlaying = true;
-        updatePlayButton();
     }, { once: true });
+    
     updatePlayButton(); 
     updatePlaylistUI();
     loadLyrics(url);
@@ -2852,7 +3131,13 @@ function initializePlayer() {
         setRepeatButtonState();
         updateTimeDisplay();
         if (isPlaying) {
-            audioPlayer.play().catch((error) => {
+            audioPlayer.play().then(() => {
+                if (audioVisualizer && audioVisualizer.isEnabled && audioVisualizer.isVisible) {
+                    setTimeout(() => {
+                        audioVisualizer.start();
+                    }, 100);
+                }
+            }).catch((error) => {
                 console.log(`${translations['autoplay_blocked'] || 'Autoplay Blocked'}:`, error);
                 isPlaying = false;
                 savePlayerState();
@@ -2913,11 +3198,18 @@ audioPlayer.addEventListener('ended', () => {
 });
 
 function savePlayerState() {
+    const visualizerState = audioVisualizer ? {
+        visualizerEnabled: audioVisualizer.isEnabled,
+        visualizerVisible: audioVisualizer.isVisible,
+        visualizerContainerVisible: document.getElementById('visualizerContainer')?.style.display !== 'none'
+    } : {};
+    
     localStorage.setItem(`${STORAGE_PREFIX}playerState`, JSON.stringify({
         isPlaying: isPlaying,
         repeatMode: repeatMode,
         currentTrackIndex: currentTrackIndex,
-        currentTrack: songs[currentTrackIndex] || ''
+        currentTrack: songs[currentTrackIndex] || '',
+        ...visualizerState
     }));
 }
 
@@ -2928,6 +3220,31 @@ function loadPlayerState() {
         isPlaying = state.isPlaying || false;
         repeatMode = state.repeatMode || 0;
         currentTrackIndex = state.currentTrackIndex || 0;
+        
+        if (state.visualizerEnabled && state.visualizerVisible) {
+            setTimeout(() => {
+                if (!audioVisualizer) {
+                    initVisualizer();
+                }
+                if (audioVisualizer) {
+                    const container = document.getElementById('visualizerContainer');
+                    const button = document.querySelector('[data-title="toggle_visualizer"]');
+                    if (container && button) {
+                        container.style.display = 'block';
+                        audioVisualizer.enable();
+                        button.innerHTML = '<i class="bi bi-bar-chart-fill"></i>';
+                        button.classList.add('visualizer-active');
+                        
+                        if (isPlaying) {
+                            setTimeout(() => {
+                                audioVisualizer.start();
+                            }, 500);
+                        }
+                    }
+                }
+            }, 500);
+        }
+        
         if (songs.length > 0 && currentTrackIndex >= songs.length) {
             currentTrackIndex = 0;
         }
