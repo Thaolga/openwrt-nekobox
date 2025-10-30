@@ -2503,9 +2503,6 @@ td>table>tbody>tr>td,
             oklch(var(--l) var(--c) var(--base-hue-7)),
             oklch(var(--l) var(--c) var(--base-hue-1)));
     background-size: 400% auto;
-    box-shadow:
-        0 0 6px color-mix(in oklch, var(--accent-color), transparent 50%),
-        0 0 16px color-mix(in oklch, var(--accent-color), transparent 60%);
     transform: translateZ(0);
     will-change: transform, background-position, box-shadow;
     animation: rainbow-energy 6s linear infinite, pulse 1.5s ease-in-out infinite;
@@ -2532,9 +2529,6 @@ td>table>tbody>tr>td,
             oklch(var(--l) var(--c) var(--base-hue-7)),
             oklch(var(--l) var(--c) var(--base-hue-1)));
     background-size: 400% auto;
-    box-shadow:
-        0 0 6px color-mix(in oklch, var(--accent-color), transparent 50%),
-        0 0 16px color-mix(in oklch, var(--accent-color), transparent 60%);
     transform: translateZ(0);
     will-change: transform, background-position, box-shadow;
     animation: rainbow-energy 6s linear infinite, pulse 1.5s ease-in-out infinite;
