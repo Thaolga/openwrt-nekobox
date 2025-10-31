@@ -143,6 +143,8 @@ const languageTranslations = {
         "voice_type_local": "本地语音",
         "voice_type_other": "其他语音",
         'version_check_label': '版本检测',
+        "playlist": "播放列表",
+        "lyrics": "歌词",
         'command_install_label': '命令安装'
     },
     'hk': {
@@ -290,6 +292,8 @@ const languageTranslations = {
         "voice_type_online": "在線語音",
         "voice_type_local": "本地語音",
         "voice_type_other": "其他語音",
+        "playlist": "播放清單",
+        "lyrics": "歌詞",
         'theme_download': '主題下載'
     },
     'en': {
@@ -441,6 +445,8 @@ const languageTranslations = {
         "voice_type_online": "Online Voice",
         "voice_type_local": "Local Voice",
         "voice_type_other": "Other Voice",
+        "playlist": "Playlist",
+        "lyrics": "Lyrics",
         'theme_download': 'Theme download'
     },
     'ko': {
@@ -582,6 +588,8 @@ const languageTranslations = {
         "voice_type_online": "온라인 음성",
         "voice_type_local": "로컬 음성",
         "voice_type_other": "기타 음성",
+        "playlist": "재생목록",
+        "lyrics": "가사",
         'theme_download': '테마 다운로드'
     },
     'vi': {
@@ -724,6 +732,8 @@ const languageTranslations = {
         "voice_type_local": "Giọng cục bộ",
         "voice_type_other": "Giọng khác",   
         'command_install_label': 'Cài đặt lệnh',
+        "playlist": "Danh sách phát",
+        "lyrics": "Lời bài hát",
         'theme_download': 'Tải chủ đề'
     },
     'th': {
@@ -866,6 +876,8 @@ const languageTranslations = {
         "voice_type_online": "เสียงออนไลน์",
         "voice_type_local": "เสียงในเครื่อง",
         "voice_type_other": "เสียงอื่นๆ",
+        "playlist": "เพลย์ลิสต์",
+        "lyrics": "เนื้อเพลง",
         'theme_download': 'ดาวน์โหลดธีม'
     },
     'ja': {
@@ -1008,6 +1020,8 @@ const languageTranslations = {
         "voice_type_online": "オンライン音声",
         "voice_type_local": "ローカル音声",
         "voice_type_other": "その他の音声",
+        "playlist": "プレイリスト",
+        "lyrics": "歌詞",
         'theme_download': 'テーマダウンロード'
     },
     'ru': {
@@ -1150,6 +1164,8 @@ const languageTranslations = {
         "voice_type_online": "Онлайн голос",
         "voice_type_local": "Локальный голос",
         "voice_type_other": "Другой голос",
+        "playlist": "Плейлист",
+        "lyrics": "Тексты песен",
         'theme_download': 'Скачать тему'
     },
     'ar': {
@@ -1292,6 +1308,8 @@ const languageTranslations = {
         "voice_type_online": "الصوت عبر الإنترنت",
         "voice_type_local": "الصوت المحلي",
         "voice_type_other": "أصوات أخرى",
+        "playlist": "قائمة التشغيل",
+        "lyrics": "كلمات الأغاني",
         'theme_download': 'تحميل السمة'
     },
     'es': {
@@ -1434,6 +1452,8 @@ const languageTranslations = {
         "voice_type_online": "Voz en línea",
         "voice_type_local": "Voz local",
         "voice_type_other": "Otra voz",
+        "playlist": "Lista de reproducción",
+        "lyrics": "Letras",
         'theme_download': 'Descarga del tema'
     },
     'de': {
@@ -1576,6 +1596,8 @@ const languageTranslations = {
         "voice_type_online": "Online-Stimme",
         "voice_type_local": "Lokale Stimme",
         "voice_type_other": "Andere Stimme",
+        "playlist": "Wiedergabeliste",
+        "lyrics": "Liedtexte",
         'theme_download': 'Thema herunterladen'
     },
     'fr': {
@@ -1718,6 +1740,8 @@ const languageTranslations = {
         "voice_type_online": "Voix en ligne",
         "voice_type_local": "Voix locale",
         "voice_type_other": "Autre voix",
+        "playlist": "Liste de lecture",
+        "lyrics": "Paroles",
         'theme_download': 'Télécharger le thème'
     },
     'bn': {
@@ -1861,6 +1885,8 @@ const languageTranslations = {
         "voice_type_online": "অনলাইন ভয়েস",
         "voice_type_local": "স্থানীয় ভয়েস",
         "voice_type_other": "অন্যান্য ভয়েস",
+        "playlist": "প্লেলিস্ট",
+        "lyrics": "গানের কথা",
         'theme_download': 'থিম ডাউনলোড'
     }
 };
