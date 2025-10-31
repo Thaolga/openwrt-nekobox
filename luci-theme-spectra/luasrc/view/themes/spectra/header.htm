@@ -711,12 +711,14 @@
     display: flex;
     gap: 12px;
     align-items: center;
+
 }
 
 .playback-controls {
     display: flex;
     gap: 16px;
     align-items: center;
+    flex-shrink: 0; 
 }
 
 .info-display {
@@ -724,16 +726,21 @@
     gap: 16px;
     align-items: center;
     margin: 0 20px; 
+    flex-shrink: 0;
 }
 
 .time-display {
     font-size: 14px;
     color: rgba(255, 255, 255, 0.8);
     white-space: nowrap;
+    min-width: 90px;
+    text-align: center;
+    flex-shrink: 0;
 }
 
 .progress-container {
     width: 200px;
+    flex-shrink: 0;
 }
 
 .progress {
