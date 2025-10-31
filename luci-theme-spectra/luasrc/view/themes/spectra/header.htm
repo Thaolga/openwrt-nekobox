@@ -711,7 +711,6 @@
     display: flex;
     gap: 12px;
     align-items: center;
-
 }
 
 .playback-controls {
@@ -3584,7 +3583,7 @@ document.addEventListener('keydown', function (event) {
         case 'Insert':
             document.getElementById('repeatBtn')?.click();
             break;
-        case 'Home':
+        case 'ArrowDown':
             event.preventDefault();
             openMusicModal();
             break;
