@@ -2957,7 +2957,6 @@ body:not(.Interfaces) .cbi-rowstyle-2:first-child {
     font-weight: bold;
     display: none;
     color: var(--text-primary);
-    text-shadow: 1px 1px 0 #fff
 }
 
 .cbi-dropdown>ul>li {
@@ -3300,7 +3299,7 @@ body:not(.Interfaces) .cbi-rowstyle-2:first-child {
 
 .modal li {
     list-style-type: square;
-    color: #808080
+    color: var(--text-primary);
 }
 
 .modal .cbi-dropdown.cbi-button>ul>li,
@@ -5452,7 +5451,6 @@ ul.tabs {
 ul.cbi-tabmenu {
     margin: 10px 0 0 10px !important;
 }
-
 
 .table.cbi-section-table .cbi-section-table-row:nth-of-type(odd) {
     background-color: var(--bg-container) !important;

@@ -344,8 +344,8 @@
         </div>
         
         <div class="modal-actions">
-            <button type="button" class="modal-btn modal-btn-cancel" onclick="closeLanguageModal()" data-translate="cancel"></button>
-            <button type="button" class="modal-btn modal-btn-save" onclick="saveLanguage()" data-translate="save"></button>
+            <button type="button" class="cbi-button cbi-button-remove" onclick="closeLanguageModal()" data-translate="cancel"></button>
+            <button type="button" class="cbi-button cbi-button-apply" onclick="saveLanguage()" data-translate="save"></button>
         </div>
     </div>
 </div>
@@ -434,44 +434,46 @@
             
             <div class="player-controls">
                 <div class="control-section">
-                    <div class="control-group">
+                    <div class="left-controls">
+                        <div class="playback-controls">
+                            <button class="control-btn" onclick="changeTrack(-1, true)" data-title="previous_track">
+                                <i class="bi bi-caret-left-fill"></i>
+                            </button>
+                            <button class="control-btn play-pause-btn" id="playPauseBtn" onclick="togglePlay()" data-title="play_pause">
+                                <i class="bi bi-play-fill"></i>
+                            </button>
+                            <button class="control-btn" onclick="changeTrack(1, true)" data-title="next_track">
+                                <i class="bi bi-caret-right-fill"></i>
+                            </button>
+                        </div>
+                        
+                        <div class="info-display">
+                            <div class="time-display">
+                                <span id="currentTime">0:00</span> / <span id="duration">0:00</span>
+                            </div>
+                            <div class="progress-container">
+                                <div class="progress">
+                                    <div class="progress-bar" id="progressBar"></div>
+                                </div>
+                            </div>
+                            <button class="control-btn" id="speedToggle" data-title="playback_speed">
+                                <span id="speedLabel">1×</span>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="music-control-group">
+                        <div class="volume-control">
                         <button class="control-btn" id="repeatBtn" onclick="toggleRepeat()">
                             <i class="bi bi-arrow-repeat"></i>
                         </button>
-                        <div class="volume-control">
                             <button class="control-btn" id="volumeToggle" data-title="volume">
-                                <i class="bi bi-volume-up-fill" style="font-size: 1.4em;"></i>
+                                <i class="bi bi-volume-up-fill" style="font-size: 1.2em;"></i>
                             </button>
                             <div class="volume-slider-container" id="volumePanel">
                                 <input type="range" class="volume-slider" id="volumeSlider" min="0" max="1" step="0.01" value="1">
                             </div>
                         </div>
-                    </div>
-                    
-                    <div class="playback-controls">
-                        <button class="control-btn" onclick="changeTrack(-1, true)" data-title="previous_track">
-                            <i class="bi bi-caret-left-fill"></i>
-                        </button>
-                        <button class="control-btn play-pause-btn" id="playPauseBtn" onclick="togglePlay()" data-title="play_pause">
-                            <i class="bi bi-play-fill"></i>
-                        </button>
-                        <button class="control-btn" onclick="changeTrack(1, true)" data-title="next_track">
-                            <i class="bi bi-caret-right-fill"></i>
-                        </button>
-                    </div>
-                    
-                    <div class="info-display">
-                        <div class="time-display">
-                            <span id="currentTime">0:00</span> / <span id="duration">0:00</span>
-                        </div>
-                        <div class="progress-container">
-                            <div class="progress">
-                                <div class="progress-bar" id="progressBar"></div>
-                            </div>
-                        </div>
-                        <button class="control-btn" id="speedToggle" data-title="playback_speed">
-                            <span id="speedLabel">1×</span>
-                        </button>
                     </div>
                 </div>
             </div>
@@ -597,7 +599,9 @@
 .playlist-container {
     flex: 1;
     overflow-y: auto;
+    overflow-x: hidden;
     padding: 0;
+    background-color: oklch(0% 0 0 / 30%);
 }
 
 .playlist {
@@ -605,22 +609,44 @@
 }
 
 .playlist-item {
-    padding: 12px 20px;
     cursor: pointer;
-    transition: background-color 0.2s;
-    border-bottom: 1px solid oklch(100% 0 0 / 5%);
+    transition: background-color 0.3s, transform 0.2s;
+    padding: 1rem 1.5rem;
+    color: oklch(100% 0 0);
+    background-color: oklch(0% 0 0 / 30%);
+    border-left: 3px solid oklch(100% 0 0 / 20%);
+    margin-bottom: 3px;
+    border-radius: 6px;
     display: flex;
     align-items: center;
     gap: 12px;
 }
 
 .playlist-item:hover {
-    background-color: oklch(100% 0 0 / 5%);
+    background-color: var(--accent-color) !important;
+    box-shadow: 0 4px 12px oklch(0% 0 0 / 30%);
+    transform: translateX(5px) scale(1.02);
+    color: oklch(100% 0 0);
+}
+
+.playlist-item:nth-child(odd) {
+    background-color: oklch(45.4% 0.076 269.5 / 25%);
+    border-left: 3px solid oklch(100% 0 0 / 20%);
+    color: oklch(100% 0 0);
+}
+
+.playlist-item:nth-child(even) {
+    background-color: oklch(45.4% 0.076 269.5 / 25%);
+    border-left: 3px solid oklch(100% 0 0 / 20%);
+    color: oklch(100% 0 0);
 }
 
 .playlist-item.active {
-    background-color: oklch(54.9% 0.245 293.6 / 20%);
-    border-left: 3px solid oklch(54.9% 0.245 293.6);
+    background: oklch(54.9% 0.245 293.6 / 60%) !important;
+    border-color: oklch(54.9% 0.245 293.6);
+    box-shadow: 0 4px 12px oklch(54.9% 0.245 293.6 / 40%);
+    z-index: 2;
+    color: oklch(100% 0 0);
 }
 
 .playlist-item-thumb {
@@ -629,11 +655,13 @@
     border-radius: 6px;
     object-fit: cover;
     background-color: oklch(100% 0 0 / 10%);
+    flex-shrink: 0;
 }
 
 .playlist-item-info {
     flex: 1;
     overflow: hidden;
+    min-width: 0; 
 }
 
 .playlist-item-title {
@@ -642,6 +670,8 @@
     overflow: hidden;
     text-overflow: ellipsis;
     margin-bottom: 4px;
+    font-size: 1.1em;
+    line-height: 1.4;
 }
 
 .playlist-item-artist {
@@ -650,6 +680,51 @@
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+}
+
+.badge {
+    width: 24px;
+    text-align: center;
+    font-weight: normal;
+    background-color: oklch(54.9% 0.245 293.6);
+    color: oklch(100% 0 0);
+    border-radius: 12px;
+    font-size: 0.8em;
+    padding: 2px 6px;
+}
+
+.delete-item {
+    opacity: 0.6;
+    transition: opacity 0.3s;
+    color: oklch(100% 0 0);
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 4px;
+    border-radius: 4px;
+}
+
+.delete-item:hover {
+    opacity: 1;
+    background-color: oklch(100% 0 0 / 10%);
+}
+
+.text-truncate {
+    display: inline-block;
+    width: 100%;
+    white-space: normal;
+    word-wrap: break-word;
+    word-break: break-word;
+    font-size: 1.1em;
+    line-height: 1.4;
+    color: oklch(100% 0 0);
+}
+
+.text-muted {
+    color: oklch(54.9% 0.245 293.6) !important;
+    font-size: 1.2em;
+    letter-spacing: 0.5px;
+    opacity: 0.7;
 }
 
 .lyrics-section {
@@ -681,7 +756,7 @@
 
 .visualizer-container {
     position: relative;
-    height: 120px;
+    height: 180px;
     min-height: 60px;
     margin: 0;
     overflow: hidden;
@@ -707,25 +782,23 @@
     flex-wrap: nowrap;
 }
 
-.control-group {
+.left-controls {
     display: flex;
-    gap: 12px;
     align-items: center;
+    gap: 30px;
 }
 
 .playback-controls {
     display: flex;
     gap: 16px;
     align-items: center;
-    flex-shrink: 0; 
 }
 
 .info-display {
     display: flex;
     gap: 16px;
     align-items: center;
-    margin: 0 20px; 
-    flex-shrink: 0;
+    margin: 0;
 }
 
 .time-display {
@@ -847,7 +920,7 @@
 #volumePanel {
     position: absolute;
     bottom: 100%;
-    left: 50%;
+    left: calc(50% - 20px);
     transform: translateX(-50%);
     margin-bottom: 10px;
     background-color: var(--card-bg);
@@ -1218,7 +1291,6 @@
 .lyric-line.enter-active {
     animation: textPop 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
-
 #no-lyrics {
     text-align: center;
     color: oklch(100% 0 0);
@@ -1297,7 +1369,7 @@
         width: 60px;
     }
     
-    .control-group {
+    .left-controls {
         gap: 8px;
     }
 }
@@ -1463,49 +1535,6 @@
     border-top: 1px solid rgba(255, 255, 255, 0.1);
 }
 
-.modal-btn {
-    backdrop-filter: blur(10px);
-    border:  var(--border-strong);
-    color: var(--color-white-strong);
-    font-weight: 600;
-    cursor: pointer;
-    padding: 8px 20px;
-    font-size: 13px;
-    border-radius: 8px;
-    transition: all 0.2s ease;
-    min-width: 80px;
-    letter-spacing: 0.3px;
-}
-
-.modal-btn-cancel {
-    background: var(--btn-danger-bg);
-}
-
-.modal-btn-save {
-    background: var(--btn-success-bg);
-}
-
-.modal-btn:hover {
-    transform: translateY(-2px) scale(1.02);
-    box-shadow: var(--glow-shadow-default);
-}
-
-.modal-btn-cancel:hover {
-    background: color-mix(in oklch, var(--btn-danger-bg), white 20%);
-    border-color: color-mix(in oklch, var(--btn-danger-bg), white 10%);
-}
-
-.modal-btn-save:hover {
-    background: color-mix(in oklch, var(--btn-success-bg), white 20%);
-    border-color: color-mix(in oklch, var(--btn-success-bg), white 10%);
-}
-
-.modal-btn:active {
-    transform: translateY(0) scale(0.98);
-    box-shadow:
-        0 2px 6px oklch(0% 0 0 / 0.2),
-        inset 0 1px 3px oklch(0% 0 0 / 0.2);
-}
 
 @media (max-width: 768px) {
     .glass-modal-container {
@@ -2292,7 +2321,7 @@ document.addEventListener('DOMContentLoaded', () => {
             <span class="close-btn">&times;</span>
         </div>
         <p id="global-modal-text"></p>
-        <div class="music-modal-footer">
+        <div class="theme-modal-footer">
             <button class="cbi-button cbi-button-save" id="global-modal-confirm-btn" data-translate="modal_confirm">Confirm</button>
             <button class="cbi-button cbi-button-remove" id="global-modal-cancel-btn" data-translate="cancel">Cancel</button>
         </div>
@@ -5866,7 +5895,7 @@ window.addEventListener('load', () => {
             box-shadow:0 4px 15px rgba(0,0,0,0.4); 
             z-index:9999;
             border-radius:12px;">
-  <div class="music-modal-header" style="border-top-left-radius:12px; border-top-right-radius:12px;">
+  <div class="theme-modal-header" style="border-top-left-radius:12px; border-top-right-radius:12px;">
       <h3 id="modalTitle" style="margin-bottom:15px; font-size:20px; color:var(--accent-color);"></h3>
   </div>
   <div style="padding:10px 20px 5px 20px; flex:1; display:flex; flex-direction:column; gap:15px;">
@@ -5877,7 +5906,7 @@ window.addEventListener('load', () => {
            style="font-size:13px; color:var(--text-primary); display:none;">
       </div>
   </div>
-  <div class="music-modal-footer" style="border-bottom-left-radius:12px; border-bottom-right-radius:12px;">
+  <div class="theme-modal-footer" style="border-bottom-left-radius:12px; border-bottom-right-radius:12px;">
     <button id="clearCacheBtn" class="cbi-button cbi-button-remove"></button>
     <button id="saveCityBtn" class="cbi-button cbi-button-save"></button>
     <button id="closeCityModal" class="btn cbi-button-neutral"></button>
