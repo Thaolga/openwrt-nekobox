@@ -245,7 +245,7 @@
                 <div class="icon-group">
                         <button id="themeOpenUpdateConfirmBtn" class="app-icon-btn" data-title="theme_download"><i class="fas fa-cloud-download-alt"></i> <span class="btn-label"></span></button>
                         <button  class="app-icon-btn" id="clear-cache-btn" onclick="clearCache()" data-title="clear_button"><i class="fa-solid fa-broom"></i></button>
-                        <button class="app-icon-btn" onclick="openMusicModal()" data-title="music_player"><i class="bi bi-music-note-beamed"></i></button>
+                        <button class="app-icon-btn" onclick="openMusicModal()" data-title="music_player"><i class="fa-solid fa-music"></i></button>
                         <button class="app-icon-btn" id="themeLoaderToggle" data-title="theme_loader_btn_title"> <i class="fa fa-atom"></i> </button>
                         <button class="app-icon-btn" onclick="myAppIP.showDetailModal()" data-title="ip_details"><i class="fas fa-globe"></i></button>
                         <button class="translation-toggle app-icon-btn" onclick="toggleTranslation()" data-title="online_translation"><i class="fas fa-language"></i></button>
@@ -378,12 +378,14 @@
 <div class="music-modal" id="musicModal">
     <div class="modal-content">
         <div class="modal-header">
-            <h5 class="modal-title"><i class="fa-solid fa-music"></i> <span data-translate="music_player">Music Player</span></h5>
+            <div class="header-left">
+                <h5 class="modal-title"><i class="fa-solid fa-music"></i> <span data-translate="music_player">Music Player</span></h5>
+            </div>
             <div class="header-controls">
-                <button type="button" class="header-btn fullscreen-btn" onclick="toggleFullscreen()" data-title="toggle_fullscreen">
+                <button type="button" class="control-btn fullscreen-btn" onclick="toggleFullscreen()" data-title="toggle_fullscreen">
                     <i class="bi bi-arrows-fullscreen"></i>
                 </button>
-                <button type="button" class="header-btn fullscreen-close-btn" onclick="closeMusicModal()" data-title="close">
+                <button type="button" class="control-btn fullscreen-close-btn" onclick="closeMusicModal()" data-title="close">
                     <i class="bi bi-x-lg"></i>
                 </button>
             </div>
@@ -392,35 +394,19 @@
         <div class="modal-body">
             <div class="music-layout">
                 <div class="playlist-section">
-                    <div class="section-header">
-                        <h6 data-translate="playlist">Playlist</h6>
-                        <div class="playlist-controls">
+                    <div class="playlist-header">
+                        <h6 class="playlist-title" data-translate="playlist">Playlist</h6>
                             <button class="control-btn" onclick="openUrlModal()" data-title="custom_playlist">
                                 <i class="bi bi-music-note-list"></i>
                             </button>
                         </div>
-                    </div>
                     <div class="playlist-container">
                         <div class="playlist" id="playlist"></div>
                     </div>
                 </div>
                 
                 <div class="lyrics-section">
-                    <div class="section-header">
-                        <h6 data-translate="lyrics">Lyrics</h6>
-                        <div class="lyrics-controls">
-                            <button class="control-btn toggleFloatingLyricsBtn" data-title="toggle_floating_lyrics">
-                                <i class="bi bi-display floating-icon"></i>
-                            </button>
-                            <button class="control-btn" id="updatePlaylistBtn" onclick="updatePlaylist()" data-title="update_playlist">
-                                <i class="fa fa-sync-alt"></i>
-                            </button>
-                            <button class="control-btn" onclick="toggleVisualizer()" data-title="toggle_visualizer">
-                                <i class="bi bi-bar-chart"></i>
-                            </button>
-                        </div>
-                    </div>
-                    
+                    <h6 class="lyrics-title" data-translate="lyrics">Lyrics</h6>
                     <div class="lyrics-content">
                         <div id="floatingLyrics"></div>
                         <div id="currentSong" class="current-song"></div>
@@ -464,11 +450,20 @@
                     
                     <div class="music-control-group">
                         <div class="volume-control">
-                        <button class="control-btn" id="repeatBtn" onclick="toggleRepeat()">
-                            <i class="bi bi-arrow-repeat"></i>
-                        </button>
+                            <button class="control-btn" id="repeatBtn" onclick="toggleRepeat()">
+                                <i class="fa fa-sync-alt"></i>
+                            </button>
                             <button class="control-btn" id="volumeToggle" data-title="volume">
-                                <i class="bi bi-volume-up-fill" style="font-size: 1.2em;"></i>
+                                <i class="bi bi-volume-up-fill"></i>
+                            </button>
+                            <button class="control-btn toggleFloatingLyricsBtn" data-title="toggle_floating_lyrics">
+                                <i class="bi bi-display floating-icon"></i>
+                            </button>
+                            <button class="control-btn" id="updatePlaylistBtn" onclick="updatePlaylist()" data-title="update_playlist">
+                                <i class="fa fa-sync-alt"></i>
+                            </button>
+                            <button class="control-btn" onclick="toggleVisualizer()" data-title="toggle_visualizer">
+                                <i class="bi bi-bar-chart"></i>
                             </button>
                             <div class="volume-slider-container" id="volumePanel">
                                 <input type="range" class="volume-slider" id="volumeSlider" min="0" max="1" step="0.01" value="1">
@@ -477,10 +472,6 @@
                     </div>
                 </div>
             </div>
-        </div>
-        
-        <div class="modal-footer">
-            <button type="button" class="cancel-btn" onclick="closeMusicModal()" data-translate="cancel">Cancel</button>
         </div>
     </div>
 </div>
@@ -507,24 +498,90 @@
 }
 
 .modal-content {
-    background: linear-gradient(135deg, oklch(25% 0.05 260) 0%, oklch(22% 0.06 260) 100%);
-    border-radius: 16px;
+    background-color: var(--bg-container);
+    border-radius: var(--radius);
     width: 90%;
     max-width: 1200px;
-    height: 80%;
+    height: 70%;
     display: flex;
     flex-direction: column;
-    box-shadow: 0 10px 30px oklch(0% 0 0 / 50%);
+    box-shadow: 0 10px 30px var(--shadow-color);
     overflow: hidden;
-    color: oklch(100% 0 0);
+    color: var(--text-primary);
 }
 
 .modal-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 16px 24px;
-    border-bottom: 1px solid oklch(100% 0 0 / 10%);
+    padding: 14px 22px;
+    background: var(--header-bg);
+    gap: 16px;
+}
+
+.header-left {
+    display: flex;
+    align-items: center;
+    gap: 24px;
+    flex: 1;
+}
+
+.header-sections {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.section-label {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 12px;
+    border-radius: 6px;
+    cursor: default;
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+    font-weight: 500;
+    transition: all var(--transition-speed) ease;
+}
+
+.section-label.active {
+    color: var(--text-primary);
+    background: var(--accent-color);
+}
+
+.playlist-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 16px;
+    background: var(--header-bg);
+    position: relative;
+}
+
+.playlist-title {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin: 0;
+}
+
+.playlist-header::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 10px;
+    height: 100%;
+    background-color: var(--header-bg);
+}
+
+.lyrics-title {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  padding: 8px 16px;
+  margin-top: 15px !important;
 }
 
 .modal-title {
@@ -533,12 +590,14 @@
     display: flex;
     align-items: center;
     gap: 8px;
+    font-size: 1.1rem;
+    white-space: nowrap;
 }
 
 .close-btn {
     background: none;
     border: none;
-    color: oklch(100% 0 0);
+    color: var(--text-primary);
     font-size: 24px;
     cursor: pointer;
     padding: 0;
@@ -548,11 +607,11 @@
     align-items: center;
     justify-content: center;
     border-radius: 50%;
-    transition: background-color 0.2s;
+    transition: background-color var(--transition-speed);
 }
 
 .close-btn:hover {
-    background-color: oklch(100% 0 0 / 10%);
+    background-color: var(--accent-color);
 }
 
 .modal-body {
@@ -565,30 +624,27 @@
 
 .music-layout {
     display: flex;
-    height: 100%;
+    height: calc(100% - 60px);
     overflow: hidden;
+}
+
+.playlist-section,
+.lyrics-section {
+    height: 100%;
 }
 
 .playlist-section {
     width: 25%;
     display: flex;
     flex-direction: column;
-    border-right: 1px solid oklch(100% 0 0 / 10%);
-    background-color: oklch(0% 0 0 / 20%);
-}
-
-.section-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 16px 20px;
-    border-bottom: 1px solid oklch(100% 0 0 / 10%);
+    background-color: var(--bg-container);
 }
 
 .section-header h6 {
     margin: 0;
     font-weight: 500;
     font-size: 16px;
+    color: var(--text-primary);
 }
 
 .playlist-controls, .lyrics-controls {
@@ -601,7 +657,7 @@
     overflow-y: auto;
     overflow-x: hidden;
     padding: 0;
-    background-color: oklch(0% 0 0 / 30%);
+    background-color: var(--bg-primary);
 }
 
 .playlist {
@@ -610,43 +666,33 @@
 
 .playlist-item {
     cursor: pointer;
-    transition: background-color 0.3s, transform 0.2s;
+    transition: background-color var(--transition-speed), transform 0.2s;
     padding: 1rem 1.5rem;
-    color: oklch(100% 0 0);
-    background-color: oklch(0% 0 0 / 30%);
-    border-left: 3px solid oklch(100% 0 0 / 20%);
-    margin-bottom: 3px;
-    border-radius: 6px;
+    color: var(--text-primary);
+    background-color: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-left: 3px solid var(--border-color);
+    margin-bottom: 4px;
+    border-radius: var(--radius-small);
     display: flex;
     align-items: center;
     gap: 12px;
 }
 
 .playlist-item:hover {
-    background-color: var(--accent-color) !important;
-    box-shadow: 0 4px 12px oklch(0% 0 0 / 30%);
+    background-color: var(--item-hover-bg);
+    box-shadow: var(--item-hover-shadow);
     transform: translateX(5px) scale(1.02);
-    color: oklch(100% 0 0);
-}
-
-.playlist-item:nth-child(odd) {
-    background-color: oklch(45.4% 0.076 269.5 / 25%);
-    border-left: 3px solid oklch(100% 0 0 / 20%);
-    color: oklch(100% 0 0);
-}
-
-.playlist-item:nth-child(even) {
-    background-color: oklch(45.4% 0.076 269.5 / 25%);
-    border-left: 3px solid oklch(100% 0 0 / 20%);
-    color: oklch(100% 0 0);
+    color: var(--color-white) !important;
+    border-color: var(--accent-color);
 }
 
 .playlist-item.active {
-    background: oklch(54.9% 0.245 293.6 / 60%) !important;
-    border-color: oklch(54.9% 0.245 293.6);
-    box-shadow: 0 4px 12px oklch(54.9% 0.245 293.6 / 40%);
+    background: var(--accent-color);
+    border-color: var(--accent-color);
+    box-shadow: var(--glow-shadow-default);
     z-index: 2;
-    color: oklch(100% 0 0);
+    color: var(--color-white);
 }
 
 .playlist-item-thumb {
@@ -654,7 +700,7 @@
     height: 40px;
     border-radius: 6px;
     object-fit: cover;
-    background-color: oklch(100% 0 0 / 10%);
+    background-color: var(--card-bg);
     flex-shrink: 0;
 }
 
@@ -676,7 +722,7 @@
 
 .playlist-item-artist {
     font-size: 12px;
-    color: oklch(100% 0 0 / 60%);
+    color: var(--text-secondary);
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -684,8 +730,8 @@
 
 .delete-item {
     opacity: 0.6;
-    transition: opacity 0.3s;
-    color: oklch(100% 0 0);
+    transition: opacity var(--transition-speed);
+    color: var(--text-primary);
     background: none;
     border: none;
     cursor: pointer;
@@ -695,7 +741,7 @@
 
 .delete-item:hover {
     opacity: 1;
-    background-color: oklch(100% 0 0 / 10%);
+    background-color: var(--accent-color);
 }
 
 .text-truncate {
@@ -706,20 +752,20 @@
     word-break: break-word;
     font-size: 1.1em;
     line-height: 1.4;
-    color: oklch(100% 0 0);
+    color: var(--text-primary);
 }
 
 .text-muted {
-    color: oklch(54.9% 0.245 293.6) !important;
+    color: var(--text-secondary);
     font-size: 1.2em;
     letter-spacing: 0.5px;
-    opacity: 0.7;
 }
 
 .lyrics-section {
     width: 75%;
     display: flex;
     flex-direction: column;
+    background-color: var(--card-bg);
 }
 
 .lyrics-content {
@@ -728,6 +774,7 @@
     flex-direction: column;
     padding: 20px;
     overflow-y: auto;
+    background-color: var(--bg-primary);
 }
 
 .current-song {
@@ -735,12 +782,7 @@
     margin-bottom: 20px;
     font-size: 24px;
     font-weight: 700;
-}
-
-.lyrics-content {
-    text-align: center;
-    line-height: 1.8;
-    font-size: 16px;
+    color: var(--text-primary);
 }
 
 .visualizer-container {
@@ -750,6 +792,7 @@
     margin: 0;
     overflow: hidden;
     transition: all var(--transition-speed) ease;
+    background-color: var(--bg-primary);
 }
 
 #audioVisualizer {
@@ -759,8 +802,8 @@
 }
 
 .player-controls {
-    background-color: oklch(0% 0 0 / 30%);
-    border-top: 1px solid oklch(100% 0 0 / 10%);
+    background: var(--header-bg);
+    border-top: var(--border-light);
     padding: 16px 24px;
 }
 
@@ -792,7 +835,8 @@
 
 .time-display {
     font-size: 14px;
-    color: rgba(255, 255, 255, 0.8);
+    font-weight: 500;
+    color: var(--text-secondary);
     white-space: nowrap;
     min-width: 90px;
     text-align: center;
@@ -805,105 +849,72 @@
 }
 
 .progress {
-    height: 4px;
-    background-color: oklch(100% 0 0 / 20%);
+    height: 8px;
+    background-color: var(--color-white);
     border-radius: 2px;
     overflow: hidden;
 }
 
 .progress-bar {
     height: 100%;
-    background-color: oklch(54.9% 0.245 293.6);
+    background-color: var(--accent-color);
     border-radius: 2px;
     width: 0%;
     transition: width 0.1s;
 }
 
 .control-btn {
-    background-color: oklch(100% 0 0 / 10%);
-    border: none;
-    color: oklch(100% 0 0);
-    width: 40px;
-    height: 40px;
+    background-color: var(--bg-body);
+    border: var(--border-light);
+    color: var(--text-primary);
+    width: 35px;
+    height: 35px;
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
     cursor: pointer;
-    transition: all 0.2s;
+    transition: all var(--transition-speed);
     position: relative;
 }
 
 .control-btn:hover {
-    background-color: oklch(100% 0 0 / 20%);
+    background-color: var(--item-hover-bg);
+    color: var(--color-white);
+    animation: var(--breath-animation);
 }
 
 .play-pause-btn {
-    background-color: oklch(54.9% 0.245 293.6);
-    width: 50px;
-    height: 50px;
+    background-color: var(--accent-color);
+    width: 45px;
+    height: 45px;
+    color: var(--color-white);
 }
 
 .play-pause-btn:hover {
-    background-color: oklch(49.1% 0.265 293.6);
-}
-
-.volume-slider-container {
-    position: absolute;
-    bottom: 100%;
-    left: 50%;
-    transform: translateX(-50%);
-    background-color: oklch(0% 0 0 / 80%);
-    padding: 10px;
-    border-radius: 8px;
-    opacity: 0;
-    pointer-events: none;
-    transition: opacity 0.2s;
-    margin-bottom: 10px;
-}
-
-.volume-toggle:hover .volume-slider-container {
-    opacity: 1;
-    pointer-events: auto;
-}
-
-.volume-slider {
-    width: 80px;
-    height: 4px;
-    -webkit-appearance: none;
-    background: oklch(100% 0 0 / 20%);
-    border-radius: 2px;
-    outline: none;
-}
-
-.volume-slider::-webkit-slider-thumb {
-    -webkit-appearance: none;
-    width: 12px;
-    height: 12px;
-    border-radius: 50%;
-    background: oklch(54.9% 0.245 293.6);
-    cursor: pointer;
+    background-color: var(--btn-primary-hover);
 }
 
 .modal-footer {
     padding: 16px 24px;
-    border-top: 1px solid oklch(100% 0 0 / 10%);
+    background: var(--header-bg);
+    border-top: var(--border-light);
     display: flex;
     justify-content: flex-end;
 }
 
 .cancel-btn {
-    background-color: oklch(100% 0 0 / 10%);
-    border: none;
-    color: oklch(100% 0 0);
-    padding: 6px 12px;
-    border-radius: 18px;
+    background-color: var(--bg-quaternary);
+    border: var(--border-light);
+    color: var(--text-primary);
+    padding: 8px 16px;
+    border-radius: 6px;
     cursor: pointer;
-    transition: background-color 0.2s;
+    transition: background-color var(--transition-speed);
 }
 
 .cancel-btn:hover {
-    background-color: oklch(100% 0 0 / 20%);
+    background-color: var(--item-hover-bg);
 }
 
 #volumePanel {
@@ -920,6 +931,7 @@
     box-shadow: 0 4px 10px var(--border-color);
     z-index: 1000;
     display: none;
+    animation: var(--breath-animation);
 }
 
 #volumeSlider {
@@ -969,49 +981,15 @@
     box-shadow: 0 2px 4px oklch(0% 0 0 / 30%);
 }
 
-.volume-slider::-moz-range-thumb {
-    width: 16px;
-    height: 16px;
-    border-radius: 50%;
-    background: oklch(54.9% 0.245 293.6);
-    cursor: pointer;
-    border: 2px solid oklch(100% 0 0);
-    box-shadow: 0 2px 4px oklch(0% 0 0 / 30%);
-}
-
 .header-controls {
     display: flex;
     align-items: center;
-    gap: 8px;
-}
-
-.header-btn {
-    background-color: oklch(100% 0 0 / 10%);
-    border: none;
-    color: oklch(100% 0 0);
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    font-size: 16px;
-}
-
-.header-btn:hover {
-    background-color: oklch(100% 0 0 / 20%);
-    transform: scale(1.05);
-}
-
-.header-btn:active {
-    transform: scale(0.95);
+    gap: 6px;
 }
 
 .fullscreen-btn.active {
-    background-color: oklch(54.9% 0.245 293.6 / 20%);
-    color: oklch(54.9% 0.245 293.6);
+    background-color: var(--accent-color);
+    color: var(--color-white);
 }
 
 .music-modal.fullscreen .modal-content {
@@ -1029,58 +1007,60 @@
 .playlist-container::-webkit-scrollbar,
 .lyrics-container::-webkit-scrollbar {
     width: 8px;
+    background: transparent;
 }
 
 .playlist-container::-webkit-scrollbar-track,
 .lyrics-container::-webkit-scrollbar-track {
-    background: oklch(0% 0 0 / 20%);
+    background: var(--header-bg);
     border-radius: 4px;
+    margin: 4px 0;
 }
 
 .playlist-container::-webkit-scrollbar-thumb,
 .lyrics-container::-webkit-scrollbar-thumb {
-    background: oklch(54.9% 0.245 293.6 / 50%);
+    background: var(--accent-color);
     border-radius: 4px;
-    transition: all 0.3s ease;
+    transition: all var(--transition-speed) ease;
 }
 
 .playlist-container::-webkit-scrollbar-thumb:hover,
 .lyrics-container::-webkit-scrollbar-thumb:hover {
-    background: oklch(54.9% 0.245 293.6 / 80%);
-}
-
-.playlist-container::-webkit-scrollbar-thumb:active,
-.lyrics-container::-webkit-scrollbar-thumb:active {
-    background: oklch(54.9% 0.245 293.6);
+    background: var(--accent-color);
+    transform: scale(1.05);
 }
 
 .playlist-container,
 .lyrics-container {
     scrollbar-width: thin;
-    scrollbar-color: oklch(54.9% 0.245 293.6 / 50%) oklch(0% 0 0 / 20%);
+    scrollbar-color: var(--accent-color) var(--header-bg);
+    scroll-behavior: smooth;
 }
 
 .visualizer-container::-webkit-scrollbar {
     width: 6px;
+    background: transparent;
 }
 
 .visualizer-container::-webkit-scrollbar-track {
-    background: oklch(0% 0 0 / 15%);
+    background: var(--header-bg);
     border-radius: 3px;
+    margin: 2px 0;
 }
 
 .visualizer-container::-webkit-scrollbar-thumb {
-    background: oklch(54.9% 0.245 293.6 / 30%);
+    background: var(--accent-color);
     border-radius: 3px;
+    transition: all var(--transition-speed) ease;
 }
 
 .visualizer-container::-webkit-scrollbar-thumb:hover {
-    background: oklch(54.9% 0.245 293.6 / 50%);
+    background: var(--accent-color);
 }
 
 .visualizer-container {
     scrollbar-width: thin;
-    scrollbar-color: oklch(54.9% 0.245 293.6 / 30%) oklch(0% 0 0 / 15%);
+    scrollbar-color: var(--accent-color) var(--header-bg);
 }
 
 .playlist-container,
@@ -1101,14 +1081,54 @@
     }
 }
 
+.control-btn i,
+.header-btn i,
+.playlist-controls i,
+.lyrics-controls i,
+.playback-controls i,
+.volume-control i {
+    font-size: 1.2em;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.play-pause-btn i {
+    font-size: 1.4em;
+}
+
+.volume-control i {
+    font-size: 1.3em;
+}
+
+.control-btn,
+.header-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.bi::before,
+.fa::before {
+    line-height: 1;
+}
+
+.playlist-controls .control-btn i,
+.lyrics-controls .control-btn i {
+    font-size: 1.1em;
+}
+
 #speedToggle {
     min-width: 50px;
     font-weight: 600;
-    background-color: oklch(100% 0 0 / 10%);
+    color: var(--text-primary);
+    border: var(--border-light);
+    background-color: var(--bg-body);
 }
 
 #speedToggle:hover {
-    background-color: oklch(100% 0 0 / 20%);
+    background-color: var(--item-hover-bg);
+    color: var(--color-white);
 }
 
 .lyrics-container {
@@ -1121,11 +1141,12 @@
     align-items: center;
     justify-content: flex-start;
     transition: all var(--transition-speed) ease;
+    background-color: var(--bg-primary);
 }
 
 .lyric-line {
     opacity: 1;
-    color: #fff;
+    color: var(--text-primary);
     font-size: 1.4rem;
     font-weight: 500;
     transition: all 0.4s ease;
@@ -1135,18 +1156,15 @@
     line-height: 1.6;
     padding: 8px 16px;
     border-radius: 12px;
-    backdrop-filter: blur(10px);
 }
 
 .lyric-line.highlight {
-    color: #fff;
+    color: var(--text-primary);
     font-size: 1.8rem;
     font-weight: 700;
     background: color-mix(in oklch, var(--accent-color), transparent 92%);
-    border: 1px solid color-mix(in oklch, var(--accent-color), transparent 70%);
-    box-shadow:
-        0 4px 20px color-mix(in oklch, var(--accent-color), transparent 60%),
-        0 0 0 1px color-mix(in oklch, var(--accent-color), transparent 30%);
+    border: var(--border-strong);
+    box-shadow: var(--breathing-glow);
     transform: scale(1.02);
     position: relative;
     z-index: 2;
@@ -1162,13 +1180,13 @@
 }
 
 .lyric-line .char {
-    color: #fff;
+    color: var(--text-primary);
     opacity: 0.7;
     text-shadow: var(--text-shadow);
 }
 
 .lyric-line .char.played {
-    color: #fff;
+    color: var(--text-primary);
     opacity: 0.5;
     transform: scale(0.95);
     filter: grayscale(0.3);
@@ -1188,28 +1206,9 @@
     background-clip: text;
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
-    animation: shimmer 2s ease-in-out infinite, float 3s ease-in-out infinite;
+    animation: shimmer 2s ease-in-out infinite;
     position: relative;
     z-index: 3;
-}
-[data-theme="dark"] .lyric-line.highlight .char.active {
-    background: linear-gradient(135deg,
-            oklch(85% 0.35 calc(var(--base-hue) + 0)) 0%,
-            oklch(90% 0.4 calc(var(--base-hue) + 90)) 50%,
-            oklch(85% 0.35 calc(var(--base-hue) + 180)) 100%);
-    background-size: 200% 200%;
-    background-clip: text;
-    animation: shimmer 1.5s ease-in-out infinite;
-}
-
-[data-theme="light"] .lyric-line.highlight .char.active {
-    background: linear-gradient(135deg,
-            oklch(60% 0.4 calc(var(--base-hue) + 0)) 0%,
-            oklch(70% 0.45 calc(var(--base-hue) + 120)) 50%,
-            oklch(60% 0.4 calc(var(--base-hue) + 240)) 100%);
-    background-size: 200% 200%;
-    background-clip: text;
-    animation: shimmer 2s ease-in-out infinite;
 }
 
 .char.space {
@@ -1243,29 +1242,6 @@
     }
 }
 
-@keyframes float {
-    0%, 100% {
-        transform: scale(1.4) translateY(0px);
-    }
-    50% {
-        transform: scale(1.45) translateY(-2px);
-    }
-}
-
-@keyframes glow-pulse {
-    0%, 100% {
-        text-shadow:
-            0 0 20px color-mix(in oklch, var(--accent-color), transparent 30%),
-            0 0 40px color-mix(in oklch, var(--accent-color), transparent 50%);
-    }
-    50% {
-        text-shadow:
-            0 0 30px color-mix(in oklch, var(--accent-color), transparent 40%),
-            0 0 60px color-mix(in oklch, var(--accent-color), transparent 60%),
-            0 0 80px color-mix(in oklch, var(--accent-color), transparent 30%);
-    }
-}
-
 @keyframes textPop {
     from {
         opacity: 0;
@@ -1280,9 +1256,10 @@
 .lyric-line.enter-active {
     animation: textPop 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
+
 #no-lyrics {
     text-align: center;
-    color: oklch(100% 0 0);
+    color: var(--text-primary);
     padding: 3rem 2rem;
     font-size: 1.6rem;
     font-weight: 300;
