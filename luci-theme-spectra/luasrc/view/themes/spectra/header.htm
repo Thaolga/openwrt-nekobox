@@ -679,6 +679,7 @@
     position: relative;
     padding-left: 3.5rem;
     min-height: 3rem;
+    font-size: 1.1em;
 }
 
 .playlist-item::before {
@@ -704,27 +705,26 @@
 }
 
 .playlist-item.active::before {
-    background: var(--item-hover-bg);
+    background:var(--color-pink);
     color: var(--color-white);
     box-shadow: var(--glow-shadow-default);
     opacity: 1;
-    animation: var(--breath-animation);
 }
 
 .playlist-item.paused::before {
-    background: var(--btn-warning-bg);
-    color: var(--warning-text);
+    background: var(--color-red);
+    color: var(--color-white);
 }
 
 .playlist-item:hover::before {
-    background: var(--accent-color);
+    background: var(--color-cyan);
     color: var(--color-white);
     transform: translateY(-50%) scale(1.1);
     opacity: 1;
 }
 
 .playlist-item:hover {
-    background-color: var(--item-hover-bg);
+    background-color: var(--accent-color) !important;
     box-shadow: var(--item-hover-shadow);
     transform: translateX(5px) scale(1.02);
     color: var(--color-white) !important;
@@ -732,9 +732,8 @@
 }
 
 .playlist-item.active {
-    background: var(--accent-color);
-    border-color: var(--accent-color);
-    box-shadow: var(--glow-shadow-default);
+    background: var(--color-blue);
+    border-color: var(--color-blue);
     z-index: 2;
     color: var(--color-white);
 }
@@ -1230,8 +1229,8 @@
 }
 
 .lyric-line .char.played {
-    color: var(--text-primary);
-    opacity: 0.5;
+    color: oklch(var(--l) var(--c) 0); 
+    opacity: 1;
     transform: scale(0.95);
     filter: grayscale(0.3);
 }
