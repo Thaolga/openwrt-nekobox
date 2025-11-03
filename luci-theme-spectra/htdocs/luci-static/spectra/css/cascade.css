@@ -1741,12 +1741,12 @@ div[style="width:100%;height:300px;border:1px solid #000;background:#fff"] {
 .alert,
 .alert-message {
     font-weight: bold;
-    margin: 1.25rem 20px 1.25rem 20px !important;
+    margin-bottom: 1.25rem;
     padding: 1rem 1.25rem;
     border: 0;
     border-radius: var(--radius-small) !important;
-    background-color: var(--bg-container);
-    color: var(--text-primary) !important;
+    background-color: var(--accent-color) !important;
+    color: #fff !important;
     border: 1px solid rgba(0,0,0,0.1);
     box-shadow: 0 2px 2px 0 rgba(0, 0, 0, 0.16), 0 0 2px 0 rgba(0, 0, 0, 0.12);
     text-shadow: 1px 1px rgba(0, 0, 0, 0.1);
