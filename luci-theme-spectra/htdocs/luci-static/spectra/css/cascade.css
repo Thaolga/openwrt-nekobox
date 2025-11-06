@@ -5776,14 +5776,14 @@ body::-webkit-scrollbar,
     filter: none !important;
 }
 
-.pure-u-1-4:nth-child(1) .img-con img { content: url('/luci-static/ipip/img/client.svg') !important; }
-.pure-u-1-4:has(#status_github) .img-con img { content: url('/luci-static/ipip/img/github.svg') !important; }
-.pure-u-1-4:has(#status_google) .img-con img { content: url('/luci-static/ipip/img/google.svg') !important; }
-.pure-u-1-4:has(#status_udp_node) .img-con img { content: url('/luci-static/ipip/img/udp.svg') !important; }
-.pure-u-1-4:has(#status_haproxy) .img-con img { content: url('/luci-static/ipip/img/haproxy.svg') !important; }
-.pure-u-1-4:has(#status_instagram) .img-con img { content: url('/luci-static/ipip/img/instagram.svg') !important; }
-.pure-u-1-4:has(#status_dns) .img-con img { content: url('/luci-static/ipip/img/dns.svg') !important; }
-.pure-u-1-4.check:has(#status_baidu) .img-con img { content: url('/luci-static/ipip/img/baidu.svg') !important; }
+div.pure-u-1-4:has(#status_node) .img-con img,.pure-u-1-4:has(#status_tcp_node) .img-con img {content: url('/luci-static/ipip/img/client.svg') !important;}
+div.pure-u-1-4:has(#status_github) .img-con img { content: url('/luci-static/ipip/img/github.svg') !important; }
+div.pure-u-1-4:has(#status_google) .img-con img { content: url('/luci-static/ipip/img/google.svg') !important; }
+div.pure-u-1-4:has(#status_udp_node) .img-con img { content: url('/luci-static/ipip/img/udp.svg') !important; }
+div.pure-u-1-4:has(#status_haproxy) .img-con img { content: url('/luci-static/ipip/img/haproxy.svg') !important; }
+div.pure-u-1-4:has(#status_instagram) .img-con img { content: url('/luci-static/ipip/img/instagram.svg') !important; }
+div.pure-u-1-4:has(#status_dns) .img-con img { content: url('/luci-static/ipip/img/dns.svg') !important; }
+div.pure-u-1-4.check:has(#status_baidu) .img-con img { content: url('/luci-static/ipip/img/baidu.svg') !important; }
 
 #status_instagram,
 #status_haproxy,
@@ -5825,7 +5825,8 @@ body::-webkit-scrollbar,
         display: none !important;
     }
 
-    .pure-u-1-4:nth-child(1) .img-con img,
+    div.pure-u-1-4:has(#status_node) .img-con img,
+    div.pure-u-1-4:has(#status_tcp_node) .img-con img,
     div.pure-u-1-4:has(h4#status_udp_node) div.img-con img,
     div.pure-u-1-4:has(h4#status_google) div.img-con img,
     div.pure-u-1-4:has(h4#status_haproxy) div.img-con img,
