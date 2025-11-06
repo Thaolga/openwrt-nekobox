@@ -5768,6 +5768,12 @@ body::-webkit-scrollbar,
     width: 46px !important;
     height: 46px !important;
     object-fit: contain !important;
+    border: none !important;
+    outline: none !important;
+    box-shadow: none !important;
+    background: transparent !important;
+    -webkit-tap-highlight-color: transparent !important;
+    filter: none !important;
 }
 
 .pure-u-1-4:nth-child(1) .img-con img { content: url('/luci-static/ipip/img/client.svg') !important; }
