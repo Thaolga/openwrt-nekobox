@@ -485,6 +485,7 @@
     height: 100%;
     z-index: 1050;
     display: none;
+    border: var(--glass-border);
     align-items: center;
     justify-content: center;
 }
@@ -1379,9 +1380,6 @@
     left: 0;
     width: 100%;
     height: 100%;
-    background: rgba(0, 0, 0, 0.5);
-    backdrop-filter: blur(8px);
-    -webkit-backdrop-filter: blur(8px);
     z-index: 9999;
     align-items: center;
     justify-content: center;
@@ -7305,9 +7303,7 @@ if (typeof audioPlayer !== 'undefined') {
     display: none;
     justify-content: center;
     align-items: center;
-    background: rgba(0, 0, 0, 0.7);
     z-index: 9999;
-    backdrop-filter: blur(3px);
 }
 
 .theme-modal-content {
@@ -7366,8 +7362,9 @@ pre {
     display: block;
     width: 100%;
     box-sizing: border-box;
-    border: var(--border-strong);
+    border: var(--glass-border);
     border-radius: 6px;
+    backdrop-filter: var(--glass-blur);
     padding: 8px;
     font-family: monospace;
     font-size: 14px;

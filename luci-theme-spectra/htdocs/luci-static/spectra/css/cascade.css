@@ -4852,16 +4852,6 @@ pre.command-output {
     right: 0
 }
 
-@media screen and (max-width: 600px) {
-    .block h4 {
-        font-size: 0.7rem !important;
-    }
-
-    .block {
-        padding: 0.2rem !important;
-    }
-
-}
 
 @media screen and (max-width: 600px) {
     .cbi-section-table-row .cbi-value-field[data-name="remarks"] div {
@@ -5691,67 +5681,80 @@ body::-webkit-scrollbar,
 }
 
 .pure-g {
-    letter-spacing: -0.31em !important;
     text-rendering: optimizespeed !important;
     display: flex !important;
     flex-flow: row wrap !important;
     align-content: flex-start !important;
-    padding: 1px 3px !important;
+    padding: 0 !important; 
+    gap: 1rem !important; 
+}
+
+#_passwall_status_fieldset .block.pure-g,
+#_passwall2_status_fieldset .block.pure-g {
+    background-color: var(--bg-container) !important;
+}
+
+#_passwall_status_fieldset,
+#_passwall2_status_fieldset {
+    background: none !important;
+    border: none !important;
+    box-shadow: none !important;
 }
 
 .block {
-    margin: 0.5rem !important;
-    padding: 1rem !important;
-    background-color: #ffffff !important;
-    border-radius: 8px !important;
-    box-shadow: 0 1px 3px -2px color-mix(in oklch, var(--bg-container), black 30%);
+    margin: 0rem !important;
+    padding: 0.35rem 0.6rem !important;
+    border-radius: 12px !important;
+    border: var(--glow-border);
     transition: transform 0.3s ease, box-shadow 0.3s ease !important;
     display: flex !important;
     align-items: center !important;
     justify-content: space-between !important;
 }
 
+[data-theme="dark"] .block {
+    box-shadow: var(--border-glow) !important;
+    animation: var(--breathing-animation)
+}
+
 .block:hover {
     transform: translateY(-2px) !important;
+    background-color: var(--bg-body) !important;
     box-shadow: 0 1px 3px -2px color-mix(in oklch, var(--bg-container), black 30%);
+}
 
+.pure-u-1-4 {
+    width: calc((100% - (3 * 1rem)) / 4) !important;
 }
 
 .block>.pure-u-2-3 {
     order: 1 !important;
-    flex: 1 !important;
-    margin-right: 1rem !important;
+    flex: 1.4 !important;
+    padding-left: 6px !important; 
+    margin-right: 0rem !important;
     overflow: hidden !important;
     white-space: nowrap !important;
     text-overflow: ellipsis !important;
 }
 
 .pure-u-2-3 h4 {
+    width: 100% !important; 
     border-radius: 8px !important;
-    padding: 8px !important;
-    background: var(--bg-container) !important;
+    border: var(--glow-border);
+    box-shadow: 0 2px 6px -2px color-mix(in oklch, var(-bg-container), black 30%) !important;
+    padding: 7px 12px !important;
+    background: var(--card-bg) !important;
+}
+
+[data-theme="dark"] .pure-u-2-3 h4:hover {
+    animation: var(--breath-animation);
 }
 
 .block>.pure-u-1-3 {
     order: 2 !important;
     flex: 0 0 auto !important;
     text-align: right !important;
-}
-
-.img-con {
-    margin: 0 !important;
-}
-
-.green {
-    color: #2dce89 !important;
-}
-
-.red {
-    color: #fb6340 !important;
-}
-
-.yellow {
-    color: #fb9a05 !important;
+    margin-left: 1rem !important;
 }
 
 .block h4 {
@@ -5759,10 +5762,27 @@ body::-webkit-scrollbar,
     font-weight: 600 !important;
     line-height: 1.6 !important;
     margin: 0 !important;
-    color: inherit !important;
-    color: var(--text-primary) !important;
 }
 
+.pure-u-1-4 .img-con img {
+    width: 46px !important;
+    height: 46px !important;
+    object-fit: contain !important;
+}
+
+.pure-u-1-4:nth-child(1) .img-con img { content: url('/luci-static/ipip/img/client.svg') !important; }
+.pure-u-1-4:has(#status_github) .img-con img { content: url('/luci-static/ipip/img/github.svg') !important; }
+.pure-u-1-4:has(#status_google) .img-con img { content: url('/luci-static/ipip/img/google.svg') !important; }
+.pure-u-1-4:has(#status_udp_node) .img-con img { content: url('/luci-static/ipip/img/udp.svg') !important; }
+.pure-u-1-4:has(#status_haproxy) .img-con img { content: url('/luci-static/ipip/img/haproxy.svg') !important; }
+.pure-u-1-4:has(#status_instagram) .img-con img { content: url('/luci-static/ipip/img/instagram.svg') !important; }
+.pure-u-1-4:has(#status_dns) .img-con img { content: url('/luci-static/ipip/img/dns.svg') !important; }
+.pure-u-1-4.check:has(#status_baidu) .img-con img { content: url('/luci-static/ipip/img/baidu.svg') !important; }
+
+#status_instagram,
+#status_haproxy,
+#status_dns,
+#status_udp_node,
 #status_node,
 #status_github,
 #status_google,
@@ -5773,9 +5793,43 @@ body::-webkit-scrollbar,
     color: var(--text-primary) !important;
 }
 
-.block img {
-    width: 48px !important;
-    height: auto !important;
+@media screen and (max-width: 992px) {
+    .pure-u-1-4 {
+        width: calc((100% - (1 * 1rem)) / 2) !important;
+    }
+
+    .img-con { margin: 0 !important; }
+
+    .block > .pure-u-2-3 h4 {
+        font-size: 0.7rem !important;
+        line-height: 1.4 !important;
+    }
+
+    .block > .pure-u-2-3 h4 span {
+        font-size: 0.7rem !important;
+        line-height: 1.3 !important;
+    }
+
+    div.pure-u-1-4:has(h4#status_dns),
+    div.pure-u-1-4:has(h4#status_instagram) {
+        display: none !important;
+    }
+
+    .pure-u-1-4:nth-child(1) .img-con img,
+    div.pure-u-1-4:has(h4#status_udp_node) div.img-con img,
+    div.pure-u-1-4:has(h4#status_google) div.img-con img,
+    div.pure-u-1-4:has(h4#status_haproxy) div.img-con img,
+    div.pure-u-1-4:has(h4#status_github) div.img-con img,
+    div.pure-u-1-4.check:has(h4#status_baidu) div.img-con img {
+        width: 36px !important;
+        height: 36px !important;
+    }
+}
+
+@media screen and (max-width: 1200px) { 
+    .status .pure-u-1-4 {
+        width: calc((100% - 1rem) / 2) !important;
+    }
 }
 
 #_log_fieldset {
@@ -5818,13 +5872,6 @@ body::-webkit-scrollbar,
     outline: none;
     border-color: #66afe9 !important;
     box-shadow: 0 0 6px rgba(102, 175, 233, 0.6);
-}
-
-div.pure-u-1-4:has(h4#status_udp_node),
-div.pure-u-1-4:has(h4#status_dns),
-div.pure-u-1-4:has(h4#status_haproxy),
-div.pure-u-1-4:has(h4#status_instagram) {
-    display: none !important;
 }
 
 [data-page="admin-system-opkg"] h2 {
@@ -6196,4 +6243,26 @@ tr th {
 
 li[data-value="-"][unselectable] {
     background-color: var(--card-bg) !important;
+}
+
+@media (max-width: 992px) {
+    html, body {
+        overflow-x: hidden;
+        position: relative;
+        width: 100%;
+    }
+    
+    .page-container, .card-container, .network-container, .other-container, .grid-container {
+        max-width: 100%;
+        overflow-x: hidden;
+    }
+    
+    .echart, .feature-card, .reusable-card {
+        max-width: 100%;
+    }
+    
+    .echart > div {
+        max-width: 100%;
+        overflow-x: hidden;
+    }
 }

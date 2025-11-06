@@ -419,8 +419,14 @@
     width: 40px;
 }
 
+.nav-icon:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 8px 3px #00ffff9a;
+}
+
 .nav-icon:hover img {
     filter: drop-shadow(0 0 5px cyan);
+    transform: translate(-50%, -50%) scale(1.05);
 }
 
 .site-icon {
@@ -679,26 +685,6 @@ div.nav-container>button.btn_styles {
 .nav-container .btn_styles,
 .nav-container .btn_styles * {
     color: white !important;
-}
-
-[data-theme="dark"] .block.pure-g {
-    background-color: white !important;
-}
-
-[data-theme="dark"] .pure-u-2-3 h4 {
-    background-color: #E6E6FA !important;
-}
-
-[data-theme="dark"] {
-
-    #status_node,
-    #status_github,
-    #status_google,
-    #status_baidu,
-    #status_tcp_node {
-        color: black !important;
-        font-weight: 600 !important;
-    }
 }
 
 [data-page="admin-system-flash"] .cbi-section-descr {
