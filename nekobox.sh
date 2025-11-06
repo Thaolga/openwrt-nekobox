@@ -85,59 +85,114 @@ get_version_info() {
 }
 
 install_ipk() {
+    local language=$1
     repo_owner="Thaolga"
     repo_name="openwrt-nekobox"
     package_name="luci-app-nekobox"
     releases_url="https://api.github.com/repos/$repo_owner/$repo_name/releases/latest"
 
-    echo -e "${CYAN}Updating opkg package list...${NC}"
+    if opkg list-installed | grep -q -E "^(nginx|luci-nginx)"; then
+        if [ "$language" = "cn" ]; then
+            echo -e "${RED}检测到系统使用 Nginx 服务器${NC}"
+            echo -e "${YELLOW}NeKoBox 与 Nginx 不兼容，无法正常运行${NC}"
+            echo -e "${CYAN}请使用基于 Uhttpd 构建的固件来安装 NeKoBox${NC}"
+            echo -e "${GREEN}推荐使用 官方 iStoreOS 或其他 Uhttpd 固件${NC}"
+        else
+            echo -e "${RED}Nginx web server detected${NC}"
+            echo -e "${YELLOW}NeKoBox is incompatible with Nginx and cannot run properly${NC}"
+            echo -e "${CYAN}Please use firmware built with Uhttpd to install NeKoBox${NC}"
+            echo -e "${GREEN}Recommend official iStoreOS or other Uhttpd firmware${NC}"
+        fi
+        return 1
+    fi
+
+    if [ "$language" = "cn" ]; then
+        echo -e "${CYAN}正在更新软件包列表...${NC}"
+    else
+        echo -e "${CYAN}Updating opkg package list...${NC}"
+    fi
     opkg update
 
     response=$(wget -qO- "$releases_url")
     if [ -z "$response" ]; then
-        echo -e "${RED}Unable to access the GitHub releases page.${NC}"
+        if [ "$language" = "cn" ]; then
+            echo -e "${RED}无法访问 GitHub 发布页面${NC}"
+        else
+            echo -e "${RED}Unable to access the GitHub releases page${NC}"
+        fi
         return 1
     fi
 
     asset_file_name=$(echo "$response" | grep -o "\"name\": \"${package_name}_[^\"]*_all\.ipk\"" | head -1 | cut -d'"' -f4)
     if [ -z "$asset_file_name" ]; then
-        echo -e "${RED}Could not find the asset file for $package_name.${NC}"
+        if [ "$language" = "cn" ]; then
+            echo -e "${RED}找不到 $package_name 的资源文件${NC}"
+        else
+            echo -e "${RED}Could not find the asset file for $package_name${NC}"
+        fi
         return 1
     fi
 
     new_version=$(echo "$response" | grep '"tag_name":' | sed -E 's/.*"tag_name": "([^"]+)".*/\1/')
     if [ -z "$new_version" ]; then
-        echo -e "${RED}Latest version not found.${NC}"
+        if [ "$language" = "cn" ]; then
+            echo -e "${RED}未找到最新版本${NC}"
+        else
+            echo -e "${RED}Latest version not found${NC}"
+        fi
         return 1
     fi
 
     download_url="https://github.com/$repo_owner/$repo_name/releases/download/$new_version/$asset_file_name"
 
-    echo -e "${CYAN}Downloading ONLY: $package_name${NC}"
-    echo -e "${CYAN}File: $asset_file_name${NC}"
-    echo -e "${CYAN}URL: $download_url${NC}"
+    if [ "$language" = "cn" ]; then
+        echo -e "${CYAN}正在下载: $package_name${NC}"
+        echo -e "${CYAN}文件: $asset_file_name${NC}"
+        echo -e "${CYAN}地址: $download_url${NC}"
+    else
+        echo -e "${CYAN}Downloading: $package_name${NC}"
+        echo -e "${CYAN}File: $asset_file_name${NC}"
+        echo -e "${CYAN}URL: $download_url${NC}"
+    fi
 
     local_file="/tmp/$asset_file_name"
     curl -L -f -o "$local_file" "$download_url"
     if [ $? -ne 0 ]; then
-        echo -e "${RED}Download failed!${NC}"
+        if [ "$language" = "cn" ]; then
+            echo -e "${RED}下载失败!${NC}"
+        else
+            echo -e "${RED}Download failed!${NC}"
+        fi
         return 1
     fi
 
     if [ ! -s "$local_file" ]; then
-        echo -e "${RED}The downloaded file is empty or does not exist.${NC}"
+        if [ "$language" = "cn" ]; then
+            echo -e "${RED}下载的文件为空或不存在${NC}"
+        else
+            echo -e "${RED}The downloaded file is empty or does not exist${NC}"
+        fi
         return 1
     fi
 
     opkg install --force-reinstall "$local_file"
     if [ $? -eq 0 ]; then
-        echo -e "${GREEN}NeKoBox installation completed. File: $asset_file_name${NC}"
+        if [ "$language" = "cn" ]; then
+            echo -e "${GREEN}NeKoBox 安装完成。文件: $asset_file_name${NC}"
+        else
+            echo -e "${GREEN}NeKoBox installation completed. File: $asset_file_name${NC}"
+        fi
         file_version=$(echo "$asset_file_name" | sed -E "s/${package_name}_([^_]+)_all\.ipk/\1/")
+        mkdir -p /etc/neko
         echo "$file_version" > /etc/neko/neko_version.txt
         echo "$file_version" > /etc/neko/version_neko.txt
         get_version_info "neko"
     else
-        echo -e "${RED}NeKoBox installation failed.${NC}"
+        if [ "$language" = "cn" ]; then
+            echo -e "${RED}NeKoBox 安装失败${NC}"
+        else
+            echo -e "${RED}NeKoBox installation failed${NC}"
+        fi
         return 1
     fi
 
@@ -698,7 +753,7 @@ main_menu() {
         case $choice in
             1)
                 language_choice="cn"
-                install_ipk
+                install_ipk "$language"
                 ;;
             2)
                 install_theme
