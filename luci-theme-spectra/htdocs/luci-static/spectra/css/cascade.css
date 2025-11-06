@@ -3894,7 +3894,7 @@ input[name="nslookup"] {
 [data-page="admin-system-admin"] .cbi-map .cbi-map-descr,
 [data-page="admin-system-admin-password"] .cbi-map .cbi-map-descr {
     margin-left: 0;
-    color: #32325d;
+    color: var(--text-primary);
 }
 
 [data-page="admin-system-opkg"] h2 {
