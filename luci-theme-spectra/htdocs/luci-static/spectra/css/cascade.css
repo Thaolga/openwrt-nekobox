@@ -5331,12 +5331,12 @@ div.btns {
 
 .info .item1.bgcolor1 span[style*="font-weight: bold"],
 .info .item1.bgcolor1 span[style*="margin-top: 2px"] {
-    color: oklch(var(--l) var(--c) var(--base-hue-1)) !important;
+    color: var(--accent-color) !important;
 }
 
 .info .item1.bgcolor2 span[style*="font-weight: bold"],
 .info .item1.bgcolor2 span[style*="margin-top: 2px"] {
-    color: oklch(var(--l) var(--c) var(--base-hue-2)) !important;
+    color: var(--color-green) !important;
 }
 
 .network_container .title_box span {
