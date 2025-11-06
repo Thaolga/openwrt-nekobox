@@ -3641,18 +3641,6 @@ document.addEventListener('keydown', function (event) {
     if (isTyping) return;
 
     switch (event.code) {
-        case 'Space':
-            event.preventDefault();
-            togglePlay();
-            break;
-        case 'ArrowLeft':
-            event.preventDefault();
-            changeTrack(-1, true);
-            break;
-        case 'ArrowRight':
-            event.preventDefault();
-            changeTrack(1, true);
-            break;
         case 'ArrowUp':
             event.preventDefault();
             document.querySelector('.toggleFloatingLyricsBtn')?.click();
@@ -5228,10 +5216,12 @@ function toggleIpStatusBar() {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-    const ipStatusHidden = localStorage.getItem('neko_ip_status_hidden') === 'true';
+    const storedValue = localStorage.getItem('neko_ip_status_hidden');
+    const ipStatusHidden = storedValue === null || storedValue === 'true';
     const ipStatusBar = document.getElementById('status-bar-component');
     ipStatusBar.style.display = ipStatusHidden ? 'none' : '';
     updateIpStatusButton(ipStatusHidden);
+    localStorage.setItem('neko_ip_status_hidden', ipStatusHidden.toString());
 });
 </script>
 
