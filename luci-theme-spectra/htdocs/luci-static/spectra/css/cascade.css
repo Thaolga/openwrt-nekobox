@@ -6323,3 +6323,15 @@ li[data-value="-"][unselectable] {
         overflow-x: hidden;
     }
 }
+
+.info_content .ip_item .ip_tag,
+.content .speed {
+    background-color: var(--card-bg) !important;
+    border: var(--border-strong) !important;
+    box-shadow: 0 2px 6px -2px color-mix(in oklch, var(-bg-container), black 30%) !important;
+    color: var(--text-primary) !important;
+}
+
+.card-container {
+    margin-top: 10px !important;
+}
