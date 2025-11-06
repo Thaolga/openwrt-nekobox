@@ -13,8 +13,8 @@
 
 <% local ver = require("luci.version") %>
 </div>
-<footer class="mobile-hide">
-    <a href="https://github.com/openwrt/luci" class="powered-by">Powered by <%= ver.luciname %> (<%= ver.luciversion %>)</a> / <a href="https://github.com/Thaolga/openwrt-nekobox" target="_blank" class="version"><%= ver.distversion %></a>
+<footer class="mobile-hide" style="display: none;">
+    <a href="https://github.com/openwrt/luci" class="powered-by" target="_blank" rel="noopener noreferrer">Powered by <%= ver.luciname %> (<%= ver.luciversion %>)</a> / <a href="https://github.com/openwrt/openwrt" target="_blank" class="version" rel="noopener noreferrer"><%= ver.distversion %></a>
     <ul class="breadcrumb pull-right" id="modemenu" style="display:none"></ul>
 </footer>
 </div>
@@ -34,5 +34,15 @@
     });
 </script>
 <script type="text/javascript">L.require('menu-spectra')</script>
+<script>
+    window.addEventListener('load', function() {
+        setTimeout(function() {
+            const footer = document.querySelector('footer.mobile-hide');
+            if (footer) {
+                footer.style.display = 'block';
+            }
+        }, 800);
+    });
+</script>
 </body>
 </html>
