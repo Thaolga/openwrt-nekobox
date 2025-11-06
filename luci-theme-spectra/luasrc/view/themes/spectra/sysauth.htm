@@ -1,417 +1,438 @@
 <%#
-	Argon is a clean HTML5 theme for LuCI. It is based on luci-theme-bootstrap and MUI and Argon Template
+Spectra - A Modern Responsive LuCI Theme
+A clean, responsive web interface for OpenWRT LuCI
 
-	luci-theme-argon
-	Copyright 2020 Jerryk <jerrykuku@gmail.com>
+luci-theme-spectra
+Copyright 2024 Thaolga
 
-	Have a bug? Please create an issue here on GitHub!
-	https://github.com/jerrykuku/luci-theme-argon/issues
+Features:
+- Modern responsive design
+- Mobile-first approach  
+- Enhanced user experience
+- Customizable appearance
 
-	luci-theme-bootstrap:
-	Copyright 2008 Steven Barth <steven@midlink.org>
-	Copyright 2008-2016 Jo-Philipp Wich <jow@openwrt.org>
-	Copyright 2012 David Menting <david@nut-bolt.nl>
+Based on:
+- luci-theme-bootstrap (Apache License 2.0)
+- luci-theme-argon (Apache License 2.0)
+- Bootstrap & MUI design principles
 
-	MUI:
-	https://github.com/muicss/mui
+For bug reports, feature requests and contributions:
+https://github.com/Thaolga/openwrt-nekobox
 
-	Argon Theme
-	https://demos.creative-tim.com/argon-dashboard/index.html
-
-	Licensed to the public under the Apache License 2.0
+Licensed under the Apache License, Version 2.0
 -%>
 
 <%+themes/spectra/out_header_login%>
 <%
-	local util		= require "luci.util"
-	local fs		= require "nixio.fs"
-	local nutil		= require "nixio.util"
-	local json		= require "luci.jsonc"
-	local sys		= require "luci.sys"
-	local uci		= require 'luci.model.uci'.cursor()
+    local util = require "luci.util"
+    local fs = require "nixio.fs"
+    local nutil = require "nixio.util"
+    local sys = require "luci.sys"
 
-	-- Fetch Local Background Media
+    -- Fetch Local Background Media
+    local function glob(...)
+        local iter, code, msg = fs.glob(...)
+        if iter then
+            return nutil.consume(iter)
+        else
+            return nil, code, msg
+        end
+    end
 
-	local function glob(...)
-		local iter, code, msg = fs.glob(...)
-		if iter then
-			return nutil.consume(iter)
-		else
-			return nil, code, msg
-		end
-	end
+    local imageTypes = " jpg jpeg png gif webp "
+    local videoTypes = " mp4 webm mkv "
+    local allTypes = imageTypes .. videoTypes
+    local function fetchMedia(path, themeDir)
+        local backgroundTable = {}
+        local backgroundCount = 0
+        for i, f in ipairs(glob(path)) do
+            attr = fs.stat(f)
+            if attr then
+                local ext = fs.basename(f):match(".+%.(%w+)$")
+                if ext ~= nil then
+                    ext = ext:lower()
+                end
+                if ext ~= nil and string.match(allTypes, " "..ext.." ") ~= nil then
+                    local bg = {}
+                    bg.type = ext
+                    bg.url = themeDir .. fs.basename(f)
+                    table.insert(backgroundTable, bg)
+                    backgroundCount = backgroundCount + 1
+                end
+            end
+        end
+        return backgroundTable, backgroundCount
+    end
 
+    local function selectBackground(themeDir)
+        local bgUrl = media .. "/img/bg1.jpg"
+        local backgroundType = "Image"
+        local mimeType = ""
 
-	local imageTypes = " jpg png gif webp "
-	local videoTypes = " mp4 webm "
-	local allTypes = imageTypes .. videoTypes
-	local function fetchMedia(path, themeDir)
-		local backgroundTable = {}
-		local backgroundCount = 0
-		for i, f in ipairs(glob(path)) do
-			attr = fs.stat(f)
-			if attr then
-				local ext = fs.basename(f):match(".+%.(%w+)$")
-				if ext ~= nil then
-					ext = ext:lower()
-				end
-				if ext ~= nil and string.match(allTypes, " "..ext.." ") ~= nil then
-					local bg = {}
-					bg.type = ext
-					bg.url = themeDir .. fs.basename(f)
-					table.insert(backgroundTable, bg)
-					backgroundCount = backgroundCount + 1
-				end
-			end
-		end
-		return backgroundTable, backgroundCount
-	end
-	local function selectBackground(themeDir)
-		local bgUrl			= media .. "/img/bg1.jpg"
-		local backgroundType	= "Image"
-		local mimeType			= ""
+        local mediaTable, mediaCount = fetchMedia("/www" .. themeDir .. "*", themeDir)
+        
+        if mediaCount > 0 then
+            local videoFiles = {}
+            for _, mediaFile in ipairs(mediaTable) do
+                if string.match(videoTypes, " "..mediaFile.type.." ") ~= nil then
+                    table.insert(videoFiles, mediaFile)
+                end
+            end
+            
+            if #videoFiles > 0 then
+                local selectedVideo = videoFiles[math.random(1, #videoFiles)]
+                bgUrl = selectedVideo.url
+                backgroundType = "Video"
+                mimeType = "video/" .. selectedVideo.type
+            else
+                local imageFiles = {}
+                for _, mediaFile in ipairs(mediaTable) do
+                    if string.match(imageTypes, " "..mediaFile.type.." ") ~= nil then
+                        table.insert(imageFiles, mediaFile)
+                    end
+                end
+                
+                if #imageFiles > 0 then
+                    local selectedImage = imageFiles[math.random(1, #imageFiles)]
+                    bgUrl = selectedImage.url
+                    backgroundType = "Image"
+                end
+            end
+        end
 
-		if fs.access("/etc/config/spectra") then
-			local online_wallpaper = uci:get_first('spectra', 'global', 'online_wallpaper') or (uci:get_first('spectra', 'global', 'bing_background') == '1' and 'bing')
-			if (online_wallpaper and online_wallpaper ~= "none") then
-				local picurl = sys.exec("/usr/libexec/spectra/online_wallpaper")
-				if (picurl and picurl ~= '') then
-					return picurl, "Image", ""
-				end
-			end
-		end
+        return bgUrl, backgroundType, mimeType
+    end
 
-		local backgroundTable, backgroundCount = fetchMedia("/www" .. themeDir .. "*", themeDir)
-		if ( backgroundCount > 0 ) then
-			local currentBg = backgroundTable[math.random(1, backgroundCount)]
-			bgUrl			= currentBg.url
-			if (string.match(videoTypes, " "..currentBg.type.." ") ~= nil) then
-				backgroundType	= "Video"
-				mimeType		= "video/" .. currentBg.type
-			end
-		end
-
-		return bgUrl, backgroundType, mimeType
-	end
-
-	local boardinfo			= util.ubus("system", "board")
-	local themeDir			= "/luci-static/spectra/bgm/"
-	local bgUrl, backgroundType, mimeType = selectBackground(themeDir)
+    local boardinfo = util.ubus("system", "board")
+    local themeDir = "/luci-static/spectra/bgm/"
+    local bgUrl, backgroundType, mimeType = selectBackground(themeDir)
 %>
+
 <!-- Login Page Start -->
 <div class="login-page">
-	<% if ( backgroundType == "Video" ) then %>
-	<!-- Video Player Start -->
-	<div class="video">
-		<video autoplay loop muted id="video">
-			<source src="<%=bgUrl%>" type="<%=mimeType%>">
-		</video>
-	</div>
-	<div class="volume-control mute"></div>
-	<script>
-		$(".volume-control").click(function(){
-			if($(this).hasClass("mute")){
-				$(this).removeClass("mute")
-				$("#video").prop('muted', false);
-			}else{
-				$(this).addClass("mute")
-				$("#video").prop('muted', true);
-			}
-		})
-	</script>
-	<!-- Video Player End -->
-	<% else %>
-	<!-- Image Background Start -->
-	<div class="main-bg" id="main-bg" style="background-image:url(<%=bgUrl%>)"></div>
-	<!-- Image Background End -->
-	<% end %>
+    <% if ( backgroundType == "Video" ) then %>
+    <!-- Video Player Start -->
+    <div class="video">
+        <video autoplay loop muted id="video">
+            <source src="<%=bgUrl%>" type="<%=mimeType%>">
+        </video>
+    </div>
+    <!-- Video Player End -->
+    <% else %>
+    <!-- Image Background Start -->
+    <div class="main-bg" id="main-bg" style="background-image:url(<%=bgUrl%>)"></div>
+    <!-- Image Background End -->
+    <% end %>
 <style>
 @font-face {
-	font-family: "spectra";
-       src: url("/luci-static/spectra/fonts/spectra.eot?u6kthm");
-       src: url("/luci-static/spectra/fonts/spectra.eot?u6kthm#iefix") format("embedded-opentype"),
-             url("/luci-static/spectra/fonts/spectra.ttf?u6kthm") format("truetype"),
-             url("/luci-static/spectra/fonts/spectra.woff?u6kthm") format("woff"),
-             url("/luci-static/spectra/fonts/spectra.svg?u6kthm#spectra") format("svg");
-       font-weight: normal;
-       font-style: normal;
-       font-display: block;
+    font-family: "spectra";
+    src: url("/luci-static/spectra/fonts/spectra.eot?u6kthm");
+    src: url("/luci-static/spectra/fonts/spectra.eot?u6kthm#iefix") format("embedded-opentype"),
+         url("/luci-static/spectra/fonts/spectra.ttf?u6kthm") format("truetype"),
+         url("/luci-static/spectra/fonts/spectra.woff?u6kthm") format("woff"),
+         url("/luci-static/spectra/fonts/spectra.svg?u6kthm#spectra") format("svg");
+    font-weight: normal;
+    font-style: normal;
+    font-display: block;
 }
 
 .auth-icon {
-	font-family: "spectra" !important;
-	font-style: normal;
-	font-weight: normal;
-	font-variant: normal;
-	text-transform: none;
-	line-height: 1;
-	-webkit-font-smoothing: antialiased;
-	-moz-osx-font-smoothing: grayscale;
-	font-size: 20px;
-	color: #4a5568;
+    font-family: "spectra" !important;
+    font-style: normal;
+    font-weight: normal;
+    font-variant: normal;
+    text-transform: none;
+    line-height: 1;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    font-size: 20px;
+    color: #4a5568;
 }
 
 .auth-icon.user::before {
-	content: "\e971";
+    content: "\e971";
 }
 
 .auth-icon.pass::before {
-	content: "\e910";
+    content: "\e910";
 }
 
 .login-root {
-	position: fixed;
-	top: 0;
-	left: 0;
-	width: 100vw;
-	height: 100vh;
-	display: flex;
-	justify-content: center;
-	align-items: center;
-	overflow: hidden;
-}
-
-.volume-control {
-	position: fixed;
-	bottom: 20px;
-	right: 20px;
-	z-index: 2;
-	width: 32px;
-	height: 32px;
-	border-radius: 50%;
-	cursor: pointer;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
 }
 
 .dynamic-background {
-	position: absolute;
-	width: 100%;
-	height: 100%;
-	z-index: 0;
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    z-index: 0;
 }
 
 .background-media {
-	position: absolute;
-	width: 100%;
-	height: 100%;
-	object-fit: cover;
-	background-size: cover;
-	background-position: center; 
-	background-repeat: no-repeat; 
-	filter: brightness(0.6);
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    background-size: cover;
+    background-position: center; 
+    background-repeat: no-repeat; 
+    filter: brightness(0.9);
 }
 
 .background-overlay {
-	position: absolute;
-	width: 100%;
-	height: 100%;
-	background: rgba(0, 0, 0, 0.3);
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background: transparent;
 }
 
 .auth-wrapper {
-	background: rgba(255, 255, 255, 0.9);
-	backdrop-filter: blur(10px);
-	padding: 2.5rem;
-	border-radius: 15px;
-	box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
-	width: min(100%, 400px);
-	margin: auto;
-	animation: float 3s ease-in-out infinite;
+    background: rgba(255, 255, 255, 0.6);
+    backdrop-filter: blur(12px);
+    padding: 2.5rem;
+    border-radius: 15px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+    width: min(100%, 400px);
+    margin: auto;
+    animation: float 3s ease-in-out infinite;
 }
 
 @keyframes float {
-	0%, 100% {
-		transform: translateY(0);
-	}
-
-	50% {
-		transform: translateY(-10px);
-	}
+    0%, 100% {
+        transform: translateY(0);
+    }
+    50% {
+        transform: translateY(-10px);
+    }
 }
 
 .icon-container {
-	display: flex;
-	align-items: center;
-	margin-bottom: 1.5rem;
+    display: flex;
+    align-items: center;
+    margin-bottom: 1.5rem;
 }
 
 .icon-container .auth-icon {
-	margin-right: 10px;
-	animation: pulse 2s infinite;
+    margin-right: 10px;
+    animation: pulse 2s infinite;
 }
 
 .icon-container .auth-icon.user {
-	color: #4CAF50;
+    color: #4CAF50;
 }
 
 .icon-container .auth-icon.pass {
-	color: #FF5722;
+    color: #FF5722;
 }
 
 .icon-container .auth-icon.user:hover {
-	color: #388E3C;
+    color: #388E3C;
 }
 
 .icon-container .auth-icon.pass:hover {
-	color: #D32F2F;
+    color: #D32F2F;
 }
 
 .footer-info p {
-	color: #4f46e5 !important;
+    color: #4f46e5 !important;
 }
 
 @keyframes pulse {
-	0% {
-		transform: scale(1);
-	}
-
-	50% {
-		transform: scale(1.1);
-	}
-
-	100% {
-		transform: scale(1);
-	}
+    0% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.1);
+    }
+    100% {
+        transform: scale(1);
+    }
 }
 
 .input-field {
-	flex-grow: 1;
+    flex-grow: 1;
 }
 
 .input-field input {
-	width: 100%;
-	padding: 12px 12px;
-	border: 2px solid #e2e8f0;
-	border-radius: 8px;
-	font-size: 1rem;
-	transition: all 0.3s ease;
-	background: rgba(255, 255, 255, 0.5);
-	backdrop-filter: blur(5px);
-        color: #000000 !important;
-        -webkit-text-fill-color: #000000 !important;
+    width: 100%;
+    padding: 12px 12px;
+    border: 2px solid #e2e8f0;
+    border-radius: 8px;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+    background: rgba(255, 255, 255, 0.5);
+    backdrop-filter: blur(5px);
+    color: #000000 !important;
+    -webkit-text-fill-color: #000000 !important;
 }
 
 .input-field input:focus {
-	border-color: #4f46e5;
-	box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
-	outline: none;
-        color: #000000 !important;
-        -webkit-text-fill-color: #000000 !important;
+    border-color: #4f46e5;
+    box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+    outline: none;
+    color: #000000 !important;
+    -webkit-text-fill-color: #000000 !important;
 }
 
 .input-field input::placeholder {
-        color: #666666;
-        opacity: 1;
+    color: #666666;
+    opacity: 1;
 }
 
 .input-field input[type="password"] {
-        color: #000000 !important;
-        -webkit-text-fill-color: #000000 !important;
+    color: #000000 !important;
+    -webkit-text-fill-color: #000000 !important;
 }
 
 .submit-btn {
-	width: 100%;
-	padding: 14px;
-	background: #4f46e5;
-	color: white !important;
-	border: none;
-	border-radius: 8px;
-	font-size: 1rem;
-	font-weight: 600;
-	cursor: pointer;
-	transition: all 0.3s ease;
-	margin-top: 1rem;
-	position: relative;
-	overflow: hidden;
+    width: 100%;
+    padding: 14px;
+    background: #4f46e5;
+    color: white !important;
+    border: none;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    margin-top: 1rem;
+    position: relative;
+    overflow: hidden;
 }
 
 .submit-btn::after {
-	content: '';
-	position: absolute;
-	top: 0;
-	left: -100%;
-	width: 100%;
-	height: 100%;
-	background: linear-gradient(90deg, rgba(255, 255, 255, 0) 0%, rgba(255, 255, 255, 0.3) 100%);
-	animation: shine 1.5s infinite;
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, rgba(255, 255, 255, 0) 0%, rgba(255, 255, 255, 0.3) 100%);
+    animation: shine 1.5s infinite;
 }
 
 @keyframes shine {
-	0% {
-		left: -100%;
-	}
-
-	100% {
-		left: 100%;
-	}
+    0% {
+        left: -100%;
+    }
+    100% {
+        left: 100%;
+    }
 }
 
 .submit-btn:hover {
-	background: #4338ca;
+    background: #4338ca;
 }
 
-.alert-message {
-	background: #fee2e2;
-	color: #dc2626;
-	padding: 1rem;
-	border-radius: 8px;
-	margin-bottom: 1.5rem;
-	border: 1px solid #fca5a5;
-	animation: fadeIn 0.5s ease-in-out;
+.login-alert-message {
+    background: #fee2e2;
+    color: #dc2626;
+    font-weight: 900;
+    padding: 1rem;
+    border-radius: 8px;
+    margin-bottom: 1.5rem;
+    border: 1px solid #fca5a5;
+    animation: fadeIn 0.5s ease-in-out;
 }
 
 @keyframes fadeIn {
-	from {
-		opacity: 0;
-		transform: translateY(10px);
-	}
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
 
-	to {
-		opacity: 1;
-		transform: translateY(0);
-	}
+.media-control {
+    position: fixed;
+    top: 20px;
+    left: 20px;
+    z-index: 1000;
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    cursor: pointer;
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    transition: all 0.3s ease;
+}
+
+.media-control i {
+    font-size: 1.5rem;
+    color: #666;
+    transition: all 0.3s ease;
+}
+
+.media-control:hover {
+    background: rgba(255, 255, 255, 0.2);
+    transform: scale(1.1);
+}
+
+.media-control.muted i {
+    color: #ff4444;
+}
+
+.media-control.unmuted i {
+    color: #4CAF50;
 }
 
 @media (max-width: 576px) {
-	.login-root {
-		padding: 10px;
-		display: flex; 
-		flex-direction: column; 
-		justify-content: center; 
-		align-items: center; 
-		overflow-y: scroll;
-		-webkit-overflow-scrolling: touch;
-	}
+    .login-root {
+        padding: 10px;
+        display: flex; 
+        flex-direction: column; 
+        justify-content: center; 
+        align-items: center; 
+        overflow-y: scroll;
+        -webkit-overflow-scrolling: touch;
+    }
 
-	.auth-wrapper {
-		width: 95%;
-		margin: 0 auto; 
-		position: relative;
-		top: auto;
-		left: auto;
-		transform: none;
-	}
+    .auth-wrapper {
+        width: 95%;
+        margin: 0 auto; 
+        position: relative;
+        top: auto;
+        left: auto;
+        transform: none;
+    }
 
-	.dynamic-background video {
-		display: none;
-	}
+    .dynamic-background video {
+        display: none;
+    }
 
-	.background-media[style*="background-image"] {
-		filter: brightness(0.4);
-	}
+    .background-media[style*="background-image"] {
+        filter: brightness(0.4);
+    }
 
-	@supports (-webkit-touch-callout: none) {
-		.login-root {
-			height: -webkit-fill-available;
-		}
-	}
+    @supports (-webkit-touch-callout: none) {
+        .login-root {
+            height: -webkit-fill-available;
+        }
+    }
 }
 </style>
 <link href="/luci-static/spectra/css/bootstrap-icons.css" rel="stylesheet">
-<% local ver = require("luci.version") %>
+
 <div class="login-root">
     <div class="dynamic-background">
         <% if ( backgroundType == "Video" ) then %>
-            <video class="background-media" autoplay loop muted playsinline>
+            <video class="background-media" autoplay loop muted playsinline id="background-video">
                 <source src="<%=bgUrl%>" type="<%=mimeType%>">
             </video>
         <% else %>
@@ -419,6 +440,11 @@
         <% end %>
         <div class="background-overlay"></div>
     </div>
+    
+    <div class="media-control muted" id="mediaControl">
+        <i class="bi bi-volume-mute"></i>
+    </div>
+
     <div class="auth-wrapper">
         <div class="brand-section" style="text-align: center; margin-bottom: 2rem;">
             <a class="brand-logo" href="/" style="display: inline-flex; align-items: center; text-decoration: none; color: #2c3e50;">
@@ -427,7 +453,7 @@
             </a>
         </div>
         <% if fuser then %>
-        <div class="alert-message">
+        <div class="login-alert-message">
             <%:Invalid username and/or password! Please try again.%>
         </div>
         <% end %>
@@ -470,6 +496,7 @@
                 <%:Login%>
             </button>
         </form>
+
     <div class="footer-info" style="margin-top: 2rem; text-align: center;">
         <p>
             Powered by <a href="https://github.com/openwrt/luci" target="_blank">OpenWRT LuCI</a> | 
@@ -489,90 +516,107 @@
     Your browser does not support audio playback.
 </audio>
 
-<div class="audio-control" id="audioControl" style="
-    position: fixed;
-    top: 20px;
-    left: 20px;
-    z-index: 1000;
-    cursor: pointer;
-    background: rgba(255, 255, 255, 0.1);
-    border-radius: 50%;
-    width: 48px;
-    height: 48px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    transition: all 0.3s ease;
-">
-    <i class="bi bi-volume-mute" style="font-size: 2rem; color: #666;"></i>
-</div>
-
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    const songs = [
-        { src: '/luci-static/spectra/img/bgm.mp3', type: 'audio/mp3' },
-        { src: '/luci-static/spectra/img/bgm2.webm', type: 'audio/webm' }
-    ];
+    const backgroundType = '<%=backgroundType%>';
+    const mediaControl = document.getElementById("mediaControl");
+    const mediaIcon = mediaControl.querySelector("i");
     
-    let audio = document.getElementById("background-audio");
-    let audioSource = audio.querySelector("source");
-    let audioStarted = false;
-    let isMuted = false;
-    const audioControl = document.getElementById("audioControl");
-    const audioIcon = audioControl.querySelector("i");
+    let currentMedia = null;
+    let isMuted = true;
+    let mediaStarted = false;
 
-    const randomSong = songs[Math.floor(Math.random() * songs.length)];
-    
-    audioSource.src = randomSong.src;
-    audioSource.type = randomSong.type;
-    audio.load();
+    function initializeMedia() {
+        if (backgroundType === 'Video') {
+            currentMedia = document.getElementById("background-video");
+            const audio = document.getElementById("background-audio");
+            audio.pause();
+        } else {
+            const songs = [
+                { src: '/luci-static/spectra/img/bgm.mp3', type: 'audio/mp3' },
+                { src: '/luci-static/spectra/img/bgm2.webm', type: 'audio/webm' }
+            ];
+            
+            let audio = document.getElementById("background-audio");
+            let audioSource = audio.querySelector("source");
+            const randomSong = songs[Math.floor(Math.random() * songs.length)];
+            
+            audioSource.src = randomSong.src;
+            audioSource.type = randomSong.type;
+            audio.load();
+            currentMedia = audio;
+        }
+        
+        if (currentMedia) {
+            currentMedia.muted = true;
+            currentMedia.volume = 1.0;
+        }
+        updateMediaIcon();
+    }
 
-    function startAudio() {
-        if (!audioStarted) {
-            audio.muted = false;
-            audio.volume = 1.0;
-            audio.play().catch(e => console.log('Audio play failed:', e));
-            audioStarted = true;
+    function startMedia() {
+        if (!mediaStarted && currentMedia) {
+            currentMedia.muted = false;
+            if (currentMedia.play) {
+                currentMedia.play().catch(e => {
+                    console.log('Media play failed:', e);
+                });
+            }
+            mediaStarted = true;
             isMuted = false;
-            updateAudioIcon();          
-            document.removeEventListener('click', startAudio);
+            updateMediaIcon();
+            
+            document.removeEventListener('click', startMedia);
+            document.removeEventListener('touchstart', startMedia);
         }
     }
 
-    function toggleAudio() {
-        if (audioStarted) {
+    function toggleMute() {
+        if (currentMedia && mediaStarted) {
             isMuted = !isMuted;
-            audio.muted = isMuted;
-            updateAudioIcon();
+            currentMedia.muted = isMuted;
+            updateMediaIcon();
         }
     }
 
-    function updateAudioIcon() {
-        if (!audioStarted) {
-            audioIcon.className = "bi bi-volume-mute";
-            audioIcon.style.color = "#666";
+    function updateMediaIcon() {
+        if (!mediaStarted) {
+            mediaIcon.className = "bi bi-volume-mute";
+            mediaControl.className = "media-control muted";
         } else if (isMuted) {
-            audioIcon.className = "bi bi-volume-mute";
-            audioIcon.style.color = "#ff4444";
+            mediaIcon.className = "bi bi-volume-mute";
+            mediaControl.className = "media-control muted";
         } else {
-            audioIcon.className = "bi bi-volume-up";
-            audioIcon.style.color = "#4CAF50";
+            mediaIcon.className = "bi bi-volume-up";
+            mediaControl.className = "media-control unmuted";
         }
     }
 
-    audioControl.addEventListener('click', function(e) {
+    mediaControl.addEventListener('click', function(e) {
         e.stopPropagation();
-        if (!audioStarted) {
-            startAudio();
+        if (!mediaStarted) {
+            startMedia();
         } else {
-            toggleAudio();
+            toggleMute();
         }
     });
 
-    document.addEventListener('click', startAudio, { once: true });
-    updateAudioIcon();
+    document.addEventListener('click', startMedia, { once: true });
+    document.addEventListener('touchstart', startMedia, { once: true });
+
+    initializeMedia();
+
+    const toggle = document.querySelector(".toggle-password");
+    const password = document.getElementById("authPassword");
+
+    if (toggle && password) {
+        toggle.addEventListener("click", function() {
+            const isPassword = password.getAttribute("type") === "password";
+            password.setAttribute("type", isPassword ? "text" : "password");
+            this.classList.toggle("bi-eye");
+            this.classList.toggle("bi-eye-slash");
+        });
+    }
 
     const translationsIP = {
         zh: { login: '登录', password: '密码' },
@@ -619,17 +663,5 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     translateLoginElements();
-
-    const toggle = document.querySelector(".toggle-password");
-    const password = document.getElementById("authPassword");
-
-    if (toggle && password) {
-        toggle.addEventListener("click", function() {
-            const isPassword = password.getAttribute("type") === "password";
-            password.setAttribute("type", isPassword ? "text" : "password");
-            this.classList.toggle("bi-eye");
-            this.classList.toggle("bi-eye-slash");
-        });
-    }
 });
 </script>
