@@ -1,10 +1,25 @@
 .cbi-section,
 .navbar-container::before,
+header::after,
 .navbar-container,
 .tabs,
 .main-left {
 	background-color: transparent !important;
 	border: transparent !important;
+        box-shadow: none;
+}
+
+.pure-u-2-3 h4,
+#_passwall_status_fieldset .block.pure-g,
+#_passwall2_status_fieldset .block.pure-g {
+	background-color: transparent !important;
+        box-shadow: none;
+	border: transparent !important;
+}
+
+[data-theme="dark"] .block {
+    box-shadow: none !important;
+    animation: none !important;
 }
 
 .cbi-input-select,
