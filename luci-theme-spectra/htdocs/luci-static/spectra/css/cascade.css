@@ -1933,11 +1933,6 @@ div[style="width:100%;height:300px;border:1px solid #000;background:#fff"] {
     bottom: 0;
     width: 100%;
     height: 2px;
-    background-color: color-mix(in oklch, var(--accent-color), black 25%);
-    transition: all .2s
-}
-
-[data-theme="dark"] .main .main-left .nav li.slide .slide-menu .active::after {
     background: linear-gradient(90deg,
             oklch(var(--l) var(--c) var(--base-hue-1)),
             oklch(var(--l) var(--c) var(--base-hue-2)),
@@ -1948,9 +1943,6 @@ div[style="width:100%;height:300px;border:1px solid #000;background:#fff"] {
             oklch(var(--l) var(--c) var(--base-hue-7)),
             oklch(var(--l) var(--c) var(--base-hue-1)));
     background-size: 400% auto;
-    box-shadow:
-        0 0 6px color-mix(in oklch, var(--accent-color), transparent 50%),
-        0 0 16px color-mix(in oklch, var(--accent-color), transparent 60%);
     transform: translateZ(0);
     will-change: transform, background-position, box-shadow;
     animation: rainbow-energy 6s linear infinite, pulse 1.5s ease-in-out infinite;
