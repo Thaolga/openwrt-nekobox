@@ -1604,4 +1604,164 @@ div>div[style*="display:grid"] {
     padding: 0 1rem;
 }
 
+.card-header {
+    display: flex;
+    align-items: center;
+}
 
+.card-flag {
+    width: 20px;
+    height: 14px;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    display: inline-block;
+    margin-right: 6px;
+}
+
+.cbi-tabcontainer[style*="display: block"] .cbi-section-table,
+.cbi-tabcontainer[style*="display:block"] .cbi-section-table {
+    display: none !important;
+}
+
+.cbi-tabcontainer[style*="display: block"] .cards-container,
+.cbi-tabcontainer[style*="display:block"] .cards-container {
+    background: var(--card-bg) !important;
+    display: flex !important;
+    flex-wrap: wrap !important;
+    gap: 15px !important;
+    padding: 20px !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+    justify-content: flex-start;
+}
+
+.cbi-tabcontainer:not([style*="display: block"]):not([style*="display:block"]) .cards-container {
+    display: none !important;
+}
+
+.cbi-tabcontainer:not([style*="display: block"]):not([style*="display:block"]) .cbi-section-table {
+    display: table !important;
+}
+
+#cbi-passwall-nodes .node-card,
+.cbi-section-node-tabbed .node-card {
+    flex: 0 0 calc(20% - 15px); 
+    background: var(--bg-container) !important;
+    border: var(--glow-border);
+    box-shadow: 0 1.5px 4.5px -2px color-mix(in oklch, var(--bg-container), black 40%);
+    border-radius: 8px !important;
+    padding: 15px !important;
+    transition: all 0.3s ease !important;
+    margin: 0 !important;
+    position: relative !important;
+    box-sizing: border-box !important;
+}
+
+[data-theme="dark"] #cbi-passwall-nodes .node-card,
+[data-theme="dark"] .cbi-section-node-tabbed .node-card {
+    box-shadow: var(--border-glow) !important;
+}
+
+#cbi-passwall-nodes .node-card:hover,
+.cbi-section-node-tabbed .node-card:hover {
+    transform: translateY(-2px) !important;
+    box-shadow: var(--glow-shadow-default);
+}
+
+#cbi-passwall-nodes .card-header,
+.cbi-section-node-tabbed .card-header {
+    font-weight: bold !important;
+    font-size: 14px !important;
+    margin-bottom: 10px !important;
+    color: var(--text-primary) !important;
+    line-height: 1.4 !important;
+    min-height: 40px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    text-align: center !important;
+    background: transparent !important;
+    border: none !important;
+    padding: 0 !important;
+}
+
+#cbi-passwall-nodes .card-metrics,
+.cbi-section-node-tabbed .card-metrics {
+    display: flex !important;
+    justify-content: space-between !important;
+    margin-bottom: 12px !important;
+    gap: 5px !important;
+    flex-wrap: wrap !important;
+    animation: var(--breath-animation);
+}
+
+#cbi-passwall-nodes .metric-item,
+.cbi-section-node-tabbed .metric-item {
+    flex: 1 !important;
+    text-align: center !important;
+    padding: 5px !important;
+    background: var(--card-bg) !important;
+    border-radius: 4px !important;
+    font-size: 12px !important;
+    border: var(--border-strong) !important;
+    min-width: 0 !important;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+#cbi-passwall-nodes .metric-item:hover,
+.cbi-section-node-tabbed .metric-item:hover {
+    transform: scale(1.05);
+    box-shadow: var(--glow-shadow-default);
+}
+
+#cbi-passwall-nodes .card-actions,
+.cbi-section-node-tabbed .card-actions {
+    display: flex !important;
+    flex-wrap: wrap !important;
+    gap: 5px !important;
+    justify-content: center !important;
+    background: transparent !important;
+    border: none !important;
+    padding: 0 !important;
+}
+
+@media (max-width: 1500px) {
+    #cbi-passwall-nodes .node-card,
+    .cbi-section-node-tabbed .node-card {
+        flex: 0 0 calc(25% - 15px);
+    }
+}
+
+@media (max-width: 1200px) {
+    #cbi-passwall-nodes .node-card,
+    .cbi-section-node-tabbed .node-card {
+        flex: 0 0 calc(33.333% - 15px);
+    }
+}
+
+@media (max-width: 992px) {
+    #cbi-passwall-nodes .node-card,
+    .cbi-section-node-tabbed .node-card {
+        flex: 0 0 calc(50% - 15px);
+    }
+}
+
+@media (max-width: 768px) {
+    #cbi-passwall-nodes .node-card,
+    .cbi-section-node-tabbed .node-card {
+        flex: 0 0 100%;
+    }
+}
+
+@media (max-width: 768px) {
+    .cbi-value-field input {
+        width: 100%;
+        margin-bottom: 10px;
+    }
+
+    #add_link_div {
+        width: 95%;
+        padding: 15px;
+    }
+}

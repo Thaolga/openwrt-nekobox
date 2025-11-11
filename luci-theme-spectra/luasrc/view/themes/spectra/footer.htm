@@ -44,5 +44,114 @@
         }, 800);
     });
 </script>
+<script>
+function convertEmojiToCountryCode(emoji) {
+    if (!emoji) return '';
+    emoji = emoji.replace(/\uFE0F/g, '');
+    const emojiToCountryCodeMap = {
+        '🇭🇰':'hk','🇺🇸':'us','🇯🇵':'jp','🇸🇬':'sg','🇫🇮':'fi','🇩🇪':'de',
+        '🇨🇳':'cn','🇹🇼':'tw','🇲🇴':'mo','🇰🇷':'kr','🇲🇾':'my','🇮🇩':'id',
+        '🇵🇭':'ph','🇻🇳':'vn','🇹🇭':'th','🇮🇳':'in','🇬🇧':'gb','🇫🇷':'fr',
+        '🇮🇹':'it','🇪🇸':'es','🇵🇹':'pt','🇳🇱':'nl','🇧🇪':'be','🇸🇪':'se',
+        '🇳🇴':'no','🇩🇰':'dk','🇷🇺':'ru','🇺🇦':'ua','🇵🇱':'pl','🇨🇿':'cz',
+        '🇭🇺':'hu','🇷🇴':'ro','🇬🇷':'gr','🇧🇬':'bg','🇹🇷':'tr','🇸🇦':'sa',
+        '🇦🇪':'ae','🇮🇱':'il','🇪🇬':'eg','🇿🇦':'za','🇳🇬':'ng','🇧🇷':'br',
+        '🇦🇷':'ar','🇲🇽':'mx','🇨🇱':'cl','🇨🇴':'co','🇵🇪':'pe','🇻🇪':'ve',
+        '🇦🇺':'au','🇳🇿':'nz','🇨🇦':'ca','🇮🇪':'ie','🇨🇭':'ch','🇦🇹':'at',
+        '🇱🇺':'lu','🇮🇸':'is','🇱🇻':'lv','🇱🇹':'lt','🇪🇪':'ee'
+    };
+    return emojiToCountryCodeMap[emoji] || '';
+}
+
+function convertTablesToCards() {
+    const activeContainer = document.querySelector('.cbi-tabcontainer[style*="display: block"], .cbi-tabcontainer[style*="display:block"]');
+    if (!activeContainer) return;
+    if (activeContainer.getAttribute('data-cards-converted') === 'true') return;
+    const table = activeContainer.querySelector('.cbi-section-table');
+    if (!table) return;
+    const rows = table.querySelectorAll('.cbi-section-table-row');
+    if (rows.length === 0) return;
+    const cardsContainer = document.createElement('div');
+    cardsContainer.className = 'cards-container';
+    rows.forEach((row) => {
+        const card = document.createElement('div');
+        card.className = 'node-card';
+        if (row.classList.contains('_now_use_bg')) {
+            card.classList.add('_now_use_bg');
+        }
+        const tds = row.querySelectorAll('td');
+        const remarks = tds[0]?.innerHTML || '';
+        const ping = tds[1]?.innerHTML || '';
+        const tcping = tds[2]?.innerHTML || '';
+        const urlTest = tds[3]?.innerHTML || '';
+        const actions = tds[4]?.innerHTML || '';
+        const remarksSpan = tds[0]?.querySelector('span, div, a');
+        let remarksClass = '';
+        if (remarksSpan && remarksSpan.classList.contains('_now_use')) {
+            remarksClass = '_now_use';
+        }
+        const emojiRegex = /[\u{1F1E6}-\u{1F1FF}]{2}/gu;
+        const countryEmoji = remarks.match(emojiRegex)?.[0];
+        const countryCode = convertEmojiToCountryCode(countryEmoji) || '';
+        const flagUrl = countryCode ? `/luci-static/ipip/flags/${countryCode}.png` : '';
+        card.innerHTML = `
+            <div class="card-header ${remarksClass}">
+                ${flagUrl ? `<div class="card-flag" style="background-image: url('${flagUrl}');"></div>` : ''}
+                ${remarks}
+            </div>
+            <div class="card-metrics">
+                <div class="metric-item">Ping: ${ping}</div>
+                <div class="metric-item">TCPing: ${tcping}</div>
+                <div class="metric-item">URL: ${urlTest}</div>
+            </div>
+            <div class="card-actions">${actions}</div>
+        `;
+        cardsContainer.appendChild(card);
+    });
+    table.parentNode.insertBefore(cardsContainer, table);
+    activeContainer.setAttribute('data-cards-converted', 'true');
+}
+
+function initAllTabs() {
+    const allContainers = document.querySelectorAll('.cbi-tabcontainer');
+    allContainers.forEach((container) => {
+        container.removeAttribute('data-cards-converted');
+        const oldCards = container.querySelector('.cards-container');
+        if (oldCards) {
+            oldCards.remove();
+        }
+    });
+    convertTablesToCards();
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    setTimeout(initAllTabs, 100);
+});
+
+document.addEventListener('click', function(e) {
+    const tabLink = e.target.closest('.cbi-tab');
+    if (tabLink && tabLink.querySelector('a')) {
+        setTimeout(initAllTabs, 200);
+    }
+});
+
+const observer = new MutationObserver(function(mutations) {
+    mutations.forEach(function(mutation) {
+        if (mutation.type === 'attributes' && mutation.attributeName === 'style') {
+            const target = mutation.target;
+            if (target.classList.contains('cbi-tabcontainer') && target.style.display.includes('block')) {
+                setTimeout(initAllTabs, 100);
+            }
+        }
+    });
+});
+
+observer.observe(document.body, {
+    attributes: true,
+    subtree: true,
+    attributeFilter: ['style']
+});
+</script>
+
 </body>
 </html>
