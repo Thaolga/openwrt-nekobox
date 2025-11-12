@@ -145,6 +145,9 @@ const languageTranslations = {
         'version_check_label': '版本检测',
         "playlist": "播放列表",
         "lyrics": "歌词",
+        'searching_lyrics': '正在从网络搜索歌词...',
+        'lyrics_not_found': '未找到在线歌词',
+        'playback_speed': '播放速度',
         'command_install_label': '命令安装'
     },
     'hk': {
@@ -294,6 +297,9 @@ const languageTranslations = {
         "voice_type_other": "其他語音",
         "playlist": "播放清單",
         "lyrics": "歌詞",
+        'searching_lyrics': '正在線上搜尋歌詞...',
+        'lyrics_not_found': '未找到線上歌詞',
+        'playback_speed': '播放速度',
         'theme_download': '主題下載'
     },
     'en': {
@@ -447,6 +453,9 @@ const languageTranslations = {
         "voice_type_other": "Other Voice",
         "playlist": "Playlist",
         "lyrics": "Lyrics",
+        'searching_lyrics': 'Searching for lyrics online...',
+        'lyrics_not_found': 'No online lyrics found',
+        'playback_speed': 'Playback Speed',
         'theme_download': 'Theme download'
     },
     'ko': {
@@ -590,6 +599,9 @@ const languageTranslations = {
         "voice_type_other": "기타 음성",
         "playlist": "재생목록",
         "lyrics": "가사",
+        'searching_lyrics': '가사를 온라인에서 검색 중...',
+        'lyrics_not_found': '온라인 가사를 찾을 수 없습니다',
+        'playback_speed': '재생 속도',
         'theme_download': '테마 다운로드'
     },
     'vi': {
@@ -734,6 +746,9 @@ const languageTranslations = {
         'command_install_label': 'Cài đặt lệnh',
         "playlist": "Danh sách phát",
         "lyrics": "Lời bài hát",
+        'searching_lyrics': 'Đang tìm lời bài hát trực tuyến...',
+        'lyrics_not_found': 'Không tìm thấy lời bài hát trực tuyến',
+        'playback_speed': 'Tốc độ phát',
         'theme_download': 'Tải chủ đề'
     },
     'th': {
@@ -878,6 +893,9 @@ const languageTranslations = {
         "voice_type_other": "เสียงอื่นๆ",
         "playlist": "เพลย์ลิสต์",
         "lyrics": "เนื้อเพลง",
+        'searching_lyrics': 'กำลังค้นหาคำเพลงออนไลน์...',
+        'lyrics_not_found': 'ไม่พบคำเพลงออนไลน์',
+        'playback_speed': 'ความเร็วในการเล่น',
         'theme_download': 'ดาวน์โหลดธีม'
     },
     'ja': {
@@ -1022,6 +1040,9 @@ const languageTranslations = {
         "voice_type_other": "その他の音声",
         "playlist": "プレイリスト",
         "lyrics": "歌詞",
+        'searching_lyrics': 'オンラインで歌詞を検索中...',
+        'lyrics_not_found': 'オンライン歌詞が見つかりません',
+        'playback_speed': '再生速度',
         'theme_download': 'テーマダウンロード'
     },
     'ru': {
@@ -1166,6 +1187,9 @@ const languageTranslations = {
         "voice_type_other": "Другой голос",
         "playlist": "Плейлист",
         "lyrics": "Тексты песен",
+        'searching_lyrics': 'Поиск текста песни в сети...',
+        'lyrics_not_found': 'Онлайн-текст песни не найден',
+        'playback_speed': 'Скорость воспроизведения',
         'theme_download': 'Скачать тему'
     },
     'ar': {
@@ -1310,6 +1334,9 @@ const languageTranslations = {
         "voice_type_other": "أصوات أخرى",
         "playlist": "قائمة التشغيل",
         "lyrics": "كلمات الأغاني",
+        'searching_lyrics': 'يتم البحث عن كلمات الأغاني عبر الإنترنت...',
+        'lyrics_not_found': 'لم يتم العثور على كلمات عبر الإنترنت',
+        'playback_speed': 'سرعة التشغيل',
         'theme_download': 'تحميل السمة'
     },
     'es': {
@@ -1454,6 +1481,9 @@ const languageTranslations = {
         "voice_type_other": "Otra voz",
         "playlist": "Lista de reproducción",
         "lyrics": "Letras",
+        'searching_lyrics': 'Buscando letras en línea...',
+        'lyrics_not_found': 'No se encontraron letras en línea',
+        'playback_speed': 'Velocidad de reproducción',
         'theme_download': 'Descarga del tema'
     },
     'de': {
@@ -1598,6 +1628,9 @@ const languageTranslations = {
         "voice_type_other": "Andere Stimme",
         "playlist": "Wiedergabeliste",
         "lyrics": "Liedtexte",
+        'searching_lyrics': 'Songtexte werden online gesucht...',
+        'lyrics_not_found': 'Keine Online-Songtexte gefunden',
+        'playback_speed': 'Wiedergabegeschwindigkeit',
         'theme_download': 'Thema herunterladen'
     },
     'fr': {
@@ -1742,6 +1775,9 @@ const languageTranslations = {
         "voice_type_other": "Autre voix",
         "playlist": "Liste de lecture",
         "lyrics": "Paroles",
+        'searching_lyrics': 'Recherche des paroles en ligne...',
+        'lyrics_not_found': 'Aucune parole en ligne trouvée',
+        'playback_speed': 'Vitesse de lecture',
         'theme_download': 'Télécharger le thème'
     },
     'bn': {
@@ -1887,6 +1923,9 @@ const languageTranslations = {
         "voice_type_other": "অন্যান্য ভয়েস",
         "playlist": "প্লেলিস্ট",
         "lyrics": "গানের কথা",
+        'searching_lyrics': 'অনলাইনে গানের কথা অনুসন্ধান করা হচ্ছে...',
+        'lyrics_not_found': 'কোনও অনলাইন গানের কথা পাওয়া যায়নি',
+        'playback_speed': 'প্লেব্যাক গতি',
         'theme_download': 'থিম ডাউনলোড'
     }
 };

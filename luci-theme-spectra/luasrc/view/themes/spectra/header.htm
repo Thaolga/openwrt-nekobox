@@ -434,6 +434,15 @@
                         </div>
                         
                         <div class="info-display">
+                            <div class="artist-image-container">
+                                <div class="artist-image" id="artistImage">
+                                    <div class="default-avatar">
+                                        <i class="bi bi-person-circle"></i>
+                                    </div>
+                                    <img id="artistImg" src="" alt="Artist" style="display: none;">
+                                </div>
+                            </div>
+
                             <div class="time-display">
                                 <span id="currentTime">0:00</span> / <span id="duration">0:00</span>
                             </div>
@@ -502,7 +511,7 @@
     background-color: var(--bg-container);
     border-radius: var(--radius);
     width: 90%;
-    max-width: 1200px;
+    max-width: 1300px;
     height: 70%;
     display: flex;
     flex-direction: column;
@@ -859,9 +868,58 @@
     align-items: center;
 }
 
+.artist-image-container {
+    display: flex;
+    align-items: center;
+    margin-right: 12px;
+}
+
+.artist-image {
+    width: 45px;
+    height: 45px;
+    border-radius: 50%;
+    overflow: hidden;
+    position: relative;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+    border: 2px solid rgba(255,255,255,0.1);
+}
+
+.artist-image .default-avatar {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 20px;
+}
+
+.artist-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: opacity 0.3s ease;
+}
+
+.artist-image.loading img {
+    opacity: 0.7;
+}
+
+.artist-image.loading::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.3);
+    border-radius: 50%;
+}
+
 .info-display {
     display: flex;
-    gap: 16px;
+    gap: 12px;
     align-items: center;
     margin: 0;
 }
@@ -2936,6 +2994,83 @@ function updatePlaylistUI() {
     }
 }
 
+
+function fetchArtistImage(artist, title) {
+    const artistImage = document.getElementById('artistImage');
+    const artistImg = document.getElementById('artistImg');
+    
+    if (!artist) {
+        resetArtistImage();
+        return;
+    }
+    
+    artistImage.classList.add('loading');
+    fetchArtistImageViaProxy(artist, title);
+}
+
+function fetchArtistImageViaProxy(artist, title) {
+    const proxyUrl = '/luci-static/spectra/bgm/artist_proxy.php';
+    
+    fetch(proxyUrl, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            artist: artist,
+            title: title
+        })
+    })
+    .then(response => {
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+        return response.json();
+    })
+    .then(data => {
+        if (data.success && data.imageUrl) {
+            updateArtistImage(data.imageUrl);
+        } else {
+            resetArtistImage();
+        }
+    })
+    .catch(error => {
+        console.error('Artist image proxy failed:', error);
+        resetArtistImage();
+    });
+}
+
+function updateArtistImage(imageUrl) {
+    const artistImage = document.getElementById('artistImage');
+    const artistImg = document.getElementById('artistImg');
+    const defaultAvatar = artistImage.querySelector('.default-avatar');
+    
+    const img = new Image();
+    img.onload = function() {
+        artistImg.src = imageUrl;
+        artistImg.style.display = 'block';
+        if (defaultAvatar) {
+            defaultAvatar.style.display = 'none';
+        }
+        artistImage.classList.remove('loading');
+    };
+    img.onerror = function() {
+        resetArtistImage();
+    };
+    img.src = imageUrl;
+}
+
+function resetArtistImage() {
+    const artistImage = document.getElementById('artistImage');
+    const artistImg = document.getElementById('artistImg');
+    const defaultAvatar = artistImage.querySelector('.default-avatar');
+    
+    artistImg.style.display = 'none';
+    artistImg.src = '';
+    if (defaultAvatar) {
+        defaultAvatar.style.display = 'flex';
+    }
+    artistImage.classList.remove('loading');
+}
+
 function updatePlaylist() {
     const translations = languageTranslations[currentLang] || languageTranslations['zh'];  
     const btn = document.getElementById('updatePlaylistBtn');
@@ -2984,18 +3119,32 @@ function playTrack(index) {
     }
     
     audioPlayer.pause();
+    audioPlayer.removeEventListener('timeupdate', syncLyrics);
+    audioPlayer.removeEventListener('timeupdate', syncPlainLyrics);
+    
     currentTrackIndex = index;
     loadTrack(songs[index]);
     isPlaying = true;
+    
     audioPlayer.play().catch((error) => {
         isPlaying = false;
+        console.error('Play failed:', error);
     });
+    
     updatePlayButton();
     savePlayerState();
     showLogMessage(message);
     speakMessage(message);
-    event.target.classList.add('clicked');
-    setTimeout(() => event.target.classList.remove('clicked'), 200);
+    updateCurrentSong(songs[index]);
+    
+    if (event && event.target) {
+        event.target.classList.add('clicked');
+        setTimeout(() => {
+            if (event.target) {
+                event.target.classList.remove('clicked');
+            }
+        }, 200);
+    }
 }
 
 function scrollToCurrentTrack() {
@@ -3046,17 +3195,11 @@ function loadLyrics(songUrl) {
             document.dispatchEvent(new Event('lyricsLoaded'));
         })
         .catch(error => {
-            containers.forEach(container => {
-                if (container) {
-                    if (error.message === 'LYRICS_NOT_FOUND') {
-                        if (container.id === 'lyricsContainer') {
-                            container.innerHTML = `<div id="no-lyrics">${translations['no_lyrics'] || 'No Lyrics Available'}</div>`;
-                        } else {
-                            const message = translations['no_lyrics'] || 'No Lyrics Available';
-                            const verticalText = message.split('').map(char => `<span class="char">${char}</span>`).join('');
-                            container.innerHTML = `<div id="noLyricsFloating" class="vertical-text">${verticalText}</div>`;
-                        }
-                    } else {
+            if (error.message === 'LYRICS_NOT_FOUND') {
+                fetchLyricsFromAPI(songUrl);
+            } else {
+                containers.forEach(container => {
+                    if (container) {
                         console.error(`${translations['lyrics_load_failed'] || 'Lyrics Load Failed'}:`, error);
                         if (container.id === 'lyricsContainer') {
                             container.innerHTML = `<div id="no-lyrics">${translations['lyrics_load_failed'] || 'Failed to load lyrics'}</div>`;
@@ -3066,9 +3209,357 @@ function loadLyrics(songUrl) {
                             container.innerHTML = `<div id="noLyricsFloating" class="vertical-message">${verticalText}</div>`;
                         }
                     }
+                });
+            }
+        });
+}
+
+function fetchLyricsFromAPI(songUrl) {
+    const songName = decodeURIComponent(songUrl.split('/').pop().replace(/\.\w+$/, ''));
+    
+    const cleanName = songName.replace(/\.(mp3|flac|wav|m4a|aac)$/i, '');
+    let artist = '';
+    let title = cleanName;
+    
+    const separators = [' - ', ' – ', ' — ', ' _ ', ' | ', '-', '–', ' '];
+    for (const sep of separators) {
+        if (cleanName.includes(sep)) {
+            const parts = cleanName.split(sep);
+            if (parts.length >= 2) {
+                artist = parts[0].trim();
+                title = parts.slice(1).join(sep).trim();
+                
+                title = title.replace(/\[.*?\]|\(.*?\)/g, '').trim();
+                artist = artist.replace(/\[.*?\]|\(.*?\)/g, '').trim();
+                break;
+            }
+        }
+    }
+
+    const translations = languageTranslations[currentLang] || languageTranslations['zh'];
+    const containers = [
+        document.getElementById('lyricsContainer'),
+        document.querySelector('#floatingLyrics .vertical-lyrics')
+    ];
+
+    containers.forEach(container => {
+        if (container) {
+            const message = translations['searching_lyrics'] || 'Searching for lyrics online...';
+            const verticalText = message.split('').map(char => `<span class="char">${char}</span>`).join('');
+            const statusMsg = container.id === 'lyricsContainer' 
+                ? `<div id="no-lyrics">${message}</div>`
+                : `<div id="noLyricsFloating" class="vertical-message">${verticalText}</div>`;
+            container.innerHTML = statusMsg;
+        }
+    });
+
+    console.log(`Searching lyrics for: Artist="${artist}", Title="${title}"`);
+
+    const apiPromises = [
+        tryNeteaseProxy(artist, title, cleanName),
+        tryKugouProxy(artist, title, cleanName),
+        tryQQMusicProxy(artist, title, cleanName),
+        tryLRCLib(artist, title)
+    ];
+
+    Promise.any(apiPromises)
+        .then(lyricsData => {
+            if (lyricsData && lyricsData.lyrics) {
+                console.log(`Lyrics found from: ${lyricsData.source}`);
+                if (lyricsData.hasTimestamps) {
+                    processLrcLyrics(lyricsData.lyrics, containers);
+                } else {
+                    displayPlainLyrics(lyricsData.lyrics, containers);
+                }
+            } else {
+                throw new Error('No lyrics found from any API');
+            }
+        })
+        .catch(error => {
+            console.error("All lyrics APIs failed:", error);
+            containers.forEach(container => {
+                if (container) {
+                    const message = translations['lyrics_not_found'] || 'Lyrics not found online';
+                    if (container.id === 'lyricsContainer') {
+                        container.innerHTML = `<div id="no-lyrics">${message}<br><small>${cleanName}</small></div>`;
+                    } else {
+                        const verticalText = message.split('').map(char => `<span class="char">${char}</span>`).join('');
+                        container.innerHTML = `<div id="noLyricsFloating" class="vertical-message">${verticalText}</div>`;
+                    }
                 }
             });
         });
+}
+
+function processLrcLyrics(lyricsText, containers) {
+    window.lyrics = {};
+    window.lyricTimes = [];
+    
+    audioPlayer.removeEventListener('timeupdate', syncLyrics);
+    audioPlayer.removeEventListener('timeupdate', syncPlainLyrics);
+    
+    parseLyrics(lyricsText);
+    displayLyrics();
+    document.dispatchEvent(new Event('lyricsLoaded'));
+    
+    audioPlayer.addEventListener('timeupdate', syncLyrics);
+}
+
+function displayPlainLyrics(lyricsText, containers) {
+    window.lyrics = {};
+    window.lyricTimes = [];
+    
+    audioPlayer.removeEventListener('timeupdate', syncLyrics);
+    audioPlayer.removeEventListener('timeupdate', syncPlainLyrics);
+    
+    const lines = lyricsText.split('\n').filter(line => line.trim() !== '');
+    
+    containers.forEach(container => {
+        if (container) {
+            container.innerHTML = '';
+            
+            if (lines.length === 0) {
+                const message = 'No lyrics content';
+                if (container.id === 'lyricsContainer') {
+                    container.innerHTML = `<div id="no-lyrics">${message}</div>`;
+                } else {
+                    const verticalText = message.split('').map(char => `<span class="char">${char}</span>`).join('');
+                    container.innerHTML = `<div id="noLyricsFloating" class="vertical-message">${verticalText}</div>`;
+                }
+                return;
+            }
+            
+            lines.forEach((lineText, index) => {
+                const line = document.createElement('div');
+                line.className = 'lyric-line plain-line';
+                line.dataset.lineIndex = index;
+                line.textContent = lineText;
+                
+                if (container.id === 'lyricsContainer') {
+                    container.appendChild(line);
+                } else if (index === 0) {
+                    const floatingLine = document.createElement('div');
+                    floatingLine.className = 'lyric-line plain-line';
+                    floatingLine.textContent = lineText;
+                    container.appendChild(floatingLine);
+                }
+            });
+        }
+    });
+    
+    audioPlayer.addEventListener('timeupdate', debounce(syncPlainLyrics, 100));
+}
+
+function debounce(func, wait) {
+    let timeout;
+    return function executedFunction(...args) {
+        const later = () => {
+            clearTimeout(timeout);
+            func(...args);
+        };
+        clearTimeout(timeout);
+        timeout = setTimeout(later, wait);
+    };
+}
+
+function syncPlainLyrics() {
+    if (!audioPlayer.src || audioPlayer.paused) {
+        return;
+    }
+    
+    const currentTime = audioPlayer.currentTime;
+    const duration = audioPlayer.duration || 60;
+    const lyricsContainer = document.getElementById('lyricsContainer');
+    
+    if (!lyricsContainer) return;
+    
+    const lines = lyricsContainer.querySelectorAll('.plain-line');
+    if (lines.length === 0) return;
+    
+    const lineDuration = duration / lines.length;
+    const currentLineIndex = Math.min(Math.floor(currentTime / lineDuration), lines.length - 1);
+    
+    let hasActiveLine = false;
+    
+    lines.forEach((line, index) => {
+        line.classList.remove('highlight', 'active');
+        if (index === currentLineIndex) {
+            line.classList.add('highlight', 'active');
+            hasActiveLine = true;
+            
+            if (!isHovering && !isManualScroll) {
+                const lineRect = line.getBoundingClientRect();
+                const containerRect = lyricsContainer.getBoundingClientRect();
+                
+                if (lineRect.top < containerRect.top + 50 || 
+                    lineRect.bottom > containerRect.bottom - 50) {
+                    line.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }
+            }
+        }
+    });
+    
+    const floatingContainer = document.querySelector('#floatingLyrics .vertical-lyrics');
+    if (floatingContainer && lines[currentLineIndex]) {
+        const currentText = lines[currentLineIndex].textContent;
+        if (floatingContainer.textContent !== currentText) {
+            floatingContainer.textContent = currentText;
+        }
+    }
+    
+    if (!hasActiveLine && currentTime < 5 && lyricsContainer.scrollTop !== 0) {
+        lyricsContainer.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+}
+
+function tryNeteaseProxy(artist, title, songName) {
+    return new Promise((resolve, reject) => {
+        const proxyUrl = '/luci-static/spectra/bgm/lyrics_proxy.php';
+        
+        fetch(proxyUrl, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                source: 'netease',
+                artist: artist,
+                title: title,
+                songName: songName
+            })
+        })
+        .then(response => {
+            if (!response.ok) throw new Error(`HTTP ${response.status}`);
+            return response.json();
+        })
+        .then(data => {
+            if (data.success && data.lyrics) {
+                resolve({
+                    lyrics: data.lyrics,
+                    hasTimestamps: data.hasTimestamps || true,
+                    source: 'netease'
+                });
+            } else {
+                reject(new Error(data.message || 'No lyrics from Netease'));
+            }
+        })
+        .catch(error => reject(error));
+    });
+}
+
+function tryKugouProxy(artist, title, songName) {
+    return new Promise((resolve, reject) => {
+        const proxyUrl = '/luci-static/spectra/bgm/lyrics_proxy.php';
+        
+        fetch(proxyUrl, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                source: 'kugou',
+                artist: artist,
+                title: title,
+                songName: songName
+            })
+        })
+        .then(response => {
+            if (!response.ok) throw new Error(`HTTP ${response.status}`);
+            return response.json();
+        })
+        .then(data => {
+            if (data.success && data.lyrics) {
+                resolve({
+                    lyrics: data.lyrics,
+                    hasTimestamps: data.hasTimestamps || true,
+                    source: 'kugou'
+                });
+            } else {
+                reject(new Error(data.message || 'No lyrics from Kugou'));
+            }
+        })
+        .catch(error => reject(error));
+    });
+}
+
+function tryQQMusicProxy(artist, title, songName) {
+    return new Promise((resolve, reject) => {
+        const proxyUrl = '/luci-static/spectra/bgm/lyrics_proxy.php';
+        
+        fetch(proxyUrl, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                source: 'qqmusic',
+                artist: artist,
+                title: title,
+                songName: songName
+            })
+        })
+        .then(response => {
+            if (!response.ok) throw new Error(`HTTP ${response.status}`);
+            return response.json();
+        })
+        .then(data => {
+            if (data.success && data.lyrics) {
+                resolve({
+                    lyrics: data.lyrics,
+                    hasTimestamps: data.hasTimestamps || true,
+                    source: 'qqmusic'
+                });
+            } else {
+                reject(new Error(data.message || 'No lyrics from QQMusic'));
+            }
+        })
+        .catch(error => reject(error));
+    });
+}
+
+function tryLRCLib(artist, title) {
+    return new Promise((resolve, reject) => {
+        if (!title) {
+            reject(new Error('No title provided'));
+            return;
+        }
+        
+        let searchQuery = title;
+        if (artist) {
+            searchQuery = `${artist} ${title}`;
+        }
+        
+        const searchUrl = `https://lrclib.net/api/search?q=${encodeURIComponent(searchQuery)}`;
+        
+        fetch(searchUrl)
+            .then(response => {
+                if (!response.ok) throw new Error(`HTTP ${response.status}`);
+                return response.json();
+            })
+            .then(data => {
+                if (data && data.length > 0) {
+                    const songData = data[0];
+                    if (songData.syncedLyrics) {
+                        resolve({
+                            lyrics: songData.syncedLyrics,
+                            hasTimestamps: true,
+                            source: 'lrclib'
+                        });
+                    } else if (songData.plainLyrics) {
+                        resolve({
+                            lyrics: songData.plainLyrics,
+                            hasTimestamps: false,
+                            source: 'lrclib'
+                        });
+                    } else {
+                        reject(new Error('No lyrics available'));
+                    }
+                } else {
+                    reject(new Error('No results found'));
+                }
+            })
+            .catch(error => reject(error));
+    });
 }
 
 function parseLyrics(text) {
@@ -3266,7 +3757,6 @@ function syncLyrics() {
     }
 }
 
-
 function spawnHeartAbove(char) {
     const heart = document.createElement('span');
     heart.className = 'heart';
@@ -3289,6 +3779,10 @@ function loadTrack(url) {
     const translations = languageTranslations[currentLang] || languageTranslations['zh'];  
     window.lyrics = {};
     window.lyricTimes = [];
+    
+    audioPlayer.removeEventListener('timeupdate', syncLyrics);
+    audioPlayer.removeEventListener('timeupdate', syncPlainLyrics);
+    
     const lyricsContainers = [
         document.getElementById('lyricsContainer'),
         document.querySelector('#floatingLyrics .vertical-lyrics')
@@ -3307,7 +3801,8 @@ function loadTrack(url) {
     
     audioPlayer.src = url;
     audioPlayer.load();
-    audioPlayer.addEventListener('canplaythrough', () => {
+    
+    const canPlayHandler = () => {
         audioPlayer.currentTime = loadCurrentTime(url);
         audioPlayer.play().then(() => {
             isPlaying = true;
@@ -3322,7 +3817,9 @@ function loadTrack(url) {
             isPlaying = false;
             updatePlayButton();
         });
-    }, { once: true });
+    };
+    
+    audioPlayer.addEventListener('canplaythrough', canPlayHandler, { once: true });
     
     updatePlayButton(); 
     updatePlaylistUI();
@@ -3369,6 +3866,30 @@ function updateCurrentSong(url) {
     if (floatingTitle) floatingTitle.textContent = songName;
     const modalTitle = document.querySelector('#musicModal #currentSong');
     if (modalTitle) modalTitle.textContent = songName;
+    
+    const cleanName = songName.replace(/\.(mp3|flac|wav|m4a|aac)$/i, '');
+    let artist = '';
+    let title = cleanName;
+    
+    const separators = [' - ', ' – ', ' — ', ' _ ', ' | ', '-', '–', ' '];
+    for (const sep of separators) {
+        if (cleanName.includes(sep)) {
+            const parts = cleanName.split(sep);
+            if (parts.length >= 2) {
+                artist = parts[0].trim();
+                title = parts.slice(1).join(sep).trim();
+                artist = artist.replace(/\[.*?\]|\(.*?\)/g, '').trim();
+                title = title.replace(/\[.*?\]|\(.*?\)/g, '').trim();
+                break;
+            }
+        }
+    }
+    
+    if (artist) {
+        fetchArtistImage(artist, title);
+    } else {
+        resetArtistImage();
+    }
 }
 
 function updateTimeDisplay() {
