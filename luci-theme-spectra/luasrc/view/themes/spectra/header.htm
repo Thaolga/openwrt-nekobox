@@ -3271,6 +3271,7 @@ function fetchLyricsFromAPI(songUrl) {
                 } else {
                     displayPlainLyrics(lyricsData.lyrics, containers);
                 }
+                return;
             } else {
                 throw new Error('No lyrics found from any API');
             }
@@ -3281,7 +3282,7 @@ function fetchLyricsFromAPI(songUrl) {
                 if (container) {
                     const message = translations['lyrics_not_found'] || 'Lyrics not found online';
                     if (container.id === 'lyricsContainer') {
-                        container.innerHTML = `<div id="no-lyrics">${message}<br><small>${cleanName}</small></div>`;
+                        container.innerHTML = `<div id="no-lyrics">${message}</div>`;
                     } else {
                         const verticalText = message.split('').map(char => `<span class="char">${char}</span>`).join('');
                         container.innerHTML = `<div id="noLyricsFloating" class="vertical-message">${verticalText}</div>`;
