@@ -903,7 +903,7 @@
 }
 
 .artist-image.loading img {
-    opacity: 0.7;
+    opacity: 0.8;
 }
 
 .artist-image.loading::after {
@@ -2499,6 +2499,7 @@ let isPlaying = false;
 let repeatMode = 0;
 let isHovering = false;
 let isManualScroll = false;
+let artistImageLoaded = false;
 let isSmallScreen = window.innerWidth < 768;
 let currentPlaylistUrl = 'https://raw.githubusercontent.com/Thaolga/Rules/main/music/songs.txt';
 
@@ -3001,6 +3002,11 @@ function fetchArtistImage(artist, title) {
     
     if (!artist) {
         resetArtistImage();
+        return;
+    }
+
+    if (artistImageLoaded) {
+        artistImage.classList.remove('loading');
         return;
     }
     
