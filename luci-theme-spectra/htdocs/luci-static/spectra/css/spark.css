@@ -1604,19 +1604,8 @@ div>div[style*="display:grid"] {
     padding: 0 1rem;
 }
 
-.card-header {
-    display: flex;
-    align-items: center;
-}
-
-.card-flag {
-    width: 20px;
-    height: 14px;
-    background-size: cover;
-    background-position: center;
-    background-repeat: no-repeat;
-    display: inline-block;
-    margin-right: 6px;
+.diag-action {
+    margin-left: 8px !important;
 }
 
 .cbi-tabcontainer[style*="display: block"] .cbi-section-table,
@@ -1684,6 +1673,29 @@ div>div[style*="display:grid"] {
     background: transparent !important;
     border: none !important;
     padding: 0 !important;
+}
+
+.card-header .flag {
+    font-family: "NotoColorEmojiFlags" !important;
+    font-size: 20px;
+    line-height: 1;
+}
+
+.card-header .card-badge {
+    position: absolute;
+    top: 10px;
+    right: 15px;
+    color: #fff;
+    font-size: 10px;
+    padding: 2px 6px;
+    border-radius: 3px;
+    cursor: default;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.card-header .card-badge:hover {
+    transform: scale(1.05);
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
 }
 
 #cbi-passwall-nodes .card-metrics,

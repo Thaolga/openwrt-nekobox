@@ -1127,6 +1127,11 @@ a.pure-button-selected {
 }
 
 @font-face {
+    font-family: 'NotoColorEmojiFlags';
+    src: url('/luci-static/spectra/fonts/NotoColorEmoji-flagsonly-CWWDk9km.ttf') format('truetype');
+}
+
+@font-face {
     font-family: 'TypoGraphica';
     src: url('../fonts/TypoGraphica.eot?#iefix') format('embedded-opentype'), url('../fonts/TypoGraphica.woff') format('woff'), url('../fonts/TypoGraphica.ttf') format('truetype'), url('../fonts/TypoGraphica.svg#TypoGraphica') format('svg');
     font-weight: normal;
