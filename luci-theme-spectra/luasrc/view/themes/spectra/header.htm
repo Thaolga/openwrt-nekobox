@@ -3143,14 +3143,14 @@ function playTrack(index) {
     speakMessage(message);
     updateCurrentSong(songs[index]);
     
-    if (event && event.target) {
-        event.target.classList.add('clicked');
-        setTimeout(() => {
-            if (event.target) {
-                event.target.classList.remove('clicked');
-            }
-        }, 200);
-    }
+    // if (event && event.target) {
+    //     event.target.classList.add('clicked');
+    //     setTimeout(() => {
+    //         if (event.target) {
+    //             event.target.classList.remove('clicked');
+    //         }
+    //     }, 200);
+    // }
 }
 
 function scrollToCurrentTrack() {
@@ -3183,6 +3183,9 @@ function loadLyrics(songUrl) {
         }
     });
 
+    fetchLyricsFromAPI(songUrl);
+    
+    /*
     fetch(lyricsUrl)
         .then(response => {
             if (!response.ok) {
@@ -3204,20 +3207,9 @@ function loadLyrics(songUrl) {
             if (error.message === 'LYRICS_NOT_FOUND') {
                 fetchLyricsFromAPI(songUrl);
             } else {
-                containers.forEach(container => {
-                    if (container) {
-                        console.error(`${translations['lyrics_load_failed'] || 'Lyrics Load Failed'}:`, error);
-                        if (container.id === 'lyricsContainer') {
-                            container.innerHTML = `<div id="no-lyrics">${translations['lyrics_load_failed'] || 'Failed to load lyrics'}</div>`;
-                        } else {
-                            const message = translations['lyrics_load_failed'] || 'Failed to load lyrics';
-                            const verticalText = message.split('').map(char => `<span class="char">${char}</span>`).join('');
-                            container.innerHTML = `<div id="noLyricsFloating" class="vertical-message">${verticalText}</div>`;
-                        }
-                    }
-                });
             }
         });
+    */
 }
 
 function fetchLyricsFromAPI(songUrl) {
@@ -3259,7 +3251,7 @@ function fetchLyricsFromAPI(songUrl) {
         }
     });
 
-    console.log(`Searching lyrics for: Artist="${artist}", Title="${title}"`);
+    // console.log(`Searching lyrics for: Artist="${artist}", Title="${title}"`);
 
     const apiPromises = [
         tryNeteaseProxy(artist, title, cleanName),
@@ -3271,7 +3263,7 @@ function fetchLyricsFromAPI(songUrl) {
     Promise.any(apiPromises)
         .then(lyricsData => {
             if (lyricsData && lyricsData.lyrics) {
-                console.log(`Lyrics found from: ${lyricsData.source}`);
+                // console.log(`Lyrics found from: ${lyricsData.source}`);
                 if (lyricsData.hasTimestamps) {
                     processLrcLyrics(lyricsData.lyrics, containers);
                 } else {
@@ -3283,7 +3275,6 @@ function fetchLyricsFromAPI(songUrl) {
             }
         })
         .catch(error => {
-            console.error("All lyrics APIs failed:", error);
             containers.forEach(container => {
                 if (container) {
                     const message = translations['lyrics_not_found'] || 'Lyrics not found online';
@@ -3565,7 +3556,9 @@ function tryLRCLib(artist, title) {
                     reject(new Error('No results found'));
                 }
             })
-            .catch(error => reject(error));
+            .catch(error => {
+                reject(error);
+            });
     });
 }
 
