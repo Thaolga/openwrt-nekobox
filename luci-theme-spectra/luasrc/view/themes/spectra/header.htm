@@ -4243,40 +4243,6 @@ document.getElementById('goFirstBtn')?.addEventListener('click', function() {
 </script>
 
 <script>
-const PLAYER_STORAGE_PREFIX = 'musicPlayer_';
-let isLyricsMode = localStorage.getItem(`${PLAYER_STORAGE_PREFIX}lyricsMode`) === 'true';
-
-function toggleLyricsMode() {
-    const modal = document.getElementById('musicModal');
-    const icon = document.getElementById('lyricsIcon');
-
-    isLyricsMode = !isLyricsMode;
-    modal.classList.toggle('lyrics-mode', isLyricsMode);
-    localStorage.setItem(`${PLAYER_STORAGE_PREFIX}lyricsMode`, isLyricsMode);
-
-    if (isLyricsMode) {
-        icon.classList.remove('bi-chevron-down');
-        icon.classList.add('bi-chevron-up');
-    } else {
-        icon.classList.remove('bi-chevron-up');
-        icon.classList.add('bi-chevron-down');
-    }
-}
-
-document.addEventListener('DOMContentLoaded', () => {
-    const icon = document.getElementById('lyricsIcon');
-    document.getElementById('lyricsToggle').addEventListener('click', toggleLyricsMode);
-
-    if (isLyricsMode) {
-        document.getElementById('musicModal').classList.add('lyrics-mode');
-        icon.classList.add('bi-chevron-up');
-    } else {
-        icon.classList.add('bi-chevron-down');
-    }
-});
-</script>
-
-<script>
 function makeModalDraggable(modalElement) {
     const modalHeader = modalElement.querySelector('.modal-header');
     const modalContent = modalElement.querySelector('.modal-content');
