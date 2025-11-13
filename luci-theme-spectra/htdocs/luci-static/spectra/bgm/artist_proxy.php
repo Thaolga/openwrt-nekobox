@@ -31,9 +31,40 @@ function fetchWithCurl($url, $headers = []) {
     return [$result, $httpCode];
 }
 
+function fetchItunesImage($artist, $title) {
+    $searchUrl = "https://itunes.apple.com/search?term=" . urlencode($artist . ' ' . $title) . "&entity=song&limit=1";
+    list($result, $httpCode) = fetchWithCurl($searchUrl);
+    
+    if ($httpCode === 200 && $result) {
+        $data = json_decode($result, true);
+        if (isset($data['results'][0]['artworkUrl100'])) {
+            $imageUrl = $data['results'][0]['artworkUrl100'];
+            $highResUrl = str_replace('100x100bb', '500x500bb', $imageUrl);
+            return $highResUrl;
+        }
+    }
+    return null;
+}
+
+function fetchDeezerImage($artist, $title) {
+    $searchUrl = "https://api.deezer.com/search?q=" . urlencode("artist:\"$artist\" track:\"$title\"") . "&limit=1";
+    list($result, $httpCode) = fetchWithCurl($searchUrl);
+    
+    if ($httpCode === 200 && $result) {
+        $data = json_decode($result, true);
+        if (isset($data['data'][0]['album']['cover_xl'])) {
+            return $data['data'][0]['album']['cover_xl'];
+        }
+    }
+    return null;
+}
+
 $response = ['success' => false, 'message' => 'No artist image found'];
 
 if (!empty($artist)) {
+    $imageUrl = null;
+    $source = '';
+    
     $searchUrl = "https://music.163.com/api/search/get?s=" . urlencode($artist) . "&type=100&limit=1";
     list($result, $httpCode) = fetchWithCurl($searchUrl);
     
@@ -41,12 +72,30 @@ if (!empty($artist)) {
         $data = json_decode($result, true);
         if (isset($data['result']['artists'][0]['img1v1Url'])) {
             $imageUrl = $data['result']['artists'][0]['img1v1Url'];
-            $response = [
-                'success' => true,
-                'imageUrl' => $imageUrl,
-                'source' => 'netease'
-            ];
+            $source = 'netease';
         }
+    }
+    
+    if (!$imageUrl) {
+        $imageUrl = fetchItunesImage($artist, $title);
+        if ($imageUrl) {
+            $source = 'itunes';
+        }
+    }
+    
+    if (!$imageUrl) {
+        $imageUrl = fetchDeezerImage($artist, $title);
+        if ($imageUrl) {
+            $source = 'deezer';
+        }
+    }
+    
+    if ($imageUrl) {
+        $response = [
+            'success' => true,
+            'imageUrl' => $imageUrl,
+            'source' => $source
+        ];
     }
 }
 
