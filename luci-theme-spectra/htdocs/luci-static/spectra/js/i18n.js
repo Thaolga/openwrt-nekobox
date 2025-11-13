@@ -2057,7 +2057,7 @@ function populateVoiceSelect(lang) {
     
     const voiceKey = getVoicePreferenceKey(lang);
     const savedVoiceIndex = localStorage.getItem(voiceKey);
-    console.log(`Loading voice preference for ${lang} (key: ${voiceKey}):`, savedVoiceIndex);
+    //console.log(`Loading voice preference for ${lang} (key: ${voiceKey}):`, savedVoiceIndex);
     if (savedVoiceIndex !== null && filteredVoices[savedVoiceIndex]) {
         voiceSelect.value = savedVoiceIndex;
     } else if (filteredVoices.length > 0) {
@@ -2294,7 +2294,7 @@ function speakMessage(message) {
     if (!colorVoiceEnabled) return;
 
     const voice = getCurrentVoice();
-    console.log('Speaking message with voice:', voice);
+    //console.log('Speaking message with voice:', voice);
     if (voice) {
         const utterance = new SpeechSynthesisUtterance(message);
         utterance.voice = voice;
@@ -2479,7 +2479,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const isLight = currentLightness > 60;
         const theme = isLight ? 'light' : 'dark';
         root.setAttribute('data-theme', theme);
-        console.log('Updated theme to:', theme);
+        //console.log('Updated theme to:', theme);
     }
 
     function applyColorSettings(showMessage = false) {
@@ -2500,7 +2500,7 @@ document.addEventListener('DOMContentLoaded', function() {
             const translations = languageTranslations[currentLang] || languageTranslations['zh'];
             const successMsg = translations['backgroundColorApplied'].replace('%s', hexColor);
         
-            console.log(successMsg);
+            //console.log(successMsg);
         
             if (typeof showLogMessage === 'function') {
                 showLogMessage(successMsg);
@@ -2568,7 +2568,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     const handleColorChange = debounce((color) => {
-        console.log('Color picker selected:', color);
+        //console.log('Color picker selected:', color);
     
         const { h, c, l } = hexToOklch(color);
         currentHue = h;
