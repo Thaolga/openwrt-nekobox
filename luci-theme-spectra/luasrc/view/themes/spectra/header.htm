@@ -3789,10 +3789,10 @@ function fetchLyricsFromAPI(songUrl) {
     
     if (preferredSource === 'lyricsovh' || preferredSource === 'auto') {
         if (artist && title) {
-            searchPromises.push(tryLyricsOVH(artist, title));
+            searchPromises.push(tryLRCLIB(artist, title));
         }
-        if (primarySearchTitle && artist) {
-            searchPromises.push(tryLyricsOVH(artist, primarySearchTitle));
+        if (primarySearchTitle) {
+            searchPromises.push(tryLRCLIB(artist || "", primarySearchTitle));
         }
     }
 
@@ -4094,35 +4094,47 @@ function tryLRCLib(artist, title) {
     });
 }
 
-function tryLyricsOVH(artist, title) {
+function tryLRCLIB(artist, title) {
     return new Promise((resolve, reject) => {
         if (!title) {
             reject(new Error('No title provided'));
             return;
         }
         
-        const apiUrl = `https://api.lyrics.ovh/v1/${encodeURIComponent(artist || '')}/${encodeURIComponent(title)}`;
+        let searchQuery = title;
+        if (artist) {
+            searchQuery = artist + ' ' + title;
+        }
         
-        fetch(apiUrl)
+        const searchUrl = "https://lrclib.net/api/search?q=" + encodeURIComponent(searchQuery);
+        
+        fetch(searchUrl)
             .then(response => {
                 if (!response.ok) {
-                    if (response.status === 404) {
-                        reject(new Error('Lyrics not found on Lyrics.ovh'));
-                    } else {
-                        throw new Error(`HTTP ${response.status}`);
-                    }
+                    throw new Error(`HTTP ${response.status}`);
                 }
                 return response.json();
             })
             .then(data => {
-                if (data.lyrics) {
-                    resolve({
-                        lyrics: data.lyrics,
-                        hasTimestamps: false,
-                        source: 'lyricsovh'
-                    });
+                if (data && data.length > 0) {
+                    const songData = data[0];
+                    if (songData.syncedLyrics) {
+                        resolve({
+                            lyrics: songData.syncedLyrics,
+                            hasTimestamps: true,
+                            source: 'lyricsovh'
+                        });
+                    } else if (songData.plainLyrics) {
+                        resolve({
+                            lyrics: songData.plainLyrics,
+                            hasTimestamps: false,
+                            source: 'lyricsovh'
+                        });
+                    } else {
+                        reject(new Error('No lyrics available from LRCLIB'));
+                    }
                 } else {
-                    reject(new Error('No lyrics in response'));
+                    reject(new Error('No results found from LRCLIB'));
                 }
             })
             .catch(error => reject(error));
