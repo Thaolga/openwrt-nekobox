@@ -1010,6 +1010,9 @@
     box-shadow: 0 4px 12px rgba(0,0,0,0.2);
     z-index: 100000;
     min-width: 150px;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
 }
 
 .speed-title {
@@ -3004,10 +3007,6 @@ function showSpeedOptions(button) {
     `;
     
     document.body.appendChild(panel);
-    
-    const rect = button.getBoundingClientRect();
-    panel.style.top = (rect.bottom + 5) + 'px';
-    panel.style.left = (rect.left - 50) + 'px';
     
     panel.querySelectorAll('.speed-btn').forEach(btn => {
         btn.addEventListener('click', function() {
