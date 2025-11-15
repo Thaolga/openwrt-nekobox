@@ -153,6 +153,11 @@ const languageTranslations = {
         'lyrics_time_offset': '歌词时间偏移',
         'seconds': '秒',
         'reset': '重置',
+        'lyrics_source': '歌词来源',
+        'netease_music': '网易云音乐',
+        'kugou_music': '酷狗音乐',
+        'auto_select': '自动选择',
+        'lyrics_ovh': 'Lyrics.ovh',
         'command_install_label': '命令安装'
     },
     'hk': {
@@ -310,6 +315,11 @@ const languageTranslations = {
         'lyrics_time_offset': '歌詞時間偏移',
         'seconds': '秒',
         'reset': '重設',
+        'lyrics_source': '歌詞來源',
+        'netease_music': '網易雲音樂',
+        'kugou_music': '酷狗音樂',
+        'auto_select': '自動選擇',
+        'lyrics_ovh': 'Lyrics.ovh',
         'theme_download': '主題下載'
     },
     'en': {
@@ -471,6 +481,11 @@ const languageTranslations = {
         'lyrics_time_offset': 'Lyrics Time Offset',
         'seconds': 's',
         'reset': 'Reset',
+        'lyrics_source': 'Lyrics Source',
+        'netease_music': 'Netease Music',
+        'kugou_music': 'Kugou Music',
+        'auto_select': 'Auto Select',
+        'lyrics_ovh': 'Lyrics.ovh',
         'theme_download': 'Theme download'
     },
     'ko': {
@@ -622,6 +637,11 @@ const languageTranslations = {
         'lyrics_time_offset': '가사 시간 오프셋',
         'seconds': '초',
         'reset': '재설정',
+        'lyrics_source': '가사 출처',
+        'netease_music': '넷이즈 뮤직',
+        'kugou_music': '쿠고우 뮤직',
+        'auto_select': '자동 선택',
+        'lyrics_ovh': 'Lyrics.ovh',
         'theme_download': '테마 다운로드'
     },
     'vi': {
@@ -774,6 +794,11 @@ const languageTranslations = {
         'lyrics_time_offset': 'Độ trễ thời gian lời',
         'seconds': 'giây',
         'reset': 'Đặt lại',
+        'lyrics_source': 'Nguồn lời bài hát',
+        'netease_music': 'Netease Music',
+        'kugou_music': 'Kugou Music',
+        'auto_select': 'Tự động chọn',
+        'lyrics_ovh': 'Lyrics.ovh',
         'theme_download': 'Tải chủ đề'
     },
     'th': {
@@ -926,6 +951,11 @@ const languageTranslations = {
         'lyrics_time_offset': 'ชดเชยเวลาเนื้อเพลง',
         'seconds': 'วินาที',
         'reset': 'รีเซ็ต',
+        'lyrics_source': 'แหล่งเนื้อเพลง',
+        'netease_music': 'Netease Music',
+        'kugou_music': 'Kugou Music',
+        'auto_select': 'เลือกอัตโนมัติ',
+        'lyrics_ovh': 'Lyrics.ovh',
         'theme_download': 'ดาวน์โหลดธีม'
     },
     'ja': {
@@ -1078,6 +1108,11 @@ const languageTranslations = {
         'lyrics_time_offset': '歌詞時間オフセット',
         'seconds': '秒',
         'reset': 'リセット',
+        'lyrics_source': '歌詞ソース',
+        'netease_music': 'NetEase Music',
+        'kugou_music': 'Kugou Music',
+        'auto_select': '自動選択',
+        'lyrics_ovh': 'Lyrics.ovh',
         'theme_download': 'テーマダウンロード'
     },
     'ru': {
@@ -1230,6 +1265,11 @@ const languageTranslations = {
         'lyrics_time_offset': 'Смещение времени текста',
         'seconds': 'сек',
         'reset': 'Сброс',
+        'lyrics_source': 'Источник текста песни',
+        'netease_music': 'Netease Music',
+        'kugou_music': 'Kugou Music',
+        'auto_select': 'Автовыбор',
+        'lyrics_ovh': 'Lyrics.ovh',
         'theme_download': 'Скачать тему'
     },
     'ar': {
@@ -1382,6 +1422,11 @@ const languageTranslations = {
         'lyrics_time_offset': 'إزاحة وقت الكلمات',
         'seconds': 'ث',
         'reset': 'إعادة ضبط',
+        'lyrics_source': 'مصدر الكلمات',
+        'netease_music': 'Netease Music',
+        'kugou_music': 'Kugou Music',
+        'auto_select': 'اختيار تلقائي',
+        'lyrics_ovh': 'Lyrics.ovh',
         'theme_download': 'تحميل السمة'
     },
     'es': {
@@ -1534,6 +1579,11 @@ const languageTranslations = {
         'lyrics_time_offset': 'Desfase de tiempo de la letra',
         'seconds': 's',
         'reset': 'Restablecer',
+        'lyrics_source': 'Fuente de letras',
+        'netease_music': 'Netease Music',
+        'kugou_music': 'Kugou Music',
+        'auto_select': 'Selección automática',
+        'lyrics_ovh': 'Lyrics.ovh',
         'theme_download': 'Descarga del tema'
     },
     'de': {
@@ -1686,6 +1736,11 @@ const languageTranslations = {
         'lyrics_time_offset': 'Zeitversatz der Liedtexte',
         'seconds': 's',
         'reset': 'Zurücksetzen',
+        'lyrics_source': 'Liedtextquelle',
+        'netease_music': 'Netease Music',
+        'kugou_music': 'Kugou Music',
+        'auto_select': 'Automatische Auswahl',
+        'lyrics_ovh': 'Lyrics.ovh',
         'theme_download': 'Thema herunterladen'
     },
     'fr': {
@@ -1838,6 +1893,11 @@ const languageTranslations = {
         'lyrics_time_offset': 'Décalage temporel des paroles',
         'seconds': 's',
         'reset': 'Réinitialiser',
+        'lyrics_source': 'Source des paroles',
+        'netease_music': 'Netease Music',
+        'kugou_music': 'Kugou Music',
+        'auto_select': 'Sélection automatique',
+        'lyrics_ovh': 'Lyrics.ovh',
         'theme_download': 'Télécharger le thème'
     },
     'bn': {
@@ -1991,6 +2051,11 @@ const languageTranslations = {
         'lyrics_time_offset': 'গানের সময় অফসেট',
         'seconds': 'সেকেন্ড',
         'reset': 'রিসেট',
+        'lyrics_source': 'গানের কথা উৎস',
+        'netease_music': 'Netease Music',
+        'kugou_music': 'Kugou Music',
+        'auto_select': 'স্বয়ংক্রিয় নির্বাচন',
+        'lyrics_ovh': 'Lyrics.ovh',
         'theme_download': 'থিম ডাউনলোড'
     }
 };
