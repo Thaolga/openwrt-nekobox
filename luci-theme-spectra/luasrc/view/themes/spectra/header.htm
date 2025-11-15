@@ -1059,6 +1059,92 @@
     margin-top: 4px;
 }
 
+.lyrics-source-btn {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    background: var(--bg-body);
+    border: var(--border-light);
+    color: var(--text-primary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 14px;
+}
+
+.lyrics-source-btn:hover {
+    transform: scale(1.1);
+    background: var(--item-hover-bg);
+}
+
+.source-panel {
+    position: fixed;
+    background: var(--bg-container);
+    border: var(--border-light);
+    border-radius: 8px;
+    padding: 16px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+    z-index: 100000;
+    min-width: 280px;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+.source-title {
+    font-size: 14px;
+    font-weight: bold;
+    color: var(--text-primary);
+    margin-bottom: 12px;
+    text-align: center;
+}
+
+.source-options {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 16px;
+}
+
+.source-option {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    padding: 6px;
+    border-radius: 4px;
+    transition: background 0.2s ease;
+}
+
+.source-option:hover {
+    background: var(--item-hover-bg);
+}
+
+.source-option input[type="radio"] {
+    margin: 0;
+}
+
+.source-actions {
+    text-align: center;
+}
+
+.source-confirm {
+    padding: 6px 16px;
+    background: var(--accent-color);
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 12px;
+    transition: background 0.2s ease;
+}
+
+.source-confirm:hover {
+    background: var(--btn-primary-hover);
+}
+
 .info-display {
     display: flex;
     gap: 12px;
@@ -2943,6 +3029,11 @@ function createLyricsControls() {
     const controls = document.createElement('div');
     controls.className = 'lyrics-controls';
     
+    const sourceBtn = document.createElement('div');
+    sourceBtn.className = 'lyrics-source-btn';
+    sourceBtn.innerHTML = '<i class="fas fa-database"></i>';
+    sourceBtn.setAttribute('data-title', 'lyrics_source');
+    
     const speedBtn = document.createElement('div');
     speedBtn.className = 'lyrics-speed-btn';
     speedBtn.innerHTML = '<i class="fas fa-tachometer-alt"></i>';
@@ -2954,6 +3045,7 @@ function createLyricsControls() {
     bgToggle.innerHTML = '<i class="fas fa-image"></i>';
     bgToggle.setAttribute('data-title', 'background_toggle');
     
+    controls.appendChild(sourceBtn);
     controls.appendChild(speedBtn);
     controls.appendChild(bgToggle);
     
@@ -2963,6 +3055,11 @@ function createLyricsControls() {
     }
     
     let speedOffset = parseInt(localStorage.getItem('lyricsSpeedOffset')) || 0;
+    
+    sourceBtn.addEventListener('click', function(event) {
+        event.stopPropagation();
+        showLyricsSourceOptions(this);
+    });
     
     speedBtn.addEventListener('click', function(event) {
         event.stopPropagation();
@@ -2980,6 +3077,67 @@ function createLyricsControls() {
     if (savedBgState === 'true') {
         bgToggle.classList.add('active');
     }
+}
+
+function showLyricsSourceOptions(button) {
+    const existingPanel = document.querySelector('.source-panel');
+    if (existingPanel) {
+        existingPanel.remove();
+        return;
+    }
+    
+    const translations = languageTranslations[currentLang] || languageTranslations['zh'];
+    const currentSource = localStorage.getItem('lyricsSource') || 'auto';
+    
+    const panel = document.createElement('div');
+    panel.className = 'source-panel';
+    panel.innerHTML = `
+        <div class="source-title">${translations['lyrics_source'] || 'Lyrics Source'}</div>
+        <div class="source-options">
+            <label class="source-option">
+                <input type="radio" name="lyricsSource" value="netease" ${currentSource === 'netease' ? 'checked' : ''}>
+                <span>${translations['netease_music'] || 'Netease Music'}</span>
+            </label>
+            <label class="source-option">
+                <input type="radio" name="lyricsSource" value="kugou" ${currentSource === 'kugou' ? 'checked' : ''}>
+                <span>${translations['kugou_music'] || 'Kugou Music'}</span>
+            </label>
+            <label class="source-option">
+                <input type="radio" name="lyricsSource" value="lyricsovh" ${currentSource === 'lyricsovh' ? 'checked' : ''}>
+                <span>${translations['lyrics_ovh'] || 'Lyrics.ovh'}</span>
+            </label>
+            <label class="source-option">
+                <input type="radio" name="lyricsSource" value="auto" ${currentSource === 'auto' ? 'checked' : ''}>
+                <span>${translations['auto_select'] || 'Auto Select'}</span>
+            </label>
+        </div>
+        <div class="source-actions">
+            <button class="source-confirm">${translations['modal_confirm'] || 'Confirm'}</button>
+        </div>
+    `;
+    
+    document.body.appendChild(panel);
+    
+    panel.querySelector('.source-confirm').addEventListener('click', function() {
+        const selectedSource = panel.querySelector('input[name="lyricsSource"]:checked').value;
+        localStorage.setItem('lyricsSource', selectedSource);
+        
+        if (songs[currentTrackIndex]) {
+            loadLyrics(songs[currentTrackIndex]);
+        }
+        
+        panel.remove();
+    });
+    
+    setTimeout(() => {
+        const closeHandler = (e) => {
+            if (!panel.contains(e.target) && e.target !== button) {
+                panel.remove();
+                document.removeEventListener('click', closeHandler);
+            }
+        };
+        document.addEventListener('click', closeHandler);
+    }, 100);
 }
 
 function showSpeedOptions(button) {
@@ -3608,24 +3766,34 @@ function fetchLyricsFromAPI(songUrl) {
 
     //console.log(`Searching lyrics: Artist="${artist}", Title="${title}", File Name="${songName}", Primary Search Term="${primarySearchTitle}"`);
 
+    const preferredSource = localStorage.getItem('lyricsSource') || 'auto';
     const searchPromises = [];
     
-    if (artist && title) {
-        searchPromises.push(tryNeteaseProxy(artist, title, songName));
+    if (preferredSource === 'netease' || preferredSource === 'auto') {
+        if (artist && title) {
+            searchPromises.push(tryNeteaseProxy(artist, title, songName));
+        }
+        if (primarySearchTitle) {
+            searchPromises.push(tryNeteaseProxy("", primarySearchTitle, songName));
+        }
     }
     
-    if (artist && title) {
-        searchPromises.push(tryKugouProxy(artist, title, songName));
+    if (preferredSource === 'kugou' || preferredSource === 'auto') {
+        if (artist && title) {
+            searchPromises.push(tryKugouProxy(artist, title, songName));
+        }
+        if (primarySearchTitle) {
+            searchPromises.push(tryKugouProxy("", primarySearchTitle, songName));
+        }
     }
     
-    if (primarySearchTitle) {
-        searchPromises.push(tryNeteaseProxy("", primarySearchTitle, songName));
-        searchPromises.push(tryKugouProxy("", primarySearchTitle, songName));
-    }
-    
-    if (songName && primarySearchTitle !== songName) {
-        searchPromises.push(tryNeteaseProxy("", songName, songName));
-        searchPromises.push(tryKugouProxy("", songName, songName));
+    if (preferredSource === 'lyricsovh' || preferredSource === 'auto') {
+        if (artist && title) {
+            searchPromises.push(tryLyricsOVH(artist, title));
+        }
+        if (primarySearchTitle && artist) {
+            searchPromises.push(tryLyricsOVH(artist, primarySearchTitle));
+        }
     }
 
     if (searchPromises.length === 0) {
