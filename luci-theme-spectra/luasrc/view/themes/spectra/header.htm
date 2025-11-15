@@ -3017,7 +3017,7 @@ function showSpeedOptions(button) {
             localStorage.setItem('lyricsSpeedOffset', newOffset.toString());
             
             panel.querySelector('.speed-value').textContent = 
-                `${newOffset > 0 ? '+' : ''}${newOffset}${updatedTranslations['seconds'] || 's'}`;
+                `${newOffset > 0 ? '+' : ''}${newOffset}${translations['seconds'] || 's'}`;
             
             if (window.lyrics && Object.keys(window.lyrics).length > 0) {
                 syncLyrics();
