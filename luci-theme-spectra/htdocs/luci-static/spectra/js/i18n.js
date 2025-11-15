@@ -148,6 +148,11 @@ const languageTranslations = {
         'searching_lyrics': '正在从网络搜索歌词...',
         'lyrics_not_found': '未找到在线歌词',
         'playback_speed': '播放速度',
+        'lyrics_speed': '歌词速度调节',
+        'background_toggle': '背景显示开关',
+        'lyrics_time_offset': '歌词时间偏移',
+        'seconds': '秒',
+        'reset': '重置',
         'command_install_label': '命令安装'
     },
     'hk': {
@@ -300,6 +305,11 @@ const languageTranslations = {
         'searching_lyrics': '正在線上搜尋歌詞...',
         'lyrics_not_found': '未找到線上歌詞',
         'playback_speed': '播放速度',
+        'lyrics_speed': '歌詞速度調節',
+        'background_toggle': '背景顯示開關', 
+        'lyrics_time_offset': '歌詞時間偏移',
+        'seconds': '秒',
+        'reset': '重設',
         'theme_download': '主題下載'
     },
     'en': {
@@ -456,6 +466,11 @@ const languageTranslations = {
         'searching_lyrics': 'Searching for lyrics online...',
         'lyrics_not_found': 'No online lyrics found',
         'playback_speed': 'Playback Speed',
+        'lyrics_speed': 'Lyrics Speed',
+        'background_toggle': 'Background Toggle', 
+        'lyrics_time_offset': 'Lyrics Time Offset',
+        'seconds': 's',
+        'reset': 'Reset',
         'theme_download': 'Theme download'
     },
     'ko': {
@@ -602,6 +617,11 @@ const languageTranslations = {
         'searching_lyrics': '가사를 온라인에서 검색 중...',
         'lyrics_not_found': '온라인 가사를 찾을 수 없습니다',
         'playback_speed': '재생 속도',
+        'lyrics_speed': '가사 속도 조절',
+        'background_toggle': '배경 표시 전환',
+        'lyrics_time_offset': '가사 시간 오프셋',
+        'seconds': '초',
+        'reset': '재설정',
         'theme_download': '테마 다운로드'
     },
     'vi': {
@@ -749,6 +769,11 @@ const languageTranslations = {
         'searching_lyrics': 'Đang tìm lời bài hát trực tuyến...',
         'lyrics_not_found': 'Không tìm thấy lời bài hát trực tuyến',
         'playback_speed': 'Tốc độ phát',
+        'lyrics_speed': 'Điều chỉnh tốc độ lời',
+        'background_toggle': 'Bật/tắt nền',
+        'lyrics_time_offset': 'Độ trễ thời gian lời',
+        'seconds': 'giây',
+        'reset': 'Đặt lại',
         'theme_download': 'Tải chủ đề'
     },
     'th': {
@@ -896,6 +921,11 @@ const languageTranslations = {
         'searching_lyrics': 'กำลังค้นหาคำเพลงออนไลน์...',
         'lyrics_not_found': 'ไม่พบคำเพลงออนไลน์',
         'playback_speed': 'ความเร็วในการเล่น',
+        'lyrics_speed': 'ปรับความเร็วเนื้อเพลง',
+        'background_toggle': 'สลับการแสดงพื้นหลัง',
+        'lyrics_time_offset': 'ชดเชยเวลาเนื้อเพลง',
+        'seconds': 'วินาที',
+        'reset': 'รีเซ็ต',
         'theme_download': 'ดาวน์โหลดธีม'
     },
     'ja': {
@@ -1043,6 +1073,11 @@ const languageTranslations = {
         'searching_lyrics': 'オンラインで歌詞を検索中...',
         'lyrics_not_found': 'オンライン歌詞が見つかりません',
         'playback_speed': '再生速度',
+        'lyrics_speed': '歌詞速度調整',
+        'background_toggle': '背景表示切替',
+        'lyrics_time_offset': '歌詞時間オフセット',
+        'seconds': '秒',
+        'reset': 'リセット',
         'theme_download': 'テーマダウンロード'
     },
     'ru': {
@@ -1190,6 +1225,11 @@ const languageTranslations = {
         'searching_lyrics': 'Поиск текста песни в сети...',
         'lyrics_not_found': 'Онлайн-текст песни не найден',
         'playback_speed': 'Скорость воспроизведения',
+        'lyrics_speed': 'Настройка скорости текста',
+        'background_toggle': 'Переключение фона',
+        'lyrics_time_offset': 'Смещение времени текста',
+        'seconds': 'сек',
+        'reset': 'Сброс',
         'theme_download': 'Скачать тему'
     },
     'ar': {
@@ -1337,6 +1377,11 @@ const languageTranslations = {
         'searching_lyrics': 'يتم البحث عن كلمات الأغاني عبر الإنترنت...',
         'lyrics_not_found': 'لم يتم العثور على كلمات عبر الإنترنت',
         'playback_speed': 'سرعة التشغيل',
+        'lyrics_speed': 'تعديل سرعة الكلمات',
+        'background_toggle': 'تبديل عرض الخلفية',
+        'lyrics_time_offset': 'إزاحة وقت الكلمات',
+        'seconds': 'ث',
+        'reset': 'إعادة ضبط',
         'theme_download': 'تحميل السمة'
     },
     'es': {
@@ -1484,6 +1529,11 @@ const languageTranslations = {
         'searching_lyrics': 'Buscando letras en línea...',
         'lyrics_not_found': 'No se encontraron letras en línea',
         'playback_speed': 'Velocidad de reproducción',
+        'lyrics_speed': 'Velocidad de la letra',
+        'background_toggle': 'Mostrar/ocultar fondo',
+        'lyrics_time_offset': 'Desfase de tiempo de la letra',
+        'seconds': 's',
+        'reset': 'Restablecer',
         'theme_download': 'Descarga del tema'
     },
     'de': {
@@ -1631,6 +1681,11 @@ const languageTranslations = {
         'searching_lyrics': 'Songtexte werden online gesucht...',
         'lyrics_not_found': 'Keine Online-Songtexte gefunden',
         'playback_speed': 'Wiedergabegeschwindigkeit',
+        'lyrics_speed': 'Liedgeschwindigkeit',
+        'background_toggle': 'Hintergrund umschalten',
+        'lyrics_time_offset': 'Zeitversatz der Liedtexte',
+        'seconds': 's',
+        'reset': 'Zurücksetzen',
         'theme_download': 'Thema herunterladen'
     },
     'fr': {
@@ -1778,6 +1833,11 @@ const languageTranslations = {
         'searching_lyrics': 'Recherche des paroles en ligne...',
         'lyrics_not_found': 'Aucune parole en ligne trouvée',
         'playback_speed': 'Vitesse de lecture',
+        'lyrics_speed': 'Vitesse des paroles',
+        'background_toggle': 'Activation du fond',
+        'lyrics_time_offset': 'Décalage temporel des paroles',
+        'seconds': 's',
+        'reset': 'Réinitialiser',
         'theme_download': 'Télécharger le thème'
     },
     'bn': {
@@ -1926,6 +1986,11 @@ const languageTranslations = {
         'searching_lyrics': 'অনলাইনে গানের কথা অনুসন্ধান করা হচ্ছে...',
         'lyrics_not_found': 'কোনও অনলাইন গানের কথা পাওয়া যায়নি',
         'playback_speed': 'প্লেব্যাক গতি',
+        'lyrics_speed': 'গানের গতি সমন্বয়',
+        'background_toggle': 'ব্যাকগ্রাউন্ড প্রদর্শন টগল',
+        'lyrics_time_offset': 'গানের সময় অফসেট',
+        'seconds': 'সেকেন্ড',
+        'reset': 'রিসেট',
         'theme_download': 'থিম ডাউনলোড'
     }
 };
