@@ -117,20 +117,35 @@ switch ($source) {
         }
         break;
         
-    case 'lyricsovh':
-        if ($artist && $title) {
-            $apiUrl = "https://api.lyrics.ovh/v1/" . urlencode($artist) . "/" . urlencode($title);
-            list($result, $httpCode) = fetchWithCurl($apiUrl);
+    case 'lrclib':
+        if ($title) {
+            $searchQuery = $title;
+            if ($artist) {
+                $searchQuery = $artist . ' ' . $title;
+            }
+            
+            $searchUrl = "https://lrclib.net/api/search?q=" . urlencode($searchQuery);
+            list($result, $httpCode) = fetchWithCurl($searchUrl);
             
             if ($httpCode === 200 && $result) {
                 $data = json_decode($result, true);
-                if (isset($data['lyrics']) && !empty(trim($data['lyrics']))) {
-                    $response = [
-                        'success' => true,
-                        'lyrics' => $data['lyrics'],
-                        'hasTimestamps' => false,
-                        'source' => 'lyricsovh'
-                    ];
+                if (is_array($data) && count($data) > 0) {
+                    $songData = $data[0];
+                    if (isset($songData['syncedLyrics']) && !empty(trim($songData['syncedLyrics']))) {
+                        $response = [
+                            'success' => true,
+                            'lyrics' => $songData['syncedLyrics'],
+                            'hasTimestamps' => true,
+                            'source' => 'lrclib'
+                        ];
+                    } elseif (isset($songData['plainLyrics']) && !empty(trim($songData['plainLyrics']))) {
+                        $response = [
+                            'success' => true,
+                            'lyrics' => $songData['plainLyrics'],
+                            'hasTimestamps' => false,
+                            'source' => 'lrclib'
+                        ];
+                    }
                 }
             }
         }
