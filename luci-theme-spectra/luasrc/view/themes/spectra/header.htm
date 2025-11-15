@@ -818,6 +818,7 @@
     flex-direction: column;
     padding: 20px;
     overflow-y: auto;
+    position: relative;
     background-color: var(--bg-primary);
 }
 
@@ -961,6 +962,34 @@
 .lyrics-content.with-background > * {
     position: relative;
     z-index: 1;
+}
+
+.bg-toggle {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    background: var(--bg-container);
+    border: var(--border-light);
+    color: var(--text-primary);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 14px;
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    z-index: 10;
+}
+
+.bg-toggle.active {
+    background: var(--accent-color);
+    color: white;
+}
+
+.bg-toggle:hover {
+    transform: scale(1.1);
 }
 
 .info-display {
@@ -2838,13 +2867,47 @@ function initLayoutState() {
     }
 }
 
+function createBgToggle() {
+    if (document.querySelector('.bg-toggle')) return;
+    
+    const lyricsContent = document.querySelector('.lyrics-content');
+    if (!lyricsContent) return;
+    
+    const bgToggle = document.createElement('div');
+    bgToggle.className = 'bg-toggle';
+    bgToggle.id = 'bgToggle';
+    bgToggle.innerHTML = '<i class="fas fa-image"></i>';
+    bgToggle.style.display = 'none';
+    
+    lyricsContent.appendChild(bgToggle);
+    
+    bgToggle.addEventListener('click', function(event) {
+        event.stopPropagation();
+        const bgEnabled = this.classList.toggle('active');
+        localStorage.setItem('bgEnabled', bgEnabled);
+        updateLyricsBackground();
+    });
+    
+    const savedState = localStorage.getItem('bgEnabled');
+    if (savedState === 'true') {
+        bgToggle.classList.add('active');
+    }
+}
+
 function applyExpandedLayout() {
     const playlistSection = document.querySelector('.playlist-section');
     const lyricsSection = document.querySelector('.lyrics-section');
     const lyricsTitle = document.querySelector('.lyrics-title');
+    
     playlistSection.classList.add('hidden');
     lyricsSection.classList.add('expanded');
     lyricsTitle.classList.add('hidden');
+
+    const bgToggle = document.getElementById('bgToggle');
+    if (bgToggle) {
+        bgToggle.style.display = 'flex';
+    }
+    
     updateLyricsBackground();
     localStorage.setItem('lyricsExpanded', 'true');
 }
@@ -2853,9 +2916,16 @@ function applyNormalLayout() {
     const playlistSection = document.querySelector('.playlist-section');
     const lyricsSection = document.querySelector('.lyrics-section');
     const lyricsTitle = document.querySelector('.lyrics-title');
+    
     playlistSection.classList.remove('hidden');
     lyricsSection.classList.remove('expanded');
     lyricsTitle.classList.remove('hidden');
+
+    const bgToggle = document.getElementById('bgToggle');
+    if (bgToggle) {
+        bgToggle.style.display = 'none';
+    }
+
     removeLyricsBackground();
     localStorage.setItem('lyricsExpanded', 'false');
 }
@@ -2879,32 +2949,29 @@ function initArtistImageToggle() {
 function updateLyricsBackground() {
     const lyricsContent = document.querySelector('.lyrics-content');
     const isExpanded = localStorage.getItem('lyricsExpanded') === 'true';
-    if (!isExpanded) {
+    const bgToggle = document.getElementById('bgToggle');
+    const bgEnabled = bgToggle && bgToggle.classList.contains('active');
+    
+    if (!isExpanded || !bgEnabled) {
+        removeLyricsBackground();
         return;
     }
     
     const artistImg = document.getElementById('artistImg');
-    if (artistImg && artistImg.src) {
-        let imageUrl = artistImg.src;
-        
-        if (imageUrl.startsWith('/')) {
-            imageUrl = window.location.origin + imageUrl;
-        }
-        
-        lyricsContent.style.backgroundImage = `url('${imageUrl}')`;
+    if (artistImg && artistImg.src && artistImg.style.display !== 'none') {
+        lyricsContent.style.backgroundImage = `url('${artistImg.src}')`;
         lyricsContent.style.backgroundSize = 'cover';
         lyricsContent.style.backgroundPosition = 'center';
-
     }
 }
 
 function removeLyricsBackground() {
     const lyricsContent = document.querySelector('.lyrics-content');
     lyricsContent.style.backgroundImage = '';
-    lyricsContent.style.backgroundColor = '';
 }
 
 document.addEventListener('DOMContentLoaded', function() {
+    createBgToggle();
     initLayoutState();
     initArtistImageToggle();
 });
