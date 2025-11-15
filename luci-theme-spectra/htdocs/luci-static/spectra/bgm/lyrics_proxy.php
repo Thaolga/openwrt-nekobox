@@ -21,6 +21,7 @@ function fetchWithCurl($url, $headers = []) {
     curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
     curl_setopt($ch, CURLOPT_TIMEOUT, 10);
     curl_setopt($ch, CURLOPT_USERAGENT, 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36');
+    curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
     
     if (!empty($headers)) {
         curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
@@ -37,25 +38,40 @@ $response = ['success' => false, 'message' => 'No lyrics found'];
 
 switch ($source) {
     case 'netease':
-        $searchUrl = "https://music.163.com/api/search/get?s=" . urlencode($title . ($artist ? " " . $artist : "")) . "&type=1&limit=1";
-        list($result, $httpCode) = fetchWithCurl($searchUrl);
+        $searchKeywords = [];
+        if ($artist && $title) {
+            $searchKeywords[] = $artist . ' ' . $title;
+        }
+        if ($title) {
+            $searchKeywords[] = $title;
+        }
+        if ($songName && $songName !== $title) {
+            $searchKeywords[] = $songName;
+        }
         
-        if ($httpCode === 200 && $result) {
-            $data = json_decode($result, true);
-            if (isset($data['result']['songs'][0]['id'])) {
-                $songId = $data['result']['songs'][0]['id'];
-                $lyricUrl = "https://music.163.com/api/song/lyric?lv=-1&kv=-1&tv=-1&id=" . $songId;
-                
-                list($lyricResult, $lyricCode) = fetchWithCurl($lyricUrl);
-                if ($lyricCode === 200 && $lyricResult) {
-                    $lyricData = json_decode($lyricResult, true);
-                    if (isset($lyricData['lrc']['lyric'])) {
-                        $response = [
-                            'success' => true,
-                            'lyrics' => $lyricData['lrc']['lyric'],
-                            'hasTimestamps' => true,
-                            'source' => 'netease'
-                        ];
+        foreach ($searchKeywords as $keyword) {
+            $searchUrl = "https://music.163.com/api/search/get?s=" . urlencode($keyword) . "&type=1&limit=3";
+            list($result, $httpCode) = fetchWithCurl($searchUrl);
+            
+            if ($httpCode === 200 && $result) {
+                $data = json_decode($result, true);
+                if (isset($data['result']['songs']) && count($data['result']['songs']) > 0) {
+                    $songId = $data['result']['songs'][0]['id'];
+                    $lyricUrl = "https://music.163.com/api/song/lyric?lv=-1&kv=-1&tv=-1&id=" . $songId;
+                    
+                    list($lyricResult, $lyricCode) = fetchWithCurl($lyricUrl);
+                    if ($lyricCode === 200 && $lyricResult) {
+                        $lyricData = json_decode($lyricResult, true);
+                        if (isset($lyricData['lrc']['lyric']) && !empty(trim($lyricData['lrc']['lyric']))) {
+                            $response = [
+                                'success' => true,
+                                'lyrics' => $lyricData['lrc']['lyric'],
+                                'hasTimestamps' => true,
+                                'source' => 'netease',
+                                'keyword' => $keyword
+                            ];
+                            break;
+                        }
                     }
                 }
             }
@@ -63,45 +79,59 @@ switch ($source) {
         break;
         
     case 'kugou':
-        $searchUrl = "http://lyrics.kugou.com/search?ver=1&man=yes&client=pc&keyword=" . urlencode($title . ($artist ? " " . $artist : "")) . "&duration=&hash=";
-        list($result, $httpCode) = fetchWithCurl($searchUrl);
+        $searchKeywords = [];
+        if ($artist && $title) {
+            $searchKeywords[] = $artist . ' ' . $title;
+        }
+        if ($title) {
+            $searchKeywords[] = $title;
+        }
         
-        if ($httpCode === 200 && $result) {
-            $data = json_decode($result, true);
-            if (isset($data['candidates'][0])) {
-                $candidate = $data['candidates'][0];
-                $lyricUrl = "http://lyrics.kugou.com/download?ver=1&client=pc&id=" . $candidate['id'] . "&accesskey=" . $candidate['accesskey'] . "&fmt=lrc&charset=utf8";
-                
-                list($lyricResult, $lyricCode) = fetchWithCurl($lyricUrl);
-                if ($lyricCode === 200 && $lyricResult) {
-                    $lyricData = json_decode($lyricResult, true);
-                    if (isset($lyricData['content'])) {
-                        $lyrics = base64_decode($lyricData['content']);
-                        $response = [
-                            'success' => true,
-                            'lyrics' => $lyrics,
-                            'hasTimestamps' => true,
-                            'source' => 'kugou'
-                        ];
+        foreach ($searchKeywords as $keyword) {
+            $searchUrl = "http://lyrics.kugou.com/search?ver=1&man=yes&client=pc&keyword=" . urlencode($keyword) . "&duration=&hash=";
+            list($result, $httpCode) = fetchWithCurl($searchUrl);
+            
+            if ($httpCode === 200 && $result) {
+                $data = json_decode($result, true);
+                if (isset($data['candidates']) && count($data['candidates']) > 0) {
+                    $candidate = $data['candidates'][0];
+                    $lyricUrl = "http://lyrics.kugou.com/download?ver=1&client=pc&id=" . $candidate['id'] . "&accesskey=" . $candidate['accesskey'] . "&fmt=lrc&charset=utf8";
+                    
+                    list($lyricResult, $lyricCode) = fetchWithCurl($lyricUrl);
+                    if ($lyricCode === 200 && $lyricResult) {
+                        $lyricData = json_decode($lyricResult, true);
+                        if (isset($lyricData['content']) && !empty(trim($lyricData['content']))) {
+                            $lyrics = base64_decode($lyricData['content']);
+                            $response = [
+                                'success' => true,
+                                'lyrics' => $lyrics,
+                                'hasTimestamps' => true,
+                                'source' => 'kugou',
+                                'keyword' => $keyword
+                            ];
+                            break;
+                        }
                     }
                 }
             }
         }
         break;
         
-    case 'qqmusic':
-        $searchUrl = "https://c.y.qq.com/soso/fcgi-bin/client_search_cp?p=1&n=1&w=" . urlencode($title . ($artist ? " " . $artist : "")) . "&format=json";
-        list($result, $httpCode) = fetchWithCurl($searchUrl, [
-            'Referer: https://y.qq.com/'
-        ]);
-        
-        if ($httpCode === 200 && $result) {
-            $result = preg_replace('/^callback\(|\)$/','', $result);
-            $data = json_decode($result, true);
+    case 'lyricsovh':
+        if ($artist && $title) {
+            $apiUrl = "https://api.lyrics.ovh/v1/" . urlencode($artist) . "/" . urlencode($title);
+            list($result, $httpCode) = fetchWithCurl($apiUrl);
             
-            if (isset($data['data']['song']['list'][0]['songid'])) {
-                $songId = $data['data']['song']['list'][0]['songid'];
-                $response['message'] = 'QQ Music API requires additional implementation';
+            if ($httpCode === 200 && $result) {
+                $data = json_decode($result, true);
+                if (isset($data['lyrics']) && !empty(trim($data['lyrics']))) {
+                    $response = [
+                        'success' => true,
+                        'lyrics' => $data['lyrics'],
+                        'hasTimestamps' => false,
+                        'source' => 'lyricsovh'
+                    ];
+                }
             }
         }
         break;
