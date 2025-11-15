@@ -808,6 +808,7 @@
     width: 75%;
     display: flex;
     flex-direction: column;
+    position: relative;
     background-color: var(--card-bg);
     transition: all 0.3s ease;
 }
@@ -964,23 +965,35 @@
     z-index: 1;
 }
 
+.lyrics-controls {
+    display: none;
+    position: absolute;
+    right: 20px;
+    top: 8px;
+    gap: 8px;
+    z-index: 10;
+}
+
+.lyrics-speed-btn,
 .bg-toggle {
     width: 30px;
     height: 30px;
     border-radius: 50%;
-    background: var(--bg-container);
+    background: var(--bg-body);
     border: var(--border-light);
     color: var(--text-primary);
-    display: none;
+    display: flex;
     align-items: center;
     justify-content: center;
     cursor: pointer;
     transition: all 0.3s ease;
     font-size: 14px;
-    position: absolute;
-    top: 10px;
-    left: 10px;
-    z-index: 10;
+}
+
+.lyrics-speed-btn:hover,
+.bg-toggle:hover {
+    transform: scale(1.1);
+    background: var(--item-hover-bg);
 }
 
 .bg-toggle.active {
@@ -988,8 +1001,59 @@
     color: white;
 }
 
-.bg-toggle:hover {
-    transform: scale(1.1);
+.speed-panel {
+    position: fixed;
+    background: var(--bg-container);
+    border: var(--border-light);
+    border-radius: 8px;
+    padding: 12px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    z-index: 100000;
+    min-width: 150px;
+}
+
+.speed-title {
+    font-size: 12px;
+    color: var(--text-secondary);
+    margin-bottom: 8px;
+}
+
+.speed-value {
+    font-size: 14px;
+    font-weight: bold;
+    color: var(--accent-color);
+    text-align: center;
+    margin-bottom: 12px;
+}
+
+.speed-controls {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+    justify-content: center;
+}
+
+.speed-btn {
+    padding: 4px 8px;
+    border: 1px solid var(--border-color);
+    background: var(--bg-body);
+    color: var(--text-primary);
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 12px;
+    transition: all 0.2s ease;
+}
+
+.speed-btn:hover {
+    background: var(--accent-color);
+    color: white;
+}
+
+.speed-btn.reset {
+    background: var(--color-red);
+    color: white;
+    flex-basis: 100%;
+    margin-top: 4px;
 }
 
 .info-display {
@@ -2867,19 +2931,40 @@ function initLayoutState() {
     }
 }
 
-function createBgToggle() {
-    if (document.querySelector('.bg-toggle')) return;
+function createLyricsControls() {
+    if (document.querySelector('.lyrics-controls')) return;
     
-    const lyricsContent = document.querySelector('.lyrics-content');
-    if (!lyricsContent) return;
+    const lyricsSection = document.querySelector('.lyrics-section');
+    if (!lyricsSection) return;
+    
+    const controls = document.createElement('div');
+    controls.className = 'lyrics-controls';
+    
+    const speedBtn = document.createElement('div');
+    speedBtn.className = 'lyrics-speed-btn';
+    speedBtn.innerHTML = '<i class="fas fa-tachometer-alt"></i>';
+    speedBtn.setAttribute('data-title', 'lyrics_speed');
     
     const bgToggle = document.createElement('div');
     bgToggle.className = 'bg-toggle';
     bgToggle.id = 'bgToggle';
     bgToggle.innerHTML = '<i class="fas fa-image"></i>';
-    bgToggle.style.display = 'none';
+    bgToggle.setAttribute('data-title', 'background_toggle');
     
-    lyricsContent.appendChild(bgToggle);
+    controls.appendChild(speedBtn);
+    controls.appendChild(bgToggle);
+    
+    const lyricsTitle = document.querySelector('.lyrics-title');
+    if (lyricsTitle && lyricsTitle.parentNode) {
+        lyricsTitle.parentNode.insertBefore(controls, lyricsTitle.nextSibling);
+    }
+    
+    let speedOffset = parseInt(localStorage.getItem('lyricsSpeedOffset')) || 0;
+    
+    speedBtn.addEventListener('click', function(event) {
+        event.stopPropagation();
+        showSpeedOptions(this);
+    });
     
     bgToggle.addEventListener('click', function(event) {
         event.stopPropagation();
@@ -2888,10 +2973,67 @@ function createBgToggle() {
         updateLyricsBackground();
     });
     
-    const savedState = localStorage.getItem('bgEnabled');
-    if (savedState === 'true') {
+    const savedBgState = localStorage.getItem('bgEnabled');
+    if (savedBgState === 'true') {
         bgToggle.classList.add('active');
     }
+}
+
+function showSpeedOptions(button) {
+    const translations = languageTranslations[currentLang] || languageTranslations['zh'];  
+    const existingPanel = document.querySelector('.speed-panel');
+    if (existingPanel) {
+        existingPanel.remove();
+        return;
+    }
+    
+    const currentOffset = parseInt(localStorage.getItem('lyricsSpeedOffset')) || 0;
+    
+    const panel = document.createElement('div');
+    panel.className = 'speed-panel';
+    panel.innerHTML = `
+        <div class="speed-title">${translations['lyrics_time_offset'] || 'Lyrics Time Offset'}</div>
+        <div class="speed-value">${currentOffset > 0 ? '+' : ''}${currentOffset}${translations['seconds'] || 's'}</div>
+        <div class="speed-controls">
+            <button class="speed-btn" data-change="-1">-1${translations['seconds'] || 's'}</button>
+            <button class="speed-btn" data-change="-0.5">-0.5${translations['seconds'] || 's'}</button>
+            <button class="speed-btn reset" data-change="0">${translations['reset'] || 'Reset'}</button>
+            <button class="speed-btn" data-change="0.5">+0.5${translations['seconds'] || 's'}</button>
+            <button class="speed-btn" data-change="1">+1${translations['seconds'] || 's'}</button>
+        </div>
+    `;
+    
+    document.body.appendChild(panel);
+    
+    const rect = button.getBoundingClientRect();
+    panel.style.top = (rect.bottom + 5) + 'px';
+    panel.style.left = (rect.left - 50) + 'px';
+    
+    panel.querySelectorAll('.speed-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const change = parseFloat(this.dataset.change);
+            const newOffset = change === 0 ? 0 : (parseInt(localStorage.getItem('lyricsSpeedOffset')) || 0) + change;
+            
+            localStorage.setItem('lyricsSpeedOffset', newOffset.toString());
+            
+            panel.querySelector('.speed-value').textContent = 
+                `${newOffset > 0 ? '+' : ''}${newOffset}${updatedTranslations['seconds'] || 's'}`;
+            
+            if (window.lyrics && Object.keys(window.lyrics).length > 0) {
+                syncLyrics();
+            }
+        });
+    });
+    
+    setTimeout(() => {
+        const closeHandler = (e) => {
+            if (!panel.contains(e.target) && e.target !== button) {
+                panel.remove();
+                document.removeEventListener('click', closeHandler);
+            }
+        };
+        document.addEventListener('click', closeHandler);
+    }, 100);
 }
 
 function applyExpandedLayout() {
@@ -2903,9 +3045,9 @@ function applyExpandedLayout() {
     lyricsSection.classList.add('expanded');
     lyricsTitle.classList.add('hidden');
 
-    const bgToggle = document.getElementById('bgToggle');
-    if (bgToggle) {
-        bgToggle.style.display = 'flex';
+    const lyricsControls = document.querySelector('.lyrics-controls');
+    if (lyricsControls) {
+        lyricsControls.style.display = 'flex';
     }
     
     updateLyricsBackground();
@@ -2921,9 +3063,9 @@ function applyNormalLayout() {
     lyricsSection.classList.remove('expanded');
     lyricsTitle.classList.remove('hidden');
 
-    const bgToggle = document.getElementById('bgToggle');
-    if (bgToggle) {
-        bgToggle.style.display = 'none';
+    const lyricsControls = document.querySelector('.lyrics-controls');
+    if (lyricsControls) {
+        lyricsControls.style.display = 'none';
     }
 
     removeLyricsBackground();
@@ -2971,7 +3113,7 @@ function removeLyricsBackground() {
 }
 
 document.addEventListener('DOMContentLoaded', function() {
-    createBgToggle();
+    createLyricsControls();
     initLayoutState();
     initArtistImageToggle();
 });
@@ -3910,6 +4052,9 @@ function displayLyrics() {
 
 function syncLyrics() {
     const currentTime = audioPlayer.currentTime;
+    const speedOffset = parseFloat(localStorage.getItem('lyricsSpeedOffset')) || 0;
+    const adjustedTime = currentTime + speedOffset;
+    
     const lyricsContainer = document.getElementById('lyricsContainer');
     if (!lyricsContainer) return;
     const lines = lyricsContainer.querySelectorAll('.lyric-line');
@@ -3935,7 +4080,7 @@ function syncLyrics() {
     for (let i = lines.length - 1; i >= 0; i--) {
         const line = lines[i];
         const lineTime = parseFloat(line.dataset.time);
-        if (currentTime >= lineTime) {
+        if (adjustedTime >= lineTime) {
             line.classList.add('highlight');
             currentLine = line;
             hasActiveLine = true;
@@ -3953,9 +4098,9 @@ function syncLyrics() {
         chars.forEach(char => {
             const start = parseFloat(char.dataset.start);
             const end = parseFloat(char.dataset.end);
-            if (currentTime >= start && currentTime <= end) {
+            if (adjustedTime >= start && adjustedTime <= end) {
                 char.classList.add('active');
-            } else if (currentTime > end) {
+            } else if (adjustedTime > end) {
                 char.classList.add('played');
                 if (!char.classList.contains('played')) {
                     spawnHeartAbove(char); 
@@ -3992,9 +4137,9 @@ function syncLyrics() {
                 if (!floatingChar) return;
                 const start = parseFloat(char.dataset.start);
                 const end = parseFloat(char.dataset.end);
-                if (currentTime >= start && currentTime <= end) {
+                if (adjustedTime >= start && adjustedTime <= end) {
                     floatingChar.classList.add('active');
-                    const progress = (currentTime - start) / (end - start);
+                    const progress = (adjustedTime - start) / (end - start);
                     floatingChar.style.transform = `scale(${1 + progress * 0.2})`;
                 } else {
                     floatingChar.classList.remove('active');
