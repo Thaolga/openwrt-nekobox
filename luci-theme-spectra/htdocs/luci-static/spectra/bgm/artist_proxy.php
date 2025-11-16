@@ -181,8 +181,8 @@ if (!empty($artist)) {
     $source = '';
 
     $sources = [
-        'netease' => fn() => fetchNeteaseImage($artist, $title),
         'itunes'  => fn() => fetchItunesImage($artist, $title),
+        'netease' => fn() => fetchNeteaseImage($artist, $title),
         'lastfm'  => fn() => fetchLastfmImage($artist, $title),
         'deezer'  => fn() => fetchDeezerImage($artist, $title),
     ];
