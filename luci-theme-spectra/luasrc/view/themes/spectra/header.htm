@@ -2744,7 +2744,7 @@ class AudioVisualizer {
         
         if (this.canvas) {
             this.ctx = this.canvas.getContext('2d');
-            console.log('Audio visualizer created');
+            //console.log('Audio visualizer created');
         } else {
             console.error('Canvas element not found!');
         }
@@ -3487,7 +3487,6 @@ function updatePlaylistUI() {
         setTimeout(() => scrollToCurrentTrack(), 100);
     }
 }
-
 
 function fetchArtistImage(artist, title) {
     const artistImage = document.getElementById('artistImage');
@@ -4421,10 +4420,7 @@ function initializePlayer() {
     if (songs.length > 0 && songs[currentTrackIndex]) {
         audioPlayer.src = songs[currentTrackIndex];
         audioPlayer.currentTime = loadCurrentTime(songs[currentTrackIndex]);
-        audioPlayer.addEventListener('loadedmetadata', () => {
-            loadLyrics(songs[currentTrackIndex]); 
-            updateCurrentSong(songs[currentTrackIndex]);
-        });
+        updateCurrentSong(songs[currentTrackIndex]);
         updatePlayButton();
         setRepeatButtonState();
         updateTimeDisplay();
@@ -4618,7 +4614,6 @@ function loadDefaultPlaylist() {
             updatePlaylistUI();
             initializePlayer();
             if (songs[currentTrackIndex]) {
-                loadLyrics(songs[currentTrackIndex]);
                 updateCurrentSong(songs[currentTrackIndex]);
             }
         })
@@ -5348,7 +5343,7 @@ async function getRealTimeLanguage() {
 }
 
 async function onLanguageChange() {
-    console.log('Language changed, refreshing display');
+    //console.log('Language changed, refreshing display');
     
     const keys = Object.keys(localStorage);
     keys.forEach(key => {
@@ -5368,7 +5363,7 @@ function setupLanguageChangeListener() {
     setInterval(async () => {
         const currentLang = await getRealTimeLanguage();
         if (currentLang !== lastLanguage) {
-            console.log('Language changed detected:', currentLang);
+            //console.log('Language changed detected:', currentLang);
             lastLanguage = currentLang;
             onLanguageChange();
         }
@@ -5535,11 +5530,11 @@ async function getCachedIPInfo(ip) {
         
         const currentLang = await getRealTimeLanguage();
         
-        console.log('Cache check - Current language:', currentLang);
-        console.log('Available translations:', item.translations ? Object.keys(item.translations) : 'none');
+        //console.log('Cache check - Current language:', currentLang);
+        //console.log('Available translations:', item.translations ? Object.keys(item.translations) : 'none');
         
         if (item.translations && item.translations[currentLang]) {
-            console.log('Using translation for language:', currentLang);
+            //console.log('Using translation for language:', currentLang);
             return {
                 ...item,
                 ...item.translations[currentLang],
@@ -5624,13 +5619,13 @@ let myAppIP = {
     },
 
     Ipip: async(ip,elID)=>{
-        console.log('Ipip called with IP:', ip);
+        //console.log('Ipip called with IP:', ip);
         let cachedData = await getCachedIPInfo(ip);
         const currentLang = await getRealTimeLanguage();       
-        console.log('Current language:', currentLang);
+        //console.log('Current language:', currentLang);
         
         if(cachedData && cachedData.translatedCountry) { 
-            console.log('Using cached data with translation');
+            //console.log('Using cached data with translation');
             myAppIP.lastGeoData = cachedData; 
             await myAppIP.updateUI(cachedData,elID); 
             return; 
@@ -7454,7 +7449,7 @@ async function saveTranslationCache(city, translations, extra = {}) {
             body: JSON.stringify(payload)
         });
         const text = await res.text();
-        console.log('saveTranslationCache resp:', res.status, text);
+        //console.log('saveTranslationCache resp:', res.status, text);
         return res.ok;
     } catch (e) {
         console.error('saveTranslationCache error:', e);
@@ -8021,7 +8016,7 @@ function shouldUseLoader(url) {
     
     const isExcluded = excludedPages.some(path => url.includes(path));
     if (isExcluded) {
-        console.log('Theme loader: Page excluded from loader:', url);
+        //console.log('Theme loader: Page excluded from loader:', url);
         return false;
     }
     
@@ -8082,13 +8077,13 @@ function enhanceNavigation() {
         e.preventDefault();
         
         if (navigationInProgress) {
-            console.log('Theme loader: Navigation already in progress');
+            //console.log('Theme loader: Navigation already in progress');
             return;
         }
         
         navigationInProgress = true;
         
-        console.log('Theme loader: Starting navigation to', targetUrl);
+        //console.log('Theme loader: Starting navigation to', targetUrl);
         
         showLoader();
         
@@ -8103,7 +8098,7 @@ function enhanceNavigation() {
         
         setTimeout(() => {
             try {
-                console.log('Theme loader: Executing navigation to', targetUrl);
+                //console.log('Theme loader: Executing navigation to', targetUrl);
                 window.location.href = targetUrl;
             } catch (error) {
                 console.error('Theme loader: Navigation error:', error);
@@ -8114,7 +8109,7 @@ function enhanceNavigation() {
     });
     
     function handlePageLoad() {
-        console.log('Theme loader: Page loaded, hiding loader');
+        //console.log('Theme loader: Page loaded, hiding loader');
         hideLoader();
         
         const content = document.querySelector('.main-content') || document.body;
