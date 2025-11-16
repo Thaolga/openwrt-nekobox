@@ -158,6 +158,7 @@ const languageTranslations = {
         'kugou_music': '酷狗音乐',
         'auto_select': '自动选择',
         'lyrics_ovh': 'Lyrics.ovh',
+        'image_source': '歌手图片来源',
         'command_install_label': '命令安装'
     },
     'hk': {
@@ -320,6 +321,7 @@ const languageTranslations = {
         'kugou_music': '酷狗音樂',
         'auto_select': '自動選擇',
         'lyrics_ovh': 'Lyrics.ovh',
+        'image_source': '歌手圖片來源',
         'theme_download': '主題下載'
     },
     'en': {
@@ -486,6 +488,7 @@ const languageTranslations = {
         'kugou_music': 'Kugou Music',
         'auto_select': 'Auto Select',
         'lyrics_ovh': 'Lyrics.ovh',
+        'image_source': 'Image Source',
         'theme_download': 'Theme download'
     },
     'ko': {
@@ -642,6 +645,7 @@ const languageTranslations = {
         'kugou_music': '쿠고우 뮤직',
         'auto_select': '자동 선택',
         'lyrics_ovh': 'Lyrics.ovh',
+        'image_source': '가수 이미지 출처',
         'theme_download': '테마 다운로드'
     },
     'vi': {
@@ -799,6 +803,7 @@ const languageTranslations = {
         'kugou_music': 'Kugou Music',
         'auto_select': 'Tự động chọn',
         'lyrics_ovh': 'Lyrics.ovh',
+        'image_source': 'Nguồn hình ảnh ca sĩ',
         'theme_download': 'Tải chủ đề'
     },
     'th': {
@@ -956,6 +961,7 @@ const languageTranslations = {
         'kugou_music': 'Kugou Music',
         'auto_select': 'เลือกอัตโนมัติ',
         'lyrics_ovh': 'Lyrics.ovh',
+        'image_source': 'แหล่งที่มารูปภาพนักร้อง',
         'theme_download': 'ดาวน์โหลดธีม'
     },
     'ja': {
@@ -1112,6 +1118,7 @@ const languageTranslations = {
         'netease_music': 'NetEase Music',
         'kugou_music': 'Kugou Music',
         'auto_select': '自動選択',
+        'image_source': '歌手画像の出典',
         'lyrics_ovh': 'Lyrics.ovh',
         'theme_download': 'テーマダウンロード'
     },
@@ -1268,6 +1275,7 @@ const languageTranslations = {
         'lyrics_source': 'Источник текста песни',
         'netease_music': 'Netease Music',
         'kugou_music': 'Kugou Music',
+        'image_source': 'Источник изображения исполнителя',
         'auto_select': 'Автовыбор',
         'lyrics_ovh': 'Lyrics.ovh',
         'theme_download': 'Скачать тему'
@@ -1427,6 +1435,7 @@ const languageTranslations = {
         'kugou_music': 'Kugou Music',
         'auto_select': 'اختيار تلقائي',
         'lyrics_ovh': 'Lyrics.ovh',
+        'image_source': 'مصدر صورة المغني',
         'theme_download': 'تحميل السمة'
     },
     'es': {
@@ -1584,6 +1593,7 @@ const languageTranslations = {
         'kugou_music': 'Kugou Music',
         'auto_select': 'Selección automática',
         'lyrics_ovh': 'Lyrics.ovh',
+        'image_source': 'Fuente de la imagen del cantante',
         'theme_download': 'Descarga del tema'
     },
     'de': {
@@ -1741,6 +1751,7 @@ const languageTranslations = {
         'kugou_music': 'Kugou Music',
         'auto_select': 'Automatische Auswahl',
         'lyrics_ovh': 'Lyrics.ovh',
+        'image_source': 'Bildquelle des Sängers',
         'theme_download': 'Thema herunterladen'
     },
     'fr': {
@@ -1898,6 +1909,7 @@ const languageTranslations = {
         'kugou_music': 'Kugou Music',
         'auto_select': 'Sélection automatique',
         'lyrics_ovh': 'Lyrics.ovh',
+        'image_source': 'Source de l’image du chanteur',
         'theme_download': 'Télécharger le thème'
     },
     'bn': {
@@ -2056,6 +2068,7 @@ const languageTranslations = {
         'kugou_music': 'Kugou Music',
         'auto_select': 'স্বয়ংক্রিয় নির্বাচন',
         'lyrics_ovh': 'Lyrics.ovh',
+        'image_source': 'গায়কের ছবির উৎস',
         'theme_download': 'থিম ডাউনলোড'
     }
 };

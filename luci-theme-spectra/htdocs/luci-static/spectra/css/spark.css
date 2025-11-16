@@ -41,6 +41,8 @@
     --bg-container: oklch(30% var(--base-chroma) var(--base-hue));
     --text-primary: oklch(95% 0 0);
     --accent-color: oklch(70% 0.2 calc(var(--base-hue) + 0));
+    --accent-secondary: oklch(68% 0.22 calc(var(--base-hue) + 180));
+    --accent-tertiary: oklch(72% 0.18 calc(var(--base-hue) + 120));
     --card-bg: oklch(25% var(--base-chroma) var(--base-hue));
     --header-bg: oklch(35% var(--base-chroma) var(--base-hue));
     --color-white-strong: oklch(98% 0.02 250);
@@ -194,6 +196,8 @@
     --bg-container: oklch(99% var(--base-chroma) var(--base-hue));
     --text-primary: oklch(25% var(--base-chroma) var(--base-hue));
     --accent-color: oklch(60% 0.2 calc(var(--base-hue) + 60));
+    --accent-secondary: oklch(58% 0.25 calc(var(--base-hue) + 180));
+    --accent-tertiary: oklch(62% 0.2 calc(var(--base-hue) + 120));
     --card-bg: oklch(96% var(--base-chroma) var(--base-hue));
     --header-bg: oklch(88% var(--base-chroma) var(--base-hue));
     --border-color: oklch(85% 0.03 var(--base-hue));

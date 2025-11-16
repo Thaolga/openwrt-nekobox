@@ -11,15 +11,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
 $input = json_decode(file_get_contents('php://input'), true);
 $artist = $input['artist'] ?? '';
 $title = $input['title'] ?? '';
+$preferredSource = $input['source'] ?? 'auto';
 
 function fetchWithCurl($url, $headers = []) {
     $ch = curl_init();
-    curl_setopt($ch, CURLOPT_URL, $url);
-    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-    curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
-    curl_setopt($ch, CURLOPT_TIMEOUT, 15);
-    curl_setopt($ch, CURLOPT_USERAGENT, 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36');
-    curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+    curl_setopt_array($ch, [
+        CURLOPT_URL => $url,
+        CURLOPT_RETURNTRANSFER => true,
+        CURLOPT_FOLLOWLOCATION => true,
+        CURLOPT_TIMEOUT => 15,
+        CURLOPT_USERAGENT => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
+        CURLOPT_SSL_VERIFYPEER => false,
+        CURLOPT_ENCODING => '',
+    ]);
 
     if (!empty($headers)) {
         curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
@@ -27,7 +31,12 @@ function fetchWithCurl($url, $headers = []) {
 
     $result = curl_exec($ch);
     $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    $error = curl_error($ch);
     curl_close($ch);
+
+    if ($error) {
+        error_log("CURL Error for $url: $error");
+    }
 
     return [$result, $httpCode];
 }
@@ -38,7 +47,7 @@ function optimizeImageUrl($url, $source) {
     switch ($source) {
         case 'netease':
             if (strpos($url, '?param=') !== false) {
-                $url = preg_replace('/\\?param=\\d+y\\d+/', '?param=1000y1000', $url);
+                $url = preg_replace('/\?param=\d+y\d+/', '?param=1000y1000', $url);
             } else {
                 $url .= '?param=1000y1000';
             }
@@ -85,7 +94,7 @@ function fetchNeteaseImage($artist, $title) {
 }
 
 function fetchItunesImage($artist, $title) {
-    $searchUrl = "https://itunes.apple.com/search?term=" . urlencode($artist . ' ' . $title) . "&entity=song&limit=3";
+    $searchUrl = "https://itunes.apple.com/search?term=" . urlencode($artist . ' ' . $title) . "&entity=song&limit=5";
     list($result, $httpCode) = fetchWithCurl($searchUrl);
 
     if ($httpCode === 200 && $result) {
@@ -98,42 +107,70 @@ function fetchItunesImage($artist, $title) {
 }
 
 function fetchDeezerImage($artist, $title) {
-    $searchUrl = "https://api.deezer.com/search?q=" . urlencode("artist:\"$artist\" track:\"$title\"") . "&limit=3";
+    if (!empty($title)) {
+        $searchUrl = "https://api.deezer.com/search?q=" . urlencode("artist:\"$artist\" track:\"$title\"") . "&limit=3";
+        list($result, $httpCode) = fetchWithCurl($searchUrl);
+
+        if ($httpCode === 200 && $result) {
+            $data = json_decode($result, true);
+            if (isset($data['data'][0]['album']['cover_xl'])) {
+                return optimizeImageUrl($data['data'][0]['album']['cover_xl'], 'deezer');
+            }
+        }
+    }
+
+    $searchUrl = "https://api.deezer.com/search?q=" . urlencode("artist:\"$artist\"") . "&limit=1";
     list($result, $httpCode) = fetchWithCurl($searchUrl);
 
     if ($httpCode === 200 && $result) {
         $data = json_decode($result, true);
-        if (isset($data['data'][0]['album']['cover_xl'])) {
-            return optimizeImageUrl($data['data'][0]['album']['cover_xl'], 'deezer');
+        if (isset($data['data'][0]['artist']['picture_xl'])) {
+            return $data['data'][0]['artist']['picture_xl'];
         }
     }
+
     return null;
 }
 
 function fetchLastfmImage($artist, $title) {
     $apiKey = 'a496648b2d382af443aaaadf7f7f6895';
-    $method = (!empty($title) ? 'track.getInfo' : 'artist.getInfo');
-    $url = "http://ws.audioscrobbler.com/2.0/?method={$method}&artist=" . urlencode($artist);
-    if (!empty($title)) $url .= "&track=" . urlencode($title);
-    $url .= "&api_key={$apiKey}&format=json&autocorrect=1";
+    
+    if (!empty($title)) {
+        $url = "http://ws.audioscrobbler.com/2.0/?method=track.getInfo&artist=" . urlencode($artist) . 
+               "&track=" . urlencode($title) . "&api_key={$apiKey}&format=json&autocorrect=1";
+        list($result, $httpCode) = fetchWithCurl($url);
 
+        if ($httpCode === 200 && $result) {
+            $data = json_decode($result, true);
+            if (isset($data['track']['album']['image'])) {
+                $images = $data['track']['album']['image'];
+                if (!empty($images)) {
+                    $largest = end($images);
+                    if (!empty($largest['#text'])) {
+                        return $largest['#text'];
+                    }
+                }
+            }
+        }
+    }
+
+    $url = "http://ws.audioscrobbler.com/2.0/?method=artist.getInfo&artist=" . urlencode($artist) . 
+           "&api_key={$apiKey}&format=json&autocorrect=1";
     list($result, $httpCode) = fetchWithCurl($url);
 
     if ($httpCode === 200 && $result) {
         $data = json_decode($result, true);
-        $images = [];
-
-        if (!empty($title) && isset($data['track']['album']['image'])) {
-            $images = $data['track']['album']['image'];
-        } elseif (isset($data['artist']['image'])) {
+        if (isset($data['artist']['image'])) {
             $images = $data['artist']['image'];
-        }
-
-        if (!empty($images)) {
-            $largest = end($images);
-            if (!empty($largest['#text'])) return $largest['#text'];
+            if (!empty($images)) {
+                $largest = end($images);
+                if (!empty($largest['#text'])) {
+                    return $largest['#text'];
+                }
+            }
         }
     }
+
     return null;
 }
 
@@ -145,16 +182,21 @@ if (!empty($artist)) {
 
     $sources = [
         'netease' => fn() => fetchNeteaseImage($artist, $title),
-        'lastfm'  => fn() => fetchLastfmImage($artist, $title),
         'itunes'  => fn() => fetchItunesImage($artist, $title),
+        'lastfm'  => fn() => fetchLastfmImage($artist, $title),
         'deezer'  => fn() => fetchDeezerImage($artist, $title),
     ];
 
-    foreach ($sources as $name => $fetcher) {
-        $imageUrl = $fetcher();
-        if ($imageUrl) {
-            $source = $name;
-            break;
+    if ($preferredSource !== 'auto' && isset($sources[$preferredSource])) {
+        $imageUrl = $sources[$preferredSource]();
+        $source = $preferredSource;
+    } else {
+        foreach ($sources as $name => $fetcher) {
+            $imageUrl = $fetcher();
+            if ($imageUrl) {
+                $source = $name;
+                break;
+            }
         }
     }
 
