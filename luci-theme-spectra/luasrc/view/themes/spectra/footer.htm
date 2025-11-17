@@ -111,9 +111,13 @@ const countryMap = {
 };
 
 function addFlagIfMissing(titleText) {
-    if (/[\u{1F1E6}-\u{1F1FF}]{2}/u.test(titleText)) return titleText;
+    if (/[\u{1F1E6}-\u{1F1FF}]{2}/u.test(titleText)) {
+        return titleText;
+    }
     for (const name in countryMap) {
-        if (titleText.includes(name)) return countryMap[name] + ' ' + titleText;
+        if (titleText.includes(name)) {
+            return countryMap[name] + ' ' + titleText;
+        }
     }
     return titleText;
 }
@@ -124,8 +128,16 @@ function wrapEmojiWithSpan(text) {
 
 function extractProtocolFromTitle(titleText) {
     const match = titleText.match(/^([^\s：]+)\s*([^\s：]+)：\s*([\s\S]*)$/);
-    if (!match) return { protocol: '', actualTitle: titleText };
-    return { protocol: match[2], actualTitle: match[3] || '' };
+    if (match) {
+        return {
+            protocol: match[2],
+            actualTitle: match[3] || ''
+        };
+    }
+    return {
+        protocol: '',
+        actualTitle: titleText
+    };
 }
 
 function getNodeTypeFromTitle(titleText) {
@@ -136,26 +148,40 @@ function getNodeTypeFromTitle(titleText) {
 
 function getProtocolBadge(protocol) {
     const badgeColors = {
-        HY2: '#ff6b6b', HY: '#ffa726', VMess: '#42a5f5', VLESS: '#5c6bc0',
-        SS: '#66bb6a', SSR: '#4caf50', WG: '#ab47bc', Trojan: '#ff69b4',
-        URLTest: '#7e57c2', Balancing: '#ef5350', Shunt: '#26a69a'
+        'HY2': '#ff6b6b',
+        'HY': '#ffa726',
+        'VMess': '#42a5f5',
+        'VLESS': '#5c6bc0',
+        'SS': '#66bb6a',
+        'SSR': '#4caf50',
+        'WG': '#ab47bc',
+        'Trojan': '#ff69b4',
+        'URLTest': '#7e57c2',
+        'Balancing': '#ef5350',
+        'Shunt': '#26a69a'
     };
     const badgeTexts = {
-        HY2: 'HY2', HY: 'HY', VMess: 'VMess', VLESS: 'VLESS', SS: 'SS',
-        SSR: 'SSR', WG: 'WG', Trojan: 'Trojan', URLTest: 'Test',
-        Balancing: 'Balance', Shunt: 'Shunt'
+        'HY2': 'HY2',
+        'HY': 'HY',
+        'VMess': 'VMess',
+        'VLESS': 'VLESS',
+        'SS': 'SS',
+        'SSR': 'SSR',
+        'WG': 'WG',
+        'Trojan': 'Trojan',
+        'URLTest': 'Test',
+        'Balancing': 'Balance',
+        'Shunt': 'Shunt'
     };
     const color = badgeColors[protocol] || '#000';
     const text = badgeTexts[protocol] || protocol;
-    return `<span class="card-badge" style="background-color:${color}">${text}</span>`;
+    return `<span class="card-badge" style="background-color: ${color}">${text}</span>`;
 }
 
 function convertTablesToCards() {
-    const activeContainer = document.querySelector(
-        '.cbi-tabcontainer[style*="display: block"], .cbi-tabcontainer[style*="display:block"]'
-    );
+    const activeContainer = document.querySelector('.cbi-tabcontainer[style*="display: block"], .cbi-tabcontainer[style*="display:block"]');
     if (!activeContainer) return;
-    if (activeContainer.dataset.cardsConverted === 'true') return;
+    if (activeContainer.getAttribute('data-cards-converted') === 'true') return;
 
     const table = activeContainer.querySelector('.cbi-section-table');
     if (!table) return;
@@ -169,7 +195,6 @@ function convertTablesToCards() {
     rows.forEach(row => {
         const card = document.createElement('div');
         card.className = 'node-card';
-
         if (row.classList.contains('_now_use_bg')) card.classList.add('_now_use_bg');
 
         const tds = row.querySelectorAll('td');
@@ -180,12 +205,14 @@ function convertTablesToCards() {
         const actions = tds[4]?.innerHTML || '';
 
         const remarksSpan = tds[0]?.querySelector('span, div, a');
-        const remarksClass = remarksSpan?.classList.contains('_now_use') ? '_now_use' : '';
+        let remarksClass = '';
+        if (remarksSpan && remarksSpan.classList.contains('_now_use')) remarksClass = '_now_use';
 
         const { protocol, actualTitle } = extractProtocolFromTitle(originalTitle);
         const nodeType = getNodeTypeFromTitle(originalTitle);
 
         const titleWithFlag = addFlagIfMissing(actualTitle);
+
         const badgeHtml = protocol ? getProtocolBadge(protocol) : '';
 
         card.innerHTML = `
@@ -201,60 +228,45 @@ function convertTablesToCards() {
             <div class="card-actions">${actions}</div>
         `;
 
-        if (nodeType) card.title = nodeType;
+        if (nodeType) card.title = `${nodeType}`;
 
         cardsContainer.appendChild(card);
     });
 
     table.parentNode.insertBefore(cardsContainer, table);
-    activeContainer.dataset.cardsConverted = 'true';
+    activeContainer.setAttribute('data-cards-converted', 'true');
 }
 
-let initTimer = null;
-function safeInit() {
-    clearTimeout(initTimer);
-    initTimer = setTimeout(convertTablesToCards, 200);
+function initAllTabs() {
+    document.querySelectorAll('.cbi-tabcontainer').forEach(container => {
+        container.removeAttribute('data-cards-converted');
+        const oldCards = container.querySelector('.cards-container');
+        if (oldCards) oldCards.remove();
+    });
+    convertTablesToCards();
 }
 
-document.addEventListener('DOMContentLoaded', () => safeInit());
+document.addEventListener('DOMContentLoaded', () => setTimeout(initAllTabs, 100));
 document.addEventListener('click', e => {
-    if (e.target.closest('.cbi-tab')) safeInit();
+    const tabLink = e.target.closest('.cbi-tab');
+    if (tabLink && tabLink.querySelector('a')) setTimeout(initAllTabs, 200);
 });
 
 const observer = new MutationObserver(mutations => {
-    let needRun = false;
-
-    for (const m of mutations) {
-        if (m.type !== 'attributes' || m.attributeName !== 'style') continue;
-        const el = m.target;
-        if (!el.classList?.contains('cbi-tabcontainer')) continue;
-
-        const inlineDisplay = el.style.display;
-        let isVisible = inlineDisplay === 'block';
-
-        if (!isVisible && !inlineDisplay) {
-            const computedDisplay = getComputedStyle(el).display;
-            isVisible = computedDisplay === 'block';
+    mutations.forEach(mutation => {
+        if (mutation.type === 'attributes' && mutation.attributeName === 'style') {
+            const target = mutation.target;
+            if (target.classList.contains('cbi-tabcontainer') && target.style.display.includes('block')) {
+                setTimeout(initAllTabs, 100);
+            }
         }
-
-        if (isVisible) {
-            needRun = true;
-            break;
-        }
-    }
-
-    if (needRun) safeInit();
+    });
 });
 
 observer.observe(document.body, {
     attributes: true,
     subtree: true,
     attributeFilter: ['style']
-});
-
-window.addEventListener('beforeunload', () => {
-    clearTimeout(initTimer);
-    observer.disconnect();
 });
 </script>
 </body>
