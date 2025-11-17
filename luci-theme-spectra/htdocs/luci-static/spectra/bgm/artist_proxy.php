@@ -54,7 +54,7 @@ function optimizeImageUrl($url, $source) {
             break;
 
         case 'itunes':
-            $url = str_replace(['100x100bb', '60x60bb', '30x30bb'], '1200x1200bb', $url);
+            $url = str_replace(['100x100bb', '60x60bb', '30x30bb'], '2000x2000bb', $url);
             break;
 
         case 'deezer':
