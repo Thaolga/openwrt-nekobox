@@ -47,9 +47,9 @@ function optimizeImageUrl($url, $source) {
     switch ($source) {
         case 'netease':
             if (strpos($url, '?param=') !== false) {
-                $url = preg_replace('/\?param=\d+y\d+/', '?param=1000y1000', $url);
+                $url = preg_replace('/\?param=\d+y\d+/', '?param=2000y2000', $url);
             } else {
-                $url .= '?param=1000y1000';
+                $url .= '?param=2000y2000';
             }
             break;
 
