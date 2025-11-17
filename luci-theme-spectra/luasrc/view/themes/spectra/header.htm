@@ -927,14 +927,11 @@
     border-radius: 50%;
 }
 
-.playlist-section.hidden {
-    display: none;
-}
-
 .lyrics-section.expanded {
     width: 100%;
 }
 
+.playlist-section.hidden,
 .lyrics-title.hidden {
     display: none;
 }
@@ -969,55 +966,71 @@
     display: none;
     position: absolute;
     right: 20px;
-    top: 8px;
+    top: 20px;
     gap: 8px;
     z-index: 10;
 }
 
+.image-source-btn,
+.lyrics-source-btn,
 .lyrics-speed-btn,
 .bg-toggle {
     width: 30px;
     height: 30px;
     border-radius: 50%;
-    background: var(--bg-body);
-    border: var(--border-light);
+    background: var(--header-bg);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
     color: var(--text-primary);
     display: flex;
     align-items: center;
     justify-content: center;
     cursor: pointer;
     transition: all 0.3s ease;
-    font-size: 14px;
+    border: var(--glass-border);
+    box-shadow: var(--border-glow);
 }
 
+.image-source-btn:hover,
+.lyrics-source-btn:hover,
 .lyrics-speed-btn:hover,
 .bg-toggle:hover {
     transform: scale(1.1);
-    background: var(--item-hover-bg);
+    background: var(--accent-tertiary) !important;
+    color: var(--color-white-strong);
+    animation: var(--breath-animation);
+}
+
+.image-source-btn i,
+.lyrics-source-btn i,
+.lyrics-speed-btn i,
+.bg-toggle i {
+    font-size: 16px !important;
 }
 
 .bg-toggle.active {
-    background: var(--accent-color);
-    color: white;
+    color: var(--color-green);
 }
 
+.image-source-panel,
+.source-panel,
 .speed-panel {
     position: fixed;
     background: var(--bg-container);
     border: var(--border-light);
     border-radius: 8px;
-    padding: 12px;
+    padding: 16px;
     box-shadow: 0 4px 12px rgba(0,0,0,0.2);
     z-index: 100000;
-    min-width: 150px;
+    min-width: 280px;
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
 }
 
 .speed-title {
-    font-size: 12px;
-    color: var(--text-secondary);
+    font-size: 14px;
+    color: var(--accent-color);
     margin-bottom: 8px;
 }
 
@@ -1059,48 +1072,11 @@
     margin-top: 4px;
 }
 
-.image-source-btn,
-.lyrics-source-btn {
-    width: 30px;
-    height: 30px;
-    border-radius: 50%;
-    background: var(--bg-body);
-    border: var(--border-light);
-    color: var(--text-primary);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    font-size: 14px;
-}
-
-.image-source-btn:hover,
-.lyrics-source-btn:hover {
-    transform: scale(1.1);
-    background: var(--item-hover-bg);
-}
-
-.image-source-panel,
-.source-panel {
-    position: fixed;
-    background: var(--bg-container);
-    border: var(--border-light);
-    border-radius: 8px;
-    padding: 16px;
-    box-shadow: 0 4px 20px rgba(0,0,0,0.3);
-    z-index: 100000;
-    min-width: 280px;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-}
-
 .image-source-panel .source-title,
 .source-title {
-    font-size: 14px;
+    font-size: 16px;
     font-weight: bold;
-    color: var(--text-primary);
+    color: var(--accent-color);
     margin-bottom: 12px;
     text-align: center;
 }
@@ -1196,7 +1172,10 @@
 
 .control-btn {
     background-color: var(--bg-body);
-    border: var(--border-light);
+    border: var(--glass-border);
+    box-shadow: var(--border-glow);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
     color: var(--text-primary);
     width: 35px;
     height: 35px;
@@ -1361,6 +1340,15 @@
     transform: scale(1.05);
 }
 
+.lyrics-content.has-background-image .lyrics-container {
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+}
+
+.lyrics-content.has-background-image .lyrics-container::-webkit-scrollbar {
+    display: none;
+}
+
 .playlist-container,
 .lyrics-container {
     scrollbar-width: thin;
@@ -1508,24 +1496,50 @@
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     position: relative;
     font-weight: inherit;
+    color: var(--text-primary);
+    opacity: 0.9;
+    text-shadow: var(--text-shadow);
 }
 
-.lyric-line .char {
-    color: var(--text-primary);
-    opacity: 0.7;
+.lyrics-content.has-background-image .lyric-line .char {
+    color: var(--color-white-strong);
+    opacity: 0.9;
     text-shadow: var(--text-shadow);
 }
 
 .lyric-line .char.played {
-    color: oklch(var(--l) var(--c) 0); 
+    color: oklch(var(--l) var(--c) 0) !important;
     opacity: 1;
     transform: scale(0.95);
     filter: grayscale(0.3);
 }
 
+.lyric-line.highlight .char.active.lang-zh-production {
+    transform: scale(1.1);
+}
+
+.lyric-line.highlight .char.active.lang-other-production {
+    transform: scale(1.1);
+}
+
+.lyric-line.highlight .char.active.lang-mix-production {
+    transform: scale(1.1);
+}
+
+.lyric-line.highlight .char.active.lang-zh {
+    transform: scale(1.4);
+}
+
+.lyric-line.highlight .char.active.lang-other {
+    transform: scale(1.2);
+}
+
+.lyric-line.highlight .char.active.lang-mix {
+    transform: scale(1.3);
+}
+
 .lyric-line.highlight .char.active {
     opacity: 1;
-    transform: scale(1.4);
     color: transparent;
     background: linear-gradient(135deg,
             oklch(calc(var(--l) + 15%) calc(var(--c) + 0.3) calc(var(--base-hue) + 0)) 0%,
@@ -1598,6 +1612,11 @@
     font-style: italic;
 }
 
+.lyrics-content.has-background-image #no-lyrics {
+    color: var(--color-white-strong);
+    text-shadow: var(--text-shadow);
+}
+
 .lyrics-loading {
     display: flex;
     justify-content: center;
@@ -1605,6 +1624,11 @@
     min-height: 200px;
     color: var(--text-primary);
     font-size: 1.2rem;
+}
+
+.lyrics-content.has-background-image .lyrics-loading {
+    color: var(--color-white-strong);
+    text-shadow: var(--text-shadow);
 }
 
 @media (max-width: 768px) {
@@ -1828,7 +1852,6 @@
     padding-top: 6px;
     border-top: 1px solid rgba(255, 255, 255, 0.1);
 }
-
 
 @media (max-width: 768px) {
     .glass-modal-container {
@@ -3053,13 +3076,13 @@ function createLyricsControls() {
     
     const imageSourceBtn = document.createElement('div');
     imageSourceBtn.className = 'image-source-btn';
-    imageSourceBtn.innerHTML = '<i class="fas fa-portrait"></i>';
+    imageSourceBtn.innerHTML = '<i class="bi bi-person-circle"></i>';
     imageSourceBtn.setAttribute('data-title', 'image_source');
     
     const bgToggle = document.createElement('div');
     bgToggle.className = 'bg-toggle';
     bgToggle.id = 'bgToggle';
-    bgToggle.innerHTML = '<i class="fas fa-image"></i>';
+    bgToggle.innerHTML = '<i class="bi bi-palette"></i>';
     bgToggle.setAttribute('data-title', 'background_toggle');
     
     controls.appendChild(sourceBtn);
@@ -3093,6 +3116,19 @@ function createLyricsControls() {
         event.stopPropagation();
         const bgEnabled = this.classList.toggle('active');
         localStorage.setItem('bgEnabled', bgEnabled);
+
+        const translations = languageTranslations[currentLang] || languageTranslations['zh'];
+        const successMsg = bgEnabled 
+            ? (translations['background_enabled'] || 'Background enabled')
+            : (translations['background_disabled'] || 'Background disabled');
+    
+        if (typeof showLogMessage === 'function') {
+            showLogMessage(successMsg);
+        }
+        if (colorVoiceEnabled) {
+            speakMessage(successMsg);
+        }
+
         updateLyricsBackground();
     });
     
@@ -3144,6 +3180,21 @@ function showLyricsSourceOptions(button) {
     panel.querySelector('.source-confirm').addEventListener('click', function() {
         const selectedSource = panel.querySelector('input[name="lyricsSource"]:checked').value;
         localStorage.setItem('lyricsSource', selectedSource);
+        
+        const sourceNames = {
+            'auto': translations['auto_select'] || 'Auto Select',
+            'netease': translations['netease_music'] || 'Netease Music',
+            'kugou': translations['kugou_music'] || 'Kugou Music',
+            'lyricsovh': translations['lyrics_ovh'] || 'Lyrics.ovh'
+        };
+        const successMsg = `${translations['lyrics_source_set'] || 'Lyrics source set to'}: ${sourceNames[selectedSource]}`;
+        
+        if (typeof showLogMessage === 'function') {
+            showLogMessage(successMsg);
+        }
+        if (colorVoiceEnabled) {
+            speakMessage(successMsg);
+        }
         
         if (songs[currentTrackIndex]) {
             loadLyrics(songs[currentTrackIndex]);
@@ -3210,6 +3261,22 @@ function showImageSourceOptions(button) {
         const selectedSource = panel.querySelector('input[name="imageSource"]:checked').value;
         localStorage.setItem('imageSource', selectedSource);
         
+        const sourceNames = {
+            'auto': translations['auto_select'] || 'Auto Select',
+            'netease': translations['netease_music'] || 'Netease Music',
+            'itunes': 'iTunes',
+            'lastfm': 'Last.fm',
+            'deezer': 'Deezer'
+        };
+        const successMsg = `${translations['image_source_set'] || 'Image source set to'}: ${sourceNames[selectedSource]}`;
+        
+        if (typeof showLogMessage === 'function') {
+            showLogMessage(successMsg);
+        }
+        if (colorVoiceEnabled) {
+            speakMessage(successMsg);
+        }
+        
         if (songs[currentTrackIndex]) {
             const songName = decodeURIComponent(songs[currentTrackIndex].split('/').pop().replace(/\.\w+$/, ''));
             const { artist, title } = parseSongInfo(songName);
@@ -3268,6 +3335,21 @@ function showSpeedOptions(button) {
             panel.querySelector('.speed-value').textContent = 
                 `${newOffset > 0 ? '+' : ''}${newOffset}${translations['seconds'] || 's'}`;
             
+            let successMsg = '';
+            if (change === 0) {
+                successMsg = translations['lyrics_offset_reset'] || 'Lyrics time offset reset';
+            } else {
+                const offsetText = `${newOffset > 0 ? '+' : ''}${newOffset}${translations['seconds'] || 's'}`;
+                successMsg = `${translations['lyrics_offset_set'] || 'Lyrics time offset set to'} ${offsetText}`;
+            }
+            
+            if (typeof showLogMessage === 'function') {
+                showLogMessage(successMsg);
+            }
+            if (colorVoiceEnabled) {
+                speakMessage(successMsg);
+            }
+            
             if (window.lyrics && Object.keys(window.lyrics).length > 0) {
                 syncLyrics();
             }
@@ -3299,8 +3381,8 @@ function applyExpandedLayout() {
         lyricsControls.style.display = 'flex';
     }
     
-    updateLyricsBackground();
     localStorage.setItem('lyricsExpanded', 'true');
+    forceUpdateBackground();
 }
 
 function applyNormalLayout() {
@@ -3317,8 +3399,27 @@ function applyNormalLayout() {
         lyricsControls.style.display = 'none';
     }
 
-    removeLyricsBackground();
     localStorage.setItem('lyricsExpanded', 'false');
+    forceUpdateBackground();
+}
+
+function forceUpdateBackground() {
+    const lyricsContent = document.querySelector('.lyrics-content');
+    const isExpanded = localStorage.getItem('lyricsExpanded') === 'true';
+    const bgToggle = document.getElementById('bgToggle');
+    const bgEnabled = bgToggle && bgToggle.classList.contains('active');
+    
+    removeLyricsBackground();
+    
+    if (isExpanded && bgEnabled) {
+        const artistImg = document.getElementById('artistImg');
+        if (artistImg && artistImg.src && artistImg.style.display !== 'none') {
+            lyricsContent.style.backgroundImage = `url('${artistImg.src}')`;
+            lyricsContent.style.backgroundSize = 'contain';
+            lyricsContent.style.backgroundPosition = 'center';
+            lyricsContent.classList.add('has-background-image');
+        }
+    }
 }
 
 function initArtistImageToggle() {
@@ -3338,27 +3439,17 @@ function initArtistImageToggle() {
 }
 
 function updateLyricsBackground() {
-    const lyricsContent = document.querySelector('.lyrics-content');
-    const isExpanded = localStorage.getItem('lyricsExpanded') === 'true';
-    const bgToggle = document.getElementById('bgToggle');
-    const bgEnabled = bgToggle && bgToggle.classList.contains('active');
-    
-    if (!isExpanded || !bgEnabled) {
-        removeLyricsBackground();
-        return;
-    }
-    
-    const artistImg = document.getElementById('artistImg');
-    if (artistImg && artistImg.src && artistImg.style.display !== 'none') {
-        lyricsContent.style.backgroundImage = `url('${artistImg.src}')`;
-        lyricsContent.style.backgroundSize = 'contain';
-        lyricsContent.style.backgroundPosition = 'center';
-    }
+    forceUpdateBackground();
 }
 
 function removeLyricsBackground() {
     const lyricsContent = document.querySelector('.lyrics-content');
-    lyricsContent.style.backgroundImage = '';
+    if (lyricsContent) {
+        lyricsContent.style.backgroundImage = '';
+        lyricsContent.style.backgroundSize = '';
+        lyricsContent.style.backgroundPosition = '';
+        lyricsContent.classList.remove('has-background-image'); 
+    }
 }
 
 document.addEventListener('DOMContentLoaded', function() {
@@ -4297,11 +4388,34 @@ function createCharSpans(text, startTime, endTime) {
     const validWords = words.filter(word => word.trim().length > 0);
     const durationPerWord = totalDuration / validWords.length;
 
+    const hasChinese = /[\u4e00-\u9fff]/.test(text);
+    const hasEnglish = /[a-zA-Z]/.test(text);
+    const hasProductionMark = /[\/:：|｜]/g.test(text);
+    
+    let langClass = '';
+    if (hasProductionMark) {
+        if (hasChinese && hasEnglish) {
+            langClass = 'lang-mix-production';
+        } else if (hasChinese) {
+            langClass = 'lang-zh-production';
+        } else {
+            langClass = 'lang-other-production';
+        }
+    } else {
+        if (hasChinese && hasEnglish) {
+            langClass = 'lang-mix';
+        } else if (hasChinese) {
+            langClass = 'lang-zh';
+        } else {
+            langClass = 'lang-other';
+        }
+    }
+
     words.forEach(word => {
         if (word.trim().length === 0) return;
         const isEnglish = isEnglishWord(word.replace(/[^a-zA-Z']/g, ''));
         const span = document.createElement('span');
-        span.className = 'char';
+        span.className = 'char ' + langClass;
         if (isEnglish) {
             span.textContent = word;
             span.dataset.start = currentTime;
@@ -4312,7 +4426,7 @@ function createCharSpans(text, startTime, endTime) {
             const charDuration = durationPerWord / chars.length;
             chars.forEach((char, index) => {
                 const charSpan = document.createElement('span');
-                charSpan.className = 'char';
+                charSpan.className = 'char ' + langClass;
                 charSpan.textContent = char;
                 charSpan.dataset.start = currentTime + index * charDuration;
                 charSpan.dataset.end = currentTime + (index + 1) * charDuration;
@@ -4491,7 +4605,7 @@ function loadTrack(url) {
     const translations = languageTranslations[currentLang] || languageTranslations['zh'];  
     window.lyrics = {};
     window.lyricTimes = [];
-    
+    removeLyricsBackground(); 
     audioPlayer.removeEventListener('timeupdate', syncLyrics);
     audioPlayer.removeEventListener('timeupdate', syncPlainLyrics);
     
@@ -4598,6 +4712,7 @@ function updateCurrentSong(url) {
         fetchArtistImage(artist, title);
     } else {
         resetArtistImage();
+        removeLyricsBackground();
     }
 }
 

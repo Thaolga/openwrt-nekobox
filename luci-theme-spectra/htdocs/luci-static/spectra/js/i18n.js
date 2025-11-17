@@ -158,6 +158,12 @@ const languageTranslations = {
         'kugou_music': '酷狗音乐',
         'auto_select': '自动选择',
         'lyrics_ovh': 'Lyrics.ovh',
+        'lyrics_source_set': '歌词源设置为',
+        'image_source_set': '图片来源设置为', 
+        'lyrics_offset_set': '歌词时间偏移设置为',
+        'lyrics_offset_reset': '歌词时间偏移已重置',
+        'background_enabled': '背景已开启',
+        'background_disabled': '背景已关闭',
         'image_source': '歌手图片来源',
         'command_install_label': '命令安装'
     },
@@ -321,6 +327,12 @@ const languageTranslations = {
         'kugou_music': '酷狗音樂',
         'auto_select': '自動選擇',
         'lyrics_ovh': 'Lyrics.ovh',
+        'lyrics_source_set': '歌詞源設置為',
+        'image_source_set': '圖片來源設置為',
+        'lyrics_offset_set': '歌詞時間偏移設置為',
+        'lyrics_offset_reset': '歌詞時間偏移已重置',
+        'background_enabled': '背景已開啟',
+        'background_disabled': '背景已關閉',
         'image_source': '歌手圖片來源',
         'theme_download': '主題下載'
     },
@@ -489,6 +501,12 @@ const languageTranslations = {
         'auto_select': 'Auto Select',
         'lyrics_ovh': 'Lyrics.ovh',
         'image_source': 'Image Source',
+        'lyrics_source_set': 'Lyrics source set to',
+        'image_source_set': 'Image source set to',
+        'lyrics_offset_set': 'Lyrics time offset set to', 
+        'lyrics_offset_reset': 'Lyrics time offset reset',
+        'background_enabled': 'Background enabled',
+        'background_disabled': 'Background disabled',
         'theme_download': 'Theme download'
     },
     'ko': {
@@ -646,6 +664,12 @@ const languageTranslations = {
         'auto_select': '자동 선택',
         'lyrics_ovh': 'Lyrics.ovh',
         'image_source': '가수 이미지 출처',
+        'lyrics_source_set': '가사 출처가 설정되었습니다',
+        'image_source_set': '이미지 출처가 설정되었습니다',
+        'lyrics_offset_set': '가사 시간 오프셋이 설정되었습니다',
+        'lyrics_offset_reset': '가사 시간 오프셋이 초기화되었습니다',
+        'background_enabled': '배경이 활성화되었습니다',
+        'background_disabled': '배경이 비활성화되었습니다',
         'theme_download': '테마 다운로드'
     },
     'vi': {
@@ -804,6 +828,12 @@ const languageTranslations = {
         'auto_select': 'Tự động chọn',
         'lyrics_ovh': 'Lyrics.ovh',
         'image_source': 'Nguồn hình ảnh ca sĩ',
+        'lyrics_source_set': 'Nguồn lời bài hát đã được thiết lập',
+        'image_source_set': 'Nguồn hình ảnh đã được thiết lập',
+        'lyrics_offset_set': 'Độ lệch thời gian lời bài hát đã được thiết lập',
+        'lyrics_offset_reset': 'Độ lệch thời gian lời bài hát đã được đặt lại',
+        'background_enabled': 'Đã bật nền',
+        'background_disabled': 'Đã tắt nền',
         'theme_download': 'Tải chủ đề'
     },
     'th': {
@@ -961,6 +991,12 @@ const languageTranslations = {
         'kugou_music': 'Kugou Music',
         'auto_select': 'เลือกอัตโนมัติ',
         'lyrics_ovh': 'Lyrics.ovh',
+        'lyrics_source_set': 'ตั้งค่าแหล่งเนื้อเพลงเป็นแล้ว',
+        'image_source_set': 'ตั้งค่าแหล่งภาพเป็นแล้ว',
+        'lyrics_offset_set': 'ตั้งค่าออฟเซ็ตเวลาเนื้อเพลงแล้ว',
+        'lyrics_offset_reset': 'รีเซ็ตออฟเซ็ตเวลาเนื้อเพลงแล้ว',
+        'background_enabled': 'เปิดพื้นหลังแล้ว',
+        'background_disabled': 'ปิดพื้นหลังแล้ว',
         'image_source': 'แหล่งที่มารูปภาพนักร้อง',
         'theme_download': 'ดาวน์โหลดธีม'
     },
@@ -1120,6 +1156,12 @@ const languageTranslations = {
         'auto_select': '自動選択',
         'image_source': '歌手画像の出典',
         'lyrics_ovh': 'Lyrics.ovh',
+        'lyrics_source_set': '歌詞ソースが設定されました',
+        'image_source_set': '画像ソースが設定されました',
+        'lyrics_offset_set': '歌詞の時間オフセットが設定されました',
+        'lyrics_offset_reset': '歌詞の時間オフセットがリセットされました',
+        'background_enabled': '背景が有効になりました',
+        'background_disabled': '背景が無効になりました',
         'theme_download': 'テーマダウンロード'
     },
     'ru': {
@@ -1278,6 +1320,12 @@ const languageTranslations = {
         'image_source': 'Источник изображения исполнителя',
         'auto_select': 'Автовыбор',
         'lyrics_ovh': 'Lyrics.ovh',
+        'lyrics_source_set': 'Источник текста песни установлен',
+        'image_source_set': 'Источник изображения установлен',
+        'lyrics_offset_set': 'Смещение времени текста песни установлено',
+        'lyrics_offset_reset': 'Смещение времени текста песни сброшено',
+        'background_enabled': 'Фон включен',
+        'background_disabled': 'Фон отключен',
         'theme_download': 'Скачать тему'
     },
     'ar': {
@@ -1436,6 +1484,12 @@ const languageTranslations = {
         'auto_select': 'اختيار تلقائي',
         'lyrics_ovh': 'Lyrics.ovh',
         'image_source': 'مصدر صورة المغني',
+        'lyrics_source_set': 'تم تعيين مصدر الكلمات',
+        'image_source_set': 'تم تعيين مصدر الصورة',
+        'lyrics_offset_set': 'تم ضبط إزاحة وقت الكلمات',
+        'lyrics_offset_reset': 'تم إعادة ضبط إزاحة وقت الكلمات',
+        'background_enabled': 'تم تفعيل الخلفية',
+        'background_disabled': 'تم تعطيل الخلفية',
         'theme_download': 'تحميل السمة'
     },
     'es': {
@@ -1594,6 +1648,12 @@ const languageTranslations = {
         'auto_select': 'Selección automática',
         'lyrics_ovh': 'Lyrics.ovh',
         'image_source': 'Fuente de la imagen del cantante',
+        'lyrics_source_set': 'Fuente de letras establecida en',
+        'image_source_set': 'Fuente de imagen establecida en',
+        'lyrics_offset_set': 'Desfase de tiempo de la letra establecido',
+        'lyrics_offset_reset': 'Desfase de tiempo de la letra restablecido',
+        'background_enabled': 'Fondo activado',
+        'background_disabled': 'Fondo desactivado',
         'theme_download': 'Descarga del tema'
     },
     'de': {
@@ -1752,6 +1812,12 @@ const languageTranslations = {
         'auto_select': 'Automatische Auswahl',
         'lyrics_ovh': 'Lyrics.ovh',
         'image_source': 'Bildquelle des Sängers',
+        'lyrics_source_set': 'Liedtextquelle auf gesetzt',
+        'image_source_set': 'Bildquelle auf gesetzt',
+        'lyrics_offset_set': 'Liedtext-Zeitversatz gesetzt',
+        'lyrics_offset_reset': 'Liedtext-Zeitversatz zurückgesetzt',
+        'background_enabled': 'Hintergrund aktiviert',
+        'background_disabled': 'Hintergrund deaktiviert',
         'theme_download': 'Thema herunterladen'
     },
     'fr': {
@@ -1910,6 +1976,12 @@ const languageTranslations = {
         'auto_select': 'Sélection automatique',
         'lyrics_ovh': 'Lyrics.ovh',
         'image_source': 'Source de l’image du chanteur',
+        'lyrics_source_set': 'Source des paroles définie sur',
+        'image_source_set': 'Source de l’image définie sur',
+        'lyrics_offset_set': 'Décalage du temps des paroles défini',
+        'lyrics_offset_reset': 'Décalage du temps des paroles réinitialisé',
+        'background_enabled': 'Arrière-plan activé',
+        'background_disabled': 'Arrière-plan désactivé',
         'theme_download': 'Télécharger le thème'
     },
     'bn': {
@@ -2069,6 +2141,12 @@ const languageTranslations = {
         'auto_select': 'স্বয়ংক্রিয় নির্বাচন',
         'lyrics_ovh': 'Lyrics.ovh',
         'image_source': 'গায়কের ছবির উৎস',
+        'lyrics_source_set': 'গানের উৎস সেট করা হয়েছে',
+        'image_source_set': 'ছবির উৎস সেট করা হয়েছে',
+        'lyrics_offset_set': 'গানের সময় অফসেট সেট করা হয়েছে',
+        'lyrics_offset_reset': 'গানের সময় অফসেট রিসেট করা হয়েছে',
+        'background_enabled': 'পটভূমি সক্রিয় করা হয়েছে',
+        'background_disabled': 'পটভূমি অক্ষম করা হয়েছে',
         'theme_download': 'থিম ডাউনলোড'
     }
 };
