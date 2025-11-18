@@ -183,8 +183,8 @@ if (!empty($artist)) {
     $sources = [
         'itunes'  => fn() => fetchItunesImage($artist, $title),
         'netease' => fn() => fetchNeteaseImage($artist, $title),
-        'lastfm'  => fn() => fetchLastfmImage($artist, $title),
         'deezer'  => fn() => fetchDeezerImage($artist, $title),
+        'lastfm'  => fn() => fetchLastfmImage($artist, $title),
     ];
 
     if ($preferredSource === 'auto') {
