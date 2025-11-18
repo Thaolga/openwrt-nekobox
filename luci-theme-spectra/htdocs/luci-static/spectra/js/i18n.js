@@ -165,6 +165,20 @@ const languageTranslations = {
         'background_enabled': '背景已开启',
         'background_disabled': '背景已关闭',
         'image_source': '歌手图片来源',
+        'font_color': '字体颜色',
+        'red': '红色',
+        'orange': '橙色',
+        'yellow': '黄色',
+        'green': '绿色',
+        'cyan': '青色',
+        'blue': '蓝色',
+        'purple': '紫色',
+        'white': '白色',
+        'light_gray': '浅灰',
+        'gray': '灰色',
+        'dark_gray': '深灰',
+        'black': '黑色',
+        'font_color_set': '字体颜色设置为',
         'command_install_label': '命令安装'
     },
     'hk': {
@@ -334,6 +348,20 @@ const languageTranslations = {
         'background_enabled': '背景已開啟',
         'background_disabled': '背景已關閉',
         'image_source': '歌手圖片來源',
+        'font_color': '字體顏色',
+        'red': '紅色',
+        'orange': '橙色',
+        'yellow': '黃色',
+        'green': '綠色',
+        'cyan': '青色',
+        'blue': '藍色',
+        'purple': '紫色',
+        'white': '白色',
+        'light_gray': '淺灰',
+        'gray': '灰色',
+        'dark_gray': '深灰',
+        'black': '黑色',
+        'font_color_set': '字體顏色設置為',
         'theme_download': '主題下載'
     },
     'en': {
@@ -507,6 +535,20 @@ const languageTranslations = {
         'lyrics_offset_reset': 'Lyrics time offset reset',
         'background_enabled': 'Background enabled',
         'background_disabled': 'Background disabled',
+        'font_color': 'Font Color',
+        'red': 'Red',
+        'orange': 'Orange',
+        'yellow': 'Yellow',
+        'green': 'Green',
+        'cyan': 'Cyan',
+        'blue': 'Blue',
+        'purple': 'Purple',
+        'white': 'White',
+        'light_gray': 'Light Gray',
+        'gray': 'Gray',
+        'dark_gray': 'Dark Gray',
+        'black': 'Black',
+        'font_color_set': 'Font color set to',
         'theme_download': 'Theme download'
     },
     'ko': {
@@ -670,6 +712,20 @@ const languageTranslations = {
         'lyrics_offset_reset': '가사 시간 오프셋이 초기화되었습니다',
         'background_enabled': '배경이 활성화되었습니다',
         'background_disabled': '배경이 비활성화되었습니다',
+        'font_color': '폰트 색상',
+        'red': '빨강',
+        'orange': '주황',
+        'yellow': '노랑',
+        'green': '초록',
+        'cyan': '청록',
+        'blue': '파랑',
+        'purple': '보라',
+        'white': '하양',
+        'light_gray': '연회색',
+        'gray': '회색',
+        'dark_gray': '진회색',
+        'black': '검정',
+        'font_color_set': '글꼴 색상이 설정됨:',
         'theme_download': '테마 다운로드'
     },
     'vi': {
@@ -834,6 +890,20 @@ const languageTranslations = {
         'lyrics_offset_reset': 'Độ lệch thời gian lời bài hát đã được đặt lại',
         'background_enabled': 'Đã bật nền',
         'background_disabled': 'Đã tắt nền',
+        'font_color': 'Màu chữ',
+        'red': 'Đỏ',
+        'orange': 'Cam',
+        'yellow': 'Vàng',
+        'green': 'Xanh lá',
+        'cyan': 'Xanh lơ',
+        'blue': 'Xanh dương',
+        'purple': 'Tím',
+        'white': 'Trắng',
+        'light_gray': 'Xám nhạt',
+        'gray': 'Xám',
+        'dark_gray': 'Xám đậm',
+        'black': 'Đen',
+        'font_color_set': 'Màu chữ đã đặt thành',
         'theme_download': 'Tải chủ đề'
     },
     'th': {
@@ -998,6 +1068,20 @@ const languageTranslations = {
         'background_enabled': 'เปิดพื้นหลังแล้ว',
         'background_disabled': 'ปิดพื้นหลังแล้ว',
         'image_source': 'แหล่งที่มารูปภาพนักร้อง',
+        'font_color': 'สีฟอนต์',
+        'red': 'แดง',
+        'orange': 'ส้ม',
+        'yellow': 'เหลือง',
+        'green': 'เขียว',
+        'cyan': 'ฟ้าอมเขียว',
+        'blue': 'น้ำเงิน',
+        'purple': 'ม่วง',
+        'white': 'ขาว',
+        'light_gray': 'เทาอ่อน',
+        'gray': 'เทา',
+        'dark_gray': 'เทาเข้ม',
+        'black': 'ดำ',
+        'font_color_set': 'ตั้งค่าสีฟอนต์เป็น',
         'theme_download': 'ดาวน์โหลดธีม'
     },
     'ja': {
@@ -1162,6 +1246,20 @@ const languageTranslations = {
         'lyrics_offset_reset': '歌詞の時間オフセットがリセットされました',
         'background_enabled': '背景が有効になりました',
         'background_disabled': '背景が無効になりました',
+        'font_color': '文字色',
+        'red': '赤',
+        'orange': 'オレンジ',
+        'yellow': '黄色',
+        'green': '緑',
+        'cyan': 'シアン',
+        'blue': '青',
+        'purple': '紫',
+        'white': '白',
+        'light_gray': '薄灰色',
+        'gray': '灰色',
+        'dark_gray': '濃灰色',
+        'black': '黒',
+        'font_color_set': '文字色が設定されました：',
         'theme_download': 'テーマダウンロード'
     },
     'ru': {
@@ -1326,6 +1424,20 @@ const languageTranslations = {
         'lyrics_offset_reset': 'Смещение времени текста песни сброшено',
         'background_enabled': 'Фон включен',
         'background_disabled': 'Фон отключен',
+        'font_color': 'Цвет шрифта',
+        'red': 'Красный',
+        'orange': 'Оранжевый',
+        'yellow': 'Жёлтый',
+        'green': 'Зелёный',
+        'cyan': 'Бирюзовый',
+        'blue': 'Синий',
+        'purple': 'Фиолетовый',
+        'white': 'Белый',
+        'light_gray': 'Светло-серый',
+        'gray': 'Серый',
+        'dark_gray': 'Тёмно-серый',
+        'black': 'Чёрный',
+        'font_color_set': 'Цвет шрифта установлен на',
         'theme_download': 'Скачать тему'
     },
     'ar': {
@@ -1490,6 +1602,20 @@ const languageTranslations = {
         'lyrics_offset_reset': 'تم إعادة ضبط إزاحة وقت الكلمات',
         'background_enabled': 'تم تفعيل الخلفية',
         'background_disabled': 'تم تعطيل الخلفية',
+        'font_color': 'لون الخط',
+        'red': 'أحمر',
+        'orange': 'برتقالي',
+        'yellow': 'أصفر',
+        'green': 'أخضر',
+        'cyan': 'سماوي',
+        'blue': 'أزرق',
+        'purple': 'أرجواني',
+        'white': 'أبيض',
+        'light_gray': 'رمادي فاتح',
+        'gray': 'رمادي',
+        'dark_gray': 'رمادي داكن',
+        'black': 'أسود',
+        'font_color_set': 'تم تعيين لون الخط إلى',
         'theme_download': 'تحميل السمة'
     },
     'es': {
@@ -1654,6 +1780,20 @@ const languageTranslations = {
         'lyrics_offset_reset': 'Desfase de tiempo de la letra restablecido',
         'background_enabled': 'Fondo activado',
         'background_disabled': 'Fondo desactivado',
+        'font_color': 'Color de fuente',
+        'red': 'Rojo',
+        'orange': 'Naranja',
+        'yellow': 'Amarillo',
+        'green': 'Verde',
+        'cyan': 'Cian',
+        'blue': 'Azul',
+        'purple': 'Morado',
+        'white': 'Blanco',
+        'light_gray': 'Gris claro',
+        'gray': 'Gris',
+        'dark_gray': 'Gris oscuro',
+        'black': 'Negro',
+        'font_color_set': 'Color de fuente establecido en',
         'theme_download': 'Descarga del tema'
     },
     'de': {
@@ -1818,6 +1958,20 @@ const languageTranslations = {
         'lyrics_offset_reset': 'Liedtext-Zeitversatz zurückgesetzt',
         'background_enabled': 'Hintergrund aktiviert',
         'background_disabled': 'Hintergrund deaktiviert',
+        'font_color': 'Schriftfarbe',
+        'red': 'Rot',
+        'orange': 'Orange',
+        'yellow': 'Gelb',
+        'green': 'Grün',
+        'cyan': 'Cyan',
+        'blue': 'Blau',
+        'purple': 'Lila',
+        'white': 'Weiß',
+        'light_gray': 'Hellgrau',
+        'gray': 'Grau',
+        'dark_gray': 'Dunkelgrau',
+        'black': 'Schwarz',
+        'font_color_set': 'Schriftfarbe eingestellt auf',
         'theme_download': 'Thema herunterladen'
     },
     'fr': {
@@ -1982,6 +2136,20 @@ const languageTranslations = {
         'lyrics_offset_reset': 'Décalage du temps des paroles réinitialisé',
         'background_enabled': 'Arrière-plan activé',
         'background_disabled': 'Arrière-plan désactivé',
+        'font_color': 'Couleur de police',
+        'red': 'Rouge',
+        'orange': 'Orange',
+        'yellow': 'Jaune',
+        'green': 'Vert',
+        'cyan': 'Cyan',
+        'blue': 'Bleu',
+        'purple': 'Violet',
+        'white': 'Blanc',
+        'light_gray': 'Gris clair',
+        'gray': 'Gris',
+        'dark_gray': 'Gris foncé',
+        'black': 'Noir',
+        'font_color_set': 'Couleur de police définie sur',
         'theme_download': 'Télécharger le thème'
     },
     'bn': {
@@ -2147,6 +2315,20 @@ const languageTranslations = {
         'lyrics_offset_reset': 'গানের সময় অফসেট রিসেট করা হয়েছে',
         'background_enabled': 'পটভূমি সক্রিয় করা হয়েছে',
         'background_disabled': 'পটভূমি অক্ষম করা হয়েছে',
+        'font_color': 'ফন্টের রং',
+        'red': 'লাল',
+        'orange': 'কমলা',
+        'yellow': 'হলুদ',
+        'green': 'সবুজ',
+        'cyan': 'সায়ান',
+        'blue': 'নীল',
+        'purple': 'বেগুনি',
+        'white': 'সাদা',
+        'light_gray': 'হালকা ধূসর',
+        'gray': 'ধূসর',
+        'dark_gray': 'গাঢ় ধূসর',
+        'black': 'কালো',
+        'font_color_set': 'ফন্টের রং সেট করা হয়েছে',
         'theme_download': 'থিম ডাউনলোড'
     }
 };
@@ -2606,7 +2788,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     loadVoices();
 
-    let currentHue = 260, currentChroma = 0.10, currentLightness = 30;
+    let currentHue = 260, currentChroma = 0.25, currentLightness = 30;
     let recentColors = [];
 
     function debounce(func, wait, immediate) {
@@ -2758,16 +2940,16 @@ document.addEventListener('DOMContentLoaded', function() {
         if (savedSettings) {
             const settings = JSON.parse(savedSettings);
             recentColors = settings.recentColors || [];
-            currentHue = settings.hue || 260;
-            currentChroma = settings.chroma || 0.10;
-            currentLightness = settings.lightness || 30;
+            currentHue = settings.hue || 347.01;
+            currentChroma = settings.chroma || 0.061;
+            currentLightness = settings.lightness || 99;
         
             document.getElementById('colorPicker').value = oklchToHex(currentHue, currentChroma, currentLightness);
             applyColorSettings(false);
         } else {
-            currentHue = 260;
-            currentChroma = 0.10;
-            currentLightness = 30;
+            currentHue = 347.01;
+            currentChroma = 0.061;
+            currentLightness = 99;
             document.getElementById('colorPicker').value = oklchToHex(currentHue, currentChroma, currentLightness);
             applyColorSettings(false);
         }

@@ -1,6 +1,6 @@
 [data-theme="dark"] {
     --base-hue: 260;
-    --base-chroma: 0.03;
+    --base-chroma: 0.25;
     --danger-base: 15;
     --base-hue-1: 20;
     --base-hue-2: 200;
@@ -10,7 +10,7 @@
     --base-hue-6: 170;
     --base-hue-7: 340;
     --l: 85%;
-    --c: 0.18;
+    --c: 0.25;
     --glass-blur: blur(20px);
     --radius: 20px;
     --glass-opacity: 0.85;
@@ -155,7 +155,7 @@
 
 [data-theme="light"] {
     --base-hue: 200;
-    --base-chroma: 0.01;
+    --base-chroma: 0.25;
     --danger-base: 15;
     --base-hue-1: 220;
     --base-hue-2: 280;

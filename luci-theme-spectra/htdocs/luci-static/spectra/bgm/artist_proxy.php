@@ -187,15 +187,28 @@ if (!empty($artist)) {
         'deezer'  => fn() => fetchDeezerImage($artist, $title),
     ];
 
-    if ($preferredSource !== 'auto' && isset($sources[$preferredSource])) {
-        $imageUrl = $sources[$preferredSource]();
-        $source = $preferredSource;
-    } else {
+    if ($preferredSource === 'auto') {
         foreach ($sources as $name => $fetcher) {
             $imageUrl = $fetcher();
             if ($imageUrl) {
                 $source = $name;
                 break;
+            }
+        }
+    } else {
+        if (isset($sources[$preferredSource])) {
+            $imageUrl = $sources[$preferredSource]();
+            $source = $preferredSource;
+        }
+        
+        if (!$imageUrl) {
+            foreach ($sources as $name => $fetcher) {
+                if ($name === $preferredSource) continue;
+                $imageUrl = $fetcher();
+                if ($imageUrl) {
+                    $source = $name;
+                    break;
+                }
             }
         }
     }

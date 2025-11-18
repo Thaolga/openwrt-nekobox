@@ -66,9 +66,9 @@
             const settings = JSON.parse(savedSettings);
             const root = document.documentElement;
             
-            root.style.setProperty('--base-hue', settings.hue || 260);
-            root.style.setProperty('--base-chroma', settings.chroma || 0.10);
-            root.style.setProperty('--base-lightness', settings.lightness || 30);
+            root.style.setProperty('--base-hue', settings.hue || 347.01);
+            root.style.setProperty('--base-chroma', settings.chroma || 0.061);
+            root.style.setProperty('--base-lightness', settings.lightness || 99);
             
             const hue = settings.hue || 260;
             root.style.setProperty('--base-hue-1', hue + 20);
@@ -826,9 +826,13 @@
 .current-song {
     text-align: center;
     margin-bottom: 20px;
-    font-size: 24px;
+    font-size: 2em;
     font-weight: 700;
     color: var(--text-primary);
+    text-shadow:
+        1px 1px 0 oklch(20% 0 0 / 0.6),
+        2px 2px 1px oklch(20% 0 0 / 0.4),
+        3px 3px 2px oklch(20% 0 0 / 0.3);
 }
 
 .visualizer-container {
@@ -946,20 +950,13 @@
     transition: opacity 0.2s ease;
 }
 
-.lyrics-content.with-background::before {
-    content: '';
+.lyrics-content .bg-overlay {
     position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
+    inset: 0;
     background: rgba(0, 0, 0, 0.5);
     z-index: 0;
-}
-
-.lyrics-content.with-background > * {
-    position: relative;
-    z-index: 1;
+    pointer-events: none;
+    transition: opacity 0.2s ease;
 }
 
 .lyrics-controls {
@@ -971,6 +968,7 @@
     z-index: 10;
 }
 
+.lyrics-color-btn,
 .image-source-btn,
 .lyrics-source-btn,
 .lyrics-speed-btn,
@@ -987,10 +985,19 @@
     justify-content: center;
     cursor: pointer;
     transition: all 0.3s ease;
+}
+
+[data-theme="dark"] .control-btn,
+[data-theme="dark"] .lyrics-color-btn,
+[data-theme="dark"] .image-source-btn,
+[data-theme="dark"] .lyrics-source-btn,
+[data-theme="dark"] .lyrics-speed-btn,
+[data-theme="dark"] .bg-toggle {
     border: var(--glass-border);
     box-shadow: var(--border-glow);
 }
 
+.lyrics-color-btn:hover,
 .image-source-btn:hover,
 .lyrics-source-btn:hover,
 .lyrics-speed-btn:hover,
@@ -1012,6 +1019,7 @@
     color: var(--color-green);
 }
 
+.color-panel,
 .image-source-panel,
 .source-panel,
 .speed-panel {
@@ -1022,10 +1030,55 @@
     padding: 16px;
     box-shadow: 0 4px 12px rgba(0,0,0,0.2);
     z-index: 100000;
-    min-width: 280px;
+    min-width: 350px;
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
+}
+
+.color-options {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+    margin: 12px 0;
+}
+
+.color-option {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 8px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    border: 1px solid transparent;
+}
+
+.color-option:hover {
+    background: var(--accent-tertiary);
+}
+
+.color-option.selected {
+    border-color: var(--accent-primary);
+    background: var(--accent-secondary);
+}
+
+.color-preview {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    margin-bottom: 4px;
+    border: var(--border-light);
+}
+
+.color-option span {
+    font-size: 12px;
+    color: var(--text-primary);
+}
+
+.color-option.selected span,
+.color-option:hover span {
+    color: white;
 }
 
 .speed-title {
@@ -1103,6 +1156,7 @@
 .image-source-panel .source-option:hover,
 .source-option:hover {
     background: var(--item-hover-bg);
+    color: white;
 }
 
 .image-source-panel .source-option input[type="radio"] ,
@@ -1172,8 +1226,6 @@
 
 .control-btn {
     background-color: var(--bg-body);
-    border: var(--glass-border);
-    box-shadow: var(--border-glow);
     backdrop-filter: blur(10px);
     -webkit-backdrop-filter: blur(10px);
     color: var(--text-primary);
@@ -1502,9 +1554,70 @@
 }
 
 .lyrics-content.has-background-image .lyric-line .char {
-    color: var(--color-white-strong);
+    color: oklch(var(--lyrics-lightness, 85%) var(--lyrics-chroma, 0.18) var(--lyrics-hue, 0));
     opacity: 0.9;
-    text-shadow: var(--text-shadow);
+    text-shadow:
+        1px 1px 0 oklch(20% 0 0 / 0.6),
+        2px 2px 1px oklch(20% 0 0 / 0.4),
+        3px 3px 2px oklch(20% 0 0 / 0.3);
+}
+
+.lyrics-content.has-background-image .lyric-line .char.played {
+    color: oklch(var(--l) var(--c) 0) !important;
+    opacity: 1;
+    transform: scale(0.95);
+    filter: grayscale(0.3);
+    text-shadow:
+        1px 1px 0 oklch(20% 0 0 / 0.6),
+        2px 2px 1px oklch(20% 0 0 / 0.4),
+        3px 3px 2px oklch(20% 0 0 / 0.3);
+}
+
+.lyrics-content.has-background-image .lyric-line.highlight .char.active {
+    opacity: 1;
+    color: transparent;
+    background: linear-gradient(135deg,
+            oklch(calc(var(--l) + 15%) calc(var(--c) + 0.3) calc(var(--base-hue) + 0)) 0%,
+            oklch(calc(var(--l) + 20%) calc(var(--c) + 0.4) calc(var(--base-hue) + 60)) 25%,
+            oklch(calc(var(--l) + 25%) calc(var(--c) + 0.35) calc(var(--base-hue) + 120)) 50%,
+            oklch(calc(var(--l) + 20%) calc(var(--c) + 0.4) calc(var(--base-hue) + 180)) 75%,
+            oklch(calc(var(--l) + 15%) calc(var(--c) + 0.3) calc(var(--base-hue) + 240)) 100%);
+    background-size: 300% 300%;
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    animation: shimmer 2s ease-in-out infinite;
+    position: relative;
+    z-index: 3;
+    text-shadow: none;
+}
+
+.lyrics-content.has-background-image .lyric-line.highlight .char.active::before {
+    content: attr(data-char);
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    color: transparent;
+    text-shadow:
+        1px 1px 0 oklch(20% 0 0 / 0.6),
+        2px 2px 1px oklch(20% 0 0 / 0.4),
+        3px 3px 2px oklch(20% 0 0 / 0.3);
+    z-index: -1;
+    pointer-events: none;
+}
+
+.lyrics-content.has-background-image .lyric-line.highlight {
+    color: var(--text-primary);
+    font-size: 1.8rem;
+    font-weight: 700;
+    transform: scale(1.02);
+    position: relative;
+    z-index: 2;
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
 }
 
 .lyric-line .char.played {
@@ -3068,16 +3181,21 @@ function createLyricsControls() {
     sourceBtn.className = 'lyrics-source-btn';
     sourceBtn.innerHTML = '<i class="fas fa-database"></i>';
     sourceBtn.setAttribute('data-title', 'lyrics_source');
+
+    const imageSourceBtn = document.createElement('div');
+    imageSourceBtn.className = 'image-source-btn';
+    imageSourceBtn.innerHTML = '<i class="bi bi-person-circle"></i>';
+    imageSourceBtn.setAttribute('data-title', 'image_source');
     
     const speedBtn = document.createElement('div');
     speedBtn.className = 'lyrics-speed-btn';
     speedBtn.innerHTML = '<i class="fas fa-tachometer-alt"></i>';
     speedBtn.setAttribute('data-title', 'lyrics_speed');
     
-    const imageSourceBtn = document.createElement('div');
-    imageSourceBtn.className = 'image-source-btn';
-    imageSourceBtn.innerHTML = '<i class="bi bi-person-circle"></i>';
-    imageSourceBtn.setAttribute('data-title', 'image_source');
+    const colorBtn = document.createElement('div');
+    colorBtn.className = 'lyrics-color-btn';
+    colorBtn.innerHTML = '<i class="fas fa-font"></i>';
+    colorBtn.setAttribute('data-title', 'font_color');
     
     const bgToggle = document.createElement('div');
     bgToggle.className = 'bg-toggle';
@@ -3086,8 +3204,9 @@ function createLyricsControls() {
     bgToggle.setAttribute('data-title', 'background_toggle');
     
     controls.appendChild(sourceBtn);
-    controls.appendChild(speedBtn);
     controls.appendChild(imageSourceBtn);
+    controls.appendChild(speedBtn);
+    controls.appendChild(colorBtn);
     controls.appendChild(bgToggle);
     
     const lyricsTitle = document.querySelector('.lyrics-title');
@@ -3111,6 +3230,11 @@ function createLyricsControls() {
         event.stopPropagation();
         showImageSourceOptions(this);
     });
+
+    colorBtn.addEventListener('click', function(event) {
+        event.stopPropagation();
+        showColorOptions(this);
+    });
     
     bgToggle.addEventListener('click', function(event) {
         event.stopPropagation();
@@ -3133,8 +3257,13 @@ function createLyricsControls() {
     });
     
     const savedBgState = localStorage.getItem('bgEnabled');
-    if (savedBgState === 'true') {
+    if (savedBgState === null) {
+        localStorage.setItem('bgEnabled', 'true');
         bgToggle.classList.add('active');
+    } else {
+        if (savedBgState === 'true') {
+            bgToggle.classList.add('active');
+        }
     }
 }
 
@@ -3367,6 +3496,157 @@ function showSpeedOptions(button) {
     }, 100);
 }
 
+function showColorOptions(button) {
+    const existingPanel = document.querySelector('.color-panel');
+    if (existingPanel) {
+        existingPanel.remove();
+        return;
+    }
+    
+    const translations = languageTranslations[currentLang] || languageTranslations['en'];
+    const currentHue = localStorage.getItem('lyricsColorHue') || '250';
+    const currentLightness = localStorage.getItem('lyricsLightness') || '98%';
+    const currentChroma = localStorage.getItem('lyricsChroma') || '0';
+
+    const panel = document.createElement('div');
+    panel.className = 'color-panel';
+    panel.innerHTML = `
+        <div class="source-title">${translations['font_color']}</div>
+        <div class="color-options">
+            <label class="color-option" data-hue="0" data-lightness="85%" data-chroma="0.18">
+                <div class="color-preview" style="background: oklch(85% 0.18 0)"></div>
+                <span>${translations['red']}</span>
+            </label>
+            <label class="color-option" data-hue="30" data-lightness="85%" data-chroma="0.18">
+                <div class="color-preview" style="background: oklch(85% 0.18 30)"></div>
+                <span>${translations['orange']}</span>
+            </label>
+            <label class="color-option" data-hue="60" data-lightness="85%" data-chroma="0.18">
+                <div class="color-preview" style="background: oklch(85% 0.18 60)"></div>
+                <span>${translations['yellow']}</span>
+            </label>
+            <label class="color-option" data-hue="120" data-lightness="85%" data-chroma="0.18">
+                <div class="color-preview" style="background: oklch(85% 0.18 120)"></div>
+                <span>${translations['green']}</span>
+            </label>
+            <label class="color-option" data-hue="180" data-lightness="85%" data-chroma="0.18">
+                <div class="color-preview" style="background: oklch(85% 0.18 180)"></div>
+                <span>${translations['cyan']}</span>
+            </label>
+            <label class="color-option" data-hue="240" data-lightness="85%" data-chroma="0.18">
+                <div class="color-preview" style="background: oklch(85% 0.18 240)"></div>
+                <span>${translations['blue']}</span>
+            </label>
+            <label class="color-option" data-hue="300" data-lightness="85%" data-chroma="0.18">
+                <div class="color-preview" style="background: oklch(85% 0.18 300)"></div>
+                <span>${translations['purple']}</span>
+            </label>
+            <label class="color-option" data-hue="250" data-lightness="98%" data-chroma="0">
+                <div class="color-preview" style="background: oklch(98% 0 250)"></div>
+                <span>${translations['white']}</span>
+            </label>
+            <label class="color-option" data-hue="0" data-lightness="75%" data-chroma="0.03">
+                <div class="color-preview" style="background: oklch(75% 0.03 0)"></div>
+                <span>${translations['light_gray']}</span>
+            </label>
+            <label class="color-option" data-hue="0" data-lightness="50%" data-chroma="0.03">
+                <div class="color-preview" style="background: oklch(50% 0.03 0)"></div>
+                <span>${translations['gray']}</span>
+            </label>
+            <label class="color-option" data-hue="0" data-lightness="25%" data-chroma="0.03">
+                <div class="color-preview" style="background: oklch(25% 0.03 0)"></div>
+                <span>${translations['dark_gray']}</span>
+            </label>
+            <label class="color-option" data-hue="0" data-lightness="15%" data-chroma="0.03">
+                <div class="color-preview" style="background: oklch(15% 0.03 0)"></div>
+                <span>${translations['black']}</span>
+            </label>
+        </div>
+        <div class="source-actions">
+            <button class="source-confirm">${translations['modal_confirm']}</button>
+        </div>
+    `;
+    
+    document.body.appendChild(panel);
+
+    const currentOption = panel.querySelector(
+        `.color-option[data-hue="${currentHue}"][data-lightness="${currentLightness}"][data-chroma="${currentChroma}"]`
+    );
+    if (currentOption) currentOption.classList.add('selected');
+
+    panel.querySelectorAll('.color-option').forEach(option => {
+        option.addEventListener('click', function() {
+            panel.querySelectorAll('.color-option').forEach(opt => opt.classList.remove('selected'));
+            this.classList.add('selected');
+        });
+    });
+
+    panel.querySelector('.source-confirm').addEventListener('click', function() {
+        const selectedOption = panel.querySelector('.color-option.selected');
+        if (selectedOption) {
+            const hueValue = selectedOption.getAttribute('data-hue');
+            const lightnessValue = selectedOption.getAttribute('data-lightness');
+            const chromaValue = selectedOption.getAttribute('data-chroma');
+
+            localStorage.setItem('lyricsColorHue', hueValue);
+            localStorage.setItem('lyricsLightness', lightnessValue);
+            localStorage.setItem('lyricsChroma', chromaValue);
+
+            applyLyricsColor(hueValue, lightnessValue, chromaValue);
+            
+            const colorNames = {
+                '0_85%_0.18': translations['red'],
+                '30_85%_0.18': translations['orange'],
+                '60_85%_0.18': translations['yellow'],
+                '120_85%_0.18': translations['green'],
+                '180_85%_0.18': translations['cyan'],
+                '240_85%_0.18': translations['blue'],
+                '300_85%_0.18': translations['purple'],
+                '250_98%_0': translations['white'],
+                '0_75%_0.03': translations['light_gray'],
+                '0_50%_0.03': translations['gray'],
+                '0_25%_0.03': translations['dark_gray'],
+                '0_15%_0.03': translations['black']
+            };
+            
+            const colorKey = `${hueValue}_${lightnessValue}_${chromaValue}`;
+            const successMsg = `${translations['font_color_set']}: ${colorNames[colorKey]}`;
+            
+            if (typeof showLogMessage === 'function') {
+                showLogMessage(successMsg);
+            }
+            if (colorVoiceEnabled) {
+                speakMessage(successMsg);
+            }
+        }
+        panel.remove();
+    });
+
+    setTimeout(() => {
+        const closeHandler = (e) => {
+            if (!panel.contains(e.target) && e.target !== button) {
+                panel.remove();
+                document.removeEventListener('click', closeHandler);
+            }
+        };
+        document.addEventListener('click', closeHandler);
+    }, 100);
+}
+
+function applyLyricsColor(h, l, c) {
+    document.documentElement.style.setProperty('--lyrics-hue', h);
+    document.documentElement.style.setProperty('--lyrics-lightness', l);
+    document.documentElement.style.setProperty('--lyrics-chroma', c);
+}
+
+function initLyricsColor() {
+    const savedHue = localStorage.getItem('lyricsColorHue') || '250';
+    const savedLightness = localStorage.getItem('lyricsLightness') || '98%';
+    const savedChroma = localStorage.getItem('lyricsChroma') || '0';
+
+    applyLyricsColor(savedHue, savedLightness, savedChroma);
+}
+
 function applyExpandedLayout() {
     const playlistSection = document.querySelector('.playlist-section');
     const lyricsSection = document.querySelector('.lyrics-section');
@@ -3403,6 +3683,30 @@ function applyNormalLayout() {
     forceUpdateBackground();
 }
 
+function ensureOverlay(lyricsContent) {
+    if (!lyricsContent) return null;
+    let overlay = lyricsContent.querySelector('.bg-overlay');
+    if (!overlay) {
+        overlay = document.createElement('div');
+        overlay.className = 'bg-overlay';
+        lyricsContent.appendChild(overlay);
+    }
+    overlay.style.display = 'block';
+    overlay.style.opacity = '1';
+    return overlay;
+}
+
+function removeOverlay(lyricsContent) {
+    if (!lyricsContent) return;
+    const overlay = lyricsContent.querySelector('.bg-overlay');
+    if (overlay) {
+        overlay.style.opacity = '0';
+        setTimeout(() => {
+            overlay.style.display = 'none';
+        }, 200);
+    }
+}
+
 function forceUpdateBackground() {
     const lyricsContent = document.querySelector('.lyrics-content');
     const isExpanded = localStorage.getItem('lyricsExpanded') === 'true';
@@ -3418,6 +3722,7 @@ function forceUpdateBackground() {
             lyricsContent.style.backgroundSize = 'contain';
             lyricsContent.style.backgroundPosition = 'center';
             lyricsContent.classList.add('has-background-image');
+            ensureOverlay(lyricsContent);
         }
     }
 }
@@ -3449,12 +3754,15 @@ function removeLyricsBackground() {
         lyricsContent.style.backgroundSize = '';
         lyricsContent.style.backgroundPosition = '';
         lyricsContent.classList.remove('has-background-image'); 
+
+        removeOverlay(lyricsContent);
     }
 }
 
 document.addEventListener('DOMContentLoaded', function() {
     createLyricsControls();
     initLayoutState();
+    initLyricsColor();
     initArtistImageToggle();
 });
 
