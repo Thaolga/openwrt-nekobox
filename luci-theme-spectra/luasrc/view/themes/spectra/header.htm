@@ -1553,6 +1553,7 @@
     text-shadow: var(--text-shadow);
 }
 
+.lyrics-content.has-background-image .lyric-line.plain-line,
 .lyrics-content.has-background-image .lyric-line .char {
     color: oklch(var(--lyrics-lightness, 85%) var(--lyrics-chroma, 0.18) var(--lyrics-hue, 0));
     opacity: 0.9;
@@ -1571,6 +1572,15 @@
         1px 1px 0 oklch(20% 0 0 / 0.6),
         2px 2px 1px oklch(20% 0 0 / 0.4),
         3px 3px 2px oklch(20% 0 0 / 0.3);
+}
+
+.lyrics-content.has-background-image .lyric-line .char.active,
+.lyrics-content.has-background-image .lyric-line .char.played,
+.lyrics-content.has-background-image .lyric-line.plain-line.highlight,
+.lyrics-content.has-background-image .lyric-line.plain-line.active {
+    color: oklch(95% 0.2 var(--lyrics-hue, 0));
+    opacity: 1;
+
 }
 
 .lyrics-content.has-background-image .lyric-line.highlight .char.active {
@@ -3295,8 +3305,8 @@ function showLyricsSourceOptions(button) {
                 <span>${translations['kugou_music'] || 'Kugou Music'}</span>
             </label>
             <label class="source-option">
-                <input type="radio" name="lyricsSource" value="lyricsovh" ${currentSource === 'lyricsovh' ? 'checked' : ''}>
-                <span>${translations['lyrics_ovh'] || 'Lyrics.ovh'}</span>
+                <input type="radio" name="lyricsSource" value="lrclib" ${currentSource === 'lrclib' ? 'checked' : ''}>
+                <span>LRCLib</span>
             </label>
         </div>
         <div class="source-actions">
@@ -3314,7 +3324,7 @@ function showLyricsSourceOptions(button) {
             'auto': translations['auto_select'] || 'Auto Select',
             'netease': translations['netease_music'] || 'Netease Music',
             'kugou': translations['kugou_music'] || 'Kugou Music',
-            'lyricsovh': translations['lyrics_ovh'] || 'Lyrics.ovh'
+            'lrclib': 'LRCLib'
         };
         const successMsg = `${translations['lyrics_source_set'] || 'Lyrics source set to'}: ${sourceNames[selectedSource]}`;
         
@@ -4184,6 +4194,7 @@ function parseSongInfo(filename) {
 function loadLyrics(songUrl) {
     const lyricsUrl = songUrl.replace(/\.\w+$/, '.lrc');
     const translations = languageTranslations[currentLang] || languageTranslations['zh'];
+    
     window.lyrics = {};
     window.lyricTimes = [];
     
@@ -4213,27 +4224,12 @@ function loadLyrics(songUrl) {
 }
 
 function loadGitHubLyricsSilently(lyricsUrl, songUrl) {
-    const translations = languageTranslations[currentLang] || languageTranslations['zh'];
-    
-    const originalConsoleError = console.error;
-    
-    console.error = function(...args) {
-        if (args[0] && typeof args[0] === 'string' && 
-            args[0].includes('.lrc') && 
-            args[0].includes('githubusercontent.com')) {
-            return;
-        }
-        originalConsoleError.apply(console, args);
-    };
-
     const xhr = new XMLHttpRequest();
     xhr.open('GET', lyricsUrl, true);
     xhr.timeout = 5000;
     
     xhr.onreadystatechange = function() {
         if (xhr.readyState === 4) {
-            console.error = originalConsoleError;
-            
             if (xhr.status === 200) {
                 try {
                     parseLyrics(xhr.responseText);
@@ -4249,19 +4245,16 @@ function loadGitHubLyricsSilently(lyricsUrl, songUrl) {
     };
     
     xhr.ontimeout = function() {
-        console.error = originalConsoleError;
         fetchLyricsFromAPI(songUrl);
     };
     
     xhr.onerror = function() {
-        console.error = originalConsoleError;
         fetchLyricsFromAPI(songUrl);
     };
     
     try {
         xhr.send();
     } catch (e) {
-        console.error = originalConsoleError;
         fetchLyricsFromAPI(songUrl);
     }
 }
@@ -4269,7 +4262,13 @@ function loadGitHubLyricsSilently(lyricsUrl, songUrl) {
 function fetchLyricsFromAPI(songUrl) {
     const songName = decodeURIComponent(songUrl.split('/').pop().replace(/\.\w+$/, ''));
     const { artist, title } = parseSongInfo(songName);
-    const primarySearchTitle = title || songName;
+    
+    // console.log('Lyrics search parameters:', { 
+    //     songName, 
+    //     artist, 
+    //     title,
+    //     preferredSource: localStorage.getItem('lyricsSource') || 'auto'
+    // });
 
     const translations = languageTranslations[currentLang] || languageTranslations['zh'];
     const containers = [
@@ -4288,99 +4287,57 @@ function fetchLyricsFromAPI(songUrl) {
         }
     });
 
-    //console.log(`Searching lyrics: Artist="${artist}", Title="${title}", File Name="${songName}", Primary Search Term="${primarySearchTitle}"`);
-
     const preferredSource = localStorage.getItem('lyricsSource') || 'auto';
-    const searchPromises = [];
+    const proxyUrl = '/luci-static/spectra/bgm/lyrics_proxy.php';
     
-    if (preferredSource === 'netease' || preferredSource === 'auto') {
-        if (artist && title) {
-            searchPromises.push(tryNeteaseProxy(artist, title, songName));
-        }
-        if (primarySearchTitle) {
-            searchPromises.push(tryNeteaseProxy("", primarySearchTitle, songName));
-        }
-    }
+    // console.log('Sending request to proxy:', { preferredSource, artist, title, songName });
     
-    if (preferredSource === 'kugou' || preferredSource === 'auto') {
-        if (artist && title) {
-            searchPromises.push(tryKugouProxy(artist, title, songName));
-        }
-        if (primarySearchTitle) {
-            searchPromises.push(tryKugouProxy("", primarySearchTitle, songName));
-        }
-    }
-    
-    if (preferredSource === 'lyricsovh' || preferredSource === 'auto') {
-        if (artist && title) {
-            searchPromises.push(tryLRCLIB(artist, title));
-        }
-        if (primarySearchTitle) {
-            searchPromises.push(tryLRCLIB(artist || "", primarySearchTitle));
-        }
-    }
-
-    if (searchPromises.length === 0) {
-        //console.log("No valid search criteria");
-        showNoLyrics(containers, primarySearchTitle, translations);
-        return;
-    }
-
-    //console.log(`Starting search with a total of ${searchPromises.length} search requests`);
-
-    let hasResolved = false;
-    
-    Promise.any(searchPromises)
-        .then(result => {
-            if (!hasResolved && result && result.lyrics) {
-                hasResolved = true;
-                //console.log(`Lyrics found, source: ${result.source}`);
-                handleLyricsResult(result, containers);
-            }
+    fetch(proxyUrl, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            source: preferredSource,
+            artist: artist,
+            title: title,
+            songName: songName
         })
-        .catch(error => {
-            if (!hasResolved) {
-                hasResolved = true;
-                //console.log("All lyric source searches failed:", error);
-                showNoLyrics(containers, primarySearchTitle, translations);
-            }
-        });
-
-    setTimeout(() => {
-        if (!hasResolved) {
-            hasResolved = true;
-            //console.log("Search timed out");
-            showNoLyrics(containers, primarySearchTitle, translations);
+    })
+    .then(response => {
+        // console.log('Proxy response status:', response.status);
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+        return response.json();
+    })
+    .then(data => {
+        // console.log('Proxy returned data:', data);
+        if (data.success && data.lyrics) {
+            handleLyricsResult(data);
+        } else {
+            // console.log('Failed to get lyrics:', data.message);
+            showNoLyrics(containers, songName, translations);
         }
-    }, 10000);
-}
-
-function showNoLyrics(containers, songName, translations) {
-    //console.log("Showing no-lyrics state");
-    containers.forEach(container => {
-        if (container) {
-            const message = translations['lyrics_not_found'] || 'Lyrics not found online';
-            if (container.id === 'lyricsContainer') {
-                container.innerHTML = `<div id="no-lyrics">${message}</div>`;
-            } else {
-                const verticalText = message.split('').map(char => `<span class="char">${char}</span>`).join('');
-                container.innerHTML = `<div id="noLyricsFloating" class="vertical-message">${verticalText}</div>`;
-            }
-        }
+    })
+    .catch(error => {
+        // console.error('Lyrics proxy request failed:', error);
+        showNoLyrics(containers, songName, translations);
     });
 }
 
-function handleLyricsResult(lyricsData, containers) {
-    //console.log(`Lyrics source: ${lyricsData.source}`);
+function handleLyricsResult(lyricsData) {
+    const containers = [
+        document.getElementById('lyricsContainer'),
+        document.querySelector('#floatingLyrics .vertical-lyrics')
+    ];
     
     if (lyricsData.hasTimestamps) {
-        processLrcLyrics(lyricsData.lyrics, containers);
+        processLrcLyrics(lyricsData.lyrics);
     } else {
         displayPlainLyrics(lyricsData.lyrics, containers);
     }
 }
 
-function processLrcLyrics(lyricsText, containers) {
+function processLrcLyrics(lyricsText) {
     window.lyrics = {};
     window.lyricTimes = [];
     
@@ -4394,6 +4351,20 @@ function processLrcLyrics(lyricsText, containers) {
     audioPlayer.addEventListener('timeupdate', syncLyrics);
 }
 
+function showNoLyrics(containers, songName, translations) {
+    containers.forEach(container => {
+        if (container) {
+            const message = translations['lyrics_not_found'] || 'Lyrics not found online';
+            if (container.id === 'lyricsContainer') {
+                container.innerHTML = `<div id="no-lyrics">${message}</div>`;
+            } else {
+                const verticalText = message.split('').map(char => `<span class="char">${char}</span>`).join('');
+                container.innerHTML = `<div id="noLyricsFloating" class="vertical-message">${verticalText}</div>`;
+            }
+        }
+    });
+}
+
 function displayPlainLyrics(lyricsText, containers) {
     window.lyrics = {};
     window.lyricTimes = [];
@@ -4402,6 +4373,13 @@ function displayPlainLyrics(lyricsText, containers) {
     audioPlayer.removeEventListener('timeupdate', syncPlainLyrics);
     
     const lines = lyricsText.split('\n').filter(line => line.trim() !== '');
+    
+    if (!containers) {
+        containers = [
+            document.getElementById('lyricsContainer'),
+            document.querySelector('#floatingLyrics .vertical-lyrics')
+        ];
+    }
     
     containers.forEach(container => {
         if (container) {
@@ -4499,170 +4477,6 @@ function syncPlainLyrics() {
     if (!hasActiveLine && currentTime < 5 && lyricsContainer.scrollTop !== 0) {
         lyricsContainer.scrollTo({ top: 0, behavior: 'smooth' });
     }
-}
-
-function tryNeteaseProxy(artist, title, songName) {
-    return new Promise((resolve, reject) => {
-        const proxyUrl = '/luci-static/spectra/bgm/lyrics_proxy.php';
-        
-        fetch(proxyUrl, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                source: 'netease',
-                artist: artist,
-                title: title,
-                songName: songName
-            })
-        })
-        .then(response => {
-            if (!response.ok) throw new Error(`HTTP ${response.status}`);
-            return response.json();
-        })
-        .then(data => {
-            if (data.success && data.lyrics) {
-                resolve({
-                    lyrics: data.lyrics,
-                    hasTimestamps: data.hasTimestamps || true,
-                    source: 'netease'
-                });
-            } else {
-                reject(new Error(data.message || 'No lyrics from Netease'));
-            }
-        })
-        .catch(error => reject(error));
-    });
-}
-
-function tryKugouProxy(artist, title, songName) {
-    return new Promise((resolve, reject) => {
-        const proxyUrl = '/luci-static/spectra/bgm/lyrics_proxy.php';
-        
-        fetch(proxyUrl, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                source: 'kugou',
-                artist: artist,
-                title: title,
-                songName: songName
-            })
-        })
-        .then(response => {
-            if (!response.ok) throw new Error(`HTTP ${response.status}`);
-            return response.json();
-        })
-        .then(data => {
-            if (data.success && data.lyrics) {
-                resolve({
-                    lyrics: data.lyrics,
-                    hasTimestamps: data.hasTimestamps || true,
-                    source: 'kugou'
-                });
-            } else {
-                reject(new Error(data.message || 'No lyrics from Kugou'));
-            }
-        })
-        .catch(error => reject(error));
-    });
-}
-
-function tryLRCLib(artist, title) {
-    return new Promise((resolve, reject) => {
-        if (!title) {
-            reject(new Error('No title provided'));
-            return;
-        }
-        
-        let searchQuery = title;
-        if (artist) {
-            searchQuery = `${artist} ${title}`;
-        }
-        
-        const searchUrl = `https://lrclib.net/api/search?q=${encodeURIComponent(searchQuery)}`;
-        
-        fetch(searchUrl)
-            .then(response => {
-                if (!response.ok) throw new Error(`HTTP ${response.status}`);
-                return response.json();
-            })
-            .then(data => {
-                if (data && data.length > 0) {
-                    const songData = data[0];
-                    if (songData.syncedLyrics) {
-                        resolve({
-                            lyrics: songData.syncedLyrics,
-                            hasTimestamps: true,
-                            source: 'lrclib'
-                        });
-                    } else if (songData.plainLyrics) {
-                        resolve({
-                            lyrics: songData.plainLyrics,
-                            hasTimestamps: false,
-                            source: 'lrclib'
-                        });
-                    } else {
-                        reject(new Error('No lyrics available'));
-                    }
-                } else {
-                    reject(new Error('No results found'));
-                }
-            })
-            .catch(error => {
-                reject(error);
-            });
-    });
-}
-
-function tryLRCLIB(artist, title) {
-    return new Promise((resolve, reject) => {
-        if (!title) {
-            reject(new Error('No title provided'));
-            return;
-        }
-        
-        let searchQuery = title;
-        if (artist) {
-            searchQuery = artist + ' ' + title;
-        }
-        
-        const searchUrl = "https://lrclib.net/api/search?q=" + encodeURIComponent(searchQuery);
-        
-        fetch(searchUrl)
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error(`HTTP ${response.status}`);
-                }
-                return response.json();
-            })
-            .then(data => {
-                if (data && data.length > 0) {
-                    const songData = data[0];
-                    if (songData.syncedLyrics) {
-                        resolve({
-                            lyrics: songData.syncedLyrics,
-                            hasTimestamps: true,
-                            source: 'lyricsovh'
-                        });
-                    } else if (songData.plainLyrics) {
-                        resolve({
-                            lyrics: songData.plainLyrics,
-                            hasTimestamps: false,
-                            source: 'lyricsovh'
-                        });
-                    } else {
-                        reject(new Error('No lyrics available from LRCLIB'));
-                    }
-                } else {
-                    reject(new Error('No results found from LRCLIB'));
-                }
-            })
-            .catch(error => reject(error));
-    });
 }
 
 function parseLyrics(text) {
