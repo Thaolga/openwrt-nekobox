@@ -968,6 +968,7 @@
     z-index: 10;
 }
 
+.lyrics-download-btn,
 .lyrics-color-btn,
 .image-source-btn,
 .lyrics-source-btn,
@@ -987,6 +988,7 @@
     transition: all 0.3s ease;
 }
 
+[data-theme="dark"] .lyrics-download-btn,
 [data-theme="dark"] .control-btn,
 [data-theme="dark"] .lyrics-color-btn,
 [data-theme="dark"] .image-source-btn,
@@ -997,6 +999,7 @@
     box-shadow: var(--border-glow);
 }
 
+.lyrics-download-btn:hover,
 .lyrics-color-btn:hover,
 .image-source-btn:hover,
 .lyrics-source-btn:hover,
@@ -1019,6 +1022,106 @@
     color: var(--color-green);
 }
 
+.lyrics-download-btn:active {
+    transform: translateY(0);
+}
+
+.download-info {
+    text-align: center;
+    margin-bottom: 20px;
+    padding-bottom: 15px;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.download-song-title {
+    font-size: 18px;
+    font-weight: bold;
+    color: var(--text-color);
+    margin-bottom: 5px;
+}
+
+.download-song-artist {
+    font-size: 14px;
+    color: var(--text-secondary);
+}
+
+.download-options {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.download-option-btn {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 16px;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.05);
+    color: var(--text-color);
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 14px;
+}
+
+.download-option-btn:hover {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: var(--accent-color);
+}
+
+.download-option-btn.active {
+    background: var(--accent-color);
+    border-color: var(--accent-color);
+    color: white;
+}
+
+.download-option-btn i {
+    width: 16px;
+    text-align: center;
+}
+
+.download-actions {
+    display: flex;
+    gap: 10px;
+    justify-content: flex-end;
+}
+
+.download-cancel, .download-confirm {
+    padding: 8px 16px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: all 0.3s ease;
+}
+
+.download-cancel {
+    background: rgba(255, 255, 255, 0.1);
+    color: var(--text-color);
+}
+
+.download-cancel:hover {
+    background: rgba(255, 255, 255, 0.2);
+}
+
+.download-confirm {
+    background: var(--accent-color);
+    color: white;
+}
+
+.download-confirm:disabled {
+    background: rgba(255, 255, 255, 0.1);
+    color: var(--text-secondary);
+    cursor: not-allowed;
+}
+
+.download-confirm:not(:disabled):hover {
+    background: var(--accent-hover);
+}
+
+.download-panel,
 .color-panel,
 .image-source-panel,
 .source-panel,
@@ -3206,6 +3309,11 @@ function createLyricsControls() {
     colorBtn.className = 'lyrics-color-btn';
     colorBtn.innerHTML = '<i class="fas fa-font"></i>';
     colorBtn.setAttribute('data-title', 'font_color');
+
+    const downloadBtn = document.createElement('div');
+    downloadBtn.className = 'lyrics-download-btn';
+    downloadBtn.innerHTML = '<i class="fas fa-download"></i>';
+    downloadBtn.setAttribute('data-title', 'download_options');
     
     const bgToggle = document.createElement('div');
     bgToggle.className = 'bg-toggle';
@@ -3217,6 +3325,7 @@ function createLyricsControls() {
     controls.appendChild(imageSourceBtn);
     controls.appendChild(speedBtn);
     controls.appendChild(colorBtn);
+    controls.appendChild(downloadBtn);
     controls.appendChild(bgToggle);
     
     const lyricsTitle = document.querySelector('.lyrics-title');
@@ -3244,6 +3353,11 @@ function createLyricsControls() {
     colorBtn.addEventListener('click', function(event) {
         event.stopPropagation();
         showColorOptions(this);
+    });
+
+    downloadBtn.addEventListener('click', function(event) {
+        event.stopPropagation();
+        showDownloadOptions(this);
     });
     
     bgToggle.addEventListener('click', function(event) {
@@ -3274,6 +3388,199 @@ function createLyricsControls() {
         if (savedBgState === 'true') {
             bgToggle.classList.add('active');
         }
+    }
+}
+
+function showDownloadOptions(button) {
+    const existingPanel = document.querySelector('.download-panel');
+    if (existingPanel) {
+        existingPanel.remove();
+        return;
+    }
+    
+    const translations = languageTranslations[currentLang] || languageTranslations['zh'];
+    const currentSong = songs[currentTrackIndex];
+    
+    if (!currentSong) {
+        const errorMsg = translations['no_song_playing'] || 'No song currently playing';
+        if (typeof showLogMessage === 'function') {
+            showLogMessage(errorMsg);
+        }
+        return;
+    }
+    
+    const songName = decodeURIComponent(currentSong.split('/').pop().replace(/\.\w+$/, ''));
+    const { artist, title } = parseSongInfo(songName);
+    
+    const panel = document.createElement('div');
+    panel.className = 'download-panel';
+    panel.innerHTML = `
+        <div class="source-title">${translations['download_options'] || 'Download Options'}</div>
+        <div class="download-info">
+            <div class="download-song-title">${title || 'Unknown Title'}</div>
+            <div class="download-song-artist">${artist || 'Unknown Artist'}</div>
+        </div>
+        <div class="download-options">
+            <button class="download-option-btn" data-type="audio">
+                <i class="fas fa-music"></i>
+                <span>${translations['download_audio'] || 'Download Audio'}</span>
+            </button>
+            <button class="download-option-btn" data-type="lyrics">
+                <i class="fas fa-file-text"></i>
+                <span>${translations['download_lyrics'] || 'Download Lyrics'}</span>
+            </button>
+        </div>
+        <div class="download-actions">
+            <button class="download-cancel">${translations['cancel'] || 'Cancel'}</button>
+        </div>
+    `;
+    
+    document.body.appendChild(panel);
+    
+    panel.querySelectorAll('.download-option-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const downloadType = this.dataset.type;
+            
+            switch (downloadType) {
+                case 'audio':
+                    downloadAudio();
+                    break;
+                case 'lyrics':
+                    downloadLyrics();
+                    break;
+            }
+            
+            panel.remove();
+        });
+    });
+    
+    panel.querySelector('.download-cancel').addEventListener('click', function() {
+        panel.remove();
+    });
+    
+    setTimeout(() => {
+        const closeHandler = (e) => {
+            if (!panel.contains(e.target) && e.target !== button) {
+                panel.remove();
+                document.removeEventListener('click', closeHandler);
+            }
+        };
+        document.addEventListener('click', closeHandler);
+    }, 100);
+}
+
+function downloadAudio() {
+    const translations = languageTranslations[currentLang] || languageTranslations['zh'];
+    
+    const currentSong = songs[currentTrackIndex];
+    if (!currentSong) {
+        const errorMsg = translations['no_song_playing'] || 'No song currently playing';
+        if (typeof showLogMessage === 'function') {
+            showLogMessage(errorMsg);
+        }
+        return;
+    }
+    
+    try {
+
+        const songName = decodeURIComponent(currentSong.split('/').pop().replace(/\.\w+$/, ''));
+        const { artist, title } = parseSongInfo(songName);
+        
+        let downloadUrl = currentSong;
+        if (downloadUrl.startsWith('/')) {
+            downloadUrl = window.location.origin + downloadUrl;
+        } else if (!downloadUrl.startsWith('http')) {
+            const baseUrl = currentPlaylistUrl.substring(0, currentPlaylistUrl.lastIndexOf('/') + 1);
+            downloadUrl = baseUrl + downloadUrl;
+        }
+                
+        window.open(downloadUrl, '_blank');
+        
+        const successMsg = translations['audio_downloaded'] || 'Audio download started in new tab';
+        if (typeof showLogMessage === 'function') {
+            showLogMessage(successMsg);
+        }
+        if (colorVoiceEnabled) {
+            speakMessage(successMsg);
+        }
+        
+    } catch (error) {
+        console.error('Download audio error:', error);
+        const errorMsg = translations['download_failed'] || 'Download failed';
+        if (typeof showLogMessage === 'function') {
+            showLogMessage(errorMsg);
+        }
+    }
+}
+
+function downloadLyrics() {
+    const translations = languageTranslations[currentLang] || languageTranslations['zh'];
+    
+    if (!window.lyrics || Object.keys(window.lyrics).length === 0) {
+        const errorMsg = translations['no_lyrics_available'] || 'No lyrics available to download';
+        if (typeof showLogMessage === 'function') {
+            showLogMessage(errorMsg);
+        }
+        if (colorVoiceEnabled) {
+            speakMessage(errorMsg);
+        }
+        return;
+    }
+    
+    const currentSong = songs[currentTrackIndex];
+    if (!currentSong) {
+        const errorMsg = translations['no_song_playing'] || 'No song currently playing';
+        if (typeof showLogMessage === 'function') {
+            showLogMessage(errorMsg);
+        }
+        if (colorVoiceEnabled) {
+            speakMessage(errorMsg);
+        }
+        return;
+    }
+    
+    const songName = decodeURIComponent(currentSong.split('/').pop().replace(/\.\w+$/, ''));
+    const { artist, title } = parseSongInfo(songName);
+    
+    let lyricsContent = '';
+    
+    lyricsContent += `Title: ${title || 'Unknown'}\n`;
+    lyricsContent += `Artist: ${artist || 'Unknown'}\n`;
+    lyricsContent += `Download Time: ${new Date().toLocaleString()}\n`;
+    lyricsContent += '='.repeat(40) + '\n\n';
+    
+    const lyricsArray = Object.entries(window.lyrics)
+        .sort((a, b) => parseFloat(a[0]) - parseFloat(b[0]));
+    
+    for (const [time, text] of lyricsArray) {
+        if (text.trim()) {
+            const minutes = Math.floor(time / 60);
+            const seconds = (time % 60).toFixed(2).padStart(5, '0');
+            lyricsContent += `[${minutes}:${seconds}] ${text}\n`;
+        }
+    }
+    
+    const blob = new Blob([lyricsContent], { type: 'text/plain;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const filename = `${artist || 'Unknown'} - ${title || 'Unknown'}.lrc`.replace(/[<>:"/\\|?*]/g, '_');
+    
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = filename;
+    a.style.display = 'none';
+    
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    
+    URL.revokeObjectURL(url);
+    
+    const successMsg = translations['lyrics_downloaded'] || 'Lyrics downloaded successfully';
+    if (typeof showLogMessage === 'function') {
+        showLogMessage(successMsg);
+    }
+    if (colorVoiceEnabled) {
+        speakMessage(successMsg);
     }
 }
 
