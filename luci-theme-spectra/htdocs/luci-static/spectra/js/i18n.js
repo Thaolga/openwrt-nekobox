@@ -188,6 +188,18 @@ const languageTranslations = {
         'dark_gray': '深灰',
         'black': '黑色',
         'font_color_set': '字体颜色设置为',
+        'advancedColorControl': '高级颜色控制',
+        'colorControl': '颜色控制',
+        'hue': '主色调',
+        'chroma': '色度',
+        'lightness': '亮度',
+        'colorPreview': '颜色预览',
+        'currentColor': '当前颜色',
+        'oklchValue': 'OKLCH 值：',
+        'contrast': '对比度：',
+        'contrastExcellent': '优秀 (AAA)',
+        'contrastGood': '良好 (AA)',
+        'contrastPoor': '不足',
         'command_install_label': '命令安装'
     },
     'hk': {
@@ -379,6 +391,18 @@ const languageTranslations = {
         'download_failed': '下載失敗',
         'no_lyrics_available': '沒有可用的歌詞',
         'no_song_playing': '沒有正在播放的歌曲',
+        'advancedColorControl': '高級顏色控制',
+        'colorControl': '顏色控制',
+        'hue': '主色調',
+        'chroma': '色度',
+        'lightness': '亮度',
+        'colorPreview': '顏色預覽',
+        'currentColor': '當前顏色',
+        'oklchValue': 'OKLCH 值：',
+        'contrast': '對比度：',
+        'contrastExcellent': '優秀 (AAA)',
+        'contrastGood': '良好 (AA)',
+        'contrastPoor': '不足',
         'theme_download': '主題下載'
     },
     'en': {
@@ -574,6 +598,18 @@ const languageTranslations = {
         'download_failed': 'Download failed',
         'no_lyrics_available': 'No lyrics available to download',
         'no_song_playing': 'No song currently playing',
+        'advancedColorControl': 'Advanced Color Control',
+        'colorControl': 'Color Control',
+        'hue': 'Hue',
+        'chroma': 'Chroma',
+        'lightness': 'Lightness',
+        'colorPreview': 'Color Preview',
+        'currentColor': 'Current Color',
+        'oklchValue': 'OKLCH Value:',
+        'contrast': 'Contrast:',
+        'contrastExcellent': 'Excellent (AAA)',
+        'contrastGood': 'Good (AA)',
+        'contrastPoor': 'Poor',
         'theme_download': 'Theme download'
     },
     'ko': {
@@ -759,6 +795,18 @@ const languageTranslations = {
         'download_failed': '다운로드 실패',
         'no_lyrics_available': '다운로드할 가사가 없습니다',
         'no_song_playing': '재생 중인 노래가 없습니다',
+        'advancedColorControl': '고급 색상 제어',
+        'colorControl': '색상 제어',
+        'hue': '색상',
+        'chroma': '채도',
+        'lightness': '명도',
+        'colorPreview': '색상 미리보기',
+        'currentColor': '현재 색상',
+        'oklchValue': 'OKLCH 값:',
+        'contrast': '명암비:',
+        'contrastExcellent': '우수 (AAA)',
+        'contrastGood': '좋음 (AA)',
+        'contrastPoor': '부족함',
         'theme_download': '테마 다운로드'
     },
     'vi': {
@@ -945,6 +993,18 @@ const languageTranslations = {
         'no_lyrics_available': 'Không có lời bài hát để tải xuống',
         'no_song_playing': 'Không có bài hát đang phát',
         'font_color_set': 'Màu chữ đã đặt thành',
+        'advancedColorControl': 'Điều khiển màu nâng cao',
+        'colorControl': 'Điều khiển màu',
+        'hue': 'Sắc độ',
+        'chroma': 'Độ bão hoà',
+        'lightness': 'Độ sáng',
+        'colorPreview': 'Xem trước màu',
+        'currentColor': 'Màu hiện tại',
+        'oklchValue': 'Giá trị OKLCH:',
+        'contrast': 'Độ tương phản:',
+        'contrastExcellent': 'Xuất sắc (AAA)',
+        'contrastGood': 'Tốt (AA)',
+        'contrastPoor': 'Kém',
         'theme_download': 'Tải chủ đề'
     },
     'th': {
@@ -1131,6 +1191,18 @@ const languageTranslations = {
         'download_failed': 'ดาวน์โหลดล้มเหลว',
         'no_lyrics_available': 'ไม่มีเนื้อเพลงให้ดาวน์โหลด',
         'no_song_playing': 'ไม่มีเพลงกำลังเล่น',
+        'advancedColorControl': 'การควบคุมสีขั้นสูง',
+        'colorControl': 'การควบคุมสี',
+        'hue': 'เฉดสี',
+        'chroma': 'ความอิ่มสี',
+        'lightness': 'ความสว่าง',
+        'colorPreview': 'แสดงตัวอย่างสี',
+        'currentColor': 'สีปัจจุบัน',
+        'oklchValue': 'ค่า OKLCH:',
+        'contrast': 'ความคอนทราสต์:',
+        'contrastExcellent': 'ดีมาก (AAA)',
+        'contrastGood': 'ดี (AA)',
+        'contrastPoor': 'ไม่เพียงพอ',
         'theme_download': 'ดาวน์โหลดธีม'
     },
     'ja': {
@@ -1317,6 +1389,18 @@ const languageTranslations = {
         'download_failed': 'ダウンロードに失敗しました',
         'no_lyrics_available': 'ダウンロード可能な歌詞がありません',
         'no_song_playing': '再生中の曲はありません',
+        'advancedColorControl': '高度なカラーコントロール',
+        'colorControl': 'カラーコントロール',
+        'hue': '色相',
+        'chroma': '彩度',
+        'lightness': '明度',
+        'colorPreview': 'カラー プレビュー',
+        'currentColor': '現在の色',
+        'oklchValue': 'OKLCH 値：',
+        'contrast': 'コントラスト：',
+        'contrastExcellent': '優秀 (AAA)',
+        'contrastGood': '良好 (AA)',
+        'contrastPoor': '不十分',
         'theme_download': 'テーマダウンロード'
     },
     'ru': {
@@ -1503,6 +1587,18 @@ const languageTranslations = {
         'download_failed': 'Ошибка загрузки',
         'no_lyrics_available': 'Нет доступных текстов для загрузки',
         'no_song_playing': 'Нет воспроизводимой песни',
+        'advancedColorControl': 'Расширенное управление цветом',
+        'colorControl': 'Управление цветом',
+        'hue': 'Оттенок',
+        'chroma': 'Хрома',
+        'lightness': 'Светлота',
+        'colorPreview': 'Предпросмотр цвета',
+        'currentColor': 'Текущий цвет',
+        'oklchValue': 'Значение OKLCH:',
+        'contrast': 'Контрастность:',
+        'contrastExcellent': 'Отлично (AAA)',
+        'contrastGood': 'Хорошо (AA)',
+        'contrastPoor': 'Недостаточно',
         'theme_download': 'Скачать тему'
     },
     'ar': {
@@ -1689,6 +1785,18 @@ const languageTranslations = {
         'download_failed': 'فشل التنزيل',
         'no_lyrics_available': 'لا تتوفر كلمات للتنزيل',
         'no_song_playing': 'لا توجد أغنية قيد التشغيل',
+        'advancedColorControl': 'تحكم متقدم في الألوان',
+        'colorControl': 'تحكم في اللون',
+        'hue': 'الصبغة',
+        'chroma': 'الصفاء',
+        'lightness': 'الإضاءة',
+        'colorPreview': 'معاينة اللون',
+        'currentColor': 'اللون الحالي',
+        'oklchValue': 'قيمة OKLCH:',
+        'contrast': 'التباين:',
+        'contrastExcellent': 'ممتاز (AAA)',
+        'contrastGood': 'جيد (AA)',
+        'contrastPoor': 'ضعيف',
         'theme_download': 'تحميل السمة'
     },
     'es': {
@@ -1875,6 +1983,18 @@ const languageTranslations = {
         'download_failed': 'Error en la descarga',
         'no_lyrics_available': 'No hay letra disponible para descargar',
         'no_song_playing': 'No hay ninguna canción en reproducción',
+        'advancedColorControl': 'Control avanzado de color',
+        'colorControl': 'Control de color',
+        'hue': 'Tono',
+        'chroma': 'Croma',
+        'lightness': 'Luminosidad',
+        'colorPreview': 'Vista previa del color',
+        'currentColor': 'Color actual',
+        'oklchValue': 'Valor OKLCH:',
+        'contrast': 'Contraste:',
+        'contrastExcellent': 'Excelente (AAA)',
+        'contrastGood': 'Bueno (AA)',
+        'contrastPoor': 'Deficiente',
         'theme_download': 'Descarga del tema'
     },
     'de': {
@@ -2061,6 +2181,18 @@ const languageTranslations = {
         'download_failed': 'Download fehlgeschlagen',
         'no_lyrics_available': 'Kein Songtext zum Herunterladen verfügbar',
         'no_song_playing': 'Kein Lied wird abgespielt',
+        'advancedColorControl': 'Erweiterte Farbsteuerung',
+        'colorControl': 'Farbsteuerung',
+        'hue': 'Farbton',
+        'chroma': 'Chroma',
+        'lightness': 'Helligkeit',
+        'colorPreview': 'Farbvorschau',
+        'currentColor': 'Aktuelle Farbe',
+        'oklchValue': 'OKLCH-Wert:',
+        'contrast': 'Kontrast:',
+        'contrastExcellent': 'Ausgezeichnet (AAA)',
+        'contrastGood': 'Gut (AA)',
+        'contrastPoor': 'Schlecht',
         'theme_download': 'Thema herunterladen'
     },
     'fr': {
@@ -2247,6 +2379,18 @@ const languageTranslations = {
         'download_failed': 'Échec du téléchargement',
         'no_lyrics_available': 'Aucune parole disponible à télécharger',
         'no_song_playing': 'Aucune chanson en cours de lecture',
+        'advancedColorControl': 'Contrôle avancé des couleurs',
+        'colorControl': 'Contrôle des couleurs',
+        'hue': 'Teinte',
+        'chroma': 'Chroma',
+        'lightness': 'Luminosité',
+        'colorPreview': 'Aperçu de la couleur',
+        'currentColor': 'Couleur actuelle',
+        'oklchValue': 'Valeur OKLCH :',
+        'contrast': 'Contraste :',
+        'contrastExcellent': 'Excellent (AAA)',
+        'contrastGood': 'Bon (AA)',
+        'contrastPoor': 'Insuffisant',
         'theme_download': 'Télécharger le thème'
     },
     'bn': {
@@ -2434,6 +2578,18 @@ const languageTranslations = {
         'download_failed': 'ডাউনলোড ব্যর্থ হয়েছে',
         'no_lyrics_available': 'ডাউনলোড করার জন্য কোনও লিরিক্স উপলব্ধ নেই',
         'no_song_playing': 'কোনও গান চলছে না',
+        'advancedColorControl': 'উন্নত রঙ নিয়ন্ত্রণ',
+        'colorControl': 'রঙ নিয়ন্ত্রণ',
+        'hue': 'হিউ',
+        'chroma': 'ক্রোমা',
+        'lightness': 'উজ্জ্বলতা',
+        'colorPreview': 'রঙ প্রিভিউ',
+        'currentColor': 'বর্তমান রঙ',
+        'oklchValue': 'OKLCH মান:',
+        'contrast': 'কনট্রাস্ট:',
+        'contrastExcellent': 'চমৎকার (AAA)',
+        'contrastGood': 'ভাল (AA)',
+        'contrastPoor': 'অপর্যাপ্ত',
         'theme_download': 'থিম ডাউনলোড'
     }
 };
@@ -2893,10 +3049,10 @@ document.addEventListener('DOMContentLoaded', function() {
 
     loadVoices();
 
-    let currentHue = 260, currentChroma = 0.25, currentLightness = 30;
-    let recentColors = [];
+    window.currentHue = 260; window.currentChroma = 0.25; window.currentLightness = 30;
+    window.recentColors = [];
 
-    function debounce(func, wait, immediate) {
+    window.debounce = function(func, wait, immediate) {
         let timeout;
         return function executedFunction(...args) {
             const later = () => {
@@ -2908,9 +3064,9 @@ document.addEventListener('DOMContentLoaded', function() {
             timeout = setTimeout(later, wait);
             if (callNow) func(...args);
         };
-    }
+    };
 
-    function hexToRgb(hex) {
+    window.hexToRgb = function(hex) {
         const fullHex = hex.replace(/^#?([a-f\d])([a-f\d])([a-f\d])$/i, 
             (_, r, g, b) => `#${r}${r}${g}${g}${b}${b}`);
         const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(fullHex);
@@ -2919,16 +3075,16 @@ document.addEventListener('DOMContentLoaded', function() {
             g: parseInt(result[2], 16),
             b: parseInt(result[3], 16)
         } : { r: 0, g: 0, b: 0 };
-    }
+    };
 
-    function rgbToLinear(c) {
+    window.rgbToLinear = function(c) {
         const normalized = c / 255;
         return normalized <= 0.04045 
             ? normalized / 12.92 
             : Math.pow((normalized + 0.055) / 1.055, 2.4);
-    }
+    };
 
-    function rgbToOklch(r, g, b) {
+    window.rgbToOklch = function(r, g, b) {
         const [lr, lg, lb] = [r, g, b].map(rgbToLinear);
         const l = 0.4122214708 * lr + 0.5363325363 * lg + 0.0514459929 * lb;
         const m = 0.2119034982 * lr + 0.6806995451 * lg + 0.1073969566 * lb;
@@ -2943,14 +3099,14 @@ document.addEventListener('DOMContentLoaded', function() {
         let h = Math.atan2(b_, a) * 180 / Math.PI;
         h = h >= 0 ? h : h + 360;
         return { l: L * 100, c: c, h: h };
-    }
+    };
 
-    function hexToOklch(hex) {
+    window.hexToOklch = function(hex) {
         const { r, g, b } = hexToRgb(hex);
         return rgbToOklch(r, g, b);
-    }
+    };
 
-    function oklchToHex(h, c, l = 50) {
+    window.oklchToHex = function(h, c, l = 50) {
         const L = l / 100;
         const a = c * Math.cos(h * Math.PI / 180);
         const b = c * Math.sin(h * Math.PI / 180);
@@ -2969,9 +3125,9 @@ document.addEventListener('DOMContentLoaded', function() {
         };
         const [R, G, B] = [r, g, bLinear].map(v => Math.round(toSRGB(v) * 255));
         return `#${[R, G, B].map(x => x.toString(16).padStart(2, '0')).join('')}`.toUpperCase();
-    }
+    };
 
-    function updateAllCSSVariables() {
+    window.updateAllCSSVariables = function() {
         const root = document.documentElement;
 
         root.style.setProperty('--base-hue', currentHue);
@@ -2988,9 +3144,9 @@ document.addEventListener('DOMContentLoaded', function() {
         const theme = isLight ? 'light' : 'dark';
         root.setAttribute('data-theme', theme);
         //console.log('Updated theme to:', theme);
-    }
+    };
 
-    function applyColorSettings(showMessage = false) {
+    window.applyColorSettings = function(showMessage = false) {
         const settings = {
             hue: currentHue,
             chroma: currentChroma,
@@ -3017,14 +3173,14 @@ document.addEventListener('DOMContentLoaded', function() {
                 speakMessage(successMsg);
             }
         }
-    }
+    };
 
-    function updateTextPrimary(currentL) {
+    window.updateTextPrimary = function(currentL) {
         const textL = currentL > 60 ? 20 : 95;
         document.documentElement.style.setProperty('--text-primary', `oklch(${textL}% 0 0)`);
-    }
+    };
 
-    function addToRecentColors(color) {
+    window.addToRecentColors = function(color) {
         recentColors = recentColors.filter(c => c !== color);
         recentColors.unshift(color);
     
@@ -3038,9 +3194,9 @@ document.addEventListener('DOMContentLoaded', function() {
             chroma: currentChroma,
             lightness: currentLightness
         }));
-    }
+    };
 
-    function initColorSettings() {
+    window.initColorSettings = function() {
         const savedSettings = localStorage.getItem('appColorSettings');
         if (savedSettings) {
             const settings = JSON.parse(savedSettings);
@@ -3048,20 +3204,27 @@ document.addEventListener('DOMContentLoaded', function() {
             currentHue = settings.hue || 347.01;
             currentChroma = settings.chroma || 0.061;
             currentLightness = settings.lightness || 99;
-        
-            document.getElementById('colorPicker').value = oklchToHex(currentHue, currentChroma, currentLightness);
+            const colorPicker = document.getElementById('colorPicker');
+            if (colorPicker) {
+                colorPicker.value = oklchToHex(currentHue, currentChroma, currentLightness);
+            }
             applyColorSettings(false);
         } else {
             currentHue = 347.01;
             currentChroma = 0.061;
             currentLightness = 99;
-            document.getElementById('colorPicker').value = oklchToHex(currentHue, currentChroma, currentLightness);
+            const colorPicker = document.getElementById('colorPicker');
+            if (colorPicker) {
+                colorPicker.value = oklchToHex(currentHue, currentChroma, currentLightness);
+            }
             applyColorSettings(false);
         }
-        updateUIText();
-    }
+        if (typeof updateUIText === 'function') {
+            updateUIText();
+        }
+    };
 
-    function updateThemeIcon(lightness) {
+    window.updateThemeIcon = function(lightness) {
         const colorPickerBtn = document.getElementById('colorPickerBtn');
         if (!colorPickerBtn) return;
     
@@ -3073,29 +3236,29 @@ document.addEventListener('DOMContentLoaded', function() {
         } else {
             icon.className = 'bi bi-moon-stars-fill';
         }
-    }
+    };
 
-    const handleColorChange = debounce((color) => {
+    window.handleColorChange = window.debounce((color) => {
         //console.log('Color picker selected:', color);
     
-        const { h, c, l } = hexToOklch(color);
-        currentHue = h;
-        currentChroma = c;
-        currentLightness = l;
-    
-        applyColorSettings(true);
-        addToRecentColors(color);
+        const { h, c, l } = window.hexToOklch(color);
+        window.currentHue = h;
+        window.currentChroma = c;
+        window.currentLightness = l;
+
+        window.applyColorSettings(true);
+        window.addToRecentColors(color);
     }, 150);
 
     const picker = document.getElementById("colorPicker");
     if (picker) {
         picker.addEventListener('input', (event) => {
             const color = event.target.value;
-            handleColorChange(color);
+            window.handleColorChange(color);
         });
     }
 
-    initColorSettings();
+    window.initColorSettings();
 
     function setGlassEffect(element, intensity = 'medium') {
       const intensities = {

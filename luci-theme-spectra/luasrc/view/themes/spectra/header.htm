@@ -229,6 +229,12 @@
                    </a>
                </div>
 
+                <div class="app-icon-btn"  id="colorpanel" onclick="advancedColorControl.open()">
+                   <a  style="cursor: pointer;" data-title="advancedColorControl">
+                       <i class="fas fa-palette"></i>
+                   </a>
+               </div>
+
                 <div class="app-icon-btn"  id="colorPickerBtn" onclick="document.getElementById('colorPicker').click()">
                    <a  style="cursor: pointer;" data-title="selectBackgroundColor">
                        <i class="fas fa-moon"></i>
@@ -485,7 +491,583 @@
     </div>
 </div>
 
+<div class="advanced-color-control-modal" id="advancedColorControlModal">
+    <div class="advanced-color-control-modal-content">
+        <button class="advanced-color-control-close-btn" id="closeAdvancedColorControl">
+            <i class="fas fa-times"></i>
+        </button>
+        
+        <h2 class="advanced-color-control-modal-title" data-translate="advancedColorControl">Advanced Color Control</h2>
+        
+        <div class="advanced-color-controls-container">
+            <div class="advanced-color-control-section">
+                <h3 class="advanced-color-control-section-title">
+                    <i class="fas fa-sliders-h"></i> <span data-translate="colorControl">Color Control</span>
+                </h3>
+                
+                <div class="advanced-color-control-group">
+                    <div class="advanced-color-control-label">
+                        <span data-translate="hue">Hue</span>
+                        <span class="advanced-color-control-value" id="advancedHueValue">260°</span>
+                    </div>
+                    <div class="advanced-color-control-slider-container">
+                        <input type="range" min="0" max="360" value="260" class="advanced-color-control-slider" id="advancedHueSlider">
+                    </div>
+                </div>
+                
+                <div class="advanced-color-control-group">
+                    <div class="advanced-color-control-label">
+                        <span data-translate="chroma">Chroma</span>
+                        <span class="advanced-color-control-value" id="advancedChromaValue">0.25</span>
+                    </div>
+                    <div class="advanced-color-control-slider-container">
+                        <input type="range" min="0" max="0.5" step="0.01" value="0.25" class="advanced-color-control-slider chroma" id="advancedChromaSlider">
+                    </div>
+                </div>
+                
+                <div class="advanced-color-control-group">
+                    <div class="advanced-color-control-label">
+                        <span data-translate="lightness">Lightness</span>
+                        <span class="advanced-color-control-value" id="advancedLightnessValue">85%</span>
+                    </div>
+                    <div class="advanced-color-control-slider-container">
+                        <input type="range" min="0" max="100" value="85" class="advanced-color-control-slider lightness" id="advancedLightnessSlider">
+                    </div>
+                </div>
+                
+                <div class="advanced-color-control-buttons">
+                    <button class="advanced-color-control-reset-btn" id="advancedResetBtn">
+                        <i class="fas fa-undo"></i> <span data-translate="reset">Reset</span>
+                    </button>
+                    <button class="advanced-color-control-save-btn" id="advancedSaveBtn">
+                        <i class="fas fa-save"></i> <span data-translate="save">Save</span>
+                    </button>
+                </div>
+            </div>
+            
+            <div class="advanced-color-control-section advanced-color-preview-section">
+                <h3 class="advanced-color-control-section-title">
+                    <i class="fas fa-eye-dropper"></i> <span data-translate="colorPreview">Color Preview</span>
+                </h3>
+                
+                <div class="advanced-color-preview-display" id="advancedColorPreview" data-translate="currentColor">
+                    Current Color
+                </div>
+                
+                <div class="advanced-color-info-group">
+                    <div class="advanced-color-info-label" data-translate="oklchValue">OKLCH Value:</div>
+                    <div class="advanced-color-info-value" id="advancedOklchValue">oklch(85% 0.25 260)</div>
+                    
+                    <div class="advanced-color-info-label" data-translate="contrast">Contrast:</div>
+                    <div>
+                        <span class="advanced-color-contrast-badge" id="advancedContrastBadge">
+                            <i class="fas fa-check-circle"></i> <span data-translate="contrastExcellent">Excellent (AAA)</span>
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+const advancedColorControl = {
+    isOpen: false,
+
+    init() {
+        this.bindEvents();
+        this.updateUI();
+    },
+
+    bindEvents() {
+        const openBtn = document.querySelector('.app-icon-btn[onclick*="advancedColorControl.open"]');
+        if (openBtn) {
+            openBtn.onclick = () => this.open();
+        }
+
+        const closeBtn = document.getElementById('closeAdvancedColorControl');
+        if (closeBtn) {
+            closeBtn.addEventListener('click', () => this.close());
+        }
+
+        const modal = document.getElementById('advancedColorControlModal');
+        if (modal) {
+            modal.addEventListener('click', (e) => {
+                if (e.target === modal) {
+                    this.close();
+                }
+            });
+        }
+
+        this.bindSliderEvents();
+
+        this.bindButtonEvents();
+    },
+
+    bindSliderEvents() {
+        const sliders = [
+            { id: 'advancedHueSlider', prop: 'hue', format: v => `${v}°` },
+            { id: 'advancedChromaSlider', prop: 'chroma', format: v => v.toFixed(2) },
+            { id: 'advancedLightnessSlider', prop: 'lightness', format: v => `${v}%` }
+        ];
+
+        sliders.forEach(({ id, prop, format }) => {
+            const slider = document.getElementById(id);
+            const valueDisplay = document.getElementById(id.replace('Slider', 'Value'));
+            
+            if (slider && valueDisplay) {
+                slider.addEventListener('input', (e) => {
+                    if (prop === 'hue') currentHue = parseFloat(e.target.value);
+                    if (prop === 'chroma') currentChroma = parseFloat(e.target.value);
+                    if (prop === 'lightness') currentLightness = parseFloat(e.target.value);
+                    
+                    valueDisplay.textContent = format(parseFloat(e.target.value));
+                    this.updateColor();
+                });
+            }
+        });
+    },
+
+    bindButtonEvents() {
+        const resetBtn = document.getElementById('advancedResetBtn');
+        const saveBtn = document.getElementById('advancedSaveBtn');
+
+        if (resetBtn) {
+            resetBtn.addEventListener('click', () => this.resetToDefault());
+        }
+        if (saveBtn) {
+            saveBtn.addEventListener('click', () => this.saveAndClose());
+        }
+    },
+
+    open() {
+        this.isOpen = true;
+        const modal = document.getElementById('advancedColorControlModal');
+        if (modal) {
+            modal.classList.add('active');
+        }
+        this.updateUI();
+    },
+
+    close() {
+        this.isOpen = false;
+        const modal = document.getElementById('advancedColorControlModal');
+        if (modal) {
+            modal.classList.remove('active');
+        }
+    },
+
+    updateColor() {
+        applyColorSettings(false);
+        this.updatePreview();
+    },
+
+    updatePreview() {
+        const preview = document.getElementById('advancedColorPreview');
+        const oklchValue = document.getElementById('advancedOklchValue');
+        const contrastBadge = document.getElementById('advancedContrastBadge');
+
+        if (preview) {
+            preview.style.backgroundColor = oklchToHex(currentHue, currentChroma, currentLightness);
+            //preview.style.color = currentLightness > 60 ? '#000000' : '#ffffff';
+        }
+
+        if (oklchValue) {
+            oklchValue.textContent = `oklch(${currentLightness}% ${currentChroma.toFixed(2)} ${Math.round(currentHue)})`;
+        }
+
+        if (contrastBadge) {
+            const ratio = this.calculateContrastRatio();
+            this.updateContrastBadge(contrastBadge, ratio);
+        }
+    },
+
+    calculateContrastRatio() {
+        const bgLuminance = currentLightness / 100;
+        const textLuminance = currentLightness > 60 ? 0 : 1;
+        const lighter = Math.max(bgLuminance, textLuminance);
+        const darker = Math.min(bgLuminance, textLuminance);
+        return (lighter + 0.05) / (darker + 0.05);
+    },
+
+    updateContrastBadge(badge, ratio) {
+        const translations = languageTranslations[currentLang] || languageTranslations['zh'];
+        let level, icon, text;
+        
+        if (ratio >= 7) {
+            level = 'excellent';
+            icon = 'fas fa-check-circle';
+            text = translations['contrastExcellent'] || 'Excellent (AAA)';
+        } else if (ratio >= 4.5) {
+            level = 'good';
+            icon = 'fas fa-check-circle';
+            text = translations['contrastGood'] || 'Good (AA)';
+        } else {
+            level = 'poor';
+            icon = 'fas fa-exclamation-triangle';
+            text = translations['contrastPoor'] || 'Poor';
+        }
+        
+        badge.className = `advanced-color-contrast-badge contrast-${level}`;
+        badge.innerHTML = `<i class="${icon}"></i> ${text}`;
+    },
+
+    updateUI() {
+        const hueSlider = document.getElementById('advancedHueSlider');
+        const chromaSlider = document.getElementById('advancedChromaSlider');
+        const lightnessSlider = document.getElementById('advancedLightnessSlider');
+
+        if (hueSlider) hueSlider.value = currentHue;
+        if (chromaSlider) chromaSlider.value = currentChroma;
+        if (lightnessSlider) lightnessSlider.value = currentLightness;
+
+        const hueValue = document.getElementById('advancedHueValue');
+        const chromaValue = document.getElementById('advancedChromaValue');
+        const lightnessValue = document.getElementById('advancedLightnessValue');
+
+        if (hueValue) hueValue.textContent = `${Math.round(currentHue)}°`;
+        if (chromaValue) chromaValue.textContent = currentChroma.toFixed(2);
+        if (lightnessValue) lightnessValue.textContent = `${currentLightness}%`;
+
+        this.updatePreview();
+    },
+
+    resetToDefault() {
+        currentHue = 260;
+        currentChroma = 0.25;
+        currentLightness = 85;
+        
+        this.updateUI();
+        this.updateColor();
+    },
+
+    saveAndClose() {
+        applyColorSettings(true);
+        this.close();
+    }
+};
+
+function initResponsiveHide() {
+    function checkScreenSize() {
+        const isMobile = window.innerWidth <= 768;
+        const colorPickerBtn = document.getElementById('colorPickerBtn');
+        
+        if (colorPickerBtn) {
+            colorPickerBtn.style.display = isMobile ? 'none' : '';
+        }
+    }
+    
+    checkScreenSize();
+    
+    window.addEventListener('resize', checkScreenSize);
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    initResponsiveHide();
+    advancedColorControl.init();
+});
+</script>
 <style>
+.advanced-color-control-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: none;
+    background: rgba(0, 0, 0, 0.1);
+    justify-content: center;
+    align-items: center;
+    z-index: 1001;
+}
+
+.advanced-color-control-modal.active {
+    display: flex;
+}
+
+.advanced-color-control-modal-content {
+    background: color-mix(in oklch, var(--bg-container), transparent 20%);
+    backdrop-filter: var(--glass-blur);
+    -webkit-backdrop-filter: var(--glass-blur);
+    border: var(--glass-border);
+    border-radius: var(--radius);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+    width: 90%;
+    max-width: 800px;
+    max-height: 90vh;
+    overflow-y: auto;
+    padding: 30px;
+    position: relative;
+}
+
+.advanced-color-control-close-btn {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    width: 34px;
+    height: 34px;
+    background: color-mix(in oklch, var(--bg-container), transparent 30%);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid color-mix(in oklch, var(--accent-color), transparent 70%);
+    border-radius: 50%;
+    font-size: 18px;
+    color: var(--text-primary);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+.advanced-color-control-close-btn:hover {
+    background: color-mix(in oklch, var(--accent-color), transparent 80%);
+    border-color: var(--accent-color);
+    color: var(--accent-color);
+    transform: scale(1.1) rotate(90deg);
+    box-shadow: 0 6px 20px color-mix(in oklch, var(--accent-color), transparent 70%);
+}
+
+.advanced-color-control-close-btn:active {
+    transform: scale(0.95) rotate(90deg);
+    transition: transform 0.1s ease;
+}
+
+.advanced-color-control-modal-title {
+    font-size: 24px;
+    margin-bottom: 25px;
+    text-align: center;
+    color: var(--accent-color);
+    font-weight: 700;
+}
+
+.advanced-color-controls-container {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 30px;
+}
+
+.advanced-color-control-section {
+    padding: 25px;
+    border-radius: var(--radius);
+    background: color-mix(in oklch, var(--card-bg), transparent 30%);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: var(--glass-border);
+}
+
+.advanced-color-control-section-title {
+    font-size: 18px;
+    margin-bottom: 20px;
+    color: var(--accent-secondary);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.advanced-color-control-group {
+    margin-bottom: 20px;
+}
+
+.advanced-color-control-label {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 10px;
+    font-weight: 500;
+}
+
+.advanced-color-control-value {
+    color: var(--accent-color);
+    font-weight: 600;
+}
+
+.advanced-color-control-slider-container {
+    position: relative;
+    height: 40px;
+    display: flex;
+    align-items: center;
+}
+
+.advanced-color-control-slider {
+    -webkit-appearance: none;
+    width: 100%;
+    height: 8px;
+    border-radius: 10px;
+    background: linear-gradient(to right, 
+        oklch(50% 0.05 var(--base-hue)), 
+        oklch(50% 0.05 calc(var(--base-hue) + 60)), 
+        oklch(50% 0.05 calc(var(--base-hue) + 120)), 
+        oklch(50% 0.05 calc(var(--base-hue) + 180)), 
+        oklch(50% 0.05 calc(var(--base-hue) + 240)), 
+        oklch(50% 0.05 calc(var(--base-hue) + 300)), 
+        oklch(50% 0.05 calc(var(--base-hue) + 360)));
+    outline: none;
+}
+
+.advanced-color-control-slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    background: var(--accent-color);
+    cursor: pointer;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+    border: 2px solid var(--color-white-strong);
+}
+
+.advanced-color-control-slider.chroma {
+    background: linear-gradient(to right, 
+        oklch(50% 0 var(--base-hue)), 
+        oklch(50% 0.15 var(--base-hue)), 
+        oklch(50% 0.3 var(--base-hue)));
+}
+
+.advanced-color-control-slider.lightness {
+    background: linear-gradient(to right, 
+        oklch(10% var(--base-chroma) var(--base-hue)), 
+        oklch(50% var(--base-chroma) var(--base-hue)), 
+        oklch(90% var(--base-chroma) var(--base-hue)));
+}
+
+.advanced-color-control-reset-btn {
+    background: var(--btn-danger-bg);
+    color: #fff;
+    border: none;
+    padding: 12px 25px;
+    border-radius: var(--radius);
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: var(--transition);
+    width: 100%;
+    margin-top: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+.advanced-color-control-reset-btn:hover {
+    background: color-mix(in oklch, var(--btn-danger-bg), white 12%);
+    transform: translateY(-2px);
+}
+
+.advanced-color-control-save-btn {
+    background: var(--btn-success-bg);
+    color: #fff;
+    border: none;
+    padding: 12px 25px;
+    border-radius: var(--radius);
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: var(--transition);
+    width: 100%;
+    margin-top: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+.advanced-color-control-save-btn:hover {
+    background: color-mix(in oklch, var(--btn-success-bg), white 12%);
+    transform: translateY(-2px);
+}
+
+.advanced-color-preview-section {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+}
+
+.advanced-color-preview-display {
+    width: 100%;
+    height: 150px;
+    border-radius: var(--radius);
+    background: oklch(var(--l, 50%) var(--base-chroma, 0.25) var(--base-hue, 260));
+    box-shadow: var(--border-glow);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-weight: 700;
+    font-size: 18px;
+    position: relative;
+    overflow: hidden;
+}
+
+.advanced-color-preview-display::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(135deg, 
+        rgba(255,255,255,0.2) 0%, 
+        rgba(255,255,255,0) 50%);
+}
+
+.advanced-color-info-group {
+    width: 100%;
+    background: color-mix(in oklch, var(--card-bg), transparent 20%);
+    border-radius: var(--radius);
+    padding: 20px;
+    border: var(--glass-border);
+}
+
+.advanced-color-info-label {
+    font-weight: 600;
+    margin-bottom: 8px;
+    color: var(--accent-tertiary);
+}
+
+.advanced-color-info-value {
+    font-family: 'Courier New', monospace;
+    background: rgba(0, 0, 0, 0.2);
+    padding: 10px;
+    border-radius: 8px;
+    margin-bottom: 15px;
+    word-break: break-all;
+}
+
+.advanced-color-contrast-badge {
+    display: inline-block;
+    padding: 8px 15px;
+    background: var(--btn-success-bg);
+    color: #fff;
+    border-radius: 20px;
+    font-weight: 600;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.advanced-color-control-buttons {
+    display: flex;
+    gap: 10px;
+    margin-top: 10px;
+}
+
+.advanced-color-control-buttons button {
+    flex: 1;
+}
+
+@media (max-width: 768px) {
+    .advanced-color-controls-container {
+        grid-template-columns: 1fr;
+    }
+    
+    .advanced-color-control-modal-content {
+        padding: 20px;
+    }
+    
+    .advanced-color-control-buttons {
+        flex-direction: column;
+    }
+}
+
 .music-modal {
     position: fixed;
     top: 0;
@@ -1929,6 +2511,7 @@
     width: 100%;
     height: 100%;
     z-index: 9999;
+    background: rgba(0, 0, 0, 0.1);
     align-items: center;
     justify-content: center;
 }
