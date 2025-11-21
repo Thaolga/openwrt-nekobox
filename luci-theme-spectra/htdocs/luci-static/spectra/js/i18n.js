@@ -3159,6 +3159,12 @@ document.addEventListener('DOMContentLoaded', function() {
         updateTextPrimary(currentLightness);
         updateThemeIcon(currentLightness);
 
+        const colorPicker = document.getElementById('colorPicker');
+        if (colorPicker) {
+            const hexColor = oklchToHex(currentHue, currentChroma, currentLightness);
+            colorPicker.value = hexColor;
+        }
+
         if (showMessage) {
             const hexColor = oklchToHex(currentHue, currentChroma, currentLightness);
             const translations = languageTranslations[currentLang] || languageTranslations['zh'];
