@@ -6,7 +6,7 @@ config global
 	option blur_dark '10'
 	option transparency '0.5'
 	option transparency_dark '0.5'
-	option mode 'dark'
+	option mode 'light'
 	option bing_background '0'
 	option save 'Save Changes'
 

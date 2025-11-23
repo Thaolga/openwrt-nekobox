@@ -1,5 +1,24 @@
 document.addEventListener("DOMContentLoaded", function () {
     let isEnabled = localStorage.getItem('backgroundEnabled') !== 'false';
+    let currentLanguage = 'zh';
+
+    fetch('/luci-static/spectra/bgm/save_language.php', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: 'action=get_language'
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success && data.language) {
+            currentLanguage = data.language;
+        }
+        updateUIText();
+    })
+    .catch(error => {
+        updateUIText();
+    });
 
     const isAnimationEnabled = localStorage.getItem('animationEnabled') !== 'false';
     toggleAnimation(isAnimationEnabled);
@@ -20,67 +39,10 @@ document.addEventListener("DOMContentLoaded", function () {
     applyFont(savedFont);
     let videoTag, bgImages, bgIndex, availableImages, switchInterval;
     const ipContainer = document.querySelector('.ip-container');
-    const flag = document.getElementById('flag');
-    const ipText = document.querySelector('.ip-text');
 
-    const dIp = document.getElementById('d-ip');
-    if (dIp) {
-        dIp.style.cssText = `
-            color: #09B63F !important;
-            font-weight: bold;
-            font-size: 15px;
-            position: relative;
-            left: 1em; 
-            margin-bottom: 3px;
-            text-indent: -0.7ch; 
-        `;
-    }
-
-    const ipip = document.getElementById('ipip');
-    if (ipip) {
-        ipip.style.cssText = `
-            color: #FF00FF !important;
-            font-weight: bold;
-            font-size: 15px;
-            display: block;
-            margin-top: 3px;
-            margin-bottom: 3px;
-        `;
-    }
-
-    if (ipContainer) {
-        ipContainer.style.cssText = `
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            position: relative;
-            z-index: 1;
-            padding: 15px 20px;
-            min-width: 300px;
-            transition: all 0.3s ease;
-        `;
-        
+    if (ipContainer) {       
         const shouldHide = localStorage.getItem('hideIP') === 'true';
         ipContainer.style.display = shouldHide ? 'none' : 'flex';
-    }
-
-    if (flag) {
-        flag.style.cssText = `
-            width: 60px;
-            height: 40px;
-            margin-right: 25px;
-            margin-left: 15px;
-            flex-shrink: 0;
-        `;
-    }
-
-    if (ipText) {
-        ipText.style.cssText = `
-            font-family: Arial, sans-serif;
-            line-height: 1.4;
-            min-width: 180px;
-            transform: translateY(1px); 
-        `;
     }
 
     const savedMode = localStorage.getItem('backgroundMode');
@@ -128,6 +90,8 @@ document.addEventListener("DOMContentLoaded", function () {
             'fontNotoSerif': 'Noto Serif',
             'fontComicNeue': 'Comic Neue',
             'fontSettings': 'Font Settings', 
+            'fontNotoSans': 'Noto Sans',
+            'fontCinzelDecorative': 'Cinzel Decorative',
             'fontSize': 'Font Size',
             'fontColor': 'Font Color',
             'black': 'Black',
@@ -143,7 +107,7 @@ document.addEventListener("DOMContentLoaded", function () {
             'guide3': '3. Solid Mode: Transparent background + spectrum animation',
             'guide4': '4. Light Mode: Switch in theme settings, will automatically turn off the control switch',
             'guide5': '5. Theme Settings: Supports custom backgrounds, mode switching requires clearing the background',
-            'guide6': '6. Menu Settings: Press Ctrl + Alt + S to open the settings menu',
+            'guide6': '6. Mode switching: Image/Video mode, only applicable to dark mode',
             'guide7': '7. Project Address: <a class="github-link" href="https://github.com/Thaolga/openwrt-nekobox" target="_blank">Click to visit</a>',
             'themeTitle': 'Spectra Theme Settings'
         },
@@ -178,6 +142,8 @@ document.addEventListener("DOMContentLoaded", function () {
             'fontDMSerif': '衬线字体',
             'fontNotoSerif': '思源宋体',
             'fontComicNeue': '漫画字体',
+            'fontNotoSans': '思源黑体',
+            'fontCinzelDecorative': 'Cinzel 装饰体',
             'fontSettings': '字体设置', 
             'fontSize': '字体大小',
             'fontColor': '字体颜色',
@@ -195,11 +161,11 @@ document.addEventListener("DOMContentLoaded", function () {
             'guide3': '3. 暗黑模式：透明背景+光谱动画',
             'guide4': '4. 亮色模式：主题设置进行切换，会自动关闭控制开关',
             'guide5': '5. 主题设置：支持自定义背景，模式切换需清除背景',
-            'guide6': '6. 菜单设置：Ctrl + Alt + S 打开设置菜单',
+            'guide6': '6. 模式切换：图片/视频模式，只适用于暗色模式',
             'guide7': '7. 项目地址：<a class="github-link" href="https://github.com/Thaolga/openwrt-nekobox" target="_blank">点击访问</a>',
             'themeTitle': 'Spectra 主题设置'
         },
-        'zh-tw': {
+        'hk': {
             'enabled': '已啟用',
             'disabled': '已停用',
             'currentTheme': '當前主題: ',
@@ -230,6 +196,8 @@ document.addEventListener("DOMContentLoaded", function () {
             'fontDMSerif': '襯線字體',
             'fontNotoSerif': '思源宋體',
             'fontComicNeue': '漫畫字體',
+            'fontNotoSans': '思源黑體',
+            'fontCinzelDecorative': 'Cinzel 裝飾體',
             'fontSettings': '字型設定', 
             'fontSize': '字體大小',
             'fontColor': '字體顏色',
@@ -247,7 +215,7 @@ document.addEventListener("DOMContentLoaded", function () {
             'guide3': '3. 暗黑模式：透明背景+光譜動畫',
             'guide4': '4. 亮色模式：主題設定進行切換，會自動關閉控制開關',
             'guide5': '5. 主題設定：支援自訂背景，模式切換需清除背景',
-            'guide6': '6. 功能選單設定：Ctrl + Alt + S 開啟設定選單',
+            'guide6': '6. 模式切換：圖片/影片模式，只適用於暗色模式',
             'guide7': '7. 專案地址：<a class="github-link" href="https://github.com/Thaolga/openwrt-nekobox" target="_blank">點擊訪問</a>',
             'themeTitle': 'Spectra 主題設定'
         },
@@ -282,6 +250,8 @@ document.addEventListener("DOMContentLoaded", function () {
             'fontDMSerif': 'DM Serif',
             'fontNotoSerif': 'Noto Serif',
             'fontComicNeue': 'Comic Neue',
+            'fontNotoSans': '노토 산스',
+            'fontCinzelDecorative': '신젤 장식체',
             'fontSettings': '폰트 설정',
             'fontSize': '폰트 크기',
             'fontColor': '폰트 색상',
@@ -299,7 +269,7 @@ document.addEventListener("DOMContentLoaded", function () {
             'guide3': '3. 솔리드 모드: 투명 배경 + 스펙트럼 애니메이션',
             'guide4': '4. 라이트 모드: 테마 설정에서 전환, 제어 스위치가 자동으로 꺼집니다',
             'guide5': '5. 테마 설정: 사용자 정의 배경 지원, 모드 전환 시 배경을 지워야 함',
-            'guide6': '6. 메뉴 설정: Ctrl + Alt + S를 눌러 설정 메뉴 열기',
+            'guide6': '6. 모드 전환: 이미지/비디오 모드, 다크 모드에서만 적용',
             'guide7': '7. 프로젝트 주소: <a class="github-link" href="https://github.com/Thaolga/openwrt-nekobox" target="_blank">방문하기</a>',
             'themeTitle': 'Spectra 테마 설정'
         },
@@ -334,6 +304,8 @@ document.addEventListener("DOMContentLoaded", function () {
             'fontDMSerif': 'DM Serif',
             'fontNotoSerif': 'Noto Serif',
             'fontComicNeue': 'Comic Neue',
+            'fontNotoSans': 'Noto Sans',
+            'fontCinzelDecorative': 'Cinzel Decorative',
             'fontSettings': 'フォント設定',
             'fontSize': 'フォントサイズ',
             'fontColor': 'フォント色',
@@ -351,7 +323,7 @@ document.addEventListener("DOMContentLoaded", function () {
             'guide3': '3. ソリッドモード: 透明背景+スペクトルアニメーション',
             'guide4': '4. ライトモード: テーマ設定で切り替えると、コントロールスイッチが自動的にオフになります',
             'guide5': '5. テーマ設定: カスタム背景をサポートし、モード切り替えには背景のクリアが必要です',
-            'guide6': '6. メニュー設定: Ctrl + Alt + Sで設定メニューを開きます',
+            'guide6': '6. モード切替：画像/動画モード、ダークモードのみ適用',
             'guide7': '7. プロジェクトアドレス: <a class="github-link" href="https://github.com/Thaolga/openwrt-nekobox" target="_blank">クリックして訪問</a>',
             'themeTitle': 'Spectra テーマ設定'
         },
@@ -387,6 +359,8 @@ document.addEventListener("DOMContentLoaded", function () {
             'fontNotoSerif': 'Noto Serif',
             'fontComicNeue': 'Comic Neue',
             'fontSettings': 'Cài đặt phông chữ',
+            'fontNotoSans': 'Noto Sans',
+            'fontCinzelDecorative': 'Cinzel Decorative',
             'fontSize': 'Cỡ chữ',
             'fontColor': 'Màu chữ',
             'black': 'Đen',
@@ -403,7 +377,7 @@ document.addEventListener("DOMContentLoaded", function () {
             'guide3': '3. Chế độ đặc: Nền trong suốt + hoạt ảnh quang phổ',
             'guide4': '4. Chế độ sáng: Chuyển đổi trong cài đặt chủ đề sẽ tự động tắt công tắc điều khiển',
             'guide5': '5. Cài đặt chủ đề: Hỗ trợ nền tùy chỉnh, chuyển đổi chế độ yêu cầu xóa nền',
-            'guide6': '6. Cài đặt menu: Nhấn Ctrl + Alt + S để mở menu cài đặt',
+            'guide6': '6. Chuyển đổi chế độ: Chế độ hình ảnh/video, chỉ áp dụng cho chế độ tối',
             'guide7': '7. Địa chỉ dự án: <a class="github-link" href="https://github.com/Thaolga/openwrt-nekobox" target="_blank">Nhấn để truy cập</a>',
             'themeTitle': 'Cài đặt chủ đề Spectra'
         },
@@ -439,6 +413,8 @@ document.addEventListener("DOMContentLoaded", function () {
             'fontNotoSerif': 'Noto Serif',
             'fontComicNeue': 'Comic Neue',
             'fontSettings': 'การตั้งค่าตัวอักษร',
+            'fontNotoSans': 'Noto Sans',
+            'fontCinzelDecorative': 'Cinzel Decorative',
             'fontSize': 'ขนาดตัวอักษร',
             'fontColor': 'สีตัวอักษร',
             'black': 'ดำ',
@@ -455,7 +431,7 @@ document.addEventListener("DOMContentLoaded", function () {
             'guide3': '3. โหมดทึบ: พื้นหลังโปร่งใส + แอนิเมชันสเปกตรัม',
             'guide4': '4. โหมดสว่าง: สลับในการตั้งค่าธีม จะปิดสวิตช์ควบคุมโดยอัตโนมัติ',
             'guide5': '5. การตั้งค่าธีม: รองรับพื้นหลังที่กำหนดเอง การเปลี่ยนโหมดต้องล้างพื้นหลัง',
-            'guide6': '6. การตั้งค่าเมนู: กด Ctrl + Alt + S เพื่อเปิดเมนูการตั้งค่า',
+            'guide6': '6. การเปลี่ยนโหมด: โหมดรูปภาพ/วิดีโอ ใช้ได้เฉพาะโหมดมืด',
             'guide7': '7. ที่อยู่โครงการ: <a class="github-link" href="https://github.com/Thaolga/openwrt-nekobox" target="_blank">คลิกเพื่อเยี่ยมชม</a>',
             'themeTitle': 'การตั้งค่าธีม Spectra'
         },
@@ -493,6 +469,8 @@ document.addEventListener("DOMContentLoaded", function () {
             'fontSettings': 'Настройки шрифта',
             'fontSize': 'Размер шрифта',
             'fontColor': 'Цвет шрифта',
+            'fontNotoSans': 'Noto Sans',
+            'fontCinzelDecorative': 'Cinzel Decorative',
             'black': 'Черный',
             'white': 'Белый',
             'red': 'Красный',
@@ -507,7 +485,7 @@ document.addEventListener("DOMContentLoaded", function () {
             'guide3': '3. Сплошной режим: Прозрачный фон + анимация спектра',
             'guide4': '4. Светлый режим: Переключение в настройках темы автоматически отключит переключатель',
             'guide5': '5. Настройки темы: Поддержка пользовательского фона, для смены режима нужно очистить фон',
-            'guide6': '6. Настройки меню: Нажмите Ctrl + Alt + S, чтобы открыть меню настроек',
+            'guide6': '6. Переключение режимов: Режим изображения/видео, применяется только к темному режиму',
             'guide7': '7. Адрес проекта: <a class="github-link" href="https://github.com/Thaolga/openwrt-nekobox" target="_blank">Перейти</a>',
             'themeTitle': 'Настройки темы Spectra'
         },
@@ -543,6 +521,8 @@ document.addEventListener("DOMContentLoaded", function () {
             'fontNotoSerif': 'Noto Serif',
             'fontComicNeue': 'Comic Neue',
             'fontSettings': 'Schrifteinstellungen',
+            'fontNotoSans': 'Noto Sans',
+            'fontCinzelDecorative': 'Cinzel Decorative',
             'fontSize': 'Schriftgröße',
             'fontColor': 'Schriftfarbe',
             'black': 'Schwarz',
@@ -559,7 +539,7 @@ document.addEventListener("DOMContentLoaded", function () {
             'guide3': '3. Einheitlicher Modus: Transparenter Hintergrund + Spektralanimation',
             'guide4': '4. Hellmodus: Wechsel in den Theme-Einstellungen schaltet den Kontrollschalter automatisch aus',
             'guide5': '5. Theme-Einstellungen: Unterstützt benutzerdefinierte Hintergründe, Moduswechsel erfordert Löschen des Hintergrunds',
-            'guide6': '6. Menü-Einstellungen: Drücken Sie Strg + Alt + S, um das Einstellungsmenü zu öffnen',
+            'guide6': '6. Moduswechsel: Bild/Video-Modus, gilt nur für den Dunkelmodus',
             'guide7': '7. Projektadresse: <a class="github-link" href="https://github.com/Thaolga/openwrt-nekobox" target="_blank">Besuchen</a>',
             'themeTitle': 'Spectra Theme-Einstellungen'
         },
@@ -597,6 +577,8 @@ document.addEventListener("DOMContentLoaded", function () {
             'fontSettings': 'Paramètres police',
             'fontSize': 'Taille police',
             'fontColor': 'Couleur police',
+            'fontNotoSans': 'Noto Sans',
+            'fontCinzelDecorative': 'Cinzel Decorative',
             'black': 'Noir',
             'white': 'Blanc',
             'red': 'Rouge',
@@ -611,7 +593,7 @@ document.addEventListener("DOMContentLoaded", function () {
             'guide3': '3. Mode uni: Fond transparent + animation spectrale',
             'guide4': '4. Mode clair: Basculer dans les paramètres de thème désactive automatiquement le contrôle',
             'guide5': '5. Paramètres thème: Prise en charge des arrière-plans personnalisés, changement de mode nécessite d\'effacer l\'arrière-plan',
-            'guide6': '6. Paramètres menu: Ctrl + Alt + S pour ouvrir le menu des paramètres',
+            'guide6': '6. Changement de mode : Mode image/vidéo, applicable uniquement au mode sombre',
             'guide7': '7. Adresse projet: <a class="github-link" href="https://github.com/Thaolga/openwrt-nekobox" target="_blank">Visiter</a>',
             'themeTitle': 'Paramètres du thème Spectra'
         },
@@ -647,6 +629,8 @@ document.addEventListener("DOMContentLoaded", function () {
             'fontNotoSerif': 'Noto Serif',
             'fontComicNeue': 'Comic Neue',
             'fontSettings': 'إعدادات الخط',
+            'fontNotoSans': 'Noto Sans',
+            'fontCinzelDecorative': 'Cinzel Decorative',
             'fontSize': 'حجم الخط',
             'fontColor': 'لون الخط',
             'black': 'أسود',
@@ -663,7 +647,7 @@ document.addEventListener("DOMContentLoaded", function () {
             'guide3': '3. الوضع الصلب: خلفية شفافة + رسوم متحركة طيفية',
             'guide4': '4. الوضع الفاتح: التبديل في إعدادات السمة سيوقف مفتاح التحكم تلقائيًا',
             'guide5': '5. إعدادات السمة: يدعم الخلفيات المخصصة، تغيير الوضع يتطلب مسح الخلفية',
-            'guide6': '6. إعدادات القائمة: اضغط Ctrl + Alt + S لفتح قائمة الإعدادات',
+            'guide6': '6. تبديل الوضع: وضع الصورة/الفيديو، ينطبق فقط على الوضع المظلم',
             'guide7': '7. عنوان المشروع: <a class="github-link" href="https://github.com/Thaolga/openwrt-nekobox" target="_blank">زيارة</a>',
             'themeTitle': 'إعدادات سمة Spectra'
         },
@@ -701,6 +685,8 @@ document.addEventListener("DOMContentLoaded", function () {
             'fontSettings': 'Configuración de fuente',
             'fontSize': 'Tamaño de fuente',
             'fontColor': 'Color de fuente',
+            'fontNotoSans': 'Noto Sans',
+            'fontCinzelDecorative': 'Cinzel Decorative',
             'black': 'Negro',
             'white': 'Blanco',
             'red': 'Rojo',
@@ -715,7 +701,7 @@ document.addEventListener("DOMContentLoaded", function () {
             'guide3': '3. Modo sólido: Fondo transparente + animación de espectro',
             'guide4': '4. Modo claro: Cambiar en la configuración de tema, desactivará automáticamente el interruptor de control',
             'guide5': '5. Configuración de tema: Admite fondos personalizados, el cambio de modo requiere borrar el fondo',
-            'guide6': '6. Configuración de menú: Presiona Ctrl + Alt + S para abrir el menú de configuración',
+            'guide6': '6. Cambio de modo: Modo imagen/video, solo aplicable al modo oscuro',
             'guide7': '7. Dirección del proyecto: <a class="github-link" href="https://github.com/Thaolga/openwrt-nekobox" target="_blank">Haz clic para visitar</a>',
             'themeTitle': 'Configuración de tema Spectra'
         },
@@ -753,6 +739,8 @@ document.addEventListener("DOMContentLoaded", function () {
             'fontSettings': 'ফন্ট সেটিংস',
             'fontSize': 'ফন্টের আকার',
             'fontColor': 'ফন্টের রঙ',
+            'fontNotoSans': 'Noto Sans',
+            'fontCinzelDecorative': 'Cinzel Decorative',
             'black': 'কালো',
             'white': 'সাদা',
             'red': 'লাল',
@@ -767,18 +755,17 @@ document.addEventListener("DOMContentLoaded", function () {
             'guide3': '3. সলিড মোড: স্বচ্ছ পটভূমি + স্পেকট্রাম অ্যানিমেশন',
             'guide4': '4. লাইট মোড: থিম সেটিংসে সুইচ করুন, নিয়ন্ত্রণ সুইচ স্বয়ংক্রিয়ভাবে বন্ধ হবে',
             'guide5': '5. থিম সেটিংস: কাস্টম পটভূমি সমর্থন করে, মোড সুইচিংয়ের জন্য পটভূমি মুছে ফেলা প্রয়োজন',
-            'guide6': '6. মেনু সেটিংস: সেটিংস মেনু খুলতে Ctrl + Alt + S চাপুন',
+            'guide6': '6. মোড সুইচিং: ইমেজ/ভিডিও মোড, শুধুমাত্র ডার্ক মোডে প্রযোজ্য',
             'guide7': '7. প্রকল্পের ঠিকানা: <a class="github-link" href="https://github.com/Thaolga/openwrt-nekobox" target="_blank">দেখার জন্য ক্লিক করুন</a>',
             'themeTitle': 'Spectra থিম সেটিংস'
         }
     };
 
-    let currentLanguage = localStorage.getItem('currentLanguage') || 'zh';
 
     function getLanguageButtonText() {
         switch(currentLanguage) {
             case 'zh': return '繁體中文';
-            case 'zh-tw': return 'English';
+            case 'hk': return 'English';
             case 'en': return '한국어';
             case 'ko': return '日本語';
             case 'ja': return 'Tiếng Việt';
@@ -797,7 +784,7 @@ document.addEventListener("DOMContentLoaded", function () {
     function getLanguageButtonColor() {
         switch(currentLanguage) {
             case 'zh': return '#f44336';
-            case 'zh-tw': return '#2196F3';
+            case 'hk': return '#2196F3';
             case 'en': return '#4CAF50';
             case 'ko': return '#FF9800';
             case 'ja': return '#9C27B0';
@@ -881,7 +868,6 @@ document.addEventListener("DOMContentLoaded", function () {
             updateUIText();
         })
         .catch(error => {
-            console.error("获取主题模式失败:", error);
     });
 
     function generateControlPanel() {
@@ -959,7 +945,6 @@ document.addEventListener("DOMContentLoaded", function () {
                     <div><i class="bi bi-stars" style="color: white"></i></div>
                 </button>
 
-
                 <button class="object-fit-btn" style="opacity:1 !important;pointer-events:auto !important">
                     <span>${translateText('displayRatio')}</span>
                     <div>${getFitButtonText()}</div>
@@ -981,11 +966,11 @@ document.addEventListener("DOMContentLoaded", function () {
                     <span>${translateText('fontToggle')}</span>
                     <div>${getFontButtonText()}</div>
                 </button>
-                <button id="color-panel-btn">
+                <button id="color-panel-btn" disabled style="opacity:0.5 !important;pointer-events:none !important">
                     <span>${translateText('colorPanel')}</span>
                     <div><i class="bi bi-palette"></i></div>
                 </button>
-                <button id="font-settings-btn" class="always-visible">
+                <button id="font-settings-btn" class="always-visible" disabled style="opacity:0.5 !important;pointer-events:none !important">
                     <span>${translateText('fontSettings')}</span>
                     <div><i class="bi bi-textarea-t"></i></div>
                 </button>
@@ -1050,6 +1035,8 @@ document.addEventListener("DOMContentLoaded", function () {
                 case 'fredoka': nextFont = 'dmserif'; break;
                 case 'dmserif': nextFont = 'notoserif'; break;
                 case 'notoserif': nextFont = 'comicneue'; break;
+                case 'comicneue': nextFont = 'notosans'; break;
+                case 'notosans': nextFont = 'cinzeldecorative'; break; 
                 default: nextFont = 'default';
             }
     
@@ -1115,8 +1102,8 @@ document.addEventListener("DOMContentLoaded", function () {
             e.stopPropagation();
     
             switch(currentLanguage) {
-                case 'zh': currentLanguage = 'zh-tw'; break;
-                case 'zh-tw': currentLanguage = 'en'; break;
+                case 'zh': currentLanguage = 'hk'; break;
+                case 'hk': currentLanguage = 'en'; break;
                 case 'en': currentLanguage = 'ko'; break;
                 case 'ko': currentLanguage = 'ja'; break;
                 case 'ja': currentLanguage = 'vi'; break;
@@ -1131,17 +1118,28 @@ document.addEventListener("DOMContentLoaded", function () {
                 default: currentLanguage = 'zh';
 
             }
-            localStorage.setItem('currentLanguage', currentLanguage);
-    
-            this.querySelector('span').textContent = getLanguageButtonText();
-            this.querySelector('div').innerHTML = `<i class="bi bi-translate" style="color:${getLanguageButtonColor()}"></i>`;
-    
-            updateUIText();
-    
-            const fontSettingsOverlay = document.getElementById('font-settings-overlay');
-            if (fontSettingsOverlay) {
-                updateFontSettingsText();
-            }
+
+            fetch('/luci-static/spectra/bgm/save_language.php', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: 'action=save_language&language=' + encodeURIComponent(currentLanguage)
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    this.querySelector('span').textContent = getLanguageButtonText();
+                    this.querySelector('div').innerHTML = `<i class="bi bi-translate" style="color:${getLanguageButtonColor()}"></i>`;
+            
+                    updateUIText();
+                }
+            })
+            .catch(error => {
+                this.querySelector('span').textContent = getLanguageButtonText();
+                this.querySelector('div').innerHTML = `<i class="bi bi-translate" style="color:${getLanguageButtonColor()}"></i>`;
+                updateUIText();
+            });
         });
 
         document.getElementById('settings-icon').addEventListener('click', function(e) {
@@ -1218,26 +1216,6 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     const styles = `
-        .font-default {
-            font-family: -apple-system, BlinkMacSystemFont, sans-serif !important;
-        }
-
-        .font-fredoka {
-            font-family: 'Fredoka One', cursive !important;
-        }
-
-        .font-dmserif {
-            font-family: 'DM Serif Display', serif !important;
-        }
-
-        .font-notoserif {
-            font-family: 'Noto Serif SC', serif !important;
-        }
-
-        .font-comicneue {
-            font-family: 'Comic Neue', cursive !important;
-        }
-
         /* #settings-icon {
             position: fixed;
             right: 25px !important;
@@ -1281,7 +1259,7 @@ document.addEventListener("DOMContentLoaded", function () {
             left: 50%;
             top: 50%;
             transform: translate(-50%, -50%);
-            background: var(--popup-bg-color, linear-gradient(to bottom, #7dd3fc, #3b82f6, #1d4ed8));
+            background: var(--bg-container);
             border-radius: 10px;
             padding: 15px;
             color: white;
@@ -1498,7 +1476,7 @@ document.addEventListener("DOMContentLoaded", function () {
         .control-panel-title {
             margin: 0;
             font-weight: bold;
-            color: rgb(40, 237, 240);
+            color: var(--accent-color);
             font-size: 1.3rem !important;
             display: flex;
             align-items: center;
@@ -1509,6 +1487,14 @@ document.addEventListener("DOMContentLoaded", function () {
         .control-panel-title i {
             font-size: 1.1rem;
         } 
+
+        #color-panel-btn,
+        #font-settings-btn {
+            opacity: 0.5 !important;
+            pointer-events: none !important;
+            cursor: not-allowed !important;
+            background: #666 !important;
+        }
 
         @media (max-width: 768px) {
             #mode-popup {
@@ -1595,7 +1581,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 <div id="custom-alert" class="font-${localStorage.getItem('selectedFont') || 'default'}">
                     <div class="alert-header">
                         <h3>${translateText(title)}</h3>
-                        <button class="close-btn">&times;</button>
+                        <button class="alert-close-btn">&times;</button>
                     </div>
                     <div class="alert-content">
                         ${messages.map(msg => `<p>${translateText(msg)}</p>`).join('')}
@@ -1623,14 +1609,14 @@ document.addEventListener("DOMContentLoaded", function () {
             }
 
             #custom-alert {
-                background: linear-gradient(to bottom, #7dd3fc, #3b82f6, #1d4ed8);
+                background: var(--bg-container);
                 border: 1px solid #333;
                 border-radius: 8px;
                 width: 90%;
-                max-width: 500px;
+                max-width: 550px;
                 padding: 20px;
                 box-shadow: 0 0 20px rgba(0,0,0,0.5);
-                color: #fff;
+                color: var(--text-primary) !important;
             }
 
             .alert-header {
@@ -1644,8 +1630,8 @@ document.addEventListener("DOMContentLoaded", function () {
 
             .alert-header h3 {
                 margin: 0;
-                color: rgb(255, 0, 255) !important;
-                font-size: 1.3em;
+                color: var(--accent-color) !important;
+                font-size: 1.4em;
             }
 
             .alert-content {
@@ -1656,18 +1642,65 @@ document.addEventListener("DOMContentLoaded", function () {
             .alert-content p {
                 line-height: 1.6;
                 margin: 10px 0;
-                color: #ddd;
+                color: var(--text-primary) !important;
                 font-size: 14px;
             }
 
             .alert-content p a.github-link {
-                color: #ff69b4;
+                color: var(--accent-color);
                 text-decoration: none;
                 transition: color 0.3s ease;
             }
 
             .alert-content p a.github-link:hover {
                 color: #ff1493;
+            }
+
+            .alert-close-btn {
+                box-sizing: border-box;
+                flex-shrink: 0;
+                left: 10px;
+                position: relative;
+                width: 36px;
+                height: 36px;
+                border: none;
+                background: #ff4757;
+                border-radius: 50%;
+                cursor: pointer;
+                transition: all 0.3s ease;
+                box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                padding: 0;
+            }
+
+            .alert-close-btn::before,
+            .alert-close-btn::after {
+                content: '';
+                position: absolute;
+                width: 18px;
+                height: 2px;
+                background: white;
+                border-radius: 1px;
+            }
+
+            .alert-close-btn::before {
+                transform: rotate(45deg);
+            }
+
+            .alert-close-btn::after {
+                 transform: rotate(-45deg);
+            }
+
+            .alert-close-btn:hover {
+                background: #ff2e43;
+                transform: rotate(90deg) scale(1.1);
+                box-shadow: 0 3px 8px rgba(0, 0, 0, 0.3);
+            }
+
+            .alert-close-btn:active {
+                transform: scale(0.95);
             }
 
             @media (max-width: 480px) {
@@ -1687,7 +1720,7 @@ document.addEventListener("DOMContentLoaded", function () {
         `;
         document.head.appendChild(style);
 
-        document.querySelector('.close-btn').addEventListener('click', () => {
+        document.querySelector('.alert-close-btn').addEventListener('click', () => {
             document.getElementById('custom-alert-overlay').remove();
             style.remove();
         });
@@ -1783,7 +1816,7 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     function applyFont(font) {
-        loadFont(font);
+        // loadFont(font); // 
     
         const styleTag = document.querySelector("#font-style") || document.createElement("style");
         styleTag.id = "font-style";
@@ -1801,6 +1834,12 @@ document.addEventListener("DOMContentLoaded", function () {
                 break;
             case 'comicneue':
                 fontFamily = "'Comic Neue', cursive";
+                break;
+            case 'notosans':
+                fontFamily = "'Noto Sans', sans-serif";
+                break;
+            case 'cinzeldecorative':
+                fontFamily = "'Cinzel Decorative', cursive";
                 break;
             default:
                 fontFamily = "-apple-system, BlinkMacSystemFont, sans-serif";
@@ -1898,6 +1937,7 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     function loadFont(font) {
+    /*
         const fontMap = {
             'fredoka': 'Fredoka+One',
             'dmserif': 'DM+Serif+Display',
@@ -1913,6 +1953,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 document.head.appendChild(link);
             }
         }
+    */
     }
 
     function refreshOpenPopups(font) {
@@ -1947,6 +1988,8 @@ document.addEventListener("DOMContentLoaded", function () {
             case 'dmserif': return translateText('fontDMSerif');
             case 'notoserif': return translateText('fontNotoSerif');
             case 'comicneue': return translateText('fontComicNeue');
+            case 'notosans': return translateText('fontNotoSans');
+            case 'cinzeldecorative': return translateText('fontCinzelDecorative');
             default: return translateText('fontDefault');
         }
     }
@@ -2994,7 +3037,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 backdrop-filter: blur(3px);
             }
             #theme-settings-dialog {
-                background: #0f3460;
+                background: var(--bg-container);
                 width: 70%;
                 height: 80vh;
                 margin-top: 0;
