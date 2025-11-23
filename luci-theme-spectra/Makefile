@@ -7,8 +7,8 @@
 include $(TOPDIR)/rules.mk
 
 LUCI_TITLE:=Spectra Theme
-LUCI_DEPENDS:=+curl +jq +php8 +php8-cgi +php8-mod-curl +ffmpeg
-PKG_VERSION:=27.522.47291~a1c4d7f
+LUCI_DEPENDS:=+curl +php8 +php8-cgi +php8-mod-curl +ffmpeg
+PKG_VERSION:=27.523.94827~q1r8s2t
 
 LUCI_MINIFY_CSS:=0
 

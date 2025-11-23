@@ -4732,6 +4732,31 @@ document.getElementById('removeAppColorBtn').addEventListener('click', function(
         if (typeof speakMessage === 'function') speakMessage(successMsg);
     });
 });
+
+function checkColorChange() {
+    const saved = localStorage.getItem('appColorSettings');
+    
+    if (saved) {
+        const settings = JSON.parse(saved);
+        
+        const rootStyles = getComputedStyle(document.documentElement);
+        const currentHueValue = parseFloat(rootStyles.getPropertyValue('--base-hue').trim()) || 0;
+        const currentChromaValue = parseFloat(rootStyles.getPropertyValue('--base-chroma').trim()) || 0;
+        
+        if (Math.abs(settings.hue - currentHueValue) > 1 || Math.abs(settings.chroma - currentChromaValue) > 0.01) {
+            document.documentElement.style.setProperty('--base-hue', settings.hue);
+            document.documentElement.style.setProperty('--base-chroma', settings.chroma);
+            
+            const textL = settings.lightness > 60 ? 20 : 95;
+            document.documentElement.style.setProperty('--text-primary', `oklch(${textL}% 0 0)`);
+            
+            const theme = settings.lightness > 60 ? 'light' : 'dark';
+            document.documentElement.setAttribute('data-theme', theme);
+        }
+    }
+}
+
+setInterval(checkColorChange, 1000);
 </script>
 
 <script>

@@ -534,6 +534,55 @@
                         <input type="range" min="0" max="100" value="85" class="advanced-color-control-slider lightness" id="advancedLightnessSlider">
                     </div>
                 </div>
+
+                <h6 class="preset-colors-title">
+                    <i class="fas fa-palette"></i> <span data-translate="presetColors">Preset Colors</span>
+                </h6>
+                <div class="preset-colors-section">
+                    <div class="preset-colors-grid">
+                        <button class="preset-color-btn" data-hue="250" data-chroma="0.08" data-lightness="30" data-title="midnight blue">
+                            <div class="preset-color-circle" style="background-color: oklch(30% 0.08 250);"></div>
+                        </button>
+                        <button class="preset-color-btn" data-hue="190" data-chroma="0.18" data-lightness="60" data-title="cyan">
+                            <div class="preset-color-circle" style="background-color: oklch(60% 0.18 190);"></div>
+                        </button>
+
+                        <button class="preset-color-btn" data-hue="210" data-chroma="0.12" data-lightness="75" data-title="sky blue">
+                            <div class="preset-color-circle" style="background-color: oklch(75% 0.12 210);"></div>
+                        </button>
+                        <button class="preset-color-btn" data-hue="90" data-chroma="0.18" data-lightness="75" data-title="yellow">
+                            <div class="preset-color-circle" style="background-color: oklch(75% 0.18 90);"></div>
+                        </button>
+
+                        <button class="preset-color-btn" data-hue="160" data-chroma="0.09" data-lightness="65" data-title="mint">
+                            <div class="preset-color-circle" style="background-color: oklch(65% 0.09 160);"></div>
+                        </button>
+                        <button class="preset-color-btn" data-hue="130" data-chroma="0.11" data-lightness="70" data-title="emerald">
+                            <div class="preset-color-circle" style="background-color: oklch(70% 0.11 130);"></div>
+                        </button>
+
+                        <button class="preset-color-btn" data-hue="25" data-chroma="0.15" data-lightness="68" data-title="coral">
+                            <div class="preset-color-circle" style="background-color: oklch(68% 0.15 25);"></div>
+                        </button>
+                        <button class="preset-color-btn" data-hue="5" data-chroma="0.18" data-lightness="58" data-title="ruby">
+                            <div class="preset-color-circle" style="background-color: oklch(58% 0.18 5);"></div>
+                        </button>
+
+                        <button class="preset-color-btn" data-hue="290" data-chroma="0.14" data-lightness="52" data-title="amethyst">
+                            <div class="preset-color-circle" style="background-color: oklch(52% 0.14 290);"></div>
+                        </button>
+                        <button class="preset-color-btn" data-hue="320" data-chroma="0.16" data-lightness="62" data-title="magenta">
+                            <div class="preset-color-circle" style="background-color: oklch(62% 0.16 320);"></div>
+                        </button>
+
+                        <button class="preset-color-btn" data-hue="0" data-chroma="0" data-lightness="95" data-title="pure white">
+                            <div class="preset-color-circle" style="background-color: oklch(95% 0 0); border: 1px solid oklch(80% 0 0);"></div>
+                        </button>
+                        <button class="preset-color-btn" data-hue="0" data-chroma="0" data-lightness="15" data-title="pure black">
+                            <div class="preset-color-circle" style="background-color: oklch(15% 0 0);"></div>
+                        </button>
+                    </div>
+                </div>
                 
                 <div class="advanced-color-control-buttons">
                     <button class="advanced-color-control-reset-btn" id="advancedResetBtn">
@@ -555,10 +604,10 @@
                 </div>
                 
                 <div class="advanced-color-info-group">
-                    <div class="advanced-color-info-label" data-translate="oklchValue">OKLCH Value:</div>
+                    <div class="advanced-color-info-label"><i class="fas fa-swatchbook"></i> <span data-translate="oklchValue">OKLCH Value</span></div>
                     <div class="advanced-color-info-value" id="advancedOklchValue">oklch(85% 0.25 260)</div>
                     
-                    <div class="advanced-color-info-label" data-translate="contrast">Contrast:</div>
+                    <div class="advanced-color-info-label"><i class="fas fa-adjust"></i> <span data-translate="contrast">Contrast</span></div>
                     <div>
                         <span class="advanced-color-contrast-badge" id="advancedContrastBadge">
                             <i class="fas fa-check-circle"></i> <span data-translate="contrastExcellent">Excellent (AAA)</span>
@@ -599,7 +648,7 @@ const advancedColorControl = {
         }
 
         this.bindSliderEvents();
-
+        this.bindPresetColorEvents();
         this.bindButtonEvents();
     },
 
@@ -639,6 +688,38 @@ const advancedColorControl = {
         }
     },
 
+    bindPresetColorEvents() {
+        const presetButtons = document.querySelectorAll('.preset-color-btn');
+        presetButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                const hue = parseFloat(button.dataset.hue);
+                const chroma = parseFloat(button.dataset.chroma);
+                const lightness = parseFloat(button.dataset.lightness);
+                
+                currentHue = hue;
+                currentChroma = chroma;
+                currentLightness = lightness;
+                
+                this.updateUI();
+                this.updateColor();
+                
+                const hexColor = oklchToHex(hue, chroma, lightness);
+                addToRecentColors(hexColor);
+                
+                const translations = languageTranslations[currentLang] || languageTranslations['zh'];
+                const colorName = button.getAttribute('title') || 'color';
+                const successMsg = translations['presetColorApplied']?.replace('%s', translations[colorName] || colorName) || `Preset ${colorName} applied successfully.`;
+                
+                if (typeof showLogMessage === 'function') {
+                    showLogMessage(successMsg);
+                }
+                if (colorVoiceEnabled) {
+                    speakMessage(successMsg);
+                }
+            });
+        });
+    },
+
     open() {
         this.isOpen = true;
         const modal = document.getElementById('advancedColorControlModal');
@@ -667,26 +748,51 @@ const advancedColorControl = {
         const contrastBadge = document.getElementById('advancedContrastBadge');
 
         if (preview) {
-            preview.style.backgroundColor = oklchToHex(currentHue, currentChroma, currentLightness);
-            //preview.style.color = currentLightness > 60 ? '#000000' : '#ffffff';
+            const hexColor = oklchToHex(currentHue, currentChroma, currentLightness);
+            preview.style.backgroundColor = hexColor;
+            
+            const textColor = currentLightness > 60 ? '#000000' : '#ffffff';
+            preview.style.color = textColor;
+            preview.textContent = hexColor;
         }
 
         if (oklchValue) {
-            oklchValue.textContent = `oklch(${currentLightness}% ${currentChroma.toFixed(2)} ${Math.round(currentHue)})`;
+            oklchValue.textContent = `oklch(${Math.round(currentLightness)}% ${currentChroma.toFixed(2)} ${Math.round(currentHue)}°)`;
         }
 
         if (contrastBadge) {
-            const ratio = this.calculateContrastRatio();
+            const hexColor = oklchToHex(currentHue, currentChroma, currentLightness);
+            const ratio = window.calculateContrastRatio(hexColor);
             this.updateContrastBadge(contrastBadge, ratio);
+            
+            const contrastValue = document.getElementById('advancedContrastValue');
+            if (!contrastValue) {
+                this.createContrastValueDisplay();
+            } else {
+                contrastValue.textContent = ratio.toFixed(2) + ':1';
+            }
+        }
+    },
+
+    createContrastValueDisplay() {
+        const contrastGroup = document.querySelector('.advanced-color-info-group');
+        if (contrastGroup) {
+            const existingLabel = contrastGroup.querySelector('.advanced-color-contrast-value');
+            if (!existingLabel) {
+                const contrastValueHtml = `
+                    <div class="advanced-color-info-value advanced-color-contrast-value" id="advancedContrastValue">0:1</div>
+                `;
+                const badgeElement = contrastGroup.querySelector('.advanced-color-contrast-badge');
+                if (badgeElement) {
+                    badgeElement.insertAdjacentHTML('beforebegin', contrastValueHtml);
+                }
+            }
         }
     },
 
     calculateContrastRatio() {
-        const bgLuminance = currentLightness / 100;
-        const textLuminance = currentLightness > 60 ? 0 : 1;
-        const lighter = Math.max(bgLuminance, textLuminance);
-        const darker = Math.min(bgLuminance, textLuminance);
-        return (lighter + 0.05) / (darker + 0.05);
+        const hexColor = oklchToHex(currentHue, currentChroma, currentLightness);
+        return window.calculateContrastRatio(hexColor);
     },
 
     updateContrastBadge(badge, ratio) {
@@ -701,6 +807,10 @@ const advancedColorControl = {
             level = 'good';
             icon = 'fas fa-check-circle';
             text = translations['contrastGood'] || 'Good (AA)';
+        } else if (ratio >= 3) {
+            level = 'fair';
+            icon = 'fas fa-info-circle';
+            text = translations['contrastFair'] || 'Fair';
         } else {
             level = 'poor';
             icon = 'fas fa-exclamation-triangle';
@@ -933,18 +1043,19 @@ document.addEventListener('DOMContentLoaded', function() {
     background: var(--btn-danger-bg);
     color: #fff;
     border: none;
-    padding: 12px 25px;
+    padding: 8px 18px;
     border-radius: var(--radius);
-    font-size: 16px;
+    font-size: 14px;
     font-weight: 600;
     cursor: pointer;
     transition: var(--transition);
     width: 100%;
-    margin-top: 10px;
+    margin-top: 8px;
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 8px;
+    gap: 6px;
+    line-height: 1.2;
 }
 .advanced-color-control-reset-btn:hover {
     background: color-mix(in oklch, var(--btn-danger-bg), white 12%);
@@ -955,18 +1066,19 @@ document.addEventListener('DOMContentLoaded', function() {
     background: var(--btn-success-bg);
     color: #fff;
     border: none;
-    padding: 12px 25px;
+    padding: 8px 18px;
     border-radius: var(--radius);
-    font-size: 16px;
+    font-size: 14px;
     font-weight: 600;
     cursor: pointer;
     transition: var(--transition);
     width: 100%;
-    margin-top: 10px;
+    margin-top: 8px;
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 8px;
+    gap: 6px;
+    line-height: 1.2;
 }
 
 .advanced-color-control-save-btn:hover {
@@ -979,6 +1091,23 @@ document.addEventListener('DOMContentLoaded', function() {
     flex-direction: column;
     align-items: center;
     gap: 20px;
+}
+
+.advanced-color-contrast-badge.contrast-excellent {
+    background: var(--btn-success-bg);
+}
+
+.advanced-color-contrast-badge.contrast-good {
+    background: #28a745;
+}
+
+.advanced-color-contrast-badge.contrast-fair {
+    background: #ffc107;
+    color: #000;
+}
+
+.advanced-color-contrast-badge.contrast-poor {
+    background: var(--btn-danger-bg);
 }
 
 .advanced-color-preview-display {
@@ -994,6 +1123,7 @@ document.addEventListener('DOMContentLoaded', function() {
     font-size: 18px;
     position: relative;
     overflow: hidden;
+    transition: all 0.3s ease;
 }
 
 .advanced-color-preview-display::after {
@@ -1014,6 +1144,21 @@ document.addEventListener('DOMContentLoaded', function() {
     border-radius: var(--radius);
     padding: 20px;
     border: var(--glass-border);
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    transition: all 0.3s ease;
+}
+
+.advanced-color-info-group:hover {
+    background: color-mix(in oklch, var(--card-bg), transparent 30%);
+    backdrop-filter: blur(28px);
+    transform: scale(1.02);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.25);
+}
+
+[data-theme="dark"] .advanced-color-info-group {
+    box-shadow: var(--border-glow) !important;
 }
 
 .advanced-color-info-label {
@@ -1052,6 +1197,87 @@ document.addEventListener('DOMContentLoaded', function() {
 
 .advanced-color-control-buttons button {
     flex: 1;
+}
+
+.preset-colors-title {
+    font-size: 16px;
+    margin-bottom: 15px;
+    color: var(--accent-secondary);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 600;
+}
+
+.preset-colors-section {
+    margin-bottom: 20px;
+}
+
+.preset-colors-grid {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap: 8px;
+    justify-items: center;
+}
+
+.preset-color-btn {
+    width: 40px;
+    height: 40px;
+    border: none;
+    background: transparent;
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    padding: 0;
+}
+
+.preset-color-btn:hover {
+    transform: scale(1.15);
+}
+
+.preset-color-btn:active {
+    transform: scale(0.95);
+}
+
+.preset-color-circle {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    border: 2px solid color-mix(in oklch, var(--text-primary), transparent 70%);
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+.preset-color-btn:hover .preset-color-circle {
+    border-color: var(--accent-color);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+}
+
+@media (max-width: 768px) {
+    .preset-colors-grid {
+        grid-template-columns: repeat(4, 1fr);
+        gap: 6px;
+    }
+    
+    .preset-color-btn {
+        width: 36px;
+        height: 36px;
+    }
+    
+    .preset-color-circle {
+        width: 28px;
+        height: 28px;
+    }
+}
+
+@media (max-width: 480px) {
+    .preset-colors-grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
 }
 
 @media (max-width: 768px) {
@@ -2751,9 +2977,10 @@ document.addEventListener('DOMContentLoaded', function() {
 }
 
 .control-panel-close {
-    background: red;
-    border: none;
-    color: white;
+    background: color-mix(in oklch, var(--btn-danger-bg), transparent 20%);
+    backdrop-filter: blur(10px);
+    border: 1px solid color-mix(in oklch, var(--btn-danger-bg), transparent 50%);
+    color: var(--color-white-strong);
     font-size: 1.2rem;
     cursor: pointer;
     width: 32px;
@@ -2762,15 +2989,21 @@ document.addEventListener('DOMContentLoaded', function() {
     display: flex;
     align-items: center;
     justify-content: center;
-    transition: var(--transition);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     position: relative;
     z-index: 10;
     margin: 0;
 }
 
 .control-panel-close:hover {
-    background: red;
-    color: white;
+    background: color-mix(in oklch, var(--btn-danger-bg), transparent 0%);
+    border-color: var(--btn-danger-bg);
+    transform: rotate(90deg) scale(1.1);
+    box-shadow: 0 0 20px color-mix(in oklch, var(--btn-danger-bg), transparent 30%);
+}
+
+.control-panel-close:active {
+    transform: rotate(90deg) scale(0.95);
 }
 
 .control-panel-body {
@@ -3207,7 +3440,7 @@ document.addEventListener('DOMContentLoaded', function() {
             <span data-translate="ui_control">UI Control</span>
         </h6>
         <button id="controlPanelClose" class="control-panel-close">
-            &times;
+            <i class="fas fa-times"></i>
         </button>
     </div>
 
@@ -5953,7 +6186,15 @@ document.addEventListener('keydown', function (event) {
             break;
         case 'ArrowDown':
             event.preventDefault();
-            openMusicModal();
+            const musicModal = document.getElementById('musicModal');
+            if (musicModal) {
+                const computedStyle = window.getComputedStyle(musicModal);
+                if (computedStyle.display !== 'none') {
+                    closeMusicModal();
+                } else {
+                    openMusicModal();
+                }
+            }
             break;
         case 'Escape':
             event.preventDefault();
