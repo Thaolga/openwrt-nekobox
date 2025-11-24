@@ -4859,7 +4859,6 @@ pre.command-output {
     right: 0
 }
 
-
 @media screen and (max-width: 600px) {
     .cbi-section-table-row .cbi-value-field[data-name="remarks"] div {
         display: block !important;
@@ -4877,47 +4876,6 @@ pre.command-output {
         display: flex !important;
         justify-content: center !important;
         align-items: center !important;
-    }
-}
-
-@media (max-width: 768px) {
-
-    tr[id^="cbi-passwall-"],
-    tr[id^="cbi-passwall2-"] {
-        display: block;
-        padding-left: 1.5em;
-        font-size: 13px;
-        line-height: 1.4;
-
-    }
-
-    tr[id^="cbi-passwall-"] td,
-    tr[id^="cbi-passwall2-"] td {
-        display: block;
-        width: 100% !important;
-        border: none !important;
-        padding: 2px 0;
-    }
-
-    div[id^="cbi-passwall-"][id$="-remarks"],
-    div[id^="cbi-passwall2-"][id$="-remarks"] {
-        font-weight: bold;
-    }
-
-    div[id^="cbi-passwall-"][id$="-ping"],
-    div[id^="cbi-passwall-"][id$="-tcping"],
-    div[id^="cbi-passwall-"][id$="-_url_test"],
-    div[id^="cbi-passwall2-"][id$="-ping"],
-    div[id^="cbi-passwall2-"][id$="-tcping"],
-    div[id^="cbi-passwall2-"][id$="-_url_test"] {
-        display: inline-block;
-        margin-right: 1em;
-        white-space: nowrap;
-    }
-
-    tr[id^="cbi-passwall-"] .cbi-section-actions input,
-    tr[id^="cbi-passwall2-"] .cbi-section-actions input {
-        font-size: 10px;
     }
 }
 
@@ -5712,16 +5670,11 @@ body::-webkit-scrollbar,
     margin: 0rem !important;
     padding: 0.35rem 0.6rem !important;
     border-radius: 12px !important;
-    border: var(--glow-border);
+    border: var(--border-strong);
     transition: transform 0.3s ease, box-shadow 0.3s ease !important;
     display: flex !important;
     align-items: center !important;
     justify-content: space-between !important;
-}
-
-[data-theme="dark"] .block {
-    box-shadow: var(--border-glow) !important;
-    animation: var(--breathing-animation)
 }
 
 .block:hover {
@@ -5747,14 +5700,10 @@ body::-webkit-scrollbar,
 .pure-u-2-3 h4 {
     width: 100% !important; 
     border-radius: 8px !important;
-    border: var(--glow-border);
+    border: var(--border-strong);
     box-shadow: 0 2px 6px -2px color-mix(in oklch, var(-bg-container), black 30%) !important;
     padding: 7px 12px !important;
     background: var(--card-bg) !important;
-}
-
-[data-theme="dark"] .pure-u-2-3 h4:hover {
-    animation: var(--breath-animation);
 }
 
 .block>.pure-u-1-3 {
