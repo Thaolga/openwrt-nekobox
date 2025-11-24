@@ -576,7 +576,7 @@
                         </button>
 
                         <button class="preset-color-btn" data-hue="260" data-chroma="0.01" data-lightness="95" data-title="pure white">
-                            <div class="preset-color-circle" style="background-color: oklch(95% 0 0); border: 1px solid oklch(80% 0 0);"></div>
+                            <div class="preset-color-circle" style="background-color: oklch(95% 0 0);"></div>
                         </button>
                         <button class="preset-color-btn" data-hue="269" data-chroma="0.01" data-lightness="15" data-title="pure black">
                             <div class="preset-color-circle" style="background-color: oklch(15% 0 0);"></div>
@@ -1115,7 +1115,7 @@ document.addEventListener('DOMContentLoaded', function() {
     height: 150px;
     border-radius: var(--radius);
     background: oklch(var(--l, 50%) var(--base-chroma, 0.25) var(--base-hue, 260));
-    box-shadow: var(--border-glow);
+    border: var(--border-strong);
     display: flex;
     justify-content: center;
     align-items: center;
@@ -1140,10 +1140,10 @@ document.addEventListener('DOMContentLoaded', function() {
 
 .advanced-color-info-group {
     width: 100%;
-    background: color-mix(in oklch, var(--card-bg), transparent 20%);
+    background: color-mix(in oklch, var(--card-bg), transparent 60%);
     border-radius: var(--radius);
     padding: 20px;
-    border: var(--glass-border);
+    border: var(--border-strong);
     display: flex;
     flex-direction: column;
     gap: 12px;
@@ -1157,6 +1157,7 @@ document.addEventListener('DOMContentLoaded', function() {
     box-shadow: 0 4px 12px rgba(0,0,0,0.25);
 }
 
+[data-theme="dark"] .advanced-color-preview-display,
 [data-theme="dark"] .advanced-color-info-group {
     box-shadow: var(--border-glow) !important;
 }
