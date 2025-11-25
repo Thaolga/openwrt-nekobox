@@ -5671,6 +5671,7 @@ body::-webkit-scrollbar,
     padding: 0.35rem 0.6rem !important;
     border-radius: 12px !important;
     border: var(--border-strong);
+    box-shadow: 0 1px 3px -2px color-mix(in oklch, var(--bg-container), black 30%) !important;
     transition: transform 0.3s ease, box-shadow 0.3s ease !important;
     display: flex !important;
     align-items: center !important;
@@ -5680,7 +5681,6 @@ body::-webkit-scrollbar,
 .block:hover {
     transform: translateY(-2px) !important;
     background-color: var(--bg-body) !important;
-    box-shadow: 0 1px 3px -2px color-mix(in oklch, var(--bg-container), black 30%);
 }
 
 .pure-u-1-4 {
