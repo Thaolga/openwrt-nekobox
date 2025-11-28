@@ -5485,12 +5485,41 @@ html[data-theme="dark"] .myip-section-title {
     background-color: var(--bg-container) !important;
 }
 
-[data-theme="dark"] .main-cards-container {
+[data-theme="dark"]  .main-cards-container,
+[data-theme="dark"]  .config-select option,
+[data-theme="dark"]  .oc .config-select,
+[data-theme="dark"]  .oc .stat-label,
+[data-theme="dark"]  .oc .subscription-info-text,
+[data-theme="dark"]  .oc .file-info-item,
+[data-theme="dark"]  .oc .config-file-name,
+[data-theme="dark"]  .oc .icon-btn,
+[data-theme="dark"]  .oc #logo_btn .logo-text, .oc #edit_overwrite .btn-text,
+[data-theme="dark"]  .oc .version-display,
+[data-theme="dark"]  .version-text,
+[data-theme="dark"]  .main-cards-container .card-title {
     color: white !important;
 }
 
-[data-theme="dark"] .main-cards-container * {
-    color: inherit !important;
+.oc #logo_btn .logo-text, .oc #edit_overwrite .btn-text {
+    color: black !important;
+}
+
+[data-theme="dark"]  #edit_overwrite .btn-text {
+    color: white !important;
+}
+
+[data-theme="dark"] #overwrite-card-bar .sub-card.overwrite-item .overwrite-title,
+[data-theme="dark"] #overwrite-card-bar .sub-card.overwrite-item .overwrite-info,
+[data-theme="dark"] #overwrite-card-bar .sub-card.overwrite-item .icon-btn {
+    color: white !important;
+}
+
+#overwrite-subscribe-filename {
+    color: black !important;
+}
+
+.oc .config-editor-title .config-file-name {
+    color: #000 !important;
 }
 
 [data-theme="dark"] .myip-footer p {
