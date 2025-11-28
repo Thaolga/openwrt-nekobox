@@ -1863,14 +1863,6 @@ div>div[style*="display:grid"] {
         font-size: 9px !important;
         padding: 1px 4px !important;
     }
-    
-    body {
-        overflow-x: hidden !important;
-    }
-    
-    .cbi-tabcontainer {
-        overflow-x: hidden !important;
-    }
 }
 
 @media (max-width: 768px) {
