@@ -1784,6 +1784,95 @@ div>div[style*="display:grid"] {
     background: var(--card-bg) !important;
 }
 
+@media (max-width: 786px) {
+    .cbi-tabcontainer[style*="display: block"] .cards-container,
+    .cbi-tabcontainer[style*="display:block"] .cards-container {
+        background: transparent !important;
+        border: none !important;
+        display: block !important;
+        gap: 12px !important;
+        padding: 10px 8px !important;
+        margin: 0 !important;
+        width: 100% !important;
+        box-sizing: border-box !important;
+        overflow-x: hidden !important;
+    }
+    
+    #cbi-passwall-nodes .node-card,
+    .cbi-section-node-tabbed .node-card {
+        flex: 0 0 100% !important;
+        width: 100% !important;
+        margin: 0 0 12px 0 !important;
+        padding: 12px !important;
+        box-sizing: border-box !important;
+        min-height: auto !important;
+    }
+    
+    #cbi-passwall-nodes .card-header,
+    .cbi-section-node-tabbed .card-header {
+        min-height: auto !important;
+        font-size: 14px !important;
+        padding: 0 4px !important;
+        text-align: left !important;
+        justify-content: flex-start !important;
+        word-break: break-word !important;
+        line-height: 1.3 !important;
+        margin-bottom: 8px !important;
+    }
+    
+    #cbi-passwall-nodes .card-metrics,
+    .cbi-section-node-tabbed .card-metrics {
+        flex-direction: column !important;
+        gap: 6px !important;
+        margin-bottom: 10px !important;
+        padding: 0 !important;
+    }
+    
+    #cbi-passwall-nodes .metric-item,
+    .cbi-section-node-tabbed .metric-item {
+        text-align: left !important;
+        padding: 6px 8px !important;
+        font-size: 12px !important;
+        margin: 0 !important;
+        min-width: auto !important;
+        white-space: normal !important;
+        line-height: 1.2 !important;
+    }
+    
+    #cbi-passwall-nodes .card-actions,
+    .cbi-section-node-tabbed .card-actions {
+        justify-content: space-around !important;
+        gap: 8px !important;
+        padding: 0 !important;
+        min-height: 36px !important;
+    }
+    
+    .node-wrapper .cbi-button {
+        min-width: 36px !important;
+        min-height: 36px !important;
+        font-size: 12px !important;
+    }
+    
+    .drag-handle {
+        display: none !important;
+    }
+    
+    .card-header .card-badge {
+        top: 8px !important;
+        right: 8px !important;
+        font-size: 9px !important;
+        padding: 1px 4px !important;
+    }
+    
+    body {
+        overflow-x: hidden !important;
+    }
+    
+    .cbi-tabcontainer {
+        overflow-x: hidden !important;
+    }
+}
+
 @media (max-width: 768px) {
     .cbi-value-field input {
         width: 100%;
