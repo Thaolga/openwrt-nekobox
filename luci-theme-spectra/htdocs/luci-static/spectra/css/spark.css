@@ -1779,6 +1779,10 @@ div>div[style*="display:grid"] {
     background: var(--accent-color) !important;
 }
 
+.config-select option {
+    background: var(--card-bg) !important;
+}
+
 @media (max-width: 768px) {
     .cbi-value-field input {
         width: 100%;
