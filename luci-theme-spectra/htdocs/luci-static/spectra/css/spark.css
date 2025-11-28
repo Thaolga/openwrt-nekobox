@@ -1756,6 +1756,29 @@ div>div[style*="display:grid"] {
     margin-left: 5px !important;
 }
 
+#nodes_link {
+    background: var(--card-bg) !important;
+    border: var(--border-strong) !important;
+    border-radius: 10px !important;
+    color: var(--text-primary) !important;
+}
+
+[data-theme="dark"] #nodes_link {
+    box-shadow: var(--border-glow) !important;
+}
+
+#addlink_group_custom .selected-display {
+    background: var(--card-bg) !important;
+}
+
+#addlink_group_custom .dropdown-list {
+    background: var(--card-bg) !important;
+}
+
+#addlink_group_custom .dropdown-item:hover {
+    background: var(--accent-color) !important;
+}
+
 @media (max-width: 768px) {
     .cbi-value-field input {
         width: 100%;
