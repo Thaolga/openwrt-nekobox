@@ -1751,6 +1751,11 @@ div>div[style*="display:grid"] {
     box-shadow: 0 4px 12px rgba(0,0,0,0.15);
 }
 
+.node-wrapper .drag-handle {
+    color: var(--text-primary) !important;
+    margin-left: 5px !important;
+}
+
 @media (max-width: 768px) {
     .cbi-value-field input {
         width: 100%;
