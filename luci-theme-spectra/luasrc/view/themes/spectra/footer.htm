@@ -245,7 +245,10 @@ function convertTablesToCards() {
 
         const titleWithFlag = addFlagIfMissing(actualTitle);
 
-        const badgeHtml = protocol ? getProtocolBadge(protocol) : '';
+        let badgeHtml = protocol ? getProtocolBadge(protocol) : '';
+        if (nodeType && badgeHtml) {
+            badgeHtml = badgeHtml.replace('<span class="card-badge"', `<span class="card-badge" title="${nodeType}"`);
+        }
 
         card.innerHTML = `
             <div class="card-header ${remarksClass}">
@@ -260,7 +263,7 @@ function convertTablesToCards() {
             <div class="card-actions">${actions}</div>
         `;
 
-        if (nodeType) card.title = `${nodeType}`;
+        //if (nodeType) card.title = `${nodeType}`;
 
         cardsContainer.appendChild(card);
     });
