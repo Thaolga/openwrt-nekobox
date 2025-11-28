@@ -282,6 +282,16 @@ window.addEventListener('resize', updateCardLayout);
 function initCardSortable(container, group) {
     if (typeof Sortable === 'undefined') return;
     
+    const isSmallScreen = window.innerWidth < 768;
+    
+    if (isSmallScreen) {
+        const dragHandles = container.querySelectorAll('.drag-handle');
+        dragHandles.forEach(handle => {
+            handle.style.display = 'none';
+        });
+        return;
+    }
+    
     try {
         Sortable.create(container, {
             handle: ".node-card, .drag-handle",
