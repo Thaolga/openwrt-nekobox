@@ -5776,10 +5776,13 @@ div.pure-u-1-4.check:has(#status_baidu) .img-con img { content: url('/luci-stati
 
     .block > .pure-u-2-3 h4 {
         font-size: 0.7rem !important;
-        line-height: 1.4 !important;
         padding-right: 8px !important;
     }
 
+    #_passwall_status_fieldset .block > .pure-u-2-3 h4 {
+        line-height: 1.4 !important;
+    }
+    
     .block > .pure-u-2-3 h4 span {
         font-size: 0.7rem !important;
         line-height: 1.3 !important;
