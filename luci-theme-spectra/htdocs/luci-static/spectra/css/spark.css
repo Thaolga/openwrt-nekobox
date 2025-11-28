@@ -1620,13 +1620,9 @@ div>div[style*="display:grid"] {
 .cbi-tabcontainer[style*="display: block"] .cards-container,
 .cbi-tabcontainer[style*="display:block"] .cards-container {
     background: var(--card-bg) !important;
-    display: flex !important;
-    flex-wrap: wrap !important;
+    display: grid !important;
     gap: 15px !important;
     padding: 20px !important;
-    width: 100% !important;
-    box-sizing: border-box !important;
-    justify-content: flex-start;
 }
 
 .cbi-tabcontainer:not([style*="display: block"]):not([style*="display:block"]) .cards-container {
@@ -1742,32 +1738,17 @@ div>div[style*="display:grid"] {
     padding: 0 !important;
 }
 
-@media (max-width: 1500px) {
-    #cbi-passwall-nodes .node-card,
-    .cbi-section-node-tabbed .node-card {
-        flex: 0 0 calc(25% - 15px);
-    }
+.node-card {
+    cursor: grab;
+    transition: all 0.3s ease;
 }
 
-@media (max-width: 1200px) {
-    #cbi-passwall-nodes .node-card,
-    .cbi-section-node-tabbed .node-card {
-        flex: 0 0 calc(33.333% - 15px);
-    }
+.node-card:active {
+    cursor: grabbing;
 }
 
-@media (max-width: 992px) {
-    #cbi-passwall-nodes .node-card,
-    .cbi-section-node-tabbed .node-card {
-        flex: 0 0 calc(50% - 15px);
-    }
-}
-
-@media (max-width: 768px) {
-    #cbi-passwall-nodes .node-card,
-    .cbi-section-node-tabbed .node-card {
-        flex: 0 0 100%;
-    }
+.node-card:hover {
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
 }
 
 @media (max-width: 768px) {

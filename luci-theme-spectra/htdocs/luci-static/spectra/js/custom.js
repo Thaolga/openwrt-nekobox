@@ -1,5 +1,11 @@
 document.addEventListener("DOMContentLoaded", function () {
-    let isEnabled = localStorage.getItem('backgroundEnabled') !== 'false';
+    let isEnabled = localStorage.getItem('backgroundEnabled') === 'true';
+    
+    if (localStorage.getItem('backgroundEnabled') === null) {
+        localStorage.setItem('backgroundEnabled', 'false');
+        isEnabled = false;
+    }
+
     let currentLanguage = 'zh';
 
     fetch('/luci-static/spectra/bgm/save_language.php', {
@@ -817,7 +823,7 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     function updateThemeButton(mode) {
-        const btn = document.getElementById('theme-toggle');
+        const btn = document.getElementById('spectra-theme-toggle');
         if (!btn) return;
 
         if (mode === "dark") {
@@ -909,7 +915,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 </h5>
             </div>
             <div class="button-grid">
-                <button id="theme-toggle" class="always-visible" style="background:#2196F3 !important">
+                <button id="spectra-theme-toggle" class="always-visible" style="background:#2196F3 !important">
                     ${document.body.classList.contains('dark') ? 
                         `${translateText('darkMode')}` : 
                         `${translateText('lightMode')}`}
@@ -1064,7 +1070,7 @@ document.addEventListener("DOMContentLoaded", function () {
             toggleAnimation(newState);
         });
 
-        document.getElementById('theme-toggle')?.addEventListener('click', function(e) {
+        document.getElementById('spectra-theme-toggle')?.addEventListener('click', function(e) {
             e.stopPropagation();
 
             const switchingToLight = document.body.classList.contains('dark');
@@ -1437,7 +1443,7 @@ document.addEventListener("DOMContentLoaded", function () {
             color: white !important;
         }
     
-        #theme-toggle div,
+        #spectra-theme-toggle div,
         .theme-settings-btn div,
         #color-panel-btn div,
         #font-settings-btn div,
@@ -1894,7 +1900,7 @@ document.addEventListener("DOMContentLoaded", function () {
             soundToggle.classList.toggle('muted', soundMuted);
         }
     
-        const themeToggle = popup.querySelector('#theme-toggle');
+        const themeToggle = popup.querySelector('#spectra-theme-toggle');
         if (themeToggle) {
             themeToggle.innerHTML = document.body.classList.contains('dark') ? 
                 `${translateText('darkMode')}<div><i class="bi bi-moon-fill"></i></div>` : 

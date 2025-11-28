@@ -5444,6 +5444,14 @@ html[data-theme="dark"] .myip-section-title {
     color: #ffffff !important;
 }
 
+#config-upload-cancel,
+#config-upload-submit,
+#overwrite-edit-cancel,
+#overwrite-upload-cancel,
+#overwrite-upload-submit {
+    color: white !important;
+}
+
 .oc .main-cards-container {
     background: var(--bg-container) !important;
 }
@@ -5470,6 +5478,7 @@ html[data-theme="dark"] .myip-section-title {
 #go_wiki,
 #go_tutorials,
 #go_star,
+#theme-toggle,
 #go_telegram,
 #go_sponsor,
 #logo_btn {
