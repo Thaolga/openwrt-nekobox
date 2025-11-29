@@ -13,6 +13,7 @@
     --c: 0.25;
     --glass-blur: blur(20px);
     --radius: 20px;
+    --radius-small: 12px;
     --glass-opacity: 0.85;
     --glass-border: 1px solid rgba(255, 255, 255, 0.1);
     --border-color: oklch(40% var(--base-chroma) var(--base-hue));
@@ -731,7 +732,7 @@ div.nav-container>button.btn_styles {
 }
 
 .app-icon-btn i {
-    color: inherit;
+    color: black;
     pointer-events: none;
     position: relative;
     top: 1px;
@@ -1875,4 +1876,69 @@ div>div[style*="display:grid"] {
         width: 95%;
         padding: 15px;
     }
+}
+
+#edit-modal .uk-modal-close-default {
+    position: static !important; 
+    margin: 0 !important;
+}
+
+#edit-modal .uk-modal-header .uk-icon-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.uk-modal-dialog {
+    background: var(--bg-container) !important;
+    color: var(--text-primary) !important;
+}
+
+.uk-h1, .uk-h2, .uk-h3, .uk-h4, .uk-h5, .uk-h6, .uk-heading-2xlarge, .uk-heading-3xlarge, .uk-heading-large, .uk-heading-medium, .uk-heading-small, .uk-heading-xlarge, h1, h2, h3, h4, h5, h6,
+.uk-card-default .uk-card-title {
+    color: var(--text-primary) !important;
+}
+
+.uk-card {
+    background: var(--card-bg) !important;
+    border: var(--border-strong) !important;
+    color: var(--text-primary) !important;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+#controlPanel .uk-card-hover:hover {
+    transform: scale(1.02);
+    box-shadow: var(--glow-shadow-default);
+}
+
+.uk-modal-footer,
+.uk-modal-header {
+    background-color: var(--header-bg)  !important;
+    color: var(--text-primary) !important;
+    border: none !important;
+}
+
+.uk-modal-body {
+    background-color: var(--card-bg);
+}
+
+#themeUpdateConfirmModal #themeCopyCommand,
+#themeUpdateStatusModal #themeLogOutput {
+    background: color-mix(in oklch, var(--card-bg), transparent 20%);
+    color: var(--text-primary) !important;
+    border-radius: var(--radius-small) !important;
+    border: var(--border-strong) !important;
+}
+
+#cityInput {
+    background: var(--card-bg) !important;
+    color: var(--text-primary) !important;
+    border: var(--border-strong) !important;
+    border-radius: var(--radius-small) !important;
+}
+
+#themeUpdateConfirmModal #themeCurrentVersionInfo,
+#themeUpdateConfirmModal #themeLatestVersionInfo {
+    border-radius: var(--radius-medium, 12px) !important;
+    overflow: visible;
 }
