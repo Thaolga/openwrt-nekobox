@@ -247,7 +247,6 @@
                </div>
 
                 <div class="icon-group">
-                        <button  class="app-icon-btn" id="clear-cache-btn" onclick="clearCache()" data-title="clear_button"><i class="fa-solid fa-broom"></i></button>
                         <button class="translation-toggle app-icon-btn" onclick="toggleTranslation()" data-title="online_translation"><i class="fas fa-language"></i></button>
                 </div>
             </div>
@@ -782,6 +781,13 @@
                      onclick="openLanguageModal()" style="cursor: pointer;">
                     <i class="bi bi-translate" style="font-size:1.8rem;"></i>
                     <span data-translate="select_language">Language</span>
+                </div>
+            </div>
+            <div>
+                <div class="uk-card uk-card-small uk-card-default uk-card-hover uk-card-body uk-text-center control-card" 
+                     onclick="clearCache()" style="cursor: pointer;">
+                    <i class="bi bi-eraser" style="font-size:1.8rem;"></i>
+                    <span data-translate="clear_button"></span>
                 </div>
             </div>
             <div>
