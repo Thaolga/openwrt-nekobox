@@ -10211,7 +10211,7 @@ document.addEventListener("DOMContentLoaded", function () {
                     const mode = this.getAttribute('data-mode');
                     setMode(mode);
                     const modeName = getModeDisplayName(mode);
-                    const message = `${modeName} ${translations['message_mode'] || 'mode'}`;
+                    const message = `${modeName}`;
                     showLogMessage(message);
                     speakMessage(message);
                 });
