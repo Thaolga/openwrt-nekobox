@@ -6198,9 +6198,14 @@ document.getElementById('goFirstBtn')?.addEventListener('click', function() {
 </script>
 
 <script>
-function makeModalDraggable(modalElement) {
-    const modalHeader = modalElement.querySelector('.modal-header');
-    const modalContent = modalElement.querySelector('.modal-content');
+function makeModalDraggable(modalElement, { headerSelector, contentSelector, storageKey }) {
+    const modalHeader = modalElement.querySelector(headerSelector);
+    const modalContent = modalElement.querySelector(contentSelector);
+    
+    if (!modalHeader || !modalContent) {
+        return;
+    }
+    
     let isDragging = false;
     let offsetX = 0;
     let offsetY = 0;
@@ -6216,6 +6221,8 @@ function makeModalDraggable(modalElement) {
     document.addEventListener('touchend', handleTouchEnd);
 
     function startDrag(e) {
+        if (e.target.closest('button')) return;
+        
         isDragging = true;
         offsetX = e.clientX - modalContent.offsetLeft;
         offsetY = e.clientY - modalContent.offsetTop;
@@ -6245,15 +6252,17 @@ function makeModalDraggable(modalElement) {
     function stopDrag() {
         if (isDragging) {
             isDragging = false;
-            modalContent.style.cursor = 'default';
+            modalContent.style.cursor = '';
             modalContent.style.userSelect = 'auto';
             
-            localStorage.setItem('musicModalLeft', modalContent.style.left);
-            localStorage.setItem('musicModalTop', modalContent.style.top);
+            localStorage.setItem(storageKey + '_left', modalContent.style.left);
+            localStorage.setItem(storageKey + '_top', modalContent.style.top);
         }
     }
 
     function handleTouchStart(e) {
+        if (e.target.closest('button')) return;
+        
         const touch = e.touches[0];
         isDragging = true;
         offsetX = touch.clientX - modalContent.offsetLeft;
@@ -6287,16 +6296,16 @@ function makeModalDraggable(modalElement) {
     function handleTouchEnd() {
         if (isDragging) {
             isDragging = false;
-            modalContent.style.cursor = 'default';
+            modalContent.style.cursor = '';
             modalContent.style.userSelect = 'auto';
             
-            localStorage.setItem('musicModalLeft', modalContent.style.left);
-            localStorage.setItem('musicModalTop', modalContent.style.top);
+            localStorage.setItem(storageKey + '_left', modalContent.style.left);
+            localStorage.setItem(storageKey + '_top', modalContent.style.top);
         }
     }
 
-    const savedLeft = localStorage.getItem('musicModalLeft');
-    const savedTop = localStorage.getItem('musicModalTop');
+    const savedLeft = localStorage.getItem(storageKey + '_left');
+    const savedTop = localStorage.getItem(storageKey + '_top');
     
     if (savedLeft && savedTop) {
         modalContent.style.left = savedLeft;
@@ -6307,34 +6316,38 @@ function makeModalDraggable(modalElement) {
     }
 }
 
-document.addEventListener('DOMContentLoaded', function() {
-    const musicModal = document.getElementById('musicModal');
-    if (musicModal) {
-        makeModalDraggable(musicModal);
-    }
-});
-
-function openMusicModal() {
-    const modal = document.getElementById('musicModal');
-    const modalContent = modal.querySelector('.modal-content');
+function initAllModalDrag() {
+    const allModals = document.querySelectorAll('[uk-modal], .uk-modal, .modal, [class*="modal"]');
     
-    modal.classList.add('active');
-    
-    const savedLeft = localStorage.getItem('musicModalLeft');
-    const savedTop = localStorage.getItem('musicModalTop');
-    
-    if (!savedLeft || !savedTop) {
-        modalContent.style.left = '50%';
-        modalContent.style.top = '50%';
-        modalContent.style.transform = 'translate(-50%, -50%)';
-        modalContent.style.position = 'fixed';
-    }
+    allModals.forEach((modal, index) => {
+        const selectors = [
+            { header: '.uk-modal-header', content: '.uk-modal-dialog' },
+            { header: '.modal-header', content: '.modal-content' },
+            { header: '.header', content: '.content' },
+            { header: '.uk-flex-between', content: '.uk-modal-dialog' },
+            { header: '.language-modal-header', content: '.uk-modal-dialog' },
+            { header: '.uk-modal-title', content: '.uk-modal-dialog' }
+        ];
+        
+        for (let selector of selectors) {
+            const modalHeader = modal.querySelector(selector.header);
+            const modalContent = modal.querySelector(selector.content);
+            
+            if (modalHeader && modalContent) {
+                const storageKey = modal.id || `modal_${index}`;
+                
+                makeModalDraggable(modal, {
+                    headerSelector: selector.header,
+                    contentSelector: selector.content,
+                    storageKey: storageKey
+                });
+                break;
+            }
+        }
+    });
 }
 
-function closeMusicModal() {
-    const modal = document.getElementById('musicModal');
-    modal.classList.remove('active');
-}
+document.addEventListener('DOMContentLoaded', initAllModalDrag);
 </script>
 
 <script>
