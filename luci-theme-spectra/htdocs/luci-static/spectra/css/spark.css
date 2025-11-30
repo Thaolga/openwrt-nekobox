@@ -677,7 +677,7 @@ div.nav-container>button.btn_styles {
 #openEditModal,
 #openEditModal .bi,
 #openEditModal svg {
-    color: #000 !important;
+    color: var(--text-primary) !important;
     fill: #000 !important;
     stroke: #000 !important;
 }
