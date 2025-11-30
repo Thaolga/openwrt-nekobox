@@ -3669,19 +3669,14 @@ function saveLanguage() {
         if (data.success) {
             currentLang = language;
             updateUIText();
-            closeLanguageModal();
+            UIkit.modal('#languageModal').hide();
         }
     });
 }
 
 function openLanguageModal() {
-    const modal = document.getElementById('languageModal');
-    if (modal) {
-        modal.style.display = 'flex';
-        void modal.offsetWidth;
-        modal.classList.add('show');
-    }
-
+    UIkit.modal('#languageModal').show();
+    
     fetch('/luci-static/spectra/bgm/save_language.php', {
         method: 'POST',
         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },

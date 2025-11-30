@@ -3845,23 +3845,27 @@ document.addEventListener("DOMContentLoaded", () => {
     updateIcon("fa-font");
   }
 
-  btn.addEventListener("click", () => {
-    const currentIndex = fonts.findIndex(f => body.classList.contains(f.class));
-    const nextIndex = (currentIndex + 1) % fonts.length;
-    const nextFont = fonts[nextIndex];
+  if (btn) {
+    btn.addEventListener("click", () => {
+      const currentIndex = fonts.findIndex(f => body.classList.contains(f.class));
+      const nextIndex = (currentIndex + 1) % fonts.length;
+      const nextFont = fonts[nextIndex];
 
-    fonts.forEach(f => body.classList.remove(f.class));
-    body.classList.add(nextFont.class);
-    localStorage.setItem(storageKey, nextFont.class);
+      fonts.forEach(f => body.classList.remove(f.class));
+      body.classList.add(nextFont.class);
+      localStorage.setItem(storageKey, nextFont.class);
 
-    updateIcon(nextFont.icon);
+      updateIcon(nextFont.icon);
 
-    const message = translations[nextFont.key] || "Switched font";
-    if (typeof speakMessage === "function") speakMessage(message);
-    if (typeof showLogMessage === "function") showLogMessage(message);
-  });
+      const message = translations[nextFont.key] || "Switched font";
+      if (typeof speakMessage === "function") speakMessage(message);
+      if (typeof showLogMessage === "function") showLogMessage(message);
+    });
+  }
 
   function updateIcon(iconName) {
+    const icon = document.getElementById('myIcon');
+    if (!icon) return;
     icon.className = `fa-solid ${iconName}`;
     icon.style.color = "white";
   }
@@ -3913,7 +3917,7 @@ document.addEventListener("DOMContentLoaded", function () {
             }
         });
     } else {
-        console.log('Drag and drop is disabled on small screens.');
+        //console.log('Drag and drop is disabled on small screens.');
     }
 });
 </script>

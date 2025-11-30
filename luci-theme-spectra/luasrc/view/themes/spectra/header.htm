@@ -304,44 +304,50 @@
     </div>
 </div>
 
-<div id="languageModal" class="glass-modal-overlay" style="display: none;">
-    <div class="glass-modal-container">
-        <div class="glass-modal-header">
-            <img id="currentFlag" src="/luci-static/ipip/flags/cn.png" class="modal-flag">
-            <h3 class="modal-title" data-translate="select_language"></h3>
+<div id="languageModal" uk-modal>
+    <div class="uk-modal-dialog">
+        <div class="language-modal-header">
+            <div class="language-modal-header-content">
+                <img id="currentFlag" src="/luci-static/ipip/flags/cn.png" class="language-modal-flag">
+                <h2 class="language-modal-title" data-translate="select_language"></h2>
+            </div>
+            <button class="uk-modal-close-default" type="button" uk-close></button>
         </div>
-        
-        <select id="languageSelect" class="glass-input modal-select">
-            <option value="zh" data-translate="simplified_chinese"></option>
-            <option value="hk" data-translate="traditional_chinese"></option>
-            <option value="en" data-translate="english"></option>
-            <option value="ko" data-translate="korean"></option>
-            <option value="vi" data-translate="vietnamese"></option>
-            <option value="th" data-translate="thailand"></option>
-            <option value="ja" data-translate="japanese"></option>
-            <option value="ru" data-translate="russian"></option>
-            <option value="de" data-translate="germany"></option>
-            <option value="fr" data-translate="france"></option>
-            <option value="ar" data-translate="arabic"></option>
-            <option value="es" data-translate="spanish"></option>
-            <option value="bn" data-translate="bangladesh"></option>
-        </select>
-        
-        <div id="voiceSelectContainer" class="voice-container">
-            <label class="voice-title" id="voiceSelectTitle" data-translate="voice_select_title"></label>
-            <select id="voiceSelect" class="glass-input modal-select">
-                <option value="" data-translate="select_voice_placeholder"></option>
-            </select>
-        </div>
-        
-        <div class="voice-toggle-container">
-            <input type="checkbox" id="voiceToggle" checked class="voice-checkbox">
-            <label for="voiceToggle" id="voiceLabel" data-translate="voice_label" class="voice-label"></label>
-        </div>
-        
-        <div class="modal-actions">
-            <button type="button" class="cbi-button cbi-button-remove" onclick="closeLanguageModal()" data-translate="cancel"></button>
-            <button type="button" class="cbi-button cbi-button-apply" onclick="saveLanguage()" data-translate="save"></button>
+        <div class="language-modal-body">
+            <div class="uk-margin">
+                <label class="language-form-label" data-translate="select_language"></label>
+                <select id="languageSelect" class="uk-select">
+                    <option value="zh" data-translate="simplified_chinese"></option>
+                    <option value="hk" data-translate="traditional_chinese"></option>
+                    <option value="en" data-translate="english"></option>
+                    <option value="ko" data-translate="korean"></option>
+                    <option value="vi" data-translate="vietnamese"></option>
+                    <option value="th" data-translate="thailand"></option>
+                    <option value="ja" data-translate="japanese"></option>
+                    <option value="ru" data-translate="russian"></option>
+                    <option value="de" data-translate="germany"></option>
+                    <option value="fr" data-translate="france"></option>
+                    <option value="ar" data-translate="arabic"></option>
+                    <option value="es" data-translate="spanish"></option>
+                    <option value="bn" data-translate="bangladesh"></option>
+                </select>
+            </div>
+            <div id="voiceSelectContainer" class="language-voice-container">
+                <label class="language-form-label" id="voiceSelectTitle" data-translate="voice_select_title"></label>
+                <select id="voiceSelect" class="uk-select">
+                    <option value="" data-translate="select_voice_placeholder"></option>
+                </select>
+            </div>
+            <div class="language-checkbox-container">
+                <input type="checkbox" id="voiceToggle" checked class="uk-checkbox">
+                <span id="voiceLabel" data-translate="voice_label"></span>
+            </div>
+        </div>        
+        <div class="language-modal-footer">
+            <div class="language-modal-footer-buttons">
+                <button type="button" class="uk-button uk-button-gray uk-modal-close" data-translate="cancel"></button>
+                <button type="button" class="uk-button uk-button-primary" onclick="saveLanguage()" data-translate="save"></button>
+            </div>
         </div>
     </div>
 </div>
@@ -610,10 +616,10 @@
 </div>
 
 <div id="control-panel-modal" uk-modal>
-    <div class="uk-modal-dialog uk-modal-body" style="width: 680px; max-width: 90%;">
+    <div class="uk-modal-dialog uk-modal-body">
         <button class="uk-modal-close-default" type="button" uk-close></button>
         <h2 class="uk-modal-title">
-            <span uk-icon="icon: cog"></span>
+            <span uk-icon="icon: cog; ratio: 1.8"></span>
             <span data-translate="control_panel">Control Panel</span>
         </h2>
         
@@ -745,8 +751,8 @@
             </div>
             <div>
                 <div class="uk-card uk-card-small uk-card-default uk-card-hover uk-card-body uk-text-center control-card" 
-                     id="themeLoaderToggle" style="cursor: pointer; color: var(--text-primary) !important;">
-                    <span uk-icon="icon: cog; ratio: 1.5"></span>
+                     id="themeLoaderToggle" style="cursor: pointer;">
+                    <i id="themeLoaderIcon" class="bi bi-gear-fill" style="font-size: 1.8rem;"></i>
                     <span data-translate="theme_loader_btn_title">Theme Loader</span>
                 </div>
             </div>
@@ -1081,6 +1087,72 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 <style>
+.language-modal-header {
+    background-color: var(--header-bg)  !important;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 20px 30px 15px;
+}
+
+.language-modal-header-content {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.language-modal-flag {
+    width: 50px;
+    height: 35px;
+    object-fit: cover;
+}
+
+.language-modal-title {
+    margin: 0;
+    font-size: 1.3rem;
+    font-weight: 600;
+}
+
+.language-modal-body {
+    padding: 20px 30px;
+}
+
+.language-form-label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 500;
+    color: var(--text-primary) !important;
+}
+
+.language-voice-container {
+    margin-top: 25px;
+}
+
+.language-checkbox-container {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 20px;
+}
+
+.language-modal-footer {
+    background-color: var(--header-bg)  !important;
+    padding: 20px 30px;
+    border: none !important;
+}
+
+.language-modal-footer-buttons {
+    display: flex;
+    gap: 12px;
+    justify-content: flex-end;
+}
+
+#languageSelect option,
+#voiceSelect option {
+    color: var(--text-primary) !important;
+    background: color-mix(in oklch, var(--card-bg), transparent 20%);
+}
+
 .advanced-color-control-modal {
     position: fixed;
     top: 0;
@@ -2934,213 +3006,6 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 }
 
-.glass-modal-overlay {
-    display: none;
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    z-index: 9999;
-    background: rgba(0, 0, 0, 0.1);
-    align-items: center;
-    justify-content: center;
-}
-
-.glass-modal-overlay.show {
-    display: flex;
-}
-
-.glass-modal-container {
-    background: color-mix(in oklch, var(--bg-container), transparent 20%);
-    backdrop-filter: blur(25px);
-    -webkit-backdrop-filter: blur(25px);
-    border: var(--glass-border, 1px solid rgba(255, 255, 255, 0.1));
-    border-radius: var(--radius, 20px);
-    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
-    padding: 20px;
-    min-width: 650px;
-    max-width: 90vw;
-    position: relative;
-}
-
-.glass-modal-header {
-    display: flex;
-    align-items: center;
-    margin-bottom: 15px;
-    padding-bottom: 10px;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-.modal-flag {
-    width: 45px;
-    height: 34px;
-    margin-right: 15px;
-    object-fit: contain;
-    border-radius: 4px;
-}
-
-.modal-title {
-    margin: 0;
-    font-size: 20px;
-    color: var(--accent-color);
-    font-weight: 600;
-}
-
-.modal-select {
-    width: 100%;
-    padding: 10px 14px;
-    margin: 6px 0;
-    background: color-mix(in oklch, var(--bg-container), transparent 50%);
-    backdrop-filter: blur(15px);
-    -webkit-backdrop-filter: blur(15px);
-    border: var(--glass-border, 1px solid rgba(255, 255, 255, 0.1));
-    border-radius: calc(var(--radius, 20px) - 4px);
-    color: var(--text-primary);
-    font-size: 14px;
-}
-
-.modal-select option:checked {
-    background: var(--accent-color) !important;
-    color: var(--color-white-strong);
-}
-
-.modal-select:focus {
-    outline: none;
-    border-color: var(--accent-color);
-    box-shadow: 0 0 0 2px color-mix(in oklch, var(--accent-color), transparent 70%);
-}
-
-.modal-select option {
-    background: color-mix(in oklch, var(--bg-container), transparent 20%);
-    color: var(--text-primary);
-    border-radius: 8px;
-    margin: 2px 0;
-    padding: 8px 12px;
-}
-
-.modal-select {
-    border-radius: calc(var(--radius, 20px) - 4px);
-}
-
-.modal-select:focus {
-    border-radius: calc(var(--radius, 20px) - 4px) calc(var(--radius, 20px) - 4px) 0 0;
-}
-
-.modal-select::-webkit-scrollbar {
-    width: 8px;
-}
-
-.modal-select::-webkit-scrollbar-track {
-    background: color-mix(in oklch, var(--bg-container), transparent 80%);
-    backdrop-filter: blur(10px);
-    border-radius: 4px;
-}
-
-.modal-select::-webkit-scrollbar-thumb {
-    background: color-mix(in oklch, var(--accent-color), transparent 50%);
-    backdrop-filter: blur(10px);
-    border-radius: 4px;
-    border: 1px solid color-mix(in oklch, var(--accent-color), transparent 30%);
-}
-
-.voice-container {
-    margin-top: 10px;
-    padding-top: 8px;
-    border-top: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-.voice-title {
-    font-weight: 600;
-    color: var(--accent-color);
-    display: block;
-    margin-bottom: 5px;
-    font-size: 16px;
-}
-
-.voice-toggle-container {
-    display: flex;
-    align-items: center;
-    margin: 12px 0;
-    padding: 12px;
-    background: color-mix(in oklch, var(--card-bg), transparent 50%);
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
-    border-radius: calc(var(--radius, 20px) - 8px);
-    border: 1px solid rgba(255, 255, 255, 0.05);
-}
-
-.voice-checkbox {
-    vertical-align: middle;
-    margin: 0 !important;
-    transform: scale(1.2);
-}
-
-.voice-label {
-    margin-left: 12px;
-    color: var(--text-primary);
-    display: inline-flex;
-    align-items: center;
-    font-size: 14px;
-}
-
-.modal-actions {
-    display: flex;
-    justify-content: flex-end;
-    gap: 12px;
-    margin-top: 8px;
-    padding-top: 6px;
-    border-top: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-@media (max-width: 768px) {
-    .glass-modal-container {
-        min-width: 90% !important;
-        max-width: 95% !important;
-        padding: 20px !important;
-        margin: 20px !important;
-    }
-    
-    .glass-modal-header {
-        flex-direction: column !important;
-        text-align: center !important;
-    }
-    
-    .modal-flag {
-        margin-right: 0 !important;
-        margin-bottom: 10px !important;
-    }
-    
-    .modal-actions {
-        flex-direction: column !important;
-        gap: 10px !important;
-    }
-    
-    .modal-actions .glass-button {
-        width: 100% !important;
-    }
-}
-
-.glass-modal-overlay {
-    display: none;
-}
-
-.glass-modal-overlay.show {
-    display: flex;
-    animation: fadeIn 0.2s ease;
-}
-
-@keyframes fadeIn {
-    from { opacity: 0; }
-    to { opacity: 1; }
-}
-
-.glass-modal-container {
-    animation: fadeIn 0.2s ease;
-}
-
-
-
 .overlay {
     display: none;
     position: fixed;
@@ -3664,11 +3529,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
 <div id="global-modal" uk-modal>
     <div class="uk-modal-dialog">
-        <div class="uk-modal-header uk-border-rounded-top">
-            <h3 class="uk-modal-title uk-margin-remove">
-                <span uk-icon="icon: lightning; ratio: 1.1" class="uk-margin-small-right"></span>
+        <div class="uk-modal-header uk-padding-small">
+            <h2 class="uk-modal-title uk-margin-remove">
+                <i class="fas fa-broom"></i>
                 <span data-translate="modal_title">Confirm Modal</span>
-            </h3>
+            </h2>
             <button class="uk-modal-close-default" type="button" uk-close></button>
         </div>
         <div class="uk-modal-body uk-text-center uk-padding-small">
@@ -7790,7 +7655,7 @@ let myAppIP = {
             };
         
             closeBtn.addEventListener('click', closeModal);
-            closeModalBtn.addEventListener('click', closeModal);
+            closeModalBtn?.addEventListener('click', closeModal);
         
             overlay.addEventListener('click', (e) => {
                 if (e.target === overlay) {
@@ -7799,7 +7664,7 @@ let myAppIP = {
             });
 
             const refreshBtn = content.querySelector('.cbi-button-apply');
-            refreshBtn.addEventListener('click', () => {
+            refreshBtn?.addEventListener('click', () => {
                 closeModal();
                 setTimeout(() => {
                     this.getIpipnetIP();
@@ -9735,11 +9600,11 @@ if (typeof audioPlayer !== 'undefined') {
 
 <div id="themeUpdateConfirmModal" uk-modal>
     <div class="uk-modal-dialog">
-        <div class="uk-modal-header">
-            <h3 class="uk-modal-title">
-                <span uk-icon="icon: palette; ratio: 1.1" class="uk-margin-small-right"></span>
+        <div class="uk-modal-header uk-padding-small">
+            <h2 class="uk-modal-title uk-margin-remove">
+                <i class="bi bi-cloud-download" style="font-size:1.8rem;"></i>
                 <span data-translate="theme_download">Theme Download</span>
-            </h3>
+            </h2>
             <button class="uk-modal-close-default" type="button" uk-close></button>
         </div>
         <div class="uk-modal-body">
@@ -10437,20 +10302,27 @@ document.addEventListener("DOMContentLoaded", function () {
         function checkImages(callback) {
             availableImages = [];
             let checked = 0;
+
+            const totalImages = bgImages.length;
+    
+            if (totalImages === 0) {
+                callback();
+                return;
+            }
             bgImages.forEach(image => {
                 checkFileExists(image, exists => {
                     checked++;
                     if (exists) availableImages.push(image);
-                    if (checked === bgImages.length) callback();
+                    if (checked === totalImages) callback();
                 });
             });
         }
 
         function checkFileExists(file, callback) {
-            const xhr = new XMLHttpRequest();
-            xhr.open('HEAD', `/luci-static/spectra/bgm/${file}`);
-            xhr.onreadystatechange = () => xhr.readyState === 4 && callback(xhr.status === 200);
-            xhr.send();
+            fetch(`/luci-static/spectra/bgm/file-checker.php?file=${file}`)
+                .then(response => response.json())
+                .then(data => callback(data.exists))
+                .catch(() => callback(false));
         }
 
         function applyCSS(image) {
