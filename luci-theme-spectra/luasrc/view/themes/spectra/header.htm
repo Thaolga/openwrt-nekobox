@@ -631,6 +631,7 @@
                 align-items: center;
                 transition: transform 0.2s ease, box-shadow 0.2s ease;
                 border-radius: 10px;
+                color: var(--text-primary);
             }
 
             .control-card:hover {
@@ -639,162 +640,256 @@
                 z-index: 2;
             }
 
-            .control-card span,
-            .control-card i  {
-                margin-bottom: 6px;
-            }
-
             .control-card.disabled {
                 pointer-events: none;
                 opacity: 0.5;
             }
 
             .control-card.selected {
-                background-color: var(--accent-color) !important;
-                color: #fff !important;
-                border-color: var(--accent-color);
+                color: var(--accent-secondary) !important;
+            }
+
+            .control-card .icon-container {
+                margin-bottom: 12px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                height: 32px;
+                color: inherit;
+            }
+
+            .control-card .text-container {
+                font-size: 0.9rem;
+                text-align: center;
+                line-height: 1.2;
+                color: inherit;
+            }
+
+            .control-card .icon-container i,
+            .control-card .icon-container span {
+                color: inherit;
             }
         </style>
 
         <div class="uk-grid-small uk-child-width-1-2 uk-child-width-1-4@l" uk-grid>
             <div>
                 <div class="uk-card uk-card-small uk-card-default uk-card-hover uk-card-body uk-text-center control-card" 
-                     id="spectra-theme-toggle" style="cursor: pointer; color: var(--text-primary);">
-                    <i id="theme-icon" class="bi bi-moon-fill" style="font-size:1.8rem; color: inherit;"></i>
-                    <span id="theme-text" data-translate="theme_dark" style="color: inherit;">Dark Mode</span>
+                     id="spectra-theme-toggle" style="cursor: pointer;">
+                    <div class="icon-container">
+                        <i id="theme-icon" class="bi bi-moon-fill" style="font-size:1.8rem;"></i>
+                    </div>
+                    <div class="text-container">
+                        <span id="theme-text" data-translate="theme_dark">Dark Mode</span>
+                    </div>
                 </div>
             </div>
             <div>
                 <div class="uk-card uk-card-small uk-card-primary uk-card-hover uk-card-body uk-text-center control-card theme-settings-btn" 
-                     style="cursor: pointer; color: var(--text-primary);">
-                    <span uk-icon="icon: settings; ratio: 1.5" style="color: inherit;"></span>
-                    <span data-translate="theme_settings" style="color: inherit;">Theme Settings</span>
+                     style="cursor: pointer;">
+                    <div class="icon-container">
+                        <span uk-icon="icon: settings; ratio: 1.5"></span>
+                    </div>
+                    <div class="text-container">
+                        <span data-translate="theme_settings">Theme Settings</span>
+                    </div>
                 </div>
             </div>
             <div>
                 <div class="uk-card uk-card-small uk-card-secondary uk-card-hover uk-card-body uk-text-center control-card" 
-                     id="master-switch" style="cursor: pointer; color: var(--text-primary);">
-                    <span id="power-icon" class="bi bi-toggle-off" style="font-size: 1.8rem; color: inherit;"></span>
-                    <span id="switch-text" data-translate="status_disabled" style="color: inherit;">Disabled</span>
+                     id="master-switch" style="cursor: pointer;">
+                    <div class="icon-container">
+                        <span id="power-icon" class="bi bi-toggle-off" style="font-size: 1.8rem;"></span>
+                    </div>
+                    <div class="text-container">
+                        <span id="switch-text" data-translate="status_disabled">Disabled</span>
+                    </div>
                 </div>
             </div>
             <div>
                 <div class="uk-card uk-card-small uk-card-success uk-card-hover uk-card-body uk-text-center control-card sound-toggle" 
                      style="cursor: pointer;">
-                    <span id="sound-icon" class="bi bi-volume-up" style="font-size: 1.8rem;"></span>
-                    <span data-translate="background_sound">Background Sound</span>
+                    <div class="icon-container">
+                        <span id="sound-icon" class="bi bi-volume-up" style="font-size: 1.8rem;"></span>
+                    </div>
+                    <div class="text-container">
+                        <span data-translate="background_sound">Background Sound</span>
+                    </div>
                 </div>
             </div>
             <div>
                 <div class="uk-card uk-card-small uk-card-default uk-card-hover uk-card-body uk-text-center control-card" 
                      data-mode="video" style="cursor: pointer;">
-                    <span uk-icon="icon: video-camera; ratio: 1.5"></span>
-                    <span data-translate="mode_video">Video Mode</span>
+                    <div class="icon-container">
+                        <span uk-icon="icon: video-camera; ratio: 1.5"></span>
+                    </div>
+                    <div class="text-container">
+                        <span data-translate="mode_video">Video Mode</span>
+                    </div>
                 </div>
             </div>
             <div>
                 <div class="uk-card uk-card-small uk-card-default uk-card-hover uk-card-body uk-text-center control-card" 
                      data-mode="image" style="cursor: pointer;">
-                    <span uk-icon="icon: image; ratio: 1.5"></span>
-                    <span data-translate="mode_image">Image Mode</span>
+                    <div class="icon-container">
+                        <span uk-icon="icon: image; ratio: 1.5"></span>
+                    </div>
+                    <div class="text-container">
+                        <span data-translate="mode_image">Image Mode</span>
+                    </div>
                 </div>
             </div>
             <div>
                 <div class="uk-card uk-card-small uk-card-default uk-card-hover uk-card-body uk-text-center control-card" 
                      data-mode="solid" style="cursor: pointer;">
-                    <i class="bi bi-moon-stars-fill" style="font-size: 1.8rem;"></i>
-                    <span data-translate="mode_solid">Dark Mode</span>
+                    <div class="icon-container">
+                        <i class="bi bi-moon-stars-fill" style="font-size: 1.8rem;"></i>
+                    </div>
+                    <div class="text-container">
+                        <span data-translate="mode_solid">Dark Mode</span>
+                    </div>
                 </div>
             </div>
             <div>
                 <div class="uk-card uk-card-small uk-card-default uk-card-hover uk-card-body uk-text-center control-card" 
                      data-mode="auto" style="cursor: pointer;">
-                    <span uk-icon="icon: star; ratio: 1.5"></span>
-                    <span data-translate="mode_auto">Auto Mode</span>
+                    <div class="icon-container">
+                        <span uk-icon="icon: star; ratio: 1.5"></span>
+                    </div>
+                    <div class="text-container">
+                        <span data-translate="mode_auto">Auto Mode</span>
+                    </div>
                 </div>
             </div>
             <div>
                 <div class="uk-card uk-card-small uk-card-default uk-card-hover uk-card-body uk-text-center control-card object-fit-btn" 
                      style="cursor: pointer;">
-                    <span uk-icon="icon: expand; ratio: 1.5"></span>
-                    <span id="fit-text" data-translate="fit_cover">Default Crop</span>
+                    <div class="icon-container">
+                        <span uk-icon="icon: expand; ratio: 1.5"></span>
+                    </div>
+                    <div class="text-container">
+                        <span id="fit-text" data-translate="fit_cover">Default Crop</span>
+                    </div>
                 </div>
             </div>
             <div>
                 <div class="uk-card uk-card-small uk-card-default uk-card-hover uk-card-body uk-text-center control-card" 
                      id="animation-toggle" style="cursor: pointer;">
-                    <span id="animation-icon" class="bi bi-play-circle" style="font-size: 1.8rem;"></span>
-                    <span id="animation-text" data-translate="animation_enable">Enable Animation</span>
+                    <div class="icon-container">
+                        <span id="animation-icon" class="bi bi-play-circle" style="font-size: 1.8rem;"></span>
+                    </div>
+                    <div class="text-container">
+                        <span id="animation-text" data-translate="animation_enable">Enable Animation</span>
+                    </div>
                 </div>
             </div>
             <div>
                 <div class="uk-card uk-card-small uk-card-default uk-card-hover uk-card-body uk-text-center control-card" 
                      id="font-toggle" style="cursor: pointer;">
-                    <i class="bi bi-type" style="font-size: 1.8rem;"></i>
-                    <span id="font-text" data-translate="font_default">Default Font</span>
+                    <div class="icon-container">
+                        <i class="bi bi-type" style="font-size: 1.8rem;"></i>
+                    </div>
+                    <div class="text-container">
+                        <span id="font-text" data-translate="font_default">Default Font</span>
+                    </div>
                 </div>
             </div>
             <div>
                 <div class="uk-card uk-card-small uk-card-default uk-card-hover uk-card-body uk-text-center control-card" 
                      id="themeOpenUpdateConfirmBtn" style="cursor: pointer;">
-                    <i class="bi bi-cloud-download" style="font-size:1.8rem;"></i>
-                    <span data-translate="theme_download">Theme Download</span>
+                    <div class="icon-container">
+                        <i class="bi bi-cloud-download" style="font-size:1.8rem;"></i>
+                    </div>
+                    <div class="text-container">
+                        <span data-translate="theme_download">Theme Download</span>
+                    </div>
                 </div>
             </div>
             <div>
                 <div class="uk-card uk-card-small uk-card-default uk-card-hover uk-card-body uk-text-center control-card" 
                      onclick="openMusicModal()" style="cursor: pointer;">
-                    <i class="bi bi-music-note-beamed" style="font-size:1.8rem;"></i>
-                    <span data-translate="music_player">Music Player</span>
+                    <div class="icon-container">
+                        <i class="bi bi-music-note-beamed" style="font-size:1.8rem;"></i>
+                    </div>
+                    <div class="text-container">
+                        <span data-translate="music_player">Music Player</span>
+                    </div>
                 </div>
             </div>
             <div>
                 <div class="uk-card uk-card-small uk-card-default uk-card-hover uk-card-body uk-text-center control-card" 
                      id="themeLoaderToggle" style="cursor: pointer;">
-                    <i id="themeLoaderIcon" class="bi bi-gear-fill" style="font-size: 1.8rem;"></i>
-                    <span data-translate="theme_loader_btn_title">Theme Loader</span>
+                    <div class="icon-container">
+                        <i id="themeLoaderIcon" class="bi bi-gear-fill" style="font-size: 1.8rem;"></i>
+                    </div>
+                    <div class="text-container">
+                        <span data-translate="theme_loader_btn_title">Theme Loader</span>
+                    </div>
                 </div>
             </div>
             <div>
                 <div class="uk-card uk-card-small uk-card-default uk-card-hover uk-card-body uk-text-center control-card" 
                      onclick="myAppIP.showDetailModal()" style="cursor: pointer;">
-                    <i class="bi bi-globe" style="font-size:1.8rem;"></i>
-                    <span data-translate="ip_details">IP Details</span>
+                    <div class="icon-container">
+                        <i class="bi bi-globe" style="font-size:1.8rem;"></i>
+                    </div>
+                    <div class="text-container">
+                        <span data-translate="ip_details">IP Details</span>
+                    </div>
                 </div>
             </div>
             <div>
                 <div class="uk-card uk-card-small uk-card-default uk-card-hover uk-card-body uk-text-center control-card" 
-                     id="openEditModal" style="cursor: pointer; color: var(--text-primary) !important;">
-                    <span uk-icon="icon: file-edit; ratio: 1.5"></span>
-                    <span data-translate="edit_ip_database" style="color: inherit;">Edit IP Database</span>
+                     id="openEditModal" style="cursor: pointer;">
+                    <div class="icon-container">
+                        <i class="bi bi-pencil-square" style="font-size: 1.8rem;"></i>
+                    </div>
+                    <div class="text-container">
+                        <span data-translate="edit_ip_database">Edit IP Database</span>
+                    </div>
                 </div>
             </div>
             <div>
                 <div class="uk-card uk-card-small uk-card-default uk-card-hover uk-card-body uk-text-center control-card" 
                      id="setCityBtn" style="cursor: pointer;">
-                    <i class="bi bi-geo-alt" style="font-size:1.8rem;"></i>
-                    <span data-translate="set_city">Set City</span>
+                    <div class="icon-container">
+                        <i class="bi bi-geo-alt" style="font-size:1.8rem;"></i>
+                    </div>
+                    <div class="text-container">
+                        <span data-translate="set_city">Set City</span>
+                    </div>
                 </div>
             </div>
             <div>
                 <div class="uk-card uk-card-small uk-card-default uk-card-hover uk-card-body uk-text-center control-card" 
                      onclick="openLanguageModal()" style="cursor: pointer;">
-                    <i class="bi bi-translate" style="font-size:1.8rem;"></i>
-                    <span data-translate="select_language">Language</span>
+                    <div class="icon-container">
+                        <i class="bi bi-translate" style="font-size:1.8rem;"></i>
+                    </div>
+                    <div class="text-container">
+                        <span data-translate="select_language">Language</span>
+                    </div>
                 </div>
             </div>
             <div>
                 <div class="uk-card uk-card-small uk-card-default uk-card-hover uk-card-body uk-text-center control-card" 
                      onclick="clearCache()" style="cursor: pointer;">
-                    <i class="bi bi-eraser" style="font-size:1.8rem;"></i>
-                    <span data-translate="clear_button"></span>
+                    <div class="icon-container">
+                        <i class="bi bi-eraser" style="font-size:1.8rem;"></i>
+                    </div>
+                    <div class="text-container">
+                        <span data-translate="clear_button"></span>
+                    </div>
                 </div>
             </div>
             <div>
                 <div class="uk-card uk-card-small uk-card-default uk-card-hover uk-card-body uk-text-center control-card info-btn" 
                      style="cursor: pointer;">
-                    <span uk-icon="icon: info; ratio: 1.5"></span>
-                    <span data-translate="usage_guide">Usage Guide</span>
+                    <div class="icon-container">
+                        <span uk-icon="icon: info; ratio: 1.5"></span>
+                    </div>
+                    <div class="text-container">
+                        <span data-translate="usage_guide">Usage Guide</span>
+                    </div>
                 </div>
             </div>
         </div>
@@ -6206,11 +6301,21 @@ document.getElementById('goFirstBtn')?.addEventListener('click', function() {
 </script>
 
 <script>
+function isMobileDevice() {
+    return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || 
+           window.innerWidth <= 768;
+}
+
 function makeModalDraggable(modalElement, { headerSelector, contentSelector, storageKey }) {
     const modalHeader = modalElement.querySelector(headerSelector);
     const modalContent = modalElement.querySelector(contentSelector);
     
     if (!modalHeader || !modalContent) {
+        return;
+    }
+    
+    if (isMobileDevice()) {
+        modalHeader.style.cursor = 'default';
         return;
     }
     
