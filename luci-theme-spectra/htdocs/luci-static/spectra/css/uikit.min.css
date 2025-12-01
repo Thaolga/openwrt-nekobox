@@ -5,8 +5,8 @@ html {
     font-weight: 400;
     line-height: 1.5;
     -webkit-text-size-adjust: 100%;
-    background: #fff;
-    color: #666
+    background: inherit !important;
+    color: inherit !important;
 }
 
 body {
