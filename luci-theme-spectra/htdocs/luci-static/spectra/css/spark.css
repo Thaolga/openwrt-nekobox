@@ -13,6 +13,7 @@
     --c: 0.25;
     --glass-blur: blur(20px);
     --radius: 20px;
+    --radius-small: 12px;
     --glass-opacity: 0.85;
     --glass-border: 1px solid rgba(255, 255, 255, 0.1);
     --border-color: oklch(40% var(--base-chroma) var(--base-hue));
@@ -676,7 +677,7 @@ div.nav-container>button.btn_styles {
 #openEditModal,
 #openEditModal .bi,
 #openEditModal svg {
-    color: #000 !important;
+    color: var(--text-primary) !important;
     fill: #000 !important;
     stroke: #000 !important;
 }
@@ -731,7 +732,7 @@ div.nav-container>button.btn_styles {
 }
 
 .app-icon-btn i {
-    color: inherit;
+    color: black;
     pointer-events: none;
     position: relative;
     top: 1px;
@@ -1620,13 +1621,9 @@ div>div[style*="display:grid"] {
 .cbi-tabcontainer[style*="display: block"] .cards-container,
 .cbi-tabcontainer[style*="display:block"] .cards-container {
     background: var(--card-bg) !important;
-    display: flex !important;
-    flex-wrap: wrap !important;
+    display: grid !important;
     gap: 15px !important;
     padding: 20px !important;
-    width: 100% !important;
-    box-sizing: border-box !important;
-    justify-content: flex-start;
 }
 
 .cbi-tabcontainer:not([style*="display: block"]):not([style*="display:block"]) .cards-container {
@@ -1742,31 +1739,130 @@ div>div[style*="display:grid"] {
     padding: 0 !important;
 }
 
-@media (max-width: 1500px) {
-    #cbi-passwall-nodes .node-card,
-    .cbi-section-node-tabbed .node-card {
-        flex: 0 0 calc(25% - 15px);
-    }
+.node-card {
+    cursor: grab;
+    transition: all 0.3s ease;
 }
 
-@media (max-width: 1200px) {
-    #cbi-passwall-nodes .node-card,
-    .cbi-section-node-tabbed .node-card {
-        flex: 0 0 calc(33.333% - 15px);
-    }
+.node-card:active {
+    cursor: grabbing;
 }
 
-@media (max-width: 992px) {
-    #cbi-passwall-nodes .node-card,
-    .cbi-section-node-tabbed .node-card {
-        flex: 0 0 calc(50% - 15px);
-    }
+.node-card:hover {
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
 }
 
-@media (max-width: 768px) {
+.node-wrapper .drag-handle {
+    color: var(--text-primary) !important;
+    margin-left: 5px !important;
+}
+
+#nodes_link {
+    background: var(--card-bg) !important;
+    border: var(--border-strong) !important;
+    border-radius: 10px !important;
+    color: var(--text-primary) !important;
+}
+
+[data-theme="dark"] #nodes_link {
+    box-shadow: var(--border-glow) !important;
+}
+
+#addlink_group_custom .selected-display {
+    background: var(--card-bg) !important;
+}
+
+#addlink_group_custom .dropdown-list {
+    background: var(--card-bg) !important;
+}
+
+#addlink_group_custom .dropdown-item:hover {
+    background: var(--accent-color) !important;
+    color: var(--color-white) !important;
+}
+
+.config-select option {
+    background: var(--card-bg) !important;
+}
+
+@media (max-width: 786px) {
+    .cbi-tabcontainer[style*="display: block"] .cards-container,
+    .cbi-tabcontainer[style*="display:block"] .cards-container {
+        background: transparent !important;
+        border: none !important;
+        display: block !important;
+        gap: 12px !important;
+        padding: 10px 8px !important;
+        margin: 0 !important;
+        width: 100% !important;
+        box-sizing: border-box !important;
+        overflow-x: hidden !important;
+    }
+    
     #cbi-passwall-nodes .node-card,
     .cbi-section-node-tabbed .node-card {
-        flex: 0 0 100%;
+        flex: 0 0 100% !important;
+        width: 100% !important;
+        margin: 0 0 12px 0 !important;
+        padding: 12px !important;
+        box-sizing: border-box !important;
+        min-height: auto !important;
+    }
+    
+    #cbi-passwall-nodes .card-header,
+    .cbi-section-node-tabbed .card-header {
+        min-height: auto !important;
+        font-size: 14px !important;
+        padding: 0 4px !important;
+        text-align: left !important;
+        justify-content: flex-start !important;
+        word-break: break-word !important;
+        line-height: 1.3 !important;
+        margin-bottom: 8px !important;
+    }
+    
+    #cbi-passwall-nodes .card-metrics,
+    .cbi-section-node-tabbed .card-metrics {
+        flex-direction: column !important;
+        gap: 6px !important;
+        margin-bottom: 10px !important;
+        padding: 0 !important;
+    }
+    
+    #cbi-passwall-nodes .metric-item,
+    .cbi-section-node-tabbed .metric-item {
+        text-align: left !important;
+        padding: 6px 8px !important;
+        font-size: 12px !important;
+        margin: 0 !important;
+        min-width: auto !important;
+        white-space: normal !important;
+        line-height: 1.2 !important;
+    }
+    
+    #cbi-passwall-nodes .card-actions,
+    .cbi-section-node-tabbed .card-actions {
+        justify-content: space-around !important;
+        gap: 8px !important;
+        padding: 0 !important;
+        min-height: 36px !important;
+    }
+    
+    .node-wrapper .cbi-button {
+        min-width: 36px !important;
+        min-height: 36px !important;
+        font-size: 12px !important;
+    }
+    
+    .drag-handle {
+        display: none !important;
+    }
+    
+    .card-header .card-badge {
+        top: 8px !important;
+        right: 8px !important;
+        font-size: 9px !important;
+        padding: 1px 4px !important;
     }
 }
 
@@ -1780,4 +1876,69 @@ div>div[style*="display:grid"] {
         width: 95%;
         padding: 15px;
     }
+}
+
+#edit-modal .uk-modal-close-default {
+    position: static !important; 
+    margin: 0 !important;
+}
+
+#edit-modal .uk-modal-header .uk-icon-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.uk-modal-dialog {
+    background: var(--bg-container) !important;
+    color: var(--text-primary) !important;
+}
+
+
+.uk-card-default .uk-card-title {
+    color: var(--text-primary) !important;
+}
+
+.uk-card {
+    background: var(--card-bg) !important;
+    border: var(--border-strong) !important;
+    color: var(--text-primary) !important;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+#controlPanel .uk-card-hover:hover {
+    transform: scale(1.02);
+    box-shadow: var(--glow-shadow-default);
+}
+
+.uk-modal-footer,
+.uk-modal-header {
+    background-color: var(--header-bg)  !important;
+    color: var(--text-primary) !important;
+    border: none !important;
+}
+
+.uk-modal-body {
+    background-color: var(--card-bg);
+}
+
+#themeUpdateConfirmModal #themeCopyCommand,
+#themeUpdateStatusModal #themeLogOutput {
+    background: color-mix(in oklch, var(--card-bg), transparent 20%);
+    color: var(--text-primary) !important;
+    border-radius: var(--radius-small) !important;
+    border: var(--border-strong) !important;
+}
+
+#cityInput {
+    background: var(--card-bg) !important;
+    color: var(--text-primary) !important;
+    border: var(--border-strong) !important;
+    border-radius: var(--radius-small) !important;
+}
+
+#themeUpdateConfirmModal #themeCurrentVersionInfo,
+#themeUpdateConfirmModal #themeLatestVersionInfo {
+    border-radius: var(--radius-medium, 12px) !important;
+    overflow: visible;
 }

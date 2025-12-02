@@ -118,7 +118,6 @@
     <meta name="msapplication-TileImage" content="<%=media%>/icon/ms-icon-144x144.png">
     <meta name="theme-color" content="<%=bar_color%>">
     <link rel="stylesheet" href="<%=media%>/css/cascade.css?v=2.2.10.10">
-    <script src="/luci-static/spectra/js/custom.js"></script>
     <script src="/luci-static/spectra/js/i18n.js"></script>
     <link href="/luci-static/spectra/css/bootstrap-icons.css" rel="stylesheet">
     <link href="/luci-static/spectra/css/weather-icons.min.css" rel="stylesheet">
@@ -157,6 +156,9 @@
 	<script src="<%=resource%>/cbi.js?v=<%=ver.luciversion%>"></script>
 	<script src="<%=resource%>/luci.js?v=<%=ver.luciversion%>"></script>
 	<script src="<%=media%>/js/jquery.min.js?v=3.5.1"></script>
+        <link rel="stylesheet" href="/luci-static/spectra/css/uikit.min.css">
+        <script src="/luci-static/spectra/js/uikit.min.js"></script>
+        <script src="/luci-static/spectra/js/uikit-icons.min.js"></script>
 </head>
 
 <body
@@ -220,9 +222,11 @@
                         <img src="<%=media%>/navbar/wifi.gif" title="Interface">
                     </a>
                 </div>
-                <div class="nav-icon" id="wifiIcon">
-                        <img id="settings-icon" src="<%=media%>/navbar/interface.gif" alt="Interface" style="cursor:pointer;">
+
+                <div class="nav-icon" id="control-panel-toggle" uk-toggle="target: #control-panel-modal">
+                        <img id="wifiIcon" src="<%=media%>/navbar/interface.gif" data-title="control_panel" style="cursor:pointer;">
                 </div>
+
                 <div class="app-icon-btn"  id="panel" onclick="openControlPanel()">
                    <a  style="cursor: pointer;" data-title="ui_control">
                        <i class="fas fa-sliders-h"></i>
@@ -242,21 +246,8 @@
                        <input type="color" id="colorPicker" value="#0f3460" style="display: none;">
                </div>
 
-                <div class="app-icon-btn"  id="panel" onclick="openLanguageModal()">
-                   <a  style="cursor: pointer;" data-title="select_language">
-                       <i class="bi bi-translate"></i>
-                   </a>
-               </div>
-
                 <div class="icon-group">
-                        <button id="themeOpenUpdateConfirmBtn" class="app-icon-btn" data-title="theme_download"><i class="fas fa-cloud-download-alt"></i> <span class="btn-label"></span></button>
-                        <button  class="app-icon-btn" id="clear-cache-btn" onclick="clearCache()" data-title="clear_button"><i class="fa-solid fa-broom"></i></button>
-                        <button class="app-icon-btn" onclick="openMusicModal()" data-title="music_player"><i class="fa-solid fa-music"></i></button>
-                        <button class="app-icon-btn" id="themeLoaderToggle" data-title="theme_loader_btn_title"> <i class="fa fa-atom"></i> </button>
-                        <button class="app-icon-btn" onclick="myAppIP.showDetailModal()" data-title="ip_details"><i class="fas fa-globe"></i></button>
                         <button class="translation-toggle app-icon-btn" onclick="toggleTranslation()" data-title="online_translation"><i class="fas fa-language"></i></button>
-                        <button type="button" class="app-icon-btn" id="openEditModal" data-title="edit_ip_database"><i class="fas fa-edit"></i></button>
-                        <button id="setCityBtn" class="app-icon-btn"><i class="fas fa-location-dot"></i></button>
                 </div>
             </div>
 
@@ -312,46 +303,50 @@
     </div>
 </div>
 
-</header>
-
-<div id="languageModal" class="glass-modal-overlay" style="display: none;">
-    <div class="glass-modal-container">
-        <div class="glass-modal-header">
-            <img id="currentFlag" src="/luci-static/ipip/flags/cn.png" class="modal-flag">
-            <h3 class="modal-title" data-translate="select_language"></h3>
+<div id="languageModal" uk-modal>
+    <div class="uk-modal-dialog">
+        <div class="language-modal-header">
+            <div class="language-modal-header-content">
+                <img id="currentFlag" src="/luci-static/ipip/flags/cn.png" class="language-modal-flag">
+                <h2 class="language-modal-title" data-translate="select_language"></h2>
+            </div>
+            <button class="uk-modal-close-default" type="button" uk-close></button>
         </div>
-        
-        <select id="languageSelect" class="glass-input modal-select">
-            <option value="zh" data-translate="simplified_chinese"></option>
-            <option value="hk" data-translate="traditional_chinese"></option>
-            <option value="en" data-translate="english"></option>
-            <option value="ko" data-translate="korean"></option>
-            <option value="vi" data-translate="vietnamese"></option>
-            <option value="th" data-translate="thailand"></option>
-            <option value="ja" data-translate="japanese"></option>
-            <option value="ru" data-translate="russian"></option>
-            <option value="de" data-translate="germany"></option>
-            <option value="fr" data-translate="france"></option>
-            <option value="ar" data-translate="arabic"></option>
-            <option value="es" data-translate="spanish"></option>
-            <option value="bn" data-translate="bangladesh"></option>
-        </select>
-        
-        <div id="voiceSelectContainer" class="voice-container">
-            <label class="voice-title" id="voiceSelectTitle" data-translate="voice_select_title"></label>
-            <select id="voiceSelect" class="glass-input modal-select">
-                <option value="" data-translate="select_voice_placeholder"></option>
-            </select>
-        </div>
-        
-        <div class="voice-toggle-container">
-            <input type="checkbox" id="voiceToggle" checked class="voice-checkbox">
-            <label for="voiceToggle" id="voiceLabel" data-translate="voice_label" class="voice-label"></label>
-        </div>
-        
-        <div class="modal-actions">
-            <button type="button" class="cbi-button cbi-button-remove" onclick="closeLanguageModal()" data-translate="cancel"></button>
-            <button type="button" class="cbi-button cbi-button-apply" onclick="saveLanguage()" data-translate="save"></button>
+        <div class="language-modal-body">
+            <div class="uk-margin">
+                <label class="language-form-label" data-translate="select_language"></label>
+                <select id="languageSelect" class="uk-select">
+                    <option value="zh" data-translate="simplified_chinese"></option>
+                    <option value="hk" data-translate="traditional_chinese"></option>
+                    <option value="en" data-translate="english"></option>
+                    <option value="ko" data-translate="korean"></option>
+                    <option value="vi" data-translate="vietnamese"></option>
+                    <option value="th" data-translate="thailand"></option>
+                    <option value="ja" data-translate="japanese"></option>
+                    <option value="ru" data-translate="russian"></option>
+                    <option value="de" data-translate="germany"></option>
+                    <option value="fr" data-translate="france"></option>
+                    <option value="ar" data-translate="arabic"></option>
+                    <option value="es" data-translate="spanish"></option>
+                    <option value="bn" data-translate="bangladesh"></option>
+                </select>
+            </div>
+            <div id="voiceSelectContainer" class="language-voice-container">
+                <label class="language-form-label" id="voiceSelectTitle" data-translate="voice_select_title"></label>
+                <select id="voiceSelect" class="uk-select">
+                    <option value="" data-translate="select_voice_placeholder"></option>
+                </select>
+            </div>
+            <div class="language-checkbox-container">
+                <input type="checkbox" id="voiceToggle" checked class="uk-checkbox">
+                <span id="voiceLabel" data-translate="voice_label"></span>
+            </div>
+        </div>        
+        <div class="language-modal-footer">
+            <div class="language-modal-footer-buttons">
+                <button type="button" class="uk-button uk-button-gray uk-modal-close" data-translate="cancel"></button>
+                <button type="button" class="uk-button uk-button-primary" onclick="saveLanguage()" data-translate="save"></button>
+            </div>
         </div>
     </div>
 </div>
@@ -385,7 +380,7 @@
     <div class="modal-content">
         <div class="modal-header">
             <div class="header-left">
-                <h5 class="modal-title"><i class="fa-solid fa-music"></i> <span data-translate="music_player">Music Player</span></h5>
+                <h2 class="modal-title"><i class="fa-solid fa-music"></i> <span data-translate="music_player">Music Player</span></h2>
             </div>
             <div class="header-controls">
                 <button type="button" class="control-btn fullscreen-btn" onclick="toggleFullscreen()" data-title="toggle_fullscreen">
@@ -576,7 +571,7 @@
                         </button>
 
                         <button class="preset-color-btn" data-hue="260" data-chroma="0.01" data-lightness="95" data-title="pure white">
-                            <div class="preset-color-circle" style="background-color: oklch(95% 0 0); border: 1px solid oklch(80% 0 0);"></div>
+                            <div class="preset-color-circle" style="background-color: oklch(95% 0 0);"></div>
                         </button>
                         <button class="preset-color-btn" data-hue="269" data-chroma="0.01" data-lightness="15" data-title="pure black">
                             <div class="preset-color-circle" style="background-color: oklch(15% 0 0);"></div>
@@ -618,6 +613,322 @@
         </div>
     </div>
 </div>
+
+<div id="control-panel-modal" uk-modal>
+    <div class="uk-modal-dialog uk-modal-body">
+        <button class="uk-modal-close-default" type="button" uk-close></button>
+        <h2 class="uk-modal-title">
+            <span uk-icon="icon: cog; ratio: 1.8"></span>
+            <span data-translate="control_panel">Control Panel</span>
+        </h2>
+        
+        <style>
+            .control-card {
+                height: 120px;
+                display: flex;
+                flex-direction: column;
+                justify-content: center;
+                align-items: center;
+                transition: transform 0.2s ease, box-shadow 0.2s ease;
+                border-radius: 10px;
+                color: var(--text-primary);
+            }
+
+            .control-card:hover {
+                transform: scale(1.06);
+                box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+                z-index: 2;
+            }
+
+            .control-card.disabled {
+                pointer-events: none;
+                opacity: 0.5;
+            }
+
+            .control-card.selected {
+                color: var(--accent-secondary) !important;
+            }
+
+            .control-card .icon-container {
+                margin-bottom: 12px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                height: 32px;
+                color: inherit;
+            }
+
+            .control-card .text-container {
+                font-size: 0.9rem;
+                text-align: center;
+                line-height: 1.2;
+                color: inherit;
+            }
+
+            .control-card .icon-container i,
+            .control-card .icon-container span {
+                color: inherit;
+            }
+        </style>
+
+        <div class="uk-grid-small uk-child-width-1-2 uk-child-width-1-4@l" uk-grid>
+            <div>
+                <div class="uk-card uk-card-small uk-card-default uk-card-hover uk-card-body uk-text-center control-card" 
+                     id="spectra-theme-toggle" style="cursor: pointer;">
+                    <div class="icon-container">
+                        <i id="theme-icon" class="bi bi-moon-fill" style="font-size:1.8rem;"></i>
+                    </div>
+                    <div class="text-container">
+                        <span id="theme-text" data-translate="theme_dark">Dark Mode</span>
+                    </div>
+                </div>
+            </div>
+            <div>
+                <div class="uk-card uk-card-small uk-card-primary uk-card-hover uk-card-body uk-text-center control-card theme-settings-btn" 
+                     style="cursor: pointer;">
+                    <div class="icon-container">
+                        <span uk-icon="icon: settings; ratio: 1.5"></span>
+                    </div>
+                    <div class="text-container">
+                        <span data-translate="theme_settings">Theme Settings</span>
+                    </div>
+                </div>
+            </div>
+            <div>
+                <div class="uk-card uk-card-small uk-card-secondary uk-card-hover uk-card-body uk-text-center control-card" 
+                     id="master-switch" style="cursor: pointer;">
+                    <div class="icon-container">
+                        <span id="power-icon" class="bi bi-toggle-off" style="font-size: 1.8rem;"></span>
+                    </div>
+                    <div class="text-container">
+                        <span id="switch-text" data-translate="status_disabled">Disabled</span>
+                    </div>
+                </div>
+            </div>
+            <div>
+                <div class="uk-card uk-card-small uk-card-success uk-card-hover uk-card-body uk-text-center control-card sound-toggle" 
+                     style="cursor: pointer;">
+                    <div class="icon-container">
+                        <span id="sound-icon" class="bi bi-volume-up" style="font-size: 1.8rem;"></span>
+                    </div>
+                    <div class="text-container">
+                        <span data-translate="background_sound">Background Sound</span>
+                    </div>
+                </div>
+            </div>
+            <div>
+                <div class="uk-card uk-card-small uk-card-default uk-card-hover uk-card-body uk-text-center control-card" 
+                     data-mode="video" style="cursor: pointer;">
+                    <div class="icon-container">
+                        <span uk-icon="icon: video-camera; ratio: 1.5"></span>
+                    </div>
+                    <div class="text-container">
+                        <span data-translate="mode_video">Video Mode</span>
+                    </div>
+                </div>
+            </div>
+            <div>
+                <div class="uk-card uk-card-small uk-card-default uk-card-hover uk-card-body uk-text-center control-card" 
+                     data-mode="image" style="cursor: pointer;">
+                    <div class="icon-container">
+                        <span uk-icon="icon: image; ratio: 1.5"></span>
+                    </div>
+                    <div class="text-container">
+                        <span data-translate="mode_image">Image Mode</span>
+                    </div>
+                </div>
+            </div>
+            <div>
+                <div class="uk-card uk-card-small uk-card-default uk-card-hover uk-card-body uk-text-center control-card" 
+                     data-mode="solid" style="cursor: pointer;">
+                    <div class="icon-container">
+                        <i class="bi bi-moon-stars-fill" style="font-size: 1.8rem;"></i>
+                    </div>
+                    <div class="text-container">
+                        <span data-translate="mode_solid">Dark Mode</span>
+                    </div>
+                </div>
+            </div>
+            <div>
+                <div class="uk-card uk-card-small uk-card-default uk-card-hover uk-card-body uk-text-center control-card" 
+                     data-mode="auto" style="cursor: pointer;">
+                    <div class="icon-container">
+                        <span uk-icon="icon: star; ratio: 1.5"></span>
+                    </div>
+                    <div class="text-container">
+                        <span data-translate="mode_auto">Auto Mode</span>
+                    </div>
+                </div>
+            </div>
+            <div>
+                <div class="uk-card uk-card-small uk-card-default uk-card-hover uk-card-body uk-text-center control-card object-fit-btn" 
+                     style="cursor: pointer;">
+                    <div class="icon-container">
+                        <span uk-icon="icon: expand; ratio: 1.5"></span>
+                    </div>
+                    <div class="text-container">
+                        <span id="fit-text" data-translate="fit_cover">Default Crop</span>
+                    </div>
+                </div>
+            </div>
+            <div>
+                <div class="uk-card uk-card-small uk-card-default uk-card-hover uk-card-body uk-text-center control-card" 
+                     id="animation-toggle" style="cursor: pointer;">
+                    <div class="icon-container">
+                        <span id="animation-icon" class="bi bi-play-circle" style="font-size: 1.8rem;"></span>
+                    </div>
+                    <div class="text-container">
+                        <span id="animation-text" data-translate="animation_enable">Enable Animation</span>
+                    </div>
+                </div>
+            </div>
+            <div>
+                <div class="uk-card uk-card-small uk-card-default uk-card-hover uk-card-body uk-text-center control-card" 
+                     id="font-toggle" style="cursor: pointer;">
+                    <div class="icon-container">
+                        <i class="bi bi-type" style="font-size: 1.8rem;"></i>
+                    </div>
+                    <div class="text-container">
+                        <span id="font-text" data-translate="font_default">Default Font</span>
+                    </div>
+                </div>
+            </div>
+            <div>
+                <div class="uk-card uk-card-small uk-card-default uk-card-hover uk-card-body uk-text-center control-card" 
+                     id="themeOpenUpdateConfirmBtn" style="cursor: pointer;">
+                    <div class="icon-container">
+                        <i class="bi bi-cloud-download" style="font-size:1.8rem;"></i>
+                    </div>
+                    <div class="text-container">
+                        <span data-translate="theme_download">Theme Download</span>
+                    </div>
+                </div>
+            </div>
+            <div>
+                <div class="uk-card uk-card-small uk-card-default uk-card-hover uk-card-body uk-text-center control-card" 
+                     onclick="openMusicModal()" style="cursor: pointer;">
+                    <div class="icon-container">
+                        <i class="bi bi-music-note-beamed" style="font-size:1.8rem;"></i>
+                    </div>
+                    <div class="text-container">
+                        <span data-translate="music_player">Music Player</span>
+                    </div>
+                </div>
+            </div>
+            <div>
+                <div class="uk-card uk-card-small uk-card-default uk-card-hover uk-card-body uk-text-center control-card" 
+                     id="themeLoaderToggle" style="cursor: pointer;">
+                    <div class="icon-container">
+                        <i id="themeLoaderIcon" class="bi bi-gear-fill" style="font-size: 1.8rem;"></i>
+                    </div>
+                    <div class="text-container">
+                        <span data-translate="theme_loader_btn_title">Theme Loader</span>
+                    </div>
+                </div>
+            </div>
+            <div>
+                <div class="uk-card uk-card-small uk-card-default uk-card-hover uk-card-body uk-text-center control-card" 
+                     onclick="myAppIP.showDetailModal()" style="cursor: pointer;">
+                    <div class="icon-container">
+                        <i class="bi bi-globe" style="font-size:1.8rem;"></i>
+                    </div>
+                    <div class="text-container">
+                        <span data-translate="ip_details">IP Details</span>
+                    </div>
+                </div>
+            </div>
+            <div>
+                <div class="uk-card uk-card-small uk-card-default uk-card-hover uk-card-body uk-text-center control-card" 
+                     id="openEditModal" style="cursor: pointer;">
+                    <div class="icon-container">
+                        <i class="bi bi-pencil-square" style="font-size: 1.8rem;"></i>
+                    </div>
+                    <div class="text-container">
+                        <span data-translate="edit_ip_database">Edit IP Database</span>
+                    </div>
+                </div>
+            </div>
+            <div>
+                <div class="uk-card uk-card-small uk-card-default uk-card-hover uk-card-body uk-text-center control-card" 
+                     id="setCityBtn" style="cursor: pointer;">
+                    <div class="icon-container">
+                        <i class="bi bi-geo-alt" style="font-size:1.8rem;"></i>
+                    </div>
+                    <div class="text-container">
+                        <span data-translate="set_city">Set City</span>
+                    </div>
+                </div>
+            </div>
+            <div>
+                <div class="uk-card uk-card-small uk-card-default uk-card-hover uk-card-body uk-text-center control-card" 
+                     onclick="openLanguageModal()" style="cursor: pointer;">
+                    <div class="icon-container">
+                        <i class="bi bi-translate" style="font-size:1.8rem;"></i>
+                    </div>
+                    <div class="text-container">
+                        <span data-translate="select_language">Language</span>
+                    </div>
+                </div>
+            </div>
+            <div>
+                <div class="uk-card uk-card-small uk-card-default uk-card-hover uk-card-body uk-text-center control-card" 
+                     onclick="clearCache()" style="cursor: pointer;">
+                    <div class="icon-container">
+                        <i class="bi bi-eraser" style="font-size:1.8rem;"></i>
+                    </div>
+                    <div class="text-container">
+                        <span data-translate="clear_button"></span>
+                    </div>
+                </div>
+            </div>
+            <div>
+                <div class="uk-card uk-card-small uk-card-default uk-card-hover uk-card-body uk-text-center control-card info-btn" 
+                     style="cursor: pointer;">
+                    <div class="icon-container">
+                        <span uk-icon="icon: info; ratio: 1.5"></span>
+                    </div>
+                    <div class="text-container">
+                        <span data-translate="usage_guide">Usage Guide</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="usage-guide-modal" uk-modal>
+    <div class="uk-modal-dialog uk-modal-body">
+        <button class="uk-modal-close-default" type="button" uk-close></button>
+        <h2 class="uk-modal-title" data-translate="usage_guide">Usage Guide</h2>
+        <div class="uk-alert-primary" uk-alert>
+            <p data-translate="guide_video_mode">1. Video Mode: Default file name is "bg.mp4"</p>
+            <p data-translate="guide_image_mode">2. Image Mode: Default file names are "bg1-20.jpg"</p>
+            <p data-translate="guide_dark_mode">3. Dark Mode: Transparent background + spectrum animation</p>
+            <p data-translate="guide_light_mode">4. Light Mode: Switch via theme settings, automatically turns off control switch</p>
+            <p data-translate="guide_theme_settings">5. Theme Settings: Support custom backgrounds, clear background for mode switching</p>
+            <p data-translate="guide_mode_switching">6. Mode Switching: Image/Video modes only work in dark mode</p>
+            <p>
+                <span data-translate="guide_project_link">7. Project Address:</span>
+                <a href="https://github.com/Thaolga/openwrt-nekobox" target="_blank" class="uk-button uk-button-primary uk-button-small uk-margin-small-left">
+                    <span uk-icon="icon: github"></span>
+                    <span data-translate="visit_github">Visit GitHub</span>
+                </a>
+            </p>
+        </div>
+    </div>
+</div>
+
+<div id="theme-settings-modal" uk-modal>
+    <div class="uk-modal-dialog uk-modal-body uk-width-xxlarge">
+        <button class="uk-modal-close-default" type="button" uk-close></button>
+        <h2 class="uk-modal-title" data-translate="theme_settings">Theme Settings</h2>
+        <iframe id="theme-iframe" 
+                src="/luci-static/spectra/bgm/index.php"
+                style="width: 100%; height: 80vh; border: none; border-radius: 5px;">
+        </iframe>
+    </div>
+</div>
+
 <script>
 const advancedColorControl = {
     isOpen: false,
@@ -877,6 +1188,72 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 <style>
+.language-modal-header {
+    background-color: var(--header-bg)  !important;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 20px 30px 15px;
+}
+
+.language-modal-header-content {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.language-modal-flag {
+    width: 50px;
+    height: 35px;
+    object-fit: cover;
+}
+
+.language-modal-title {
+    margin: 0;
+    font-size: 1.3rem;
+    font-weight: 600;
+}
+
+.language-modal-body {
+    padding: 20px 30px;
+}
+
+.language-form-label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 500;
+    color: var(--text-primary) !important;
+}
+
+.language-voice-container {
+    margin-top: 25px;
+}
+
+.language-checkbox-container {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 20px;
+}
+
+.language-modal-footer {
+    background-color: var(--header-bg)  !important;
+    padding: 20px 30px;
+    border: none !important;
+}
+
+.language-modal-footer-buttons {
+    display: flex;
+    gap: 12px;
+    justify-content: flex-end;
+}
+
+#languageSelect option,
+#voiceSelect option {
+    color: var(--text-primary) !important;
+    background: color-mix(in oklch, var(--card-bg), transparent 20%);
+}
+
 .advanced-color-control-modal {
     position: fixed;
     top: 0;
@@ -984,6 +1361,7 @@ document.addEventListener('DOMContentLoaded', function() {
     justify-content: space-between;
     margin-bottom: 10px;
     font-weight: 500;
+    color: var(--text-primary);
 }
 
 .advanced-color-control-value {
@@ -1115,7 +1493,7 @@ document.addEventListener('DOMContentLoaded', function() {
     height: 150px;
     border-radius: var(--radius);
     background: oklch(var(--l, 50%) var(--base-chroma, 0.25) var(--base-hue, 260));
-    box-shadow: var(--border-glow);
+    border: var(--border-strong);
     display: flex;
     justify-content: center;
     align-items: center;
@@ -1140,10 +1518,10 @@ document.addEventListener('DOMContentLoaded', function() {
 
 .advanced-color-info-group {
     width: 100%;
-    background: color-mix(in oklch, var(--card-bg), transparent 20%);
+    background: color-mix(in oklch, var(--card-bg), transparent 60%);
     border-radius: var(--radius);
     padding: 20px;
-    border: var(--glass-border);
+    border: var(--border-strong);
     display: flex;
     flex-direction: column;
     gap: 12px;
@@ -1157,6 +1535,7 @@ document.addEventListener('DOMContentLoaded', function() {
     box-shadow: 0 4px 12px rgba(0,0,0,0.25);
 }
 
+[data-theme="dark"] .advanced-color-preview-display,
 [data-theme="dark"] .advanced-color-info-group {
     box-shadow: var(--border-glow) !important;
 }
@@ -1174,6 +1553,7 @@ document.addEventListener('DOMContentLoaded', function() {
     border-radius: 8px;
     margin-bottom: 15px;
     word-break: break-all;
+    color: var(--text-primary);
 }
 
 .advanced-color-contrast-badge {
@@ -1397,7 +1777,7 @@ document.addEventListener('DOMContentLoaded', function() {
     display: flex;
     align-items: center;
     gap: 8px;
-    font-size: 1.1rem;
+    font-size: 1.3rem;
     white-space: nowrap;
 }
 
@@ -2729,381 +3109,6 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 }
 
-.glass-modal-overlay {
-    display: none;
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    z-index: 9999;
-    background: rgba(0, 0, 0, 0.1);
-    align-items: center;
-    justify-content: center;
-}
-
-.glass-modal-overlay.show {
-    display: flex;
-}
-
-.glass-modal-container {
-    background: color-mix(in oklch, var(--bg-container), transparent 20%);
-    backdrop-filter: blur(25px);
-    -webkit-backdrop-filter: blur(25px);
-    border: var(--glass-border, 1px solid rgba(255, 255, 255, 0.1));
-    border-radius: var(--radius, 20px);
-    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
-    padding: 20px;
-    min-width: 650px;
-    max-width: 90vw;
-    position: relative;
-}
-
-.glass-modal-header {
-    display: flex;
-    align-items: center;
-    margin-bottom: 15px;
-    padding-bottom: 10px;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-.modal-flag {
-    width: 45px;
-    height: 34px;
-    margin-right: 15px;
-    object-fit: contain;
-    border-radius: 4px;
-}
-
-.modal-title {
-    margin: 0;
-    font-size: 20px;
-    color: var(--accent-color);
-    font-weight: 600;
-}
-
-.modal-select {
-    width: 100%;
-    padding: 10px 14px;
-    margin: 6px 0;
-    background: color-mix(in oklch, var(--bg-container), transparent 50%);
-    backdrop-filter: blur(15px);
-    -webkit-backdrop-filter: blur(15px);
-    border: var(--glass-border, 1px solid rgba(255, 255, 255, 0.1));
-    border-radius: calc(var(--radius, 20px) - 4px);
-    color: var(--text-primary);
-    font-size: 14px;
-}
-
-.modal-select option:checked {
-    background: var(--accent-color) !important;
-    color: var(--color-white-strong);
-}
-
-.modal-select:focus {
-    outline: none;
-    border-color: var(--accent-color);
-    box-shadow: 0 0 0 2px color-mix(in oklch, var(--accent-color), transparent 70%);
-}
-
-.modal-select option {
-    background: color-mix(in oklch, var(--bg-container), transparent 20%);
-    color: var(--text-primary);
-    border-radius: 8px;
-    margin: 2px 0;
-    padding: 8px 12px;
-}
-
-.modal-select {
-    border-radius: calc(var(--radius, 20px) - 4px);
-}
-
-.modal-select:focus {
-    border-radius: calc(var(--radius, 20px) - 4px) calc(var(--radius, 20px) - 4px) 0 0;
-}
-
-.modal-select::-webkit-scrollbar {
-    width: 8px;
-}
-
-.modal-select::-webkit-scrollbar-track {
-    background: color-mix(in oklch, var(--bg-container), transparent 80%);
-    backdrop-filter: blur(10px);
-    border-radius: 4px;
-}
-
-.modal-select::-webkit-scrollbar-thumb {
-    background: color-mix(in oklch, var(--accent-color), transparent 50%);
-    backdrop-filter: blur(10px);
-    border-radius: 4px;
-    border: 1px solid color-mix(in oklch, var(--accent-color), transparent 30%);
-}
-
-.voice-container {
-    margin-top: 10px;
-    padding-top: 8px;
-    border-top: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-.voice-title {
-    font-weight: 600;
-    color: var(--accent-color);
-    display: block;
-    margin-bottom: 5px;
-    font-size: 16px;
-}
-
-.voice-toggle-container {
-    display: flex;
-    align-items: center;
-    margin: 12px 0;
-    padding: 12px;
-    background: color-mix(in oklch, var(--card-bg), transparent 50%);
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
-    border-radius: calc(var(--radius, 20px) - 8px);
-    border: 1px solid rgba(255, 255, 255, 0.05);
-}
-
-.voice-checkbox {
-    vertical-align: middle;
-    margin: 0 !important;
-    transform: scale(1.2);
-}
-
-.voice-label {
-    margin-left: 12px;
-    color: var(--text-primary);
-    display: inline-flex;
-    align-items: center;
-    font-size: 14px;
-}
-
-.modal-actions {
-    display: flex;
-    justify-content: flex-end;
-    gap: 12px;
-    margin-top: 8px;
-    padding-top: 6px;
-    border-top: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-@media (max-width: 768px) {
-    .glass-modal-container {
-        min-width: 90% !important;
-        max-width: 95% !important;
-        padding: 20px !important;
-        margin: 20px !important;
-    }
-    
-    .glass-modal-header {
-        flex-direction: column !important;
-        text-align: center !important;
-    }
-    
-    .modal-flag {
-        margin-right: 0 !important;
-        margin-bottom: 10px !important;
-    }
-    
-    .modal-actions {
-        flex-direction: column !important;
-        gap: 10px !important;
-    }
-    
-    .modal-actions .glass-button {
-        width: 100% !important;
-    }
-}
-
-.glass-modal-overlay {
-    display: none;
-}
-
-.glass-modal-overlay.show {
-    display: flex;
-    animation: fadeIn 0.2s ease;
-}
-
-@keyframes fadeIn {
-    from { opacity: 0; }
-    to { opacity: 1; }
-}
-
-.glass-modal-container {
-    animation: fadeIn 0.2s ease;
-}
-
-.control-panel {
-    display: none;
-    position: fixed;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    width: 90%;
-    max-width: 800px;
-    background: var(--bg-container);
-    backdrop-filter: var(--glass-blur);
-    border: var(--glass-border);
-    border-radius: var(--radius);
-
-    z-index: 10001;
-    padding: 0;
-    color: var(--text-primary);
-    overflow: hidden;
-}
-
-.control-panel-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    background: var(--header-bg);
-    border-bottom: var(--border-light);
-    padding: 15px 20px;
-    width: 100%;
-    box-sizing: border-box;
-    position: relative;
-    z-index: 1;
-}
-
-.control-panel-title {
-    margin: 0;
-    font-size: 1.3rem;
-    color: var(--accent-color);
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    z-index: 2;
-}
-
-.control-panel-close {
-    background: color-mix(in oklch, var(--btn-danger-bg), transparent 20%);
-    backdrop-filter: blur(10px);
-    border: 1px solid color-mix(in oklch, var(--btn-danger-bg), transparent 50%);
-    color: var(--color-white-strong);
-    font-size: 1.2rem;
-    cursor: pointer;
-    width: 32px;
-    height: 32px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    position: relative;
-    z-index: 10;
-    margin: 0;
-}
-
-.control-panel-close:hover {
-    background: color-mix(in oklch, var(--btn-danger-bg), transparent 0%);
-    border-color: var(--btn-danger-bg);
-    transform: rotate(90deg) scale(1.1);
-    box-shadow: 0 0 20px color-mix(in oklch, var(--btn-danger-bg), transparent 30%);
-}
-
-.control-panel-close:active {
-    transform: rotate(90deg) scale(0.95);
-}
-
-.control-panel-body {
-    padding: 20px;
-}
-
-.control-panel-footer {
-    background: var(--header-bg);
-    border-top: var(--border-light);
-    padding: 15px 20px;
-    text-align: center;
-    width: 100%;
-    box-sizing: border-box;
-}
-
-.control-panel-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 15px;
-}
-
-.control-card {
-    background: var(--bg-body);
-    border-radius: var(--radius);
-    padding: 18px 15px;
-    border: var(--border-light);
-    text-align: center;
-    cursor: pointer;
-    transition: var(--transition);
-    box-shadow: 0 2px 8px color-mix(in oklch, var(--bg-container), black 20%);
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    min-height: 90px;
-    gap: 12px;
-}
-
-.control-card-icon {
-    font-size: 24px;
-    flex-shrink: 0;
-}
-
-.control-card-content {
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-    width: 100%;
-}
-
-.control-card-title {
-    font-size: 13px;
-    font-weight: 600;
-    color: var(--text-primary);
-    margin: 0;
-}
-
-.control-card-status {
-    font-size: 11px;
-    color: var(--text-secondary);
-    margin: 0;
-}
-
-.control-card:nth-child(1) .control-card-icon {
-    color: var(--color-green);
-}
-
-.control-card:nth-child(2) .control-card-icon {
-    color: var(--color-blue);
-}
-
-.control-card:nth-child(3) .control-card-icon {
-    color: var(--color-violet);
-}
-
-.control-card:nth-child(4) .control-card-icon {
-    color: var(--color-yellow);
-}
-
-.control-card:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px color-mix(in oklch, var(--bg-container), black 30%);
-}
-
-.reset-button {
-    background: var(--color-red);
-    color: white;
-    border: none;
-    padding: 8px 16px;
-    border-radius: var(--radius);
-    cursor: pointer;
-    transition: var(--transition);
-    font-size: 0.9rem;
-}
-
-.reset-button:hover {
-    background: color-mix(in oklch, var(--color-red), black 20%);
-    transform: translateY(-1px);
-}
-
 .overlay {
     display: none;
     position: fixed;
@@ -3384,108 +3389,74 @@ document.addEventListener('DOMContentLoaded', function() {
         opacity: 0;
     }
 }
-
-.global-modal {
-    display: none;
-    position: fixed;
-    z-index: 100000;
-    left: 0;
-    top: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0,0,0,0.5);
-    opacity: 0;
-    transition: opacity 0.3s ease;
-}
-
-.global-modal-content {
-    background-color: var(--bg-container);
-    color: var(--text-primary);
-    margin: 10% auto;
-    padding: 0;
-    border-radius: var(--radius);
-    width: 600px;
-    max-width: 90%;
-    text-align: left;
-    position: relative;
-    box-shadow: var(--glow-shadow-default);
-    border: var(--glow-border);
-    display: flex;
-    flex-direction: column;
-    overflow: hidden;
-    opacity: 0;
-    transition: opacity 0.3s ease;}
-
-#global-modal-text {
-    padding: 20px 25px;
-    font-size: 1rem;
-    line-height: 1.4;
-    flex: 1;
-    overflow-y: auto;
-}
-
-.global-modal.show {
-    opacity: 1;
-}
-
-.global-modal.show .global-modal-content {
-    opacity: 1;
-}
 </style>
 
-<div id="controlPanel" class="control-panel">
-    <div class="control-panel-header">
-        <h6 class="control-panel-title">
-            <i class="fas fa-sliders-h"></i>
-            <span data-translate="ui_control">UI Control</span>
-        </h6>
-        <button id="controlPanelClose" class="control-panel-close">
-            <i class="fas fa-times"></i>
-        </button>
-    </div>
-
-    <main class="control-panel-body">
-        <div class="control-panel-grid">
-            <div class="control-card" onclick="toggleVisibility('.icon-group')">
-                <i class="fas fa-icons control-card-icon"></i>
-                <div class="control-card-content">
-                    <div class="control-card-title" data-translate="tool_icons">Tool Icons</div>
-                    <div id="iconGroupStatus" class="control-card-status" data-translate="status_show">Show</div>
+<div id="controlPanel" uk-modal>
+    <div class="uk-modal-dialog uk-modal-body uk-border-rounded">
+        <div class="uk-flex uk-flex-between uk-flex-middle uk-margin-bottom">
+            <h2 class="uk-modal-title uk-margin-remove">
+                <span uk-icon="icon: settings; ratio: 1.2" class="uk-margin-small-right"></span>
+                <span data-translate="ui_control">UI Control</span>
+            </h2>
+            <button class="uk-modal-close-default" type="button" uk-close></button>
+        </div>
+        <div class="uk-child-width-1-2@m uk-grid-small" uk-grid>
+            <div>
+                <div class="uk-card uk-card-default uk-card-hover uk-card-small uk-border-rounded" onclick="toggleVisibility('.icon-group')">
+                    <div class="uk-card-body uk-flex uk-flex-middle">
+                        <span uk-icon="icon: image; ratio: 1.5" class="uk-margin-small-right"></span>
+                        <div class="uk-flex-1">
+                            <div class="uk-card-title uk-text-small uk-margin-remove" data-translate="tool_icons">Tool Icons</div>
+                            <div id="iconGroupStatus" class="uk-text-meta uk-text-capitalize" data-translate="status_show">Show</div>
+                        </div>
+                        <span uk-icon="icon: chevron-right" class="uk-text-muted"></span>
+                    </div>
                 </div>
             </div>
-
-            <div class="control-card" onclick="toggleVisibility('.weather-card')">
-                <i class="fas fa-cloud control-card-icon"></i>
-                <div class="control-card-content">
-                    <div class="control-card-title" data-translate="weather_info">Weather Info</div>
-                    <div id="weatherStatus" class="control-card-status" data-translate="status_show">Show</div>
+            <div>
+                <div class="uk-card uk-card-default uk-card-hover uk-card-small uk-border-rounded" onclick="toggleVisibility('.weather-card')">
+                    <div class="uk-card-body uk-flex uk-flex-middle">
+                        <span uk-icon="icon: cloud-upload; ratio: 1.5" class="uk-margin-small-right"></span>
+                        <div class="uk-flex-1">
+                            <div class="uk-card-title uk-text-small uk-margin-remove" data-translate="weather_info">Weather Info</div>
+                            <div id="weatherStatus" class="uk-text-meta uk-text-capitalize" data-translate="status_show">Show</div>
+                        </div>
+                        <span uk-icon="icon: chevron-right" class="uk-text-muted"></span>
+                    </div>
                 </div>
             </div>
-
-            <div class="control-card" onclick="toggleVisibility('.ip-container')">
-                <i class="fas fa-globe control-card-icon"></i>
-                <div class="control-card-content">
-                    <div class="control-card-title" data-translate="ip_info">IP Info</div>
-                    <div id="ipStatus" class="control-card-status" data-translate="status_show">Show</div>
+            <div>
+                <div class="uk-card uk-card-default uk-card-hover uk-card-small uk-border-rounded" onclick="toggleVisibility('.ip-container')">
+                    <div class="uk-card-body uk-flex uk-flex-middle">
+                        <span uk-icon="icon: location; ratio: 1.5" class="uk-margin-small-right"></span>
+                        <div class="uk-flex-1">
+                            <div class="uk-card-title uk-text-small uk-margin-remove" data-translate="ip_info">IP Info</div>
+                            <div id="ipStatus" class="uk-text-meta uk-text-capitalize" data-translate="status_show">Show</div>
+                        </div>
+                        <span uk-icon="icon: chevron-right" class="uk-text-muted"></span>
+                    </div>
                 </div>
             </div>
-
-            <div class="control-card" onclick="toggleVisibility('#result')">
-                <i class="fas fa-star control-card-icon"></i>
-                <div class="control-card-content">
-                    <div class="control-card-title" data-translate="site_status">Site Status</div>
-                    <div id="navbarRightStatus" class="control-card-status" data-translate="status_show">Show</div>
+            <div>
+                <div class="uk-card uk-card-default uk-card-hover uk-card-small uk-border-rounded" onclick="toggleVisibility('#result')">
+                    <div class="uk-card-body uk-flex uk-flex-middle">
+                        <span uk-icon="icon: star; ratio: 1.5" class="uk-margin-small-right"></span>
+                        <div class="uk-flex-1">
+                            <div class="uk-card-title uk-text-small uk-margin-remove" data-translate="site_status">Site Status</div>
+                            <div id="navbarRightStatus" class="uk-text-meta uk-text-capitalize" data-translate="status_show">Show</div>
+                        </div>
+                        <span uk-icon="icon: chevron-right" class="uk-text-muted"></span>
+                    </div>
                 </div>
             </div>
         </div>
-    </main>
-
-    <footer class="control-panel-footer">
-        <button onclick="resetAllSettings()" class="reset-button">
-            <i class="fas fa-undo-alt"></i>
-            <span data-translate="reset_all">Reset All Settings</span>
-        </button>
-    </footer>
+        <div class="uk-margin-top">
+            <button onclick="resetAllSettings()" class="uk-button uk-button-danger uk-border-rounded uk-width-1-1">
+                <span uk-icon="icon: refresh" class="uk-margin-small-right"></span>
+                <span data-translate="reset_all">Reset All Settings</span>
+            </button>
+        </div>
+    </div>
 </div>
 
 <div id="overlay" class="overlay" onclick="closeControlPanel()"></div>
@@ -3659,48 +3630,59 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 </script>
 
-<div id="global-modal" class="global-modal">
-    <div class="global-modal-content">
-        <div class="control-panel-header">
-            <h3 style="margin:0; font-size:20px; color:var(--accent-color);"><i class="bi bi-lightning-charge-fill"></i> <span data-translate="modal_title">Confirm Modal</span></h3>
-            <span class="close-btn">&times;</span>
+<div id="global-modal" uk-modal>
+    <div class="uk-modal-dialog">
+        <div class="uk-modal-header uk-padding-small">
+            <h2 class="uk-modal-title uk-margin-remove">
+                <i class="fas fa-broom"></i>
+                <span data-translate="modal_title">Confirm Modal</span>
+            </h2>
+            <button class="uk-modal-close-default" type="button" uk-close></button>
         </div>
-        <p id="global-modal-text"></p>
-        <div class="theme-modal-footer">
-            <button class="cbi-button cbi-button-save" id="global-modal-confirm-btn" data-translate="modal_confirm">Confirm</button>
-            <button class="cbi-button cbi-button-remove" id="global-modal-cancel-btn" data-translate="cancel">Cancel</button>
+        <div class="uk-modal-body uk-text-center uk-padding-small">
+            <span uk-icon="icon: trash; ratio: 1.5" class="uk-text-warning"></span>
+            <p id="global-modal-text" class="uk-margin-small-top uk-margin-remove-bottom"></p>
+        </div>
+        <div class="uk-modal-footer uk-border-rounded-bottom">
+            <div class="uk-flex uk-flex-right uk-grid-small" uk-grid>
+                <div>
+                    <button class="uk-button uk-button-danger uk-button-small uk-border-rounded" id="global-modal-confirm-btn" data-translate="modal_confirm">Confirm</button>
+                </div>
+                <div>
+                    <button class="uk-button uk-button-secondary uk-button-small uk-border-rounded" id="global-modal-cancel-btn" data-translate="cancel">Cancel</button>
+                </div>
+            </div>
         </div>
     </div>
 </div>
 
 <script>
 function showGlobalModal(options = {}) {
-    const modal = document.getElementById('global-modal');
+    const modal = UIkit.modal('#global-modal');
     const modalText = document.getElementById('global-modal-text');
     const confirmBtn = document.getElementById('global-modal-confirm-btn');
     const cancelBtn = document.getElementById('global-modal-cancel-btn');
-    const closeBtn = modal.querySelector('.close-btn');
 
-    modalText.innerHTML = (options.iconHTML || '') + (options.defaultText || '');
+    modalText.innerHTML = options.defaultText || '';
     confirmBtn.style.display = options.showConfirm === false ? 'none' : 'inline-block';
 
-    modal.style.display = 'block';
-    setTimeout(() => modal.classList.add('show'), 10);
-
-    const hideModal = () => {
-        modal.classList.remove('show');
-        setTimeout(() => modal.style.display = 'none', 300);
-    };
-
-    confirmBtn.onclick = () => { hideModal(); options.onConfirm && options.onConfirm(); };
-    cancelBtn.onclick = () => { hideModal(); options.onCancel && options.onCancel(); };
-    closeBtn.onclick = () => { hideModal(); options.onCancel && options.onCancel(); };
-
     if (typeof updateUIText === 'function') updateUIText();
-}
-</script>
 
-<script>
+    modal.show();
+
+    const hideModal = () => modal.hide();
+
+    confirmBtn.onclick = () => { 
+        hideModal(); 
+        options.onConfirm && options.onConfirm(); 
+    };
+    
+    cancelBtn.onclick = () => { 
+        hideModal(); 
+        options.onCancel && options.onCancel(); 
+    };
+}
+
 function clearCache() {
     const translations = languageTranslations[currentLang] || languageTranslations['zh'];
     const confirmText = translations.cache_clear_confirm || 'Are you sure you want to clear the cache?';
@@ -3708,7 +3690,6 @@ function clearCache() {
     speakMessage(confirmText);
 
     showGlobalModal({
-        iconHTML: '<i class="fa-solid fa-broom" style="margin-right:5px;"></i>',
         defaultText: confirmText,
         onConfirm: () => {
             localStorage.clear();
@@ -6320,9 +6301,24 @@ document.getElementById('goFirstBtn')?.addEventListener('click', function() {
 </script>
 
 <script>
-function makeModalDraggable(modalElement) {
-    const modalHeader = modalElement.querySelector('.modal-header');
-    const modalContent = modalElement.querySelector('.modal-content');
+function isMobileDevice() {
+    return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || 
+           window.innerWidth <= 768;
+}
+
+function makeModalDraggable(modalElement, { headerSelector, contentSelector, storageKey }) {
+    const modalHeader = modalElement.querySelector(headerSelector);
+    const modalContent = modalElement.querySelector(contentSelector);
+    
+    if (!modalHeader || !modalContent) {
+        return;
+    }
+    
+    if (isMobileDevice()) {
+        modalHeader.style.cursor = 'default';
+        return;
+    }
+    
     let isDragging = false;
     let offsetX = 0;
     let offsetY = 0;
@@ -6338,6 +6334,8 @@ function makeModalDraggable(modalElement) {
     document.addEventListener('touchend', handleTouchEnd);
 
     function startDrag(e) {
+        if (e.target.closest('button')) return;
+        
         isDragging = true;
         offsetX = e.clientX - modalContent.offsetLeft;
         offsetY = e.clientY - modalContent.offsetTop;
@@ -6367,15 +6365,17 @@ function makeModalDraggable(modalElement) {
     function stopDrag() {
         if (isDragging) {
             isDragging = false;
-            modalContent.style.cursor = 'default';
+            modalContent.style.cursor = '';
             modalContent.style.userSelect = 'auto';
             
-            localStorage.setItem('musicModalLeft', modalContent.style.left);
-            localStorage.setItem('musicModalTop', modalContent.style.top);
+            localStorage.setItem(storageKey + '_left', modalContent.style.left);
+            localStorage.setItem(storageKey + '_top', modalContent.style.top);
         }
     }
 
     function handleTouchStart(e) {
+        if (e.target.closest('button')) return;
+        
         const touch = e.touches[0];
         isDragging = true;
         offsetX = touch.clientX - modalContent.offsetLeft;
@@ -6409,16 +6409,16 @@ function makeModalDraggable(modalElement) {
     function handleTouchEnd() {
         if (isDragging) {
             isDragging = false;
-            modalContent.style.cursor = 'default';
+            modalContent.style.cursor = '';
             modalContent.style.userSelect = 'auto';
             
-            localStorage.setItem('musicModalLeft', modalContent.style.left);
-            localStorage.setItem('musicModalTop', modalContent.style.top);
+            localStorage.setItem(storageKey + '_left', modalContent.style.left);
+            localStorage.setItem(storageKey + '_top', modalContent.style.top);
         }
     }
 
-    const savedLeft = localStorage.getItem('musicModalLeft');
-    const savedTop = localStorage.getItem('musicModalTop');
+    const savedLeft = localStorage.getItem(storageKey + '_left');
+    const savedTop = localStorage.getItem(storageKey + '_top');
     
     if (savedLeft && savedTop) {
         modalContent.style.left = savedLeft;
@@ -6429,64 +6429,55 @@ function makeModalDraggable(modalElement) {
     }
 }
 
-document.addEventListener('DOMContentLoaded', function() {
-    const musicModal = document.getElementById('musicModal');
-    if (musicModal) {
-        makeModalDraggable(musicModal);
-    }
-});
-
-function openMusicModal() {
-    const modal = document.getElementById('musicModal');
-    const modalContent = modal.querySelector('.modal-content');
+function initAllModalDrag() {
+    const allModals = document.querySelectorAll('[uk-modal], .uk-modal, .modal, [class*="modal"]');
     
-    modal.classList.add('active');
-    
-    const savedLeft = localStorage.getItem('musicModalLeft');
-    const savedTop = localStorage.getItem('musicModalTop');
-    
-    if (!savedLeft || !savedTop) {
-        modalContent.style.left = '50%';
-        modalContent.style.top = '50%';
-        modalContent.style.transform = 'translate(-50%, -50%)';
-        modalContent.style.position = 'fixed';
-    }
+    allModals.forEach((modal, index) => {
+        const selectors = [
+            { header: '.uk-modal-header', content: '.uk-modal-dialog' },
+            { header: '.modal-header', content: '.modal-content' },
+            { header: '.header', content: '.content' },
+            { header: '.uk-flex-between', content: '.uk-modal-dialog' },
+            { header: '.language-modal-header', content: '.uk-modal-dialog' },
+            { header: '.uk-modal-title', content: '.uk-modal-dialog' }
+        ];
+        
+        for (let selector of selectors) {
+            const modalHeader = modal.querySelector(selector.header);
+            const modalContent = modal.querySelector(selector.content);
+            
+            if (modalHeader && modalContent) {
+                const storageKey = modal.id || `modal_${index}`;
+                
+                makeModalDraggable(modal, {
+                    headerSelector: selector.header,
+                    contentSelector: selector.content,
+                    storageKey: storageKey
+                });
+                break;
+            }
+        }
+    });
 }
 
-function closeMusicModal() {
-    const modal = document.getElementById('musicModal');
-    modal.classList.remove('active');
-}
+document.addEventListener('DOMContentLoaded', initAllModalDrag);
 </script>
 
 <script>
 const defaultSettings = {
-    '.icon-group': false,
+    '.icon-group': true,
     '.weather-card': false,
     '.ip-container': true,
     '#result': true
 };
 
-function handlePanelVisibility() {
-    const panel = document.getElementById('panel');
-    if (!panel) return;
-    
-    if (window.innerWidth <= 768) {
-        panel.style.display = 'none';
-    } else {
-        panel.style.display = '';
-    }
-}
-
 function openControlPanel() {
-    document.getElementById('controlPanel').style.display = 'block';
-    document.getElementById('overlay').style.display = 'block';
+    UIkit.modal('#controlPanel').show();
     updateStatusDisplay();
 }
 
 function closeControlPanel() {
-    document.getElementById('controlPanel').style.display = 'none';
-    document.getElementById('overlay').style.display = 'none';
+    UIkit.modal('#controlPanel').hide();
 }
 
 function toggleVisibility(selector) {
@@ -6533,10 +6524,10 @@ function updateStatusDisplay() {
         if (statusElement) {
             if (savedState === 'hidden' || (element && element.classList.contains('control-panel-hidden'))) {
                 statusElement.textContent = languageTranslations[currentLang]['status_hide'];
-                statusElement.style.color = 'var(--color-red)';
+                statusElement.className = 'uk-text-meta uk-text-capitalize uk-text-danger';
             } else {
                 statusElement.textContent = languageTranslations[currentLang]['status_show'];
-                statusElement.style.color = 'var(--color-green)';
+                statusElement.className = 'uk-text-meta uk-text-capitalize uk-text-success';
             }
         }
     });
@@ -6555,18 +6546,6 @@ function resetAllSettings() {
     const logMsg = `${resetText}`;
     if (typeof showLogMessage === 'function') showLogMessage(logMsg);
     if (typeof speakMessage === 'function') speakMessage(logMsg);
-}
-
-function initControlPanelEvents() {
-    const closeBtn = document.getElementById('controlPanelClose');
-    if (closeBtn) {
-        closeBtn.replaceWith(closeBtn.cloneNode(true));
-        document.getElementById('controlPanelClose').onclick = function(e) {
-            e.preventDefault();
-            e.stopPropagation();
-            closeControlPanel();
-        };
-    }
 }
 
 (function() {
@@ -6589,17 +6568,7 @@ function initControlPanelEvents() {
 })();
 
 document.addEventListener('DOMContentLoaded', function() {
-    handlePanelVisibility();
     updateStatusDisplay();
-    initControlPanelEvents(); 
-});
-
-window.addEventListener('resize', handlePanelVisibility);
-
-document.addEventListener('keydown', function(e) {
-    if (e.key === 'Escape' && document.getElementById('controlPanel').style.display === 'block') {
-        closeControlPanel();
-    }
 });
 </script>
 
@@ -7812,7 +7781,7 @@ let myAppIP = {
             };
         
             closeBtn.addEventListener('click', closeModal);
-            closeModalBtn.addEventListener('click', closeModal);
+            closeModalBtn?.addEventListener('click', closeModal);
         
             overlay.addEventListener('click', (e) => {
                 if (e.target === overlay) {
@@ -7821,7 +7790,7 @@ let myAppIP = {
             });
 
             const refreshBtn = content.querySelector('.cbi-button-apply');
-            refreshBtn.addEventListener('click', () => {
+            refreshBtn?.addEventListener('click', () => {
                 closeModal();
                 setTimeout(() => {
                     this.getIpipnetIP();
@@ -7846,318 +7815,206 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 
+<div id="edit-modal" uk-modal>
+    <div class="uk-modal-dialog uk-modal-large">
+        <div class="uk-modal-header">
+            <div class="uk-flex uk-flex-between uk-flex-middle">
+                <h2 class="uk-modal-title uk-margin-remove">
+                    <span uk-icon="icon: server; ratio: 1.1" class="uk-margin-small-right"></span>
+                    <span data-translate="edit_ip_database">Edit IP Database</span>
+                </h2>
+                <div class="uk-flex uk-flex-middle">
+                    <button class="uk-icon-button uk-margin-small-right" id="fullscreen-toggle"
+                        uk-tooltip="title: Fullscreen; pos: bottom">
+                        <span uk-icon="icon: expand"></span>
+                    </button>
+                    <button class="uk-modal-close-default uk-icon-button" type="button" uk-close></button>
+                </div>
+            </div>
+        </div>
+        <div class="uk-modal-body uk-padding-remove">
+            <div id="loading-indicator" class="uk-text-center uk-padding">
+                <div class="uk-margin-bottom">
+                    <div class="uk-spinner" uk-spinner="ratio: 2"></div>
+                </div>
+                <span class="uk-text-muted" data-translate="loading_editor">Loading editor...</span>
+            </div>
+            <div id="editor-container" style="display: none;"></div>
+        </div>
+        <div class="uk-modal-footer uk-text-right">
+            <button class="uk-button uk-button-danger" id="clear-btn" data-translate="clear">Clear</button>
+            <button class="uk-button uk-button-primary" id="save-btn" data-translate="save">Save</button>
+            <button class="uk-button uk-button-secondary uk-modal-close" data-translate="close">Close</button>
+        </div>
+    </div>
+</div>
+
 <script>
 let isCodeMirrorLoaded = false;
 let codeMirrorLoadingPromise = null;
+let codeMirrorEditor = null;
 
 function loadCodeMirror() {
-    if (isCodeMirrorLoaded) {
-        return Promise.resolve();
-    }
-    
-    if (codeMirrorLoadingPromise) {
-        return codeMirrorLoadingPromise;
-    }
-    
+    if (isCodeMirrorLoaded) return Promise.resolve();
+    if (codeMirrorLoadingPromise) return codeMirrorLoadingPromise;
+
     codeMirrorLoadingPromise = new Promise((resolve, reject) => {
-        const cssLink = document.createElement('link');
-        cssLink.rel = 'stylesheet';
-        cssLink.href = 'https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/codemirror.min.css';
-        document.head.appendChild(cssLink);
-        
-        const script = document.createElement('script');
-        script.src = 'https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/codemirror.min.js';
-        script.onload = () => {
-            const jsonModeScript = document.createElement('script');
-            jsonModeScript.src = 'https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/mode/javascript/javascript.min.js';
-            jsonModeScript.onload = () => {
-                const themeLink = document.createElement('link');
-                themeLink.rel = 'stylesheet';
-                themeLink.href = 'https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/theme/material.min.css';
-                document.head.appendChild(themeLink);
-                
-                const lintScript = document.createElement('script');
-                lintScript.src = 'https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/addon/lint/lint.min.js';
-                lintScript.onload = () => {
-                    const lintCss = document.createElement('link');
-                    lintCss.rel = 'stylesheet';
-                    lintCss.href = 'https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/addon/lint/lint.min.css';
-                    document.head.appendChild(lintCss);
-                    
-                    CodeMirror.registerHelper("lint", "json", function(text) {
-                        const found = [];
-                        if (!text) return found;
-                        
-                        try {
-                            JSON.parse(text);
-                        } catch (e) {
-                            const match = e.message.match(/line (\d+)/);
-                            const line = match ? parseInt(match[1]) - 1 : 0;
-                            
-                            let errorLine = line;
-                            let errorChar = 0;
-                            
-                            const lines = text.split('\n');
-                            if (e.message.includes('Unexpected token')) {
-                                const token = e.message.match(/Unexpected token (.+?) in/);
-                                if (token) {
-                                    for (let i = 0; i < lines.length; i++) {
-                                        const pos = lines[i].indexOf(token[1]);
-                                        if (pos !== -1) {
-                                            errorLine = i;
-                                            errorChar = pos;
-                                            break;
-                                        }
-                                    }
-                                }
-                            }
-                            
-                            found.push({
-                                from: CodeMirror.Pos(errorLine, errorChar),
-                                to: CodeMirror.Pos(errorLine, errorChar + 1),
-                                message: e.message,
-                                severity: "error"
-                            });
-                        }
-                        return found;
-                    });
-                    
-                    const foldScript = document.createElement('script');
-                    foldScript.src = 'https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/addon/fold/foldcode.min.js';
-                    foldScript.onload = () => {
-                        const foldGutterScript = document.createElement('script');
-                        foldGutterScript.src = 'https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/addon/fold/foldgutter.min.js';
-                        foldGutterScript.onload = () => {
-                            const braceFoldScript = document.createElement('script');
-                            braceFoldScript.src = 'https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/addon/fold/brace-fold.min.js';
-                            braceFoldScript.onload = () => {
-                                const foldGutterCss = document.createElement('link');
-                                foldGutterCss.rel = 'stylesheet';
-                                foldGutterCss.href = 'https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/addon/fold/foldgutter.min.css';
-                                document.head.appendChild(foldGutterCss);
-                                
-                                isCodeMirrorLoaded = true;
-                                resolve();
-                            };
-                            braceFoldScript.onerror = reject;
-                            document.head.appendChild(braceFoldScript);
-                        };
-                        foldGutterScript.onerror = reject;
-                        document.head.appendChild(foldGutterScript);
-                    };
-                    foldScript.onerror = reject;
-                    document.head.appendChild(foldScript);
-                };
-                lintScript.onerror = reject;
-                document.head.appendChild(lintScript);
+        const resources = [
+            { type: 'link', url: 'https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/codemirror.min.css' },
+            { type: 'script', url: 'https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/codemirror.min.js' },
+            { type: 'script', url: 'https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/mode/javascript/javascript.min.js' },
+            { type: 'link', url: 'https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/theme/material.min.css' },
+            { type: 'script', url: 'https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/addon/lint/lint.min.js' },
+            { type: 'link', url: 'https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/addon/lint/lint.min.css' },
+            { type: 'script', url: 'https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/addon/fold/foldcode.min.js' },
+            { type: 'script', url: 'https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/addon/fold/foldgutter.min.js' },
+            { type: 'script', url: 'https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/addon/fold/brace-fold.min.js' },
+            { type: 'link', url: 'https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/addon/fold/foldgutter.min.css' }
+        ];
+
+        let loadedCount = 0;
+
+        resources.forEach(resource => {
+            const element = document.createElement(resource.type);
+
+            if (resource.type === 'link') {
+                element.rel = 'stylesheet';
+                element.href = resource.url;
+            } else {
+                element.src = resource.url;
+            }
+
+            element.onload = () => {
+                loadedCount++;
+                if (loadedCount === resources.length) {
+                    initializeCodeMirrorHelpers();
+                    isCodeMirrorLoaded = true;
+                    resolve();
+                }
             };
-            jsonModeScript.onerror = reject;
-            document.head.appendChild(jsonModeScript);
-        };
-        script.onerror = reject;
-        document.head.appendChild(script);
-    });
-    
-    return codeMirrorLoadingPromise;
-}
-
-async function showEditModal() {
-    const translations = languageTranslations[currentLang] || languageTranslations['zh'];
-
-    const overlay = document.createElement('div');
-    overlay.style.cssText = `
-        position: fixed; top:0; left:0; width:100%; height:100%;
-        background: rgba(0,0,0,0.5); display:flex; justify-content:center; align-items:center;
-        z-index:10000; opacity:0; transition: opacity 0.3s;
-    `;
-
-    const content = document.createElement('div');
-    content.style.cssText = `
-        background:var(--secondary-color); border-radius:8px; width:90%; max-width:900px; max-height:80vh;
-        display:flex; flex-direction:column; box-shadow:0 5px 20px rgba(0,0,0,0.15);
-        transform: scale(0.9); transition: transform 0.3s ease; overflow: hidden;
-    `;
-
-    content.innerHTML = `
-        <div style="background:#4a6cf7; color:white; padding:12px 16px; display:flex; justify-content:space-between; align-items:center;">
-            <h3 style="margin:0; font-size:1.3em; font-weight:500; background:none; border:none; color:white;"><i class="bi bi-server"></i> <span data-translate="edit_ip_database"></span></h3>
-            <div style="display:flex; align-items:center; gap:8px;">
-                <button class="fullscreenBtn" data-title="fullscreen" style="
-                    background:white;
-                    border:none;
-                    color:#4a6cf7;
-                    font-size:1.1em;
-                    cursor:pointer;
-                    width:25px;
-                    height:25px;
-                    opacity: 1 !important;
-                    border-radius:6px;
-                    display:flex;
-                    align-items:center;
-                    justify-content:center;
-                    transition: transform 0.2s, color 0.2s;
-                "
-                onmouseover="this.firstElementChild.style.color='#1a73e8'; this.style.transform='scale(1.1)';"
-                onmouseout="this.firstElementChild.style.color='#4a6cf7'; this.style.transform='scale(1)';">
-                    <i class="bi bi-arrows-fullscreen"></i>
-                </button>
-        
-                <button class="closeBtn" data-title="close" style="
-                    background:white;
-                    border:none;
-                    color:#4a6cf7;
-                    font-size:1.1em;
-                    cursor:pointer;
-                    width:25px;
-                    height:25px;
-                    border-radius:6px;
-                    display:flex;
-                    align-items:center;
-                    justify-content:center;
-                    transition: transform 0.2s, color 0.2s;
-                "
-                onmouseover="this.firstElementChild.style.color='#1a73e8'; this.style.transform='scale(1.1)';"
-                onmouseout="this.firstElementChild.style.color='#4a6cf7'; this.style.transform='scale(1)';">
-                    <i class="bi bi-x-lg"></i>
-                </button>
-            </div>
-        </div>
-
-        <div style="flex:1; position:relative;">
-            <div id="loadingIndicator" style="
-                position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
-                text-align: center; color: #666; font-size: 14px; z-index: 10;
-            ">
-                <div style="margin-bottom: 10px;">
-                    <div style="display: inline-block; width: 20px; height: 20px; border: 2px solid #f3f3f3; border-top: 2px solid #4a6cf7; border-radius: 50%; animation: spin 1s linear infinite;"></div>
-                </div>
-                <span data-translate="loading_editor"></span>
-            </div>
-            <div id="editorContainer" style="display: none; width:100%; height:450px;"></div>
-        </div>
-        <div style="padding:12px 16px; background:#f8f9fa; display:flex; justify-content:flex-end; border-radius:0 0 8px 8px;">
-            <button class="cbi-button cbi-button-apply" data-translate="clear"></button>
-            <button class="cbi-button cbi-button-remove" data-translate="close"></button>
-            <button class="cbi-button cbi-button-save" data-translate="save"></button>
-        </div>
-        <style>
-            @keyframes spin {
-                0% { transform: rotate(0deg); }
-                100% { transform: rotate(360deg); }
-            }
-            .fullscreen-mode {
-                position: fixed !important;
-                top: 0 !important;
-                left: 0 !important;
-                width: 100vw !important;
-                height: 100vh !important;
-                max-width: none !important;
-                max-height: none !important;
-                border-radius: 0 !important;
-                z-index: 20000 !important;
-            }
-            .fullscreen-mode .fullscreenBtn svg {
-                transform: rotate(180deg);
-            }
-        </style>
-    `;
-
-    overlay.appendChild(content);
-    document.body.appendChild(overlay);
-    setTimeout(() => { overlay.style.opacity='1'; content.style.transform='scale(1)'; }, 10);
-
-    if (typeof updateUIText === 'function') {
-        updateUIText();
-    }
-
-    let codeMirrorEditor = null;
-    let isFullscreen = false;
-
-    const toggleFullscreen = () => {
-        isFullscreen = !isFullscreen;
-        if (isFullscreen) {
-            content.classList.add('fullscreen-mode');
-            setTimeout(() => {
-                if (codeMirrorEditor) {
-                    const headerHeight = content.querySelector('div[style*="background:#4a6cf7"]').offsetHeight;
-                    const footerHeight = content.querySelector('div[style*="background:#f8f9fa"]').offsetHeight;
-                    const availableHeight = window.innerHeight - headerHeight - footerHeight;
-                
-                    codeMirrorEditor.setSize('100%', availableHeight + 'px');
-                    codeMirrorEditor.refresh();
-                }
-            }, 100);
-        } else {
-            content.classList.remove('fullscreen-mode');
-            setTimeout(() => {
-                if (codeMirrorEditor) {
-                    codeMirrorEditor.setSize('100%', '450px');
-                    codeMirrorEditor.refresh();
-                }
-            }, 100);
-        }
-    };
-
-    content.querySelector('.cbi-button-apply').addEventListener('click', async () => {
-        const translations = languageTranslations[currentLang] || languageTranslations['zh'];
-        const defaultText = translations["clear_confirm"] || "Are you sure to clear the IP database?";
-
-        showGlobalModal({
-            iconHTML: '<i class="fa-solid fa-broom" style="margin-right:5px;"></i>',
-            defaultText: defaultText,
-            onConfirm: async () => {
-                try {
-                    const res = await fetch('/luci-static/spectra/bgm/edit_ip_cache.php', {
-                        method: 'POST',
-                        headers: {'Content-Type':'application/json'},
-                        body: JSON.stringify({})
-                    });
-                    const data = await res.json();
-
-                    if (data.success) {
-                        const message = translations["clear_success"] || "IP database cleared";
-                        showLogMessage(message);
-                        speakMessage(message);
-
-                        if (codeMirrorEditor) {
-                            codeMirrorEditor.setValue('{}');
-                        }
-                    } else {
-                        const message = translations["clear_fail"] || "Clear failed";
-                        showLogMessage(message);
-                        speakMessage(message);
-                    }
-                } catch(e) {
-                    const message = translations["clear_fail"] || "Clear failed";
-                    showLogMessage(message);
-                    speakMessage(message);
-                    console.error(e);
-                }
-            }
+            element.onerror = reject;
+            document.head.appendChild(element);
         });
     });
 
-    const closeModal = () => {
-        overlay.style.opacity='0';
-        content.style.transform='scale(0.9)';
-        setTimeout(() => {
-            if (codeMirrorEditor && typeof codeMirrorEditor.toTextArea === 'function') {
-                try {
-                    codeMirrorEditor.toTextArea();
-                } catch(e) {
-                    console.warn('Error destroying CodeMirror:', e);
+    return codeMirrorLoadingPromise;
+}
+
+function initializeCodeMirrorHelpers() {
+    CodeMirror.registerHelper("lint", "json", function(text) {
+        const found = [];
+        if (!text) return found;
+
+        try {
+            JSON.parse(text);
+        } catch (e) {
+            const match = e.message.match(/line (\d+)/);
+            const line = match ? parseInt(match[1]) - 1 : 0;
+            let errorLine = line;
+            let errorChar = 0;
+            const lines = text.split('\n');
+            if (e.message.includes('Unexpected token')) {
+                const token = e.message.match(/Unexpected token (.+?) in/);
+                if (token) {
+                    for (let i = 0; i < lines.length; i++) {
+                        const pos = lines[i].indexOf(token[1]);
+                        if (pos !== -1) {
+                            errorLine = i;
+                            errorChar = pos;
+                            break;
+                        }
+                    }
                 }
             }
-            codeMirrorEditor = null;
-            if (overlay.parentNode) {
-                overlay.parentNode.removeChild(overlay);
-            }
-        }, 300);
-    };
+            found.push({
+                from: CodeMirror.Pos(errorLine, errorChar),
+                to: CodeMirror.Pos(errorLine, errorChar + 1),
+                message: e.message,
+                severity: "error"
+            });
+        }
+        return found;
+    });
+}
 
-    content.querySelector('.fullscreenBtn').addEventListener('click', toggleFullscreen);
-    content.querySelector('.closeBtn').addEventListener('click', closeModal);
-    content.querySelector('.cbi-button-remove').addEventListener('click', closeModal);
+function updateEditorSize() {
+    if (!codeMirrorEditor) return;
+
+    const modal = document.getElementById('edit-modal');
+    const editorContainer = document.getElementById('editor-container');
+    const dialog = modal.querySelector('.uk-modal-dialog');
+    const isFullscreen = modal.classList.contains('uk-modal-full');
+
+    if (isFullscreen) {
+        const headerHeight = modal.querySelector('.uk-modal-header').offsetHeight;
+        const footerHeight = modal.querySelector('.uk-modal-footer').offsetHeight;
+        const availableHeight = window.innerHeight - headerHeight - footerHeight;
+
+        dialog.style.width = '100%';
+        editorContainer.style.width = '100%';
+        editorContainer.style.margin = '0';
+        editorContainer.style.height = availableHeight + 'px';
+
+        codeMirrorEditor.setSize('100%', availableHeight + 'px');
+    } else {
+        const normalHeight = Math.floor(window.innerHeight * 0.6);
+
+        dialog.style.width = '1200px';
+        editorContainer.style.width = '1200px';
+        editorContainer.style.maxWidth = '100%';
+        editorContainer.style.margin = '0 auto';
+        editorContainer.style.height = normalHeight + 'px';
+
+        codeMirrorEditor.setSize('1200px', normalHeight + 'px');
+    }
+
+    codeMirrorEditor.refresh();
+}
+
+function initializeEditor(jsonData) {
+    const editorContainer = document.getElementById('editor-container');
+    const loadingIndicator = document.getElementById('loading-indicator');
+
+    loadingIndicator.style.display = 'none';
+    editorContainer.style.display = 'block';
+
+    codeMirrorEditor = CodeMirror(editorContainer, {
+        value: JSON.stringify(jsonData, null, 2),
+        mode: 'application/json',
+        theme: 'material',
+        lineNumbers: true,
+        lineWrapping: true,
+        indentUnit: 2,
+        tabSize: 2,
+        autoCloseBrackets: true,
+        matchBrackets: true,
+        foldGutter: true,
+        lint: {delay: 300},
+        gutters: ['CodeMirror-lint-markers', 'CodeMirror-linenumbers', 'CodeMirror-foldgutter'],
+        extraKeys: {
+            'Ctrl-Q': cm => cm.foldCode(cm.getCursor()),
+            'F11': () => document.getElementById('fullscreen-toggle').click(),
+            'Esc': () => {
+                const modal = document.getElementById('edit-modal');
+                if (modal.classList.contains('uk-modal-full')) {
+                    document.getElementById('fullscreen-toggle').click();
+                }
+            }
+        }
+    });
+
+    updateEditorSize();
+}
+
+async function showEditModal() {
+    const modal = UIkit.modal('#edit-modal');
+
+    document.getElementById('loading-indicator').style.display = 'block';
+    document.getElementById('editor-container').style.display = 'none';
+    document.getElementById('editor-container').innerHTML = '';
+
+    modal.show();
+    if (typeof updateUIText === 'function') updateUIText();
 
     try {
         const [_, jsonData] = await Promise.all([
@@ -8166,68 +8023,69 @@ async function showEditModal() {
                 .then(r => r.json())
                 .catch(() => ({}))
         ]);
-
-        content.querySelector('#loadingIndicator').style.display = 'none';
-        content.querySelector('#editorContainer').style.display = 'block';
-
-        const editorContainer = content.querySelector('#editorContainer');
-        codeMirrorEditor = CodeMirror(editorContainer, {
-            value: JSON.stringify(jsonData, null, 2),
-            mode: 'application/json',
-            theme: 'material',
-            lineNumbers: true,
-            lineWrapping: true,
-            indentUnit: 2,
-            tabSize: 2,
-            autoCloseBrackets: true,
-            matchBrackets: true,
-            foldGutter: true,
-            lint: {delay: 300},
-            gutters: ['CodeMirror-lint-markers', 'CodeMirror-linenumbers', 'CodeMirror-foldgutter'],
-            extraKeys: {
-                'Ctrl-Q': function(cm) {
-                    cm.foldCode(cm.getCursor());
-                },
-                'F11': function(cm) {
-                    toggleFullscreen();
-                },
-                'Esc': function(cm) {
-                    if (isFullscreen) {
-                        toggleFullscreen();
-                    }
-                }
-            }
-        });
-
-        codeMirrorEditor.setSize('100%', '450px');
-        
-        setTimeout(() => {
-            if (codeMirrorEditor && codeMirrorEditor.getValue) {
-                try {
-                    const currentValue = codeMirrorEditor.getValue();
-                    if (currentValue.trim()) {
-                        const formatted = JSON.stringify(JSON.parse(currentValue), null, 2);
-                        codeMirrorEditor.setValue(formatted);
-                        codeMirrorEditor.setCursor(0, 0);
-                    }
-                } catch(e) {
-                    console.warn('JSON formatting failed:', e);
-                }
-            }
-        }, 200);
-
+        initializeEditor(jsonData);
     } catch (error) {
-        console.error('Failed to load CodeMirror or JSON data:', error);
-        content.querySelector('#loadingIndicator').innerHTML = `
-            <div style="color: #d32f2f;">
+        console.error('Failed to load editor:', error);
+        document.getElementById('loading-indicator').innerHTML = `
+            <div class="uk-alert uk-alert-danger">
+                <span data-translate="load_error">Failed to load editor</span>
             </div>
         `;
     }
+}
 
-    content.querySelector('.cbi-button-save').addEventListener('click', () => {
+document.addEventListener('DOMContentLoaded', function() {
+    document.getElementById('fullscreen-toggle').addEventListener('click', function () {
+        const modal = document.getElementById('edit-modal');
+        modal.classList.toggle('uk-modal-full');
+
+        const icon = this.querySelector('span[uk-icon]');
+        const isFullscreen = modal.classList.contains('uk-modal-full');
+        icon.setAttribute('uk-icon', isFullscreen ? 'icon: shrink' : 'icon: expand');
+
+        setTimeout(updateEditorSize, 10);
+    });
+
+    document.getElementById('clear-btn').addEventListener('click', function() {
         const translations = languageTranslations[currentLang] || languageTranslations['zh'];
+        const confirmText = translations.clear_confirm || "Are you sure to clear the IP database?";
+
+        showGlobalModal({
+            defaultText: confirmText,
+            onConfirm: async () => {
+                try {
+                    const res = await fetch('/luci-static/spectra/bgm/edit_ip_cache.php', {
+                        method: 'POST',
+                        headers: {'Content-Type': 'application/json'},
+                        body: JSON.stringify({})
+                    });
+                    const data = await res.json();
+
+                    if (data.success) {
+                        const message = translations.clear_success || "IP database cleared";
+                        if (typeof showLogMessage === 'function') showLogMessage(message);
+                        if (typeof speakMessage === 'function') speakMessage(message);
+                        if (codeMirrorEditor) codeMirrorEditor.setValue('{}');
+                    } else {
+                        const message = translations.clear_fail || "Clear failed";
+                        if (typeof showLogMessage === 'function') showLogMessage(message);
+                        if (typeof speakMessage === 'function') speakMessage(message);
+                    }
+                } catch(e) {
+                    const message = translations.clear_fail || "Clear failed";
+                    if (typeof showLogMessage === 'function') showLogMessage(message);
+                    if (typeof speakMessage === 'function') speakMessage(message);
+                    console.error(e);
+                }
+            }
+        });
+    });
+
+    document.getElementById('save-btn').addEventListener('click', function() {
+        const translations = languageTranslations[currentLang] || languageTranslations['zh'];
+
         if (!codeMirrorEditor) {
-            alert(translations["save_fail"] || "Save failed");
+            if (typeof showLogMessage === 'function') showLogMessage(translations.save_fail || "Save failed");
             return;
         }
 
@@ -8235,29 +8093,39 @@ async function showEditModal() {
         try { 
             newContent = JSON.parse(codeMirrorEditor.getValue()); 
         } catch(e) { 
-            alert(translations["json_error"] || "JSON format error, please check!"); 
+            if (typeof showLogMessage === 'function') showLogMessage(translations.json_error || "JSON format error, please check!");
             return; 
         }
 
         fetch('/luci-static/spectra/bgm/edit_ip_cache.php', {
-            method:'POST',
-            headers:{'Content-Type':'application/json'},
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
             body: JSON.stringify(newContent)
         })
         .then(r => r.json())
         .then(res => {
-            if(res.success) { 
-                alert(translations["save_success"] || "Saved successfully");
-                closeModal(); 
+            if (res.success) { 
+                const message = translations.save_success || "Saved successfully";
+                if (typeof showLogMessage === 'function') showLogMessage(message);
+                if (typeof speakMessage === 'function') speakMessage(message);
+                UIkit.modal('#edit-modal').hide();
             } else {
-                alert(translations["save_fail"] || "Save failed");
+                if (typeof showLogMessage === 'function') showLogMessage(translations.save_fail || "Save failed");
             }
         })
-        .catch(() => alert(translations["save_fail"] || "Save failed"));
+        .catch(() => {
+            if (typeof showLogMessage === 'function') showLogMessage(translations.save_fail || "Save failed");
+        });
     });
-}
 
-document.getElementById('openEditModal').addEventListener('click', showEditModal);
+    window.addEventListener('resize', updateEditorSize);
+
+    if (document.getElementById('openEditModal')) {
+        document.getElementById('openEditModal').addEventListener('click', showEditModal);
+    }
+
+    UIkit.util.on('#edit-modal', 'shown', updateEditorSize);
+});
 </script>
 
 <script>
@@ -8429,34 +8297,28 @@ window.addEventListener('load', () => {
 }
 </style>
 
-<div id="cityModal" 
-     style="display:none; 
-            position:fixed; 
-            top:50%; 
-            left:50%; 
-            transform:translate(-50%, -50%); 
-            width:550px; 
-            background: var(--bg-container);
-            color: var(--text-primary);
-            box-shadow:0 4px 15px rgba(0,0,0,0.4); 
-            z-index:9999;
-            border-radius:12px;">
-  <div class="theme-modal-header" style="border-top-left-radius:12px; border-top-right-radius:12px;">
-      <h3 id="modalTitle" style="margin-bottom:15px; font-size:20px; color:var(--accent-color);"></h3>
-  </div>
-  <div style="padding:10px 20px 5px 20px; flex:1; display:flex; flex-direction:column; gap:15px;">
-      <input id="cityInput" placeholder="" 
-             style="padding:8px; width:100%; border-radius:6px; border:1px solid #ccc;">
-      
-      <div id="lastUpdated" class="cbi-value-description" 
-           style="font-size:13px; color:var(--text-primary); display:none;">
-      </div>
-  </div>
-  <div class="theme-modal-footer" style="border-bottom-left-radius:12px; border-bottom-right-radius:12px;">
-    <button id="clearCacheBtn" class="cbi-button cbi-button-remove"></button>
-    <button id="saveCityBtn" class="cbi-button cbi-button-save"></button>
-    <button id="closeCityModal" class="btn cbi-button-neutral"></button>
-  </div>
+<div id="cityModal" uk-modal>
+    <div class="uk-modal-dialog">
+        <button class="uk-modal-close-default" type="button" uk-close></button>
+        <div class="uk-modal-header">
+            <h2 id="modalTitle" class="uk-modal-title"></h2>
+        </div>
+        <div class="uk-modal-body">
+            <div class="uk-margin">
+                <label class="uk-form-label" for="cityInput"></label>
+                <div class="uk-form-controls">
+                    <input id="cityInput" class="uk-input" type="text" placeholder="">
+                </div>
+            </div>
+            <div id="lastUpdated" class="cbi-value-description" style="font-size:13px; color:var(--text-primary); display:none;">
+            </div>
+        </div>
+        <div class="uk-modal-footer uk-text-right">
+            <button id="clearCacheBtn" class="uk-button uk-button-danger"></button>
+            <button id="saveCityBtn" class="uk-button uk-button-primary"></button>
+            <button id="closeCityModal" class="uk-button uk-button-gray uk-modal-close"></button>
+        </div>
+    </div>
 </div>
 
 <script>
@@ -8520,6 +8382,7 @@ const showLogMessage = (function() {
 let city = localStorage.getItem('city') || 'Beijing';
 const apiKey = 'fc8bd2637768c286c6f1ed5f1915eb22';
 let currentWeatherData = null;
+const cityModal = UIkit.modal('#cityModal');
 
 const CACHE_REFRESH_INTERVAL = 10 * 60 * 1000;
 
@@ -8529,9 +8392,8 @@ const cityNameDisplay = document.getElementById('cityNameDisplay');
 const cityInput = document.getElementById('cityInput');
 const saveCityBtn = document.getElementById('saveCityBtn');
 const setCityBtn = document.getElementById('setCityBtn');
-const cityModal = document.getElementById('cityModal');
+
 const closeCityModal = document.getElementById('closeCityModal');
-const modalTitle = document.getElementById('modalTitle');
 const clearCacheBtn = document.getElementById('clearCacheBtn');
 const lastUpdatedDiv = document.getElementById('lastUpdated');
 
@@ -8855,7 +8717,7 @@ async function saveCity() {
 
 async function openCityModal() {
     cityInput.value = city;
-    cityModal.style.display = 'block';
+    cityModal.show();
     await updateModalLanguage();
     await updateLastUpdatedDisplay(); 
 }
@@ -8863,8 +8725,13 @@ async function openCityModal() {
 clearCacheBtn.addEventListener('click', clearWeatherCache);
 
 function closeModal() {
-    cityModal.style.display = 'none';
+    cityModal.hide();
 }
+
+document.getElementById('setCityBtn').addEventListener('click', openCityModal);
+document.getElementById('closeCityModal').addEventListener('click', closeModal);
+document.getElementById('saveCityBtn').addEventListener('click', saveCity);
+document.getElementById('clearCacheBtn').addEventListener('click', clearWeatherCache);
 
 function getWeatherColor(iconCode) {
     switch(iconCode) {
@@ -9857,238 +9724,88 @@ if (typeof audioPlayer !== 'undefined') {
 }
 </script>
 
-<style>
-.theme-modal {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    display: none;
-    justify-content: center;
-    align-items: center;
-    z-index: 9999;
-}
-
-.theme-modal-content {
-    background-color: var(--bg-container);
-    color: var(--text-primary);
-    border-radius: 10px;
-    box-shadow: 0 5px 20px rgba(0,0,0,0.3);
-    width: 90%;
-    max-width: 600px;
-    max-height: 80vh;
-    display: flex;
-    flex-direction: column;
-    overflow: hidden;
-    animation: theme-modal-fade 0.25s ease-out;
-}
-
-.alert-info {
-    background-color: #d9edf7;
-    padding: 10px;
-    border-radius: 6px;
-    margin-bottom: 10px;
-    color: #000;
-}
-
-.alert-warning {
-    background-color: #fcf8e3;
-    padding: 10px;
-    border-radius: 6px;
-    margin-bottom: 10px;
-    color: #000;
-}
-
-.alert-info, .alert-warning {
-    min-height: 40px;
-    display: flex;
-    align-items: center;
-}
-
-pre {
-    background-color: var(--bg-container);
-    color: var(--text-primary);
-    padding: 10px;
-    border-radius: 6px;
-    max-height: 600px;
-    overflow-y: auto;
-    white-space: pre-wrap;
-    word-wrap: break-word;
-}
-
-@keyframes theme-modal-fade {
-    from { opacity: 0; transform: translateY(-10px); }
-    to { opacity: 1; transform: translateY(0); }
-}
-
-.theme-copy-command {
-    display: block;
-    width: 100%;
-    box-sizing: border-box;
-    border: var(--glass-border);
-    border-radius: 6px;
-    backdrop-filter: var(--glass-blur);
-    padding: 8px;
-    font-family: monospace;
-    font-size: 14px;
-    resize: none;
-}
-
-.theme-copy-command:focus {
-    border: 1px solid var(--accent-color);
-    box-shadow: 0 0 4px 0 var(--accent-color);
-    outline: none;
-}
-.theme-modal-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 16px;
-    background: var(--header-bg);
-    color: var(--accent-color);
-    font-weight: 500;
-}
-
-.theme-modal-header h3 {
-    margin: 0;
-    font-size: 1.3em;
-}
-
-.theme-modal-body {
-    padding: 16px;
-    flex: 1;
-    overflow-y: auto;
-}
-
-.theme-modal-footer {
-    text-align: right;
-    padding: 12px 16px;
-    border-top: 1px solid rgba(0,0,0,0.1);
-    background-color: var(--header-bg);
-}
-</style>
-
-<div id="themeUpdateConfirmModal" class="theme-modal" style="display:none;">
-    <div class="theme-modal-content">
-        <div class="theme-modal-header">
-            <h3 style="color: var(--accent-color); font-weight: 700;"><i class="bi bi-palette"></i> <span data-translate="theme_download"></span></h3>
-            <button class="close-btn"></button>
+<div id="themeUpdateConfirmModal" uk-modal>
+    <div class="uk-modal-dialog">
+        <div class="uk-modal-header uk-padding-small">
+            <h2 class="uk-modal-title uk-margin-remove">
+                <i class="bi bi-cloud-download" style="font-size:1.8rem;"></i>
+                <span data-translate="theme_download">Theme Download</span>
+            </h2>
+            <button class="uk-modal-close-default" type="button" uk-close></button>
         </div>
-        <div class="theme-modal-body">
-            <div style="font-weight: 700; margin-top: 8px; margin-bottom: 12px;" data-translate="version_check_label">Version Check</div>
-            <div id="themeCurrentVersionInfo" class="alert-info" data-translate="current_version"></div>
-            <div id="themeLatestVersionInfo" class="alert-warning" data-translate="fetching_version"></div>
-            <div style="font-weight: 700; margin-top: 10px; margin-bottom: 12px;" data-translate="command_install_label">Command Installation</div>
-            <textarea id="themeCopyCommand" class="theme-copy-command" rows="3" readonly>
+        <div class="uk-modal-body">
+            <div class="uk-margin-bottom">
+                <h6 class="uk-text-bold uk-margin-small-bottom" data-translate="version_check_label">Version Check</h6>
+                <div id="themeCurrentVersionInfo" class="uk-alert uk-alert-primary uk-margin-small-bottom" data-translate="current_version">Current Version</div>
+                <div id="themeLatestVersionInfo" class="uk-alert uk-alert-warning" data-translate="fetching_version">Fetching version info...</div>
+            </div>
+            <div class="uk-margin-top">
+                <h6 class="uk-text-bold uk-margin-small-bottom" data-translate="command_install_label">Command Installation</h6>
+                <div class="uk-inline uk-width-1-1">
+                    <textarea id="themeCopyCommand" class="uk-textarea uk-form-blank uk-background-muted" rows="3" readonly style="resize: none; font-family: monospace;">
 wget -O /root/nekobox.sh https://raw.githubusercontent.com/Thaolga/openwrt-nekobox/nekobox/nekobox.sh && chmod 0755 /root/nekobox.sh && /root/nekobox.sh
-            </textarea>
+                    </textarea>
+                </div>
+            </div>
         </div>
-        <div class="theme-modal-footer">
-            <button id="themeCopyCommandBtn" class="btn cbi-button cbi-button-apply" data-translate="copy_command"></button>
-            <a id="themeConfirmUpdateLink" href="#" target="_blank" class="btn cbi-button cbi-button-add" data-translate="download_local"></a>
-            <button id="themeUpdateBtn" class="btn cbi-button cbi-button-edit" data-translate="update_plugin"></button>
+        <div class="uk-modal-footer uk-text-right">
+            <button id="themeCopyCommandBtn" class="uk-button uk-button-success" data-translate="copy_command">Copy</button>
+            <a id="themeConfirmUpdateLink" href="#" target="_blank" class="uk-button uk-button-primary" data-translate="download_local">Download</a>
+            <button id="themeUpdateBtn" class="uk-button uk-button-danger" data-translate="update_plugin">Update</button>
+            <button class="uk-button uk-button-gray uk-modal-close" data-translate="close">Close</button>
         </div>
     </div>
 </div>
-
-<div id="themeUpdateStatusModal" class="theme-modal" style="display:none;">
-    <div class="theme-modal-content">
-        <div class="theme-modal-header">
-            <h3 id="themeUpdateStatusLabel" data-translate="updateModalLabel"></h3>
-            <button class="close-btn"></button>
+<div id="themeUpdateStatusModal" uk-modal>
+    <div class="uk-modal-dialog">
+        <div class="uk-modal-header">
+            <h3 class="uk-modal-title">
+                <span uk-icon="icon: cloud-download; ratio: 1.1" class="uk-margin-small-right"></span>
+                <span id="themeUpdateStatusLabel" data-translate="updateModalLabel">Update Progress</span>
+            </h3>
+            <button class="uk-modal-close-default" type="button" uk-close></button>
         </div>
-        <div class="theme-modal-body">
-            <div id="themeUpdateDescription" class="alert-info" data-translate="updateDescription"></div>
-            <pre id="themeLogOutput">Waiting for the operation to begin...</pre>
+        <div class="uk-modal-body">
+            <div id="themeUpdateDescription" class="uk-alert uk-alert-info uk-margin-bottom" data-translate="updateDescription">Installing theme update...</div>
+            <pre id="themeLogOutput" class="uk-background-muted uk-padding-small" style="max-height: 300px; overflow-y: auto; font-family: monospace; font-size: 12px; white-space: pre-wrap;">Waiting for the operation to begin...</pre>
         </div>
     </div>
 </div>
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    function openThemeModal(id) { 
-        document.getElementById(id).style.display = 'flex'; 
-        updateUIText();
-    }
-
-    function closeThemeModal(id) { 
-        document.getElementById(id).style.display = 'none'; 
-    }
-
-    document.querySelectorAll('.close-btn').forEach(btn => {
-        btn.addEventListener('click', (e) => {
-            const modal = e.target.closest('.theme-modal');
-            closeThemeModal(modal.id);
-        });
-    });
-
     const themeOpenBtn = document.getElementById('themeOpenUpdateConfirmBtn');
-    themeOpenBtn.addEventListener('click', () => {
-        openThemeModal('themeUpdateConfirmModal');
-        checkThemeUpdate();
-    });
+    if (themeOpenBtn) {
+        themeOpenBtn.addEventListener('click', function() {
+            UIkit.modal('#themeUpdateConfirmModal').show();
+            updateUIText();
+            checkThemeUpdate();
+        });
+    }
 
-    document.getElementById('themeCopyCommandBtn').addEventListener('click', () => {
+    document.getElementById('themeCopyCommandBtn').addEventListener('click', function() {
         const copyTextarea = document.getElementById('themeCopyCommand');
         copyTextarea.select();
         document.execCommand('copy');
+        
         const translations = languageTranslations[currentLang] || languageTranslations['zh'];
         const message = translations['command_copied'] || 'Command copied to clipboard!';
-        showLogMessage(message);
-        speakMessage(message);
+        
+        if (typeof showLogMessage === 'function') showLogMessage(message);
+        if (typeof speakMessage === 'function') speakMessage(message);
     });
 
-    document.getElementById('themeUpdateBtn').addEventListener('click', () => {
-        closeThemeModal('themeUpdateConfirmModal');
-        openThemeModal('themeUpdateStatusModal');
-
-        const logOutput = document.getElementById('themeLogOutput');
-        const translations = languageTranslations[currentLang] || languageTranslations['zh'];
-        logOutput.textContent = '🔄 Starting installation...\n';
-
-        const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 180000);
-
-        fetch('/luci-static/spectra/bgm/install_theme.php', { 
-            method: 'POST',
-            signal: controller.signal
-        })
-        .then(response => {
-            clearTimeout(timeoutId);
-            const reader = response.body.getReader();
-            const decoder = new TextDecoder();
-            function read() {
-                return reader.read().then(({ done, value }) => {
-                    if (done) {
-                        if (logOutput.textContent.includes('🎉 INSTALLATION_SUCCESS')) {
-                            const message = translations['installation_complete'] || 'Installation complete!';
-                            if (typeof showLogMessage === 'function') showLogMessage(message);
-                            if (typeof speakMessage === 'function') speakMessage(message);
-                            setTimeout(() => closeThemeModal('themeUpdateStatusModal'), 5000);
-                        } else {
-                            setTimeout(() => closeThemeModal('themeUpdateStatusModal'), 5000);
-                        }
-                        return;
-                    }
-                    const text = decoder.decode(value, { stream: true });
-                    logOutput.textContent += text;
-                    logOutput.scrollTop = logOutput.scrollHeight;
-                    return read();
-                });
-            }
-            return read();
-        })
-        .catch(error => {
-            clearTimeout(timeoutId);
-            const message = translations['installation_complete'] || 'Installation complete!';
-            if (typeof showLogMessage === 'function') showLogMessage(message);
-            if (typeof speakMessage === 'function') speakMessage(message);
-            setTimeout(() => closeThemeModal('themeUpdateStatusModal'), 8000);
-        });
+    document.getElementById('themeUpdateBtn').addEventListener('click', function() {
+        const confirmModal = UIkit.modal('#themeUpdateConfirmModal');
+        const statusModal = UIkit.modal('#themeUpdateStatusModal');
+        
+        confirmModal.hide();
+        statusModal.show();
+        
+        startThemeInstallation();
     });
 
-   function checkThemeUpdate() {
+    function checkThemeUpdate() {
         const translations = languageTranslations[currentLang] || languageTranslations['zh'];
         const versionInfo = document.getElementById('themeLatestVersionInfo');
         const currentVersionInfo = document.getElementById('themeCurrentVersionInfo');
@@ -10110,6 +9827,11 @@ document.addEventListener('DOMContentLoaded', function() {
                 if (data.version && data.url) {
                     versionInfo.textContent = `${translations['latest_version'] || 'Latest Version'}: ${data.version}`;
                     downloadLink.href = data.url;
+                    
+                    if (data.version !== data.currentVersion) {
+                        versionInfo.classList.add('uk-alert-success');
+                        versionInfo.classList.remove('uk-alert-warning');
+                    }
                 } else {
                     versionInfo.textContent = translations['unable_to_fetch_version'] || 'Unable to fetch the latest version info';
                 }
@@ -10118,6 +9840,886 @@ document.addEventListener('DOMContentLoaded', function() {
                 versionInfo.textContent = translations['request_failed'] || 'Request failed, please try again later';
             });
     }
+
+    function startThemeInstallation() {
+        const logOutput = document.getElementById('themeLogOutput');
+        const translations = languageTranslations[currentLang] || languageTranslations['zh'];
+        
+        logOutput.textContent = '🔄 Starting installation...\n';
+
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 180000);
+
+        fetch('/luci-static/spectra/bgm/install_theme.php', { 
+            method: 'POST',
+            signal: controller.signal
+        })
+        .then(response => {
+            clearTimeout(timeoutId);
+            const reader = response.body.getReader();
+            const decoder = new TextDecoder();
+            
+            function read() {
+                return reader.read().then(({ done, value }) => {
+                    if (done) {
+                        if (logOutput.textContent.includes('🎉 INSTALLATION_SUCCESS')) {
+                            const message = translations['installation_complete'] || 'Installation complete!';
+                            showSuccessMessage(message);
+                            setTimeout(() => UIkit.modal('#themeUpdateStatusModal').hide(), 5000);
+                        } else {
+                            setTimeout(() => UIkit.modal('#themeUpdateStatusModal').hide(), 5000);
+                        }
+                        return;
+                    }
+                    
+                    const text = decoder.decode(value, { stream: true });
+                    logOutput.textContent += text;
+                    logOutput.scrollTop = logOutput.scrollHeight;
+                    return read();
+                });
+            }
+            return read();
+        })
+        .catch(error => {
+            clearTimeout(timeoutId);
+            const message = translations['installation_complete'] || 'Installation complete!';
+            showSuccessMessage(message);
+            setTimeout(() => UIkit.modal('#themeUpdateStatusModal').hide(), 8000);
+        });
+    }
+
+    function showSuccessMessage(message) {
+        if (typeof showLogMessage === 'function') showLogMessage(message);
+        if (typeof speakMessage === 'function') speakMessage(message);
+        
+        UIkit.notification({
+            message: message,
+            status: 'success',
+            pos: 'top-center',
+            timeout: 5000
+        });
+    }
+
+    if (typeof updateUIText === 'function') {
+        updateUIText();
+    }
+});
+</script>
+
+<script>
+function getCurrentTheme(callback) {
+    fetch("/luci-static/spectra/bgm/theme-switcher.php")
+        .then(response => response.json())
+        .then(data => {
+            callback(data.mode || 'dark');
+        })
+        .catch(error => {
+            callback('dark');
+        });
+}
+
+function getModeDisplayName(mode) {
+    const translations = languageTranslations[currentLang] || languageTranslations['en'];
+    const modeNames = {
+        'video': translations['mode_video'] || 'Video',
+        'image': translations['mode_image'] || 'Image', 
+        'solid': translations['mode_solid'] || 'Dark',
+        'auto': translations['mode_auto'] || 'Auto'
+    };
+    return modeNames[mode] || mode;
+}
+
+document.addEventListener("DOMContentLoaded", function () {
+    getCurrentTheme(function(currentMode) {
+        if (currentMode === 'light') {
+            document.body.classList.remove('dark');
+        } else {
+            document.body.classList.add('dark');
+        }
+   
+        let isEnabled = localStorage.getItem('backgroundEnabled') === 'true';
+        
+        if (localStorage.getItem('backgroundEnabled') === null) {
+            localStorage.setItem('backgroundEnabled', 'false');
+            isEnabled = false;
+        }
+
+        if (localStorage.getItem('backgroundMode') === null) {
+            localStorage.setItem('backgroundMode', 'auto');
+        }
+
+        const isAnimationEnabled = localStorage.getItem('animationEnabled') !== 'false';
+        toggleAnimation(isAnimationEnabled);
+
+        const savedFont = localStorage.getItem('selectedFont') || 'default';
+        applyFont(savedFont);
+        
+        let videoTag, bgImages, bgIndex, availableImages, switchInterval;
+        const savedMode = localStorage.getItem('backgroundMode');
+        
+        if (isEnabled) {
+            initBackgroundSystem();
+        } else {
+            applyPHPBackground();
+        }
+
+        updateSwitchState();
+        updateThemeButton();
+        updateSoundToggle();
+        updateAnimationToggle();
+        updateFontToggle();
+        updateFitButton();
+        updateModeSelection(localStorage.getItem('backgroundMode') || 'auto');
+        updateModeSelection(savedMode);
+
+        bindControlPanelEvents();
+
+        function updateModeSelection(selectedMode) {
+            document.querySelectorAll('[data-mode]').forEach(btn => {
+                const mode = btn.getAttribute('data-mode');
+
+                if (mode === selectedMode) {
+                    btn.classList.add('selected');
+                    btn.classList.remove('uk-card-default');
+                } else {
+                    btn.classList.remove('selected');
+                    btn.classList.add('uk-card-default');
+                }
+
+                const disableModes = !isEnabled || localStorage.getItem('disableColorSettings') === 'true';
+                if (disableModes) {
+                    btn.classList.add('disabled');
+                } else {
+                    btn.classList.remove('disabled');
+                }
+            });
+        }
+
+        function updateSwitchState() {
+            const translations = languageTranslations[currentLang] || languageTranslations['en'];
+            const switchText = document.getElementById('switch-text');
+            const masterSwitch = document.getElementById('master-switch');
+            const powerIcon = document.getElementById('power-icon');
+
+            if (switchText) {
+                switchText.textContent = isEnabled ? 
+                    (translations['status_enabled'] || 'Enabled') : 
+                    (translations['status_disabled'] || 'Disabled');
+            }
+
+            if (masterSwitch) {
+                if (isEnabled) {
+                    masterSwitch.classList.remove('uk-card-secondary');
+                    masterSwitch.classList.add('uk-card-success');
+                } else {
+                    masterSwitch.classList.remove('uk-card-success');
+                    masterSwitch.classList.add('uk-card-secondary');
+                }
+            }
+
+            if (powerIcon) {
+                powerIcon.className = isEnabled ? "bi bi-toggle-on" : "bi bi-toggle-off";
+            }
+        }
+
+        function updateThemeButton() {
+            const translations = languageTranslations[currentLang] || languageTranslations['en'];
+            getCurrentTheme(function(currentMode) {
+                const themeText = document.getElementById('theme-text');
+                const themeIcon = document.getElementById('theme-icon');
+                const themeToggle = document.getElementById('spectra-theme-toggle');
+
+                if (themeText) themeText.textContent = currentMode === 'dark' ? 
+                    (translations['theme_dark'] || 'Dark Mode') : 
+                    (translations['theme_light'] || 'Light Mode');
+                if (themeIcon) themeIcon.className = currentMode === 'dark' ? 'bi bi-moon-fill' : 'bi bi-sun-fill';
+
+                if (themeToggle) {
+                    themeToggle.classList.toggle('uk-card-primary', currentMode !== 'dark');
+                    themeToggle.classList.toggle('uk-card-default', currentMode === 'dark');
+                }
+            });
+        }
+
+        function updateSoundToggle() {
+            const soundIcon = document.getElementById('sound-icon');
+            const soundMuted = localStorage.getItem('videoMuted') === 'true';
+
+            if (soundIcon) {
+                soundIcon.className = soundMuted ? "bi bi-volume-mute" : "bi bi-volume-up";
+            }
+        }
+
+        function updateAnimationToggle() {
+            const translations = languageTranslations[currentLang] || languageTranslations['en'];
+            const animationText = document.getElementById('animation-text');
+            const animationIcon = document.getElementById('animation-icon');
+            const isAnimationEnabled = localStorage.getItem('animationEnabled') !== 'false';
+
+            if (animationText) {
+                animationText.textContent = isAnimationEnabled ? 
+                    (translations['animation_disable'] || 'Disable Animation') : 
+                    (translations['animation_enable'] || 'Enable Animation');
+            }
+
+            if (animationIcon) {
+                animationIcon.className = isAnimationEnabled ? "bi bi-check-circle" : "bi bi-x-circle";
+            }
+        }
+
+        function updateFontToggle() {
+            const translations = languageTranslations[currentLang] || languageTranslations['en'];
+            const fontText = document.getElementById('font-text');
+            const currentFont = localStorage.getItem('selectedFont') || 'default';
+            let fontDisplayText = translations['font_default'] || 'Default Font';
+            
+            switch (currentFont) {
+                case 'fredoka': fontDisplayText = translations['font_rounded'] || 'Rounded Font'; break;
+                case 'dmserif': fontDisplayText = translations['font_serif'] || 'Serif Font'; break;
+                case 'notoserif': fontDisplayText = translations['font_notoserif'] || 'Noto Serif'; break;
+                case 'comicneue': fontDisplayText = translations['font_comic'] || 'Comic Font'; break;
+                case 'notosans': fontDisplayText = translations['font_notosans'] || 'Noto Sans'; break;
+                case 'cinzeldecorative': fontDisplayText = translations['font_cinzel'] || 'Cinzel Decorative'; break;
+            }
+            
+            if (fontText) {
+                fontText.textContent = fontDisplayText;
+            }
+        }
+
+        function updateFitButton() {
+            const translations = languageTranslations[currentLang] || languageTranslations['en'];
+            const fitText = document.getElementById('fit-text');
+            const savedFit = localStorage.getItem('videoObjectFit') || 'cover';
+            const fitTexts = {
+                'contain': translations['fit_contain'] || 'Normal Ratio',
+                'fill': translations['fit_fill'] || 'Stretch Fill', 
+                'none': translations['fit_none'] || 'Original Size',
+                'scale-down': translations['fit_scale_down'] || 'Smart Fit',
+                'cover': translations['fit_cover'] || 'Default Crop'
+            };
+            
+            if (fitText) {
+                fitText.textContent = fitTexts[savedFit] || translations['fit_cover'] || 'Default Crop';
+            }
+        }
+
+        function bindControlPanelEvents() {
+            document.getElementById('spectra-theme-toggle')?.addEventListener('click', function() {
+                const translations = languageTranslations[currentLang] || languageTranslations['en'];
+                getCurrentTheme(function(currentMode) {
+                    const switchingToLight = currentMode === 'dark';
+                    const themeText = document.getElementById('theme-text');
+                    const themeIcon = document.getElementById('theme-icon');
+                    const themeToggle = document.getElementById('spectra-theme-toggle');
+
+                    const message = switchingToLight ? 
+                        (translations['message_switch_to_light'] || 'Switching to light mode') : 
+                        (translations['message_switch_to_dark'] || 'Switching to dark mode');
+                    showLogMessage(message);
+                    speakMessage(message);
+
+                    if (themeText) themeText.textContent = switchingToLight ? 
+                        (translations['theme_light'] || 'Light Mode') : 
+                        (translations['theme_dark'] || 'Dark Mode');
+                    if (themeIcon) themeIcon.className = switchingToLight ? 'bi bi-sun-fill' : 'bi bi-moon-fill';
+                    if (themeToggle) {
+                        themeToggle.classList.toggle('uk-card-primary', switchingToLight);
+                        themeToggle.classList.toggle('uk-card-default', !switchingToLight);
+                    }
+
+                    fetch("/luci-static/spectra/bgm/theme-switcher.php", { method: "POST" })
+                        .then(res => res.json())
+                        .then(data => {
+                            if (!data.success) return;
+
+                            if (switchingToLight) {
+                                isEnabled = false;
+                                localStorage.setItem('backgroundEnabled', 'false');
+                                localStorage.setItem('disableColorSettings', 'true');
+                                clearBackgroundSystem();
+                                updateSwitchState();
+                                document.querySelectorAll('[data-mode]').forEach(btn => btn.classList.add('disabled'));
+                            } else {
+                                localStorage.removeItem('disableColorSettings');
+                                document.querySelectorAll('[data-mode]').forEach(btn => btn.classList.remove('disabled'));
+                            }
+
+                            setTimeout(() => location.reload(), 3000);
+                        })
+                        .catch(err => console.error('Theme switch failed', err));
+                });
+            });
+
+            document.querySelector('.theme-settings-btn')?.addEventListener('click', function() {
+                const translations = languageTranslations[currentLang] || languageTranslations['en'];
+                const message = translations['message_open_theme_settings'] || 'Opening theme settings';
+                showLogMessage(message);
+                speakMessage(message);
+                updateUIText();
+                UIkit.modal('#theme-settings-modal').show();
+            });
+
+            document.getElementById('master-switch')?.addEventListener('click', function() {
+                const translations = languageTranslations[currentLang] || languageTranslations['en'];
+                isEnabled = !isEnabled;
+                localStorage.setItem('backgroundEnabled', isEnabled);
+                updateSwitchState();
+                updateModeSelection(localStorage.getItem('backgroundMode') || 'auto');
+                const message = isEnabled ? 
+                    (translations['message_background_on'] || 'Background on') : 
+                    (translations['message_background_off'] || 'Background off');
+                showLogMessage(message);
+                speakMessage(message);
+               
+                if (isEnabled) {
+                    initBackgroundSystem();
+                } else {
+                    clearBackgroundSystem();
+                }
+            });
+
+            document.querySelector('.sound-toggle')?.addEventListener('click', function() {
+                const translations = languageTranslations[currentLang] || languageTranslations['en'];
+                const newMuted = localStorage.getItem('videoMuted') !== 'true';
+                localStorage.setItem('videoMuted', newMuted);
+                updateSoundToggle();
+
+                const message = newMuted ? 
+                    (translations['message_sound_off'] || 'Sound off') : 
+                    (translations['message_sound_on'] || 'Sound on');
+                showLogMessage(message);
+                speakMessage(message);
+                
+                if (videoTag) {
+                    videoTag.muted = newMuted;
+                }
+            });
+
+            document.querySelectorAll('[data-mode]').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const translations = languageTranslations[currentLang] || languageTranslations['en'];
+                    const mode = this.getAttribute('data-mode');
+                    setMode(mode);
+                    const modeName = getModeDisplayName(mode);
+                    const message = `${modeName}`;
+                    showLogMessage(message);
+                    speakMessage(message);
+                });
+            });
+
+            document.querySelector('.object-fit-btn')?.addEventListener('click', function() {
+                const translations = languageTranslations[currentLang] || languageTranslations['en'];
+                const videos = document.querySelectorAll('video#background-video');
+                if (videos.length === 0) return;
+
+                const currentFit = videos[0].style.objectFit || localStorage.getItem('videoObjectFit') || 'cover';
+                const fitOrder = ['cover', 'contain', 'fill', 'none', 'scale-down'];
+                const newIndex = (fitOrder.indexOf(currentFit) + 1) % fitOrder.length;
+                const newFit = fitOrder[newIndex];
+
+                videos.forEach(video => {
+                    video.style.objectFit = newFit;
+                    if (newFit === 'none') {
+                        video.style.minWidth = 'auto';
+                        video.style.minHeight = 'auto';
+                        video.style.width = '100%';
+                        video.style.height = '100%';
+                    } else {
+                        video.style.minWidth = '100%';
+                        video.style.minHeight = '100%';
+                    }
+                });
+
+                localStorage.setItem('videoObjectFit', newFit);
+                updateFitButton();
+
+                const fitTexts = {
+                    'contain': translations['fit_contain'] || 'Normal Ratio',
+                    'fill': translations['fit_fill'] || 'Stretch Fill',
+                    'none': translations['fit_none'] || 'Original Size',
+                    'scale-down': translations['fit_scale_down'] || 'Smart Fit',
+                    'cover': translations['fit_cover'] || 'Default Crop'
+                };
+                const message = `${translations['message_fit_adjusted'] || 'Display ratio adjusted to'} ${fitTexts[newFit] || newFit}`;
+                showLogMessage(message);
+                speakMessage(message);
+            });
+
+            document.getElementById('animation-toggle')?.addEventListener('click', function() {
+                const translations = languageTranslations[currentLang] || languageTranslations['en'];
+                const isAnimationEnabled = localStorage.getItem('animationEnabled') !== 'false';
+                const newState = !isAnimationEnabled;
+                localStorage.setItem('animationEnabled', newState);
+
+                updateAnimationToggle();
+                const message = newState ? 
+                    (translations['message_animation_on'] || 'Animation on') : 
+                    (translations['message_animation_off'] || 'Animation off');
+                showLogMessage(message);
+                speakMessage(message);
+                
+                toggleAnimation(newState);
+            });
+
+            document.getElementById('font-toggle')?.addEventListener('click', function() {
+                const translations = languageTranslations[currentLang] || languageTranslations['en'];
+                const currentFont = localStorage.getItem('selectedFont') || 'default';
+                let nextFont;
+                
+                switch (currentFont) {
+                    case 'default': nextFont = 'fredoka'; break;
+                    case 'fredoka': nextFont = 'dmserif'; break;
+                    case 'dmserif': nextFont = 'notoserif'; break;
+                    case 'notoserif': nextFont = 'comicneue'; break;
+                    case 'comicneue': nextFont = 'notosans'; break;
+                    case 'notosans': nextFont = 'cinzeldecorative'; break;
+                    case 'cinzeldecorative': nextFont = 'default'; break;
+                    default: nextFont = 'default';
+                }
+                
+                localStorage.setItem('selectedFont', nextFont);
+                updateFontToggle();
+                applyFont(nextFont);
+                const fontNames = {
+                    'default': translations['font_default'] || 'Default Font',
+                    'fredoka': translations['font_rounded'] || 'Rounded Font',
+                    'dmserif': translations['font_serif'] || 'Serif Font',
+                    'notoserif': translations['font_notoserif'] || 'Noto Serif',
+                    'comicneue': translations['font_comic'] || 'Comic Font',
+                    'notosans': translations['font_notosans'] || 'Noto Sans',
+                    'cinzeldecorative': translations['font_cinzel'] || 'Cinzel Decorative'
+                };
+                const message = `${translations['message_font_changed'] || 'Font changed to'} ${fontNames[nextFont] || nextFont}`;
+                showLogMessage(message);
+                speakMessage(message);
+            });
+
+            document.querySelector('.info-btn')?.addEventListener('click', function() {
+                const translations = languageTranslations[currentLang] || languageTranslations['en'];
+                const message = translations['message_open_usage_guide'] || 'Opening usage guide';
+                showLogMessage(message);
+                speakMessage(message);
+                updateUIText();
+                UIkit.modal('#usage-guide-modal').show();
+            });
+        }
+
+        function initBackgroundSystem() {
+            bgImages = Array.from({length: 20}, (_, i) => `bg${i + 1}.jpg`);
+            bgIndex = 0;
+            availableImages = [];
+        
+            const savedMode = localStorage.getItem('backgroundMode') || 'auto';
+            const phpBackgroundSrc = localStorage.getItem('phpBackgroundSrc');
+            const phpBackgroundType = localStorage.getItem('phpBackgroundType');
+        
+            if (phpBackgroundSrc && phpBackgroundType) {
+                if (phpBackgroundType === 'image') {
+                    setImageBackground(phpBackgroundSrc);
+                } else if (phpBackgroundType === 'video') {
+                    setVideoBackground(phpBackgroundSrc);
+                }
+            } else {
+                setMode(savedMode);
+            }
+        
+            updateModeSelection(savedMode);
+        }
+
+        function clearBackgroundSystem() {
+            const currentMode = localStorage.getItem('backgroundMode') || 'auto';
+        
+            if (videoTag) {
+                videoTag.pause();
+                videoTag.remove();
+                videoTag = null;
+            }
+        
+            document.querySelectorAll('#dynamic-style, #video-style').forEach(e => e.remove());
+            clearInterval(switchInterval);
+            document.body.style.background = '';
+            document.body.style.backgroundImage = '';
+            document.body.style.display = 'none';
+            document.body.offsetHeight;
+            document.body.style.display = '';
+        
+            localStorage.setItem('backgroundMode', currentMode);
+        
+            updateModeSelection(currentMode);
+        }
+
+        function setMode(mode) {
+            if (!isEnabled && mode !== 'solid') return;
+        
+            localStorage.setItem('backgroundMode', mode);
+            localStorage.setItem('selectedMode', mode);
+        
+            clearExistingBackground();
+
+            updateModeSelection(mode);
+
+            switch (mode) {
+                case 'video':
+                    checkFileExists('bg.mp4', exists => exists ? initVideoBackground() : fallbackToAuto());
+                    break;
+                case 'image':
+                    checkImages(() => availableImages.length > 0 ? initImageBackground() : fallbackToAuto());
+                    break;
+                case 'solid':
+                    applyCSS(null);
+                    break;
+                case 'auto':
+                    initAutoBackground();
+                    break;
+            }
+        }
+
+        function clearExistingBackground() {
+            if (videoTag) {
+                videoTag.pause();
+                videoTag.remove();
+                videoTag = null;
+            }
+        
+            document.querySelectorAll('#dynamic-style, #video-style').forEach(e => e.remove());
+            clearInterval(switchInterval);
+        
+            const currentMode = localStorage.getItem('backgroundMode');
+            if (currentMode !== 'color') {
+                document.body.style.background = '';
+                document.body.style.backgroundImage = '';
+            }
+        
+            const existingVideoTag = document.getElementById("background-video");
+            if (existingVideoTag && existingVideoTag !== videoTag) {
+                existingVideoTag.remove();
+            }
+        }
+
+        function initVideoBackground() {
+            insertVideoBackground();
+            updateSoundToggle();
+        }
+
+        function initImageBackground() {
+            bgIndex = Math.floor(Math.random() * availableImages.length);
+            applyCSS(availableImages[bgIndex]);
+            switchInterval = setInterval(switchBackground, 120000);
+        }
+
+        function initAutoBackground() {
+            checkFileExists('bg.mp4', exists => {
+                if (exists) {
+                    initVideoBackground();
+                } else {
+                    checkImages(() => {
+                        availableImages.length > 0 ? initImageBackground() : applyCSS(null);
+                    });
+                }
+            });
+        }
+
+        function fallbackToAuto() {
+            localStorage.setItem('backgroundMode', 'auto');
+            initAutoBackground();
+        }
+
+        function checkImages(callback) {
+            availableImages = [];
+            let checked = 0;
+
+            const totalImages = bgImages.length;
+    
+            if (totalImages === 0) {
+                callback();
+                return;
+            }
+            bgImages.forEach(image => {
+                checkFileExists(image, exists => {
+                    checked++;
+                    if (exists) availableImages.push(image);
+                    if (checked === totalImages) callback();
+                });
+            });
+        }
+
+        function checkFileExists(file, callback) {
+            fetch(`/luci-static/spectra/bgm/file-checker.php?file=${file}`)
+                .then(response => response.json())
+                .then(data => callback(data.exists))
+                .catch(() => callback(false));
+        }
+
+        function applyCSS(image) {
+            let styleTag = document.querySelector("#dynamic-style");
+            if (!styleTag) {
+                styleTag = document.createElement("style");
+                styleTag.id = "dynamic-style";
+                document.head.appendChild(styleTag);
+            }
+
+            if (image) {
+                styleTag.innerHTML = `
+                    body {
+                        background: url('/luci-static/spectra/bgm/${image}') no-repeat center center fixed !important;
+                        background-size: cover !important;
+                        transition: background 1s ease-in-out;
+                    }
+                    .wrapper span {
+                        display: none !important;
+                    }
+                `;
+            } else {
+                styleTag.innerHTML = `
+                    body {
+                        background: #111 !important;
+                        background-image: none !important;
+                        background-size: auto !important;
+                    }
+                    .wrapper span {
+                        display: block !important;
+                    }
+                `;
+            }
+        }
+
+        function insertVideoBackground(src = 'bg.mp4') {
+            document.querySelectorAll('video#background-video').forEach(v => v.remove());
+            videoTag = document.createElement("video");
+            videoTag.className = "video-background";
+            videoTag.id = "background-video";
+            videoTag.autoplay = true;
+            videoTag.loop = true;
+            videoTag.muted = localStorage.getItem('videoMuted') === 'true';
+            videoTag.playsInline = true;
+            videoTag.innerHTML = `
+                <source src="/luci-static/spectra/bgm/bg.mp4" type="video/mp4">
+                Your browser does not support the video tag.
+            `;
+            const savedFit = localStorage.getItem('videoObjectFit') || 'cover';
+            videoTag.style.objectFit = savedFit;
+            document.body.prepend(videoTag);
+
+            let styleTag = document.querySelector("#video-style");
+            if (!styleTag) {
+                styleTag = document.createElement("style");
+                styleTag.id = "video-style";
+                document.head.appendChild(styleTag);
+            }
+            styleTag.innerHTML = `
+                body {
+                    background: transparent !important;
+                    margin: 0;
+                    padding: 0;
+                    height: 100vh;
+                    overflow: hidden;
+                }
+                .video-background {
+                    position: fixed;
+                    top: 50%;
+                    left: 50%;
+                    width: auto;
+                    height: auto;
+                    min-width: 100%;
+                    min-height: 100%;
+                    transform: translate(-50%, -50%);
+                    z-index: -1;
+                }
+                .video-background + .wrapper span {
+                    display: none !important;
+                }
+            `;
+        }
+
+        function applyPHPBackground() {
+            const phpBackgroundSrc = localStorage.getItem('phpBackgroundSrc');
+            const phpBackgroundType = localStorage.getItem('phpBackgroundType');
+        
+            if (phpBackgroundSrc && phpBackgroundType) {
+                if (phpBackgroundType === 'image') {
+                    setImageBackground(phpBackgroundSrc);
+                } else if (phpBackgroundType === 'video') {
+                    setVideoBackground(phpBackgroundSrc);
+                }
+            } else {
+                const savedMode = localStorage.getItem('backgroundMode') || 'auto';
+                setMode(savedMode);
+            }
+        }
+
+        function setImageBackground(src) {
+            clearExistingBackground();
+            
+            document.body.style.background = '';
+            document.body.style.backgroundColor = '';
+            document.body.style.backgroundImage = '';
+            
+            document.body.classList.remove('default-background');
+            
+            let styleTag = document.querySelector("#dynamic-style");
+            if (!styleTag) {
+                styleTag = document.createElement("style");
+                styleTag.id = "dynamic-style";
+                document.head.appendChild(styleTag);
+            }
+            
+            styleTag.innerHTML = `
+                body {
+                    background: url('/luci-static/spectra/bgm/${src}') no-repeat center center fixed !important;
+                    background-size: cover !important;
+                    background-color: transparent !important;
+                    transition: background 1s ease-in-out;
+                }
+                body:before {
+                    display: none !important;
+                }
+                .wrapper span {
+                    display: none !important;
+                }
+            `;
+            
+            localStorage.setItem('phpBackgroundSrc', src);
+            localStorage.setItem('phpBackgroundType', 'image');
+            localStorage.setItem('backgroundMode', 'image');
+        }
+ 
+        function setVideoBackground(src, isPHP = false) {
+            const wasEnabled = isEnabled;
+            clearExistingBackground();
+            isEnabled = wasEnabled;
+            
+            document.body.style.background = '';
+            document.body.style.backgroundColor = '';
+            document.body.style.backgroundImage = '';
+            
+            const dynamicStyle = document.querySelector("#dynamic-style");
+            if (dynamicStyle) dynamicStyle.remove();
+            
+            let existingVideoTag = document.getElementById("background-video");
+            const savedFit = localStorage.getItem('videoObjectFit') || 'cover';
+
+            if (existingVideoTag) {
+                existingVideoTag.src = `/luci-static/spectra/bgm/${src}`;
+                existingVideoTag.muted = localStorage.getItem('videoMuted') === 'true';
+                existingVideoTag.style.objectFit = savedFit;
+            } else {
+                videoTag = document.createElement("video");
+                videoTag.className = "video-background";
+                videoTag.id = "background-video";
+                videoTag.autoplay = true;
+                videoTag.loop = true;
+                videoTag.muted = localStorage.getItem('videoMuted') === 'true';
+                videoTag.playsInline = true;
+                videoTag.style.objectFit = savedFit;
+                videoTag.innerHTML = `
+                    <source src="/luci-static/spectra/bgm/${src}" type="video/mp4">
+                    Your browser does not support the video tag.
+                `;
+                document.body.prepend(videoTag);
+            }
+
+            let styleTag = document.querySelector("#video-style");
+            if (!styleTag) {
+                styleTag = document.createElement("style");
+                styleTag.id = "video-style";
+                document.head.appendChild(styleTag);
+            }
+            
+            styleTag.innerHTML = `
+                body {
+                    background: transparent !important;
+                    background-image: none !important;
+                    background-color: transparent !important;
+                    margin: 0;
+                    padding: 0;
+                    height: 100vh;
+                    overflow: hidden;
+                }
+                body:before {
+                    display: none !important;
+                }
+                .video-background {
+                    position: fixed;
+                    top: 50%;
+                    left: 50%;
+                    width: auto;
+                    height: auto;
+                    min-width: 100%;
+                    min-height: 100%;
+                    transform: translate(-50%, -50%);
+                    z-index: -1;
+                }
+                .video-background + .wrapper span {
+                    display: none !important;
+                }
+            `;
+
+            localStorage.setItem('phpBackgroundSrc', src);
+            localStorage.setItem('phpBackgroundType', 'video');
+            localStorage.setItem('backgroundMode', 'video');
+            updateSoundToggle();
+        }
+ 
+        function toggleAnimation(enabled) {
+            const wrapper = document.querySelector('.wrapper');
+            if (wrapper) {
+                wrapper.style.display = enabled ? 'block' : 'none';
+            }
+        }
+
+        function applyFont(font) {
+            const styleTag = document.querySelector("#font-style") || document.createElement("style");
+            styleTag.id = "font-style";
+        
+            let fontFamily;
+            switch (font) {
+                case 'fredoka': 
+                    fontFamily = "'Fredoka One', cursive";
+                    break;
+                case 'dmserif':
+                    fontFamily = "'DM Serif Display', serif";
+                    break;
+                case 'notoserif':
+                    fontFamily = "'Noto Serif SC', serif";
+                    break;
+                case 'comicneue':
+                    fontFamily = "'Comic Neue', cursive";
+                    break;
+                case 'notosans':
+                    fontFamily = "'Noto Sans', sans-serif";
+                    break;
+                case 'cinzeldecorative':
+                    fontFamily = "'Cinzel Decorative', cursive";
+                    break;
+                default:
+                    fontFamily = "-apple-system, BlinkMacSystemFont, sans-serif";
+            }
+
+            styleTag.textContent = `
+                body,
+                #control-panel-modal,
+                #usage-guide-modal,
+                #theme-settings-modal,
+                #control-panel-modal *,
+                #usage-guide-modal *,
+                #theme-settings-modal * {
+                    font-family: ${fontFamily} !important;
+                }
+            `;
+        
+            const oldStyle = document.getElementById('font-style');
+            if (oldStyle) oldStyle.remove();
+            document.head.appendChild(styleTag);
+        }
+
+        function switchBackground() {
+            if (availableImages.length > 0) {
+                bgIndex = (bgIndex + 1) % availableImages.length;
+                applyCSS(availableImages[bgIndex]);
+            }
+        }
+    });
 });
 </script>
 

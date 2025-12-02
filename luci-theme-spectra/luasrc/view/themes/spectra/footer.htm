@@ -11,6 +11,10 @@
     Licensed to the public under the Apache License 2.0
 -%>
 
+<%
+local api = require "luci.passwall.api"
+-%>
+
 <% local ver = require("luci.version") %>
 </div>
 <footer class="mobile-hide" style="display: none;">
@@ -110,6 +114,30 @@ const countryMap = {
     '津巴布韦': '🇿🇼'
 };
 
+function updateCardLayout() {
+    const cardsContainer = document.querySelector('.cards-container');
+    if (!cardsContainer) return;
+    
+    const width = window.innerWidth;
+    let columns;
+    
+    if (width >= 2300) {
+        columns = 5;
+    } else if (width >= 1800) {
+        columns = 4;
+    } else if (width >= 1400) {
+        columns = 3;
+    } else if (width >= 992) {
+        columns = 2;
+    } else if (width >= 768) {
+        columns = 2;
+    } else {
+        columns = 1;
+    }
+    
+    cardsContainer.style.gridTemplateColumns = `repeat(${columns}, 1fr)`;
+}
+
 function addFlagIfMissing(titleText) {
     if (/[\u{1F1E6}-\u{1F1FF}]{2}/u.test(titleText)) {
         return titleText;
@@ -191,10 +219,14 @@ function convertTablesToCards() {
 
     const cardsContainer = document.createElement('div');
     cardsContainer.className = 'cards-container';
+    
+    const group = table.id.replace('cbi-passwall-nodes-', '').replace('-table', '');
+    cardsContainer.setAttribute('data-group', group);
 
     rows.forEach(row => {
         const card = document.createElement('div');
         card.className = 'node-card';
+        card.setAttribute('data-id', row.id.replace('cbi-passwall-', ''));
         if (row.classList.contains('_now_use_bg')) card.classList.add('_now_use_bg');
 
         const tds = row.querySelectorAll('td');
@@ -213,7 +245,10 @@ function convertTablesToCards() {
 
         const titleWithFlag = addFlagIfMissing(actualTitle);
 
-        const badgeHtml = protocol ? getProtocolBadge(protocol) : '';
+        let badgeHtml = protocol ? getProtocolBadge(protocol) : '';
+        if (nodeType && badgeHtml) {
+            badgeHtml = badgeHtml.replace('<span class="card-badge"', `<span class="card-badge" title="${nodeType}"`);
+        }
 
         card.innerHTML = `
             <div class="card-header ${remarksClass}">
@@ -228,13 +263,108 @@ function convertTablesToCards() {
             <div class="card-actions">${actions}</div>
         `;
 
-        if (nodeType) card.title = `${nodeType}`;
+        //if (nodeType) card.title = `${nodeType}`;
 
         cardsContainer.appendChild(card);
     });
 
     table.parentNode.insertBefore(cardsContainer, table);
     activeContainer.setAttribute('data-cards-converted', 'true');
+    
+    updateCardLayout();
+    
+    initCardSortable(cardsContainer, group);
+    rebindURLEvents(cardsContainer);
+}
+
+window.addEventListener('resize', updateCardLayout);
+
+function initCardSortable(container, group) {
+    if (typeof Sortable === 'undefined') return;
+    
+    const isSmallScreen = window.innerWidth < 768;
+    
+    if (isSmallScreen) {
+        const dragHandles = container.querySelectorAll('.drag-handle');
+        dragHandles.forEach(handle => {
+            handle.style.display = 'none';
+        });
+        return;
+    }
+    
+    try {
+        Sortable.create(container, {
+            handle: ".node-card, .drag-handle",
+            animation: 150,
+            ghostClass: "sortable-ghost",
+            chosenClass: "sortable-chosen",
+            dragClass: "dragging-row",
+            onEnd: function(evt) {
+                saveCardOrder(group);
+            }
+        });
+    } catch (err) {
+        console.error('Sortable init failed for cards:', err);
+    }
+}
+
+function saveCardOrder(group) {
+    const container = document.querySelector(`.cards-container[data-group="${group}"]`);
+    if (!container) return;
+    
+    const cards = container.querySelectorAll('.node-card');
+    if (!cards.length) return;
+    
+    const btn = document.getElementById("save_order_btn_" + group);
+    if (btn) btn.disabled = true;
+    
+    const ids = [];
+    cards.forEach(card => {
+        const id = card.getAttribute('data-id');
+        if (id) ids.push(id);
+    });
+    
+    XHR.get('<%=api.url("save_node_order")%>', {
+        group: group,
+        ids: ids.join(",")
+    },
+    function(x, result) {
+        if (btn) btn.disabled = false;
+        if (x && x.status === 200) {
+            const successMsg = "<%:Saved current page order successfully.%>";
+            if (typeof showLogMessage === 'function') {
+                showLogMessage(successMsg);
+            }
+            if (typeof colorVoiceEnabled !== 'undefined' && colorVoiceEnabled) {
+                speakMessage(successMsg);
+            }
+        } else {
+            const errorMsg = "<%:Save failed!%>";
+            if (typeof showLogMessage === 'function') {
+                showLogMessage(errorMsg);
+            }
+            if (typeof colorVoiceEnabled !== 'undefined' && colorVoiceEnabled) {
+                speakMessage(errorMsg);
+            }
+        }
+    });
+}
+
+function rebindURLEvents(container) {
+    container.querySelectorAll('.metric-item:nth-child(3) a').forEach(link => {
+        const originalOnClick = link.getAttribute('onclick');
+        if (originalOnClick && originalOnClick.includes('urltest_node')) {
+            link.removeAttribute('onclick');
+            link.addEventListener('click', function(e) {
+                e.preventDefault();
+                const match = originalOnClick.match(/urltest_node\('([^']+)', this\)/);
+                if (match) {
+                    const cbiId = match[1];
+                    urltest_node(cbiId, this);
+                }
+            });
+        }
+    });
 }
 
 function initAllTabs() {

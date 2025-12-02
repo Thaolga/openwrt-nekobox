@@ -4662,14 +4662,24 @@ document.addEventListener("DOMContentLoaded", () => {
         const userLang = (data.success && data.language) ? data.language : currentLang;
         updateLanguage(userLang); 
         updateFlagIcon(userLang);  
-        document.getElementById("langSelect").value = userLang; 
+        
+        const langSelect = document.getElementById("langSelect");
+        if (langSelect) {
+            langSelect.value = userLang;
+        }
+        
         localStorage.setItem('language', userLang);
         startLanguageMonitoring();
     })
     .catch(error => {
         updateLanguage(currentLang); 
         updateFlagIcon(currentLang);  
-        document.getElementById("langSelect").value = currentLang; 
+        
+        const langSelect = document.getElementById("langSelect");
+        if (langSelect) {
+            langSelect.value = currentLang;
+        }
+        
         localStorage.setItem('language', currentLang);
         startLanguageMonitoring();
     });
@@ -4737,7 +4747,7 @@ function updateLanguage(lang) {
             }
         })
         .catch(error => {
-            console.error("Error retrieving mode: " + error);
+            //console.error("Error retrieving mode: " + error);
         });
 }
 
@@ -4914,6 +4924,59 @@ function changeLanguage(lang) {
 }
 </script>
 
+<style>
+@font-face {
+    font-family: 'NotoColorEmojiFlags';
+    src: url('/luci-static/spectra/fonts/NotoColorEmoji-flagsonly-CWWDk9km.ttf') format('truetype');
+}
+
+@font-face {
+    font-display: swap;
+    font-family: 'Fredoka One';
+    font-style: normal;
+    font-weight: 400;
+    src: url('/luci-static/spectra/fonts/fredoka-v16-latin-regular.woff2') format('woff2');
+}
+
+@font-face {
+    font-display: swap;
+    font-family: 'DM Serif Display';
+    font-style: normal;
+    font-weight: 400;
+    src: url('/luci-static/spectra/fonts/dm-serif-display-v15-latin-regular.woff2') format('woff2');
+}
+
+@font-face {
+    font-display: swap;
+    font-family: 'Noto Serif SC';
+    font-style: normal;
+    font-weight: 400;
+    src: url('/luci-static/spectra/fonts/noto-serif-sc-v31-latin-regular.woff2') format('woff2');
+}
+
+@font-face {
+    font-display: swap;
+    font-family: 'Comic Neue';
+    font-style: normal;
+    font-weight: 400;
+    src: url('/luci-static/spectra/fonts/comic-neue-v8-latin-regular.woff2') format('woff2');
+}
+
+@font-face {
+    font-display: swap;
+    font-family: 'Noto Sans';
+    font-style: normal;
+    font-weight: 400;
+    src: url('/luci-static/spectra/fonts/noto-sans-v39-regular.woff2') format('woff2');
+}
+
+@font-face {
+    font-family: 'Cinzel Decorative';
+    font-style: normal;
+    font-weight: 700;
+    src: url('/luci-static/spectra/fonts/cinzel-decorative-v17-latin-700.woff2') format('woff2');
+}
+</style>
     <link href="/luci-static/spectra/css/bootstrap-icons.css" rel="stylesheet">
     <link href="/luci-static/spectra/css/all.min.css" rel="stylesheet">
     <link href="/luci-static/spectra/css/bootstrap.min.css" rel="stylesheet">
@@ -5027,6 +5090,323 @@ document.addEventListener('DOMContentLoaded', function () {
     });
   });
 });
+
+function applyFontFamily() {
+    const savedFont = localStorage.getItem('selectedFont') || 'default';
+    
+    const fontMap = {
+        'default': "-apple-system, BlinkMacSystemFont, sans-serif",
+        'fredoka': "'Fredoka One', cursive",
+        'dmserif': "'DM Serif Display', serif",
+        'notoserif': "'Noto Serif SC', serif",
+        'comicneue': "'Comic Neue', cursive",
+        'notosans': "'Noto Sans', sans-serif",
+        'cinzeldecorative': "'Cinzel Decorative', cursive"
+    };
+    
+    const fontFamily = fontMap[savedFont] || fontMap.default;
+    document.documentElement.style.setProperty('--font-family', fontFamily);
+}
+
+document.addEventListener('DOMContentLoaded', applyFontFamily);
+
+window.addEventListener('storage', function(e) {
+    if (e.key === 'selectedFont') applyFontFamily();
+});
 </script>
 
+<script>
+window.currentHue = 260;
+window.currentChroma = 0.25;
+window.currentLightness = 30;
+window.recentColors = [];
+
+window.debounce = function(func, wait, immediate) {
+let timeout;
+return function executedFunction(...args) {
+    const later = () => {
+        timeout = null;
+        if (!immediate) func(...args);
+    };
+    const callNow = immediate && !timeout;
+    clearTimeout(timeout);
+    timeout = setTimeout(later, wait);
+    if (callNow) func(...args);
+};
+};
+
+window.hexToRgb = function(hex) {
+const fullHex = hex.replace(/^#?([a-f\d])([a-f\d])([a-f\d])$/i, 
+(_, r, g, b) => `#${r}${r}${g}${g}${b}${b}`);
+const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(fullHex);
+return result ? {
+    r: parseInt(result[1], 16),
+    g: parseInt(result[2], 16),
+    b: parseInt(result[3], 16)
+} : { r: 0, g: 0, b: 0 };
+};
+
+window.rgbToLinear = function(c) {
+const normalized = c / 255;
+return normalized <= 0.04045 
+    ? normalized / 12.92 
+    : Math.pow((normalized + 0.055) / 1.055, 2.4);
+};
+
+window.rgbToOklch = function(r, g, b) {
+const [lr, lg, lb] = [r, g, b].map(rgbToLinear);
+const l = 0.4122214708 * lr + 0.5363325363 * lg + 0.0514459929 * lb;
+const m = 0.2119034982 * lr + 0.6806995451 * lg + 0.1073969566 * lb;
+const s = 0.0883024619 * lr + 0.2817188376 * lg + 0.6299787005 * lb;
+const l_ = Math.cbrt(l);
+const m_ = Math.cbrt(m);
+const s_ = Math.cbrt(s);
+const L = 0.2104542553 * l_ + 0.7936177850 * m_ - 0.0040720468 * s_;
+const a = 1.9779984951 * l_ - 2.4285922050 * m_ + 0.4505937099 * s_;
+const b_ = 0.0259040371 * l_ + 0.7827717662 * m_ - 0.8086757660 * s_;
+const c = Math.sqrt(a ** 2 + b_ ** 2);
+let h = Math.atan2(b_, a) * 180 / Math.PI;
+h = h >= 0 ? h : h + 360;
+return { l: L * 100, c: c, h: h };
+};
+
+window.hexToOklch = function(hex) {
+const { r, g, b } = hexToRgb(hex);
+return rgbToOklch(r, g, b);
+};
+
+window.oklchToHex = function(h, c, l = 50) {
+const L = l / 100;
+const a = c * Math.cos(h * Math.PI / 180);
+const b = c * Math.sin(h * Math.PI / 180);
+const l_ = L + 0.3963377774 * a + 0.2158037573 * b;
+const m_ = L - 0.1055613458 * a - 0.0638541728 * b;
+const s_ = L - 0.0894841775 * a - 1.2914855480 * b;
+const [lr, lg, lb] = [l_, m_, s_].map(v => v ** 3);
+const r = 4.0767416621 * lr - 3.3077115913 * lg + 0.2309699292 * lb;
+const g = -1.2684380046 * lr + 2.6097574011 * lg - 0.3413193965 * lb;
+const bLinear = -0.0041960863 * lr - 0.7034186147 * lg + 1.7076147010 * lb;
+const toSRGB = (v) => {
+    v = Math.min(Math.max(v, 0), 1);
+    return v > 0.0031308 
+        ? 1.055 * (v ** (1/2.4)) - 0.055 
+        : 12.92 * v;
+};
+const [R, G, B] = [r, g, bLinear].map(v => Math.round(toSRGB(v) * 255));
+return `#${[R, G, B].map(x => x.toString(16).padStart(2, '0')).join('')}`.toUpperCase();
+};
+
+window.calculateContrastRatio = function(hexColor) {
+const rgb = window.hexToRgb(hexColor);
+
+const getLuminance = (c) => {
+    c = c / 255;
+    return c <= 0.03928 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4);
+};
+
+const r = getLuminance(rgb.r);
+const g = getLuminance(rgb.g);
+const b = getLuminance(rgb.b);
+const luminance = 0.2126 * r + 0.7152 * g + 0.0722 * b;
+const contrastWithBlack = (luminance + 0.05) / 0.05;
+const contrastWithWhite = 1.05 / (luminance + 0.05);
+return Math.max(contrastWithBlack, contrastWithWhite);
+};
+
+window.updateAllCSSVariables = function() {
+const root = document.documentElement;
+
+root.style.setProperty('--base-hue', currentHue);
+root.style.setProperty('--base-chroma', currentChroma);
+root.style.setProperty('--base-hue-1', currentHue + 20);
+root.style.setProperty('--base-hue-2', currentHue + 200);
+root.style.setProperty('--base-hue-3', currentHue + 135);
+root.style.setProperty('--base-hue-4', currentHue + 80);
+root.style.setProperty('--base-hue-5', currentHue + 270);
+root.style.setProperty('--base-hue-6', currentHue + 170);
+root.style.setProperty('--base-hue-7', currentHue + 340);
+
+const isLight = currentLightness > 60;
+const theme = isLight ? 'light' : 'dark';
+root.setAttribute('data-theme', theme);
+//console.log('Updated theme to:', theme);
+};
+
+window.applyColorSettings = function(showMessage = false) {
+const settings = {
+    hue: currentHue,
+    chroma: currentChroma,
+    lightness: currentLightness,
+    recentColors: recentColors || []
+};
+localStorage.setItem('appColorSettings', JSON.stringify(settings));
+
+updateAllCSSVariables();
+updateTextPrimary(currentLightness);
+updateThemeIcon(currentLightness);
+
+const colorPicker = document.getElementById('colorPicker');
+if (colorPicker) {
+    const hexColor = oklchToHex(currentHue, currentChroma, currentLightness);
+    colorPicker.value = hexColor;
+}
+
+if (showMessage) {
+    const hexColor = oklchToHex(currentHue, currentChroma, currentLightness);
+    const translations = languageTranslations[currentLang] || languageTranslations['zh'];
+    const successMsg = translations['backgroundColorApplied'].replace('%s', hexColor);
+
+    //console.log(successMsg);
+
+    if (typeof showLogMessage === 'function') {
+        showLogMessage(successMsg);
+    }
+    if (colorVoiceEnabled) {
+        speakMessage(successMsg);
+    }
+}
+};
+
+window.updateTextPrimary = function(currentL) {
+const textL = currentL > 60 ? 20 : 95;
+document.documentElement.style.setProperty('--text-primary', `oklch(${textL}% 0 0)`);
+};
+
+window.addToRecentColors = function(color) {
+recentColors = recentColors.filter(c => c !== color);
+recentColors.unshift(color);
+
+if (recentColors.length > 10) {
+    recentColors.pop();
+}
+
+localStorage.setItem('appColorSettings', JSON.stringify({
+    recentColors,
+    hue: currentHue,
+    chroma: currentChroma,
+    lightness: currentLightness
+}));
+};
+
+window.initColorSettings = function() {
+const savedSettings = localStorage.getItem('appColorSettings');
+if (savedSettings) {
+    const settings = JSON.parse(savedSettings);
+    recentColors = settings.recentColors || [];
+    currentHue = settings.hue || 347.01;
+    currentChroma = settings.chroma || 0.061;
+    currentLightness = settings.lightness || 99;
+    const colorPicker = document.getElementById('colorPicker');
+    if (colorPicker) {
+        colorPicker.value = oklchToHex(currentHue, currentChroma, currentLightness);
+    }
+    applyColorSettings(false);
+} else {
+    currentHue = 347.01;
+    currentChroma = 0.061;
+    currentLightness = 99;
+    const colorPicker = document.getElementById('colorPicker');
+    if (colorPicker) {
+        colorPicker.value = oklchToHex(currentHue, currentChroma, currentLightness);
+    }
+    applyColorSettings(false);
+}
+if (typeof updateUIText === 'function') {
+    updateUIText();
+}
+};
+
+window.updateThemeIcon = function(lightness) {
+const colorPickerBtn = document.getElementById('colorPickerBtn');
+if (!colorPickerBtn) return;
+
+const isLight = lightness > 60;
+const icon = colorPickerBtn.querySelector('i');
+
+if (isLight) {
+    icon.className = 'fas fa-sun';
+} else {
+    icon.className = 'bi bi-moon-stars-fill';
+}
+};
+
+window.handleColorChange = window.debounce((color) => {
+//console.log('Color picker selected:', color);
+
+const { h, c, l } = window.hexToOklch(color);
+window.currentHue = h;
+window.currentChroma = c;
+window.currentLightness = l;
+
+window.applyColorSettings(true);
+window.addToRecentColors(color);
+}, 150);
+
+const picker = document.getElementById("colorPicker");
+if (picker) {
+picker.addEventListener('input', (event) => {
+    const color = event.target.value;
+    window.handleColorChange(color);
+});
+}
+
+window.initColorSettings();
+
+function setGlassEffect(element, intensity = 'medium') {
+const intensities = {
+    light: { opacity: 0.7, blur: '12px' },
+    medium: { opacity: 0.85, blur: '20px' },
+    heavy: { opacity: 0.9, blur: '30px' }
+};
+
+const config = intensities[intensity] || intensities.medium;
+
+element.style.setProperty('--glass-opacity', config.opacity);
+element.style.setProperty('--glass-blur', `blur(${config.blur})`);
+}
+
+function applyGlassToElement(selector, intensity = 'medium') {
+const elements = document.querySelectorAll(selector);
+elements.forEach(element => {
+    element.classList.add('glass-effect');
+    setGlassEffect(element, intensity);
+});
+}
+
+function initGlassEffects() {
+applyGlassToElement('.card', 'medium');
+applyGlassToElement('header', 'light');
+applyGlassToElement('.sidebar', 'heavy');
+applyGlassToElement('button, .btn', 'light');
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+initGlassEffects();
+});
+
+function checkColorChange() {
+const saved = localStorage.getItem('appColorSettings');
+
+if (saved) {
+    const settings = JSON.parse(saved);
+
+    const rootStyles = getComputedStyle(document.documentElement);
+    const currentHueValue = parseFloat(rootStyles.getPropertyValue('--base-hue').trim()) || 0;
+    const currentChromaValue = parseFloat(rootStyles.getPropertyValue('--base-chroma').trim()) || 0;
+
+    if (Math.abs(settings.hue - currentHueValue) > 1 || Math.abs(settings.chroma - currentChromaValue) > 0.01) {
+        document.documentElement.style.setProperty('--base-hue', settings.hue);
+        document.documentElement.style.setProperty('--base-chroma', settings.chroma);
+
+        const textL = settings.lightness > 60 ? 20 : 95;
+        document.documentElement.style.setProperty('--text-primary', `oklch(${textL}% 0 0)`);
+
+        const theme = settings.lightness > 60 ? 'light' : 'dark';
+        document.documentElement.setAttribute('data-theme', theme);
+    }
+}
+}
+
+setInterval(checkColorChange, 1000);
+</script>
 

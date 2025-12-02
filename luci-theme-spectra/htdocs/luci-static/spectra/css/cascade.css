@@ -4859,7 +4859,6 @@ pre.command-output {
     right: 0
 }
 
-
 @media screen and (max-width: 600px) {
     .cbi-section-table-row .cbi-value-field[data-name="remarks"] div {
         display: block !important;
@@ -4877,47 +4876,6 @@ pre.command-output {
         display: flex !important;
         justify-content: center !important;
         align-items: center !important;
-    }
-}
-
-@media (max-width: 768px) {
-
-    tr[id^="cbi-passwall-"],
-    tr[id^="cbi-passwall2-"] {
-        display: block;
-        padding-left: 1.5em;
-        font-size: 13px;
-        line-height: 1.4;
-
-    }
-
-    tr[id^="cbi-passwall-"] td,
-    tr[id^="cbi-passwall2-"] td {
-        display: block;
-        width: 100% !important;
-        border: none !important;
-        padding: 2px 0;
-    }
-
-    div[id^="cbi-passwall-"][id$="-remarks"],
-    div[id^="cbi-passwall2-"][id$="-remarks"] {
-        font-weight: bold;
-    }
-
-    div[id^="cbi-passwall-"][id$="-ping"],
-    div[id^="cbi-passwall-"][id$="-tcping"],
-    div[id^="cbi-passwall-"][id$="-_url_test"],
-    div[id^="cbi-passwall2-"][id$="-ping"],
-    div[id^="cbi-passwall2-"][id$="-tcping"],
-    div[id^="cbi-passwall2-"][id$="-_url_test"] {
-        display: inline-block;
-        margin-right: 1em;
-        white-space: nowrap;
-    }
-
-    tr[id^="cbi-passwall-"] .cbi-section-actions input,
-    tr[id^="cbi-passwall2-"] .cbi-section-actions input {
-        font-size: 10px;
     }
 }
 
@@ -5486,6 +5444,14 @@ html[data-theme="dark"] .myip-section-title {
     color: #ffffff !important;
 }
 
+#config-upload-cancel,
+#config-upload-submit,
+#overwrite-edit-cancel,
+#overwrite-upload-cancel,
+#overwrite-upload-submit {
+    color: white !important;
+}
+
 .oc .main-cards-container {
     background: var(--bg-container) !important;
 }
@@ -5512,18 +5478,48 @@ html[data-theme="dark"] .myip-section-title {
 #go_wiki,
 #go_tutorials,
 #go_star,
+#theme-toggle,
 #go_telegram,
 #go_sponsor,
 #logo_btn {
     background-color: var(--bg-container) !important;
 }
 
-[data-theme="dark"] .main-cards-container {
+[data-theme="dark"]  .main-cards-container,
+[data-theme="dark"]  .config-select option,
+[data-theme="dark"]  .oc .config-select,
+[data-theme="dark"]  .oc .stat-label,
+[data-theme="dark"]  .oc .subscription-info-text,
+[data-theme="dark"]  .oc .file-info-item,
+[data-theme="dark"]  .oc .config-file-name,
+[data-theme="dark"]  .oc .icon-btn,
+[data-theme="dark"]  .oc #logo_btn .logo-text, .oc #edit_overwrite .btn-text,
+[data-theme="dark"]  .oc .version-display,
+[data-theme="dark"]  .version-text,
+[data-theme="dark"]  .main-cards-container .card-title {
     color: white !important;
 }
 
-[data-theme="dark"] .main-cards-container * {
-    color: inherit !important;
+.oc #logo_btn .logo-text, .oc #edit_overwrite .btn-text {
+    color: black !important;
+}
+
+[data-theme="dark"]  #edit_overwrite .btn-text {
+    color: white !important;
+}
+
+[data-theme="dark"] #overwrite-card-bar .sub-card.overwrite-item .overwrite-title,
+[data-theme="dark"] #overwrite-card-bar .sub-card.overwrite-item .overwrite-info,
+[data-theme="dark"] #overwrite-card-bar .sub-card.overwrite-item .icon-btn {
+    color: white !important;
+}
+
+#overwrite-subscribe-filename {
+    color: black !important;
+}
+
+.oc .config-editor-title .config-file-name {
+    color: #000 !important;
 }
 
 [data-theme="dark"] .myip-footer p {
@@ -5712,22 +5708,17 @@ body::-webkit-scrollbar,
     margin: 0rem !important;
     padding: 0.35rem 0.6rem !important;
     border-radius: 12px !important;
-    border: var(--glow-border);
+    border: var(--border-strong);
+    box-shadow: 0 1px 3px -2px color-mix(in oklch, var(--bg-container), black 30%) !important;
     transition: transform 0.3s ease, box-shadow 0.3s ease !important;
     display: flex !important;
     align-items: center !important;
     justify-content: space-between !important;
 }
 
-[data-theme="dark"] .block {
-    box-shadow: var(--border-glow) !important;
-    animation: var(--breathing-animation)
-}
-
 .block:hover {
     transform: translateY(-2px) !important;
     background-color: var(--bg-body) !important;
-    box-shadow: 0 1px 3px -2px color-mix(in oklch, var(--bg-container), black 30%);
 }
 
 .pure-u-1-4 {
@@ -5747,14 +5738,10 @@ body::-webkit-scrollbar,
 .pure-u-2-3 h4 {
     width: 100% !important; 
     border-radius: 8px !important;
-    border: var(--glow-border);
+    border: var(--border-strong);
     box-shadow: 0 2px 6px -2px color-mix(in oklch, var(-bg-container), black 30%) !important;
     padding: 7px 12px !important;
     background: var(--card-bg) !important;
-}
-
-[data-theme="dark"] .pure-u-2-3 h4:hover {
-    animation: var(--breath-animation);
 }
 
 .block>.pure-u-1-3 {
@@ -5818,10 +5805,13 @@ div.pure-u-1-4.check:has(#status_baidu) .img-con img { content: url('/luci-stati
 
     .block > .pure-u-2-3 h4 {
         font-size: 0.7rem !important;
-        line-height: 1.4 !important;
         padding-right: 8px !important;
     }
 
+    #_passwall_status_fieldset .block > .pure-u-2-3 h4 {
+        line-height: 1.4 !important;
+    }
+    
     .block > .pure-u-2-3 h4 span {
         font-size: 0.7rem !important;
         line-height: 1.3 !important;
