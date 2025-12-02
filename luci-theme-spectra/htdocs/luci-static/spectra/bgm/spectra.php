@@ -4925,6 +4925,98 @@ function changeLanguage(lang) {
 </script>
 
 <style>
+[data-theme="dark"] {
+    --base-hue: 260;
+    --base-chroma: 0.03;
+    --danger-base: 15;
+    --base-hue-1: 20;
+    --base-hue-2: 200;
+    --base-hue-3: 135;
+    --base-hue-4: 80;
+    --base-hue-5: 270;
+    --base-hue-6: 170;
+    --base-hue-7: 340;
+    --l: 85%;
+    --c: 0.25;
+    --radius: 16px;
+    --border-light: 1px solid oklch(60% 0.05 var(--base-hue) / 0.3);
+    --border-strong: 1px solid oklch(70% 0.1 var(--base-hue) / 0.6);
+    --bg-body: oklch(40% var(--base-chroma) var(--base-hue) / 90%);
+    --bg-container: oklch(30% var(--base-chroma) var(--base-hue));
+    --text-primary: oklch(95% 0 0);
+    --accent-color: oklch(70% 0.2 calc(var(--base-hue) + 0));
+    --card-bg: oklch(25% var(--base-chroma) var(--base-hue));
+    --header-bg: oklch(35% var(--base-chroma) var(--base-hue));
+    --border-color: oklch(40% var(--base-chroma) var(--base-hue));
+    --btn-primary-bg: oklch(50% 0.15 var(--base-hue));
+    --btn-success-bg: oklch(50% 0.2 240);
+    --nav-btn-color: oklch(95% 0 0 / 80%);
+    --hover-tips-color: oklch(95% 0 0 / 80%);
+    --playlist-text: oklch(95% 0 0);
+    --text-secondary: oklch(75% 0 0);
+    --item-border: 3px solid oklch(40% var(--base-chroma) var(--base-hue));
+    --item-hover-bg: color-mix(in oklch, var(--btn-primary-bg), white 10%);
+    --item-hover-shadow: 0 2px 8px oklch(var(--base-hue) 0.2 0.2 / 0.3);
+    --drag-over-bg: oklch(30% var(--base-chroma) var(--base-hue) / 0.2);
+    --drag-over-shadow: 0 0 20px oklch(var(--base-hue) 0.15 0 / 0.25);
+    --file-list-bg: oklch(25% var(--base-chroma) var(--base-hue) / 0.3);
+    --file-list-border: oklch(35% var(--base-chroma) var(--base-hue) / 0.4);
+    --danger-color: oklch(65% 0.25 var(--danger-base));
+    --danger-hover: oklch(75% 0.3 var(--danger-base));
+    --btn-info-bg: oklch(50% 0.2 220);
+    --btn-info-hover: color-mix(in oklch, var(--btn-info-bg), white 10%);
+    --btn-warning-bg: oklch(70% 0.18 80);
+    --btn-warning-hover: color-mix(in oklch, var(--btn-warning-bg), white 10%);
+    --sunset-bg: oklch(40% var(--base-chroma) var(--base-hue) / 90%);
+    --color-accent: oklch(55% 0.3 240);
+    --ocean-bg: oklch(45% 0.3 calc(var(--base-hue) + 220));
+    --forest-bg: oklch(40% 0.3 calc(var(--base-hue) + 140));
+    --rose-bg: oklch(45% 0.3 calc(var(--base-hue) + 350));
+    --lavender-bg: oklch(43% 0.3 calc(var(--base-hue) + 270));
+    --sand-bg: oklch(42% 0.3 calc(var(--base-hue) + 60));
+}
+
+[data-theme="light"] {
+    --base-hue: 200;
+    --base-chroma: 0.01;
+    --l: 60%;
+    --c: 0.25;
+    --radius: 16px;
+    --border-light: 1px solid oklch(90% 0.02 var(--base-hue) / 0.4);
+    --border-strong: 1px solid oklch(75% 0.05 var(--base-hue) / 0.8);
+    --bg-body: oklch(95% var(--base-chroma) var(--base-hue) / 90%);
+    --bg-container: oklch(99% var(--base-chroma) var(--base-hue));
+    --text-primary: oklch(25% var(--base-chroma) var(--base-hue));
+    --accent-color: oklch(60% 0.2 calc(var(--base-hue) + 60));
+    --card-bg: oklch(96% var(--base-chroma) var(--base-hue));
+    --header-bg: oklch(88% var(--base-chroma) var(--base-hue));
+    --border-color: oklch(85% var(--base-chroma) var(--base-hue));
+    --btn-primary-bg: oklch(55% 0.3 var(--base-hue));
+    --btn-success-bg: oklch(70% 0.2 240);
+    --nav-btn-color: oklch(70% 0.2 calc(var(--base-hue) + 60));
+    --playlist-text: oklch(25% 0 0);
+    --text-secondary: oklch(40% 0 0);
+    --item-border: 3px solid oklch(85% var(--base-chroma) var(--base-hue));
+    --item-hover-bg: color-mix(in oklch, var(--accent-color), white 20%);
+    --item-hover-shadow: 0 2px 12px oklch(var(--base-hue) 0.15 0.5 / 0.2);
+    --drag-over-bg: oklch(90% var(--base-chroma) var(--base-hue) / 0.3);
+    --drag-over-shadow: 0 0 25px oklch(var(--base-hue) 0.1 0 / 0.15);
+    --file-list-bg: oklch(95% var(--base-chroma) var(--base-hue) / 0.4);
+    --file-list-border: oklch(85% var(--base-chroma) var(--base-hue) / 0.6);
+    --danger-color: oklch(50% 0.3 var(--danger-base));
+    --danger-hover: oklch(40% 0.35 var(--danger-base));
+    --btn-info-bg: oklch(55% 0.3 220);
+    --btn-info-hover: color-mix(in oklch, var(--btn-info-bg), black 10%);
+    --btn-warning-bg: oklch(55% 0.22 80);
+    --btn-warning-hover: color-mix(in oklch, var(--btn-warning-bg), black 15%);
+    --sunset-bg: oklch(50% var(--base-chroma) var(--base-hue) / 90%);
+    --color-accent: oklch(55% 0.3 220);
+    --forest-bg: oklch(50% 0.3 calc(var(--base-hue) + 140));
+    --rose-bg: oklch(50% 0.3 calc(var(--base-hue) + 350));
+    --lavender-bg: oklch(50% 0.3 calc(var(--base-hue) + 270));
+    --sand-bg: oklch(50% 0.3 calc(var(--base-hue) + 60));
+}
+
 @font-face {
     font-family: 'NotoColorEmojiFlags';
     src: url('/luci-static/spectra/fonts/NotoColorEmoji-flagsonly-CWWDk9km.ttf') format('truetype');
