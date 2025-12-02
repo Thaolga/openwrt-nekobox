@@ -5328,6 +5328,13 @@ function loadLyrics(songUrl) {
 }
 
 function loadGitHubLyricsSilently(lyricsUrl, songUrl) {
+    const isCurrentSong = songs[currentTrackIndex] === songUrl;
+    const shouldLoadLyrics = isCurrentSong && (isPlaying || audioPlayer.src === songUrl);
+    
+    if (!shouldLoadLyrics) {
+        return;
+    }
+    
     const xhr = new XMLHttpRequest();
     xhr.open('GET', lyricsUrl, true);
     xhr.timeout = 5000;
@@ -5340,26 +5347,36 @@ function loadGitHubLyricsSilently(lyricsUrl, songUrl) {
                     displayLyrics();
                     document.dispatchEvent(new Event('lyricsLoaded'));
                 } catch (error) {
-                    fetchLyricsFromAPI(songUrl);
+                    if (isCurrentSong && isPlaying) {
+                        fetchLyricsFromAPI(songUrl);
+                    }
                 }
             } else {
-                fetchLyricsFromAPI(songUrl);
+                if (isCurrentSong && isPlaying) {
+                    fetchLyricsFromAPI(songUrl);
+                }
             }
         }
     };
     
     xhr.ontimeout = function() {
-        fetchLyricsFromAPI(songUrl);
+        if (isCurrentSong && isPlaying) {
+            fetchLyricsFromAPI(songUrl);
+        }
     };
     
     xhr.onerror = function() {
-        fetchLyricsFromAPI(songUrl);
+        if (isCurrentSong && isPlaying) {
+            fetchLyricsFromAPI(songUrl);
+        }
     };
     
     try {
         xhr.send();
     } catch (e) {
-        fetchLyricsFromAPI(songUrl);
+        if (isCurrentSong && isPlaying) {
+            fetchLyricsFromAPI(songUrl);
+        }
     }
 }
 
