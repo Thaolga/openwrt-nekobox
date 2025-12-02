@@ -829,6 +829,7 @@ const languageTranslations = {
         'timeout': '연결 시간 초과',
         'selectBackgroundColor': '배경색 선택',
         'backgroundColorApplied': '배경색 %s 이(가) 성공적으로 적용되었습니다.',
+        'edit_ip_database': 'IP 데이터베이스 편집',
         'close': '닫기',
         'fullscreen': '전체 화면 (F11)',
         'json_error': 'JSON 형식 오류!',
