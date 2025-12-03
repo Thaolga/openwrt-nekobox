@@ -214,7 +214,7 @@ function convertTablesToCards() {
     const table = activeContainer.querySelector('.cbi-section-table');
     if (!table) return;
 
-    const rows = table.querySelectorAll('.cbi-section-table-row');
+    const rows = table.querySelectorAll('tr.cbi-section-table-row');
     if (!rows.length) return;
 
     const cardsContainer = document.createElement('div');
@@ -230,15 +230,17 @@ function convertTablesToCards() {
         if (row.classList.contains('_now_use_bg')) card.classList.add('_now_use_bg');
 
         const tds = row.querySelectorAll('td');
-        const originalTitle = tds[0]?.textContent || '';
-        const ping = tds[1]?.innerHTML || '';
-        const tcping = tds[2]?.innerHTML || '';
-        const urlTest = tds[3]?.innerHTML || '';
-        const actions = tds[4]?.innerHTML || '';
+        const originalTitle = tds[1]?.textContent || '';
+        const ping = tds[2]?.innerHTML || '';
+        const tcping = tds[3]?.innerHTML || '';
+        const urlTest = tds[4]?.innerHTML || '';
+        const actions = tds[5]?.innerHTML || '';
 
-        const remarksSpan = tds[0]?.querySelector('span, div, a');
+        const remarksElement = row.querySelector('#cbi-passwall-' + row.id.replace('cbi-passwall-', '') + '-remarks');
         let remarksClass = '';
-        if (remarksSpan && remarksSpan.classList.contains('_now_use')) remarksClass = '_now_use';
+        if (remarksElement && remarksElement.classList.contains('_now_use')) {
+            remarksClass = '_now_use';
+        }
 
         const { protocol, actualTitle } = extractProtocolFromTitle(originalTitle);
         const nodeType = getNodeTypeFromTitle(originalTitle);
@@ -263,11 +265,10 @@ function convertTablesToCards() {
             <div class="card-actions">${actions}</div>
         `;
 
-        //if (nodeType) card.title = `${nodeType}`;
-
         cardsContainer.appendChild(card);
     });
 
+    table.style.display = 'none';
     table.parentNode.insertBefore(cardsContainer, table);
     activeContainer.setAttribute('data-cards-converted', 'true');
     
