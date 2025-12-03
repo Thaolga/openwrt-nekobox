@@ -5011,6 +5011,7 @@ function changeLanguage(lang) {
     --btn-warning-hover: color-mix(in oklch, var(--btn-warning-bg), black 15%);
     --sunset-bg: oklch(50% var(--base-chroma) var(--base-hue) / 90%);
     --color-accent: oklch(55% 0.3 220);
+    --ocean-bg: oklch(50% 0.3 calc(var(--base-hue) + 220));
     --forest-bg: oklch(50% 0.3 calc(var(--base-hue) + 140));
     --rose-bg: oklch(50% 0.3 calc(var(--base-hue) + 350));
     --lavender-bg: oklch(50% 0.3 calc(var(--base-hue) + 270));
@@ -5502,3 +5503,250 @@ if (saved) {
 setInterval(checkColorChange, 1000);
 </script>
 
+<style>
+body {
+    margin: 0;
+    color: var(--text-primary);
+    background-attachment: fixed;
+}
+
+.log-box {
+    position: fixed;
+    left: 20px;
+    padding: 12px 16px;
+    background: var(--btn-success-bg);
+    color: white;
+    border-radius: 8px;
+    z-index: 9999;
+    max-width: 320px;
+    font-size: 15px;
+    word-wrap: break-word;
+    line-height: 1.5;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.15);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(2px);
+    transform: translateY(0);
+    opacity: 0;
+    animation: scrollUp 12s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+    display: inline-block;
+    margin-bottom: 10px;
+    transition: transform 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+@keyframes scrollUp {
+    0% {
+        top: 90%;
+        opacity: 0;
+    }
+    20% {
+        opacity: 1;
+    }
+    80% {
+        top: 50%;
+        opacity: 1;
+    }
+    100% {
+        top: 45%;
+        opacity: 0;
+    }
+}
+
+.log-box.exiting {
+    animation: fadeOut 0.3s forwards;
+}
+
+.log-content {
+    padding: 6px 20px 6px 8px;
+    color: white;
+}
+
+.close-btn {
+    position: absolute;
+    top: 6px;
+    right: 10px;
+    background: transparent;
+    border: none;
+    color: inherit;
+    cursor: pointer;
+    font-size: 20px;
+    line-height: 1;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s;
+}
+
+.log-box:hover .close-btn {
+    opacity: 0.7;
+    pointer-events: auto;
+}
+
+.log-box:hover .close-btn:hover {
+    opacity: 1;
+}
+
+@keyframes fadeOut {
+    to { 
+        opacity: 0;
+        transform: translateY(-20px) scale(0.95);
+    }
+}
+
+.log-icon {
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    margin-right: 3px;
+    vertical-align: middle;
+}
+
+.log-box.error { background: linear-gradient(145deg, #ff4444, #cc0000); }
+.log-box.warning { background: linear-gradient(145deg, #ffc107, #ffab00); }
+.log-box.info { background: linear-gradient(145deg, #2196F3, #1976D2); }
+
+@media (max-width: 768px) {
+    .log-box {
+        left: 10px;
+        right: 10px;
+        max-width: none;
+        font-size: 14px;
+    }
+}
+
+.list-group-item {
+    cursor: pointer;
+    color: var(--text-primary);
+    background: var(--bg-container);
+    border: 1px solid var(--border-color);
+    transition: background 0.3s ease;
+}
+
+.list-group-item:hover {
+    background: var(--item-hover-bg);
+    color: white !important;
+}
+
+.list-group-item:hover .text-muted,
+.list-group-item:hover .text-truncate {
+    color: white !important;
+}
+
+.list-group-item.active {
+    background: var(--accent-color);
+    color: white;
+    border: 1px solid var(--accent-color);
+}
+
+.list-group-item.active .badge,
+.list-group-item.active .text-truncate,
+.list-group-item.active small,
+.list-group-item.active i {
+    color: white !important;
+}
+
+.list-group-item .delete-item {
+    cursor: pointer;
+}
+
+.modal-xl {
+    max-width: 60% !important;  
+    width: 90% !important;
+}
+
+@media (max-width: 768px) {
+    .modal-xl {
+        max-width: 95% !important;
+        width: 95% !important;
+        margin: 1rem auto !important; 
+    }
+}
+
+@media (max-width: 576px) {
+    .modal-xl {
+        max-width: 100% !important;
+        width: 100% !important;
+        margin: 0.5rem auto !important;
+    }
+}
+</style>
+
+<script>
+window.showLogMessage = (function() {
+    const bgColors = [
+        'var(--ocean-bg)',
+        'var(--forest-bg)',
+        'var(--lavender-bg)',
+        'var(--sand-bg)'
+    ];
+    
+    let currentIndex = 0;
+    const activeLogs = new Set();
+    const BASE_OFFSET = 20;
+    const MARGIN = 10;
+
+    function createIcon(type) {
+        const icons = {
+            error: 'M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z',
+            warning: 'M1 21h22L12 2 1 21zm12-3h-2v-2h2v2zm0-4h-2v-4h2v4z',
+            info: 'M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z'
+        };
+    
+        const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path fill="#fff" d="${icons[type] || icons.info}"/></svg>`;
+    
+        return `data:image/svg+xml;base64,${btoa(svg)}`;
+    }
+
+    function updatePositions() {
+        let verticalPos = BASE_OFFSET;
+        activeLogs.forEach(log => {
+            log.style.transform = `translateY(${verticalPos}px)`;
+            verticalPos += log.offsetHeight + MARGIN;
+        });
+    }
+
+    return function(message, type = '') {
+        const logBox = document.createElement('div');
+        logBox.className = `log-box ${type}`;
+        
+        if (!type) {
+            logBox.style.background = bgColors[currentIndex];
+            currentIndex = (currentIndex + 1) % bgColors.length;
+        }
+
+        logBox.innerHTML = `
+            <div class="log-content">
+                <span class="log-icon" style="background-image:url('${createIcon(type)}')"></span>
+                ${decodeURIComponent(message)}
+                <button class="close-btn">&times;</button>
+            </div>
+        `;
+
+        logBox.querySelector('.close-btn').onclick = () => {
+            logBox.classList.add('exiting');
+            setTimeout(() => logBox.remove(), 300);
+        };
+
+        logBox.addEventListener('mouseenter', () => 
+            logBox.style.animationPlayState = 'paused');
+        logBox.addEventListener('mouseleave', () => 
+            logBox.style.animationPlayState = 'running');
+
+        document.body.appendChild(logBox);
+        activeLogs.add(logBox);
+        
+        requestAnimationFrame(() => {
+            logBox.classList.add('active');
+            updatePositions();
+        });
+
+        setTimeout(() => {
+            logBox.classList.add('exiting');
+            setTimeout(() => {
+                logBox.remove();
+                activeLogs.delete(logBox);
+                updatePositions();
+            }, 300);
+        }, 12000);
+    };
+})();
+</script>

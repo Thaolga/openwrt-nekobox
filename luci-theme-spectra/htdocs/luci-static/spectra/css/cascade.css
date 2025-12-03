@@ -5909,6 +5909,13 @@ div.pure-u-1-4.check:has(#status_baidu) .img-con img { content: url('/luci-stati
     color: #222;
 }
 
+#log_textarea pre {
+    background: var(--card-bg) !important;
+    border: var(--border-strong) !important;
+    color: var(--text-primary) !important;
+    border-radius: 6px;
+}
+
 #log_textarea {
     font-size: 13px;
     line-height: 1.4;
