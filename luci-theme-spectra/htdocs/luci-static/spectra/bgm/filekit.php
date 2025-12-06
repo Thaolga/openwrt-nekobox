@@ -753,8 +753,13 @@ table.table tbody tr:nth-child(even) td {
     color: var(--text-primary) !important;
 }
 
+.container-bg {
+    background: var(--bg-container);
+    border-radius: 12px !important;
+    box-shadow: 1px 0 3px -2px color-mix(in oklch, var(--bg-container), black 30%) !important;
+}
+
 body {
-    background: var(--bg-body);
     color: var(--text-primary);
     font-family: var(--font-family, -apple-system, BlinkMacSystemFont, sans-serif);
 }
@@ -1225,8 +1230,23 @@ label {
 }
 
 #pageTitle {
+    padding-top: 40px !important;
     color: var(--accent-color) !important;
 }
+
+*::-webkit-scrollbar {
+    display: none !important;
+    width: 0 !important;
+    height: 0 !important;
+}
+
+* {
+    scrollbar-width: none !important;
+}
+
+* {
+    -ms-overflow-style: none !important;
+} 
 
 .btn .fas {
     color: var(--text-primary) !important;
@@ -3034,24 +3054,4 @@ function uniqueConfirmDelete(event, name) {
     });
     return false;
 }
-
-document.addEventListener('DOMContentLoaded', function() {
-    const savedFont = localStorage.getItem('selectedFont');
-    
-    if (savedFont && savedFont !== 'default') {
-        const fontMap = {
-            'fredoka': 'Fredoka, sans-serif',
-            'dmserif': '"DM Serif Display", serif',
-            'notoserif': '"Noto Serif", serif',
-            'comicneue': '"Comic Neue", cursive',
-            'notosans': '"Noto Sans", sans-serif',
-            'cinzeldecorative': '"Cinzel Decorative", cursive'
-        };
-        
-        const fontFamily = fontMap[savedFont];
-        if (fontFamily) {
-            document.body.style.fontFamily = fontFamily;
-        }
-    }
-});
 </script>

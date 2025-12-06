@@ -262,6 +262,7 @@ const languageTranslations = {
         'guide_theme_settings': '5. 主题设置：支持自定义背景，模式切换需清除背景',
         'guide_mode_switching': '6. 模式切换：图片/视频模式，只适用于暗色模式',
         'guide_project_link': '7. 项目地址：',
+        'advancedColorControlSubtitle': 'HueMatrix 2.0 — 次世代色彩引擎',
         'command_install_label': '命令安装'
     },
     'hk': {
@@ -527,6 +528,7 @@ const languageTranslations = {
         'guide_theme_settings': '5. 主題設定：支援自訂背景，模式切換需清除背景',
         'guide_mode_switching': '6. 模式切換：圖片/影片模式，只適用於暗色模式',
         'guide_project_link': '7. 項目地址：',
+        'advancedColorControlSubtitle': 'HueMatrix 2.0 — 次世代色彩引擎',
         'theme_download': '主題下載'
     },
     'en': {
@@ -796,6 +798,7 @@ const languageTranslations = {
         'guide_theme_settings': '5. Theme Settings: Support custom backgrounds, clear background for mode switching',
         'guide_mode_switching': '6. Mode Switching: Image/Video modes only work in dark mode',
         'guide_project_link': '7. Project Address:',
+        'advancedColorControlSubtitle': 'HueMatrix 2.0 — Next-Generation Color Engine',
         'theme_download': 'Theme download'
     },
     'ko': {
@@ -1056,6 +1059,7 @@ const languageTranslations = {
         'guide_theme_settings': '5. 테마 설정: 사용자 정의 배경 지원, 모드 전환 시 배경 지우기',
         'guide_mode_switching': '6. 모드 전환: 이미지/비디오 모드는 다크 모드에서만 작동',
         'guide_project_link': '7. 프로젝트 주소:',
+        'advancedColorControlSubtitle': 'HueMatrix 2.0 — 차세대 컬러 엔진',
         'theme_download': '테마 다운로드'
     },
     'vi': {
@@ -1316,6 +1320,7 @@ const languageTranslations = {
         'guide_theme_settings': '5. Cài đặt chủ đề: Hỗ trợ nền tùy chỉnh, xóa nền khi chuyển đổi chế độ',
         'guide_mode_switching': '6. Chuyển đổi chế độ: Chế độ hình ảnh/video chỉ hoạt động ở chế độ tối',
         'guide_project_link': '7. Địa chỉ dự án:',
+        'advancedColorControlSubtitle': 'HueMatrix 2.0 — Động cơ màu thế hệ mới',
         'theme_download': 'Tải chủ đề'
     },
     'th': {
@@ -1576,6 +1581,7 @@ const languageTranslations = {
         'guide_theme_settings': '5. การตั้งค่าธีม: รองรับพื้นหลังที่กำหนดเอง ล้างพื้นหลังเมื่อเปลี่ยนโหมด',
         'guide_mode_switching': '6. การเปลี่ยนโหมด: โหมดภาพ/วิดีโอ ทำงานในโหมดมืดเท่านั้น',
         'guide_project_link': '7. ที่อยู่โครงการ:',
+        'advancedColorControlSubtitle': 'HueMatrix 2.0 — เครื่องมือสีรุ่นใหม่',
         'theme_download': 'ดาวน์โหลดธีม'
     },
     'ja': {
@@ -1836,6 +1842,7 @@ const languageTranslations = {
         'guide_theme_settings': '5. テーマ設定：カスタム背景をサポート、モード切り替え時に背景をクリア',
         'guide_mode_switching': '6. モード切り替え：画像/ビデオモードはダークモードでのみ動作',
         'guide_project_link': '7. プロジェクトアドレス：',
+        'advancedColorControlSubtitle': 'HueMatrix 2.0 — 次世代カラーエンジン',
         'theme_download': 'テーマダウンロード'
     },
     'ru': {
@@ -2096,6 +2103,7 @@ const languageTranslations = {
         'guide_theme_settings': '5. Настройки темы: Поддержка пользовательских фонов, очистка фона при переключении режимов',
         'guide_mode_switching': '6. Переключение режимов: Режимы изображения/видео работают только в темном режиме',
         'guide_project_link': '7. Адрес проекта:',
+        'advancedColorControlSubtitle': 'HueMatrix 2.0 — Цветовой движок нового поколения',
         'theme_download': 'Скачать тему'
     },
     'ar': {
@@ -2356,6 +2364,7 @@ const languageTranslations = {
         'guide_theme_settings': '5. إعدادات السمة: دعم الخلفيات المخصصة، مسح الخلفية عند تبديل الوضع',
         'guide_mode_switching': '6. تبديل الوضع: أوضاع الصورة/الفيديو تعمل فقط في الوضع الداكن',
         'guide_project_link': '7. عنوان المشروع:',
+        'advancedColorControlSubtitle': 'HueMatrix 2.0 — محرك ألوان من الجيل التالي',
         'theme_download': 'تحميل السمة'
     },
     'es': {
@@ -2616,6 +2625,7 @@ const languageTranslations = {
         'guide_theme_settings': '5. Configuración de tema: Soporta fondos personalizados, limpiar fondo al cambiar modo',
         'guide_mode_switching': '6. Cambio de modo: Modos imagen/video solo funcionan en modo oscuro',
         'guide_project_link': '7. Dirección del proyecto:',
+        'advancedColorControlSubtitle': 'HueMatrix 2.0 — Motor de color de nueva generación',
         'theme_download': 'Descarga del tema'
     },
     'de': {
@@ -2876,6 +2886,7 @@ const languageTranslations = {
         'guide_theme_settings': '5. Theme-Einstellungen: Unterstützt benutzerdefinierte Hintergründe, Hintergrund beim Moduswechsel löschen',
         'guide_mode_switching': '6. Moduswechsel: Bild/Video-Modi funktionieren nur im dunklen Modus',
         'guide_project_link': '7. Projektadresse:',
+        'advancedColorControlSubtitle': 'HueMatrix 2.0 — Farb-Engine der nächsten Generation',
         'theme_download': 'Thema herunterladen'
     },
     'fr': {
@@ -3136,6 +3147,7 @@ const languageTranslations = {
         'guide_theme_settings': '5. Paramètres du thème : Prend en charge les arrière-plans personnalisés, effacer l\'arrière-plan lors du changement de mode',
         'guide_mode_switching': '6. Changement de mode : Les modes image/vidéo fonctionnent uniquement en mode sombre',
         'guide_project_link': '7. Adresse du projet :',
+        'advancedColorControlSubtitle': 'HueMatrix 2.0 — Moteur de couleur nouvelle génération',
         'theme_download': 'Télécharger le thème'
     },
     'bn': {
@@ -3397,6 +3409,7 @@ const languageTranslations = {
         'guide_theme_settings': '5. থিম সেটিংস: কাস্টম ব্যাকগ্রাউন্ড সমর্থন করে, মোড স্যুইচ করার সময় ব্যাকগ্রাউন্ড ক্লিয়ার করুন',
         'guide_mode_switching': '6. মোড স্যুইচিং: ছবি/ভিডিও মোড শুধুমাত্র ডার্ক মোডে কাজ করে',
         'guide_project_link': '7. প্রকল্পের ঠিকানা:',
+        'advancedColorControlSubtitle': 'HueMatrix 2.0 — নেক্সট-জেনারেশন কালার ইঞ্জিন',
         'theme_download': 'থিম ডাউনলোড'
     }
 };
@@ -3909,6 +3922,7 @@ document.addEventListener('DOMContentLoaded', function() {
     };
 
     window.oklchToHex = function(h, c, l = 50) {
+        h = ((h % 360) + 360) % 360;
         const L = l / 100;
         const a = c * Math.cos(h * Math.PI / 180);
         const b = c * Math.sin(h * Math.PI / 180);

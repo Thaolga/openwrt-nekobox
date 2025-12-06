@@ -126,19 +126,18 @@
 
 }
 
-@keyframes breath {
-
-    0%,
-    100% {
-        box-shadow: 0 2px 8px 1px color-mix(in oklch, oklch(82% 0.32 260), transparent 40%),
-            0 4px 24px 2px color-mix(in oklch, oklch(82% 0.32 260), transparent 60%),
-            inset 0 0 12px color-mix(in oklch, oklch(82% 0.32 260), transparent 70%);
+@keyframes breathing {
+    0%, 100% {
+        box-shadow: 
+            0 2px 8px 1px color-mix(in oklch, var(--glow-primary), transparent 40%),
+            0 4px 24px 2px color-mix(in oklch, var(--glow-secondary), transparent 60%),
+            inset 0 0 12px color-mix(in oklch, var(--glow-primary), transparent 70%);
     }
-
     50% {
-        box-shadow: 0 4px 16px 2px color-mix(in oklch, oklch(82% 0.32 260), transparent 30%),
-            0 8px 32px 4px color-mix(in oklch, oklch(82% 0.32 260), transparent 50%),
-            inset 0 0 24px color-mix(in oklch, oklch(82% 0.32 260), transparent 60%);
+        box-shadow: 
+            0 4px 16px 2px color-mix(in oklch, var(--glow-primary), transparent 30%),
+            0 8px 32px 4px color-mix(in oklch, var(--glow-secondary), transparent 50%),
+            inset 0 0 24px color-mix(in oklch, var(--glow-primary), transparent 60%);
     }
 }
 

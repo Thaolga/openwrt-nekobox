@@ -492,7 +492,113 @@
             <i class="fas fa-times"></i>
         </button>
         
-        <h2 class="advanced-color-control-modal-title" data-translate="advancedColorControl">Advanced Color Control</h2>
+        <div class="advanced-color-control-header-left">
+            <div class="advanced-color-control-logo-left">
+                <svg width="131" height="131" viewBox="0 0 420 420" fill="none" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet">
+                    <defs>
+                        <radialGradient id="coreGlow" cx="50%" cy="50%" r="50%">
+                            <stop offset="0%" stop-color="oklch(0.86 0.18 200deg)" stop-opacity="0.9"/>
+                            <stop offset="70%" stop-color="oklch(0.42 0.08 200deg)" stop-opacity="0.4"/>
+                            <stop offset="100%" stop-color="oklch(0.12 0.01 200deg)" stop-opacity="0"/>
+                        </radialGradient>
+                        <radialGradient id="outerGlow" cx="50%" cy="50%" r="50%">
+                            <stop offset="0%" stop-color="oklch(0.42 0.08 200deg)" stop-opacity="0"/>
+                            <stop offset="100%" stop-color="oklch(0.86 0.18 200deg)" stop-opacity="0.08"/>
+                        </radialGradient>
+                        <filter id="softGlow" x="-50%" y="-50%" width="200%" height="200%">
+                            <feGaussianBlur in="SourceAlpha" stdDeviation="6" result="blur"/>
+                            <feFlood flood-color="oklch(0.86 0.18 200deg)" flood-opacity="0.25"/>
+                            <feComposite in2="blur" operator="in"/>
+                            <feMerge>
+                                <feMergeNode/>
+                                <feMergeNode in="SourceGraphic"/>
+                            </feMerge>
+                        </filter>
+                    </defs>
+                    
+                    <circle cx="210" cy="210" r="202" fill="url(#outerGlow)"/>
+                    <circle cx="210" cy="210" r="200" fill="oklch(0.20 0.02 250deg)"/>
+                    <circle cx="210" cy="185" r="120" fill="url(#coreGlow)" filter="url(#softGlow)"/>
+                    
+                    <g id="matrix" transform="translate(210 180)" 
+                       stroke="oklch(0.86 0.18 200deg)" 
+                       stroke-width="1.5" 
+                       stroke-opacity="0.7" 
+                       fill="none">
+                        <g id="rotor">
+                            <circle cx="0" cy="0" r="85"/>
+                            <path d="M-73.6,42.5 L0,85 L73.6,42.5 M-73.6,-42.5 L0,-85 L73.6,-42.5"/>
+                            <line x1="-73.6" y1="42.5" x2="-73.6" y2="-42.5"/>
+                            <line x1="73.6" y1="42.5" x2="73.6" y2="-42.5"/>
+                            <line x1="0" y1="85" x2="0" y2="-85"/>
+                            <animateTransform 
+                                attributeName="transform" 
+                                type="rotate" 
+                                from="0" to="360" 
+                                dur="12s" 
+                                repeatCount="indefinite"
+                                calcMode="linear"/>
+                        </g>
+                    </g>
+                    
+                    <circle cx="210" cy="180" r="10" fill="oklch(0.86 0.18 200deg)" filter="url(#softGlow)">
+                        <animate attributeName="r" 
+                                 values="10;14;10" 
+                                 keyTimes="0;0.5;1" 
+                                 dur="3s" 
+                                 repeatCount="indefinite"/>
+                        <animate attributeName="fill" 
+                                 values="oklch(0.86 0.18 200deg);oklch(0.92 0.15 170deg);oklch(0.86 0.18 200deg)" 
+                                 keyTimes="0;0.5;1" 
+                                 dur="6s" 
+                                 repeatCount="indefinite"/>
+                    </circle>
+                    
+                    <text x="210" y="315" 
+                          text-anchor="middle"
+                          font-family="'Segoe UI', 'SF Mono', monospace"
+                          font-weight="700" 
+                          font-size="38"
+                          letter-spacing="3" 
+                          fill="oklch(0.95 0.12 200deg)"
+                          style="text-shadow: 0 0 10px rgba(134, 246, 255, 0.5);">
+                        HUEMATRIX
+                        <animate attributeName="fill" 
+                                 values="oklch(0.95 0.12 200deg);oklch(0.86 0.18 200deg)" 
+                                 keyTimes="0;1" 
+                                 dur="8s" 
+                                 repeatCount="indefinite"
+                                 calcMode="spline"
+                                 keySplines="0.42 0 0.58 1"/>
+                    </text>
+                    
+                    <text x="210" y="355" 
+                          text-anchor="middle"
+                          font-family="'Segoe UI', 'SF Mono', monospace"
+                          font-weight="300" 
+                          font-size="26"
+                          letter-spacing="5" 
+                          fill="oklch(0.95 0.12 200deg)" 
+                          opacity="0.85">
+                        v2.0
+                        <animate attributeName="opacity" 
+                                 values="0.85;1;0.85" 
+                                 keyTimes="0;0.5;1" 
+                                 dur="4s" 
+                                 repeatCount="indefinite"/>
+                    </text>
+                </svg>
+            </div>
+                      
+            <div class="advanced-color-control-title-left">
+                <h3 class="advanced-color-control-modal-title" data-translate="advancedColorControl">
+                    Advanced Color Control
+                </h3>
+                <p class="advanced-color-control-subtitle" data-translate="advancedColorControlSubtitle">
+                    HueMatrix 2.0 — Next-Generation Color Engine
+                </p>
+            </div>
+        </div>
         
         <div class="advanced-color-controls-container">
             <div class="advanced-color-control-section">
@@ -502,7 +608,7 @@
                 
                 <div class="advanced-color-control-group">
                     <div class="advanced-color-control-label">
-                        <span data-translate="hue">Hue</span>
+                        <i class="fas fa-circle"></i> <span data-translate="hue">Hue</span>
                         <span class="advanced-color-control-value" id="advancedHueValue">260°</span>
                     </div>
                     <div class="advanced-color-control-slider-container">
@@ -512,7 +618,7 @@
                 
                 <div class="advanced-color-control-group">
                     <div class="advanced-color-control-label">
-                        <span data-translate="chroma">Chroma</span>
+                        <i class="fas fa-sun"></i> <span data-translate="chroma">Chroma</span>
                         <span class="advanced-color-control-value" id="advancedChromaValue">0.25</span>
                     </div>
                     <div class="advanced-color-control-slider-container">
@@ -522,7 +628,7 @@
                 
                 <div class="advanced-color-control-group">
                     <div class="advanced-color-control-label">
-                        <span data-translate="lightness">Lightness</span>
+                        <i class="fas fa-adjust"></i> <span data-translate="lightness">Lightness</span>
                         <span class="advanced-color-control-value" id="advancedLightnessValue">85%</span>
                     </div>
                     <div class="advanced-color-control-slider-container">
@@ -538,43 +644,43 @@
                         <button class="preset-color-btn" data-hue="250" data-chroma="0.08" data-lightness="30" data-title="midnight blue">
                             <div class="preset-color-circle" style="background-color: oklch(30% 0.08 250);"></div>
                         </button>
-                        <button class="preset-color-btn" data-hue="190" data-chroma="0.18" data-lightness="60" data-title="cyan">
-                            <div class="preset-color-circle" style="background-color: oklch(60% 0.18 190);"></div>
+                        <button class="preset-color-btn" data-hue="190" data-chroma="0.07" data-lightness="30" data-title="cyan">
+                            <div class="preset-color-circle" style="background-color: oklch(30% 0.07 190);"></div>
                         </button>
 
-                        <button class="preset-color-btn" data-hue="210" data-chroma="0.12" data-lightness="75" data-title="sky blue">
-                            <div class="preset-color-circle" style="background-color: oklch(75% 0.12 210);"></div>
+                        <button class="preset-color-btn" data-hue="267" data-chroma="0.25" data-lightness="85" data-title="sky blue">
+                            <div class="preset-color-circle" style="background-color: oklch(85% 0.25 267);"></div>
                         </button>
-                        <button class="preset-color-btn" data-hue="90" data-chroma="0.18" data-lightness="75" data-title="yellow">
-                            <div class="preset-color-circle" style="background-color: oklch(75% 0.18 90);"></div>
+                        <button class="preset-color-btn" data-hue="56" data-chroma="0.18" data-lightness="85" data-title="yellow">
+                            <div class="preset-color-circle" style="background-color: oklch(85% 0.18 56);"></div>
                         </button>
 
-                        <button class="preset-color-btn" data-hue="160" data-chroma="0.09" data-lightness="65" data-title="mint">
-                            <div class="preset-color-circle" style="background-color: oklch(65% 0.09 160);"></div>
+                        <button class="preset-color-btn" data-hue="160" data-chroma="0.09" data-lightness="66" data-title="mint">
+                            <div class="preset-color-circle" style="background-color: oklch(66% 0.09 160);"></div>
                         </button>
                         <button class="preset-color-btn" data-hue="130" data-chroma="0.11" data-lightness="70" data-title="emerald">
                             <div class="preset-color-circle" style="background-color: oklch(70% 0.11 130);"></div>
                         </button>
 
-                        <button class="preset-color-btn" data-hue="25" data-chroma="0.15" data-lightness="68" data-title="coral">
-                            <div class="preset-color-circle" style="background-color: oklch(68% 0.15 25);"></div>
+                        <button class="preset-color-btn" data-hue="25" data-chroma="0.15" data-lightness="71" data-title="coral">
+                            <div class="preset-color-circle" style="background-color: oklch(71% 0.15 25);"></div>
                         </button>
-                        <button class="preset-color-btn" data-hue="5" data-chroma="0.18" data-lightness="58" data-title="ruby">
-                            <div class="preset-color-circle" style="background-color: oklch(58% 0.18 5);"></div>
+                        <button class="preset-color-btn" data-hue="5" data-chroma="0.18" data-lightness="47" data-title="ruby">
+                            <div class="preset-color-circle" style="background-color: oklch(47% 0.18 5);"></div>
                         </button>
 
-                        <button class="preset-color-btn" data-hue="290" data-chroma="0.14" data-lightness="52" data-title="amethyst">
-                            <div class="preset-color-circle" style="background-color: oklch(52% 0.14 290);"></div>
+                        <button class="preset-color-btn" data-hue="290" data-chroma="0.14" data-lightness="46" data-title="amethyst">
+                            <div class="preset-color-circle" style="background-color: oklch(46% 0.14 290);"></div>
                         </button>
-                        <button class="preset-color-btn" data-hue="320" data-chroma="0.16" data-lightness="62" data-title="magenta">
-                            <div class="preset-color-circle" style="background-color: oklch(62% 0.16 320);"></div>
+                        <button class="preset-color-btn" data-hue="320" data-chroma="0.16" data-lightness="69" data-title="magenta">
+                            <div class="preset-color-circle" style="background-color: oklch(69% 0.16 320);"></div>
                         </button>
 
                         <button class="preset-color-btn" data-hue="260" data-chroma="0.01" data-lightness="95" data-title="pure white">
-                            <div class="preset-color-circle" style="background-color: oklch(95% 0 0);"></div>
+                            <div class="preset-color-circle" style="background-color: oklch(95% 0.01 260);"></div>
                         </button>
                         <button class="preset-color-btn" data-hue="269" data-chroma="0.01" data-lightness="15" data-title="pure black">
-                            <div class="preset-color-circle" style="background-color: oklch(15% 0 0);"></div>
+                            <div class="preset-color-circle" style="background-color: oklch(15% 0.01 269);"></div>
                         </button>
                     </div>
                 </div>
@@ -936,6 +1042,13 @@ const advancedColorControl = {
     init() {
         this.bindEvents();
         this.updateUI();
+        const hueSlider = document.getElementById('advancedHueSlider');
+        const chromaSlider = document.getElementById('advancedChromaSlider');
+        const lightnessSlider = document.getElementById('advancedLightnessSlider');
+    
+        if (hueSlider) hueSlider.value = currentHue;
+        if (chromaSlider) chromaSlider.value = currentChroma;
+        if (lightnessSlider) lightnessSlider.value = currentLightness;
     },
 
     bindEvents() {
@@ -1261,7 +1374,6 @@ document.addEventListener('DOMContentLoaded', function() {
     width: 100%;
     height: 100%;
     display: none;
-    background: rgba(0, 0, 0, 0.7);
     justify-content: center;
     align-items: center;
     z-index: 1001;
@@ -1272,18 +1384,25 @@ document.addEventListener('DOMContentLoaded', function() {
 }
 
 .advanced-color-control-modal-content {
-    background: color-mix(in oklch, var(--bg-container), transparent 20%);
+    background: 
+        color-mix(in oklch, var(--bg-container), transparent var(--glass-opacity)),
+        linear-gradient(
+            135deg,
+            color-mix(in oklch, var(--glow-primary), transparent 98%) 0%,
+            transparent 30%,
+            color-mix(in oklch, var(--glow-secondary), transparent 98%) 100%
+        );
     backdrop-filter: var(--glass-blur);
     -webkit-backdrop-filter: var(--glass-blur);
-    border: var(--glass-border);
+    border: var(--glow-border);
     border-radius: var(--radius);
-    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
     width: 90%;
     max-width: 800px;
     max-height: 90vh;
     overflow-y: auto;
     padding: 30px;
     position: relative;
+    box-shadow: 4px 0 12px -2px color-mix(in oklch, var(--bg-container), black 30%);
 }
 
 .advanced-color-control-close-btn {
@@ -1293,9 +1412,9 @@ document.addEventListener('DOMContentLoaded', function() {
     width: 34px;
     height: 34px;
     background: color-mix(in oklch, var(--bg-container), transparent 30%);
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
-    border: 1px solid color-mix(in oklch, var(--accent-color), transparent 70%);
+    backdrop-filter: var(--glass-blur);
+    -webkit-backdrop-filter: var(--glass-blur);
+    border: var(--border-strong);
     border-radius: 50%;
     font-size: 18px;
     color: var(--text-primary);
@@ -1303,29 +1422,26 @@ document.addEventListener('DOMContentLoaded', function() {
     display: flex;
     align-items: center;
     justify-content: center;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    transition: all var(--transition-speed) cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: var(--glow-shadow-default);
 }
 
 .advanced-color-control-close-btn:hover {
-    background: color-mix(in oklch, var(--accent-color), transparent 80%);
-    border-color: var(--accent-color);
-    color: var(--accent-color);
-    transform: scale(1.1) rotate(90deg);
-    box-shadow: 0 6px 20px color-mix(in oklch, var(--accent-color), transparent 70%);
+    background: color-mix(in oklch, var(--bg-container), transparent 45%);
+    border-color: var(--glow-primary);
+    color: var(--btn-danger-bg);
+    transform: scale(1.15) rotate(90deg);
+    box-shadow: var(--glow-shadow-hover);
+    animation: none;
+}
+
+.advanced-color-control-close-btn:not(:hover) {
+    animation: var(--breathing-animation);
 }
 
 .advanced-color-control-close-btn:active {
     transform: scale(0.95) rotate(90deg);
     transition: transform 0.1s ease;
-}
-
-.advanced-color-control-modal-title {
-    font-size: 24px;
-    margin-bottom: 25px;
-    text-align: center;
-    color: var(--accent-color);
-    font-weight: 700;
 }
 
 .advanced-color-controls-container {
@@ -1335,17 +1451,39 @@ document.addEventListener('DOMContentLoaded', function() {
 }
 
 .advanced-color-control-section {
-    padding: 25px;
+    background: 
+        color-mix(in oklch, var(--card-bg), transparent 30%),
+        linear-gradient(
+            135deg,
+            color-mix(in oklch, var(--glow-primary), transparent 97%) 0%,
+            transparent 50%
+        );
+    backdrop-filter: var(--glass-blur);
+    -webkit-backdrop-filter: var(--glass-blur);
+    border: var(--border-strong);
     border-radius: var(--radius);
-    background: color-mix(in oklch, var(--card-bg), transparent 30%);
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
-    border: var(--glass-border);
+    padding: 25px;
+    margin-bottom: 20px;
+    position: relative;
+}
+
+.advanced-color-control-section:hover {
+    transform: translateY(-2px);
+    transition: all var(--transition-speed) ease;
+}
+
+[data-theme="dark"] .advanced-color-control-modal-content {
+    box-shadow: none;
+}
+
+[data-theme="dark"] .advanced-color-control-modal-content,
+[data-theme="dark"] .advanced-color-control-section {
+    animation: var(--breath-animation);
 }
 
 .advanced-color-control-section-title {
     font-size: 18px;
-    margin-bottom: 20px;
+    margin-bottom: 10px;
     color: var(--accent-secondary);
     display: flex;
     align-items: center;
@@ -1358,10 +1496,18 @@ document.addEventListener('DOMContentLoaded', function() {
 
 .advanced-color-control-label {
     display: flex;
-    justify-content: space-between;
-    margin-bottom: 10px;
+    align-items: center;
+    margin-bottom: 12px;
     font-weight: 500;
     color: var(--text-primary);
+}
+
+.advanced-color-control-label i {
+    margin-right: 6px;
+}
+
+.advanced-color-control-value {
+    margin-left: auto;
 }
 
 .advanced-color-control-value {
@@ -1476,12 +1622,11 @@ document.addEventListener('DOMContentLoaded', function() {
 }
 
 .advanced-color-contrast-badge.contrast-good {
-    background: #28a745;
+    background: var(--color-blue);
 }
 
 .advanced-color-contrast-badge.contrast-fair {
-    background: #ffc107;
-    color: #000;
+    background: var(--btn-warning-bg);
 }
 
 .advanced-color-contrast-badge.contrast-poor {
@@ -1491,6 +1636,7 @@ document.addEventListener('DOMContentLoaded', function() {
 .advanced-color-preview-display {
     width: 100%;
     height: 150px;
+    margin-top: -4px;
     border-radius: var(--radius);
     background: oklch(var(--l, 50%) var(--base-chroma, 0.25) var(--base-hue, 260));
     border: var(--border-strong);
@@ -1547,19 +1693,18 @@ document.addEventListener('DOMContentLoaded', function() {
 }
 
 .advanced-color-info-value {
-    font-family: 'Courier New', monospace;
     background: rgba(0, 0, 0, 0.2);
     padding: 10px;
     border-radius: 8px;
     margin-bottom: 15px;
     word-break: break-all;
     color: var(--text-primary);
+    font-weight: 600;
 }
 
 .advanced-color-contrast-badge {
     display: inline-block;
     padding: 8px 15px;
-    background: var(--btn-success-bg);
     color: #fff;
     border-radius: 20px;
     font-weight: 600;
@@ -1581,6 +1726,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
 .preset-colors-title {
     font-size: 16px;
+    margin-top: -4px;
     margin-bottom: 15px;
     color: var(--accent-secondary);
     display: flex;
@@ -1635,6 +1781,148 @@ document.addEventListener('DOMContentLoaded', function() {
 .preset-color-btn:hover .preset-color-circle {
     border-color: var(--accent-color);
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+}
+
+.advanced-color-control-header-left {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    margin-bottom: 25px;
+    text-align: left;
+    width: 100%;
+}
+
+.advanced-color-control-logo-left {
+    flex-shrink: 0;
+    width: 131px;
+    height: 131px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.advanced-color-control-logo-left svg {
+    width: 100%;
+    height: 100%;
+    display: block;
+    transition: transform .45s cubic-bezier(0.4, 0, 0.2, 1),
+                filter .45s ease;
+    filter: 
+        drop-shadow(0 0 12px color-mix(in oklch, var(--glow-primary), transparent 70%))
+        drop-shadow(0 0 25px color-mix(in oklch, var(--glow-secondary), transparent 80%));
+}
+
+.advanced-color-control-title-left {
+    flex: 1;
+    text-align: left;
+}
+
+.advanced-color-control-modal-title {
+    font-size: 28px;
+    margin-bottom: 8px;
+    text-align: left;
+    color: var(--accent-color);
+    font-weight: 800;
+    line-height: 1.2;
+}
+
+.advanced-color-control-subtitle {
+    color: var(--accent-tertiary);
+    font-size: 16px;
+    margin: 0;
+    font-weight: 400;
+    opacity: 0.85;
+    line-height: 1.4;
+    overflow-wrap: break-word;
+    word-wrap: break-word;
+    hyphens: auto;
+}
+
+@media (max-width: 992px) {
+    .advanced-color-control-header-left {
+        gap: 16px;
+    }
+    
+    .advanced-color-control-logo-left {
+        width: 115px;
+        height: 115px;
+    }
+    
+    .advanced-color-control-modal-title {
+        font-size: 26px;
+    }
+}
+
+@media (max-width: 768px) {
+    .advanced-color-control-subtitle {
+        font-size: 14px;
+        line-height: 1.3;
+    }
+}
+
+@media (max-width: 480px) {
+    .advanced-color-control-subtitle {
+        font-size: 13px;
+    }
+}
+
+@media (max-width: 768px) {
+    .advanced-color-control-header-left {
+        align-items: center;
+        gap: 14px;
+    }
+    
+    .advanced-color-control-logo-left {
+        width: 100px;
+        height: 100px;
+    }
+    
+    .advanced-color-control-modal-title {
+        font-size: 22px;
+        margin-bottom: 5px;
+    }
+    
+    .advanced-color-control-subtitle {
+        font-size: 14px;
+    }
+}
+
+@media (max-width: 576px) {
+    .advanced-color-control-header-left {
+        gap: 12px;
+    }
+    
+    .advanced-color-control-logo-left {
+        width: 85px;
+        height: 85px;
+    }
+    
+    .advanced-color-control-modal-title {
+        font-size: 20px;
+    }
+    
+    .advanced-color-control-subtitle {
+        font-size: 13px;
+    }
+}
+
+[data-theme="dark"] .advanced-color-control-logo-left svg {
+    filter: 
+        drop-shadow(0 0 16px color-mix(in oklch, var(--glow-primary), transparent 40%))
+        drop-shadow(0 0 32px color-mix(in oklch, var(--glow-secondary), transparent 50%));
+}
+
+[data-theme="light"] .advanced-color-control-logo-left svg {
+    filter: 
+        drop-shadow(0 0 8px color-mix(in oklch, var(--glow-primary), transparent 80%))
+        drop-shadow(0 0 16px color-mix(in oklch, var(--glow-secondary), transparent 90%));
+}
+
+.advanced-color-control-logo-left:hover svg {
+    transform: scale(1.04);
+    filter: 
+        drop-shadow(0 0 18px color-mix(in oklch, var(--glow-primary), transparent 50%))
+        drop-shadow(0 0 35px color-mix(in oklch, var(--glow-secondary), transparent 60%));
 }
 
 @media (max-width: 768px) {
@@ -3389,13 +3677,66 @@ document.addEventListener('DOMContentLoaded', function() {
         opacity: 0;
     }
 }
+
+.uk-modal-close-default,
+#fullscreen-toggle {
+    top: 20px;
+    right: 20px;
+    width: 34px;
+    height: 34px;
+    background: color-mix(in oklch, var(--bg-container), transparent 50%);
+    backdrop-filter: var(--glass-blur);
+    -webkit-backdrop-filter: var(--glass-blur);
+    border: var(--border-strong);
+    border-radius: 50%;
+    color: var(--text-primary);
+    transition: all var(--transition-speed) cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: var(--glow-shadow-default);    
+}
+
+.uk-modal-close-default:hover,
+#fullscreen-toggle:hover {
+    background: color-mix(in oklch, var(--accent-color), transparent 85%);
+    border-color: var(--glow-primary);
+    color: var(--btn-danger-bg);
+    transform: scale(1.15) rotate(90deg);
+    box-shadow: var(--glow-shadow-hover);
+    animation: none;
+}
+
+.uk-modal-close-default:not(:hover),
+#fullscreen-toggle:not(:hover) {
+    animation: var(--breathing-animation);
+}
+
+[data-theme="dark"] .uk-modal-close-default,
+[data-theme="dark"] #fullscreen-toggle {
+    --glow-intensity: 0.8;
+}
+
+[data-theme="light"] .uk-modal-close-default,
+[data-theme="light"] #fullscreen-toggle {
+    animation: none !important;
+}
+
+.uk-modal-close-default:active,
+#fullscreen-toggle:active {
+    transform: scale(0.95) rotate(90deg);
+    transition-duration: 0.1s;
+}
+
+.uk-modal-title .uk-icon {
+    position: relative;
+    top: -4px;
+    margin-right: 6px;
+}
 </style>
 
 <div id="controlPanel" uk-modal>
     <div class="uk-modal-dialog uk-modal-body uk-border-rounded">
         <div class="uk-flex uk-flex-between uk-flex-middle uk-margin-bottom">
             <h2 class="uk-modal-title uk-margin-remove">
-                <span uk-icon="icon: settings; ratio: 1.2" class="uk-margin-small-right"></span>
+                <span uk-icon="icon: settings; ratio: 1.8" class="uk-margin-small-right"></span>
                 <span data-translate="ui_control">UI Control</span>
             </h2>
             <button class="uk-modal-close-default" type="button" uk-close></button>
@@ -7837,13 +8178,13 @@ document.addEventListener('DOMContentLoaded', function() {
         <div class="uk-modal-header">
             <div class="uk-flex uk-flex-between uk-flex-middle">
                 <h2 class="uk-modal-title uk-margin-remove">
-                    <span uk-icon="icon: server; ratio: 1.1" class="uk-margin-small-right"></span>
+                    <span uk-icon="icon: server; ratio: 1.5" class="uk-margin-small-right"></span>
                     <span data-translate="edit_ip_database">Edit IP Database</span>
                 </h2>
                 <div class="uk-flex uk-flex-middle">
                     <button class="uk-icon-button uk-margin-small-right" id="fullscreen-toggle"
                         uk-tooltip="title: Fullscreen; pos: bottom">
-                        <span uk-icon="icon: expand"></span>
+                        <span uk-icon="icon: expand; ratio: 2"></span>
                     </button>
                     <button class="uk-modal-close-default uk-icon-button" type="button" uk-close></button>
                 </div>

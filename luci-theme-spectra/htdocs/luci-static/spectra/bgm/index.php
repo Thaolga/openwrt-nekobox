@@ -239,7 +239,7 @@ body {
         padding: 20px;
 	border-radius: 10px;
 	background: var(--bg-container);
-        margin-top: 5px !important;
+        margin-top: 15px !important;
         box-shadow: 1px 0 3px -2px color-mix(in oklch, var(--bg-container), black 30%) !important;
 }
 
