@@ -362,7 +362,7 @@
         <button class="ctrl-btn" onclick="changeTrack(1, true)" data-tooltip="next_track">
             <i class="fas fa-forward"></i>
         </button>
-        <button class="ctrl-btn" id="floatingRepeatBtn" onclick="toggleRepeat()" data-tooltip="order_play">
+        <button class="ctrl-btn" id="floatingRepeatBtn" onclick="toggleRepeat()">
             <i class="bi bi-arrow-repeat"></i>
         </button>
         <button class="ctrl-btn" id="goFirstBtn">
@@ -460,7 +460,7 @@
                     
                     <div class="music-control-group">
                         <div class="volume-control">
-                            <button class="control-btn" id="repeatBtn" onclick="toggleRepeat()" data-tooltip="order_play">
+                            <button class="control-btn" id="repeatBtn" onclick="toggleRepeat()">
                                 <i class="fa fa-sync-alt"></i>
                             </button>
                             <button class="control-btn" id="volumeToggle" data-tooltip="volume">
@@ -6511,27 +6511,26 @@ function setRepeatButtonState() {
     const mainBtn = document.getElementById('repeatBtn');
     const floatingBtn = document.getElementById('floatingRepeatBtn');
     const translations = languageTranslations[currentLang] || languageTranslations['zh'];    
+
+    const tooltipKeys = ['order_play', 'single_loop', 'shuffle_play'];
+    const iconClasses = ['bi bi-arrow-repeat', 'bi bi-repeat-1', 'bi bi-shuffle'];
+
     [mainBtn, floatingBtn].forEach(btn => {
-        if (btn) {
-            btn.classList.remove('btn-success', 'btn-warning');
-            btn.title = [
-                translations['order_play'] || 'Order_Play',
-                translations['single_loop'] || 'Single_Loop',
-                translations['shuffle_play'] || 'Shuffle_Play'
-            ][repeatMode];
-            switch (repeatMode) {
-                case 1:
-                    btn.classList.add('btn-success'); 
-                    btn.innerHTML = '<i class="bi bi-repeat-1"></i>';
-                    break;
-                case 2:
-                    btn.classList.add('btn-warning'); 
-                    btn.innerHTML = '<i class="bi bi-shuffle"></i>';
-                    break;
-                default:
-                    btn.innerHTML = '<i class="bi bi-arrow-repeat"></i>';
-            }
+        if (!btn) return;
+
+        btn.classList.remove('btn-success', 'btn-warning');
+
+        btn.setAttribute('data-tooltip', tooltipKeys[repeatMode]);
+
+        let icon = btn.querySelector('i');
+        if (!icon) {
+            icon = document.createElement('i');
+            btn.prepend(icon);
         }
+        icon.className = iconClasses[repeatMode];
+
+        if (repeatMode === 1) btn.classList.add('btn-success');
+        if (repeatMode === 2) btn.classList.add('btn-warning');
     });
 }
 
