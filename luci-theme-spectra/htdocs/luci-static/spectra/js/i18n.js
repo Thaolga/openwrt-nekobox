@@ -3592,6 +3592,7 @@ function getVoiceTypeText(type) {
 
 function updateUIText() {
     const translations = languageTranslations[currentLang] || languageTranslations['zh'];
+
     document.querySelectorAll('[data-translate]').forEach(element => {
         const key = element.getAttribute('data-translate');
         if (translations[key]) {
@@ -3599,12 +3600,19 @@ function updateUIText() {
         }
     });
 
-    document.querySelectorAll('[data-title]').forEach(element => {
-        const key = element.getAttribute('data-title');
+    document.querySelectorAll('[data-tooltip]').forEach(element => {
+        const key = element.getAttribute('data-tooltip');
         if (translations[key]) {
-            element.setAttribute('title', translations[key]);
+            element.setAttribute('data-tooltip-text', translations[key]);
+        } else {
+            element.removeAttribute('data-tooltip-text');
         }
     });
+
+    if (!window.tooltipsInitialized) {
+        initTooltips();
+        window.tooltipsInitialized = true;
+    }
 
     document.querySelectorAll('[data-placeholder]').forEach(element => {
         const key = element.getAttribute('data-placeholder');
@@ -3619,8 +3627,129 @@ function updateUIText() {
             element.setAttribute('alt', translations[key]);
         }
     });
+
+    document.querySelectorAll('[data-translate-title]').forEach(element => {
+        const key = element.getAttribute('data-translate-title');
+        if (translations[key]) {
+            element.title = translations[key];
+            if (element.hasAttribute('data-tooltip')) {
+                element.setAttribute('data-tooltip-text', translations[key]);
+            }
+        } else {
+            element.removeAttribute('title');
+        }
+    });
     
     updateFlagIcon(currentLang);
+}
+
+function initTooltips() {
+    const existing = document.querySelector('.custom-tooltip');
+    if (existing) existing.remove();
+    
+    const tooltip = document.createElement('div');
+    tooltip.className = 'custom-tooltip';
+    document.body.appendChild(tooltip);
+    
+    let scrollTimeout;
+    let activeTarget = null;
+    
+    function showTooltip(target) {
+        const tooltipText = target.getAttribute('data-tooltip-text');
+        if (!tooltipText || activeTarget === target) return;
+        
+        activeTarget = target;
+        
+        tooltip.textContent = tooltipText;
+        
+        tooltip.style.display = 'block';
+        
+        const rect = target.getBoundingClientRect();
+        const tooltipRect = tooltip.getBoundingClientRect();
+        
+        let left = rect.left + (rect.width - tooltipRect.width) / 2;
+        let top = rect.top - tooltipRect.height - 8;
+        
+        left = Math.max(5, Math.min(left, window.innerWidth - tooltipRect.width - 5));
+        
+        let placement = 'top';
+        if (top < 5) {
+            top = rect.bottom + 8;
+            placement = 'bottom';
+        }
+        
+        tooltip.style.left = left + 'px';
+        tooltip.style.top = top + 'px';
+        tooltip.setAttribute('data-placement', placement);
+        
+        setTimeout(() => {
+            tooltip.classList.add('active');
+        }, 10);
+    }
+    
+    function hideTooltip() {
+        tooltip.classList.remove('active');
+        activeTarget = null;
+        setTimeout(() => {
+            if (!tooltip.classList.contains('active')) {
+                tooltip.style.display = 'none';
+            }
+        }, 200);
+    }
+    
+    document.addEventListener('mouseover', function(e) {
+        const target = e.target.closest('[data-tooltip-text]');
+        if (!target) {
+            hideTooltip();
+            return;
+        }
+        
+        clearTimeout(target._tooltipTimer);
+        target._tooltipTimer = setTimeout(() => {
+            showTooltip(target);
+        }, 100);
+    });
+    
+    document.addEventListener('mouseout', function(e) {
+        const target = e.target.closest('[data-tooltip-text]');
+        if (!target) return;
+        
+        clearTimeout(target._tooltipTimer);
+        
+        const relatedTarget = e.relatedTarget;
+        if (!relatedTarget || 
+            (!relatedTarget.closest('[data-tooltip-text]') && 
+             !relatedTarget.closest('.custom-tooltip'))) {
+            hideTooltip();
+        }
+    });
+    
+    tooltip.addEventListener('mouseenter', function() {
+        clearTimeout(tooltip._hideTimer);
+    });
+    
+    tooltip.addEventListener('mouseleave', function() {
+        hideTooltip();
+    });
+    
+    document.addEventListener('click', function(e) {
+        if (!tooltip.contains(e.target)) {
+            hideTooltip();
+        }
+    });
+    
+    window.addEventListener('scroll', function() {
+        clearTimeout(scrollTimeout);
+        scrollTimeout = setTimeout(() => {
+            hideTooltip();
+        }, 100);
+    }, true);
+    
+    window.addEventListener('resize', function() {
+        if (activeTarget) {
+            showTooltip(activeTarget);
+        }
+    });
 }
 
 function updateFlagIcon(lang) {

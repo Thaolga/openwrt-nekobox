@@ -3786,11 +3786,13 @@ document.addEventListener("DOMContentLoaded", async () => {
       const weatherDict = langData.weather || {};
       const lastIcon = langData.lastIcon || "na";
 
+      const temp = cityData.temp != null ? Number(cityData.temp).toFixed(1) : '';
+
       const weatherKey = Object.keys(weatherDict)[0];
       const weatherValue = weatherDict[weatherKey] || "";
 
       cityNameDisplay.textContent = cityName + " ";
-      weatherText.textContent = weatherValue;
+      weatherText.innerHTML = weatherValue + (temp !== '' ? `&nbsp;${temp}℃` : '');
 
       const wiClass = owmCodeToWiClass(lastIcon);
       weatherIcon.className = `wi wi-${wiClass}`;

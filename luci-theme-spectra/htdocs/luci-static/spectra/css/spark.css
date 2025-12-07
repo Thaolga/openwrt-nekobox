@@ -19,9 +19,8 @@
     --border-color: oklch(40% var(--base-chroma) var(--base-hue));
     --border-light: 1px solid oklch(60% 0.05 var(--base-hue) / 0.3);
     --border-strong: 1px solid oklch(70% 0.1 var(--base-hue) / 0.6);
-    --glow-base: var(--base-hue, 260);
-    --glow-primary: oklch(82% 0.32 var(--glow-base));
-    --glow-secondary: oklch(78% 0.28 calc(var(--glow-base) + 10));
+    --glow-primary: oklch(82% 0.32 var(--base-hue));
+    --glow-secondary: oklch(78% 0.28 calc(var(--base-hue) + 10));
     --breath-animation: breath 3s ease-in-out infinite;
 
     --breathing-glow: 0 0 20px oklch(70% 0.3 var(--base-hue) / 0.6),
@@ -121,8 +120,8 @@
         inset 0 0 6px color-mix(in oklch, var(--glow-primary), transparent 85%),
         0 0 16px 3px oklch(95% 0.45 260 / 0.9);
 
-    --glow-primary-hover: oklch(88% 0.35 var(--glow-base));
-    --glow-secondary-hover: oklch(85% 0.3 calc(var(--glow-base) + 15));
+    --glow-primary-hover: oklch(88% 0.35 var(--base-hue));
+    --glow-secondary-hover: oklch(85% 0.3 calc(var(--base-hue) + 15));
 
 }
 
@@ -174,10 +173,6 @@
     --glass-border: 1px solid rgba(0, 0, 0, 0.05);
     --border-light: 1px solid oklch(90% 0.02 var(--base-hue) / 0.4);
     --border-strong: 1px solid oklch(75% 0.05 var(--base-hue) / 0.8);
-
-    --glow-base: var(--base-hue);
-    --glow-primary: oklch(75% 0.25 var(--glow-base));
-    --glow-secondary: oklch(70% 0.2 calc(var(--glow-base) + 15));
 
     --breathing-glow: 0 0 15px oklch(85% 0.2 var(--base-hue) / 0.4),
         0 0 30px oklch(85% 0.15 var(--base-hue) / 0.3),

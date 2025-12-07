@@ -77,6 +77,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $cacheData['cities'][$city]['translations'][$lang] = $newLang;
         }
 
+        if (isset($data['temp'])) {
+            $cacheData['cities'][$city]['temp'] = $data['temp'];
+        }
+        if (isset($data['icon'])) {
+            foreach ($translations as $lang => $_) {
+                $cacheData['cities'][$city]['translations'][$lang]['lastIcon'] = $data['icon'];
+            }
+        }
+
         $cacheData['cities'][$city]['updated'] = date('c');
         // dbg("ACTION: merged translations for city={$city}");
     }
