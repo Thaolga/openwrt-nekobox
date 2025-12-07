@@ -1131,7 +1131,7 @@ const advancedColorControl = {
                 addToRecentColors(hexColor);
                 
                 const translations = languageTranslations[currentLang] || languageTranslations['zh'];
-                const colorName = button.getAttribute('title') || 'color';
+                const colorName = button.getAttribute('data-tooltip') || 'color';
                 const successMsg = translations['presetColorApplied']?.replace('%s', translations[colorName] || colorName) || `Preset ${colorName} applied successfully.`;
                 
                 if (typeof showLogMessage === 'function') {
