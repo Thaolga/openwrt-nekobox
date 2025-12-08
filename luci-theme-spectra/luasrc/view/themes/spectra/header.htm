@@ -5104,16 +5104,14 @@ document.addEventListener('DOMContentLoaded', function() {
         fetch('/luci-static/spectra/bgm/check_theme_update.php')
             .then(response => response.json())
             .then(data => {
-                //console.log('Version check response:', data);
-                
                 if (data && data.needsUpdate === true && data.version) {
                     document.getElementById('newVersionNumber').textContent = data.version;
                     UIkit.modal('#newVersionAlertModal').show();
-                    
+
                     document.getElementById('startUpdateBtn').onclick = function() {
                         UIkit.modal('#newVersionAlertModal').hide();
-                        UIkit.modal('#themeUpdateConfirmModal').show();
-                        checkThemeUpdate();
+                        UIkit.modal('#themeUpdateStatusModal').show();
+                        startThemeInstallation();
                     };
                 }
             })
@@ -5144,12 +5142,8 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     document.getElementById('themeUpdateBtn').addEventListener('click', function() {
-        const confirmModal = UIkit.modal('#themeUpdateConfirmModal');
-        const statusModal = UIkit.modal('#themeUpdateStatusModal');
-        
-        confirmModal.hide();
-        statusModal.show();
-        
+        UIkit.modal('#themeUpdateConfirmModal').hide();
+        UIkit.modal('#themeUpdateStatusModal').show();
         startThemeInstallation();
     });
 
