@@ -1279,6 +1279,34 @@ wget -O /root/nekobox.sh https://raw.githubusercontent.com/Thaolga/openwrt-nekob
     </div>
 </div>
 
+<div id="newVersionAlertModal" uk-modal>
+    <div class="uk-modal-dialog uk-modal-small">
+        <div class="uk-modal-header uk-padding-small">
+            <h3 class="uk-modal-title uk-margin-remove">
+                <i class="bi bi-arrow-up-circle-fill uk-text-primary"></i>
+                <span data-translate="update_available">Update Available</span>
+            </h3>
+            <button class="uk-modal-close-default" type="button" uk-close></button>
+        </div>
+        <div class="uk-modal-body">
+            <p class="uk-text-center" data-translate="new_version_available">
+                New theme version available!
+            </p>
+            <p class="uk-text-center uk-text-large uk-text-bold uk-margin-small-top" id="newVersionNumber">
+                Loading...
+            </p>
+        </div>
+        <div class="uk-modal-footer uk-text-right">
+            <button id="startUpdateBtn" class="uk-button uk-button-primary uk-margin-small-left" data-translate="update_now">
+                Update Now
+            </button>
+            <button class="uk-button uk-button-gray uk-modal-close uk-margin-small-left" data-translate="close">
+                Close
+            </button>
+        </div>
+    </div>
+</div>
+
 <script>
 const advancedColorControl = {
     isOpen: false,
@@ -5068,6 +5096,32 @@ enhanceNavigation();
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
+    setTimeout(function() {
+        checkNewVersion();
+    }, 5000);
+
+    function checkNewVersion() {
+        fetch('/luci-static/spectra/bgm/check_theme_update.php')
+            .then(response => response.json())
+            .then(data => {
+                console.log('Version check response:', data);
+                
+                if (data && data.needsUpdate === true && data.version) {
+                    document.getElementById('newVersionNumber').textContent = data.version;
+                    UIkit.modal('#newVersionAlertModal').show();
+                    
+                    document.getElementById('startUpdateBtn').onclick = function() {
+                        UIkit.modal('#newVersionAlertModal').hide();
+                        UIkit.modal('#themeUpdateConfirmModal').show();
+                        checkThemeUpdate();
+                    };
+                }
+            })
+            .catch(error => {
+                //console.log('Version check failed:', error);
+            });
+    }
+
     const themeOpenBtn = document.getElementById('themeOpenUpdateConfirmBtn');
     if (themeOpenBtn) {
         themeOpenBtn.addEventListener('click', function() {

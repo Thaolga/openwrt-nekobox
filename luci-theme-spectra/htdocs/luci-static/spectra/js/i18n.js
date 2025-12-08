@@ -263,6 +263,9 @@ const languageTranslations = {
         'guide_mode_switching': '6. 模式切换：图片/视频模式，只适用于暗色模式',
         'guide_project_link': '7. 项目地址：',
         'advancedColorControlSubtitle': 'HueMatrix 2.0 — 次世代色彩引擎',
+        'update_available': '更新可用',
+        'new_version_available': '新的主题版本可用',
+        'update_now': '立即更新',
         'command_install_label': '命令安装'
     },
     'hk': {
@@ -529,6 +532,9 @@ const languageTranslations = {
         'guide_mode_switching': '6. 模式切換：圖片/影片模式，只適用於暗色模式',
         'guide_project_link': '7. 項目地址：',
         'advancedColorControlSubtitle': 'HueMatrix 2.0 — 次世代色彩引擎',
+        'update_available': '有可用更新',
+        'new_version_available': '有新的主題版本可用',
+        'update_now': '立即更新',
         'theme_download': '主題下載'
     },
     'en': {
@@ -799,6 +805,9 @@ const languageTranslations = {
         'guide_mode_switching': '6. Mode Switching: Image/Video modes only work in dark mode',
         'guide_project_link': '7. Project Address:',
         'advancedColorControlSubtitle': 'HueMatrix 2.0 — Next-Generation Color Engine',
+        'update_available': 'Update Available',
+        'new_version_available': 'A new theme version is available',
+        'update_now': 'Update Now',
         'theme_download': 'Theme download'
     },
     'ko': {
@@ -1060,6 +1069,9 @@ const languageTranslations = {
         'guide_mode_switching': '6. 모드 전환: 이미지/비디오 모드는 다크 모드에서만 작동',
         'guide_project_link': '7. 프로젝트 주소:',
         'advancedColorControlSubtitle': 'HueMatrix 2.0 — 차세대 컬러 엔진',
+        'update_available': '업데이트 가능',
+        'new_version_available': '새 테마 버전이 있습니다',
+        'update_now': '지금 업데이트',
         'theme_download': '테마 다운로드'
     },
     'vi': {
@@ -1321,6 +1333,9 @@ const languageTranslations = {
         'guide_mode_switching': '6. Chuyển đổi chế độ: Chế độ hình ảnh/video chỉ hoạt động ở chế độ tối',
         'guide_project_link': '7. Địa chỉ dự án:',
         'advancedColorControlSubtitle': 'HueMatrix 2.0 — Động cơ màu thế hệ mới',
+        'update_available': 'Có bản cập nhật',
+        'new_version_available': 'Có phiên bản chủ đề mới',
+        'update_now': 'Cập nhật ngay',
         'theme_download': 'Tải chủ đề'
     },
     'th': {
@@ -1582,6 +1597,9 @@ const languageTranslations = {
         'guide_mode_switching': '6. การเปลี่ยนโหมด: โหมดภาพ/วิดีโอ ทำงานในโหมดมืดเท่านั้น',
         'guide_project_link': '7. ที่อยู่โครงการ:',
         'advancedColorControlSubtitle': 'HueMatrix 2.0 — เครื่องมือสีรุ่นใหม่',
+        'update_available': 'มีการอัปเดต',
+        'new_version_available': 'มีเวอร์ชันธีมใหม่พร้อมใช้งาน',
+        'update_now': 'อัปเดตทันที',
         'theme_download': 'ดาวน์โหลดธีม'
     },
     'ja': {
@@ -1843,6 +1861,9 @@ const languageTranslations = {
         'guide_mode_switching': '6. モード切り替え：画像/ビデオモードはダークモードでのみ動作',
         'guide_project_link': '7. プロジェクトアドレス：',
         'advancedColorControlSubtitle': 'HueMatrix 2.0 — 次世代カラーエンジン',
+        'update_available': '更新があります',
+        'new_version_available': '新しいテーマバージョンが利用可能です',
+        'update_now': '今すぐ更新',
         'theme_download': 'テーマダウンロード'
     },
     'ru': {
@@ -2104,6 +2125,9 @@ const languageTranslations = {
         'guide_mode_switching': '6. Переключение режимов: Режимы изображения/видео работают только в темном режиме',
         'guide_project_link': '7. Адрес проекта:',
         'advancedColorControlSubtitle': 'HueMatrix 2.0 — Цветовой движок нового поколения',
+        'update_available': 'Доступно обновление',
+        'new_version_available': 'Доступна новая версия темы',
+        'update_now': 'Обновить сейчас',
         'theme_download': 'Скачать тему'
     },
     'ar': {
@@ -2365,6 +2389,9 @@ const languageTranslations = {
         'guide_mode_switching': '6. تبديل الوضع: أوضاع الصورة/الفيديو تعمل فقط في الوضع الداكن',
         'guide_project_link': '7. عنوان المشروع:',
         'advancedColorControlSubtitle': 'HueMatrix 2.0 — محرك ألوان من الجيل التالي',
+        'update_available': 'يتوفر تحديث',
+        'new_version_available': 'يتوفر إصدار جديد من السمة',
+        'update_now': 'تحديث الآن',
         'theme_download': 'تحميل السمة'
     },
     'es': {
@@ -2626,6 +2653,9 @@ const languageTranslations = {
         'guide_mode_switching': '6. Cambio de modo: Modos imagen/video solo funcionan en modo oscuro',
         'guide_project_link': '7. Dirección del proyecto:',
         'advancedColorControlSubtitle': 'HueMatrix 2.0 — Motor de color de nueva generación',
+        'update_available': 'Actualización disponible',
+        'new_version_available': 'Hay una nueva versión del tema disponible',
+        'update_now': 'Actualizar ahora',
         'theme_download': 'Descarga del tema'
     },
     'de': {
@@ -2887,6 +2917,9 @@ const languageTranslations = {
         'guide_mode_switching': '6. Moduswechsel: Bild/Video-Modi funktionieren nur im dunklen Modus',
         'guide_project_link': '7. Projektadresse:',
         'advancedColorControlSubtitle': 'HueMatrix 2.0 — Farb-Engine der nächsten Generation',
+        'update_available': 'Update verfügbar',
+        'new_version_available': 'Eine neue Theme-Version ist verfügbar',
+        'update_now': 'Jetzt aktualisieren',
         'theme_download': 'Thema herunterladen'
     },
     'fr': {
@@ -3148,6 +3181,9 @@ const languageTranslations = {
         'guide_mode_switching': '6. Changement de mode : Les modes image/vidéo fonctionnent uniquement en mode sombre',
         'guide_project_link': '7. Adresse du projet :',
         'advancedColorControlSubtitle': 'HueMatrix 2.0 — Moteur de couleur nouvelle génération',
+        'update_available': 'Mise à jour disponible',
+        'new_version_available': 'Une nouvelle version du thème est disponible',
+        'update_now': 'Mettre à jour maintenant',
         'theme_download': 'Télécharger le thème'
     },
     'bn': {
@@ -3410,6 +3446,9 @@ const languageTranslations = {
         'guide_mode_switching': '6. মোড স্যুইচিং: ছবি/ভিডিও মোড শুধুমাত্র ডার্ক মোডে কাজ করে',
         'guide_project_link': '7. প্রকল্পের ঠিকানা:',
         'advancedColorControlSubtitle': 'HueMatrix 2.0 — নেক্সট-জেনারেশন কালার ইঞ্জিন',
+        'update_available': 'আপডেট উপলব্ধ',
+        'new_version_available': 'নতুন থিম সংস্করণ উপলব্ধ',
+        'update_now': 'এখনই আপডেট করুন',
         'theme_download': 'থিম ডাউনলোড'
     }
 };
