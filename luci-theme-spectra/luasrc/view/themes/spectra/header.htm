@@ -363,7 +363,7 @@
         <button class="ctrl-btn" onclick="changeTrack(1, true)" data-tooltip="next_track">
             <i class="fas fa-forward"></i>
         </button>
-        <button class="ctrl-btn" id="floatingRepeatBtn" onclick="toggleRepeat()">
+        <button class="ctrl-btn" id="floatingRepeatBtn" onclick="toggleRepeat()" data-tooltip="order_play">
             <i class="bi bi-arrow-repeat"></i>
         </button>
         <button class="ctrl-btn" id="goFirstBtn">
@@ -462,7 +462,7 @@
                     
                     <div class="music-control-group">
                         <div class="volume-control">
-                            <button class="control-btn" id="repeatBtn" onclick="toggleRepeat()">
+                            <button class="control-btn" id="repeatBtn" onclick="toggleRepeat()" data-tooltip="order_play">
                                 <i class="fa fa-sync-alt"></i>
                             </button>
                             <button class="control-btn" id="volumeToggle" data-tooltip="volume">
