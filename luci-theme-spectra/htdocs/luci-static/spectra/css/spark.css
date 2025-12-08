@@ -4656,20 +4656,17 @@ div>div[style*="display:grid"] {
     box-shadow: var(--border-glow);
 }
 
-.artist-image {
-    position: relative;
-}
-
 .zoom-icon {
     position: absolute;
-    top: 10px;
+    top: 50%;
     left: 50%;
-    transform: translateX(-50%);
+    transform: translate(-50%, -50%);
     font-size: 1.2rem;
-    color: var(--color-white-strong);
+    color: color-mix(in oklch, var(--accent-color), transparent 15%);
     opacity: 0;
     transition: opacity 0.25s ease;
     pointer-events: none;
+    z-index: 2;
 }
 
 .artist-image:hover .zoom-icon {
