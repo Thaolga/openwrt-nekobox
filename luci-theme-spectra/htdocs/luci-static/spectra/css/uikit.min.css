@@ -1428,20 +1428,21 @@ select.uk-form-width-xsmall {
     overflow: visible;
     font: inherit;
     color: inherit;
-    text-transform: none;
     -webkit-appearance: none;
-    border-radius: 12px;
+    border-radius: 0.375rem;
     display: inline-block;
     box-sizing: border-box;
-    padding: 0 30px;
+    padding: 0.375rem 0.75rem;
     vertical-align: middle;
-    font-size: .875rem;
-    line-height: 38px;
+    font-size: 1rem;
+    line-height: 1.5;
     text-align: center;
     text-decoration: none;
-    text-transform: uppercase;
-    transition: .1s ease-in-out;
-    transition-property: color, background-color, border-color
+    transition: color .15s ease-in-out,
+                background-color .15s ease-in-out,
+                border-color .15s ease-in-out,
+                box-shadow .15s ease-in-out;
+    border: 1px solid transparent;
 }
 
 .uk-button:not(:disabled) {
@@ -1459,83 +1460,100 @@ select.uk-form-width-xsmall {
 
 .uk-button-default {
     background-color: transparent;
-    color: #333;
-    border: 1px solid #e5e5e5
+    color: #6c757d;
+    border: 1px solid #6c757d;
 }
 
 .uk-button-default:hover {
-    background-color: transparent;
-    color: #333;
-    border-color: #b2b2b2
+    background-color: #6c757d;
+    color: #fff;
+    border-color: #6c757d;
 }
 
-.uk-button-default.uk-active,
-.uk-button-default:active {
-    background-color: transparent;
-    color: #333;
-    border-color: #999
+.uk-button-default:active,
+.uk-button-default.uk-active {
+    background-color: #5a6268;
+    color: #fff;
+    border-color: #545b62;
 }
 
 .uk-button-primary {
-    background-color: #1e87f0;
-    color: #fff !important;
-    border: 1px solid transparent
+    background-color: #0d6efd;
+    color: #fff  !important;
+    border: 1px solid transparent;
 }
 
 .uk-button-primary:hover {
-    background-color: #0f7ae5;
-    color: #fff !important;
+    background-color: #0b5ed7;
+    border-color: #0a58ca;
 }
 
-.uk-button-primary.uk-active,
-.uk-button-primary:active {
-    background-color: #0e6dcd;
-    color: #fff
+.uk-button-primary:active,
+.uk-button-primary.uk-active {
+    background-color: #0a58ca;
+    border-color: #0a53be;
 }
 
 .uk-button-success {
-    background-color: #28a745;
+    background-color: #198754;
     color: #fff;
     border: 1px solid transparent;
 }
 
 .uk-button-success:hover {
-    background-color: #218838;
+    background-color: #157347;
+    border-color: #146c43;
 }
 
-.uk-button-success.uk-active,
-.uk-button-success:active {
-    background-color: #1e7e34;
+.uk-button-danger {
+    background-color: #dc3545;
+    color: #fff;
+    border: 1px solid transparent;
+}
+
+.uk-button-danger:hover {
+    background-color: #bb2d3b;
+    border-color: #b02a37;
+}
+
+.uk-button-danger:active,
+.uk-button-danger.uk-active {
+    background-color: #b02a37;
+    border-color: #a52834;
 }
 
 .uk-button-warning {
     background-color: #fd7e14;
-    color: #fff;
+    color: #000;
     border: 1px solid transparent;
 }
 
 .uk-button-warning:hover {
-    background-color: #e06a0f;
+    background-color: #ff922b;
+    border-color: #ff922b;
 }
 
-.uk-button-warning.uk-active,
-.uk-button-warning:active {
-    background-color: #cc5c0d;
+.uk-button-warning:active,
+.uk-button-warning.uk-active {
+    background-color: #e06a0f;
+    border-color: #d6630a;
 }
 
 .uk-button-info {
-    background-color: #17a2b8;
-    color: #fff;
+    background-color: #0dcaf0;
+    color: #000;
     border: 1px solid transparent;
 }
 
 .uk-button-info:hover {
-    background-color: #138496;
+    background-color: #31d2f2;
+    border-color: #31d2f2;
 }
 
-.uk-button-info.uk-active,
-.uk-button-info:active {
-    background-color: #117a8b;
+.uk-button-info:active,
+.uk-button-info.uk-active {
+    background-color: #0baccc;
+    border-color: #0aa2c0;
 }
 
 .uk-button-purple {
@@ -1546,11 +1564,13 @@ select.uk-form-width-xsmall {
 
 .uk-button-purple:hover {
     background-color: #5936a3;
+    border-color: #523098;
 }
 
-.uk-button-purple.uk-active,
-.uk-button-purple:active {
+.uk-button-purple:active,
+.uk-button-purple.uk-active {
     background-color: #4b2d87;
+    border-color: #452a7a;
 }
 
 .uk-button-gray {
@@ -1560,46 +1580,31 @@ select.uk-form-width-xsmall {
 }
 
 .uk-button-gray:hover {
-    background-color: #5c636a;
+    background-color: #5a6268;
+    border-color: #545b62;
 }
 
-.uk-button-gray.uk-active,
-.uk-button-gray:active {
+.uk-button-gray:active,
+.uk-button-gray.uk-active {
     background-color: #545b62;
+    border-color: #4e555b;
 }
 
 .uk-button-secondary {
-    background-color: #222;
+    background-color: #212529;
     color: #fff;
-    border: 1px solid transparent
+    border: 1px solid transparent;
 }
 
 .uk-button-secondary:hover {
-    background-color: #151515;
-    color: #fff
+    background-color: #424649;
+    border-color: #373b3e;
 }
 
-.uk-button-secondary.uk-active,
-.uk-button-secondary:active {
-    background-color: #080808;
-    color: #fff
-}
-
-.uk-button-danger {
-    background-color: #f0506e;
-    color: #fff;
-    border: 1px solid transparent
-}
-
-.uk-button-danger:hover {
-    background-color: #ee395b;
-    color: #fff
-}
-
-.uk-button-danger.uk-active,
-.uk-button-danger:active {
-    background-color: #ec2147;
-    color: #fff
+.uk-button-secondary:active,
+.uk-button-secondary.uk-active {
+    background-color: #373b3e;
+    border-color: #2c3034;
 }
 
 .uk-button-danger:disabled,
@@ -1607,21 +1612,50 @@ select.uk-form-width-xsmall {
 .uk-button-primary:disabled,
 .uk-button-secondary:disabled {
     background-color: transparent;
-    color: #999;
-    border-color: #e5e5e5
+    color: #6c757d;
+    border-color: #6c757d;
+    opacity: 0.65;
+}
+
+.uk-button-success:disabled,
+.uk-button-warning:disabled,
+.uk-button-info:disabled,
+.uk-button-purple:disabled,
+.uk-button-gray:disabled {
+    opacity: 0.65;
+}
+
+.btn-spaced-h {
+    display: inline-flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    vertical-align: middle;
+}
+
+.btn-spaced-h-tight {
+    gap: 0.5rem;
+}
+
+.btn-spaced-h-loose {
+    gap: 1.5rem;
+}
+
+.btn-spaced-h-none {
+    gap: 0;
 }
 
 .uk-button-small {
-    padding: 0 15px;
-    line-height: 28px;
-    border-radius: 6px;
-    font-size: .875rem
+    padding: 0.25rem 0.5rem;
+    line-height: 1.5;
+    border-radius: 0.25rem;
+    font-size: 0.875rem;
 }
 
 .uk-button-large {
-    padding: 0 40px;
-    line-height: 53px;
-    font-size: .875rem
+    padding: 0.5rem 1rem;
+    line-height: 1.5;
+    font-size: 1.25rem;
+    border-radius: 0.5rem;
 }
 
 .uk-button-text {
@@ -2338,8 +2372,9 @@ select.uk-form-width-xsmall {
     position: relative;
     margin-bottom: 20px;
     padding: 15px 29px 15px 15px;
-    background: #f8f8f8;
-    color: #666
+    background: #2196f3;
+    color: #fff;
+    border-radius: 12px;
 }
 
 *+.uk-alert {

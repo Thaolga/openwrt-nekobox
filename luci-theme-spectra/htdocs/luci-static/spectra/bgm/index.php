@@ -1298,7 +1298,7 @@ body:hover,
 </div>
     <div class="card-header d-flex flex-column flex-md-row justify-content-between align-items-center text-center gap-2">
         <h5 class="mb-0" style="line-height: 40px; height: 40px;" data-translate="spectra_config"></h5>
-        <p id="status" class="mb-0"><span data-translate="current_mode">当前模式:</span> 加载中...</p>
+        <p id="status" class="mb-0"><span data-translate="current_mode"></span></p>
         <button id="toggleButton" onclick="toggleConfig()" class="btn btn-primary" data-translate="toggle_mode"></button>
     </div>
         <div class="d-flex align-items-center">
