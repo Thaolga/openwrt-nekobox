@@ -4672,3 +4672,18 @@ div>div[style*="display:grid"] {
 .artist-image:hover .zoom-icon {
     opacity: 1;
 }
+
+@keyframes uk-scale-up {
+    0% {
+        opacity: 0;
+        transform: scale(0.7);
+    }
+    100% {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+.uk-modal-dialog-scale {
+    animation: uk-scale-up 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
