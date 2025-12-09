@@ -3658,6 +3658,15 @@ function getVoiceTypeText(type) {
 function updateUIText() {
     const translations = languageTranslations[currentLang] || languageTranslations['zh'];
 
+    document.querySelectorAll('[title]').forEach(element => {
+        const titleText = element.getAttribute('title');
+        if (titleText && titleText.trim() !== '') {
+            element.setAttribute('data-tooltip-title', titleText);
+            element.setAttribute('data-tooltip-text', titleText);
+            element.removeAttribute('title');
+        }
+    });
+
     document.querySelectorAll('[data-translate]').forEach(element => {
         const key = element.getAttribute('data-translate');
         if (translations[key]) {
