@@ -689,14 +689,6 @@ div.nav-container>button.btn_styles {
     color: var(--accent-color) !important;
 }
 
-#openEditModal,
-#openEditModal .bi,
-#openEditModal svg {
-    color: var(--text-primary) !important;
-    fill: #000 !important;
-    stroke: #000 !important;
-}
-
 #mode-popup .button-grid button span,
 #mode-popup .button-grid button {
     color: white !important;
