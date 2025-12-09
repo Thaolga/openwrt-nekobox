@@ -74,6 +74,17 @@ header::after,
 	background-color: transparent !important;
 }
 
+.card-container .feature-card,
+.network-container .left-box .item_container .item,
+.badge, .offline, .status-icon, .status_time, .content .name .speed, .path,
+.tab .item, .info .item1,
+.reusable-card, .feature-card, .item_container .item {
+	background-color: transparent !important;
+	border: var(--glass-border) !important;
+        backdrop-filter: var(--glass-blur-mini);
+        -webkit-backdrop-filter: var(--glass-blur-mini);
+}
+
 fieldset.cbi-section>textarea,
 div#command-output>textarea {
 	background-color: transparent !important;
