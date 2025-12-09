@@ -4767,8 +4767,8 @@ div[style*="position: absolute"][style*="z-index: 9999999"] {
     z-index: 9999;
     background-color: var(--accent-color);
     border-radius: var(--radius-mini);
-    backdrop-filter: var(--glass-blur);
-    -webkit-backdrop-filter: var(--glass-blur);
+    backdrop-filter: var(--glass-blur-mini);
+    -webkit-backdrop-filter: var(--glass-blur-mini);
     box-shadow:
         0 0 50px cyan,
         0 0 100px cyan,
