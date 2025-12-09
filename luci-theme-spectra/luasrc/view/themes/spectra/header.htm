@@ -4960,8 +4960,12 @@ function initThemeLoaderControl() {
 }
 
 function updateToggleIcon(icon) {
-    if (icon) {
-        icon.style.color = themeLoaderEnabled ? '#0fcc45' : 'oklch(0.25 0 0)';
+    if (!icon) return;
+
+    if (themeLoaderEnabled) {
+        icon.className = 'bi bi-toggle-on';
+    } else {
+        icon.className = 'bi bi-toggle-off';
     }
 }
 
