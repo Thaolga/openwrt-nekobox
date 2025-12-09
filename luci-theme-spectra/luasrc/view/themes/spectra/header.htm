@@ -746,8 +746,14 @@
 
             .control-card:hover {
                 transform: scale(1.06);
+                background-color: color-mix(in oklch, var(--accent-secondary), transparent 10%)  !important;
+                color: var(--color-white-strong) !important;
                 box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
                 z-index: 2;
+            }
+
+            .control-card:hover .text-container span {
+                color: var(--color-white-strong) !important;
             }
 
             .control-card.disabled {
@@ -2490,9 +2496,6 @@ async function initIPDisplay() {
 
     const wifiIcon = document.getElementById('settings-icon');
     if (wifiIcon) wifiIcon.title = text.panel || 'Panel';
-
-    const setCityBtn = document.getElementById('setCityBtn');
-    if (setCityBtn) setCityBtn.title = modalText.modalTitle || 'Set City';
 
     const spectraConfigLink = document.querySelector('a[href*="/spectra"][data-title="Spectra_Config"], a[data-title="Spectra_Config"]');
     if (spectraConfigLink && text.spectraConfig) {
@@ -4958,7 +4961,7 @@ function initThemeLoaderControl() {
 
 function updateToggleIcon(icon) {
     if (icon) {
-        icon.style.color = themeLoaderEnabled ? '#0fcc45' : '#666666';
+        icon.style.color = themeLoaderEnabled ? '#0fcc45' : 'oklch(0.25 0 0)';
     }
 }
 
