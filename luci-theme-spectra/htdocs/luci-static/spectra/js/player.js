@@ -1751,6 +1751,20 @@ function displayPlainLyrics(lyricsText, containers) {
                 line.className = 'lyric-line plain-line';
                 line.dataset.lineIndex = index;
                 line.textContent = lineText;
+
+                line.addEventListener('click', function() {
+                    const lineIndex = parseInt(this.dataset.lineIndex);
+                    const duration = audioPlayer.duration || 60;
+                    const lineDuration = duration / lines.length;
+                    const targetTime = lineIndex * lineDuration;
+                    audioPlayer.currentTime = targetTime;
+                    
+                    if (audioPlayer.paused) {
+                        audioPlayer.play();
+                        isPlaying = true;
+                        updatePlayButton();
+                    }
+                });
                 
                 if (container.id === 'lyricsContainer') {
                     container.appendChild(line);
@@ -1934,6 +1948,20 @@ function displayLyrics() {
         const endTime = index < lyricTimes.length - 1 ? lyricTimes[index + 1] : time + 3; 
         const elements = createCharSpans(lyrics[time], time, endTime);
         elements.forEach(element => line.appendChild(element));
+        line.addEventListener('click', function() {
+            const lineTime = parseFloat(this.dataset.time);
+            const speedOffset = parseFloat(localStorage.getItem('lyricsSpeedOffset')) || 0;
+            const adjustedTime = lineTime - speedOffset;
+            
+            audioPlayer.currentTime = Math.max(0, adjustedTime);
+            
+            if (audioPlayer.paused) {
+                audioPlayer.play();
+                isPlaying = true;
+                updatePlayButton();
+            }
+        });
+        
         if (lyricsContainer) lyricsContainer.appendChild(line);
     });
 
