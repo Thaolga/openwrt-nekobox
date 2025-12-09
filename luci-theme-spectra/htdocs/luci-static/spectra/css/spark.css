@@ -14,6 +14,7 @@
     --glass-blur: blur(20px);
     --radius: 20px;
     --radius-small: 12px;
+    --radius-mini: 8px;
     --glass-opacity: 0.85;
     --glass-border: 1px solid oklch(100% 0 0 / 0.1);
     --border-color: oklch(40% var(--base-chroma) var(--base-hue));
@@ -175,6 +176,7 @@
     --glass-blur: blur(20px);
     --radius: 20px;
     --radius-small: 12px;
+    --radius-mini: 8px;
     --glass-opacity: 0.85;
     --glass-border: 1px solid oklch(0% 0 0 / 0.05);
     --border-light: 1px solid oklch(90% 0.02 var(--base-hue) / 0.4);
@@ -4615,10 +4617,10 @@ div>div[style*="display:grid"] {
     padding: 6px 12px;
     font-size: 0.8rem;
     line-height: 1.4;
-    color: white;
-    background-color: oklch(20% 0.05 0 / 0.95);
-    border-radius: var(--radius-small, 6px);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    background-color: color-mix(in oklch, var(--accent-color), transparent 10%);
+    color: var(--color-white-strong);
+    border-radius: var(--radius-small);
+    box-shadow: 0 4px 12px oklch(0% 0 0 / 0.15);
     white-space: nowrap;
     pointer-events: none;
     opacity: 0;
@@ -4627,7 +4629,7 @@ div>div[style*="display:grid"] {
     transform: translateY(5px);
     transition: opacity 0.2s ease, transform 0.2s ease;
     backdrop-filter: var(--glass-blur, blur(10px));
-    border: var(--glass-border, 1px solid rgba(255, 255, 255, 0.1));
+    border: var(--glass-border);
     transition: opacity 0.2s ease, transform 0.2s ease;
 }
 
@@ -4649,7 +4651,7 @@ div>div[style*="display:grid"] {
     left: 50%;
     transform: translateX(-50%);
     border-width: 6px 6px 0 6px;
-    border-color: oklch(20% 0.05 0 / 0.95) transparent transparent transparent;
+    border-color: color-mix(in oklch, var(--accent-color), transparent 10%)  transparent transparent transparent;
 }
 
 .custom-tooltip[data-placement="bottom"]::after {
@@ -4657,22 +4659,19 @@ div>div[style*="display:grid"] {
     left: 50%;
     transform: translateX(-50%);
     border-width: 0 6px 6px 6px;
-    border-color: transparent transparent oklch(20% 0.05 0 / 0.95) transparent;
-}
-
-[data-theme="light"] .custom-tooltip {
-    background-color: color-mix(in oklch, var(--accent-color), transparent 10%);
-    color: var(--color-white-strong);
-    border: 1px solid oklch(90% 0.02 0 / 0.5);
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
-}
-
-[data-theme="light"] .custom-tooltip[data-placement="top"]::after {
-    border-color: color-mix(in oklch, var(--accent-color), transparent 10%)  transparent transparent transparent;
-}
-
-[data-theme="light"] .custom-tooltip[data-placement="bottom"]::after {
     border-color: transparent transparent color-mix(in oklch, var(--accent-color), transparent 10%)  transparent;
+}
+
+[data-theme="dark"] .custom-tooltip {
+    background-color: color-mix(in oklch, var(--accent-tertiary), transparent 10%);
+}
+
+[data-theme="dark"] .custom-tooltip[data-placement="top"]::after {
+    border-color: color-mix(in oklch, var(--accent-tertiary), transparent 10%)  transparent transparent transparent;
+}
+
+[data-theme="dark"] .custom-tooltip[data-placement="bottom"]::after {
+    border-color: transparent transparent color-mix(in oklch, var(--accent-tertiary), transparent 10%)  transparent;
 }
 
 @keyframes tooltip-fade-in {
@@ -4740,4 +4739,14 @@ div>div[style*="display:grid"] {
 
 .uk-modal-dialog-scale {
     animation: uk-scale-up 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+
+div[style*="position: absolute"][style*="z-index: 9999999"] {
+    background-color: color-mix(in oklch, var(--card-bg), transparent 15%) !important;
+    color: var(--text-primary) !important;
+    border: var(--border-light) !important;
+    border-radius: var(--radius-mini) !important;
+    backdrop-filter: var(--glass-blur) !important;
+    -webkit-backdrop-filter: var(--glass-blur) !important;
+    box-shadow: var(--shadow-intensity) !important;
 }
