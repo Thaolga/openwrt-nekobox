@@ -3065,7 +3065,7 @@ body:not(.Interfaces) .cbi-rowstyle-2:first-child {
     position: absolute;
     z-index: 9999;
     display: block;
-    width: 100% !important;
+    width: auto !important;   
     min-width: 100% !important;
     box-sizing: border-box !important;
     max-height: 200px;
@@ -3270,7 +3270,12 @@ body:not(.Interfaces) .cbi-rowstyle-2:first-child {
     padding: 1em;
     border-radius: 3px !important;
     background: var(--card-bg);
-    box-shadow: 0 2px 2px 0 rgba(0, 0, 0, 0.16), 0 0 2px 0 rgba(0, 0, 0, 0.12)
+    box-shadow: var(--shadow-inset);
+}
+
+[data-theme="dark"] .modal {
+    border: var(--glass-border)  !important;
+    box-shadow: var(--border-glow)  !important;
 }
 
 .modal>* {
@@ -3732,6 +3737,32 @@ td.cbi-value-field var,
 
 .cbi-dropdown-container {
     position: relative
+}
+
+.cbi-tooltip-container,
+span[data-tooltip],
+span[data-tooltip] .label {
+    cursor: help !important
+}
+
+.cbi-tooltip {
+    position: absolute;
+    z-index: 1000;
+    left: -1000px;
+    padding: 2px 5px;
+    transition: opacity .25s ease-out;
+    white-space: pre;
+    pointer-events: none;
+    opacity: 0;
+    border-radius: 3px;
+    background: #fff;
+    box-shadow: 0 0 2px #444
+}
+
+.cbi-tooltip-container:hover .cbi-tooltip {
+    left: auto;
+    transition: opacity .25s ease-in;
+    opacity: 1
 }
 
 .zonebadge .cbi-tooltip {

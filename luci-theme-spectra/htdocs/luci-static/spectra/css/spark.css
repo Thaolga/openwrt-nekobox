@@ -1900,6 +1900,10 @@ div>div[style*="display:grid"] {
     color: var(--text-primary) !important;
 }
 
+[data-theme="dark"] .uk-modal-dialog {
+    border: var(--glass-border)  !important;
+    box-shadow: var(--border-glow)  !important;
+}
 
 .uk-card-default .uk-card-title {
     color: var(--text-primary) !important;
@@ -2620,6 +2624,7 @@ div>div[style*="display:grid"] {
     border: var(--glass-border);
     align-items: center;
     justify-content: center;
+    box-shadow: var(--shadow-inset);
 }
 
 .music-modal.active {
@@ -3521,28 +3526,6 @@ div>div[style*="display:grid"] {
     background-color: var(--item-hover-bg);
 }
 
-#volumePanel {
-    position: absolute;
-    bottom: 100%;
-    left: calc(50% - 20px);
-    transform: translateX(-50%);
-    margin-bottom: 10px;
-    background-color: var(--card-bg);
-    border: 1px solid var(--border-color);
-    border-radius: 0.5rem;
-    padding: 10px;
-    width: 160px;
-    box-shadow: 0 4px 10px var(--border-color);
-    z-index: 1000;
-    display: none;
-    animation: var(--breath-animation);
-}
-
-#volumeSlider {
-    width: 100%;
-    accent-color: var(--accent-color);
-}
-
 .volume-control {
     position: relative;
     display: flex;
@@ -3550,31 +3533,54 @@ div>div[style*="display:grid"] {
     gap: 12px;
 }
 
-.volume-slider-container {
+.volume-panel-container {
+    position: absolute;
+    bottom: 100%;
+    left: 48px;
+    margin-bottom: 10px;
+    background-color: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 0.5rem;
+    padding: 15px 10px;
+    width: 40px;
+    min-height: 150px;
+    box-shadow: 0 4px 10px var(--border-color);
+    z-index: 1000;
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.volume-slider-wrapper {
     position: relative;
+    height: 100px;
+    width: 40px;
     display: flex;
     align-items: center;
-    background-color: oklch(0% 0 0 / 60%);
-    padding: 8px 12px;
-    border-radius: 20px;
-    min-width: 120px;
-    transform: none;
-    margin: 0;
-    opacity: 1;
-    pointer-events: auto;
+    justify-content: center;
+    flex: 1;
 }
 
-.volume-slider {
+#volumeSlider {
     width: 100px;
     height: 6px;
-    -webkit-appearance: none;
-    background: linear-gradient(to right, oklch(54.9% 0.245 293.6) 0%, oklch(54.9% 0.245 293.6) var(--volume, 100%), oklch(100% 0 0 / 20%) var(--volume, 100%), oklch(100% 0 0 / 20%) 100%);
+    transform-origin: center;
+    transform: rotate(-90deg);
+    position: relative;
+    background: linear-gradient(to right, 
+        oklch(54.9% 0.245 293.6) 0%, 
+        oklch(54.9% 0.245 293.6) var(--volume, 100%), 
+        oklch(100% 0 0 / 20%) var(--volume, 100%), 
+        oklch(100% 0 0 / 20%) 100%);
     border-radius: 3px;
     outline: none;
-    margin: 0;
+    -webkit-appearance: none;
+    accent-color: var(--accent-color);
+    cursor: pointer;
 }
 
-.volume-slider::-webkit-slider-thumb {
+#volumeSlider::-webkit-slider-thumb {
     -webkit-appearance: none;
     width: 16px;
     height: 16px;
@@ -3583,6 +3589,28 @@ div>div[style*="display:grid"] {
     cursor: pointer;
     border: 2px solid oklch(100% 0 0);
     box-shadow: 0 2px 4px oklch(0% 0 0 / 30%);
+}
+
+#volumeSlider::-moz-range-thumb {
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: oklch(54.9% 0.245 293.6);
+    cursor: pointer;
+    border: 2px solid oklch(100% 0 0);
+    box-shadow: 0 2px 4px oklch(0% 0 0 / 30%);
+}
+
+.volume-percentage {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--accent-color);
+    background: oklch(54.9% 0.245 293.6 / 0.1);
+    padding: 4px 8px;
+    border-radius: 12px;
+    min-width: 36px;
+    text-align: center;
+    margin-top: 5px;
 }
 
 .header-controls {

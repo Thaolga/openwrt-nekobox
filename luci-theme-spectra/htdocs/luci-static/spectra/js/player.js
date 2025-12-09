@@ -150,7 +150,7 @@ function initVisualizer() {
 
 function toggleVisualizer() {
     const container = document.getElementById('visualizerContainer');
-    const button = document.querySelector('[data-tooltip="toggle_visualizer"]');
+    const button = document.querySelector('[data-tooltip-title="toggle_visualizer"]');
     
     if (!container || !button) {
         return;
@@ -312,33 +312,33 @@ function createLyricsControls() {
     const sourceBtn = document.createElement('div');
     sourceBtn.className = 'lyrics-source-btn';
     sourceBtn.innerHTML = '<i class="fas fa-database"></i>';
-    sourceBtn.setAttribute('data-tooltip', 'lyrics_source');
+    sourceBtn.setAttribute('data-tooltip-title', 'lyrics_source');
 
     const imageSourceBtn = document.createElement('div');
     imageSourceBtn.className = 'image-source-btn';
     imageSourceBtn.innerHTML = '<i class="bi bi-person-circle"></i>';
-    imageSourceBtn.setAttribute('data-tooltip', 'image_source');
+    imageSourceBtn.setAttribute('data-tooltip-title', 'image_source');
     
     const speedBtn = document.createElement('div');
     speedBtn.className = 'lyrics-speed-btn';
     speedBtn.innerHTML = '<i class="fas fa-tachometer-alt"></i>';
-    speedBtn.setAttribute('data-tooltip', 'lyrics_speed');
+    speedBtn.setAttribute('data-tooltip-title', 'lyrics_speed');
     
     const colorBtn = document.createElement('div');
     colorBtn.className = 'lyrics-color-btn';
     colorBtn.innerHTML = '<i class="fas fa-font"></i>';
-    colorBtn.setAttribute('data-tooltip', 'font_color');
+    colorBtn.setAttribute('data-tooltip-title', 'font_color');
 
     const downloadBtn = document.createElement('div');
     downloadBtn.className = 'lyrics-download-btn';
     downloadBtn.innerHTML = '<i class="fas fa-download"></i>';
-    downloadBtn.setAttribute('data-tooltip', 'download_options');
+    downloadBtn.setAttribute('data-tooltip-title', 'download_options');
     
     const bgToggle = document.createElement('div');
     bgToggle.className = 'bg-toggle';
     bgToggle.id = 'bgToggle';
     bgToggle.innerHTML = '<i class="bi bi-palette"></i>';
-    bgToggle.setAttribute('data-tooltip', 'background_toggle');
+    bgToggle.setAttribute('data-tooltip-title', 'background_toggle');
     
     controls.appendChild(sourceBtn);
     controls.appendChild(imageSourceBtn);
@@ -1170,6 +1170,12 @@ function resetToDefault() {
 }
 
 function openMusicModal() {
+    const controlPanel = document.getElementById('control-panel-modal');
+    if (controlPanel) {
+        try {
+            UIkit.modal(controlPanel).hide();
+        } catch (e) {}
+    }
     const modal = document.getElementById('musicModal');
     modal.style.display = 'block';
     updatePlayButton();
@@ -1186,6 +1192,13 @@ function updatePlayerTranslations() {
         updateUIText();
     }
 }
+
+window.addEventListener('click', function (event) {
+    const modal = document.getElementById('musicModal');
+    if (modal.style.display === 'block' && event.target === modal) {
+        closeMusicModal();
+    }
+});
 
 function togglePlay() {
     const translations = languageTranslations[currentLang] || languageTranslations['zh'];    
@@ -1273,7 +1286,7 @@ function toggleRepeat() {
 
         btn.classList.remove('btn-success', 'btn-warning');
 
-        btn.setAttribute('data-tooltip', tooltipKeys[repeatMode]);
+        btn.setAttribute('data-tooltip-title', tooltipKeys[repeatMode]);
 
         btn.removeAttribute('title');
 
@@ -2246,7 +2259,7 @@ function loadPlayerState() {
                 }
                 if (audioVisualizer) {
                     const container = document.getElementById('visualizerContainer');
-                    const button = document.querySelector('[data-tooltip="toggle_visualizer"]');
+                    const button = document.querySelector('[data-tooltip-title="toggle_visualizer"]');
                     if (container && button) {
                         container.style.display = 'block';
                         audioVisualizer.enable();
@@ -2283,7 +2296,7 @@ function setRepeatButtonState() {
 
         btn.classList.remove('btn-success', 'btn-warning');
 
-        btn.setAttribute('data-tooltip', tooltipKeys[repeatMode]);
+        btn.setAttribute('data-tooltip-title', tooltipKeys[repeatMode]);
 
         let icon = btn.querySelector('i');
         if (!icon) {
@@ -2349,9 +2362,11 @@ document.addEventListener('DOMContentLoaded', function() {
     const volumeToggle = document.getElementById('volumeToggle');
     const volumePanel = document.getElementById('volumePanel');
     const volumeSlider = document.getElementById('volumeSlider');
+    const volumePercentage = document.getElementById('volumePercentage');
     const volumeIconEl = volumeToggle.querySelector('i');
 
     let lastVolume = 1;
+    let hideVolumePanelTimeout = null;
 
     const savedVolume = localStorage.getItem('audioVolume');
     const savedMuted = localStorage.getItem('audioMuted');
@@ -2363,6 +2378,8 @@ document.addEventListener('DOMContentLoaded', function() {
     if (typeof audioPlayer !== 'undefined') {
         audioPlayer.volume = lastVolume;
         volumeSlider.value = lastVolume;
+        
+        updateVolumePercentage(lastVolume);
         
         if (savedMuted !== null) {
             audioPlayer.muted = (savedMuted === 'true');
@@ -2390,6 +2407,13 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
+    function updateVolumePercentage(volume) {
+        if (volumePercentage) {
+            const percentage = Math.round(volume * 100);
+            volumePercentage.textContent = `${percentage}%`;
+        }
+    }
+
     function toggleMute() {
         if (typeof audioPlayer === 'undefined') return;
         
@@ -2399,6 +2423,7 @@ document.addEventListener('DOMContentLoaded', function() {
         if (!audioPlayer.muted && audioPlayer.volume === 0) {
             audioPlayer.volume = lastVolume;
             volumeSlider.value = lastVolume;
+            updateVolumePercentage(lastVolume);
         }
         
         localStorage.setItem('audioMuted', audioPlayer.muted);
@@ -2416,26 +2441,33 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-    function toggleVolumePanel() {
-        const isVisible = volumePanel.style.display === 'block';
-        if (isVisible) {
-            volumePanel.style.display = 'none';
-        } else {
-            volumePanel.style.display = 'block';
-        }
+    function showVolumePanel() {
+        clearTimeout(hideVolumePanelTimeout);
+        volumePanel.style.display = 'flex';
     }
+
+    function hideVolumePanel() {
+        hideVolumePanelTimeout = setTimeout(() => {
+            volumePanel.style.display = 'none';
+        }, 300);
+    }
+
+    volumeToggle.addEventListener('mouseenter', showVolumePanel);
+    volumeToggle.addEventListener('mouseleave', hideVolumePanel);
+    
+    volumePanel.addEventListener('mouseenter', () => {
+        clearTimeout(hideVolumePanelTimeout);
+    });
+    
+    volumePanel.addEventListener('mouseleave', hideVolumePanel);
 
     volumeToggle.addEventListener('click', function(e) {
         e.stopPropagation();
-        if (e.target === volumeIconEl || e.target.closest('i')) {
-            toggleMute();
-        } else {
-            toggleVolumePanel();
-        }
+        toggleMute();
     });
 
     document.addEventListener('click', function() {
-        if (volumePanel.style.display === 'block') {
+        if (volumePanel.style.display === 'flex') {
             volumePanel.style.display = 'none';
         }
     });
@@ -2451,6 +2483,8 @@ document.addEventListener('DOMContentLoaded', function() {
         const vol = Math.round(parseFloat(e.target.value) * 100);
 
         audioPlayer.volume = e.target.value;
+        updateVolumePercentage(e.target.value);
+        
         if (audioPlayer.muted) {
             audioPlayer.muted = false;
             localStorage.setItem('audioMuted', 'false');
@@ -2527,7 +2561,14 @@ function initAudioControls() {
         if (savedVolume !== null) {
             audioPlayer.volume = parseFloat(savedVolume);
             const volumeSlider = document.getElementById('volumeSlider');
-            if (volumeSlider) volumeSlider.value = audioPlayer.volume;
+            if (volumeSlider) {
+                volumeSlider.value = audioPlayer.volume;
+                const volumePercentage = document.getElementById('volumePercentage');
+                if (volumePercentage) {
+                    const percentage = Math.round(audioPlayer.volume * 100);
+                    volumePercentage.textContent = `${percentage}%`;
+                }
+            }
         }
         
         if (savedSpeed !== null) {

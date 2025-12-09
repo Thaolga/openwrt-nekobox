@@ -225,30 +225,30 @@
                 </div>
 
                 <div class="nav-icon" id="control-panel-toggle" uk-toggle="target: #control-panel-modal">
-                        <img id="wifiIcon" src="<%=media%>/navbar/interface.gif" data-tooltip="control_panel" style="cursor:pointer;">
+                        <img id="wifiIcon" src="<%=media%>/navbar/interface.gif" data-tooltip-title="control_panel" style="cursor:pointer;">
                 </div>
 
                 <div class="app-icon-btn"  id="panel" onclick="openControlPanel()">
-                   <a  style="cursor: pointer;" data-tooltip="ui_control">
+                   <a  style="cursor: pointer;" data-tooltip-title="ui_control">
                        <i class="fas fa-sliders-h"></i>
                    </a>
                </div>
 
                 <div class="app-icon-btn"  id="colorpanel" onclick="advancedColorControl.open()">
-                   <a  style="cursor: pointer;" data-tooltip="advancedColorControl">
+                   <a  style="cursor: pointer;" data-tooltip-title="advancedColorControl">
                        <i class="fas fa-palette"></i>
                    </a>
                </div>
 
                 <div class="app-icon-btn"  id="colorPickerBtn" onclick="document.getElementById('colorPicker').click()">
-                   <a  style="cursor: pointer;" data-tooltip="selectBackgroundColor">
+                   <a  style="cursor: pointer;" data-tooltip-title="selectBackgroundColor">
                        <i class="fas fa-moon"></i>
                    </a>
                        <input type="color" id="colorPicker" value="#0f3460" style="display: none;">
                </div>
 
                 <div class="icon-group">
-                        <button class="translation-toggle app-icon-btn" onclick="toggleTranslation()" data-tooltip="online_translation"><i class="fas fa-language"></i></button>
+                        <button class="translation-toggle app-icon-btn" onclick="toggleTranslation()" data-tooltip-title="online_translation"><i class="fas fa-language"></i></button>
                 </div>
             </div>
 
@@ -354,22 +354,22 @@
 
 <div id="floatingLyrics">
     <div class="floating-controls">
-        <button class="ctrl-btn" onclick="changeTrack(-1, true)" data-tooltip="previous_track">
+        <button class="ctrl-btn" onclick="changeTrack(-1, true)" data-tooltip-title="previous_track">
             <i class="fas fa-backward"></i>
         </button>
-        <button class="ctrl-btn" id="floatingPlayBtn" onclick="togglePlay()" data-tooltip="play_pause">
+        <button class="ctrl-btn" id="floatingPlayBtn" onclick="togglePlay()" data-tooltip-title="play_pause">
             <i class="bi bi-play-fill"></i>
         </button>
-        <button class="ctrl-btn" onclick="changeTrack(1, true)" data-tooltip="next_track">
+        <button class="ctrl-btn" onclick="changeTrack(1, true)" data-tooltip-title="next_track">
             <i class="fas fa-forward"></i>
         </button>
-        <button class="ctrl-btn" id="floatingRepeatBtn" onclick="toggleRepeat()" data-tooltip="order_play">
+        <button class="ctrl-btn" id="floatingRepeatBtn" onclick="toggleRepeat()" data-tooltip-title="order_play">
             <i class="bi bi-arrow-repeat"></i>
         </button>
         <button class="ctrl-btn" id="goFirstBtn">
             <i class="fas fa-circle-left"></i>
         </button>
-        <button class="ctrl-btn toggleFloatingLyricsBtn" data-tooltip="toggle_floating_lyrics">
+        <button class="ctrl-btn toggleFloatingLyricsBtn" data-tooltip-title="toggle_floating_lyrics">
             <i class="bi bi-display floatingIcon"></i>
         </button>
     </div>
@@ -384,10 +384,10 @@
                 <h2 class="modal-title"><i class="fa-solid fa-music"></i> <span data-translate="music_player">Music Player</span></h2>
             </div>
             <div class="header-controls">
-                <button type="button" class="control-btn fullscreen-btn" onclick="toggleFullscreen()" data-tooltip="fullscreen">
+                <button type="button" class="control-btn fullscreen-btn" onclick="toggleFullscreen()" data-tooltip-title="fullscreen">
                     <i class="bi bi-arrows-fullscreen"></i>
                 </button>
-                <button type="button" class="control-btn fullscreen-close-btn" onclick="closeMusicModal()" data-tooltip="close">
+                <button type="button" class="control-btn fullscreen-close-btn" onclick="closeMusicModal()" data-tooltip-title="close">
                     <i class="bi bi-x-lg"></i>
                 </button>
             </div>
@@ -398,7 +398,7 @@
                 <div class="playlist-section">
                     <div class="playlist-header">
                         <h6 class="playlist-title" data-translate="playlist">Playlist</h6>
-                            <button class="control-btn" onclick="openUrlModal()" data-tooltip="custom_playlist">
+                            <button class="control-btn" onclick="openUrlModal()" data-tooltip-title="custom_playlist">
                                 <i class="bi bi-music-note-list"></i>
                             </button>
                         </div>
@@ -424,13 +424,13 @@
                 <div class="control-section">
                     <div class="left-controls">
                         <div class="playback-controls">
-                            <button class="control-btn" onclick="changeTrack(-1, true)" data-tooltip="previous_track">
+                            <button class="control-btn" onclick="changeTrack(-1, true)" data-tooltip-title="previous_track">
                                 <i class="bi bi-caret-left-fill"></i>
                             </button>
-                            <button class="control-btn play-pause-btn" id="playPauseBtn" onclick="togglePlay()" data-tooltip="play_pause">
+                            <button class="control-btn play-pause-btn" id="playPauseBtn" onclick="togglePlay()" data-tooltip-title="play_pause">
                                 <i class="bi bi-play-fill"></i>
                             </button>
-                            <button class="control-btn" onclick="changeTrack(1, true)" data-tooltip="next_track">
+                            <button class="control-btn" onclick="changeTrack(1, true)" data-tooltip-title="next_track">
                                 <i class="bi bi-caret-right-fill"></i>
                             </button>
                         </div>
@@ -454,7 +454,7 @@
                                     <div class="progress-bar" id="progressBar"></div>
                                 </div>
                             </div>
-                            <button class="control-btn" id="speedToggle" data-tooltip="playback_speed">
+                            <button class="control-btn" id="speedToggle" data-tooltip-title="playback_speed">
                                 <span id="speedLabel">1×</span>
                             </button>
                         </div>
@@ -462,23 +462,26 @@
                     
                     <div class="music-control-group">
                         <div class="volume-control">
-                            <button class="control-btn" id="repeatBtn" onclick="toggleRepeat()" data-tooltip="order_play">
+                            <button class="control-btn" id="repeatBtn" onclick="toggleRepeat()" data-tooltip-title="order_play">
                                 <i class="fa fa-sync-alt"></i>
                             </button>
-                            <button class="control-btn" id="volumeToggle" data-tooltip="volume">
+                            <button class="control-btn" id="volumeToggle" data-tooltip-title="volume">
                                 <i class="bi bi-volume-up-fill"></i>
                             </button>
-                            <button class="control-btn toggleFloatingLyricsBtn" data-tooltip="toggle_floating_lyrics">
+                            <button class="control-btn toggleFloatingLyricsBtn" data-tooltip-title="toggle_floating_lyrics">
                                 <i class="bi bi-display floating-icon"></i>
                             </button>
-                            <button class="control-btn" id="updatePlaylistBtn" onclick="updatePlaylist()" data-tooltip="update_playlist">
+                            <button class="control-btn" id="updatePlaylistBtn" onclick="updatePlaylist()" data-tooltip-title="update_playlist">
                                 <i class="fa fa-sync-alt"></i>
                             </button>
-                            <button class="control-btn" onclick="toggleVisualizer()" data-tooltip="toggle_visualizer">
+                            <button class="control-btn" onclick="toggleVisualizer()" data-tooltip-title="toggle_visualizer">
                                 <i class="bi bi-bar-chart"></i>
                             </button>
-                            <div class="volume-slider-container" id="volumePanel">
-                                <input type="range" class="volume-slider" id="volumeSlider" min="0" max="1" step="0.01" value="1">
+                            <div class="volume-panel-container" id="volumePanel">
+                                <div class="volume-slider-wrapper">
+                                    <input type="range" class="volume-slider" id="volumeSlider" min="0" max="1" step="0.01" value="1">
+                                </div>
+                                <div class="volume-percentage" id="volumePercentage">100%</div>
                             </div>
                         </div>
                     </div>
@@ -643,45 +646,45 @@
                 </h6>
                 <div class="preset-colors-section">
                     <div class="preset-colors-grid">
-                        <button class="preset-color-btn" data-hue="250" data-chroma="0.08" data-lightness="30" data-tooltip="midnight blue">
+                        <button class="preset-color-btn" data-hue="250" data-chroma="0.08" data-lightness="30" data-tooltip-title="midnight blue">
                             <div class="preset-color-circle" style="background-color: oklch(30% 0.08 250);"></div>
                         </button>
-                        <button class="preset-color-btn" data-hue="190" data-chroma="0.07" data-lightness="30" data-tooltip="cyan">
+                        <button class="preset-color-btn" data-hue="190" data-chroma="0.07" data-lightness="30" data-tooltip-title="cyan">
                             <div class="preset-color-circle" style="background-color: oklch(30% 0.07 190);"></div>
                         </button>
 
-                        <button class="preset-color-btn" data-hue="267" data-chroma="0.25" data-lightness="85" data-tooltip="sky blue">
+                        <button class="preset-color-btn" data-hue="267" data-chroma="0.25" data-lightness="85" data-tooltip-title="sky blue">
                             <div class="preset-color-circle" style="background-color: oklch(85% 0.25 267);"></div>
                         </button>
-                        <button class="preset-color-btn" data-hue="56" data-chroma="0.18" data-lightness="85" data-tooltip="yellow">
+                        <button class="preset-color-btn" data-hue="56" data-chroma="0.18" data-lightness="85" data-tooltip-title="yellow">
                             <div class="preset-color-circle" style="background-color: oklch(85% 0.18 56);"></div>
                         </button>
 
-                        <button class="preset-color-btn" data-hue="160" data-chroma="0.09" data-lightness="66" data-tooltip="mint">
+                        <button class="preset-color-btn" data-hue="160" data-chroma="0.09" data-lightness="data-tooltip-title="mint">
                             <div class="preset-color-circle" style="background-color: oklch(66% 0.09 160);"></div>
                         </button>
-                        <button class="preset-color-btn" data-hue="130" data-chroma="0.11" data-lightness="70" data-tooltip="emerald">
+                        <button class="preset-color-btn" data-hue="130" data-chroma="0.11" data-lightness="70" data-tooltip-title="emerald">
                             <div class="preset-color-circle" style="background-color: oklch(70% 0.11 130);"></div>
                         </button>
 
-                        <button class="preset-color-btn" data-hue="25" data-chroma="0.15" data-lightness="71" data-tooltip="coral">
+                        <button class="preset-color-btn" data-hue="25" data-chroma="0.15" data-lightness="71" data-tooltip-title="coral">
                             <div class="preset-color-circle" style="background-color: oklch(71% 0.15 25);"></div>
                         </button>
-                        <button class="preset-color-btn" data-hue="5" data-chroma="0.18" data-lightness="47" data-tooltip="ruby">
+                        <button class="preset-color-btn" data-hue="5" data-chroma="0.18" data-lightness="47" data-tooltip-title="ruby">
                             <div class="preset-color-circle" style="background-color: oklch(47% 0.18 5);"></div>
                         </button>
 
-                        <button class="preset-color-btn" data-hue="290" data-chroma="0.14" data-lightness="46" data-tooltip="amethyst">
+                        <button class="preset-color-btn" data-hue="290" data-chroma="0.14" data-lightness="46" data-tooltip-title="amethyst">
                             <div class="preset-color-circle" style="background-color: oklch(46% 0.14 290);"></div>
                         </button>
-                        <button class="preset-color-btn" data-hue="320" data-chroma="0.16" data-lightness="69" data-tooltip="magenta">
+                        <button class="preset-color-btn" data-hue="320" data-chroma="0.16" data-lightness="69" data-tooltip-title="magenta">
                             <div class="preset-color-circle" style="background-color: oklch(69% 0.16 320);"></div>
                         </button>
 
-                        <button class="preset-color-btn" data-hue="260" data-chroma="0.01" data-lightness="95" data-tooltip="pure white">
+                        <button class="preset-color-btn" data-hue="260" data-chroma="0.01" data-lightness="95" data-tooltip-title="pure white">
                             <div class="preset-color-circle" style="background-color: oklch(95% 0.01 260);"></div>
                         </button>
-                        <button class="preset-color-btn" data-hue="269" data-chroma="0.01" data-lightness="15" data-tooltip="pure black">
+                        <button class="preset-color-btn" data-hue="269" data-chroma="0.01" data-lightness="15"data-tooltip-title="pure black">
                             <div class="preset-color-circle" style="background-color: oklch(15% 0.01 269);"></div>
                         </button>
                     </div>
@@ -1183,7 +1186,7 @@
                 </h2>
                 <div class="uk-flex uk-flex-middle">
                     <button class="uk-icon-button uk-margin-small-right" id="fullscreen-toggle"
-                        data-tooltip="fullscreen">
+                        data-tooltip-title="fullscreen">
                         <span uk-icon="icon: expand; ratio: 2"></span>
                     </button>
                     <button class="uk-modal-close-default uk-icon-button" type="button" uk-close></button>
@@ -1403,7 +1406,7 @@ const advancedColorControl = {
                 addToRecentColors(hexColor);
                 
                 const translations = languageTranslations[currentLang] || languageTranslations['zh'];
-                const colorName = button.getAttribute('data-tooltip') || 'color';
+                const colorName = button.getAttribute('data-tooltip-title') || 'color';
                 const successMsg = translations['presetColorApplied']?.replace('%s', translations[colorName] || colorName) || `Preset ${colorName} applied successfully.`;
                 
                 if (typeof showLogMessage === 'function') {
@@ -3490,6 +3493,13 @@ let myAppIP = {
         });
 
         const setupModalEvents = (overlay, content) => {
+            const controlPanel = document.getElementById('control-panel-modal');
+            if (controlPanel) {
+                try {
+                    UIkit.modal(controlPanel).hide();
+                } catch (e) {}
+            }
+
             const closeBtn = content.querySelector('.ip-modal-close');
             const closeModalBtn = content.querySelector('.cbi-button-remove');
         

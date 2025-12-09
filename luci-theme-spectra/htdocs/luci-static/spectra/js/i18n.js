@@ -3639,8 +3639,8 @@ function updateUIText() {
         }
     });
 
-    document.querySelectorAll('[data-tooltip]').forEach(element => {
-        const key = element.getAttribute('data-tooltip');
+    document.querySelectorAll('[data-tooltip-title]').forEach(element => {
+        const key = element.getAttribute('data-tooltip-title');
         if (translations[key]) {
             element.setAttribute('data-tooltip-text', translations[key]);
         } else {
@@ -3671,7 +3671,7 @@ function updateUIText() {
         const key = element.getAttribute('data-translate-title');
         if (translations[key]) {
             element.title = translations[key];
-            if (element.hasAttribute('data-tooltip')) {
+            if (element.hasAttribute('data-tooltip-title')) {
                 element.setAttribute('data-tooltip-text', translations[key]);
             }
         } else {
