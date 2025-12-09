@@ -12,6 +12,10 @@
     --l: 85%;
     --c: 0.25;
     --glass-blur: blur(20px);
+    --glass-blur-light: blur(12px);
+    --glass-blur-small: blur(10px);
+    --glass-blur-mini: blur(6px);
+
     --radius: 20px;
     --radius-small: 12px;
     --radius-mini: 8px;
@@ -174,6 +178,9 @@
     --c: 0.25;
 
     --glass-blur: blur(20px);
+    --glass-blur-light: blur(12px);
+    --glass-blur-small: blur(10px);
+    --glass-blur-mini: blur(6px);
     --radius: 20px;
     --radius-small: 12px;
     --radius-mini: 8px;
@@ -4753,4 +4760,9 @@ div[style*="position: absolute"][style*="z-index: 9999999"] {
     backdrop-filter: var(--glass-blur) !important;
     -webkit-backdrop-filter: var(--glass-blur) !important;
     box-shadow: var(--shadow-intensity) !important;
+}
+
+.announcement-banner {
+    display: flex !important;
+    align-items: center !important;
 }
