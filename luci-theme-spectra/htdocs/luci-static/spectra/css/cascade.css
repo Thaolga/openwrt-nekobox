@@ -3755,8 +3755,9 @@ span[data-tooltip] .label {
     pointer-events: none;
     opacity: 0;
     border-radius: 3px;
-    background: #fff;
-    box-shadow: 0 0 2px #444
+    background: var(--bg-container) !important;
+    color: var(--text-primary) !important;
+    box-shadow: var(--shadow-inset);
 }
 
 .cbi-tooltip-container:hover .cbi-tooltip {
