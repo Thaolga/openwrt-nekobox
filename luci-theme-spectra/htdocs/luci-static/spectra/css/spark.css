@@ -3839,6 +3839,10 @@ div>div[style*="display:grid"] {
     z-index: 2;
 }
 
+.lyric-line, .lyric-line.plain-line {
+    cursor: pointer;
+}
+
 .lyric-line .char {
     display: inline-block;
     white-space: nowrap;
