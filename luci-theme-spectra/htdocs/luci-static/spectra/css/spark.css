@@ -3476,7 +3476,7 @@ div>div[style*="display:grid"] {
 .progress-bar::after {
     content: '';
     position: absolute;
-    right: -16px;
+    right: 0px;
     top: 50%;
     transform: translateY(-50%);
     width: 12px;
