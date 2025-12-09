@@ -266,6 +266,8 @@ const languageTranslations = {
         'update_available': '更新可用',
         'new_version_available': '新的主题版本可用',
         'update_now': '立即更新',
+        'toggle_visualizer': '切换可视化效果',
+        'switch_interface': '切换界面',
         'command_install_label': '命令安装'
     },
     'hk': {
@@ -535,6 +537,8 @@ const languageTranslations = {
         'update_available': '有可用更新',
         'new_version_available': '有新的主題版本可用',
         'update_now': '立即更新',
+        'toggle_visualizer': '切換視覺效果',
+        'switch_interface': '切換介面',
         'theme_download': '主題下載'
     },
     'en': {
@@ -808,6 +812,8 @@ const languageTranslations = {
         'update_available': 'Update Available',
         'new_version_available': 'A new theme version is available',
         'update_now': 'Update Now',
+        'toggle_visualizer': 'Toggle Visualizer',
+        'switch_interface': 'Switch Interface',
         'theme_download': 'Theme download'
     },
     'ko': {
@@ -1072,6 +1078,8 @@ const languageTranslations = {
         'update_available': '업데이트 가능',
         'new_version_available': '새 테마 버전이 있습니다',
         'update_now': '지금 업데이트',
+        'toggle_visualizer': '비주얼라이저 전환',
+        'switch_interface': '인터페이스 전환',
         'theme_download': '테마 다운로드'
     },
     'vi': {
@@ -1336,6 +1344,8 @@ const languageTranslations = {
         'update_available': 'Có bản cập nhật',
         'new_version_available': 'Có phiên bản chủ đề mới',
         'update_now': 'Cập nhật ngay',
+        'toggle_visualizer': 'Chuyển trình trực quan',
+        'switch_interface': 'Chuyển giao diện',
         'theme_download': 'Tải chủ đề'
     },
     'th': {
@@ -1600,6 +1610,8 @@ const languageTranslations = {
         'update_available': 'มีการอัปเดต',
         'new_version_available': 'มีเวอร์ชันธีมใหม่พร้อมใช้งาน',
         'update_now': 'อัปเดตทันที',
+        'toggle_visualizer': 'สลับตัวแสดงภาพ',
+        'switch_interface': 'สลับอินเทอร์เฟซ',
         'theme_download': 'ดาวน์โหลดธีม'
     },
     'ja': {
@@ -1864,6 +1876,8 @@ const languageTranslations = {
         'update_available': '更新があります',
         'new_version_available': '新しいテーマバージョンが利用可能です',
         'update_now': '今すぐ更新',
+        'toggle_visualizer': 'ビジュアライザー切替',
+        'switch_interface': 'インターフェース切替',
         'theme_download': 'テーマダウンロード'
     },
     'ru': {
@@ -2128,6 +2142,8 @@ const languageTranslations = {
         'update_available': 'Доступно обновление',
         'new_version_available': 'Доступна новая версия темы',
         'update_now': 'Обновить сейчас',
+        'toggle_visualizer': 'Переключить визуализатор',
+        'switch_interface': 'Сменить интерфейс',
         'theme_download': 'Скачать тему'
     },
     'ar': {
@@ -2392,6 +2408,8 @@ const languageTranslations = {
         'update_available': 'يتوفر تحديث',
         'new_version_available': 'يتوفر إصدار جديد من السمة',
         'update_now': 'تحديث الآن',
+        'toggle_visualizer': 'تبديل المؤثرات البصرية',
+        'switch_interface': 'تبديل الواجهة',
         'theme_download': 'تحميل السمة'
     },
     'es': {
@@ -2656,6 +2674,8 @@ const languageTranslations = {
         'update_available': 'Actualización disponible',
         'new_version_available': 'Hay una nueva versión del tema disponible',
         'update_now': 'Actualizar ahora',
+        'toggle_visualizer': 'Cambiar visualizador',
+        'switch_interface': 'Cambiar interfaz',
         'theme_download': 'Descarga del tema'
     },
     'de': {
@@ -2920,6 +2940,8 @@ const languageTranslations = {
         'update_available': 'Update verfügbar',
         'new_version_available': 'Eine neue Theme-Version ist verfügbar',
         'update_now': 'Jetzt aktualisieren',
+        'toggle_visualizer': 'Visualizer umschalten',
+        'switch_interface': 'Schnittstelle wechseln',
         'theme_download': 'Thema herunterladen'
     },
     'fr': {
@@ -3184,6 +3206,8 @@ const languageTranslations = {
         'update_available': 'Mise à jour disponible',
         'new_version_available': 'Une nouvelle version du thème est disponible',
         'update_now': 'Mettre à jour maintenant',
+        'toggle_visualizer': 'Basculer le visualiseur',
+        'switch_interface': 'Changer d\'interface',
         'theme_download': 'Télécharger le thème'
     },
     'bn': {
@@ -3449,6 +3473,8 @@ const languageTranslations = {
         'update_available': 'আপডেট উপলব্ধ',
         'new_version_available': 'নতুন থিম সংস্করণ উপলব্ধ',
         'update_now': 'এখনই আপডেট করুন',
+        'toggle_visualizer': 'ভিজুয়ালাইজার টগল করুন',
+        'switch_interface': 'ইন্টারফেস পরিবর্তন করুন',
         'theme_download': 'থিম ডাউনলোড'
     }
 };
@@ -3641,11 +3667,8 @@ function updateUIText() {
 
     document.querySelectorAll('[data-tooltip-title]').forEach(element => {
         const key = element.getAttribute('data-tooltip-title');
-        if (translations[key]) {
-            element.setAttribute('data-tooltip-text', translations[key]);
-        } else {
-            element.removeAttribute('data-tooltip-text');
-        }
+        const textToShow = translations[key] || key;
+        element.setAttribute('data-tooltip-text', textToShow);
     });
 
     if (!window.tooltipsInitialized) {
