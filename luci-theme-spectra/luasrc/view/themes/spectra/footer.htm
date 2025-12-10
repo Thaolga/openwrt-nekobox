@@ -229,6 +229,9 @@ function convertTablesToCards() {
         card.setAttribute('data-id', row.id.replace('cbi-passwall-', ''));
         if (row.classList.contains('_now_use_bg')) card.classList.add('_now_use_bg');
 
+        const checkboxCell = row.querySelector('td.pw-checkbox');
+        const originalCheckbox = checkboxCell ? checkboxCell.querySelector('.nodes_select') : null;
+        
         const tds = row.querySelectorAll('td');
         const originalTitle = tds[1]?.textContent || '';
         const ping = tds[2]?.innerHTML || '';
@@ -252,7 +255,13 @@ function convertTablesToCards() {
             badgeHtml = badgeHtml.replace('<span class="card-badge"', `<span class="card-badge" title="${nodeType}"`);
         }
 
+        let checkboxHtml = '';
+        if (originalCheckbox) {
+            checkboxHtml = checkboxCell.innerHTML;
+        }
+
         card.innerHTML = `
+            ${checkboxHtml}
             <div class="card-header ${remarksClass}">
                 ${wrapEmojiWithSpan(titleWithFlag)}
                 ${badgeHtml}
@@ -276,6 +285,20 @@ function convertTablesToCards() {
     
     initCardSortable(cardsContainer, group);
     rebindURLEvents(cardsContainer);
+}
+
+function toggleCardCheckbox(iconElement) {
+    const wrapper = iconElement.closest('.card-checkbox-wrapper');
+    const checkbox = wrapper.querySelector('.nodes_select');
+    checkbox.checked = !checkbox.checked;
+    
+    if (checkbox.checked) {
+        iconElement.classList.add('checked');
+    } else {
+        iconElement.classList.remove('checked');
+    }
+    
+    update_select_state();
 }
 
 window.addEventListener('resize', updateCardLayout);
