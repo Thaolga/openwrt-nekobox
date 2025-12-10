@@ -287,20 +287,6 @@ function convertTablesToCards() {
     rebindURLEvents(cardsContainer);
 }
 
-function toggleCardCheckbox(iconElement) {
-    const wrapper = iconElement.closest('.card-checkbox-wrapper');
-    const checkbox = wrapper.querySelector('.nodes_select');
-    checkbox.checked = !checkbox.checked;
-    
-    if (checkbox.checked) {
-        iconElement.classList.add('checked');
-    } else {
-        iconElement.classList.remove('checked');
-    }
-    
-    update_select_state();
-}
-
 window.addEventListener('resize', updateCardLayout);
 
 function initCardSortable(container, group) {
