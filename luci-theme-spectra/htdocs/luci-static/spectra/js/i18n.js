@@ -3873,6 +3873,9 @@ function saveLanguage() {
         
         if (colorVoiceEnabled) {
             const utterance = new SpeechSynthesisUtterance(msg);
+            utterance.volume = 1.0;
+            utterance.rate = 1.0;
+            utterance.pitch = 1.0;
             const voice = getCurrentVoice();
             if (voice) {
                 utterance.voice = voice;
@@ -3884,13 +3887,17 @@ function saveLanguage() {
             currentLang = language;
             updateUIText();
             UIkit.modal('#languageModal').hide();
+            
+            loadVoices().then(() => {
+                if (document.getElementById('voiceSelectContainer')) {
+                    populateVoiceSelect(currentLang);
+                }
+            });
         }
     });
 }
 
-function openLanguageModal() {
-    UIkit.modal('#languageModal').show();
-    
+function initLanguage() {
     fetch('/luci-static/spectra/bgm/save_language.php', {
         method: 'POST',
         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
@@ -3898,30 +3905,47 @@ function openLanguageModal() {
     })
     .then(response => response.json())
     .then(data => {
-        let selectedLanguage = 'zh';
         if (data.success && data.language) {
-            selectedLanguage = data.language;
-            document.getElementById('languageSelect').value = selectedLanguage;
+            currentLang = data.language;
+            updateUIText();
+            
+            const languageSelect = document.getElementById('languageSelect');
+            if (languageSelect) {
+                languageSelect.value = currentLang;
+                updateFlagIcon(currentLang);
+            }
+            
+            loadVoices().then(() => {
+                if (document.getElementById('voiceSelectContainer')) {
+                    populateVoiceSelect(currentLang);
+                }
+            });
+        } else {
+            currentLang = 'zh';
+            updateUIText();
         }
-        
-        currentLang = selectedLanguage;
-        updateUIText();
-
-        const voiceToggle = document.getElementById('voiceToggle');
-        voiceToggle.checked = colorVoiceEnabled;
-
-        loadVoices().then(() => {
-            const voiceSelectContainer = document.getElementById('voiceSelectContainer');
-            voiceSelectContainer.style.display = 'block';
-            populateVoiceSelect(selectedLanguage);
-        });
     })
-    .catch(() => {
-        loadVoices().then(() => {
-            const voiceSelectContainer = document.getElementById('voiceSelectContainer');
+    .catch(error => {
+        currentLang = 'zh';
+        updateUIText();
+    });
+}
+
+function openLanguageModal() {
+    UIkit.modal('#languageModal').show();
+    
+    document.getElementById('languageSelect').value = currentLang;
+    updateFlagIcon(currentLang);
+    
+    const voiceToggle = document.getElementById('voiceToggle');
+    voiceToggle.checked = colorVoiceEnabled;
+    
+    loadVoices().then(() => {
+        const voiceSelectContainer = document.getElementById('voiceSelectContainer');
+        if (voiceSelectContainer) {
             voiceSelectContainer.style.display = 'block';
             populateVoiceSelect(currentLang);
-        });
+        }
     });
 }
 
@@ -3976,6 +4000,9 @@ function speakMessage(message) {
     //console.log('Speaking message with voice:', voice);
     if (voice) {
         const utterance = new SpeechSynthesisUtterance(message);
+        utterance.volume = 1.0;
+        utterance.rate = 1.0;
+        utterance.pitch = 1.0;
         utterance.voice = voice;
         speechSynthesis.speak(utterance);
     }
@@ -4001,6 +4028,8 @@ function getOptionTranslationKey(value) {
 }
 
 document.addEventListener('DOMContentLoaded', function() {
+    initLanguage();
+    
     const languageSelect = document.getElementById('languageSelect');
     if (languageSelect) {
         languageSelect.addEventListener('change', function() {
@@ -4030,6 +4059,9 @@ document.addEventListener('DOMContentLoaded', function() {
                     localStorage.setItem(voiceKey, this.value);
                     
                     const utterance = new SpeechSynthesisUtterance(msg);
+                    utterance.volume = 1.0;
+                    utterance.rate = 1.0;
+                    utterance.pitch = 1.0;
                     utterance.voice = selectedVoice;
                     speechSynthesis.speak(utterance);
                 }
@@ -4141,6 +4173,28 @@ document.addEventListener('DOMContentLoaded', function() {
         };
         const [R, G, B] = [r, g, bLinear].map(v => Math.round(toSRGB(v) * 255));
         return `#${[R, G, B].map(x => x.toString(16).padStart(2, '0')).join('')}`.toUpperCase();
+    };
+
+    window.calculateContrastRatioForText = (bgHex, textHex) => {
+        const rgb = (hex) => {
+            const { r, g, b } = window.hexToRgb(hex);
+            return { r, g, b };
+        };
+    
+        const getLuminance = (c) => {
+            c = c / 255;
+            return c <= 0.03928 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4);
+        };
+
+        const bg = rgb(bgHex);
+        const text = rgb(textHex);
+
+        const Lbg = 0.2126 * getLuminance(bg.r) + 0.7152 * getLuminance(bg.g) + 0.0722 * getLuminance(bg.b);
+        const Ltext = 0.2126 * getLuminance(text.r) + 0.7152 * getLuminance(text.g) + 0.0722 * getLuminance(text.b);
+
+        return Lbg > Ltext
+            ? (Lbg + 0.05) / (Ltext + 0.05)
+            : (Ltext + 0.05) / (Lbg + 0.05);
     };
 
     window.calculateContrastRatio = function(hexColor) {

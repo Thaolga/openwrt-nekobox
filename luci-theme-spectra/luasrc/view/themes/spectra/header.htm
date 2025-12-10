@@ -1458,23 +1458,22 @@ const advancedColorControl = {
             const textColor = currentLightness > 60 ? '#000000' : '#ffffff';
             preview.style.color = textColor;
             preview.textContent = hexColor;
+            const ratio = window.calculateContrastRatioForText(hexColor, textColor);
+
+            if (contrastBadge) {
+                this.updateContrastBadge(contrastBadge, ratio);
+                const contrastValue = document.getElementById('advancedContrastValue');
+
+                if (!contrastValue) {
+                    this.createContrastValueDisplay();
+                } else {
+                    contrastValue.textContent = ratio.toFixed(2) + ':1';
+                }
+            }
         }
 
         if (oklchValue) {
             oklchValue.textContent = `oklch(${Math.round(currentLightness)}% ${currentChroma.toFixed(2)} ${Math.round(currentHue)}°)`;
-        }
-
-        if (contrastBadge) {
-            const hexColor = oklchToHex(currentHue, currentChroma, currentLightness);
-            const ratio = window.calculateContrastRatio(hexColor);
-            this.updateContrastBadge(contrastBadge, ratio);
-            
-            const contrastValue = document.getElementById('advancedContrastValue');
-            if (!contrastValue) {
-                this.createContrastValueDisplay();
-            } else {
-                contrastValue.textContent = ratio.toFixed(2) + ':1';
-            }
         }
     },
 

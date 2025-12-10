@@ -4580,6 +4580,28 @@ $langData = [
     ]
 ];
 
+$flagMap = [
+    'zh' => 'cn.png',
+    'hk' => 'hk.png',
+    'en' => 'us.png',
+    'ko' => 'kr.png',
+    'ja' => 'jp.png',
+    'ru' => 'ru.png',
+    'ar' => 'sa.png',
+    'es' => 'es.png',
+    'de' => 'de.png',
+    'fr' => 'fr.png',
+    'th' => 'th.png',
+    'bn' => 'bd.png',
+    'vi' => 'vn.png',
+];
+
+if (!isset($currentLang) || empty($currentLang)) {
+    $currentLang = 'en';
+}
+
+$flagFile = isset($flagMap[$currentLang]) ? $flagMap[$currentLang] : 'us.png';
+
 if (!file_exists($langFilePath)) {
     file_put_contents($langFilePath, $defaultLang);
     chmod($langFilePath, 0644);
