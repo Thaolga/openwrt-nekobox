@@ -6043,6 +6043,8 @@ document.addEventListener("DOMContentLoaded", function () {
 </script>
 
 <script>
+let cardLayoutActive = false;
+
 function toggleCardLayout() {
     const translations = languageTranslations[currentLang] || languageTranslations['zh'];
     const routerIP = window.location.hostname || window.location.host.split(':')[0];
@@ -6050,9 +6052,8 @@ function toggleCardLayout() {
     const encodedFile = phpFile.replace(' ', '%20');
     
     const button = document.getElementById('card-layout-btn');
-    const currentText = button.textContent;
     
-    let action = currentText === (translations['message_remove_card_layout'] || 'Remove Card Layout') ? 'remove' : 'add';
+    const action = cardLayoutActive ? 'remove' : 'add';
     
     const originalText = button.textContent;
     button.textContent = translations['message_processing'] || 'Processing...';
@@ -6066,15 +6067,16 @@ function toggleCardLayout() {
     
     xhr.onload = function() {
         if (xhr.status >= 200 && xhr.status < 300) {
-            const newAction = action === 'remove' ? 'add' : 'remove';
-            const newText = newAction === 'remove' 
+            cardLayoutActive = !cardLayoutActive;
+            
+            const newText = cardLayoutActive 
                 ? (translations['message_remove_card_layout'] || 'Remove Card Layout') 
                 : (translations['message_add_card_layout'] || 'Add Card Layout');
             
             button.textContent = newText;
             button.disabled = false;
             
-            localStorage.setItem('cardLayoutStatus', newAction);
+            localStorage.setItem('cardLayoutStatus', cardLayoutActive ? 'active' : 'inactive');
             
             const successMsg = action === 'remove' 
                 ? (translations['message_card_layout_removed'] || 'Card layout removed, please refresh page to see changes') 
@@ -6123,11 +6125,11 @@ document.addEventListener('DOMContentLoaded', function() {
             const newBtn = document.getElementById('card-layout-btn');
             if (newBtn) {
                 const savedStatus = localStorage.getItem('cardLayoutStatus');
-                if (savedStatus === 'remove') {
-                    newBtn.textContent = translations['message_remove_card_layout'] || 'Remove Card Layout';
-                } else {
-                    newBtn.textContent = translations['message_add_card_layout'] || 'Add Card Layout';
-                }
+                cardLayoutActive = savedStatus === 'active';
+                
+                newBtn.textContent = cardLayoutActive 
+                    ? translations['message_remove_card_layout'] || 'Remove Card Layout'
+                    : translations['message_add_card_layout'] || 'Add Card Layout';
                 
                 newBtn.addEventListener('click', function() {
                     toggleCardLayout();
@@ -6137,9 +6139,11 @@ document.addEventListener('DOMContentLoaded', function() {
             const existingBtn = document.getElementById('card-layout-btn');
             if (existingBtn) {
                 const savedStatus = localStorage.getItem('cardLayoutStatus');
-                if (savedStatus === 'remove') {
-                    existingBtn.textContent = translations['message_remove_card_layout'] || 'Remove Card Layout';
-                }
+                cardLayoutActive = savedStatus === 'active';
+                
+                existingBtn.textContent = cardLayoutActive 
+                    ? translations['message_remove_card_layout'] || 'Remove Card Layout'
+                    : translations['message_add_card_layout'] || 'Add Card Layout';
             }
         }
     }
