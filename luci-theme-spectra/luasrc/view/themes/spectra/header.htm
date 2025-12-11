@@ -6113,27 +6113,25 @@ document.addEventListener('DOMContentLoaded', function() {
     
     if (toolbar) {
         if (!document.getElementById('card-layout-btn')) {
-            const applyBtn = toolbar.querySelector('input[name="cbi.apply"]');
-            const buttonHTML = `<button class="btn cbi-button cbi-button-edit" id="card-layout-btn">${translations['message_add_card_layout'] || 'message_add_card_layout'}</button>`;
+            const reassignBtn = toolbar.querySelector('input[onclick*="open_reassign_group_div"]');
             
-            if (applyBtn) {
-                applyBtn.insertAdjacentHTML('beforebegin', buttonHTML);
-            } else {
-                toolbar.insertAdjacentHTML('beforeend', buttonHTML);
-            }
-            
-            const newBtn = document.getElementById('card-layout-btn');
-            if (newBtn) {
-                const savedStatus = localStorage.getItem('cardLayoutStatus');
-                cardLayoutActive = savedStatus === 'active';
+            if (reassignBtn) {
+                const buttonHTML = `<button class="btn cbi-button cbi-button-edit" id="card-layout-btn">${translations['message_add_card_layout'] || 'Add Card Layout'}</button>`;
+                reassignBtn.insertAdjacentHTML('afterend', buttonHTML);
                 
-                newBtn.textContent = cardLayoutActive 
-                    ? translations['message_remove_card_layout'] || 'Remove Card Layout'
-                    : translations['message_add_card_layout'] || 'Add Card Layout';
-                
-                newBtn.addEventListener('click', function() {
-                    toggleCardLayout();
-                });
+                const newBtn = document.getElementById('card-layout-btn');
+                if (newBtn) {
+                    const savedStatus = localStorage.getItem('cardLayoutStatus');
+                    cardLayoutActive = savedStatus === 'active';
+                    
+                    newBtn.textContent = cardLayoutActive 
+                        ? translations['message_remove_card_layout'] || 'Remove Card Layout'
+                        : translations['message_add_card_layout'] || 'Add Card Layout';
+                    
+                    newBtn.addEventListener('click', function() {
+                        toggleCardLayout();
+                    });
+                }
             }
         } else {
             const existingBtn = document.getElementById('card-layout-btn');
