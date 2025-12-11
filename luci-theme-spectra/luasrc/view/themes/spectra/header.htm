@@ -6043,6 +6043,110 @@ document.addEventListener("DOMContentLoaded", function () {
 </script>
 
 <script>
+function toggleCardLayout() {
+    const translations = languageTranslations[currentLang] || languageTranslations['zh'];
+    const routerIP = window.location.hostname || window.location.host.split(':')[0];
+    const phpFile = 'scp add_js.php';
+    const encodedFile = phpFile.replace(' ', '%20');
+    
+    const button = document.getElementById('card-layout-btn');
+    const currentText = button.textContent;
+    
+    let action = currentText === (translations['message_remove_card_layout'] || 'Remove Card Layout') ? 'remove' : 'add';
+    
+    const originalText = button.textContent;
+    button.textContent = translations['message_processing'] || 'Processing...';
+    button.disabled = true;
+    
+    const xhr = new XMLHttpRequest();
+    const url = `http://${routerIP}/luci-static/spectra/bgm/${encodedFile}?action=${action}`;
+    
+    xhr.open('GET', url, true);
+    xhr.timeout = 10000;
+    
+    xhr.onload = function() {
+        if (xhr.status >= 200 && xhr.status < 300) {
+            const newAction = action === 'remove' ? 'add' : 'remove';
+            const newText = newAction === 'remove' 
+                ? (translations['message_remove_card_layout'] || 'Remove Card Layout') 
+                : (translations['message_add_card_layout'] || 'Add Card Layout');
+            
+            button.textContent = newText;
+            button.disabled = false;
+            
+            localStorage.setItem('cardLayoutStatus', newAction);
+            
+            const successMsg = action === 'remove' 
+                ? (translations['message_card_layout_removed'] || 'Card layout removed, please refresh page to see changes') 
+                : (translations['message_card_layout_added'] || 'Card layout added, please refresh page to see changes');
+            
+            if (typeof showLogMessage === 'function') {
+                showLogMessage(successMsg);
+            }
+            if (typeof colorVoiceEnabled !== 'undefined' && colorVoiceEnabled) {
+                speakMessage(successMsg);
+            }
+        } else {
+            button.textContent = originalText;
+            button.disabled = false;
+        }
+    };
+    
+    xhr.onerror = function() {
+        button.textContent = originalText;
+        button.disabled = false;
+    };
+    
+    xhr.ontimeout = function() {
+        button.textContent = originalText;
+        button.disabled = false;
+    };
+    
+    xhr.send();
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    const translations = languageTranslations[currentLang] || languageTranslations['zh'];
+    const toolbar = document.querySelector('.pw-toolbar-field');
+    
+    if (toolbar) {
+        if (!document.getElementById('card-layout-btn')) {
+            const applyBtn = toolbar.querySelector('input[name="cbi.apply"]');
+            const buttonHTML = `<button class="btn cbi-button cbi-button-edit" id="card-layout-btn">${translations['message_add_card_layout'] || 'message_add_card_layout'}</button>`;
+            
+            if (applyBtn) {
+                applyBtn.insertAdjacentHTML('beforebegin', buttonHTML);
+            } else {
+                toolbar.insertAdjacentHTML('beforeend', buttonHTML);
+            }
+            
+            const newBtn = document.getElementById('card-layout-btn');
+            if (newBtn) {
+                const savedStatus = localStorage.getItem('cardLayoutStatus');
+                if (savedStatus === 'remove') {
+                    newBtn.textContent = translations['message_remove_card_layout'] || 'Remove Card Layout';
+                } else {
+                    newBtn.textContent = translations['message_add_card_layout'] || 'Add Card Layout';
+                }
+                
+                newBtn.addEventListener('click', function() {
+                    toggleCardLayout();
+                });
+            }
+        } else {
+            const existingBtn = document.getElementById('card-layout-btn');
+            if (existingBtn) {
+                const savedStatus = localStorage.getItem('cardLayoutStatus');
+                if (savedStatus === 'remove') {
+                    existingBtn.textContent = translations['message_remove_card_layout'] || 'Remove Card Layout';
+                }
+            }
+        }
+    }
+});
+</script>
+
+<script>
 function updatemenu(){1==document.getElementById("responsive-menu").checked?(document.getElementById("menu").style.borderBottomRightRadius="0",document.getElementById("menu").style.borderBottomLeftRadius="0"):document.getElementById("menu").style.borderRadius="0px"}
 </script>
 
