@@ -444,9 +444,16 @@ const cardLayoutCSS = `
     right: 15px;
     color: #fff;
     font-size: 10px;
-    padding: 2px 6px;
-    border-radius: 3px;
+    padding: 0 10px;
+    border-radius: 12px;
     cursor: default;
+    min-width: 20px;
+    text-align: center;
+    height: 18px;
+    line-height: 18px;
+    display: inline-block;
+    box-sizing: border-box;
+    vertical-align: middle;
     transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
