@@ -433,13 +433,14 @@ const cardLayoutCSS = `
 
 .card-header .flag {
     font-family: "NotoColorEmojiFlags";
+    margin-right: 6px;
     font-size: 20px;
     line-height: 1;
 }
 
 .card-header .card-badge {
     position: absolute;
-    top: 10px;
+    top: 15px;
     right: 15px;
     color: #fff;
     font-size: 10px;
@@ -508,7 +509,7 @@ const cardLayoutCSS = `
 }
 
 .node-wrapper .drag-handle {
-    color: var(--text-primary);
+    color: var(--text-primary) !important;
     margin-left: 5px;
 }
 
