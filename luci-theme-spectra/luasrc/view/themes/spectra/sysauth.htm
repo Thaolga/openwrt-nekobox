@@ -124,39 +124,6 @@ Licensed under the Apache License, Version 2.0
     <!-- Image Background End -->
     <% end %>
 <style>
-@font-face {
-    font-family: "spectra";
-    src: url("/luci-static/spectra/fonts/spectra.eot?u6kthm");
-    src: url("/luci-static/spectra/fonts/spectra.eot?u6kthm#iefix") format("embedded-opentype"),
-         url("/luci-static/spectra/fonts/spectra.ttf?u6kthm") format("truetype"),
-         url("/luci-static/spectra/fonts/spectra.woff?u6kthm") format("woff"),
-         url("/luci-static/spectra/fonts/spectra.svg?u6kthm#spectra") format("svg");
-    font-weight: normal;
-    font-style: normal;
-    font-display: block;
-}
-
-.auth-icon {
-    font-family: "spectra" !important;
-    font-style: normal;
-    font-weight: normal;
-    font-variant: normal;
-    text-transform: none;
-    line-height: 1;
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
-    font-size: 20px;
-    color: #4a5568;
-}
-
-.auth-icon.user::before {
-    content: "\e971";
-}
-
-.auth-icon.pass::before {
-    content: "\e910";
-}
-
 .login-root {
     position: fixed;
     top: 0;
@@ -196,11 +163,11 @@ Licensed under the Apache License, Version 2.0
 
 .auth-wrapper {
     background: rgba(255, 255, 255, 0.6);
-    backdrop-filter: blur(12px);
+    backdrop-filter: blur(6px);
     padding: 2.5rem;
     border-radius: 15px;
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
-    width: min(100%, 400px);
+    width: min(100%, 520px);
     margin: auto;
     animation: float 3s ease-in-out infinite;
 }
@@ -214,47 +181,17 @@ Licensed under the Apache License, Version 2.0
     }
 }
 
-.icon-container {
-    display: flex;
-    align-items: center;
-    margin-bottom: 1.5rem;
-}
-
-.icon-container .auth-icon {
-    margin-right: 10px;
-    animation: pulse 2s infinite;
-}
-
-.icon-container .auth-icon.user {
-    color: #4CAF50;
-}
-
-.icon-container .auth-icon.pass {
-    color: #FF5722;
-}
-
-.icon-container .auth-icon.user:hover {
-    color: #388E3C;
-}
-
-.icon-container .auth-icon.pass:hover {
-    color: #D32F2F;
-}
-
 .footer-info p {
     color: #4f46e5 !important;
 }
 
-@keyframes pulse {
-    0% {
-        transform: scale(1);
-    }
-    50% {
-        transform: scale(1.1);
-    }
-    100% {
-        transform: scale(1);
-    }
+.footer-info a {
+    color: inherit;
+    transition: color 0.3s ease;
+}
+
+.footer-info a:hover {
+    color: #ff69b4;
 }
 
 .input-field {
@@ -263,12 +200,12 @@ Licensed under the Apache License, Version 2.0
 
 .input-field input {
     width: 100%;
-    padding: 12px 12px;
+    padding: 10px 10px;
     border: 2px solid #e2e8f0;
-    border-radius: 8px;
+    border-radius: 12px;
     font-size: 1rem;
     transition: all 0.3s ease;
-    background: rgba(255, 255, 255, 0.5);
+    background: rgba(240, 240, 240, 0.7);
     backdrop-filter: blur(5px);
     color: #000000 !important;
     -webkit-text-fill-color: #000000 !important;
@@ -298,7 +235,7 @@ Licensed under the Apache License, Version 2.0
     background: #4f46e5;
     color: white !important;
     border: none;
-    border-radius: 8px;
+    border-radius: 12px;
     font-size: 1rem;
     font-weight: 600;
     cursor: pointer;
@@ -357,7 +294,7 @@ Licensed under the Apache License, Version 2.0
 .media-control {
     position: fixed;
     top: 20px;
-    left: 20px;
+    right: 20px;
     z-index: 1000;
     width: 48px;
     height: 48px;
@@ -392,6 +329,130 @@ Licensed under the Apache License, Version 2.0
     color: #4CAF50;
 }
 
+.password-options {
+    margin: 0 0 0.3rem 0;
+    text-align: left;
+}
+
+.password-options label {
+    display: inline-flex;
+    align-items: center;
+    cursor: pointer;
+    font-size: 0.9rem;
+    color: #4a5568;
+    user-select: none;
+    line-height: 1.5;
+    transition: color 0.2s ease;
+    font-weight: 500;
+}
+
+.password-options input[type="checkbox"] {
+    appearance: none;
+    -webkit-appearance: none;
+    width: 20px;
+    height: 20px;
+    margin: 0 12px 0 0;
+    border: 2px solid #cbd5e0;
+    border-radius: 6px;
+    background-color: #fff;
+    cursor: pointer;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    left: 5px;
+    flex-shrink: 0;
+}
+
+.password-options input[type="checkbox"]:checked {
+    border: 1px solid rgba(79, 70, 229, 0.8);
+    background-image: url(data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg'viewBox='0 0 8 8'%3e%3cpath fill='%23fff'd='M6.564.75l-3.59 3.612-1.538-1.55L0 4.26 2.974 7.25 8 2.193z'/%3e%3c/svg%3e) !important;
+    background-color: #4f46e5;
+    background-size: 70%;
+    background-repeat: no-repeat;
+    background-position: center;
+    border-color: #4f46e5;
+    box-shadow: 0 2px 10px rgba(79, 70, 229, 0.3);
+}
+
+.password-options input[type="checkbox"]:hover {
+    border-color: #4f46e5;
+}
+
+.password-options input[type="checkbox"]:focus {
+    border-color: #4f46e5;
+    box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.2), 0 2px 10px rgba(79, 70, 229, 0.2);
+    outline: none;
+}
+
+.password-options span {
+    line-height: 1.5;
+    position: relative;
+    top: 7px;
+    transition: color 0.2s ease;
+}
+
+.password-options label:hover span {
+    color: #4f46e5;
+}
+
+.password-options input[type="checkbox"]:disabled {
+    background-color: #f7fafc;
+    border-color: #e2e8f0;
+    cursor: not-allowed;
+}
+
+.password-options input[type="checkbox"]:disabled + span {
+    color: #a0aec0;
+    cursor: not-allowed;
+}
+
+.brand-text {
+    font-family: 'Cinzel Decorative', cursive;
+    font-weight: 700;
+    font-size: 50px;
+    letter-spacing: 1px;
+    text-align: center;
+    margin-top: 10px;
+    transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+    color: transparent;
+    background: linear-gradient(135deg, #3498db 0%, #9b59b6 25%, #3498db 50%, #9b59b6 75%, #3498db 100%);
+    background-size: 200% auto;
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    transform-style: preserve-3d;
+    position: relative;
+}
+
+.brand-text:hover {
+    background-position: 200% center;
+    transform: rotateX(5deg) rotateY(-5deg) skew(-5deg);
+    text-shadow: 
+        0 4px 8px rgba(79, 70, 229, 0.3),
+        0 8px 16px rgba(79, 70, 229, 0.2);
+}
+
+.password-icon {
+    font-size: 1.2rem;
+    color: #666;
+    transition: all 0.3s ease;
+    z-index: 10;
+}
+
+.password-icon:hover {
+    color: #4f46e5;
+    transform: translateY(-50%) scale(1.1);
+}
+
+.password-icon.showing {
+    color: #4f46e5;
+    text-shadow: 0 0 8px rgba(79, 70, 229, 0.4);
+}
+
+.password-icon.showing:hover {
+    color: #4338ca;
+    text-shadow: 0 0 10px rgba(79, 70, 229, 0.6);
+}
+
 @media (max-width: 576px) {
     .login-root {
         padding: 10px;
@@ -401,6 +462,10 @@ Licensed under the Apache License, Version 2.0
         align-items: center; 
         overflow-y: scroll;
         -webkit-overflow-scrolling: touch;
+    }
+
+    .brand-text {
+        font-size: 40px;
     }
 
     .auth-wrapper {
@@ -446,10 +511,10 @@ Licensed under the Apache License, Version 2.0
     </div>
 
     <div class="auth-wrapper">
-        <div class="brand-section" style="text-align: center; margin-bottom: 2rem;">
-            <a class="brand-logo" href="/" style="display: inline-flex; align-items: center; text-decoration: none; color: #2c3e50;">
-                <img src="<%=media%>/img/spectra.svg" style="height: 40px; margin-right: 12px;">
-                <span style="font-family: 'TypoGraphica', sans-serif; font-size: 1.8rem; font-weight: 600; color: #4f46e5; letter-spacing: -0.5px;"><%=striptags( (boardinfo.hostname or "?") ) %></span>
+        <div class="brand-section" style="text-align: center; margin-bottom: 0.5rem;">
+            <a class="brand-logo" href="/" style="display: flex; flex-direction: column; align-items: center; text-decoration: none; color: #2c3e50;">
+                <img src="/luci-static/spectra/img/spectra.svg" style="height: 120px; margin-bottom: 3px;">
+                <span class="brand-text"><%=striptags( (boardinfo.hostname or "?") ) %></span>
             </a>
         </div>
         <% if fuser then %>
@@ -459,36 +524,37 @@ Licensed under the Apache License, Version 2.0
         <% end %>
 
         <form class="auth-form" method="post" action="<%=pcdata(luci.http.getenv("REQUEST_URI"))%>">
-            <div class="form-group">
-                <div class="icon-container">
-                    <span class="auth-icon user"></span>
-                    <div class="input-field">
-                        <input type="text" 
-                               id="authUsername" 
-                               name="luci_username" 
-                               value="<%=duser%>" 
-                               placeholder="<%:Username%>"
-                               onfocus="this.style.borderColor='#4f46e5'; this.style.boxShadow='0 0 0 3px rgba(79,70,229,0.1)'"
-                               onblur="this.style.borderColor='#e2e8f0'; this.style.boxShadow='none'">
-                    </div>
+            <div class="form-group" style="margin-bottom: 1rem;">
+                <div class="input-field">
+                    <input type="text" 
+                           id="authUsername" 
+                           name="luci_username" 
+                           value="<%=duser%>" 
+                           placeholder="<%:Username%>"
+                           onfocus="this.style.borderColor='#4f46e5'; this.style.boxShadow='0 0 0 3px rgba(79,70,229,0.1)'"
+                           onblur="this.style.borderColor='#e2e8f0'; this.style.boxShadow='none'">
                 </div>
             </div>
 
-            <div class="form-group">
-                <div class="icon-container">
-                    <span class="auth-icon pass"></span>
-                    <div class="input-field" style="position: relative;">
-                        <input type="password" 
-                               id="authPassword" 
-                               name="luci_password" 
-                               placeholder="<%:Password%>"
-                               onfocus="this.style.borderColor='#4f46e5'; this.style.boxShadow='0 0 0 3px rgba(79,70,229,0.1)'"
-                               onblur="this.style.borderColor='#e2e8f0'; this.style.boxShadow='none'">
-                        <i class="bi bi-eye-slash toggle-password" 
-                            style="position:absolute; right:10px; top:50%; transform:translateY(-50%); cursor:pointer; color:#666;">
-                        </i>
-                    </div>
+            <div class="form-group" style="margin-bottom: 0.3rem;">
+                <div class="input-field" style="position: relative;">
+                    <input type="password" 
+                           id="authPassword" 
+                           name="luci_password" 
+                           placeholder="<%:Password%>"
+                           onfocus="this.style.borderColor='#4f46e5'; this.style.boxShadow='0 0 0 3px rgba(79,70,229,0.1)'"
+                           onblur="this.style.borderColor='#e2e8f0'; this.style.boxShadow='none'">
+                    <i class="bi bi-eye-slash toggle-password password-icon" 
+                        style="position:absolute; right:10px; top:50%; transform:translateY(-50%); cursor:pointer;">
+                    </i>
                 </div>
+            </div>
+
+            <div class="password-options">
+                <label>
+                    <input type="checkbox" id="passwordOptions">
+                    <span id="passwordOptionsText"></span>
+                </label>
             </div>
 
             <button type="submit" 
@@ -615,23 +681,103 @@ document.addEventListener('DOMContentLoaded', function() {
             password.setAttribute("type", isPassword ? "text" : "password");
             this.classList.toggle("bi-eye");
             this.classList.toggle("bi-eye-slash");
+
+            if (isPassword) {
+                this.classList.add("showing");
+            } else {
+                this.classList.remove("showing");
+            }
+        });
+    }
+
+    const passwordOptions = document.getElementById('passwordOptions');
+    const authUsername = document.getElementById('authUsername');
+    const authPassword = document.getElementById('authPassword');
+
+    function loadSavedCredentials() {
+        const savedUsername = localStorage.getItem('luci_username');
+        const savedPassword = localStorage.getItem('luci_password');
+        const optionsChecked = localStorage.getItem('password_options') === 'true';
+        
+        if (savedUsername) {
+            authUsername.value = savedUsername;
+        }
+        if (savedPassword && optionsChecked) {
+            authPassword.value = savedPassword;
+        }
+        if (passwordOptions) {
+            passwordOptions.checked = optionsChecked;
+        }
+    }
+
+    function saveCredentials() {
+        if (passwordOptions.checked) {
+            localStorage.setItem('luci_username', authUsername.value);
+            localStorage.setItem('luci_password', authPassword.value);
+            localStorage.setItem('password_options', 'true');
+        } else {
+            clearCredentials();
+        }
+    }
+
+    function clearCredentials() {
+        localStorage.removeItem('luci_username');
+        localStorage.removeItem('luci_password');
+        localStorage.setItem('password_options', 'false');
+        authPassword.value = '';
+    }
+
+    if (passwordOptions && authUsername && authPassword) {
+        loadSavedCredentials();
+        
+        passwordOptions.addEventListener('change', function() {
+            if (this.checked) {
+                saveCredentials();
+            } else {
+                clearCredentials();
+            }
+        });
+    }
+
+    const authForm = document.querySelector('.auth-form');
+    if (authForm && passwordOptions) {
+        authForm.addEventListener('submit', function() {
+            if (passwordOptions.checked) {
+                saveCredentials();
+            }
+        });
+    }
+
+    if (authUsername && passwordOptions) {
+        authUsername.addEventListener('input', function() {
+            if (passwordOptions.checked) {
+                localStorage.setItem('luci_username', this.value);
+            }
+        });
+    }
+
+    if (authPassword && passwordOptions) {
+        authPassword.addEventListener('input', function() {
+            if (passwordOptions.checked) {
+                localStorage.setItem('luci_password', this.value);
+            }
         });
     }
 
     const translationsIP = {
-        zh: { login: '登录', password: '密码' },
-        en: { login: 'Login', password: 'Password' },
-        hk: { login: '登入', password: '密碼' },
-        de: { login: 'Anmelden', password: 'Passwort' },
-        fr: { login: 'Connexion', password: 'Mot de passe' },
-        ko: { login: '로그인', password: '비밀번호' },
-        ja: { login: 'ログイン', password: 'パスワード' },
-        bn: { login: 'লগইন', password: 'পাসওয়ার্ড' },
-        vi: { login: 'Đăng nhập', password: 'Mật khẩu' },
-        th: { login: 'เข้าสู่ระบบ', password: 'รหัสผ่าน' },
-        ar: { login: 'تسجيل الدخول', password: 'كلمة المرور' },
-        ru: { login: 'Вход', password: 'Пароль' },
-        es: { login: 'Iniciar sesión', password: 'Contraseña' }
+        zh: { login: '登录', password: '密码', remember: '保持登录' },
+        en: { login: 'Login', password: 'Password', remember: 'Keep logged in' },
+        hk: { login: '登入', password: '密碼', remember: '保持登入' },
+        de: { login: 'Anmelden', password: 'Passwort', remember: 'Angemeldet bleiben' },
+        fr: { login: 'Connexion', password: 'Mot de passe', remember: 'Rester connecté' },
+        ko: { login: '로그인', password: '비밀번호', remember: '로그인 유지' },
+        ja: { login: 'ログイン', password: 'パスワード', remember: 'ログイン状態を保持' },
+        bn: { login: 'লগইন', password: 'পাসওয়ার্ড', remember: 'লগ ইন থাকুন' },
+        vi: { login: 'Đăng nhập', password: 'Mật khẩu', remember: 'Giữ đăng nhập' },
+        th: { login: 'เข้าสู่ระบบ', password: 'รหัสผ่าน', remember: 'คงสถานะเข้าสู่ระบบ' },
+        ar: { login: 'تسجيل الدخول', password: 'كلمة المرور', remember: 'البقاء مسجل الدخول' },
+        ru: { login: 'Вход', password: 'Пароль', remember: 'Оставаться в системе' },
+        es: { login: 'Iniciar sesión', password: 'Contraseña', remember: 'Mantenerse conectado' }
     };
 
     async function getRealTimeLanguage() {
@@ -659,6 +805,11 @@ document.addEventListener('DOMContentLoaded', function() {
         const passwordInput = document.getElementById('authPassword');
         if (passwordInput) {
             passwordInput.placeholder = text.password || 'Password';
+        }
+
+        const rememberText = document.getElementById('passwordOptionsText');
+        if (rememberText) {
+            rememberText.textContent = text.remember || 'Keep logged in';
         }
     }
 
