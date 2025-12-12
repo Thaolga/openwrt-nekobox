@@ -4604,3 +4604,7 @@ div[style*="position: absolute"][style*="z-index: 9999999"] {
         opacity: 0;
     }
 }
+
+.node-wrapper .drag-handle {
+    color: var(--text-primary) !important;
+}
