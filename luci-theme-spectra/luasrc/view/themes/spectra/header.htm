@@ -6088,6 +6088,9 @@ function toggleCardLayout() {
             if (typeof colorVoiceEnabled !== 'undefined' && colorVoiceEnabled) {
                 speakMessage(successMsg);
             }
+
+            setTimeout(() => location.reload(), 3000);
+
         } else {
             button.textContent = originalText;
             button.disabled = false;
