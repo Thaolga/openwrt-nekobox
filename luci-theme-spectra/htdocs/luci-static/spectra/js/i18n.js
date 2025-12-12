@@ -2453,8 +2453,8 @@ const languageTranslations = {
         'message_add_card_layout': 'إضافة تخطيط البطاقة',
         'message_remove_card_layout': 'إزالة تخطيط البطاقة',
         'message_processing': 'جاري المعالجة...',
-        'message_card_layout_added': 'تمت إضافة تخطيط البطاقة، يرجى تحديث الصفحة لرؤية التغييرات',
-        'message_card_layout_removed': 'تمت إزالة تخطيط البطاقة، يرجى تحديث الصفحة لرؤية التغييرات',
+        'message_card_layout_added': 'تمت إضافة تخطيط البطاقات',
+        'message_card_layout_removed': 'تمت إزالة تخطيط البطاقات',
         'theme_download': 'تحميل السمة'
     },
     'es': {
@@ -3538,8 +3538,8 @@ const languageTranslations = {
         'message_add_card_layout': 'কার্ড লেআউট যোগ করুন',
         'message_remove_card_layout': 'কার্ড লেআউট সরান',
         'message_processing': 'প্রক্রিয়াকরণ হচ্ছে...',
-        'message_card_layout_added': 'কার্ড লেআউট যোগ করা হয়েছে, পরিবর্তন দেখতে পৃষ্ঠাটি রিফ্রেশ করুন',
-        'message_card_layout_removed': 'কার্ড লেআউট সরানো হয়েছে, পরিবর্তন দেখতে পৃষ্ঠাটি রিফ্রেশ করুন',
+        'message_card_layout_added': 'কার্ড লেআউট যুক্ত হয়েছে',
+        'message_card_layout_removed': 'কার্ড লেআউট অপসারণ করা হয়েছে',
         'theme_download': 'থিম ডাউনলোড'
     }
 };
