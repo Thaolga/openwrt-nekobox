@@ -2383,7 +2383,7 @@ div>div[style*="display:grid"] {
     display: none;
 }
 
-.modal-content {
+.music-modal-content {
     background-color: var(--bg-container);
     border-radius: var(--radius);
     width: 90%;
@@ -3405,7 +3405,7 @@ div>div[style*="display:grid"] {
     color: var(--color-white);
 }
 
-.music-modal.fullscreen .modal-content {
+.music-modal.fullscreen .music-modal-content {
     width: 100%;
     height: 100%;
     max-width: none;
@@ -3824,7 +3824,7 @@ div>div[style*="display:grid"] {
         transform: scale(1.3);
     }
 
-    .modal-content {
+    .music-modal-content {
         width: 95%;
         height: 90%;
     }
@@ -4610,29 +4610,29 @@ div[style*="position: absolute"][style*="z-index: 9999999"] {
 }
 
 .model_btn {
-  display: inline-flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-  width: 40px !important;
-  height: 40px !important;
-  background: var(--accent-color) !important;
-  border-radius: 50% !important;
-  cursor: pointer !important;
-  position: fixed !important;
-  right: 20px !important;
-  bottom: 20px !important;
-  z-index: 1000 !important; 
-  transition: all 0.3s ease !important;
+   display: inline-flex !important;
+   align-items: center !important;
+   justify-content: center !important;
+   width: 40px !important;
+   height: 40px !important;
+   background: var(--accent-color) !important;
+   border-radius: 50% !important;
+   cursor: pointer !important;
+   position: fixed !important;
+   right: 20px !important;
+   bottom: 20px !important;
+   z-index: 1000 !important; 
+   transition: all 0.3s ease !important;
 }
 
 .model_btn:hover {
-  background: var(--accent-tertiary) !important;
-  transform: scale(1.1) !important;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2) !important;
+   background: var(--accent-tertiary) !important;
+   transform: scale(1.1) !important;
+   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2) !important;
 }
 
 .model_btn svg {
-  filter: brightness(0) invert(1) !important;
+   filter: brightness(0) invert(1) !important;
 }
 
 .module-settings__btn {
@@ -4640,15 +4640,16 @@ div[style*="position: absolute"][style*="z-index: 9999999"] {
 }
 
 .modal-content {
-  width: 100% !important;
-  max-width: 100% !important;
-  margin: 0 !important;
-  padding: 5px 20px 0 20px !important;
-  border-radius: 0 !important;
+   background-color: var(--bg-container);
+   width: 100% !important;
+   max-width: 100% !important;
+   margin: 0 !important;
+   padding: 5px 20px 0 20px !important;
+   border-radius: 0 !important;
 }
 
 .modal-title {
-  color: var(--accent-color) !important;
+   color: var(--accent-color) !important;
 }
 
 .module-settings__name,
@@ -4656,39 +4657,39 @@ div[style*="position: absolute"][style*="z-index: 9999999"] {
 .module-settings__title,
 .module-settings__sub,
 .module-settings__texts {
-  color: var(--text-primary) !important;
+   color: var(--text-primary) !important;
 }
 
 .module-settings__header {
-  color: #000 !important;
+   color: #000 !important;
 }
 
 .module-settings__item:hover {
-  background-color: var(--accent-color) !important;
+   background-color: var(--accent-color) !important;
 }
 
 .module-settings__header,
 .module-settings__header span,
 .module-settings__header div {
-  color: inherit !important;
+   color: inherit !important;
 }
 
 .module-settings__toggle-all {
-  background-color: var(--accent-color) !important;
-  color: #fff !important;
-  border: none !important;
+   background-color: var(--accent-color) !important;
+   color: #fff !important;
+   border: none !important;
 }
 
 .module-settings__btn.module-settings__btn--secondary {
-  background-color: #6c757d !important;
-  color: #fff !important;
-  border: none !important;
+   background-color: #6c757d !important;
+   color: #fff !important;
+   border: none !important;
 }
 
 .modal-container .modal-header .modal-close  { 
-    color: var(--text-primary) !important;
+   color: var(--text-primary) !important;
 }
 
 .modal-footer { 
-  border: none !important;
+   border: none !important;
 }
