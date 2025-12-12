@@ -271,8 +271,8 @@ const languageTranslations = {
         'message_add_card_layout': '添加卡片布局',
         'message_remove_card_layout': '删除卡片布局',
         'message_processing': '处理中...',
-        'message_card_layout_added': '已添加卡片布局，请刷新页面查看效果',
-        'message_card_layout_removed': '已删除卡片布局，请刷新页面查看效果',
+        'message_card_layout_added': '已添加卡片布局',
+        'message_card_layout_removed': '已删除卡片布局',
         'command_install_label': '命令安装'
     },
     'hk': {
@@ -547,8 +547,8 @@ const languageTranslations = {
         'message_add_card_layout': '添加卡片佈局',
         'message_remove_card_layout': '刪除卡片佈局',
         'message_processing': '處理中...',
-        'message_card_layout_added': '已添加卡片佈局，請刷新頁面查看效果',
-        'message_card_layout_removed': '已刪除卡片佈局，請刷新頁面查看效果',
+        'message_card_layout_added': '已添加卡片佈局',
+        'message_card_layout_removed': '已刪除卡片佈局',
         'theme_download': '主題下載'
     },
     'en': {
@@ -827,8 +827,8 @@ const languageTranslations = {
         'message_add_card_layout': 'Add Card Layout',
         'message_remove_card_layout': 'Remove Card Layout',
         'message_processing': 'Processing...',
-        'message_card_layout_added': 'Card layout added, please refresh page to see changes',
-        'message_card_layout_removed': 'Card layout removed, please refresh page to see changes',
+        'message_card_layout_added': 'Card layout added',
+        'message_card_layout_removed': 'Card layout removed',
         'theme_download': 'Theme download'
     },
     'ko': {
@@ -1098,8 +1098,8 @@ const languageTranslations = {
         'message_add_card_layout': '카드 레이아웃 추가',
         'message_remove_card_layout': '카드 레이아웃 삭제',
         'message_processing': '처리 중...',
-        'message_card_layout_added': '카드 레이아웃이 추가되었습니다. 페이지를 새로고침하여 변경사항을 확인하세요',
-        'message_card_layout_removed': '카드 레이아웃이 삭제되었습니다. 페이지를 새로고침하여 변경사항을 확인하세요',
+        'message_card_layout_added': '카드 레이아웃이 추가되었습니다',
+        'message_card_layout_removed': '카드 레이아웃이 삭제되었습니다',
         'theme_download': '테마 다운로드'
     },
     'vi': {
@@ -1369,8 +1369,8 @@ const languageTranslations = {
         'message_add_card_layout': 'Thêm bố cục thẻ',
         'message_remove_card_layout': 'Xóa bố cục thẻ',
         'message_processing': 'Đang xử lý...',
-        'message_card_layout_added': 'Đã thêm bố cục thẻ, vui lòng làm mới trang để xem thay đổi',
-        'message_card_layout_removed': 'Đã xóa bố cục thẻ, vui lòng làm mới trang để xem thay đổi',
+        'message_card_layout_added': 'Đã thêm bố cục thẻ',
+        'message_card_layout_removed': 'Đã xóa bố cục thẻ',
         'theme_download': 'Tải chủ đề'
     },
     'th': {
@@ -1640,8 +1640,8 @@ const languageTranslations = {
         'message_add_card_layout': 'เพิ่มเค้าโครงการ์ด',
         'message_remove_card_layout': 'ลบเค้าโครงการ์ด',
         'message_processing': 'กำลังประมวลผล...',
-        'message_card_layout_added': 'เพิ่มเค้าโครงการ์ดแล้ว โปรดรีเฟรชหน้าเพื่อดูการเปลี่ยนแปลง',
-        'message_card_layout_removed': 'ลบเค้าโครงการ์ดแล้ว โปรดรีเฟรชหน้าเพื่อดูการเปลี่ยนแปลง',
+        'message_card_layout_added': 'เพิ่มเค้าโครงการ์ดแล้ว',
+        'message_card_layout_removed': 'ลบเค้าโครงการ์ดแล้ว',
         'theme_download': 'ดาวน์โหลดธีม'
     },
     'ja': {
@@ -1911,8 +1911,8 @@ const languageTranslations = {
         'message_add_card_layout': 'カードレイアウトを追加',
         'message_remove_card_layout': 'カードレイアウトを削除',
         'message_processing': '処理中...',
-        'message_card_layout_added': 'カードレ이アウトが追加されました。ページを更新して変更を確認してください',
-        'message_card_layout_removed': 'カードレイ아ウトが削除されました。ページを更新して変更を確認してください',
+        'message_card_layout_added': 'カードレ이アウトが追加されました',
+        'message_card_layout_removed': 'カードレイ아ウトが削除されました',
         'theme_download': 'テーマダウンロード'
     },
     'ru': {
@@ -2182,8 +2182,8 @@ const languageTranslations = {
         'message_add_card_layout': 'Добавить карточный макет',
         'message_remove_card_layout': 'Удалить карточный макет',
         'message_processing': 'Обработка...',
-        'message_card_layout_added': 'Карточный макет добавлен, обновите страницу чтобы увидеть изменения',
-        'message_card_layout_removed': 'Карточный макет удален, обновите страницу чтобы увидеть изменения',
+        'message_card_layout_added': 'Карточный макет добавлен',
+        'message_card_layout_removed': 'Карточный макет удален',
         'theme_download': 'Скачать тему'
     },
     'ar': {
@@ -2724,8 +2724,8 @@ const languageTranslations = {
         'message_add_card_layout': 'Añadir diseño de tarjeta',
         'message_remove_card_layout': 'Eliminar diseño de tarjeta',
         'message_processing': 'Procesando...',
-        'message_card_layout_added': 'Diseño de tarjeta añadido, por favor actualice la página para ver los cambios',
-        'message_card_layout_removed': 'Diseño de tarjeta eliminado, por favor actualice la página para ver los cambios',
+        'message_card_layout_added': 'Diseño de tarjeta añadido',
+        'message_card_layout_removed': 'Diseño de tarjeta eliminado',
         'theme_download': 'Descarga del tema'
     },
     'de': {
@@ -2995,8 +2995,8 @@ const languageTranslations = {
         'message_add_card_layout': 'Kartenlayout hinzufügen',
         'message_remove_card_layout': 'Kartenlayout entfernen',
         'message_processing': 'Verarbeitung...',
-        'message_card_layout_added': 'Kartenlayout hinzugefügt, bitte Seite aktualisieren um Änderungen zu sehen',
-        'message_card_layout_removed': 'Kartenlayout entfernt, bitte Seite aktualisieren um Änderungen zu sehen',
+        'message_card_layout_added': 'Kartenlayout hinzugefügt',
+        'message_card_layout_removed': 'Kartenlayout entfernt',
         'theme_download': 'Thema herunterladen'
     },
     'fr': {
@@ -3266,8 +3266,8 @@ const languageTranslations = {
         'message_add_card_layout': 'Ajouter la mise en page des cartes',
         'message_remove_card_layout': 'Supprimer la mise en page des cartes',
         'message_processing': 'Traitement en cours...',
-        'message_card_layout_added': 'Mise en page des cartes ajoutée, veuillez actualiser la page pour voir les changements',
-        'message_card_layout_removed': 'Mise en page des cartes supprimée, veuillez actualiser la page pour voir les changements',
+        'message_card_layout_added': 'Mise en page des cartes ajoutée',
+        'message_card_layout_removed': 'Mise en page des cartes supprimée',
         'theme_download': 'Télécharger le thème'
     },
     'bn': {
