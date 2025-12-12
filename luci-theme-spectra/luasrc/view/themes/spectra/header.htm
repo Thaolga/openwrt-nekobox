@@ -378,7 +378,7 @@
 </div>
 
 <div class="music-modal" id="musicModal">
-    <div class="modal-content">
+    <div class="music-modal-content">
         <div class="modal-header">
             <div class="header-left">
                 <h2 class="modal-title"><i class="fa-solid fa-music"></i> <span data-translate="music_player">Music Player</span></h2>
@@ -1827,7 +1827,7 @@ function toggleFullscreen() {
         fullscreenIcon.className = 'bi bi-fullscreen-exit';
         fullscreenBtn.classList.add('active');
         
-        const modalContent = modal.querySelector('.modal-content');
+        const modalContent = modal.querySelector('.music-modal-content');
         if (modalContent.requestFullscreen) {
             modalContent.requestFullscreen();
         } else if (modalContent.webkitRequestFullscreen) {
@@ -2165,7 +2165,7 @@ function initAllModalDrag() {
     allModals.forEach((modal, index) => {
         const selectors = [
             { header: '.uk-modal-header', content: '.uk-modal-dialog' },
-            { header: '.modal-header', content: '.modal-content' },
+            { header: '.modal-header', content: '.music-modal-content' },
             { header: '.header', content: '.content' },
             { header: '.uk-flex-between', content: '.uk-modal-dialog' },
             { header: '.language-modal-header', content: '.uk-modal-dialog' },
@@ -5146,7 +5146,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 if (data.version && data.url) {
                     versionInfo.textContent = `${translations['latest_version'] || 'Latest Version'}: ${data.version}`;
                     downloadLink.href = data.url;
-                    
+ 
                     if (data.version !== data.currentVersion) {
                         versionInfo.classList.add('uk-alert-success');
                         versionInfo.classList.remove('uk-alert-warning');
