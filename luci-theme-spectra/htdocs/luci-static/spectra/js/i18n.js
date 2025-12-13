@@ -273,6 +273,10 @@ const languageTranslations = {
         'message_processing': '处理中...',
         'message_card_layout_added': '已添加卡片布局',
         'message_card_layout_removed': '已删除卡片布局',
+        'node_order_save_success': '保存当前页面顺序成功。',
+        'auto_check_updates': '启用自动更新检测',
+        'auto_check_enabled': '自动更新检测已启用',
+        'auto_check_disabled': '自动更新检测已禁用',
         'command_install_label': '命令安装'
     },
     'hk': {
@@ -549,6 +553,10 @@ const languageTranslations = {
         'message_processing': '處理中...',
         'message_card_layout_added': '已添加卡片佈局',
         'message_card_layout_removed': '已刪除卡片佈局',
+        'node_order_save_success': '保存當前頁面順序成功。',
+        'auto_check_updates': '啟用自動更新檢查',
+        'auto_check_enabled': '自動更新檢查已啟用',
+        'auto_check_disabled': '自動更新檢查已停用',
         'theme_download': '主題下載'
     },
     'en': {
@@ -829,6 +837,10 @@ const languageTranslations = {
         'message_processing': 'Processing...',
         'message_card_layout_added': 'Card layout added',
         'message_card_layout_removed': 'Card layout removed',
+        'node_order_save_success': 'Page order saved successfully.',
+        'auto_check_updates': 'Enable automatic update checking',
+        'auto_check_enabled': 'Automatic update checking enabled',
+        'auto_check_disabled': 'Automatic update checking disabled',
         'theme_download': 'Theme download'
     },
     'ko': {
@@ -1099,7 +1111,11 @@ const languageTranslations = {
         'message_remove_card_layout': '카드 레이아웃 삭제',
         'message_processing': '처리 중...',
         'message_card_layout_added': '카드 레이아웃이 추가되었습니다',
+        'node_order_save_success': '현재 페이지 순서가 성공적으로 저장되었습니다.',
         'message_card_layout_removed': '카드 레이아웃이 삭제되었습니다',
+        'auto_check_updates': '자동 업데이트 확인 사용',
+        'auto_check_enabled': '자동 업데이트 확인이 활성화되었습니다',
+        'auto_check_disabled': '자동 업데이트 확인이 비활성화되었습니다',
         'theme_download': '테마 다운로드'
     },
     'vi': {
@@ -1371,6 +1387,10 @@ const languageTranslations = {
         'message_processing': 'Đang xử lý...',
         'message_card_layout_added': 'Đã thêm bố cục thẻ',
         'message_card_layout_removed': 'Đã xóa bố cục thẻ',
+        'node_order_save_success': 'Lưu thứ tự trang hiện tại thành công.',
+        'auto_check_updates': 'Bật kiểm tra cập nhật tự động',
+        'auto_check_enabled': 'Đã bật kiểm tra cập nhật tự động',
+        'auto_check_disabled': 'Đã tắt kiểm tra cập nhật tự động',
         'theme_download': 'Tải chủ đề'
     },
     'th': {
@@ -1642,6 +1662,10 @@ const languageTranslations = {
         'message_processing': 'กำลังประมวลผล...',
         'message_card_layout_added': 'เพิ่มเค้าโครงการ์ดแล้ว',
         'message_card_layout_removed': 'ลบเค้าโครงการ์ดแล้ว',
+        'node_order_save_success': 'บันทึกลำดับหน้าปัจจุบันเรียบร้อยแล้ว',
+        'auto_check_updates': 'เปิดการตรวจสอบการอัปเดตอัตโนมัติ',
+        'auto_check_enabled': 'เปิดการตรวจสอบการอัปเดตอัตโนมัติแล้ว',
+        'auto_check_disabled': 'ปิดการตรวจสอบการอัปเดตอัตโนมัติแล้ว',
         'theme_download': 'ดาวน์โหลดธีม'
     },
     'ja': {
@@ -1913,6 +1937,10 @@ const languageTranslations = {
         'message_processing': '処理中...',
         'message_card_layout_added': 'カードレ이アウトが追加されました',
         'message_card_layout_removed': 'カードレイ아ウトが削除されました',
+        'node_order_save_success': '現在のページ順序が正常に保存されました。',
+        'auto_check_updates': '自動更新チェックを有効にする',
+        'auto_check_enabled': '自動更新チェックが有効になりました',
+        'auto_check_disabled': '自動更新チェックが無効になりました',
         'theme_download': 'テーマダウンロード'
     },
     'ru': {
@@ -2184,6 +2212,10 @@ const languageTranslations = {
         'message_processing': 'Обработка...',
         'message_card_layout_added': 'Карточный макет добавлен',
         'message_card_layout_removed': 'Карточный макет удален',
+        'node_order_save_success': 'Порядок страниц успешно сохранён.',
+        'auto_check_updates': 'Включить автоматическую проверку обновлений',
+        'auto_check_enabled': 'Автоматическая проверка обновлений включена',
+        'auto_check_disabled': 'Автоматическая проверка обновлений отключена',
         'theme_download': 'Скачать тему'
     },
     'ar': {
@@ -2455,6 +2487,10 @@ const languageTranslations = {
         'message_processing': 'جاري المعالجة...',
         'message_card_layout_added': 'تمت إضافة تخطيط البطاقات',
         'message_card_layout_removed': 'تمت إزالة تخطيط البطاقات',
+        'node_order_save_success': 'تم حفظ ترتيب الصفحة الحالية بنجاح.',
+        'auto_check_updates': 'تمكين التحقق التلقائي من التحديثات',
+        'auto_check_enabled': 'تم تمكين التحقق التلقائي من التحديثات',
+        'auto_check_disabled': 'تم تعطيل التحقق التلقائي من التحديثات',
         'theme_download': 'تحميل السمة'
     },
     'es': {
@@ -2726,6 +2762,10 @@ const languageTranslations = {
         'message_processing': 'Procesando...',
         'message_card_layout_added': 'Diseño de tarjeta añadido',
         'message_card_layout_removed': 'Diseño de tarjeta eliminado',
+        'node_order_save_success': 'El orden de la página se ha guardado correctamente.',
+        'auto_check_updates': 'Habilitar comprobación automática de actualizaciones',
+        'auto_check_enabled': 'Comprobación automática de actualizaciones activada',
+        'auto_check_disabled': 'Comprobación automática de actualizaciones desactivada',
         'theme_download': 'Descarga del tema'
     },
     'de': {
@@ -2997,6 +3037,10 @@ const languageTranslations = {
         'message_processing': 'Verarbeitung...',
         'message_card_layout_added': 'Kartenlayout hinzugefügt',
         'message_card_layout_removed': 'Kartenlayout entfernt',
+        'node_order_save_success': 'Die Seitenreihenfolge wurde erfolgreich gespeichert.',
+        'auto_check_updates': 'Automatische Update-Prüfung aktivieren',
+        'auto_check_enabled': 'Automatische Update-Prüfung aktiviert',
+        'auto_check_disabled': 'Automatische Update-Prüfung deaktiviert',
         'theme_download': 'Thema herunterladen'
     },
     'fr': {
@@ -3268,6 +3312,10 @@ const languageTranslations = {
         'message_processing': 'Traitement en cours...',
         'message_card_layout_added': 'Mise en page des cartes ajoutée',
         'message_card_layout_removed': 'Mise en page des cartes supprimée',
+        'node_order_save_success': 'L’ordre de la page a été enregistré avec succès.',
+        'auto_check_updates': 'Activer la vérification automatique des mises à jour',
+        'auto_check_enabled': 'Vérification automatique des mises à jour activée',
+        'auto_check_disabled': 'Vérification automatique des mises à jour désactivée',
         'theme_download': 'Télécharger le thème'
     },
     'bn': {
@@ -3540,6 +3588,10 @@ const languageTranslations = {
         'message_processing': 'প্রক্রিয়াকরণ হচ্ছে...',
         'message_card_layout_added': 'কার্ড লেআউট যুক্ত হয়েছে',
         'message_card_layout_removed': 'কার্ড লেআউট অপসারণ করা হয়েছে',
+        'node_order_save_success': 'বর্তমান পেজের ক্রম সফলভাবে সংরক্ষণ করা হয়েছে।',
+        'auto_check_updates': 'স্বয়ংক্রিয় আপডেট পরীক্ষা সক্রিয় করুন',
+        'auto_check_enabled': 'স্বয়ংক্রিয় আপডেট পরীক্ষা সক্রিয় করা হয়েছে',
+        'auto_check_disabled': 'স্বয়ংক্রিয় আপডেট পরীক্ষা নিষ্ক্রিয় করা হয়েছে',
         'theme_download': 'থিম ডাউনলোড'
     }
 };

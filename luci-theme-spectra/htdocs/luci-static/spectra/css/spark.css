@@ -699,10 +699,6 @@ div.nav-container>button.btn_styles {
     color: white !important;
 }
 
-[data-page="admin-system-flash"] .cbi-section-descr {
-    color: var(--text-primary) !important;
-}
-
 .icon-group {
     display: flex;
     align-items: center;
@@ -1020,6 +1016,7 @@ textarea:focus {
     text-decoration: none;
     text-transform: uppercase;
     color: var(--color-white-strong);
+    border: none !important;
     border-radius: calc(var(--radius) - 4px);
     background-color: var(--btn-primary-bg);
     background-image: none;
@@ -4207,7 +4204,7 @@ div>div[style*="display:grid"] {
     margin-right: 6px;
 }
 
-.weather-log-box {
+.toast-message {
     position: fixed;
     left: 20px;
     padding: 12px 16px;
@@ -4253,7 +4250,7 @@ div>div[style*="display:grid"] {
     }
 }
 
-.weather-log-box.exiting {
+.toast-message.exiting {
     animation: fadeOut 0.3s forwards;
 }
 
@@ -4264,12 +4261,12 @@ div>div[style*="display:grid"] {
     }
 }
 
-.weather-log-content {
+.toast-message-content {
     padding: 6px 20px 6px 8px;
     color: white;
 }
 
-.weather-close-btn {
+.toast-close-btn {
     position: absolute;
     top: 6px;
     right: 10px;
@@ -4284,8 +4281,8 @@ div>div[style*="display:grid"] {
     transition: opacity 0.2s, background 0.2s;
 }
 
-.weather-close-btn::before,
-.weather-close-btn::after {
+.toast-close-btn::before,
+.toast-close-btn::after {
     content: '';
     position: absolute;
     top: 50%;
@@ -4296,11 +4293,11 @@ div>div[style*="display:grid"] {
     border-radius: 1px;
 }
 
-.weather-close-btn::before {
+.toast-close-btn::before {
     transform: translate(-50%, -50%) rotate(45deg);
 }
 
-.weather-close-btn::after {
+.toast-close-btn::after {
     transform: translate(-50%, -50%) rotate(-45deg);
 }
 
@@ -4308,16 +4305,16 @@ div>div[style*="display:grid"] {
     background: rgba(0, 0, 0, 0.5);
 }
 
-.weather-log-box:hover .weather-close-btn {
+.toast-message:hover .toast-close-btn {
     opacity: 0.7;
     pointer-events: auto;
 }
 
-.weather-log-box:hover .weather-close-btn:hover {
+.toast-message:hover .toast-close-btn:hover {
     opacity: 1;
 }
 
-.weather-log-icon {
+.toast-message-icon {
     display: inline-block;
     width: 20px;
     height: 20px;
@@ -4325,20 +4322,20 @@ div>div[style*="display:grid"] {
     vertical-align: middle;
 }
 
-.weather-log-box.error {
+.toast-message.error {
     background: linear-gradient(145deg, #ff4444, #cc0000);
 }
 
-.weather-log-box.warning {
+.toast-message.warning {
     background: linear-gradient(145deg, #ffc107, #ffab00);
 }
 
-.weather-log-box.info {
+.toast-message.info {
     background: linear-gradient(145deg, #2196F3, #1976D2);
 }
 
 @media (max-width: 520px) {
-    .weather-log-box {
+    .toast-message {
         width: calc(100% - 20px);
         left: 10px;
     }
@@ -4689,4 +4686,53 @@ div[style*="position: absolute"][style*="z-index: 9999999"] {
 
 .modal-footer { 
    border: none !important;
+}
+
+#set_node_div { 
+    background: color-mix(in oklch, var(--bg-container), transparent 70%) !important;
+    border-radius: var(--radius-mini);
+    backdrop-filter: var(--glass-blur-mini);
+    -webkit-backdrop-filter: var(--glass-blur-mini);
+}
+
+#cbi-openclash-groups {
+    background: color-mix(in oklch, var(--bg-container), transparent 20%)  !important;
+    border-radius: var(--radius-mini);
+}
+
+#tab-header-openclash-rule_providers,
+#tab-header-openclash-rule_provider_config,
+#tab-header-openclash-game_config,
+#tab-header-openclash-dns_servers,
+#tab-header-openclash-servers,
+#tab-header-openclash-proxy-provider,
+#tab-header-openclash-groups {
+    background: color-mix(in oklch, var(--bg-container), transparent 20%)  !important;
+}
+
+.sub_setting img {
+    width: 30px;
+    height: 30px;
+    cursor: pointer;
+    transition: opacity 0.2s, transform 0.2s;
+}
+
+.sub_setting img:hover {
+    opacity: 0.8;
+    transform: scale(1.1);
+}
+
+.cbi-input-file::file-selector-button {
+    background-color: var(--btn-primary-bg);
+    color: var(--color-white-strong);
+    border: none;
+    padding: 0.4rem 0.8rem;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all var(--transition-speed) ease;
+}
+
+.cbi-input-file::file-selector-button:hover {
+    background-color: var(--btn-primary-hover);
+    transform: scale(1.05);
 }

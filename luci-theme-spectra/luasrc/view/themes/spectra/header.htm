@@ -1262,6 +1262,14 @@ wget -O /root/nekobox.sh https://raw.githubusercontent.com/Thaolga/openwrt-nekob
                     </textarea>
                 </div>
             </div>
+            <div class="uk-margin-top">
+                <label class="uk-flex uk-flex-middle">
+                    <input id="themeAutoCheckToggle" class="uk-checkbox" type="checkbox" checked style="position: relative; top: -0.1px;">
+                    <span class="uk-margin-small-left" data-translate="auto_check_updates">
+                        Enable automatic update checks
+                    </span>
+                </label>
+            </div>
         </div>
         <div class="uk-modal-footer uk-text-right">
             <button id="themeCopyCommandBtn" class="uk-button uk-button-success" data-translate="copy_command">Copy</button>
@@ -1732,7 +1740,7 @@ document.addEventListener('DOMContentLoaded', () => {
     function rotateWeatherBoxColors() {
         const gradientColors = getWeatherGradientColors();
         if (gradientColors.length === 0) return;
-        document.querySelectorAll('.weather-log-box.info').forEach(box => {
+        document.querySelectorAll('.toast-message.info').forEach(box => {
             const [color1, color2] = getNextWeatherGradient(gradientColors);
             box.style.background = `linear-gradient(145deg, ${color1}, ${color2})`;
         });
@@ -3896,15 +3904,15 @@ const showLogMessage = (function() {
 
     return function(message, type='info') {
         const logBox = document.createElement('div');
-        logBox.className = `weather-log-box ${type}`;
+        logBox.className = `toast-message ${type}`;
         logBox.innerHTML = `
-            <div class="weather-log-content">
-                <span class="weather-log-icon" style="background-image:url('${createIcon(type)}')"></span>
+            <div class="toast-message-content">
+                <span class="toast-message-icon" style="background-image:url('${createIcon(type)}')"></span>
                 ${decodeURIComponent(message)}
-                <button class="weather-close-btn"></button>
+                <button class="toast-close-btn"></button>
             </div>
         `;
-        logBox.querySelector('.weather-close-btn').onclick = () => {
+        logBox.querySelector('.toast-close-btn').onclick = () => {
             logBox.classList.add('exiting');
             setTimeout(() => { logBox.remove(); activeLogs.delete(logBox); updatePositions(); }, 300);
         };
@@ -5073,11 +5081,36 @@ enhanceNavigation();
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    setTimeout(function() {
-        checkNewVersion();
-    }, 5000);
+    const autoCheckSetting = localStorage.getItem('themeAutoCheck');
+    const autoCheckToggle = document.getElementById('themeAutoCheckToggle');
+    
+    if (autoCheckSetting !== null) {
+        autoCheckToggle.checked = autoCheckSetting === 'true';
+    } else {
+        autoCheckToggle.checked = true;
+        localStorage.setItem('themeAutoCheck', 'true');
+    }
+    
+    autoCheckToggle.addEventListener('change', function() {
+        localStorage.setItem('themeAutoCheck', this.checked.toString());
+        
+        const translations = languageTranslations[currentLang] || languageTranslations['zh'];
+        const message = this.checked ? 
+            (translations['auto_check_enabled'] || 'Automatic update checks enabled') : 
+            (translations['auto_check_disabled'] || 'Automatic update checks disabled');
+        
+        if (typeof showLogMessage === 'function') showLogMessage(message);
+        if (typeof speakMessage === 'function') speakMessage(message);
+    });
+    
+    if (autoCheckToggle.checked) {
+        setTimeout(function() {
+            checkNewVersion();
+        }, 5000);
+    }
 
     function checkNewVersion() {
+        if (!autoCheckToggle.checked) return;
         fetch('/luci-static/spectra/bgm/check_theme_update.php')
             .then(response => response.json())
             .then(data => {
@@ -6111,43 +6144,31 @@ function toggleCardLayout() {
 }
 
 document.addEventListener('DOMContentLoaded', function() {
-    const translations = languageTranslations[currentLang] || languageTranslations['zh'];
     const toolbar = document.querySelector('.pw-toolbar-field');
     
-    if (toolbar) {
-        if (!document.getElementById('card-layout-btn')) {
-            const applyBtn = toolbar.querySelector('input[name="cbi.apply"]');
-            const buttonHTML = `<button class="btn cbi-button cbi-button-edit" id="card-layout-btn">${translations['message_add_card_layout'] || 'message_add_card_layout'}</button>`;
+    if (toolbar && !document.getElementById('card-layout-btn')) {
+        const buttonHTML = `<button class="btn cbi-button cbi-button-edit" id="card-layout-btn">Loading...</button>`;
+        
+        const applyBtn = toolbar.querySelector('input[name="cbi.apply"]');
+        if (applyBtn) {
+            applyBtn.insertAdjacentHTML('beforebegin', buttonHTML);
+        } else {
+            toolbar.insertAdjacentHTML('beforeend', buttonHTML);
+        }
+        
+        const newBtn = document.getElementById('card-layout-btn');
+        if (newBtn) {
+            const savedStatus = localStorage.getItem('cardLayoutStatus');
+            cardLayoutActive = savedStatus === 'active';
             
-            if (applyBtn) {
-                applyBtn.insertAdjacentHTML('beforebegin', buttonHTML);
-            } else {
-                toolbar.insertAdjacentHTML('beforeend', buttonHTML);
-            }
-            
-            const newBtn = document.getElementById('card-layout-btn');
-            if (newBtn) {
-                const savedStatus = localStorage.getItem('cardLayoutStatus');
-                cardLayoutActive = savedStatus === 'active';
-                
+            setTimeout(() => {
+                const translations = languageTranslations[currentLang] || languageTranslations['hk'];
                 newBtn.textContent = cardLayoutActive 
                     ? translations['message_remove_card_layout'] || 'Remove Card Layout'
                     : translations['message_add_card_layout'] || 'Add Card Layout';
-                
-                newBtn.addEventListener('click', function() {
-                    toggleCardLayout();
-                });
-            }
-        } else {
-            const existingBtn = document.getElementById('card-layout-btn');
-            if (existingBtn) {
-                const savedStatus = localStorage.getItem('cardLayoutStatus');
-                cardLayoutActive = savedStatus === 'active';
-                
-                existingBtn.textContent = cardLayoutActive 
-                    ? translations['message_remove_card_layout'] || 'Remove Card Layout'
-                    : translations['message_add_card_layout'] || 'Add Card Layout';
-            }
+            }, 100);
+            
+            newBtn.addEventListener('click', toggleCardLayout);
         }
     }
 });

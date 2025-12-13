@@ -154,6 +154,23 @@ function getProtocolBadge(protocol) {
     return `<span class="card-badge" style="background-color: ${color}">${text}</span>`;
 }
 
+function rebindURLEvents(container) {
+    container.querySelectorAll('.metric-item:nth-child(3) a').forEach(link => {
+        const originalOnClick = link.getAttribute('onclick');
+        if (originalOnClick && originalOnClick.includes('urltest_node')) {
+            link.removeAttribute('onclick');
+            link.addEventListener('click', function(e) {
+                e.preventDefault();
+                const match = originalOnClick.match(/urltest_node\('([^']+)', this\)/);
+                if (match) {
+                    const cbiId = match[1];
+                    urltest_node(cbiId, this);
+                }
+            });
+        }
+    });
+}
+
 function convertTablesToCards() {
     const activeContainer = document.querySelector('.cbi-tabcontainer[style*="display: block"], .cbi-tabcontainer[style*="display:block"]');
     if (!activeContainer) return;
@@ -257,7 +274,16 @@ function initCardSortable(container, group) {
             ghostClass: "sortable-ghost",
             chosenClass: "sortable-chosen",
             dragClass: "dragging-row",
+            
+            onStart: function(evt) {
+                showSaveButtonAtCorner(group);
+            },
+            
             onEnd: function(evt) {
+                setTimeout(() => {
+                    hideSaveButtonFromCorner(group);
+                }, 2500);
+                
                 saveCardOrder(group);
             }
         });
@@ -266,63 +292,71 @@ function initCardSortable(container, group) {
     }
 }
 
-function saveCardOrder(group) {
-    const container = document.querySelector(`.cards-container[data-group="${group}"]`);
-    if (!container) return;
+function showSaveButtonAtCorner(group) {
+    const saveBtn = document.getElementById("save_order_btn_" + group);
+    if (!saveBtn) return;
     
-    const cards = container.querySelectorAll('.node-card');
-    if (!cards.length) return;
+    if (saveBtn.classList.contains('corner-showing')) return;
     
-    const btn = document.getElementById("save_order_btn_" + group);
-    if (btn) btn.disabled = true;
+    if (!saveBtn.getAttribute('data-original-style')) {
+        saveBtn.setAttribute('data-original-style', saveBtn.style.cssText);
+    }
     
-    const ids = [];
-    cards.forEach(card => {
-        const id = card.getAttribute('data-id');
-        if (id) ids.push(id);
-    });
-    
-    XHR.get('<%=api.url("save_node_order")%>', {
-        group: group,
-        ids: ids.join(",")
-    },
-    function(x, result) {
-        if (btn) btn.disabled = false;
-        if (x && x.status === 200) {
-            const successMsg = "<%:Saved current page order successfully.%>";
-            if (typeof showLogMessage === 'function') {
-                showLogMessage(successMsg);
-            }
-            if (typeof colorVoiceEnabled !== 'undefined' && colorVoiceEnabled) {
-                speakMessage(successMsg);
-            }
-        } else {
-            const errorMsg = "<%:Save failed!%>";
-            if (typeof showLogMessage === 'function') {
-                showLogMessage(errorMsg);
-            }
-            if (typeof colorVoiceEnabled !== 'undefined' && colorVoiceEnabled) {
-                speakMessage(errorMsg);
-            }
-        }
-    });
+    saveBtn.classList.add('corner-showing');
+    saveBtn.style.cssText = `
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        z-index: 9999;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border: none;
+        padding: 12px 24px;
+        border-radius: 25px;
+        cursor: pointer;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        font-weight: bold;
+        font-size: 14px;
+        display: block !important;
+        transition: all 0.3s ease;
+        min-width: 120px;
+        text-align: center;
+        animation: slideInUp 0.3s ease;
+    `;
 }
 
-function rebindURLEvents(container) {
-    container.querySelectorAll('.metric-item:nth-child(3) a').forEach(link => {
-        const originalOnClick = link.getAttribute('onclick');
-        if (originalOnClick && originalOnClick.includes('urltest_node')) {
-            link.removeAttribute('onclick');
-            link.addEventListener('click', function(e) {
-                e.preventDefault();
-                const match = originalOnClick.match(/urltest_node\('([^']+)', this\)/);
-                if (match) {
-                    const cbiId = match[1];
-                    urltest_node(cbiId, this);
-                }
-            });
+function hideSaveButtonFromCorner(group) {
+    const saveBtn = document.getElementById("save_order_btn_" + group);
+    if (!saveBtn) return;
+    
+    saveBtn.classList.remove('corner-showing');
+    
+    const originalStyle = saveBtn.getAttribute('data-original-style');
+    if (originalStyle) {
+        saveBtn.style.cssText = originalStyle;
+    } else {
+        saveBtn.style.cssText = '';
+    }
+    
+    saveBtn.style.display = 'none';
+}
+
+if (!document.querySelector('#save-button-animation-style')) {
+    const style = document.createElement('style');
+    style.id = 'save-button-animation-style';
+    style.textContent = `
+        @keyframes slideInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
-    });
+    `;
+    document.head.appendChild(style);
 }
 
 function initAllTabs() {

@@ -3437,11 +3437,15 @@ body.modal-overlay-active #modal_overlay {
     display: inline-flex;
     gap: .2rem;
     padding: .5rem .8rem;
-    border-bottom: thin solid #ccc;
-    background: var(--card-bg) !important;
+    border: var(--border-strong);
+    background: color-mix(in oklch, var(--card-bg), transparent 20%)  !important;
     color: var(--text-primary) !important;
-    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2), 0 1px 2px rgba(0, 0, 0, 0.05);
+    box-shadow: var(--shadow-inset) !important;
     border-radius: var(--radius-small);
+}
+
+.ifacebadge:hover {
+    transform: translateY(-1px);
 }
 
 td>.ifacebadge,
@@ -3757,7 +3761,7 @@ span[data-tooltip] .label {
     border-radius: 3px;
     background: var(--bg-container) !important;
     color: var(--text-primary) !important;
-    box-shadow: var(--shadow-inset);
+    margin-top: 8px;
 }
 
 .cbi-tooltip-container:hover .cbi-tooltip {
@@ -3992,7 +3996,7 @@ input[name="nslookup"] {
 [data-page="admin-system-flash"] .cbi-section-descr {
     font-weight: 600;
     padding: 1rem 0 1rem 1.5rem;
-    color: #525f7f
+    color: var(--accent-tertiary);
 }
 
 [data-page="admin-system-flash"] .modal label>input[type="checkbox"] {
@@ -5086,7 +5090,7 @@ button:hover {
     display: flex !important;
     flex-wrap: nowrap !important;
     justify-content: space-evenly !important;
-    gap: 16px !important;
+    gap: 18px !important;
     width: 100% !important;
     box-sizing: border-box !important;
     overflow-x: auto !important;
@@ -6284,10 +6288,6 @@ tr th {
 .title,
 .desc {
     color: var(--text-primary) !important;
-}
-
-[data-page="admin-system-flash"] .cbi-section-descr {
-    color: var(--text-secondary) !important;
 }
 
 [data-theme="dark"] #page h2.title,
