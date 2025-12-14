@@ -1132,13 +1132,6 @@ a.pure-button-selected {
 }
 
 @font-face {
-    font-family: 'TypoGraphica';
-    src: url('../fonts/TypoGraphica.eot?#iefix') format('embedded-opentype'), url('../fonts/TypoGraphica.woff') format('woff'), url('../fonts/TypoGraphica.ttf') format('truetype'), url('../fonts/TypoGraphica.svg#TypoGraphica') format('svg');
-    font-weight: normal;
-    font-style: normal
-}
-
-@font-face {
     font-display: swap;
     font-family: 'Fredoka One';
     font-style: normal;
@@ -1215,8 +1208,7 @@ a.pure-button-selected {
 
 @font-face {
     font-family: 'bootstrap-icons';
-    src: url('../fonts/bootstrap-icons.woff2') format('woff2'),
-        url('../fonts/bootstrap-icons.woff') format('woff');
+    src: url('../fonts/bootstrap-icons.woff2') format('woff2');
     font-weight: normal;
     font-style: normal;
     font-display: block;
@@ -1224,9 +1216,10 @@ a.pure-button-selected {
 
 @font-face {
     font-family: "easeicon";
-    src: url('../fonts/iconfont.woff2') format('woff2'),
-        url('../fonts/iconfont.woff') format('woff'),
-        url('../fonts/iconfont.ttf') format('truetype');
+    src: url('../fonts/iconfont.woff2') format('woff2');
+    font-weight: normal;
+    font-style: normal;
+    font-display: block;
 }
 
 #view>.spinning {
@@ -1551,7 +1544,7 @@ small {
 .main-left .sidenav-header .brand {
     font-size: 1.8rem;
     color: #5e72e4;
-    font-family: "TypoGraphica";
+    font-family: "Fredoka One";
     text-decoration: none;
     text-align: center;
     cursor: default;
@@ -1564,7 +1557,7 @@ small {
 }
 
 .main-left::-webkit-scrollbar-thumb {
-    background-color: #f6f9fc
+    background-color: var(--accent-color)
 }
 
 .main-left::-webkit-scrollbar-track {
@@ -1661,7 +1654,7 @@ header .fill .container .flex1 .showSide:hover {
 header .fill .container .flex1 .brand {
     font-size: 1.5rem;
     color: var(--color-white);
-    font-family: "TypoGraphica";
+    font-family: "Fredoka One";
     text-decoration: none;
     padding-left: 1rem;
     cursor: default;
