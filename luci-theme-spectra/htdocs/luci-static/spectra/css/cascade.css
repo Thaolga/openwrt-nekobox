@@ -5426,48 +5426,150 @@ ul.cbi-tabmenu {
 .myip-ip-section,
 .myip-check-section {
     background: var(--bg-container) !important;
-    color: var(--text-primary) !important;
+    color: var(--text-color) !important;
 }
 
 .myip-ip-item,
 .myip-check-item {
-    background: var(--bg-body) !important;
-    color: var(--text-primary) !important;
+    background: color-mix(in oklch, var(--bg-container), transparent 70%) !important;
+    color: var(--text-color) !important;
+    border: var(--border-strong) !important;
 }
 
-[data-theme="dark"] .myip-section-title,
-[data-theme="dark"] .ip-title,
-[data-theme="dark"] .ip-result,
-[data-theme="dark"] .ip-geo,
-[data-theme="dark"] .ip-state_title {
+[data-theme="dark"] .oc .myip-section-title {
     color: var(--color-white) !important;
 }
 
-html[data-theme="dark"] .myip-section-title {
-    color: var(--color-white) !important;
+.oc .myip-section-title {
+    border-bottom: none !important;
+    padding-bottom: 0 !important;
 }
 
+.oc .ip-title::after,
+.oc .ip-state_title::after {
+    content: none !important;
+}
+
+.oc .stat-label::before,
+.oc .stat-label::after {
+    content: none !important;
+}
+
+.oc #config-mode-tabs .mode-tab,
+.overwrite-info,
+.oc .ip-geo,
+.oc .ip-result,
+.oc .ip-title, .oc .ip-state_title,
+.oc .subscription-info-text,
+.oc .config-select,
+.oc .config-file-name,
+.oc .file-info-item,
+.oc .cbi-button-option,
+.oc #logo_btn .logo-text, .oc #edit_overwrite .btn-text,
+.oc .version-display .version-text,
 #config-upload-cancel,
 #config-upload-submit,
 #overwrite-edit-cancel,
 #overwrite-upload-cancel,
 #overwrite-upload-submit {
-    color: white !important;
+    color: var(--text-color) !important;
+}
+
+.oc #config-mode-tabs .mode-tab.active,
+.oc input[type="radio"]:checked + .cbi-button-option {
+    color: var(--color-white) !important;
+}
+
+.oc .stat-label,
+.oc .card-title,
+#config-editor-status-text,
+#config-editor-help {
+    color: var(--text-color) !important;
+}
+
+.oc .developer-container,
+.oc #logo_btn, .oc #edit_overwrite {
+    border: var(--border-strong) !important;
+}
+
+.oc .myip-content-grid,
+.oc .config-select,
+.oc .subscription-info-container,
+.oc .cbi-button-group {
+    border: var(--border-strong) !important;
 }
 
 .oc .main-cards-container {
     background: var(--bg-container) !important;
 }
 
+.config-select option {
+    background: color-mix(in oklch, var(--bg-container), transparent 70%) !important;
+    color: var(--text-color) !important;
+}
+
+.oc .subscription-progress-bar {
+    background: var(--btn-success-bg) !important;
+}
+
+.oc .config-editor-title,
+.oc .config-upload-title  {
+    color: var(--accent-color) !important;
+}
+
+.oc .config-upload-footer,
+.oc .config-upload-header,
+.oc .config-editor-header,
+.oc .config-editor-footer {
+    background: var(--header-bg) !important;
+    color: var(--text-color) !important;
+    border: none !important;
+}
+
+.oc .config-editor-model,
+.oc .config-upload-content {
+    background: color-mix(in oklch, var(--bg-container), transparent 10%) !important;
+    border: none !important;
+}
+
+.oc .config-upload-model,
+.oc .config-editor-content {
+    border: none !important;
+}
+
+.oc .form-input, .oc .form-select {
+    background: var(--card-bg) !important;
+    border: var(--border-strong) !important;
+    color: var(--text-color) !important;
+}
+
+.upload-text,
+.oc .form-group label {
+    color: var(--text-color) !important;
+}
+
+.upload-primary,
+.upload-secondary {
+    color: var(--text-color) !important;
+}
+
+.oc .mode-tabs,
+.oc .value-indicator,
 .oc .main-card,
 .oc .announcement-card {
     background: var(--bg-container) !important;
+    border: var(--border-strong) !important;
 }
 
+.oc .upload-zone,
+.oc .form-textarea,
 .oc .sub-card {
-    background: var(--bg-body) !important;
+    background: var(--bg-container) !important;
+    border: var(--border-strong) !important;
+    color: var(--text-color) !important;
 }
 
+.oc #config-mode-tabs .mode-tabs,
 .subscription-info-container,
 .config-file-content {
     background-color: transparent !important;
@@ -5485,48 +5587,17 @@ html[data-theme="dark"] .myip-section-title {
 #go_telegram,
 #go_sponsor,
 #logo_btn {
-    background-color: var(--bg-container) !important;
+    background: color-mix(in oklch, var(--bg-container), transparent 10%) !important;
+    color: var(--text-color) !important;
+    border: var(--border-strong) !important;
 }
 
-[data-theme="dark"]  .main-cards-container,
-[data-theme="dark"]  .config-select option,
-[data-theme="dark"]  .oc .config-select,
-[data-theme="dark"]  .oc .stat-label,
-[data-theme="dark"]  .oc .subscription-info-text,
-[data-theme="dark"]  .oc .file-info-item,
-[data-theme="dark"]  .oc .config-file-name,
-[data-theme="dark"]  .oc .icon-btn,
-[data-theme="dark"]  .oc #logo_btn .logo-text, .oc #edit_overwrite .btn-text,
-[data-theme="dark"]  .oc .version-display,
-[data-theme="dark"]  .version-text,
-[data-theme="dark"]  .main-cards-container .card-title {
-    color: white !important;
-}
-
-.oc #logo_btn .logo-text, .oc #edit_overwrite .btn-text {
-    color: black !important;
-}
-
-[data-theme="dark"]  #edit_overwrite .btn-text {
-    color: white !important;
-}
-
-[data-theme="dark"] #overwrite-card-bar .sub-card.overwrite-item .overwrite-title,
-[data-theme="dark"] #overwrite-card-bar .sub-card.overwrite-item .overwrite-info,
-[data-theme="dark"] #overwrite-card-bar .sub-card.overwrite-item .icon-btn {
-    color: white !important;
-}
-
+.oc .filename-extension,
+.oc .form-help,
+.oc .filename-input-container label,
+.oc .config-upload-status,
 #overwrite-subscribe-filename {
-    color: black !important;
-}
-
-.oc .config-editor-title .config-file-name {
-    color: #000 !important;
-}
-
-[data-theme="dark"] .myip-footer p {
-    color: white !important;
+    color: var(--text-color) !important;
 }
 
 [data-theme="dark"] #mode-icon * {
@@ -5561,6 +5632,7 @@ html[data-theme="dark"] .myip-section-title {
 #_mode,
 #plugin-version-display,
 #core-version-display {
+    border: var(--border-strong) !important;
     background-color: var(--bg-container) !important;
 }
 
@@ -6352,3 +6424,4 @@ li[data-value="-"][unselectable] {
     margin: 0;
     grid-column: 1;
 }
+
