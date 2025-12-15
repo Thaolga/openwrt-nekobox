@@ -4765,3 +4765,55 @@ ul:has(> li:only-child):has(.checkbox_switch):has(.app-update-menu-item) {
     border-radius: 12px;
     margin-top: -10px !important;
 }
+
+.animated-box {
+    width: 50px;
+    height: 50px;
+    margin: 10px;
+    background: linear-gradient(45deg, oklch(68% 0.2 25), oklch(88% 0.18 95));
+    border-radius: 10px;
+    position: absolute;
+    animation: complex-animation 5s infinite alternate ease-in-out;
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+    z-index: 9998;
+}
+
+@keyframes complex-animation {
+    0% {
+        transform: rotate(0deg) scale(1);
+        background: linear-gradient(45deg, oklch(68% 0.2 25), oklch(88% 0.18 95));
+    }
+    25% {
+        transform: rotate(45deg) scale(1.2);
+        background: linear-gradient(135deg, oklch(70% 0.15 255), oklch(75% 0.15 145));
+    }
+    50% {
+        transform: rotate(90deg) scale(0.8);
+        background: linear-gradient(225deg, oklch(65% 0.18 320), oklch(70% 0.18 55));
+    }
+    75% {
+        transform: rotate(135deg) scale(1.5);
+        background: linear-gradient(315deg, oklch(75% 0.15 250), oklch(65% 0.2 320));
+    }
+    100% {
+        transform: rotate(180deg) scale(1);
+        background: linear-gradient(45deg, oklch(68% 0.2 25), oklch(88% 0.18 95));
+    }
+}
+
+.snowflake {
+    position: absolute;
+    top: -10px;
+    width: 10px;
+    height: 10px;
+    background-color: white;
+    border-radius: 50%;
+    animation: fall linear infinite;
+    z-index: 9998;
+}
+
+@keyframes fall {
+    0% { transform: translateY(0) rotate(0deg); }
+    100% { transform: translateY(100vh) rotate(360deg); }
+}
+

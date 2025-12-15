@@ -907,10 +907,10 @@
                 <div class="uk-card uk-card-small uk-card-default uk-card-hover uk-card-body uk-text-center control-card" 
                      id="animation-toggle" style="cursor: pointer;">
                     <div class="icon-container">
-                        <span id="animation-icon" class="bi bi-play-circle" style="font-size: 1.8rem;"></span>
+                        <span uk-icon="icon: reddit; ratio: 1.5"></span>
                     </div>
                     <div class="text-container">
-                        <span id="animation-text" data-translate="animation_enable">Enable Animation</span>
+                        <span id="animation-text" data-translate="animation_settings">Animation Settings</span>
                     </div>
                 </div>
             </div>
@@ -1058,6 +1058,64 @@
                 src="/luci-static/spectra/bgm/index.php"
                 style="width: 100%; height: 80vh; border: none; border-radius: 5px;">
         </iframe>
+    </div>
+</div>
+
+<div id="animation-modal" uk-modal>
+    <div class="uk-modal-dialog uk-modal-body">
+        <button class="uk-modal-close-default" type="button" uk-close></button>
+        
+        <h2 class="uk-modal-title">
+            <span uk-icon="icon: reddit; ratio: 1.8" class="uk-margin-small-right"></span>
+            <span data-translate="animation_settings">Animation Settings</span>
+        </h2>   
+  
+        <div class="uk-grid-small uk-child-width-1-3" uk-grid>
+            <div>
+                <div class="uk-card uk-card-small uk-card-default uk-card-hover uk-card-body uk-text-center control-card" 
+                     id="cube-lights-toggle" style="cursor: pointer;">
+                    <div class="icon-container">
+                        <span class="bi bi-brightness-high-fill" style="font-size: 1.8rem;"></span>
+                    </div>
+                    <div class="text-container">
+                        <span data-translate="cube_lights">Cube Lights</span>
+                    </div>
+                    <div class="status-text">
+                        <span id="cube-lights-status" data-translate="status_off">Off</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div>
+                <div class="uk-card uk-card-small uk-card-default uk-card-hover uk-card-body uk-text-center control-card" 
+                     id="cube-animation-toggle" style="cursor: pointer;">
+                    <div class="icon-container">
+                        <span class="bi bi-box-seam" style="font-size: 1.8rem;"></span>
+                    </div>
+                    <div class="text-container">
+                        <span data-translate="cube_animation">Cube Animation</span>
+                    </div>
+                    <div class="status-text">
+                        <span id="cube-animation-status" data-translate="status_off">Off</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div>
+                <div class="uk-card uk-card-small uk-card-default uk-card-hover uk-card-body uk-text-center control-card" 
+                     id="snow-animation-toggle" style="cursor: pointer;">
+                    <div class="icon-container">
+                        <span class="bi bi-snow" style="font-size: 1.8rem;"></span>
+                    </div>
+                    <div class="text-container">
+                        <span data-translate="snow_animation">Snow Animation</span>
+                    </div>
+                    <div class="status-text">
+                        <span id="snow-animation-status" data-translate="status_off">Off</span>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
 
@@ -5300,12 +5358,6 @@ document.addEventListener("DOMContentLoaded", function () {
             localStorage.setItem('backgroundMode', 'auto');
         }
 
-        const isAnimationEnabled = localStorage.getItem('animationSpansEnabled') === 'true';
-        const spans = document.querySelectorAll('.animation-spans span');
-        spans.forEach(span => {
-            span.style.display = isAnimationEnabled ? 'block' : 'none';
-        });
-
         const savedFont = localStorage.getItem('selectedFont') || 'default';
         applyFont(savedFont);
         
@@ -5321,7 +5373,6 @@ document.addEventListener("DOMContentLoaded", function () {
         updateSwitchState();
         updateThemeButton();
         updateSoundToggle();
-        updateAnimationToggle();
         updateFontToggle();
         updateFitButton();
         updateModeSelection(localStorage.getItem('backgroundMode') || 'auto');
@@ -5402,23 +5453,6 @@ document.addEventListener("DOMContentLoaded", function () {
 
             if (soundIcon) {
                 soundIcon.className = soundMuted ? "bi bi-volume-mute" : "bi bi-volume-up";
-            }
-        }
-
-        function updateAnimationToggle() {
-            const translations = languageTranslations[currentLang] || languageTranslations['en'];
-            const animationText = document.getElementById('animation-text');
-            const animationIcon = document.getElementById('animation-icon');
-            const isAnimationEnabled = localStorage.getItem('animationSpansEnabled') === 'true';
-
-            if (animationText) {
-                animationText.textContent = isAnimationEnabled ? 
-                    (translations['animation_disable'] || 'Disable Animation') : 
-                    (translations['animation_enable'] || 'Enable Animation');
-            }
-
-            if (animationIcon) {
-                animationIcon.className = isAnimationEnabled ? "bi bi-check-circle" : "bi bi-x-circle";
             }
         }
 
@@ -5599,27 +5633,6 @@ document.addEventListener("DOMContentLoaded", function () {
                 const message = `${translations['message_fit_adjusted'] || 'Display ratio adjusted to'} ${fitTexts[newFit] || newFit}`;
                 showLogMessage(message);
                 speakMessage(message);
-            });
-
-            document.getElementById('animation-toggle')?.addEventListener('click', function() {
-                const translations = languageTranslations[currentLang] || languageTranslations['en'];
-                const isAnimationEnabled = localStorage.getItem('animationSpansEnabled') === 'true';
-                const newState = !isAnimationEnabled;
-                localStorage.setItem('animationSpansEnabled', newState);
-
-                const spans = document.querySelectorAll('.animation-spans span');
-                spans.forEach(span => {
-                    span.style.display = newState ? 'block' : 'none';
-                });
-
-                updateAnimationToggle();
-                const message = newState ? 
-                    (translations['message_animation_on'] || 'Animation on') : 
-                    (translations['message_animation_off'] || 'Animation off');
-                showLogMessage(message);
-                speakMessage(message);
-                
-                toggleAnimationSpans(newState);
             });
 
             document.getElementById('font-toggle')?.addEventListener('click', function() {
@@ -6171,6 +6184,136 @@ document.addEventListener('DOMContentLoaded', function() {
             newBtn.addEventListener('click', toggleCardLayout);
         }
     }
+});
+</script>
+
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    function getAnimationState(key) {
+        const value = localStorage.getItem(key);
+        return value === 'true';
+    }
+    
+    function updateCardStatus(cardId, isActive) {
+            const translations = languageTranslations[currentLang] || languageTranslations['hk'];
+        const statusElement = document.getElementById(cardId + '-status');
+        if (statusElement) {
+            statusElement.textContent = isActive
+                ? (translations['status_on'] || 'Enabled') 
+                : (translations['status_off'] || 'Disabled');
+            statusElement.style.color = isActive ? '#32d296' : '#f0506e';
+        }
+    }
+    
+    function toggleAnimationSpans(enabled) {
+        const container = document.querySelector('.animation-spans');
+        if (!container) return;
+        const spans = container.querySelectorAll('span');
+        spans.forEach(span => span.style.display = enabled ? 'block' : 'none');
+        container.classList.toggle('animation-enabled', enabled);
+    }
+    
+    let cubeTimer = null;
+    function startCubeAnimation() {
+        if (cubeTimer) return;
+        cubeTimer = setInterval(() => {
+            const box = document.createElement('div');
+            box.className = 'animated-box';
+            document.body.appendChild(box);
+            box.style.left = Math.random() * window.innerWidth + 'px';
+            box.style.top = Math.random() * window.innerHeight + 'px';
+            setTimeout(() => box.remove(), 3000);
+        }, 1000);
+    }
+    
+    function stopCubeAnimation() {
+        clearInterval(cubeTimer);
+        cubeTimer = null;
+        document.querySelectorAll('.animated-box').forEach(box => box.remove());
+    }
+    
+    function createSnowflakes() {
+        stopSnowflakes();
+        
+        for (let i = 0; i < 80; i++) {
+            let snowflake = document.createElement('div');
+            snowflake.classList.add('snowflake');
+            let size = Math.random() * 10 + 5 + 'px';
+            snowflake.style.width = size;
+            snowflake.style.height = size;
+            let speed = Math.random() * 3 + 2 + 's';
+            snowflake.style.animationDuration = speed;
+            let leftPosition = Math.random() * 100 + 'vw';
+            snowflake.style.left = leftPosition;
+            snowflake.style.animationDelay = Math.random() * 5 + 's';
+            document.body.appendChild(snowflake);
+        }
+    }
+    
+    function stopSnowflakes() {
+        document.querySelectorAll('.snowflake').forEach(snowflake => snowflake.remove());
+    }
+    
+    const isCubeLightsOn = getAnimationState('cubeLightsActive');
+    updateCardStatus('cube-lights', isCubeLightsOn);
+    toggleAnimationSpans(isCubeLightsOn);
+    
+    const isCubeAnimationOn = getAnimationState('cubeAnimationActive');
+    updateCardStatus('cube-animation', isCubeAnimationOn);
+    if (isCubeAnimationOn) startCubeAnimation();
+    
+    const isSnowAnimationOn = getAnimationState('snowAnimationActive');
+    updateCardStatus('snow-animation', isSnowAnimationOn);
+    if (isSnowAnimationOn) {
+        createSnowflakes();
+    }
+    
+    document.getElementById('animation-toggle').addEventListener('click', function() {
+        UIkit.modal('#animation-modal').show();
+        updateUIText();
+    });
+    
+    document.getElementById('animation-modal').addEventListener('click', function(event) {
+        const translations = languageTranslations[currentLang] || languageTranslations['hk'];
+        const clickedCard = event.target.closest('.uk-card.uk-card-body');
+        if (!clickedCard) return;
+        
+        const cardId = clickedCard.id;
+        
+        if (cardId === 'cube-lights-toggle') {
+            const newState = !getAnimationState('cubeLightsActive');
+            localStorage.setItem('cubeLightsActive', newState);
+            updateCardStatus('cube-lights', newState);
+            toggleAnimationSpans(newState);
+            const successMsg = newState
+                ? translations['log_cube_lights_on'] || 'Cube lights enabled'
+                : translations['log_cube_lights_off'] || 'Cube lights disabled';
+            showLogMessage(successMsg);
+            speakMessage(successMsg);
+        }
+        else if (cardId === 'cube-animation-toggle') {
+            const newState = !getAnimationState('cubeAnimationActive');
+            localStorage.setItem('cubeAnimationActive', newState);
+            updateCardStatus('cube-animation', newState);
+            if (newState) startCubeAnimation(); else stopCubeAnimation();
+               const successMsg = newState
+                ? translations['log_cube_anim_on'] || 'Cube animation enabled'
+                : translations['log_cube_anim_off'] || 'Cube animation disabled';
+            showLogMessage(successMsg);
+            speakMessage(successMsg);
+        }
+        else if (cardId === 'snow-animation-toggle') {
+            const newState = !getAnimationState('snowAnimationActive');
+            localStorage.setItem('snowAnimationActive', newState);
+            updateCardStatus('snow-animation', newState);
+            if (newState) createSnowflakes(); else stopSnowflakes();
+            const successMsg = newState
+                ? translations['log_snow_on'] || 'Snow animation enabled'
+                : translations['log_snow_off'] || 'Snow animation disabled';
+            showLogMessage(successMsg);
+            speakMessage(successMsg);
+        }
+    });
 });
 </script>
 

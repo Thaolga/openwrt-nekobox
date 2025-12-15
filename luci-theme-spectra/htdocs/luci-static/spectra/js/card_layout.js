@@ -572,6 +572,33 @@ const cardLayoutCSS = `
     background: var(--card-bg);
 }
 
+.node-card .card-actions input[onclick*="row_top"] {
+    display: none !important;
+}
+
+.cbi-button-add[onclick="to_add_node()"] {
+    position: fixed;
+    right: 25px;
+    bottom: 20px;
+    width: 40px !important;
+    height: 40px !important;
+    padding: 0;
+    border-radius: 50%;
+    background-color: var(--btn-primary-bg) !important;
+    font-size: 0 !important;
+    color: transparent !important;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='white' viewBox='0 0 16 16'%3E%3Cpath d='M8 1a.5.5 0 0 1 .5.5V7.5H14.5a.5.5 0 0 1 0 1H8.5V14.5a.5.5 0 0 1-1 0V8.5H1.5a.5.5 0 0 1 0-1H7.5V1.5A.5.5 0 0 1 8 1z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: 20px 20px;
+    transition: all var(--transition-speed) ease;
+}
+
+.cbi-button-add[onclick="to_add_node()"]:hover {
+    background-color: var(--btn-primary-hover) !important;
+    transform: scale(1.1);
+}
+
 @media (max-width: 786px) {
     .cbi-tabcontainer[style*="display: block"] .cards-container,
     .cbi-tabcontainer[style*="display:block"] .cards-container {
