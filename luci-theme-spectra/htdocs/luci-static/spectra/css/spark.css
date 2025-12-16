@@ -9,7 +9,7 @@
     --base-hue-5: 270;
     --base-hue-6: 170;
     --base-hue-7: 340;
-    --l: 85%;
+    --l: 80%;
     --c: 0.25;
     --glass-blur: blur(20px);
     --glass-blur-light: blur(12px);
@@ -101,7 +101,7 @@
     --color-magenta: oklch(70% 0.3 330);
     --color-pink: oklch(75% 0.25 350);
     --color-brown: oklch(55% 0.1 45);
-    --color-gray: oklch(60% 0.02 0);
+    --color-gray: oklch(55.75% 0.0165 244.9);
     --color-black: oklch(20% 0.02 0);
     --color-white: oklch(95% 0.01 0);
 
@@ -173,7 +173,7 @@
     --base-hue-4: 260;
     --base-hue-5: 350;
     --base-hue-6: 290;
-    --base-hue-7: 400;
+    --base-hue-7: 40;
     --l: 60%;
     --c: 0.25;
 
@@ -187,7 +187,7 @@
     --glass-opacity: 0.85;
     --glass-border: 1px solid oklch(0% 0 0 / 0.05);
     --border-light: 1px solid oklch(90% 0.02 var(--base-hue) / 0.4);
-    --border-strong: 1px solid oklch(75% 0.05 var(--base-hue) / 0.8);
+    --border-strong: 1px solid oklch(70% 0.1 var(--base-hue) / 0.6);
 
     --breathing-glow: 0 0 15px oklch(85% 0.2 var(--base-hue) / 0.4),
         0 0 30px oklch(85% 0.15 var(--base-hue) / 0.3),
@@ -265,7 +265,7 @@
     --color-magenta: oklch(60% 0.35 330);
     --color-pink: oklch(65% 0.3 350);
     --color-brown: oklch(45% 0.15 45);
-    --color-gray: oklch(50% 0.05 0);
+    --color-gray: oklch(55.75% 0.0165 244.9);
     --color-black: oklch(15% 0.05 0);
     --color-white: oklch(98% 0.01 0);
 }
@@ -4816,4 +4816,3 @@ ul:has(> li:only-child):has(.checkbox_switch):has(.app-update-menu-item) {
     0% { transform: translateY(0) rotate(0deg); }
     100% { transform: translateY(100vh) rotate(360deg); }
 }
-

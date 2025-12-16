@@ -1822,7 +1822,7 @@ div[style="width:100%;height:300px;border:1px solid #000;background:var(--color-
 .main .main-left .nav>li>a:first-child:hover {
     cursor: pointer;
     color: var(--color-white);
-    background: oklch(var(--l) var(--c) var(--base-hue-5));
+    background: oklch(var(--l) var(--c) var(--base-hue-1));
 }
 
 .main .main-left .nav>li>a:first-child:hover::before {
@@ -4935,8 +4935,11 @@ fieldset.diag-style {
     font-weight: bold !important;
 }
 
-.config-upload-model .cancel-btn {
-    background-color: #6c757d !important;
+#overwrite-upload-cancel,
+#overwrite-edit-cancel,
+#config-upload-cancel {
+    color: var(--color-white) !important;
+    background-color: var(--color-gray) !important;
 }
 
 .config-upload-model .upload-btn {
@@ -5429,6 +5432,13 @@ ul.cbi-tabmenu {
     color: var(--text-color) !important;
 }
 
+.oc .oc-switch-slider,
+.oc .plugin-toggle-slider {
+    background: var(--color-gray) !important;
+    border: var(--border-strong) !important;
+}
+
+.oc .advanced-options-container,
 .myip-ip-item,
 .myip-check-item {
     background: color-mix(in oklch, var(--bg-container), transparent 70%) !important;
@@ -5455,31 +5465,34 @@ ul.cbi-tabmenu {
     content: none !important;
 }
 
+.oc .mode-tab,
 .oc #config-mode-tabs .mode-tab,
 .overwrite-info,
 .oc .ip-geo,
 .oc .ip-result,
 .oc .ip-title, .oc .ip-state_title,
 .oc .subscription-info-text,
-.oc .config-select,
-.oc .config-file-name,
+.oc .upload-icon,
 .oc .file-info-item,
 .oc .cbi-button-option,
 .oc #logo_btn .logo-text, .oc #edit_overwrite .btn-text,
 .oc .version-display .version-text,
-#config-upload-cancel,
 #config-upload-submit,
-#overwrite-edit-cancel,
-#overwrite-upload-cancel,
 #overwrite-upload-submit {
     color: var(--text-color) !important;
 }
 
+.oc .mode-tab.active,
 .oc #config-mode-tabs .mode-tab.active,
 .oc input[type="radio"]:checked + .cbi-button-option {
     color: var(--color-white) !important;
 }
 
+.oc .config-editor-title .config-file-name {
+    color: var(--primary-color) !important;
+}
+
+.oc .config-file-name,
 .oc .stat-label,
 .oc .card-title,
 #config-editor-status-text,
@@ -5493,7 +5506,7 @@ ul.cbi-tabmenu {
 }
 
 .oc .myip-content-grid,
-.oc .config-select,
+
 .oc .subscription-info-container,
 .oc .cbi-button-group {
     border: var(--border-strong) !important;
@@ -5530,6 +5543,10 @@ ul.cbi-tabmenu {
 .oc .config-upload-content {
     background: color-mix(in oklch, var(--bg-container), transparent 10%) !important;
     border: none !important;
+}
+
+.sub-card.overwrite-item.active {
+    box-shadow: none !important;
 }
 
 .oc .config-upload-model,
@@ -5623,6 +5640,8 @@ ul.cbi-tabmenu {
 
 .oc .config-select {
     background: var(--bg-container) !important;
+    border: var(--border-strong) !important;
+    color: var(--text-color) !important;
 }
 
 #_clash,
@@ -5722,15 +5741,18 @@ a.food[data-title="Log_out"]:hover::after {
 }
 
 #tool_label .tool_label_span {
-    display: inline-block !important;
+    display: inline-flex !important;
+    align-items: center !important;
     color: var(--color-white) !important;
     line-height: 1.2 !important;
+    gap: 5px !important;
 }
 
 #tool_label .tool_label_select {
     padding: 3px 5px !important;
     border-radius: 5px !important;
     border: none !important;
+    height: fit-content !important;
 }
 
 #tool_label .btn.cbi-button.cbi-button-apply {
@@ -5740,6 +5762,7 @@ a.food[data-title="Log_out"]:hover::after {
     border-radius: 5px !important;
     border: none !important;
     cursor: pointer !important;
+    height: fit-content !important;
 }
 
 html,

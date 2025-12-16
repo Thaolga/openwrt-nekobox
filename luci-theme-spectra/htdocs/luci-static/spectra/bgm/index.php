@@ -1589,38 +1589,41 @@ body:hover,
 </div>
 
 <?php foreach ($files as $file): ?>
-    <div class="modal fade" id="renameModal-<?= md5($file) ?>" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false">
-        <div class="modal-dialog modal-lg">
-            <div class="modal-content">
-                <form method="post" action="">
-                    <input type="hidden" name="old_name" value="<?= htmlspecialchars($file, ENT_QUOTES, 'UTF-8') ?>">
-                    <div class="modal-header">
-                        <h5 class="modal-title" data-translate="rename_file">
-                            <?= htmlspecialchars($file, ENT_QUOTES, 'UTF-8') ?>
-                        </h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                    </div>
-                    <div class="modal-body">
-                        <div class="mb-3">
-                            <label data-translate="new_filename"></label>
-                            <input 
-                                type="text" 
-                                class="form-control" 
-                                name="new_name"
-                                value="<?= htmlspecialchars($file, ENT_QUOTES, 'UTF-8') ?>"
-                                data-translate-title="invalid_filename_chars"
-                            >
-                        </div>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" data-translate="cancel"></button>
-                        <button type="submit" class="btn btn-primary" name="rename" data-translate="confirm"></button>
-                    </div>
-                </form>
+<div class="modal fade" id="renameModal-<?= md5($file) ?>" tabindex="-1" aria-labelledby="renameModalLabel-<?= md5($file) ?>" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <form class="modal-content" method="post" action="">
+            <input type="hidden" name="old_name" value="<?= htmlspecialchars($file, ENT_QUOTES, 'UTF-8') ?>">
+
+            <div class="modal-header">
+                <h5 class="modal-title" id="renameModalLabel-<?= md5($file) ?>" data-translate="rename_file">
+                    <?= htmlspecialchars($file, ENT_QUOTES, 'UTF-8') ?>
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-        </div>
+
+            <div class="modal-body">
+                <div class="mb-3">
+                    <label for="newName-<?= md5($file) ?>" data-translate="new_filename">New Filename</label>
+                    <input 
+                        type="text" 
+                        class="form-control" 
+                        id="newName-<?= md5($file) ?>" 
+                        name="new_name"
+                        value="<?= htmlspecialchars($file, ENT_QUOTES, 'UTF-8') ?>"
+                        data-translate-title="invalid_filename_chars"
+                    >
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" data-translate="cancel">Cancel</button>
+                <button type="submit" class="btn btn-primary" name="rename" data-translate="confirm">Rename</button>
+            </div>
+        </form>
     </div>
+</div>
 <?php endforeach; ?>
+
 <html lang="<?php echo $currentLang; ?>">
 <div class="modal fade" id="langModal" tabindex="-1" aria-labelledby="langModalLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
     <div class="modal-dialog modal-lg">
