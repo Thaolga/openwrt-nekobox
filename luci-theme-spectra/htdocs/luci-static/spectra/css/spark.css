@@ -4809,17 +4809,7 @@ div[style*="position: absolute"][style*="z-index: 9999999"] {
     background: color-mix(in oklch, var(--bg-container), transparent 20%) !important;
 }
 
-.sub_setting img {
-    width: 30px;
-    height: 30px;
-    cursor: pointer;
-    transition: opacity 0.2s, transform 0.2s;
-}
 
-.sub_setting img:hover {
-    opacity: 0.8;
-    transform: scale(1.1);
-}
 
 .cbi-input-file::file-selector-button {
     background-color: var(--btn-primary-bg);
@@ -4925,9 +4915,47 @@ ul:has(> li:only-child):has(.checkbox_switch):has(.app-update-menu-item) {
     background-color: transparent !important;
 }
 
+.progress_bar_bg,
 [id^="tab-header-openclash-"] ul li.cbi-tab-disabled {
     background-color: var(--header-bg) !important;
     color: var(--text-color) !important;
     border: var(--border-strong) !important;
 }
 
+.text_show {
+    color: var(--text-color) !important;
+}
+
+.sub_setting img {
+    width: 25px;
+    height: 25px;
+    cursor: pointer;
+    vertical-align: middle;
+    transition: filter 0.2s ease, transform 0.2s ease;
+}
+
+#icon_arrow {
+    filter: invert(39%) sepia(95%) saturate(746%)
+            hue-rotate(185deg) brightness(94%) contrast(92%);
+}
+
+#icon_wrench {
+    filter: invert(62%) sepia(85%) saturate(524%)
+            hue-rotate(5deg) brightness(101%) contrast(97%);
+}
+
+.sub_setting img:hover {
+    filter: invert(48%) sepia(98%) saturate(2130%)
+            hue-rotate(345deg) brightness(95%) contrast(101%);
+    transform: scale(1.15);
+}
+
+.sub_setting img:active {
+    filter: brightness(85%);
+    transform: scale(1.05);
+}
+
+.sub_setting img.disabled {
+    filter: grayscale(100%) opacity(50%);
+    cursor: default;
+}
