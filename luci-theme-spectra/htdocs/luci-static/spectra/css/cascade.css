@@ -6389,13 +6389,15 @@ tr th {
     color: var(--text-primary) !important;
 }
 
-[data-theme="dark"] #page h2.title,
-[data-theme="dark"] #page h3.desc {
-    color: #000 !important;
+#page .network-message li {
+    color: var(--text-primary) !important;
 }
 
-[data-theme="dark"] #page .network-message {
-    color: var(--color-white) !important;
+#page h3.desc,
+#page h2.title,
+#page code {
+    background-color: var(--bg-container) !important;
+    color: var(--text-primary) !important;
 }
 
 .cbi-section-node .cbi-value:nth-child(even),
