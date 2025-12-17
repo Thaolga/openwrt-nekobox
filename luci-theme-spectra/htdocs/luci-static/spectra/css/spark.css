@@ -4922,8 +4922,7 @@ ul:has(> li:only-child):has(.checkbox_switch):has(.app-update-menu-item) {
 }
 
 [id^="tab-header-openclash-"] ul {
-    background-color: var(--header-bg) !important;
-    color: var(--text-color) !important;
+    background-color: transparent !important;
 }
 
 [id^="tab-header-openclash-"] ul li.cbi-tab-disabled {
