@@ -4809,8 +4809,6 @@ div[style*="position: absolute"][style*="z-index: 9999999"] {
     background: color-mix(in oklch, var(--bg-container), transparent 20%) !important;
 }
 
-
-
 .cbi-input-file::file-selector-button {
     background-color: var(--btn-primary-bg);
     color: var(--color-white-strong);
