@@ -4971,6 +4971,7 @@ ul:has(> li:only-child):has(.checkbox_switch):has(.app-update-menu-item) {
 #tab {
     border: var(--border-strong) !important;
     background-color: var(--bg-container)  !important;
+    box-shadow: none !important;
 }
 
 #tab-content,
