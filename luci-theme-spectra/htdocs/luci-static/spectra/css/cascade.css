@@ -3321,13 +3321,23 @@ body:not(.Interfaces) .cbi-rowstyle-2:first-child {
     word-break: break-word
 }
 
+div label input[type="radio"] {
+    vertical-align: middle;
+    margin-bottom: 15px;
+}
+
+.cbi-value-field label {
+    margin-right: 20px;
+}
+
 .modal .label {
     font-size: .6rem;
     font-weight: normal;
-    padding: .1rem .3rem;
-    padding-bottom: 0;
+    padding: .2rem .3rem;
     cursor: default;
-    border-radius: 0
+    border-radius: 0.15rem;
+    line-height: 1;
+    display: inline-block;
 }
 
 .modal .label.warning {
@@ -3805,7 +3815,7 @@ span[data-tooltip] .label {
     text-transform: uppercase;
     color: var(--color-white) !important;
     border-radius: 3px;
-    background-color: #bfbfbf;
+    background-color: var(--color-gray);
     text-shadow: none
 }
 
