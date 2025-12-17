@@ -270,6 +270,7 @@ function initCardSortable(container, group) {
     try {
         Sortable.create(container, {
             handle: ".node-card, .drag-handle",
+            filter: ".metric-item, .metric-item *",
             animation: 150,
             ghostClass: "sortable-ghost",
             chosenClass: "sortable-chosen",
@@ -486,6 +487,13 @@ const cardLayoutCSS = `
     box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
 }
 
+.metric-item,
+.metric-item * {
+    cursor: default !important;
+    user-select: text !important;
+    pointer-events: auto !important;
+}
+
 #cbi-passwall-nodes .card-metrics,
 .cbi-section-node-tabbed .card-metrics {
     display: flex;
@@ -536,6 +544,7 @@ const cardLayoutCSS = `
 }
 
 .node-card:hover {
+    background: var(--header-bg) !important;
     box-shadow: 0 4px 12px rgba(0,0,0,0.15);
 }
 
