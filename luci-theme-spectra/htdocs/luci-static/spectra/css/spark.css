@@ -4367,7 +4367,7 @@ div>div[style*="display:grid"] {
 
 .custom-tooltip {
     position: fixed;
-    z-index: 999999;
+    z-index: 2147483647 !important;
     padding: 6px 12px;
     font-size: 0.8rem;
     line-height: 1.4;
