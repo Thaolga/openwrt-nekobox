@@ -5628,9 +5628,18 @@ ul.cbi-tabmenu {
     color: var(--text-color) !important;
 }
 
-[data-theme="dark"] #mode-icon * {
-    fill: white !important;
-    stroke: white !important;
+.myip-icon-btn {
+    cursor: pointer;
+}
+
+#mode-icon rect:first-of-type {
+    fill: var(--color-blue);
+}
+
+#mode-icon path,
+#mode-icon rect:not(:first-of-type) {
+    stroke: var(--text-color);
+    fill: var(--text-color);
 }
 
 [data-theme="dark"] #_daip b,
