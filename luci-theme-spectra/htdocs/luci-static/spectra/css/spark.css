@@ -4710,10 +4710,8 @@ div[style*="position: absolute"][style*="z-index: 9999999"] {
 
 #add_link_div, #reassign_group_div,
 #set_node_div {
-    background: color-mix(in oklch, var(--bg-container), transparent 70%) !important;
+    background: var(--bg-container) !important;
     border-radius: var(--radius-mini);
-    backdrop-filter: var(--glass-blur-mini);
-    -webkit-backdrop-filter: var(--glass-blur-mini);
     border: var(--border-strong) !important;
 }
 
