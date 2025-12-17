@@ -4708,16 +4708,91 @@ div[style*="position: absolute"][style*="z-index: 9999999"] {
     border: none !important;
 }
 
+#add_link_div, #reassign_group_div,
 #set_node_div {
     background: color-mix(in oklch, var(--bg-container), transparent 70%) !important;
     border-radius: var(--radius-mini);
     backdrop-filter: var(--glass-blur-mini);
     -webkit-backdrop-filter: var(--glass-blur-mini);
+    border: var(--border-strong) !important;
+}
+
+.dropdown-list,
+.custom-dropdown {
+    background-color: var(--card-bg) !important;
+    color: var(--text-primary) !important;
+}
+
+.lv-arrow-down-small {
+    border-top: 5px solid var(--text-primary) !important;
+}
+
+.lv-arrow-right {
+    border-left: 5px solid var(--text-primary) !important;
+}
+
+.cbi-listvalue-panel li[data-key]:hover,
+.custom-dropdown .dropdown-item:hover {
+    background-color: var(--accent-color) !important;
+    color: var(--color-white-strong) !important;
+}
+
+[id*="passwall"][id*="node"] .lv-group-title {
+    border: var(--border-strong) !important;
+    background: var(--card-bg) !important;
+    color: var(--text-primary) !important;
+}
+
+[id*="tcp_node.panel"],
+[id*="udp_node.panel"] {
+    background: var(--bg-container) !important;
+    color: var(--text-primary) !important;
+}
+
+[id*="tcp_node.display"],
+[id*="udp_node.display"] {
+    border: var(--border-strong) !important;
+    background-color: var(--card-bg) !important;
+    color: var(--text-primary) !important;
+}
+
+.lv-dropdown-display .lv-arrow-down {
+    display: none;
+}
+
+.cbi-listvalue-panel li[data-key],
+.lv-dropdown-search {
+    border: var(--border-strong) !important;
+    border-radius: var(--radius-mini);
+}
+
+.custom-dropdown:hover .selected-display {
+    background-color: var(--card-bg) !important;
 }
 
 #cbi-openclash-groups {
     background: color-mix(in oklch, var(--bg-container), transparent 20%) !important;
     border-radius: var(--radius-mini);
+}
+
+.lv-dropdown-panel::-webkit-scrollbar {
+    width: 12px;
+}
+
+.lv-dropdown-panel::-webkit-scrollbar-track {
+    background-color: color-mix(in oklch, var(--header-bg), transparent 20%);
+    border-radius: 6px;
+}
+
+.lv-dropdown-panel::-webkit-scrollbar-thumb {
+    border: 2px solid transparent;
+    background-clip: padding-box;
+    border-radius: 6px;
+    background-color: var(--accent-color);
+}
+
+.lv-dropdown-panel::-webkit-scrollbar-thumb:hover {
+    background-color: var(--accent-tertiary);
 }
 
 #tab-header-openclash-rule_providers,
