@@ -4984,11 +4984,6 @@ ul:has(> li:only-child):has(.checkbox_switch):has(.app-update-menu-item) {
     color: var(--text-color) !important;
 }
 
-.CodeMirror-activeline-background {
-    background-color: var(--color-violet) !important;
-    color: var(--text-color) !important;
-}
-
 .CodeMirror-gutters {
     background-color: var(--header-bg) !important;
     color: var(--text-color) !important;
