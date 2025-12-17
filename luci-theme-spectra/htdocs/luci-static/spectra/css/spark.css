@@ -4721,6 +4721,12 @@ div[style*="position: absolute"][style*="z-index: 9999999"] {
     color: var(--text-primary) !important;
 }
 
+.lv-dropdown-panel .lv-item-label,
+.cbi-dropdown-value,
+.cbi-value-field span {
+    font-family: "NotoColorEmojiFlags" !important;
+}
+
 .lv-arrow-down-small {
     border-top: 5px solid var(--text-primary) !important;
 }
