@@ -4907,7 +4907,13 @@ ul:has(> li:only-child):has(.checkbox_switch):has(.app-update-menu-item) {
     justify-content: center !important;
     align-items: center !important;
     color: var(--text-color) !important;
+    text-decoration: none !important;
 }
+
+[id^="tab-header-openclash-"] ul li a:hover {
+    text-decoration: none !important;
+}
+
 
 [id^="tab-header-openclash-"] ul {
     background-color: transparent !important;
@@ -4956,4 +4962,65 @@ ul:has(> li:only-child):has(.checkbox_switch):has(.app-update-menu-item) {
 .sub_setting img.disabled {
     filter: grayscale(100%) opacity(50%);
     cursor: default;
+}
+
+#tab-header ul.cbi-tabmenu {
+    background-color: transparent !important;
+}
+
+#tab {
+    border: var(--border-strong) !important;
+    background-color: var(--bg-container)  !important;
+}
+
+#tab-content,
+#tab-header {
+    background-color:var(--header-bg) !important;
+}
+
+.CodeMirror {
+    background: var(--bg-container) !important;
+    color: var(--text-color) !important;
+}
+
+.CodeMirror-activeline-background {
+    background-color: var(--color-violet) !important;
+    color: var(--text-color) !important;
+}
+
+.CodeMirror-gutters {
+    background-color: var(--header-bg) !important;
+    color: var(--text-color) !important;
+}
+
+.cm-s-idea span.cm-variable  {
+    color: var(--color-pink) !important;
+}
+
+.cm-s-idea span.cm-number {
+    color: var(--color-orange) !important;
+}
+
+#tab-content::-webkit-scrollbar {
+    width: 10px;
+}
+
+#tab-content::-webkit-scrollbar-track {
+    background: color-mix(in oklch, var(--header-bg), transparent 20%) !important;
+    border-radius: 5px;
+}
+
+#tab-content::-webkit-scrollbar-thumb {
+    background-color: var(--accent-color);
+    border-radius: 5px;
+    border: var(--border-strong) !important;
+}
+
+#tab-content::-webkit-scrollbar-thumb:hover {
+    background-color: var(--color-pink);
+}
+
+#tab-content {
+    scrollbar-width: thin;
+    scrollbar-color: var(--accent-color) var(--header-bg);
 }
