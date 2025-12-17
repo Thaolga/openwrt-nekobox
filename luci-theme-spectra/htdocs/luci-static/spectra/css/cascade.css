@@ -4925,7 +4925,7 @@ pre.command-output {
 }
 
 .radio-button {
-    background-color: var(--bg-container) !important;
+    background-color: transparent !important;
     gap: 2px !important;
     max-width: 600px !important;
 }
