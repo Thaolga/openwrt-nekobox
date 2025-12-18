@@ -35,12 +35,26 @@
 </script>
 <script type="text/javascript">L.require('menu-spectra')</script>
 <script>
+    const hideStyle = document.createElement('style');
+    hideStyle.id = 'temp-hide-style';
+    hideStyle.textContent = '#tool_label { display: none !important; }';
+    document.head.appendChild(hideStyle);
+    
     window.addEventListener('load', function() {
         setTimeout(function() {
-            const footer = document.querySelector('footer.mobile-hide');
-            if (footer) {
-                footer.style.display = 'block';
+            const styleEl = document.getElementById('temp-hide-style');
+            if (styleEl) styleEl.remove();
+            
+            const toolLabel = document.getElementById('tool_label');
+            if (toolLabel) {
+                toolLabel.style.display = 'block';
+                toolLabel.style.opacity = '0';
+                toolLabel.style.transition = 'opacity 0.5s ease';
+                setTimeout(() => toolLabel.style.opacity = '1', 10);
             }
+            
+            const footer = document.querySelector('footer.mobile-hide');
+            if (footer) footer.style.display = 'block';
         }, 800);
     });
 </script>
