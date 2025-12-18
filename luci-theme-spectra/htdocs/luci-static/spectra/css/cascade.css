@@ -5517,10 +5517,13 @@ ul.cbi-tabmenu {
 }
 
 .oc .myip-content-grid,
-
 .oc .subscription-info-container,
-.oc .cbi-button-group {
+.oc .cbi-button-option {
     border: var(--border-strong) !important;
+}
+
+.oc .cbi-button-group {
+    border: none !important;
 }
 
 .oc .main-cards-container {
