@@ -5085,11 +5085,11 @@ ul:has(> li:only-child):has(.checkbox_switch):has(.app-update-menu-item) {
 }
 
 #tab-header ul.cbi-tabmenu li.cbi-tab-disabled  {
-    background: var(--bg-body)) !important;
+    background: var(--bg-body) !important;
     color: var(--color-white-strong) !important;
 }
 
 #tab-header ul.cbi-tabmenu li.cbi-tab-disabled:hover  {
-    background: var(--bg-body) !important;
+    background: var(--header-bg) !important;
     color: var(--color-white-strong) !important;
 }
