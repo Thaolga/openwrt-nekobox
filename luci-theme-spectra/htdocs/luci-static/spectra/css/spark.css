@@ -4935,22 +4935,22 @@ ul:has(> li:only-child):has(.checkbox_switch):has(.app-update-menu-item) {
     height: 25px;
     cursor: pointer;
     vertical-align: middle;
-    transition: filter 0.2s ease, transform 0.2s ease;
+    transition: filter 0.2s ease, transform 0.2s ease !important;
 }
 
 #icon_arrow {
     filter: invert(39%) sepia(95%) saturate(746%)
-            hue-rotate(185deg) brightness(94%) contrast(92%);
+            hue-rotate(185deg) brightness(94%) contrast(92%) !important;
 }
 
 #icon_wrench {
     filter: invert(62%) sepia(85%) saturate(524%)
-            hue-rotate(5deg) brightness(101%) contrast(97%);
+            hue-rotate(5deg) brightness(101%) contrast(97%) !important;
 }
 
 .sub_setting img:hover {
     filter: invert(48%) sepia(98%) saturate(2130%)
-            hue-rotate(345deg) brightness(95%) contrast(101%);
+            hue-rotate(345deg) brightness(95%) contrast(101%) !important;
     transform: scale(1.15);
 }
 
@@ -4968,15 +4968,16 @@ ul:has(> li:only-child):has(.checkbox_switch):has(.app-update-menu-item) {
     background-color: transparent !important;
 }
 
-#tab {
+#tab:has(textarea[id="cbid.openclash.config.clog"]) {
     border: var(--border-strong) !important;
-    background-color: var(--bg-container)  !important;
+    background-color: var(--bg-container) !important;
     box-shadow: none !important;
 }
 
-#tab-content,
-#tab-header {
-    background-color:var(--header-bg) !important;
+#tab:has(textarea[id="cbid.openclash.config.clog"]) #tab-content,
+#tab:has(textarea[id="cbid.openclash.config.clog"]) #tab-header {
+    background-color: var(--header-bg) !important;
+    color: var(--text-color) !important;
 }
 
 .CodeMirror {
@@ -4984,16 +4985,42 @@ ul:has(> li:only-child):has(.checkbox_switch):has(.app-update-menu-item) {
     color: var(--text-color) !important;
 }
 
-.CodeMirror-gutters {
-    background-color: var(--header-bg) !important;
+.CodeMirror-linenumber,
+.cm-s-material .CodeMirror-guttermarker, .cm-s-material .CodeMirror-guttermarker-subtle, .cm-s-material .CodeMirror-linenumber {
     color: var(--text-color) !important;
 }
 
+.CodeMirror-activeline-background {
+    background: color-mix(in oklch, var(--color-blue), transparent 20%) !important;
+    backdrop-filter: blur(3px) !important;
+    -webkit-backdrop-filter: blur(3px) !important;
+}
+
+.CodeMirror-activeline .CodeMirror-line {
+    color: var(--color-white-strong) !important;
+}
+
+.CodeMirror-activeline .CodeMirror-line * {
+    color: inherit !important;
+}
+
+.CodeMirror-gutters {
+    background-color: var(--header-bg) !important;
+    color: var(--text-color) !important;
+    border: none !important;
+}
+
+.cm-s-material .cm-comment {
+    color: var(--text-color) !important;
+}
+
+.cm-s-material .cm-string,
 .cm-s-idea span.cm-variable  {
     color: var(--color-pink) !important;
 }
 
-.cm-s-idea span.cm-number {
+.cm-s-idea span.cm-number,
+.cm-s-material-log .cm-number {
     color: var(--color-orange) !important;
 }
 
@@ -5019,4 +5046,50 @@ ul:has(> li:only-child):has(.checkbox_switch):has(.app-update-menu-item) {
 #tab-content {
     scrollbar-width: thin;
     scrollbar-color: var(--accent-color) var(--header-bg);
+}
+
+#tab-header-openclash-dns_servers ul li.cbi-tab::after,
+#tab-header .cbi-tabmenu li::after,
+#tab-header .cbi-tabmenu li:hover::after,
+#tab-header .cbi-tabmenu li.cbi-tab::after,
+#tab-header .cbi-tabmenu li.cbi-tab-disabled::after,
+[id^="tab-header-openclash-"] ul li::after,
+[id^="tab-header-openclash-"] ul li:hover::after,
+[id^="tab-header-openclash-"] ul li[class~="cbi-tab"]::after,
+[id^="tab-header-openclash-"] ul li.cbi-tab::after,
+[id^="tab-header-openclash-"] ul li.cbi-tab-disabled::after,
+[id^="tab-header-openclash-"] ul li.cbi-tab-active::after {
+    border: var(--border-strong) !important;
+    display: none !important;
+    content: none !important;
+    box-shadow: none !important;
+}
+
+[data-theme="dark"] #tab-header ul.cbi-tabmenu li.cbi-tab-disabled a,
+[data-theme="dark"] #tab-header-openclash-game_config ul li.cbi-tab-disabled a,
+[data-theme="dark"] #tab-header-openclash-rule_providers ul li.cbi-tab-disabled a,
+[data-theme="dark"] #tab-header-openclash-rule_provider_config ul li.cbi-tab-disabled a,
+[data-theme="dark"] #tab-header-openclash-game_config ul li.cbi-tab-disabled,
+[data-theme="dark"] #tab-header-openclash-servers ul li.cbi-tab-disabled a,
+[data-theme="dark"] #tab-header-openclash-proxy-provider ul li.cbi-tab-disabled a,
+[data-theme="dark"] #tab-header-openclash-groups ul li.cbi-tab-disabled a,
+[data-theme="dark"] #tab-header-openclash-dns_servers ul li.cbi-tab-disabled a {
+    color: var(--color-white-strong) !important;
+}
+
+#tab-header ul.cbi-tabmenu li.cbi-tab,
+[id^="tab-header"][id*="openclash"] ul li.cbi-tab {
+    background-color: var(--accent-color) !important;
+    border: var(--border-strong) !important;
+    color: var(--color-white-strong) !important;
+}
+
+#tab-header ul.cbi-tabmenu li.cbi-tab-disabled  {
+    background: var(--bg-body)) !important;
+    color: var(--color-white-strong) !important;
+}
+
+#tab-header ul.cbi-tabmenu li.cbi-tab-disabled:hover  {
+    background: var(--bg-body) !important;
+    color: var(--color-white-strong) !important;
 }
