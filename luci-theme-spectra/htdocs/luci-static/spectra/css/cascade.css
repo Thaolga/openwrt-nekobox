@@ -6387,11 +6387,6 @@ div.app-container_configure:hover {
     background-color: var(--card-bg) !important;
 }
 
-tr th {
-    background-color: var(--accent-color) !important;
-    color: var(--color-white) !important;
-}
-
 #core_status {
     border: 1px solid #ccc !important;
 }

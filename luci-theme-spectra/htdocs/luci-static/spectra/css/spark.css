@@ -1,3 +1,103 @@
+:root {
+    /* ===== Core Design Tokens ===== */
+    --base-hue: 260;
+    --base-chroma: 0.25;
+    --danger-base: 15;
+    --l: 80%;
+    --c: 0.25;
+       
+    /* ===== Neutral Color System ===== */
+    --neutral-50: oklch(98% 0.01 var(--base-hue));
+    --neutral-100: oklch(95% 0.015 var(--base-hue));
+    --neutral-200: oklch(90% 0.02 var(--base-hue));
+    --neutral-300: oklch(85% 0.025 var(--base-hue));
+    --neutral-400: oklch(75% 0.03 var(--base-hue));
+    --neutral-500: oklch(65% 0.035 var(--base-hue));
+    --neutral-600: oklch(55% 0.04 var(--base-hue));
+    --neutral-700: oklch(45% 0.045 var(--base-hue));
+    --neutral-800: oklch(35% 0.05 var(--base-hue));
+    --neutral-900: oklch(25% 0.055 var(--base-hue));
+    
+    /* ===== Spacing Scale ===== */
+    --space-unit: 4px;
+    --space-xs: calc(var(--space-unit) * 1);   /* 4px */
+    --space-sm: calc(var(--space-unit) * 2);   /* 8px */
+    --space-md: calc(var(--space-unit) * 4);   /* 16px */
+    --space-lg: calc(var(--space-unit) * 6);   /* 24px */
+    --space-xl: calc(var(--space-unit) * 8);   /* 32px */
+    --space-2xl: calc(var(--space-unit) * 12); /* 48px */
+    --space-3xl: calc(var(--space-unit) * 16); /* 64px */
+    
+    /* ===== Typography Scale ===== */
+    --text-xs: 0.75rem;    /* 12px */
+    --text-sm: 0.875rem;   /* 14px */
+    --text-base: 1rem;     /* 16px */
+    --text-lg: 1.125rem;   /* 18px */
+    --text-xl: 1.25rem;    /* 20px */
+    --text-2xl: 1.5rem;    /* 24px */
+    --text-3xl: 1.875rem;  /* 30px */
+    --text-4xl: 2.25rem;   /* 36px */
+    
+    /* ===== Motion System ===== */
+    --ease-linear: linear;
+    --ease-in: cubic-bezier(0.4, 0, 1, 1);
+    --ease-out: cubic-bezier(0, 0, 0.2, 1);
+    --ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);
+    --ease-spring: cubic-bezier(0.68, -0.55, 0.265, 1.55);
+    
+    /* Animation durations */
+    --duration-fast: 150ms;
+    --duration-normal: 250ms;
+    --duration-slow: 350ms;
+    --duration-very-slow: 500ms;
+    
+    /* ===== Shadow System ===== */
+    /* Base elevation levels */
+    --shadow-sm: 0 1px 2px oklch(0% 0 0 / 0.05);
+    --shadow-md: 0 4px 6px -1px oklch(0% 0 0 / 0.1), 0 2px 4px -2px oklch(0% 0 0 / 0.1);
+    --shadow-lg: 0 10px 15px -3px oklch(0% 0 0 / 0.1), 0 4px 6px -4px oklch(0% 0 0 / 0.1);
+    --shadow-xl: 0 20px 25px -5px oklch(0% 0 0 / 0.1), 0 8px 10px -6px oklch(0% 0 0 / 0.1);
+    
+    /* Emphasis shadows */
+    --shadow-focus: 0 0 0 3px color-mix(in oklch, var(--accent-color), transparent 70%);
+    --shadow-ring: 0 0 0 4px color-mix(in oklch, var(--accent-color), transparent 80%);
+    
+    /* State backgrounds (subtle) */
+    --state-success-bg: color-mix(in oklch, var(--state-success), transparent 90%);
+    --state-info-bg: color-mix(in oklch, var(--state-info), transparent 90%);
+    --state-warning-bg: color-mix(in oklch, var(--state-warning), transparent 90%);
+    --state-danger-bg: color-mix(in oklch, var(--state-danger), transparent 90%);
+    
+    /* State borders */
+    --state-success-border: color-mix(in oklch, var(--state-success), transparent 70%);
+    --state-danger-border: color-mix(in oklch, var(--state-danger), transparent 70%);
+    
+    /* ===== Surface Elevation System ===== */
+    /* Base surfaces */
+    --surface: var(--card-bg);
+    --surface-elevated: color-mix(in oklch, var(--card-bg), white 10%);
+    --surface-high: color-mix(in oklch, var(--card-bg), white 20%);
+    --surface-highest: color-mix(in oklch, var(--card-bg), white 30%);
+    
+    /* Floating surfaces */
+    --surface-floating: color-mix(in oklch, var(--card-bg), white 15%);
+    --surface-modal: color-mix(in oklch, var(--card-bg), white 25%);
+    
+    /* ===== Glassmorphism Effects ===== */
+    --glass-blur: blur(20px);
+    --glass-blur-light: blur(12px);
+    --glass-blur-small: blur(10px);
+    --glass-blur-mini: blur(6px);
+    --glass-opacity: 0.85;
+    
+    /* ===== Radius System ===== */
+    --radius: 20px;
+    --radius-small: 12px;
+    --radius-mini: 8px;
+    --radius-full: 9999px;
+    --radius-pill: 50px;    
+}
+
 [data-theme="dark"] {
     --base-hue: 260;
     --base-chroma: 0.25;
@@ -11,15 +111,7 @@
     --base-hue-7: 340;
     --l: 80%;
     --c: 0.25;
-    --glass-blur: blur(20px);
-    --glass-blur-light: blur(12px);
-    --glass-blur-small: blur(10px);
-    --glass-blur-mini: blur(6px);
 
-    --radius: 20px;
-    --radius-small: 12px;
-    --radius-mini: 8px;
-    --glass-opacity: 0.85;
     --glass-border: 1px solid oklch(100% 0 0 / 0.1);
     --border-color: oklch(40% var(--base-chroma) var(--base-hue));
     --border-light: 1px solid oklch(60% 0.05 var(--base-hue) / 0.3);
@@ -177,14 +269,6 @@
     --l: 60%;
     --c: 0.25;
 
-    --glass-blur: blur(20px);
-    --glass-blur-light: blur(12px);
-    --glass-blur-small: blur(10px);
-    --glass-blur-mini: blur(6px);
-    --radius: 20px;
-    --radius-small: 12px;
-    --radius-mini: 8px;
-    --glass-opacity: 0.85;
     --glass-border: 1px solid oklch(0% 0 0 / 0.05);
     --border-light: 1px solid oklch(90% 0.02 var(--base-hue) / 0.4);
     --border-strong: 1px solid oklch(70% 0.1 var(--base-hue) / 0.6);
@@ -4715,6 +4799,7 @@ div[style*="position: absolute"][style*="z-index: 9999999"] {
     border: var(--border-strong) !important;
 }
 
+.lv-dropdown-display,
 .dropdown-list,
 .custom-dropdown {
     background-color: var(--card-bg) !important;
@@ -4991,17 +5076,7 @@ ul:has(> li:only-child):has(.checkbox_switch):has(.app-update-menu-item) {
 }
 
 .CodeMirror-activeline-background {
-    background: color-mix(in oklch, var(--color-blue), transparent 20%) !important;
-    backdrop-filter: blur(3px) !important;
-    -webkit-backdrop-filter: blur(3px) !important;
-}
-
-.CodeMirror-activeline .CodeMirror-line {
-    color: var(--color-white-strong) !important;
-}
-
-.CodeMirror-activeline .CodeMirror-line * {
-    color: inherit !important;
+    background: color-mix(in oklch, var(--neutral-200), transparent 20%) !important;
 }
 
 .CodeMirror-gutters {
@@ -5069,7 +5144,7 @@ ul:has(> li:only-child):has(.checkbox_switch):has(.app-update-menu-item) {
 [data-theme="dark"] #tab-header-openclash-game_config ul li.cbi-tab-disabled a,
 [data-theme="dark"] #tab-header-openclash-rule_providers ul li.cbi-tab-disabled a,
 [data-theme="dark"] #tab-header-openclash-rule_provider_config ul li.cbi-tab-disabled a,
-[data-theme="dark"] #tab-header-openclash-game_config ul li.cbi-tab-disabled,
+[data-theme="dark"] #tab-header-openclash-game_config ul li.cbi-tab-disabled a,
 [data-theme="dark"] #tab-header-openclash-servers ul li.cbi-tab-disabled a,
 [data-theme="dark"] #tab-header-openclash-proxy-provider ul li.cbi-tab-disabled a,
 [data-theme="dark"] #tab-header-openclash-groups ul li.cbi-tab-disabled a,
@@ -5084,12 +5159,58 @@ ul:has(> li:only-child):has(.checkbox_switch):has(.app-update-menu-item) {
     color: var(--color-white-strong) !important;
 }
 
-#tab-header ul.cbi-tabmenu li.cbi-tab-disabled  {
+#tab-header ul.cbi-tabmenu li.cbi-tab-disabled {
     background: var(--bg-body) !important;
     color: var(--color-white-strong) !important;
 }
 
-#tab-header ul.cbi-tabmenu li.cbi-tab-disabled:hover  {
-    background: var(--header-bg) !important;
+#tab-header-openclash-game_config ul li.cbi-tab-disabled:hover,
+#tab-header-openclash-rule_providers ul li.cbi-tab-disabled:hover,
+#tab-header-openclash-rule_provider_config ul li.cbi-tab-disabled:hover,
+#tab-header-openclash-game_config ul li.cbi-tab-disabled:hover,
+#tab-header-openclash-servers ul li.cbi-tab-disabled:hover,
+#tab-header-openclash-proxy-provider ul li.cbi-tab-disabled:hover,
+#tab-header-openclash-groups ul li.cbi-tab-disabled:hover,
+#tab-header-openclash-dns_servers ul li.cbi-tab-disabled:hover,
+#tab-header ul.cbi-tabmenu li.cbi-tab-disabled:hover {
+    background: var(--neutral-200) !important;
     color: var(--color-white-strong) !important;
+}
+
+.radio-button {
+    display: flex !important;
+    gap: var(--space-sm) !important;
+    flex-wrap: wrap !important;
+    align-items: center !important;
+}
+
+.radio-button input[type="radio"] {
+    display: none !important;
+}
+
+.radio-button label {
+    display: inline-block !important;
+    padding: 8px 16px !important;
+    border-radius: (--radius-small) !important;
+    background: color-mix(in oklch, var(--bg-container), transparent 20%) !important;
+    border: var(--border-strong) !important;
+    color: var(--text-primary) !important;
+    font-size: var(--text-sm) !important;
+    cursor: pointer !important;
+    transition: all 0.25s var(--ease-in-out) !important;
+    user-select: none !important;
+}
+
+.radio-button label:hover {
+    background-color: var(--accent-tertiary) !important;
+    color: var(--color-white) !important;
+}
+
+.radio-button input[type="radio"]:checked + label {
+    background-color: var(--accent-color) !important;
+    color: var(--color-white) !important;
+}
+
+.radio-button label:active {
+    transform: scale(0.97) !important;
 }
