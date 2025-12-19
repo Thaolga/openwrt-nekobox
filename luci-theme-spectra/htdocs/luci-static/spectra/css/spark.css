@@ -5214,3 +5214,11 @@ ul:has(> li:only-child):has(.checkbox_switch):has(.app-update-menu-item) {
 .radio-button label:active {
     transform: scale(0.97) !important;
 }
+
+@media (max-width: 768px) {
+    .oc input[type="radio"]:checked + .cbi-button-option {
+        height: 30px !important;
+        min-height: 30px !important;
+        line-height: 30px !important;
+    }
+}
