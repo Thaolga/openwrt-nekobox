@@ -588,8 +588,11 @@ document.addEventListener('DOMContentLoaded', function() {
     const mediaControl = document.getElementById("mediaControl");
     const mediaIcon = mediaControl.querySelector("i");
     
+    const loginHeader = document.querySelector(".login-form-header");
+    const loginBackground = document.querySelector(".login-form-background");
+    
     let currentMedia = null;
-    let isMuted = true;
+    let isMuted = false;
     let mediaStarted = false;
 
     function initializeMedia() {
@@ -614,22 +617,109 @@ document.addEventListener('DOMContentLoaded', function() {
         }
         
         if (currentMedia) {
-            currentMedia.muted = true;
+            currentMedia.muted = false;
             currentMedia.volume = 1.0;
         }
+        updateMediaIcon();
+    }
+
+    function handleHeaderClick(e) {
+        e.stopPropagation();
+        
+        if (currentMedia) {
+            currentMedia.pause();
+        }
+        
+        if (backgroundType === 'Video') {
+            const video = document.getElementById("background-video");
+            const audio = document.getElementById("background-audio");
+            const mainBg = document.querySelector('.main-bg');
+            const videoContainer = document.querySelector('.video');
+            
+            if (video && videoContainer) {
+                video.pause();
+                videoContainer.style.display = 'none';
+            }
+            
+            if (mainBg) {
+                mainBg.style.display = 'block';
+            }
+            
+            const songs = [
+                { src: '/luci-static/spectra/img/bgm.mp3', type: 'audio/mp3' },
+                { src: '/luci-static/spectra/img/bgm2.webm', type: 'audio/webm' }
+            ];
+            const randomSong = songs[Math.floor(Math.random() * songs.length)];
+            
+            let audioSource = audio.querySelector("source");
+            audioSource.src = randomSong.src;
+            audioSource.type = randomSong.type;
+            audio.load();
+            audio.muted = false;
+            audio.play();
+            
+            currentMedia = audio;
+            
+        } else {
+            const video = document.getElementById("background-video");
+            const audio = document.getElementById("background-audio");
+            const mainBg = document.querySelector('.main-bg');
+            const videoContainer = document.querySelector('.video');
+            
+            if (video && videoContainer) {
+                audio.pause();
+                mainBg.style.display = 'none';
+                videoContainer.style.display = 'block';
+                video.muted = false;
+                video.play();
+                currentMedia = video;
+            } else {
+                const songs = [
+                    { src: '/luci-static/spectra/img/bgm.mp3', type: 'audio/mp3' },
+                    { src: '/luci-static/spectra/img/bgm2.webm', type: 'audio/webm' }
+                ];
+                const randomSong = songs[Math.floor(Math.random() * songs.length)];
+                
+                let audioSource = audio.querySelector("source");
+                audioSource.src = randomSong.src;
+                audioSource.type = randomSong.type;
+                audio.load();
+                audio.muted = false;
+                audio.play();
+                currentMedia = audio;
+            }
+        }
+        
+        mediaStarted = true;
+        updateMediaIcon();
+    }
+
+    function handleMediaControlClick(e) {
+        e.stopPropagation();
+        
+        if (!currentMedia) return;
+        
+        if (!mediaStarted) {
+            startMedia();
+        } else {
+            isMuted = !isMuted;
+            currentMedia.muted = isMuted;
+        }
+        
         updateMediaIcon();
     }
 
     function startMedia() {
         if (!mediaStarted && currentMedia) {
             currentMedia.muted = false;
+            isMuted = false;
+            
             if (currentMedia.play) {
                 currentMedia.play().catch(e => {
                     console.log('Media play failed:', e);
                 });
             }
             mediaStarted = true;
-            isMuted = false;
             updateMediaIcon();
             
             document.removeEventListener('click', startMedia);
@@ -637,18 +727,10 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-    function toggleMute() {
-        if (currentMedia && mediaStarted) {
-            isMuted = !isMuted;
-            currentMedia.muted = isMuted;
-            updateMediaIcon();
-        }
-    }
-
     function updateMediaIcon() {
         if (!mediaStarted) {
-            mediaIcon.className = "bi bi-volume-mute";
-            mediaControl.className = "media-control muted";
+            mediaIcon.className = "bi bi-volume-up";
+            mediaControl.className = "media-control unmuted";
         } else if (isMuted) {
             mediaIcon.className = "bi bi-volume-mute";
             mediaControl.className = "media-control muted";
@@ -658,14 +740,17 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-    mediaControl.addEventListener('click', function(e) {
-        e.stopPropagation();
-        if (!mediaStarted) {
-            startMedia();
-        } else {
-            toggleMute();
-        }
-    });
+    if (loginHeader) {
+        loginHeader.addEventListener('click', handleHeaderClick);
+        loginHeader.style.cursor = 'pointer';
+    }
+    
+    if (loginBackground) {
+        loginBackground.addEventListener('click', handleHeaderClick);
+        loginBackground.style.cursor = 'pointer';
+    }
+
+    mediaControl.addEventListener('click', handleMediaControlClick);
 
     document.addEventListener('click', startMedia, { once: true });
     document.addEventListener('touchstart', startMedia, { once: true });
