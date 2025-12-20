@@ -361,6 +361,11 @@ $langData = [
         'formatYaml' => '格式化 YAML',
         'validateJson' => '验证 JSON 语法',
         'validateYaml' => '验证 YAML 语法',
+        'total_items'  => '共',
+        'items'        => '个项目',
+        'current_path' => '当前路径',
+        'disk'         => '磁盘',
+        'root'         => '根目录', 
         'selected_info' => '已选择 %d 个文件，合计 %s MB'
     ],
 
@@ -722,6 +727,11 @@ $langData = [
         "fileType" => "檔案類型",
         'formatYaml' => '格式化 YAML',
         'validateJson' => '驗證 JSON 語法',
+        'total_items'  => '共',
+        'items'        => '個項目',
+        'current_path' => '當前路徑',
+        'disk'         => '磁碟',
+        'root'         => '根目錄',
         'validateYaml' => '驗證 YAML 語法'
     ],
 
@@ -1083,6 +1093,11 @@ $langData = [
         "fileType" => "파일 유형",
         'formatYaml' => 'YAML 포맷',
         'validateJson' => 'JSON 구문 검증',
+        'total_items'  => '총',
+        'items'        => '개 항목',
+        'current_path' => '현재 경로',
+        'disk'         => '디스크',
+        'root'         => '루트 디렉토리',
         'validateYaml' => 'YAML 구문 검증'
     ],
 
@@ -1443,6 +1458,11 @@ $langData = [
         "fileType" => "ファイルタイプ",
         'formatYaml' => 'YAMLをフォーマット',
         'validateJson' => 'JSON構文を検証',
+        'total_items'  => '合計',
+        'items'        => '項目',
+        'current_path' => '現在のパス',
+        'disk'         => 'ディスク',
+        'root'         => 'ルートディレクトリ',
         'validateYaml' => 'YAML構文を検証'
     ],
 
@@ -1803,6 +1823,11 @@ $langData = [
         "fileType" => "Loại tập tin",
         'formatYaml' => 'Định dạng YAML',
         'validateJson' => 'Kiểm tra Cú pháp JSON',
+         'total_items'  => 'Tổng',
+        'items'        => 'mục',
+        'current_path' => 'Đường dẫn hiện tại',
+        'disk'         => 'Đĩa',
+        'root'         => 'Thư mục gốc',
         'validateYaml' => 'Kiểm tra Cú pháp YAML'
     ],
 
@@ -2147,6 +2172,11 @@ $langData = [
         "fileType" => "ประเภทไฟล์",
         'formatYaml' => 'จัดรูปแบบ YAML',
         'validateJson' => 'ตรวจสอบไวยากรณ์ JSON',
+        'total_items'  => 'ทั้งหมด',
+        'items'        => 'รายการ',
+        'current_path' => 'เส้นทางปัจจุบัน',
+        'disk'         => 'ดิสก์',
+        'root'         => 'ไดเรกทอรีราก',
         'validateYaml' => 'ตรวจสอบไวยากรณ์ YAML'
     ],
     'ru' => [
@@ -2492,6 +2522,11 @@ $langData = [
         "fileType" => "Тип файла",
         'formatYaml' => 'Форматировать YAML',
         'validateJson' => 'Проверить синтаксис JSON',
+        'total_items'  => 'Всего',
+        'items'        => 'элементов',
+        'current_path' => 'Текущий путь',
+        'disk'         => 'Диск',
+        'root'         => 'Корневая папка',
         'validateYaml' => 'Проверить синтаксис YAML'
     ],
     'ar' => [
@@ -2842,6 +2877,11 @@ $langData = [
         "fileType" => "نوع الملف",
         'formatYaml' => 'تنسيق YAML',
         'validateJson' => 'التحقق من صحة بناء جملة JSON',
+        'total_items'  => 'إجمالي',
+        'items'        => 'عنصر',
+        'current_path' => 'المسار الحالي',
+        'disk'         => 'القرص',
+        'root'         => 'المجلد الجذر',
         'validateYaml' => 'التحقق من صحة بناء جملة YAML'
     ],
     'es' => [
@@ -3186,6 +3226,11 @@ $langData = [
         "fileType" => "Tipo de archivo",
         'formatYaml' => 'Formatear YAML',
         'validateJson' => 'Validar sintaxis JSON',
+        'total_items'  => 'Total',
+        'items'        => 'elementos',
+        'current_path' => 'Ruta actual',
+        'disk'         => 'Disco',
+        'root'         => 'Directorio raíz',
         'validateYaml' => 'Validar sintaxis YAML'
     ],
     'de' => [
@@ -3530,6 +3575,11 @@ $langData = [
         "fileType" => "Dateityp",
         'formatYaml' => 'YAML formatieren',
         'validateJson' => 'JSON-Syntax validieren',
+         'total_items'  => 'Gesamt',
+        'items'        => 'Elemente',
+        'current_path' => 'Aktueller Pfad',
+        'disk'         => 'Festplatte',
+        'root'         => 'Stammverzeichnis',
         'validateYaml' => 'YAML-Syntax validieren'
     ],
 
@@ -3875,6 +3925,11 @@ $langData = [
         "fileType" => "Type de fichier",
         'formatYaml' => 'Formatter YAML',
         'validateJson' => 'Valider la syntaxe JSON',
+        'total_items'  => 'Total',
+        'items'        => 'éléments',
+        'current_path' => 'Chemin actuel',
+        'disk'         => 'Disque',
+        'root'         => 'Répertoire racine',
         'validateYaml' => 'Valider la syntaxe YAML'
     ],
     'en' => [
@@ -4232,6 +4287,11 @@ $langData = [
         "fileType" => "File Type",
         'formatYaml' => 'Format YAML',
         'validateJson' => 'Validate JSON Syntax',
+        'total_items'  => 'Total',
+        'items'        => 'items',
+        'current_path' => 'Path:',
+        'disk'         => 'Disk',
+        'root'         => 'root', 
         'validateYaml' => 'Validate YAML Syntax'
     ],
     'bn' => [
@@ -4576,6 +4636,11 @@ $langData = [
         "fileType" => "ফাইলের ধরন",
         'formatYaml' => 'YAML ফরম্যাট করুন',
         'validateJson' => 'JSON সিনট্যাক্স যাচাই করুন',
+        'total_items'  => 'মোট',
+        'items'        => 'আইটেম',
+        'current_path' => 'বর্তমান পথ',
+        'disk'         => 'ডিস্ক',
+        'root'         => 'রুট ডিরেক্টরি',
         'validateYaml' => 'YAML সিনট্যাক্স যাচাই করুন'
     ]
 ];
