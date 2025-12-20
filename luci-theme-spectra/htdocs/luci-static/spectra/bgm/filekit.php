@@ -1368,6 +1368,10 @@ thead.table-light th {
 	text-align: left;
 	font-size: 0.925rem;
 }
+
+.breadcrumb-item + .breadcrumb-item::before {
+    color: var(--accent-color) !important;
+}
 </style>
 
 <div class="container-sm container-bg px-2 px-sm-4 mt-4">
