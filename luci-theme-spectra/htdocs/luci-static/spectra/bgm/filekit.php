@@ -1720,7 +1720,7 @@ thead.table-light th {
             <?php endif; ?>
         </div>
         <div>
-            <div id="current-time"><?php echo date('Y-m-d H:i:s'); ?></div>
+            <span id="system-time"><?php echo date('Y-m-d H:i:s'); ?></span>
         </div>
     </div>
 </div>
@@ -3152,15 +3152,15 @@ function uniqueConfirmDelete(event, name) {
     return false;
 }
 
-let serverTime = new Date("<?php echo date('Y-m-d H:i:s'); ?>").getTime();
-let clientOffset = Date.now() - serverTime;
-
-function updateTime() {
-    const now = new Date(Date.now() - clientOffset);
-    const formatted = now.toISOString().replace('T', ' ').substr(0, 19);
-    document.getElementById('current-time').textContent = formatted;
-}
-
-updateTime();
-setInterval(updateTime, 1000);
+setInterval(() => {
+    const now = new Date();
+    const timeStr = now.getFullYear() + '-' +
+        String(now.getMonth() + 1).padStart(2, '0') + '-' +
+        String(now.getDate()).padStart(2, '0') + ' ' +
+        String(now.getHours()).padStart(2, '0') + ':' +
+        String(now.getMinutes()).padStart(2, '0') + ':' +
+        String(now.getSeconds()).padStart(2, '0');
+    
+    document.getElementById('system-time').textContent = timeStr;
+}, 1000);
 </script>
