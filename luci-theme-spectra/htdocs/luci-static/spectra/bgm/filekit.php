@@ -1,5 +1,8 @@
 <?php
 ini_set('memory_limit', '256M');
+$timezone = trim(shell_exec("uci get system.@system[0].zonename 2>/dev/null"));
+
+date_default_timezone_set($timezone ?: 'UTC');
 ob_start();
 $root_dir = "/";
 $current_dir = isset($_GET['dir']) ? $_GET['dir'] : '';
@@ -285,7 +288,7 @@ function downloadFile($file) {
     }
 }
 
-function getDirectoryContents($dir) {
+function getDirectoryContents($dir, $sort_by_type = true) {
     $contents = array();
     foreach (scandir($dir) as $item) {
         if ($item != "." && $item != "..") {
@@ -314,6 +317,19 @@ function getDirectoryContents($dir) {
             );
         }
     }
+    
+    if ($sort_by_type) {
+        usort($contents, function($a, $b) {
+            if ($a['is_dir'] && !$b['is_dir']) {
+                return -1;
+            }
+            if (!$a['is_dir'] && $b['is_dir']) {
+                return 1;
+            }
+            return strcasecmp($a['name'], $b['name']);
+        });
+    }
+    
     return $contents;
 }
 
@@ -374,6 +390,19 @@ function searchFiles($dir, $term) {
     }
 
     return $results;
+}
+
+function getDiskUsage() {
+    $total = disk_total_space('/');
+    $free = disk_free_space('/');
+    $used = $total - $free;
+    
+    return [
+        'total' => formatSize($total),
+        'used' => formatSize($used),
+        'free' => formatSize($free),
+        'percent' => round(($used / $total) * 100, 2)
+    ];
 }
 ?>
 
@@ -759,6 +788,10 @@ table.table tbody tr:nth-child(even) td {
     box-shadow: 1px 0 3px -2px color-mix(in oklch, var(--bg-container), black 30%) !important;
 }
 
+#pageTitle {
+    padding-top: 40px !important;
+}
+
 body {
     color: var(--text-primary);
     font-family: var(--font-family, -apple-system, BlinkMacSystemFont, sans-serif);
@@ -794,7 +827,7 @@ body {
 
 .form-control {
     background: var(--bg-body) !important;
-    color: var(--text-primary);
+    color: var(--text-primary) !important;
     border: var(--border-strong) !important;
 }
 
@@ -995,6 +1028,10 @@ table.table tbody tr td.file-icon {
     100% {
         transform: scale(1);
     }
+}
+
+.bg-warning  {
+    color: #fff !important;
 }
 
 .table td i.folder-icon {
@@ -1230,7 +1267,6 @@ label {
 }
 
 #pageTitle {
-    padding-top: 40px !important;
     color: var(--accent-color) !important;
 }
 
@@ -1293,19 +1329,61 @@ a {
 .action-grid .btn:hover i {
     color: #ffffff !important;
 }
+
+.status-bar {
+    padding: 8px 12px;
+    font-size: 14px;
+    display: flex;
+    justify-content: space-between;
+    position: relative;
+    top: -7px;
+}
+
+nav[aria-label="breadcrumb"] {
+    padding-left: 12px;
+    padding-right: 12px;
+}
+
+.breadcrumb {
+    background-color: var(--card-bg);
+    border-radius: 8px;
+    border: var(--border-strong);
+    padding: 10px 15px;
+}
+        
+.breadcrumb-item a {
+    color: var(--text-primary);
+    text-decoration: none;
+}
+        
+.breadcrumb-item.active {
+    color: var(--accent-color);
+}
+
+thead.table-light th {
+	font-weight: 600;
+	padding: 0.85rem 1.25rem;
+	background: var(--accent-color) !important;
+	color: #fff !important;
+	text-align: left;
+	font-size: 0.925rem;
+}
 </style>
 
 <div class="container-sm container-bg px-2 px-sm-4 mt-4">
-    <div class="row align-items-center p-0 mb-0">
-        <div class="col-12 text-center">
-            <h2 class="mb-0" id="pageTitle" data-translate="pageTitle">File Assistant</h2>
+    <div class="d-flex justify-content-between align-items-center mb-4 position-relative" style="height: 60px;">
+        <h2 class="mb-0 text-primary position-absolute start-50 translate-middle-x"
+            id="pageTitle">
+            <i class="fas fa-folder-open me-2"></i><span data-translate="pageTitle">File Assistant</span>
+        </h2>
+        <div class="text-muted small ms-auto d-none d-sm-block">
+            <i class="fas fa-hdd me-1"></i>
+            <span data-translate="disk">Disk</span>: <?php $disk = getDiskUsage(); echo "{$disk['used']} / {$disk['total']} ({$disk['percent']}%)"; ?>
         </div>
-        <div class="col-md-3"></div>
     </div>
-
-    <div class="row mb-3 px-2 mt-0">
+    <div class="row mt-3 mb-3 px-2 mt-0">
         <div class="col-12">
-            <div class="btn-toolbar justify-content-between">
+            <div class="btn-toolbar justify-content-between px-1">
                 <div class="btn-group">
                     <button type="button" class="btn btn-outline-secondary" onclick="goToParentDirectory()" title="Go Back" data-translate-title="goToParentDirectoryTitle">
                         <i class="fas fa-arrow-left"></i>
@@ -1335,9 +1413,9 @@ a {
             </div>
         </div>
     </div>
-<nav aria-label="breadcrumb">
+<nav aria-label="breadcrumb" class="mb-3">
   <ol class="breadcrumb">
-    <li class="breadcrumb-item"><a href="?dir=">root</a></li>
+    <li class="breadcrumb-item"><a href="?dir="><i class="fas fa-hdd me-1"></i><span data-translate="root">root</span></a></li>
     <?php
     $path = '';
     $breadcrumbs = explode('/', trim($current_dir, '/'));
@@ -1415,10 +1493,10 @@ a {
                 <?php if ($current_dir != ''): ?>
                     <tr>
                         <td></td>
-                        <td class="folder-icon">
-                            <a href="?dir=<?php echo urlencode(dirname($current_dir)); ?>">..</a>
+                        <td class="text-center">
+                            <a href="?dir=<?php echo urlencode(dirname($current_dir)); ?>" class="text-decoration-none"><i class="fas fa-level-up-alt me-2"></i> ..</a>
                         </td>
-                        <td data-translate="directory">Directory</td>
+                        <td><span class="badge bg-warning" data-translate="directory">Directory</span></td>
                         <td>-</td>
                         <td>-</td>
                         <td>-</td>
@@ -1580,8 +1658,11 @@ a {
                             <?php endif; ?>
                         </td>
 
-                        <td data-translate="<?php echo $item['is_dir'] ? 'directory' : 'file'; ?>">
-                            <?php echo $item['is_dir'] ? 'Directory' : 'File'; ?>
+                        <td>
+                            <span class="badge <?php echo $item['is_dir'] ? 'bg-warning text-dark' : 'bg-info text-white'; ?>"
+                                data-translate="<?php echo $item['is_dir'] ? 'directory' : 'file'; ?>">
+                                <?php echo $item['is_dir'] ? 'Directory' : 'File'; ?>
+                            </span>
                         </td>
                         <td><?php echo $item['size']; ?></td>
                         <td><?php echo $item['mtime']; ?></td>
@@ -1636,11 +1717,22 @@ a {
                 <?php endforeach; ?>
             </tbody>
         </table>
+        <div class="status-bar">
+            <div>
+                <span data-translate="total_items">Total</span> <?php echo count($contents); ?> <span data-translate="items">items</span>
+                <?php if ($current_dir != ''): ?>
+                    | <span data-translate="current_path">Path:</span> <?php echo htmlspecialchars(preg_replace('/\/+/', '/', $current_path)); ?>
+                <?php endif; ?>
+            </div>
+            <div>
+                <?php echo date('Y-m-d H:i:s'); ?>
+            </div>
+        </div>
     </div>
 </div>
 
 <div class="modal fade" id="renameModal" tabindex="-1" aria-labelledby="renameModalLabel" aria-hidden="true">
-  <div class="modal-dialog modal-xl modal-dialog-centered">
+  <div class="modal-dialog modal-lg modal-dialog-centered">
     <form method="post" class="modal-content" onsubmit="return validateRename()">
       <div class="modal-header">
         <h5 class="modal-title" id="renameModalLabel" data-translate="rename">✏️ Rename</h5>
@@ -1664,19 +1756,25 @@ a {
 </div>
 
 <div class="modal fade" id="createModal" tabindex="-1" aria-hidden="true">
-  <div class="modal-dialog modal-xl modal-dialog-centered">
+  <div class="modal-dialog modal-lg modal-dialog-centered">
     <div class="modal-content">
       <div class="modal-header">
         <h5 class="modal-title" data-translate="create">Create</h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
-      <div class="modal-body d-flex gap-2">
-        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#newFolderModal" data-bs-dismiss="modal" data-translate="newFolder">
-          <i class="fas fa-folder-plus"></i> New Folder
-        </button>
-        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#newFileModal" data-bs-dismiss="modal" data-translate="newFile">
-          <i class="fas fa-file-plus"></i> New File
-        </button>
+      <div class="modal-body">
+        <div class="d-flex gap-3 justify-content-center">
+          <button type="button" class="btn  btn-primary px-4 py-2"
+                  data-bs-toggle="modal" data-bs-target="#newFolderModal" data-bs-dismiss="modal"
+                  data-translate="newFolder">
+            New Folder
+          </button>
+          <button type="button" class="btn btn-success px-4 py-2"
+                  data-bs-toggle="modal" data-bs-target="#newFileModal" data-bs-dismiss="modal"
+                  data-translate="newFile">
+            New File
+          </button>
+        </div>
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" data-translate="close">Close</button>
@@ -1686,7 +1784,7 @@ a {
 </div>
 
 <div class="modal fade" id="newFolderModal" tabindex="-1" aria-hidden="true">
-  <div class="modal-dialog modal-xl modal-dialog-centered">
+  <div class="modal-dialog modal-lg modal-dialog-centered">
     <form method="post" class="modal-content" onsubmit="return createNewFolder()">
       <div class="modal-header">
         <h5 class="modal-title" data-translate="newFolder">New Folder</h5>
@@ -1708,7 +1806,7 @@ a {
 </div>
 
 <div class="modal fade" id="newFileModal" tabindex="-1" aria-hidden="true">
-  <div class="modal-dialog modal-xl modal-dialog-centered">
+  <div class="modal-dialog modal-lg modal-dialog-centered">
     <form method="post" class="modal-content" onsubmit="return createNewFile()">
       <div class="modal-header">
         <h5 class="modal-title" data-translate="newFile">New File</h5>
@@ -1824,7 +1922,7 @@ a {
 </div>
        
 <div class="modal fade" id="chmodModal" tabindex="-1" aria-labelledby="chmodModalLabel" aria-hidden="true">
-  <div class="modal-dialog modal-xl modal-dialog-centered">
+  <div class="modal-dialog modal-lg modal-dialog-centered">
     <form method="post" onsubmit="return validateChmod()" class="modal-content no-loader">
       <div class="modal-header">
         <h5 class="modal-title" id="chmodModalLabel" data-translate="setPermissions">🔒 Set Permissions</h5>
@@ -2545,7 +2643,12 @@ function openMonacoEditor() {
             multiCursorModifier: 'alt',
             minimap: {
                 enabled: true
-            }
+            },
+            padding: {
+                top: 15,
+                bottom: 15
+            },
+            scrollBeyondLastLine: false
         });
 
         const ext = path.split('.').pop().toLowerCase();
