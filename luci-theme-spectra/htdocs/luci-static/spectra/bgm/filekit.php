@@ -445,7 +445,7 @@ function getDiskUsage() {
     top: 0;
     z-index: 1101;
     box-sizing: border-box;
-    border-bottom: 1px solid #ccc;
+    border: var(--border-strong);
 }
 
 #fontSize, #editorTheme {
