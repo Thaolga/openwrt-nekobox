@@ -1463,7 +1463,7 @@ thead.table-light th {
 <form id="batchDeleteForm" method="post" action="?dir=<?php echo urlencode($current_dir); ?>" style="display: none;"></form>
 
 <div class="container-fluid text-center">
-    <div class="table-scroll-area" style="min-height: 60vh; max-height: 70vh; overflow-y: auto;">
+    <div class="table-scroll-area" style="min-height: 62vh; max-height: 72vh; overflow-y: auto;">
         <div class="table-responsive">
             <table class="table table-striped table-bordered align-middle">
                 <thead class="table-light">
