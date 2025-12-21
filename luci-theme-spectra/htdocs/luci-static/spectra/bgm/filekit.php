@@ -70,10 +70,30 @@ if (isset($_POST['action']) && $_POST['action'] === 'delete_selected') {
     }
 }
 
+function readFileUtf8($path) {
+    $content = file_get_contents($path);
+    if ($content === false) return '';
+
+    if (preg_match('//u', $content)) {
+        return $content;
+    }
+
+    $encodings = ['GBK', 'GB2312', 'BIG5', 'ISO-8859-1'];
+
+    foreach ($encodings as $enc) {
+        $converted = @iconv($enc, 'UTF-8//IGNORE', $content);
+        if ($converted !== false && preg_match('//u', $converted)) {
+            return $converted;
+        }
+    }
+
+    return $content;
+}
+
 if (isset($_GET['action']) && $_GET['action'] === 'get_content' && isset($_GET['path'])) {
     $file_path = $current_path . $_GET['path'];
     if (file_exists($file_path) && is_readable($file_path)) {
-        $content = file_get_contents($file_path);
+        $content = readFileUtf8($file_path);
         header('Content-Type: text/plain; charset=utf-8');
         echo $content;
         exit;
@@ -164,15 +184,6 @@ function deleteDirectory($dir) {
     return @rmdir($dir);
 }
 
-function readFileWithEncoding($path) {
-    $content = file_get_contents($path);
-    $encoding = mb_detect_encoding($content, ['UTF-8', 'ASCII', 'ISO-8859-1', 'Windows-1252', 'GBK', 'Big5', 'Shift_JIS', 'EUC-KR'], true);
-    return json_encode([
-        'content' => mb_convert_encoding($content, 'UTF-8', $encoding),
-        'encoding' => $encoding
-    ]);
-}
-
 function renameItem($old_path, $new_path) {
     $old_path = rtrim(str_replace('//', '/', $old_path), '/');
     $new_path = rtrim(str_replace('//', '/', $new_path), '/');
@@ -216,11 +227,19 @@ function renameItem($old_path, $new_path) {
 }
 
 function editFile($path, $content, $encoding) {
-    if (file_exists($path) && is_writable($path)) {
-        return file_put_contents($path, $content) !== false;
+    if (!is_writable($path)) return false;
+
+    if (substr($content, 0, 3) === "\xEF\xBB\xBF") {
+        $content = substr($content, 3);
     }
-    return false;
+
+    if (!preg_match('//u', $content)) {
+        $content = @iconv('UTF-8', 'UTF-8//IGNORE', $content);
+    }
+
+    return file_put_contents($path, $content, LOCK_EX) !== false;
 }
+
 
 function chmodItem($path, $permissions) {
     chmod($path, octdec($permissions));
@@ -405,11 +424,12 @@ function getDiskUsage() {
     ];
 }
 ?>
-
+<head>
+<meta charset="UTF-8">
 <title>Monaco - Spectra</title>
 <?php include './spectra.php'; ?>
 <script src="/luci-static/spectra/js/js-yaml.min.js"></script>
-
+</head>
 <style>
 #monacoEditor {
     position: fixed;
@@ -499,8 +519,11 @@ function getDiskUsage() {
     order: 3 !important;
     display: flex !important;
     gap: 6px !important;
-    margin-top: 4px !important;
     flex-wrap: wrap !important;
+}
+
+.monaco-editor .find-widget>.button.codicon-widget-close {
+    transform: translateY(5px) !important;
 }
 
 .editor-widget.find-widget .find-actions {
@@ -2470,53 +2493,30 @@ function openEditDialog(path) {
 }
 
 function saveEdit() {
-    const content = document.getElementById('editContent').value;
-    const path = document.getElementById('editPath').value;
-    const encoding = document.getElementById('editEncoding').value;
-    
-    const formData = new FormData();
-    formData.append('action', 'edit');
-    formData.append('path', path);
-    formData.append('content', content);
-    formData.append('encoding', encoding);
-    
-    fetch(window.location.href, {
-        method: 'POST',
-        body: formData
-    })
-    .then(response => {
-        if (response.ok) {
-            return response.text();
-        }
-        throw new Error('Save failed');
-    })
-    .then(() => {
-        const modal = bootstrap.Modal.getInstance(document.getElementById('editModal'));
-        modal.hide();
-        let successMessage = translations['save_file_success'] || 'File saved successfully';
-        speakMessage(successMessage);
-        showLogMessage(successMessage);
-        setTimeout(() => {
-            location.reload();
-        }, 3000);
-    })
-    .catch(error => {
-        console.error('Error saving file:', error);
-        let errorMessage = translations['save_file_error'] || 'Error saving file: {message}';
-        errorMessage = errorMessage.replace('{message}', error.message);
-        //speakMessage(errorMessage);
-       // showLogMessage(errorMessage);
-    });
-    
-    return false;
+    var contentField = document.getElementById('editContent');
+    if (!contentField) {
+        alert('Content field missing');
+        return false;
+    }
+
+    if (window.monacoEditorInstance && typeof window.monacoEditorInstance.getValue === 'function') {
+        contentField.value = window.monacoEditorInstance.getValue();
+    }
+
+    var encField = document.getElementById('editEncoding');
+    if (encField) {
+        encField.value = 'UTF-8';
+    }
+
+    return true;
 }
 
 const monacoScript = document.createElement('script');
-monacoScript.src = 'https://cdn.jsdelivr.net/npm/monaco-editor@0.52.2/min/vs/loader.min.js';
+monacoScript.src = 'https://cdn.jsdelivr.net/npm/monaco-editor@0.55.1/min/vs/loader.min.js';
 document.head.appendChild(monacoScript);
 
 monacoScript.onload = function() {
-    require.config({ paths: { 'vs': 'https://cdn.jsdelivr.net/npm/monaco-editor@0.52.2/min/vs' } });
+    require.config({ paths: { 'vs': 'https://cdn.jsdelivr.net/npm/monaco-editor@0.55.1/min/vs' } });
 };
 
 function openMonacoEditor() {
