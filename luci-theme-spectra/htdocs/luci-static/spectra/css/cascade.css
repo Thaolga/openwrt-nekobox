@@ -6419,7 +6419,7 @@ div.app-container_configure:hover {
 }
 
 #core_status {
-    border: 1px solid #ccc !important;
+    border: var(--border-strong) !important;
 }
 
 .title,
@@ -6494,3 +6494,26 @@ li[data-value="-"][unselectable] {
     grid-column: 1;
 }
 
+.select-editable select  {
+    background-color: transparent !important;
+    border: transparent !important;
+    box-shadow: none;
+}
+
+.select-editable {
+    border: var(--border-strong) !important;
+}
+
+.action .tips {
+    transform: translateY(-20px);
+}
+
+.label-item p.label_info {
+    color: var(--text-primary) !important;
+}
+
+.left .computerIcon,
+.networkIcon,
+.interfaceIcon {
+    filter: brightness(0) saturate(100%) invert(43%) sepia(78%) saturate(2579%) hue-rotate(193deg) brightness(96%) contrast(93%);
+}
