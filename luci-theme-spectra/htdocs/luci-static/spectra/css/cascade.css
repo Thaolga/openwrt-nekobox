@@ -5431,7 +5431,13 @@ ul.cbi-tabmenu {
 
 .oc .oc-switch-slider,
 .oc .plugin-toggle-slider {
-    background: var(--color-gray) !important;
+    background: color-mix(in oklch, var(--card-bg), transparent 70%) !important;
+    border: var(--border-strong) !important;
+}
+
+.oc .oc-switch-slider:before,
+.oc .plugin-toggle-slider:before {
+    background: var(--accent-color) !important;
     border: var(--border-strong) !important;
 }
 
@@ -5497,19 +5503,60 @@ ul.cbi-tabmenu {
     color: var(--text-color) !important;
 }
 
-.oc .developer-container,
+.oc .config-file-name {
+    font-weight: 500 !important;
+}
+
 .oc #logo_btn, .oc #edit_overwrite {
     border: var(--border-strong) !important;
 }
 
-.oc .myip-content-grid,
 .oc .subscription-info-container,
 .oc .cbi-button-option {
     border: var(--border-strong) !important;
 }
 
+.oc .cbi-button-option {
+    border-radius: 6px !important;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.oc .cbi-button-option:hover {
+    transform: translateY(-2px);
+}
+
+.oc .sub-card {
+    transition: box-shadow 0.2s ease;
+}
+
+.oc .sub-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.10);
+}
+
+.oc .sub-card:active {
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+}
+
+.oc .announcement-card,
+.oc .developer-container,
+.oc .myip-content-grid,
 .oc .cbi-button-group {
     border: none !important;
+}
+
+.oc .mode-tabs,
+.oc .value-indicator{
+    background: var(--bg-container) !important;
+    border: var(--border-strong) !important;
+}
+
+.oc .main-card,
+.oc .announcement-card {
+    background: var(--bg-container) !important;
+    border: none !important;
+    box-shadow: none !important;
+    border-radius: none !important;
 }
 
 .oc .main-cards-container {
@@ -5545,6 +5592,12 @@ ul.cbi-tabmenu {
     border: none !important;
 }
 
+#_mode {
+    height: 30px !important;
+    min-height: 30px !important;
+    line-height: 30px !important;
+}
+
 .sub-card.overwrite-item.active {
     box-shadow: none !important;
 }
@@ -5568,14 +5621,6 @@ ul.cbi-tabmenu {
 .upload-primary,
 .upload-secondary {
     color: var(--text-color) !important;
-}
-
-.oc .mode-tabs,
-.oc .value-indicator,
-.oc .main-card,
-.oc .announcement-card {
-    background: var(--bg-container) !important;
-    border: var(--border-strong) !important;
 }
 
 .oc .upload-zone,
