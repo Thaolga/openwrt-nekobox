@@ -1104,10 +1104,6 @@ a.pure-button-selected {
     background-color: var(--card-bg);    
 }
 
-.pure-table-striped tr:nth-child(2n-1) td {
-    background-color: var(--card-bg);    
-}
-
 .pure-table-bordered td {
     border-bottom: 1px solid var(--border-color);
 }
@@ -2586,19 +2582,10 @@ td>table>tbody>tr>td,
     margin: inherit !important
 }
 
-.cbi-section[id] .cbi-section-remove:nth-of-type(4n+3),
-.cbi-section[id] .cbi-section-node:nth-of-type(4n+4) {
-    background-color: var(--bg-container);
-}
-
 .cbi-section-node-tabbed {
     margin-top: 0;
     padding: 0;
     border-radius: .375rem
-}
-
-.cbi-tabcontainer>.cbi-value:nth-of-type(2n) {
-    background-color: var(--card-bg);
 }
 
 .cbi-value-field {
@@ -3444,7 +3431,6 @@ body.modal-overlay-active #modal_overlay {
     border: var(--border-strong);
     background: color-mix(in oklch, var(--card-bg), transparent 20%)  !important;
     color: var(--text-primary) !important;
-    box-shadow: var(--shadow-inset) !important;
     border-radius: var(--radius-small);
 }
 
@@ -6405,11 +6391,6 @@ div.app-container_configure:hover {
 #page code {
     background-color: var(--bg-container) !important;
     color: var(--text-primary) !important;
-}
-
-.cbi-section-node .cbi-value:nth-child(even),
-.cbi-section .tr:nth-child(even):not(:first-child) .td {
-    background-color: var(--card-bg);
 }
 
 li[data-value="-"][unselectable] {

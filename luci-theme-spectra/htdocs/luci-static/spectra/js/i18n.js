@@ -3916,12 +3916,12 @@ const TooltipManager = {
     },
 
     processAll() {
-        document.querySelectorAll('[title]').forEach(el => {
+        document.querySelectorAll('[title]:not(.cbi-progressbar)').forEach(el => {
             this.convertTitleToTooltip(el);
         });
         
-        document.querySelectorAll('svg').forEach(svgEl => {
-            if (svgEl.querySelector('title') && !svgEl.dataset.tooltipHandled) {
+        document.querySelectorAll('svg:not(.cbi-progressbar)').forEach(svgEl => {
+            if (svgEl.querySelector('title')) {
                 this.convertSvgTitleToTooltip(svgEl);
             }
         });
@@ -3964,15 +3964,16 @@ const TooltipManager = {
     updateAllTranslations() {
         const translations = languageTranslations[currentLang] || languageTranslations['zh'];
         
-        document.querySelectorAll('[data-tooltip-title]').forEach(el => {
+        document.querySelectorAll('[data-tooltip-title]:not(.cbi-progressbar)').forEach(el => {
             const key = el.getAttribute('data-tooltip-title');
             el.setAttribute('data-tooltip-text', translations[key] || key);
         });
     },
 
     updateElementTranslation(element) {
-        const translations = languageTranslations[currentLang] || languageTranslations['zh'];
+        if (element.classList.contains('cbi-progressbar')) return;
         
+        const translations = languageTranslations[currentLang] || languageTranslations['zh'];
         const key = element.getAttribute('data-tooltip-title');
         if (!key) return;
         
@@ -3989,6 +3990,10 @@ const TooltipManager = {
                 mutation.addedNodes.forEach(node => {
                     if (node.nodeType !== 1) return;
 
+                    if (node.classList && node.classList.contains('cbi-progressbar')) {
+                        return;
+                    }
+                    
                     if (node.hasAttribute('title')) {
                         if (this.convertTitleToTooltip(node)) {
                             this.updateElementTranslation(node);
@@ -4004,13 +4009,13 @@ const TooltipManager = {
                     }
 
                     if (node.querySelectorAll) {
-                        node.querySelectorAll('[title]').forEach(el => {
+                        node.querySelectorAll('[title]:not(.cbi-progressbar)').forEach(el => {
                             if (this.convertTitleToTooltip(el)) {
                                 this.updateElementTranslation(el);
                             }
                         });
                         
-                        node.querySelectorAll('svg').forEach(svgEl => {
+                        node.querySelectorAll('svg:not(.cbi-progressbar)').forEach(svgEl => {
                             if (svgEl.querySelector('title')) {
                                 if (this.convertSvgTitleToTooltip(svgEl)) {
                                     this.updateElementTranslation(svgEl);

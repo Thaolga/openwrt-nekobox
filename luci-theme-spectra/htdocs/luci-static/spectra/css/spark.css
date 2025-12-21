@@ -5222,3 +5222,42 @@ ul:has(> li:only-child):has(.checkbox_switch):has(.app-update-menu-item) {
         line-height: 30px !important;
     }
 }
+
+.cbi-section .table>.tr:nth-of-type(2n),
+.cbi-section-node>.cbi-value:nth-of-type(2n),
+.cbi-map>div>.cbi-section>.cbi-section-node>.cbi-value:nth-of-type(2n),
+.cbi-tabcontainer>.cbi-value:nth-of-type(2n),
+.cbi-map>.cbi-section .cbi-value:nth-of-type(2n),
+table>tbody>tr:nth-of-type(2n),
+div>.table>.tr:nth-of-type(2n) {
+    background: color-mix(in oklch, var(--card-bg), transparent 20%);
+}
+
+.table[data-idref]>.tr:nth-of-type(2n),
+table:not(:has(tbody))>tr:nth-of-type(2n),
+.table:not(:has(tbody))>.tr:nth-of-type(2n),
+.cbi-rowstyle-2 {
+    background: color-mix(in oklch, var(--bg-container), transparent 20%);
+}
+
+.cbi-section .table>.tr:nth-of-type(2n):hover,
+.cbi-section-node>.cbi-value:nth-of-type(2n):hover,
+.cbi-map>div>.cbi-section>.cbi-section-node>.cbi-value:nth-of-type(2n):hover,
+.cbi-tabcontainer>.cbi-value:nth-of-type(2n):hover,
+.cbi-map>.cbi-section .cbi-value:nth-of-type(2n):hover,
+table>tbody>tr:nth-of-type(2n):hover,
+div>.table>.tr:nth-of-type(2n):hover {
+    background: color-mix(in oklch, var(--bg-container), transparent 20%) !important;
+}
+
+.table[data-idref]>.tr:nth-of-type(2n):hover,
+table:not(:has(tbody))>tr:nth-of-type(2n):hover,
+.table:not(:has(tbody))>.tr:nth-of-type(2n):hover,
+.cbi-rowstyle-2:hover {
+    background: color-mix(in oklch, var(--card-bg), transparent 20%) !important;
+}
+
+#cbi-homeproxy-config-main_udp_node,
+.cbi-value[data-name="main_udp_node"] {
+    background: color-mix(in oklch, var(--card-bg), transparent 20%);
+}
