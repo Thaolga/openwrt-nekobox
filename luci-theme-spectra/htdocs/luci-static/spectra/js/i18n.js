@@ -3930,10 +3930,21 @@ const TooltipManager = {
     },
 
     convertTitleToTooltip(element) {
-        if (element.dataset.tooltipHandled) return false;
-        
         const titleText = element.getAttribute('title');
         if (!titleText || !titleText.trim()) return false;
+        
+        if ((element.id && element.id.includes('node.label')) || 
+            (element.classList && element.classList.contains('lv-dropdown-label'))) {
+            
+            const displayText = element.textContent.trim();
+            if (displayText && displayText !== titleText) {
+                element.dataset.tooltipHandled = '1';
+                element.setAttribute('data-tooltip-title', displayText);
+                element.setAttribute('data-tooltip-text', displayText);
+                element.removeAttribute('title');
+                return true;
+            }
+        }
         
         element.dataset.tooltipHandled = '1';
         element.setAttribute('data-tooltip-title', titleText);
@@ -3987,6 +3998,20 @@ const TooltipManager = {
         
         this.observer = new MutationObserver(mutations => {
             mutations.forEach(mutation => {
+                if (mutation.type === 'attributes' && mutation.attributeName === 'title') {
+                    const target = mutation.target;
+                    if (target.hasAttribute('title') && !target.classList.contains('cbi-progressbar')) {
+                        if (target.dataset.tooltipHandled) {
+                            delete target.dataset.tooltipHandled;
+                            target.removeAttribute('data-tooltip-title');
+                            target.removeAttribute('data-tooltip-text');
+                        }
+                        if (this.convertTitleToTooltip(target)) {
+                            this.updateElementTranslation(target);
+                        }
+                    }
+                }
+                
                 mutation.addedNodes.forEach(node => {
                     if (node.nodeType !== 1) return;
 
@@ -4029,7 +4054,9 @@ const TooltipManager = {
 
         this.observer.observe(document.body, {
             childList: true,
-            subtree: true
+            subtree: true,
+            attributes: true,
+            attributeFilter: ['title']
         });
     },
 

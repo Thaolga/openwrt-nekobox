@@ -869,11 +869,13 @@ div.nav-container>button.btn_styles {
     fill: var(--success-text) !important;
 }
 
-.cbi-value-field>span:first-child {
+.cbi-value > .cbi-value-field > span:first-child {
     display: inline-block;
     width: 150px;
     min-width: 150px;
     text-align: left;
+    white-space: nowrap;
+    vertical-align: middle;
 }
 
 .app-description.cbi-value-description::before {
@@ -5260,4 +5262,32 @@ table:not(:has(tbody))>tr:nth-of-type(2n):hover,
 #cbi-homeproxy-config-main_udp_node,
 .cbi-value[data-name="main_udp_node"] {
     background: color-mix(in oklch, var(--card-bg), transparent 20%);
+}
+
+.action .tips {
+    transform: translateY(-24px);
+}
+
+.label-item p.label_info,
+.label-item label span {
+    color: var(--text-color) !important;
+}
+
+.networkIcon,
+.interfaceIcon,
+.left .computerIcon {
+    filter: brightness(0) saturate(100%) invert(28%) sepia(76%) saturate(5712%) hue-rotate(193deg) brightness(96%) contrast(93%);
+}
+
+.select-editable select {
+    background: none !important;
+}
+
+.select-editable option {
+    background: color-mix(in oklch, var(--card-bg), transparent 20%);
+    color: var(--text-color) !important;
+}
+
+.select-editable {
+    border: var(--border-strong) !important;
 }

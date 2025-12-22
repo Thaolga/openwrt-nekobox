@@ -108,21 +108,6 @@ Licensed under the Apache License, Version 2.0
     local bgUrl, backgroundType, mimeType = selectBackground(themeDir)
 %>
 
-<!-- Login Page Start -->
-<div class="login-page">
-    <% if ( backgroundType == "Video" ) then %>
-    <!-- Video Player Start -->
-    <div class="video">
-        <video autoplay loop muted id="video">
-            <source src="<%=bgUrl%>" type="<%=mimeType%>">
-        </video>
-    </div>
-    <!-- Video Player End -->
-    <% else %>
-    <!-- Image Background Start -->
-    <div class="main-bg" id="main-bg" style="background-image:url(<%=bgUrl%>)"></div>
-    <!-- Image Background End -->
-    <% end %>
 <style>
 .login-root {
     position: fixed;
@@ -147,7 +132,6 @@ Licensed under the Apache License, Version 2.0
     position: absolute;
     width: 100%;
     height: 100%;
-    object-fit: cover;
     background-size: cover;
     background-position: center; 
     background-repeat: no-repeat; 
@@ -293,20 +277,16 @@ Licensed under the Apache License, Version 2.0
 
 .media-control {
     position: fixed;
-    top: 20px;
+    top: 10px;
     right: 20px;
     z-index: 1000;
-    width: 48px;
-    height: 48px;
+    width: 55px;
+    height: 55px;
     border-radius: 50%;
     cursor: pointer;
-    background: rgba(255, 255, 255, 0.1);
-    backdrop-filter: blur(10px);
     display: flex;
     align-items: center;
     justify-content: center;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
-    border: 1px solid rgba(255, 255, 255, 0.1);
     transition: all 0.3s ease;
 }
 
@@ -317,7 +297,6 @@ Licensed under the Apache License, Version 2.0
 }
 
 .media-control:hover {
-    background: rgba(255, 255, 255, 0.2);
     transform: scale(1.1);
 }
 
@@ -598,6 +577,77 @@ document.addEventListener('DOMContentLoaded', function() {
             backface-visibility: hidden;
             image-rendering: -webkit-optimize-contrast;
             image-rendering: crisp-edges;
+            filter: brightness(0.9) !important;
+        }
+
+        @media (max-width: 768px) {
+            #background-video {
+                object-fit: cover !important;
+                -webkit-object-fit: cover !important;
+                min-width: 100% !important;
+                min-height: 100% !important;
+                max-width: 100% !important;
+                max-height: 100% !important;
+                display: block !important;
+                visibility: visible !important;
+                opacity: 1 !important;
+            }
+
+            .video-mode-control {
+                display: none !important;
+            }
+        }
+        
+        .video-mode-control {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            z-index: 9999;
+            background: rgba(28, 28, 28, 0.75);
+            backdrop-filter: blur(16px) saturate(120%);
+            -webkit-backdrop-filter: blur(16px) saturate(120%);
+            color: #fff;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 18px;
+            padding: 8px 14px;
+            font-size: 13px;
+            font-weight: 500;
+            display: inline-flex; 
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            cursor: pointer;
+            user-select: none;
+            box-shadow:
+                0 4px 16px rgba(0, 0, 0, 0.45),
+                inset 0 1px 0 rgba(255, 255, 255, 0.06);
+            transition:
+                background 0.25s ease,
+                box-shadow 0.25s ease,
+                transform 0.15s ease;
+        }
+
+        .video-mode-control:hover {
+            background: rgba(40, 40, 40, 0.85);
+            box-shadow:
+                0 6px 20px rgba(0, 0, 0, 0.6),
+                inset 0 1px 0 rgba(255, 255, 255, 0.1);
+        }
+
+        .video-mode-control:active {
+            transform: scale(0.96);
+        }
+
+        .video-mode-indicator {
+            font-size: 15px;
+            opacity: 0.9;
+            line-height: 1;
+            display: flex;
+            align-items: center;
+        }
+
+        .video-mode-text {
+            letter-spacing: 0.3px;
         }
     `;
     document.head.appendChild(style);
@@ -612,12 +662,297 @@ document.addEventListener('DOMContentLoaded', function() {
     let currentMedia = null;
     let isMuted = false;
     let mediaStarted = false;
+    let currentVideoMode = localStorage.getItem('video_display_mode') || 'fit_cover';
+    let videoModeCycle = 0;
+
+    const translationsIP = {
+        zh: { 
+            login: '登录', 
+            password: '密码', 
+            remember: '保持登录',
+            fit_cover: '默认裁剪',
+            fit_contain: '正常比例',
+            fit_fill: '拉伸填充',
+            fit_none: '原始尺寸',
+            fit_scale_down: '智能适应',
+            mode_changed: '视频模式已切换'
+        },
+        en: { 
+            login: 'Login', 
+            password: 'Password', 
+            remember: 'Keep logged in',
+            fit_cover: 'Default Crop',
+            fit_contain: 'Normal Ratio',
+            fit_fill: 'Stretch Fill',
+            fit_none: 'Original Size',
+            fit_scale_down: 'Smart Fit',
+            mode_changed: 'Video mode changed'
+        },
+        hk: { 
+            login: '登入', 
+            password: '密碼', 
+            remember: '保持登入',
+            fit_cover: '默認裁剪',
+            fit_contain: '正常比例',
+            fit_fill: '拉伸填充',
+            fit_none: '原始尺寸',
+            fit_scale_down: '智能適應',
+            mode_changed: '影片模式已切換'
+        },
+        de: { 
+            login: 'Anmelden', 
+            password: 'Passwort', 
+            remember: 'Angemeldet bleiben',
+            fit_cover: 'Standard Zuschneiden',
+            fit_contain: 'Normales Verhältnis',
+            fit_fill: 'Dehnen Füllen',
+            fit_none: 'Originalgröße',
+            fit_scale_down: 'Intelligente Anpassung',
+            mode_changed: 'Video-Modus geändert'
+        },
+        fr: { 
+            login: 'Connexion', 
+            password: 'Mot de passe', 
+            remember: 'Rester connecté',
+            fit_cover: 'Recadrage par défaut',
+            fit_contain: 'Proportion normale',
+            fit_fill: 'Remplissage étiré',
+            fit_none: 'Taille originale',
+            fit_scale_down: 'Ajustement intelligent',
+            mode_changed: 'Mode vidéo modifié'
+        },
+        ko: { 
+            login: '로그인', 
+            password: '비밀번호', 
+            remember: '로그인 유지',
+            fit_cover: '기본 자르기',
+            fit_contain: '정상 비율',
+            fit_fill: '늘리기 채우기',
+            fit_none: '원본 크기',
+            fit_scale_down: '스마트 적합',
+            mode_changed: '비디오 모드 변경됨'
+        },
+        ja: { 
+            login: 'ログイン', 
+            password: 'パスワード', 
+            remember: 'ログイン状態を保持',
+            fit_cover: 'デフォルトクロップ',
+            fit_contain: '通常比率',
+            fit_fill: '引き伸ばしフィル',
+            fit_none: 'オリジナルサイズ',
+            fit_scale_down: 'スマートフィット',
+            mode_changed: 'ビデオモードが変更されました'
+        },
+        bn: { 
+            login: 'লগইন', 
+            password: 'পাসওয়ার্ড', 
+            remember: 'লগ ইন থাকুন',
+            fit_cover: 'ডিফল্ট ক্রপ',
+            fit_contain: 'সাধারণ অনুপাত',
+            fit_fill: 'প্রসারিত ভরাট',
+            fit_none: 'আসল আকার',
+            fit_scale_down: 'স্মার্ট ফিট',
+            mode_changed: 'ভিডিও মোড পরিবর্তিত হয়েছে'
+        },
+        vi: { 
+            login: 'Đăng nhập', 
+            password: 'Mật khẩu', 
+            remember: 'Giữ đăng nhập',
+            fit_cover: 'Cắt mặc định',
+            fit_contain: 'Tỷ lệ bình thường',
+            fit_fill: 'Kéo dài đầy',
+            fit_none: 'Kích thước gốc',
+            fit_scale_down: 'Phù hợp thông minh',
+            mode_changed: 'Chế độ video đã thay đổi'
+        },
+        th: { 
+            login: 'เข้าสู่ระบบ', 
+            password: 'รหัสผ่าน', 
+            remember: 'คงสถานะเข้าสู่ระบบ',
+            fit_cover: 'ครอปเริ่มต้น',
+            fit_contain: 'อัตราส่วนปกติ',
+            fit_fill: 'ยืดเต็ม',
+            fit_none: 'ขนาดเดิม',
+            fit_scale_down: 'ฟิตอัจฉริยะ',
+            mode_changed: 'โหมดวิดีโอถูกเปลี่ยนแล้ว'
+        },
+        ar: { 
+            login: 'تسجيل الدخول', 
+            password: 'كلمة المرور', 
+            remember: 'البقاء مسجل الدخول',
+            fit_cover: 'قص افتراضي',
+            fit_contain: 'نسبة عادية',
+            fit_fill: 'تمديد الملء',
+            fit_none: 'الحجم الأصلي',
+            fit_scale_down: 'ملائمة ذكية',
+            mode_changed: 'تم تغيير وضع الفيديو'
+        },
+        ru: { 
+            login: 'Вход', 
+            password: 'Пароль', 
+            remember: 'Оставаться в системе',
+            fit_cover: 'Обрезка по умолчанию',
+            fit_contain: 'Нормальное соотношение',
+            fit_fill: 'Растяжение заполнения',
+            fit_none: 'Исходный размер',
+            fit_scale_down: 'Умная подгонка',
+            mode_changed: 'Режим видео изменен'
+        },
+        es: { 
+            login: 'Iniciar sesión', 
+            password: 'Contraseña', 
+            remember: 'Mantenerse conectado',
+            fit_cover: 'Recorte predeterminado',
+            fit_contain: 'Proporción normal',
+            fit_fill: 'Estirar relleno',
+            fit_none: 'Tamaño original',
+            fit_scale_down: 'Ajuste inteligente',
+            mode_changed: 'Modo de video cambiado'
+        }
+    };
+
+    const videoModes = [
+        { id: 'fit_cover', icon: 'bi-arrows-angle-expand' },
+        { id: 'fit_contain', icon: 'bi-aspect-ratio' },
+        { id: 'fit_fill', icon: 'bi-bounding-box' },
+        { id: 'fit_none', icon: 'bi-image' },
+        { id: 'fit_scale_down', icon: 'bi-arrows-collapse' }
+    ];
+
+    async function getCurrentLanguage() {
+        try {
+            const response = await fetch('/luci-static/spectra/bgm/language.txt', {cache: 'no-store'});
+            if (response.ok) {
+                const lang = await response.text();
+                return lang.split('-')[0].trim() || 'zh';
+            }
+        } catch (error) {
+            console.error('Failed to read language file:', error);
+        }
+        return 'zh';
+    }
+
+    function createVideoModeControl() {
+        const control = document.createElement('div');
+        control.className = 'video-mode-control';
+        control.id = 'videoModeControl';
+        
+        const indicator = document.createElement('i');
+        indicator.className = 'video-mode-indicator bi bi-arrows-angle-expand';
+        
+        const text = document.createElement('span');
+        text.className = 'video-mode-text';
+        text.textContent = 'Default Crop';
+        
+        control.appendChild(indicator);
+        control.appendChild(text);
+        
+        control.addEventListener('click', function(e) {
+            e.stopPropagation();
+            cycleVideoMode();
+        });
+        
+        document.body.appendChild(control);
+        return control;
+    }
+
+    async function cycleVideoMode() {
+        if (backgroundType !== 'Video' || !document.getElementById("background-video")) {
+            return;
+        }
+        
+        const video = document.getElementById("background-video");
+        const currentIndex = videoModes.findIndex(mode => mode.id === currentVideoMode);
+        const nextIndex = (currentIndex + 1) % videoModes.length;
+        const newMode = videoModes[nextIndex];
+        
+        const fitValue = newMode.id.replace('fit_', '');
+        video.style.cssText = `
+            position: fixed !important;
+            top: 0 !important;
+            left: 0 !important;
+            width: 100vw !important;
+            height: 100vh !important;
+            object-fit: ${fitValue} !important;
+            -o-object-fit: ${fitValue} !important;
+            -moz-object-fit: ${fitValue} !important;
+            -webkit-object-fit: ${fitValue} !important;
+            z-index: 0 !important;
+            transform: translateZ(0);
+            backface-visibility: hidden;
+            image-rendering: -webkit-optimize-contrast;
+            image-rendering: crisp-edges;
+            filter: brightness(0.9) !important;
+        `;
+        
+        currentVideoMode = newMode.id;
+        localStorage.setItem('video_display_mode', currentVideoMode);
+        
+        updateVideoModeButton(newMode);
+    }
+
+    async function updateVideoModeButton(modeInfo) {
+        const control = document.getElementById('videoModeControl');
+        if (!control) return;
+        
+        const lang = await getCurrentLanguage();
+        const texts = translationsIP[lang] || translationsIP['zh'];
+        const modeName = texts[modeInfo.id] || modeInfo.id.replace('fit_', '');
+        
+        const indicator = control.querySelector('.video-mode-indicator');
+        const text = control.querySelector('.video-mode-text');
+        
+        indicator.className = 'video-mode-indicator bi ' + modeInfo.icon;
+        text.textContent = modeName;
+    }
+
+    async function initializeVideoMode() {
+        const video = document.getElementById("background-video");
+        if (!video) return;
+        
+        video.classList.remove('background-media');
+        
+        const modeId = localStorage.getItem('video_display_mode') || 'fit_cover';
+        const modeInfo = videoModes.find(m => m.id === modeId) || videoModes[0];
+        const fitValue = modeId.replace('fit_', '');
+        
+        video.style.cssText = `
+            position: fixed !important;
+            top: 0 !important;
+            left: 0 !important;
+            width: 100vw !important;
+            height: 100vh !important;
+            object-fit: ${fitValue} !important;
+            -o-object-fit: ${fitValue} !important;
+            -moz-object-fit: ${fitValue} !important;
+            -webkit-object-fit: ${fitValue} !important;
+            z-index: 0 !important;
+            transform: translateZ(0);
+            backface-visibility: hidden;
+            image-rendering: -webkit-optimize-contrast;
+            image-rendering: crisp-edges;
+            filter: brightness(0.9) !important;
+        `;
+        
+        currentVideoMode = modeId;
+        
+        createVideoModeControl();
+        updateVideoModeButton(modeInfo);
+        
+        if (backgroundType !== 'Video') {
+            const control = document.getElementById('videoModeControl');
+            if (control) control.style.display = 'none';
+        }
+    }
 
     function initializeMedia() {
         if (backgroundType === 'Video') {
             currentMedia = document.getElementById("background-video");
             const audio = document.getElementById("background-audio");
             audio.pause();
+            
+            initializeVideoMode();
+            
         } else {
             const songs = [
                 { src: '/luci-static/spectra/img/bgm.mp3', type: 'audio/mp3' },
@@ -632,6 +967,9 @@ document.addEventListener('DOMContentLoaded', function() {
             audioSource.type = randomSong.type;
             audio.load();
             currentMedia = audio;
+            
+            const control = document.getElementById('videoModeControl');
+            if (control) control.style.display = 'none';
         }
         
         if (currentMedia) {
@@ -678,6 +1016,9 @@ document.addEventListener('DOMContentLoaded', function() {
             
             currentMedia = audio;
             
+            const control = document.getElementById('videoModeControl');
+            if (control) control.style.display = 'none';
+            
         } else {
             const video = document.getElementById("background-video");
             const audio = document.getElementById("background-audio");
@@ -691,6 +1032,11 @@ document.addEventListener('DOMContentLoaded', function() {
                 video.muted = false;
                 video.play();
                 currentMedia = video;
+                
+                const control = document.getElementById('videoModeControl') || createVideoModeControl();
+                control.style.display = 'flex';
+                initializeVideoMode();
+                
             } else {
                 const songs = [
                     { src: '/luci-static/spectra/img/bgm.mp3', type: 'audio/mp3' },
@@ -705,6 +1051,9 @@ document.addEventListener('DOMContentLoaded', function() {
                 audio.muted = false;
                 audio.play();
                 currentMedia = audio;
+                
+                const control = document.getElementById('videoModeControl');
+                if (control) control.style.display = 'none';
             }
         }
         
@@ -867,37 +1216,8 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    const translationsIP = {
-        zh: { login: '登录', password: '密码', remember: '保持登录' },
-        en: { login: 'Login', password: 'Password', remember: 'Keep logged in' },
-        hk: { login: '登入', password: '密碼', remember: '保持登入' },
-        de: { login: 'Anmelden', password: 'Passwort', remember: 'Angemeldet bleiben' },
-        fr: { login: 'Connexion', password: 'Mot de passe', remember: 'Rester connecté' },
-        ko: { login: '로그인', password: '비밀번호', remember: '로그인 유지' },
-        ja: { login: 'ログイン', password: 'パスワード', remember: 'ログイン状態を保持' },
-        bn: { login: 'লগইন', password: 'পাসওয়ার্ড', remember: 'লগ ইন থাকুন' },
-        vi: { login: 'Đăng nhập', password: 'Mật khẩu', remember: 'Giữ đăng nhập' },
-        th: { login: 'เข้าสู่ระบบ', password: 'รหัสผ่าน', remember: 'คงสถานะเข้าสู่ระบบ' },
-        ar: { login: 'تسجيل الدخول', password: 'كلمة المرور', remember: 'البقاء مسجل الدخول' },
-        ru: { login: 'Вход', password: 'Пароль', remember: 'Оставаться в системе' },
-        es: { login: 'Iniciar sesión', password: 'Contraseña', remember: 'Mantenerse conectado' }
-    };
-
-    async function getRealTimeLanguage() {
-        try {
-            const response = await fetch('/luci-static/spectra/bgm/language.txt', {cache: 'no-store'});
-            if (response.ok) {
-                const lang = await response.text();
-                return lang.trim() || 'zh-CN';
-            }
-        } catch (error) {
-            console.error('Failed to read language file:', error);
-        }
-        return 'zh-CN';
-    }
-
     async function translateLoginElements() {
-        const lang = await getRealTimeLanguage(); 
+        const lang = await getCurrentLanguage(); 
         const text = translationsIP[lang] || translationsIP['zh'];
 
         const loginButton = document.querySelector('button.submit-btn');
@@ -913,6 +1233,13 @@ document.addEventListener('DOMContentLoaded', function() {
         const rememberText = document.getElementById('passwordOptionsText');
         if (rememberText) {
             rememberText.textContent = text.remember || 'Keep logged in';
+        }
+        
+        const videoControl = document.getElementById('videoModeControl');
+        if (videoControl && backgroundType === 'Video') {
+            const modeId = localStorage.getItem('video_display_mode') || 'fit_cover';
+            const modeInfo = videoModes.find(m => m.id === modeId) || videoModes[0];
+            updateVideoModeButton(modeInfo);
         }
     }
 
