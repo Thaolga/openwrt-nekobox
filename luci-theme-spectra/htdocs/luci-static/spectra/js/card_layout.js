@@ -191,8 +191,18 @@ function convertTablesToCards() {
     rows.forEach(row => {
         const card = document.createElement('div');
         card.className = 'node-card';
+
         card.setAttribute('data-id', row.id.replace('cbi-passwall-', ''));
-        if (row.classList.contains('_now_use_bg')) card.classList.add('_now_use_bg');
+
+        let isHighlighted = false;
+        
+        if (row.classList.contains('_now_use_bg')) {
+            isHighlighted = true;
+        }
+
+        if (isHighlighted) {
+            card.classList.add('_now_use_bg');
+        }
 
         const checkboxCell = row.querySelector('td.pw-checkbox');
         const originalCheckbox = checkboxCell ? checkboxCell.querySelector('.nodes_select') : null;
@@ -212,8 +222,12 @@ function convertTablesToCards() {
 
         const { protocol, actualTitle } = extractProtocolFromTitle(originalTitle);
         const nodeType = getNodeTypeFromTitle(originalTitle);
-
         const titleWithFlag = addFlagIfMissing(actualTitle);
+        const titleText = wrapEmojiWithSpan(titleWithFlag);
+        const tempDiv = document.createElement('div');
+        tempDiv.innerHTML = titleText;
+        const plainText = tempDiv.textContent || tempDiv.innerText || '';
+        const titleAttr = `title="${plainText}"`;
 
         let badgeHtml = protocol ? getProtocolBadge(protocol) : '';
         if (nodeType && badgeHtml) {
@@ -227,14 +241,14 @@ function convertTablesToCards() {
 
         card.innerHTML = `
             ${checkboxHtml}
-            <div class="card-header ${remarksClass}">
-                ${wrapEmojiWithSpan(titleWithFlag)}
+            <div class="card-header ${remarksClass}" ${titleAttr}>
+                ${titleText}
                 ${badgeHtml}
             </div>
             <div class="card-metrics">
-                <div class="metric-item">Ping: ${ping}</div>
-                <div class="metric-item">TCPing: ${tcping}</div>
-                <div class="metric-item">URL: ${urlTest}</div>
+                <div class="metric-item">Ping ${ping}</div>
+                <div class="metric-item">TCPing ${tcping}</div>
+                <div class="metric-item">URL ${urlTest}</div>
             </div>
             <div class="card-actions">${actions}</div>
         `;
@@ -369,6 +383,34 @@ function initAllTabs() {
     convertTablesToCards();
 }
 
+(function() {
+    const originalXHR = window.XHR;
+    if (originalXHR && originalXHR.get) {
+        const originalGet = originalXHR.get;
+        window.XHR.get = function(url, data, callback) {
+            return originalGet.call(this, url, data, function(xhr, result) {
+                if (callback) callback(xhr, result);
+                
+                if (url.includes('get_now_use_node')) {
+                    setTimeout(() => {
+                        if (!document.querySelector('.cards-container')) {
+                            initAllTabs();
+                        } else {
+                            const activeContainer = document.querySelector('.cbi-tabcontainer[style*="display: block"], .cbi-tabcontainer[style*="display:block"]');
+                            if (activeContainer) {
+                                activeContainer.removeAttribute('data-cards-converted');
+                                const oldCards = activeContainer.querySelector('.cards-container');
+                                if (oldCards) oldCards.remove();
+                                setTimeout(convertTablesToCards, 100);
+                            }
+                        }
+                    }, 300);
+                }
+            });
+        };
+    }
+})();
+
 document.addEventListener('DOMContentLoaded', () => setTimeout(initAllTabs, 100));
 document.addEventListener('click', e => {
     const tabLink = e.target.closest('.cbi-tab');
@@ -398,62 +440,125 @@ const cardLayoutCSS = `
     display: none;
 }
 
-.cbi-tabcontainer[style*="display: block"] .cards-container,
-.cbi-tabcontainer[style*="display:block"] .cards-container {
-    background: var(--card-bg);
+.cards-container {
     display: grid;
-    gap: 15px;
-    padding: 20px;
-}
-
-.cbi-tabcontainer:not([style*="display: block"]):not([style*="display:block"]) .cards-container {
-    display: none;
-}
-
-.cbi-tabcontainer:not([style*="display: block"]):not([style*="display:block"]) .cbi-section-table {
-    display: table;
-}
-
-#cbi-passwall-nodes .node-card,
-.cbi-section-node-tabbed .node-card {
-    flex: 0 0 calc(20% - 15px); 
-    background: var(--bg-container);
-    border: var(--glow-border);
-    box-shadow: 0 1.5px 4.5px -2px color-mix(in oklch, var(--bg-container), black 40%);
-    border-radius: 8px;
-    padding: 15px;
-    transition: all 0.3s ease;
-    margin: 0;
-    position: relative;
+    gap: 16px;
+    padding: 2px 14px 16px 0;
+    margin-left: 0;
+    width: calc(100% - 14px);
     box-sizing: border-box;
+    overflow: visible !important;
 }
 
-[data-theme="dark"] #cbi-passwall-nodes .node-card,
-[data-theme="dark"] .cbi-section-node-tabbed .node-card {
-    box-shadow: var(--border-glow);
+@media screen and (min-width: 2300px) {
+    .cards-container {
+        grid-template-columns: repeat(5, 1fr);
+        gap: 20px;
+        padding: 2px 17px 20px 0;
+        width: calc(100% - 17px);
+    }
 }
 
-#cbi-passwall-nodes .node-card:hover,
-.cbi-section-node-tabbed .node-card:hover {
-    transform: translateY(-2px);
-    box-shadow: var(--glow-shadow-default);
+@media screen and (min-width: 1800px) and (max-width: 2299px) {
+    .cards-container {
+        grid-template-columns: repeat(4, 1fr);
+        gap: 18px;
+        padding: 2px 16px 18px 0;
+        width: calc(100% - 16px);
+    }
 }
 
-#cbi-passwall-nodes .card-header,
-.cbi-section-node-tabbed .card-header {
-    font-weight: bold;
-    font-size: 14px;
-    margin-bottom: 10px;
-    color: var(--text-primary);
-    line-height: 1.4;
-    min-height: 40px;
+@media screen and (min-width: 1400px) and (max-width: 1799px) {
+    .cards-container {
+        grid-template-columns: repeat(3, 1fr);
+        gap: 16px;
+        padding: 2px 14px 16px 0;
+        width: calc(100% - 14px);
+    }
+}
+
+@media screen and (min-width: 992px) and (max-width: 1399px) {
+    .cards-container {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 14px;
+        padding: 2px 16px 14px 0;
+        width: calc(100% - 16px);
+    }
+}
+
+@media screen and (min-width: 768px) and (max-width: 991px) {
+    .cards-container {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 12px;
+        padding: 2px 10px 12px 0;
+        width: calc(100% - 10px);
+    }
+}
+
+@media screen and (max-width: 767px) {
+    .cards-container {
+        grid-template-columns: 1fr;
+        gap: 10px;
+        padding: 2px 16px 10px 0;
+        width: calc(100% - 16px);
+    }
+}
+
+.node-card {
+    background: var(--bg-container);
+    border: var(--border-strong);
+    border-radius: 8px;
+    padding: 16px;
+    transition: box-shadow 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    overflow: visible;
+    min-height: 160px;
     display: flex;
-    align-items: center;
-    justify-content: center;
+    flex-direction: column;
+    max-width: 100%;
+    overflow: hidden;
+    animation: fadeIn 0.2s ease-out;
+}
+
+.node-card:hover {
+    background: rgba(173, 216, 230, 0.2);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    box-shadow: var(--shadow-inset);
+}
+
+[data-theme="dark"] .node-card {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+[data-theme="dark"] .node-card:hover {
+    transform: translateY(-2px);
+}
+
+.node-card._now_use_bg {
+    background: rgba(173, 216, 230, 0.2) !important;
+    border: var(--border-strong) !important;
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+}
+
+.card-header {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-top: 16px;
+    margin-bottom: 12px;
+    line-height: 1.4;
+    padding-bottom: 8px;
     text-align: center;
-    background: transparent;
-    border: none;
-    padding: 0;
+    border-bottom: 1px solid var(--header-bg);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 100%;
+    min-height: 24px;
+    display: block;
+    box-sizing: border-box;
 }
 
 .card-header .flag {
@@ -463,126 +568,152 @@ const cardLayoutCSS = `
     line-height: 1;
 }
 
-.card-header .card-badge {
+.card-badge {
     position: absolute;
-    top: 15px;
-    right: 15px;
-    color: #fff;
-    font-size: 10px;
-    padding: 0 10px;
-    border-radius: 12px;
-    cursor: default;
-    min-width: 20px;
-    text-align: center;
-    height: 18px;
-    line-height: 18px;
+    top: 18px;
+    left: 50%;
+    transform: translateX(-50%);
     display: inline-block;
-    box-sizing: border-box;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 10px;
+    font-weight: 600;
+    color: white;
     vertical-align: middle;
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    line-height: 1;
+    text-transform: uppercase;
+    letter-spacing: 0.2px;
+    box-shadow: var(--shadow-inset);
+    border: var(--border-strong);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    margin: 0;
+    z-index: 1;
 }
 
-.card-header .card-badge:hover {
-    transform: scale(1.05);
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+.card-badge:hover {
+    transform: translateX(-50%) translateY(-1px);
 }
 
-.metric-item,
-.metric-item * {
-    cursor: default !important;
-    user-select: text !important;
-    pointer-events: auto !important;
+.card-metrics {
+    flex: 1;
+    margin: 12px 0;
+    display: flex;
+    gap: 8px;
+    justify-content: center;
+    align-items: stretch;
+    flex-wrap: nowrap;
 }
 
-#cbi-passwall-nodes .card-metrics,
-.cbi-section-node-tabbed .card-metrics {
+.metric-item a {
+    display: inline-block;
+    background: rgba(94, 114, 228, 0.1);
+    color: #5e72e4 !important;
+    text-decoration: none !important;
+    padding: 2px 8px;
+    border-radius: 4px;
+    border: 1px solid rgba(94, 114, 228, 0.2);
+    font-size: 11px;
+    font-weight: 500;
+    margin-left: 4px;
+    transition: all 0.2s ease;
+    line-height: 1.2;
+    min-width: 40px;
+    text-align: center;
+}
+
+.metric-item a:hover {
+    background: rgba(94, 114, 228, 0.2);
+    color: #4a5bd8 !important;
+    border-color: rgba(94, 114, 228, 0.3);
+    transform: translateY(-1px);
+    box-shadow: 0 2px 4px rgba(94, 114, 228, 0.1);
+}
+
+.metric-item:nth-child(1) a {
+    background: rgba(66, 153, 225, 0.1);
+    color: #4299e1 !important;
+    border-color: rgba(66, 153, 225, 0.2);
+}
+
+.metric-item:nth-child(1) a:hover {
+    background: rgba(66, 153, 225, 0.2);
+    color: #3182ce !important;
+    border-color: rgba(66, 153, 225, 0.3);
+}
+
+.metric-item:nth-child(2) a {
+    background: rgba(72, 187, 120, 0.1);
+    color: #48bb78 !important;
+    border-color: rgba(72, 187, 120, 0.2);
+}
+
+.metric-item:nth-child(2) a:hover {
+    background: rgba(72, 187, 120, 0.2);
+    color: #38a169 !important;
+    border-color: rgba(72, 187, 120, 0.3);
+}
+
+.metric-item:nth-child(3) a {
+    background: rgba(237, 100, 104, 0.1);
+    color: #ed6468 !important;
+    border-color: rgba(237, 100, 104, 0.2);
+}
+
+.metric-item:nth-child(3) a:hover {
+    background: rgba(237, 100, 104, 0.2);
+    color: #e53e3e !important;
+    border-color: rgba(237, 100, 104, 0.3);
+}
+
+.metric-item {
+    font-size: 12px;
+    color: var(--text-primary);
+    line-height: 1.3;
+    background: color-mix(in oklch, var(--card-bg), transparent 40%);
+    border: var(--border-strong);
+    border-radius: 6px;
+    padding: 6px 10px;
+    text-align: center;
+    transition: all 0.2s ease;
     display: flex;
     justify-content: space-between;
-    margin-bottom: 12px;
-    gap: 5px;
-    flex-wrap: wrap;
-    animation: var(--breath-animation);
-}
-
-#cbi-passwall-nodes .metric-item,
-.cbi-section-node-tabbed .metric-item {
+    align-items: center;
+    white-space: nowrap;
     flex: 1;
-    text-align: center;
-    padding: 5px;
-    background: var(--card-bg);
-    border-radius: 4px;
-    font-size: 12px;
-    border: var(--border-strong);
     min-width: 0;
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    transition: box-shadow 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-#cbi-passwall-nodes .metric-item:hover,
-.cbi-section-node-tabbed .metric-item:hover {
-    transform: scale(1.05);
-    box-shadow: var(--glow-shadow-default);
-}
-
-#cbi-passwall-nodes .card-actions,
-.cbi-section-node-tabbed .card-actions {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 5px;
-    justify-content: center;
-    background: transparent;
-    border: none;
-    padding: 0;
-}
-
-.node-card {
-    cursor: grab;
-    transition: all 0.3s ease;
-}
-
-.node-card:active {
-    cursor: grabbing;
-}
-
-.node-card:hover {
-    background: var(--header-bg) !important;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-}
-
-.node-wrapper .drag-handle {
-    color: var(--text-primary) !important;
-    margin-left: 5px;
-}
-
-#nodes_link {
-    background: var(--card-bg);
+.metric-item:hover {
+    background:  color-mix(in oklch, var(--header-bg), transparent 20%);
     border: var(--border-strong);
-    border-radius: 10px;
-    color: var(--text-primary);
+    box-shadow: var(--shadow-inset);
 }
 
-[data-theme="dark"] #nodes_link {
+.metric-item > span:first-child:not(a) {
+    font-weight: 500;
+    color: var(--text-secondary);
+}
+
+@media screen and (max-width: 767px) {
+    .metric-item a {
+        padding: 1px 6px;
+        font-size: 10px;
+        min-width: 35px;
+    }
+
+    .card-actions .btn + .btn {
+        margin-left: 8px !important;
+    }
+}
+
+[data-theme="dark"] .metric-item {
     box-shadow: var(--border-glow);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-#addlink_group_custom .selected-display {
-    background: var(--card-bg);
-}
-
-#addlink_group_custom .dropdown-list {
-    background: var(--card-bg);
-}
-
-#addlink_group_custom .dropdown-item:hover {
-    background: var(--accent-color);
-    color: var(--color-white);
-}
-
-.config-select option {
-    background: var(--card-bg);
-}
-
-.node-card .card-actions input[onclick*="row_top"] {
-    display: none !important;
+[data-theme="dark"] .metric-item:hover {
+    transform: translateY(-2px);
 }
 
 .cbi-button-add[onclick="to_add_node()"] {
@@ -608,84 +739,101 @@ const cardLayoutCSS = `
     transform: scale(1.1);
 }
 
-@media (max-width: 786px) {
-    .cbi-tabcontainer[style*="display: block"] .cards-container,
-    .cbi-tabcontainer[style*="display:block"] .cards-container {
-        background: transparent;
-        border: none;
-        display: block;
-        gap: 12px;
-        padding: 10px 8px;
-        margin: 0;
-        width: 100%;
-        box-sizing: border-box;
-        overflow-x: hidden;
+.card-actions {
+    display: flex;
+    gap: 8px !important;
+    justify-content: center;
+    padding-top: 12px;
+    border-top: 1px solid var(--header-bg);
+    margin-top: 8px;
+}
+
+.card-actions .btn {
+    font-size: 12px !important;
+    padding: 6px 12px !important;
+    height: auto !important;
+    line-height: 1.3 !important;
+    min-width: unset !important;
+    width: auto !important;
+    display: inline-flex !important;
+    color: white !important;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease !important;
+    border-radius: 4px !important;
+    font-weight: 500 !important;
+}
+
+.card-actions .btn:hover {
+    transform: translateY(-2px) !important;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1) !important;
+    opacity: 0.95 !important;
+}
+
+.card-actions .cbi-button-edit {
+    background: #4A84B4 !important;
+}
+
+.card-actions .cbi-button-apply {
+    background: #28a745 !important;
+}
+
+.card-actions .cbi-button-add {
+    background: #17a2b8 !important;
+}
+
+.card-actions .cbi-button-remove {
+    background: #dc3545 !important;
+}
+
+.drag-handle {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    cursor: grab;
+    opacity: 0.6;
+    transition: opacity 0.2s, transform 0.2s;
+    z-index: 2;
+    font-size: 14px;
+    transform: translateZ(0);
+    will-change: transform;
+    backface-visibility: hidden;
+}
+
+.drag-handle:hover {
+    opacity: 1;
+    transform: translateZ(0) scale(1.1);
+}
+
+.sortable-ghost {
+    opacity: 0.4;
+    transform: translateZ(0);
+    overflow: visible !important;
+}
+
+.sortable-chosen {
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+    transform: translateZ(0);
+    overflow: visible !important;
+    z-index: 1000 !important;
+}
+
+.dragging-row {
+    cursor: grabbing;
+    transform: rotate(1deg) translateZ(0);
+    will-change: transform;
+    overflow: visible !important;
+    z-index: 1000 !important;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(5px) translateZ(0);
     }
-    
-    #cbi-passwall-nodes .node-card,
-    .cbi-section-node-tabbed .node-card {
-        flex: 0 0 100%;
-        width: 100%;
-        margin: 0 0 12px 0;
-        padding: 12px;
-        box-sizing: border-box;
-        min-height: auto;
-    }
-    
-    #cbi-passwall-nodes .card-header,
-    .cbi-section-node-tabbed .card-header {
-        min-height: auto;
-        font-size: 14px;
-        padding: 0 4px;
-        text-align: left;
-        justify-content: flex-start;
-        word-break: break-word;
-        line-height: 1.3;
-        margin-bottom: 8px;
-    }
-    
-    #cbi-passwall-nodes .card-metrics,
-    .cbi-section-node-tabbed .card-metrics {
-        flex-direction: column;
-        gap: 6px;
-        margin-bottom: 10px;
-        padding: 0;
-    }
-    
-    #cbi-passwall-nodes .metric-item,
-    .cbi-section-node-tabbed .metric-item {
-        text-align: left;
-        padding: 6px 8px;
-        font-size: 12px;
-        margin: 0;
-        min-width: auto;
-        white-space: normal;
-        line-height: 1.2;
-    }
-    
-    #cbi-passwall-nodes .card-actions,
-    .cbi-section-node-tabbed .card-actions {
-        justify-content: space-around;
-        gap: 8px;
-        padding: 0;
-        min-height: 36px;
-    }
-    
-    .node-wrapper .cbi-button {
-        min-width: 36px;
-        min-height: 36px;
-        font-size: 12px;
-    }
-    
-    .drag-handle {
-        display: none;
-    }
-    
-    .card-header .card-badge {
-        top: 8px;
-        right: 8px;
-        font-size: 9px;
-        padding: 1px 4px;
+    to {
+        opacity: 1;
+        transform: translateY(0) translateZ(0);
     }
 }
 `;
