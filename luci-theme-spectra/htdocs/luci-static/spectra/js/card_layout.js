@@ -1,65 +1,233 @@
 const countryMap = {
-    '阿富汗': '🇦🇫', '阿尔巴尼亚': '🇦🇱', '阿尔及利亚': '🇩🇿', '阿根廷': '🇦🇷', '阿曼': '🇴🇲',
-    '阿塞拜疆': '🇦🇿', '爱尔兰': '🇮🇪', '埃及': '🇪🇬', '埃塞俄比亚': '🇪🇹', '澳大利亚': '🇦🇺',
-    '奥地利': '🇦🇹', '巴巴多斯': '🇧🇧', '巴哈马': '🇧🇸', '巴基斯坦': '🇵🇰', '巴拿马': '🇵🇦',
-    '巴布亚新几内亚': '🇵🇬', '巴拉圭': '🇵🇾', '巴林': '🇧🇭', '巴西': '🇧🇷', '白俄罗斯': '🇧🇾',
-    '保加利亚': '🇧🇬', '北马里亚纳群岛': '🇲🇵', '比利时': '🇧🇪', '冰岛': '🇮🇸', '波兰': '🇵🇱',
-    '波多黎各': '🇵🇷', '玻利维亚': '🇧🇴', '博茨瓦纳': '🇧🇼', '丹麦': '🇩🇰', '德国': '🇩🇪',
-    '东帝汶': '🇹🇱', '多哥': '🇹🇬', '多米尼加': '🇩🇴', '厄瓜多尔': '🇪🇨', '厄立特里亚': '🇪🇷',
-    '法国': '🇫🇷', '法罗群岛': '🇫🇴', '法属圭亚那': '🇬🇫', '芬兰': '🇫🇮', '菲律宾': '🇵🇭',
-    '福克兰群岛': '🇫🇰', '冈比亚': '🇬🇲', '刚果（布）': '🇨🇬', '刚果（金）': '🇨🇩', '哥伦比亚': '🇨🇴',
-    '哥斯达黎加': '🇨🇷', '格鲁吉亚': '🇬🇪', '格林纳达': '🇬🇩', '关岛': '🇬🇺', '瓜德罗普': '🇬🇵',
-    '哈萨克斯坦': '🇰🇿', '海地': '🇭🇹', '韩国': '🇰🇷', '荷兰': '🇳🇱', '荷兰加勒比': '🇧🇶',
-    '黑山': '🇲🇪', '洪都拉斯': '🇭🇳', '基里巴斯': '🇰🇮', '吉布提': '🇩🇯', '几内亚': '🇬🇳',
-    '几内亚比绍': '🇬🇼', '加拿大': '🇨🇦', '加蓬': '🇬🇦', '柬埔寨': '🇰🇭', '捷克': '🇨🇿',
-    '津巴布韦': '🇿🇼', '卡塔尔': '🇶🇦', '喀麦隆': '🇨🇲', '科摩罗': '🇰🇲', '科索沃': '🇽🇰',
-    '科威特': '🇰🇼', '肯尼亚': '🇰🇪', '拉脱维亚': '🇱🇻', '莱索托': '🇱🇸', '黎巴嫩': '🇱🇧',
-    '利比里亚': '🇱🇷', '利比亚': '🇱🇾', '列支敦士登': '🇱🇮', '立陶宛': '🇱🇹', '卢森堡': '🇱🇺',
-    '毛里塔尼亚': '🇲🇷', '马达加斯加': '🇲🇬', '马拉维': '🇲🇼', '马来西亚': '🇲🇾', '马尔代夫': '🇲🇻',
-    '马里': '🇲🇱', '马耳他': '🇲🇹', '马绍尔群岛': '🇲🇭', '马提尼克': '🇲🇶', '毛里求斯': '🇲🇺',
-    '蒙古': '🇲🇳', '美国': '🇺🇸', '美属维尔京群岛': '🇻🇮', '密克罗尼西亚': '🇫🇲', '缅甸': '🇲🇲',
-    '南非': '🇿🇦', '南苏丹': '🇸🇸', '尼泊尔': '🇳🇵', '尼日尔': '🇳🇪', '尼日利亚': '🇳🇬',
-    '挪威': '🇳🇴', '诺福克岛': '🇳🇫', '帕劳': '🇵🇼', '葡萄牙': '🇵🇹', '日本': '🇯🇵',
-    '瑞典': '🇸🇪', '瑞士': '🇨🇭', '萨尔瓦多': '🇸🇻', '塞尔维亚': '🇷🇸', '塞拉利昂': '🇸🇱',
-    '塞舌尔': '🇸🇨', '沙特阿拉伯': '🇸🇦', '圣基茨和尼维斯': '🇰🇳', '圣卢西亚': '🇱🇨', '圣马力诺': '🇸🇲',
-    '圣多美和普林西比': '🇸🇹', '圣文森特和格林纳丁斯': '🇻🇨', '斯里兰卡': '🇱🇰', '斯洛伐克': '🇸🇰',
-    '斯洛文尼亚': '🇸🇮', '斯威士兰': '🇸🇿', '所罗门群岛': '🇸🇧', '苏丹': '🇸🇩', '苏里南': '🇸🇷',
-    '台湾': '🇹🇼', '坦桑尼亚': '🇹🇿', '泰国': '🇹🇭', '汤加': '🇹🇴', '土耳其': '🇹🇷',
-    '土库曼斯坦': '🇹🇲', '突尼斯': '🇹🇳', '图瓦卢': '🇹🇻', '瓦努阿图': '🇻🇺', '危地马拉': '🇬🇹',
-    '乌干达': '🇺🇬', '乌克兰': '🇺🇦', '乌拉圭': '🇺🇾', '乌兹别克斯坦': '🇺🇿', '西班牙': '🇪🇸',
-    '希腊': '🇬🇷', '新加坡': '🇸🇬', '新喀里多尼亚': '🇳🇨', '新西兰': '🇳🇿', '匈牙利': '🇭🇺',
-    '叙利亚': '🇸🇾', '牙买加': '🇯🇲', '伊朗': '🇮🇷', '伊拉克': '🇮🇶', '意大利': '🇮🇹',
-    '以色列': '🇮🇱', '印度': '🇮🇳', '印度尼西亚': '🇮🇩', '英国': '🇬🇧', '约旦': '🇯🇴',
-    '泽西': '🇯🇪', '赞比亚': '🇿🇲', '乍得': '🇹🇩', '智利': '🇨🇱', '中非共和国': '🇨🇫',
-    '中国': '🇨🇳', '直布罗陀': '🇬🇮', '台湾': '🇹🇼', '朱诺': '🇯🇪', '香港': '🇭🇰', '澳门': '🇲🇴',
-    '安道尔': '🇦🇩', '安哥拉': '🇦🇴', '安提瓜和巴布达': '🇦🇬', '亚美尼亚': '🇦🇲', '孟加拉国': '🇧🇩',
-    '伯利兹': '🇧🇿', '贝宁': '🇧🇯', '不丹': '🇧🇹', '波斯尼亚和黑塞哥维那': '🇧🇦', '文莱': '🇧🇳',
-    '布基纳法索': '🇧🇫', '布隆迪': '🇧🇮', '佛得角': '🇨🇻', '哥斯达黎加': '🇨🇷', '科特迪瓦': '🇨🇮',
-    '克罗地亚': '🇭🇷', '古巴': '🇨🇺', '塞浦路斯': '🇨🇾', '多米尼克': '🇩🇲', '多明尼加共和国': '🇩🇴',
-    '萨尔瓦多': '🇸🇻', '赤道几内亚': '🇬🇶', '厄立特里亚': '🇪🇷', '爱沙尼亚': '🇪🇪', '斐济': '🇫🇯',
-    '加纳': '🇬🇭', '格林纳达': '🇬🇩', '圭亚那': '🇬🇾', '洪都拉斯': '🇭🇳', '冰岛': '🇮🇸',
-    '约旦': '🇯🇴', '肯尼亚': '🇰🇪', '基里巴斯': '🇰🇮', '科威特': '🇰🇼', '吉尔吉斯斯坦': '🇰🇬',
-    '老挝': '🇱🇦', '拉脱维亚': '🇱🇻', '黎巴嫩': '🇱🇧', '莱索托': '🇱🇸', '利比里亚': '🇱🇷',
-    '利比亚': '🇱🇾', '列支敦士登': '🇱🇮', '立陶宛': '🇱🇹', '卢森堡': '🇱🇺', '马达加斯加': '🇲🇬',
-    '马拉维': '🇲🇼', '马来西亚': '🇲🇾', '马尔代夫': '🇲🇻', '马里': '🇲🇱', '马耳他': '🇲🇹',
-    '马绍尔群岛': '🇲🇭', '毛里塔尼亚': '🇲🇷', '毛里求斯': '🇲🇺', '墨西哥': '🇲🇽', '密克罗尼西亚': '🇫🇲',
-    '摩尔多瓦': '🇲🇩', '摩纳哥': '🇲🇨', '蒙古': '🇲🇳', '黑山': '🇲🇪', '摩洛哥': '🇲🇦',
-    '莫桑比克': '🇲🇿', '缅甸': '🇲🇲', '纳米比亚': '🇳🇦', '瑙鲁': '🇳🇷', '尼泊尔': '🇳🇵',
-    '荷兰': '🇳🇱', '新西兰': '🇳🇿', '尼加拉瓜': '🇳🇮', '尼日尔': '🇳🇪', '尼日利亚': '🇳🇬',
-    '北马其顿': '🇲🇰', '挪威': '🇳🇴', '阿曼': '🇴🇲', '巴基斯坦': '🇵🇰', '帕劳': '🇵🇼',
-    '巴拿马': '🇵🇦', '巴布亚新几内亚': '🇵🇬', '巴拉圭': '🇵🇾', '秘鲁': '🇵🇪', '菲律宾': '🇵🇭',
-    '波兰': '🇵🇱', '葡萄牙': '🇵🇹', '卡塔尔': '🇶🇦', '罗马尼亚': '🇷🇴', '俄罗斯联邦': '🇷🇺',
-    '卢旺达': '🇷🇼', '圣基茨和尼维斯': '🇰🇳', '圣卢西亚': '🇱🇨', '圣文森特和格林纳丁斯': '🇻🇨', '萨摩亚': '🇼🇸',
-    '圣马力诺': '🇸🇲', '圣多美和普林西比': '🇸🇹', '沙特阿拉伯': '🇸🇦', '塞内加尔': '🇸🇳', '塞尔维亚': '🇷🇸',
-    '塞舌尔': '🇸🇨', '塞拉利昂': '🇸🇱', '新加坡': '🇸🇬', '斯洛伐克': '🇸🇰', '斯洛文尼亚': '🇸🇮',
-    '所罗门群岛': '🇸🇧', '索马里': '🇸🇴', '南非': '🇿🇦', '韩国': '🇰🇷', '南苏丹': '🇸🇸',
-    '西班牙': '🇪🇸', '斯里兰卡': '🇱🇰', '苏丹': '🇸🇩', '苏里南': '🇸🇷', '瑞典': '🇸🇪',
-    '瑞士': '🇨🇭', '叙利亚': '🇸🇾', '塔吉克斯坦': '🇹🇯', '坦桑尼亚': '🇹🇿', '泰国': '🇹🇭',
-    '东帝汶': '🇹🇱', '多哥': '🇹🇬', '汤加': '🇹🇴', '特立尼达和多巴哥': '🇹🇹', '突尼斯': '🇹🇳',
-    '土耳其': '🇹🇷', '土库曼斯坦': '🇹🇲', '图瓦卢': '🇹🇻', '乌干达': '🇺🇬', '乌克兰': '🇺🇦',
-    '阿拉伯联合酋长国': '🇦🇪', '英国': '🇬🇧', '美国': '🇺🇸', '乌拉圭': '🇺🇾', '乌兹别克斯坦': '🇺🇿',
-    '瓦努阿图': '🇻🇺', '委内瑞拉': '🇻🇪', '越南': '🇻🇳', '也门': '🇾🇪', '赞比亚': '🇿🇲',
-    '津巴布韦': '🇿🇼'
+    '阿富汗': { flag: '🇦🇫', en: 'Afghanistan', code: 'AF' },
+    '阿尔巴尼亚': { flag: '🇦🇱', en: 'Albania', code: 'AL' },
+    '阿尔及利亚': { flag: '🇩🇿', en: 'Algeria', code: 'DZ' },
+    '安道尔': { flag: '🇦🇩', en: 'Andorra', code: 'AD' },
+    '安哥拉': { flag: '🇦🇴', en: 'Angola', code: 'AO' },
+    '安圭拉': { flag: '🇦🇮', en: 'Anguilla', code: 'AI' },
+    '安提瓜和巴布达': { flag: '🇦🇬', en: 'Antigua and Barbuda', code: 'AG' },
+    '阿根廷': { flag: '🇦🇷', en: 'Argentina', code: 'AR' },
+    '亚美尼亚': { flag: '🇦🇲', en: 'Armenia', code: 'AM' },
+    '阿鲁巴': { flag: '🇦🇼', en: 'Aruba', code: 'AW' },
+    '澳大利亚': { flag: '🇦🇺', en: 'Australia', code: 'AU' },
+    '奥地利': { flag: '🇦🇹', en: 'Austria', code: 'AT' },
+    '阿塞拜疆': { flag: '🇦🇿', en: 'Azerbaijan', code: 'AZ' },
+    '巴哈马': { flag: '🇧🇸', en: 'Bahamas', code: 'BS' },
+    '巴林': { flag: '🇧🇭', en: 'Bahrain', code: 'BH' },
+    '孟加拉国': { flag: '🇧🇩', en: 'Bangladesh', code: 'BD' },
+    '巴巴多斯': { flag: '🇧🇧', en: 'Barbados', code: 'BB' },
+    '白俄罗斯': { flag: '🇧🇾', en: 'Belarus', code: 'BY' },
+    '比利时': { flag: '🇧🇪', en: 'Belgium', code: 'BE' },
+    '伯利兹': { flag: '🇧🇿', en: 'Belize', code: 'BZ' },
+    '贝宁': { flag: '🇧🇯', en: 'Benin', code: 'BJ' },
+    '百慕大': { flag: '🇧🇲', en: 'Bermuda', code: 'BM' },
+    '不丹': { flag: '🇧🇹', en: 'Bhutan', code: 'BT' },
+    '玻利维亚': { flag: '🇧🇴', en: 'Bolivia', code: 'BO' },
+    '波斯尼亚和黑塞哥维那': { flag: '🇧🇦', en: 'Bosnia and Herzegovina', code: 'BA' },
+    '博茨瓦纳': { flag: '🇧🇼', en: 'Botswana', code: 'BW' },
+    '巴西': { flag: '🇧🇷', en: 'Brazil', code: 'BR' },
+    '文莱': { flag: '🇧🇳', en: 'Brunei', code: 'BN' },
+    '保加利亚': { flag: '🇧🇬', en: 'Bulgaria', code: 'BG' },
+    '布基纳法索': { flag: '🇧🇫', en: 'Burkina Faso', code: 'BF' },
+    '布隆迪': { flag: '🇧🇮', en: 'Burundi', code: 'BI' },
+    '柬埔寨': { flag: '🇰🇭', en: 'Cambodia', code: 'KH' },
+    '喀麦隆': { flag: '🇨🇲', en: 'Cameroon', code: 'CM' },
+    '加拿大': { flag: '🇨🇦', en: 'Canada', code: 'CA' },
+    '佛得角': { flag: '🇨🇻', en: 'Cape Verde', code: 'CV' },
+    '开曼群岛': { flag: '🇰🇾', en: 'Cayman Islands', code: 'KY' },
+    '中非': { flag: '🇨🇫', en: 'Central African Republic', code: 'CF' },
+    '乍得': { flag: '🇹🇩', en: 'Chad', code: 'TD' },
+    '智利': { flag: '🇨🇱', en: 'Chile', code: 'CL' },
+    '中国': { flag: '🇨🇳', en: 'China', code: 'CN' },
+    '哥伦比亚': { flag: '🇨🇴', en: 'Colombia', code: 'CO' },
+    '科摩罗': { flag: '🇰🇲', en: 'Comoros', code: 'KM' },
+    '刚果（布）': { flag: '🇨🇬', en: 'Republic of the Congo', code: 'CG' },
+    '刚果（金）': { flag: '🇨🇩', en: 'Democratic Republic of the Congo', code: 'CD' },
+    '库克群岛': { flag: '🇨🇰', en: 'Cook Islands', code: 'CK' },
+    '哥斯达黎加': { flag: '🇨🇷', en: 'Costa Rica', code: 'CR' },
+    '克罗地亚': { flag: '🇭🇷', en: 'Croatia', code: 'HR' },
+    '古巴': { flag: '🇨🇺', en: 'Cuba', code: 'CU' },
+    '库拉索': { flag: '🇨🇼', en: 'Curacao', code: 'CW' },
+    '塞浦路斯': { flag: '🇨🇾', en: 'Cyprus', code: 'CY' },
+    '捷克': { flag: '🇨🇿', en: 'Czech Republic', code: 'CZ' },
+    '丹麦': { flag: '🇩🇰', en: 'Denmark', code: 'DK' },
+    '吉布提': { flag: '🇩🇯', en: 'Djibouti', code: 'DJ' },
+    '多米尼加': { flag: '🇩🇴', en: 'Dominican Republic', code: 'DO' },
+    '厄瓜多尔': { flag: '🇪🇨', en: 'Ecuador', code: 'EC' },
+    '埃及': { flag: '🇪🇬', en: 'Egypt', code: 'EG' },
+    '萨尔瓦多': { flag: '🇸🇻', en: 'El Salvador', code: 'SV' },
+    '赤道几内亚': { flag: '🇬🇶', en: 'Equatorial Guinea', code: 'GQ' },
+    '厄立特里亚': { flag: '🇪🇷', en: 'Eritrea', code: 'ER' },
+    '爱沙尼亚': { flag: '🇪🇪', en: 'Estonia', code: 'EE' },
+    '埃塞俄比亚': { flag: '🇪🇹', en: 'Ethiopia', code: 'ET' },
+    '法罗群岛': { flag: '🇫🇴', en: 'Faroe Islands', code: 'FO' },
+    '斐济': { flag: '🇫🇯', en: 'Fiji', code: 'FJ' },
+    '芬兰': { flag: '🇫🇮', en: 'Finland', code: 'FI' },
+    '法国': { flag: '🇫🇷', en: 'France', code: 'FR' },
+    '法属圭亚那': { flag: '🇬🇫', en: 'French Guiana', code: 'GF' },
+    '法属波利尼西亚': { flag: '🇵🇫', en: 'French Polynesia', code: 'PF' },
+    '加蓬': { flag: '🇬🇦', en: 'Gabon', code: 'GA' },
+    '冈比亚': { flag: '🇬🇲', en: 'Gambia', code: 'GM' },
+    '格鲁吉亚': { flag: '🇬🇪', en: 'Georgia', code: 'GE' },
+    '德国': { flag: '🇩🇪', en: 'Germany', code: 'DE' },
+    '加纳': { flag: '🇬🇭', en: 'Ghana', code: 'GH' },
+    '直布罗陀': { flag: '🇬🇮', en: 'Gibraltar', code: 'GI' },
+    '希腊': { flag: '🇬🇷', en: 'Greece', code: 'GR' },
+    '格陵兰': { flag: '🇬🇱', en: 'Greenland', code: 'GL' },
+    '格林纳达': { flag: '🇬🇩', en: 'Grenada', code: 'GD' },
+    '瓜德罗普': { flag: '🇬🇵', en: 'Guadeloupe', code: 'GP' },
+    '关岛': { flag: '🇬🇺', en: 'Guam', code: 'GU' },
+    '危地马拉': { flag: '🇬🇹', en: 'Guatemala', code: 'GT' },
+    '根西': { flag: '🇬🇬', en: 'Guernsey', code: 'GG' },
+    '几内亚': { flag: '🇬🇳', en: 'Guinea', code: 'GN' },
+    '几内亚比绍': { flag: '🇬🇼', en: 'Guinea-Bissau', code: 'GW' },
+    '圭亚那': { flag: '🇬🇾', en: 'Guyana', code: 'GY' },
+    '海地': { flag: '🇭🇹', en: 'Haiti', code: 'HT' },
+    '洪都拉斯': { flag: '🇭🇳', en: 'Honduras', code: 'HN' },
+    '香港': { flag: '🇭🇰', en: 'Hong Kong', code: 'HK' },
+    '匈牙利': { flag: '🇭🇺', en: 'Hungary', code: 'HU' },
+    '冰岛': { flag: '🇮🇸', en: 'Iceland', code: 'IS' },
+    '印度': { flag: '🇮🇳', en: 'India', code: 'IN' },
+    '印度尼西亚': { flag: '🇮🇩', en: 'Indonesia', code: 'ID' },
+    '伊朗': { flag: '🇮🇷', en: 'Iran', code: 'IR' },
+    '伊拉克': { flag: '🇮🇶', en: 'Iraq', code: 'IQ' },
+    '爱尔兰': { flag: '🇮🇪', en: 'Ireland', code: 'IE' },
+    '马恩岛': { flag: '🇮🇲', en: 'Isle of Man', code: 'IM' },
+    '以色列': { flag: '🇮🇱', en: 'Israel', code: 'IL' },
+    '意大利': { flag: '🇮🇹', en: 'Italy', code: 'IT' },
+    '牙买加': { flag: '🇯🇲', en: 'Jamaica', code: 'JM' },
+    '日本': { flag: '🇯🇵', en: 'Japan', code: 'JP' },
+    '泽西': { flag: '🇯🇪', en: 'Jersey', code: 'JE' },
+    '约旦': { flag: '🇯🇴', en: 'Jordan', code: 'JO' },
+    '哈萨克斯坦': { flag: '🇰🇿', en: 'Kazakhstan', code: 'KZ' },
+    '肯尼亚': { flag: '🇰🇪', en: 'Kenya', code: 'KE' },
+    '基里巴斯': { flag: '🇰🇮', en: 'Kiribati', code: 'KI' },
+    '科索沃': { flag: '🇽🇰', en: 'Kosovo', code: 'XK' },
+    '科威特': { flag: '🇰🇼', en: 'Kuwait', code: 'KW' },
+    '吉尔吉斯斯坦': { flag: '🇰🇬', en: 'Kyrgyzstan', code: 'KG' },
+    '老挝': { flag: '🇱🇦', en: 'Laos', code: 'LA' },
+    '拉脱维亚': { flag: '🇱🇻', en: 'Latvia', code: 'LV' },
+    '黎巴嫩': { flag: '🇱🇧', en: 'Lebanon', code: 'LB' },
+    '莱索托': { flag: '🇱🇸', en: 'Lesotho', code: 'LS' },
+    '利比里亚': { flag: '🇱🇷', en: 'Liberia', code: 'LR' },
+    '利比亚': { flag: '🇱🇾', en: 'Libya', code: 'LY' },
+    '列支敦士登': { flag: '🇱🇮', en: 'Liechtenstein', code: 'LI' },
+    '立陶宛': { flag: '🇱🇹', en: 'Lithuania', code: 'LT' },
+    '卢森堡': { flag: '🇱🇺', en: 'Luxembourg', code: 'LU' },
+    '澳门': { flag: '🇲🇴', en: 'Macau', code: 'MO' },
+    '马达加斯加': { flag: '🇲🇬', en: 'Madagascar', code: 'MG' },
+    '马拉维': { flag: '🇲🇼', en: 'Malawi', code: 'MW' },
+    '马来西亚': { flag: '🇲🇾', en: 'Malaysia', code: 'MY' },
+    '马尔代夫': { flag: '🇲🇻', en: 'Maldives', code: 'MV' },
+    '马里': { flag: '🇲🇱', en: 'Mali', code: 'ML' },
+    '马耳他': { flag: '🇲🇹', en: 'Malta', code: 'MT' },
+    '马绍尔群岛': { flag: '🇲🇭', en: 'Marshall Islands', code: 'MH' },
+    '马提尼克': { flag: '🇲🇶', en: 'Martinique', code: 'MQ' },
+    '毛里塔尼亚': { flag: '🇲🇷', en: 'Mauritania', code: 'MR' },
+    '毛里求斯': { flag: '🇲🇺', en: 'Mauritius', code: 'MU' },
+    '马约特': { flag: '🇾🇹', en: 'Mayotte', code: 'YT' },
+    '墨西哥': { flag: '🇲🇽', en: 'Mexico', code: 'MX' },
+    '密克罗尼西亚': { flag: '🇫🇲', en: 'Micronesia', code: 'FM' },
+    '摩尔多瓦': { flag: '🇲🇩', en: 'Moldova', code: 'MD' },
+    '摩纳哥': { flag: '🇲🇨', en: 'Monaco', code: 'MC' },
+    '蒙古': { flag: '🇲🇳', en: 'Mongolia', code: 'MN' },
+    '黑山': { flag: '🇲🇪', en: 'Montenegro', code: 'ME' },
+    '蒙特塞拉特': { flag: '🇲🇸', en: 'Montserrat', code: 'MS' },
+    '摩洛哥': { flag: '🇲🇦', en: 'Morocco', code: 'MA' },
+    '莫桑比克': { flag: '🇲🇿', en: 'Mozambique', code: 'MZ' },
+    '缅甸': { flag: '🇲🇲', en: 'Myanmar', code: 'MM' },
+    '纳米比亚': { flag: '🇳🇦', en: 'Namibia', code: 'NA' },
+    '瑙鲁': { flag: '🇳🇷', en: 'Nauru', code: 'NR' },
+    '尼泊尔': { flag: '🇳🇵', en: 'Nepal', code: 'NP' },
+    '荷兰': { flag: '🇳🇱', en: 'Netherlands', code: 'NL' },
+    '新喀里多尼亚': { flag: '🇳🇨', en: 'New Caledonia', code: 'NC' },
+    '新西兰': { flag: '🇳🇿', en: 'New Zealand', code: 'NZ' },
+    '纽埃': { flag: '🇳🇺', en: 'Niue', code: 'NU' },
+    '北马里亚纳群岛': { flag: '🇲🇵', en: 'Northern Mariana Islands', code: 'MP' },
+    '挪威': { flag: '🇳🇴', en: 'Norway', code: 'NO' },
+    '阿曼': { flag: '🇴🇲', en: 'Oman', code: 'OM' },
+    '巴基斯坦': { flag: '🇵🇰', en: 'Pakistan', code: 'PK' },
+    '帕劳': { flag: '🇵🇼', en: 'Palau', code: 'PW' },
+    '巴拿马': { flag: '🇵🇦', en: 'Panama', code: 'PA' },
+    '巴布亚新几内亚': { flag: '🇵🇬', en: 'Papua New Guinea', code: 'PG' },
+    '巴拉圭': { flag: '🇵🇾', en: 'Paraguay', code: 'PY' },
+    '秘鲁': { flag: '🇵🇪', en: 'Peru', code: 'PE' },
+    '菲律宾': { flag: '🇵🇭', en: 'Philippines', code: 'PH' },
+    '皮特凯恩群岛': { flag: '🇵🇳', en: 'Pitcairn', code: 'PN' },
+    '波兰': { flag: '🇵🇱', en: 'Poland', code: 'PL' },
+    '葡萄牙': { flag: '🇵🇹', en: 'Portugal', code: 'PT' },
+    '波多黎各': { flag: '🇵🇷', en: 'Puerto Rico', code: 'PR' },
+    '卡塔尔': { flag: '🇶🇦', en: 'Qatar', code: 'QA' },
+    '留尼汪': { flag: '🇷🇪', en: 'Réunion', code: 'RE' },
+    '罗马尼亚': { flag: '🇷🇴', en: 'Romania', code: 'RO' },
+    '俄罗斯': { flag: '🇷🇺', en: 'Russia', code: 'RU' },
+    '卢旺达': { flag: '🇷🇼', en: 'Rwanda', code: 'RW' },
+    '圣巴泰勒米': { flag: '🇧🇱', en: 'Saint Barthélemy', code: 'BL' },
+    '圣赫勒拿': { flag: '🇸🇭', en: 'Saint Helena', code: 'SH' },
+    '圣基茨和尼维斯': { flag: '🇰🇳', en: 'Saint Kitts and Nevis', code: 'KN' },
+    '圣卢西亚': { flag: '🇱🇨', en: 'Saint Lucia', code: 'LC' },
+    '圣马丁（法属）': { flag: '🇲🇫', en: 'Saint Martin (French part)', code: 'MF' },
+    '圣皮埃尔和密克隆': { flag: '🇵🇲', en: 'Saint Pierre and Miquelon', code: 'PM' },
+    '圣文森特和格林纳丁斯': { flag: '🇻🇨', en: 'Saint Vincent and the Grenadines', code: 'VC' },
+    '萨摩亚': { flag: '🇼🇸', en: 'Samoa', code: 'WS' },
+    '圣马力诺': { flag: '🇸🇲', en: 'San Marino', code: 'SM' },
+    '圣多美和普林西比': { flag: '🇸🇹', en: 'Sao Tome and Principe', code: 'ST' },
+    '沙特阿拉伯': { flag: '🇸🇦', en: 'Saudi Arabia', code: 'SA' },
+    '塞内加尔': { flag: '🇸🇳', en: 'Senegal', code: 'SN' },
+    '塞尔维亚': { flag: '🇷🇸', en: 'Serbia', code: 'RS' },
+    '塞舌尔': { flag: '🇸🇨', en: 'Seychelles', code: 'SC' },
+    '塞拉利昂': { flag: '🇸🇱', en: 'Sierra Leone', code: 'SL' },
+    '新加坡': { flag: '🇸🇬', en: 'Singapore', code: 'SG' },
+    '荷属圣马丁': { flag: '🇸🇽', en: 'Sint Maarten (Dutch part)', code: 'SX' },
+    '斯洛伐克': { flag: '🇸🇰', en: 'Slovakia', code: 'SK' },
+    '斯洛文尼亚': { flag: '🇸🇮', en: 'Slovenia', code: 'SI' },
+    '所罗门群岛': { flag: '🇸🇧', en: 'Solomon Islands', code: 'SB' },
+    '索马里': { flag: '🇸🇴', en: 'Somalia', code: 'SO' },
+    '南非': { flag: '🇿🇦', en: 'South Africa', code: 'ZA' },
+    '南乔治亚和南桑威奇群岛': { flag: '🇬🇸', en: 'South Georgia and the South Sandwich Islands', code: 'GS' },
+    '南苏丹': { flag: '🇸🇸', en: 'South Sudan', code: 'SS' },
+    '西班牙': { flag: '🇪🇸', en: 'Spain', code: 'ES' },
+    '斯里兰卡': { flag: '🇱🇰', en: 'Sri Lanka', code: 'LK' },
+    '苏丹': { flag: '🇸🇩', en: 'Sudan', code: 'SD' },
+    '苏里南': { flag: '🇸🇷', en: 'Suriname', code: 'SR' },
+    '斯瓦尔巴和扬马延': { flag: '🇸🇯', en: 'Svalbard and Jan Mayen', code: 'SJ' },
+    '斯威士兰': { flag: '🇸🇿', en: 'Swaziland', code: 'SZ' },
+    '瑞典': { flag: '🇸🇪', en: 'Sweden', code: 'SE' },
+    '瑞士': { flag: '🇨🇭', en: 'Switzerland', code: 'CH' },
+    '叙利亚': { flag: '🇸🇾', en: 'Syria', code: 'SY' },
+    '台湾': { flag: '🇹🇼', en: 'Taiwan', code: 'TW' },
+    '塔吉克斯坦': { flag: '🇹🇯', en: 'Tajikistan', code: 'TJ' },
+    '坦桑尼亚': { flag: '🇹🇿', en: 'Tanzania', code: 'TZ' },
+    '泰国': { flag: '🇹🇭', en: 'Thailand', code: 'TH' },
+    '东帝汶': { flag: '🇹🇱', en: 'Timor-Leste', code: 'TL' },
+    '多哥': { flag: '🇹🇬', en: 'Togo', code: 'TG' },
+    '托克劳': { flag: '🇹🇰', en: 'Tokelau', code: 'TK' },
+    '汤加': { flag: '🇹🇴', en: 'Tonga', code: 'TO' },
+    '特立尼达和多巴哥': { flag: '🇹🇹', en: 'Trinidad and Tobago', code: 'TT' },
+    '突尼斯': { flag: '🇹🇳', en: 'Tunisia', code: 'TN' },
+    '土耳其': { flag: '🇹🇷', en: 'Turkey', code: 'TR' },
+    '土库曼斯坦': { flag: '🇹🇲', en: 'Turkmenistan', code: 'TM' },
+    '特克斯和凯科斯群岛': { flag: '🇹🇨', en: 'Turks and Caicos Islands', code: 'TC' },
+    '图瓦卢': { flag: '🇹🇻', en: 'Tuvalu', code: 'TV' },
+    '乌干达': { flag: '🇺🇬', en: 'Uganda', code: 'UG' },
+    '乌克兰': { flag: '🇺🇦', en: 'Ukraine', code: 'UA' },
+    '阿拉伯联合酋长国': { flag: '🇦🇪', en: 'United Arab Emirates', code: 'AE' },
+    '英国': { flag: '🇬🇧', en: 'United Kingdom', code: 'GB' },
+    '美国': { flag: '🇺🇸', en: 'United States', code: 'US' },
+    '美国本土外小岛屿': { flag: '🇺🇲', en: 'United States Minor Outlying Islands', code: 'UM' },
+    '乌拉圭': { flag: '🇺🇾', en: 'Uruguay', code: 'UY' },
+    '乌兹别克斯坦': { flag: '🇺🇿', en: 'Uzbekistan', code: 'UZ' },
+    '瓦努阿图': { flag: '🇻🇺', en: 'Vanuatu', code: 'VU' },
+    '梵蒂冈': { flag: '🇻🇦', en: 'Vatican City', code: 'VA' },
+    '委内瑞拉': { flag: '🇻🇪', en: 'Venezuela', code: 'VE' },
+    '越南': { flag: '🇻🇳', en: 'Vietnam', code: 'VN' },
+    '维尔京群岛（英）': { flag: '🇻🇬', en: 'British Virgin Islands', code: 'VG' },
+    '维尔京群岛（美）': { flag: '🇻🇮', en: 'U.S. Virgin Islands', code: 'VI' },
+    '瓦利斯和富图纳': { flag: '🇼🇫', en: 'Wallis and Futuna', code: 'WF' },
+    '西撒哈拉': { flag: '🇪🇭', en: 'Western Sahara', code: 'EH' },
+    '也门': { flag: '🇾🇪', en: 'Yemen', code: 'YE' },
+    '赞比亚': { flag: '🇿🇲', en: 'Zambia', code: 'ZM' },
+    '津巴布韦': { flag: '🇿🇼', en: 'Zimbabwe', code: 'ZW' }
 };
 
 function updateCardLayout() {
@@ -86,15 +254,42 @@ function updateCardLayout() {
     cardsContainer.style.gridTemplateColumns = `repeat(${columns}, 1fr)`;
 }
 
+const codeToCountry = {};
+const enToCountry = {};
+
+for (const key in countryMap) {
+    const country = countryMap[key];
+    codeToCountry[country.code] = country;
+    enToCountry[country.en] = { ...country, cnName: key };
+}
+
 function addFlagIfMissing(titleText) {
     if (/[\u{1F1E6}-\u{1F1FF}]{2}/u.test(titleText)) {
         return titleText;
     }
-    for (const name in countryMap) {
-        if (titleText.includes(name)) {
-            return countryMap[name] + ' ' + titleText;
+    
+    const codeMatches = titleText.match(/\b([A-Z]{2})\b/g);
+    
+    if (codeMatches) {
+        for (const code of codeMatches) {
+            if (codeToCountry[code]) {
+                return codeToCountry[code].flag + ' ' + titleText;
+            }
         }
     }
+    
+    for (const enName in enToCountry) {
+        if (titleText.includes(enName)) {
+            return enToCountry[enName].flag + ' ' + titleText;
+        }
+    }
+    
+    for (const cnName in countryMap) {
+        if (titleText.includes(cnName)) {
+            return countryMap[cnName].flag + ' ' + titleText;
+        }
+    }
+    
     return titleText;
 }
 
@@ -149,7 +344,7 @@ function getProtocolBadge(protocol) {
         'Balancing': 'Balance',
         'Shunt': 'Shunt'
     };
-    const color = badgeColors[protocol] || '#000';
+    const color = badgeColors[protocol] || '#17a2b8';
     const text = badgeTexts[protocol] || protocol;
     return `<span class="card-badge" style="background-color: ${color}">${text}</span>`;
 }
@@ -282,24 +477,39 @@ function initCardSortable(container, group) {
     }
     
     try {
+        let hasSortingOccurred = false;
+        let saveTimeout = null;
+        
         Sortable.create(container, {
             handle: ".node-card, .drag-handle",
             filter: ".metric-item, .metric-item *",
             animation: 150,
-            ghostClass: "sortable-ghost",
+            ghostClass: "pw-sortable-ghost",
             chosenClass: "sortable-chosen",
             dragClass: "dragging-row",
             
             onStart: function(evt) {
+                hasSortingOccurred = false;
                 showSaveButtonAtCorner(group);
             },
             
+            onSort: function(evt) {
+                hasSortingOccurred = true;
+            },
+            
             onEnd: function(evt) {
+                clearTimeout(saveTimeout);
+                
+                if (hasSortingOccurred) {
+                    saveTimeout = setTimeout(() => {
+                        saveCardOrder(group);
+                        hasSortingOccurred = false;
+                    }, 200);
+                }
+                
                 setTimeout(() => {
                     hideSaveButtonFromCorner(group);
                 }, 2500);
-                
-                saveCardOrder(group);
             }
         });
     } catch (err) {
@@ -509,7 +719,7 @@ const cardLayoutCSS = `
     border: var(--border-strong);
     border-radius: 8px;
     padding: 16px;
-    transition: box-shadow 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     position: relative;
     overflow: visible;
     min-height: 160px;
@@ -525,13 +735,6 @@ const cardLayoutCSS = `
     backdrop-filter: blur(6px);
     -webkit-backdrop-filter: blur(6px);
     box-shadow: var(--shadow-inset);
-}
-
-[data-theme="dark"] .node-card {
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-[data-theme="dark"] .node-card:hover {
     transform: translateY(-2px);
 }
 
@@ -540,6 +743,10 @@ const cardLayoutCSS = `
     border: var(--border-strong) !important;
     backdrop-filter: blur(6px);
     -webkit-backdrop-filter: blur(6px);
+}
+
+input[type="button"].btn.cbi-button.cbi-button-edit[onclick^="row_top"] {
+    display: none !important;
 }
 
 .card-header {
@@ -570,17 +777,18 @@ const cardLayoutCSS = `
 
 .card-badge {
     position: absolute;
-    top: 18px;
+    top: 15px;
     left: 50%;
     transform: translateX(-50%);
-    display: inline-block;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
     padding: 2px 6px;
+    height: 18px;
     border-radius: 4px;
     font-size: 10px;
     font-weight: 600;
     color: white;
-    vertical-align: middle;
-    line-height: 1;
     text-transform: uppercase;
     letter-spacing: 0.2px;
     box-shadow: var(--shadow-inset);
@@ -588,6 +796,7 @@ const cardLayoutCSS = `
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     margin: 0;
     z-index: 1;
+    box-sizing: border-box;
 }
 
 .card-badge:hover {
@@ -676,12 +885,13 @@ const cardLayoutCSS = `
     text-align: center;
     transition: all 0.2s ease;
     display: flex;
-    justify-content: space-between;
+    justify-content: center;
     align-items: center;
     white-space: nowrap;
     flex: 1;
     min-width: 0;
     transition: box-shadow 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    gap: 6px;
 }
 
 .metric-item:hover {
@@ -788,7 +998,7 @@ const cardLayoutCSS = `
 
 .drag-handle {
     position: absolute;
-    top: 12px;
+    top: 10px;
     right: 12px;
     cursor: grab;
     opacity: 0.6;
@@ -805,7 +1015,7 @@ const cardLayoutCSS = `
     transform: translateZ(0) scale(1.1);
 }
 
-.sortable-ghost {
+.pw-sortable-ghost {
     opacity: 0.4;
     transform: translateZ(0);
     overflow: visible !important;
