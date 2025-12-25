@@ -5079,56 +5079,6 @@ button:hover {
     box-sizing: border-box;
 }
 
-.card-container {
-    display: flex !important;
-    flex-wrap: nowrap !important;
-    justify-content: space-evenly !important;
-    gap: 18px !important;
-    width: 100% !important;
-    box-sizing: border-box !important;
-    overflow-x: auto !important;
-    padding: 0 !important;
-    margin: 0 auto !important;
-}
-
-.feature-card {
-    flex: 1 1 auto !important;
-    min-width: 200px !important;
-    max-width: calc(20% - 16px) !important;
-    box-sizing: border-box !important;
-    padding: 10px !important;
-}
-
-@media (max-width: 768px) {
-    .card-container {
-        flex-wrap: wrap !important;
-        justify-content: flex-start !important;
-        padding: 0 !important;
-    }
-
-    .feature-card {
-        flex: 0 0 100% !important;
-        width: 100% !important;
-        min-width: 0 !important;
-        max-width: 100% !important;
-        box-sizing: border-box !important;
-        margin-left: 0 !important;
-        margin-right: 0 !important;
-    }
-}
-
-@media (max-width: 480px) {
-    .card-container {
-        gap: 12px !important;
-    }
-
-    .feature-card {
-        flex: 0 0 100% !important;
-        width: 100% !important;
-        max-width: 100% !important;
-    }
-}
-
 .network-container .left-box .item_container .item {
     border: var(--border-strong) !important;
     box-shadow: 0 2px 6px -2px color-mix(in oklch, var(--bg-container), black 30%) !important;
@@ -6300,26 +6250,7 @@ td.cbi-section-actions>div>button.cbi-button-neutral.down:nth-child(2) {
     color: white !important;
 }
 
-a.item_btn[href*="kooldns.cn"] {
-    background-color: #38a169 !important;
-    border-color: #38a169 !important;
-    color: white !important;
-    text-decoration: none !important;
-    padding: 8px 16px !important;
-    border-radius: 6px !important;
-    transition: all 0.3s ease !important;
-}
 
-a.item_btn[href*="kooldns.cn"]:hover {
-    background-color: #2f855a !important;
-    transform: scale(1.05);
-}
-
-a[href="https://www.istoreos.com/"] {
-    color: var(--accent-color) !important;
-    font-size: 18px;
-    font-weight: 700;
-}
 
 .nas-container_card,
 .app-container_status-container,
@@ -6356,11 +6287,6 @@ a[href="https://www.istoreos.com/"] {
 [data-theme="dark"] .network-container_status *,
 [data-theme="dark"] .app-container * {
     color: var(--color-white) !important;
-}
-
-.network-container {
-    margin-top: 20px !important;
-    margin-bottom: 20px !important;
 }
 
 div.app-container_body ul.app-container_nas-menu button {
@@ -6472,9 +6398,6 @@ li[data-value="-"][unselectable] {
     color: var(--text-primary) !important;
 }
 
-.card-container {
-    margin-top: 10px !important;
-}
 
 .cbi-dropdown[open] > ul.dropdown > li[unselectable] .create-item-input {
     width: 290px !important;

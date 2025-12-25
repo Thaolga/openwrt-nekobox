@@ -71,6 +71,7 @@
     /* State borders */
     --state-success-border: color-mix(in oklch, var(--state-success), transparent 70%);
     --state-danger-border: color-mix(in oklch, var(--state-danger), transparent 70%);
+    --active-bg: oklch(var(--l) var(--base-chroma) var(--base-hue));
     
     /* ===== Surface Elevation System ===== */
     /* Base surfaces */
@@ -4452,6 +4453,7 @@ div>div[style*="display:grid"] {
 }
 
 .custom-tooltip {
+    font-family: "NotoColorEmojiFlags";
     position: fixed;
     z-index: 2147483647 !important;
     padding: 6px 12px;
@@ -5291,3 +5293,54 @@ table:not(:has(tbody))>tr:nth-of-type(2n):hover,
 .select-editable {
     border: var(--border-strong) !important;
 }
+
+a[href*="istoreos.com"] {
+    position: relative !important;
+    top: 10px !important;
+    transition: all 0.3s ease !important;
+}
+
+a[href*="istoreos.com"]:hover {
+    color: var(--active-bg) !important;
+    transform: scale(1.05);
+}
+
+.card-container {
+    width: 100% !important;
+    max-width: 100% !important;
+    padding-right: 0 !important;
+    box-sizing: border-box !important;
+    display: grid !important;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)) !important;
+    gap: 15px !important;
+    margin: 0 auto !important;
+}
+
+.feature-card {
+    width: 100% !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+}
+
+.network-container {
+    margin-top: 0 !important;
+    margin-bottom: 20px !important;
+}
+
+.cbi-map-descr img {
+    width: 60px;
+    height: 60px;
+    object-fit: cover;
+}
+
+@media (max-width: 768px) {
+    .table.cbi-section-table td,
+    .table.cbi-section-table th {
+        padding-left: 20px !important;
+    }
+    
+    .cbi-section:has(.cbi-section-table.table),
+    .cbi-tblsection:has(.cbi-section-table.table) {
+        overflow-x: hidden;
+    }
+}   
