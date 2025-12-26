@@ -1055,7 +1055,7 @@
         <button class="uk-modal-close-default" type="button" uk-close></button>
         <h2 class="uk-modal-title" data-translate="theme_settings">Theme Settings</h2>
         <iframe id="theme-iframe" 
-                src="/luci-static/spectra/bgm/index.php"
+                src="/spectra/index.php"
                 style="width: 100%; height: 80vh; border: none; border-radius: 5px;">
         </iframe>
     </div>
@@ -2546,7 +2546,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 async function getCurrentLanguage() {
     try {
-        const response = await fetch('/luci-static/spectra/bgm/language.txt', {cache: 'no-store'});
+        const response = await fetch('/spectra/lib/language.txt', {cache: 'no-store'});
         if (response.ok) {
             const lang = await response.text();
             return lang.trim() || 'zh-CN';
@@ -2728,7 +2728,7 @@ async function saveIPCache(data) {
     console.log('Saving cache with language:', saveData.language);
     
     try {
-        const response = await fetch('/luci-static/spectra/bgm/save_ip_cache.php', {
+        const response = await fetch('/spectra/save_ip_cache.php', {
             method: 'POST',
             headers: {'Content-Type':'application/json'},
             body: JSON.stringify(saveData)
@@ -2742,7 +2742,7 @@ async function saveIPCache(data) {
 
 async function getCachedIPInfo(ip) {
     try {
-        const resp = await fetch('/luci-static/spectra/bgm/ip_cache.json', {cache:'no-store'});
+        const resp = await fetch('/spectra/lib/ip_cache.json', {cache:'no-store'});
         const cache = await resp.json();
         const item = cache.find(item=>item.ip===ip);
         if (!item) return null;
@@ -3730,7 +3730,7 @@ async function showEditModal() {
     try {
         const [_, jsonData] = await Promise.all([
             loadMonacoEditor(),
-            fetch('/luci-static/spectra/bgm/ip_cache.json?_=' + Date.now())
+            fetch('/spectra/lib/ip_cache.json?_=' + Date.now())
                 .then(r => r.json())
                 .catch(() => ({}))
         ]);
@@ -3765,7 +3765,7 @@ document.addEventListener('DOMContentLoaded', function() {
             defaultText: confirmText,
             onConfirm: async () => {
                 try {
-                    const res = await fetch('/luci-static/spectra/bgm/edit_ip_cache.php', {
+                    const res = await fetch('spectra/edit_ip_cache.php', {
                         method: 'POST',
                         headers: {'Content-Type': 'application/json'},
                         body: JSON.stringify({})
@@ -3815,7 +3815,7 @@ document.addEventListener('DOMContentLoaded', function() {
             return; 
         }
         
-        fetch('/luci-static/spectra/bgm/edit_ip_cache.php', {
+        fetch('/spectra/edit_ip_cache.php', {
             method: 'POST',
             headers: {'Content-Type': 'application/json'},
             body: JSON.stringify(newContent)
@@ -4255,7 +4255,7 @@ async function updateModalLanguage() {
 
 async function clearWeatherCache() {
     try {
-        const response = await fetch('/luci-static/spectra/bgm/weather_translation.php?action=clear');
+        const response = await fetch('/spectra/weather_translation.php?action=clear');
         if (response.ok) {
             await showModalMessage("cacheCleared");           
             await updateLastUpdatedDisplay();
@@ -4398,7 +4398,7 @@ async function getWeatherLangParam() {
 
 async function readTranslationCache(city) {
     try {
-        const res = await fetch('/luci-static/spectra/bgm/weather_translation.php');
+        const res = await fetch('/spectra/weather_translation.php');
         if (!res.ok) throw new Error('Failed to load cache: ' + res.status);
         const data = await res.json();
         const cityData = data.cities?.[city] || {};
@@ -4422,7 +4422,7 @@ async function saveTranslationCache(city, translations, extra = {}) {
             temp: currentWeatherData?.main?.temp ?? null,
             forceUpdate: forceRefresh
         };
-        const res = await fetch('/luci-static/spectra/bgm/weather_translation.php', {
+        const res = await fetch('/spectra/weather_translation.php', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(payload)
@@ -5169,7 +5169,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     function checkNewVersion() {
         if (!autoCheckToggle.checked) return;
-        fetch('/luci-static/spectra/bgm/check_theme_update.php')
+        fetch('/spectra/check_theme_update.php')
             .then(response => response.json())
             .then(data => {
                 if (data && data.needsUpdate === true && data.version) {
@@ -5225,7 +5225,7 @@ document.addEventListener('DOMContentLoaded', function() {
         versionInfo.textContent = translations['fetching_version'] || 'Fetching version info...';
         downloadLink.href = '#';
 
-        fetch('/luci-static/spectra/bgm/check_theme_update.php')
+        fetch('/spectra/check_theme_update.php')
             .then(response => response.json())
             .then(data => {
                 if (data.currentVersion) {
@@ -5260,7 +5260,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const controller = new AbortController();
         const timeoutId = setTimeout(() => controller.abort(), 180000);
 
-        fetch('/luci-static/spectra/bgm/install_theme.php', { 
+        fetch('/spectra/install_theme.php', { 
             method: 'POST',
             signal: controller.signal
         })
@@ -5318,7 +5318,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
 <script>
 function getCurrentTheme(callback) {
-    fetch("/luci-static/spectra/bgm/theme-switcher.php")
+    fetch("/spectra/theme-switcher.php")
         .then(response => response.json())
         .then(data => {
             callback(data.mode || 'dark');
@@ -5517,7 +5517,7 @@ document.addEventListener("DOMContentLoaded", function () {
                         themeToggle.classList.toggle('uk-card-default', !switchingToLight);
                     }
 
-                    fetch("/luci-static/spectra/bgm/theme-switcher.php", { method: "POST" })
+                    fetch("/spectra/theme-switcher.php", { method: "POST" })
                         .then(res => res.json())
                         .then(data => {
                             if (!data.success) return;
@@ -5818,7 +5818,7 @@ document.addEventListener("DOMContentLoaded", function () {
         }
 
         function checkFileExists(file, callback) {
-            fetch(`/luci-static/spectra/bgm/file-checker.php?file=${file}`)
+            fetch(`/spectra/file-checker.php?file=${file}`)
                 .then(response => response.json())
                 .then(data => callback(data.exists))
                 .catch(() => callback(false));
@@ -5835,7 +5835,7 @@ document.addEventListener("DOMContentLoaded", function () {
             if (image) {
                 styleTag.innerHTML = `
                     body {
-                        background: url('/luci-static/spectra/bgm/${image}') no-repeat center center fixed !important;
+                        background: url('/spectra/stream/${image}') no-repeat center center fixed !important;
                         background-size: cover !important;
                         transition: background 1s ease-in-out;
                     }
@@ -5861,7 +5861,7 @@ document.addEventListener("DOMContentLoaded", function () {
             videoTag.muted = localStorage.getItem('videoMuted') === 'true';
             videoTag.playsInline = true;
             videoTag.innerHTML = `
-                <source src="/luci-static/spectra/bgm/bg.mp4" type="video/mp4">
+                <source src="/spectra/stream/bg.mp4" type="video/mp4">
                 Your browser does not support the video tag.
             `;
             const savedFit = localStorage.getItem('videoObjectFit') || 'cover';
@@ -5930,7 +5930,7 @@ document.addEventListener("DOMContentLoaded", function () {
             
             styleTag.innerHTML = `
                 body {
-                    background: url('/luci-static/spectra/bgm/${src}') no-repeat center center fixed !important;
+                    background: url('/spectra/stream/${src}') no-repeat center center fixed !important;
                     background-size: cover !important;
                     background-color: transparent !important;
                     transition: background 1s ease-in-out;
@@ -5961,7 +5961,7 @@ document.addEventListener("DOMContentLoaded", function () {
             const savedFit = localStorage.getItem('videoObjectFit') || 'cover';
 
             if (existingVideoTag) {
-                existingVideoTag.src = `/luci-static/spectra/bgm/${src}`;
+                existingVideoTag.src = `/spectra/stream/${src}`;
                 existingVideoTag.muted = localStorage.getItem('videoMuted') === 'true';
                 existingVideoTag.style.objectFit = savedFit;
             } else {
@@ -5974,7 +5974,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 videoTag.playsInline = true;
                 videoTag.style.objectFit = savedFit;
                 videoTag.innerHTML = `
-                    <source src="/luci-static/spectra/bgm/${src}" type="video/mp4">
+                    <source src="/spectra/stream/${src}" type="video/mp4">
                     Your browser does not support the video tag.
                 `;
                 document.body.prepend(videoTag);
@@ -6106,7 +6106,7 @@ function toggleCardLayout() {
     button.disabled = true;
     
     const xhr = new XMLHttpRequest();
-    const url = `http://${routerIP}/luci-static/spectra/bgm/${encodedFile}?action=${action}`;
+    const url = `http://${routerIP}/spectra/${encodedFile}?action=${action}`;
     
     xhr.open('GET', url, true);
     xhr.timeout = 10000;

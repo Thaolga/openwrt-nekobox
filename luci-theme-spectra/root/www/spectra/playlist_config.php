@@ -1,7 +1,7 @@
 <?php
 header('Content-Type: application/json');
 
-$playlistFile = __DIR__ . '/playlist.txt';
+$playlistFile = __DIR__ . '/lib/playlist.txt';
 
 $defaultPlaylistUrl = 'https://raw.githubusercontent.com/Thaolga/Rules/main/music/songs.txt';
 

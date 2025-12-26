@@ -1,7 +1,7 @@
 <?php
 ini_set('memory_limit', '256M');
 $base_dir = __DIR__;
-$upload_dir = $base_dir;
+$upload_dir = $base_dir . '/stream';
 $allowed_types = ['jpg', 'jpeg', 'png', 'gif', 'webp', 'mp4', 'webm', 'mkv', 'mp3', 'wav', 'flac', 'ogg'];
 $background_type = '';
 $background_src = '';
@@ -65,7 +65,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['upload_file'])) {
 }
 
 if (isset($_GET['delete'])) {
-    $file = $base_dir . '/' . basename($_GET['delete']);
+    $file = $upload_dir . '/' . basename($_GET['delete']);
     if (file_exists($file)) {
         unlink($file);
         header('Location: ' . $_SERVER['PHP_SELF']);
@@ -77,8 +77,8 @@ if (isset($_POST['rename'])) {
     $oldName = $_POST['old_name'];
     $newName = trim($_POST['new_name']);
 
-    $oldPath = $base_dir . DIRECTORY_SEPARATOR . basename($oldName);
-    $newPath = $base_dir . DIRECTORY_SEPARATOR . basename($newName);
+    $oldPath = $upload_dir . DIRECTORY_SEPARATOR . basename($oldName);
+    $newPath = $upload_dir . DIRECTORY_SEPARATOR . basename($newName);
 
     $error = '';
     if (!file_exists($oldPath)) {
@@ -129,7 +129,7 @@ if (isset($_GET['download'])) {
 if (isset($_POST['batch_delete'])) {
     $deleted_files = [];
     foreach ($_POST['filenames'] as $filename) {
-        $file = $base_dir . '/' . basename($filename);
+        $file = $upload_dir . '/' . basename($filename);
         if (file_exists($file)) {
             unlink($file);
             $deleted_files[] = $filename;
@@ -147,7 +147,7 @@ $files = array_filter($files, function ($file) use ($upload_dir) {
 });
 
 if (isset($_GET['background'])) {
-    $background_src = htmlspecialchars($_GET['background']);
+    $background_src = 'stream/' . htmlspecialchars($_GET['background']);
     $ext = strtolower(pathinfo($background_src, PATHINFO_EXTENSION));
     if (in_array($ext, ['jpg', 'jpeg', 'png', 'gif'])) {
         $background_type = 'image';
@@ -275,37 +275,6 @@ body {
 .ancient-time {
 	margin-left: 4px !important;
 	letter-spacing: 1px !important;
-}
-
-.custom-tooltip-wrapper {
-        position: relative;
-        display: inline-block;
-        cursor: help; 
-}
-
-.custom-tooltip-wrapper::after {
-        content: attr(data-tooltip);
-        position: absolute;
-        top: -100%; 
-        left: 0;
-        transform: translateY(-8px); 
-        background-color: rgba(0, 0, 0, 0.8);
-        color: #fff;
-        padding: 6px 10px;
-        border-radius: 6px;
-        font-size: 0.875rem;
-        white-space: nowrap;
-        line-height: 1.4;
-        z-index: 999;
-        opacity: 0;
-        pointer-events: none;
-        transition: opacity 0.2s ease;
-        max-width: none;
-        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
-}
-
-.custom-tooltip-wrapper:hover::after {
-        opacity: 1;
 }
 
 .card {
@@ -1318,17 +1287,17 @@ body:hover,
                 return round($bytes, 2) . ' ' . $units[$index];
             }
             ?>  
-            <div class="me-3 d-flex gap-2 mt-2 ps-2 custom-tooltip-wrapper gap-2" 
+            <div class="me-3 d-flex gap-2 mt-2 ps-2" 
                  data-translate-tooltip="mount_info" data-mount-point="<?= $mountPoint ?>" data-used-space="<?= $usedSpace ? formatSize($usedSpace) : 'N/A' ?>" data-tooltip="">
                 <span class="btn btn-primary btn-sm mb-2 d-none d-sm-inline"><i class="bi bi-hdd"></i> <span data-translate="total">Total：</span><?= $totalSpace ? formatSize($totalSpace) : 'N/A' ?></span>
                 <span class="btn btn-success btn-sm mb-2  d-none d-sm-inline"><i class="bi bi-hdd"></i> <span data-translate="free">Free：</span><?= $freeSpace ? formatSize($freeSpace) : 'N/A' ?></span>
             </div>
-            <button class="btn btn-info" data-bs-toggle="modal" data-bs-target="#updateConfirmModal" data-translate-title="check_update"><i class="fas fa-cloud-download-alt"></i> <span class="btn-label"></span></button>
-            <button class="btn btn-warning ms-2" data-bs-toggle="modal" data-bs-target="#uploadModal" data-translate-title="batch_upload"><i class="bi bi-upload"></i> <span class="btn-label"></span></button>
-            <button class="btn btn-primary ms-2" id="openPlayerBtn" data-bs-toggle="modal" data-bs-target="#playerModal" data-translate-title="add_to_playlist"><i class="bi bi-play-btn"></i> <span class="btn-label"></span></button>
-            <button class="btn btn-success ms-2 d-none d-sm-inline" id="toggleScreenBtn" data-translate-title="toggle_fullscreen"><i class="bi bi-arrows-fullscreen"></i></button>
-            <button type="button" class="btn btn-primary ms-2 d-none d-sm-inline" onclick="showIpDetailModal()" data-translate-title="ip_info"><i class="fa-solid fa-satellite-dish"></i></button>
-            <button class="btn btn-danger ms-2" id="clearBackgroundBtn" data-translate-title="clear_background"><i class="bi bi-trash"></i> <span class="btn-label"></span></button> 
+            <button class="btn btn-info" data-bs-toggle="modal" data-bs-target="#updateConfirmModal" data-translate-tooltip="check_update"><i class="fas fa-cloud-download-alt"></i> <span class="btn-label"></span></button>
+            <button class="btn btn-warning ms-2" data-bs-toggle="modal" data-bs-target="#uploadModal" data-translate-tooltip="batch_upload"><i class="bi bi-upload"></i> <span class="btn-label"></span></button>
+            <button class="btn btn-primary ms-2" id="openPlayerBtn" data-bs-toggle="modal" data-bs-target="#playerModal" data-translate-tooltip="add_to_playlist"><i class="bi bi-play-btn"></i> <span class="btn-label"></span></button>
+            <button class="btn btn-success ms-2 d-none d-sm-inline" id="toggleScreenBtn" data-translate-tooltip="toggle_fullscreen"><i class="bi bi-arrows-fullscreen"></i></button>
+            <button type="button" class="btn btn-primary ms-2 d-none d-sm-inline" onclick="showIpDetailModal()" data-translate-tooltip="ip_info"><i class="fa-solid fa-satellite-dish"></i></button>
+            <button class="btn btn-danger ms-2" id="clearBackgroundBtn" data-translate-tooltip="clear_background"><i class="bi bi-trash"></i> <span class="btn-label"></span></button> 
         </div>
     </div>
         <h2 class="mt-3 mb-0" data-translate="file_list">File List</h2>
@@ -1349,7 +1318,7 @@ body:hover,
         </div>
     </div>
         <?php
-            $history_file = 'background_history.txt';
+            $history_file = './lib/background_history.txt';
             $background_history = file_exists($history_file) ? file($history_file, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES) : [];
 
             usort($files, function ($a, $b) use ($background_history) {
@@ -1425,7 +1394,7 @@ body:hover,
                     <div class="file-checkbox-wrapper position-absolute start-0 top-0 m-2 z-2">
                         <input type="checkbox" 
                                class="fileCheckbox form-check-input shadow" 
-                               value="<?= htmlspecialchars($file) ?>"
+                               value="stream/<?= htmlspecialchars($file) ?>"
                                data-size="<?= $size ?>"
                                style="width: 1.05em !important; height: 1.05em !important; border-radius: 0.35em; transform: scale(1.2);">
                     </div>
@@ -1446,27 +1415,27 @@ body:hover,
                             </div>
 
                             <?php if ($isImage): ?>
-                                <img src="<?= htmlspecialchars($file) ?>" 
+                                <img src="stream/<?= htmlspecialchars($file) ?>" 
                                      class="card-img-top preview-img img-fluid"
                                      data-bs-toggle="modal" 
                                      data-bs-target="#previewModal"
                                      data-type="image"
-                                     data-src="<?= htmlspecialchars($file) ?>">
+                                      data-src="stream/<?= htmlspecialchars($file) ?>">
                             <?php elseif ($isVideo): ?>
                                 <video class="card-img-top preview-video"
                                        data-bs-toggle="modal"
                                        data-bs-target="#previewModal"
                                        data-type="video"
-                                       data-src="<?= htmlspecialchars($file) ?>">
-                                    <source src="<?= htmlspecialchars($file) ?>" type="video/mp4">
-                                    <source src="<?= htmlspecialchars($file) ?>" type="video/webm">
-                                    <source src="<?= htmlspecialchars($file) ?>" type="video/ogg">
+                                       data-src="stream/<?= htmlspecialchars($file) ?>">
+                                    <source src="stream/<?= htmlspecialchars($file) ?>" type="video/mp4">
+                                    <source src="stream/<?= htmlspecialchars($file) ?>" type="video/webm">
+                                    <source src="stream/<?= htmlspecialchars($file) ?>" type="video/ogg">
                                 </video>
                             <?php elseif ($isAudio): ?>
                                 <div class="preview-audio-container" 
                                      data-bs-toggle="modal" 
                                      data-bs-target="#previewModal"
-                                     data-src="<?= htmlspecialchars($file) ?>"
+                                     data-src="stream/<?= htmlspecialchars($file) ?>"
                                      data-type="audio">
                                     <div class="audio-placeholder">
                                         <i class="bi bi-file-music fs-1 text-muted"></i>
@@ -1500,16 +1469,16 @@ body:hover,
                     <div class="card-body pt-2 mt-2">
                         <div class="d-flex flex-nowrap align-items-center justify-content-between gap-2">                         
                             <div class="d-flex flex-nowrap gap-1 flex-grow-1" style="min-width: 0;">
-                                <button class="btn btn-danger custom-btn" onclick="handleDeleteConfirmation('<?= urlencode($file) ?>')" data-translate-title="delete"><i class="bi bi-trash"></i></button>
-                                <button class="btn btn-primary custom-btn" data-bs-toggle="modal" data-bs-target="#renameModal-<?= md5($file) ?>" data-translate-title="rename"><i class="bi bi-pencil"></i></button>
-                                <a href="?download=<?= urlencode($file) ?>" class="btn btn-success custom-btn"><i class="bi bi-download" data-translate-title="download"></i></a>   
-                                <button class="btn btn-warning share-btn custom-btn"data-filename="<?= htmlspecialchars($file) ?>"data-bs-toggle="modal"data-bs-target="#shareModal" data-translate-title="shareLinkLabel"><i class="bi bi-share"></i></button>
+                                <button class="btn btn-danger custom-btn" onclick="handleDeleteConfirmation('<?= urlencode($file) ?>')" data-translate-tooltip="delete"><i class="bi bi-trash"></i></button>
+                                <button class="btn btn-primary custom-btn" data-bs-toggle="modal" data-bs-target="#renameModal-<?= md5($file) ?>" data-translate-tooltip="rename"><i class="bi bi-pencil"></i></button>
+                                <a href="?download=<?= urlencode($file) ?>" class="btn btn-success custom-btn"><i class="bi bi-download" data-translate-tooltip="download"></i></a>   
+                                <button class="btn btn-warning share-btn custom-btn"data-filename="<?= htmlspecialchars($file) ?>"data-bs-toggle="modal"data-bs-target="#shareModal" data-translate-tooltip="shareLinkLabel"><i class="bi bi-share"></i></button>
                                 <?php if ($isMedia): ?>
                                 <button class="btn btn-info set-bg-btn custom-btn" 
                                         data-src="<?= htmlspecialchars($file) ?>"
                                         data-type="<?= $isVideo ? 'video' : ($isAudio ? 'audio' : 'image') ?>"
                                         onclick="setBackground('<?= htmlspecialchars($file) ?>')"
-                                        data-translate-title="set_background">
+                                        data-translate-tooltip="set_background">
                                     <i class="bi <?= $isVideo ? 'bi-play-btn' : ($isAudio ? 'bi-music-note-beamed' : 'bi-image') ?>"></i>
                                 </button>
                                 <?php endif; ?>  
@@ -1663,8 +1632,8 @@ body:hover,
                 <h5 class="modal-title" id="playerModalLabel" data-translate="media_player"></h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <div class="modal-body d-flex flex-column" style="height: 65vh;">
-                <div class="row g-4 flex-grow-1 h-100">
+            <div class="modal-body  p-0 m-0 d-flex flex-column" style="height: 65vh;">
+                <div class="row g-3 flex-grow-1 h-100">
                     <div class="col-md-8 d-flex flex-column h-100">
                         <div class="ratio ratio-16x9 bg-dark rounded flex-grow-1 position-relative">
                             <video id="mainPlayer" controls class="w-100 h-100 d-none"></video>
@@ -1672,7 +1641,7 @@ body:hover,
                         </div>
                     </div>
                     <div class="col-md-4 d-flex flex-column h-100">
-                        <h6 class="mb-3" data-translate="playlist"></h6>
+                        <h6 class="pt-3 mb-3" data-translate="playlist"></h6>
                         <div class="list-group flex-grow-1 overflow-auto" id="playlistContainer"></div>
                     </div>
                 </div>
@@ -1975,7 +1944,7 @@ opkg update && opkg install wget grep sed && LATEST_FILE=$(wget -qO- https://git
             const totalSize = checked.toArray().reduce((sum, el) => sum + parseInt($(el).data('size')), 0);
             if (count > 0) {
                 $('#toolbar').removeClass('d-none');
-                $('#selectedInfo').html((translations['selected_info'] || 'Selected %d files，total %s MB').replace('%d', count).replace('%s', (totalSize / (1024 * 1024)).toFixed(2)));
+                $('#selectedInfo').html((translations['file_summary'] || 'Selected %d files，total %s MB').replace('%d', count).replace('%s', (totalSize / (1024 * 1024)).toFixed(2)));
             } else {
                 $('#toolbar').addClass('d-none');
             }
@@ -2058,7 +2027,7 @@ opkg update && opkg install wget grep sed && LATEST_FILE=$(wget -qO- https://git
 
     function setImageBackground(src) {
         clearExistingBackground();
-        document.body.style.background = `url('/luci-static/spectra/bgm/${src}') no-repeat center center fixed`;
+        document.body.style.background = `url('/spectra/stream/${src}') no-repeat center center fixed`;
         document.body.style.backgroundSize = 'cover';
         localStorage.setItem('phpBackgroundSrc', src);
         localStorage.setItem('phpBackgroundType', 'image');
@@ -2070,7 +2039,7 @@ opkg update && opkg install wget grep sed && LATEST_FILE=$(wget -qO- https://git
         clearExistingBackground();
         let existingVideoTag = document.getElementById("background-video");
         if (existingVideoTag) {
-            existingVideoTag.src = `/luci-static/spectra/bgm/${src}`;
+            existingVideoTag.src = `/spectra/stream/${src}`;
         } else {
             let videoTag = document.createElement("video");
             videoTag.className = "video-background";
@@ -2080,7 +2049,7 @@ opkg update && opkg install wget grep sed && LATEST_FILE=$(wget -qO- https://git
             videoTag.muted = localStorage.getItem('videoMuted') === 'true';
             videoTag.playsInline = true;
             videoTag.innerHTML = `
-                <source src="/luci-static/spectra/bgm/${src}" type="video/mp4">
+                <source src="/spectra/stream/${src}" type="video/mp4">
                 Your browser does not support the video tag.
             `;
             document.body.prepend(videoTag);
@@ -3457,7 +3426,7 @@ document.addEventListener('DOMContentLoaded', () => {
     try {
        if (!currentFilename) throw new Error(translations['fileNotSelected'] || 'No file selected');
       
-      const response = await fetch('/luci-static/spectra/bgm/share.php', {
+      const response = await fetch('./share.php', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -3473,7 +3442,7 @@ document.addEventListener('DOMContentLoaded', () => {
         throw new Error(data.message || `${translations['httpError']} ${response.status}`);
       }
 
-      const link = `${window.location.origin}/luci-static/spectra/bgm/download.php?token=${data.token}`;
+      const link = `${window.location.origin}/spectra/download.php?token=${data.token}`;
       shareLinkInput.value = link;
       const message = translations['linkGenerated'] || '✅ Share link generated';
       showLogMessage(message);
@@ -3502,7 +3471,7 @@ document.addEventListener('DOMContentLoaded', () => {
 const cleanExpiredBtn = document.getElementById('cleanExpiredBtn');
 cleanExpiredBtn.addEventListener('click', async () => {
   try {
-    const res = await fetch('/luci-static/spectra/bgm/manage_tokens.php?action=clean');
+    const res = await fetch('./manage_tokens.php?action=clean');
     const result = await res.json();
 
     if (result.success) {
@@ -3523,7 +3492,7 @@ if (deleteAllBtn) {
     const confirmMessage = translations['confirmDeleteAll'] || '⚠️ Are you sure you want to delete ALL share records?';
     showConfirmation(confirmMessage, async () => {
       try {
-        const res = await fetch('/luci-static/spectra/bgm/manage_tokens.php?action=delete_all');
+        const res = await fetch('./manage_tokens.php?action=delete_all');
         const result = await res.json();
 
         if (result.success) {
@@ -3757,7 +3726,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   async function getCurrentLanguage() {
     try {
-      const res = await fetch('/luci-static/spectra/bgm/save_language.php', {
+      const res = await fetch('./save_language.php', {
         method: 'POST',
         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
         body: 'action=get_language'
@@ -3772,7 +3741,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     try {
       const lang = await getCurrentLanguage();
       const localCity = localStorage.getItem('city');
-      const res = await fetch("/luci-static/spectra/bgm/weather_translation.php");
+      const res = await fetch("./weather_translation.php");
       if (!res.ok) return;
 
       const data = await res.json();
@@ -3823,7 +3792,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 let userInteracted = false;
 
 function toggleConfig() {
-    fetch("/luci-static/spectra/bgm/theme-switcher.php", { 
+    fetch("./theme-switcher.php", { 
         method: "POST",
         headers: {
             'Content-Type': 'application/json'
@@ -3875,7 +3844,7 @@ function updateStatus(theme) {
     }
 }
 
-fetch("/luci-static/spectra/bgm/theme-switcher.php")
+fetch("./theme-switcher.php")
     .then(res => res.json())
     .then(data => {
         if(data.mode) {

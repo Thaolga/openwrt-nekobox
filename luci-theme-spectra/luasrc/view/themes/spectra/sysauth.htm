@@ -41,7 +41,8 @@ Licensed under the Apache License, Version 2.0
 
     local imageTypes = " jpg jpeg png gif webp "
     local videoTypes = " mp4 webm mkv "
-    local allTypes = imageTypes .. videoTypes
+    local audioTypes = " mp3 wav ogg flac m4a "
+    local allTypes = imageTypes .. videoTypes .. audioTypes
     local function fetchMedia(path, themeDir)
         local backgroundTable = {}
         local backgroundCount = 0
@@ -68,14 +69,23 @@ Licensed under the Apache License, Version 2.0
         local bgUrl = media .. "/img/bg1.jpg"
         local backgroundType = "Image"
         local mimeType = ""
+        local audioUrl = ""
+        local audioMimeType = ""
 
         local mediaTable, mediaCount = fetchMedia("/www" .. themeDir .. "*", themeDir)
         
         if mediaCount > 0 then
             local videoFiles = {}
+            local audioFiles = {}
+            local imageFiles = {}
+            
             for _, mediaFile in ipairs(mediaTable) do
                 if string.match(videoTypes, " "..mediaFile.type.." ") ~= nil then
                     table.insert(videoFiles, mediaFile)
+                elseif string.match(audioTypes, " "..mediaFile.type.." ") ~= nil then
+                    table.insert(audioFiles, mediaFile)
+                elseif string.match(imageTypes, " "..mediaFile.type.." ") ~= nil then
+                    table.insert(imageFiles, mediaFile)
                 end
             end
             
@@ -84,28 +94,32 @@ Licensed under the Apache License, Version 2.0
                 bgUrl = selectedVideo.url
                 backgroundType = "Video"
                 mimeType = "video/" .. selectedVideo.type
-            else
-                local imageFiles = {}
-                for _, mediaFile in ipairs(mediaTable) do
-                    if string.match(imageTypes, " "..mediaFile.type.." ") ~= nil then
-                        table.insert(imageFiles, mediaFile)
-                    end
-                end
                 
-                if #imageFiles > 0 then
-                    local selectedImage = imageFiles[math.random(1, #imageFiles)]
-                    bgUrl = selectedImage.url
-                    backgroundType = "Image"
+                if #audioFiles > 0 then
+                    local selectedAudio = audioFiles[math.random(1, #audioFiles)]
+                    audioUrl = selectedAudio.url
+                    audioMimeType = "audio/" .. selectedAudio.type
+                end
+
+            elseif #imageFiles > 0 then
+                local selectedImage = imageFiles[math.random(1, #imageFiles)]
+                bgUrl = selectedImage.url
+                backgroundType = "Image"
+                
+                if #audioFiles > 0 then
+                    local selectedAudio = audioFiles[math.random(1, #audioFiles)]
+                    audioUrl = selectedAudio.url
+                    audioMimeType = "audio/" .. selectedAudio.type
                 end
             end
         end
 
-        return bgUrl, backgroundType, mimeType
+        return bgUrl, backgroundType, mimeType, audioUrl, audioMimeType
     end
 
     local boardinfo = util.ubus("system", "board")
-    local themeDir = "/luci-static/spectra/bgm/"
-    local bgUrl, backgroundType, mimeType = selectBackground(themeDir)
+    local themeDir = "/spectra/stream/"
+    local bgUrl, backgroundType, mimeType, audioUrl, audioMimeType = selectBackground(themeDir)
 %>
 
 <style>
@@ -479,8 +493,21 @@ Licensed under the Apache License, Version 2.0
             <video class="background-media" autoplay loop muted playsinline id="background-video">
                 <source src="<%=bgUrl%>" type="<%=mimeType%>">
             </video>
+        
         <% else %>
             <div class="background-media" style="background-image: url(<%=bgUrl%>)"></div>
+            
+            <% if ( audioUrl ~= "" ) then %>
+            <audio class="background-audio" autoplay loop muted id="background-audio">
+                <source src="<%=audioUrl%>" type="<%=audioMimeType%>">
+                Your browser does not support audio playback.
+            </audio>
+            <% else %>
+            <audio class="background-audio" autoplay loop muted id="background-audio" style="display: none;">
+                <source src="" type="audio/mp3">
+                Your browser does not support audio playback.
+            </audio>
+            <% end %>
         <% end %>
         <div class="background-overlay"></div>
     </div>
@@ -542,12 +569,13 @@ Licensed under the Apache License, Version 2.0
             </button>
         </form>
 
-    <div class="footer-info" style="margin-top: 2rem; text-align: center;">
-        <p>
-            Powered by <a href="https://github.com/openwrt/luci" target="_blank">OpenWRT LuCI</a> | 
-            <a href="https://github.com/Thaolga/openwrt-nekobox" target="_blank">Spectra Theme</a>
-        </p>
-    </div>
+        <div class="footer-info" style="margin-top: 2rem; text-align: center;">
+            <p>
+                Powered by <a href="https://github.com/openwrt/luci" target="_blank">OpenWRT LuCI</a> | 
+                <a href="https://github.com/Thaolga/openwrt-nekobox" target="_blank">Spectra Theme</a>
+            </p>
+        </div>
+        
         <script type="text/javascript">//<![CDATA[
             document.getElementById('authPassword').focus();
         //]]></script>
@@ -555,11 +583,6 @@ Licensed under the Apache License, Version 2.0
         <%+themes/spectra/footer_login%>
     </div>
 </div>
-
-<audio id="background-audio" autoplay loop muted>
-    <source src="" type="audio/mp3">
-    Your browser does not support audio playback.
-</audio>
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
@@ -821,7 +844,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     async function getCurrentLanguage() {
         try {
-            const response = await fetch('/luci-static/spectra/bgm/language.txt', {cache: 'no-store'});
+            const response = await fetch('/spectra/lib/language.txt', {cache: 'no-store'});
             if (response.ok) {
                 const lang = await response.text();
                 return lang.split('-')[0].trim() || 'zh';
@@ -946,7 +969,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function initializeMedia() {
-        if (backgroundType === 'Video') {
+        if (backgroundType === "Video") {
             currentMedia = document.getElementById("background-video");
             const audio = document.getElementById("background-audio");
             audio.pause();
@@ -954,19 +977,17 @@ document.addEventListener('DOMContentLoaded', function() {
             initializeVideoMode();
             
         } else {
-            const songs = [
-                { src: '/luci-static/spectra/img/bgm.mp3', type: 'audio/mp3' },
-                { src: '/luci-static/spectra/img/bgm2.webm', type: 'audio/webm' }
-            ];
-            
             let audio = document.getElementById("background-audio");
             let audioSource = audio.querySelector("source");
-            const randomSong = songs[Math.floor(Math.random() * songs.length)];
             
-            audioSource.src = randomSong.src;
-            audioSource.type = randomSong.type;
-            audio.load();
-            currentMedia = audio;
+            if (audioSource.src && audioSource.src !== "" && !audioSource.src.includes("undefined")) {
+                console.log('Using audio from Lua:', audioSource.src);
+                audio.load();
+                currentMedia = audio;
+            } else {
+                console.log('No audio file available');
+                currentMedia = null;
+            }
             
             const control = document.getElementById('videoModeControl');
             if (control) control.style.display = 'none';
@@ -1001,20 +1022,15 @@ document.addEventListener('DOMContentLoaded', function() {
                 mainBg.style.display = 'block';
             }
             
-            const songs = [
-                { src: '/luci-static/spectra/img/bgm.mp3', type: 'audio/mp3' },
-                { src: '/luci-static/spectra/img/bgm2.webm', type: 'audio/webm' }
-            ];
-            const randomSong = songs[Math.floor(Math.random() * songs.length)];
-            
             let audioSource = audio.querySelector("source");
-            audioSource.src = randomSong.src;
-            audioSource.type = randomSong.type;
-            audio.load();
-            audio.muted = false;
-            audio.play();
-            
-            currentMedia = audio;
+            if (audioSource.src && audioSource.src !== "" && !audioSource.src.includes("undefined")) {
+                audio.load();
+                audio.muted = false;
+                audio.play();
+                currentMedia = audio;
+            } else {
+                currentMedia = null;
+            }
             
             const control = document.getElementById('videoModeControl');
             if (control) control.style.display = 'none';
@@ -1038,19 +1054,15 @@ document.addEventListener('DOMContentLoaded', function() {
                 initializeVideoMode();
                 
             } else {
-                const songs = [
-                    { src: '/luci-static/spectra/img/bgm.mp3', type: 'audio/mp3' },
-                    { src: '/luci-static/spectra/img/bgm2.webm', type: 'audio/webm' }
-                ];
-                const randomSong = songs[Math.floor(Math.random() * songs.length)];
-                
                 let audioSource = audio.querySelector("source");
-                audioSource.src = randomSong.src;
-                audioSource.type = randomSong.type;
-                audio.load();
-                audio.muted = false;
-                audio.play();
-                currentMedia = audio;
+                if (audioSource.src && audioSource.src !== "" && !audioSource.src.includes("undefined")) {
+                    audio.load();
+                    audio.muted = false;
+                    audio.play();
+                    currentMedia = audio;
+                } else {
+                    currentMedia = null;
+                }
                 
                 const control = document.getElementById('videoModeControl');
                 if (control) control.style.display = 'none';

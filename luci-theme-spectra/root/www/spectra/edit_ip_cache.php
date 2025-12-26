@@ -1,7 +1,7 @@
 <?php
 header('Content-Type: application/json');
 
-$cacheFile = __DIR__ . '/ip_cache.json';
+$cacheFile = __DIR__ . '/lib/ip_cache.json';
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     echo json_encode(['success' => false, 'message' => 'Invalid request method']);

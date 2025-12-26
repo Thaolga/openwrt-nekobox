@@ -1453,28 +1453,28 @@ thead.table-light th {
         <div class="col-12">
             <div class="btn-toolbar justify-content-between px-1">
                 <div class="btn-group">
-                    <button type="button" class="btn btn-outline-secondary" onclick="goToParentDirectory()" title="Go Back" data-translate-title="goToParentDirectoryTitle">
+                    <button type="button" class="btn btn-outline-secondary" onclick="goToParentDirectory()" data-translate-tooltip="goToParentDirectoryTitle">
                         <i class="fas fa-arrow-left"></i>
                     </button>
-                    <button type="button" class="btn btn-outline-secondary" onclick="location.href='?dir=/'" title="Return to Root Directory" data-translate-title="rootDirectoryTitle">
+                    <button type="button" class="btn btn-outline-secondary" onclick="location.href='?dir=/'" data-translate-tooltip="rootDirectoryTitle">
                         <i class="fas fa-home"></i>
                     </button>
-                    <button type="button" class="btn btn-outline-secondary" onclick="location.href='?dir=/root'" title="Return to Home Directory" data-translate-title="homeDirectoryTitle">
+                    <button type="button" class="btn btn-outline-secondary" onclick="location.href='?dir=/root'" data-translate-tooltip="homeDirectoryTitle">
                         <i class="fas fa-user"></i>
                     </button>
-                    <button type="button" class="btn btn-outline-secondary" onclick="location.reload()" title="Refresh Directory Content" data-translate-title="refreshDirectoryTitle">
+                    <button type="button" class="btn btn-outline-secondary" onclick="location.reload()" data-translate-tooltip="refreshDirectoryTitle">
                         <i class="fas fa-sync-alt"></i>
                     </button>
                 </div>
 
                 <div class="btn-group">
-                    <button type="button" class="btn btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#searchModal" id="searchBtn" title="Search" data-translate-title="searchTitle">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#searchModal" id="searchBtn" data-translate-tooltip="searchTitle">
                         <i class="fas fa-search"></i>
                     </button>
-                    <button type="button" class="btn btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#createModal" id="createBtn" title="Create New" data-translate-title="createTitle">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#createModal" id="createBtn" data-translate-tooltip="createTitle">
                         <i class="fas fa-plus"></i>
                     </button>
-                    <button type="button" class="btn btn-outline-secondary" onclick="showUploadArea()" id="uploadBtn" title="Upload" data-translate-title="uploadTitle">
+                    <button type="button" class="btn btn-outline-secondary" onclick="showUploadArea()" id="uploadBtn" data-translate-tooltip="uploadTitle">
                         <i class="fas fa-upload"></i>
                     </button>
                 </div>
@@ -1754,14 +1754,14 @@ thead.table-light th {
                                                 data-bs-target="#renameModal"
                                                 onclick="showRenameModal('<?php echo htmlspecialchars($item['name']); ?>',
                                                                          '<?php echo htmlspecialchars($item['path']); ?>')"
-                                                data-translate-title="rename">
+                                                data-translate-tooltip="rename">
                                             <i class="fas fa-edit"></i>
                                         </button>
 
                                         <?php if (!$item['is_dir']): ?>
                                             <a href="?dir=<?php echo urlencode($current_dir); ?>&download=<?php echo urlencode($item['path']); ?>"
                                                class="btn btn-outline-info btn-sm action-btn"
-                                               data-translate-title="download">
+                                               data-translate-tooltip="download">
                                                 <i class="fas fa-download"></i>
                                             </a>
                                         <?php endif; ?>
@@ -1770,7 +1770,7 @@ thead.table-light th {
                                                 onclick="showChmodModal('<?php echo htmlspecialchars($item['path']); ?>',
                                                                         '<?php echo $item['permissions']; ?>')"
                                                 class="btn btn-outline-warning btn-sm action-btn"
-                                                data-translate-title="setPermissions">
+                                                data-translate-tooltip="setPermissions">
                                             <i class="fas fa-lock"></i>
                                         </button>
 
@@ -1782,7 +1782,7 @@ thead.table-light th {
                                             <input type="hidden" name="path" value="<?= htmlspecialchars($item['path']) ?>">
                                             <button type="submit"
                                                     class="btn btn-outline-danger btn-sm action-btn"
-                                                    data-translate-title="delete">
+                                                    data-translate-tooltip="delete">
                                                 <i class="fas fa-trash-alt"></i>
                                             </button>
                                         </form>

@@ -1,7 +1,7 @@
 <?php
 header('Content-Type: application/json');
 
-$cacheFile = __DIR__ . '/ip_cache.json';
+$cacheFile = __DIR__ . '/lib/ip_cache.json';
 $input = file_get_contents('php://input');
 
 if (!$input) {

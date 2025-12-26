@@ -245,7 +245,7 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 function loadPlaylistUrl() {
-    fetch('/luci-static/spectra/bgm/playlist_config.php', {
+    fetch('/spectra/playlist_config.php', {
         method: 'GET',
         headers: {
             'Content-Type': 'application/json'
@@ -266,7 +266,7 @@ function loadPlaylistUrl() {
 function openUrlModal() {
     const modal = document.getElementById('urlModal');
     modal.style.display = 'block';
-    fetch('/luci-static/spectra/bgm/playlist_config.php', {
+    fetch('/spectra/playlist_config.php', {
         method: 'GET',
         headers: {
             'Content-Type': 'application/json'
@@ -1107,7 +1107,7 @@ function savePlaylistUrl() {
     const urlInput = document.getElementById('playlistUrl');
     const newUrl = urlInput.value.trim();
     if (newUrl) {
-        fetch('/luci-static/spectra/bgm/playlist_config.php', {
+        fetch('/spectra/playlist_config.php', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -1141,7 +1141,7 @@ function savePlaylistUrl() {
 function resetToDefault() {
     const translations = languageTranslations[currentLang] || languageTranslations['zh'];  
     const defaultUrl = 'https://raw.githubusercontent.com/Thaolga/Rules/main/music/songs.txt';
-    fetch('/luci-static/spectra/bgm/playlist_config.php', {
+    fetch('/spectra/playlist_config.php', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json'
@@ -1341,7 +1341,7 @@ function fetchArtistImage(artist, title) {
 }
 
 function fetchArtistImageViaProxy(artist, title) {
-    const proxyUrl = '/luci-static/spectra/bgm/artist_proxy.php';
+    const proxyUrl = '/spectra/artist_proxy.php';
     const imageSource = localStorage.getItem('imageSource') || 'auto';
     
     fetch(proxyUrl, {
@@ -1638,7 +1638,7 @@ function fetchLyricsFromAPI(songUrl) {
     });
 
     const preferredSource = localStorage.getItem('lyricsSource') || 'auto';
-    const proxyUrl = '/luci-static/spectra/bgm/lyrics_proxy.php';
+    const proxyUrl = '/spectra/lyrics_proxy.php';
     
     // console.log('Sending request to proxy:', { preferredSource, artist, title, songName });
     

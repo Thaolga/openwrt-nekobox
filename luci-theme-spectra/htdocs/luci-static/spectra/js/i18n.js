@@ -4286,7 +4286,7 @@ function saveLanguage() {
     const languageText = translations[languageKey] || language;
     const standardCode = languageStandardMap[language] || language;
 
-    fetch('/luci-static/spectra/bgm/save_language.php', {
+    fetch('/spectra/save_language.php', {
         method: 'POST',
         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
         body: 'action=save_language&language=' + language
@@ -4329,7 +4329,7 @@ function saveLanguage() {
 }
 
 function initLanguage() {
-    fetch('/luci-static/spectra/bgm/save_language.php', {
+    fetch('/spectra/save_language.php', {
         method: 'POST',
         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
         body: 'action=get_language'
@@ -4514,7 +4514,7 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    fetch('/luci-static/spectra/bgm/save_language.php', {
+    fetch('/spectra/save_language.php', {
         method: 'POST',
         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
         body: 'action=get_language'

@@ -3,7 +3,7 @@ error_reporting(E_ALL);
 ini_set('display_errors', 1);
 header('Content-Type: application/json');
 
-$cacheFile = __DIR__ . '/weather_translation_cache.json';
+$cacheFile = __DIR__ . '/lib/weather_translation_cache.json';
 // $debugFile = __DIR__ . '/weather_translation_debug.log';
 
 function dbg($msg) {

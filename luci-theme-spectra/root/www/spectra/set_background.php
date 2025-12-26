@@ -1,5 +1,5 @@
 <?php
-$history_file = 'background_history.txt';
+$history_file = '/lib/background_history.txt';
 
 if (isset($_POST['file'])) {
     $newBackground = trim($_POST['file']);

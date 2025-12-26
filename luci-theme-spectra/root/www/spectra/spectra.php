@@ -1,5 +1,5 @@
 <?php
-$langFilePath = __DIR__ . '/language.txt';
+$langFilePath = __DIR__ . '/lib/language.txt';
 $defaultLang = 'en';
 
 $langData = [
@@ -366,7 +366,7 @@ $langData = [
         'current_path' => '当前路径',
         'disk'         => '磁盘',
         'root'         => '根目录', 
-        'selected_info' => '已选择 %d 个文件，合计 %s MB'
+        'file_summary' => '已选择 %d 个文件，合计 %s MB'
     ],
 
     'hk' => [
@@ -580,7 +580,7 @@ $langData = [
         'poor_needs_improvement' => '不足 (需要改進)',
         'mount_point' => '掛載點：',
         'used_space'  => '已用空間：',
-        'selected_info' => '已選擇 %d 個文件，合計 %s MB',
+        'file_summary' => '已選擇 %d 個文件，合計 %s MB',
         'pageTitle' => '檔案助手',
         'uploadBtn' => '上傳檔案',
         'rootDirectory' => '根目錄',
@@ -946,7 +946,7 @@ $langData = [
         'poor_needs_improvement' => '미흡 (개선 필요)',
         'mount_point' => '마운트 지점:',
         'used_space'  => '사용된 공간:',
-        'selected_info' => '선택된 파일: %d개, 총합: %s MB',
+        'file_summary' => '선택된 파일: %d개, 총합: %s MB',
         'pageTitle' => '파일 도우미',
         'uploadBtn' => '파일 업로드',
         'rootDirectory' => '루트 디렉토리',
@@ -1311,7 +1311,7 @@ $langData = [
         'poor_needs_improvement' => '不十分 (改善が必要)',
         'mount_point' => 'マウントポイント：',
         'used_space'  => '使用済み容量：',
-        'selected_info' => '%dファイル選択（%s MB）',
+        'file_summary' => '%dファイル選択（%s MB）',
         'pageTitle' => 'ファイルアシスタント',
         'uploadBtn' => 'ファイルをアップロード',
         'rootDirectory' => 'ルートディレクトリ',
@@ -1676,7 +1676,7 @@ $langData = [
         'poor_needs_improvement' => 'Kém (Cần cải thiện)',
         'mount_point' => 'Điểm gắn:',
         'used_space'  => 'Dung lượng đã sử dụng:',
-        'selected_info' => 'Đã chọn %d tệp (%s MB)',
+        'file_summary' => 'Đã chọn %d tệp (%s MB)',
         'pageTitle' => 'Trợ lý Tập tin',
         'uploadBtn' => 'Tải lên Tập tin',
         'rootDirectory' => 'Thư mục Gốc',
@@ -2025,7 +2025,7 @@ $langData = [
         'poor_needs_improvement' => 'ต่ำ (ต้องปรับปรุง)',
         'mount_point' => 'จุดเมานท์:',
         'used_space'  => 'พื้นที่ที่ใช้:',
-        'selected_info' => 'เลือกไฟล์แล้ว %d ไฟล์ รวมทั้งหมด %s MB',
+        'file_summary' => 'เลือกไฟล์แล้ว %d ไฟล์ รวมทั้งหมด %s MB',
         'pageTitle' => 'ผู้ช่วยจัดการไฟล์',
         'uploadBtn' => 'อัพโหลดไฟล์',
         'rootDirectory' => 'ไดเรกทอรีหลัก',
@@ -2375,7 +2375,7 @@ $langData = [
         'poor_needs_improvement' => 'Низкий (нуждается в улучшении)',
         'mount_point' => 'Точка монтирования:',
         'used_space'  => 'Используемое место:',
-        'selected_info' => 'Выбрано %d файлов, всего %s MB',
+        'file_summary' => 'Выбрано %d файлов, всего %s MB',
         'pageTitle' => 'Файловый помощник',
         'uploadBtn' => 'Загрузить файл',
         'rootDirectory' => 'Корневая директория',
@@ -2730,7 +2730,7 @@ $langData = [
         'poor_needs_improvement' => 'ضعيف (بحاجة إلى تحسين)',
         'mount_point' => 'نقطة التركيب:',
         'used_space'  => 'المساحة المستخدمة:',
-        'selected_info' => 'تم اختيار %d ملفات (%s ميجابايت)',
+        'file_summary' => 'تم اختيار %d ملفات (%s ميجابايت)',
         'pageTitle' => 'مساعد الملفات',
         'uploadBtn' => 'رفع ملف',
         'rootDirectory' => 'المجلد الرئيسي',
@@ -3079,7 +3079,7 @@ $langData = [
         'poor_needs_improvement' => 'Pobre (Necesita mejora)',
         'mount_point' => 'Punto de montaje:',
         'used_space'  => 'Espacio usado:',
-        'selected_info' => 'Seleccionados %d archivos, en total %s MB',
+        'file_summary' => 'Seleccionados %d archivos, en total %s MB',
         'pageTitle' => 'Asistente de Archivos',
         'uploadBtn' => 'Subir Archivo',
         'rootDirectory' => 'Directorio Raíz',
@@ -3428,7 +3428,7 @@ $langData = [
         'poor_needs_improvement' => 'Schlecht (Verbesserung nötig)',
         'mount_point' => 'Einbindungspunkt:',
         'used_space'  => 'Verwendeter Speicher:',
-        'selected_info' => '%d Dateien ausgewählt, insgesamt %s MB',
+        'file_summary' => '%d Dateien ausgewählt, insgesamt %s MB',
         'pageTitle' => 'Datei-Assistent',
         'uploadBtn' => 'Datei hochladen',
         'rootDirectory' => 'Stammverzeichnis',
@@ -3778,7 +3778,7 @@ $langData = [
         'poor_needs_improvement' => 'Insuffisant (À améliorer)',
         'mount_point' => 'Point de montage :',
         'used_space'  => 'Espace utilisé :',
-        'selected_info' => '%d fichiers sélectionnés, total de %s Mo',
+        'file_summary' => '%d fichiers sélectionnés, total de %s Mo',
         'pageTitle' => 'Assistant de Fichiers',
         'uploadBtn' => 'Téléverser un Fichier',
         'rootDirectory' => 'Répertoire Racine',
@@ -4140,7 +4140,7 @@ $langData = [
         'poor_needs_improvement' => 'Poor (Needs Improvement)',
         'mount_point' => 'Mount Point:',
         'used_space' => 'Used Space:',
-        'selected_info' => 'Selected %d files, total %s MB',
+        'file_summary' => 'Selected %d files, total %s MB',
         'pageTitle' => 'File Assistant',
         'uploadBtn' => 'Upload File',
         'rootDirectory' => 'Root Directory',
@@ -4489,7 +4489,7 @@ $langData = [
         'poor_needs_improvement' => 'খারাপ (উন্নতি প্রয়োজন)',
         'mount_point' => 'মাউন্ট পয়েন্ট:',
         'used_space'  => 'ব্যবহৃত স্থান:',
-        'selected_info' => '%d টি ফাইল নির্বাচিত, মোট %s MB',
+        'file_summary' => '%d টি ফাইল নির্বাচিত, মোট %s MB',
         'pageTitle' => 'ফাইল সহায়ক',
         'uploadBtn' => 'ফাইল আপলোড করুন',
         'rootDirectory' => 'রুট ডিরেক্টরি',
@@ -4708,7 +4708,7 @@ let translations = langData[currentLang] || langData['en'];
 function startLanguageMonitoring() {
     let currentLanguage = localStorage.getItem('language') || currentLang;   
     setInterval(() => {
-        fetch('/luci-static/spectra/bgm/save_language.php', {
+        fetch('./save_language.php', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/x-www-form-urlencoded',
@@ -4737,7 +4737,7 @@ function startLanguageMonitoring() {
 }
 
 document.addEventListener("DOMContentLoaded", () => {
-    fetch('/luci-static/spectra/bgm/save_language.php', {
+    fetch('./save_language.php', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/x-www-form-urlencoded',
@@ -4770,6 +4770,10 @@ document.addEventListener("DOMContentLoaded", () => {
         localStorage.setItem('language', currentLang);
         startLanguageMonitoring();
     });
+});
+
+document.addEventListener('DOMContentLoaded', function() {
+    initTooltips();
 });
 
 function updateLanguage(lang) {
@@ -4817,16 +4821,51 @@ function updateLanguage(lang) {
     });
 
     document.querySelectorAll('[data-translate-tooltip]').forEach(el => {
+        const translationKey = el.getAttribute('data-translate-tooltip');
+        
+        if (translations[translationKey]) {
+            el.setAttribute('data-tooltip-text', translations[translationKey]);
+        }
+        
         const mountPoint = el.getAttribute('data-mount-point');
         const usedSpace = el.getAttribute('data-used-space');
-    
-        if (mountPoint && usedSpace) {
-            const translatedTooltip = `${translations['mount_point']}${mountPoint}｜${translations['used_space']}${usedSpace}`;
-            el.setAttribute('data-tooltip', translatedTooltip);
+        if (mountPoint && usedSpace && translations) {
+            const translatedTooltip = `${translations['mount_point'] || 'Mount Point'}${mountPoint}｜${
+                translations['used_space'] || 'Used Space'}${usedSpace}`;
+            el.setAttribute('data-tooltip-text', translatedTooltip);
         }
     });
 
-    fetch("/luci-static/spectra/bgm/theme-switcher.php")
+    const activeTooltip = document.querySelector('.custom-tooltip.active');
+    if (activeTooltip && activeTooltip._activeTarget) {
+        const target = activeTooltip._activeTarget;
+        const text = target.getAttribute('data-tooltip-text');
+        if (text) {
+            activeTooltip.textContent = text;
+            const rect = target.getBoundingClientRect();
+            const tipRect = activeTooltip.getBoundingClientRect();
+            
+            let left = rect.left + (rect.width - tipRect.width) / 2;
+            let top = rect.top - tipRect.height - 8;
+            
+            if (left < 10) left = 10;
+            if (left + tipRect.width > window.innerWidth - 10) {
+                left = window.innerWidth - tipRect.width - 10;
+            }
+            
+            if (top < 10) {
+                top = rect.bottom + 8;
+                if (top + tipRect.height > window.innerHeight - 10) {
+                    top = rect.top - tipRect.height - 8;
+                }
+            }
+            
+            activeTooltip.style.left = left + 'px';
+            activeTooltip.style.top = top + 'px';
+        }
+    }
+
+    fetch("./theme-switcher.php")
         .then(res => res.json())
         .then(data => {
             if(data.mode) {
@@ -4836,6 +4875,140 @@ function updateLanguage(lang) {
         .catch(error => {
             //console.error("Error retrieving mode: " + error);
         });
+}
+
+function initTooltips() {
+    const existing = document.querySelector('.custom-tooltip');
+    if (existing) existing.remove();
+
+    const tooltip = document.createElement('div');
+    tooltip.className = 'custom-tooltip';
+    tooltip.style.zIndex = '2147483647';
+    document.body.appendChild(tooltip);
+
+    let activeTarget = null;
+    let scrollTimer;
+
+    function showTooltip(target) {
+        const text = target.getAttribute('data-tooltip-text') || target.getAttribute('title');
+        if (!text || activeTarget === target) return;
+
+        activeTarget = target;
+        tooltip._activeTarget = target;
+        tooltip.textContent = text;
+        tooltip.style.display = 'block';
+        tooltip.style.opacity = '0';
+
+        const originalTitle = target.getAttribute('title');
+        if (originalTitle) {
+            target._originalTitle = originalTitle;
+            target.removeAttribute('title');
+        }
+
+        setTimeout(() => {
+            const tipRect = tooltip.getBoundingClientRect();
+            const rect = target.getBoundingClientRect();
+
+            let left = rect.left + (rect.width - tipRect.width) / 2;
+            let top = rect.top - tipRect.height - 8;
+            let placement = 'top';
+
+            if (left < 10) left = 10;
+            if (left + tipRect.width > window.innerWidth - 10) {
+                left = window.innerWidth - tipRect.width - 10;
+            }
+
+            if (top < 10) {
+                top = rect.bottom + 8;
+                placement = 'bottom';
+
+                if (top + tipRect.height > window.innerHeight - 10) {
+                    top = rect.top - tipRect.height - 8;
+                    placement = 'top';
+
+                    if (top < 10) {
+                        top = rect.top + 8;
+                        placement = 'bottom';
+                    }
+                }
+            }
+
+            tooltip.style.left = left + 'px';
+            tooltip.style.top = top + 'px';
+            tooltip.setAttribute('data-placement', placement);
+            tooltip.style.opacity = '';
+            tooltip.classList.add('active');
+        }, 10);
+    }
+
+    function hideTooltip() {
+        tooltip.classList.remove('active');
+        
+        if (activeTarget && activeTarget._originalTitle) {
+            activeTarget.setAttribute('title', activeTarget._originalTitle);
+            delete activeTarget._originalTitle;
+        }
+        
+        activeTarget = null;
+        delete tooltip._activeTarget;
+        
+        setTimeout(() => {
+            if (!tooltip.classList.contains('active')) {
+                tooltip.style.display = 'none';
+            }
+        }, 200);
+    }
+
+    document.addEventListener('mouseover', e => {
+        const target = e.target.closest('[data-tooltip-text], [title]');
+        if (!target) return hideTooltip();
+
+        clearTimeout(target._tooltipTimer);
+        target._tooltipTimer = setTimeout(() => showTooltip(target), 200);
+    });
+
+    document.addEventListener('mouseout', e => {
+        const target = e.target.closest('[data-tooltip-text], [title]');
+        if (!target) return;
+
+        clearTimeout(target._tooltipTimer);
+        if (!e.relatedTarget?.closest('[data-tooltip-text], [title], .custom-tooltip')) {
+            hideTooltip();
+        }
+    });
+
+    document.addEventListener('touchstart', e => {
+        const target = e.target.closest('[data-tooltip-text], [title]');
+        if (!target) return hideTooltip();
+
+        clearTimeout(target._tooltipTimer);
+        target._tooltipTimer = setTimeout(() => showTooltip(target), 500);
+    });
+
+    document.addEventListener('touchend', hideTooltip);
+
+    window.addEventListener('scroll', () => {
+        clearTimeout(scrollTimer);
+        scrollTimer = setTimeout(hideTooltip, 100);
+    }, true);
+
+    window.addEventListener('resize', () => {
+        if (activeTarget) {
+            setTimeout(() => showTooltip(activeTarget), 100);
+        }
+    });
+
+    document.addEventListener('click', e => {
+        if (!tooltip.contains(e.target)) {
+            hideTooltip();
+        }
+    });
+
+    window.addEventListener('beforeunload', () => {
+        document.querySelectorAll('[data-tooltip-text], [title]').forEach(el => {
+            clearTimeout(el._tooltipTimer);
+        });
+    });
 }
 
 const languageStandardMap = {
@@ -4882,7 +5055,7 @@ function speakMessage(message) {
         }
 
         const xhr = new XMLHttpRequest();
-        xhr.open('GET', './language.txt', true);
+        xhr.open('GET', './lib/language.txt', true);
         xhr.onreadystatechange = function() {
             if (xhr.readyState === 4 && xhr.status === 200) {
                 const lang = xhr.responseText.trim();
@@ -4968,7 +5141,7 @@ function updateFlagIcon(lang) {
 function changeLanguage(lang) {
     const languageText = document.querySelector(`#langSelect option[value="${lang}"]`)?.text || lang;
     
-    fetch('/luci-static/spectra/bgm/save_language.php', {
+    fetch('./save_language.php', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/x-www-form-urlencoded',
@@ -5032,6 +5205,8 @@ function changeLanguage(lang) {
     --bg-container: oklch(30% var(--base-chroma) var(--base-hue));
     --text-primary: oklch(95% 0 0);
     --accent-color: oklch(70% 0.2 calc(var(--base-hue) + 0));
+    --accent-secondary: oklch(68% 0.22 calc(var(--base-hue) + 180));
+    --accent-tertiary: oklch(72% 0.18 calc(var(--base-hue) + 120));
     --card-bg: oklch(25% var(--base-chroma) var(--base-hue));
     --header-bg: oklch(35% var(--base-chroma) var(--base-hue));
     --border-color: oklch(40% var(--base-chroma) var(--base-hue));
@@ -5075,6 +5250,8 @@ function changeLanguage(lang) {
     --bg-container: oklch(99% var(--base-chroma) var(--base-hue));
     --text-primary: oklch(25% var(--base-chroma) var(--base-hue));
     --accent-color: oklch(60% 0.2 calc(var(--base-hue) + 60));
+    --accent-secondary: oklch(58% 0.25 calc(var(--base-hue) + 180));
+    --accent-tertiary: oklch(62% 0.2 calc(var(--base-hue) + 120));
     --card-bg: oklch(96% var(--base-chroma) var(--base-hue));
     --header-bg: oklch(88% var(--base-chroma) var(--base-hue));
     --border-color: oklch(85% var(--base-chroma) var(--base-hue));
@@ -5156,6 +5333,81 @@ function changeLanguage(lang) {
     font-weight: 700;
     src: url('/luci-static/spectra/fonts/cinzel-decorative-v17-latin-700.woff2') format('woff2');
 }
+
+.custom-tooltip {
+    position: fixed;
+    z-index: 2147483647 !important;
+    padding: 6px 12px;
+    font-size: 0.8rem;
+    line-height: 1.4;
+    background-color: color-mix(in oklch, var(--accent-color), transparent 10%);
+    color: #fff;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px oklch(0% 0 0 / 0.15);
+    white-space: nowrap;
+    pointer-events: none;
+    opacity: 0;
+    user-select: none;
+    -webkit-user-select: none;
+    transform: translateY(5px);
+    transition: opacity 0.2s ease, transform 0.2s ease;
+    backdrop-filter: var(--glass-blur, blur(10px));
+    border: var(--glass-border);
+    transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+.custom-tooltip.active {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.custom-tooltip::after {
+    content: '';
+    position: absolute;
+    width: 0;
+    height: 0;
+    border-style: solid;
+}
+
+.custom-tooltip[data-placement="top"]::after {
+    bottom: -6px;
+    left: 50%;
+    transform: translateX(-50%);
+    border-width: 6px 6px 0 6px;
+    border-color: color-mix(in oklch, var(--accent-color), transparent 10%)  transparent transparent transparent;
+}
+
+.custom-tooltip[data-placement="bottom"]::after {
+    top: -6px;
+    left: 50%;
+    transform: translateX(-50%);
+    border-width: 0 6px 6px 6px;
+    border-color: transparent transparent color-mix(in oklch, var(--accent-color), transparent 10%)  transparent;
+}
+
+[data-theme="dark"] .custom-tooltip {
+    background-color: color-mix(in oklch, var(--accent-tertiary), transparent 10%);
+}
+
+[data-theme="dark"] .custom-tooltip[data-placement="top"]::after {
+    border-color: color-mix(in oklch, var(--accent-tertiary), transparent 10%)  transparent transparent transparent;
+}
+
+[data-theme="dark"] .custom-tooltip[data-placement="bottom"]::after {
+    border-color: transparent transparent color-mix(in oklch, var(--accent-tertiary), transparent 10%)  transparent;
+}
+
+@keyframes tooltip-fade-in {
+    from {
+        opacity: 0;
+        transform: translateY(5px) scale(0.95);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
 </style>
     <link href="/luci-static/spectra/css/bootstrap-icons.css" rel="stylesheet">
     <link href="/luci-static/spectra/css/all.min.css" rel="stylesheet">

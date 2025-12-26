@@ -1,7 +1,11 @@
 <?php
 header('Content-Type: application/json');
 
-$language_file = __DIR__ . '/language.txt';
+$language_file = __DIR__ . '/lib/language.txt';
+
+if (!file_exists($language_file)) {
+    file_put_contents($language_file, '');
+}
 
 if ($_POST['action'] == 'save_language') {
     $language = $_POST['language'];
