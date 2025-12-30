@@ -1,0 +1,2472 @@
+let currentPlayingCard = null;
+let currentAudio = null;
+let currentYouTubePlayer = null; 
+let isManualStopping = false;
+let searchResults = [];
+let currentPage = 0;
+const itemsPerPage = 20;
+
+let currentPlaylist = [];
+let currentPlaylistIndex = -1;
+let isPlaylistMode = false;
+
+document.addEventListener('DOMContentLoaded', function() {
+    const translations = languageTranslations[currentLang] || languageTranslations['en'];
+    const playingCoverIcon = document.getElementById('playingCoverIcon');
+    const playingCoverImage = document.getElementById('playingCoverImage');
+    if (playingCoverIcon && playingCoverImage) {
+        playingCoverIcon.style.display = 'flex';
+        playingCoverImage.style.display = 'none';
+    }
+
+    document.getElementById('searchButton').addEventListener('click', function() {
+        performSearch(false);
+    });
+    
+    document.getElementById('searchInput').addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+            performSearch(false);
+        }
+    });
+
+    document.getElementById('downloadSearchBtn').addEventListener('click', function() {
+        if (currentPlayingCard && currentPlayingCard.dataset.previewUrl) {
+            downloadTrack(currentPlayingCard);
+        }
+    });
+    
+    document.getElementById('loadMoreButton').addEventListener('click', loadMoreResults);
+    
+    document.getElementById('playSearchBtn').addEventListener('click', function() {
+        if (currentAudio && currentAudio.paused) {
+            currentAudio.play();
+            this.innerHTML = '<i class="bi bi-pause-fill"></i>';
+        } else if (currentAudio && !currentAudio.paused) {
+            currentAudio.pause();
+            this.innerHTML = '<i class="bi bi-play-fill"></i>';
+        }
+    });
+
+    setTimeout(() => {
+        loadLatestCache().then(cacheData => {
+            if (cacheData && cacheData.results && cacheData.results.length > 0) {
+                document.getElementById('searchInput').value = cacheData.query || '';
+                document.getElementById('searchType').value = cacheData.type || 'song';
+                document.getElementById('searchSource').value = cacheData.source || 'itunes';
+                
+                searchResults = cacheData.results;
+                setTimeout(() => {
+                    displayResults(cacheData.results, cacheData.source, false, cacheData.type, true);
+                }, 50);
+            }
+        });
+    }, 100);
+
+    setTimeout(() => {
+        const translations = languageTranslations[currentLang] || languageTranslations['en'];
+        const savedPlaylist = loadPlaylistFromLocalStorage();
+        if (savedPlaylist && savedPlaylist.items && savedPlaylist.items.length > 0) {
+            
+            isPlaylistMode = true;
+            currentPlaylist = savedPlaylist.items;
+            currentPlaylistIndex = savedPlaylist.current_index >= 0 ? savedPlaylist.current_index : 0;
+            
+            const playAllBtn = document.getElementById('playAllBtn');
+            if (playAllBtn) {
+                const stopAllText = translations['stop_all'] || 'Stop All';
+                playAllBtn.innerHTML = `<i class="bi bi-stop-circle"></i> ${stopAllText}`;
+                playAllBtn.classList.add('playing');
+                playAllBtn.onclick = stopPlaylistMode;
+            }
+            
+            showPlaylistUI(currentPlaylist);
+            updatePlaylistProgress();           
+            if (savedPlaylist.current_index >= 0 && savedPlaylist.current_index < savedPlaylist.items.length) {
+                playFromPlaylist(savedPlaylist.current_index);
+            }
+        }
+    }, 1000);
+   
+    document.getElementById('stopSearchBtn').addEventListener('click', function() {
+        stopPlayback();
+    });
+    
+    document.getElementById('prevBtn').addEventListener('click', playPrevSong);
+    document.getElementById('nextBtn').addEventListener('click', playNextSong);
+    
+    const seekBar = document.getElementById('timeSeek');
+    seekBar.addEventListener('input', handleTimeSeek);
+    seekBar.addEventListener('change', handleTimeSeek);
+    setTimeout(setupYouTubeHoverPreview, 1000);
+    document.getElementById('playAllBtn').addEventListener('click', playAllSongs);
+    
+    addApiKeyConfigButton();
+    
+    if (typeof updateUIText === 'function') {
+        updateUIText();
+    }
+});
+
+const CACHE_API = '/spectra/search_cache.php';
+
+function saveToPHPCache(query, type, source, results) {
+    const formData = new FormData();
+    formData.append('query', query);
+    formData.append('type', type);
+    formData.append('source', source);
+    formData.append('results', JSON.stringify(results));
+    
+    fetch(CACHE_API, {
+        method: 'POST',
+        body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+        }
+    })
+    .catch(error => {
+    });
+}
+
+function loadFromPHPCache(query, type, source) {
+    return fetch(`${CACHE_API}?query=${encodeURIComponent(query)}&type=${type}&source=${source}`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                return data.data;
+            }
+            return null;
+        })
+        .catch(error => {
+            return null;
+        });
+}
+
+function loadLatestCache() {
+    return fetch(`${CACHE_API}?get_latest=1`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                return data.data;
+            }
+            return null;
+        })
+        .catch(error => {
+            return null;
+        });
+}
+
+function playPrevSong() {
+    const translations = languageTranslations[currentLang] || languageTranslations['en'];
+    
+    if (isPlaylistMode && currentPlaylist.length > 0) {
+        const prevIndex = currentPlaylistIndex - 1;
+        if (prevIndex >= 0) {
+            playFromPlaylist(prevIndex);
+        } else {
+            playFromPlaylist(currentPlaylist.length - 1);
+        }
+    } else {
+        if (currentPlayingCard) {
+            const allCards = Array.from(document.querySelectorAll('.music-card'));
+            const playableCards = allCards.filter(card => {
+                return card.dataset.isArtist !== 'true' && card.dataset.isAlbum !== 'true';
+            });
+            
+            if (playableCards.length > 1) {
+                const currentIndex = playableCards.findIndex(card => card === currentPlayingCard);
+                if (currentIndex > 0) {
+                    playMusic(playableCards[currentIndex - 1]);
+                } else if (currentIndex === 0) {
+                    playMusic(playableCards[playableCards.length - 1]);
+                }
+            } else {
+                const message = translations['no_previous_song'] || 'No previous song available';
+                showLogMessage(message);
+                speakMessage(message);
+            }
+        }
+    }
+}
+
+function playNextSong() {
+    const translations = languageTranslations[currentLang] || languageTranslations['en'];
+    
+    if (isPlaylistMode && currentPlaylist.length > 0) {
+        const nextIndex = currentPlaylistIndex + 1;
+        if (nextIndex < currentPlaylist.length) {
+            playFromPlaylist(nextIndex);
+        } else {
+            playFromPlaylist(0);
+        }
+    } else {
+        if (currentPlayingCard) {
+            const allCards = Array.from(document.querySelectorAll('.music-card'));
+            const playableCards = allCards.filter(card => {
+                return card.dataset.isArtist !== 'true' && card.dataset.isAlbum !== 'true';
+            });
+            
+            if (playableCards.length > 1) {
+                const currentIndex = playableCards.findIndex(card => card === currentPlayingCard);
+                if (currentIndex < playableCards.length - 1) {
+                    playMusic(playableCards[currentIndex + 1]);
+                } else if (currentIndex === playableCards.length - 1) {
+                    playMusic(playableCards[0]);
+                }
+            } else {
+                const message = translations['no_next_song'] || 'No next song available';
+                showLogMessage(message);
+                speakMessage(message);
+            }
+        }
+    }
+}
+
+function stopPlayback() {
+    if (currentAudio) {
+        currentAudio.pause();
+        currentAudio.currentTime = 0;
+        const playBtn = document.getElementById('playSearchBtn');
+        if (playBtn) playBtn.innerHTML = '<i class="bi bi-play-fill"></i>';
+        currentAudio = null;
+    }
+    
+    if (window.currentYouTubeModal) {
+        window.currentYouTubeModal.hide();
+        window.currentYouTubeModal = null;
+    }
+    
+    const timeContainer = document.querySelector('.playing-time-container');
+    if (timeContainer) timeContainer.style.display = 'flex';
+    
+    document.querySelectorAll('.music-card.active').forEach(card => {
+        card.classList.remove('active');
+    });
+    currentPlayingCard = null;
+}
+
+function handleTimeSeek(e) {
+    if (!currentAudio || !currentAudio.duration) return;
+    
+    const value = parseInt(e.target.value);
+    const seekTime = (currentAudio.duration * value) / 100;
+    currentAudio.currentTime = seekTime;
+}
+
+function updateTimeProgress() {
+    if (!currentAudio || !currentAudio.duration) return;
+    
+    const timeContainer = document.querySelector('.playing-time-container');
+    const currentTimeElement = document.getElementById('currentTime');
+    const totalTimeElement = document.getElementById('totalTime');
+    const progressElement = document.getElementById('timeProgress');
+    const thumbElement = document.getElementById('timeThumb');
+    const seekBar = document.getElementById('timeSeek');
+    
+    const currentTime = currentAudio.currentTime;
+    const duration = currentAudio.duration;
+    const percentage = (currentTime / duration) * 100 || 0;
+    
+    progressElement.style.width = `${percentage}%`;
+    thumbElement.style.left = `${percentage}%`;
+    seekBar.value = percentage;
+    
+    currentTimeElement.textContent = formatTime(currentTime);
+    totalTimeElement.textContent = formatTime(duration);
+    
+    if (!currentAudio.paused && !currentAudio.ended) {
+        requestAnimationFrame(updateTimeProgress);
+    }
+}
+
+function formatTime(seconds) {
+    if (!seconds || isNaN(seconds)) return '0:00';
+    
+    const mins = Math.floor(seconds / 60);
+    const secs = Math.floor(seconds % 60);
+    return `${mins}:${secs.toString().padStart(2, '0')}`;
+}
+
+async function performSearch(isLoadMore = false) {
+    const translations = languageTranslations[currentLang] || languageTranslations['en'];
+    const query = document.getElementById('searchInput').value.trim();
+    const type = document.getElementById('searchType').value;
+    const source = document.getElementById('searchSource').value;
+    
+    if (!query) {
+        const message = translations['enter_search_keywords'] || 'Please enter search keywords';
+        showLogMessage(message);
+        speakMessage(message);
+        return;
+    }
+
+    // if (source !== 'itunes') {
+    //     const sourceNames = {
+    //         'spotify': 'Spotify',
+    //         'youtube': 'YouTube', 
+    //         'soundcloud': 'SoundCloud'
+    //     };
+    //     
+    //     const messageTemplate = translations['api_config_needed'] || '{source} requires API configuration. Click the "Configure API Keys" button.';
+    //     const message = messageTemplate.replace('{source}', sourceNames[source]);
+    //     showLogMessage(message);
+    //     
+    //     const configBtn = document.getElementById('apiKeyConfigBtn');
+    //     if (configBtn) {
+    //         configBtn.classList.add('btn-pulse');
+    //         setTimeout(() => configBtn.classList.remove('btn-pulse'), 3000);
+    //     }
+    //
+    //     return;
+    // }
+       
+    if (!isLoadMore) {
+        currentPage = 0;
+        searchResults = [];
+        if (isPlaylistMode) {
+            stopPlaylistMode();
+        }
+
+        const cacheData = await loadFromPHPCache(query, type, source);
+        if (cacheData && cacheData.results && cacheData.results.length > 0) {
+            searchResults = cacheData.results;
+            displayResults(cacheData.results, source, false, type, true);
+            
+            executeSearch(query, type, source, isLoadMore);
+            return;
+        }
+    }
+    
+    const searchTypeMap = {
+        'song': translations['song_type'] || 'Songs',
+        'artist': translations['artist_type'] || 'Artists',
+        'album': translations['album_type'] || 'Albums',
+        'playlist': translations['playlist_type'] || 'Playlists'
+    };
+    
+    const searchTypeText = searchTypeMap[type] || type;
+    //showLogMessage(`${searchTypeText}: ${query}`);
+    
+    const resultsContainer = document.getElementById('resultsContainer');
+    if (!isLoadMore) {
+        resultsContainer.innerHTML = `
+            <div class="loading">
+                <div class="loading-spinner"></div>
+            </div>
+        `;
+    }
+    
+    if (!isLoadMore) {
+        document.getElementById('loadMoreContainer').style.display = 'none';
+        document.getElementById('playAllBtn').style.display = 'none';
+    }
+    
+    executeSearch(query, type, source, isLoadMore);
+}
+
+function executeSearch(query, type, source, isLoadMore = false) {
+    switch(source) {
+        case 'itunes':
+            searchITunes(query, type, isLoadMore);
+            break;
+        case 'spotify':
+            searchSpotify(query, type, isLoadMore);
+            break;
+        case 'youtube':
+            searchYouTube(query, type, isLoadMore);
+            break;
+        case 'soundcloud':
+            searchSoundCloud(query, type, isLoadMore);
+            break;
+        default:
+            searchITunes(query, type, isLoadMore);
+    }
+}
+
+function searchITunes(query, type, isLoadMore = false) {
+    const translations = languageTranslations[currentLang] || languageTranslations['en'];
+    
+    const offset = currentPage * itemsPerPage;
+    
+    fetch('/spectra/search_proxy.php', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({
+            source: 'itunes',
+            query: query,
+            type: type,
+            limit: itemsPerPage,
+            offset: offset
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success && data.results && data.results.length > 0) {
+            if (!isLoadMore) {
+                searchResults = data.results;
+            } else {
+                searchResults = searchResults.concat(data.results);
+            }
+            
+            displayResults(data.results, 'itunes', isLoadMore, type, false);
+            
+            if (!isLoadMore) {
+                saveToPHPCache(query, type, 'itunes', searchResults);
+            }
+        } else {
+            if (isLoadMore) {
+                showLogMessage(translations['no_more_results'] || 'No more results');
+            } else {
+                showNoResults();
+            }
+        }
+    })
+    .catch(error => {
+        showLogMessage(translations['load_failed'] || 'Failed to load more results');
+    });
+}
+
+function searchSpotify(query, type, isLoadMore = false) {
+    const translations = languageTranslations[currentLang] || languageTranslations['en'];
+    
+    const offset = currentPage * itemsPerPage;
+    
+    fetch('/spectra/search_proxy.php', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({
+            source: 'spotify',
+            query: query,
+            type: type,
+            limit: itemsPerPage,
+            offset: offset
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success && data.results && data.results.length > 0) {
+            displayResults(data.results, 'spotify', isLoadMore, type, false);
+            if (!isLoadMore) {
+                saveToPHPCache(query, type, 'spotify', searchResults);
+            }
+        } else {
+            if (isLoadMore) {
+                showLogMessage(translations['no_more_results'] || 'No more results');
+            } else {
+                showNoResults();
+            }
+        }
+    })
+    .catch(error => {
+        if (isLoadMore) {
+            showLogMessage(translations['load_failed'] || 'Failed to load more results');
+        } else {
+            showNoResults();
+        }
+    });
+}
+
+let youtubeNextPageToken = null;
+let youtubePrevPageToken = null;
+
+function searchYouTube(query, type, isLoadMore = false) {
+    const translations = languageTranslations[currentLang] || languageTranslations['en'];
+    
+    if (!isLoadMore) {
+        youtubeNextPageToken = null;
+        youtubePrevPageToken = null;
+    }
+
+    fetch('/spectra/search_proxy.php', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({
+            source: 'youtube',
+            query: query,
+            type: type,
+            limit: itemsPerPage,
+            pageToken: isLoadMore ? youtubeNextPageToken : null
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success && data.results && data.results.length > 0) {
+            youtubeNextPageToken = data.nextPageToken || null;
+            youtubePrevPageToken = data.prevPageToken || null;
+
+            displayResults(data.results, 'youtube', isLoadMore, type, false);
+            if (!isLoadMore) {
+                saveToPHPCache(query, type, 'youtube', searchResults);
+            }
+        } else {
+            if (isLoadMore) {
+                showLogMessage(translations['no_more_results'] || 'No more results');
+            } else {
+                showNoResults();
+            }
+        }
+    })
+    .catch(error => {
+        if (isLoadMore) {
+            showLogMessage(translations['load_failed'] || 'Failed to load more results');
+        } else {
+            showNoResults();
+        }
+    });
+}
+
+function searchSoundCloud(query, type, isLoadMore = false) {
+    const translations = languageTranslations[currentLang] || languageTranslations['en'];
+    fetch('/spectra/search_proxy.php', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            source: 'soundcloud',
+            query: query,
+            type: type,
+            limit: itemsPerPage
+        })
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        return response.json();
+    })
+    .then(data => {
+        if (data.success && data.results && data.results.length > 0) {
+            displayResults(data.results, 'soundcloud', isLoadMore, type, false);
+            if (!isLoadMore) {
+                saveToPHPCache(query, type, 'soundcloud', searchResults);
+            }
+        } else {
+            if (isLoadMore) {
+                const message = translations['no_results_found'] || `No results found`;
+                showLogMessage(message);
+            } else {
+                showNoResults();
+            }
+        }
+    })
+    .catch(error => {
+        if (isLoadMore) {
+            const message = translations['load_failed'] || `Failed to load more results`;
+            showLogMessage(message);
+        } else {
+            showNoResults();
+        }
+    });
+}
+
+function displayResults(results, source, isLoadMore = false, searchType, fromCache = false) {
+    const translations = languageTranslations[currentLang] || languageTranslations['en'];
+    const container = document.getElementById('resultsContainer');
+
+    if (source === 'youtube') {
+        setTimeout(() => {
+            setupYouTubeHoverPreview();
+        }, 100);
+    }
+
+    if (!isLoadMore && results.length === 0) {
+        showNoResults();
+        return;
+    }
+    
+    if (!isLoadMore) {
+        container.innerHTML = '';
+    }
+    
+    const resultsCountElement = document.getElementById('resultsCount');
+    if (!isLoadMore) {
+        const totalResults = results.length;
+        const countMessageTemplate = translations['results_count'] || '{count} results';
+        resultsCountElement.textContent = countMessageTemplate.replace('{count}', totalResults);
+    } else {
+        const currentCount = document.querySelectorAll('.music-card').length + results.length;
+        const countMessageTemplate = translations['results_count'] || '{count} results';
+        resultsCountElement.textContent = countMessageTemplate.replace('{count}', currentCount);
+    }
+
+    if (!fromCache && !isLoadMore) {
+        const countMessageTemplate = translations['search_results_count'] || 'Found {count} results';
+        const countMessage = countMessageTemplate.replace('{count}', results.length);
+        showLogMessage(countMessage);
+        speakMessage(countMessage);
+    }
+    
+    results.forEach((item, index) => {
+        const cardIndex = isLoadMore ? searchResults.length + index : index;
+        const card = createMusicCard(item, source, cardIndex, searchType);
+        if (card) {
+            container.appendChild(card);
+        }
+    });
+    
+    searchResults = searchResults.concat(results);
+    
+    const loadMoreContainer = document.getElementById('loadMoreContainer');
+    if (results.length >= itemsPerPage) {
+        loadMoreContainer.style.display = 'block';
+    } else {
+        loadMoreContainer.style.display = 'none';
+    }
+    
+    updatePlayAllButton();
+}
+
+function updatePlayAllButton() {
+    const playAllBtn = document.getElementById('playAllBtn');
+    const allCards = document.querySelectorAll('.music-card');
+    
+    const playableCards = Array.from(allCards).filter(card => {
+        return card.dataset.isArtist !== 'true' && card.dataset.isAlbum !== 'true';
+    });
+    
+    if (playableCards.length > 0) {
+        playAllBtn.style.display = 'flex';
+        playAllBtn.disabled = false;
+    } else {
+        playAllBtn.style.display = 'none';
+        playAllBtn.disabled = true;
+    }
+}
+
+function playAllSongs() {
+    const translations = languageTranslations[currentLang] || languageTranslations['en'];
+    const allCards = Array.from(document.querySelectorAll('.music-card'));
+    const validCards = allCards.filter(card => {
+        return card.dataset.isArtist !== 'true' && 
+               card.dataset.isAlbum !== 'true' &&
+               card.dataset.previewUrl && 
+               card.dataset.previewUrl.trim() !== '';
+    });
+    
+    if (validCards.length === 0) {
+        const message = translations['no_playable_songs'] || 'No playable songs found';
+        showLogMessage(message);
+        speakMessage(message);
+        return;
+    }
+    
+    stopPlayback();
+
+    const playlistItems = validCards.map((card, currentIndex) => ({
+        title: card.dataset.title,
+        artist: card.dataset.artist,
+        cover: card.dataset.cover,
+        previewUrl: card.dataset.previewUrl,
+        duration: card.dataset.duration || '--:--',
+        source: card.dataset.source,
+        cardIndex: card.dataset.index
+    }));
+    
+    savePlaylistToLocalStorage(playlistItems, 0);
+    
+    isPlaylistMode = true;
+    currentPlaylist = playlistItems;
+    currentPlaylistIndex = 0;
+    
+    const playAllBtn = document.getElementById('playAllBtn');
+    if (playAllBtn) {
+        const stopAllText = translations['stop_all'] || 'Stop All';
+        playAllBtn.innerHTML = `<i class="bi bi-stop-circle"></i> ${stopAllText}`;
+        playAllBtn.classList.add('playing');
+        playAllBtn.onclick = stopPlaylistMode;
+    }
+    
+    showPlaylistUI(playlistItems);
+    
+    if (playlistItems.length > 0) {
+        playFromPlaylist(0);
+    }
+}
+
+function savePlaylistToLocalStorage(items, startIndex = 0) {
+    try {
+        const playlist = {
+            current_index: startIndex,
+            items: items,
+            created_at: Date.now()
+        };
+        localStorage.setItem('spectra_playlist', JSON.stringify(playlist));
+    } catch (error) {}
+}
+
+function loadPlaylistFromLocalStorage() {
+    try {
+        const saved = localStorage.getItem('spectra_playlist');
+        if (saved) {
+            const playlist = JSON.parse(saved);
+            return playlist;
+        }
+    } catch (error) {}
+    return null;
+}
+
+function updateCurrentIndexToLocalStorage(index) {
+    try {
+        const saved = localStorage.getItem('spectra_playlist');
+        if (saved) {
+            const playlist = JSON.parse(saved);
+            playlist.current_index = index;
+            playlist.updated_at = Date.now();
+            localStorage.setItem('spectra_playlist', JSON.stringify(playlist));
+        }
+    } catch (error) {}
+}
+
+function removeCurrentFromPlaylist() {
+    if (currentPlaylistIndex >= 0 && currentPlaylistIndex < currentPlaylist.length) {
+        currentPlaylist.splice(currentPlaylistIndex, 1);
+        
+        if (currentPlaylistIndex >= currentPlaylist.length && currentPlaylist.length > 0) {
+            currentPlaylistIndex = 0;
+        } else if (currentPlaylist.length === 0) {
+            currentPlaylistIndex = -1;
+        }
+        
+        savePlaylistToLocalStorage(currentPlaylist, currentPlaylistIndex);
+        
+        showPlaylistUI(currentPlaylist);
+        
+        if (currentPlaylistIndex >= 0 && currentPlaylistIndex < currentPlaylist.length) {
+            playFromPlaylist(currentPlaylistIndex);
+        } else if (currentPlaylist.length > 0) {
+            playFromPlaylist(0);
+        } else {
+            const translations = languageTranslations[currentLang] || languageTranslations['en'];
+            const message = translations['playlist_completed'] || 'Playlist completed';
+            showLogMessage(message);
+            speakMessage(message);
+            stopPlaylistMode();
+        }
+    }
+}
+
+function playFromPlaylist(index) {
+    
+    if (!currentPlaylist || index < 0 || index >= currentPlaylist.length) {
+        return;
+    }
+    
+    const item = currentPlaylist[index];
+    currentPlaylistIndex = index;
+        
+    updateCurrentIndexToLocalStorage(index);
+    playMusicFromPlaylist(item, index);
+    updatePlaylistHighlight(index);
+    updatePlaylistProgress();
+}
+
+function playMusicFromPlaylist(item, index) {
+    const translations = languageTranslations[currentLang] || languageTranslations['en'];
+    isManualStopping = false;    
+
+    if (currentAudio) {
+        currentAudio.pause();
+        currentAudio = null;
+    }
+    
+    const playingCoverIcon = document.getElementById('playingCoverIcon');
+    const playingCoverImage = document.getElementById('playingCoverImage');
+    
+    if (item.cover && item.cover.trim() !== '' && !item.cover.startsWith('data:image/svg+xml')) {
+        playingCoverImage.src = item.cover;
+        playingCoverImage.onerror = function() {
+            this.style.display = 'none';
+            playingCoverIcon.style.display = 'flex';
+            playingCoverImage.classList.remove('visible');
+            playingCoverIcon.classList.remove('hidden');
+        };
+        playingCoverImage.onload = function() {
+            this.style.display = 'block';
+            playingCoverIcon.style.display = 'none';
+            playingCoverImage.classList.add('visible');
+            playingCoverIcon.classList.add('hidden');
+        };
+        playingCoverImage.style.display = 'block';
+        playingCoverIcon.style.display = 'none';
+    } else {
+        playingCoverImage.style.display = 'none';
+        playingCoverIcon.style.display = 'flex';
+        playingCoverImage.classList.remove('visible');
+        playingCoverIcon.classList.remove('hidden');
+    }
+    
+    const playingTitle = document.getElementById('playingTitle');
+    const playingArtist = document.getElementById('playingArtist');
+    
+    playingTitle.textContent = item.title;
+    playingTitle.removeAttribute('data-translate');
+    
+    playingArtist.textContent = item.artist;
+    playingArtist.removeAttribute('data-translate');
+    
+    document.getElementById('downloadSearchBtn').disabled = false;
+    document.getElementById('prevBtn').disabled = false;
+    document.getElementById('nextBtn').disabled = false;
+    
+    const timeContainer = document.querySelector('.playing-time-container');
+    timeContainer.style.display = 'flex';
+    
+    const playBtn = document.getElementById('playSearchBtn');
+    const stopBtn = document.getElementById('stopSearchBtn');
+    playBtn.disabled = false;
+    stopBtn.disabled = false;
+    playBtn.innerHTML = '<i class="bi bi-pause-fill"></i>';
+    
+    const previewUrl = item.previewUrl;
+    
+    if (!previewUrl) {
+        const message = translations['no_preview_available'] || 'No preview available for this track';
+        showLogMessage(message);
+        speakMessage(message);
+        
+        removeCurrentFromPlaylist();
+        return;
+    }
+
+    const playingText = translations['playing'] || 'Playing';
+    const playMessage = `${playingText}: ${item.title} - ${item.artist}`;
+    showLogMessage(playMessage);
+    speakMessage(playMessage);
+    
+    currentAudio = new Audio(previewUrl);
+    
+    currentAudio.addEventListener('play', function() {
+        playBtn.innerHTML = '<i class="bi bi-pause-fill"></i>';
+        updateTimeProgress();
+        updatePlaylistProgress();
+    });
+    
+    currentAudio.addEventListener('pause', function() {
+        playBtn.innerHTML = '<i class="bi bi-play-fill"></i>';
+    });
+    
+    currentAudio.addEventListener('ended', function() {
+        playBtn.innerHTML = '<i class="bi bi-play-fill"></i>';
+        
+        if (isPlaylistMode && currentPlaylist.length > 0) {
+            if (currentPlaylistIndex < currentPlaylist.length - 1) {
+                setTimeout(() => {
+                    playFromPlaylist(currentPlaylistIndex + 1);
+                }, 1000);
+            } else {
+                const message = translations['playlist_completed'] || 'Playlist completed';
+                showLogMessage(message);
+                speakMessage(message);
+                stopPlaylistMode();
+            }
+        }
+    });
+    
+    currentAudio.addEventListener('loadedmetadata', function() {
+        const totalTimeElement = document.getElementById('totalTime');
+        totalTimeElement.textContent = formatTime(currentAudio.duration);
+    });
+    
+    currentAudio.addEventListener('timeupdate', function() {
+        updateTimeProgress();
+    });
+    
+    currentAudio.addEventListener('error', function(e) {
+        if (isManualStopping) {
+            playBtn.innerHTML = '<i class="bi bi-play-fill"></i>';
+            return;
+        }
+        
+        const message = translations['cannot_play_track'] || 'Cannot play this track. It may require authorization or the URL is invalid.';
+        showLogMessage(message);
+        speakMessage(message);
+        playBtn.innerHTML = '<i class="bi bi-play-fill"></i>';
+        
+        removeCurrentFromPlaylist();
+    });
+    
+    currentAudio.play().catch(error => {
+        if (isManualStopping) {
+            playBtn.innerHTML = '<i class="bi bi-play-fill"></i>';
+            return;
+        }
+
+        const message = translations['cannot_play_track'] || 'Cannot play this track. It may require authorization or the URL is invalid.';
+        showLogMessage(message);
+        speakMessage(message);
+        playBtn.innerHTML = '<i class="bi bi-play-fill"></i>';
+        
+        removeCurrentFromPlaylist();
+    });
+}
+
+function saveSearchState() {
+    const searchState = {
+        query: document.getElementById('searchInput').value,
+        type: document.getElementById('searchType').value,
+        source: document.getElementById('searchSource').value
+    };
+    localStorage.setItem('spectra_search_state', JSON.stringify(searchState));
+}
+
+function loadSearchState() {
+    try {
+        const saved = localStorage.getItem('spectra_search_state');
+        if (saved) {
+            const state = JSON.parse(saved);
+            if (state.query) document.getElementById('searchInput').value = state.query;
+            if (state.type) document.getElementById('searchType').value = state.type;
+            if (state.source) document.getElementById('searchSource').value = state.source;
+        }
+    } catch (e) {
+    }
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    loadSearchState();
+    
+    const searchInput = document.getElementById('searchInput');
+    const searchType = document.getElementById('searchType');
+    const searchSource = document.getElementById('searchSource');
+    
+    let saveTimeout;
+    function debounceSave() {
+        clearTimeout(saveTimeout);
+        saveTimeout = setTimeout(saveSearchState, 500);
+    }
+    
+    searchInput.addEventListener('input', debounceSave);
+    searchType.addEventListener('change', saveSearchState);
+    searchSource.addEventListener('change', saveSearchState);
+});
+
+function playYouTubeVideoInModal(videoUrl, title, card) {
+    let videoId;
+    try {
+        const urlObj = new URL(videoUrl);
+        videoId = urlObj.searchParams.get('v');
+    } catch (e) {
+        return;
+    }
+    if (!videoId) return;
+
+    if (window.currentYouTubeModal) {
+        window.currentYouTubeModal.hide();
+    }
+
+    window.currentYouTubeCard = card;
+
+    const modalId = 'youtube-modal-' + Date.now();
+    const modalHTML = `
+<div id="${modalId}" class="uk-modal" uk-modal="bg-close: false">
+    <div class="uk-modal-dialog youtube-modal-dialog">
+        <button class="uk-modal-close-default" type="button" uk-close></button>
+        <div class="uk-modal-header youtube-modal-header">
+            <h3 class="uk-modal-title" style="color: var(--accent-color);">
+                <span class="uk-icon uk-margin-small-right" uk-icon="icon: youtube; ratio: 1.5"></span>
+                YouTube
+            </h3>
+        </div>
+        <div class="uk-modal-body youtube-modal-body">
+            <div id="player-container-${modalId}" class="youtube-player-container"></div>
+        </div>
+        <div class="uk-modal-footer youtube-modal-footer">
+            <div class="uk-flex uk-flex-between uk-flex-middle">
+                <div class="uk-button-group">
+                    <button class="uk-button uk-margin-small-left uk-button-success" 
+                            data-tooltip-title="previous_track" onclick="playPrevYouTubeVideo()"> 
+                        <i class="bi bi-skip-backward-fill"></i>
+                    </button>
+                    <button class="uk-button uk-margin-small-left uk-button-primary youtube-playpause-btn" 
+                            data-tooltip-title="play_pause" onclick="toggleYouTubePlayPause()">
+                        <i class="bi bi-pause-fill"></i>
+                    </button>
+                    <button class="uk-button uk-margin-small-left uk-button-success" 
+                            data-tooltip-title="next_track" onclick="playNextYouTubeVideo()">
+                        <i class="bi bi-skip-forward-fill"></i>
+                    </button>
+                </div>
+                <div class="uk-button-group">
+                    <button class="uk-button uk-button-success" onclick="toggleModalFullscreen('${modalId}')" title="fullscreen">
+                        <i class="bi bi-fullscreen"></i>
+                    </button>
+                    <a href="${videoUrl}" target="_blank" class="uk-button uk-margin-small-left uk-button-primary" data-tooltip-title="open_on_youtube">
+                        <span uk-icon="icon: youtube; ratio: 1.2"></span>
+                    </a>
+                    <button id="close-btn-${modalId}" class="uk-button uk-button-danger uk-margin-small-left" data-tooltip-title="close">
+                        <i class="bi bi-x-circle-fill"></i> 
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>`;
+
+    let modalContainer = document.getElementById('youtube-modals-container');
+    if (!modalContainer) {
+        modalContainer = document.createElement('div');
+        modalContainer.id = 'youtube-modals-container';
+        document.body.appendChild(modalContainer);
+    }
+
+    modalContainer.innerHTML = '';
+    modalContainer.innerHTML = modalHTML;
+
+    const modalElement = document.getElementById(modalId);
+    if (!modalElement) return;
+
+    const modal = UIkit.modal(modalElement, {
+        bgclose: false,
+        keyboard: true,
+        stack: true
+    });
+
+    const closeButton = document.getElementById(`close-btn-${modalId}`);
+    if (closeButton) {
+        closeButton.addEventListener('click', () => {
+            modal.hide(); // Close the modal
+        });
+    }
+
+    window.currentYouTubeModal = modal;
+    window.currentYouTubeModalId = modalId;
+    window.currentYouTubeVideoId = videoId;
+    updateUIText();
+    modal.show();
+    initModalDrag(modalId);
+
+    UIkit.util.on(modalElement, 'shown', function() {
+        setTimeout(() => {
+            createYouTubePlayer(modalId, videoId, title);
+            checkAndRestoreFullscreen(modalId);
+        }, 100);
+    });
+
+    UIkit.util.on(modalElement, 'hidden', function() {
+        cleanupYouTubeModal(modalId, modal, card);
+    });
+}
+
+function initModalDrag(modalId) {
+    const modalElement = document.getElementById(modalId);
+    if (!modalElement) return;
+    
+    const dialog = modalElement.querySelector('.uk-modal-dialog');
+    const header = modalElement.querySelector('.uk-modal-header');
+    
+    if (!dialog || !header) return;
+    
+    let isDragging = false;
+    let startX, startY, startLeft, startTop;
+    
+    header.addEventListener('mousedown', startDrag);
+    header.addEventListener('touchstart', startDragTouch);
+    
+    function startDrag(e) {
+        e.preventDefault();
+        isDragging = true;
+        startX = e.clientX;
+        startY = e.clientY;
+        
+        const rect = dialog.getBoundingClientRect();
+        startLeft = rect.left;
+        startTop = rect.top;
+        
+        document.addEventListener('mousemove', onDrag);
+        document.addEventListener('mouseup', stopDrag);
+    }
+    
+    function startDragTouch(e) {
+        if (e.touches.length !== 1) return;
+        e.preventDefault();
+        isDragging = true;
+        startX = e.touches[0].clientX;
+        startY = e.touches[0].clientY;
+        
+        const rect = dialog.getBoundingClientRect();
+        startLeft = rect.left;
+        startTop = rect.top;
+        
+        document.addEventListener('touchmove', onDragTouch);
+        document.addEventListener('touchend', stopDragTouch);
+    }
+    
+    function onDrag(e) {
+        if (!isDragging) return;
+        e.preventDefault();
+        
+        const deltaX = e.clientX - startX;
+        const deltaY = e.clientY - startY;
+        
+        dialog.style.position = 'fixed';
+        dialog.style.left = (startLeft + deltaX) + 'px';
+        dialog.style.top = (startTop + deltaY) + 'px';
+        dialog.style.margin = '0';
+        dialog.style.transform = 'none';
+    }
+    
+    function onDragTouch(e) {
+        if (!isDragging || e.touches.length !== 1) return;
+        e.preventDefault();
+        
+        const deltaX = e.touches[0].clientX - startX;
+        const deltaY = e.touches[0].clientY - startY;
+        
+        dialog.style.position = 'fixed';
+        dialog.style.left = (startLeft + deltaX) + 'px';
+        dialog.style.top = (startTop + deltaY) + 'px';
+        dialog.style.margin = '0';
+        dialog.style.transform = 'none';
+    }
+    
+    function stopDrag() {
+        isDragging = false;
+        document.removeEventListener('mousemove', onDrag);
+        document.removeEventListener('mouseup', stopDrag);
+    }
+    
+    function stopDragTouch() {
+        isDragging = false;
+        document.removeEventListener('touchmove', onDragTouch);
+        document.removeEventListener('touchend', stopDragTouch);
+    }
+    
+    header.addEventListener('dblclick', function() {
+        dialog.style.position = '';
+        dialog.style.left = '';
+        dialog.style.top = '';
+        dialog.style.margin = '';
+        dialog.style.transform = '';
+    });
+}
+
+function createYouTubePlayer(modalId, videoId, title) {
+    const translations = languageTranslations[currentLang] || languageTranslations['en'];
+    const container = document.getElementById(`player-container-${modalId}`);
+    if (!container) return;
+
+    container.innerHTML = '';
+
+    const iframe = document.createElement('iframe');
+    iframe.id = `youtube-iframe-${modalId}`;
+
+    const params = new URLSearchParams({
+        'autoplay': '1',
+        'rel': '0',
+        'modestbranding': '1',
+        'playsinline': '1',
+        'enablejsapi': '1',
+        'widgetid': '1',
+        'fs': '1',
+        'origin': window.location.origin,
+        'iv_load_policy': '3',
+        'disablekb': '0',
+        'controls': '1',
+        'showinfo': '0',
+        'mute': '0',
+        'cc_load_policy': '1',
+        'cc_lang_pref': 'zh-TW',
+        'hl': 'zh-TW',
+        'color': 'red',
+        'theme': 'dark',
+        'autohide': '1',
+        'wmode': 'transparent',
+        'vq': 'hd1080',
+        'playlist': videoId,
+    });
+    
+    iframe.src = `https://www.youtube.com/embed/${videoId}?${params.toString()}`;
+
+    iframe.allow = 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share; fullscreen';
+    
+    // iframe.setAttribute('allowfullscreen', '');
+    // iframe.allowFullscreen = true;
+    // iframe.setAttribute('webkitallowfullscreen', '');
+    // iframe.setAttribute('mozallowfullscreen', '');
+    
+    const playingText = translations['playing'] || 'Playing';
+    iframe.title = `${playingText}: ${title}`;
+    
+    iframe.style.width = '100%';
+    iframe.style.height = '100%';
+    iframe.style.minHeight = '400px';
+    iframe.style.border = 'none';
+    iframe.style.background = '#000';
+    iframe.style.display = 'block';
+
+    container.appendChild(iframe);
+
+    window.currentYouTubeIframe = iframe;
+
+    iframe.addEventListener('load', function() {
+        try {
+            const listenMessage = {
+                event: 'listening',
+                id: 1,
+                channel: 'widget'
+            };
+            iframe.contentWindow.postMessage(JSON.stringify(listenMessage), '*');
+
+            setTimeout(() => {
+                const getInfoMessage = {
+                    event: 'command',
+                    func: 'getPlayerState',
+                    args: '',
+                    id: 1,
+                    channel: 'widget'
+                };
+                iframe.contentWindow.postMessage(JSON.stringify(getInfoMessage), '*');
+            }, 1000);
+        } catch (e) {}
+
+        setupYouTubeMessageListener(modalId);
+    });
+}
+
+function toggleModalFullscreen(modalId) {
+    const dialog = document.querySelector(`#${modalId} .uk-modal-dialog`);
+    if (!dialog) return;
+    
+    const btn = document.querySelector(`#${modalId} .uk-button[onclick*="toggleModalFullscreen"] i`);
+    
+    if (dialog.style.width === '100vw') {
+        dialog.style.cssText = '';
+        if (btn) btn.className = 'bi bi-fullscreen';
+        localStorage.setItem('youtube_fullscreen_state', '0');
+    } else {
+        dialog.style.cssText = `
+            width: 100vw !important;
+            height: 100vh !important;
+            max-width: 100vw !important;
+            max-height: 100vh !important;
+            margin: 0 !important;
+            border-radius: 0 !important;
+            position: fixed !important;
+            top: 0 !important;
+            left: 0 !important;
+            z-index: 9999 !important;
+        `;
+        if (btn) btn.className = 'bi bi-fullscreen-exit';
+        localStorage.setItem('youtube_fullscreen_state', '1');
+    }
+}
+
+function checkAndRestoreFullscreen(modalId) {
+    const fullscreenState = localStorage.getItem('youtube_fullscreen_state');
+    
+    if (fullscreenState === '1') {
+        setTimeout(() => {
+            const dialog = document.querySelector(`#${modalId} .uk-modal-dialog`);
+            const btn = document.querySelector(`#${modalId} .uk-button[onclick*="toggleModalFullscreen"] i`);
+            
+            if (dialog && btn) {
+                dialog.style.cssText = `
+                    width: 100vw !important;
+                    height: 100vh !important;
+                    max-width: 100vw !important;
+                    max-height: 100vh !important;
+                    margin: 0 !important;
+                    border-radius: 0 !important;
+                    position: fixed !important;
+                    top: 0 !important;
+                    left: 0 !important;
+                    z-index: 9999 !important;
+                `;
+                btn.className = 'bi bi-fullscreen-exit';
+            }
+        }, 100);
+    }
+}
+
+function setupYouTubeMessageListener(modalId) {
+    if (window.youtubeMessageHandler) {
+        window.removeEventListener('message', window.youtubeMessageHandler);
+    }
+
+    const messageHandler = function(event) {
+        if (event.origin !== 'https://www.youtube.com' && 
+            event.origin !== 'https://www.youtube-nocookie.com') return;
+
+        try {
+            let data;
+            if (typeof event.data === 'string') {
+                data = JSON.parse(event.data);
+            } else if (typeof event.data === 'object') {
+                data = event.data;
+            } else {
+                return;
+            }
+
+            if (data.event === 'infoDelivery' && data.info && data.info.playerState !== undefined) {
+                const playerState = data.info.playerState;
+
+                const button = document.querySelector(`#youtube-modal-${window.currentYouTubeModalId} .youtube-playpause-btn i`);
+                if (button) {
+                    if (playerState === 1) {
+                        button.className = 'bi bi-pause-fill';
+                    } else if (playerState === 2 || playerState === 0) {
+                        button.className = 'bi bi-play-fill';
+                    }
+                }
+
+                if (playerState === 0) {
+                    setTimeout(() => {
+                        playNextYouTubeVideo();
+                    }, 1000);
+                }
+            }
+
+            if (data.event === 'onStateChange') {
+                const button = document.querySelector(`#youtube-modal-${window.currentYouTubeModalId} .youtube-playpause-btn i`);
+                if (button) {
+                    if (data.info === 1) {
+                        button.className = 'bi bi-pause-fill';
+                    } else if (data.info === 2 || data.info === 0) {
+                        button.className = 'bi bi-play-fill';
+                    }
+                }
+
+                if (data.info === 0) {
+                    setTimeout(() => {
+                        playNextYouTubeVideo();
+                    }, 1000);
+                }
+            }
+        } catch (e) {}
+    };
+
+    window.addEventListener('message', messageHandler);
+    window.youtubeMessageHandler = messageHandler;
+}
+
+function toggleYouTubePlayPause() {
+    const button = document.querySelector('.youtube-playpause-btn i');
+    
+    if (!button) return;
+    
+    const iframes = document.querySelectorAll('iframe[src*="youtube.com/embed"]');
+    const iframe = iframes[iframes.length - 1];
+    
+    if (!iframe) return;
+    
+    if (button.classList.contains('bi-pause-fill')) {
+        try {
+            iframe.contentWindow.postMessage('{"event":"command","func":"pauseVideo","args":""}', '*');
+        } catch (e) {
+            iframe.src = iframe.src.replace('autoplay=1', 'autoplay=0');
+        }
+        button.className = 'bi bi-play-fill';
+    } else {
+        try {
+            iframe.contentWindow.postMessage('{"event":"command","func":"playVideo","args":""}', '*');
+        } catch (e) {
+            let src = iframe.src;
+            if (!src.includes('autoplay=1')) {
+                src = src.includes('?') ? src + '&autoplay=1' : src + '?autoplay=1';
+                iframe.src = src;
+            }
+        }
+        button.className = 'bi bi-pause-fill';
+    }
+}
+
+function playPrevYouTubeVideo() {
+    if (window.currentYouTubeCard) {
+        const allCards = Array.from(document.querySelectorAll('.music-card[data-source="youtube"]'));
+        const currentIndex = allCards.findIndex(card => card === window.currentYouTubeCard);
+        
+        if (currentIndex > 0) {
+            const prevCard = allCards[currentIndex - 1];
+            playMusic(prevCard);
+        } else if (allCards.length > 0) {
+            playMusic(allCards[allCards.length - 1]);
+        }
+    }
+}
+
+function playNextYouTubeVideo() {
+    if (window.currentYouTubeCard) {
+        const allCards = Array.from(document.querySelectorAll('.music-card[data-source="youtube"]'));
+        const currentIndex = allCards.findIndex(card => card === window.currentYouTubeCard);
+        
+        if (currentIndex < allCards.length - 1) {
+            const nextCard = allCards[currentIndex + 1];
+            playMusic(nextCard);
+        } else if (allCards.length > 0) {
+            playMusic(allCards[0]);
+        }
+    }
+}
+
+function cleanupYouTubeModal(modalId, modal, card) {
+    const iframe = window.currentYouTubeIframe;
+    if (iframe) {
+        try {
+            iframe.contentWindow.postMessage('{"event":"command","func":"stopVideo","args":""}', '*');
+        } catch (e) { }
+        iframe.src = '';
+        window.currentYouTubeIframe = null;
+    }
+    
+    if (window.youtubeMessageHandler) {
+        window.removeEventListener('message', window.youtubeMessageHandler);
+        window.youtubeMessageHandler = null;
+    }
+    
+    const modalElement = document.getElementById(modalId);
+    if (modalElement && modalElement.parentNode) {
+        modalElement.parentNode.removeChild(modalElement);
+    }
+    
+    if (window.currentYouTubeModal === modal) {
+        window.currentYouTubeModal = null;
+        window.currentYouTubeModalId = null;
+        window.currentYouTubeCard = null;
+        window.currentYouTubeVideoId = null;
+    }
+    
+    if (currentPlayingCard === card) {
+        card.classList.remove('active');
+        currentPlayingCard = null;
+    }
+}
+
+let hoverPreviewTimer = null;
+let hoverPreviewModal = null;
+let currentHoverCard = null;
+
+function setupYouTubeHoverPreview() {
+    document.querySelectorAll('.music-card[data-source="youtube"]').forEach(card => {
+        card.addEventListener('mouseenter', () => startHoverPreview(card));
+        card.addEventListener('mouseleave', stopHoverPreview);
+    });
+}
+
+function startHoverPreview(card) {
+    if (currentHoverCard === card && hoverPreviewModal) return;
+    
+    stopHoverPreview();
+    
+    currentHoverCard = card;
+    
+    hoverPreviewTimer = setTimeout(() => {
+        const videoId = getYouTubeVideoId(card.dataset.previewUrl);
+        if (videoId) showYouTubePreview(card, videoId);
+    }, 500);
+}
+
+function getYouTubeVideoId(url) {
+    try {
+        return new URL(url).searchParams.get('v');
+    } catch {
+        return null;
+    }
+}
+
+function showYouTubePreview(card, videoId) {
+    const cardRect = card.getBoundingClientRect();
+    
+    const previewHTML = `
+        <div class="youtube-preview-modal">
+            <div class="preview-container">
+                <iframe 
+                    width="400" 
+                    height="225" 
+                    src="https://www.youtube.com/embed/${videoId}?autoplay=1&controls=1&modestbranding=1&rel=0&playsinline=1"
+                    frameborder="0" 
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                    allowfullscreen
+                    title="${card.dataset.title}">
+                </iframe>
+            </div>
+        </div>`;
+    
+    const temp = document.createElement('div');
+    temp.innerHTML = previewHTML;
+    hoverPreviewModal = temp.firstElementChild;
+    
+    positionPreview(cardRect);
+    
+    document.body.appendChild(hoverPreviewModal);
+    
+    hoverPreviewModal.addEventListener('mouseenter', () => {
+        if (hoverPreviewTimer) {
+            clearTimeout(hoverPreviewTimer);
+            hoverPreviewTimer = null;
+        }
+    });
+    
+    hoverPreviewModal.addEventListener('mouseleave', () => {
+        stopHoverPreview();
+    });
+}
+
+function positionPreview(cardRect) {
+    const modalWidth = 400;
+    const modalHeight = 225;
+    const viewport = {
+        width: window.innerWidth,
+        height: window.innerHeight
+    };
+    
+    let left = cardRect.right + 10;
+    let top = cardRect.bottom - modalHeight;
+    
+    if (left + modalWidth > viewport.width) {
+        left = cardRect.left - modalWidth - 10;
+    }
+    
+    if (top + modalHeight > viewport.height) {
+        top = viewport.height - modalHeight - 10;
+    }
+    
+    if (top < 10) {
+        top = cardRect.bottom + 10;
+    }
+    
+    hoverPreviewModal.style.cssText = `
+        position: fixed;
+        left: ${Math.max(10, left)}px;
+        top: ${Math.max(10, top)}px;
+        z-index: 9999;
+        pointer-events: auto;
+    `;
+}
+
+function stopHoverPreview() {
+    if (hoverPreviewTimer) {
+        clearTimeout(hoverPreviewTimer);
+        hoverPreviewTimer = null;
+    }
+    
+    if (hoverPreviewModal) {
+        const iframe = hoverPreviewModal.querySelector('iframe');
+        if (iframe) {
+            try {
+                iframe.src = '';
+            } catch (e) {}
+        }
+        
+        hoverPreviewModal.remove();
+        hoverPreviewModal = null;
+    }
+    
+    currentHoverCard = null;
+}
+
+function stopPlaylistMode() {   
+    const translations = languageTranslations[currentLang] || languageTranslations['en'];
+
+    isManualStopping = true;
+    
+    if (currentAudio) {
+        try {
+            currentAudio.pause();
+            currentAudio.currentTime = 0;
+            currentAudio = null;
+        } catch (error) {
+        }
+    }
+    
+    stopPlayback();
+    isPlaylistMode = false;
+    currentPlaylist = [];
+    currentPlaylistIndex = -1;
+    
+    const playAllBtn = document.getElementById('playAllBtn');
+    if (playAllBtn) {
+        const playAllText = translations['play_all'] || 'Play All';
+        playAllBtn.innerHTML = `<i class="bi bi-play-circle"></i> ${playAllText}`;
+        playAllBtn.classList.remove('playing');
+        playAllBtn.onclick = playAllSongs;
+    }
+    
+    const playlistContainer = document.querySelector('.spectra-playlist-container');
+    if (playlistContainer) {
+        playlistContainer.remove();
+    }
+    
+    localStorage.removeItem('spectra_playlist');
+    setTimeout(() => {
+        isManualStopping = false;
+    }, 100);
+}
+
+function showPlaylistUI(playlistItems) {
+    const translations = languageTranslations[currentLang] || languageTranslations['en'];
+    const existingPlaylist = document.querySelector('.spectra-playlist-container');
+    if (existingPlaylist) {
+        existingPlaylist.remove();
+    }
+    
+    const resultsContainer = document.getElementById('resultsContainer');
+    const playlistContainer = document.createElement('div');
+    playlistContainer.className = 'spectra-playlist-container';
+
+    const playlistText = translations['playlist'] || 'Playlist';
+    const playingText = translations['playing'] || 'Playing';
+    
+    const playlistHeader = document.createElement('div');
+    playlistHeader.className = 'spectra-playlist-header';
+    playlistHeader.innerHTML = `
+        <h4 data-translate="playlist">Playlist</h4>
+        <div class="spectra-playall-progress">
+            <div class="spectra-progress-info">
+                <span data-translate="playing">Playing</span>
+                <span>${currentPlaylistIndex + 1} / ${playlistItems.length}</span>
+            </div>
+            <div class="spectra-progress-bar">
+                <div class="spectra-progress-fill" id="playAllProgress"></div>
+            </div>
+        </div>
+    `;
+    
+    const playlistList = document.createElement('div');
+    playlistList.className = 'spectra-playlist-list';
+    
+    playlistItems.forEach((item, index) => {
+        const playlistItem = document.createElement('div');
+        playlistItem.className = 'spectra-playlist-item';
+        playlistItem.dataset.index = index;
+        
+        playlistItem.innerHTML = `
+            <div class="spectra-playlist-item-index">${index + 1}</div>
+            <div class="spectra-playlist-item-info">
+                <div class="spectra-playlist-item-title" title="${item.title}">${item.title}</div>
+                <div class="spectra-playlist-item-artist" title="${item.artist}">${item.artist}</div>
+            </div>
+            <div class="spectra-playlist-item-duration">${item.duration || '--:--'}</div>
+            <div class="spectra-playlist-item-actions">
+                <button class="btn-icon" onclick="playFromPlaylist(${index})">
+                    <i class="bi bi-play-fill"></i>
+                </button>
+            </div>
+        `;
+        
+        playlistItem.addEventListener('click', function(e) {
+            if (!e.target.closest('.btn-icon')) {
+                playFromPlaylist(index);
+            }
+        });
+        
+        playlistList.appendChild(playlistItem);
+    });
+    
+    playlistContainer.appendChild(playlistHeader);
+    playlistContainer.appendChild(playlistList);
+    resultsContainer.parentNode.insertBefore(playlistContainer, resultsContainer.nextSibling);
+    updatePlaylistHighlight(currentPlaylistIndex);
+    updateUIText();
+}
+
+function scrollToPlaylistItem(index) {
+    const playlistItem = document.querySelector(`.spectra-playlist-item[data-index="${index}"]`);
+    
+    if (playlistItem) {
+        try {
+            playlistItem.scrollIntoView({
+                behavior: 'smooth',
+                block: 'center',
+                inline: 'nearest'
+            });
+        } catch (error) {
+            playlistItem.scrollIntoView({ block: 'center' });
+        }
+    }
+}
+
+function updatePlaylistHighlight(index) {
+    const playlistItems = document.querySelectorAll('.spectra-playlist-item');
+    playlistItems.forEach((item, i) => {
+        if (i === index) {
+            item.classList.add('playing');
+            scrollToPlaylistItem(index);
+        } else {
+            item.classList.remove('playing');
+        }
+    });
+}
+
+function updatePlaylistProgress() {
+    const progressInfo = document.querySelector('.spectra-progress-info');
+    const progressFill = document.getElementById('playAllProgress');
+    
+    if (progressInfo && currentPlaylist && currentPlaylist.length > 0) {
+        const playingText = (languageTranslations[currentLang] || languageTranslations['en'])['playing'] || 'Playing';
+        progressInfo.innerHTML = `
+            <span data-translate="playing">${playingText}</span>
+            <span>${currentPlaylistIndex + 1} / ${currentPlaylist.length}</span>
+        `;
+        
+        if (progressFill) {
+            const progressPercent = ((currentPlaylistIndex + 1) / currentPlaylist.length) * 100;
+            progressFill.style.width = `${progressPercent}%`;
+        }
+        
+        if (typeof updateUIText === 'function') {
+            updateUIText();
+        }
+    }
+}
+
+function formatYouTubeDuration(isoDuration) {
+    if (!isoDuration) return '--:--';
+    
+    try {
+        let timeStr = isoDuration.replace('PT', '');
+        
+        let hours = 0, minutes = 0, seconds = 0;
+        
+        const hourMatch = timeStr.match(/(\d+)H/);
+        if (hourMatch) {
+            hours = parseInt(hourMatch[1]) || 0;
+            timeStr = timeStr.replace(hourMatch[0], '');
+        }
+        
+        const minuteMatch = timeStr.match(/(\d+)M/);
+        if (minuteMatch) {
+            minutes = parseInt(minuteMatch[1]) || 0;
+            timeStr = timeStr.replace(minuteMatch[0], '');
+        }
+        
+        const secondMatch = timeStr.match(/(\d+)S/);
+        if (secondMatch) {
+            seconds = parseInt(secondMatch[1]) || 0;
+            timeStr = timeStr.replace(secondMatch[0], '');
+        }
+        
+        if (hours > 0) {
+            return `${hours}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+        } else if (minutes > 0) {
+            return `${minutes}:${seconds.toString().padStart(2, '0')}`;
+        } else {
+            return `0:${seconds.toString().padStart(2, '0')}`;
+        }
+    } catch (error) {
+        return '--:--';
+    }
+}
+
+function createMusicCard(item, source, index, searchType) {
+    const card = document.createElement('div');
+    card.className = 'music-card';
+    card.dataset.index = index;
+    card.dataset.source = source;
+    card.dataset.resultType = searchType;
+    
+    let title, artist, album, cover, duration, previewUrl, isArtistCard = false, isAlbumCard = false;
+    
+    try {
+        switch(source) {
+            case 'itunes':
+                if (searchType === 'artist') {
+                    title = item.artistName || item.collectionArtistName || 'Unknown Artist';
+                    artist = '';
+                    album = '';
+                    cover = item.artworkUrl100?.replace('100x100bb', '300x300bb') || 
+                            '/luci-static/resources/icons/artist.svg';
+                    duration = null;
+                    previewUrl = '';
+                    isArtistCard = true;
+                } else if (searchType === 'album') {
+                    title = item.collectionName || 'Unknown Album';
+                    artist = item.artistName || 'Unknown Artist';
+                    album = '';
+                    cover = item.artworkUrl100?.replace('100x100bb', '300x300bb') || 
+                            '/luci-static/resources/icons/album.svg';
+                    duration = null;
+                    previewUrl = '';
+                    isAlbumCard = true;
+                } else {
+                    title = item.trackName || item.collectionName || 'Unknown Track';
+                    artist = item.artistName || 'Unknown Artist';
+                    album = item.collectionName || '';
+                    cover = item.artworkUrl100?.replace('100x100bb', '300x300bb') || 
+                            item.artworkUrl60?.replace('60x60bb', '300x300bb') ||
+                            '/luci-static/resources/icons/cover.svg';
+                    duration = item.trackTimeMillis ? formatDuration(item.trackTimeMillis) : null;
+                    previewUrl = item.previewUrl || '';
+                }
+                break;
+                
+            case 'spotify':
+                if (searchType === 'artist') {
+                    title = item.name || 'Unknown Artist';
+                    artist = '';
+                    album = '';
+                    cover = item.images?.[0]?.url || '/luci-static/resources/icons/artist.svg';
+                    duration = null;
+                    previewUrl = '';
+                    isArtistCard = true;
+                } else if (searchType === 'album') {
+                    title = item.name || 'Unknown Album';
+                    artist = item.artists?.map(a => a.name).join(', ') || 'Unknown Artist';
+                    album = '';
+                    cover = item.images?.[0]?.url || '/luci-static/resources/icons/album.svg';
+                    duration = null;
+                    previewUrl = '';
+                    isAlbumCard = true;
+                } else {
+                    title = item.name || 'Unknown Track';
+                    artist = item.artists?.map(a => a.name).join(', ') || 'Unknown Artist';
+                    album = item.album?.name || '';
+                    cover = item.album?.images?.[0]?.url || 
+                            item.images?.[0]?.url ||
+                            '/luci-static/resources/icons/cover.svg';
+                    duration = item.duration_ms ? formatDuration(item.duration_ms) : null;
+                    previewUrl = item.preview_url || '';
+                }
+                break;
+                
+            case 'youtube':
+                title = item.title || 'Unknown Video';
+                artist = item.channelTitle || 'YouTube';
+                album = '';
+                cover = item.thumbnails?.medium?.url || 
+                        item.thumbnails?.default?.url ||
+                        '/luci-static/resources/icons/cover.svg';
+                const testDuration = formatYouTubeDuration(item.duration);        
+                duration = testDuration;
+                previewUrl = item.id ? `https://www.youtube.com/watch?v=${item.id}` : '';
+                break;
+                
+            case 'soundcloud':
+                title = item.title || 'Unknown Track';
+                artist = item.user?.username || 'SoundCloud';
+                album = '';
+                cover = item.artwork_url || '/luci-static/resources/icons/cover.svg';
+                duration = item.duration ? formatDuration(item.duration) : null;
+                previewUrl = item.stream_url || item.permalink_url || '';
+                break;
+        }
+    } catch (error) {
+        return null;
+    }
+    
+    card.dataset.title = title || 'Unknown Title';
+    card.dataset.artist = artist || 'Unknown Artist';
+    card.dataset.album = album || '';
+    card.dataset.cover = cover;
+    card.dataset.previewUrl = previewUrl || '';
+    card.dataset.duration = duration || '';
+    card.dataset.source = source;
+    card.dataset.isArtist = isArtistCard ? 'true' : 'false';
+    card.dataset.isAlbum = isAlbumCard ? 'true' : 'false';
+    
+    if (isArtistCard) {
+        card.classList.add('artist-card');
+        card.innerHTML = `
+            <div class="card-cover">
+                <img src="${cover}" alt="${title}" 
+                     onerror="this.src='/luci-static/resources/icons/artist.svg'">
+                <div class="card-overlay">
+                    <div class="play-overlay">
+                        <i class="bi bi-person-fill"></i>
+                    </div>
+                </div>
+            </div>
+            <div class="card-content">
+                <div class="card-title" title="${title}">${title}</div>
+                <div class="card-artist" data-translate="artist">Artist</div>
+            </div>
+        `;
+        
+        card.addEventListener('click', function(e) {
+            e.stopPropagation();
+            searchArtistSongs(title);
+        });
+        
+        return card;
+    }
+    
+    if (isAlbumCard) {
+        card.classList.add('album-card');
+        card.innerHTML = `
+            <div class="card-cover">
+                <img src="${cover}" alt="${title}" 
+                     onerror="this.src='/luci-static/resources/icons/album.svg'">
+                <div class="card-overlay">
+                    <div class="play-overlay">
+                        <i class="bi bi-disc-fill"></i>
+                    </div>
+                </div>
+            </div>
+            <div class="card-content">
+                <div class="card-title" title="${title}">${title}</div>
+                <div class="card-artist" title="${artist}">${artist}</div>
+                <div class="card-album" data-translate="album">Album</div>
+            </div>
+        `;
+        
+        card.addEventListener('click', function(e) {
+            e.stopPropagation();
+            searchAlbumSongs(title, artist);
+        });
+        
+        return card;
+    }
+    
+    card.innerHTML = `
+        <div class="card-cover">
+            <img src="${cover}" alt="${title}" 
+                 onerror="this.src='/luci-static/resources/icons/cover.svg'">
+            <div class="card-overlay">
+                <div class="play-overlay">
+                    <i class="bi bi-play-fill"></i>
+                </div>
+            </div>
+            ${duration ? `<div class="card-duration">${duration}</div>` : ''}
+        </div>
+        <div class="card-content">
+            <div class="card-title" title="${title}">${title}</div>
+            <div class="card-artist" title="${artist}">${artist}</div>
+            ${album ? `<div class="card-album" title="${album}">${album}</div>` : ''}
+        </div>
+    `;
+    
+    card.addEventListener('click', function(e) {
+        if (!e.target.closest('.play-overlay')) {
+            playMusic(this);
+        }
+    });
+    
+    const playOverlay = card.querySelector('.play-overlay');
+    if (playOverlay) {
+        playOverlay.addEventListener('click', function(e) {
+            e.stopPropagation();
+            playMusic(card);
+        });
+    }
+    
+    return card;
+}
+
+function searchArtistSongs(artistName) {
+    const translations = languageTranslations[currentLang] || languageTranslations['en'];
+    document.getElementById('searchInput').value = artistName;
+    document.getElementById('searchType').value = 'song';
+    
+    currentPage = 0;
+    searchResults = [];
+    performSearch(false);
+    
+    const messageTemplate = translations['searching_artist_songs'] || `Searching songs by {artist}`;
+    const message = messageTemplate.replace('{artist}', artistName);
+    showLogMessage(message);
+}
+
+function searchAlbumSongs(albumName, artistName) {
+    const translations = languageTranslations[currentLang] || languageTranslations['en'];
+    let searchQuery = albumName;
+    if (artistName) {
+        searchQuery = `${artistName} ${albumName}`;
+    }
+    
+    document.getElementById('searchInput').value = searchQuery;
+    document.getElementById('searchType').value = 'song';
+    
+    currentPage = 0;
+    searchResults = [];
+    performSearch(false);
+    
+    const messageTemplate = translations['searching_album_songs'] || `Searching album: {album}`;
+    const message = messageTemplate.replace('{album}', albumName);
+    showLogMessage(message);
+}
+
+function playMusic(card) {
+    const translations = languageTranslations[currentLang] || languageTranslations['en'];
+    
+    if (card.dataset.isArtist === 'true') {
+        searchArtistSongs(card.dataset.title);
+        return;
+    }
+    if (card.dataset.isAlbum === 'true') {
+        searchAlbumSongs(card.dataset.title, card.dataset.artist);
+        return;
+    }
+
+    if (isPlaylistMode) {
+        stopPlaylistMode();
+    }
+    
+    stopPlayback();
+    
+    if (currentPlayingCard) {
+        currentPlayingCard.classList.remove('active');
+    }
+    card.classList.add('active');
+    currentPlayingCard = card;
+    
+    const previewUrl = card.dataset.previewUrl;
+    const source = card.dataset.source;
+    
+    if (!previewUrl || previewUrl.trim() === '') {
+        const message = translations['no_preview_available'] || 'No preview available for this track';
+        showLogMessage(message);
+        speakMessage(message);
+        return;
+    }
+
+    const playingText = translations['playing'] || 'Playing';
+    const playMessage = `${playingText}: ${card.dataset.title} - ${card.dataset.artist}`;
+    showLogMessage(playMessage);
+    speakMessage(playMessage);
+
+    if (source === 'youtube') {
+        playYouTubeVideoInModal(previewUrl, card.dataset.title, card);
+        return;
+    }
+    
+    const playingCoverIcon = document.getElementById('playingCoverIcon');
+    const playingCoverImage = document.getElementById('playingCoverImage');
+    const coverUrl = card.dataset.cover;
+    
+    if (coverUrl && coverUrl.trim() !== '' && !coverUrl.startsWith('data:image/svg+xml')) {
+        playingCoverImage.src = coverUrl;
+        playingCoverImage.onerror = function() {
+            this.style.display = 'none';
+            playingCoverIcon.style.display = 'flex';
+            playingCoverImage.classList.remove('visible');
+            playingCoverIcon.classList.remove('hidden');
+        };
+        playingCoverImage.onload = function() {
+            this.style.display = 'block';
+            playingCoverIcon.style.display = 'none';
+            playingCoverImage.classList.add('visible');
+            playingCoverIcon.classList.add('hidden');
+        };
+        playingCoverImage.style.display = 'block';
+        playingCoverIcon.style.display = 'none';
+    } else {
+        playingCoverImage.style.display = 'none';
+        playingCoverIcon.style.display = 'flex';
+        playingCoverImage.classList.remove('visible');
+        playingCoverIcon.classList.remove('hidden');
+    }
+    
+    document.getElementById('playingTitle').textContent = card.dataset.title;
+    document.getElementById('playingTitle').removeAttribute('data-translate');
+    
+    document.getElementById('playingArtist').textContent = card.dataset.artist;
+    document.getElementById('playingArtist').removeAttribute('data-translate');
+    
+    document.getElementById('downloadSearchBtn').disabled = false;
+    document.getElementById('prevBtn').disabled = false;
+    document.getElementById('nextBtn').disabled = false;
+    
+    const timeContainer = document.querySelector('.playing-time-container');
+    timeContainer.style.display = 'flex';
+    
+    const playBtn = document.getElementById('playSearchBtn');
+    const stopBtn = document.getElementById('stopSearchBtn');
+    playBtn.disabled = false;
+    stopBtn.disabled = false;
+    
+    if (source === 'youtube') {
+        playBtn.innerHTML = '<i class="bi bi-play-fill"></i>';
+        playBtn.onclick = function() {
+            const msg = translations['youtube_playback_info'] || 'Please use the YouTube player own control buttons.';
+            showLogMessage(msg);
+        };
+        
+        timeContainer.style.display = 'none';
+        
+        playYouTubeVideoInModal(previewUrl, card.dataset.title, card);
+        
+        document.getElementById('downloadSearchBtn').disabled = true;
+        
+    } else {
+        playBtn.innerHTML = '<i class="bi bi-pause-fill"></i>';
+        
+        playBtn.onclick = function() {
+            if (currentAudio && currentAudio.paused) {
+                currentAudio.play();
+                this.innerHTML = '<i class="bi bi-pause-fill"></i>';
+            } else if (currentAudio && !currentAudio.paused) {
+                currentAudio.pause();
+                this.innerHTML = '<i class="bi bi-play-fill"></i>';
+            }
+        };
+        
+        timeContainer.style.display = 'flex';
+        
+        currentAudio = new Audio(previewUrl);
+        
+        currentAudio.addEventListener('play', function() {
+            playBtn.innerHTML = '<i class="bi bi-pause-fill"></i>';
+            updateTimeProgress();
+        });
+        
+        currentAudio.addEventListener('pause', function() {
+            playBtn.innerHTML = '<i class="bi bi-play-fill"></i>';
+        });
+        
+        currentAudio.addEventListener('ended', function() {
+            playBtn.innerHTML = '<i class="bi bi-play-fill"></i>';
+            if (currentPlayingCard) {
+                currentPlayingCard.classList.remove('active');
+                currentPlayingCard = null;
+            }
+        });
+        
+        currentAudio.addEventListener('loadedmetadata', function() {
+            const totalTimeElement = document.getElementById('totalTime');
+            totalTimeElement.textContent = formatTime(currentAudio.duration);
+        });
+        
+        currentAudio.addEventListener('timeupdate', function() {
+            updateTimeProgress();
+        });
+        
+        currentAudio.addEventListener('error', function(e) {
+            const message = translations['no_preview_available'] || 'No preview available for this track';
+            showLogMessage(message);
+            speakMessage(message);
+            playBtn.innerHTML = '<i class="bi bi-play-fill"></i>';
+            if (currentPlayingCard) {
+                currentPlayingCard.classList.remove('active');
+                currentPlayingCard = null;
+            }
+        });
+        
+        currentAudio.play().catch(error => {
+            const message = translations['no_preview_available'] || 'No preview available for this track';
+            showLogMessage(message);
+            speakMessage(message);
+            playBtn.innerHTML = '<i class="bi bi-play-fill"></i>';
+            if (currentPlayingCard) {
+                currentPlayingCard.classList.remove('active');
+                currentPlayingCard = null;
+            }
+        });
+    }
+}
+
+function loadMoreResults() {
+    currentPage++;
+    performSearch(true);
+}
+
+function showNoResults() {
+    const container = document.getElementById('resultsContainer');
+    container.innerHTML = `
+        <div class="no-results">
+            <i class="bi bi-music-note-slash"></i>
+            <p data-translate="no_results_found">No results found</p>
+        </div>
+    `;
+    document.getElementById('loadMoreContainer').style.display = 'none';
+    document.getElementById('playAllBtn').style.display = 'none';    
+    document.getElementById('prevBtn').disabled = true;
+    document.getElementById('nextBtn').disabled = true;
+    
+    if (typeof updateUIText === 'function') {
+        updateUIText();
+    }
+}
+
+function downloadTrack(card) {
+    const translations = languageTranslations[currentLang] || languageTranslations['en'];
+    const previewUrl = card.dataset.previewUrl;
+    const title = card.dataset.title || 'music_track';
+    const artist = card.dataset.artist || 'unknown_artist';
+    
+    if (!previewUrl) {
+        const message = translations['no_download_available'] || 'No download available for this track';
+        showLogMessage(message);
+        speakMessage(message);
+        return;
+    }
+    
+    const link = document.createElement('a');
+    link.href = previewUrl;
+    
+    let filename = `${artist} - ${title}`;
+    
+    filename = filename.replace(/[<>:"/\\|?*]/g, '_');
+    filename = filename.replace(/\s+/g, '_');
+    
+    const urlParts = previewUrl.split('?')[0].split('.');
+    const extension = urlParts.length > 1 ? urlParts[urlParts.length - 1] : 'mp3';
+    
+    const allowedExtensions = ['mp3', 'm4a', 'aac', 'ogg', 'wav', 'flac', 'mp4'];
+    const fileExt = allowedExtensions.includes(extension.toLowerCase()) ? extension : 'mp3';
+    
+    link.download = `${filename}.${fileExt}`;
+    
+    const downloadBtn = document.getElementById('downloadSearchBtn');
+    const originalContent = downloadBtn.innerHTML;
+    downloadBtn.innerHTML = '<i class="bi bi-download"></i>';
+    downloadBtn.style.backgroundColor = 'var(--color-success)';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    
+    setTimeout(() => {
+        downloadBtn.innerHTML = '<i class="fas fa-download"></i>';
+        downloadBtn.style.backgroundColor = '';
+    }, 3000);
+}
+
+function formatDuration(milliseconds) {
+    if (!milliseconds) return '';
+    
+    const totalSeconds = Math.floor(milliseconds / 1000);
+    const minutes = Math.floor(totalSeconds / 60);
+    const seconds = totalSeconds % 60;
+    
+    return `${minutes}:${seconds.toString().padStart(2, '0')}`;
+}
+
+function addApiKeyConfigButton() {
+    const searchOptions = document.querySelector('.search-options');
+    
+    if (!searchOptions) {
+        return;
+    }
+    
+    const configBtn = document.createElement('button');
+    configBtn.id = 'apiKeyConfigBtn';
+    configBtn.className = 'btn btn-default';
+    configBtn.innerHTML = '<i class="bi bi-key"></i> <span data-translate="configure_api_keys">Configure API Keys</span>';
+    
+    configBtn.addEventListener('click', function(e) {
+        e.preventDefault();
+        showApiKeyConfigPage();
+    });
+    
+    const existingBtn = document.getElementById('apiKeyConfigBtn');
+    if (existingBtn) {
+        existingBtn.remove();
+    }
+    
+    searchOptions.appendChild(configBtn);
+}
+
+function showApiKeyConfigPage() {
+    const uk = UIkit || ui;
+    if (!uk || !uk.modal) {
+        console.error('UIKit not loaded');
+        return;
+    }
+    
+    const modalElement = document.getElementById('apiKeyConfigModal');
+    if (!modalElement) {
+        console.error('Modal element not found');
+        return;
+    }
+    
+    if (typeof updateUIText === 'function') {
+        updateUIText();
+    }
+    
+    loadCurrentKeys();
+    
+    uk.modal(modalElement).show();
+}
+
+function loadCurrentKeys() {
+    const translations = languageTranslations[currentLang] || languageTranslations['en'];
+    
+    //showLogMessage(translations['loading_keys'] || 'Loading current API keys...');
+    
+    fetch('/spectra/api_keys_proxy.php?action=get')
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                if (data.keys.spotify) {
+                    document.getElementById('spotifyClientId').value = data.keys.spotify.client_id || '';
+                    document.getElementById('spotifyClientSecret').value = data.keys.spotify.client_secret || '';
+                }
+                if (data.keys.youtube) {
+                    document.getElementById('youtubeApiKey').value = data.keys.youtube.api_key || '';
+                }
+                if (data.keys.soundcloud) {
+                    document.getElementById('soundcloudClientId').value = data.keys.soundcloud.client_id || '';
+                }
+                //showLogMessage(translations['keys_loaded'] || 'API keys loaded successfully');
+            } else {
+                showLogMessage(data.message || translations['failed_to_load_keys'] || 'Failed to load API keys');
+            }
+        })
+        .catch(error => {
+            console.error('Failed to load keys:', error);
+            showLogMessage(translations['connection_error'] || 'Connection error');
+        });
+}
+
+function saveApiKeys() {
+    const translations = languageTranslations[currentLang] || languageTranslations['en'];
+    
+    const keys = {
+        spotify: {
+            client_id: document.getElementById('spotifyClientId').value.trim(),
+            client_secret: document.getElementById('spotifyClientSecret').value.trim()
+        },
+        youtube: {
+            api_key: document.getElementById('youtubeApiKey').value.trim()
+        },
+        soundcloud: {
+            client_id: document.getElementById('soundcloudClientId').value.trim()
+        }
+    };
+    
+    if (!keys.spotify.client_id && !keys.spotify.client_secret && 
+        !keys.youtube.api_key && !keys.soundcloud.client_id) {
+        showLogMessage(translations['no_keys_to_save'] || 'No keys to save');
+        return;
+    }
+    
+    showLogMessage(translations['saving_keys'] || 'Saving API keys...');
+    
+    fetch('/spectra/api_keys_proxy.php?action=save', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ keys: keys })
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('HTTP erro: ' + response.status);
+        }
+        return response.json();
+    })
+    .then(data => {
+        if (data.success) {
+            showLogMessage(translations['keys_saved_successfully'] || 'API keys saved successfully');
+            
+            setTimeout(() => {
+                const uk = UIkit || ui;
+                const modal = document.getElementById('apiKeyConfigModal');
+                if (uk && uk.modal && modal) {
+                    uk.modal(modal).hide();
+                }
+            }, 3000);
+        } else {
+            showLogMessage(translations['connection_error'] || 'Connection error');
+        }
+    })
+    .catch(error => {
+        showLogMessage('Connection error: ' + error.message);
+    });
+}
+
+function checkApiStatus() {
+    const translations = languageTranslations[currentLang] || languageTranslations['en'];
+    
+    showLogMessage(translations['testing_api_connections'] || 'Testing API connections...');
+    
+    const testBtn = document.querySelector('button[onclick="checkApiStatus()"]');
+    const originalBtn = testBtn ? testBtn.innerHTML : null;
+    if (testBtn) {
+        testBtn.innerHTML = '<span uk-icon="spinner" class="uk-icon-spin"></span>';
+        testBtn.disabled = true;
+    }
+    
+    const results = [];
+    const apis = [
+        { name: 'Spotify', key: 'spotify' },
+        { name: 'YouTube', key: 'youtube' },
+        { name: 'SoundCloud', key: 'soundcloud' }
+    ];
+    
+    const testPromises = apis.map(api => {
+        return fetch('/spectra/search_proxy.php', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({
+                source: api.key,
+                query: 'test',
+                type: 'song',
+                limit: 1
+            })
+        })
+        .then(response => response.json())
+        .then(data => ({
+            name: api.name,
+            success: data.success,
+            message: data.message
+        }))
+        .catch(error => ({
+            name: api.name,
+            success: false,
+            message: translations['connection_failed'] || 'Connection failed'
+        }));
+    });
+    
+    Promise.all(testPromises).then(testResults => {
+        testResults.forEach(result => {
+            if (result.success) {
+                const successText = translations['api_working'] || 'API is working';
+                showLogMessage(`✅ ${result.name}: ${successText}`);
+            } else {
+                const failedText = result.message || translations['api_not_configured'] || 'API not configured';
+                showLogMessage(`❌ ${result.name}: ${failedText}`);
+            }
+        });
+        
+        const successCount = testResults.filter(r => r.success).length;
+        
+        setTimeout(() => {
+            const summaryTemplate = translations['api_test_complete'] || 'API test complete';
+            const successTemplate = translations['success_count'] || 'Success: {count}/{total}';
+            
+            const formattedResult = successTemplate
+                .replace('{count}', successCount)
+                .replace('{total}', apis.length);
+            
+            const finalMessage = `${summaryTemplate} - ${formattedResult}`;
+            showLogMessage(finalMessage);
+            
+            if (testBtn) {
+                testBtn.innerHTML = originalBtn;
+                testBtn.disabled = false;
+            }
+        }, 500);
+    });
+}
+
+function testApi(source) {
+    return new Promise(resolve => {
+        const timeout = setTimeout(() => {
+            resolve({
+                source: source,
+                success: false,
+                message: 'Request timeout'
+            });
+        }, 10000);
+        
+        fetch('/spectra/search_proxy.php', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({
+                source: source,
+                query: 'test',
+                type: 'song',
+                limit: 1
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            clearTimeout(timeout);
+            resolve({
+                source: source,
+                success: data.success || false,
+                message: data.message || (data.success ? 'API is working' : 'API not configured')
+            });
+        })
+        .catch(error => {
+            clearTimeout(timeout);
+            resolve({
+                source: source,
+                success: false,
+                message: 'Connection failed'
+            });
+        });
+    });
+}
+

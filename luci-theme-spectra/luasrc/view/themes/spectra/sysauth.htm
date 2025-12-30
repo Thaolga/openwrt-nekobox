@@ -493,6 +493,7 @@ Licensed under the Apache License, Version 2.0
             <video class="background-media" autoplay loop muted playsinline id="background-video">
                 <source src="<%=bgUrl%>" type="<%=mimeType%>">
             </video>
+            <audio id="background-audio" style="display: none;"></audio>
         
         <% else %>
             <div class="background-media" style="background-image: url(<%=bgUrl%>)"></div>
@@ -972,23 +973,27 @@ document.addEventListener('DOMContentLoaded', function() {
         if (backgroundType === "Video") {
             currentMedia = document.getElementById("background-video");
             const audio = document.getElementById("background-audio");
-            audio.pause();
+            if (audio) {
+                audio.pause();
+            }
             
             initializeVideoMode();
             
         } else {
             let audio = document.getElementById("background-audio");
-            let audioSource = audio.querySelector("source");
+
+            if (audio) {
+                let audioSource = audio.querySelector("source");
             
-            if (audioSource.src && audioSource.src !== "" && !audioSource.src.includes("undefined")) {
-                console.log('Using audio from Lua:', audioSource.src);
-                audio.load();
-                currentMedia = audio;
+                if (audioSource.src && audioSource.src !== "" && !audioSource.src.includes("undefined")) {
+                    audio.load();
+                    currentMedia = audio;
             } else {
-                console.log('No audio file available');
                 currentMedia = null;
             }
-            
+        } else {
+            currentMedia = null;
+        }       
             const control = document.getElementById('videoModeControl');
             if (control) control.style.display = 'none';
         }
@@ -1095,7 +1100,6 @@ document.addEventListener('DOMContentLoaded', function() {
             
             if (currentMedia.play) {
                 currentMedia.play().catch(e => {
-                    console.log('Media play failed:', e);
                 });
             }
             mediaStarted = true;

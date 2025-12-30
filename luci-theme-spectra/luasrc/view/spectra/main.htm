@@ -1,0 +1,232 @@
+<%+header%>
+
+<div class="spectra-map" id="spectra-search">
+    <h2 name="content" data-translate="online_music_search">Online Music Search</h2>
+    
+    <div class="spectra-section">
+        <div class="search-box">
+            <div class="search-input-group">
+                <input type="text" id="searchInput" class="search-input" 
+                       placeholder="Search for songs, artists, albums..." data-tooltip-title="search_placeholder" data-placeholder="search_placeholder">
+                <button id="searchButton" class="btn btn-primary">
+                    <i class="bi bi-search"></i> <span data-translate="search_button">Search</span>
+                </button>
+            </div>
+            
+            <div class="search-options">
+                <select id="searchType" class="cbi-input-select">
+                    <option value="song" data-translate="song_type">Songs</option>
+                    <option value="artist" data-translate="artist_type">Artists</option>
+                    <option value="album" data-translate="album_type">Albums</option>
+                    <option value="playlist" data-translate="playlist_type">Playlists</option>
+                </select>
+                
+                <select id="searchSource" class="cbi-input-select">
+                    <option value="itunes">iTunes/Apple Music</option>
+                    <option value="spotify">Spotify</option>
+                    <option value="youtube">YouTube</option>
+                    <option value="soundcloud">SoundCloud</option>
+                </select>
+            </div>
+        </div>
+        
+        <div class="search-results">
+            <div class="results-header">
+                <div class="results-info">
+                    <span id="resultsCount">0 results</span>
+                </div>
+                <div class="results-actions">
+                    <button id="playAllBtn" class="btn btn-success" style="display: none;">
+                        <i class="bi bi-play-circle"></i> <span data-translate="play_all">Play All</span>
+                    </button>
+                </div>
+            </div>
+            
+            <div id="resultsContainer" class="results-grid">
+                <div class="no-results">
+                    <i class="bi bi-music-note-beamed"></i>
+                    <p data-translate="search_prompt">Search for music to get started</p>
+                </div>
+            </div>
+            
+            <div id="loadMoreContainer" style="display: none;">
+                <button id="loadMoreButton" class="btn btn-success">
+                    <i class="bi bi-arrow-down-circle"></i> <span data-translate="load_more">Load More</span>
+                </button>
+            </div>
+        </div>
+        
+        <div class="current-playback">
+            <div class="now-playing">
+                <div class="now-playing-info">
+                    <div class="playing-cover">
+                        <div id="playingCoverIcon" class="playing-cover-icon">
+                            <i class="bi bi-music-note-beamed"></i>
+                        </div>
+                            <img id="playingCoverImage" class="playing-cover-image" src="" alt="Cover" style="display: none;">
+                    </div>
+                    <div class="playing-details">
+                        <div id="playingTitle" class="playing-title" data-translate="not_playing">Not Playing</div>
+                        <div id="playingArtist" class="playing-artist" data-translate="select_song_prompt">Select a song to play</div>
+                    </div>
+                </div>
+                
+                <div class="playing-time-container" style="display: none;">
+                    <div class="playing-time-wrapper">
+                        <span id="currentTime" class="time-text">0:00</span>
+                        <div class="time-progress-bar">
+                            <div class="time-progress-bg"></div>
+                            <div id="timeProgress" class="time-progress"></div>
+                            <div id="timeThumb" class="time-thumb"></div>
+                            <input type="range" id="timeSeek" class="time-seek" min="0" max="100" value="0">
+                        </div>
+                        <span id="totalTime" class="time-text">0:30</span>
+                    </div>
+                </div>
+                
+                <div class="playing-controls">
+                    <button id="prevBtn" class="btn-default" disabled data-tooltip-title="previous_track">
+                        <i class="bi bi-skip-backward-fill"></i>
+                    </button>
+                    
+                    <button id="playSearchBtn" class="btn-primary" disabled data-tooltip-title="play_pause">
+                        <i class="bi bi-play-fill"></i>
+                    </button>
+                    
+                    <button id="nextBtn" class="btn-default" disabled data-tooltip-title="next_track">
+                        <i class="bi bi-skip-forward-fill"></i>
+                    </button>
+                    
+                    <button id="stopSearchBtn" class="btn-default" disabled>
+                        <i class="bi bi-stop-fill"></i>
+                    </button>
+                    <button id="downloadSearchBtn" class="btn-download" data-tooltip-title="download_options">
+                        <i class="fas fa-download"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="apiKeyConfigModal" uk-modal>
+    <div class="uk-modal-dialog uk-modal-dialog-large">
+
+        <div class="uk-modal-header">
+            <h2 class="uk-modal-title" data-translate="configure_api_keys">
+                Configure API Keys
+            </h2>
+            <button class="uk-modal-close-default" type="button" uk-close></button>
+        </div>
+
+        <div class="uk-modal-body">
+            <p class="uk-text-muted" data-translate="api_key_config_description">
+                Configure API keys for music services. These keys will be saved to the server configuration file.
+            </p>
+
+            <form class="uk-form-stacked">
+                <fieldset class="uk-fieldset uk-margin">
+                    <legend class="uk-legend">
+                        <span uk-icon="icon: spotify"></span>
+                        <span data-translate="spotify_api_keys">Spotify API Keys</span>
+                    </legend>
+
+                    <div class="uk-margin">
+                        <label class="uk-form-label" for="spotifyClientId" data-translate="client_id">
+                            Client ID
+                        </label>
+                        <div class="uk-form-controls">
+                            <input class="uk-input" type="text" id="spotifyClientId"
+                                   placeholder="Enter Spotify Client ID">
+                        </div>
+                    </div>
+
+                    <div class="uk-margin">
+                        <label class="uk-form-label" for="spotifyClientSecret" data-translate="client_secret">
+                            Client Secret
+                        </label>
+                        <div class="uk-form-controls">
+                            <input class="uk-input" type="password" id="spotifyClientSecret"
+                                   placeholder="Enter Spotify Client Secret">
+                        </div>
+                    </div>
+
+                    <p class="uk-text-small uk-text-muted" data-translate="spotify_key_hint">
+                        Get keys from: https://developer.spotify.com/dashboard
+                    </p>
+                </fieldset>
+
+                <fieldset class="uk-fieldset uk-margin">
+
+                    <legend class="uk-legend">
+                        <span uk-icon="icon: youtube"></span>
+                        <span data-translate="youtube_api_key">YouTube API Key</span>
+                    </legend>
+
+                    <div class="uk-margin">
+                        <label class="uk-form-label" for="youtubeApiKey" data-translate="api_key">
+                            API Key
+                        </label>
+                        <div class="uk-form-controls">
+                            <input class="uk-input" type="password" id="youtubeApiKey"
+                                   placeholder="Enter YouTube API Key">
+                        </div>
+                    </div>
+
+                    <p class="uk-text-small uk-text-muted" data-translate="youtube_key_hint">
+                        Get key from: https://console.cloud.google.com/apis
+                    </p>
+                </fieldset>
+
+                <fieldset class="uk-fieldset uk-margin">
+                    <legend class="uk-legend">
+                        <span uk-icon="icon: soundcloud"></span>
+                        <span data-translate="soundcloud_client_id">SoundCloud Client ID</span>
+                    </legend>
+
+                    <div class="uk-margin">
+                        <label class="uk-form-label" for="soundcloudClientId" data-translate="client_id">
+                            Client ID
+                        </label>
+                        <div class="uk-form-controls">
+                            <input class="uk-input" type="text" id="soundcloudClientId"
+                                   placeholder="Enter SoundCloud Client ID">
+                        </div>
+                    </div>
+
+                    <p class="uk-text-small uk-text-muted" data-translate="soundcloud_key_hint">
+                        SoundCloud API requires OAuth authentication
+                    </p>
+                </fieldset>
+            </form>
+        </div>
+
+        <div class="uk-modal-footer uk-text-right">
+            <button class="uk-button uk-button-success" type="button"
+                    onclick="loadCurrentKeys()">
+                <span uk-icon="refresh"></span>
+                <span data-translate="load_current_keys">Load Current Keys</span>
+            </button>
+
+            <button class="uk-button uk-button-primary" type="button"
+                    onclick="saveApiKeys()">
+                <span uk-icon="save"></span>
+                <span data-translate="save_keys">Save Keys</span>
+            </button>
+
+            <button class="uk-button uk-button-secondary" type="button"
+                    onclick="checkApiStatus()">
+                <span uk-icon="check"></span>
+                <span data-translate="test_api">Test API</span>
+            </button>
+
+            <button class="uk-button uk-button-gray uk-modal-close" type="button"
+                    data-translate="close">
+                Close
+            </button>
+        </div>
+    </div>
+</div>
+<link href="/luci-static/spectra/css/main.css" rel="stylesheet">
+<script src="/luci-static/spectra/js/plugin.js"></script>
+<%+footer%>
