@@ -1225,6 +1225,24 @@ function createYouTubePlayer(modalId, videoId, title) {
     });
 }
 
+function toggleModalFullscreen(modalId) {
+    const modal = document.getElementById(modalId);
+    if (!modal) return;
+    
+    const dialog = modal.querySelector('.uk-modal-dialog');
+    const playerContainer = modal.querySelector('.youtube-player-container');
+    const iframe = playerContainer.querySelector('iframe');
+    const controls = modal.querySelector('.uk-modal-footer');
+    
+    if (!dialog || !iframe) return;
+    
+    if (dialog.classList.contains('youtube-fullscreen-mode')) {
+        exitFullscreenMode(modalId, dialog, iframe, controls);
+    } else {
+        enterFullscreenMode(modalId, dialog, iframe, controls);
+    }
+}
+
 function enterFullscreenMode(modalId, dialog, iframe, controls) {
     const originalStyles = {
         dialog: dialog.getAttribute('style') || '',
