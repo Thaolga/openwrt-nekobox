@@ -1225,32 +1225,340 @@ function createYouTubePlayer(modalId, videoId, title) {
     });
 }
 
-function toggleModalFullscreen(modalId) {
-    const dialog = document.querySelector(`#${modalId} .uk-modal-dialog`);
-    if (!dialog) return;
-    
-    const btn = document.querySelector(`#${modalId} .uk-button[onclick*="toggleModalFullscreen"] i`);
-    
-    if (dialog.style.width === '100vw') {
-        dialog.style.cssText = '';
-        if (btn) btn.className = 'bi bi-fullscreen';
-        localStorage.setItem('youtube_fullscreen_state', '0');
-    } else {
-        dialog.style.cssText = `
-            width: 100vw !important;
-            height: 100vh !important;
-            max-width: 100vw !important;
-            max-height: 100vh !important;
-            margin: 0 !important;
-            border-radius: 0 !important;
-            position: fixed !important;
-            top: 0 !important;
-            left: 0 !important;
-            z-index: 9999 !important;
-        `;
-        if (btn) btn.className = 'bi bi-fullscreen-exit';
-        localStorage.setItem('youtube_fullscreen_state', '1');
+function enterFullscreenMode(modalId, dialog, iframe, controls) {
+    const originalStyles = {
+        dialog: dialog.getAttribute('style') || '',
+        iframe: iframe.getAttribute('style') || '',
+        container: iframe.parentElement.getAttribute('style') || ''
+    };
+    window.youtubeOriginalStyles = originalStyles;
+
+    const closeBtn = dialog.querySelector('.uk-modal-close-default');
+    if (closeBtn) {
+        closeBtn.style.display = 'none';
     }
+    
+    dialog.classList.add('youtube-fullscreen-mode');
+    dialog.style.cssText = `
+        width: 100vw !important;
+        height: 100vh !important;
+        max-width: 100vw !important;
+        max-height: 100vh !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        border-radius: 0 !important;
+        position: fixed !important;
+        top: 0 !important;
+        left: 0 !important;
+        z-index: 9999 !important;
+        background: #000 !important;
+        overflow: hidden !important;
+    `;
+    
+    const header = dialog.querySelector('.uk-modal-header');
+    if (header) header.style.display = 'none';
+    
+    const playerContainer = iframe.parentElement;
+    playerContainer.style.cssText = `
+        width: 100vw !important;
+        height: 100vh !important;
+        position: absolute !important;
+        top: 0 !important;
+        left: 0 !important;
+        z-index: 1 !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        background: #000 !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+    `;
+    
+    iframe.style.cssText = `
+        position: absolute !important;
+        top: 0 !important;
+        left: 0 !important;
+        width: 100% !important;
+        height: 100% !important;
+        z-index: 2 !important;
+        border: none !important;
+        background: #000 !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        object-fit: contain !important;
+    `;
+    
+    try {
+        const fullscreenMessage = {
+            event: 'command',
+            func: 'setSize',
+            args: [window.innerWidth, window.innerHeight],
+            id: 1,
+            channel: 'widget'
+        };
+        iframe.contentWindow.postMessage(JSON.stringify(fullscreenMessage), '*');
+        
+        const setFullscreenMessage = {
+            event: 'command',
+            func: 'playVideo',
+            args: '',
+            id: 1,
+            channel: 'widget'
+        };
+        iframe.contentWindow.postMessage(JSON.stringify(setFullscreenMessage), '*');
+    } catch (e) {
+        console.log('YouTube API error:', e);
+    }
+    
+    updateIframeSize();
+    
+    const safeAreaInsets = window.safeAreaInsets || { bottom: '20px' };
+    
+    if (controls) {
+        controls.classList.add('youtube-fullscreen-controls');
+        controls.style.cssText = `
+            position: fixed !important;
+            bottom: 60px !important;
+            left: 50% !important;
+            transform: translateX(-50%) !important;
+            z-index: 10000 !important;
+            background: rgba(0, 0, 0, 0.6) !important;
+            padding: 12px 20px !important;
+            border-radius: 50px !important;
+            opacity: 1 !important;
+            transition: opacity 0.3s ease !important;
+            margin: 0 !important;
+            border: none !important;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5) !important;
+            min-width: 300px !important;
+            backdrop-filter: blur(10px) !important;
+            -webkit-backdrop-filter: blur(10px) !important;
+            pointer-events: auto !important;
+        `;
+        
+        setTimeout(() => {
+            controls.style.opacity = '0';
+        }, 10);
+        
+        const fullscreenBtn = controls.querySelector('[onclick*="toggleModalFullscreen"] i');
+        if (fullscreenBtn) {
+            fullscreenBtn.className = 'bi bi-fullscreen-exit';
+        }
+        
+        const controlsInner = controls.querySelector('.uk-flex');
+        if (controlsInner) {
+            controlsInner.style.cssText = `
+                display: flex !important;
+                justify-content: center !important;
+                align-items: center !important;
+                gap: 15px !important;
+                margin: 0 !important;
+            `;
+            
+            const buttons = controls.querySelectorAll('.uk-button');
+            buttons.forEach(btn => {
+                btn.style.cssText = `
+                    padding: 10px 20px !important;
+                    border-radius: 25px !important;
+                    transition: all 0.2s ease !important;
+                    margin: 0 !important;
+                    min-width: 44px !important;
+                    min-height: 44px !important;
+                    display: flex !important;
+                    align-items: center !important;
+                    justify-content: center !important;
+                    background: rgba(255, 255, 255, 0.1) !important;
+                    border: 1px solid rgba(255, 255, 255, 0.2) !important;
+                    cursor: pointer !important;
+                    backdrop-filter: blur(6px) !important;
+                    -webkit-backdrop-filter: blur(6px) !important;
+                `;
+
+                const originalBackground = 'rgba(255, 255, 255, 0.1)';
+                const hoverBackground = 'rgba(255, 255, 255, 0.2)';
+                
+                btn.addEventListener('mouseenter', function() {
+                    this.style.background = hoverBackground;
+                    this.style.boxShadow = '0 4px 10px rgba(0, 0, 0, 0.3)';
+                });
+                
+                btn.addEventListener('mouseleave', function() {
+                    this.style.background = originalBackground;
+                    this.style.boxShadow = '';
+                });
+            });
+        }
+    }
+    
+    setupFullscreenHover(dialog);
+    window.addEventListener('resize', handleFullscreenResize);
+    window.isYouTubeFullscreen = true;
+    window.fullscreenModalId = modalId;
+    localStorage.setItem('youtube_fullscreen_state', '1');
+    
+    document.addEventListener('keydown', handleFullscreenEscape);
+}
+
+function handleFullscreenResize() {
+    if (!window.isYouTubeFullscreen) return;
+    
+    const modalId = window.fullscreenModalId;
+    if (!modalId) return;
+    
+    const modal = document.getElementById(modalId);
+    if (!modal) return;
+    
+    const iframe = modal.querySelector('iframe');
+    if (!iframe) return;
+    
+    try {
+        const resizeMessage = {
+            event: 'command',
+            func: 'setSize',
+            args: [window.innerWidth, window.innerHeight],
+            id: 1,
+            channel: 'widget'
+        };
+        iframe.contentWindow.postMessage(JSON.stringify(resizeMessage), '*');
+    } catch (e) {
+        console.log('YouTube resize error:', e);
+    }
+}
+
+function handleFullscreenEscape(e) {
+    if (e.key === 'Escape' && window.isYouTubeFullscreen) {
+        const modalId = window.fullscreenModalId;
+        if (modalId) {
+            const modal = document.getElementById(modalId);
+            if (modal) {
+                const dialog = modal.querySelector('.uk-modal-dialog');
+                const iframe = modal.querySelector('iframe');
+                const controls = modal.querySelector('.uk-modal-footer');
+                
+                if (dialog && iframe && controls) {
+                    exitFullscreenMode(modalId, dialog, iframe, controls);
+                }
+            }
+        }
+    }
+}
+
+function exitFullscreenMode(modalId, dialog, iframe, controls) {
+    dialog.classList.remove('youtube-fullscreen-mode');
+    
+    dialog.style.cssText = window.youtubeOriginalStyles?.dialog || '';
+    
+    const header = dialog.querySelector('.uk-modal-header');
+    if (header) header.style.display = '';
+    
+    const closeBtn = dialog.querySelector('.uk-modal-close-default');
+    if (closeBtn) {
+        closeBtn.style.display = '';
+    }
+    
+    const playerContainer = iframe.parentElement;
+    if (playerContainer && window.youtubeOriginalStyles?.container) {
+        playerContainer.style.cssText = window.youtubeOriginalStyles.container;
+    } else if (playerContainer) {
+        playerContainer.style.cssText = '';
+    }
+    
+    iframe.style.cssText = window.youtubeOriginalStyles?.iframe || '';
+    
+    if (controls) {
+        controls.classList.remove('youtube-fullscreen-controls');
+        controls.style.cssText = '';
+        
+        const controlsInner = controls.querySelector('.uk-flex');
+        if (controlsInner) {
+            controlsInner.style.cssText = '';
+        }
+        
+        const buttons = controls.querySelectorAll('.uk-button');
+        buttons.forEach(btn => {
+            btn.style.cssText = '';
+            
+            const newBtn = btn.cloneNode(true);
+            btn.parentNode.replaceChild(newBtn, btn);
+        });
+        
+        const fullscreenBtn = controls.querySelector('[onclick*="toggleModalFullscreen"] i');
+        if (fullscreenBtn) {
+            fullscreenBtn.className = 'bi bi-fullscreen';
+        }
+    }
+    
+    if (dialog._hoverListeners) {
+        dialog.removeEventListener('mousemove', dialog._hoverListeners.mousemove);
+        dialog.removeEventListener('mouseleave', dialog._hoverListeners.mouseleave);
+        delete dialog._hoverListeners;
+    }
+    
+    window.removeEventListener('resize', handleFullscreenResize);
+    
+    document.removeEventListener('keydown', handleFullscreenEscape);
+    
+    window.isYouTubeFullscreen = false;
+    window.fullscreenModalId = null;
+    localStorage.setItem('youtube_fullscreen_state', '0');
+    
+    try {
+        const resizeMessage = {
+            event: 'command',
+            func: 'setSize',
+            args: [800, 450],
+            id: 1,
+            channel: 'widget'
+        };
+        iframe.contentWindow.postMessage(JSON.stringify(resizeMessage), '*');
+    } catch (e) {
+        console.log('YouTube exit fullscreen error:', e);
+    }
+}
+
+function setupFullscreenHover(dialog) {
+    let hideTimeout;
+    
+    const showControls = () => {
+        const controls = dialog.querySelector('.youtube-fullscreen-controls');
+        if (controls) {
+            controls.style.opacity = '1';
+        }
+        clearTimeout(hideTimeout);
+    };
+    
+    const hideControls = () => {
+        const controls = dialog.querySelector('.youtube-fullscreen-controls');
+        if (controls) {
+            controls.style.opacity = '0';
+        }
+    };
+    
+    const handleMouseMove = (e) => {
+        const rect = dialog.getBoundingClientRect();
+        if (e.clientX >= rect.left && e.clientX <= rect.right &&
+            e.clientY >= rect.top && e.clientY <= rect.bottom) {
+            showControls();
+            hideTimeout = setTimeout(hideControls, 2000);
+        }
+    };
+    
+    const handleMouseLeave = () => {
+        hideControls();
+        clearTimeout(hideTimeout);
+    };
+    
+    dialog.addEventListener('mousemove', handleMouseMove);
+    dialog.addEventListener('mouseleave', handleMouseLeave);
+    
+    dialog._hoverListeners = {
+        mousemove: handleMouseMove,
+        mouseleave: handleMouseLeave
+    };
+    
+    setTimeout(() => {
+        hideControls();
+    }, 1000);
 }
 
 function checkAndRestoreFullscreen(modalId) {
@@ -1258,25 +1566,44 @@ function checkAndRestoreFullscreen(modalId) {
     
     if (fullscreenState === '1') {
         setTimeout(() => {
-            const dialog = document.querySelector(`#${modalId} .uk-modal-dialog`);
-            const btn = document.querySelector(`#${modalId} .uk-button[onclick*="toggleModalFullscreen"] i`);
+            const modal = document.getElementById(modalId);
+            if (!modal) return;
             
-            if (dialog && btn) {
-                dialog.style.cssText = `
-                    width: 100vw !important;
-                    height: 100vh !important;
-                    max-width: 100vw !important;
-                    max-height: 100vh !important;
-                    margin: 0 !important;
-                    border-radius: 0 !important;
-                    position: fixed !important;
-                    top: 0 !important;
-                    left: 0 !important;
-                    z-index: 9999 !important;
-                `;
-                btn.className = 'bi bi-fullscreen-exit';
+            const dialog = modal.querySelector('.uk-modal-dialog');
+            const playerContainer = modal.querySelector('.youtube-player-container');
+            const iframe = playerContainer?.querySelector('iframe');
+            const controls = modal.querySelector('.uk-modal-footer');
+            
+            if (dialog && iframe && controls) {
+                enterFullscreenMode(modalId, dialog, iframe, controls);
             }
         }, 100);
+    }
+}
+
+function updateIframeSize() {
+    if (!window.isYouTubeFullscreen) return;
+    
+    const modalId = window.fullscreenModalId;
+    if (!modalId) return;
+    
+    const modal = document.getElementById(modalId);
+    if (!modal) return;
+    
+    const iframe = modal.querySelector('iframe');
+    if (!iframe) return;
+    
+    try {
+        const resizeMessage = {
+            event: 'command',
+            func: 'setSize',
+            args: [window.innerWidth, window.innerHeight],
+            id: 1,
+            channel: 'widget'
+        };
+        iframe.contentWindow.postMessage(JSON.stringify(resizeMessage), '*');
+    } catch (e) {
+        console.log('YouTube updateIframeSize error:', e);
     }
 }
 
