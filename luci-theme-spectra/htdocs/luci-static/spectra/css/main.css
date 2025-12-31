@@ -506,20 +506,17 @@
     background: var(--btn-primary-bg);
     border: none;
     color: white;
-    padding: 6px 12px;
-    border-radius: var(--radius-mini);
     font-weight: 500;
     display: flex;
     align-items: center;
     gap: 8px;
-    transition: all var(--duration-normal) var(--ease-in-out);
 }
 
-#oadMoreButton:hover,
-#playAllBtn:hover {
-    transform: translateY(-2px);
-    box-shadow: var(--shadow-md);
-    background: var(--btn-primary-hover);
+#playAllBtn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
 }
 
 #playAllBtn:disabled {
@@ -919,20 +916,22 @@
 }
 
 .youtube-modal-footer .uk-button-group .uk-button {
-    font-size: 16px;
-    padding: 10px 15px;
-    min-width: 50px;
-    height: 40px;
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+    min-width: 48px;
+    padding: 0;
     display: flex;
-    justify-content: center;
     align-items: center;
+    justify-content: center;
+    overflow: hidden;
 }
 
-.youtube-modal-footer .uk-button-group .uk-button i {
-    font-size: 18px;
+.youtube-modal-footer .youtube-playpause-btn i {
+    font-size: 20px;
+    transition: transform 0.3s ease;
 }
 
-.youtube-modal-footer .uk-button-group {
-    display: flex;
-    gap: 10px;
+.youtube-modal-footer .youtube-playpause-btn:hover i {
+    transform: scale(1.1);
 }

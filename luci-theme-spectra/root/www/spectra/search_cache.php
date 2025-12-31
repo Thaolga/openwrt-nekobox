@@ -14,6 +14,33 @@ $query = $_POST['query'] ?? ($_GET['query'] ?? '');
 $type = $_POST['type'] ?? ($_GET['type'] ?? 'song');
 $source = $_POST['source'] ?? ($_GET['source'] ?? 'itunes');
 
+if (isset($_GET['get_playlist']) && $_GET['get_playlist'] === '1') {
+    if (file_exists($cacheFile)) {
+        $cacheData = json_decode(file_get_contents($cacheFile), true);
+        
+        if (!$cacheData) {
+            echo json_encode(['success' => false, 'message' => 'Cache file corrupted']);
+            exit;
+        }
+        
+        if ($cacheData['query'] === $query && 
+            $cacheData['type'] === $type && 
+            $cacheData['source'] === $source) {
+            
+            echo json_encode([
+                'success' => true, 
+                'data' => $cacheData,
+                'playlist_ready' => true
+            ]);
+        } else {
+            echo json_encode(['success' => false, 'message' => 'Cache mismatch for playlist']);
+        }
+    } else {
+        echo json_encode(['success' => false, 'message' => 'No cache available for playlist']);
+    }
+    exit;
+}
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $results = $_POST['results'] ?? '[]';
     
@@ -31,10 +58,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         'timestamp' => time(),
         'date' => date('Y-m-d H:i:s'),
         'original_count' => count($results),
-        'unique_count' => count($uniqueResults)
+        'unique_count' => count($uniqueResults),
+        'is_playlist' => false
     ];
     
-    file_put_contents($cacheFile, json_encode($cacheData));
+    file_put_contents($cacheFile, json_encode($cacheData, JSON_PRETTY_PRINT));
     
     echo json_encode([
         'success' => true, 

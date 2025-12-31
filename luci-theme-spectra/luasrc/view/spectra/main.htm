@@ -27,6 +27,10 @@
                     <option value="youtube">YouTube</option>
                     <option value="soundcloud">SoundCloud</option>
                 </select>
+
+                <button id="spectraClearCacheBtn" class="btn btn-warning" type="button" data-tooltip-title="clear_cache">
+                    <i class="bi bi-trash"></i> <span data-translate="clear_button">Clear Cache</span>
+                </button>
             </div>
         </div>
         
@@ -230,3 +234,27 @@
 <link href="/luci-static/spectra/css/main.css" rel="stylesheet">
 <script src="/luci-static/spectra/js/plugin.js"></script>
 <%+footer%>
+
+<script>
+document.getElementById('spectraClearCacheBtn').onclick = function() {
+    const translations = languageTranslations[currentLang] || languageTranslations['en'];
+
+    showGlobalModal({
+        defaultText: translations['cache_clear_confirm'] || 'Are you sure you want to clear the search cache?',
+        onConfirm: () => {
+            fetch('/spectra/clear_cache.php')
+                .then(r => r.json())
+                .then(data => {
+                    showLogMessage(data.success ? 
+                        (translations['cache_cleared'] || 'Cache cleared successfully') : 
+                        (translations['clear_cache_failed'] || 'Failed to clear cache')
+                    );
+                    setTimeout(() => location.reload(), 2000);
+                })
+                .catch(() => {
+                    showLogMessage(translations['connection_error'] || 'Connection error');
+                });
+        }
+    });
+};
+</script>
