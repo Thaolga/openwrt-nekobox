@@ -104,6 +104,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         const playAllBtn = document.getElementById('playAllBtn');
                         if (playAllBtn) {
                             const stopAllText = translations['stop_all'] || 'Stop All';
+                            playAllBtn.className = 'btn cbi-button cbi-button-remove';
                             playAllBtn.innerHTML = `<i class="bi bi-stop-circle"></i> ${stopAllText}`;
                             playAllBtn.classList.add('playing');
                             playAllBtn.onclick = stopPlaylistMode;
@@ -898,6 +899,7 @@ function playAllSongs() {
     const playAllBtn = document.getElementById('playAllBtn');
     if (playAllBtn) {
         const stopAllText = translations['stop_all'] || 'Stop All';
+        playAllBtn.className = 'btn cbi-button cbi-button-remove';
         playAllBtn.innerHTML = `<i class="bi bi-stop-circle"></i> ${stopAllText}`;
         playAllBtn.classList.add('playing');
         playAllBtn.onclick = stopPlaylistMode;
