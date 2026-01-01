@@ -458,13 +458,6 @@
     animation: spin 1s linear infinite;
 }
 
-#apiKeyConfigBtn {
-    margin-left: auto;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-}
-
 #apiKeyConfigBtn.btn-pulse {
     animation: pulse 1s infinite;
     background-color: var(--color-yellow);
