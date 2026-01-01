@@ -22,7 +22,7 @@ $input = json_decode(file_get_contents('php://input'), true);
 $source = $input['source'] ?? '';
 $query = $input['query'] ?? '';
 $type = $input['type'] ?? 'song';
-$limit = $input['limit'] ?? 20;
+$limit = $input['limit'] ?? 50;
 $offset = $input['offset'] ?? 0;
 $pageToken = $input['pageToken'] ?? null;
 
@@ -159,7 +159,7 @@ function searchYouTube($query, $type, $apiKeys, $pageToken = null) {
     $apiKey = $apiKeys['youtube']['api_key'];
     
     $searchUrl = "https://www.googleapis.com/youtube/v3/search?part=snippet&q=" . 
-                 urlencode($query) . "&maxResults=20&type=video&key=$apiKey";
+                 urlencode($query) . "&maxResults=50&type=video&key=$apiKey";
     
     if ($pageToken) {
         $searchUrl .= "&pageToken=" . urlencode($pageToken);
@@ -219,7 +219,9 @@ function searchYouTube($query, $type, $apiKeys, $pageToken = null) {
                     'thumbnails' => $details['thumbnails'] ?? $item['snippet']['thumbnails'] ?? [],
                     'duration' => $details['duration'] ?? null,
                     'publishedAt' => $item['snippet']['publishedAt'] ?? '',
-                    'channelId' => $item['snippet']['channelId'] ?? ''
+                    'channelId' => $item['snippet']['channelId'] ?? '',
+                    'previewUrl' => $videoId ? "https://www.youtube.com/watch?v=" . $videoId : '',
+                    'proxyUrl' => $videoId ? "/spectra/youtube_proxy.php?action=stream&videoId=" . $videoId : ''
                 ];
             }
         }

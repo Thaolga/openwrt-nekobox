@@ -31,12 +31,12 @@ if (isset($_GET['get_playlist']) && $_GET['get_playlist'] === '1') {
                 'success' => true, 
                 'data' => $cacheData,
                 'playlist_ready' => true
-            ]);
+            ], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
         } else {
-            echo json_encode(['success' => false, 'message' => 'Cache mismatch for playlist']);
+            echo json_encode(['success' => false, 'message' => 'Cache mismatch for playlist'], JSON_UNESCAPED_SLASHES);
         }
     } else {
-        echo json_encode(['success' => false, 'message' => 'No cache available for playlist']);
+        echo json_encode(['success' => false, 'message' => 'No cache available for playlist'], JSON_UNESCAPED_SLASHES);
     }
     exit;
 }
@@ -46,6 +46,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     
     if (is_string($results)) {
         $results = json_decode($results, true);
+        
+        if (json_last_error() !== JSON_ERROR_NONE) {
+            echo json_encode([
+                'success' => false, 
+                'message' => 'Invalid JSON data: ' . json_last_error_msg()
+            ], JSON_UNESCAPED_SLASHES);
+            exit;
+        }
     }
     
     $uniqueResults = removeDuplicates($results, $source);
@@ -62,7 +70,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         'is_playlist' => false
     ];
     
-    file_put_contents($cacheFile, json_encode($cacheData, JSON_PRETTY_PRINT));
+    $result = file_put_contents($cacheFile, json_encode($cacheData, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE));
+    
+    if ($result === false) {
+        echo json_encode([
+            'success' => false, 
+            'message' => 'Failed to write cache file'
+        ], JSON_UNESCAPED_SLASHES);
+        exit;
+    }
     
     echo json_encode([
         'success' => true, 
@@ -72,7 +88,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             'unique' => count($uniqueResults),
             'removed' => count($results) - count($uniqueResults)
         ]
-    ]);
+    ], JSON_UNESCAPED_SLASHES);
     exit;
 }
 
@@ -81,7 +97,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && $query && $source) {
         $cacheData = json_decode(file_get_contents($cacheFile), true);
         
         if (!$cacheData) {
-            echo json_encode(['success' => false, 'message' => 'Cache file corrupted']);
+            echo json_encode(['success' => false, 'message' => 'Cache file corrupted'], JSON_UNESCAPED_SLASHES);
             exit;
         }
         
@@ -90,15 +106,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && $query && $source) {
             $cacheData['source'] === $source) {
             
             if (time() - $cacheData['timestamp'] < 86400) {
-                echo json_encode(['success' => true, 'data' => $cacheData]);
+                echo json_encode(['success' => true, 'data' => $cacheData], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
             } else {
-                echo json_encode(['success' => false, 'message' => 'Cache expired']);
+                echo json_encode(['success' => false, 'message' => 'Cache expired'], JSON_UNESCAPED_SLASHES);
             }
         } else {
-            echo json_encode(['success' => false, 'message' => 'Cache mismatch']);
+            echo json_encode(['success' => false, 'message' => 'Cache mismatch'], JSON_UNESCAPED_SLASHES);
         }
     } else {
-        echo json_encode(['success' => false, 'message' => 'Cache not found']);
+        echo json_encode(['success' => false, 'message' => 'Cache not found'], JSON_UNESCAPED_SLASHES);
     }
     exit;
 }
@@ -108,18 +124,18 @@ if (isset($_GET['get_latest']) && $_GET['get_latest'] === '1') {
         $cacheData = json_decode(file_get_contents($cacheFile), true);
         
         if (!$cacheData) {
-            echo json_encode(['success' => false, 'message' => 'Cache file corrupted']);
+            echo json_encode(['success' => false, 'message' => 'Cache file corrupted'], JSON_UNESCAPED_SLASHES);
             exit;
         }
         
         if (time() - $cacheData['timestamp'] < 86400) {
-            echo json_encode(['success' => true, 'data' => $cacheData]);
+            echo json_encode(['success' => true, 'data' => $cacheData], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
         } else {
             unlink($cacheFile);
-            echo json_encode(['success' => false, 'message' => 'Cache expired and deleted']);
+            echo json_encode(['success' => false, 'message' => 'Cache expired and deleted'], JSON_UNESCAPED_SLASHES);
         }
     } else {
-        echo json_encode(['success' => false, 'message' => 'No cache available']);
+        echo json_encode(['success' => false, 'message' => 'No cache available'], JSON_UNESCAPED_SLASHES);
     }
     exit;
 }
@@ -147,10 +163,10 @@ function removeDuplicates($results, $source) {
 function getUniqueIdentifier($item, $source) {
     switch($source) {
         case 'itunes':
-            return isset($item['trackId']) ? 'itunes_' . $item['trackId'] : md5(json_encode($item));
+            return isset($item['trackId']) ? 'itunes_' . $item['trackId'] : md5(json_encode($item, JSON_UNESCAPED_SLASHES));
             
         case 'spotify':
-            return isset($item['id']) ? 'spotify_' . $item['id'] : md5(json_encode($item));
+            return isset($item['id']) ? 'spotify_' . $item['id'] : md5(json_encode($item, JSON_UNESCAPED_SLASHES));
             
         case 'youtube':
             if (isset($item['id']['videoId'])) {
@@ -158,10 +174,10 @@ function getUniqueIdentifier($item, $source) {
             } elseif (isset($item['id'])) {
                 return 'youtube_' . $item['id'];
             }
-            return md5(json_encode($item));
+            return md5(json_encode($item, JSON_UNESCAPED_SLASHES));
             
         case 'soundcloud':
-            return isset($item['id']) ? 'soundcloud_' . $item['id'] : md5(json_encode($item));
+            return isset($item['id']) ? 'soundcloud_' . $item['id'] : md5(json_encode($item, JSON_UNESCAPED_SLASHES));
             
         default:
             $title = isset($item['trackName']) ? $item['trackName'] : 
@@ -176,5 +192,5 @@ function getUniqueIdentifier($item, $source) {
     }
 }
 
-echo json_encode(['success' => false, 'message' => 'Invalid request']);
+echo json_encode(['success' => false, 'message' => 'Invalid request'], JSON_UNESCAPED_SLASHES);
 ?>

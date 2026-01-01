@@ -1529,7 +1529,7 @@ select.uk-form-width-xsmall {
 
 .uk-button-warning {
     background-color: #fd7e14;
-    color: #000;
+    color: #fff;
     border: 1px solid transparent;
 }
 
@@ -1546,7 +1546,7 @@ select.uk-form-width-xsmall {
 
 .uk-button-info {
     background-color: #0dcaf0;
-    color: #000;
+    color: fff;
     border: 1px solid transparent;
 }
 

@@ -28,8 +28,14 @@
                     <option value="soundcloud">SoundCloud</option>
                 </select>
 
-                <button id="spectraClearCacheBtn" class="btn btn-warning" type="button" data-tooltip-title="clear_cache">
+                <button id="spectraClearCacheBtn" class="btn btn-warning" type="button" data-tooltip-title="clear_button">
                     <i class="bi bi-trash"></i> <span data-translate="clear_button">Clear Cache</span>
+                </button>
+
+                <button id="apiKeyConfigBtn" class="btn btn-default" type="button" 
+                    onclick="showApiKeyConfigPage()"
+                    data-tooltip-title="configure_api_keys">
+                        <i class="bi bi-key"></i> <span data-translate="configure_api_keys">Configure API Keys</span>
                 </button>
             </div>
         </div>
@@ -75,16 +81,16 @@
                     </div>
                 </div>
                 
-                <div class="playing-time-container" style="display: none;">
+                <div class="playing-time-container">
                     <div class="playing-time-wrapper">
-                        <span id="currentTime" class="time-text">0:00</span>
+                        <span id="playingCurrentTime" class="time-text">0:00</span>
                         <div class="time-progress-bar">
                             <div class="time-progress-bg"></div>
-                            <div id="timeProgress" class="time-progress"></div>
-                            <div id="timeThumb" class="time-thumb"></div>
-                            <input type="range" id="timeSeek" class="time-seek" min="0" max="100" value="0">
+                            <div id="playingTimeProgress" class="time-progress"></div>
+                            <div id="playingTimeThumb" class="time-thumb"></div>
+                            <input type="range" id="playingTimeSeek" class="time-seek" min="0" max="100" value="0">
                         </div>
-                        <span id="totalTime" class="time-text">0:30</span>
+                        <span id="playingTotalTime" class="time-text">0:30</span>
                     </div>
                 </div>
                 
@@ -128,10 +134,32 @@
                 Configure API keys for music services. These keys will be saved to the server configuration file.
             </p>
 
+            <div class="uk-margin-bottom">
+                <div class="uk-flex uk-flex-middle uk-flex-between">
+                    <div class="uk-text-small uk-text-muted">
+                        <i class="bi bi-shield-check uk-margin-small-right"></i>
+                        <span data-translate="keys_backup_tip">Export/Import your API keys configuration</span>
+                    </div>
+                    <div class="uk-button-group">
+                        <button class="uk-button uk-margin-small-left uk-button-primary uk-button-small" type="button"
+                                onclick="exportApiKeys()" data-tooltip-title="export_keys">
+                            <i class="bi bi-download uk-margin-small-right"></i>
+                            <span data-translate="export_keys">Export Keys</span>
+                        </button>
+                        <button class="uk-button uk-margin-small-left uk-button-success uk-button-small" type="button"
+                                onclick="document.getElementById('importFileInput').click()" data-tooltip-title="import_keys">
+                            <i class="bi bi-upload uk-margin-small-right"></i>
+                            <span data-translate="import_keys">Import Keys</span>
+                        </button>
+                        <input type="file" id="importFileInput" accept=".json" style="display: none;" onchange="importApiKeys(this)">
+                    </div>
+                </div>
+            </div>
+
             <form class="uk-form-stacked">
                 <fieldset class="uk-fieldset uk-margin">
                     <legend class="uk-legend">
-                        <span uk-icon="icon: spotify"></span>
+                        <i class="bi bi-spotify uk-margin-small-right" style="font-size: 0.9em;"></i>
                         <span data-translate="spotify_api_keys">Spotify API Keys</span>
                     </legend>
 
@@ -155,15 +183,18 @@
                         </div>
                     </div>
 
-                    <p class="uk-text-small uk-text-muted" data-translate="spotify_key_hint">
-                        Get keys from: https://developer.spotify.com/dashboard
+                    <p class="uk-text-small uk-text-muted">
+                        <span data-translate="get_from">Get from:</span>
+                        <a href="https://developer.spotify.com/dashboard" target="_blank" rel="noopener noreferrer" class="uk-link uk-link-muted">
+                             https://developer.spotify.com/dashboard
+                         </a>
                     </p>
+
                 </fieldset>
 
                 <fieldset class="uk-fieldset uk-margin">
-
                     <legend class="uk-legend">
-                        <span uk-icon="icon: youtube"></span>
+                        <i class="bi bi-youtube uk-margin-small-right" style="font-size: 1em;"></i>
                         <span data-translate="youtube_api_key">YouTube API Key</span>
                     </legend>
 
@@ -177,14 +208,17 @@
                         </div>
                     </div>
 
-                    <p class="uk-text-small uk-text-muted" data-translate="youtube_key_hint">
-                        Get key from: https://console.cloud.google.com/apis
+                    <p class="uk-text-small uk-text-muted">
+                        <span data-translate="get_from">Get from:</span>
+                        <a href="https://console.cloud.google.com/apis" target="_blank" rel="noopener noreferrer" class="uk-link uk-link-muted">
+                            https://console.cloud.google.com/apis
+                        </a>
                     </p>
                 </fieldset>
 
                 <fieldset class="uk-fieldset uk-margin">
                     <legend class="uk-legend">
-                        <span uk-icon="icon: soundcloud"></span>
+                        <span uk-icon="icon: soundcloud; ratio: 1.5" class="uk-margin-small-right"></span>
                         <span data-translate="soundcloud_client_id">SoundCloud Client ID</span>
                     </legend>
 
@@ -206,28 +240,30 @@
         </div>
 
         <div class="uk-modal-footer uk-text-right">
-            <button class="uk-button uk-button-success" type="button"
-                    onclick="loadCurrentKeys()">
-                <span uk-icon="refresh"></span>
-                <span data-translate="load_current_keys">Load Current Keys</span>
-            </button>
+            <div class="uk-button-group">
+                <button class="uk-button uk-margin-small-left uk-button-success uk-hidden" type="button"
+                        onclick="loadCurrentKeys()">
+                    <span uk-icon="refresh"></span>
+                    <span data-translate="load_current_keys">Load Current Keys</span>
+                </button>
 
-            <button class="uk-button uk-button-primary" type="button"
-                    onclick="saveApiKeys()">
-                <span uk-icon="save"></span>
-                <span data-translate="save_keys">Save Keys</span>
-            </button>
+                <button class="uk-button uk-margin-small-left uk-button-primary" type="button"
+                        onclick="saveApiKeys()">
+                    <span uk-icon="save"></span>
+                    <span data-translate="save_keys">Save Keys</span>
+                </button>
 
-            <button class="uk-button uk-button-secondary" type="button"
-                    onclick="checkApiStatus()">
-                <span uk-icon="check"></span>
-                <span data-translate="test_api">Test API</span>
-            </button>
+                <button class="uk-button uk-margin-small-left uk-button-info" type="button"
+                        onclick="checkApiStatus()">
+                    <span uk-icon="check"></span>
+                    <span data-translate="test_api">Test API</span>
+                </button>
 
-            <button class="uk-button uk-button-gray uk-modal-close" type="button"
-                    data-translate="close">
-                Close
-            </button>
+                <button class="uk-button uk-margin-small-left uk-button-gray uk-modal-close" type="button"
+                        data-translate="close">
+                    Close
+                </button>
+            </div>
         </div>
     </div>
 </div>
@@ -236,6 +272,79 @@
 <%+footer%>
 
 <script>
+function exportApiKeys() {
+    const translations = languageTranslations[currentLang] || languageTranslations['en'];
+    
+    const keys = {
+        spotify: {
+            client_id: document.getElementById('spotifyClientId').value.trim(),
+            client_secret: document.getElementById('spotifyClientSecret').value.trim()
+        },
+        youtube: {
+            api_key: document.getElementById('youtubeApiKey').value.trim()
+        },
+        soundcloud: {
+            client_id: document.getElementById('soundcloudClientId').value.trim()
+        },
+        exported_at: new Date().toISOString(),
+        tool: 'Spectra Music Search'
+    };
+    
+    const jsonStr = JSON.stringify(keys, null, 2);
+    const blob = new Blob([jsonStr], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `spectra-api-keys-${new Date().toISOString().split('T')[0]}.json`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    
+    showLogMessage(translations['keys_exported'] || 'API keys exported successfully');
+}
+
+function importApiKeys(input) {
+    const translations = languageTranslations[currentLang] || languageTranslations['en'];
+    
+    const file = input.files[0];
+    if (!file) return;
+    
+    const reader = new FileReader();
+    reader.onload = function(e) {
+        try {
+            const keys = JSON.parse(e.target.result);
+            
+            if (!keys.spotify || !keys.youtube || !keys.soundcloud) {
+                throw new Error('Invalid backup file format');
+            }
+            
+            if (keys.spotify.client_id) {
+                document.getElementById('spotifyClientId').value = keys.spotify.client_id;
+            }
+            if (keys.spotify.client_secret) {
+                document.getElementById('spotifyClientSecret').value = keys.spotify.client_secret;
+            }
+            if (keys.youtube.api_key) {
+                document.getElementById('youtubeApiKey').value = keys.youtube.api_key;
+            }
+            if (keys.soundcloud.client_id) {
+                document.getElementById('soundcloudClientId').value = keys.soundcloud.client_id;
+            }
+            
+            showLogMessage(translations['keys_imported'] || 'API keys imported successfully');
+            
+        } catch (error) {
+            showLogMessage(translations['import_error'] || 'Error importing backup file: ' + error.message);
+        }
+        
+        input.value = '';
+    };
+    
+    reader.readAsText(file);
+}
+
 document.getElementById('spectraClearCacheBtn').onclick = function() {
     const translations = languageTranslations[currentLang] || languageTranslations['en'];
 
