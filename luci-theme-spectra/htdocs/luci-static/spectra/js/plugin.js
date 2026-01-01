@@ -3248,6 +3248,7 @@ function updatePlayingUIFromCard(card) {
     
     if (playingTitle) {
         playingTitle.textContent = card.dataset.title;
+        playingTitle.setAttribute('title', card.dataset.title);
         playingTitle.removeAttribute('data-translate');
     }
     
@@ -3345,6 +3346,7 @@ function updatePlayingUIFromItem(item) {
     
     if (playingTitle && item.title) {
         playingTitle.textContent = item.title;
+        playingTitle.setAttribute('title', item.title); 
         playingTitle.removeAttribute('data-translate');
     }
     
