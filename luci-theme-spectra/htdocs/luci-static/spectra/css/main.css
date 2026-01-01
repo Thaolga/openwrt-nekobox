@@ -501,7 +501,7 @@
 
 #oadMoreButton,
 #playAllBtn {
-    background: var(--btn-primary-bg);
+
     border: none;
     color: white;
     font-weight: 500;
