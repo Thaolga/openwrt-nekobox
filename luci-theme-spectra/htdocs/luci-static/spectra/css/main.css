@@ -767,6 +767,10 @@
         height: 32px;
         font-size: 16px;
     }
+
+    #playingTitle {
+        max-width: 350px !important;
+    }
 }
 
 .youtube-preview-modal {
@@ -932,4 +936,13 @@
 
 .youtube-modal-footer .youtube-playpause-btn:hover i {
     transform: scale(1.1);
+}
+
+#playingTitle {
+    display: inline-block;
+    max-width: 500px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    cursor: default;
 }
