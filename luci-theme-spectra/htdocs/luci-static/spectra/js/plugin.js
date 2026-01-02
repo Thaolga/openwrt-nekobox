@@ -1973,7 +1973,7 @@ function createYouTubePlayer(modalId, videoId, title) {
     iframe.allow = 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share; fullscreen';
       
     const playingText = translations['playing'] || 'Playing';
-    iframe.title = `${playingText}: ${title}`;
+    //iframe.title = `${playingText}: ${title}`;
     
     iframe.style.width = '100%';
     iframe.style.height = '100%';
