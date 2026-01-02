@@ -1725,12 +1725,26 @@ function playYouTubeVideoInModal(videoUrl, title, card) {
         const urlObj = new URL(videoUrl);
         videoId = urlObj.searchParams.get('v');
     } catch (e) {
+        //console.warn('Invalid YouTube URL:', videoUrl);
         return;
     }
-    if (!videoId) return;
+    if (!videoId) {
+        //console.warn('No video ID found in URL:', videoUrl);
+        return;
+    }
 
     if (window.currentYouTubeModal) {
-        window.currentYouTubeModal.hide();
+        try {
+            window.currentYouTubeModal.hide();
+            const existingIframe = window.currentYouTubeIframe;
+            if (existingIframe) {
+                try {
+                    existingIframe.src = '';
+                    existingIframe.remove();
+                } catch (e) {}
+                window.currentYouTubeIframe = null;
+            }
+        } catch (e) {}
     }
 
     window.currentYouTubeCard = card;
@@ -1988,12 +2002,22 @@ function createYouTubePlayer(modalId, videoId, title) {
 
     iframe.addEventListener('load', function() {
         try {
+            if (!iframe || !iframe.contentWindow) {
+                //console.warn('iframe or contentWindow is not available');
+                return;
+            }
+            
             const listenMessage = {
                 event: 'listening',
                 id: 1,
                 channel: 'widget'
             };
-            iframe.contentWindow.postMessage(JSON.stringify(listenMessage), '*');
+            
+            try {
+                iframe.contentWindow.postMessage(JSON.stringify(listenMessage), '*');
+            } catch (postMessageError) {
+                //console.warn('postMessage error:', postMessageError);
+            }
 
             const messageHandler = function(event) {
                 if (event.origin !== 'https://www.youtube.com' && 
@@ -2022,6 +2046,11 @@ function createYouTubePlayer(modalId, videoId, title) {
             iframe._messageHandler = messageHandler;
 
             setTimeout(() => {
+                if (!iframe || !iframe.contentWindow) {
+                    //console.warn('iframe not available after timeout');
+                    return;
+                }
+                
                 const getInfoMessage = {
                     event: 'command',
                     func: 'getPlayerState',
@@ -2029,9 +2058,16 @@ function createYouTubePlayer(modalId, videoId, title) {
                     id: 1,
                     channel: 'widget'
                 };
-                iframe.contentWindow.postMessage(JSON.stringify(getInfoMessage), '*');
+                
+                try {
+                    iframe.contentWindow.postMessage(JSON.stringify(getInfoMessage), '*');
+                } catch (postMessageError) {
+                    //console.warn('postMessage error in timeout:', postMessageError);
+                }
             }, 1000);
-        } catch (e) {}
+        } catch (e) {
+            //console.warn('iframe load handler error:', e);
+        }
 
         setupYouTubeMessageListener(modalId);
     });
@@ -2042,6 +2078,14 @@ function createYouTubePlayer(modalId, videoId, title) {
         }
         if (iframe._messageHandler) {
             window.removeEventListener('message', iframe._messageHandler);
+            delete iframe._messageHandler;
+        }
+    });
+
+    iframe.addEventListener('error', function(e) {
+        //console.warn('iframe error:', e);
+        if (playCheckTimer) {
+            clearTimeout(playCheckTimer);
         }
     });
 }
