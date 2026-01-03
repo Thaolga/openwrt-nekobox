@@ -1998,7 +1998,7 @@ function createYouTubePlayer(modalId, videoId, title) {
                 playNextYouTubeVideo();
             }, 300);
         }
-    }, 7000);
+    }, 20000);
 
     iframe.addEventListener('load', function() {
         try {
@@ -2145,6 +2145,9 @@ function enterFullscreenMode(modalId, dialog, iframe, controls) {
     
     if (allCards.length > 0) {
         createFullscreenPlaylist(modalId, dialog, allCards);
+        const sensor = addSmartSensor(modalId, dialog);
+        
+        window.currentPlaylistSensor = sensor;
     }
     
     const playerContainer = iframe.parentElement;
@@ -2295,6 +2298,182 @@ function enterFullscreenMode(modalId, dialog, iframe, controls) {
     localStorage.setItem('youtube_fullscreen_state', '1');
     
     document.addEventListener('keydown', handleFullscreenEscape);
+}
+
+function addSmartSensor(modalId, dialog) {
+    const playlist = document.getElementById(`youtube-fullscreen-playlist-${modalId}`);
+    if (!playlist) return;
+    
+    const smartSensor = document.createElement('div');
+    smartSensor.className = 'youtube-smart-sensor';
+    smartSensor.id = `smart-sensor-${modalId}`;
+    
+    const indicator = document.createElement('div');
+    indicator.className = 'youtube-smart-indicator';
+    indicator.innerHTML = '<i class="bi bi-list-ul"></i>';
+    indicator.title = 'Playlist (P)';
+    
+    smartSensor.appendChild(indicator);
+    dialog.appendChild(smartSensor);
+    
+    let playlistVisible = false;
+    let sensorActive = false;
+    let sensorTimeout;
+    let hideTimeout;
+    
+    const activateSensor = () => {
+        if (sensorActive) return;
+        
+        sensorActive = true;
+        smartSensor.classList.add('active');
+        clearTimeout(sensorTimeout);
+        clearTimeout(hideTimeout);
+        
+        console.log('Sensor activated');
+    };
+    
+    const deactivateSensor = () => {
+        if (!sensorActive) return;
+        
+        sensorActive = false;
+        smartSensor.classList.remove('active');
+        
+        if (!playlistVisible) {
+            sensorTimeout = setTimeout(() => {
+                smartSensor.classList.remove('active');
+            }, 500);
+        }
+        
+        console.log('Sensor deactivated');
+    };
+    
+    dialog.addEventListener('mousemove', (e) => {
+        const rect = dialog.getBoundingClientRect();
+        const x = e.clientX - rect.left;
+        const y = e.clientY - rect.top;
+        
+        const isInActivationZone = x < 60 && y < 200;
+        
+        if (isInActivationZone) {
+            activateSensor();
+            
+            clearTimeout(sensorTimeout);
+            if (!playlistVisible) {
+                sensorTimeout = setTimeout(() => {
+                    playlistVisible = true;
+                    playlist.classList.add('show');
+                    console.log('Auto-show playlist');
+                }, 800);
+            }
+        } else {
+            if (!playlistVisible) {
+                deactivateSensor();
+            }
+            clearTimeout(sensorTimeout);
+        }
+    });
+    
+    dialog.addEventListener('mouseleave', () => {
+        if (!playlistVisible) {
+            deactivateSensor();
+        }
+        clearTimeout(sensorTimeout);
+    });
+    
+    indicator.addEventListener('click', (e) => {
+        e.stopPropagation();
+        playlistVisible = !playlistVisible;
+        playlist.classList.toggle('show', playlistVisible);
+        
+        activateSensor();
+        
+        indicator.style.transform = 'translateY(-50%) scale(0.9)';
+        setTimeout(() => {
+            indicator.style.transform = 'translateY(-50%) scale(1)';
+        }, 200);
+        
+        console.log('Playlist toggled:', playlistVisible);
+    });
+    
+    document.addEventListener('click', (e) => {
+        if (playlistVisible && 
+            !playlist.contains(e.target) && 
+            !smartSensor.contains(e.target)) {
+            playlistVisible = false;
+            playlist.classList.remove('show');
+            
+            if (!smartSensor.matches(':hover')) {
+                deactivateSensor();
+            }
+        }
+    });
+    
+    const handleKeyPress = (e) => {
+        if (e.key === 'p' || e.key === 'P' || e.key === '[') {
+            playlistVisible = !playlistVisible;
+            playlist.classList.toggle('show', playlistVisible);
+            
+            if (playlistVisible) {
+                activateSensor();
+            }
+            
+            e.preventDefault();
+        }
+        
+        if (e.key === 'Escape' && playlistVisible) {
+            playlistVisible = false;
+            playlist.classList.remove('show');
+            deactivateSensor();
+        }
+    };
+    
+    document.addEventListener('keydown', handleKeyPress);
+    
+    let touchStartX = 0;
+    let touchStartY = 0;
+    let touchStartTime = 0;
+    
+    dialog.addEventListener('touchstart', (e) => {
+        touchStartX = e.touches[0].clientX;
+        touchStartY = e.touches[0].clientY;
+        touchStartTime = Date.now();
+        
+        if (touchStartX < 60) {
+            activateSensor();
+        }
+    });
+    
+    dialog.addEventListener('touchmove', (e) => {
+        const touchX = e.touches[0].clientX;
+        const touchY = e.touches[0].clientY;
+        const touchTime = Date.now();
+        
+        if (touchStartX < 50 && 
+            touchX > touchStartX + 80 && 
+            touchTime - touchStartTime < 300) {
+            if (!playlistVisible) {
+                playlistVisible = true;
+                playlist.classList.add('show');
+                activateSensor();
+                e.preventDefault();
+            }
+        }
+        
+        if (playlistVisible && touchX < 50) {
+            playlistVisible = false;
+            playlist.classList.remove('show');
+            deactivateSensor();
+        }
+    });
+    
+    return {
+        cleanup: () => {
+            document.removeEventListener('keydown', handleKeyPress);
+            if (smartSensor.parentNode) {
+                smartSensor.parentNode.removeChild(smartSensor);
+            }
+        }
+    };
 }
 
 function createFullscreenPlaylist(modalId, dialog, allCards) {
@@ -2536,6 +2715,11 @@ function exitFullscreenMode(modalId, dialog, iframe, controls) {
         dialog.removeEventListener('mousemove', dialog._hoverListeners.mousemove);
         dialog.removeEventListener('mouseleave', dialog._hoverListeners.mouseleave);
         delete dialog._hoverListeners;
+    }
+
+    if (window.currentPlaylistSensor && window.currentPlaylistSensor.cleanup) {
+        window.currentPlaylistSensor.cleanup();
+        window.currentPlaylistSensor = null;
     }
     
     window.removeEventListener('resize', handleFullscreenResize);
