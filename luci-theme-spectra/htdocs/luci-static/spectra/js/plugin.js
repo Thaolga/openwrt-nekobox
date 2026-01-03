@@ -2515,26 +2515,41 @@ function createFullscreenPlaylist(modalId, dialog, allCards) {
 }
 
 function loadFullscreenPlaylistItems(modalId, allCards) {
+    const translations = languageTranslations[currentLang] || languageTranslations['en'];
     const playlistContent = document.getElementById(`youtube-fullscreen-playlist-content-${modalId}`);
+    const countElement = document.getElementById(`youtube-playlist-count-${modalId}`);
     
     if (!playlistContent) return;
     
     playlistContent.innerHTML = '';
+    
+    if (countElement) {
+        const itemsText = translations['items'] || 'items';
+        countElement.textContent = `${allCards.length} ${itemsText}`;
+    }
     
     allCards.forEach((card, index) => {
         const title = card.dataset.title || 'Unknown Video';
         const artist = card.dataset.artist || 'YouTube';
         const duration = card.dataset.duration || '--:--';
         const videoId = getYouTubeVideoId(card.dataset.previewUrl);
+        const coverUrl = card.dataset.cover || '/luci-static/resources/icons/cover.svg';
         
         const playlistItem = document.createElement('div');
         playlistItem.className = 'youtube-fullscreen-playlist-item';
         playlistItem.dataset.index = index;
         playlistItem.dataset.videoId = videoId;
         playlistItem.dataset.cardIndex = card.dataset.index;
+        playlistItem.dataset.coverUrl = coverUrl;
         
         playlistItem.innerHTML = `
             <div class="youtube-fullscreen-playlist-item-number">${index + 1}</div>
+            <div class="youtube-fullscreen-playlist-item-icon">
+                ${coverUrl.includes('cover.svg') 
+                    ? '<i class="bi bi-music-note default-icon"></i>' 
+                    : `<img src="${coverUrl}" alt="${title}" loading="lazy">`
+                }
+            </div>
             <div class="youtube-fullscreen-playlist-item-info">
                 <div class="youtube-fullscreen-playlist-item-title" title="${title}">${title}</div>
                 <div class="youtube-fullscreen-playlist-item-artist" title="${artist}">${artist}</div>
@@ -2544,6 +2559,10 @@ function loadFullscreenPlaylistItems(modalId, allCards) {
                 <i class="bi bi-play-fill"></i>
             </div>
         `;
+        
+        if (!coverUrl.includes('cover.svg')) {
+            preloadImage(coverUrl, playlistItem.querySelector('.youtube-fullscreen-playlist-item-icon'));
+        }
         
         if (card === window.currentYouTubeCard) {
             playlistItem.classList.add('playing');
@@ -2556,13 +2575,159 @@ function loadFullscreenPlaylistItems(modalId, allCards) {
             const cardToPlay = allCards.find(c => 
                 c.dataset.index === cardIndex || getYouTubeVideoId(c.dataset.previewUrl) === videoId
             );
-            if (cardToPlay) {
+            if (cardToPlay && window.currentYouTubeModal && window.currentYouTubeIframe) {
                 switchYouTubeVideoInModal(videoId, cardToPlay);
             }
         });
         
+        playlistItem.addEventListener('contextmenu', function(e) {
+            e.preventDefault();
+            showPlaylistItemContextMenu(e, this, card);
+        });
+        
         playlistContent.appendChild(playlistItem);
     });
+}
+
+function preloadImage(url, container) {
+    if (!url || url.includes('cover.svg')) return;
+    
+    const img = new Image();
+    container.classList.add('loading');
+    
+    img.onload = function() {
+        container.classList.remove('loading');
+        const imgElement = container.querySelector('img');
+        if (imgElement) {
+            imgElement.src = url;
+        }
+    };
+    
+    img.onerror = function() {
+        container.classList.remove('loading');
+        container.innerHTML = '<i class="bi bi-image default-icon"></i>';
+    };
+    
+    img.src = url;
+}
+
+function showPlaylistItemContextMenu(e, itemElement, card) {
+    e.stopPropagation();
+    
+    const videoId = itemElement.dataset.videoId;
+    const title = card.dataset.title;
+    
+    const existingMenu = document.querySelector('.youtube-playlist-context-menu');
+    if (existingMenu) {
+        existingMenu.remove();
+    }
+    
+    const menu = document.createElement('div');
+    menu.className = 'youtube-playlist-context-menu';
+    menu.style.cssText = `
+        position: fixed;
+        left: ${e.clientX}px;
+        top: ${e.clientY}px;
+        background: oklch(70% 0.05 260 / 0.95);
+        backdrop-filter: blur(15px) saturate(200%);
+        -webkit-backdrop-filter: blur(15px) saturate(200%);
+        border-radius: 12px;
+        padding: 8px 0;
+        min-width: 160px;
+        z-index: 10010;
+        box-shadow: 0 8px 40px oklch(0% 0 0 / 0.3),
+                    0 1px 0 oklch(100% 0 0 / 0.1);
+        border: 1px solid oklch(100% 0 0 / 0.15);
+        overflow: hidden;
+    `;
+    
+    const menuItems = [
+        {
+            icon: 'bi-play-fill',
+            text: translations['play_now'] || 'Play Now',
+            action: () => {
+                const allCards = Array.from(document.querySelectorAll('.music-card[data-source="youtube"]'));
+                const cardToPlay = allCards.find(c => 
+                    c.dataset.index === itemElement.dataset.cardIndex
+                );
+                if (cardToPlay && window.currentYouTubeModal && window.currentYouTubeIframe) {
+                    switchYouTubeVideoInModal(videoId, cardToPlay);
+                }
+                menu.remove();
+            }
+        },
+        {
+            icon: 'bi-youtube',
+            text: translations['open_on_youtube'] || 'Open on YouTube',
+            action: () => {
+                window.open(`https://www.youtube.com/watch?v=${videoId}`, '_blank');
+                menu.remove();
+            }
+        },
+        {
+            icon: 'bi-info-circle',
+            text: translations['video_info'] || 'Video Info',
+            action: () => {
+                showVideoInfo(title);
+                menu.remove();
+            }
+        }
+    ];
+    
+    menuItems.forEach(item => {
+        const menuItem = document.createElement('div');
+        menuItem.className = 'context-menu-item';
+        menuItem.style.cssText = `
+            padding: 10px 16px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            color: oklch(100% 0 0);
+            font-size: 14px;
+        `;
+        
+        menuItem.innerHTML = `
+            <i class="bi ${item.icon}" style="font-size: 16px; color: oklch(53% 0.18 17);"></i>
+            <span>${item.text}</span>
+        `;
+        
+        menuItem.addEventListener('mouseenter', function() {
+            this.style.background = 'oklch(53% 0.18 17 / 0.3)';
+            this.style.transform = 'translateX(2px)';
+        });
+        
+        menuItem.addEventListener('mouseleave', function() {
+            this.style.background = 'transparent';
+            this.style.transform = 'translateX(0)';
+        });
+        
+        menuItem.addEventListener('click', item.action);
+        
+        menu.appendChild(menuItem);
+    });
+    
+    document.body.appendChild(menu);
+    
+    const closeMenu = function(e) {
+        if (!menu.contains(e.target)) {
+            menu.remove();
+            document.removeEventListener('click', closeMenu);
+            document.removeEventListener('contextmenu', closeMenu);
+        }
+    };
+    
+    setTimeout(() => {
+        document.addEventListener('click', closeMenu);
+        document.addEventListener('contextmenu', closeMenu);
+    }, 10);
+}
+
+function showVideoInfo(title) {
+    const translations = languageTranslations[currentLang] || languageTranslations['en'];
+    const videoText = translations['video_info'] || 'Video Info';
+    showLogMessage(`${videoText}: ${title}`);
 }
 
 function updateFullscreenPlaylistCurrentItem(card) {
