@@ -1725,25 +1725,41 @@ function playYouTubeVideoInModal(videoUrl, title, card) {
         const urlObj = new URL(videoUrl);
         videoId = urlObj.searchParams.get('v');
     } catch (e) {
-        //console.warn('Invalid YouTube URL:', videoUrl);
+        const patterns = [
+            /(?:youtube\.com\/watch\?v=|youtu\.be\/)([^&\s?]+)/,
+            /v=([^&\s?]+)/,
+            /^([A-Za-z0-9_-]{11})$/
+        ];
+        
+        for (const pattern of patterns) {
+            const match = videoUrl.match(pattern);
+            if (match && match[1]) {
+                videoId = match[1];
+                break;
+            }
+        }
+    }
+    
+    if (!videoId) {
         return;
     }
-    if (!videoId) {
-        //console.warn('No video ID found in URL:', videoUrl);
-        return;
+
+    if (window.currentYouTubeModal && window.currentYouTubeModalId) {
+        const isSameVideo = window.currentYouTubeVideoId === videoId;
+        
+        if (isSameVideo) {
+            window.currentYouTubeModal.show();
+            return;
+        } else {
+            window.currentYouTubeCard = card;
+            switchYouTubeVideoInModal(videoId, card);
+            return;
+        }
     }
 
     if (window.currentYouTubeModal) {
         try {
             window.currentYouTubeModal.hide();
-            const existingIframe = window.currentYouTubeIframe;
-            if (existingIframe) {
-                try {
-                    existingIframe.src = '';
-                    existingIframe.remove();
-                } catch (e) {}
-                window.currentYouTubeIframe = null;
-            }
         } catch (e) {}
     }
 
@@ -2328,8 +2344,6 @@ function addSmartSensor(modalId, dialog) {
         smartSensor.classList.add('active');
         clearTimeout(sensorTimeout);
         clearTimeout(hideTimeout);
-        
-        console.log('Sensor activated');
     };
     
     const deactivateSensor = () => {
@@ -2343,8 +2357,6 @@ function addSmartSensor(modalId, dialog) {
                 smartSensor.classList.remove('active');
             }, 500);
         }
-        
-        console.log('Sensor deactivated');
     };
     
     dialog.addEventListener('mousemove', (e) => {
@@ -2362,7 +2374,6 @@ function addSmartSensor(modalId, dialog) {
                 sensorTimeout = setTimeout(() => {
                     playlistVisible = true;
                     playlist.classList.add('show');
-                    console.log('Auto-show playlist');
                 }, 800);
             }
         } else {
@@ -2391,8 +2402,6 @@ function addSmartSensor(modalId, dialog) {
         setTimeout(() => {
             indicator.style.transform = 'translateY(-50%) scale(1)';
         }, 200);
-        
-        console.log('Playlist toggled:', playlistVisible);
     });
     
     document.addEventListener('click', (e) => {
@@ -2548,12 +2557,35 @@ function loadFullscreenPlaylistItems(modalId, allCards) {
                 c.dataset.index === cardIndex || getYouTubeVideoId(c.dataset.previewUrl) === videoId
             );
             if (cardToPlay) {
-                playMusic(cardToPlay);
+                switchYouTubeVideoInModal(videoId, cardToPlay);
             }
         });
         
         playlistContent.appendChild(playlistItem);
     });
+}
+
+function updateFullscreenPlaylistCurrentItem(card) {
+    if (!window.isYouTubeFullscreen || !window.fullscreenModalId) return;
+    
+    const modalId = window.fullscreenModalId;
+    const playlist = document.getElementById(`youtube-fullscreen-playlist-${modalId}`);
+    if (!playlist) return;
+    
+    playlist.querySelectorAll('.youtube-fullscreen-playlist-item').forEach(item => {
+        item.classList.remove('playing');
+    });
+    
+    const allCards = Array.from(document.querySelectorAll('.music-card[data-source="youtube"]'));
+    const currentIndex = allCards.findIndex(c => c === card);
+    
+    if (currentIndex !== -1) {
+        const playlistItem = playlist.querySelector(`.youtube-fullscreen-playlist-item[data-index="${currentIndex}"]`);
+        if (playlistItem) {
+            playlistItem.classList.add('playing');
+            playlistItem.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+    }
 }
 
 function setupFullscreenPlaylistHover(modalId, dialog) {
@@ -2932,24 +2964,148 @@ function playPrevYouTubeVideo() {
         
         if (currentIndex > 0) {
             const prevCard = allCards[currentIndex - 1];
-            playMusic(prevCard);
+            
+            if (window.currentYouTubeModal && window.currentYouTubeIframe) {
+                const prevVideoId = getYouTubeVideoId(prevCard.dataset.previewUrl);
+                if (prevVideoId) {
+                    switchYouTubeVideoInModal(prevVideoId, prevCard);
+                }
+            } else {
+                playMusic(prevCard);
+            }
         } else if (allCards.length > 0) {
-            playMusic(allCards[allCards.length - 1]);
+            const lastCard = allCards[allCards.length - 1];
+            
+            if (window.currentYouTubeModal && window.currentYouTubeIframe) {
+                const lastVideoId = getYouTubeVideoId(lastCard.dataset.previewUrl);
+                if (lastVideoId) {
+                    switchYouTubeVideoInModal(lastVideoId, lastCard);
+                }
+            } else {
+                playMusic(lastCard);
+            }
         }
     }
 }
 
-function playNextYouTubeVideo() {
+async function playNextYouTubeVideo() {
     if (window.currentYouTubeCard) {
         const allCards = Array.from(document.querySelectorAll('.music-card[data-source="youtube"]'));
         const currentIndex = allCards.findIndex(card => card === window.currentYouTubeCard);
         
         if (currentIndex < allCards.length - 1) {
             const nextCard = allCards[currentIndex + 1];
-            playMusic(nextCard);
+            
+            if (window.currentYouTubeModal && window.currentYouTubeIframe) {
+                const nextVideoId = getYouTubeVideoId(nextCard.dataset.previewUrl);
+                if (!nextVideoId) return;
+                
+                switchYouTubeVideoInModal(nextVideoId, nextCard);
+            } else {
+                playMusic(nextCard);
+            }
         } else if (allCards.length > 0) {
-            playMusic(allCards[0]);
+            const firstCard = allCards[0];
+            
+            if (window.currentYouTubeModal && window.currentYouTubeIframe) {
+                const firstVideoId = getYouTubeVideoId(firstCard.dataset.previewUrl);
+                if (firstVideoId) {
+                    switchYouTubeVideoInModal(firstVideoId, firstCard);
+                }
+            } else {
+                playMusic(firstCard);
+            }
         }
+    }
+}
+
+function switchYouTubeVideoInModal(videoId, card) {
+    window.isSwitchingVideo = true;
+    
+    if (!window.currentYouTubeModal || !window.currentYouTubeModalId) {
+        playMusic(card);
+        window.isSwitchingVideo = false;
+        return;
+    }
+        
+    window.currentYouTubeCard = card;
+    window.currentYouTubeVideoId = videoId;
+    
+    const iframe = window.currentYouTubeIframe;
+    if (iframe) {
+        try {
+            try {
+                iframe.contentWindow.postMessage('{"event":"command","func":"stopVideo","args":""}', '*');
+            } catch (e) {}
+            
+            const params = new URLSearchParams({
+                'autoplay': '1',
+                'rel': '0',
+                'modestbranding': '1',
+                'playsinline': '1',
+                'enablejsapi': '1',
+                'widgetid': '1',
+                'fs': '1',
+                'origin': window.location.origin,
+                'iv_load_policy': '3',
+                'disablekb': '0',
+                'controls': '1',
+                'showinfo': '0',
+                'mute': '0',
+                'cc_load_policy': '1',
+                'hl': 'zh-TW',
+                'color': 'red',
+                'theme': 'dark',
+                'autohide': '1',
+                'wmode': 'transparent',
+                'vq': 'hd1080'
+            });
+            
+            const newSrc = `https://www.youtube.com/embed/${videoId}?${params.toString()}`;
+            
+            iframe.src = newSrc;
+            
+            if (window.updateFullscreenPlaylistCurrentItem) {
+                window.updateFullscreenPlaylistCurrentItem(card);
+            }
+            
+            document.querySelectorAll('.music-card.active').forEach(c => {
+                c.classList.remove('active');
+            });
+            card.classList.add('active');
+            
+            const translations = languageTranslations[currentLang] || languageTranslations['en'];
+            const playingText = translations['playing'] || 'Playing';
+            const playMessage = `${playingText}: ${card.dataset.title} - ${card.dataset.artist}`;
+            showLogMessage(playMessage);
+            
+        } catch (error) {
+            window.currentYouTubeModal.hide();
+            setTimeout(() => {
+                playYouTubeVideoInModal(card.dataset.previewUrl, card.dataset.title, card);
+            }, 300);
+            
+            window.isSwitchingVideo = false;
+            return;
+        }
+    } else {
+        window.currentYouTubeModal.hide();
+        setTimeout(() => {
+            playYouTubeVideoInModal(card.dataset.previewUrl, card.dataset.title, card);
+        }, 300);
+        
+        window.isSwitchingVideo = false;
+        return;
+    }
+    
+    setTimeout(() => {
+        window.isSwitchingVideo = false;
+    }, 1000);
+}
+
+function updateCurrentYouTubeModalUI(card) {
+    if (window.updateFullscreenPlaylistCurrentItem) {
+        window.updateFullscreenPlaylistCurrentItem(card);
     }
 }
 
@@ -2976,8 +3132,11 @@ function cleanupYouTubeModal(modalId, modal, card) {
     if (window.currentYouTubeModal === modal) {
         window.currentYouTubeModal = null;
         window.currentYouTubeModalId = null;
-        window.currentYouTubeCard = null;
         window.currentYouTubeVideoId = null;
+        
+        if (!window.isSwitchingVideo) {
+            window.currentYouTubeCard = null;
+        }
     }
     
     if (currentPlayingCard === card) {
