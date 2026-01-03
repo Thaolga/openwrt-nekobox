@@ -947,95 +947,214 @@
     cursor: default;
 }
 
+.youtube-smart-sensor {
+    position: fixed !important;
+    left: 0 !important;
+    top: 0 !important;
+    width: 80px !important;
+    height: 100vh !important;
+    z-index: 10000 !important;
+    pointer-events: auto !important;
+    background: transparent !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    transition: all 0.3s ease !important;
+    border-right: 1px solid transparent !important;
+}
+
+.youtube-smart-sensor.active {
+    background: linear-gradient(90deg, 
+        oklch(70% 0.05 260 / 0.08) 0%, 
+        oklch(70% 0.05 260 / 0.02) 100%) !important;
+    backdrop-filter: blur(10px) saturate(180%) !important;
+    -webkit-backdrop-filter: blur(10px) saturate(180%) !important;
+    border-right: 1px solid oklch(100% 0 0 / 0.08) !important;
+}
+
+.youtube-smart-indicator {
+    position: absolute !important;
+    left: -40px !important;
+    top: 50% !important;
+    transform: translateY(-50%) scale(0.8) !important;
+    width: 50px !important;
+    height: 50px !important;
+    background: oklch(98% 0.005 260 / 0.3) !important;
+    backdrop-filter: blur(15px) saturate(180%) !important;
+    -webkit-backdrop-filter: blur(15px) saturate(180%) !important;
+    border-radius: 50% !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    color: oklch(53% 0.18 17 / 0.7) !important;
+    font-size: 20px !important;
+    box-shadow: 
+        0 4px 20px oklch(0% 0 0 / 0.1),
+        inset 0 1px 0 oklch(100% 0 0 / 0.1),
+        inset 0 -1px 0 oklch(0% 0 0 / 0.05) !important;
+    border: 1px solid oklch(100% 0 0 / 0.1) !important;
+    opacity: 0 !important;
+    transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) !important;
+    cursor: pointer !important;
+}
+
+.youtube-smart-sensor.active .youtube-smart-indicator {
+    opacity: 1 !important;
+    left: 25px !important;
+    transform: translateY(-50%) scale(1) !important;
+}
+
+.youtube-smart-indicator:hover {
+    background: oklch(100% 0 0 / 0.6) !important;
+    transform: translateY(-50%) scale(1.1) !important;
+    color: oklch(53% 0.18 17) !important;
+    box-shadow: 
+        0 8px 30px oklch(53% 0.18 17 / 0.15),
+        inset 0 1px 0 oklch(100% 0 0 / 0.2),
+        inset 0 -1px 0 oklch(0% 0 0 / 0.1) !important;
+}
+
+.youtube-smart-sensor.active .youtube-smart-indicator {
+    animation: subtleFloat 3s ease-in-out infinite !important;
+}
+
+@keyframes subtleFloat {
+    0%, 100% { 
+        transform: translateY(-50%) scale(1) !important;
+        box-shadow: 
+            0 8px 25px oklch(0% 0 0 / 0.08),
+            inset 0 1px 0 oklch(100% 0 0 / 0.15),
+            inset 0 -1px 0 oklch(0% 0 0 / 0.05) !important;
+    }
+    50% { 
+        transform: translateY(-52%) scale(1.02) !important;
+        box-shadow: 
+            0 10px 35px oklch(53% 0.18 17 / 0.1),
+            inset 0 1px 0 oklch(100% 0 0 / 0.18),
+            inset 0 -1px 0 oklch(0% 0 0 / 0.08) !important;
+    }
+}
+
 .youtube-fullscreen-playlist {
     position: fixed !important;
     left: 0 !important;
     top: 0 !important;
     height: 100vh !important;
-    width: 320px !important;
-    background: rgba(0, 0, 0, 0.95) !important;
-    backdrop-filter: blur(20px) !important;
+    width: 350px !important;
+    background: oklch(70% 0.05 260 / 0.15) !important;
+    backdrop-filter: blur(25px) saturate(200%) !important;
+    -webkit-backdrop-filter: blur(25px) saturate(200%) !important;
     z-index: 10002 !important;
     transform: translateX(-100%) !important;
-    transition: transform 0.3s ease !important;
+    transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1) !important;
     overflow: hidden !important;
     display: flex !important;
     flex-direction: column !important;
+    border-right: 1px solid transparent !important;
+    box-shadow: none !important;
 }
 
 .youtube-fullscreen-playlist.show {
     transform: translateX(0) !important;
+    border-right: 1px solid oklch(100% 0 0 / 0.12) !important;
+    box-shadow: 
+        20px 0 60px oklch(0% 0 0 / 0.25),
+        inset 1px 0 0 oklch(100% 0 0 / 0.08) !important;
 }
 
 .youtube-fullscreen-playlist-header {
     padding: 20px !important;
-    background: rgba(0, 0, 0, 0.8) !important;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.15) !important;
+    background: oklch(70% 0.05 260 / 0.2) !important;
+    backdrop-filter: blur(10px) !important;
+    -webkit-backdrop-filter: blur(10px) !important;
+    border-bottom: 1px solid oklch(100% 0 0 / 0.12) !important;
+    box-shadow: 0 2px 10px oklch(0% 0 0 / 0.1) !important;
 }
 
 .youtube-fullscreen-playlist-title {
-    color: #fff !important;
+    color: oklch(100% 0 0) !important;
     font-size: 18px !important;
     font-weight: 600 !important;
     display: flex !important;
     align-items: center !important;
     gap: 12px !important;
+    text-shadow: 0 1px 2px oklch(0% 0 0 / 0.3) !important;
 }
 
 .youtube-fullscreen-playlist-title i {
-    color: #ff0000 !important;
+    color: oklch(53% 0.18 17) !important;
     font-size: 22px !important;
+    filter: drop-shadow(0 2px 4px oklch(0% 0 0 / 0.2)) !important;
 }
 
 .youtube-fullscreen-playlist-content {
     flex: 1 !important;
     overflow-y: auto !important;
-    padding: 10px 0 !important;
+    padding: 15px 0 !important;
 }
 
 .youtube-fullscreen-playlist-footer {
     padding: 15px 20px !important;
-    background: rgba(0, 0, 0, 0.8) !important;
-    border-top: 1px solid rgba(255, 255, 255, 0.15) !important;
+    background: oklch(70% 0.05 260 / 0.2) !important;
+    backdrop-filter: blur(10px) !important;
+    -webkit-backdrop-filter: blur(10px) !important;
+    border-top: 1px solid oklch(100% 0 0 / 0.12) !important;
+    box-shadow: 0 -2px 10px oklch(0% 0 0 / 0.1) !important;
 }
 
 .youtube-fullscreen-playlist-count {
-    color: rgba(255, 255, 255, 0.9) !important;
+    color: oklch(100% 0 0 / 0.9) !important;
     font-size: 14px !important;
     display: flex !important;
     align-items: center !important;
     gap: 10px !important;
+    text-shadow: 0 1px 2px oklch(0% 0 0 / 0.3) !important;
 }
 
 .youtube-fullscreen-playlist-count i {
-    color: #ff0000 !important;
+    color: oklch(53% 0.18 17) !important;
     font-size: 16px !important;
 }
 
 .youtube-fullscreen-playlist-item {
     display: flex !important;
     align-items: center !important;
-    padding: 12px 20px !important;
+    padding: 14px 25px !important;
     cursor: pointer !important;
-    transition: background 0.2s ease !important;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
     border-left: 3px solid transparent !important;
+    margin: 2px 10px !important;
+    border-radius: 12px !important;
+    background: oklch(70% 0.05 260 / 0.05) !important;
+    backdrop-filter: blur(5px) !important;
+    -webkit-backdrop-filter: blur(5px) !important;
+    border: 1px solid oklch(100% 0 0 / 0.05) !important;
 }
 
 .youtube-fullscreen-playlist-item:hover {
-    background: rgba(255, 255, 255, 0.1) !important;
+    background: oklch(70% 0.05 260 / 0.15) !important;
+    transform: translateX(5px) !important;
+    box-shadow: 
+        0 4px 20px oklch(0% 0 0 / 0.15),
+        inset 0 1px 0 oklch(100% 0 0 / 0.1) !important;
 }
 
 .youtube-fullscreen-playlist-item.playing {
-    background: rgba(255, 0, 0, 0.15) !important;
-    border-left: 3px solid #ff0000 !important;
+    background: oklch(53% 0.18 17 / 0.2) !important;
+    border-left: 3px solid oklch(53% 0.18 17) !important;
+    border: 1px solid oklch(53% 0.18 17 / 0.3) !important;
+    box-shadow: 
+        0 4px 25px oklch(53% 0.18 17 / 0.15),
+        inset 0 1px 0 oklch(100% 0 0 / 0.1) !important;
 }
 
 .youtube-fullscreen-playlist-item-number {
-    width: 30px !important;
+    width: 32px !important;
     font-size: 13px !important;
-    color: rgba(255, 255, 255, 0.6) !important;
+    color: oklch(100% 0 0 / 0.7) !important;
     text-align: center !important;
     flex-shrink: 0 !important;
+    font-weight: 500 !important;
+    text-shadow: 0 1px 2px oklch(0% 0 0 / 0.3) !important;
 }
 
 .youtube-fullscreen-playlist-item-info {
@@ -1047,52 +1166,101 @@
 
 .youtube-fullscreen-playlist-item-title {
     font-size: 14px !important;
-    color: #fff !important;
+    color: oklch(100% 0 0) !important;
     font-weight: 500 !important;
     white-space: nowrap !important;
     overflow: hidden !important;
     text-overflow: ellipsis !important;
     margin-bottom: 4px !important;
+    text-shadow: 0 1px 2px oklch(0% 0 0 / 0.3) !important;
+}
+
+.youtube-fullscreen-playlist-item:hover {
+    background: oklch(72% 0.08 250 / 0.42) !important;
 }
 
 .youtube-fullscreen-playlist-item-artist {
     font-size: 12px !important;
-    color: rgba(255, 255, 255, 0.7) !important;
+    color: oklch(100% 0 0 / 0.8) !important;
     white-space: nowrap !important;
     overflow: hidden !important;
     text-overflow: ellipsis !important;
+    text-shadow: 0 1px 2px oklch(0% 0 0 / 0.2) !important;
 }
 
 .youtube-fullscreen-playlist-item-duration {
     font-size: 12px !important;
-    color: rgba(255, 255, 255, 0.6) !important;
+    color: oklch(100% 0 0 / 0.7) !important;
     flex-shrink: 0 !important;
+    font-weight: 500 !important;
+    text-shadow: 0 1px 2px oklch(0% 0 0 / 0.2) !important;
 }
 
 .youtube-fullscreen-playlist-item-playing {
     display: none !important;
-    color: #ff0000 !important;
+    color: oklch(53% 0.18 17) !important;
     font-size: 16px !important;
     margin-left: 10px !important;
+    filter: drop-shadow(0 2px 4px oklch(0% 0 0 / 0.2)) !important;
 }
 
 .youtube-fullscreen-playlist-item.playing .youtube-fullscreen-playlist-item-playing {
     display: block !important;
+    animation: subtleGlow 2s ease-in-out infinite !important;
+}
+
+@keyframes subtleGlow {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.7; }
 }
 
 .youtube-fullscreen-playlist-content::-webkit-scrollbar {
-    width: 6px !important;
+    width: 8px !important;
 }
 
 .youtube-fullscreen-playlist-content::-webkit-scrollbar-track {
-    background: rgba(255, 255, 255, 0.05) !important;
+    background: oklch(70% 0.05 260 / 0.05) !important;
+    backdrop-filter: blur(10px) !important;
+    -webkit-backdrop-filter: blur(10px) !important;
+    border-radius: 4px !important;
 }
 
 .youtube-fullscreen-playlist-content::-webkit-scrollbar-thumb {
-    background: rgba(255, 255, 255, 0.2) !important;
-    border-radius: 3px !important;
+    background: oklch(100% 0 0 / 0.2) !important;
+    backdrop-filter: blur(10px) !important;
+    -webkit-backdrop-filter: blur(10px) !important;
+    border-radius: 4px !important;
+    border: 1px solid oklch(100% 0 0 / 0.1) !important;
 }
 
 .youtube-fullscreen-playlist-content::-webkit-scrollbar-thumb:hover {
-    background: rgba(255, 255, 255, 0.3) !important;
+    background: oklch(100% 0 0 / 0.3) !important;
+}
+
+.youtube-fullscreen-playlist::before {
+    content: '' !important;
+    position: absolute !important;
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    height: 30px !important;
+    background: linear-gradient(to bottom, 
+        oklch(70% 0.05 260 / 0.3) 0%,
+        transparent 100%) !important;
+    pointer-events: none !important;
+    z-index: 1 !important;
+}
+
+.youtube-fullscreen-playlist::after {
+    content: '' !important;
+    position: absolute !important;
+    bottom: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    height: 30px !important;
+    background: linear-gradient(to top, 
+        oklch(70% 0.05 260 / 0.3) 0%,
+        transparent 100%) !important;
+    pointer-events: none !important;
+    z-index: 1 !important;
 }
