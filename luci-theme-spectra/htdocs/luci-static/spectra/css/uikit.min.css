@@ -1546,7 +1546,7 @@ select.uk-form-width-xsmall {
 
 .uk-button-info {
     background-color: #0dcaf0;
-    color: fff;
+    color: #fff;
     border: 1px solid transparent;
 }
 
@@ -2936,7 +2936,6 @@ select.uk-form-width-xsmall {
     position: relative;
     box-sizing: border-box;
     margin: 0 auto;
-    width: 800px;
     max-width: 100% !important;
     background: #fff;
     opacity: 0;
@@ -2945,6 +2944,30 @@ select.uk-form-width-xsmall {
     transition-property: opacity, transform;
     border-radius: 12px !important;
     overflow: hidden !important;
+}
+
+.uk-modal-dialog {
+    width: 800px;
+}
+
+.uk-modal-dialog.modal-sm {
+    width: 300px !important;
+}
+
+.uk-modal-dialog.modal-md {
+    width: 500px !important;
+}
+
+.uk-modal-dialog.modal-lg {
+    width: 1000px !important;
+}
+
+.uk-modal-dialog.modal-xl {
+    width: 1200px !important;
+}
+
+.uk-modal-dialog.modal-xxl {
+    width: 1500px !important;
 }
 
 .uk-open>.uk-modal-dialog {
