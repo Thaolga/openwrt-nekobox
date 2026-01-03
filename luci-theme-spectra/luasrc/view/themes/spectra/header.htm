@@ -2104,7 +2104,7 @@ function isMobileDevice() {
            window.innerWidth <= 768;
 }
 
-function makeModalDraggable(modalElement, { headerSelector, contentSelector, storageKey }) {
+function makeModalDraggable(modalElement, { headerSelector, contentSelector }) {
     const modalHeader = modalElement.querySelector(headerSelector);
     const modalContent = modalElement.querySelector(contentSelector);
     
@@ -2165,9 +2165,6 @@ function makeModalDraggable(modalElement, { headerSelector, contentSelector, sto
             isDragging = false;
             modalContent.style.cursor = '';
             modalContent.style.userSelect = 'auto';
-            
-            localStorage.setItem(storageKey + '_left', modalContent.style.left);
-            localStorage.setItem(storageKey + '_top', modalContent.style.top);
         }
     }
 
@@ -2209,21 +2206,36 @@ function makeModalDraggable(modalElement, { headerSelector, contentSelector, sto
             isDragging = false;
             modalContent.style.cursor = '';
             modalContent.style.userSelect = 'auto';
-            
-            localStorage.setItem(storageKey + '_left', modalContent.style.left);
-            localStorage.setItem(storageKey + '_top', modalContent.style.top);
         }
     }
-
-    const savedLeft = localStorage.getItem(storageKey + '_left');
-    const savedTop = localStorage.getItem(storageKey + '_top');
     
-    if (savedLeft && savedTop) {
-        modalContent.style.left = savedLeft;
-        modalContent.style.top = savedTop;
-        modalContent.style.position = 'fixed';
-        modalContent.style.margin = '0';
-        modalContent.style.transform = 'none';
+    function resetModalPosition() {
+        modalContent.style.position = '';
+        modalContent.style.left = '';
+        modalContent.style.top = '';
+        modalContent.style.margin = '';
+        modalContent.style.transform = '';
+    }
+    
+    const closeButtons = modalElement.querySelectorAll('.uk-modal-close, .uk-modal-close-default, [uk-close]');
+    closeButtons.forEach(btn => {
+        btn.addEventListener('click', resetModalPosition);
+    });
+    
+    modalElement.addEventListener('click', function(e) {
+        if (e.target === modalElement) {
+            resetModalPosition();
+        }
+    });
+    
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape' && modalElement.classList.contains('uk-open')) {
+            resetModalPosition();
+        }
+    });
+    
+    if (typeof UIkit !== 'undefined') {
+        UIkit.util.on(modalElement, 'hide', resetModalPosition);
     }
 }
 
@@ -2245,12 +2257,9 @@ function initAllModalDrag() {
             const modalContent = modal.querySelector(selector.content);
             
             if (modalHeader && modalContent) {
-                const storageKey = modal.id || `modal_${index}`;
-                
                 makeModalDraggable(modal, {
                     headerSelector: selector.header,
-                    contentSelector: selector.content,
-                    storageKey: storageKey
+                    contentSelector: selector.content
                 });
                 break;
             }
