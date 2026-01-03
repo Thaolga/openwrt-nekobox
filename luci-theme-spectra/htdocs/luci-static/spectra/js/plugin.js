@@ -845,8 +845,40 @@ function displayResults(results, source, isLoadMore = false, searchType, fromCac
     } else {
         loadMoreContainer.style.display = 'none';
     }
+
+    setTimeout(() => {
+        updateCardNumbers();
+    }, 0);
     
     updatePlayAllButton();
+}
+
+function updateCardNumbers() {
+    const allCards = Array.from(document.querySelectorAll('.music-card'));
+    let playableCardCount = 0;
+    
+    allCards.forEach(card => {
+        if (card.dataset.isArtist !== 'true' && card.dataset.isAlbum !== 'true') {
+            playableCardCount++;
+            const titleElement = card.querySelector('.card-title');
+            if (titleElement) {
+                const originalTitle = card.dataset.title || '';
+                const cleanTitle = originalTitle.replace(/^\d+\.\s*/, '');
+                titleElement.textContent = `${playableCardCount}. ${cleanTitle}`;
+                titleElement.title = cleanTitle;
+                card.dataset.title = cleanTitle;
+            }
+        } else {
+            const titleElement = card.querySelector('.card-title');
+            if (titleElement) {
+                const originalTitle = card.dataset.title || '';
+                const cleanTitle = originalTitle.replace(/^\d+\.\s*/, '');
+                titleElement.textContent = cleanTitle;
+                titleElement.title = cleanTitle;
+                card.dataset.title = cleanTitle;
+            }
+        }
+    });
 }
 
 function updatePlayAllButton() {
@@ -3478,6 +3510,7 @@ function stopPlaylistMode() {
     
     setTimeout(() => {
         isManualStopping = false;
+        updateCardNumbers();
     }, 100);
 }
 
