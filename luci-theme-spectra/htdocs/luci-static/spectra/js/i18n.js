@@ -352,6 +352,9 @@ const languageTranslations = {
         'keys_exported': "API密钥导出成功",
         'keys_imported': "API密钥导入成功", 
         'import_error': "导入备份文件错误", 
+        'play_now': '立即播放',
+        'video_info': '视频信息',
+        'items': '个项目',
         'command_install_label': '命令安装'
     },
     'hk': {
@@ -707,6 +710,9 @@ const languageTranslations = {
         'keys_exported': "API密鑰導出成功",
         'keys_imported': "API密鑰導入成功", 
         'import_error': "導入備份文件錯誤", 
+        'play_now': '立即播放',
+        'video_info': '影片資訊',
+        'items': '個項目',
         'theme_download': '主題下載'
     },
     'en': {
@@ -1066,6 +1072,9 @@ const languageTranslations = {
         'keys_exported': "API keys exported successfully",
         'keys_imported': "API keys imported successfully", 
         'import_error': "Error importing backup file", 
+        'play_now': 'Play Now',
+        'video_info': 'Video Info',
+        'items': 'items',
         'theme_download': 'Theme download'
     },
     'ko': {
@@ -1416,6 +1425,9 @@ const languageTranslations = {
         'keys_exported': "API 키 내보내기 성공",
         'keys_imported': "API 키 가져오기 성공", 
         'import_error': "백업 파일 가져오기 오류", 
+        'play_now': '지금 재생',
+        'video_info': '동영상 정보',
+        'items': '개 항목',
         'theme_download': '테마 다운로드'
     },
     'vi': {
@@ -1766,6 +1778,9 @@ const languageTranslations = {
         'keys_exported': "Khóa API đã được xuất thành công",
         'keys_imported': "Khóa API đã được nhập thành công", 
         'import_error': "Lỗi khi nhập tệp sao lưu", 
+        'play_now': 'Phát ngay',
+        'video_info': 'Thông tin video',
+        'items': 'mục',
         'theme_download': 'Tải chủ đề'
     },
     'th': {
@@ -2116,6 +2131,9 @@ const languageTranslations = {
         'keys_exported': "ส่งออก API คีย์สำเร็จ",
         'keys_imported': "นำเข้า API คีย์สำเร็จ", 
         'import_error': "ข้อผิดพลาดในการนำเข้าผลลัพธ์สำรอง", 
+        'play_now': 'เล่นทันที',
+        'video_info': 'ข้อมูลวิดีโอ',
+        'items': 'รายการ',
         'theme_download': 'ดาวน์โหลดธีม'
     },
     'ja': {
@@ -2466,6 +2484,9 @@ const languageTranslations = {
         'keys_exported': "APIキーが正常にエクスポートされました",
         'keys_imported': "APIキーが正常にインポートされました", 
         'import_error': "バックアップファイルのインポートエラー", 
+        'play_now': '今すぐ再生',
+        'video_info': '動画情報',
+        'items': '件',
         'theme_download': 'テーマダウンロード'
     },
     'ru': {
@@ -2816,6 +2837,9 @@ const languageTranslations = {
         'keys_exported': "API ключи успешно экспортированы",
         'keys_imported': "API ключи успешно импортированы", 
         'import_error': "Ошибка при импорте резервной копии", 
+        'play_now': 'Воспроизвести',
+        'video_info': 'Информация о видео',
+        'items': 'элементов',
         'theme_download': 'Скачать тему'
     },
     'ar': {
@@ -3166,6 +3190,9 @@ const languageTranslations = {
         'keys_exported': "تم تصدير مفاتيح API بنجاح",
         'keys_imported': "تم استيراد مفاتيح API بنجاح", 
         'import_error': "خطأ في استيراد ملف النسخة الاحتياطية", 
+        'play_now': 'تشغيل الآن',
+        'video_info': 'معلومات الفيديو',
+        'items': 'عنصر',
         'theme_download': 'تحميل السمة'
     },
     'es': {
@@ -3516,6 +3543,9 @@ const languageTranslations = {
         'keys_exported': "Claves API exportadas con éxito",
         'keys_imported': "Claves API importadas con éxito", 
         'import_error': "Error al importar el archivo de copia de seguridad", 
+        'play_now': 'Reproducir ahora',
+        'video_info': 'Información del video',
+        'items': 'elementos',
         'theme_download': 'Descarga del tema'
     },
     'de': {
@@ -3866,6 +3896,9 @@ const languageTranslations = {
         'keys_exported': "API-Schlüssel erfolgreich exportiert",
         'keys_imported': "API-Schlüssel erfolgreich importiert", 
         'import_error': "Fehler beim Importieren der Sicherungsdatei", 
+        'play_now': 'Jetzt abspielen',
+        'video_info': 'Videoinfo',
+        'items': 'Elemente',
         'theme_download': 'Thema herunterladen'
     },
     'fr': {
@@ -4216,6 +4249,9 @@ const languageTranslations = {
         'keys_exported': "Clés API exportées avec succès",
         'keys_imported': "Clés API importées avec succès", 
         'import_error': "Erreur lors de l'importation du fichier de sauvegarde", 
+        'play_now': 'Lire maintenant',
+        'video_info': 'Infos vidéo',
+        'items': 'éléments',
         'theme_download': 'Télécharger le thème'
     },
     'bn': {
@@ -4566,7 +4602,10 @@ const languageTranslations = {
         'import_keys': "কী আমদানি করুন",
         'keys_exported': "API কীগুলি সফলভাবে রপ্তানি করা হয়েছে",
         'keys_imported': "API কীগুলি সফলভাবে আমদানি করা হয়েছে", 
-        'import_error': "ব্যাকআপ ফাইল আমদানি ত্রুটি", 
+        'import_error': "ব্যাকআপ ফাইল আমদানি ত্রুটি",
+        'play_now': 'এখন চালান',
+        'video_info': 'ভিডিও তথ্য',
+        'items': 'টি আইটেম', 
         'theme_download': 'থিম ডাউনলোড'
     }
 };
