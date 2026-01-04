@@ -2519,7 +2519,6 @@ function addSmartSensor(modalId, dialog) {
 
 function searchFromPlaylist(modalId) {
     const translations = languageTranslations[currentLang] || languageTranslations['en'];
-    
     const searchModalId = `youtube-search-modal-${Date.now()}`;
     const searchModalHTML = `
 <div id="${searchModalId}" class="uk-modal" uk-modal="bg-close: false; stack: true">
@@ -2541,7 +2540,7 @@ function searchFromPlaylist(modalId) {
             </div>
         </div>
         <div class="uk-modal-footer uk-text-right">
-            <button class="uk-button uk-button-default uk-margin-small-left uk-modal-close" type="button">
+            <button class="uk-button uk-button-gray uk-margin-small-left uk-modal-close" type="button">
                 ${translations['cancel'] || 'Cancel'}
             </button>
             <button class="uk-button uk-button-primary uk-margin-small-left" 
@@ -4119,7 +4118,7 @@ function playMusic(card) {
     const playingText = translations['playing'] || 'Playing';
     const playMessage = `${playingText}: ${card.dataset.title} - ${card.dataset.artist}`;
     showLogMessage(playMessage);
-    speakMessage(playMessage);
+    //speakMessage(playMessage);
 
     if (source === 'youtube' && !isAudioPlaylistMode) {
         playYouTubeVideoInModal(previewUrl, card.dataset.title, card);
