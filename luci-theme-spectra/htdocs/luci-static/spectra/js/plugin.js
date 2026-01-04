@@ -2517,13 +2517,194 @@ function addSmartSensor(modalId, dialog) {
     };
 }
 
+function searchFromPlaylist(modalId) {
+    const translations = languageTranslations[currentLang] || languageTranslations['en'];
+    
+    const searchModalId = `youtube-search-modal-${Date.now()}`;
+    const searchModalHTML = `
+<div id="${searchModalId}" class="uk-modal" uk-modal="bg-close: false; stack: true">
+    <div class="uk-modal-dialog modal-lg">
+        <button class="uk-modal-close-default" type="button" uk-close></button>
+        <div class="uk-modal-header">
+            <h3 class="uk-modal-title">
+                <i class="bi bi-youtube"></i>
+                ${translations['search_button'] || 'Search'}Youtube
+            </h3>
+        </div>
+        <div class="uk-modal-body">
+            <div class="uk-margin">
+                <label class="uk-form-label"></label>
+                <input id="playlist-search-input-${searchModalId}" 
+                       class="uk-input" 
+                       type="text" 
+                       placeholder="${translations['search_placeholder'] || 'Search YouTube videos...'}">
+            </div>
+        </div>
+        <div class="uk-modal-footer uk-text-right">
+            <button class="uk-button uk-button-default uk-margin-small-left uk-modal-close" type="button">
+                ${translations['cancel'] || 'Cancel'}
+            </button>
+            <button class="uk-button uk-button-primary uk-margin-small-left" 
+                    onclick="performPlaylistSearchFromModal('${searchModalId}', '${modalId}')">
+                ${translations['search_button'] || 'Search'}
+            </button>
+        </div>
+    </div>
+</div>`;
+
+    const temp = document.createElement('div');
+    temp.innerHTML = searchModalHTML;
+    const searchModalElement = temp.firstElementChild;
+    document.body.appendChild(searchModalElement);
+    
+    const modal = UIkit.modal(searchModalElement, {
+        bgclose: false,
+        keyboard: true,
+        stack: true
+    });
+    
+    modal.show();
+    
+    const searchInput = document.getElementById(`playlist-search-input-${searchModalId}`);
+    if (searchInput) {
+        searchInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                performPlaylistSearchFromModal(searchModalId, modalId);
+            }
+        });
+        
+        setTimeout(() => {
+            searchInput.focus();
+        }, 100);
+    }
+    
+    UIkit.util.on(searchModalElement, 'hidden', function() {
+        if (searchModalElement.parentNode) {
+            searchModalElement.parentNode.removeChild(searchModalElement);
+        }
+    });
+}
+
+function performPlaylistSearchFromModal(searchModalId, fullscreenModalId) {
+    const translations = languageTranslations[currentLang] || languageTranslations['en'];
+    const searchInput = document.getElementById(`playlist-search-input-${searchModalId}`);
+    
+    if (!searchInput) return;
+    
+    const query = searchInput.value.trim();
+    
+    if (!query || query.trim() === '') {
+        const message = translations['enter_search_keywords'] || 'Please enter search keywords';
+        showLogMessage(message);
+        return;
+    }
+    
+    const searchModalElement = document.getElementById(searchModalId);
+    if (searchModalElement) {
+        const modal = UIkit.modal(searchModalElement);
+        modal.hide();
+    }
+    
+    const playlistContent = document.getElementById(`youtube-fullscreen-playlist-content-${fullscreenModalId}`);
+    if (playlistContent) {
+        playlistContent.innerHTML = `
+            <div class="playlist-loading">
+                <div class="loading-spinner"></div>
+                <p>Searching...</p>
+            </div>
+        `;
+    }
+    
+    document.getElementById('searchInput').value = query;
+    document.getElementById('searchType').value = 'song';
+    document.getElementById('searchSource').value = 'youtube';
+    
+    performSearch(false);
+    
+    setTimeout(() => {
+        const allYouTubeCards = Array.from(document.querySelectorAll('.music-card[data-source="youtube"]'));
+        
+        loadFullscreenPlaylistItems(fullscreenModalId, allYouTubeCards);
+    }, 1500);
+}
+
+function loadFullscreenPlaylistItems(modalId, allCards) {
+    const playlistContent = document.getElementById(`youtube-fullscreen-playlist-content-${modalId}`);
+    const countElement = document.getElementById(`youtube-playlist-count-${modalId}`);
+    
+    if (!playlistContent) return;
+    
+    playlistContent.innerHTML = '';
+    
+    if (countElement) {
+        countElement.textContent = `${allCards.length} videos`;
+    }
+    
+    if (allCards.length === 0) {
+        playlistContent.innerHTML = `
+            <div class="playlist-empty">
+                <i class="bi bi-search"></i>
+                <p>No videos found</p>
+            </div>
+        `;
+        return;
+    }
+    
+    allCards.forEach((card, index) => {
+        const title = card.dataset.title || 'Unknown Video';
+        const artist = card.dataset.artist || 'YouTube';
+        const duration = card.dataset.duration || '--:--';
+        const videoId = getYouTubeVideoId(card.dataset.previewUrl);
+        const coverUrl = card.dataset.cover || '/luci-static/resources/icons/cover.svg';
+        
+        const playlistItem = document.createElement('div');
+        playlistItem.className = 'youtube-fullscreen-playlist-item';
+        playlistItem.dataset.index = index;
+        playlistItem.dataset.videoId = videoId;
+        playlistItem.dataset.cardIndex = card.dataset.index;
+        
+        playlistItem.innerHTML = `
+            <div class="youtube-fullscreen-playlist-item-number">${index + 1}</div>
+            <div class="youtube-fullscreen-playlist-item-icon">
+                ${coverUrl.includes('cover.svg') 
+                    ? '<i class="bi bi-youtube default-icon"></i>' 
+                    : `<img src="${coverUrl}" alt="${title}">`
+                }
+            </div>
+            <div class="youtube-fullscreen-playlist-item-info">
+                <div class="youtube-fullscreen-playlist-item-title">${title}</div>
+                <div class="youtube-fullscreen-playlist-item-artist">${artist}</div>
+            </div>
+            <div class="youtube-fullscreen-playlist-item-duration">${duration}</div>
+            ${card === window.currentYouTubeCard ? '<div class="youtube-fullscreen-playlist-item-playing"><i class="bi bi-play-fill"></i></div>' : ''}
+        `;
+        
+        playlistItem.addEventListener('click', function() {
+            const allMainCards = Array.from(document.querySelectorAll('.music-card[data-source="youtube"]'));
+            const cardToPlay = allMainCards.find(c => 
+                c.dataset.index === this.dataset.cardIndex
+            );
+            
+            if (cardToPlay && window.currentYouTubeModal) {
+                const videoId = this.dataset.videoId;
+                switchYouTubeVideoInModal(videoId, cardToPlay);
+            }
+        });
+        
+        playlistContent.appendChild(playlistItem);
+    });
+}
+
 function createFullscreenPlaylist(modalId, dialog, allCards) {
     const playlistHTML = `
         <div class="youtube-fullscreen-playlist" id="youtube-fullscreen-playlist-${modalId}">
             <div class="youtube-fullscreen-playlist-header">
                 <div class="youtube-fullscreen-playlist-title">
                     <i class="bi bi-list-ul"></i>
-                    <span data-translate="playlist">Playlist</span>
+                    <span>Playlist</span>
+                    <div class="playlist-search-btn" onclick="searchFromPlaylist('${modalId}')" title="search_button">
+                        <i class="bi bi-search"></i>
+                    </div>
                 </div>
             </div>
             <div class="youtube-fullscreen-playlist-content" id="youtube-fullscreen-playlist-content-${modalId}">
@@ -2531,7 +2712,7 @@ function createFullscreenPlaylist(modalId, dialog, allCards) {
             <div class="youtube-fullscreen-playlist-footer">
                 <div class="youtube-fullscreen-playlist-count">
                     <i class="bi bi-music-note-list"></i>
-                    <span id="youtube-playlist-count-${modalId}">${allCards.length} items</span>
+                    <span id="youtube-playlist-count-${modalId}">${allCards.length} videos</span>
                 </div>
             </div>
         </div>
