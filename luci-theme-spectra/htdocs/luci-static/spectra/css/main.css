@@ -1492,3 +1492,21 @@
 .youtube-playlist-loadmore-btn.loading span {
     opacity: 0.8;
 }
+
+.uk-modal-dialog.pip-mode {
+    transition: all 0.3s ease !important;
+}
+
+.uk-modal-dialog.pip-mode:hover {
+    box-shadow: 0 15px 50px rgba(0, 0, 0, 0.9) !important;
+}
+
+.pip-btn.active {
+    background: rgba(255, 193, 7, 0.4) !important;
+    border-color: rgba(255, 193, 7, 0.6) !important;
+    box-shadow: 0 0 10px rgba(255, 193, 7, 0.3) !important;
+}
+
+.pip-btn.active:hover {
+    background: rgba(255, 193, 7, 0.6) !important;
+}
