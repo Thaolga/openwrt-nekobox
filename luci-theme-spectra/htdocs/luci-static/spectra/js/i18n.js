@@ -355,6 +355,7 @@ const languageTranslations = {
         'play_now': '立即播放',
         'video_info': '视频信息',
         'items': '个项目',
+        'picture_in_picture': '画中画',
         'command_install_label': '命令安装'
     },
     'hk': {
@@ -713,6 +714,7 @@ const languageTranslations = {
         'play_now': '立即播放',
         'video_info': '影片資訊',
         'items': '個項目',
+        'picture_in_picture': '子母畫面',
         'theme_download': '主題下載'
     },
     'en': {
@@ -1075,6 +1077,7 @@ const languageTranslations = {
         'play_now': 'Play Now',
         'video_info': 'Video Info',
         'items': 'items',
+        'picture_in_picture': 'Picture-in-Picture',
         'theme_download': 'Theme download'
     },
     'ko': {
@@ -1428,6 +1431,7 @@ const languageTranslations = {
         'play_now': '지금 재생',
         'video_info': '동영상 정보',
         'items': '개 항목',
+        'picture_in_picture': '화면 속 화면',
         'theme_download': '테마 다운로드'
     },
     'vi': {
@@ -1781,6 +1785,7 @@ const languageTranslations = {
         'play_now': 'Phát ngay',
         'video_info': 'Thông tin video',
         'items': 'mục',
+        'picture_in_picture': 'Hình trong hình',
         'theme_download': 'Tải chủ đề'
     },
     'th': {
@@ -2134,6 +2139,7 @@ const languageTranslations = {
         'play_now': 'เล่นทันที',
         'video_info': 'ข้อมูลวิดีโอ',
         'items': 'รายการ',
+        'picture_in_picture': 'Hình trong hình',
         'theme_download': 'ดาวน์โหลดธีม'
     },
     'ja': {
@@ -2487,6 +2493,7 @@ const languageTranslations = {
         'play_now': '今すぐ再生',
         'video_info': '動画情報',
         'items': '件',
+        'picture_in_picture': 'ピクチャー・イン・ピクチャー',
         'theme_download': 'テーマダウンロード'
     },
     'ru': {
@@ -2840,6 +2847,7 @@ const languageTranslations = {
         'play_now': 'Воспроизвести',
         'video_info': 'Информация о видео',
         'items': 'элементов',
+        'picture_in_picture': 'Картинка в картинке',
         'theme_download': 'Скачать тему'
     },
     'ar': {
@@ -3193,6 +3201,7 @@ const languageTranslations = {
         'play_now': 'تشغيل الآن',
         'video_info': 'معلومات الفيديو',
         'items': 'عنصر',
+        'picture_in_picture': 'صورة داخل صورة',
         'theme_download': 'تحميل السمة'
     },
     'es': {
@@ -3546,6 +3555,7 @@ const languageTranslations = {
         'play_now': 'Reproducir ahora',
         'video_info': 'Información del video',
         'items': 'elementos',
+        'picture_in_picture': 'Imagen en imagen',
         'theme_download': 'Descarga del tema'
     },
     'de': {
@@ -3899,6 +3909,7 @@ const languageTranslations = {
         'play_now': 'Jetzt abspielen',
         'video_info': 'Videoinfo',
         'items': 'Elemente',
+        'picture_in_picture': 'Bild-in-Bild',
         'theme_download': 'Thema herunterladen'
     },
     'fr': {
@@ -4252,6 +4263,7 @@ const languageTranslations = {
         'play_now': 'Lire maintenant',
         'video_info': 'Infos vidéo',
         'items': 'éléments',
+        'picture_in_picture': 'Image dans l’image',
         'theme_download': 'Télécharger le thème'
     },
     'bn': {
@@ -4606,6 +4618,7 @@ const languageTranslations = {
         'play_now': 'এখন চালান',
         'video_info': 'ভিডিও তথ্য',
         'items': 'টি আইটেম', 
+        'picture_in_picture': 'ছবির ভিতর ছবি',
         'theme_download': 'থিম ডাউনলোড'
     }
 };
