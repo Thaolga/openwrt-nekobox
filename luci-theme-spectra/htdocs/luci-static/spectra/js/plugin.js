@@ -2294,7 +2294,24 @@ function enterFullscreenMode(modalId, dialog, iframe, controls) {
                 margin: 0 !important;
             `;
             
-        const buttons = controls.querySelectorAll('.uk-button');
+            const pipButton = controls.querySelector('.pip-btn');
+            if (!pipButton) {
+                const pipBtn = document.createElement('button');
+                pipBtn.className = 'uk-button uk-button-warning pip-btn';
+                pipBtn.innerHTML = '<i class="bi bi-pip"></i>';
+                pipBtn.title = 'picture_in_picture';
+                //pipBtn.setAttribute('data-translate', 'picture_in_picture');
+                pipBtn.onclick = togglePictureInPicture;
+                
+                const buttonGroup = controlsInner.querySelector('.uk-button-group:last-child');
+                if (buttonGroup) {
+                    buttonGroup.insertBefore(pipBtn, buttonGroup.lastChild);
+                } else {
+                    controlsInner.appendChild(pipBtn);
+                }
+            }
+            
+            const buttons = controls.querySelectorAll('.uk-button');
             buttons.forEach(btn => {
                 btn.style.cssText = `
                     padding: 10px 20px !important;
@@ -2346,6 +2363,421 @@ function enterFullscreenMode(modalId, dialog, iframe, controls) {
     localStorage.setItem('youtube_fullscreen_state', '1');
     
     document.addEventListener('keydown', handleFullscreenEscape);
+}
+
+function updatePipButtonState(isActive) {
+    const pipBtn = document.querySelector('.pip-btn');
+    if (pipBtn) {
+        if (isActive) {
+            pipBtn.classList.add('active');
+            pipBtn.innerHTML = '<i class="bi bi-pip-fill"></i>';
+            pipBtn.title = 'Exit Picture-in-Picture';
+            pipBtn.setAttribute('data-translate', 'close_floating_window');
+        } else {
+            pipBtn.classList.remove('active');
+            pipBtn.innerHTML = '<i class="bi bi-pip"></i>';
+            pipBtn.title = 'Picture-in-Picture';
+            pipBtn.setAttribute('data-translate', 'picture_in_picture');
+        }
+        
+        if (typeof updateUIText === 'function') {
+            updateUIText();
+        }
+    }
+}
+
+function togglePictureInPicture() {
+    const translations = languageTranslations[currentLang] || languageTranslations['en'];
+    
+    const existingPip = document.getElementById('youtube-pip-window');
+    
+    if (existingPip) {
+        restoreToModal(existingPip);
+        updatePipButtonState(false);
+        //showLogMessage(translations['pip_exited'] || 'Exited Picture-in-Picture');
+    } else if (window.currentYouTubeModal && window.currentYouTubeModalId) {
+        createIndependentPipWindow();
+        updatePipButtonState(true);
+        //showLogMessage(translations['pip_entered'] || 'Entered Picture-in-Picture');
+    } else {
+        //showLogMessage(translations['no_video_playing'] || 'No video is playing');
+    }
+}
+
+function createIndependentPipWindow() {
+    const modal = window.currentYouTubeModal;
+    const modalElement = document.getElementById(window.currentYouTubeModalId);
+    
+    if (!modal || !modalElement) return;
+    
+    const originalIframe = modalElement.querySelector('iframe');
+    if (!originalIframe) return;
+    
+    try {
+        const pauseMessage = {
+            event: 'command',
+            func: 'pauseVideo',
+            args: '',
+            id: 1,
+            channel: 'widget'
+        };
+        originalIframe.contentWindow.postMessage(JSON.stringify(pauseMessage), '*');
+    } catch (e) {}
+    
+    modalElement.style.display = 'none';
+    
+    const pipIframe = originalIframe.cloneNode(true);
+    
+    const pipWindow = document.createElement('div');
+    pipWindow.id = 'youtube-pip-window';
+    pipWindow.style.cssText = `
+        position: fixed;
+        right: 20px;
+        bottom: 20px;
+        width: 400px;
+        height: 261px;
+        background: #000;
+        border-radius: 8px;
+        overflow: hidden;
+        z-index: 10010;
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.8);
+        border: 2px solid rgba(255, 255, 255, 0.2);
+        resize: both;
+        min-width: 300px;
+        min-height: 205px;
+    `;
+    
+    const dragBar = document.createElement('div');
+    dragBar.style.cssText = `
+        width: 100%;
+        height: 36px;
+        background: rgba(50, 50, 50, 0.9);
+        cursor: move;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0 12px;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    `;
+    
+    const title = document.createElement('div');
+    title.style.cssText = `
+        color: white;
+        font-size: 12px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    `;
+    title.innerHTML = '<i class="bi bi-youtube" style="color: red;"></i> YouTube';
+    
+    const controls = document.createElement('div');
+    controls.style.cssText = `
+        display: flex;
+        gap: 8px;
+    `;
+    
+    const restoreBtn = document.createElement('button');
+    restoreBtn.innerHTML = '<i class="bi bi-fullscreen"></i>';
+    restoreBtn.style.cssText = `
+        background: rgba(255, 255, 255, 0.1);
+        border: none;
+        color: white;
+        width: 28px;
+        height: 28px;
+        border-radius: 4px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 14px;
+    `;
+    restoreBtn.onclick = function() {
+        togglePictureInPicture();
+    };
+    
+    const closeBtn = document.createElement('button');
+    closeBtn.innerHTML = '<i class="bi bi-x-lg"></i>';
+    closeBtn.style.cssText = `
+        background: rgba(255, 71, 87, 0.2);
+        border: none;
+        color: #ff4757;
+        width: 28px;
+        height: 28px;
+        border-radius: 4px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 14px;
+    `;
+    closeBtn.onclick = function() {
+        togglePictureInPicture();
+    };
+    
+    controls.appendChild(restoreBtn);
+    controls.appendChild(closeBtn);
+    dragBar.appendChild(title);
+    dragBar.appendChild(controls);
+    
+    const videoContainer = document.createElement('div');
+    videoContainer.style.cssText = `
+        width: 100%;
+        height: calc(100% - 36px);
+        position: relative;
+        background: #000;
+    `;
+    
+    pipIframe.style.cssText = 'width: 100%; height: 100%; border: none;';
+
+    function setupPipMessageListener() {
+        let isProcessing = false;
+        function handlePipMessage(event) {
+            if (event.origin !== 'https://www.youtube.com' && 
+                event.origin !== 'https://www.youtube-nocookie.com') {
+                return;
+            }
+
+            try {
+                let data;
+                if (typeof event.data === 'string') {
+                    data = JSON.parse(event.data);
+                } else if (typeof event.data === 'object') {
+                    data = event.data;
+                } else {
+                    return;
+                }
+
+                if (isProcessing) return;
+
+                if (data.event === 'onStateChange') {
+                    if (data.info === 0) {
+                        isProcessing = true;
+                    
+                        setTimeout(() => {
+                            playNextYouTubeVideo();
+                            setTimeout(() => {
+                                isProcessing = false;
+                            }, 1000);
+                        }, 800);
+                    } else if (data.info === 1 || data.info === 2) {
+                        isProcessing = false;
+                    }
+                } else if (data.event === 'infoDelivery' && data.info && data.info.playerState === 0) {
+                    isProcessing = true;
+                
+                    setTimeout(() => {
+                        playNextYouTubeVideo();
+                        setTimeout(() => {
+                            isProcessing = false;
+                        }, 1000);
+                    }, 800);
+                }
+            } catch (e) {}
+        }
+
+        window.addEventListener('message', handlePipMessage);
+        pipIframe._pipMessageHandler = handlePipMessage;
+    }
+
+    pipIframe.addEventListener('load', function() {
+        try {
+            const listenMessage = {
+                event: 'listening',
+                id: 1,
+                channel: 'widget'
+            };
+            
+            if (this.contentWindow) {
+                this.contentWindow.postMessage(JSON.stringify(listenMessage), '*');
+            }
+            
+            setupPipMessageListener();
+            
+            setTimeout(() => {
+                try {
+                    const getInfoMessage = {
+                        event: 'command',
+                        func: 'getPlayerState',
+                        args: '',
+                        id: 1,
+                        channel: 'widget'
+                    };
+                    this.contentWindow.postMessage(JSON.stringify(getInfoMessage), '*');
+                } catch (e) {}
+            }, 1000);
+            
+        } catch (e) {}
+    });
+
+    videoContainer.appendChild(pipIframe);
+    pipWindow.appendChild(dragBar);
+    pipWindow.appendChild(videoContainer);
+    document.body.appendChild(pipWindow);
+    
+    window.pipWindow = pipWindow;
+    window.pipIframe = pipIframe;
+    window.pipOriginalState = {
+        modalElement: modalElement,
+        originalIframe: originalIframe
+    };
+    
+    makeElementDraggable(pipWindow, dragBar);
+    
+    [restoreBtn, closeBtn].forEach(btn => {
+        btn.addEventListener('mouseover', () => {
+            btn.style.opacity = '0.8';
+            btn.style.transform = 'scale(1.1)';
+        });
+        
+        btn.addEventListener('mouseout', () => {
+            btn.style.opacity = '1';
+            btn.style.transform = 'scale(1)';
+        });
+    });
+}
+
+function switchPipVideo(videoId, card) {
+    if (window._lastPipVideoId === videoId) {
+        return;
+    }
+    
+    window._lastPipVideoId = videoId;
+    
+    const pipWindow = document.getElementById('youtube-pip-window');
+    if (!pipWindow || !window.pipIframe) {
+        return;
+    }
+    
+    window.currentYouTubeCard = card;
+    window.currentYouTubeVideoId = videoId;
+    
+    try {
+        try {
+            if (window.pipIframe.contentWindow) {
+                const stopMessage = {
+                    event: 'command',
+                    func: 'stopVideo',
+                    args: '',
+                    id: 1,
+                    channel: 'widget'
+                };
+                window.pipIframe.contentWindow.postMessage(JSON.stringify(stopMessage), '*');
+            }
+        } catch (e) {}
+        
+        setTimeout(() => {
+            const params = new URLSearchParams({
+                'autoplay': '1',
+                'rel': '0',
+                'modestbranding': '1',
+                'playsinline': '1',
+                'enablejsapi': '1',
+                'widgetid': '1',
+                'origin': window.location.origin,
+                'iv_load_policy': '3',
+                'controls': '1',
+                'showinfo': '0',
+                'mute': '0'
+            });
+            
+            const newSrc = `https://www.youtube.com/embed/${videoId}?${params.toString()}`;
+            window.pipIframe.src = newSrc;
+            
+            document.querySelectorAll('.music-card.active').forEach(c => {
+                c.classList.remove('active');
+            });
+            card.classList.add('active');
+            
+            if (window.updateFullscreenPlaylistCurrentItem) {
+                window.updateFullscreenPlaylistCurrentItem(card);
+            }
+        
+            const translations = languageTranslations[currentLang] || languageTranslations['en'];
+            const playingText = translations['playing'] || 'Playing';
+            const playMessage = `${playingText}: ${card.dataset.title} - ${card.dataset.artist}`;
+            showLogMessage(playMessage);
+        
+        }, 300);
+    } catch (error) {}
+}
+
+function restoreToModal(pipWindow) {
+    if (window.pipIframe && window.pipIframe._pipMessageHandler) {
+        window.removeEventListener('message', window.pipIframe._pipMessageHandler);
+        delete window.pipIframe._pipMessageHandler;
+    }
+
+    isSwitchingVideo = false;
+    delete window._lastPipVideoId;
+
+    pipWindow.remove();
+    
+    if (window.currentYouTubeCard && window.currentYouTubeCard.dataset.previewUrl) {
+        const videoUrl = window.currentYouTubeCard.dataset.previewUrl;
+        const title = window.currentYouTubeCard.dataset.title;
+        
+        if (window.currentYouTubeModal) {
+            try {
+                window.currentYouTubeModal.hide();
+            } catch (e) {}
+        }
+        
+        setTimeout(() => {
+            playYouTubeVideoInModal(videoUrl, title, window.currentYouTubeCard);
+        }, 100);
+    }
+    
+    delete window.pipOriginalState;
+    delete window.pipWindow;
+    delete window.pipIframe;
+}
+
+function makeElementDraggable(element, dragBar) {
+    let isDragging = false;
+    let startX, startY, elementX, elementY;
+    
+    dragBar.addEventListener('mousedown', function(e) {
+        if (e.button !== 0) return;
+        
+        isDragging = true;
+        startX = e.clientX;
+        startY = e.clientY;
+        
+        const rect = element.getBoundingClientRect();
+        elementX = rect.left;
+        elementY = rect.top;
+        
+        dragBar.style.cursor = 'grabbing';
+        dragBar.style.background = 'rgba(70, 70, 70, 0.9)';
+        
+        document.addEventListener('mousemove', onMouseMove);
+        document.addEventListener('mouseup', onMouseUp);
+        
+        e.preventDefault();
+    });
+    
+    function onMouseMove(e) {
+        if (!isDragging) return;
+        
+        const dx = e.clientX - startX;
+        const dy = e.clientY - startY;
+        
+        element.style.left = (elementX + dx) + 'px';
+        element.style.top = (elementY + dy) + 'px';
+        element.style.right = 'auto';
+        element.style.bottom = 'auto';
+    }
+    
+    function onMouseUp() {
+        if (!isDragging) return;
+        
+        isDragging = false;
+        dragBar.style.cursor = 'move';
+        dragBar.style.background = 'rgba(50, 50, 50, 0.9)';
+        
+        document.removeEventListener('mousemove', onMouseMove);
+        document.removeEventListener('mouseup', onMouseUp);
+    }
 }
 
 function addSmartSensor(modalId, dialog) {
@@ -3427,34 +3859,66 @@ function playPrevYouTubeVideo() {
     }
 }
 
+let isSwitchingVideo = false;
+
 async function playNextYouTubeVideo() {
-    if (window.currentYouTubeCard) {
-        const allCards = Array.from(document.querySelectorAll('.music-card[data-source="youtube"]'));
-        const currentIndex = allCards.findIndex(card => card === window.currentYouTubeCard);
-        
-        if (currentIndex < allCards.length - 1) {
-            const nextCard = allCards[currentIndex + 1];
+    if (isSwitchingVideo) {
+        return;
+    }
+    
+    isSwitchingVideo = true;
+    
+    try {
+        if (window.currentYouTubeCard) {
+            const allCards = Array.from(document.querySelectorAll('.music-card[data-source="youtube"]'));
+            const currentIndex = allCards.findIndex(card => card === window.currentYouTubeCard);
             
-            if (window.currentYouTubeModal && window.currentYouTubeIframe) {
-                const nextVideoId = getYouTubeVideoId(nextCard.dataset.previewUrl);
-                if (!nextVideoId) return;
+            let nextIndex = currentIndex + 1;
+            let nextCard = null;
+            
+            for (let i = 0; i < allCards.length; i++) {
+                if (nextIndex >= allCards.length) {
+                    nextIndex = 0;
+                }
                 
-                switchYouTubeVideoInModal(nextVideoId, nextCard);
-            } else {
-                playMusic(nextCard);
+                const card = allCards[nextIndex];
+                const videoId = getYouTubeVideoId(card.dataset.previewUrl);
+                
+                if (videoId) {
+                    nextCard = card;
+                    break;
+                }
+                
+                nextIndex++;
             }
-        } else if (allCards.length > 0) {
-            const firstCard = allCards[0];
             
-            if (window.currentYouTubeModal && window.currentYouTubeIframe) {
-                const firstVideoId = getYouTubeVideoId(firstCard.dataset.previewUrl);
-                if (firstVideoId) {
-                    switchYouTubeVideoInModal(firstVideoId, firstCard);
+            if (nextCard) {
+                const pipWindow = document.getElementById('youtube-pip-window');
+                if (pipWindow) {
+                    const nextVideoId = getYouTubeVideoId(nextCard.dataset.previewUrl);
+                    if (!nextVideoId) return;
+                    
+                    switchPipVideo(nextVideoId, nextCard);
+                } else if (window.currentYouTubeModal && window.currentYouTubeIframe) {
+                    const nextVideoId = getYouTubeVideoId(nextCard.dataset.previewUrl);
+                    if (!nextVideoId) return;
+                    
+                    switchYouTubeVideoInModal(nextVideoId, nextCard);
+                } else {
+                    playMusic(nextCard);
                 }
             } else {
-                playMusic(firstCard);
+                const translations = languageTranslations[currentLang] || languageTranslations['en'];
+                const message = translations['no_next_song'] || 'No next song available';
+                showLogMessage(message);
             }
         }
+    } catch (error) {
+        //console.error('Error playing next video:', error);
+    } finally {
+        setTimeout(() => {
+            isSwitchingVideo = false;
+        }, 1000);
     }
 }
 
