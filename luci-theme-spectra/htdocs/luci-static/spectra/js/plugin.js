@@ -2609,135 +2609,73 @@ function performPlaylistSearchFromModal(searchModalId, fullscreenModalId) {
         playlistContent.innerHTML = `
             <div class="playlist-loading">
                 <div class="loading-spinner"></div>
-                <p>Searching...</p>
+                <p data-translate="searching">Searching...</p>
             </div>
         `;
+        updateUIText();
     }
     
     document.getElementById('searchInput').value = query;
     document.getElementById('searchType').value = 'song';
     document.getElementById('searchSource').value = 'youtube';
     
-    performSearch(false);
+    window.currentPlaylistModalId = fullscreenModalId;
     
-    setTimeout(() => {
-        const allYouTubeCards = Array.from(document.querySelectorAll('.music-card[data-source="youtube"]'));
-        
-        loadFullscreenPlaylistItems(fullscreenModalId, allYouTubeCards);
-    }, 1500);
-}
-
-function loadFullscreenPlaylistItems(modalId, allCards) {
-    const playlistContent = document.getElementById(`youtube-fullscreen-playlist-content-${modalId}`);
-    const countElement = document.getElementById(`youtube-playlist-count-${modalId}`);
-    
-    if (!playlistContent) return;
-    
-    playlistContent.innerHTML = '';
-    
-    if (countElement) {
-        countElement.textContent = `${allCards.length} videos`;
-    }
-    
-    if (allCards.length === 0) {
-        playlistContent.innerHTML = `
-            <div class="playlist-empty">
-                <i class="bi bi-search"></i>
-                <p>No videos found</p>
-            </div>
-        `;
-        return;
-    }
-    
-    allCards.forEach((card, index) => {
-        const title = card.dataset.title || 'Unknown Video';
-        const artist = card.dataset.artist || 'YouTube';
-        const duration = card.dataset.duration || '--:--';
-        const videoId = getYouTubeVideoId(card.dataset.previewUrl);
-        const coverUrl = card.dataset.cover || '/luci-static/resources/icons/cover.svg';
-        
-        const playlistItem = document.createElement('div');
-        playlistItem.className = 'youtube-fullscreen-playlist-item';
-        playlistItem.dataset.index = index;
-        playlistItem.dataset.videoId = videoId;
-        playlistItem.dataset.cardIndex = card.dataset.index;
-        
-        playlistItem.innerHTML = `
-            <div class="youtube-fullscreen-playlist-item-number">${index + 1}</div>
-            <div class="youtube-fullscreen-playlist-item-icon">
-                ${coverUrl.includes('cover.svg') 
-                    ? '<i class="bi bi-youtube default-icon"></i>' 
-                    : `<img src="${coverUrl}" alt="${title}">`
+    const observer = new MutationObserver(function(mutations) {
+        mutations.forEach(function(mutation) {
+            if (mutation.type === 'childList') {
+                const allYouTubeCards = Array.from(document.querySelectorAll('.music-card[data-source="youtube"]'));
+                if (allYouTubeCards.length > 0) {
+                    observer.disconnect();
+                    
+                    loadFullscreenPlaylistItems(fullscreenModalId, allYouTubeCards);
                 }
-            </div>
-            <div class="youtube-fullscreen-playlist-item-info">
-                <div class="youtube-fullscreen-playlist-item-title">${title}</div>
-                <div class="youtube-fullscreen-playlist-item-artist">${artist}</div>
-            </div>
-            <div class="youtube-fullscreen-playlist-item-duration">${duration}</div>
-            ${card === window.currentYouTubeCard ? '<div class="youtube-fullscreen-playlist-item-playing"><i class="bi bi-play-fill"></i></div>' : ''}
-        `;
-        
-        playlistItem.addEventListener('click', function() {
-            const allMainCards = Array.from(document.querySelectorAll('.music-card[data-source="youtube"]'));
-            const cardToPlay = allMainCards.find(c => 
-                c.dataset.index === this.dataset.cardIndex
-            );
-            
-            if (cardToPlay && window.currentYouTubeModal) {
-                const videoId = this.dataset.videoId;
-                switchYouTubeVideoInModal(videoId, cardToPlay);
             }
         });
-        
-        playlistContent.appendChild(playlistItem);
     });
+    
+    const resultsContainer = document.getElementById('resultsContainer');
+    if (resultsContainer) {
+        observer.observe(resultsContainer, {
+            childList: true,
+            subtree: true
+        });
+        
+        setTimeout(() => {
+            observer.disconnect();
+            const allYouTubeCards = Array.from(document.querySelectorAll('.music-card[data-source="youtube"]'));
+            loadFullscreenPlaylistItems(fullscreenModalId, allYouTubeCards);
+        }, 10000);
+    }
+    
+    performSearch(false);
 }
 
-function createFullscreenPlaylist(modalId, dialog, allCards) {
-    const playlistHTML = `
-        <div class="youtube-fullscreen-playlist" id="youtube-fullscreen-playlist-${modalId}">
-            <div class="youtube-fullscreen-playlist-header">
-                <div class="youtube-fullscreen-playlist-title">
-                    <i class="bi bi-list-ul"></i>
-                    <span>Playlist</span>
-                    <div class="playlist-search-btn" onclick="searchFromPlaylist('${modalId}')" title="search_button">
-                        <i class="bi bi-search"></i>
-                    </div>
-                </div>
-            </div>
-            <div class="youtube-fullscreen-playlist-content" id="youtube-fullscreen-playlist-content-${modalId}">
-            </div>
-            <div class="youtube-fullscreen-playlist-footer">
-                <div class="youtube-fullscreen-playlist-count">
-                    <i class="bi bi-music-note-list"></i>
-                    <span id="youtube-playlist-count-${modalId}">${allCards.length} videos</span>
-                </div>
-            </div>
-        </div>
-    `;
-    
-    const temp = document.createElement('div');
-    temp.innerHTML = playlistHTML;
-    const playlistElement = temp.firstElementChild;
-    
-    dialog.appendChild(playlistElement);
-    
-    loadFullscreenPlaylistItems(modalId, allCards);
-}
-
-function loadFullscreenPlaylistItems(modalId, allCards) {
+function loadFullscreenPlaylistItems(modalId) {
     const translations = languageTranslations[currentLang] || languageTranslations['en'];
     const playlistContent = document.getElementById(`youtube-fullscreen-playlist-content-${modalId}`);
     const countElement = document.getElementById(`youtube-playlist-count-${modalId}`);
     
     if (!playlistContent) return;
     
+    const allCards = Array.from(document.querySelectorAll('.music-card[data-source="youtube"]'));
+    
     playlistContent.innerHTML = '';
     
     if (countElement) {
         const itemsText = translations['items'] || 'items';
         countElement.textContent = `${allCards.length} ${itemsText}`;
+    }
+    
+    if (allCards.length === 0) {
+        playlistContent.innerHTML = `
+            <div class="playlist-empty">
+                <i class="bi bi-search"></i>
+                <p data-translate="no_videos_found">No videos found</p>
+            </div>
+        `;
+        updateUIText();
+        return;
     }
     
     allCards.forEach((card, index) => {
@@ -2782,13 +2720,9 @@ function loadFullscreenPlaylistItems(modalId, allCards) {
         
         playlistItem.addEventListener('click', function(e) {
             e.stopPropagation();
-            const videoId = this.dataset.videoId;
-            const cardIndex = this.dataset.cardIndex;
-            const cardToPlay = allCards.find(c => 
-                c.dataset.index === cardIndex || getYouTubeVideoId(c.dataset.previewUrl) === videoId
-            );
-            if (cardToPlay && window.currentYouTubeModal && window.currentYouTubeIframe) {
-                switchYouTubeVideoInModal(videoId, cardToPlay);
+            if (card && window.currentYouTubeModal && window.currentYouTubeIframe) {
+                const videoId = getYouTubeVideoId(card.dataset.previewUrl);
+                switchYouTubeVideoInModal(videoId, card);
             }
         });
         
@@ -2799,6 +2733,134 @@ function loadFullscreenPlaylistItems(modalId, allCards) {
         
         playlistContent.appendChild(playlistItem);
     });
+    
+    updateUIText();
+}
+
+function createFullscreenPlaylist(modalId, dialog, allCards) {
+    const translations = languageTranslations[currentLang] || languageTranslations['en'];
+    
+    const playlistHTML = `
+        <div class="youtube-fullscreen-playlist" id="youtube-fullscreen-playlist-${modalId}">
+            <div class="youtube-fullscreen-playlist-header">
+                <div class="youtube-fullscreen-playlist-title">
+                    <i class="bi bi-list-ul"></i>
+                    <span data-translate="playlist">Playlist</span>
+                    <div class="playlist-search-btn" onclick="searchFromPlaylist('${modalId}')" title="search_button">
+                        <i class="bi bi-search"></i>
+                    </div>
+                </div>
+            </div>
+            <div class="youtube-fullscreen-playlist-content" id="youtube-fullscreen-playlist-content-${modalId}">
+            </div>
+            <div class="youtube-fullscreen-playlist-footer">
+                <div class="youtube-fullscreen-playlist-count">
+                    <i class="bi bi-music-note-list"></i>
+                    <span id="youtube-playlist-count-${modalId}">${allCards.length} ${translations['items'] || 'items'}</span>
+                </div>
+                <div class="youtube-playlist-loadmore">
+                    <button class="youtube-playlist-loadmore-btn" id="playlist-loadmore-btn-${modalId}">
+                        <i class="bi bi-plus-circle"></i>
+                        <span data-translate="load_more">Load More</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    const temp = document.createElement('div');
+    temp.innerHTML = playlistHTML;
+    const playlistElement = temp.firstElementChild;
+    
+    dialog.appendChild(playlistElement);
+    
+    const loadmoreBtn = document.getElementById(`playlist-loadmore-btn-${modalId}`);
+    if (loadmoreBtn) {
+        loadmoreBtn.addEventListener('click', function() {
+            handlePlaylistLoadMore(modalId);
+        });
+    }
+    
+    loadFullscreenPlaylistItems(modalId);
+    updateUIText();
+}
+
+function handlePlaylistLoadMore(modalId) {
+    const translations = languageTranslations[currentLang] || languageTranslations['en'];
+    
+    const loadmoreBtn = document.getElementById(`playlist-loadmore-btn-${modalId}`);
+    if (!loadmoreBtn) return;
+    
+    if (loadmoreBtn.disabled) return;
+    
+    loadmoreBtn.disabled = true;
+    loadmoreBtn.classList.add('loading');
+    loadmoreBtn.innerHTML = `
+        <span class="spinner">
+            <i class="bi bi-arrow-clockwise"></i>
+        </span>
+        <span data-translate="loading">Loading...</span>
+    `;
+    updateUIText();
+    
+    loadmoreBtn._originalHTML = loadmoreBtn.innerHTML;
+    
+    //showLogMessage(translations['loading_more_results'] || 'Loading more results...');
+    
+    loadMoreResults();
+    
+    let checkCount = 0;
+    const maxChecks = 20;
+    
+    const checkLoadingComplete = () => {
+        checkCount++;
+        
+        const mainLoadMoreBtn = document.getElementById('loadMoreButton');
+        const mainLoadMoreContainer = document.getElementById('loadMoreContainer');
+        
+        if ((mainLoadMoreContainer && mainLoadMoreContainer.style.display === 'none') ||
+            checkCount >= maxChecks ||
+            (mainLoadMoreBtn && !mainLoadMoreBtn.disabled)) {
+            
+            loadFullscreenPlaylistItems(modalId);
+            
+            setTimeout(() => {
+                restoreLoadMoreButton(loadmoreBtn, true);
+            }, 300);
+            
+            return;
+        }
+        
+        setTimeout(checkLoadingComplete, 500);
+    };
+    
+    setTimeout(checkLoadingComplete, 1000);
+    
+    setTimeout(() => {
+        if (loadmoreBtn.disabled) {
+            loadFullscreenPlaylistItems(modalId);
+            restoreLoadMoreButton(loadmoreBtn, false);
+        }
+    }, 5000);
+}
+
+function restoreLoadMoreButton(button, success = true) {
+    if (!button) return;
+    
+    if (success) {
+        button.classList.add('success');
+        setTimeout(() => {
+            button.classList.remove('success');
+        }, 1000);
+    }
+    
+    button.innerHTML = `
+        <i class="bi bi-plus-circle"></i>
+        <span data-translate="load_more">Load More</span>
+    `;
+    button.classList.remove('loading');
+    button.disabled = false;
+    updateUIText();
 }
 
 function preloadImage(url, container) {
