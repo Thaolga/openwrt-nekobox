@@ -2309,6 +2309,10 @@ function enterFullscreenMode(modalId, dialog, iframe, controls) {
                 } else {
                     controlsInner.appendChild(pipBtn);
                 }
+
+                if (typeof updateUIText === 'function') {
+                    updateUIText();
+                }
             }
             
             const buttons = controls.querySelectorAll('.uk-button');
@@ -2371,17 +2375,9 @@ function updatePipButtonState(isActive) {
         if (isActive) {
             pipBtn.classList.add('active');
             pipBtn.innerHTML = '<i class="bi bi-pip-fill"></i>';
-            pipBtn.title = 'Exit Picture-in-Picture';
-            pipBtn.setAttribute('data-translate', 'close_floating_window');
         } else {
             pipBtn.classList.remove('active');
             pipBtn.innerHTML = '<i class="bi bi-pip"></i>';
-            pipBtn.title = 'Picture-in-Picture';
-            pipBtn.setAttribute('data-translate', 'picture_in_picture');
-        }
-        
-        if (typeof updateUIText === 'function') {
-            updateUIText();
         }
     }
 }
