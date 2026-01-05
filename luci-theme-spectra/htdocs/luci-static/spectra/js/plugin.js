@@ -1831,6 +1831,10 @@ function playYouTubeVideoInModal(videoUrl, title, card) {
                     <button class="uk-button uk-button-success" onclick="toggleModalFullscreen('${modalId}')" title="fullscreen">
                         <i class="bi bi-fullscreen"></i>
                     </button>
+                    <button class="uk-button uk-margin-small-left uk-button-warning pip-btn" 
+                            title="picture_in_picture" onclick="togglePictureInPicture()">
+                        <i class="bi bi-pip"></i>
+                    </button>
                     <a href="${videoUrl}" target="_blank" class="uk-button uk-margin-small-left uk-button-primary" data-tooltip-title="open_on_youtube">
                         <i class="bi bi-youtube"></i>
                     </a>
@@ -2293,28 +2297,8 @@ function enterFullscreenMode(modalId, dialog, iframe, controls) {
                 gap: 25px !important;
                 margin: 0 !important;
             `;
-            
-            const pipButton = controls.querySelector('.pip-btn');
-            if (!pipButton) {
-                const pipBtn = document.createElement('button');
-                pipBtn.className = 'uk-button uk-button-warning pip-btn';
-                pipBtn.innerHTML = '<i class="bi bi-pip"></i>';
-                pipBtn.title = 'picture_in_picture';
-                //pipBtn.setAttribute('data-translate', 'picture_in_picture');
-                pipBtn.onclick = togglePictureInPicture;
-                
-                const buttonGroup = controlsInner.querySelector('.uk-button-group:last-child');
-                if (buttonGroup) {
-                    buttonGroup.insertBefore(pipBtn, buttonGroup.lastChild);
-                } else {
-                    controlsInner.appendChild(pipBtn);
-                }
-
-                if (typeof updateUIText === 'function') {
-                    updateUIText();
-                }
-            }
-            
+            const pipButton = controls.querySelector('.pip-btn');     
+                  
             const buttons = controls.querySelectorAll('.uk-button');
             buttons.forEach(btn => {
                 btn.style.cssText = `
