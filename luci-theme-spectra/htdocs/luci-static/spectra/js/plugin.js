@@ -2172,7 +2172,7 @@ function enterFullscreenMode(modalId, dialog, iframe, controls) {
     if (closeBtn) {
         closeBtn.style.display = 'none';
     }
-
+    
     dialog.classList.add('youtube-fullscreen-mode');
     dialog.style.cssText = `
         width: 100vw !important;
@@ -2192,13 +2192,16 @@ function enterFullscreenMode(modalId, dialog, iframe, controls) {
 
     const header = dialog.querySelector('.uk-modal-header');
     if (header) header.style.display = 'none';
-
+    
     const allCards = Array.from(document.querySelectorAll('.music-card[data-source="youtube"]'));
+    
     if (allCards.length > 0) {
         createFullscreenPlaylist(modalId, dialog, allCards);
-        window.currentPlaylistSensor = addSmartSensor(modalId, dialog);
+        const sensor = addSmartSensor(modalId, dialog);
+        
+        window.currentPlaylistSensor = sensor;
     }
-
+   
     const playerContainer = iframe.parentElement;
     playerContainer.style.cssText = `
         width: 100vw !important;
@@ -2207,23 +2210,28 @@ function enterFullscreenMode(modalId, dialog, iframe, controls) {
         top: 0 !important;
         left: 0 !important;
         z-index: 1 !important;
+        margin: 0 !important;
+        padding: 0 !important;
         background: oklch(0 0 0) !important;
         display: flex !important;
         align-items: center !important;
         justify-content: center !important;
     `;
-
+    
     iframe.style.cssText = `
         position: absolute !important;
-        inset: 0 !important;
+        top: 0 !important;
+        left: 0 !important;
         width: 100% !important;
         height: 100% !important;
         z-index: 2 !important;
         border: none !important;
         background: oklch(0 0 0) !important;
+        margin: 0 !important;
+        padding: 0 !important;
         object-fit: contain !important;
     `;
-
+    
     try {
         const fullscreenMessage = {
             event: 'command',
@@ -2242,10 +2250,13 @@ function enterFullscreenMode(modalId, dialog, iframe, controls) {
             channel: 'widget'
         };
         iframe.contentWindow.postMessage(JSON.stringify(setFullscreenMessage), '*');
-    } catch (e) {}
-
+    } catch (e) {
+    }
+    
     updateIframeSize();
-
+    
+    const safeAreaInsets = window.safeAreaInsets || { bottom: '20px' };
+    
     if (controls) {
         controls.classList.add('youtube-fullscreen-controls');
         controls.style.cssText = `
@@ -2254,15 +2265,12 @@ function enterFullscreenMode(modalId, dialog, iframe, controls) {
             left: 50% !important;
             transform: translateX(-50%) !important;
             z-index: 10000 !important;
-
             background: oklch(0.25 0.02 260 / 0.65) !important;
             border: 1px solid oklch(0.6 0.01 260 / 0.25) !important;
             padding: 12px 24px !important;
             border-radius: 50px !important;
-
             backdrop-filter: blur(14px) saturate(120%) !important;
             -webkit-backdrop-filter: blur(14px) saturate(120%) !important;
-
             box-shadow:
                 0 10px 30px oklch(0.1 0.02 260 / 0.6) !important;
 
@@ -2270,12 +2278,16 @@ function enterFullscreenMode(modalId, dialog, iframe, controls) {
             transition: opacity 0.3s ease !important;
             min-width: 300px !important;
         `;
-
-        setTimeout(() => controls.style.opacity = '0', 10);
-
+        
+        setTimeout(() => {
+            controls.style.opacity = '0';
+        }, 10);
+        
         const fullscreenBtn = controls.querySelector('[onclick*="toggleModalFullscreen"] i');
-        if (fullscreenBtn) fullscreenBtn.className = 'bi bi-fullscreen-exit';
-
+        if (fullscreenBtn) {
+            fullscreenBtn.className = 'bi bi-fullscreen-exit';
+        }
+        
         const controlsInner = controls.querySelector('.uk-flex');
         if (controlsInner) {
             controlsInner.style.cssText = `
@@ -2283,66 +2295,84 @@ function enterFullscreenMode(modalId, dialog, iframe, controls) {
                 justify-content: center !important;
                 align-items: center !important;
                 gap: 20px !important;
+                margin: 0 !important;
             `;
+
+            const buttonGroups = controls.querySelectorAll('.uk-button-group');
+            buttonGroups.forEach(group => {
+                group.style.cssText = `
+                    display: flex !important;
+                    gap: 10px !important;
+                    margin: 0 !important;
+                `;
+            });
+
+            const pipButton = controls.querySelector('.pip-btn');     
+            if (pipButton) {
+                const existingPip = document.getElementById('youtube-pip-window');
+                if (existingPip) {
+                    pipButton.classList.add('active');
+                    pipButton.innerHTML = '<i class="bi bi-pip-fill"></i>';
+                } else {
+                    pipButton.classList.remove('active');
+                    pipButton.innerHTML = '<i class="bi bi-pip"></i>';
+                }
+            } 
+                  
+            const buttons = controls.querySelectorAll('.uk-button');
+            buttons.forEach(btn => {
+                btn.style.cssText = `
+                    padding: 10px 18px !important;
+                    min-width: 40px !important;
+                    min-height: 40px !important;
+                    border-radius: 999px !important;
+                    background: oklch(0.3 0.02 260 / 0.65) !important;
+                    border: 1px solid oklch(0.6 0.01 260 / 0.2) !important;
+                    color: oklch(0.95 0 0) !important;
+                    display: flex !important;
+                    align-items: center !important;
+                    justify-content: center !important;
+                    backdrop-filter: blur(10px) !important;
+                    -webkit-backdrop-filter: blur(10px) !important;
+                    transition: all 0.2s ease !important;
+                    cursor: pointer !important;
+                `;
+
+                const originalBackground = 'oklch(0.3 0.02 260 / 0.65)';
+                const hoverBackground = 'oklch(0.35 0.025 260 / 0.8)';
+                
+                const mouseEnterHandler = function() {
+                    this.style.background = hoverBackground;
+                    this.style.boxShadow = '0 6px 20px oklch(0.1 0.02 260 / 0.4)';
+                    this.style.transform = 'translateY(-2px)';
+                };
+                
+                const mouseLeaveHandler = function() {
+                    this.style.background = originalBackground;
+                    this.style.boxShadow = '';
+                    this.style.transform = 'translateY(0)';
+                };
+                
+                btn.addEventListener('mouseenter', mouseEnterHandler);
+                btn.addEventListener('mouseleave', mouseLeaveHandler);
+                
+                btn._mouseenterHandler = mouseEnterHandler;
+                btn._mouseleaveHandler = mouseLeaveHandler;
+            });
         }
-
-        controls.querySelectorAll('.uk-button-group').forEach(group => {
-            group.style.cssText = `
-                display: flex !important;
-                gap: 10px !important;
-            `;
-        });
-
-        controls.querySelectorAll('.uk-button').forEach(btn => {
-            btn.style.cssText = `
-                padding: 10px 18px !important;
-                min-width: 40px !important;
-                min-height: 40px !important;
-                border-radius: 999px !important;
-
-                background: oklch(0.3 0.02 260 / 0.65) !important;
-                border: 1px solid oklch(0.6 0.01 260 / 0.2) !important;
-                color: oklch(0.95 0 0) !important;
-
-                display: flex !important;
-                align-items: center !important;
-                justify-content: center !important;
-
-                backdrop-filter: blur(10px) !important;
-                -webkit-backdrop-filter: blur(10px) !important;
-
-                transition: all 0.2s ease !important;
-                cursor: pointer !important;
-            `;
-
-            const enter = () => {
-                btn.style.background = 'oklch(0.35 0.025 260 / 0.8)';
-                btn.style.boxShadow = '0 6px 16px oklch(0.1 0.02 260 / 0.6)';
-            };
-            const leave = () => {
-                btn.style.background = 'oklch(0.3 0.02 260 / 0.65)';
-                btn.style.boxShadow = 'none';
-            };
-
-            btn.addEventListener('mouseenter', enter);
-            btn.addEventListener('mouseleave', leave);
-
-            btn._mouseenterHandler = enter;
-            btn._mouseleaveHandler = leave;
-        });
     }
-
+    
     if (allCards.length > 0) {
         setupFullscreenPlaylistHover(modalId, dialog);
     }
-
+    
     setupFullscreenHover(dialog);
     window.addEventListener('resize', handleFullscreenResize);
-    document.addEventListener('keydown', handleFullscreenEscape);
-
     window.isYouTubeFullscreen = true;
     window.fullscreenModalId = modalId;
     localStorage.setItem('youtube_fullscreen_state', '1');
+    
+    document.addEventListener('keydown', handleFullscreenEscape);
 }
 
 function updatePipButtonState(isActive) {
