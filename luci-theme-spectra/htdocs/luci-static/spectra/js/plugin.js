@@ -3244,7 +3244,7 @@ function handlePlaylistLoadMore(modalId) {
     loadMoreResults();
     
     let checkCount = 0;
-    const maxChecks = 20;
+    const maxChecks = 50;
     
     const checkLoadingComplete = () => {
         checkCount++;
