@@ -10,11 +10,53 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
 
 $configFile = dirname(__FILE__) . '/api_keys.config.php';
 
+function ensureConfigFileExists($configFile) {
+    if (!file_exists($configFile)) {
+        $defaultConfig = "<?php\nreturn [\n";
+        $defaultConfig .= "    'spotify' => [\n";
+        $defaultConfig .= "        'client_id' => '',\n";
+        $defaultConfig .= "        'client_secret' => '',\n";
+        $defaultConfig .= "    ],\n";
+        $defaultConfig .= "    'youtube' => [\n";
+        $defaultConfig .= "        'api_key' => '',\n";
+        $defaultConfig .= "    ],\n";
+        $defaultConfig .= "    'soundcloud' => [\n";
+        $defaultConfig .= "        'client_id' => '',\n";
+        $defaultConfig .= "    ],\n";
+        $defaultConfig .= "];\n";
+        
+        try {
+            $result = file_put_contents($configFile, $defaultConfig, LOCK_EX);
+            if ($result !== false) {
+                chmod($configFile, 0644);
+                return true;
+            }
+        } catch (Exception $e) {
+            error_log("Failed to create config file: " . $e->getMessage());
+        }
+        return false;
+    }
+    return true;
+}
+
 $action = $_GET['action'] ?? '';
 $input = json_decode(file_get_contents('php://input'), true);
 
 switch ($action) {
     case 'get':
+        if (!ensureConfigFileExists($configFile)) {
+            echo json_encode([
+                'success' => false,
+                'message' => 'Failed to create configuration file',
+                'keys' => [
+                    'spotify' => ['client_id' => '', 'client_secret' => ''],
+                    'youtube' => ['api_key' => ''],
+                    'soundcloud' => ['client_id' => '']
+                ]
+            ]);
+            break;
+        }
+        
         if (file_exists($configFile)) {
             $keys = include $configFile;
             echo json_encode([
@@ -59,6 +101,11 @@ switch ($action) {
             $configContent .= "];\n";
             
             try {
+                $configDir = dirname($configFile);
+                if (!is_dir($configDir)) {
+                    mkdir($configDir, 0755, true);
+                }
+                
                 if (file_put_contents($configFile, $configContent, LOCK_EX)) {
                     chmod($configFile, 0644);
                     echo json_encode([
