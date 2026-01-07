@@ -1472,6 +1472,7 @@ function onYouTubeAudioReady(event) {
             const playingText = translations['playing'] || 'Playing';
             const playMessage = `${playingText}: ${context.playlistItem.title} - ${context.playlistItem.artist}`;
             showLogMessage(playMessage);
+
             if (totalTimeElement) {
                 totalTimeElement.textContent = context.playlistItem.duration;
             }
@@ -3188,9 +3189,11 @@ function createFullscreenPlaylist(modalId, dialog, allCards) {
             <div class="youtube-fullscreen-playlist-content" id="youtube-fullscreen-playlist-content-${modalId}">
             </div>
             <div class="youtube-fullscreen-playlist-footer">
-                <div class="youtube-fullscreen-playlist-count">
-                    <i class="bi bi-music-note-list"></i>
-                    <span id="youtube-playlist-count-${modalId}">${allCards.length} ${translations['items'] || 'items'}</span>
+                <div class="youtube-playlist-footer-left">
+                    <div class="youtube-fullscreen-playlist-count">
+                        <i class="bi bi-music-note-list"></i>
+                        <span id="youtube-playlist-count-${modalId}">${allCards.length} ${translations['items'] || 'items'}</span>
+                    </div>
                 </div>
                 <div class="youtube-playlist-loadmore">
                     <button class="youtube-playlist-loadmore-btn" id="playlist-loadmore-btn-${modalId}">
