@@ -347,7 +347,6 @@ function importApiKeys(input) {
 
 document.getElementById('spectraClearCacheBtn').onclick = function() {
     const translations = languageTranslations[currentLang] || languageTranslations['en'];
-
     showGlobalModal({
         defaultText: translations['cache_clear_confirm'] || 'Are you sure you want to clear the search cache?',
         onConfirm: () => {
@@ -366,4 +365,59 @@ document.getElementById('spectraClearCacheBtn').onclick = function() {
         }
     });
 };
+
+document.addEventListener('keydown', function(event) {
+    const target = event.target;
+    const isTyping = target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.isContentEditable;
+    
+    if (isTyping) return;
+    
+    switch(event.code) {
+        case 'KeyA':
+            event.preventDefault();
+            const youtubePrevBtn = document.querySelector('[onclick*="playPrevYouTubeVideo"]');
+            if (youtubePrevBtn) {
+                youtubePrevBtn.click();
+            } else {
+                document.getElementById('prevBtn')?.click();
+            }
+            break;
+            
+        case 'KeyS':
+            event.preventDefault();
+            const youtubePlayBtn = document.querySelector('.youtube-playpause-btn');
+            if (youtubePlayBtn) {
+                youtubePlayBtn.click();
+            } else {
+                document.getElementById('playSearchBtn')?.click();
+            }
+            break;
+            
+        case 'KeyD':
+            event.preventDefault();
+            const youtubeNextBtn = document.querySelector('[onclick*="playNextYouTubeVideo"]');
+            if (youtubeNextBtn) {
+                youtubeNextBtn.click();
+            } else {
+                document.getElementById('nextBtn')?.click();
+            }
+            break;
+            
+        case 'KeyW':
+            event.preventDefault();
+            const pipBtn = document.querySelector('.pip-btn');
+            if (pipBtn) {
+                pipBtn.click();
+            }
+            break;
+            
+        case 'KeyQ':
+            event.preventDefault();
+            const playlistIndicator = document.querySelector('.youtube-smart-indicator');
+            if (playlistIndicator) {
+                playlistIndicator.click();
+            }
+            break;
+    }
+});
 </script>
