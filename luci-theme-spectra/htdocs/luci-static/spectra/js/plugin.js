@@ -1797,14 +1797,16 @@ function playYouTubeVideoInModal(videoUrl, title, card) {
     }
 
     window.currentYouTubeCard = card;
-
+    const translations = languageTranslations[currentLang] || languageTranslations['en'];
+    const shortcutsHint = translations['shortcuts_hint'] || 'A - Previous\nS - Play/Pause\nD - Next\nW - PiP\nQ - Playlist\nE - Search';  
     const modalId = 'youtube-modal-' + Date.now();
     const modalHTML = `
 <div id="${modalId}" class="uk-modal" uk-modal="bg-close: false">
     <div class="uk-modal-dialog youtube-modal-dialog">
         <button class="uk-modal-close-default" type="button" uk-close></button>
         <div class="uk-modal-header youtube-modal-header">
-            <h3 class="uk-modal-title" style="color: var(--accent-color);">
+            <h3 class="uk-modal-title" style="color: var(--accent-color); cursor: help;"
+                data-tooltip-title="${shortcutsHint}">
                 <span class="uk-icon uk-margin-small-right" uk-icon="icon: youtube; ratio: 1.5"></span>
                 YouTube
             </h3>
