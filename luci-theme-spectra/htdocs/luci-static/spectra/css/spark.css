@@ -5374,3 +5374,7 @@ div#maincontent > div.alert-message.fade-in.warning[style*="display:flex"] {
     margin-top: 25px !important;
     margin-bottom: 20px !important;
 }
+
+#view .cbi-section:not(:has(h3)):has(> div:nth-child(2):empty) {
+    display: none !important;
+}
