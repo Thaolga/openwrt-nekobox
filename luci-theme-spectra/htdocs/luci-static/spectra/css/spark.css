@@ -5379,3 +5379,13 @@ div#maincontent > div.alert-message.fade-in.warning[style*="display:flex"] {
 #view .cbi-section:not(:has(h3)):has(> div:nth-child(2):empty) {
     display: none !important;
 }
+
+.right-box .card-header .settings-wrapper .settings-btn .device-manage-btn {
+    background-color: var(--card-bg) !important;
+    border: var(--border-strong) !important;
+}
+
+.right-box .reusable-card .card-body .info_content .ip_info .ip_item .ip_action .ip_tag svg path,
+.right-box .card-header .settings-wrapper .settings-btn .device-manage-btn .device-manage-icon path {
+    fill: var(--color-blue) !important;
+}
