@@ -6417,3 +6417,14 @@ li[data-value="-"][unselectable] {
     grid-column: 1;
 }
 
+#config_file_select.config-select {
+    background-color: var(--card-bg) !important;
+    border: var(--border-strong) !important;
+    color: var(--text-color) !important;
+}
+
+#config_file_select.config-select:focus,
+#config_file_select.config-select:active {
+    background-color: var(--card-bg) !important;
+}
+
