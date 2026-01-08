@@ -5357,3 +5357,20 @@ span.label[data-style="inactive"] {
     margin: 18px 0 8px 12px;
     padding: 8px 0 8px 8px;
 }
+
+div#maincontent > div.alert-message.fade-in.warning[style*="display:flex"] {
+    position: fixed !important;
+    top: 50% !important;
+    left: 50% !important;
+    transform: translate(-50%, -50%) !important;
+    z-index: 9999 !important;
+    width: 500px !important;
+    max-width: 80% !important;
+    margin: 0 !important;
+    box-sizing: border-box !important;
+}
+
+.nft-table > h3 {
+    margin-top: 25px !important;
+    margin-bottom: 20px !important;
+}
