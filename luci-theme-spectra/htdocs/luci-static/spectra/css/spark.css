@@ -5343,4 +5343,17 @@ a[href*="istoreos.com"]:hover {
     .cbi-tblsection:has(.cbi-section-table.table) {
         overflow-x: hidden;
     }
+}
+
+span.label[data-style="inactive"] {
+    display: none !important;
 }   
+
+:not(pre)>code, :not(pre)>kbd, :not(pre)>samp {
+    background-color: var(--card-bg) !important;
+}
+
+.cbi-section h3 {
+    margin: 18px 0 8px 12px;
+    padding: 8px 0 8px 8px;
+}
