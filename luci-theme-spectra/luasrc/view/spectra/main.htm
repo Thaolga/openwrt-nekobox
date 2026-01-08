@@ -418,6 +418,14 @@ document.addEventListener('keydown', function(event) {
                 playlistIndicator.click();
             }
             break;
+
+        case 'KeyE':
+            event.preventDefault();
+            const searchBtn = document.querySelector('.playlist-search-btn');
+            if (searchBtn) {
+                searchBtn.click();
+            }
+            break;
     }
 });
 </script>
