@@ -5750,6 +5750,7 @@ span.label[data-style="inactive"] {
     padding: 8px 0 8px 8px;
 }
 
+#maincontent > .alert-message[style*="display:flex"],
 div#maincontent > div.alert-message.fade-in.warning[style*="display:flex"] {
     position: fixed !important;
     top: 50% !important;
