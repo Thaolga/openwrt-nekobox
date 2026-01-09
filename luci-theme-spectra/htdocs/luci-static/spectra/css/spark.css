@@ -826,8 +826,8 @@
 }
 
 .imgBox img#flag {
-    width: 60px;
-    height: 40px;
+    width: 75px !important;
+    height: 55px !important;
     object-fit: contain;
     display: block;
 }

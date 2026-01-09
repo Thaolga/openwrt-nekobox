@@ -4653,19 +4653,19 @@ const languageStandardMap = {
 };
 
 const flagMap = {
-    'zh': '/luci-static/ipip/flags/cn.png',
-    'hk': '/luci-static/ipip/flags/hk.png',
-    'en': '/luci-static/ipip/flags/us.png',
-    'ko': '/luci-static/ipip/flags/kr.png',
-    'ja': '/luci-static/ipip/flags/jp.png',
-    'ru': '/luci-static/ipip/flags/ru.png',
-    'ar': '/luci-static/ipip/flags/sa.png',
-    'es': '/luci-static/ipip/flags/es.png',
-    'de': '/luci-static/ipip/flags/de.png',
-    'fr': '/luci-static/ipip/flags/fr.png',
-    'th': '/luci-static/ipip/flags/th.png',
-    'bn': '/luci-static/ipip/flags/bd.png',
-    'vi': '/luci-static/ipip/flags/vn.png'
+    'zh': '/luci-static/ipip/flags/cn.svg',
+    'hk': '/luci-static/ipip/flags/hk.svg',
+    'en': '/luci-static/ipip/flags/us.svg',
+    'ko': '/luci-static/ipip/flags/kr.svg',
+    'ja': '/luci-static/ipip/flags/jp.svg',
+    'ru': '/luci-static/ipip/flags/ru.svg',
+    'ar': '/luci-static/ipip/flags/sa.svg',
+    'es': '/luci-static/ipip/flags/es.svg',
+    'de': '/luci-static/ipip/flags/de.svg',
+    'fr': '/luci-static/ipip/flags/fr.svg',
+    'th': '/luci-static/ipip/flags/th.svg',
+    'bn': '/luci-static/ipip/flags/bd.svg',
+    'vi': '/luci-static/ipip/flags/vn.svg'
 };
 
 const langToVoiceLangMap = {

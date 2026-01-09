@@ -4646,26 +4646,26 @@ $langData = [
 ];
 
 $flagMap = [
-    'zh' => 'cn.png',
-    'hk' => 'hk.png',
-    'en' => 'us.png',
-    'ko' => 'kr.png',
-    'ja' => 'jp.png',
-    'ru' => 'ru.png',
-    'ar' => 'sa.png',
-    'es' => 'es.png',
-    'de' => 'de.png',
-    'fr' => 'fr.png',
-    'th' => 'th.png',
-    'bn' => 'bd.png',
-    'vi' => 'vn.png',
+    'zh' => 'cn.svg',
+    'hk' => 'hk.svg',
+    'en' => 'us.svg',
+    'ko' => 'kr.svg',
+    'ja' => 'jp.svg',
+    'ru' => 'ru.svg',
+    'ar' => 'sa.svg',
+    'es' => 'es.svg',
+    'de' => 'de.svg',
+    'fr' => 'fr.svg',
+    'th' => 'th.svg',
+    'bn' => 'bd.svg',
+    'vi' => 'vn.svg',
 ];
 
 if (!isset($currentLang) || empty($currentLang)) {
     $currentLang = 'en';
 }
 
-$flagFile = isset($flagMap[$currentLang]) ? $flagMap[$currentLang] : 'us.png';
+$flagFile = isset($flagMap[$currentLang]) ? $flagMap[$currentLang] : 'us.svg';
 
 if (!file_exists($langFilePath)) {
     file_put_contents($langFilePath, $defaultLang);
@@ -5120,19 +5120,19 @@ function updateFlagIcon(lang) {
     if (!flagImg) return;
     
     const flagMap = {
-        'zh': '/luci-static/ipip/flags/cn.png',
-        'hk': '/luci-static/ipip/flags/hk.png',
-        'en': '/luci-static/ipip/flags/us.png',
-        'ko': '/luci-static/ipip/flags/kr.png',
-        'ja': '/luci-static/ipip/flags/jp.png',
-        'ru': '/luci-static/ipip/flags/ru.png',
-        'ar': '/luci-static/ipip/flags/sa.png',
-        'es': '/luci-static/ipip/flags/es.png',
-        'de': '/luci-static/ipip/flags/de.png',
-        'fr': '/luci-static/ipip/flags/fr.png',
-        'th': '/luci-static/ipip/flags/th.png',
-        'bn': '/luci-static/ipip/flags/bd.png',
-        'vi': '/luci-static/ipip/flags/vn.png'
+        'zh': '/luci-static/ipip/flags/cn.svg',
+        'hk': '/luci-static/ipip/flags/hk.svg',
+        'en': '/luci-static/ipip/flags/us.svg',
+        'ko': '/luci-static/ipip/flags/kr.svg',
+        'ja': '/luci-static/ipip/flags/jp.svg',
+        'ru': '/luci-static/ipip/flags/ru.svg',
+        'ar': '/luci-static/ipip/flags/sa.svg',
+        'es': '/luci-static/ipip/flags/es.svg',
+        'de': '/luci-static/ipip/flags/de.svg',
+        'fr': '/luci-static/ipip/flags/fr.svg',
+        'th': '/luci-static/ipip/flags/th.svg',
+        'bn': '/luci-static/ipip/flags/bd.svg',
+        'vi': '/luci-static/ipip/flags/vn.svg'
     };
     
     flagImg.src = flagMap[lang] || flagMap['en'];

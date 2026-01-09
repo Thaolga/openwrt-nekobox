@@ -1312,7 +1312,7 @@ body:hover,
 
         <div class="ms-auto" style="margin-right: 20px;">
             <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#langModal">
-                <img id="flagIcon" src="/luci-static/ipip/flags/<?php echo $flagFile; ?>" style="width:24px; height:16px">
+                <img id="flagIcon" src="/luci-static/ipip/flags/<?php echo $flagFile; ?>" style="width:30px; height:22px; object-fit: contain;">
                 <span data-translate="change_language">Change Language</span>
             </button>
         </div>

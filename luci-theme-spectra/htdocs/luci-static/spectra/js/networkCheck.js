@@ -578,13 +578,13 @@ let myAppIP = {
             document.getElementById('ipip').innerHTML = `<span style="margin-left:8px; position: relative; top: -3px;">${location} ${displayISP} ${data.asn||''} ${displayASN}</span>`;
 
             const countryCode = data.country_code||'unknown';
-            const flagSrc = (countryCode!=='unknown')?_IMG+"flags/"+countryCode.toLowerCase()+".png":'/luci-static/ipip/flags/cn.png';
+            const flagSrc = (countryCode!=='unknown')?_IMG+"flags/"+countryCode.toLowerCase()+".svg":'/luci-static/ipip/flags/cn.svg';
             $("#flag").attr("src",flagSrc);
 
         } catch(e){
             console.error("updateUI error:",e);
             document.getElementById('d-ip').innerHTML = text.failedUpdate;   
-            $("#flag").attr("src","/luci-static/ipip/flags/cn.png");
+            $("#flag").attr("src","/luci-static/ipip/flags/cn.svg");
         }
     },
 
@@ -1022,9 +1022,9 @@ let myAppIP = {
                 <div class="ip-modal-body" style="padding: 20px; max-height: 60vh; overflow-y: auto;">
                     <div style="display: flex; margin-bottom: 20px;">
                         <div style="flex: 1; text-align: center;">
-                            <img src="${_IMG}flags/${(data.country_code || 'unknown').toLowerCase()}.png" 
+                            <img src="${_IMG}flags/${(data.country_code || 'unknown').toLowerCase()}.svg" 
                                 style="max-height: 80px;" 
-                                onerror="this.src='/luci-static/ipip/flags/unknown.png'">
+                                onerror="this.src='/luci-static/ipip/flags/unknown.svg'">
                             <div style="margin-top: 10px; font-weight: bold; color: var(--text-primary);">${country}</div>
                         </div>
                         <div style="flex: 2; margin-left: 20px;">
