@@ -2206,7 +2206,7 @@ h5 {
 .cbi-map-descr {
     font-size: small;
     line-height: 1.5;
-    padding: 0 1.25rem
+    padding: 0 1.25rem 1rem 1.25rem;
 }
 
 .cbi-section-descr:not(:empty) {
@@ -3050,14 +3050,12 @@ body:not(.Interfaces) .cbi-rowstyle-2:first-child {
     min-width: 100% !important;
     box-sizing: border-box !important;
     max-height: 200px;
+    left: 0 !important;
     border: var(--border-strong);
     box-shadow: 0 2px 6px -2px color-mix(in oklch, var(-bg-container), black 30%) !important;
     border-bottom-left-radius: .35rem;
     border-bottom-right-radius: .35rem;
     color: var(--text-primary);
-    margin-left: -0.2rem !important;
-    left: initial !important;
-    right: initial !important;
 }
 
 .cbi-dropdown[open]>ul.dropdown li {
@@ -3080,7 +3078,7 @@ body:not(.Interfaces) .cbi-rowstyle-2:first-child {
     font-family: 'bootstrap-icons';
     font-style: normal;
     font-weight: 500;
-    color: #111;
+    color: var(--color-white);
     font-size: 0.8em;
     position: absolute;
     right: 0.75rem;
@@ -3091,7 +3089,7 @@ body:not(.Interfaces) .cbi-rowstyle-2:first-child {
 .cbi-dropdown[open]>.open::before {
     content: "\f285";
     font-weight: 500;
-    color: #111;
+    color: var(--color-white);
     font-size: 0.8em;
     right: 0.75rem !important;
 }
@@ -3120,10 +3118,6 @@ body:not(.Interfaces) .cbi-rowstyle-2:first-child {
 .cbi-dropdown[open]>ul.dropdown {
     scrollbar-width: thin;
     scrollbar-color: var(--accent-color) var(--card-bg);
-}
-
-.cbi-button-apply.cbi-dropdown[open]>ul.dropdown {
-    transform: translateX(-10px) !important;
 }
 
 .cbi-dropdown>ul>li[display],
@@ -6446,3 +6440,46 @@ li[data-value="-"][unselectable] {
     background-color: var(--bg-container) !important;
 }
 
+.cbi-dropdown.btn {
+    height: 2.2rem;
+    min-height: 2.2rem;
+    line-height: 2.2rem;
+    padding-top: 0.2rem;
+    padding-bottom: 0.2rem;
+}
+
+.cbi-input-text,
+input[type="text"],
+input[type="password"],
+input[type="email"] {
+    border-radius: 14px;
+    min-height: 2.3rem;
+    line-height: normal;
+    padding: 0.5rem 0.75rem;
+    box-sizing: border-box;
+}
+
+div[style*="border-bottom"] {
+    border-bottom: 0 !important;
+}
+
+.container .table-wrapper .table-row,
+.container .table-wrapper .add-row {
+    border-bottom: 1px solid var(--bg-container) !important;
+}
+
+.container .table-wrapper .table-row:hover,
+.container .table-wrapper .add-row:hover {
+    background-color: color-mix(in oklch, var(--bg-container), transparent 20%) !important;
+}
+
+.table-cell.action-col svg.icon {
+    fill: var(--accent-tertiary) !important;
+}
+
+.actioner-dns .actioner-dns_footer,
+.actioner-dns .actioner-dns_header {
+    background: var(--header-bg);
+    border-bottom: 0 !important;
+    border-top: 0 !important;
+}

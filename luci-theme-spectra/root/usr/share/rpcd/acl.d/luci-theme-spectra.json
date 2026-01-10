@@ -1,0 +1,11 @@
+{
+	"luci-theme-spectra": {
+		"description": "Grant UCI access for luci-theme-spectra",
+		"read": {
+			"uci": [ "spectra" ]
+		},
+		"write": {
+			"uci": [ "spectra" ]
+		}
+	}
+}

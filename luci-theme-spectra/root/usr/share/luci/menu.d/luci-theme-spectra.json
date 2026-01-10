@@ -1,0 +1,38 @@
+{
+	"admin/services/spectra": {
+		"title": "Spectra",
+		"action": {
+			"type": "firstchild"
+		},
+		"depends": {
+			"acl": [ "luci-theme-spectra" ]
+		}
+	},
+
+	"admin/services/spectra/index": {
+		"title": "Home",
+		"order": 1,
+		"action": {
+			"type": "view",
+			"path": "spectra/index"
+		}
+	},
+
+	"admin/services/spectra/main": {
+		"title": "Music",
+		"order": 2,
+		"action": {
+			"type": "view",
+			"path": "spectra/main"
+		}
+	},
+
+	"admin/services/spectra/filekit": {
+		"title": "Manager",
+		"order": 3,
+		"action": {
+			"type": "view",
+			"path": "spectra/filekit"
+		}
+	}
+}
