@@ -290,10 +290,6 @@ install_singbox() {
     RED='\033[0;31m'
     NC='\033[0m'
 
-    local install_path='/usr/bin/sing-box'
-    local temp_dir='/tmp/singbox_temp'
-    local temp_file='/tmp/sing-box.tar.gz'
-
     if [ "$type" = "stable" ]; then
         latest_version=$(curl -s https://api.github.com/repos/SagerNet/sing-box/releases/latest | grep '"tag_name":' | sed -E 's/.*"([^"]+)".*/\1/')
     else
@@ -306,112 +302,67 @@ install_singbox() {
     fi
 
     local current_arch=$(uname -m)
-    local download_url
     local base_version="${latest_version#v}"
 
     echo -e "${GREEN}Detected architecture: $current_arch${NC}"
     echo -e "${GREEN}Latest version: $latest_version${NC}"
 
-    if [ "$type" = "stable" ]; then
-        echo -e "${GREEN}Installing stable version (tar.gz format)...${NC}"
+    if command -v sing-box >/dev/null 2>&1; then
+        current_version=$(sing-box --version | tr -d 'v' 2>/dev/null)
+        echo -e "${GREEN}Current version: $current_version${NC}"
         
-        case "$current_arch" in
-            aarch64)
-                download_url="https://github.com/SagerNet/sing-box/releases/download/$latest_version/sing-box-$base_version-linux-arm64.tar.gz"
-                ;;
-            x86_64)
-                download_url="https://github.com/SagerNet/sing-box/releases/download/$latest_version/sing-box-$base_version-linux-amd64.tar.gz"
-                ;;
-            *)
-                echo -e "${RED}No suitable download link found for architecture: $current_arch${NC}"
-                exit 1
-                ;;
-        esac
+        echo -e "${GREEN}Existing version found. Skipping opkg update.${NC}"
+    else
+        echo -e "${GREEN}No existing version found. Updating opkg package list...${NC}"
+        opkg update
+    fi
 
-        echo -e "${GREEN}Downloading from: $download_url${NC}"
-        wget -O "$temp_file" "$download_url"
-        if [ $? -ne 0 ]; then
-            echo -e "${RED}Download failed!${NC}"
-            exit 1
-        fi
-
-        mkdir -p "$temp_dir"
-        tar -xzf "$temp_file" -C "$temp_dir"
-        if [ $? -ne 0 ]; then
-            echo -e "${RED}Extraction failed!${NC}"
-            exit 1
-        fi
-
-        if [ "$current_arch" = "x86_64" ]; then
-            extracted_file="$temp_dir/sing-box-$base_version-linux-amd64/sing-box"
-        elif [ "$current_arch" = "aarch64" ]; then
-            extracted_file="$temp_dir/sing-box-$base_version-linux-arm64/sing-box"
-        fi
-
-        if [ -e "$extracted_file" ]; then
-            mv "$extracted_file" "$install_path"
-            chmod 0755 "$install_path"
-            if [ $? -ne 0 ]; then
-                echo -e "${RED}Failed to set permissions!${NC}"
-                exit 1
-            fi
-
-            echo -e "Update/installation completed! Version: ${GREEN}$latest_version${NC}"
-        else
-            echo -e "${RED}The extracted file 'sing-box' does not exist.${NC}"
-            exit 1
-        fi
-
-        rm -f "$temp_file"
-        rm -rf "$temp_dir"
-
+    if [ "$type" = "stable" ]; then
+        echo -e "${GREEN}Installing stable version (IPK format)...${NC}"
     else
         echo -e "${GREEN}Installing pre-release version (IPK format)...${NC}"
-        
-        echo -e "${GREEN}Updating opkg package list...${NC}"
-        opkg update
-        
-        case "$current_arch" in
-            aarch64)
-                ipk_filename="sing-box_${base_version}_openwrt_aarch64_generic.ipk"
-                download_url="https://github.com/SagerNet/sing-box/releases/download/$latest_version/$ipk_filename"
-                ;;
-            x86_64)
-                ipk_filename="sing-box_${base_version}_openwrt_x86_64.ipk"
-                download_url="https://github.com/SagerNet/sing-box/releases/download/$latest_version/$ipk_filename"
-                ;;
-            *)
-                echo -e "${RED}No suitable download link found for architecture: $current_arch${NC}"
-                exit 1
-                ;;
-        esac
+    fi
+    
+    case "$current_arch" in
+        aarch64|arm64)
+            ipk_filename="sing-box_${base_version}_openwrt_aarch64_generic.ipk"
+            download_url="https://github.com/SagerNet/sing-box/releases/download/$latest_version/$ipk_filename"
+            ;;
+        x86_64)
+            ipk_filename="sing-box_${base_version}_openwrt_x86_64.ipk"
+            download_url="https://github.com/SagerNet/sing-box/releases/download/$latest_version/$ipk_filename"
+            ;;
+        *)
+            echo -e "${RED}No suitable download link found for architecture: $current_arch${NC}"
+            exit 1
+            ;;
+    esac
 
-        temp_ipk="/tmp/$ipk_filename"
-        
-        echo -e "${GREEN}Downloading IPK from: $download_url${NC}"
-        wget -O "$temp_ipk" "$download_url"
+    temp_ipk="/tmp/$ipk_filename"
+    
+    echo -e "${GREEN}Downloading IPK from: $download_url${NC}"
+    wget -O "$temp_ipk" "$download_url"
+    if [ $? -ne 0 ]; then
+        echo -e "${RED}Download failed!${NC}"
+        exit 1
+    fi
+
+    echo -e "${GREEN}Installing IPK package...${NC}"
+    opkg install --force-depends --force-reinstall --force-overwrite "$temp_ipk"
+    if [ $? -ne 0 ]; then
+        echo -e "${RED}IPK installation failed!${NC}"
+        echo -e "${GREEN}Trying alternative installation method...${NC}"
+        opkg remove sing-box 2>/dev/null
+        opkg install --force-depends "$temp_ipk"
         if [ $? -ne 0 ]; then
-            echo -e "${RED}Download failed!${NC}"
+            echo -e "${RED}All installation attempts failed!${NC}"
             exit 1
         fi
-
-        echo -e "${GREEN}Installing IPK package...${NC}"
-        opkg install --force-depends --force-reinstall --force-overwrite "$temp_ipk"
-        if [ $? -ne 0 ]; then
-            echo -e "${RED}IPK installation failed!${NC}"
-            echo -e "${GREEN}Trying alternative installation method...${NC}"
-            opkg remove sing-box 2>/dev/null
-            opkg install "$temp_ipk"
-            if [ $? -ne 0 ]; then
-                echo -e "${RED}All installation attempts failed!${NC}"
-                exit 1
-            fi
-        fi
-
-        rm -f "$temp_ipk"
-        
-        echo -e "Update/installation completed! Version: ${GREEN}$latest_version${NC}"
     fi
+
+    rm -f "$temp_ipk"
+    
+    echo -e "Update/installation completed! Version: ${GREEN}$latest_version${NC}"
 }
 
 install_puernya() {
