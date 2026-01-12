@@ -2357,7 +2357,8 @@ tr>th,
 
 .cbi-section-table-row>.cbi-value-field .cbi-input-text,
 .cbi-section-table-row>.cbi-value-field .cbi-input-password {
-    min-width: 80px
+    min-width: unset !important;
+    width: fit-content !important; 
 }
 
 .cbi-section-table-row>.cbi-value-field [data-dynlist]>input,
@@ -2784,7 +2785,7 @@ body:not(.Interfaces) .cbi-rowstyle-2:first-child {
     font-family: "bootstrap-icons" !important;
     position: absolute;
     width: 2.2rem !important;
-    height: calc(100% - .5rem - 2px);
+    height: calc(100% - .5rem - 0.5px);
     right: 0;
     bottom: 0;
     content: "\F5DE";
@@ -3078,7 +3079,7 @@ body:not(.Interfaces) .cbi-rowstyle-2:first-child {
     font-family: 'bootstrap-icons';
     font-style: normal;
     font-weight: 500;
-    color: var(--color-white);
+    color: var(--text-primary);
     font-size: 0.8em;
     position: absolute;
     right: 0.75rem;
@@ -3089,7 +3090,7 @@ body:not(.Interfaces) .cbi-rowstyle-2:first-child {
 .cbi-dropdown[open]>.open::before {
     content: "\f285";
     font-weight: 500;
-    color: var(--color-white);
+    color: var(--text-primary);
     font-size: 0.8em;
     right: 0.75rem !important;
 }
@@ -6244,8 +6245,6 @@ td.cbi-section-actions>div>button.cbi-button-neutral.down:nth-child(2) {
     color: white !important;
 }
 
-
-
 .nas-container_card,
 .app-container_status-container,
 .app-container {
@@ -6441,9 +6440,9 @@ li[data-value="-"][unselectable] {
 }
 
 .cbi-dropdown.btn {
-    height: 2.2rem;
+    height: 2.5rem;
     min-height: 2.2rem;
-    line-height: 2.2rem;
+    line-height: 2.5rem;
     padding-top: 0.2rem;
     padding-bottom: 0.2rem;
 }
@@ -6453,7 +6452,7 @@ input[type="text"],
 input[type="password"],
 input[type="email"] {
     border-radius: 14px;
-    min-height: 2.3rem;
+    min-height: 2.5rem;
     line-height: normal;
     padding: 0.5rem 0.75rem;
     box-sizing: border-box;

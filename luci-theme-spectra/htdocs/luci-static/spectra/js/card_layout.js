@@ -731,7 +731,7 @@ const cardLayoutCSS = `
 }
 
 .node-card:hover {
-    background: rgba(173, 216, 230, 0.2);
+    background: var(--drag-over-bg);
     backdrop-filter: blur(6px);
     -webkit-backdrop-filter: blur(6px);
     box-shadow: var(--shadow-inset);
@@ -739,7 +739,7 @@ const cardLayoutCSS = `
 }
 
 .node-card._now_use_bg {
-    background: rgba(173, 216, 230, 0.2) !important;
+    background: var(--card-bg) !important;
     border: var(--border-strong) !important;
     backdrop-filter: blur(6px);
     -webkit-backdrop-filter: blur(6px);
@@ -933,7 +933,7 @@ input[type="button"].btn.cbi-button.cbi-button-edit[onclick^="row_top"] {
     width: 40px !important;
     height: 40px !important;
     padding: 0;
-    border-radius: 50%;
+    border-radius: 50% !important;
     background-color: var(--btn-primary-bg) !important;
     font-size: 0 !important;
     color: transparent !important;

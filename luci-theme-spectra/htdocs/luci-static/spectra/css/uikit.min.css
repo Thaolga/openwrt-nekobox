@@ -1,4 +1,4 @@
-/*! UIkit 3.18.3 | https://www.getuikit.com | (c) 2014 - 2024 YOOtheme | MIT License */
+/*! UIkit 3.24.1 | https://www.getuikit.com | (c) 2014 - 2025 YOOtheme | MIT License */
 html {
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
     font-size: 16px;
@@ -27,6 +27,12 @@ a:hover {
     text-decoration: underline
 }
 
+.uk-link-toggle:hover .uk-link:has(.uk-text-middle),
+.uk-link:has(.uk-text-middle),
+a:has(.uk-text-middle) {
+    text-underline-offset: 0.1875em
+}
+
 abbr[title] {
     text-decoration: underline dotted;
     -webkit-text-decoration-style: dotted
@@ -43,7 +49,6 @@ strong {
     font-family: Consolas, monaco, monospace;
     font-size: .875rem;
     color: #f0506e;
-    color: var(--text-primary) !important;
     white-space: normal;
     word-wrap: break-word;
     overflow-wrap: break-word;
@@ -100,8 +105,10 @@ img,
 svg,
 video {
     max-width: 100%;
+    box-sizing: border-box;
     height: auto;
-    box-sizing: border-box
+    aspect-ratio: attr(width type(<number>))/attr(height type(<number>));
+    object-fit: cover
 }
 
 img:not([src]) {
@@ -545,86 +552,62 @@ a.uk-link-reset {
     margin-top: 10px
 }
 
-.uk-list-circle>*,
-.uk-list-decimal>*,
-.uk-list-disc>*,
-.uk-list-hyphen>*,
-.uk-list-square>* {
+.uk-list-circle,
+.uk-list-decimal,
+.uk-list-disc,
+.uk-list-hyphen,
+.uk-list-square {
     padding-left: 30px
 }
 
-.uk-list-decimal {
-    counter-reset: decimal
-}
-
-.uk-list-decimal>* {
-    counter-increment: decimal
-}
-
-.uk-list-circle>::before,
-.uk-list-decimal>::before,
-.uk-list-disc>::before,
-.uk-list-hyphen>::before,
-.uk-list-square>::before {
-    content: "";
-    position: relative;
-    left: -30px;
-    width: 30px;
-    height: 1.5em;
-    margin-bottom: -1.5em;
-    display: list-item;
-    list-style-position: inside;
-    text-align: right
-}
-
-.uk-list-disc>::before {
+.uk-list-disc {
     list-style-type: disc
 }
 
-.uk-list-circle>::before {
+.uk-list-circle {
     list-style-type: circle
 }
 
-.uk-list-square>::before {
+.uk-list-square {
     list-style-type: square
 }
 
-.uk-list-decimal>::before {
-    content: counter(decimal, decimal) '\200A.\00A0'
+.uk-list-decimal {
+    list-style-type: decimal
 }
 
-.uk-list-hyphen>::before {
-    content: '–\00A0\00A0'
+.uk-list-hyphen {
+    list-style-type: '–  '
 }
 
-.uk-list-muted>::before {
+.uk-list-muted>::marker {
     color: #999 !important
 }
 
-.uk-list-emphasis>::before {
+.uk-list-emphasis>::marker {
     color: #333 !important
 }
 
-.uk-list-primary>::before {
+.uk-list-primary>::marker {
     color: #1e87f0 !important
 }
 
-.uk-list-secondary>::before {
+.uk-list-secondary>::marker {
     color: #222 !important
 }
 
 .uk-list-bullet>* {
+    position: relative;
     padding-left: 30px
 }
 
 .uk-list-bullet>::before {
     content: "";
-    display: list-item;
-    position: relative;
-    left: -30px;
+    position: absolute;
+    top: 0;
+    left: 0;
     width: 30px;
     height: 1.5em;
-    margin-bottom: -1.5em;
     background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%226%22%20height%3D%226%22%20viewBox%3D%220%200%206%206%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%0A%20%20%20%20%3Ccircle%20fill%3D%22%23666%22%20cx%3D%223%22%20cy%3D%223%22%20r%3D%223%22%20%2F%3E%0A%3C%2Fsvg%3E");
     background-repeat: no-repeat;
     background-position: 50% 50%
@@ -951,6 +934,18 @@ button.uk-icon:not(:disabled) {
     color: #666
 }
 
+.uk-icon-overlay,
+a .uk-icon-overlay {
+    color: rgba(51, 51, 51, .6);
+    transition: .1s ease-in-out;
+    transition-property: color
+}
+
+.uk-icon-overlay:hover,
+a:hover .uk-icon-overlay {
+    color: #333
+}
+
 .uk-range {
     -webkit-appearance: none;
     box-sizing: border-box;
@@ -1056,6 +1051,15 @@ button.uk-icon:not(:disabled) {
     height: auto
 }
 
+.uk-input[type=date]::-webkit-datetime-edit,
+.uk-input[type=datetime-local]::-webkit-datetime-edit,
+.uk-input[type=time]::-webkit-datetime-edit {
+    display: inline-flex;
+    align-items: center;
+    height: 100%;
+    padding: 0
+}
+
 .uk-input::-moz-placeholder,
 .uk-textarea::-moz-placeholder {
     opacity: 1
@@ -1095,13 +1099,16 @@ button.uk-icon:not(:disabled) {
 .uk-input,
 .uk-select:not([multiple]):not([size]) {
     height: 40px;
-    vertical-align: middle;
-    display: inline-block
+    vertical-align: middle
 }
 
-.uk-input:not(input),
-.uk-select:not(select) {
-    line-height: 38px
+.uk-input:where(:not(input)),
+.uk-select:where(:not(select)) {
+    display: inline-block;
+    line-height: 38px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap
 }
 
 .uk-select[multiple],
@@ -1140,46 +1147,6 @@ button.uk-icon:not(:disabled) {
 
 .uk-textarea::placeholder {
     color: #999
-}
-
-.uk-form-small {
-    font-size: .875rem
-}
-
-.uk-form-small:not(textarea):not([multiple]):not([size]) {
-    height: 30px;
-    padding-left: 8px;
-    padding-right: 8px
-}
-
-[multiple].uk-form-small,
-[size].uk-form-small,
-textarea.uk-form-small {
-    padding: 5px 8px
-}
-
-.uk-form-small:not(select):not(input):not(textarea) {
-    line-height: 28px
-}
-
-.uk-form-large {
-    font-size: 1.25rem
-}
-
-.uk-form-large:not(textarea):not([multiple]):not([size]) {
-    height: 55px;
-    padding-left: 12px;
-    padding-right: 12px
-}
-
-[multiple].uk-form-large,
-[size].uk-form-large,
-textarea.uk-form-large {
-    padding: 7px 12px
-}
-
-.uk-form-large:not(select):not(input):not(textarea) {
-    line-height: 53px
 }
 
 .uk-form-danger,
@@ -1267,8 +1234,8 @@ select.uk-form-width-xsmall {
     -webkit-appearance: none;
     -moz-appearance: none;
     background-color: transparent;
-    background-repeat: no-repeat;
-    background-position: 50% 50%;
+    border-radius: 4px;
+    background-size: cover;
     border: 1px solid #ccc;
     transition: .2s ease-in-out;
     transition-property: background-color, border
@@ -1303,7 +1270,7 @@ select.uk-form-width-xsmall {
 }
 
 .uk-checkbox:checked {
-    background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%2214%22%20height%3D%2211%22%20viewBox%3D%220%200%2014%2011%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%0A%20%20%20%20%3Cpolygon%20fill%3D%22%23fff%22%20points%3D%2212%201%205%207.5%202%205%201%205.5%205%2010%2013%201.5%22%20%2F%3E%0A%3C%2Fsvg%3E%0A")
+    background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%2216%22%20height%3D%2216%22%20viewBox%3D%220%200%2016%2016%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%0A%20%20%20%20%3Cpolygon%20fill%3D%22%23fff%22%20points%3D%2213%203.5%206%2010%203%207.5%202%208%206%2012.5%2014%204%2013%203.5%22%20%2F%3E%0A%3C%2Fsvg%3E%0A")
 }
 
 .uk-checkbox:indeterminate {
@@ -1321,11 +1288,57 @@ select.uk-form-width-xsmall {
 }
 
 .uk-checkbox:disabled:checked {
-    background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%2214%22%20height%3D%2211%22%20viewBox%3D%220%200%2014%2011%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%0A%20%20%20%20%3Cpolygon%20fill%3D%22%23999%22%20points%3D%2212%201%205%207.5%202%205%201%205.5%205%2010%2013%201.5%22%20%2F%3E%0A%3C%2Fsvg%3E%0A")
+    background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%2216%22%20height%3D%2216%22%20viewBox%3D%220%200%2016%2016%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%0A%20%20%20%20%3Cpolygon%20fill%3D%22%23999%22%20points%3D%2213%203.5%206%2010%203%207.5%202%208%206%2012.5%2014%204%2013%203.5%22%20%2F%3E%0A%3C%2Fsvg%3E%0A")
 }
 
 .uk-checkbox:disabled:indeterminate {
     background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%2216%22%20height%3D%2216%22%20viewBox%3D%220%200%2016%2016%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%0A%20%20%20%20%3Crect%20fill%3D%22%23999%22%20x%3D%223%22%20y%3D%228%22%20width%3D%2210%22%20height%3D%221%22%20%2F%3E%0A%3C%2Fsvg%3E")
+}
+
+.uk-form-small:is(.uk-input, .uk-search-input, .uk-select, .uk-textarea) {
+    font-size: .875rem
+}
+
+.uk-form-small:is(.uk-input, .uk-search-input, .uk-select:not([multiple]):not([size])) {
+    height: 30px;
+    padding-left: 8px;
+    padding-right: 8px
+}
+
+.uk-form-small:is(.uk-select[multiple], .uk-select[size], .uk-textarea) {
+    padding: 5px 8px
+}
+
+.uk-form-small:not(select):not(input):not(textarea):not([type=radio]):not([type=checkbox]) {
+    line-height: 28px
+}
+
+.uk-form-small:is(.uk-radio, .uk-checkbox) {
+    height: 14px;
+    width: 14px
+}
+
+.uk-form-large:is(.uk-input, .uk-search-input, .uk-select, .uk-textarea) {
+    font-size: 1.25rem
+}
+
+.uk-form-large:is(.uk-input, .uk-search-input, .uk-select:not([multiple]):not([size])) {
+    height: 55px;
+    padding-left: 12px;
+    padding-right: 12px
+}
+
+.uk-form-large:is(.uk-select[multiple], .uk-select[size], .uk-textarea) {
+    padding: 7px 12px
+}
+
+.uk-form-large:not(select):not(input):not(textarea):not([type=radio]):not([type=checkbox]) {
+    line-height: 53px
+}
+
+.uk-form-large:is(.uk-radio, .uk-checkbox) {
+    height: 22px;
+    width: 22px
 }
 
 .uk-legend {
@@ -1650,17 +1663,15 @@ select.uk-form-width-xsmall {
 }
 
 .uk-button-small {
-    padding: 0.25rem 0.5rem;
-    line-height: 1.5;
-    border-radius: 0.25rem;
-    font-size: 0.875rem;
+    padding: 0 15px;
+    line-height: 28px;
+    font-size: .875rem
 }
 
 .uk-button-large {
-    padding: 0.5rem 1rem;
-    line-height: 1.5;
-    font-size: 1.25rem;
-    border-radius: 0.5rem;
+    padding: 0 40px;
+    line-height: 53px;
+    font-size: .875rem
 }
 
 .uk-button-text {
@@ -1786,9 +1797,43 @@ select.uk-form-width-xsmall {
     padding-bottom: 20px
 }
 
+.uk-section-xsmall-top {
+    padding-top: 20px
+}
+
+.uk-section-xsmall-bottom {
+    padding-bottom: 20px
+}
+
 .uk-section-small {
     padding-top: 40px;
     padding-bottom: 40px
+}
+
+.uk-section-small-top {
+    padding-top: 40px
+}
+
+.uk-section-small-bottom {
+    padding-bottom: 40px
+}
+
+.uk-section-medium-top {
+    padding-top: 40px
+}
+
+.uk-section-medium-bottom {
+    padding-bottom: 40px
+}
+
+@media (min-width:960px) {
+    .uk-section-medium-top {
+        padding-top: 70px
+    }
+
+    .uk-section-medium-bottom {
+        padding-bottom: 70px
+    }
 }
 
 .uk-section-large {
@@ -1796,9 +1841,25 @@ select.uk-form-width-xsmall {
     padding-bottom: 70px
 }
 
+.uk-section-large-top {
+    padding-top: 70px
+}
+
+.uk-section-large-bottom {
+    padding-bottom: 70px
+}
+
 @media (min-width:960px) {
     .uk-section-large {
         padding-top: 140px;
+        padding-bottom: 140px
+    }
+
+    .uk-section-large-top {
+        padding-top: 140px
+    }
+
+    .uk-section-large-bottom {
         padding-bottom: 140px
     }
 }
@@ -1808,26 +1869,46 @@ select.uk-form-width-xsmall {
     padding-bottom: 140px
 }
 
+.uk-section-xlarge-top {
+    padding-top: 140px
+}
+
+.uk-section-xlarge-bottom {
+    padding-bottom: 140px
+}
+
 @media (min-width:960px) {
     .uk-section-xlarge {
         padding-top: 210px;
         padding-bottom: 210px
     }
+
+    .uk-section-xlarge-top {
+        padding-top: 210px
+    }
+
+    .uk-section-xlarge-bottom {
+        padding-bottom: 210px
+    }
 }
 
 .uk-section-default {
+    --uk-inverse: dark;
     background: #fff
 }
 
 .uk-section-muted {
+    --uk-inverse: dark;
     background: #f8f8f8
 }
 
 .uk-section-primary {
+    --uk-inverse: light;
     background: #1e87f0
 }
 
 .uk-section-secondary {
+    --uk-inverse: light;
     background: #222
 }
 
@@ -2043,18 +2124,22 @@ select.uk-form-width-xsmall {
 }
 
 .uk-tile-default {
+    --uk-inverse: dark;
     background-color: #fff
 }
 
 .uk-tile-muted {
+    --uk-inverse: dark;
     background-color: #f8f8f8
 }
 
 .uk-tile-primary {
+    --uk-inverse: light;
     background-color: #1e87f0
 }
 
 .uk-tile-secondary {
+    --uk-inverse: light;
     background-color: #222
 }
 
@@ -2126,12 +2211,13 @@ select.uk-form-width-xsmall {
     margin-top: 0
 }
 
-.uk-card-hover:not(.uk-card-default):not(.uk-card-primary):not(.uk-card-secondary):hover {
+.uk-card-hover:not(.uk-card-default, .uk-card-primary, .uk-card-secondary, .uk-card-overlay):hover {
     background-color: #fff;
     box-shadow: 0 14px 25px rgba(0, 0, 0, .16)
 }
 
 .uk-card-default {
+    --uk-inverse: dark;
     background-color: #fff;
     color: #666;
     box-shadow: 0 5px 15px rgba(0, 0, 0, .08)
@@ -2155,6 +2241,7 @@ select.uk-form-width-xsmall {
 }
 
 .uk-card-primary {
+    --uk-inverse: light;
     background-color: #1e87f0;
     color: #fff;
     box-shadow: 0 5px 15px rgba(0, 0, 0, .08)
@@ -2170,6 +2257,7 @@ select.uk-form-width-xsmall {
 }
 
 .uk-card-secondary {
+    --uk-inverse: light;
     background-color: #222;
     color: #fff;
     box-shadow: 0 5px 15px rgba(0, 0, 0, .08)
@@ -2181,6 +2269,22 @@ select.uk-form-width-xsmall {
 
 .uk-card-secondary.uk-card-hover:hover {
     background-color: #222;
+    box-shadow: 0 14px 25px rgba(0, 0, 0, .16)
+}
+
+.uk-card-overlay {
+    --uk-inverse: dark;
+    background-color: rgba(255, 255, 255, .8);
+    color: #666;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, .08)
+}
+
+.uk-card-overlay .uk-card-title {
+    color: #333
+}
+
+.uk-card-overlay.uk-card-hover:hover {
+    background-color: rgba(255, 255, 255, .9);
     box-shadow: 0 14px 25px rgba(0, 0, 0, .16)
 }
 
@@ -2377,9 +2481,8 @@ select.uk-form-width-xsmall {
     position: relative;
     margin-bottom: 20px;
     padding: 15px 29px 15px 15px;
-    background: #2196f3;
-    color: #fff;
-    border-radius: 12px;
+    background: #f8f8f8;
+    color: #666
 }
 
 *+.uk-alert {
@@ -2409,6 +2512,7 @@ select.uk-form-width-xsmall {
 
 .uk-alert-primary {
     background: #d8eafc;
+    border-radius: 12px;
     color: #1e87f0
 }
 
@@ -2518,10 +2622,12 @@ select.uk-form-width-xsmall {
 }
 
 .uk-overlay-default {
+    --uk-inverse: dark;
     background: rgba(255, 255, 255, .8)
 }
 
 .uk-overlay-primary {
+    --uk-inverse: light;
     background: rgba(34, 34, 34, .8)
 }
 
@@ -2699,37 +2805,77 @@ select.uk-form-width-xsmall {
 }
 
 .uk-search-default .uk-search-icon {
-    width: 40px
+    padding-left: 10px;
+    padding-right: 10px
 }
 
-.uk-search-default .uk-search-icon:not(.uk-search-icon-flip)~.uk-search-input {
+.uk-search-default:has(.uk-search-icon:not(.uk-search-icon-flip)) .uk-search-input {
     padding-left: 40px
 }
 
-.uk-search-default .uk-search-icon-flip~.uk-search-input {
+.uk-search-default:has(.uk-search-icon-flip) .uk-search-input {
     padding-right: 40px
 }
 
 .uk-search-navbar {
-    width: 400px
+    width: 240px
 }
 
 .uk-search-navbar .uk-search-input {
     height: 40px;
-    background: 0 0;
-    font-size: 1.5rem
+    padding-left: 10px;
+    padding-right: 10px;
+    background: #fff;
+    border: 1px solid #e5e5e5
+}
+
+.uk-search-navbar .uk-search-input:focus {
+    background-color: #fff;
+    border-color: #1e87f0
 }
 
 .uk-search-navbar .uk-search-icon {
-    width: 40px
+    padding-left: 10px;
+    padding-right: 10px
 }
 
-.uk-search-navbar .uk-search-icon:not(.uk-search-icon-flip)~.uk-search-input {
+.uk-search-navbar:has(.uk-search-icon:not(.uk-search-icon-flip)) .uk-search-input {
     padding-left: 40px
 }
 
-.uk-search-navbar .uk-search-icon-flip~.uk-search-input {
+.uk-search-navbar:has(.uk-search-icon-flip) .uk-search-input {
     padding-right: 40px
+}
+
+.uk-search-medium {
+    width: 400px
+}
+
+.uk-search-medium .uk-search-input {
+    height: 55px;
+    padding-left: 12px;
+    padding-right: 12px;
+    background: 0 0;
+    font-size: 1.5rem;
+    border: 1px solid #e5e5e5
+}
+
+.uk-search-medium .uk-search-input:focus {
+    background-color: rgba(0, 0, 0, 0);
+    border-color: #1e87f0
+}
+
+.uk-search-medium .uk-search-icon {
+    padding-left: 12px;
+    padding-right: 12px
+}
+
+.uk-search-medium:has(.uk-search-icon:not(.uk-search-icon-flip)) .uk-search-input {
+    padding-left: 48px
+}
+
+.uk-search-medium:has(.uk-search-icon-flip) .uk-search-input {
+    padding-right: 48px
 }
 
 .uk-search-large {
@@ -2737,20 +2883,29 @@ select.uk-form-width-xsmall {
 }
 
 .uk-search-large .uk-search-input {
-    height: 80px;
+    height: 90px;
+    padding-left: 20px;
+    padding-right: 20px;
     background: 0 0;
-    font-size: 2.625rem
+    font-size: 2.625rem;
+    border: 1px solid #e5e5e5
+}
+
+.uk-search-large .uk-search-input:focus {
+    background-color: rgba(0, 0, 0, 0);
+    border-color: #1e87f0
 }
 
 .uk-search-large .uk-search-icon {
-    width: 80px
+    padding-left: 20px;
+    padding-right: 20px
 }
 
-.uk-search-large .uk-search-icon:not(.uk-search-icon-flip)~.uk-search-input {
+.uk-search-large:has(.uk-search-icon:not(.uk-search-icon-flip)) .uk-search-input {
     padding-left: 80px
 }
 
-.uk-search-large .uk-search-icon-flip~.uk-search-input {
+.uk-search-large:has(.uk-search-icon-flip) .uk-search-input {
     padding-right: 80px
 }
 
@@ -2839,6 +2994,7 @@ select.uk-form-width-xsmall {
     --uk-position-offset: 0;
     --uk-position-shift-offset: 0;
     --uk-position-viewport-offset: 0;
+    --uk-inverse: dark;
     width: auto;
     padding: 25px 15px 25px 15px;
     background: #fff;
@@ -2975,6 +3131,11 @@ select.uk-form-width-xsmall {
     transform: translateY(0)
 }
 
+.uk-open>.uk-modal-dialog {
+    opacity: 1;
+    transform: translateY(0)
+}
+
 .uk-modal-container .uk-modal-dialog {
     width: 1200px
 }
@@ -2982,10 +3143,6 @@ select.uk-form-width-xsmall {
 .uk-modal-full {
     padding: 0;
     background: 0 0
-}
-
-.uk-card-small.uk-border-rounded {
-    border-radius: 10px !important;
 }
 
 .uk-modal-full .uk-modal-dialog {
@@ -3004,16 +3161,14 @@ select.uk-form-width-xsmall {
     display: flow-root;
     padding: 10px 20px;
     background: #fff;
-    border-bottom: 1px solid #e5e5e5;
-    border-radius: 12px 12px 0 0
+    border-bottom: 1px solid #e5e5e5
 }
 
 .uk-modal-footer {
     display: flow-root;
     padding: 10px 20px;
     background: #fff;
-    border-top: 1px solid #e5e5e5;
-    border-radius: 0 0 12px 12px
+    border-top: 1px solid #e5e5e5
 }
 
 @media (min-width:640px) {
@@ -3146,7 +3301,7 @@ select.uk-form-width-xsmall {
 }
 
 .uk-slider-items>* {
-    flex: none;
+    flex: none !important;
     box-sizing: border-box;
     max-width: 100%;
     position: relative
@@ -3159,9 +3314,7 @@ select.uk-form-width-xsmall {
 }
 
 .uk-sticky-fixed {
-    margin: 0 !important;
-    -webkit-backface-visibility: hidden;
-    backface-visibility: hidden
+    margin: 0 !important
 }
 
 .uk-sticky[class*=uk-animation-] {
@@ -3191,6 +3344,7 @@ select.uk-form-width-xsmall {
 }
 
 .uk-offcanvas-bar {
+    --uk-inverse: light;
     position: absolute;
     top: 0;
     bottom: 0;
@@ -3503,39 +3657,110 @@ select.uk-form-width-xsmall {
     cursor: move
 }
 
+.uk-countdown {
+    margin: 0
+}
+
 .uk-countdown-number {
-    font-variant-numeric: tabular-nums;
-    font-size: 2rem;
-    line-height: .8
-}
-
-@media (min-width:640px) {
-    .uk-countdown-number {
-        font-size: 4rem
-    }
-}
-
-@media (min-width:960px) {
-    .uk-countdown-number {
-        font-size: 6rem
-    }
+    margin: 0;
+    font-variant-numeric: tabular-nums
 }
 
 .uk-countdown-separator {
-    font-size: 1rem;
-    line-height: 1.6
+    font-size: .5em;
+    line-height: 2
 }
 
-@media (min-width:640px) {
-    .uk-countdown-separator {
-        font-size: 2rem
-    }
+.uk-thumbnav {
+    display: flex;
+    flex-wrap: wrap;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    margin-left: -15px
 }
 
-@media (min-width:960px) {
-    .uk-countdown-separator {
-        font-size: 3rem
-    }
+.uk-thumbnav>* {
+    padding-left: 15px
+}
+
+.uk-thumbnav>*>* {
+    display: inline-block;
+    position: relative
+}
+
+.uk-thumbnav>*>::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background-image: linear-gradient(180deg, rgba(255, 255, 255, 0), rgba(255, 255, 255, .4));
+    transition: opacity .1s ease-in-out
+}
+
+.uk-thumbnav>*>:hover::after {
+    opacity: 0
+}
+
+.uk-thumbnav>.uk-active>::after {
+    opacity: 0
+}
+
+.uk-thumbnav-vertical {
+    flex-direction: column;
+    margin-left: 0;
+    margin-top: -15px
+}
+
+.uk-thumbnav-vertical>* {
+    padding-left: 0;
+    padding-top: 15px
+}
+
+.uk-iconnav {
+    display: flex;
+    flex-wrap: wrap;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    margin-left: -10px
+}
+
+.uk-iconnav>* {
+    padding-left: 10px
+}
+
+.uk-iconnav>*>a {
+    display: flex;
+    align-items: center;
+    column-gap: .25em;
+    line-height: 0;
+    color: #999;
+    text-decoration: none;
+    font-size: .875rem;
+    transition: .1s ease-in-out;
+    transition-property: color, background-color
+}
+
+.uk-iconnav>*>a:hover {
+    color: #666
+}
+
+.uk-iconnav>.uk-active>a {
+    color: #666
+}
+
+.uk-iconnav-vertical {
+    flex-direction: column;
+    margin-left: 0;
+    margin-top: -10px
+}
+
+.uk-iconnav-vertical>* {
+    padding-left: 0;
+    padding-top: 10px
 }
 
 .uk-grid {
@@ -4175,7 +4400,7 @@ ul.uk-nav-sub {
 [class*=uk-navbar-center] {
     display: flex;
     gap: 15px;
-    align-items: center
+    align-items: stretch
 }
 
 .uk-navbar-right {
@@ -4195,11 +4420,14 @@ ul.uk-nav-sub {
     transform: translate(-50%, -50%);
     width: max-content;
     box-sizing: border-box;
-    z-index: 990
+    z-index: 990;
+    height: 100%;
+    align-items: stretch
 }
 
 .uk-navbar-center-left,
 .uk-navbar-center-right {
+    height: 100%;
     position: absolute;
     top: 0
 }
@@ -4220,6 +4448,7 @@ ul.uk-nav-sub {
 .uk-navbar-nav {
     display: flex;
     gap: 15px;
+    align-items: stretch;
     margin: 0;
     padding: 0;
     list-style: none
@@ -4246,6 +4475,7 @@ ul.uk-nav-sub {
 }
 
 .uk-navbar-nav>li>a {
+    height: 100%;
     padding: 0 0;
     color: #999;
     text-transform: uppercase;
@@ -4312,6 +4542,7 @@ ul.uk-nav-sub {
     --uk-position-offset: 15px;
     --uk-position-shift-offset: 0;
     --uk-position-viewport-offset: 15px;
+    --uk-inverse: dark;
     width: 200px;
     padding: 25px;
     background: #fff;
@@ -4512,6 +4743,14 @@ ul.uk-nav-sub {
     border-left-color: #e5e5e5
 }
 
+.uk-subnav-pill {
+    margin-left: -20px
+}
+
+.uk-subnav-pill>* {
+    padding-left: 20px
+}
+
 .uk-subnav-pill>*>:first-child {
     padding: 5px 10px;
     background: 0 0;
@@ -4533,13 +4772,14 @@ ul.uk-nav-sub {
     color: #fff
 }
 
-.uk-subnav>.uk-disabled>a {
+.uk-subnav>.uk-disabled>:first-child {
     color: #999
 }
 
 .uk-breadcrumb {
     padding: 0;
-    list-style: none
+    list-style: none;
+    font-size: 0
 }
 
 .uk-breadcrumb>* {
@@ -4564,7 +4804,7 @@ ul.uk-nav-sub {
 .uk-breadcrumb>:nth-child(n+2):not(.uk-first-column)::before {
     content: "/";
     display: inline-block;
-    margin: 0 20px 0 calc(20px - 4px);
+    margin: 0 20px;
     font-size: .875rem;
     color: #999
 }
@@ -4789,101 +5029,10 @@ ul.uk-nav-sub {
     padding-top: 12px
 }
 
-.uk-thumbnav {
-    display: flex;
-    flex-wrap: wrap;
-    margin: 0;
-    padding: 0;
-    list-style: none;
-    margin-left: -15px
-}
-
-.uk-thumbnav>* {
-    padding-left: 15px
-}
-
-.uk-thumbnav>*>* {
-    display: inline-block;
-    position: relative
-}
-
-.uk-thumbnav>*>::after {
-    content: "";
-    position: absolute;
-    top: 0;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    background-image: linear-gradient(180deg, rgba(255, 255, 255, 0), rgba(255, 255, 255, .4));
-    transition: opacity .1s ease-in-out
-}
-
-.uk-thumbnav>*>:hover::after {
-    opacity: 0
-}
-
-.uk-thumbnav>.uk-active>::after {
-    opacity: 0
-}
-
-.uk-thumbnav-vertical {
-    flex-direction: column;
-    margin-left: 0;
-    margin-top: -15px
-}
-
-.uk-thumbnav-vertical>* {
-    padding-left: 0;
-    padding-top: 15px
-}
-
-.uk-iconnav {
-    display: flex;
-    flex-wrap: wrap;
-    margin: 0;
-    padding: 0;
-    list-style: none;
-    margin-left: -10px
-}
-
-.uk-iconnav>* {
-    padding-left: 10px
-}
-
-.uk-iconnav>*>a {
-    display: flex;
-    align-items: center;
-    column-gap: .25em;
-    line-height: 0;
-    color: #999;
-    text-decoration: none;
-    font-size: .875rem;
-    transition: .1s ease-in-out;
-    transition-property: color, background-color
-}
-
-.uk-iconnav>*>a:hover {
-    color: #666
-}
-
-.uk-iconnav>.uk-active>a {
-    color: #666
-}
-
-.uk-iconnav-vertical {
-    flex-direction: column;
-    margin-left: 0;
-    margin-top: -10px
-}
-
-.uk-iconnav-vertical>* {
-    padding-left: 0;
-    padding-top: 10px
-}
-
 .uk-dropdown {
     --uk-position-offset: 10px;
     --uk-position-viewport-offset: 15px;
+    --uk-inverse: dark;
     width: auto;
     min-width: 200px;
     padding: 25px;
@@ -4905,6 +5054,7 @@ ul.uk-nav-sub {
 }
 
 .uk-dropdown-dropbar {
+    --uk-position-offset: 10px;
     width: auto;
     background: 0 0;
     padding: 5px 0 25px 0;
@@ -4964,6 +5114,7 @@ ul.uk-nav-sub {
 }
 
 .uk-lightbox {
+    --uk-inverse: light;
     display: none;
     position: fixed;
     top: 0;
@@ -4990,6 +5141,12 @@ ul.uk-nav-sub {
     overflow: hidden
 }
 
+.uk-lightbox-items {
+    margin: 0;
+    padding: 0;
+    list-style: none
+}
+
 .uk-lightbox-items>* {
     position: absolute;
     top: 0;
@@ -4998,60 +5155,65 @@ ul.uk-nav-sub {
     left: 0;
     display: none;
     justify-content: center;
-    align-items: center;
-    color: rgba(255, 255, 255, .7);
-    will-change: transform, opacity
-}
-
-.uk-lightbox-items>*>* {
-    max-width: 100vw;
-    max-height: 100vh
-}
-
-.uk-lightbox-items>*>:not(iframe) {
-    width: auto;
-    height: auto
+    align-items: flex-start;
+    will-change: transform, opacity;
+    overflow: auto
 }
 
 .uk-lightbox-items>.uk-active {
     display: flex
 }
 
-.uk-lightbox-toolbar {
+.uk-lightbox-items-fit>* {
+    align-items: center
+}
+
+.uk-lightbox-items-fit>*>* {
+    max-width: 100vw;
+    max-height: 100vh
+}
+
+.uk-lightbox-items-fit>*>:not(iframe) {
+    width: auto;
+    height: auto
+}
+
+.uk-lightbox-items.uk-lightbox-items-fit .uk-lightbox-zoom:hover {
+    cursor: zoom-in
+}
+
+.uk-lightbox-items:not(.uk-lightbox-items-fit) .uk-lightbox-zoom:hover {
+    cursor: zoom-out
+}
+
+.uk-lightbox-thumbnav-vertical :where(img, video) {
+    max-width: 100px
+}
+
+.uk-lightbox-thumbnav:not(.uk-lightbox-thumbnav-vertical) :where(img, video) {
+    max-height: 100px
+}
+
+.uk-lightbox-dotnav:empty,
+.uk-lightbox-thumbnav:empty {
+    display: none
+}
+
+.uk-lightbox-caption:empty {
+    display: none
+}
+
+.uk-lightbox-caption {
     padding: 10px 10px;
     background: rgba(0, 0, 0, .3);
     color: rgba(255, 255, 255, .7)
 }
 
-.uk-lightbox-toolbar>* {
+.uk-lightbox-caption>* {
     color: rgba(255, 255, 255, .7)
 }
 
-.uk-lightbox-toolbar-icon {
-    padding: 5px;
-    color: rgba(255, 255, 255, .7)
-}
-
-.uk-lightbox-toolbar-icon:hover {
-    color: #fff
-}
-
-.uk-lightbox-button {
-    box-sizing: border-box;
-    width: 50px;
-    height: 50px;
-    background: rgba(0, 0, 0, .3);
-    color: rgba(255, 255, 255, .7);
-    display: inline-flex;
-    justify-content: center;
-    align-items: center
-}
-
-.uk-lightbox-button:hover {
-    color: #fff
-}
-
-.uk-lightbox-caption:empty {
+.uk-lightbox-counter:empty {
     display: none
 }
 
@@ -5378,7 +5540,7 @@ ul.uk-nav-sub {
 }
 
 .uk-child-width-1-3>* {
-    width: calc(100% * 1 / 3.001)
+    width: calc(100% / 3)
 }
 
 .uk-child-width-1-4>* {
@@ -5390,7 +5552,7 @@ ul.uk-nav-sub {
 }
 
 .uk-child-width-1-6>* {
-    width: calc(100% * 1 / 6.001)
+    width: calc(100% / 6)
 }
 
 .uk-child-width-auto>* {
@@ -5412,7 +5574,7 @@ ul.uk-nav-sub {
     }
 
     .uk-child-width-1-3\@s>* {
-        width: calc(100% * 1 / 3.001)
+        width: calc(100% / 3)
     }
 
     .uk-child-width-1-4\@s>* {
@@ -5424,7 +5586,7 @@ ul.uk-nav-sub {
     }
 
     .uk-child-width-1-6\@s>* {
-        width: calc(100% * 1 / 6.001)
+        width: calc(100% / 6)
     }
 
     .uk-child-width-auto\@s>* {
@@ -5434,6 +5596,16 @@ ul.uk-nav-sub {
     .uk-child-width-expand\@s>:not([class*=uk-width]) {
         flex: 1;
         min-width: 1px
+    }
+
+    .uk-child-width-1-1\@s>:not([class*=uk-width]),
+    .uk-child-width-1-2\@s>:not([class*=uk-width]),
+    .uk-child-width-1-3\@s>:not([class*=uk-width]),
+    .uk-child-width-1-4\@s>:not([class*=uk-width]),
+    .uk-child-width-1-5\@s>:not([class*=uk-width]),
+    .uk-child-width-1-6\@s>:not([class*=uk-width]),
+    .uk-child-width-auto\@s>:not([class*=uk-width]) {
+        flex: initial
     }
 }
 
@@ -5447,7 +5619,7 @@ ul.uk-nav-sub {
     }
 
     .uk-child-width-1-3\@m>* {
-        width: calc(100% * 1 / 3.001)
+        width: calc(100% / 3)
     }
 
     .uk-child-width-1-4\@m>* {
@@ -5459,7 +5631,7 @@ ul.uk-nav-sub {
     }
 
     .uk-child-width-1-6\@m>* {
-        width: calc(100% * 1 / 6.001)
+        width: calc(100% / 6)
     }
 
     .uk-child-width-auto\@m>* {
@@ -5469,6 +5641,16 @@ ul.uk-nav-sub {
     .uk-child-width-expand\@m>:not([class*=uk-width]) {
         flex: 1;
         min-width: 1px
+    }
+
+    .uk-child-width-1-1\@m>:not([class*=uk-width]),
+    .uk-child-width-1-2\@m>:not([class*=uk-width]),
+    .uk-child-width-1-3\@m>:not([class*=uk-width]),
+    .uk-child-width-1-4\@m>:not([class*=uk-width]),
+    .uk-child-width-1-5\@m>:not([class*=uk-width]),
+    .uk-child-width-1-6\@m>:not([class*=uk-width]),
+    .uk-child-width-auto\@m>:not([class*=uk-width]) {
+        flex: initial
     }
 }
 
@@ -5482,7 +5664,7 @@ ul.uk-nav-sub {
     }
 
     .uk-child-width-1-3\@l>* {
-        width: calc(100% * 1 / 3.001)
+        width: calc(100% / 3)
     }
 
     .uk-child-width-1-4\@l>* {
@@ -5494,7 +5676,7 @@ ul.uk-nav-sub {
     }
 
     .uk-child-width-1-6\@l>* {
-        width: calc(100% * 1 / 6.001)
+        width: calc(100% / 6)
     }
 
     .uk-child-width-auto\@l>* {
@@ -5504,6 +5686,16 @@ ul.uk-nav-sub {
     .uk-child-width-expand\@l>:not([class*=uk-width]) {
         flex: 1;
         min-width: 1px
+    }
+
+    .uk-child-width-1-1\@l>:not([class*=uk-width]),
+    .uk-child-width-1-2\@l>:not([class*=uk-width]),
+    .uk-child-width-1-3\@l>:not([class*=uk-width]),
+    .uk-child-width-1-4\@l>:not([class*=uk-width]),
+    .uk-child-width-1-5\@l>:not([class*=uk-width]),
+    .uk-child-width-1-6\@l>:not([class*=uk-width]),
+    .uk-child-width-auto\@l>:not([class*=uk-width]) {
+        flex: initial
     }
 }
 
@@ -5517,7 +5709,7 @@ ul.uk-nav-sub {
     }
 
     .uk-child-width-1-3\@xl>* {
-        width: calc(100% * 1 / 3.001)
+        width: calc(100% / 3)
     }
 
     .uk-child-width-1-4\@xl>* {
@@ -5529,7 +5721,7 @@ ul.uk-nav-sub {
     }
 
     .uk-child-width-1-6\@xl>* {
-        width: calc(100% * 1 / 6.001)
+        width: calc(100% / 6)
     }
 
     .uk-child-width-auto\@xl>* {
@@ -5539,6 +5731,16 @@ ul.uk-nav-sub {
     .uk-child-width-expand\@xl>:not([class*=uk-width]) {
         flex: 1;
         min-width: 1px
+    }
+
+    .uk-child-width-1-1\@xl>:not([class*=uk-width]),
+    .uk-child-width-1-2\@xl>:not([class*=uk-width]),
+    .uk-child-width-1-3\@xl>:not([class*=uk-width]),
+    .uk-child-width-1-4\@xl>:not([class*=uk-width]),
+    .uk-child-width-1-5\@xl>:not([class*=uk-width]),
+    .uk-child-width-1-6\@xl>:not([class*=uk-width]),
+    .uk-child-width-auto\@xl>:not([class*=uk-width]) {
+        flex: initial
     }
 }
 
@@ -5553,11 +5755,11 @@ ul.uk-nav-sub {
 }
 
 .uk-width-1-3 {
-    width: calc(100% * 1 / 3.001)
+    width: calc(100% / 3)
 }
 
 .uk-width-2-3 {
-    width: calc(100% * 2 / 3.001)
+    width: calc(200% / 3)
 }
 
 .uk-width-1-4 {
@@ -5585,11 +5787,11 @@ ul.uk-nav-sub {
 }
 
 .uk-width-1-6 {
-    width: calc(100% * 1 / 6.001)
+    width: calc(100% / 6)
 }
 
 .uk-width-5-6 {
-    width: calc(100% * 5 / 6.001)
+    width: calc(500% / 6)
 }
 
 .uk-width-small {
@@ -5631,11 +5833,11 @@ ul.uk-nav-sub {
     }
 
     .uk-width-1-3\@s {
-        width: calc(100% * 1 / 3.001)
+        width: calc(100% / 3)
     }
 
     .uk-width-2-3\@s {
-        width: calc(100% * 2 / 3.001)
+        width: calc(200% / 3)
     }
 
     .uk-width-1-4\@s {
@@ -5663,11 +5865,11 @@ ul.uk-nav-sub {
     }
 
     .uk-width-1-6\@s {
-        width: calc(100% * 1 / 6.001)
+        width: calc(100% / 6)
     }
 
     .uk-width-5-6\@s {
-        width: calc(100% * 5 / 6.001)
+        width: calc(500% / 6)
     }
 
     .uk-width-small\@s {
@@ -5698,6 +5900,27 @@ ul.uk-nav-sub {
         flex: 1;
         min-width: 1px
     }
+
+    .uk-width-1-1\@s,
+    .uk-width-1-2\@s,
+    .uk-width-1-3\@s,
+    .uk-width-1-4\@s,
+    .uk-width-1-5\@s,
+    .uk-width-1-6\@s,
+    .uk-width-2-3\@s,
+    .uk-width-2-5\@s,
+    .uk-width-2xlarge\@s,
+    .uk-width-3-4\@s,
+    .uk-width-3-5\@s,
+    .uk-width-4-5\@s,
+    .uk-width-5-6\@s,
+    .uk-width-auto\@s,
+    .uk-width-large\@s,
+    .uk-width-medium\@s,
+    .uk-width-small\@s,
+    .uk-width-xlarge\@s {
+        flex: initial
+    }
 }
 
 @media (min-width:960px) {
@@ -5710,11 +5933,11 @@ ul.uk-nav-sub {
     }
 
     .uk-width-1-3\@m {
-        width: calc(100% * 1 / 3.001)
+        width: calc(100% / 3)
     }
 
     .uk-width-2-3\@m {
-        width: calc(100% * 2 / 3.001)
+        width: calc(200% / 3)
     }
 
     .uk-width-1-4\@m {
@@ -5742,11 +5965,11 @@ ul.uk-nav-sub {
     }
 
     .uk-width-1-6\@m {
-        width: calc(100% * 1 / 6.001)
+        width: calc(100% / 6)
     }
 
     .uk-width-5-6\@m {
-        width: calc(100% * 5 / 6.001)
+        width: calc(500% / 6)
     }
 
     .uk-width-small\@m {
@@ -5777,6 +6000,27 @@ ul.uk-nav-sub {
         flex: 1;
         min-width: 1px
     }
+
+    .uk-width-1-1\@m,
+    .uk-width-1-2\@m,
+    .uk-width-1-3\@m,
+    .uk-width-1-4\@m,
+    .uk-width-1-5\@m,
+    .uk-width-1-6\@m,
+    .uk-width-2-3\@m,
+    .uk-width-2-5\@m,
+    .uk-width-2xlarge\@m,
+    .uk-width-3-4\@m,
+    .uk-width-3-5\@m,
+    .uk-width-4-5\@m,
+    .uk-width-5-6\@m,
+    .uk-width-auto\@m,
+    .uk-width-large\@m,
+    .uk-width-medium\@m,
+    .uk-width-small\@m,
+    .uk-width-xlarge\@m {
+        flex: initial
+    }
 }
 
 @media (min-width:1200px) {
@@ -5789,11 +6033,11 @@ ul.uk-nav-sub {
     }
 
     .uk-width-1-3\@l {
-        width: calc(100% * 1 / 3.001)
+        width: calc(100% / 3)
     }
 
     .uk-width-2-3\@l {
-        width: calc(100% * 2 / 3.001)
+        width: calc(200% / 3)
     }
 
     .uk-width-1-4\@l {
@@ -5821,11 +6065,11 @@ ul.uk-nav-sub {
     }
 
     .uk-width-1-6\@l {
-        width: calc(100% * 1 / 6.001)
+        width: calc(100% / 6)
     }
 
     .uk-width-5-6\@l {
-        width: calc(100% * 5 / 6.001)
+        width: calc(500% / 6)
     }
 
     .uk-width-small\@l {
@@ -5856,6 +6100,27 @@ ul.uk-nav-sub {
         flex: 1;
         min-width: 1px
     }
+
+    .uk-width-1-1\@l,
+    .uk-width-1-2\@l,
+    .uk-width-1-3\@l,
+    .uk-width-1-4\@l,
+    .uk-width-1-5\@l,
+    .uk-width-1-6\@l,
+    .uk-width-2-3\@l,
+    .uk-width-2-5\@l,
+    .uk-width-2xlarge\@l,
+    .uk-width-3-4\@l,
+    .uk-width-3-5\@l,
+    .uk-width-4-5\@l,
+    .uk-width-5-6\@l,
+    .uk-width-auto\@l,
+    .uk-width-large\@l,
+    .uk-width-medium\@l,
+    .uk-width-small\@l,
+    .uk-width-xlarge\@l {
+        flex: initial
+    }
 }
 
 @media (min-width:1600px) {
@@ -5868,11 +6133,11 @@ ul.uk-nav-sub {
     }
 
     .uk-width-1-3\@xl {
-        width: calc(100% * 1 / 3.001)
+        width: calc(100% / 3)
     }
 
     .uk-width-2-3\@xl {
-        width: calc(100% * 2 / 3.001)
+        width: calc(200% / 3)
     }
 
     .uk-width-1-4\@xl {
@@ -5900,11 +6165,11 @@ ul.uk-nav-sub {
     }
 
     .uk-width-1-6\@xl {
-        width: calc(100% * 1 / 6.001)
+        width: calc(100% / 6)
     }
 
     .uk-width-5-6\@xl {
-        width: calc(100% * 5 / 6.001)
+        width: calc(500% / 6)
     }
 
     .uk-width-small\@xl {
@@ -5934,6 +6199,27 @@ ul.uk-nav-sub {
     .uk-width-expand\@xl {
         flex: 1;
         min-width: 1px
+    }
+
+    .uk-width-1-1\@xl,
+    .uk-width-1-2\@xl,
+    .uk-width-1-3\@xl,
+    .uk-width-1-4\@xl,
+    .uk-width-1-5\@xl,
+    .uk-width-1-6\@xl,
+    .uk-width-2-3\@xl,
+    .uk-width-2-5\@xl,
+    .uk-width-2xlarge\@xl,
+    .uk-width-3-4\@xl,
+    .uk-width-3-5\@xl,
+    .uk-width-4-5\@xl,
+    .uk-width-5-6\@xl,
+    .uk-width-auto\@xl,
+    .uk-width-large\@xl,
+    .uk-width-medium\@xl,
+    .uk-width-small\@xl,
+    .uk-width-xlarge\@xl {
+        flex: initial
     }
 }
 
@@ -6218,6 +6504,11 @@ th.uk-text-break {
     word-break: break-word
 }
 
+.uk-text-stroke {
+    -webkit-text-stroke: calc(1.4px + 0.002em);
+    -webkit-text-fill-color: transparent
+}
+
 [class*=uk-column-] {
     column-gap: 30px
 }
@@ -6469,8 +6760,7 @@ iframe[uk-cover] {
 }
 
 .uk-background-fixed {
-    background-attachment: fixed;
-    backface-visibility: hidden
+    background-attachment: fixed
 }
 
 @media (pointer:coarse) {
@@ -6721,6 +7011,45 @@ iframe[uk-cover] {
 
 .uk-overflow-auto>:last-child {
     margin-bottom: 0
+}
+
+@property --uk-overflow-fade-start-opacity {
+    syntax: "<number>";
+    inherits: false;
+    initial-value: 0
+}
+
+@property --uk-overflow-fade-end-opacity {
+    syntax: "<number>";
+    inherits: false;
+    initial-value: 0
+}
+
+.uk-overflow-fade-horizontal {
+    overflow-x: auto;
+    --uk-overflow-fade-direction: right
+}
+
+.uk-overflow-fade-vertical {
+    overflow-y: auto;
+    --uk-overflow-fade-direction: bottom
+}
+
+.uk-overflow-fade-horizontal,
+.uk-overflow-fade-vertical {
+    -webkit-overflow-scrolling: touch;
+    -ms-overflow-style: -ms-autohiding-scrollbar;
+    mask-image: linear-gradient(to var(--uk-overflow-fade-direction), rgba(0, 0, 0, var(--uk-overflow-fade-start-opacity)), #000 100px, #000 calc(100% - 100px), rgba(0, 0, 0, var(--uk-overflow-fade-end-opacity)))
+}
+
+.uk-overflow-fade-horizontal>*,
+.uk-overflow-fade-vertical>* {
+    min-width: max-content
+}
+
+.uk-overflow-fade-horizontal::-webkit-scrollbar,
+.uk-overflow-fade-vertical::-webkit-scrollbar {
+    display: none
 }
 
 .uk-box-sizing-content {
@@ -7216,6 +7545,78 @@ iframe[uk-cover] {
     align-items: flex-end
 }
 
+@media (min-width:640px) {
+    .uk-flex-stretch\@s {
+        align-items: stretch
+    }
+
+    .uk-flex-top\@s {
+        align-items: flex-start
+    }
+
+    .uk-flex-middle\@s {
+        align-items: center
+    }
+
+    .uk-flex-bottom\@s {
+        align-items: flex-end
+    }
+}
+
+@media (min-width:960px) {
+    .uk-flex-stretch\@m {
+        align-items: stretch
+    }
+
+    .uk-flex-top\@m {
+        align-items: flex-start
+    }
+
+    .uk-flex-middle\@m {
+        align-items: center
+    }
+
+    .uk-flex-bottom\@m {
+        align-items: flex-end
+    }
+}
+
+@media (min-width:1200px) {
+    .uk-flex-stretch\@l {
+        align-items: stretch
+    }
+
+    .uk-flex-top\@l {
+        align-items: flex-start
+    }
+
+    .uk-flex-middle\@l {
+        align-items: center
+    }
+
+    .uk-flex-bottom\@l {
+        align-items: flex-end
+    }
+}
+
+@media (min-width:1600px) {
+    .uk-flex-stretch\@xl {
+        align-items: stretch
+    }
+
+    .uk-flex-top\@xl {
+        align-items: flex-start
+    }
+
+    .uk-flex-middle\@xl {
+        align-items: center
+    }
+
+    .uk-flex-bottom\@xl {
+        align-items: flex-end
+    }
+}
+
 .uk-flex-row {
     flex-direction: row
 }
@@ -7230,6 +7631,46 @@ iframe[uk-cover] {
 
 .uk-flex-column-reverse {
     flex-direction: column-reverse
+}
+
+@media (min-width:640px) {
+    .uk-flex-row\@s {
+        flex-direction: row
+    }
+
+    .uk-flex-column\@s {
+        flex-direction: column
+    }
+}
+
+@media (min-width:960px) {
+    .uk-flex-row\@m {
+        flex-direction: row
+    }
+
+    .uk-flex-column\@m {
+        flex-direction: column
+    }
+}
+
+@media (min-width:1200px) {
+    .uk-flex-row\@l {
+        flex-direction: row
+    }
+
+    .uk-flex-column\@l {
+        flex-direction: column
+    }
+}
+
+@media (min-width:1600px) {
+    .uk-flex-row\@xl {
+        flex-direction: row
+    }
+
+    .uk-flex-column\@xl {
+        flex-direction: column
+    }
 }
 
 .uk-flex-nowrap {
@@ -7316,6 +7757,10 @@ iframe[uk-cover] {
     }
 }
 
+.uk-flex-initial {
+    flex: initial
+}
+
 .uk-flex-none {
     flex: none
 }
@@ -7326,6 +7771,62 @@ iframe[uk-cover] {
 
 .uk-flex-1 {
     flex: 1
+}
+
+@media (min-width:640px) {
+    .uk-flex-initial\@s {
+        flex: initial
+    }
+
+    .uk-flex-none\@s {
+        flex: none
+    }
+
+    .uk-flex-1\@s {
+        flex: 1
+    }
+}
+
+@media (min-width:960px) {
+    .uk-flex-initial\@m {
+        flex: initial
+    }
+
+    .uk-flex-none\@m {
+        flex: none
+    }
+
+    .uk-flex-1\@m {
+        flex: 1
+    }
+}
+
+@media (min-width:1200px) {
+    .uk-flex-initial\@l {
+        flex: initial
+    }
+
+    .uk-flex-none\@l {
+        flex: none
+    }
+
+    .uk-flex-1\@l {
+        flex: 1
+    }
+}
+
+@media (min-width:1600px) {
+    .uk-flex-initial\@xl {
+        flex: initial
+    }
+
+    .uk-flex-none\@xl {
+        flex: none
+    }
+
+    .uk-flex-1\@xl {
+        flex: 1
+    }
 }
 
 .uk-margin {
@@ -7350,6 +7851,30 @@ iframe[uk-cover] {
 
 .uk-margin-right {
     margin-right: 20px !important
+}
+
+.uk-margin-xsmall {
+    margin-bottom: 5px
+}
+
+*+.uk-margin-xsmall {
+    margin-top: 5px !important
+}
+
+.uk-margin-xsmall-top {
+    margin-top: 5px !important
+}
+
+.uk-margin-xsmall-bottom {
+    margin-bottom: 5px !important
+}
+
+.uk-margin-xsmall-left {
+    margin-left: 5px !important
+}
+
+.uk-margin-xsmall-right {
+    margin-right: 5px !important
 }
 
 .uk-margin-small {
@@ -7781,6 +8306,7 @@ iframe[uk-cover] {
     width: max-content
 }
 
+.uk-position-center-vertical,
 [class*=uk-position-center-left],
 [class*=uk-position-center-right] {
     top: calc(50% - var(--uk-position-margin-offset));
@@ -7796,6 +8322,11 @@ iframe[uk-cover] {
     right: 0
 }
 
+.uk-position-center-vertical {
+    left: 0;
+    right: 0
+}
+
 .uk-position-center-left-out {
     right: 100%;
     width: max-content
@@ -7807,6 +8338,7 @@ iframe[uk-cover] {
 }
 
 .uk-position-bottom-center,
+.uk-position-center-horizontal,
 .uk-position-top-center {
     left: calc(50% - var(--uk-position-margin-offset));
     --uk-position-translate-x: -50%;
@@ -7819,6 +8351,11 @@ iframe[uk-cover] {
 }
 
 .uk-position-bottom-center {
+    bottom: 0
+}
+
+.uk-position-center-horizontal {
+    top: 0;
     bottom: 0
 }
 
@@ -7884,6 +8421,10 @@ iframe[uk-cover] {
     z-index: 990
 }
 
+.uk-position-z-index-highest {
+    z-index: 1060
+}
+
 :where(.uk-transition-fade),
 :where([class*=uk-transition-scale]),
 :where([class*=uk-transition-slide]) {
@@ -7905,8 +8446,8 @@ iframe[uk-cover] {
 }
 
 .uk-transition-active.uk-active .uk-transition-fade,
-.uk-transition-toggle .uk-transition-fade:focus-within,
 .uk-transition-toggle:focus .uk-transition-fade,
+.uk-transition-toggle:focus-within .uk-transition-fade,
 .uk-transition-toggle:hover .uk-transition-fade {
     opacity: 1
 }
@@ -7926,8 +8467,8 @@ iframe[uk-cover] {
 }
 
 .uk-transition-active.uk-active .uk-transition-scale-up,
-.uk-transition-toggle .uk-transition-scale-up:focus-within,
 .uk-transition-toggle:focus .uk-transition-scale-up,
+.uk-transition-toggle:focus-within .uk-transition-scale-up,
 .uk-transition-toggle:hover .uk-transition-scale-up {
     --uk-scale-x: 1.03;
     --uk-scale-y: 1.03;
@@ -7935,8 +8476,8 @@ iframe[uk-cover] {
 }
 
 .uk-transition-active.uk-active .uk-transition-scale-down,
-.uk-transition-toggle .uk-transition-scale-down:focus-within,
 .uk-transition-toggle:focus .uk-transition-scale-down,
+.uk-transition-toggle:focus-within .uk-transition-scale-down,
 .uk-transition-toggle:hover .uk-transition-scale-down {
     --uk-scale-x: 1;
     --uk-scale-y: 1;
@@ -7992,8 +8533,8 @@ iframe[uk-cover] {
 }
 
 .uk-transition-active.uk-active [class*=uk-transition-slide],
-.uk-transition-toggle [class*=uk-transition-slide]:focus-within,
 .uk-transition-toggle:focus [class*=uk-transition-slide],
+.uk-transition-toggle:focus-within [class*=uk-transition-slide],
 .uk-transition-toggle:hover [class*=uk-transition-slide] {
     --uk-translate-x: 0;
     --uk-translate-y: 0;
@@ -8014,6 +8555,7 @@ iframe[uk-cover] {
 }
 
 .uk-hidden,
+.uk-hidden-empty:empty,
 [hidden] {
     display: none !important
 }
@@ -8071,16 +8613,15 @@ iframe[uk-cover] {
 }
 
 .uk-hidden-visually:not(:focus):not(:active):not(:focus-within),
+.uk-visible-toggle:not(:hover):not(:focus) .uk-hidden-hover:not(:focus-visible):not(:has(:focus-visible)),
 .uk-visible-toggle:not(:hover):not(:focus) .uk-hidden-hover:not(:focus-within) {
     position: absolute !important;
-    width: 1px !important;
-    height: 1px !important;
+    width: 0 !important;
+    height: 0 !important;
     padding: 0 !important;
-    border: 0 !important;
+    border-width: 0 !important;
     margin: 0 !important;
-    overflow: hidden !important;
-    clip-path: inset(50%) !important;
-    white-space: nowrap !important
+    overflow: hidden !important
 }
 
 .uk-visible-toggle:not(:hover):not(:focus) .uk-invisible-hover:not(:focus-within) {
@@ -8746,59 +9287,59 @@ iframe[uk-cover] {
     border-left-color: rgba(255, 255, 255, .2)
 }
 
-.uk-card-primary.uk-card-body .uk-list-muted>::before,
-.uk-card-primary>:not([class*=uk-card-media]) .uk-list-muted>::before,
-.uk-card-secondary.uk-card-body .uk-list-muted>::before,
-.uk-card-secondary>:not([class*=uk-card-media]) .uk-list-muted>::before,
-.uk-light .uk-list-muted>::before,
-.uk-offcanvas-bar .uk-list-muted>::before,
-.uk-overlay-primary .uk-list-muted>::before,
-.uk-section-primary:not(.uk-preserve-color) .uk-list-muted>::before,
-.uk-section-secondary:not(.uk-preserve-color) .uk-list-muted>::before,
-.uk-tile-primary:not(.uk-preserve-color) .uk-list-muted>::before,
-.uk-tile-secondary:not(.uk-preserve-color) .uk-list-muted>::before {
+.uk-card-primary.uk-card-body .uk-list-muted>::marker,
+.uk-card-primary>:not([class*=uk-card-media]) .uk-list-muted>::marker,
+.uk-card-secondary.uk-card-body .uk-list-muted>::marker,
+.uk-card-secondary>:not([class*=uk-card-media]) .uk-list-muted>::marker,
+.uk-light .uk-list-muted>::marker,
+.uk-offcanvas-bar .uk-list-muted>::marker,
+.uk-overlay-primary .uk-list-muted>::marker,
+.uk-section-primary:not(.uk-preserve-color) .uk-list-muted>::marker,
+.uk-section-secondary:not(.uk-preserve-color) .uk-list-muted>::marker,
+.uk-tile-primary:not(.uk-preserve-color) .uk-list-muted>::marker,
+.uk-tile-secondary:not(.uk-preserve-color) .uk-list-muted>::marker {
     color: rgba(255, 255, 255, .5) !important
 }
 
-.uk-card-primary.uk-card-body .uk-list-emphasis>::before,
-.uk-card-primary>:not([class*=uk-card-media]) .uk-list-emphasis>::before,
-.uk-card-secondary.uk-card-body .uk-list-emphasis>::before,
-.uk-card-secondary>:not([class*=uk-card-media]) .uk-list-emphasis>::before,
-.uk-light .uk-list-emphasis>::before,
-.uk-offcanvas-bar .uk-list-emphasis>::before,
-.uk-overlay-primary .uk-list-emphasis>::before,
-.uk-section-primary:not(.uk-preserve-color) .uk-list-emphasis>::before,
-.uk-section-secondary:not(.uk-preserve-color) .uk-list-emphasis>::before,
-.uk-tile-primary:not(.uk-preserve-color) .uk-list-emphasis>::before,
-.uk-tile-secondary:not(.uk-preserve-color) .uk-list-emphasis>::before {
+.uk-card-primary.uk-card-body .uk-list-emphasis>::marker,
+.uk-card-primary>:not([class*=uk-card-media]) .uk-list-emphasis>::marker,
+.uk-card-secondary.uk-card-body .uk-list-emphasis>::marker,
+.uk-card-secondary>:not([class*=uk-card-media]) .uk-list-emphasis>::marker,
+.uk-light .uk-list-emphasis>::marker,
+.uk-offcanvas-bar .uk-list-emphasis>::marker,
+.uk-overlay-primary .uk-list-emphasis>::marker,
+.uk-section-primary:not(.uk-preserve-color) .uk-list-emphasis>::marker,
+.uk-section-secondary:not(.uk-preserve-color) .uk-list-emphasis>::marker,
+.uk-tile-primary:not(.uk-preserve-color) .uk-list-emphasis>::marker,
+.uk-tile-secondary:not(.uk-preserve-color) .uk-list-emphasis>::marker {
     color: #fff !important
 }
 
-.uk-card-primary.uk-card-body .uk-list-primary>::before,
-.uk-card-primary>:not([class*=uk-card-media]) .uk-list-primary>::before,
-.uk-card-secondary.uk-card-body .uk-list-primary>::before,
-.uk-card-secondary>:not([class*=uk-card-media]) .uk-list-primary>::before,
-.uk-light .uk-list-primary>::before,
-.uk-offcanvas-bar .uk-list-primary>::before,
-.uk-overlay-primary .uk-list-primary>::before,
-.uk-section-primary:not(.uk-preserve-color) .uk-list-primary>::before,
-.uk-section-secondary:not(.uk-preserve-color) .uk-list-primary>::before,
-.uk-tile-primary:not(.uk-preserve-color) .uk-list-primary>::before,
-.uk-tile-secondary:not(.uk-preserve-color) .uk-list-primary>::before {
+.uk-card-primary.uk-card-body .uk-list-primary>::marker,
+.uk-card-primary>:not([class*=uk-card-media]) .uk-list-primary>::marker,
+.uk-card-secondary.uk-card-body .uk-list-primary>::marker,
+.uk-card-secondary>:not([class*=uk-card-media]) .uk-list-primary>::marker,
+.uk-light .uk-list-primary>::marker,
+.uk-offcanvas-bar .uk-list-primary>::marker,
+.uk-overlay-primary .uk-list-primary>::marker,
+.uk-section-primary:not(.uk-preserve-color) .uk-list-primary>::marker,
+.uk-section-secondary:not(.uk-preserve-color) .uk-list-primary>::marker,
+.uk-tile-primary:not(.uk-preserve-color) .uk-list-primary>::marker,
+.uk-tile-secondary:not(.uk-preserve-color) .uk-list-primary>::marker {
     color: #fff !important
 }
 
-.uk-card-primary.uk-card-body .uk-list-secondary>::before,
-.uk-card-primary>:not([class*=uk-card-media]) .uk-list-secondary>::before,
-.uk-card-secondary.uk-card-body .uk-list-secondary>::before,
-.uk-card-secondary>:not([class*=uk-card-media]) .uk-list-secondary>::before,
-.uk-light .uk-list-secondary>::before,
-.uk-offcanvas-bar .uk-list-secondary>::before,
-.uk-overlay-primary .uk-list-secondary>::before,
-.uk-section-primary:not(.uk-preserve-color) .uk-list-secondary>::before,
-.uk-section-secondary:not(.uk-preserve-color) .uk-list-secondary>::before,
-.uk-tile-primary:not(.uk-preserve-color) .uk-list-secondary>::before,
-.uk-tile-secondary:not(.uk-preserve-color) .uk-list-secondary>::before {
+.uk-card-primary.uk-card-body .uk-list-secondary>::marker,
+.uk-card-primary>:not([class*=uk-card-media]) .uk-list-secondary>::marker,
+.uk-card-secondary.uk-card-body .uk-list-secondary>::marker,
+.uk-card-secondary>:not([class*=uk-card-media]) .uk-list-secondary>::marker,
+.uk-light .uk-list-secondary>::marker,
+.uk-offcanvas-bar .uk-list-secondary>::marker,
+.uk-overlay-primary .uk-list-secondary>::marker,
+.uk-section-primary:not(.uk-preserve-color) .uk-list-secondary>::marker,
+.uk-section-secondary:not(.uk-preserve-color) .uk-list-secondary>::marker,
+.uk-tile-primary:not(.uk-preserve-color) .uk-list-secondary>::marker,
+.uk-tile-secondary:not(.uk-preserve-color) .uk-list-secondary>::marker {
     color: #fff !important
 }
 
@@ -9098,6 +9639,175 @@ iframe[uk-cover] {
     color: rgba(255, 255, 255, .7)
 }
 
+.uk-card-primary.uk-card-body .uk-icon-overlay,
+.uk-card-primary.uk-card-body a .uk-icon-overlay,
+.uk-card-primary>:not([class*=uk-card-media]) .uk-icon-overlay,
+.uk-card-primary>:not([class*=uk-card-media]) a .uk-icon-overlay,
+.uk-card-secondary.uk-card-body .uk-icon-overlay,
+.uk-card-secondary.uk-card-body a .uk-icon-overlay,
+.uk-card-secondary>:not([class*=uk-card-media]) .uk-icon-overlay,
+.uk-card-secondary>:not([class*=uk-card-media]) a .uk-icon-overlay,
+.uk-light .uk-icon-overlay,
+.uk-light a .uk-icon-overlay,
+.uk-offcanvas-bar .uk-icon-overlay,
+.uk-offcanvas-bar a .uk-icon-overlay,
+.uk-overlay-primary .uk-icon-overlay,
+.uk-overlay-primary a .uk-icon-overlay,
+.uk-section-primary:not(.uk-preserve-color) .uk-icon-overlay,
+.uk-section-primary:not(.uk-preserve-color) a .uk-icon-overlay,
+.uk-section-secondary:not(.uk-preserve-color) .uk-icon-overlay,
+.uk-section-secondary:not(.uk-preserve-color) a .uk-icon-overlay,
+.uk-tile-primary:not(.uk-preserve-color) .uk-icon-overlay,
+.uk-tile-primary:not(.uk-preserve-color) a .uk-icon-overlay,
+.uk-tile-secondary:not(.uk-preserve-color) .uk-icon-overlay,
+.uk-tile-secondary:not(.uk-preserve-color) a .uk-icon-overlay,
+a.uk-card-primary.uk-card-body .uk-icon-overlay,
+a.uk-card-primary>:not([class*=uk-card-media]) .uk-icon-overlay,
+a.uk-card-secondary.uk-card-body .uk-icon-overlay,
+a.uk-card-secondary>:not([class*=uk-card-media]) .uk-icon-overlay,
+a.uk-light .uk-icon-overlay,
+a.uk-offcanvas-bar .uk-icon-overlay,
+a.uk-overlay-primary .uk-icon-overlay,
+a.uk-section-primary:not(.uk-preserve-color) .uk-icon-overlay,
+a.uk-section-secondary:not(.uk-preserve-color) .uk-icon-overlay,
+a.uk-tile-primary:not(.uk-preserve-color) .uk-icon-overlay,
+a.uk-tile-secondary:not(.uk-preserve-color) .uk-icon-overlay {
+    color: rgba(255, 255, 255, .6)
+}
+
+.uk-card-primary.uk-card-body .uk-icon-overlay:hover,
+.uk-card-primary.uk-card-body a:hover .uk-icon-overlay,
+.uk-card-primary>:not([class*=uk-card-media]) .uk-icon-overlay:hover,
+.uk-card-primary>:not([class*=uk-card-media]) a:hover .uk-icon-overlay,
+.uk-card-secondary.uk-card-body .uk-icon-overlay:hover,
+.uk-card-secondary.uk-card-body a:hover .uk-icon-overlay,
+.uk-card-secondary>:not([class*=uk-card-media]) .uk-icon-overlay:hover,
+.uk-card-secondary>:not([class*=uk-card-media]) a:hover .uk-icon-overlay,
+.uk-light .uk-icon-overlay:hover,
+.uk-light a:hover .uk-icon-overlay,
+.uk-offcanvas-bar .uk-icon-overlay:hover,
+.uk-offcanvas-bar a:hover .uk-icon-overlay,
+.uk-overlay-primary .uk-icon-overlay:hover,
+.uk-overlay-primary a:hover .uk-icon-overlay,
+.uk-section-primary:not(.uk-preserve-color) .uk-icon-overlay:hover,
+.uk-section-primary:not(.uk-preserve-color) a:hover .uk-icon-overlay,
+.uk-section-secondary:not(.uk-preserve-color) .uk-icon-overlay:hover,
+.uk-section-secondary:not(.uk-preserve-color) a:hover .uk-icon-overlay,
+.uk-tile-primary:not(.uk-preserve-color) .uk-icon-overlay:hover,
+.uk-tile-primary:not(.uk-preserve-color) a:hover .uk-icon-overlay,
+.uk-tile-secondary:not(.uk-preserve-color) .uk-icon-overlay:hover,
+.uk-tile-secondary:not(.uk-preserve-color) a:hover .uk-icon-overlay,
+a.uk-card-primary.uk-card-body:hover .uk-icon-overlay,
+a.uk-card-primary>:not([class*=uk-card-media]):hover .uk-icon-overlay,
+a.uk-card-secondary.uk-card-body:hover .uk-icon-overlay,
+a.uk-card-secondary>:not([class*=uk-card-media]):hover .uk-icon-overlay,
+a.uk-light:hover .uk-icon-overlay,
+a.uk-offcanvas-bar:hover .uk-icon-overlay,
+a.uk-overlay-primary:hover .uk-icon-overlay,
+a.uk-section-primary:not(.uk-preserve-color):hover .uk-icon-overlay,
+a.uk-section-secondary:not(.uk-preserve-color):hover .uk-icon-overlay,
+a.uk-tile-primary:not(.uk-preserve-color):hover .uk-icon-overlay,
+a.uk-tile-secondary:not(.uk-preserve-color):hover .uk-icon-overlay {
+    color: #fff
+}
+
+.uk-card-primary.uk-card-body .uk-range::-webkit-slider-runnable-track,
+.uk-card-primary>:not([class*=uk-card-media]) .uk-range::-webkit-slider-runnable-track,
+.uk-card-secondary.uk-card-body .uk-range::-webkit-slider-runnable-track,
+.uk-card-secondary>:not([class*=uk-card-media]) .uk-range::-webkit-slider-runnable-track,
+.uk-light .uk-range::-webkit-slider-runnable-track,
+.uk-offcanvas-bar .uk-range::-webkit-slider-runnable-track,
+.uk-overlay-primary .uk-range::-webkit-slider-runnable-track,
+.uk-section-primary:not(.uk-preserve-color) .uk-range::-webkit-slider-runnable-track,
+.uk-section-secondary:not(.uk-preserve-color) .uk-range::-webkit-slider-runnable-track,
+.uk-tile-primary:not(.uk-preserve-color) .uk-range::-webkit-slider-runnable-track,
+.uk-tile-secondary:not(.uk-preserve-color) .uk-range::-webkit-slider-runnable-track {
+    background: rgba(242, 242, 242, .1)
+}
+
+.uk-card-primary.uk-card-body .uk-range:active::-webkit-slider-runnable-track,
+.uk-card-primary.uk-card-body .uk-range:focus::-webkit-slider-runnable-track,
+.uk-card-primary>:not([class*=uk-card-media]) .uk-range:active::-webkit-slider-runnable-track,
+.uk-card-primary>:not([class*=uk-card-media]) .uk-range:focus::-webkit-slider-runnable-track,
+.uk-card-secondary.uk-card-body .uk-range:active::-webkit-slider-runnable-track,
+.uk-card-secondary.uk-card-body .uk-range:focus::-webkit-slider-runnable-track,
+.uk-card-secondary>:not([class*=uk-card-media]) .uk-range:active::-webkit-slider-runnable-track,
+.uk-card-secondary>:not([class*=uk-card-media]) .uk-range:focus::-webkit-slider-runnable-track,
+.uk-light .uk-range:active::-webkit-slider-runnable-track,
+.uk-light .uk-range:focus::-webkit-slider-runnable-track,
+.uk-offcanvas-bar .uk-range:active::-webkit-slider-runnable-track,
+.uk-offcanvas-bar .uk-range:focus::-webkit-slider-runnable-track,
+.uk-overlay-primary .uk-range:active::-webkit-slider-runnable-track,
+.uk-overlay-primary .uk-range:focus::-webkit-slider-runnable-track,
+.uk-section-primary:not(.uk-preserve-color) .uk-range:active::-webkit-slider-runnable-track,
+.uk-section-primary:not(.uk-preserve-color) .uk-range:focus::-webkit-slider-runnable-track,
+.uk-section-secondary:not(.uk-preserve-color) .uk-range:active::-webkit-slider-runnable-track,
+.uk-section-secondary:not(.uk-preserve-color) .uk-range:focus::-webkit-slider-runnable-track,
+.uk-tile-primary:not(.uk-preserve-color) .uk-range:active::-webkit-slider-runnable-track,
+.uk-tile-primary:not(.uk-preserve-color) .uk-range:focus::-webkit-slider-runnable-track,
+.uk-tile-secondary:not(.uk-preserve-color) .uk-range:active::-webkit-slider-runnable-track,
+.uk-tile-secondary:not(.uk-preserve-color) .uk-range:focus::-webkit-slider-runnable-track {
+    background: rgba(242, 242, 242, .15)
+}
+
+.uk-card-primary.uk-card-body .uk-range::-moz-range-track,
+.uk-card-primary>:not([class*=uk-card-media]) .uk-range::-moz-range-track,
+.uk-card-secondary.uk-card-body .uk-range::-moz-range-track,
+.uk-card-secondary>:not([class*=uk-card-media]) .uk-range::-moz-range-track,
+.uk-light .uk-range::-moz-range-track,
+.uk-offcanvas-bar .uk-range::-moz-range-track,
+.uk-overlay-primary .uk-range::-moz-range-track,
+.uk-section-primary:not(.uk-preserve-color) .uk-range::-moz-range-track,
+.uk-section-secondary:not(.uk-preserve-color) .uk-range::-moz-range-track,
+.uk-tile-primary:not(.uk-preserve-color) .uk-range::-moz-range-track,
+.uk-tile-secondary:not(.uk-preserve-color) .uk-range::-moz-range-track {
+    background: rgba(242, 242, 242, .1)
+}
+
+.uk-card-primary.uk-card-body .uk-range:focus::-moz-range-track,
+.uk-card-primary>:not([class*=uk-card-media]) .uk-range:focus::-moz-range-track,
+.uk-card-secondary.uk-card-body .uk-range:focus::-moz-range-track,
+.uk-card-secondary>:not([class*=uk-card-media]) .uk-range:focus::-moz-range-track,
+.uk-light .uk-range:focus::-moz-range-track,
+.uk-offcanvas-bar .uk-range:focus::-moz-range-track,
+.uk-overlay-primary .uk-range:focus::-moz-range-track,
+.uk-section-primary:not(.uk-preserve-color) .uk-range:focus::-moz-range-track,
+.uk-section-secondary:not(.uk-preserve-color) .uk-range:focus::-moz-range-track,
+.uk-tile-primary:not(.uk-preserve-color) .uk-range:focus::-moz-range-track,
+.uk-tile-secondary:not(.uk-preserve-color) .uk-range:focus::-moz-range-track {
+    background: rgba(242, 242, 242, .15)
+}
+
+.uk-card-primary.uk-card-body .uk-range::-webkit-slider-thumb,
+.uk-card-primary>:not([class*=uk-card-media]) .uk-range::-webkit-slider-thumb,
+.uk-card-secondary.uk-card-body .uk-range::-webkit-slider-thumb,
+.uk-card-secondary>:not([class*=uk-card-media]) .uk-range::-webkit-slider-thumb,
+.uk-light .uk-range::-webkit-slider-thumb,
+.uk-offcanvas-bar .uk-range::-webkit-slider-thumb,
+.uk-overlay-primary .uk-range::-webkit-slider-thumb,
+.uk-section-primary:not(.uk-preserve-color) .uk-range::-webkit-slider-thumb,
+.uk-section-secondary:not(.uk-preserve-color) .uk-range::-webkit-slider-thumb,
+.uk-tile-primary:not(.uk-preserve-color) .uk-range::-webkit-slider-thumb,
+.uk-tile-secondary:not(.uk-preserve-color) .uk-range::-webkit-slider-thumb {
+    background: grey;
+    border-color: #e6e6e6
+}
+
+.uk-card-primary.uk-card-body .uk-range::-moz-range-thumb,
+.uk-card-primary>:not([class*=uk-card-media]) .uk-range::-moz-range-thumb,
+.uk-card-secondary.uk-card-body .uk-range::-moz-range-thumb,
+.uk-card-secondary>:not([class*=uk-card-media]) .uk-range::-moz-range-thumb,
+.uk-light .uk-range::-moz-range-thumb,
+.uk-offcanvas-bar .uk-range::-moz-range-thumb,
+.uk-overlay-primary .uk-range::-moz-range-thumb,
+.uk-section-primary:not(.uk-preserve-color) .uk-range::-moz-range-thumb,
+.uk-section-secondary:not(.uk-preserve-color) .uk-range::-moz-range-thumb,
+.uk-tile-primary:not(.uk-preserve-color) .uk-range::-moz-range-thumb,
+.uk-tile-secondary:not(.uk-preserve-color) .uk-range::-moz-range-thumb {
+    background: grey;
+    border-color: #e6e6e6
+}
+
 .uk-card-primary.uk-card-body .uk-input,
 .uk-card-primary.uk-card-body .uk-select,
 .uk-card-primary.uk-card-body .uk-textarea,
@@ -9392,7 +10102,7 @@ iframe[uk-cover] {
 .uk-section-secondary:not(.uk-preserve-color) .uk-checkbox:checked,
 .uk-tile-primary:not(.uk-preserve-color) .uk-checkbox:checked,
 .uk-tile-secondary:not(.uk-preserve-color) .uk-checkbox:checked {
-    background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%2214%22%20height%3D%2211%22%20viewBox%3D%220%200%2014%2011%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%0A%20%20%20%20%3Cpolygon%20fill%3D%22%23666%22%20points%3D%2212%201%205%207.5%202%205%201%205.5%205%2010%2013%201.5%22%20%2F%3E%0A%3C%2Fsvg%3E%0A")
+    background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%2216%22%20height%3D%2216%22%20viewBox%3D%220%200%2016%2016%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%0A%20%20%20%20%3Cpolygon%20fill%3D%22%23666%22%20points%3D%2213%203.5%206%2010%203%207.5%202%208%206%2012.5%2014%204%2013%203.5%22%20%2F%3E%0A%3C%2Fsvg%3E%0A")
 }
 
 .uk-card-primary.uk-card-body .uk-checkbox:indeterminate,
@@ -9960,7 +10670,51 @@ iframe[uk-cover] {
 .uk-section-secondary:not(.uk-preserve-color) .uk-search-navbar .uk-search-input,
 .uk-tile-primary:not(.uk-preserve-color) .uk-search-navbar .uk-search-input,
 .uk-tile-secondary:not(.uk-preserve-color) .uk-search-navbar .uk-search-input {
-    background-color: transparent
+    background-color: transparent;
+    border-color: rgba(255, 255, 255, .2)
+}
+
+.uk-card-primary.uk-card-body .uk-search-navbar .uk-search-input:focus,
+.uk-card-primary>:not([class*=uk-card-media]) .uk-search-navbar .uk-search-input:focus,
+.uk-card-secondary.uk-card-body .uk-search-navbar .uk-search-input:focus,
+.uk-card-secondary>:not([class*=uk-card-media]) .uk-search-navbar .uk-search-input:focus,
+.uk-light .uk-search-navbar .uk-search-input:focus,
+.uk-offcanvas-bar .uk-search-navbar .uk-search-input:focus,
+.uk-overlay-primary .uk-search-navbar .uk-search-input:focus,
+.uk-section-primary:not(.uk-preserve-color) .uk-search-navbar .uk-search-input:focus,
+.uk-section-secondary:not(.uk-preserve-color) .uk-search-navbar .uk-search-input:focus,
+.uk-tile-primary:not(.uk-preserve-color) .uk-search-navbar .uk-search-input:focus,
+.uk-tile-secondary:not(.uk-preserve-color) .uk-search-navbar .uk-search-input:focus {
+    background-color: rgba(0, 0, 0, .05)
+}
+
+.uk-card-primary.uk-card-body .uk-search-medium .uk-search-input,
+.uk-card-primary>:not([class*=uk-card-media]) .uk-search-medium .uk-search-input,
+.uk-card-secondary.uk-card-body .uk-search-medium .uk-search-input,
+.uk-card-secondary>:not([class*=uk-card-media]) .uk-search-medium .uk-search-input,
+.uk-light .uk-search-medium .uk-search-input,
+.uk-offcanvas-bar .uk-search-medium .uk-search-input,
+.uk-overlay-primary .uk-search-medium .uk-search-input,
+.uk-section-primary:not(.uk-preserve-color) .uk-search-medium .uk-search-input,
+.uk-section-secondary:not(.uk-preserve-color) .uk-search-medium .uk-search-input,
+.uk-tile-primary:not(.uk-preserve-color) .uk-search-medium .uk-search-input,
+.uk-tile-secondary:not(.uk-preserve-color) .uk-search-medium .uk-search-input {
+    background-color: transparent;
+    border-color: rgba(255, 255, 255, .2)
+}
+
+.uk-card-primary.uk-card-body .uk-search-medium .uk-search-input:focus,
+.uk-card-primary>:not([class*=uk-card-media]) .uk-search-medium .uk-search-input:focus,
+.uk-card-secondary.uk-card-body .uk-search-medium .uk-search-input:focus,
+.uk-card-secondary>:not([class*=uk-card-media]) .uk-search-medium .uk-search-input:focus,
+.uk-light .uk-search-medium .uk-search-input:focus,
+.uk-offcanvas-bar .uk-search-medium .uk-search-input:focus,
+.uk-overlay-primary .uk-search-medium .uk-search-input:focus,
+.uk-section-primary:not(.uk-preserve-color) .uk-search-medium .uk-search-input:focus,
+.uk-section-secondary:not(.uk-preserve-color) .uk-search-medium .uk-search-input:focus,
+.uk-tile-primary:not(.uk-preserve-color) .uk-search-medium .uk-search-input:focus,
+.uk-tile-secondary:not(.uk-preserve-color) .uk-search-medium .uk-search-input:focus {
+    background-color: rgba(0, 0, 0, .05)
 }
 
 .uk-card-primary.uk-card-body .uk-search-large .uk-search-input,
@@ -9974,7 +10728,22 @@ iframe[uk-cover] {
 .uk-section-secondary:not(.uk-preserve-color) .uk-search-large .uk-search-input,
 .uk-tile-primary:not(.uk-preserve-color) .uk-search-large .uk-search-input,
 .uk-tile-secondary:not(.uk-preserve-color) .uk-search-large .uk-search-input {
-    background-color: transparent
+    background-color: transparent;
+    border-color: rgba(255, 255, 255, .2)
+}
+
+.uk-card-primary.uk-card-body .uk-search-large .uk-search-input:focus,
+.uk-card-primary>:not([class*=uk-card-media]) .uk-search-large .uk-search-input:focus,
+.uk-card-secondary.uk-card-body .uk-search-large .uk-search-input:focus,
+.uk-card-secondary>:not([class*=uk-card-media]) .uk-search-large .uk-search-input:focus,
+.uk-light .uk-search-large .uk-search-input:focus,
+.uk-offcanvas-bar .uk-search-large .uk-search-input:focus,
+.uk-overlay-primary .uk-search-large .uk-search-input:focus,
+.uk-section-primary:not(.uk-preserve-color) .uk-search-large .uk-search-input:focus,
+.uk-section-secondary:not(.uk-preserve-color) .uk-search-large .uk-search-input:focus,
+.uk-tile-primary:not(.uk-preserve-color) .uk-search-large .uk-search-input:focus,
+.uk-tile-secondary:not(.uk-preserve-color) .uk-search-large .uk-search-input:focus {
+    background-color: rgba(0, 0, 0, .05)
 }
 
 .uk-card-primary.uk-card-body .uk-search-toggle,
@@ -10030,6 +10799,62 @@ iframe[uk-cover] {
 .uk-section-secondary:not(.uk-preserve-color) .uk-accordion-title:hover,
 .uk-tile-primary:not(.uk-preserve-color) .uk-accordion-title:hover,
 .uk-tile-secondary:not(.uk-preserve-color) .uk-accordion-title:hover {
+    color: rgba(255, 255, 255, .7)
+}
+
+.uk-card-primary.uk-card-body .uk-thumbnav>*>::after,
+.uk-card-primary>:not([class*=uk-card-media]) .uk-thumbnav>*>::after,
+.uk-card-secondary.uk-card-body .uk-thumbnav>*>::after,
+.uk-card-secondary>:not([class*=uk-card-media]) .uk-thumbnav>*>::after,
+.uk-light .uk-thumbnav>*>::after,
+.uk-offcanvas-bar .uk-thumbnav>*>::after,
+.uk-overlay-primary .uk-thumbnav>*>::after,
+.uk-section-primary:not(.uk-preserve-color) .uk-thumbnav>*>::after,
+.uk-section-secondary:not(.uk-preserve-color) .uk-thumbnav>*>::after,
+.uk-tile-primary:not(.uk-preserve-color) .uk-thumbnav>*>::after,
+.uk-tile-secondary:not(.uk-preserve-color) .uk-thumbnav>*>::after {
+    background-image: linear-gradient(180deg, rgba(0, 0, 0, 0), rgba(0, 0, 0, .4))
+}
+
+.uk-card-primary.uk-card-body .uk-iconnav>*>a,
+.uk-card-primary>:not([class*=uk-card-media]) .uk-iconnav>*>a,
+.uk-card-secondary.uk-card-body .uk-iconnav>*>a,
+.uk-card-secondary>:not([class*=uk-card-media]) .uk-iconnav>*>a,
+.uk-light .uk-iconnav>*>a,
+.uk-offcanvas-bar .uk-iconnav>*>a,
+.uk-overlay-primary .uk-iconnav>*>a,
+.uk-section-primary:not(.uk-preserve-color) .uk-iconnav>*>a,
+.uk-section-secondary:not(.uk-preserve-color) .uk-iconnav>*>a,
+.uk-tile-primary:not(.uk-preserve-color) .uk-iconnav>*>a,
+.uk-tile-secondary:not(.uk-preserve-color) .uk-iconnav>*>a {
+    color: rgba(255, 255, 255, .5)
+}
+
+.uk-card-primary.uk-card-body .uk-iconnav>*>a:hover,
+.uk-card-primary>:not([class*=uk-card-media]) .uk-iconnav>*>a:hover,
+.uk-card-secondary.uk-card-body .uk-iconnav>*>a:hover,
+.uk-card-secondary>:not([class*=uk-card-media]) .uk-iconnav>*>a:hover,
+.uk-light .uk-iconnav>*>a:hover,
+.uk-offcanvas-bar .uk-iconnav>*>a:hover,
+.uk-overlay-primary .uk-iconnav>*>a:hover,
+.uk-section-primary:not(.uk-preserve-color) .uk-iconnav>*>a:hover,
+.uk-section-secondary:not(.uk-preserve-color) .uk-iconnav>*>a:hover,
+.uk-tile-primary:not(.uk-preserve-color) .uk-iconnav>*>a:hover,
+.uk-tile-secondary:not(.uk-preserve-color) .uk-iconnav>*>a:hover {
+    color: rgba(255, 255, 255, .7)
+}
+
+.uk-card-primary.uk-card-body .uk-iconnav>.uk-active>a,
+.uk-card-primary>:not([class*=uk-card-media]) .uk-iconnav>.uk-active>a,
+.uk-card-secondary.uk-card-body .uk-iconnav>.uk-active>a,
+.uk-card-secondary>:not([class*=uk-card-media]) .uk-iconnav>.uk-active>a,
+.uk-light .uk-iconnav>.uk-active>a,
+.uk-offcanvas-bar .uk-iconnav>.uk-active>a,
+.uk-overlay-primary .uk-iconnav>.uk-active>a,
+.uk-section-primary:not(.uk-preserve-color) .uk-iconnav>.uk-active>a,
+.uk-section-secondary:not(.uk-preserve-color) .uk-iconnav>.uk-active>a,
+.uk-tile-primary:not(.uk-preserve-color) .uk-iconnav>.uk-active>a,
+.uk-tile-secondary:not(.uk-preserve-color) .uk-iconnav>.uk-active>a {
     color: rgba(255, 255, 255, .7)
 }
 
@@ -10990,62 +11815,6 @@ iframe[uk-cover] {
     border-color: transparent
 }
 
-.uk-card-primary.uk-card-body .uk-thumbnav>*>::after,
-.uk-card-primary>:not([class*=uk-card-media]) .uk-thumbnav>*>::after,
-.uk-card-secondary.uk-card-body .uk-thumbnav>*>::after,
-.uk-card-secondary>:not([class*=uk-card-media]) .uk-thumbnav>*>::after,
-.uk-light .uk-thumbnav>*>::after,
-.uk-offcanvas-bar .uk-thumbnav>*>::after,
-.uk-overlay-primary .uk-thumbnav>*>::after,
-.uk-section-primary:not(.uk-preserve-color) .uk-thumbnav>*>::after,
-.uk-section-secondary:not(.uk-preserve-color) .uk-thumbnav>*>::after,
-.uk-tile-primary:not(.uk-preserve-color) .uk-thumbnav>*>::after,
-.uk-tile-secondary:not(.uk-preserve-color) .uk-thumbnav>*>::after {
-    background-image: linear-gradient(180deg, rgba(0, 0, 0, 0), rgba(0, 0, 0, .4))
-}
-
-.uk-card-primary.uk-card-body .uk-iconnav>*>a,
-.uk-card-primary>:not([class*=uk-card-media]) .uk-iconnav>*>a,
-.uk-card-secondary.uk-card-body .uk-iconnav>*>a,
-.uk-card-secondary>:not([class*=uk-card-media]) .uk-iconnav>*>a,
-.uk-light .uk-iconnav>*>a,
-.uk-offcanvas-bar .uk-iconnav>*>a,
-.uk-overlay-primary .uk-iconnav>*>a,
-.uk-section-primary:not(.uk-preserve-color) .uk-iconnav>*>a,
-.uk-section-secondary:not(.uk-preserve-color) .uk-iconnav>*>a,
-.uk-tile-primary:not(.uk-preserve-color) .uk-iconnav>*>a,
-.uk-tile-secondary:not(.uk-preserve-color) .uk-iconnav>*>a {
-    color: rgba(255, 255, 255, .5)
-}
-
-.uk-card-primary.uk-card-body .uk-iconnav>*>a:hover,
-.uk-card-primary>:not([class*=uk-card-media]) .uk-iconnav>*>a:hover,
-.uk-card-secondary.uk-card-body .uk-iconnav>*>a:hover,
-.uk-card-secondary>:not([class*=uk-card-media]) .uk-iconnav>*>a:hover,
-.uk-light .uk-iconnav>*>a:hover,
-.uk-offcanvas-bar .uk-iconnav>*>a:hover,
-.uk-overlay-primary .uk-iconnav>*>a:hover,
-.uk-section-primary:not(.uk-preserve-color) .uk-iconnav>*>a:hover,
-.uk-section-secondary:not(.uk-preserve-color) .uk-iconnav>*>a:hover,
-.uk-tile-primary:not(.uk-preserve-color) .uk-iconnav>*>a:hover,
-.uk-tile-secondary:not(.uk-preserve-color) .uk-iconnav>*>a:hover {
-    color: rgba(255, 255, 255, .7)
-}
-
-.uk-card-primary.uk-card-body .uk-iconnav>.uk-active>a,
-.uk-card-primary>:not([class*=uk-card-media]) .uk-iconnav>.uk-active>a,
-.uk-card-secondary.uk-card-body .uk-iconnav>.uk-active>a,
-.uk-card-secondary>:not([class*=uk-card-media]) .uk-iconnav>.uk-active>a,
-.uk-light .uk-iconnav>.uk-active>a,
-.uk-offcanvas-bar .uk-iconnav>.uk-active>a,
-.uk-overlay-primary .uk-iconnav>.uk-active>a,
-.uk-section-primary:not(.uk-preserve-color) .uk-iconnav>.uk-active>a,
-.uk-section-secondary:not(.uk-preserve-color) .uk-iconnav>.uk-active>a,
-.uk-tile-primary:not(.uk-preserve-color) .uk-iconnav>.uk-active>a,
-.uk-tile-secondary:not(.uk-preserve-color) .uk-iconnav>.uk-active>a {
-    color: rgba(255, 255, 255, .7)
-}
-
 .uk-card-primary.uk-card-body .uk-text-lead,
 .uk-card-primary>:not([class*=uk-card-media]) .uk-text-lead,
 .uk-card-secondary.uk-card-body .uk-text-lead,
@@ -11172,28 +11941,17 @@ iframe[uk-cover] {
     color: #fff
 }
 
-.uk-card-primary.uk-card-body .uk-logo>:not(picture):not(.uk-logo-inverse):not(:only-of-type),
-.uk-card-primary.uk-card-body .uk-logo>picture:not(:only-of-type)>:not(.uk-logo-inverse),
-.uk-card-primary>:not([class*=uk-card-media]) .uk-logo>:not(picture):not(.uk-logo-inverse):not(:only-of-type),
-.uk-card-primary>:not([class*=uk-card-media]) .uk-logo>picture:not(:only-of-type)>:not(.uk-logo-inverse),
-.uk-card-secondary.uk-card-body .uk-logo>:not(picture):not(.uk-logo-inverse):not(:only-of-type),
-.uk-card-secondary.uk-card-body .uk-logo>picture:not(:only-of-type)>:not(.uk-logo-inverse),
-.uk-card-secondary>:not([class*=uk-card-media]) .uk-logo>:not(picture):not(.uk-logo-inverse):not(:only-of-type),
-.uk-card-secondary>:not([class*=uk-card-media]) .uk-logo>picture:not(:only-of-type)>:not(.uk-logo-inverse),
-.uk-light .uk-logo>:not(picture):not(.uk-logo-inverse):not(:only-of-type),
-.uk-light .uk-logo>picture:not(:only-of-type)>:not(.uk-logo-inverse),
-.uk-offcanvas-bar .uk-logo>:not(picture):not(.uk-logo-inverse):not(:only-of-type),
-.uk-offcanvas-bar .uk-logo>picture:not(:only-of-type)>:not(.uk-logo-inverse),
-.uk-overlay-primary .uk-logo>:not(picture):not(.uk-logo-inverse):not(:only-of-type),
-.uk-overlay-primary .uk-logo>picture:not(:only-of-type)>:not(.uk-logo-inverse),
-.uk-section-primary:not(.uk-preserve-color) .uk-logo>:not(picture):not(.uk-logo-inverse):not(:only-of-type),
-.uk-section-primary:not(.uk-preserve-color) .uk-logo>picture:not(:only-of-type)>:not(.uk-logo-inverse),
-.uk-section-secondary:not(.uk-preserve-color) .uk-logo>:not(picture):not(.uk-logo-inverse):not(:only-of-type),
-.uk-section-secondary:not(.uk-preserve-color) .uk-logo>picture:not(:only-of-type)>:not(.uk-logo-inverse),
-.uk-tile-primary:not(.uk-preserve-color) .uk-logo>:not(picture):not(.uk-logo-inverse):not(:only-of-type),
-.uk-tile-primary:not(.uk-preserve-color) .uk-logo>picture:not(:only-of-type)>:not(.uk-logo-inverse),
-.uk-tile-secondary:not(.uk-preserve-color) .uk-logo>:not(picture):not(.uk-logo-inverse):not(:only-of-type),
-.uk-tile-secondary:not(.uk-preserve-color) .uk-logo>picture:not(:only-of-type)>:not(.uk-logo-inverse) {
+.uk-card-primary.uk-card-body .uk-logo:has(.uk-logo-inverse)>:not(picture:has(.uk-logo-inverse)):not(.uk-logo-inverse),
+.uk-card-primary>:not([class*=uk-card-media]) .uk-logo:has(.uk-logo-inverse)>:not(picture:has(.uk-logo-inverse)):not(.uk-logo-inverse),
+.uk-card-secondary.uk-card-body .uk-logo:has(.uk-logo-inverse)>:not(picture:has(.uk-logo-inverse)):not(.uk-logo-inverse),
+.uk-card-secondary>:not([class*=uk-card-media]) .uk-logo:has(.uk-logo-inverse)>:not(picture:has(.uk-logo-inverse)):not(.uk-logo-inverse),
+.uk-light .uk-logo:has(.uk-logo-inverse)>:not(picture:has(.uk-logo-inverse)):not(.uk-logo-inverse),
+.uk-offcanvas-bar .uk-logo:has(.uk-logo-inverse)>:not(picture:has(.uk-logo-inverse)):not(.uk-logo-inverse),
+.uk-overlay-primary .uk-logo:has(.uk-logo-inverse)>:not(picture:has(.uk-logo-inverse)):not(.uk-logo-inverse),
+.uk-section-primary:not(.uk-preserve-color) .uk-logo:has(.uk-logo-inverse)>:not(picture:has(.uk-logo-inverse)):not(.uk-logo-inverse),
+.uk-section-secondary:not(.uk-preserve-color) .uk-logo:has(.uk-logo-inverse)>:not(picture:has(.uk-logo-inverse)):not(.uk-logo-inverse),
+.uk-tile-primary:not(.uk-preserve-color) .uk-logo:has(.uk-logo-inverse)>:not(picture:has(.uk-logo-inverse)):not(.uk-logo-inverse),
+.uk-tile-secondary:not(.uk-preserve-color) .uk-logo:has(.uk-logo-inverse)>:not(picture:has(.uk-logo-inverse)):not(.uk-logo-inverse) {
     display: none
 }
 
@@ -11284,11 +12042,13 @@ iframe[uk-cover] {
 
 .uk-card-default.uk-card-body,
 .uk-card-default>:not([class*=uk-card-media]),
+.uk-card-overlay.uk-card-body,
+.uk-card-overlay>:not([class*=uk-card-media]),
 .uk-dark,
 .uk-dropbar,
 .uk-dropdown,
 .uk-navbar-container:not(.uk-navbar-transparent),
-.uk-navbar-dropdown,
+.uk-navbar-dropdown:not(.uk-preserve-color),
 .uk-overlay-default,
 .uk-section-default:not(.uk-preserve-color),
 .uk-section-muted:not(.uk-preserve-color),

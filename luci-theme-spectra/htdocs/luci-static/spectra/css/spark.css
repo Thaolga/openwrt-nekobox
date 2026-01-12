@@ -1298,6 +1298,7 @@ div.nav-container>button.btn_styles {
 }
 
 .cbi-input-select {
+    border-radius: 12px !important;
     scrollbar-color: #3498db #f1f1f1 !important;
     scrollbar-width: thin !important;
 }
@@ -1495,7 +1496,7 @@ textarea:focus {
     text-transform: uppercase;
     color: var(--color-white-strong);
     border: none !important;
-    border-radius: calc(var(--radius) - 4px);
+    border-radius: calc(var(--radius) - 4px) !important;
     background-color: var(--btn-primary-bg);
     background-image: none;
     -webkit-appearance: none;
@@ -1712,7 +1713,7 @@ textarea:focus {
 .cbi-button-neutral[value="Restart"] {
     font-weight: normal;
     color: var(--color-white-strong);
-    background-color: var(--btn-danger-bg);
+    background-color: var(--color-red) !important;
 }
 
 .cbi-page-actions .cbi-button-apply,
@@ -1785,15 +1786,6 @@ textarea:focus {
     background-color: var(--color-pink);
     color: var(--color-white-strong);
     border: var(--glow-border);
-}
-
-.cbi-button-remove {
-    background-color: var(--btn-danger-bg) !important;
-    color: var(--color-white-strong) !important;
-    border-radius: calc(var(--radius) - 4px) !important;
-    padding: 0.4rem 0.8rem;
-    cursor: pointer;
-    transition: all var(--transition-speed) ease;
 }
 
 .cbi-button-remove:hover {
@@ -1995,6 +1987,7 @@ div>div[style*="display:grid"] {
 
 .cbi-dynlist>.add-item input[type="text"] {
     border-radius: 12px 0 0 12px !important;
+    min-width: 17.88rem;
     padding-right: 0.5rem !important;
 }
 
@@ -2002,37 +1995,14 @@ div>div[style*="display:grid"] {
     border-radius: 0 12px 12px 0 !important;
 }
 
-.cbi-value input[type="text"],
-.cbi-value input[type="password"],
-.cbi-section-table-row>.cbi-value-field .cbi-input-text,
-.cbi-section-table-row>.cbi-value-field .cbi-input-password,
-#cbi-network-switch_vlan .cbi-input-text {
-    width: 23em !important;
-    min-width: 23em !important;
-    max-width: 23em !important;
+.cbi-value-field .cbi-dropdown, .cbi-value-field .cbi-input-select, .cbi-value input[type="text"], .cbi-value input[type="password"] {
+    min-width: 20rem;
     border-radius: 12px;
-    box-sizing: border-box !important;
 }
 
 #core_status,
 .cbi-value-field input[readonly] {
     border-radius: 12px !important;
-}
-
-.cbi-dropdown:not(.btn):not(.cbi-button):not(.cbi-button-apply) {
-    width: 23em !important;
-    min-width: 23em !important;
-    max-width: 23em !important;
-    border-radius: 12px !important;
-    transition: border-radius 0.2s ease;
-}
-
-.cbi-input-select {
-    width: 23em !important;
-    min-width: 23em !important;
-    max-width: 23em !important;
-    border-radius: 12px !important;
-    transition: border-radius 0.2s ease;
 }
 
 .cbi-input-select:focus {
@@ -2072,10 +2042,6 @@ div>div[style*="display:grid"] {
     background: var(--bg-container) !important;
     border-radius: 6px !important;
     color: var(--text-primary) !important;
-}
-
-.cbi-dynlist .item {
-     width: 25.8em !important;
 }
 
 .controls > div .control-group input[type="text"] {
@@ -2942,26 +2908,6 @@ div>div[style*="display:grid"] {
     gap: 8px;
     font-size: 1.3rem;
     white-space: nowrap;
-}
-
-.close-btn {
-    background: none;
-    border: none;
-    color: var(--text-primary);
-    font-size: 24px;
-    cursor: pointer;
-    padding: 0;
-    width: 32px;
-    height: 32px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 50%;
-    transition: background-color var(--transition-speed);
-}
-
-.close-btn:hover {
-    background-color: var(--accent-color);
 }
 
 .modal-body {
@@ -5781,3 +5727,66 @@ div#maincontent > div.alert-message.fade-in.warning[style*="display:flex"] {
 .right-box .card-header .settings-wrapper .settings-btn .device-manage-btn .device-manage-icon path {
     fill: var(--color-blue) !important;
 }
+
+#cbi-dockerd div[class*="status"]:not([class*="other"]):not([id*="status"]) {
+    padding: 0 8px !important;
+}
+
+#cbi-dockerd .pure-g.status .block {
+    background-color: var(--bg-container) !important;
+    display: block !important;
+    overflow: visible !important;
+}
+
+#cbi-dockerd .pure-g.status .block.pure-g {
+    display: -webkit-box !important;
+    display: -webkit-flex !important;
+    display: -ms-flexbox !important;
+    display: flex !important;
+    -webkit-flex-flow: row nowrap !important;
+    -ms-flex-flow: row nowrap !important;
+    flex-flow: row nowrap !important;
+}
+
+#cbi-dockerd .pure-g.status .block > [class*="pure-u-"] {
+    display: inline-block !important;
+    float: none !important;
+    vertical-align: middle !important;
+}
+
+#cbi-dockerd .pure-g.status .block .pure-u-3-5 {
+    background: transparent !important;
+    background-color: transparent !important;
+}
+
+#cbi-dockerd .pure-g.status .block .pure-u-3-5 h4,
+#cbi-dockerd .pure-g.status .block .pure-u-3-5 a,
+#cbi-dockerd .pure-g.status .block .pure-u-3-5 span {
+    background: transparent !important;
+}
+
+#cbi-dockerd .pure-u-1-4:nth-child(1) .img-con img {
+    filter: brightness(0) saturate(100%) invert(54%) sepia(98%) saturate(427%) hue-rotate(98deg) brightness(95%) contrast(87%) !important;
+}
+
+#cbi-dockerd .pure-u-1-4:nth-child(2) .img-con img {
+    filter: brightness(0) saturate(100%) invert(46%) sepia(99%) saturate(2180%) hue-rotate(176deg) brightness(95%) contrast(91%) !important;
+}
+
+#cbi-dockerd .pure-u-1-4:nth-child(3) .img-con img {
+    filter: brightness(0) saturate(100%) invert(36%) sepia(98%) saturate(527%) hue-rotate(224deg) brightness(95%) contrast(91%) !important;
+}
+
+#cbi-dockerd .pure-u-1-4:nth-child(4) .img-con img {
+    filter: brightness(0) saturate(100%) invert(40%) sepia(98%) saturate(527%) hue-rotate(324deg) brightness(95%) contrast(91%) !important;
+}
+
+::placeholder {
+    color: var(--text-secondary) !important;
+    opacity: 1 !important;
+}
+
+.cbi-input-select[id*="sing-box-"][id*="_logview"] {
+    font-size: 13px !important;
+}
+

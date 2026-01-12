@@ -2515,10 +2515,62 @@ function createIndependentPipWindow() {
         justify-content: center;
         font-size: 14px;
     `;
+
     closeBtn.onclick = function() {
-        togglePictureInPicture();
+        const pipWindow = document.getElementById('youtube-pip-window');
+        if (!pipWindow) return;
+        
+        if (window.pipIframe) {
+            try {
+                const stopMessage = {
+                    event: 'command',
+                    func: 'stopVideo',
+                    args: '',
+                    id: 1,
+                    channel: 'widget'
+                };
+                window.pipIframe.contentWindow.postMessage(JSON.stringify(stopMessage), '*');
+            } catch (e) {}
+        }
+        
+        if (window.pipIframe && window.pipIframe._pipMessageHandler) {
+            window.removeEventListener('message', window.pipIframe._pipMessageHandler);
+            delete window.pipIframe._pipMessageHandler;
+        }
+        
+        pipWindow.remove();
+        
+        if (window.currentPlaylistSensor && window.currentPlaylistSensor.cleanup) {
+            window.currentPlaylistSensor.cleanup();
+            window.currentPlaylistSensor = null;
+        }
+        
+        delete window.pipOriginalState;
+        delete window.pipWindow;
+        delete window.pipIframe;
+        
+        updatePipButtonState(false);
+        
+        document.querySelectorAll('.music-card.active').forEach(card => {
+            card.classList.remove('active');
+        });
+        
+        window.currentYouTubeCard = null;
+        window.currentYouTubeVideoId = null;
+        
+        if (window.currentYouTubeModal) {
+            try {
+                window.currentYouTubeModal.hide();
+                window.currentYouTubeModal = null;
+            } catch (e) {}
+        }
+        
+        stopPlayback();
+        
+        const translations = languageTranslations[currentLang] || languageTranslations['en'];
+        //showLogMessage(translations['pip_closed'] || 'Picture-in-Picture closed');
     };
-    
+        
     controls.appendChild(restoreBtn);
     controls.appendChild(closeBtn);
     dragBar.appendChild(title);
