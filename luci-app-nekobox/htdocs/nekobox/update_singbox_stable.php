@@ -49,6 +49,8 @@ if (empty($latest_version)) {
 
 logMessage("Latest stable version found: $latest_version");
 
+exec("opkg list-installed | grep -q '^sing-box'", $output, $opkg_check_return);
+
 $current_version = ''; 
 $install_path = '/usr/bin/sing-box'; 
 
@@ -96,8 +98,8 @@ if (trim($current_version) === trim($latest_version)) {
     die("Current version is already the latest.");
 }
 
-if (empty($current_version)) {
-    logMessage("No existing version found. Running opkg update...");
+if ($opkg_check_return !== 0) {
+    logMessage("Sing-box is not installed via opkg. Running opkg update...");
     exec("opkg update 2>&1", $update_output, $update_return);
     if ($update_return !== 0) {
         logMessage("opkg update failed: " . implode("\n", $update_output));
@@ -105,7 +107,7 @@ if (empty($current_version)) {
         logMessage("opkg update completed");
     }
 } else {
-    logMessage("Existing version found ($current_version). Skipping opkg update.");
+    logMessage("Sing-box is already installed via opkg. Skipping opkg update.");
 }
 
 $temp_file = "/tmp/{$ipk_filename}";
