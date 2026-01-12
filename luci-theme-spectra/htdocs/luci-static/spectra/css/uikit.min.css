@@ -2480,6 +2480,7 @@ select.uk-form-width-xsmall {
 .uk-alert {
     position: relative;
     margin-bottom: 20px;
+    border-radius: 12px;
     padding: 15px 29px 15px 15px;
     background: #f8f8f8;
     color: #666
@@ -2510,9 +2511,9 @@ select.uk-form-width-xsmall {
     opacity: .8
 }
 
+.uk-alert-info,
 .uk-alert-primary {
     background: #d8eafc;
-    border-radius: 12px;
     color: #1e87f0
 }
 
