@@ -307,13 +307,10 @@ install_singbox() {
     echo -e "${GREEN}Detected architecture: $current_arch${NC}"
     echo -e "${GREEN}Latest version: $latest_version${NC}"
 
-    if command -v sing-box >/dev/null 2>&1; then
-        current_version=$(sing-box --version | tr -d 'v' 2>/dev/null)
-        echo -e "${GREEN}Current version: $current_version${NC}"
-        
-        echo -e "${GREEN}Existing version found. Skipping opkg update.${NC}"
+    if opkg list-installed | grep -q '^sing-box'; then
+        echo -e "${GREEN}Sing-box is already installed via opkg. Skipping opkg update.${NC}"
     else
-        echo -e "${GREEN}No existing version found. Updating opkg package list...${NC}"
+        echo -e "${GREEN}No existing opkg installation found. Updating opkg package list...${NC}"
         opkg update
     fi
 
