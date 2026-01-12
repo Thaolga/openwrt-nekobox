@@ -95,12 +95,16 @@ if (trim($current_version) === trim($latest_version)) {
     die("Current version is already the latest.");
 }
 
-logMessage("Updating opkg package list...");
-exec("opkg update 2>&1", $update_output, $update_return);
-if ($update_return !== 0) {
-    logMessage("opkg update failed: " . implode("\n", $update_output));
+if (empty($current_version)) {
+    logMessage("No existing version found. Running opkg update...");
+    exec("opkg update 2>&1", $update_output, $update_return);
+    if ($update_return !== 0) {
+        logMessage("opkg update failed: " . implode("\n", $update_output));
+    } else {
+        logMessage("opkg update completed");
+    }
 } else {
-    logMessage("opkg update completed");
+    logMessage("Existing version found ($current_version). Skipping opkg update.");
 }
 
 $temp_file = "/tmp/{$ipk_filename}";
