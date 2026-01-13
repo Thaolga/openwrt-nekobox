@@ -640,6 +640,10 @@ if (!is_dir($storageDir)) {
     mkdir($storageDir, 0755, true);
 }
 
+if (!file_exists($storageFile)) {
+    file_put_contents($storageFile, '');
+}
+
 $currentConfigPath = '';
 if (file_exists($storageFile)) {
     $rawPath = trim(file_get_contents($storageFile));
