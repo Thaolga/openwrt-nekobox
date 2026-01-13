@@ -2868,6 +2868,7 @@ body:not(.Interfaces) .cbi-rowstyle-2:first-child {
 }
 
 .cbi-dynlist>.add-item:not([ondrop])>input {
+    border-radius: 12px 0 0 12px;
     overflow: hidden;
     width: 100%;
     min-width: 15rem;
