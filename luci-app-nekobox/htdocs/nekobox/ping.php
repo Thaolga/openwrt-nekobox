@@ -294,7 +294,7 @@ if (isset($_POST['save_autostart'])) {
 	pointer-events: none;
 	z-index: 10000000;
         white-space: normal;
-        width: 300px;
+        max-width: 300px;
 	line-height: 1.4;
 	backdrop-filter: var(--glass-blur);
 	border: var(--glass-border);
