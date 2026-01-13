@@ -3000,11 +3000,9 @@ body:not(.Interfaces) .cbi-rowstyle-2:first-child {
 .cbi-dropdown>ul>li input[type="text"] {
     color: var(--text-primary) !important;
     background-color: var(--bg-container) !important;
-    height: 24px;
-    padding-top: 0;
-    padding-bottom: 0;
-    margin-top: 0;
-    margin-bottom: 0
+    height: 2rem;
+    min-width: 16rem;
+    padding: 0 0.5rem;
 }
 
 .cbi-input-select {
@@ -6389,13 +6387,6 @@ li[data-value="-"][unselectable] {
     border: var(--border-strong) !important;
     box-shadow: 0 2px 6px -2px color-mix(in oklch, var(-bg-container), black 30%) !important;
     color: var(--text-primary) !important;
-}
-
-
-.cbi-dropdown[open] > ul.dropdown > li[unselectable] .create-item-input {
-    width: 290px !important;
-    min-width: 290px !important;
-    max-width: 290px !important;
 }
 
 .cbi-section {
