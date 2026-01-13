@@ -635,17 +635,17 @@ function getSubscriptionUrlFromFile($file) {
                 <li class="nav-item">
                     <a class="nav-link <?= $current == 'singbox.php' ? 'active' : '' ?>" href="./singbox.php"><i class="bi bi-shop"></i> <span data-translate="template_i">Template I</span></a>
                 </li>
-                <li class="nav-item">
+                <li class="nav-item d-none">
                     <a class="nav-link <?= $current == 'subscription.php' ? 'active' : '' ?>" href="./subscription.php"><i class="bi bi-bank"></i> <span data-translate="template_ii">Template II</span></a>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link <?= $current == 'mihomo.php' ? 'active' : '' ?>" href="./mihomo.php"><i class="bi bi-building"></i> <span data-translate="template_iii">Template III</span></a>
                 </li>
-                <li class="nav-item">
+                <li class="nav-item d-none">
                     <a class="nav-link <?= $current == 'netmon.php' ? 'active' : '' ?>" href="./netmon.php"><i class="bi bi-activity"></i> <span data-translate="traffic_monitor">Traffic Monitor</span></a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link <?= $current == 'filekit.php' ? 'active' : '' ?>" href="./filekit.php"><i class="bi bi-bank"></i> <span data-translate="pageTitle">File Assistant</span></a>
+                    <a class="nav-link <?= $current == 'monaco.php' ? 'active' : '' ?>" href="./monaco.php"><i class="bi bi-bank"></i> <span data-translate="pageTitle">File Assistant</span></a>
                 </li>
             </ul>
             <div class="d-flex align-items-center">
