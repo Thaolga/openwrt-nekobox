@@ -1984,7 +1984,7 @@ div>div[style*="display:grid"] {
 }
 
 .cbi-dynlist>.add-item input[type="text"] {
-    border-radius: 12px 0 0 12px !important;
+
     min-width: 17.88rem;
     padding-right: 0.5rem !important;
 }
