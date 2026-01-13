@@ -1285,12 +1285,12 @@ div.nav-container>button.btn_styles {
 }
 
 .cbi-input-select::-webkit-scrollbar-thumb {
-    background-color: #3498db !important;
+    background-color: var(--accent-color) !important;
     border-radius: 10px !important;
 }
 
 .cbi-input-select::-webkit-scrollbar-track {
-    background-color: #f1f1f1 !important;
+    background-color: color-mix(in oklch, var(--header-bg), transparent 75%) !important;
 }
 
 .cbi-input-select::-webkit-scrollbar {
@@ -1299,8 +1299,10 @@ div.nav-container>button.btn_styles {
 
 .cbi-input-select {
     border-radius: 12px !important;
-    scrollbar-color: #3498db #f1f1f1 !important;
+    border: var(--border-strong) !important;
+    scrollbar-color: var(--accent-color) color-mix(in oklch, var(--header-bg), transparent 75%) !important;
     scrollbar-width: thin !important;
+    transition: border-radius 0.2s ease;
 }
 
 textarea {
@@ -1938,10 +1940,6 @@ div>div[style*="display:grid"] {
 .cbi-value-field label {
     display: inline-flex;
     align-items: center;
-}
-
-.cbi-input-select {
-    transition: border-radius 0.2s ease;
 }
 
 .cbi-input-select:focus {
