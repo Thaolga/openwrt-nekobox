@@ -5779,9 +5779,4 @@ div#maincontent > div.alert-message.fade-in.warning[style*="display:flex"] {
     font-size: 13px !important;
 }
 
-@media (max-width: 768px) {
-    .cbi-value-description:not(:empty)::before {
-        display: none;
-    }
-}
 
