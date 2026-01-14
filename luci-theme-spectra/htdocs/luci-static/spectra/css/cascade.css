@@ -2277,7 +2277,7 @@ table,
 }
 
 .table .table-titles th {
-    background-color: #e9ecef;
+    background-color: var(--card-bg);
 }
 
 table>tbody>tr>td,
@@ -2591,6 +2591,10 @@ td>table>tbody>tr>td,
 .cbi-value-description {
     color: var(--accent-color);
     margin: .25em 0 0 1.25em;
+    line-height: 1.25;
+    display: table-cell;
+    padding: .5rem;
+    opacity: .5;
     position: relative;
 }
 
@@ -4576,7 +4580,7 @@ pre.command-output {
         display: block;
         flex: 1 1 100%;
         border-bottom: thin solid rgba(0, 0, 0, 0.26);
-        background: #e9ecef
+        background: var(--card-bg)
     }
 
     .td[data-title],
@@ -4746,11 +4750,11 @@ pre.command-output {
         height: 0px
     }
 
-    .cbi-value-field {
+    .cbi-value-field,
+    .cbi-value-description {
         display: block !important;
         padding-left: 0 !important;
         padding-right: 0 !important
-
     }
 
     [data-page="admin-system-admin-password"] .cbi-value-field {
