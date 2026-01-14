@@ -1270,10 +1270,6 @@ div.nav-container>button.btn_styles {
     vertical-align: middle;
 }
 
-.app-description.cbi-value-description::before {
-    display: none !important;
-}
-
 .app-container,
 .reusable-card {
     transition: transform 0.3s ease;
@@ -1866,11 +1862,6 @@ textarea:focus {
     z-index: 10000 !important;
     border: var(--border-strong) !important;
     box-shadow: 0 0 10px var(--card-bg) !important;
-}
-
-.cbi-value-description span {
-    display: inline-block;
-    width: 150px !important;
 }
 
 #main .btns,
@@ -5786,5 +5777,11 @@ div#maincontent > div.alert-message.fade-in.warning[style*="display:flex"] {
 
 .cbi-input-select[id*="sing-box-"][id*="_logview"] {
     font-size: 13px !important;
+}
+
+@media (max-width: 768px) {
+    .cbi-value-description:not(:empty)::before {
+        display: none;
+    }
 }
 

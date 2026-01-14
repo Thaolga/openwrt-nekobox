@@ -148,7 +148,8 @@ progress {
 }
 
 textarea {
-    overflow: auto
+    overflow: auto;
+    overflow-x: hidden;
 }
 
 [type=checkbox],
@@ -1245,7 +1246,7 @@ body {
 * {
     margin: 0;
     padding: 0;
-    box-sizing: border-box
+    box-sizing: border-box;
 }
 
 ::selection {
@@ -1372,12 +1373,6 @@ li {
 
 .col-10 {
     flex: 10 10 300px !important
-}
-
-* {
-    box-sizing: border-box;
-    margin: 0;
-    padding: 0
 }
 
 .h1,
@@ -2594,20 +2589,25 @@ td>table>tbody>tr>td,
 }
 
 .cbi-value-description {
-    line-height: 1.25;
     color: var(--accent-color);
-    opacity: 1 !important;
-    display: table-cell
+    margin: .25em 0 0 1.25em;
+    position: relative;
+}
+
+.cbi-value-description:not(:empty)::before {
+    position: absolute;
+    left: -1.25em;
+    content: "\F431";
+    font-family: 'bootstrap-icons' !important;
+    display: inline-block;
+    width: 1em;
+    height: 1em;
+    margin-right: .25em;
+    cursor: help;
 }
 
 .cbi-value-description abbr {
     color: var(--text-primary);
-}
-
-.cbi-value-description {
-    font-size: small;
-    padding: .5rem;
-    opacity: .5
 }
 
 .cbi-value-title {
@@ -2694,9 +2694,7 @@ td>table>tbody>tr>td,
     white-space: nowrap
 }
 
-.tr.placeholder .td[data-title]::before {
-    display: none
-}
+
 
 .tr[data-title]::before,
 .tr.cbi-section-table-titles.named::before {
@@ -4748,11 +4746,11 @@ pre.command-output {
         height: 0px
     }
 
-    .cbi-value-field,
-    .cbi-value-description {
+    .cbi-value-field {
         display: block !important;
         padding-left: 0 !important;
         padding-right: 0 !important
+
     }
 
     [data-page="admin-system-admin-password"] .cbi-value-field {
@@ -4945,55 +4943,6 @@ fieldset.diag-style {
 .actioner-container_footer .close {
     background-color: #e53e3e !important;
     color: var(--color-white) !important;
-}
-
-.cbi-value-description {
-    position: relative;
-    padding-left: 22px;
-}
-
-.cbi-value-description::before {
-    content: "\F431";
-    font-family: 'bootstrap-icons' !important;
-    position: absolute;
-    left: 0;
-    top: 50%;
-    transform: translateY(-50%);
-    width: 17px;
-    height: 17px;
-    display: inline-block;
-    color: var(--accent-color) !important;
-    font-size: 17px;
-    line-height: 1;
-    text-align: center;
-    text-shadow: none;
-    transition: text-shadow 0.3s ease;
-}
-
-[data-theme="dark"] .cbi-value-description:hover::before {
-    text-shadow: 0 0 2px var(--accent-color),
-        0 0 6px var(--accent-color),
-        0 0 10px var(--accent-color);
-}
-
-@media screen and (max-width: 768px) {
-
-    .cbi-section .cbi-value-description,
-    .cbi-value .cbi-value-description {
-        padding-left: 25px !important;
-    }
-}
-
-@media screen and (max-width: 480px) {
-
-    .cbi-section .cbi-value-description,
-    .cbi-value .cbi-value-description {
-        padding-left: 28px !important;
-    }
-}
-
-.cbi-value-description:empty {
-    display: none;
 }
 
 input:focus,
@@ -5210,7 +5159,6 @@ color: var(--text-primary) !important;
     font-weight: 500 !important;
     font-size: 1.1rem !important;
     display: inline-block;
-    margin-top: 5px;
 }
 
 .bg {
@@ -6274,11 +6222,6 @@ td.cbi-section-actions>div>button.cbi-button-neutral.down:nth-child(2) {
 [data-theme="dark"] [class*="nas-container"],
 [data-theme="dark"] [class*="app-container"] {
     background-color: var(--bg-container) !important;
-}
-
-[data-theme="dark"] .network-container_status *,
-[data-theme="dark"] .app-container * {
-    color: var(--color-white) !important;
 }
 
 div.app-container_body ul.app-container_nas-menu button {
