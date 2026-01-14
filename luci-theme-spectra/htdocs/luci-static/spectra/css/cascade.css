@@ -2592,7 +2592,6 @@ td>table>tbody>tr>td,
     color: var(--accent-color);
     margin: .125em 0 0 1.25em;
     padding: .25rem .5rem;
-    opacity: .5;
     position: relative;
     line-height: 1.3; 
 }
