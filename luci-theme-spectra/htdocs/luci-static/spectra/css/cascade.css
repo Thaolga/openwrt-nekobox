@@ -2702,8 +2702,6 @@ td>table>tbody>tr>td,
     white-space: nowrap
 }
 
-
-
 .tr[data-title]::before,
 .tr.cbi-section-table-titles.named::before {
     font-weight: bold;
@@ -2716,6 +2714,10 @@ td>table>tbody>tr>td,
     vertical-align: middle;
     white-space: normal;
     word-wrap: break-word
+}
+
+.tr.cbi-section-table-titles.named::before {
+    background-color: var(--header-bg);
 }
 
 .cbi-rowstyle-1 {
@@ -2857,12 +2859,14 @@ body:not(.Interfaces) .cbi-rowstyle-2:first-child {
 }
 
 .cbi-dynlist>.add-item .cbi-button-add {
+    height: 2.5rem;
+    line-height: 2.5rem; 
     font-weight: normal;
     font-size: 1.2rem;
     display: flex;
     align-items: center;
     line-height: 1.5rem;
-    padding: .5rem .76rem;
+    padding: 0 .76rem !important;
     margin: .25rem .1rem .25rem 0;
     color: var(--color-white);
     border-radius: .25rem;
@@ -2876,7 +2880,7 @@ body:not(.Interfaces) .cbi-rowstyle-2:first-child {
 .cbi-dynlist>.add-item:not([ondrop])>input {
     border-radius: 12px 0 0 12px;
     overflow: hidden;
-    width: 100%;
+    width: 15rem;
     min-width: 15rem;
     white-space: nowrap;
     text-overflow: ellipsis
@@ -4897,18 +4901,6 @@ pre.command-output {
     }
 }
 
-@media (max-width: 768px) {
-    .cbi-value-field .control-group {
-        display: flex !important;
-        flex-wrap: nowrap !important;
-        gap: 8px !important;
-    }
-
-    .cbi-value-field .control-group .cbi-button {
-        flex: 1 1 auto !important;
-        white-space: nowrap !important;
-    }
-}
 
 .radio-button {
     background-color: transparent !important;
@@ -6424,4 +6416,22 @@ div[style*="border-bottom"] {
     background: var(--header-bg);
     border-bottom: 0 !important;
     border-top: 0 !important;
+}
+
+#cbi-passwall2-global_app .cbi-value-description::before {
+    display: none !important;
+}
+
+.cbi-value-description > span:first-child {
+    display: inline-block;
+    width: 150px;
+    min-width: 150px;
+    margin-left: -1.3rem;
+}
+
+@media (max-width: 786px) {
+    .geoview-search input.cbi-input-text {
+        width: 12rem !important;
+        min-width: 12rem !important;
+    }
 }
