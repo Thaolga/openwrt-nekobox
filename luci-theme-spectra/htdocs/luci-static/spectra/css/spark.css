@@ -2051,11 +2051,6 @@ div>div[style*="display:grid"] {
 }
 
 @media (max-width: 768px) {
-    .cbi-value-field input {
-        width: 100%;
-        margin-bottom: 10px;
-    }
-
     #add_link_div {
         width: 95%;
         padding: 15px;
