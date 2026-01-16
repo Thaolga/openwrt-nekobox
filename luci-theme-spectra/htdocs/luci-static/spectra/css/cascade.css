@@ -6422,7 +6422,7 @@ div[style*="border-bottom"] {
     display: none !important;
 }
 
-.cbi-value-description > span:first-child {
+#cbi-passwall2-global_app .cbi-value-description > span:first-child {
     display: inline-block;
     width: 150px;
     min-width: 150px;
@@ -6434,4 +6434,9 @@ div[style*="border-bottom"] {
         width: 12rem !important;
         min-width: 12rem !important;
     }
+}
+
+div.app-description.cbi-value-description {
+  padding-left: 0 !important;
+  margin-left: -1px !important;
 }
