@@ -5774,4 +5774,17 @@ div#maincontent > div.alert-message.fade-in.warning[style*="display:flex"] {
     font-size: 13px !important;
 }
 
+.cbi-map > .cbi-section > #log_textarea,
+.cbi-map > .cbi-section > div:last-child {
+    margin-right: 15px !important;
+}
+
+.cbi-map > .cbi-section > #log_textarea > pre[wrap="pre"] {
+    padding-right: 3px !important;
+}
+
+:where(body) :where(.cbi-map) :where(h3[name="content"]) {
+    margin-left: -20px !important;
+}
+
 
