@@ -2992,7 +2992,7 @@ function getLunar(date) {
     let isLeap = false;
 
     for(i=1; i<13 && offset>0; i++) {
-        if(leap>0 && i==(leap+1) && !isLeap){
+        if(leapMonth>0 && i==(leapMonth+1) && !isLeap){
             --i; 
             isLeap = true; 
             temp = getLeapMonthDays(lunarYear); 
@@ -3000,11 +3000,11 @@ function getLunar(date) {
             temp = getMonthDays(lunarYear, i); 
         }
         
-        if(isLeap && i==(leap+1)) isLeap = false;
+        if(isLeap && i==(leapMonth+1)) isLeap = false;
         offset -= temp;
     }
 
-    if(offset==0 && leap>0 && i==leap+1) {
+    if(offset==0 && leapMonth>0 && i==leapMonth+1) {
         if(isLeap) { 
             isLeap = false; 
         } else { 
@@ -3015,10 +3015,22 @@ function getLunar(date) {
 
     if(offset<0){
         offset += temp;
-        i--;
+        --i;
     }
 
     let lunarMonth = i;
+    
+    if (lunarMonth < 1) {
+        lunarMonth = 1;
+    }
+    if (lunarMonth > 12) {
+        lunarMonth = 12;
+    }
+
+    if (isLeap && leapMonth !== lunarMonth) {
+        isLeap = false;
+    }
+
     let lunarDay = offset + 1;
 
     const zodiac = zodiacs[lunarYear % 12];
