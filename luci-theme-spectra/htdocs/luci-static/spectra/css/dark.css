@@ -74,6 +74,17 @@ header::after,
 	background-color: transparent !important;
 }
 
+.card-container .feature-card,
+.network-container .left-box .item_container .item,
+.badge, .offline, .status-icon, .status_time, .content .name .speed, .path,
+.tab .item, .info .item1,
+.reusable-card, .feature-card, .item_container .item {
+	background-color: transparent !important;
+	border: var(--glass-border) !important;
+        backdrop-filter: var(--glass-blur-mini);
+        -webkit-backdrop-filter: var(--glass-blur-mini);
+}
+
 fieldset.cbi-section>textarea,
 div#command-output>textarea {
 	background-color: transparent !important;
@@ -175,89 +186,4 @@ select {
 .cbi-value:hover,
 .cbi-section-table tr.cbi-section-table-row:hover td {
 	background-color: transparent !important;
-}
-
-.wrapper span {
-	position: fixed;
-	bottom: -180px;
-	height: 50px;
-	width: 50px;
-	z-index: 9999;
-	background-color: #18191f;
-	box-shadow: 0 0 50px cyan, 0 0 100px cyan, 0 0 150px cyan, 0 0 200px cyan;
-	animation: animate 15s linear infinite;
-}
-
-.wrapper span:nth-child(1) {
-	left: 60px;
-	animation-delay: 0.6s;
-}
-
-.wrapper span:nth-child(2) {
-	left: 10%;
-	animation-delay: 3s;
-	width: 60px;
-	height: 60px;
-}
-
-.wrapper span:nth-child(3) {
-	left: 20%;
-	animation-delay: 2s;
-}
-
-.wrapper span:nth-child(4) {
-	left: 30%;
-	animation-delay: 5s;
-	width: 80px;
-	height: 80px;
-}
-
-.wrapper span:nth-child(5) {
-	left: 40%;
-	animation-delay: 1s;
-}
-
-.wrapper span:nth-child(6) {
-	left: 50%;
-	animation-delay: 7s;
-}
-
-.wrapper span:nth-child(7) {
-	left: 60%;
-	animation-delay: 6s;
-	width: 100px;
-	height: 100px;
-}
-
-.wrapper span:nth-child(8) {
-	left: 70%;
-	animation-delay: 8s;
-}
-
-.wrapper span:nth-child(9) {
-	left: 80%;
-	animation-delay: 6s;
-	width: 90px;
-	height: 90px;
-}
-
-.wrapper span:nth-child(10) {
-	left: 90%;
-	animation-delay: 4s;
-}
-
-@keyframes animate {
-	0% {
-		transform: translateY(0);
-		opacity: 1;
-	}
-
-	90% {
-		opacity: .7;
-	}
-
-	100% {
-		transform: translateY(-1200px) rotate(360deg);
-		opacity: 0;
-	}
 }

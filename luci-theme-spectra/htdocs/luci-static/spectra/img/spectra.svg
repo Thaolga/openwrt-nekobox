@@ -1,26 +1,52 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256">
+<svg width="512" height="512" viewBox="0 0 420 420" fill="none" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet">
     <defs>
-        <linearGradient id="bgGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stop-color="#5E72E4"/>
-            <stop offset="100%" stop-color="#778AFF"/>
-        </linearGradient>
-        <linearGradient id="prismGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stop-color="#ff0080"/>
-            <stop offset="25%" stop-color="#7928ca"/>
-            <stop offset="50%" stop-color="#007cf0"/>
-            <stop offset="75%" stop-color="#00dfd8"/>
-            <stop offset="100%" stop-color="#ff4d4d"/>
-        </linearGradient>
-        <radialGradient id="bgRadial" cx="30%" cy="30%">
-            <stop offset="0%" stop-color="#2d3748"/>
-            <stop offset="100%" stop-color="#1a202c"/>
+        <radialGradient id="coreGlow" cx="50%" cy="50%" r="50%">
+            <stop offset="0%" stop-color="oklch(0.86 0.18 200deg)" stop-opacity="0.9"/>
+            <stop offset="70%" stop-color="oklch(0.42 0.08 200deg)" stop-opacity="0.4"/>
+            <stop offset="100%" stop-color="oklch(0.12 0.01 200deg)" stop-opacity="0"/>
         </radialGradient>
+        <radialGradient id="outerGlow" cx="50%" cy="50%" r="50%">
+            <stop offset="0%" stop-color="oklch(0.42 0.08 200deg)" stop-opacity="0"/>
+            <stop offset="100%" stop-color="oklch(0.86 0.18 200deg)" stop-opacity="0.08"/>
+        </radialGradient>
+        <filter id="softGlow" x="-50%" y="-50%" width="200%" height="200%">
+            <feGaussianBlur in="SourceAlpha" stdDeviation="6" result="blur"/>
+            <feFlood flood-color="oklch(0.86 0.18 200deg)" flood-opacity="0.25"/>
+            <feComposite in2="blur" operator="in"/>
+            <feMerge>
+                <feMergeNode/>
+                <feMergeNode in="SourceGraphic"/>
+            </feMerge>
+        </filter>
     </defs>
     
-    <rect width="256" height="256" rx="56" fill="url(#bgGradient)"/>
+    <circle cx="210" cy="210" r="202" fill="url(#outerGlow)"/>
+    <circle cx="210" cy="210" r="200" fill="oklch(0.20 0.02 250deg)"/>
+    <circle cx="210" cy="185" r="120" fill="url(#coreGlow)" filter="url(#softGlow)"/>
     
-    <polygon fill="url(#prismGradient)" points="128,64 192,128 128,192 64,128" 
-             stroke="white" stroke-width="8"/>
+    <g id="matrix" transform="translate(210 180)" stroke="oklch(0.86 0.18 200deg)" stroke-width="1.5" stroke-opacity="0.7" fill="none">
+        <g id="rotor">
+            <circle cx="0" cy="0" r="85"/>
+            <path d="M-73.6,42.5 L0,85 L73.6,42.5 M-73.6,-42.5 L0,-85 L73.6,-42.5"/>
+            <line x1="-73.6" y1="42.5" x2="-73.6" y2="-42.5"/>
+            <line x1="73.6" y1="42.5" x2="73.6" y2="-42.5"/>
+            <line x1="0" y1="85" x2="0" y2="-85"/>
+            <animateTransform attributeName="transform" type="rotate" from="0" to="360" dur="12s" repeatCount="indefinite" calcMode="linear"/>
+        </g>
+    </g>
     
-    <circle cx="128" cy="128" r="16" fill="white"/>
+    <circle cx="210" cy="180" r="10" fill="oklch(0.86 0.18 200deg)" filter="url(#softGlow)">
+        <animate attributeName="r" values="10;14;10" keyTimes="0;0.5;1" dur="3s" repeatCount="indefinite"/>
+        <animate attributeName="fill" values="oklch(0.86 0.18 200deg);oklch(0.92 0.15 170deg);oklch(0.86 0.18 200deg)" keyTimes="0;0.5;1" dur="6s" repeatCount="indefinite"/>
+    </circle>
+    
+    <text x="210" y="315" text-anchor="middle" font-family="'Segoe UI', 'SF Mono', monospace" font-weight="700" font-size="38" letter-spacing="3" fill="oklch(0.95 0.12 200deg)" style="text-shadow: 0 0 10px rgba(134, 246, 255, 0.5);">
+        HUEMATRIX
+        <animate attributeName="fill" values="oklch(0.95 0.12 200deg);oklch(0.86 0.18 200deg)" keyTimes="0;1" dur="8s" repeatCount="indefinite" calcMode="spline" keySplines="0.42 0 0.58 1"/>
+    </text>
+    
+    <text x="210" y="355" text-anchor="middle" font-family="'Segoe UI', 'SF Mono', monospace" font-weight="300" font-size="26" letter-spacing="5" fill="oklch(0.95 0.12 200deg)" opacity="0.85">
+        v2.0
+        <animate attributeName="opacity" values="0.85;1;0.85" keyTimes="0;0.5;1" dur="4s" repeatCount="indefinite"/>
+    </text>
 </svg>

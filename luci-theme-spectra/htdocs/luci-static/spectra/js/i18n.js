@@ -227,8 +227,6 @@ const languageTranslations = {
         'theme_dark': '暗色模式',
         'theme_light': '亮色模式',
         'visit_github': '访问 GitHub',
-        'animation_enable': '开启动画',
-        'animation_disable': '关闭动画',
         'font_default': '默认字体',
         'font_rounded': '圆润字体',
         'font_serif': '衬线字体',
@@ -262,6 +260,103 @@ const languageTranslations = {
         'guide_theme_settings': '5. 主题设置：支持自定义背景，模式切换需清除背景',
         'guide_mode_switching': '6. 模式切换：图片/视频模式，只适用于暗色模式',
         'guide_project_link': '7. 项目地址：',
+        'advancedColorControlSubtitle': 'HueMatrix 2.0 — 次世代色彩引擎',
+        'update_available': '更新可用',
+        'new_version_available': '新的主题版本可用',
+        'update_now': '立即更新',
+        'toggle_visualizer': '切换可视化效果',
+        'switch_interface': '切换界面',
+        'message_add_card_layout': '添加卡片布局',
+        'message_remove_card_layout': '删除卡片布局',
+        'message_processing': '处理中...',
+        'message_card_layout_added': '已添加卡片布局',
+        'message_card_layout_removed': '已删除卡片布局',
+        'node_order_save_success': '保存当前页面顺序成功。',
+        'auto_check_updates': '启用自动更新检测',
+        'auto_check_enabled': '自动更新检测已启用',
+        'auto_check_disabled': '自动更新检测已禁用',
+        'animation_settings': '动画设置',
+        'cube_lights': '方块灯光',
+        'cube_animation': '方块动画',
+        'snow_animation': '雪花动画',
+        'status_on': '开启',
+        'status_off': '关闭',
+        'log_cube_lights_on': '开启方块灯光动画',
+        'log_cube_lights_off': '关闭方块灯光动画',
+        'log_cube_anim_on': '开启方块动画',
+        'log_cube_anim_off': '关闭方块动画',
+        'log_snow_on': '开启雪花动画',
+        'log_snow_off': '关闭雪花动画',
+        'online_music_search': '在线音乐搜索',
+        'search_placeholder': '搜索歌曲、艺术家、专辑...',
+        'search_button': '搜索',
+        'song_type': '歌曲',
+        'artist_type': '艺术家',
+        'album_type': '专辑',
+        'playlist_type': '播放列表',
+        'search_prompt': '搜索音乐开始',
+        'load_more': '加载更多',
+        'not_playing': '未播放',
+        'select_song_prompt': '选择歌曲播放',
+        'enter_search_keywords': '请输入搜索关键词',
+        'api_config_needed': '{source}需要API配置。请点击"配置API密钥"按钮。',
+        'loading': '加载中',
+        'no_preview_available': '此曲目无预览',
+        'cannot_play_track': '无法播放此曲目。可能需要授权或URL无效。',
+        'no_results_found': '未找到结果',
+        'no_download_available': '此曲目无法下载',
+        'download_failed': '下载失败。请重试或使用直接下载。',
+        'search_results_count': '找到 {count} 个结果',
+        'searching_artist_songs': '正在搜索 {artist} 的歌曲',
+        'searching_album_songs': '正在搜索专辑: {album}',
+        'artist': '艺术家',
+        'album': '专辑',
+        'load_failed': '加载失败，请重试',
+        'configure_api_keys': '配置API密钥',
+        'api_key_config_description': '配置音乐服务的API密钥。这些密钥将保存到服务器配置文件中。',
+        'spotify_api_keys': 'Spotify API密钥',
+        'youtube_api_key': 'YouTube API密钥',
+        'soundcloud_client_id': 'SoundCloud客户端ID',
+        'client_id': '客户端ID',
+        'client_secret': '客户端密钥',
+        'api_key': 'API密钥',
+        'save_keys': '保存密钥',
+        'load_current_keys': '加载当前密钥',
+        'test_api': '测试API',
+        'loading_keys': '正在加载当前API密钥...',
+        'keys_loaded': 'API密钥加载成功',
+        'failed_to_load_keys': '加载API密钥失败',
+        'no_keys_to_save': '没有密钥需要保存',
+        'saving_keys': '正在保存API密钥...',
+        'keys_saved_successfully': 'API密钥保存成功',
+        'failed_to_save_keys': '保存API密钥失败',
+        'connection_error': '连接错误',
+        'get_from': '获取地址:',
+        'soundcloud_key_hint': 'SoundCloud API需要OAuth认证',
+        'api_status': 'API状态',
+        'checking_api_status': '正在检查API状态...',
+        'playing': '正在播放',
+        'open_on_youtube': '在 YouTube 上打开',
+        'play_all': '播放全部',
+        'results_count': '{count}个',
+        'testing_api_connections': '正在测试API连接...',
+        'connection_failed': '连接失败',
+        'api_working': 'API正常工作',
+        'api_not_configured': 'API未配置',
+        'api_test_complete': 'API测试完成',
+        'success_count': '成功: {count}/{total}',
+        'stop_all': '停止全部',
+        'keys_backup_tip': "导出/导入 API密钥配置",
+        'export_keys': "导出密钥", 
+        'import_keys': "导入密钥",
+        'keys_exported': "API密钥导出成功",
+        'keys_imported': "API密钥导入成功", 
+        'import_error': "导入备份文件错误", 
+        'play_now': '立即播放',
+        'video_info': '视频信息',
+        'items': '个项目',
+        'picture_in_picture': '画中画',
+        'shortcuts_hint': 'A - 上一首\nS - 播放/暂停\nD - 下一首\nW - 画中画\nQ - 播放列表\nE - 搜索',
         'command_install_label': '命令安装'
     },
     'hk': {
@@ -492,8 +587,6 @@ const languageTranslations = {
         'theme_dark': '暗色模式',
         'theme_light': '亮色模式',
         'visit_github': '訪問 GitHub',
-        'animation_enable': '開啟動畫',
-        'animation_disable': '關閉動畫',
         'font_default': '預設字體',
         'font_rounded': '圓潤字體',
         'font_serif': '襯線字體',
@@ -527,6 +620,103 @@ const languageTranslations = {
         'guide_theme_settings': '5. 主題設定：支援自訂背景，模式切換需清除背景',
         'guide_mode_switching': '6. 模式切換：圖片/影片模式，只適用於暗色模式',
         'guide_project_link': '7. 項目地址：',
+        'advancedColorControlSubtitle': 'HueMatrix 2.0 — 次世代色彩引擎',
+        'update_available': '有可用更新',
+        'new_version_available': '有新的主題版本可用',
+        'update_now': '立即更新',
+        'toggle_visualizer': '切換視覺效果',
+        'switch_interface': '切換介面',
+        'message_add_card_layout': '添加卡片佈局',
+        'message_remove_card_layout': '刪除卡片佈局',
+        'message_processing': '處理中...',
+        'message_card_layout_added': '已添加卡片佈局',
+        'message_card_layout_removed': '已刪除卡片佈局',
+        'node_order_save_success': '保存當前頁面順序成功。',
+        'auto_check_updates': '啟用自動更新檢查',
+        'auto_check_enabled': '自動更新檢查已啟用',
+        'auto_check_disabled': '自動更新檢查已停用',
+        'animation_settings': '動畫設置',
+        'cube_lights': '方塊燈光',
+        'cube_animation': '方塊動畫',
+        'snow_animation': '雪花動畫',
+        'status_on': '開啟',
+        'status_off': '關閉',
+        'log_cube_lights_on': '開啟方塊燈光動畫',
+        'log_cube_lights_off': '關閉方塊燈光動畫',
+        'log_cube_anim_on': '開啟方塊動畫',
+        'log_cube_anim_off': '關閉方塊動畫',
+        'log_snow_on': '開啟雪花動畫',
+        'log_snow_off': '關閉雪花動畫',
+        'online_music_search': '線上音樂搜尋',
+        'search_placeholder': '搜尋歌曲、歌手、專輯...',
+        'search_button': '搜尋',
+        'song_type': '歌曲',
+        'artist_type': '藝術家',
+        'album_type': '專輯',
+        'playlist_type': '播放清單',
+        'search_prompt': '搜尋音樂開始',
+        'load_more': '載入更多',
+        'not_playing': '未播放',
+        'select_song_prompt': '選擇歌曲播放',
+        'enter_search_keywords': '請輸入搜尋關鍵字',
+        'api_config_needed': '{source}需要API配置。請點擊"配置API密鑰"按鈕。',
+        'loading': '載入中',
+        'no_preview_available': '此曲目無預覽',
+        'cannot_play_track': '無法播放此曲目。可能需要授權或網址無效。',
+        'no_results_found': '未找到結果',
+        'no_download_available': '此曲目無法下載',
+        'download_failed': '下載失敗。請重試或使用直接下載。',
+        'search_results_count': '找到 {count} 個結果',
+        'searching_artist_songs': '正在搜尋 {artist} 的歌曲',
+        'searching_album_songs': '正在搜尋專輯: {album}',
+        'artist': '藝術家',
+        'album': '專輯',
+        'configure_api_keys': '配置API密鑰',
+        'api_key_config_description': '配置音樂服務的API密鑰。這些密鑰將保存到伺服器配置文件中。',
+        'spotify_api_keys': 'Spotify API密鑰',
+        'youtube_api_key': 'YouTube API密鑰',
+        'soundcloud_client_id': 'SoundCloud客戶端ID',
+        'client_id': '客戶端ID',
+        'client_secret': '客戶端密鑰',
+        'api_key': 'API密鑰',
+        'save_keys': '保存密鑰',
+        'load_current_keys': '加載當前密鑰',
+        'test_api': '測試API',
+        'loading_keys': '正在加載當前API密鑰...',
+        'keys_loaded': 'API密鑰加載成功',
+        'failed_to_load_keys': '加載API密鑰失敗',
+        'no_keys_to_save': '沒有密鑰需要保存',
+        'saving_keys': '正在保存API密鑰...',
+        'keys_saved_successfully': 'API密鑰保存成功',
+        'failed_to_save_keys': '保存API密鑰失敗',
+        'connection_error': '連接錯誤',
+        'get_from': '獲取地址:',
+        'soundcloud_key_hint': 'SoundCloud API需要OAuth認證',
+        'api_status': 'API狀態',
+        'checking_api_status': '正在檢查API狀態...',
+        'load_failed': '加載失敗，請重試',
+        'playing': '正在播放',
+        'open_on_youtube': '在 YouTube 上打開',
+        'play_all': '播放全部',
+        'results_count': '{count}個結果',
+        'testing_api_connections': '正在測試API連接...',
+        'connection_failed': '連接失敗',
+        'api_working': 'API正常運作',
+        'api_not_configured': 'API未配置',
+        'api_test_complete': 'API測試完成',
+        'success_count': '成功: {count}/{total}',
+        'stop_all': '停止全部',
+        'keys_backup_tip': "導出/導入 API密鑰配置",
+        'export_keys': "導出密鑰", 
+        'import_keys': "導入密鑰",
+        'keys_exported': "API密鑰導出成功",
+        'keys_imported': "API密鑰導入成功", 
+        'import_error': "導入備份文件錯誤", 
+        'play_now': '立即播放',
+        'video_info': '影片資訊',
+        'items': '個項目',
+        'picture_in_picture': '子母畫面',
+        'shortcuts_hint': 'A - 上一首\nS - 播放／暫停\nD - 下一首\nW - 子母畫面\nQ - 播放清單\nE - 搜尋',
         'theme_download': '主題下載'
     },
     'en': {
@@ -761,8 +951,6 @@ const languageTranslations = {
         'theme_dark': 'Dark Mode',
         'theme_light': 'Light Mode',
         'visit_github': 'Visit GitHub',
-        'animation_enable': 'Enable Animation',
-        'animation_disable': 'Disable Animation',
         'font_default': 'Default Font',
         'font_rounded': 'Rounded Font',
         'font_serif': 'Serif Font',
@@ -796,6 +984,103 @@ const languageTranslations = {
         'guide_theme_settings': '5. Theme Settings: Support custom backgrounds, clear background for mode switching',
         'guide_mode_switching': '6. Mode Switching: Image/Video modes only work in dark mode',
         'guide_project_link': '7. Project Address:',
+        'advancedColorControlSubtitle': 'HueMatrix 2.0 — Next-Generation Color Engine',
+        'update_available': 'Update Available',
+        'new_version_available': 'A new theme version is available',
+        'update_now': 'Update Now',
+        'toggle_visualizer': 'Toggle Visualizer',
+        'switch_interface': 'Switch Interface',
+        'message_add_card_layout': 'Add Card Layout',
+        'message_remove_card_layout': 'Remove Card Layout',
+        'message_processing': 'Processing...',
+        'message_card_layout_added': 'Card layout added',
+        'message_card_layout_removed': 'Card layout removed',
+        'node_order_save_success': 'Page order saved successfully.',
+        'auto_check_updates': 'Enable automatic update checking',
+        'auto_check_enabled': 'Automatic update checking enabled',
+        'auto_check_disabled': 'Automatic update checking disabled',
+        'animation_settings': 'Animation Settings',
+        'cube_lights': 'Cube Lights',
+        'cube_animation': 'Cube Animation',
+        'snow_animation': 'Snow Animation',
+        'status_on': 'On',
+        'status_off': 'Off',
+        'log_cube_lights_on': 'Cube lights enabled',
+        'log_cube_lights_off': 'Cube lights disabled',
+        'log_cube_anim_on': 'Cube animation enabled',
+        'log_cube_anim_off': 'Cube animation disabled',
+        'log_snow_on': 'Snow animation enabled',
+        'log_snow_off': 'Snow animation disabled',
+        'online_music_search': 'Online Music Search',
+        'search_placeholder': 'Search for songs, artists, albums...',
+        'search_button': 'Search',
+        'song_type': 'Songs',
+        'artist_type': 'Artists',
+        'album_type': 'Albums',
+        'playlist_type': 'Playlists',
+        'search_prompt': 'Search for music to get started',
+        'load_more': 'Load More',
+        'not_playing': 'Not Playing',
+        'select_song_prompt': 'Select a song to play',
+        'enter_search_keywords': 'Please enter search keywords',
+        'api_config_needed': '{source} requires API configuration. Click the "Configure API Keys" button.',
+        'loading': 'Loading',
+        'no_preview_available': 'No preview available for this track',
+        'cannot_play_track': 'Cannot play this track. It may require authorization or the URL is invalid.',
+        'no_results_found': 'No results found',
+        'no_download_available': 'No download available for this track',
+        'download_failed': 'Download failed. Please try again or use direct download.',
+        'search_results_count': 'Found {count} results',
+        'searching_artist_songs': 'Searching songs by {artist}',
+        'searching_album_songs': 'Searching album: {album}',
+        'artist': 'Artist',
+        'configure_api_keys': 'Configure API Keys',
+        'api_key_config_description': 'Configure API keys for music services. These keys will be saved to the server configuration file.',
+        'spotify_api_keys': 'Spotify API Keys',
+        'youtube_api_key': 'YouTube API Key',
+        'soundcloud_client_id': 'SoundCloud Client ID',
+        'client_id': 'Client ID',
+        'client_secret': 'Client Secret',
+        'api_key': 'API Key',
+        'save_keys': 'Save Keys',
+        'load_current_keys': 'Load Current Keys',
+        'test_api': 'Test API',
+        'loading_keys': 'Loading current API keys...',
+        'keys_loaded': 'API keys loaded successfully',
+        'failed_to_load_keys': 'Failed to load API keys',
+        'no_keys_to_save': 'No keys to save',
+        'saving_keys': 'Saving API keys...',
+        'keys_saved_successfully': 'API keys saved successfully',
+        'failed_to_save_keys': 'Failed to save API keys',
+        'connection_error': 'Connection error',
+        'get_from': 'Get keys from:',
+        'soundcloud_key_hint': 'SoundCloud API requires OAuth authentication',
+        'api_status': 'API Status',
+        'checking_api_status': 'Checking API status...',
+        'album': 'Album',
+        'load_failed': 'Failed to load more results',
+        'playing': 'Playing',
+        'open_on_youtube': 'Open on YouTube',
+        'play_all': 'Play All',
+        'results_count': '{count} results',
+        'testing_api_connections': 'Testing API connections...',
+        'connection_failed': 'Connection failed',
+        'api_working': 'API is working',
+        'api_not_configured': 'API not configured',
+        'api_test_complete': 'API test complete',
+        'success_count': 'Success: {count}/{total}',
+        'stop_all': 'Stop All',
+        'keys_backup_tip': "Export/Import API keys configuration",
+        'export_keys': "Export keys", 
+        'import_keys': "Import keys",
+        'keys_exported': "API keys exported successfully",
+        'keys_imported': "API keys imported successfully", 
+        'import_error': "Error importing backup file", 
+        'play_now': 'Play Now',
+        'video_info': 'Video Info',
+        'items': 'items',
+        'picture_in_picture': 'Picture-in-Picture',
+        'shortcuts_hint': 'A - Previous\nS - Play/Pause\nD - Next\nW - PiP\nQ - Playlist\nE - Search',
         'theme_download': 'Theme download'
     },
     'ko': {
@@ -829,6 +1114,7 @@ const languageTranslations = {
         'timeout': '연결 시간 초과',
         'selectBackgroundColor': '배경색 선택',
         'backgroundColorApplied': '배경색 %s 이(가) 성공적으로 적용되었습니다.',
+        'edit_ip_database': 'IP 데이터베이스 편집',
         'close': '닫기',
         'fullscreen': '전체 화면 (F11)',
         'json_error': 'JSON 형식 오류!',
@@ -1020,8 +1306,6 @@ const languageTranslations = {
         'theme_dark': '다크 모드',
         'theme_light': '라이트 모드',
         'visit_github': 'GitHub 방문',
-        'animation_enable': '애니메이션 활성화',
-        'animation_disable': '애니메이션 비활성화',
         'font_default': '기본 글꼴',
         'font_rounded': '둥근 글꼴',
         'font_serif': '세리프 글꼴',
@@ -1055,6 +1339,103 @@ const languageTranslations = {
         'guide_theme_settings': '5. 테마 설정: 사용자 정의 배경 지원, 모드 전환 시 배경 지우기',
         'guide_mode_switching': '6. 모드 전환: 이미지/비디오 모드는 다크 모드에서만 작동',
         'guide_project_link': '7. 프로젝트 주소:',
+        'advancedColorControlSubtitle': 'HueMatrix 2.0 — 차세대 컬러 엔진',
+        'update_available': '업데이트 가능',
+        'new_version_available': '새 테마 버전이 있습니다',
+        'update_now': '지금 업데이트',
+        'toggle_visualizer': '비주얼라이저 전환',
+        'switch_interface': '인터페이스 전환',
+        'message_add_card_layout': '카드 레이아웃 추가',
+        'message_remove_card_layout': '카드 레이아웃 삭제',
+        'message_processing': '처리 중...',
+        'message_card_layout_added': '카드 레이아웃이 추가되었습니다',
+        'node_order_save_success': '현재 페이지 순서가 성공적으로 저장되었습니다.',
+        'message_card_layout_removed': '카드 레이아웃이 삭제되었습니다',
+        'auto_check_updates': '자동 업데이트 확인 사용',
+        'auto_check_enabled': '자동 업데이트 확인이 활성화되었습니다',
+        'auto_check_disabled': '자동 업데이트 확인이 비활성화되었습니다',
+        'animation_settings': '애니메이션 설정',
+        'cube_lights': '큐브 조명',
+        'cube_animation': '큐브 애니메이션',
+        'snow_animation': '눈송이 애니메이션',
+        'status_on': '켜기',
+        'status_off': '끄기',
+        'log_cube_lights_on': '큐브 조명 활성화',
+        'log_cube_lights_off': '큐브 조명 비활성화',
+        'log_cube_anim_on': '큐브 애니메이션 활성화',
+        'log_cube_anim_off': '큐브 애니메이션 비활성화',
+        'log_snow_on': '눈송이 애니메이션 활성화',
+        'log_snow_off': '눈송이 애니메이션 비활성화',
+        'online_music_search': '온라인 음악 검색',
+        'search_placeholder': '노래, 아티스트, 앨범 검색...',
+        'search_button': '검색',
+        'song_type': '노래',
+        'artist_type': '아티스트',
+        'album_type': '앨범',
+        'playlist_type': '재생목록',
+        'search_prompt': '음악 검색을 시작하세요',
+        'load_more': '더보기',
+        'not_playing': '재생 중 아님',
+        'select_song_prompt': '재생할 노래 선택',
+        'enter_search_keywords': '검색어를 입력하세요',
+        'api_config_needed': '{source}에는 API 구성이 필요합니다. "API 키 구성" 버튼을 클릭하세요.',
+        'loading': '로딩 중',
+        'no_preview_available': '이 트랙에 대한 미리듣기를 사용할 수 없습니다',
+        'cannot_play_track': '이 트랙을 재생할 수 없습니다. 인증이 필요하거나 URL이 유효하지 않을 수 있습니다.',
+        'no_results_found': '결과를 찾을 수 없습니다',
+        'no_download_available': '이 트랙은 다운로드할 수 없습니다',
+        'download_failed': '다운로드 실패. 다시 시도하거나 직접 다운로드를 사용하세요.',
+        'search_results_count': '{count}개의 결과가 있습니다',
+        'searching_artist_songs': '{artist}의 곡을 검색 중',
+        'searching_album_songs': '앨범 검색 중: {album}',
+        'artist': '아티스트',
+        'album': '앨범',
+        'load_failed': '결과를 로드하는 데 실패했습니다',
+        'configure_api_keys': 'API 키 구성',
+        'api_key_config_description': '음악 서비스용 API 키를 구성하십시오. 이 키는 서버 구성 파일에 저장됩니다.',
+        'spotify_api_keys': 'Spotify API 키',
+        'youtube_api_key': 'YouTube API 키',
+        'soundcloud_client_id': 'SoundCloud 클라이언트 ID',
+        'client_id': '클라이언트 ID',
+        'client_secret': '클라이언트 비밀',
+        'api_key': 'API 키',
+        'save_keys': '키 저장',
+        'load_current_keys': '현재 키 로드',
+        'test_api': 'API 테스트',
+        'loading_keys': '현재 API 키 로딩 중...',
+        'keys_loaded': 'API 키 로딩 성공',
+        'failed_to_load_keys': 'API 키 로딩 실패',
+        'no_keys_to_save': '저장할 키가 없습니다',
+        'saving_keys': 'API 키 저장 중...',
+        'keys_saved_successfully': 'API 키 저장 성공',
+        'failed_to_save_keys': 'API 키 저장 실패',
+        'connection_error': '연결 오류',
+        'get_from': '키 가져오기:',
+        'soundcloud_key_hint': 'SoundCloud API는 OAuth 인증이 필요합니다',
+        'api_status': 'API 상태',
+        'checking_api_status': 'API 상태 확인 중...',
+        'playing': '재생 중',
+        'open_on_youtube': 'YouTube에서 열기',
+        'play_all': '모두 재생',
+        'results_count': '{count}개의 결과',
+        'testing_api_connections': 'API 연결 테스트 중...',
+        'connection_failed': '연결 실패',
+        'api_working': 'API 작동 중',
+        'api_not_configured': 'API가 구성되지 않음',
+        'api_test_complete': 'API 테스트 완료',
+        'success_count': '성공: {count}/{total}',
+        'stop_all': '모두 멈춤',
+        'keys_backup_tip': "API 키 구성 내보내기/가져오기",
+        'export_keys': "키 내보내기", 
+        'import_keys': "키 가져오기",
+        'keys_exported': "API 키 내보내기 성공",
+        'keys_imported': "API 키 가져오기 성공", 
+        'import_error': "백업 파일 가져오기 오류", 
+        'play_now': '지금 재생',
+        'video_info': '동영상 정보',
+        'items': '개 항목',
+        'picture_in_picture': '화면 속 화면',
+        'shortcuts_hint': 'A - 이전 곡\nS - 재생/일시정지\nD - 다음 곡\nW - 화면 속 화면\nQ - 재생목록\nE - 검색',
         'theme_download': '테마 다운로드'
     },
     'vi': {
@@ -1085,9 +1466,9 @@ const languageTranslations = {
         'voice_enable': 'Phát thanh giọng nói đã bật',
         'voice_disable': 'Phát thanh giọng nói đã tắt',
         'ping': 'Độ trễ',
-        'timeout': 'Hết thời gian kết nối',
+        'timeout': 'Quá thời gian chờ',
         'selectBackgroundColor': 'Chọn màu nền',
-        'backgroundColorApplied': 'Màu nền %s đã được áp dụng thành công.',
+        'backgroundColorApplied': 'Đã áp dụng thành công màu nền %s.',
         'edit_ip_database': 'Chỉnh sửa cơ sở dữ liệu IP',
         'close': 'Đóng',
         'fullscreen': 'Toàn màn hình (F11)',
@@ -1103,7 +1484,7 @@ const languageTranslations = {
         'tool_icons': "Biểu tượng công cụ",
         'weather_info': "Thông tin thời tiết",
         'ip_info': "Thông tin IP",
-        'site_status': "Trạng thái trang web",
+        'site_status': "Tình trạng website",
         'status_show': "Hiển thị", 
         'status_hide': "Ẩn",
         'reset_all': "Đặt lại tất cả cài đặt",
@@ -1117,7 +1498,7 @@ const languageTranslations = {
         'next_track': 'Bài hát tiếp theo',
         'repeat_mode': 'Chế độ phát lại',
         'toggle_floating_lyrics': 'Lời bài hát nổi',
-        'custom_playlist': 'Danh sách phát tùy chỉnh',
+        'custom_playlist': 'Danh sách phát tùy chọn',
         'volume': 'Âm lượng',
         'update_playlist': 'Cập nhật danh sách phát',
         'playlist_url': 'Địa chỉ danh sách phát',
@@ -1171,7 +1552,7 @@ const languageTranslations = {
         'unable_to_fetch_current_version': 'Không thể lấy phiên bản hiện tại...',
         'current_version': 'Phiên bản hiện tại',
         'copy_command': 'Sao chép lệnh',
-        'command_copied': 'Lệnh đã được sao chép vào clipboard!',
+        'command_copied': 'Đã sao chép lệnh vào bộ nhớ tạm!',
         'updateModalLabel': 'Trạng thái cập nhật',
         'updateDescription': 'Quá trình cập nhật sắp bắt đầu.',
         'waitingMessage': 'Đang chờ thực hiện...',
@@ -1244,7 +1625,7 @@ const languageTranslations = {
         'advancedColorControl': 'Điều khiển màu nâng cao',
         'colorControl': 'Điều khiển màu',
         'hue': 'Sắc độ',
-        'chroma': 'Độ bão hoà',
+        'chroma': 'Độ sắc',
         'lightness': 'Độ sáng',
         'colorPreview': 'Xem trước màu',
         'currentColor': 'Màu hiện tại',
@@ -1267,10 +1648,10 @@ const languageTranslations = {
         'presetColors': 'Màu cài sẵn',
         'presetColorApplied': 'Màu cài sẵn %s đã áp dụng',
         'contrastFair': 'Trung bình',
-        'background_sound': 'Âm thanh nền',
+        'background_sound': 'Hiệu ứng âm thanh',
         'mode_video': 'Chế độ video',
         'mode_image': 'Chế độ hình ảnh',
-        'mode_solid': 'Chế độ tối',
+        'mode_solid': 'Nền màu thuần',
         'mode_auto': 'Chế độ tự động',
         'control_panel': 'Bảng điều khiển',
         'set_city': 'Đặt thành phố',
@@ -1280,8 +1661,6 @@ const languageTranslations = {
         'theme_dark': 'Chế độ tối',
         'theme_light': 'Chế độ sáng',
         'visit_github': 'Truy cập GitHub',
-        'animation_enable': 'Bật hoạt ảnh',
-        'animation_disable': 'Tắt hoạt ảnh',
         'font_default': 'Phông chữ mặc định',
         'font_rounded': 'Phông chữ tròn',
         'font_serif': 'Phông chữ serif',
@@ -1292,7 +1671,7 @@ const languageTranslations = {
         'fit_contain': 'Tỷ lệ bình thường',
         'fit_fill': 'Kéo dài đầy',
         'fit_none': 'Kích thước gốc',
-        'fit_scale_down': 'Vừa vặn thông minh',
+        'fit_scale_down': 'Thu nhỏ cho vừa',
         'fit_cover': 'Cắt mặc định',
         'usage_guide': 'Hướng dẫn sử dụng',
         'message_switch_to_light': 'Chuyển sang chế độ sáng',
@@ -1315,6 +1694,103 @@ const languageTranslations = {
         'guide_theme_settings': '5. Cài đặt chủ đề: Hỗ trợ nền tùy chỉnh, xóa nền khi chuyển đổi chế độ',
         'guide_mode_switching': '6. Chuyển đổi chế độ: Chế độ hình ảnh/video chỉ hoạt động ở chế độ tối',
         'guide_project_link': '7. Địa chỉ dự án:',
+        'advancedColorControlSubtitle': 'HueMatrix 2.0 — Động cơ màu thế hệ mới',
+        'update_available': 'Có bản cập nhật',
+        'new_version_available': 'Có phiên bản chủ đề mới',
+        'update_now': 'Cập nhật ngay',
+        'toggle_visualizer': 'Chuyển trình trực quan',
+        'switch_interface': 'Chuyển giao diện',
+        'message_add_card_layout': 'Thêm bố cục thẻ',
+        'message_remove_card_layout': 'Xóa bố cục thẻ',
+        'message_processing': 'Đang xử lý...',
+        'message_card_layout_added': 'Đã thêm bố cục thẻ',
+        'message_card_layout_removed': 'Đã xóa bố cục thẻ',
+        'node_order_save_success': 'Lưu thứ tự trang hiện tại thành công.',
+        'auto_check_updates': 'Bật kiểm tra cập nhật tự động',
+        'auto_check_enabled': 'Đã bật kiểm tra cập nhật tự động',
+        'auto_check_disabled': 'Đã tắt kiểm tra cập nhật tự động',
+        'animation_settings': 'Cài đặt hoạt ảnh',
+        'cube_lights': 'Đèn khối lập phương',
+        'cube_animation': 'Hoạt ảnh khối lập phương',
+        'snow_animation': 'Hoạt ảnh tuyết',
+        'status_on': 'Bật',
+        'status_off': 'Tắt',
+        'log_cube_lights_on': 'Bật đèn khối lập phương',
+        'log_cube_lights_off': 'Tắt đèn khối lập phương',
+        'log_cube_anim_on': 'Bật hoạt ảnh khối lập phương',
+        'log_cube_anim_off': 'Tắt hoạt ảnh khối lập phương',
+        'log_snow_on': 'Bật hoạt ảnh tuyết',
+        'log_snow_off': 'Tắt hoạt ảnh tuyết',
+        'online_music_search': 'Tìm kiếm Âm nhạc Trực tuyến',
+        'search_placeholder': 'Tìm kiếm bài hát, nghệ sĩ, album...',
+        'search_button': 'Tìm kiếm',
+        'song_type': 'Bài hát',
+        'artist_type': 'Nghệ sĩ',
+        'album_type': 'Album',
+        'playlist_type': 'Danh sách phát',
+        'search_prompt': 'Tìm kiếm âm nhạc để bắt đầu',
+        'load_more': 'Tải thêm',
+        'not_playing': 'Không phát',
+        'select_song_prompt': 'Chọn bài hát để phát',
+        'enter_search_keywords': 'Vui lòng nhập từ khóa tìm kiếm',
+        'api_config_needed': '{source} cần cấu hình API. Nhấn nút "Cấu hình API Key".',
+        'loading': 'Đang tải',
+        'no_preview_available': 'Không có bản xem trước cho bài hát này',
+        'cannot_play_track': 'Không thể phát bài hát này. Có thể cần ủy quyền hoặc URL không hợp lệ.',
+        'no_results_found': 'Không tìm thấy kết quả',
+        'no_download_available': 'Không thể tải xuống bài hát này',
+        'download_failed': 'Tải xuống thất bại. Vui lòng thử lại hoặc sử dụng tải xuống trực tiếp.',
+        'search_results_count': 'Tìm thấy {count} kết quả',
+        'searching_artist_songs': 'Đang tìm kiếm bài hát của {artist}',
+        'searching_album_songs': 'Đang tìm kiếm album: {album}',
+        'artist': 'Nghệ sĩ',
+        'album': 'Album',
+        'load_failed': 'Tải kết quả thất bại',
+        'configure_api_keys': 'Cấu hình API Key',
+        'api_key_config_description': 'Cấu hình API key cho các dịch vụ âm nhạc. Các key này sẽ được lưu vào tệp cấu hình của server.',
+        'spotify_api_keys': 'Spotify API Keys',
+        'youtube_api_key': 'YouTube API Key',
+        'soundcloud_client_id': 'SoundCloud Client ID',
+        'client_id': 'Client ID',
+        'client_secret': 'Client Secret',
+        'api_key': 'API Key',
+        'save_keys': 'Lưu Key',
+        'load_current_keys': 'Tải Key hiện tại',
+        'test_api': 'Kiểm tra API',
+        'loading_keys': 'Đang tải các API key hiện tại...',
+        'keys_loaded': 'API key đã được tải thành công',
+        'failed_to_load_keys': 'Không thể tải API key',
+        'no_keys_to_save': 'Không có key nào để lưu',
+        'saving_keys': 'Đang lưu API key...',
+        'keys_saved_successfully': 'API key đã lưu thành công',
+        'failed_to_save_keys': 'Lưu API key thất bại',
+        'connection_error': 'Lỗi kết nối',
+        'get_from': 'Lấy key từ:',
+        'soundcloud_key_hint': 'API SoundCloud yêu cầu xác thực OAuth',
+        'api_status': 'Trạng thái API',
+        'checking_api_status': 'Đang kiểm tra trạng thái API...',
+        'playing': 'Đang phát',
+        'open_on_youtube': 'Mở trên YouTube',
+        'play_all': 'Phát tất cả',
+        'results_count': '{count} kết quả',
+        'testing_api_connections': 'Đang kiểm tra kết nối API...',
+        'connection_failed': 'Kết nối thất bại',
+        'api_working': 'API hoạt động',
+        'api_not_configured': 'API chưa được cấu hình',
+        'api_test_complete': 'Kiểm tra API hoàn tất',
+        'success_count': 'Thành công: {count}/{total}',
+        'stop_all': 'Dừng tất cả',
+        'keys_backup_tip': "Xuất/nhập cấu hình khóa API",
+        'export_keys': "Xuất khóa", 
+        'import_keys': "Nhập khóa",
+        'keys_exported': "Khóa API đã được xuất thành công",
+        'keys_imported': "Khóa API đã được nhập thành công", 
+        'import_error': "Lỗi khi nhập tệp sao lưu", 
+        'play_now': 'Phát ngay',
+        'video_info': 'Thông tin video',
+        'items': 'mục',
+        'picture_in_picture': 'Hình trong hình',
+        'shortcuts_hint': 'A - Bài trước\nS - Phát/Tạm dừng\nD - Bài tiếp theo\nW - Hình trong hình\nQ - Danh sách phát\nE - Tìm kiếm',
         'theme_download': 'Tải chủ đề'
     },
     'th': {
@@ -1540,8 +2016,6 @@ const languageTranslations = {
         'theme_dark': 'โหมดมืด',
         'theme_light': 'โหมดสว่าง',
         'visit_github': 'เยี่ยมชม GitHub',
-        'animation_enable': 'เปิดแอนิเมชัน',
-        'animation_disable': 'ปิดแอนิเมชัน',
         'font_default': 'ฟอนต์เริ่มต้น',
         'font_rounded': 'ฟอนต์กลม',
         'font_serif': 'ฟอนต์ Serif',
@@ -1575,6 +2049,103 @@ const languageTranslations = {
         'guide_theme_settings': '5. การตั้งค่าธีม: รองรับพื้นหลังที่กำหนดเอง ล้างพื้นหลังเมื่อเปลี่ยนโหมด',
         'guide_mode_switching': '6. การเปลี่ยนโหมด: โหมดภาพ/วิดีโอ ทำงานในโหมดมืดเท่านั้น',
         'guide_project_link': '7. ที่อยู่โครงการ:',
+        'advancedColorControlSubtitle': 'HueMatrix 2.0 — เครื่องมือสีรุ่นใหม่',
+        'update_available': 'มีการอัปเดต',
+        'new_version_available': 'มีเวอร์ชันธีมใหม่พร้อมใช้งาน',
+        'update_now': 'อัปเดตทันที',
+        'toggle_visualizer': 'สลับตัวแสดงภาพ',
+        'switch_interface': 'สลับอินเทอร์เฟซ',
+        'message_add_card_layout': 'เพิ่มเค้าโครงการ์ด',
+        'message_remove_card_layout': 'ลบเค้าโครงการ์ด',
+        'message_processing': 'กำลังประมวลผล...',
+        'message_card_layout_added': 'เพิ่มเค้าโครงการ์ดแล้ว',
+        'message_card_layout_removed': 'ลบเค้าโครงการ์ดแล้ว',
+        'node_order_save_success': 'บันทึกลำดับหน้าปัจจุบันเรียบร้อยแล้ว',
+        'auto_check_updates': 'เปิดการตรวจสอบการอัปเดตอัตโนมัติ',
+        'auto_check_enabled': 'เปิดการตรวจสอบการอัปเดตอัตโนมัติแล้ว',
+        'auto_check_disabled': 'ปิดการตรวจสอบการอัปเดตอัตโนมัติแล้ว',
+        'animation_settings': 'การตั้งค่ากราฟิกเคลื่อนไหว',
+        'cube_lights': 'ไฟลูกบาศก์',
+        'cube_animation': 'แอนิเมชันลูกบาศก์',
+        'snow_animation': 'แอนิเมชันหิมะ',
+        'status_on': 'เปิด',
+        'status_off': 'ปิด',
+        'log_cube_lights_on': 'เปิดไฟลูกบาศก์',
+        'log_cube_lights_off': 'ปิดไฟลูกบาศก์',
+        'log_cube_anim_on': 'เปิดแอนิเมชันลูกบาศก์',
+        'log_cube_anim_off': 'ปิดแอนิเมชันลูกบาศก์',
+        'log_snow_on': 'เปิดแอนิเมชันหิมะ',
+        'log_snow_off': 'ปิดแอนิเมชันหิมะ',
+        'online_music_search': 'ค้นหาดนตรีออนไลน์',
+        'search_placeholder': 'ค้นหาเพลง ศิลปิน อัลบั้ม...',
+        'search_button': 'ค้นหา',
+        'song_type': 'เพลง',
+        'artist_type': 'ศิลปิน',
+        'album_type': 'อัลบั้ม',
+        'playlist_type': 'เพลย์ลิสต์',
+        'search_prompt': 'ค้นหาดนตรีเพื่อเริ่มต้น',
+        'load_more': 'โหลดเพิ่ม',
+        'not_playing': 'ไม่เล่น',
+        'select_song_prompt': 'เลือกเพลงที่จะเล่น',
+        'enter_search_keywords': 'กรุณาใส่คำค้นหา',
+        'api_config_needed': '{source} ต้องการการตั้งค่า API. คลิกที่ปุ่ม "ตั้งค่า API Key".',
+        'loading': 'กำลังโหลด',
+        'no_preview_available': 'ไม่มีตัวอย่างสำหรับเพลงนี้',
+        'cannot_play_track': 'ไม่สามารถเล่นเพลงนี้ได้ อาจต้องมีการอนุญาตหรือ URL ไม่ถูกต้อง',
+        'no_results_found': 'ไม่พบผลลัพธ์',
+        'no_download_available': 'ไม่สามารถดาวน์โหลดเพลงนี้ได้',
+        'download_failed': 'ดาวน์โหลดล้มเหลว กรุณาลองอีกครั้งหรือใช้การดาวน์โหลดโดยตรง',
+        'search_results_count': 'พบ {count} ผลลัพธ์',
+        'searching_artist_songs': 'กำลังค้นหาเพลงของ {artist}',
+        'searching_album_songs': 'กำลังค้นหาอัลบั้ม: {album}',
+        'artist': 'ศิลปิน',
+        'album': 'อัลบั้ม',
+        'load_failed': 'ไม่สามารถโหลดผลลัพธ์ได้',
+        'configure_api_keys': 'ตั้งค่า API Key',
+        'api_key_config_description': 'ตั้งค่า API key สำหรับบริการเพลง Keys เหล่านี้จะถูกบันทึกลงในไฟล์การตั้งค่าเซิร์ฟเวอร์',
+        'spotify_api_keys': 'Spotify API Key',
+        'youtube_api_key': 'YouTube API Key',
+        'soundcloud_client_id': 'SoundCloud Client ID',
+        'client_id': 'Client ID',
+        'client_secret': 'Client Secret',
+        'api_key': 'API Key',
+        'save_keys': 'บันทึก Key',
+        'load_current_keys': 'โหลด Key ปัจจุบัน',
+        'test_api': 'ทดสอบ API',
+        'loading_keys': 'กำลังโหลด API Key ปัจจุบัน...',
+        'keys_loaded': 'โหลด API Key สำเร็จ',
+        'failed_to_load_keys': 'โหลด API Key ล้มเหลว',
+        'no_keys_to_save': 'ไม่มี Key ที่จะบันทึก',
+        'saving_keys': 'กำลังบันทึก API Key...',
+        'keys_saved_successfully': 'บันทึก API Key สำเร็จ',
+        'failed_to_save_keys': 'บันทึก API Key ล้มเหลว',
+        'connection_error': 'ข้อผิดพลาดในการเชื่อมต่อ',
+        'get_from': 'รับ Key จาก:',
+        'soundcloud_key_hint': 'API ของ SoundCloud ต้องการการยืนยัน OAuth',
+        'api_status': 'สถานะ API',
+        'checking_api_status': 'กำลังตรวจสอบสถานะ API...',
+        'playing': 'กำลังเล่น',
+        'open_on_youtube': 'เปิดใน YouTube',
+        'play_all': 'เล่นทั้งหมด',
+        'results_count': '{count} ผลลัพธ์',
+        'testing_api_connections': 'กำลังทดสอบการเชื่อมต่อ API...',
+        'connection_failed': 'การเชื่อมต่อล้มเหลว',
+        'api_working': 'API ทำงาน',
+        'api_not_configured': 'API ยังไม่ได้รับการตั้งค่า',
+        'api_test_complete': 'ทดสอบ API เสร็จสิ้น',
+        'success_count': 'สำเร็จ: {count}/{total}',
+        'stop_all': 'หยุดทั้งหมด',
+        'keys_backup_tip': "ส่งออก/นำเข้าการตั้งค่า API คีย์",
+        'export_keys': "ส่งออกคีย์", 
+        'import_keys': "นำเข้าคีย์",
+        'keys_exported': "ส่งออก API คีย์สำเร็จ",
+        'keys_imported': "นำเข้า API คีย์สำเร็จ", 
+        'import_error': "ข้อผิดพลาดในการนำเข้าผลลัพธ์สำรอง", 
+        'play_now': 'เล่นทันที',
+        'video_info': 'ข้อมูลวิดีโอ',
+        'items': 'รายการ',
+        'picture_in_picture': 'Hình trong hình',
+        'shortcuts_hint': 'A - เพลงก่อนหน้า\nS - เล่น/หยุดชั่วคราว\nD - เพลงถัดไป\nW - ภาพซ้อนภาพ\nQ - เพลย์ลิสต์\nE - ค้นหา',
         'theme_download': 'ดาวน์โหลดธีม'
     },
     'ja': {
@@ -1800,8 +2371,6 @@ const languageTranslations = {
         'theme_dark': 'ダークモード',
         'theme_light': 'ライトモード',
         'visit_github': 'GitHub を訪問',
-        'animation_enable': 'アニメーション有効',
-        'animation_disable': 'アニメーション無効',
         'font_default': 'デフォルトフォント',
         'font_rounded': '丸みフォント',
         'font_serif': 'セリフフォント',
@@ -1835,6 +2404,103 @@ const languageTranslations = {
         'guide_theme_settings': '5. テーマ設定：カスタム背景をサポート、モード切り替え時に背景をクリア',
         'guide_mode_switching': '6. モード切り替え：画像/ビデオモードはダークモードでのみ動作',
         'guide_project_link': '7. プロジェクトアドレス：',
+        'advancedColorControlSubtitle': 'HueMatrix 2.0 — 次世代カラーエンジン',
+        'update_available': '更新があります',
+        'new_version_available': '新しいテーマバージョンが利用可能です',
+        'update_now': '今すぐ更新',
+        'toggle_visualizer': 'ビジュアライザー切替',
+        'switch_interface': 'インターフェース切替',
+        'message_add_card_layout': 'カードレイアウトを追加',
+        'message_remove_card_layout': 'カードレイアウトを削除',
+        'message_processing': '処理中...',
+        'message_card_layout_added': 'カードレ이アウトが追加されました',
+        'message_card_layout_removed': 'カードレイ아ウトが削除されました',
+        'node_order_save_success': '現在のページ順序が正常に保存されました。',
+        'auto_check_updates': '自動更新チェックを有効にする',
+        'auto_check_enabled': '自動更新チェックが有効になりました',
+        'auto_check_disabled': '自動更新チェックが無効になりました',
+        'animation_settings': 'アニメーション設定',
+        'cube_lights': 'キューブライト',
+        'cube_animation': 'キューブアニメーション',
+        'snow_animation': '雪のアニメーション',
+        'status_on': 'オン',
+        'status_off': 'オフ',
+        'log_cube_lights_on': 'キューブライトを有効にしました',
+        'log_cube_lights_off': 'キューブライトを無効にしました',
+        'log_cube_anim_on': 'キューブアニメーションを有効にしました',
+        'log_cube_anim_off': 'キューブアニメーションを無効にしました',
+        'log_snow_on': '雪のアニメーションを有効にしました',
+        'log_snow_off': '雪のアニメーションを無効にしました',
+        'online_music_search': 'オンライン音楽検索',
+        'search_placeholder': '曲、アーティスト、アルバムを検索...',
+        'search_button': '検索',
+        'song_type': '曲',
+        'artist_type': 'アーティスト',
+        'album_type': 'アルバム',
+        'playlist_type': 'プレイリスト',
+        'search_prompt': '音楽を検索して開始',
+        'load_more': 'もっと読み込む',
+        'not_playing': '再生していません',
+        'select_song_prompt': '再生する曲を選択',
+        'enter_search_keywords': '検索キーワードを入力してください',
+        'api_config_needed': '{source}にはAPI設定が必要です。「APIキーの設定」ボタンをクリックしてください。',
+        'loading': '読み込み中',
+        'no_preview_available': 'このトラックのプレビューは利用できません',
+        'cannot_play_track': 'このトラックを再生できません。認証が必要な場合やURLが無効な可能性があります。',
+        'no_results_found': '結果が見つかりません',
+        'no_download_available': 'このトラックはダウンロードできません',
+        'download_failed': 'ダウンロードに失敗しました。再試行するか、直接ダウンロードをご利用ください。',
+        'search_results_count': '{count}件の結果が見つかりました',
+        'searching_artist_songs': '{artist}の曲を検索中',
+        'searching_album_songs': 'アルバム検索中: {album}',
+        'artist': 'アーティスト',
+        'album': 'アルバム',
+        'load_failed': '結果の読み込みに失敗しました',
+        'configure_api_keys': 'APIキーを設定',
+        'api_key_config_description': '音楽サービスのAPIキーを設定します。これらのキーはサーバー構成ファイルに保存されます。',
+        'spotify_api_keys': 'Spotify APIキー',
+        'youtube_api_key': 'YouTube APIキー',
+        'soundcloud_client_id': 'SoundCloudクライアントID',
+        'client_id': 'クライアントID',
+        'client_secret': 'クライアントシークレット',
+        'api_key': 'APIキー',
+        'save_keys': 'キーを保存',
+        'load_current_keys': '現在のキーを読み込む',
+        'test_api': 'APIをテスト',
+        'loading_keys': '現在のAPIキーを読み込んでいます...',
+        'keys_loaded': 'APIキーの読み込みに成功しました',
+        'failed_to_load_keys': 'APIキーの読み込みに失敗しました',
+        'no_keys_to_save': '保存するキーはありません',
+        'saving_keys': 'APIキーを保存しています...',
+        'keys_saved_successfully': 'APIキーの保存に成功しました',
+        'failed_to_save_keys': 'APIキーの保存に失敗しました',
+        'connection_error': '接続エラー',
+        'get_from': 'キーを取得する場所:',
+        'soundcloud_key_hint': 'SoundCloud APIはOAuth認証を必要とします',
+        'api_status': 'APIの状態',
+        'checking_api_status': 'APIの状態を確認しています...',
+        'playing': '再生中',
+        'open_on_youtube': 'YouTubeで開く',
+        'play_all': 'すべて再生',
+        'results_count': '{count}件の結果',
+        'testing_api_connections': 'API接続のテスト中...',
+        'connection_failed': '接続失敗',
+        'api_working': 'APIは正常に動作しています',
+        'api_not_configured': 'APIが設定されていません',
+        'api_test_complete': 'APIテスト完了',
+        'success_count': '成功: {count}/{total}',
+        'stop_all': 'すべて停止',
+        'keys_backup_tip': "APIキー設定のエクスポート/インポート",
+        'export_keys': "キーをエクスポート", 
+        'import_keys': "キーをインポート",
+        'keys_exported': "APIキーが正常にエクスポートされました",
+        'keys_imported': "APIキーが正常にインポートされました", 
+        'import_error': "バックアップファイルのインポートエラー", 
+        'play_now': '今すぐ再生',
+        'video_info': '動画情報',
+        'items': '件',
+        'picture_in_picture': 'ピクチャー・イン・ピクチャー',
+        'shortcuts_hint': 'A - 前の曲\nS - 再生/一時停止\nD - 次の曲\nW - ピクチャーインピクチャー\nQ - プレイリスト\nE - 検索',
         'theme_download': 'テーマダウンロード'
     },
     'ru': {
@@ -2060,8 +2726,6 @@ const languageTranslations = {
         'theme_dark': 'Темный режим',
         'theme_light': 'Светлый режим',
         'visit_github': 'Посетить GitHub',
-        'animation_enable': 'Включить анимацию',
-        'animation_disable': 'Отключить анимацию',
         'font_default': 'Шрифт по умолчанию',
         'font_rounded': 'Закругленный шрифт',
         'font_serif': 'Шрифт с засечками',
@@ -2095,6 +2759,103 @@ const languageTranslations = {
         'guide_theme_settings': '5. Настройки темы: Поддержка пользовательских фонов, очистка фона при переключении режимов',
         'guide_mode_switching': '6. Переключение режимов: Режимы изображения/видео работают только в темном режиме',
         'guide_project_link': '7. Адрес проекта:',
+        'advancedColorControlSubtitle': 'HueMatrix 2.0 — Цветовой движок нового поколения',
+        'update_available': 'Доступно обновление',
+        'new_version_available': 'Доступна новая версия темы',
+        'update_now': 'Обновить сейчас',
+        'toggle_visualizer': 'Переключить визуализатор',
+        'switch_interface': 'Сменить интерфейс',
+        'message_add_card_layout': 'Добавить карточный макет',
+        'message_remove_card_layout': 'Удалить карточный макет',
+        'message_processing': 'Обработка...',
+        'message_card_layout_added': 'Карточный макет добавлен',
+        'message_card_layout_removed': 'Карточный макет удален',
+        'node_order_save_success': 'Порядок страниц успешно сохранён.',
+        'auto_check_updates': 'Включить автоматическую проверку обновлений',
+        'auto_check_enabled': 'Автоматическая проверка обновлений включена',
+        'auto_check_disabled': 'Автоматическая проверка обновлений отключена',
+        'animation_settings': 'Настройки анимации',
+        'cube_lights': 'Свет куба',
+        'cube_animation': 'Анимация куба',
+        'snow_animation': 'Анимация снега',
+        'status_on': 'Вкл',
+        'status_off': 'Выкл',
+        'log_cube_lights_on': 'Свет куба включен',
+        'log_cube_lights_off': 'Свет куба выключен',
+        'log_cube_anim_on': 'Анимация куба включена',
+        'log_cube_anim_off': 'Анимация куба выключена',
+        'log_snow_on': 'Анимация снега включена',
+        'log_snow_off': 'Анимация снега выключена',
+        'online_music_search': 'Онлайн-поиск музыки',
+        'search_placeholder': 'Искать песни, исполнителей, альбомы...',
+        'search_button': 'Поиск',
+        'song_type': 'Песни',
+        'artist_type': 'Исполнители',
+        'album_type': 'Альбомы',
+        'playlist_type': 'Плейлисты',
+        'search_prompt': 'Начните с поиска музыки',
+        'load_more': 'Загрузить еще',
+        'not_playing': 'Не воспроизводится',
+        'select_song_prompt': 'Выберите песню для воспроизведения',
+        'enter_search_keywords': 'Пожалуйста, введите ключевые слова для поиска',
+        'api_config_needed': '{source} требует настройки API. Нажмите кнопку "Настроить ключи API".',
+        'loading': 'Загрузка',
+        'no_preview_available': 'Для этого трека нет предпросмотра',
+        'cannot_play_track': 'Не удается воспроизвести этот трек. Может потребоваться авторизация или URL недействителен.',
+        'no_results_found': 'Результаты не найдены',
+        'no_download_available': 'Для этого трека нет загрузки',
+        'download_failed': 'Не удалось загрузить. Пожалуйста, попробуйте снова или используйте прямую загрузку.',
+        'search_results_count': 'Найдено {count} результатов',
+        'searching_artist_songs': 'Поиск песен {artist}',
+        'searching_album_songs': 'Поиск альбома: {album}',
+        'artist': 'Исполнитель',
+        'album': 'Альбом',
+        'load_failed': 'Не удалось загрузить результаты',
+        'configure_api_keys': 'Настроить API ключи',
+        'api_key_config_description': 'Настройте API ключи для музыкальных сервисов. Эти ключи будут сохранены в конфигурационном файле сервера.',
+        'spotify_api_keys': 'Spotify API ключи',
+        'youtube_api_key': 'YouTube API ключ',
+        'soundcloud_client_id': 'SoundCloud Client ID',
+        'client_id': 'Client ID',
+        'client_secret': 'Client Secret',
+        'api_key': 'API Key',
+        'save_keys': 'Сохранить ключи',
+        'load_current_keys': 'Загрузить текущие ключи',
+        'test_api': 'Тестировать API',
+        'loading_keys': 'Загрузка текущих ключей...',
+        'keys_loaded': 'API ключи загружены успешно',
+        'failed_to_load_keys': 'Не удалось загрузить API ключи',
+        'no_keys_to_save': 'Нет ключей для сохранения',
+        'saving_keys': 'Сохранение API ключей...',
+        'keys_saved_successfully': 'API ключи успешно сохранены',
+        'failed_to_save_keys': 'Не удалось сохранить API ключи',
+        'connection_error': 'Ошибка соединения',
+        'get_from': 'Получить ключи по адресу:',
+        'soundcloud_key_hint': 'API SoundCloud требует OAuth аутентификацию',
+        'api_status': 'Состояние API',
+        'checking_api_status': 'Проверка состояния API...',
+        'playing': 'Воспроизведение',
+        'open_on_youtube': 'Открыть на YouTube',
+        'play_all': 'Воспроизвести все',
+        'results_count': '{count} результатов',
+        'testing_api_connections': 'Тестирование подключения API...',
+        'connection_failed': 'Ошибка подключения',
+        'api_working': 'API работает',
+        'api_not_configured': 'API не настроено',
+        'api_test_complete': 'Тестирование API завершено',
+        'success_count': 'Успех: {count}/{total}',
+        'stop_all': 'Остановить все',
+        'keys_backup_tip': "Экспорт/импорт конфигурации API ключей",
+        'export_keys': "Экспортировать ключи", 
+        'import_keys': "Импортировать ключи",
+        'keys_exported': "API ключи успешно экспортированы",
+        'keys_imported': "API ключи успешно импортированы", 
+        'import_error': "Ошибка при импорте резервной копии", 
+        'play_now': 'Воспроизвести',
+        'video_info': 'Информация о видео',
+        'items': 'элементов',
+        'picture_in_picture': 'Картинка в картинке',
+        'shortcuts_hint': 'A - Предыдущий трек\nS - Воспроизведение/Пауза\nD - Следующий трек\nW - Картинка в картинке\nQ - Плейлист\nE - Поиск',
         'theme_download': 'Скачать тему'
     },
     'ar': {
@@ -2320,8 +3081,6 @@ const languageTranslations = {
         'theme_dark': 'الوضع الداكن',
         'theme_light': 'الوضع الفاتح',
         'visit_github': 'زيارة GitHub',
-        'animation_enable': 'تفعيل الرسوم المتحركة',
-        'animation_disable': 'تعطيل الرسوم المتحركة',
         'font_default': 'الخط الافتراضي',
         'font_rounded': 'خط دائري',
         'font_serif': 'خط Serif',
@@ -2355,6 +3114,103 @@ const languageTranslations = {
         'guide_theme_settings': '5. إعدادات السمة: دعم الخلفيات المخصصة، مسح الخلفية عند تبديل الوضع',
         'guide_mode_switching': '6. تبديل الوضع: أوضاع الصورة/الفيديو تعمل فقط في الوضع الداكن',
         'guide_project_link': '7. عنوان المشروع:',
+        'advancedColorControlSubtitle': 'HueMatrix 2.0 — محرك ألوان من الجيل التالي',
+        'update_available': 'يتوفر تحديث',
+        'new_version_available': 'يتوفر إصدار جديد من السمة',
+        'update_now': 'تحديث الآن',
+        'toggle_visualizer': 'تبديل المؤثرات البصرية',
+        'switch_interface': 'تبديل الواجهة',
+        'message_add_card_layout': 'إضافة تخطيط البطاقة',
+        'message_remove_card_layout': 'إزالة تخطيط البطاقة',
+        'message_processing': 'جاري المعالجة...',
+        'message_card_layout_added': 'تمت إضافة تخطيط البطاقات',
+        'message_card_layout_removed': 'تمت إزالة تخطيط البطاقات',
+        'node_order_save_success': 'تم حفظ ترتيب الصفحة الحالية بنجاح.',
+        'auto_check_updates': 'تمكين التحقق التلقائي من التحديثات',
+        'auto_check_enabled': 'تم تمكين التحقق التلقائي من التحديثات',
+        'auto_check_disabled': 'تم تعطيل التحقق التلقائي من التحديثات',
+        'animation_settings': 'إعدادات الرسوم المتحركة',
+        'cube_lights': 'أضواء المكعب',
+        'cube_animation': 'رسوم متحركة للمكعب',
+        'snow_animation': 'رسوم متحركة للثلج',
+        'status_on': 'تشغيل',
+        'status_off': 'إيقاف',
+        'log_cube_lights_on': 'تم تفعيل أضواء المكعب',
+        'log_cube_lights_off': 'تم تعطيل أضواء المكعب',
+        'log_cube_anim_on': 'تم تفعيل الرسوم المتحركة للمكعب',
+        'log_cube_anim_off': 'تم تعطيل الرسوم المتحركة للمكعب',
+        'log_snow_on': 'تم تفعيل الرسوم المتحركة للثلج',
+        'log_snow_off': 'تم تعطيل الرسوم المتحركة للثلج',
+        'online_music_search': 'بحث الموسيقى عبر الإنترنت',
+        'search_placeholder': 'ابحث عن الأغاني والفنانين والألبومات...',
+        'search_button': 'بحث',
+        'song_type': 'الأغاني',
+        'artist_type': 'الفنانون',
+        'album_type': 'الألبومات',
+        'playlist_type': 'قوائم التشغيل',
+        'search_prompt': 'ابحث عن الموسيقى للبدء',
+        'load_more': 'تحميل المزيد',
+        'not_playing': 'لا يتم التشغيل',
+        'select_song_prompt': 'اختر أغنية لتشغيلها',
+        'enter_search_keywords': 'الرجاء إدخال كلمات البحث',
+        'api_config_needed': '{source} يتطلب تكوين API. انقر على زر "تكوين مفاتيح API".',
+        'loading': 'جارٍ التحميل',
+        'no_preview_available': 'لا يوجد معاينة لهذا المقطع',
+        'cannot_play_track': 'لا يمكن تشغيل هذا المقطع. قد يتطلب ذلك تفويضًا أو أن الرابط غير صالح.',
+        'no_results_found': 'لم يتم العثور على نتائج',
+        'no_download_available': 'لا يوجد تحميل لهذا المقطع',
+        'download_failed': 'فشل التحميل. يرجى المحاولة مرة أخرى أو استخدام التحميل المباشر.',
+        'search_results_count': 'تم العثور على {count} نتائج',
+        'searching_artist_songs': 'جارٍ البحث عن أغاني {artist}',
+        'searching_album_songs': 'جارٍ البحث عن الألبوم: {album}',
+        'artist': 'فنان',
+        'album': 'ألبوم',
+        'load_failed': 'فشل تحميل المزيد من النتائج',
+        'configure_api_keys': 'تكوين مفاتيح API',
+        'api_key_config_description': 'تكوين مفاتيح API لخدمات الموسيقى. ستتم حفظ هذه المفاتيح في ملف تكوين الخادم.',
+        'spotify_api_keys': 'مفاتيح API لسبوتيفاي',
+        'youtube_api_key': 'مفتاح API ليوتيوب',
+        'soundcloud_client_id': 'معرف عميل SoundCloud',
+        'client_id': 'معرف العميل',
+        'client_secret': 'سر العميل',
+        'api_key': 'مفتاح API',
+        'save_keys': 'حفظ المفاتيح',
+        'load_current_keys': 'تحميل المفاتيح الحالية',
+        'test_api': 'اختبار API',
+        'loading_keys': 'جارٍ تحميل المفاتيح الحالية...',
+        'keys_loaded': 'تم تحميل مفاتيح API بنجاح',
+        'failed_to_load_keys': 'فشل في تحميل مفاتيح API',
+        'no_keys_to_save': 'لا توجد مفاتيح للحفظ',
+        'saving_keys': 'جارٍ حفظ مفاتيح API...',
+        'keys_saved_successfully': 'تم حفظ مفاتيح API بنجاح',
+        'failed_to_save_keys': 'فشل في حفظ مفاتيح API',
+        'connection_error': 'خطأ في الاتصال',
+        'get_from': 'احصل على المفاتيح من:',
+        'soundcloud_key_hint': 'يتطلب API SoundCloud مصادقة OAuth',
+        'api_status': 'حالة API',
+        'checking_api_status': 'جارٍ التحقق من حالة API...',
+        'playing': 'جاري التشغيل',
+        'open_on_youtube': 'افتح على YouTube',
+        'play_all': 'تشغيل الكل',
+        'results_count': '{count} نتائج',
+        'testing_api_connections': 'جاري اختبار اتصالات API...',
+        'connection_failed': 'فشل الاتصال',
+        'api_working': 'API يعمل',
+        'api_not_configured': 'لم يتم تكوين API',
+        'api_test_complete': 'اكتمل اختبار API',
+        'success_count': 'النجاح: {count}/{total}',
+        'stop_all': 'إيقاف الكل',
+        'keys_backup_tip': "تصدير/استيراد تكوين مفاتيح API",
+        'export_keys': "تصدير المفاتيح", 
+        'import_keys': "استيراد المفاتيح",
+        'keys_exported': "تم تصدير مفاتيح API بنجاح",
+        'keys_imported': "تم استيراد مفاتيح API بنجاح", 
+        'import_error': "خطأ في استيراد ملف النسخة الاحتياطية", 
+        'play_now': 'تشغيل الآن',
+        'video_info': 'معلومات الفيديو',
+        'items': 'عنصر',
+        'picture_in_picture': 'صورة داخل صورة',
+        'shortcuts_hint': 'A - المقطع السابق\nS - تشغيل/إيقاف مؤقت\nD - المقطع التالي\nW - صورة داخل صورة\nQ - قائمة التشغيل\nE - بحث',
         'theme_download': 'تحميل السمة'
     },
     'es': {
@@ -2580,8 +3436,6 @@ const languageTranslations = {
         'theme_dark': 'Modo oscuro',
         'theme_light': 'Modo claro',
         'visit_github': 'Visitar GitHub',
-        'animation_enable': 'Habilitar animación',
-        'animation_disable': 'Deshabilitar animación',
         'font_default': 'Fuente predeterminada',
         'font_rounded': 'Fuente redondeada',
         'font_serif': 'Fuente serif',
@@ -2615,6 +3469,103 @@ const languageTranslations = {
         'guide_theme_settings': '5. Configuración de tema: Soporta fondos personalizados, limpiar fondo al cambiar modo',
         'guide_mode_switching': '6. Cambio de modo: Modos imagen/video solo funcionan en modo oscuro',
         'guide_project_link': '7. Dirección del proyecto:',
+        'advancedColorControlSubtitle': 'HueMatrix 2.0 — Motor de color de nueva generación',
+        'update_available': 'Actualización disponible',
+        'new_version_available': 'Hay una nueva versión del tema disponible',
+        'update_now': 'Actualizar ahora',
+        'toggle_visualizer': 'Cambiar visualizador',
+        'switch_interface': 'Cambiar interfaz',
+        'message_add_card_layout': 'Añadir diseño de tarjeta',
+        'message_remove_card_layout': 'Eliminar diseño de tarjeta',
+        'message_processing': 'Procesando...',
+        'message_card_layout_added': 'Diseño de tarjeta añadido',
+        'message_card_layout_removed': 'Diseño de tarjeta eliminado',
+        'node_order_save_success': 'El orden de la página se ha guardado correctamente.',
+        'auto_check_updates': 'Habilitar comprobación automática de actualizaciones',
+        'auto_check_enabled': 'Comprobación automática de actualizaciones activada',
+        'auto_check_disabled': 'Comprobación automática de actualizaciones desactivada',
+        'animation_settings': 'Configuración de animación',
+        'cube_lights': 'Luces del cubo',
+        'cube_animation': 'Animación de cubo',
+        'snow_animation': 'Animación de nieve',
+        'status_on': 'Activado',
+        'status_off': 'Desactivado',
+        'log_cube_lights_on': 'Luces del cubo activadas',
+        'log_cube_lights_off': 'Luces del cubo desactivadas',
+        'log_cube_anim_on': 'Animación de cubo activada',
+        'log_cube_anim_off': 'Animación de cubo desactivada',
+        'log_snow_on': 'Animación de nieve activada',
+        'log_snow_off': 'Animación de nieve desactivada',
+        'online_music_search': 'Búsqueda de Música en Línea',
+        'search_placeholder': 'Buscar canciones, artistas, álbumes...',
+        'search_button': 'Buscar',
+        'song_type': 'Canciones',
+        'artist_type': 'Artistas',
+        'album_type': 'Álbumes',
+        'playlist_type': 'Listas de reproducción',
+        'search_prompt': 'Busca música para empezar',
+        'load_more': 'Cargar más',
+        'not_playing': 'No se está reproduciendo',
+        'select_song_prompt': 'Selecciona una canción para reproducir',
+        'enter_search_keywords': 'Por favor, introduce palabras clave de búsqueda',
+        'api_config_needed': '{source} requiere configuración de API. Haga clic en el botón "Configurar claves de API".',
+        'loading': 'Cargando',
+        'no_preview_available': 'No hay vista previa disponible para esta pista',
+        'cannot_play_track': 'No se puede reproducir esta pista. Puede requerir autorización o la URL no es válida.',
+        'no_results_found': 'No se encontraron resultados',
+        'no_download_available': 'No hay descarga disponible para esta pista',
+        'download_failed': 'Descarga fallida. Por favor, inténtalo de nuevo o usa la descarga directa.',
+        'search_results_count': 'Se encontraron {count} resultados',
+        'searching_artist_songs': 'Buscando canciones de {artist}',
+        'searching_album_songs': 'Buscando álbum: {album}',
+        'artist': 'Artista',
+        'album': 'Álbum',
+        'load_failed': 'No se pudieron cargar más resultados',
+        'configure_api_keys': 'Configurar claves de API',
+        'api_key_config_description': 'Configura las claves de API para los servicios de música. Estas claves se guardarán en el archivo de configuración del servidor.',
+        'spotify_api_keys': 'Claves de API de Spotify',
+        'youtube_api_key': 'Clave de API de YouTube',
+        'soundcloud_client_id': 'ID de cliente de SoundCloud',
+        'client_id': 'ID del cliente',
+        'client_secret': 'Secreto del cliente',
+        'api_key': 'Clave de API',
+        'save_keys': 'Guardar claves',
+        'load_current_keys': 'Cargar claves actuales',
+        'test_api': 'Probar API',
+        'loading_keys': 'Cargando claves API actuales...',
+        'keys_loaded': 'Claves API cargadas correctamente',
+        'failed_to_load_keys': 'Error al cargar las claves API',
+        'no_keys_to_save': 'No hay claves que guardar',
+        'saving_keys': 'Guardando claves API...',
+        'keys_saved_successfully': 'Claves API guardadas correctamente',
+        'failed_to_save_keys': 'Error al guardar las claves API',
+        'connection_error': 'Error de conexión',
+        'get_from': 'Obtener claves de:',
+        'soundcloud_key_hint': 'La API de SoundCloud requiere autenticación OAuth',
+        'api_status': 'Estado de la API',
+        'checking_api_status': 'Comprobando el estado de la API...',
+        'playing': 'Reproduciendo',
+        'open_on_youtube': 'Abrir en YouTube',
+        'play_all': 'Reproducir todo',
+        'results_count': '{count} resultados',
+        'testing_api_connections': 'Probando conexiones API...',
+        'connection_failed': 'Conexión fallida',
+        'api_working': 'La API está funcionando',
+        'api_not_configured': 'API no configurada',
+        'api_test_complete': 'Prueba de API completa',
+        'success_count': 'Éxito: {count}/{total}',
+        'stop_all': 'Detener todo',
+        'keys_backup_tip': "Exportar/Importar configuración de claves API",
+        'export_keys': "Exportar claves", 
+        'import_keys': "Importar claves",
+        'keys_exported': "Claves API exportadas con éxito",
+        'keys_imported': "Claves API importadas con éxito", 
+        'import_error': "Error al importar el archivo de copia de seguridad", 
+        'play_now': 'Reproducir ahora',
+        'video_info': 'Información del video',
+        'items': 'elementos',
+        'picture_in_picture': 'Imagen en imagen',
+        'shortcuts_hint': 'A - Anterior\nS - Reproducir/Pausar\nD - Siguiente\nW - Imagen en imagen\nQ - Lista de reproducción\nE - Buscar',
         'theme_download': 'Descarga del tema'
     },
     'de': {
@@ -2840,8 +3791,6 @@ const languageTranslations = {
         'theme_dark': 'Dunkler Modus',
         'theme_light': 'Heller Modus',
         'visit_github': 'GitHub besuchen',
-        'animation_enable': 'Animation aktivieren',
-        'animation_disable': 'Animation deaktivieren',
         'font_default': 'Standard-Schriftart',
         'font_rounded': 'Abgerundete Schriftart',
         'font_serif': 'Serif-Schriftart',
@@ -2875,6 +3824,103 @@ const languageTranslations = {
         'guide_theme_settings': '5. Theme-Einstellungen: Unterstützt benutzerdefinierte Hintergründe, Hintergrund beim Moduswechsel löschen',
         'guide_mode_switching': '6. Moduswechsel: Bild/Video-Modi funktionieren nur im dunklen Modus',
         'guide_project_link': '7. Projektadresse:',
+        'advancedColorControlSubtitle': 'HueMatrix 2.0 — Farb-Engine der nächsten Generation',
+        'update_available': 'Update verfügbar',
+        'new_version_available': 'Eine neue Theme-Version ist verfügbar',
+        'update_now': 'Jetzt aktualisieren',
+        'toggle_visualizer': 'Visualizer umschalten',
+        'switch_interface': 'Schnittstelle wechseln',
+        'message_add_card_layout': 'Kartenlayout hinzufügen',
+        'message_remove_card_layout': 'Kartenlayout entfernen',
+        'message_processing': 'Verarbeitung...',
+        'message_card_layout_added': 'Kartenlayout hinzugefügt',
+        'message_card_layout_removed': 'Kartenlayout entfernt',
+        'node_order_save_success': 'Die Seitenreihenfolge wurde erfolgreich gespeichert.',
+        'auto_check_updates': 'Automatische Update-Prüfung aktivieren',
+        'auto_check_enabled': 'Automatische Update-Prüfung aktiviert',
+        'auto_check_disabled': 'Automatische Update-Prüfung deaktiviert',
+        'animation_settings': 'Animationseinstellungen',
+        'cube_lights': 'Würfellichter',
+        'cube_animation': 'Würfelanimation',
+        'snow_animation': 'Schneeanimation',
+        'status_on': 'Ein',
+        'status_off': 'Aus',
+        'log_cube_lights_on': 'Würfellichter aktiviert',
+        'log_cube_lights_off': 'Würfellichter deaktiviert',
+        'log_cube_anim_on': 'Würfelanimation aktiviert',
+        'log_cube_anim_off': 'Würfelanimation deaktiviert',
+        'log_snow_on': 'Schneeanimation aktiviert',
+        'log_snow_off': 'Schneeanimation deaktiviert',
+        'online_music_search': 'Online-Musiksuche',
+        'search_placeholder': 'Nach Songs, Künstlern, Alben suchen...',
+        'search_button': 'Suchen',
+        'song_type': 'Songs',
+        'artist_type': 'Künstler',
+        'album_type': 'Alben',
+        'playlist_type': 'Wiedergabelisten',
+        'search_prompt': 'Musik suchen, um zu beginnen',
+        'load_more': 'Mehr laden',
+        'not_playing': 'Wird nicht abgespielt',
+        'select_song_prompt': 'Wählen Sie einen Song zum Abspielen',
+        'api_config_needed': '{source} erfordert eine API-Konfiguration. Klicken Sie auf die Schaltfläche "API-Schlüssel konfigurieren".',
+        'enter_search_keywords': 'Bitte geben Sie Suchbegriffe ein',
+        'loading': 'Wird geladen',
+        'no_preview_available': 'Für diesen Track ist keine Vorschau verfügbar',
+        'cannot_play_track': 'Dieser Track kann nicht abgespielt werden. Möglicherweise ist eine Autorisierung erforderlich oder die URL ist ungültig.',
+        'no_results_found': 'Keine Ergebnisse gefunden',
+        'no_download_available': 'Für diesen Track ist kein Download verfügbar',
+        'download_failed': 'Download fehlgeschlagen. Bitte versuchen Sie es erneut oder verwenden Sie den direkten Download.',
+        'search_results_count': 'Gefunden {count} Ergebnisse',
+        'searching_artist_songs': 'Suche Songs von {artist}',
+        'searching_album_songs': 'Suche Album: {album}',
+        'artist': 'Künstler',
+        'album': 'Album',
+        'load_failed': 'Fehler beim Laden weiterer Ergebnisse',
+        'configure_api_keys': 'API-Schlüssel konfigurieren',
+        'api_key_config_description': 'Konfigurieren Sie API-Schlüssel für Musikdienste. Diese Schlüssel werden in der Serverkonfigurationsdatei gespeichert.',
+        'spotify_api_keys': 'Spotify API-Schlüssel',
+        'youtube_api_key': 'YouTube API-Schlüssel',
+        'soundcloud_client_id': 'SoundCloud Client ID',
+        'client_id': 'Client ID',
+        'client_secret': 'Client Secret',
+        'api_key': 'API-Schlüssel',
+        'save_keys': 'Schlüssel speichern',
+        'load_current_keys': 'Aktuelle Schlüssel laden',
+        'test_api': 'API testen',
+        'loading_keys': 'Lade aktuelle API-Schlüssel...',
+        'keys_loaded': 'API-Schlüssel erfolgreich geladen',
+        'failed_to_load_keys': 'Fehler beim Laden der API-Schlüssel',
+        'no_keys_to_save': 'Es gibt keine Schlüssel zum Speichern',
+        'saving_keys': 'Speichere API-Schlüssel...',
+        'keys_saved_successfully': 'API-Schlüssel erfolgreich gespeichert',
+        'failed_to_save_keys': 'Fehler beim Speichern der API-Schlüssel',
+        'connection_error': 'Verbindungsfehler',
+        'get_from': 'Schlüssel erhalten von:',
+        'soundcloud_key_hint': 'Die SoundCloud API erfordert OAuth-Authentifizierung',
+        'api_status': 'API-Status',
+        'checking_api_status': 'Überprüfe API-Status...',
+        'playing': 'Wird abgespielt',
+        'open_on_youtube': 'Auf YouTube öffnen',
+        'play_all': 'Alles abspielen',
+        'results_count': '{count} Ergebnisse',
+        'testing_api_connections': 'API-Verbindungen werden getestet...',
+        'connection_failed': 'Verbindung fehlgeschlagen',
+        'api_working': 'API funktioniert',
+        'api_not_configured': 'API nicht konfiguriert',
+        'api_test_complete': 'API-Test abgeschlossen',
+        'success_count': 'Erfolg: {count}/{total}',
+        'stop_all': 'Alles stoppen',
+        'keys_backup_tip': "API-Schlüssel-Konfiguration exportieren/importieren",
+        'export_keys': "Schlüssel exportieren", 
+        'import_keys': "Schlüssel importieren",
+        'keys_exported': "API-Schlüssel erfolgreich exportiert",
+        'keys_imported': "API-Schlüssel erfolgreich importiert", 
+        'import_error': "Fehler beim Importieren der Sicherungsdatei", 
+        'play_now': 'Jetzt abspielen',
+        'video_info': 'Videoinfo',
+        'items': 'Elemente',
+        'picture_in_picture': 'Bild-in-Bild',
+        'shortcuts_hint': 'A - Vorheriger Titel\nS - Wiedergabe/Pause\nD - Nächster Titel\nW - Bild-in-Bild\nQ - Wiedergabeliste\nE - Suche',
         'theme_download': 'Thema herunterladen'
     },
     'fr': {
@@ -3100,8 +4146,6 @@ const languageTranslations = {
         'theme_dark': 'Mode sombre',
         'theme_light': 'Mode clair',
         'visit_github': 'Visiter GitHub',
-        'animation_enable': 'Activer l\'animation',
-        'animation_disable': 'Désactiver l\'animation',
         'font_default': 'Police par défaut',
         'font_rounded': 'Police arrondie',
         'font_serif': 'Police serif',
@@ -3135,6 +4179,103 @@ const languageTranslations = {
         'guide_theme_settings': '5. Paramètres du thème : Prend en charge les arrière-plans personnalisés, effacer l\'arrière-plan lors du changement de mode',
         'guide_mode_switching': '6. Changement de mode : Les modes image/vidéo fonctionnent uniquement en mode sombre',
         'guide_project_link': '7. Adresse du projet :',
+        'advancedColorControlSubtitle': 'HueMatrix 2.0 — Moteur de couleur nouvelle génération',
+        'update_available': 'Mise à jour disponible',
+        'new_version_available': 'Une nouvelle version du thème est disponible',
+        'update_now': 'Mettre à jour maintenant',
+        'toggle_visualizer': 'Basculer le visualiseur',
+        'switch_interface': 'Changer d\'interface',
+        'message_add_card_layout': 'Ajouter la mise en page des cartes',
+        'message_remove_card_layout': 'Supprimer la mise en page des cartes',
+        'message_processing': 'Traitement en cours...',
+        'message_card_layout_added': 'Mise en page des cartes ajoutée',
+        'message_card_layout_removed': 'Mise en page des cartes supprimée',
+        'node_order_save_success': 'L’ordre de la page a été enregistré avec succès.',
+        'auto_check_updates': 'Activer la vérification automatique des mises à jour',
+        'auto_check_enabled': 'Vérification automatique des mises à jour activée',
+        'auto_check_disabled': 'Vérification automatique des mises à jour désactivée',
+        'animation_settings': 'Paramètres d’animation',
+        'cube_lights': 'Lumières du cube',
+        'cube_animation': 'Animation du cube',
+        'snow_animation': 'Animation de neige',
+        'status_on': 'Activé',
+        'status_off': 'Désactivé',
+        'log_cube_lights_on': 'Lumières du cube activées',
+        'log_cube_lights_off': 'Lumières du cube désactivées',
+        'log_cube_anim_on': 'Animation du cube activée',
+        'log_cube_anim_off': 'Animation du cube désactivée',
+        'log_snow_on': 'Animation de neige activée',
+        'log_snow_off': 'Animation de neige désactivée',
+        'online_music_search': 'Recherche de Musique en Ligne',
+        'search_placeholder': 'Rechercher des chansons, artistes, albums...',
+        'search_button': 'Rechercher',
+        'song_type': 'Chansons',
+        'artist_type': 'Artistes',
+        'album_type': 'Albums',
+        'playlist_type': 'Listes de lecture',
+        'search_prompt': 'Recherchez de la musique pour commencer',
+        'load_more': 'Charger plus',
+        'not_playing': 'Non lu',
+        'select_song_prompt': 'Sélectionnez une chanson à lire',
+        'enter_search_keywords': 'Veuillez entrer des mots-clés de recherche',
+        'api_config_needed': '{source} nécessite une configuration API. Cliquez sur le bouton "Configurer les clés API".',
+        'loading': 'Chargement',
+        'no_preview_available': 'Aucun aperçu disponible pour ce morceau',
+        'cannot_play_track': 'Impossible de lire ce morceau. Une autorisation peut être requise ou l\'URL est invalide.',
+        'no_results_found': 'Aucun résultat trouvé',
+        'no_download_available': 'Aucun téléchargement disponible pour ce morceau',
+        'download_failed': 'Échec du téléchargement. Veuillez réessayer ou utiliser le téléchargement direct.',
+        'search_results_count': 'Trouvé {count} résultats',
+        'searching_artist_songs': 'Recherche des chansons de {artist}',
+        'searching_album_songs': 'Recherche de l\'album: {album}',
+        'artist': 'Artiste',
+        'album': 'Album',
+        'load_failed': 'Échec du chargement des résultats',
+        'configure_api_keys': 'Configurer les clés API',
+        'api_key_config_description': 'Configurer les clés API pour les services musicaux. Ces clés seront enregistrées dans le fichier de configuration du serveur.',
+        'spotify_api_keys': 'Clés API Spotify',
+        'youtube_api_key': 'Clé API YouTube',
+        'soundcloud_client_id': 'ID client SoundCloud',
+        'client_id': 'ID client',
+        'client_secret': 'Secret client',
+        'api_key': 'Clé API',
+        'save_keys': 'Enregistrer les clés',
+        'load_current_keys': 'Charger les clés actuelles',
+        'test_api': 'Tester l\'API',
+        'loading_keys': 'Chargement des clés API actuelles...',
+        'keys_loaded': 'Clés API chargées avec succès',
+        'failed_to_load_keys': 'Échec du chargement des clés API',
+        'no_keys_to_save': 'Aucune clé à enregistrer',
+        'saving_keys': 'Enregistrement des clés API...',
+        'keys_saved_successfully': 'Clés API enregistrées avec succès',
+        'failed_to_save_keys': 'Échec de l\'enregistrement des clés API',
+        'connection_error': 'Erreur de connexion',
+        'get_from': 'Obtenez les clés depuis :',
+        'soundcloud_key_hint': 'L\'API SoundCloud nécessite une authentification OAuth',
+        'api_status': 'Statut de l\'API',
+        'checking_api_status': 'Vérification du statut de l\'API...',
+        'playing': 'En lecture',
+        'open_on_youtube': 'Ouvrir sur YouTube',
+        'play_all': 'Tout lire',
+        'results_count': '{count} résultats',
+        'testing_api_connections': 'Test des connexions API...',
+        'connection_failed': 'Échec de la connexion',
+        'api_working': 'L\'API fonctionne',
+        'api_not_configured': 'API non configurée',
+        'api_test_complete': 'Test de l\'API terminé',
+        'success_count': 'Succès: {count}/{total}',
+        'stop_all': 'Arrêter tout',
+        'keys_backup_tip': "Exporter/Importer la configuration des clés API",
+        'export_keys': "Exporter les clés", 
+        'import_keys': "Importer les clés",
+        'keys_exported': "Clés API exportées avec succès",
+        'keys_imported': "Clés API importées avec succès", 
+        'import_error': "Erreur lors de l'importation du fichier de sauvegarde", 
+        'play_now': 'Lire maintenant',
+        'video_info': 'Infos vidéo',
+        'items': 'éléments',
+        'picture_in_picture': 'Image dans l’image',
+        'shortcuts_hint': 'A - Précédent\nS - Lecture/Pause\nD - Suivant\nW - Image dans l’image\nQ - Playlist\nE - Rechercher',
         'theme_download': 'Télécharger le thème'
     },
     'bn': {
@@ -3361,8 +4502,6 @@ const languageTranslations = {
         'theme_dark': 'ডার্ক মোড',
         'theme_light': 'লাইট মোড',
         'visit_github': 'GitHub ভিজিট করুন',
-        'animation_enable': 'অ্যানিমেশন সক্ষম করুন',
-        'animation_disable': 'অ্যানিমেশন অক্ষম করুন',
         'font_default': 'ডিফল্ট ফন্ট',
         'font_rounded': 'গোলাকার ফন্ট',
         'font_serif': 'সেরিফ ফন্ট',
@@ -3396,6 +4535,103 @@ const languageTranslations = {
         'guide_theme_settings': '5. থিম সেটিংস: কাস্টম ব্যাকগ্রাউন্ড সমর্থন করে, মোড স্যুইচ করার সময় ব্যাকগ্রাউন্ড ক্লিয়ার করুন',
         'guide_mode_switching': '6. মোড স্যুইচিং: ছবি/ভিডিও মোড শুধুমাত্র ডার্ক মোডে কাজ করে',
         'guide_project_link': '7. প্রকল্পের ঠিকানা:',
+        'advancedColorControlSubtitle': 'HueMatrix 2.0 — নেক্সট-জেনারেশন কালার ইঞ্জিন',
+        'update_available': 'আপডেট উপলব্ধ',
+        'new_version_available': 'নতুন থিম সংস্করণ উপলব্ধ',
+        'update_now': 'এখনই আপডেট করুন',
+        'toggle_visualizer': 'ভিজুয়ালাইজার টগল করুন',
+        'switch_interface': 'ইন্টারফেস পরিবর্তন করুন',
+        'message_add_card_layout': 'কার্ড লেআউট যোগ করুন',
+        'message_remove_card_layout': 'কার্ড লেআউট সরান',
+        'message_processing': 'প্রক্রিয়াকরণ হচ্ছে...',
+        'message_card_layout_added': 'কার্ড লেআউট যুক্ত হয়েছে',
+        'message_card_layout_removed': 'কার্ড লেআউট অপসারণ করা হয়েছে',
+        'node_order_save_success': 'বর্তমান পেজের ক্রম সফলভাবে সংরক্ষণ করা হয়েছে।',
+        'auto_check_updates': 'স্বয়ংক্রিয় আপডেট পরীক্ষা সক্রিয় করুন',
+        'auto_check_enabled': 'স্বয়ংক্রিয় আপডেট পরীক্ষা সক্রিয় করা হয়েছে',
+        'auto_check_disabled': 'স্বয়ংক্রিয় আপডেট পরীক্ষা নিষ্ক্রিয় করা হয়েছে',
+        'animation_settings': 'অ্যানিমেশন সেটিংস',
+        'cube_lights': 'কিউব লাইট',
+        'cube_animation': 'কিউব অ্যানিমেশন',
+        'snow_animation': 'বরফের অ্যানিমেশন',
+        'status_on': 'চালু',
+        'status_off': 'বন্ধ',
+        'log_cube_lights_on': 'কিউব লাইট চালু হয়েছে',
+        'log_cube_lights_off': 'কিউব লাইট বন্ধ হয়েছে',
+        'log_cube_anim_on': 'কিউব অ্যানিমেশন চালু হয়েছে',
+        'log_cube_anim_off': 'কিউব অ্যানিমেশন বন্ধ হয়েছে',
+        'log_snow_on': 'বরফের অ্যানিমেশন চালু হয়েছে',
+        'log_snow_off': 'বরফের অ্যানিমেশন বন্ধ হয়েছে',
+        'online_music_search': 'অনলাইন সঙ্গীত অনুসন্ধান',
+        'search_placeholder': 'গান, শিল্পী, অ্যালবাম অনুসন্ধান করুন...',
+        'search_button': 'অনুসন্ধান',
+        'song_type': 'গান',
+        'artist_type': 'শিল্পী',
+        'album_type': 'অ্যালবাম',
+        'playlist_type': 'প্লেলিস্ট',
+        'search_prompt': 'শুরু করতে সঙ্গীত অনুসন্ধান করুন',
+        'load_more': 'আরো লোড করুন',
+        'not_playing': 'চলছে না',
+        'select_song_prompt': 'চালানোর জন্য একটি গান নির্বাচন করুন',
+        'enter_search_keywords': 'অনুসন্ধান শব্দ লিখুন',
+        'api_config_needed': '{source} API কনফিগারেশন প্রয়োজন। "API কী কনফিগার করুন" বোতামে ক্লিক করুন।',
+        'loading': 'লোড হচ্ছে',
+        'no_preview_available': 'এই ট্র্যাকের জন্য কোন প্রিভিউ নেই',
+        'cannot_play_track': 'এই ট্র্যাক চালানো যাচ্ছে না। এটি অনুমোদনের প্রয়োজন হতে পারে বা URL টি অকার্যকর।',
+        'no_results_found': 'কোন ফলাফল পাওয়া যায়নি',
+        'no_download_available': 'এই ট্র্যাকের জন্য ডাউনলোড নেই',
+        'download_failed': 'ডাউনলোড ব্যর্থ হয়েছে। অনুগ্রহ করে আবার চেষ্টা করুন বা সরাসরি ডাউনলোড ব্যবহার করুন।',
+        'search_results_count': '{count} টি ফলাফল পাওয়া গেছে',
+        'searching_artist_songs': '{artist} এর গান খুঁজছি',
+        'searching_album_songs': 'অ্যালবাম খুঁজছি: {album}',
+        'artist': 'শিল্পী',
+        'album': 'অ্যালবাম',
+        'load_failed': 'ফলাফল লোড করতে ব্যর্থ হয়েছে',
+        'configure_api_keys': 'API কী কনফিগার করুন',
+        'api_key_config_description': 'সঙ্গীত পরিষেবাগুলির জন্য API কী কনফিগার করুন। এই কীগুলি সার্ভার কনফিগারেশন ফাইলে সংরক্ষিত হবে।',
+        'spotify_api_keys': 'Spotify API কী',
+        'youtube_api_key': 'YouTube API কী',
+        'soundcloud_client_id': 'SoundCloud ক্লায়েন্ট আইডি',
+        'client_id': 'ক্লায়েন্ট আইডি',
+        'client_secret': 'ক্লায়েন্ট সিক্রেট',
+        'api_key': 'API কী',
+        'save_keys': 'কী সংরক্ষণ করুন',
+        'load_current_keys': 'বর্তমান কী লোড করুন',
+        'test_api': 'API পরীক্ষা করুন',
+        'loading_keys': 'বর্তমান API কী লোড করা হচ্ছে...',
+        'keys_loaded': 'API কী সফলভাবে লোড হয়েছে',
+        'failed_to_load_keys': 'API কী লোড করতে ব্যর্থ',
+        'no_keys_to_save': 'সংরক্ষণ করার মতো কোনো কী নেই',
+        'saving_keys': 'API কী সংরক্ষণ করা হচ্ছে...',
+        'keys_saved_successfully': 'API কী সফলভাবে সংরক্ষিত হয়েছে',
+        'failed_to_save_keys': 'API কী সংরক্ষণ করতে ব্যর্থ',
+        'connection_error': 'সংযোগ ত্রুটি',
+        'get_from': 'এই ঠিকানা থেকে কী পান:',
+        'soundcloud_key_hint': 'SoundCloud API-এর জন্য OAuth প্রমাণীকরণ প্রয়োজন',
+        'api_status': 'API অবস্থা',
+        'checking_api_status': 'API অবস্থা যাচাই করা হচ্ছে...',
+        'playing': 'চালানো হচ্ছে',
+        'open_on_youtube': 'YouTube-এ খোল',
+        'play_all': 'সবগুলো চালাও',
+        'results_count': '{count} ফলাফল',
+        'testing_api_connections': 'API সংযোগ পরীক্ষা হচ্ছে...',
+        'connection_failed': 'সংযোগ ব্যর্থ',
+        'api_working': 'API কাজ করছে',
+        'api_not_configured': 'API কনফিগার করা হয়নি',
+        'api_test_complete': 'API পরীক্ষা সম্পন্ন',
+        'success_count': 'সফল: {count}/{total}',
+        'stop_all': 'সব থামান',
+        'keys_backup_tip': "API কীগুলির কনফিগারেশন রপ্তানি/আমদানি",
+        'export_keys': "কী রপ্তানি করুন", 
+        'import_keys': "কী আমদানি করুন",
+        'keys_exported': "API কীগুলি সফলভাবে রপ্তানি করা হয়েছে",
+        'keys_imported': "API কীগুলি সফলভাবে আমদানি করা হয়েছে", 
+        'import_error': "ব্যাকআপ ফাইল আমদানি ত্রুটি",
+        'play_now': 'এখন চালান',
+        'video_info': 'ভিডিও তথ্য',
+        'items': 'টি আইটেম', 
+        'picture_in_picture': 'ছবির ভিতর ছবি',
+        'shortcuts_hint': 'A - আগের ট্র্যাক\nS - চালু/বিরতি\nD - পরের ট্র্যাক\nW - ছবির ভিতর ছবি\nQ - প্লেলিস্ট\nE - অনুসন্ধান',
         'theme_download': 'থিম ডাউনলোড'
     }
 };
@@ -3417,19 +4653,19 @@ const languageStandardMap = {
 };
 
 const flagMap = {
-    'zh': '/luci-static/ipip/flags/cn.png',
-    'hk': '/luci-static/ipip/flags/hk.png',
-    'en': '/luci-static/ipip/flags/us.png',
-    'ko': '/luci-static/ipip/flags/kr.png',
-    'ja': '/luci-static/ipip/flags/jp.png',
-    'ru': '/luci-static/ipip/flags/ru.png',
-    'ar': '/luci-static/ipip/flags/sa.png',
-    'es': '/luci-static/ipip/flags/es.png',
-    'de': '/luci-static/ipip/flags/de.png',
-    'fr': '/luci-static/ipip/flags/fr.png',
-    'th': '/luci-static/ipip/flags/th.png',
-    'bn': '/luci-static/ipip/flags/bd.png',
-    'vi': '/luci-static/ipip/flags/vn.png'
+    'zh': '/luci-static/ipip/flags/cn.svg',
+    'hk': '/luci-static/ipip/flags/hk.svg',
+    'en': '/luci-static/ipip/flags/us.svg',
+    'ko': '/luci-static/ipip/flags/kr.svg',
+    'ja': '/luci-static/ipip/flags/jp.svg',
+    'ru': '/luci-static/ipip/flags/ru.svg',
+    'ar': '/luci-static/ipip/flags/sa.svg',
+    'es': '/luci-static/ipip/flags/es.svg',
+    'de': '/luci-static/ipip/flags/de.svg',
+    'fr': '/luci-static/ipip/flags/fr.svg',
+    'th': '/luci-static/ipip/flags/th.svg',
+    'bn': '/luci-static/ipip/flags/bd.svg',
+    'vi': '/luci-static/ipip/flags/vn.svg'
 };
 
 const langToVoiceLangMap = {
@@ -3576,37 +4812,356 @@ function getVoiceTypeText(type) {
     return texts[type] || translations['voice_type_other'] || 'Other Voice';
 }
 
+const TooltipManager = {
+    initialized: false,
+    observer: null,
+
+    init() {
+        if (this.initialized) return;
+        
+        this.processAll();
+        this.setupObserver();
+        
+        this.initialized = true;
+    },
+
+    processAll() {
+        document.querySelectorAll('[title]:not(.cbi-progressbar)').forEach(el => {
+            this.convertTitleToTooltip(el);
+        });
+        
+        document.querySelectorAll('svg:not(.cbi-progressbar)').forEach(svgEl => {
+            if (svgEl.querySelector('title')) {
+                this.convertSvgTitleToTooltip(svgEl);
+            }
+        });
+        
+        this.updateAllTranslations();
+    },
+
+    convertTitleToTooltip(element) {
+        const titleText = element.getAttribute('title');
+        if (!titleText || !titleText.trim()) return false;
+        
+        if ((element.id && element.id.includes('node.label')) || 
+            (element.classList && element.classList.contains('lv-dropdown-label'))) {
+            
+            const displayText = element.textContent.trim();
+            if (displayText && displayText !== titleText) {
+                element.dataset.tooltipHandled = '1';
+                element.setAttribute('data-tooltip-title', displayText);
+                element.setAttribute('data-tooltip-text', displayText);
+                element.removeAttribute('title');
+                return true;
+            }
+        }
+        
+        element.dataset.tooltipHandled = '1';
+        element.setAttribute('data-tooltip-title', titleText);
+        element.setAttribute('data-tooltip-text', titleText);
+        element.removeAttribute('title');
+        
+        return true;
+    },
+
+    convertSvgTitleToTooltip(svgElement) {
+        if (svgElement.dataset.tooltipHandled) return false;
+        
+        const titleElement = svgElement.querySelector('title');
+        if (!titleElement) return false;
+        
+        const titleText = titleElement.textContent || titleElement.innerHTML;
+        if (!titleText.trim()) return false;
+        
+        svgElement.dataset.tooltipHandled = '1';
+        svgElement.setAttribute('data-tooltip-title', titleText);
+        svgElement.setAttribute('data-tooltip-text', titleText);
+        
+        titleElement.remove();
+        
+        return true;
+    },
+
+    updateAllTranslations() {
+        const translations = languageTranslations[currentLang] || languageTranslations['zh'];
+        
+        document.querySelectorAll('[data-tooltip-title]:not(.cbi-progressbar)').forEach(el => {
+            const key = el.getAttribute('data-tooltip-title');
+            el.setAttribute('data-tooltip-text', translations[key] || key);
+        });
+    },
+
+    updateElementTranslation(element) {
+        if (element.classList.contains('cbi-progressbar')) return;
+        
+        const translations = languageTranslations[currentLang] || languageTranslations['zh'];
+        const key = element.getAttribute('data-tooltip-title');
+        if (!key) return;
+        
+        element.setAttribute('data-tooltip-text', translations[key] || key);
+    },
+
+    setupObserver() {
+        if (this.observer) {
+            this.observer.disconnect();
+        }
+        
+        this.observer = new MutationObserver(mutations => {
+            mutations.forEach(mutation => {
+                if (mutation.type === 'attributes' && mutation.attributeName === 'title') {
+                    const target = mutation.target;
+                    if (target.hasAttribute('title') && !target.classList.contains('cbi-progressbar')) {
+                        if (target.dataset.tooltipHandled) {
+                            delete target.dataset.tooltipHandled;
+                            target.removeAttribute('data-tooltip-title');
+                            target.removeAttribute('data-tooltip-text');
+                        }
+                        if (this.convertTitleToTooltip(target)) {
+                            this.updateElementTranslation(target);
+                        }
+                    }
+                }
+                
+                mutation.addedNodes.forEach(node => {
+                    if (node.nodeType !== 1) return;
+
+                    if (node.classList && node.classList.contains('cbi-progressbar')) {
+                        return;
+                    }
+                    
+                    if (node.hasAttribute('title')) {
+                        if (this.convertTitleToTooltip(node)) {
+                            this.updateElementTranslation(node);
+                        }
+                    }
+                    
+                    if (node.tagName === 'svg' || node.tagName === 'SVG') {
+                        if (node.querySelector('title')) {
+                            if (this.convertSvgTitleToTooltip(node)) {
+                                this.updateElementTranslation(node);
+                            }
+                        }
+                    }
+
+                    if (node.querySelectorAll) {
+                        node.querySelectorAll('[title]:not(.cbi-progressbar)').forEach(el => {
+                            if (this.convertTitleToTooltip(el)) {
+                                this.updateElementTranslation(el);
+                            }
+                        });
+                        
+                        node.querySelectorAll('svg:not(.cbi-progressbar)').forEach(svgEl => {
+                            if (svgEl.querySelector('title')) {
+                                if (this.convertSvgTitleToTooltip(svgEl)) {
+                                    this.updateElementTranslation(svgEl);
+                                }
+                            }
+                        });
+                    }
+                });
+            });
+        });
+
+        this.observer.observe(document.body, {
+            childList: true,
+            subtree: true,
+            attributes: true,
+            attributeFilter: ['title']
+        });
+    },
+
+    destroy() {
+        if (this.observer) {
+            this.observer.disconnect();
+            this.observer = null;
+        }
+        this.initialized = false;
+    }
+};
+
 function updateUIText() {
     const translations = languageTranslations[currentLang] || languageTranslations['zh'];
-    document.querySelectorAll('[data-translate]').forEach(element => {
-        const key = element.getAttribute('data-translate');
+
+    TooltipManager.init();
+
+    document.querySelectorAll('[data-translate]').forEach(el => {
+        const key = el.getAttribute('data-translate');
         if (translations[key]) {
-            element.textContent = translations[key];
+            el.textContent = translations[key];
         }
     });
 
-    document.querySelectorAll('[data-title]').forEach(element => {
-        const key = element.getAttribute('data-title');
+    document.querySelectorAll('[data-placeholder]').forEach(el => {
+        const key = el.getAttribute('data-placeholder');
         if (translations[key]) {
-            element.setAttribute('title', translations[key]);
+            el.setAttribute('placeholder', translations[key]);
         }
     });
 
-    document.querySelectorAll('[data-placeholder]').forEach(element => {
-        const key = element.getAttribute('data-placeholder');
+    document.querySelectorAll('[data-alt]').forEach(el => {
+        const key = el.getAttribute('data-alt');
         if (translations[key]) {
-            element.setAttribute('placeholder', translations[key]);
+            el.setAttribute('alt', translations[key]);
         }
     });
 
-    document.querySelectorAll('[data-alt]').forEach(element => {
-        const key = element.getAttribute('data-alt');
-        if (translations[key]) {
-            element.setAttribute('alt', translations[key]);
+    document.querySelectorAll('[data-translate-title]').forEach(el => {
+        const key = el.getAttribute('data-translate-title');
+        if (!translations[key]) return;
+
+        el.setAttribute('data-tooltip-title', translations[key]);
+        el.setAttribute('data-tooltip-text', translations[key]);
+        el.dataset.tooltipHandled = '1';
+        
+        if (el.hasAttribute('title')) {
+            el.removeAttribute('title');
+        }
+        
+        if (el.tagName === 'svg' || el.tagName === 'SVG') {
+            const titleElement = el.querySelector('title');
+            if (titleElement) {
+                titleElement.remove();
+            }
+        }
+        
+        if (el.tagName === 'img' || el.tagName === 'IMG') {
         }
     });
-    
+
+    document.querySelectorAll('img[title]').forEach(imgEl => {
+        const titleText = imgEl.getAttribute('title');
+        if (titleText && translations[titleText]) {
+            if (imgEl.dataset.tooltipHandled) {
+                imgEl.setAttribute('data-tooltip-text', translations[titleText]);
+            }
+        }
+    });
+
+    TooltipManager.updateAllTranslations();
+
+    if (!window.tooltipsInitialized) {
+        initTooltips();
+        window.tooltipsInitialized = true;
+    }
+
     updateFlagIcon(currentLang);
+}
+
+function initTooltips() {
+    const existing = document.querySelector('.custom-tooltip');
+    if (existing) existing.remove();
+
+    const tooltip = document.createElement('div');
+    tooltip.className = 'custom-tooltip';
+    tooltip.style.zIndex = '2147483647';
+    document.body.appendChild(tooltip);
+
+    let activeTarget = null;
+    let scrollTimer;
+
+    function showTooltip(target) {
+        const text = target.getAttribute('data-tooltip-text');
+        if (!text || activeTarget === target) return;
+
+        activeTarget = target;
+        tooltip.textContent = text;
+        tooltip.style.display = 'block';
+        tooltip.style.opacity = '0';
+
+        setTimeout(() => {
+            const tipRect = tooltip.getBoundingClientRect();
+            const rect = target.getBoundingClientRect();
+
+            let left = rect.left + (rect.width - tipRect.width) / 2;
+            let top = rect.top - tipRect.height - 8;
+            let placement = 'top';
+
+            if (left < 10) left = 10;
+            if (left + tipRect.width > window.innerWidth - 10) {
+                left = window.innerWidth - tipRect.width - 10;
+            }
+
+            if (top < 10) {
+                top = rect.bottom + 8;
+                placement = 'bottom';
+
+                if (top + tipRect.height > window.innerHeight - 10) {
+                    top = rect.top - tipRect.height - 8;
+                    placement = 'top';
+
+                    if (top < 10) {
+                        top = rect.top + 8;
+                        placement = 'bottom';
+                    }
+                }
+            }
+
+            tooltip.style.left = left + 'px';
+            tooltip.style.top = top + 'px';
+            tooltip.setAttribute('data-placement', placement);
+            tooltip.style.opacity = '';
+            tooltip.classList.add('active');
+        }, 10);
+    }
+
+    function hideTooltip() {
+        tooltip.classList.remove('active');
+        activeTarget = null;
+        setTimeout(() => {
+            if (!tooltip.classList.contains('active')) {
+                tooltip.style.display = 'none';
+            }
+        }, 200);
+    }
+
+    document.addEventListener('mouseover', e => {
+        const target = e.target.closest('[data-tooltip-text]');
+        if (!target) return hideTooltip();
+
+        clearTimeout(target._tooltipTimer);
+        target._tooltipTimer = setTimeout(() => showTooltip(target), 200);
+    });
+
+    document.addEventListener('mouseout', e => {
+        const target = e.target.closest('[data-tooltip-text]');
+        if (!target) return;
+
+        clearTimeout(target._tooltipTimer);
+        if (!e.relatedTarget?.closest('[data-tooltip-text], .custom-tooltip')) {
+            hideTooltip();
+        }
+    });
+
+    document.addEventListener('touchstart', e => {
+        const target = e.target.closest('[data-tooltip-text]');
+        if (!target) return hideTooltip();
+
+        clearTimeout(target._tooltipTimer);
+        target._tooltipTimer = setTimeout(() => showTooltip(target), 500);
+    });
+
+    document.addEventListener('touchend', hideTooltip);
+
+    window.addEventListener('scroll', () => {
+        clearTimeout(scrollTimer);
+        scrollTimer = setTimeout(hideTooltip, 100);
+    }, true);
+
+    window.addEventListener('resize', () => {
+        if (activeTarget) showTooltip(activeTarget);
+    });
+
+    document.addEventListener('click', e => {
+        if (!tooltip.contains(e.target)) {
+            hideTooltip();
+        }
+    });
+
+    window.addEventListener('beforeunload', () => {
+        document.querySelectorAll('[data-tooltip-text]').forEach(el => {
+            clearTimeout(el._tooltipTimer);
+        });
+    });
 }
 
 function updateFlagIcon(lang) {
@@ -3641,7 +5196,7 @@ function saveLanguage() {
     const languageText = translations[languageKey] || language;
     const standardCode = languageStandardMap[language] || language;
 
-    fetch('/luci-static/spectra/bgm/save_language.php', {
+    fetch('/spectra/save_language.php', {
         method: 'POST',
         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
         body: 'action=save_language&language=' + language
@@ -3659,6 +5214,9 @@ function saveLanguage() {
         
         if (colorVoiceEnabled) {
             const utterance = new SpeechSynthesisUtterance(msg);
+            utterance.volume = 1.0;
+            utterance.rate = 1.0;
+            utterance.pitch = 1.0;
             const voice = getCurrentVoice();
             if (voice) {
                 utterance.voice = voice;
@@ -3670,44 +5228,65 @@ function saveLanguage() {
             currentLang = language;
             updateUIText();
             UIkit.modal('#languageModal').hide();
+            
+            loadVoices().then(() => {
+                if (document.getElementById('voiceSelectContainer')) {
+                    populateVoiceSelect(currentLang);
+                }
+            });
         }
     });
 }
 
-function openLanguageModal() {
-    UIkit.modal('#languageModal').show();
-    
-    fetch('/luci-static/spectra/bgm/save_language.php', {
+function initLanguage() {
+    fetch('/spectra/save_language.php', {
         method: 'POST',
         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
         body: 'action=get_language'
     })
     .then(response => response.json())
     .then(data => {
-        let selectedLanguage = 'zh';
         if (data.success && data.language) {
-            selectedLanguage = data.language;
-            document.getElementById('languageSelect').value = selectedLanguage;
+            currentLang = data.language;
+            updateUIText();
+            
+            const languageSelect = document.getElementById('languageSelect');
+            if (languageSelect) {
+                languageSelect.value = currentLang;
+                updateFlagIcon(currentLang);
+            }
+            
+            loadVoices().then(() => {
+                if (document.getElementById('voiceSelectContainer')) {
+                    populateVoiceSelect(currentLang);
+                }
+            });
+        } else {
+            currentLang = 'zh';
+            updateUIText();
         }
-        
-        currentLang = selectedLanguage;
-        updateUIText();
-
-        const voiceToggle = document.getElementById('voiceToggle');
-        voiceToggle.checked = colorVoiceEnabled;
-
-        loadVoices().then(() => {
-            const voiceSelectContainer = document.getElementById('voiceSelectContainer');
-            voiceSelectContainer.style.display = 'block';
-            populateVoiceSelect(selectedLanguage);
-        });
     })
-    .catch(() => {
-        loadVoices().then(() => {
-            const voiceSelectContainer = document.getElementById('voiceSelectContainer');
+    .catch(error => {
+        currentLang = 'zh';
+        updateUIText();
+    });
+}
+
+function openLanguageModal() {
+    UIkit.modal('#languageModal').show();
+    
+    document.getElementById('languageSelect').value = currentLang;
+    updateFlagIcon(currentLang);
+    
+    const voiceToggle = document.getElementById('voiceToggle');
+    voiceToggle.checked = colorVoiceEnabled;
+    
+    loadVoices().then(() => {
+        const voiceSelectContainer = document.getElementById('voiceSelectContainer');
+        if (voiceSelectContainer) {
             voiceSelectContainer.style.display = 'block';
             populateVoiceSelect(currentLang);
-        });
+        }
     });
 }
 
@@ -3762,6 +5341,9 @@ function speakMessage(message) {
     //console.log('Speaking message with voice:', voice);
     if (voice) {
         const utterance = new SpeechSynthesisUtterance(message);
+        utterance.volume = 1.0;
+        utterance.rate = 1.0;
+        utterance.pitch = 1.0;
         utterance.voice = voice;
         speechSynthesis.speak(utterance);
     }
@@ -3787,6 +5369,10 @@ function getOptionTranslationKey(value) {
 }
 
 document.addEventListener('DOMContentLoaded', function() {
+    TooltipManager.init();
+    initLanguage();
+    updateUIText();
+    
     const languageSelect = document.getElementById('languageSelect');
     if (languageSelect) {
         languageSelect.addEventListener('change', function() {
@@ -3816,6 +5402,9 @@ document.addEventListener('DOMContentLoaded', function() {
                     localStorage.setItem(voiceKey, this.value);
                     
                     const utterance = new SpeechSynthesisUtterance(msg);
+                    utterance.volume = 1.0;
+                    utterance.rate = 1.0;
+                    utterance.pitch = 1.0;
                     utterance.voice = selectedVoice;
                     speechSynthesis.speak(utterance);
                 }
@@ -3835,7 +5424,7 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    fetch('/luci-static/spectra/bgm/save_language.php', {
+    fetch('/spectra/save_language.php', {
         method: 'POST',
         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
         body: 'action=get_language'
@@ -3908,6 +5497,7 @@ document.addEventListener('DOMContentLoaded', function() {
     };
 
     window.oklchToHex = function(h, c, l = 50) {
+        h = ((h % 360) + 360) % 360;
         const L = l / 100;
         const a = c * Math.cos(h * Math.PI / 180);
         const b = c * Math.sin(h * Math.PI / 180);
@@ -3926,6 +5516,28 @@ document.addEventListener('DOMContentLoaded', function() {
         };
         const [R, G, B] = [r, g, bLinear].map(v => Math.round(toSRGB(v) * 255));
         return `#${[R, G, B].map(x => x.toString(16).padStart(2, '0')).join('')}`.toUpperCase();
+    };
+
+    window.calculateContrastRatioForText = (bgHex, textHex) => {
+        const rgb = (hex) => {
+            const { r, g, b } = window.hexToRgb(hex);
+            return { r, g, b };
+        };
+    
+        const getLuminance = (c) => {
+            c = c / 255;
+            return c <= 0.03928 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4);
+        };
+
+        const bg = rgb(bgHex);
+        const text = rgb(textHex);
+
+        const Lbg = 0.2126 * getLuminance(bg.r) + 0.7152 * getLuminance(bg.g) + 0.0722 * getLuminance(bg.b);
+        const Ltext = 0.2126 * getLuminance(text.r) + 0.7152 * getLuminance(text.g) + 0.0722 * getLuminance(text.b);
+
+        return Lbg > Ltext
+            ? (Lbg + 0.05) / (Ltext + 0.05)
+            : (Ltext + 0.05) / (Lbg + 0.05);
     };
 
     window.calculateContrastRatio = function(hexColor) {
