@@ -10,7 +10,7 @@ $EXCLUDE_DIRS = [
 $TYPE_EXT = [
     'music'  => ['mp3', 'ogg', 'wav', 'flac', 'm4a', 'aac'],
     'video'  => ['mp4', 'avi', 'mkv', 'mov', 'wmv', 'flv', 'webm'],
-    'image'  => ['jpg', 'jpeg', 'png', 'gif', 'bmp', 'webp']
+    'image'  => ['jpg', 'jpeg', 'png', 'gif', 'bmp', 'webp', 'svg']
 ];
 
 if (isset($_GET['preview']) && $_GET['preview'] == '1' && isset($_GET['path'])) {
@@ -39,8 +39,8 @@ if (isset($_GET['preview']) && $_GET['preview'] == '1' && isset($_GET['path'])) 
     if (file_exists($realPath) && is_readable($realPath)) {
         $ext = strtolower(pathinfo($realPath, PATHINFO_EXTENSION));
         $mimeMap = [
-            'jpg' => 'image/jpeg', 'jpeg' => 'image/jpeg',
-            'png' => 'image/png', 'gif' => 'image/gif',
+            'jpg' => 'image/jpeg', 'jpeg' => 'image/jpeg', 'svg' => 'image/svg+xml',
+            'png' => 'image/png', 'gif' => 'image/gif', 'svgz' => 'image/svg+xml',
             'bmp' => 'image/bmp', 'webp' => 'image/webp',
             'mp3' => 'audio/mpeg', 'wav' => 'audio/wav',
             'ogg' => 'audio/ogg', 'flac' => 'audio/flac',
@@ -332,6 +332,7 @@ function getDiskInfo($path = '/') {
 function scanDirectory($path, $maxDepth = 5) {
     global $EXCLUDE_DIRS;
     $files = [];
+    $seenFiles = [];
     
     if (!is_dir($path) || !is_readable($path)) {
         return $files;
@@ -373,6 +374,16 @@ function scanDirectory($path, $maxDepth = 5) {
                 }
                 
                 if ($excluded) continue;
+
+                $fileName = $file->getFilename();
+                $fileSize = $file->getSize();
+                $fileKey = $fileName . '_' . $fileSize;
+                
+                if (isset($seenFiles[$fileKey])) {
+                    continue;
+                }
+                
+                $seenFiles[$fileKey] = true;
                 
                 $files[] = [
                     'path' => $realPath,
@@ -1993,7 +2004,7 @@ function playMedia(filePath) {
     
     const musicExts = ['mp3', 'wav', 'ogg', 'flac', 'm4a', 'aac'];
     const videoExts = ['mp4', 'avi', 'mkv', 'mov', 'wmv', 'flv', 'webm'];
-    const imageExts = ['jpg', 'jpeg', 'png', 'gif', 'bmp', 'webp'];
+    const imageExts = ['jpg', 'jpeg', 'png', 'gif', 'bmp', 'webp', 'svg'];
     
     audioPlayer.src = '';
     videoPlayer.src = '';
