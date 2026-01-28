@@ -2968,7 +2968,7 @@ function startSystemMonitoring() {
     
     updateSystemInfo();
     
-    systemMonitorInterval = setInterval(updateSystemInfo, 2000);
+    systemMonitorInterval = setInterval(updateSystemInfo, 1000);
 }
 
 function stopSystemMonitoring() {
