@@ -421,6 +421,8 @@ $langData = [
         'uptime_hours' => '小时',
         'minutes'      => '分钟',
         'seconds'      => '秒',
+        'toggle_menu'   => '折叠菜单',
+        'expand_menu'   => '展开菜单',
         'file_summary' => '已选择 %d 个文件，合计 %s MB'
     ],
 
@@ -842,6 +844,8 @@ $langData = [
         'uptime_hours' => '小時',
         'minutes'      => '分鐘',
         'seconds'      => '秒',
+        'toggle_menu' => '摺疊選單',
+        'expand_menu' => '展開選單',
         'validateYaml' => '驗證 YAML 語法'
     ],
 
@@ -1263,6 +1267,8 @@ $langData = [
         'uptime_hours' => '시간',
         'minutes'      => '분',
         'seconds'      => '초',
+        'toggle_menu' => '메뉴 접기',
+        'expand_menu' => '메뉴 펼치기',
         'validateYaml' => 'YAML 구문 검증'
     ],
 
@@ -1683,6 +1689,8 @@ $langData = [
         'uptime_hours' => '時間',
         'minutes'      => '分',
         'seconds'      => '秒',
+        'toggle_menu' => 'メニューを折りたたむ',
+        'expand_menu' => 'メニューを展開',
         'validateYaml' => 'YAML構文を検証'
     ],
 
@@ -2103,6 +2111,8 @@ $langData = [
         'uptime_hours' => 'giờ',
         'minutes'      => 'phút',
         'seconds'      => 'giây',
+        'toggle_menu' => 'Thu gọn menu',
+        'expand_menu' => 'Mở rộng menu',
         'validateYaml' => 'Kiểm tra Cú pháp YAML'
     ],
 
@@ -2507,6 +2517,8 @@ $langData = [
         'uptime_hours' => 'ชั่วโมง',
         'minutes'      => 'นาที',
         'seconds'      => 'วินาที',
+        'toggle_menu' => 'ย่อเมนู',
+        'expand_menu' => 'ขยายเมนู',
         'validateYaml' => 'ตรวจสอบไวยากรณ์ YAML'
     ],
     'ru' => [
@@ -2912,6 +2924,8 @@ $langData = [
         'uptime_hours' => 'часы',
         'minutes'      => 'минуты',
         'seconds'      => 'секунды',
+        'toggle_menu' => 'Свернуть меню',
+        'expand_menu' => 'Развернуть меню',
         'validateYaml' => 'Проверить синтаксис YAML'
     ],
     'ar' => [
@@ -3322,6 +3336,8 @@ $langData = [
         'uptime_hours' => 'ساعات',
         'minutes'      => 'دقائق',
         'seconds'      => 'ثواني',
+        'toggle_menu' => 'طي القائمة',
+        'expand_menu' => 'توسيع القائمة',
         'validateYaml' => 'التحقق من صحة بناء جملة YAML'
     ],
     'es' => [
@@ -3726,6 +3742,8 @@ $langData = [
         'uptime_hours' => 'horas',
         'minutes'      => 'minutos',
         'seconds'      => 'segundos',
+        'toggle_menu' => 'Contraer menú',
+        'expand_menu' => 'Expandir menú',
         'validateYaml' => 'Validar sintaxis YAML'
     ],
     'de' => [
@@ -4130,6 +4148,8 @@ $langData = [
         'uptime_hours' => 'Stunden',
         'minutes'      => 'Minuten',
         'seconds'      => 'Sekunden',
+        'toggle_menu' => 'Menü einklappen',
+        'expand_menu' => 'Menü ausklappen',
         'validateYaml' => 'YAML-Syntax validieren'
     ],
 
@@ -4535,6 +4555,8 @@ $langData = [
         'uptime_hours' => 'heures',
         'minutes'      => 'minutes',
         'seconds'      => 'secondes',
+        'toggle_menu' => 'Réduire le menu',
+        'expand_menu' => 'Déployer le menu',
         'validateYaml' => 'Valider la syntaxe YAML'
     ],
     'en' => [
@@ -4952,6 +4974,8 @@ $langData = [
         'uptime_hours' => 'hours',
         'minutes'      => 'minutes',
         'seconds'      => 'seconds',
+        'toggle_menu' => 'Collapse menu',
+        'expand_menu' => 'Expand menu',
         'validateYaml' => 'Validate YAML Syntax'
     ],
     'bn' => [
@@ -5356,6 +5380,8 @@ $langData = [
         'uptime_hours' => 'ঘণ্টা',
         'minutes'      => 'মিনিট',
         'seconds'      => 'সেকেন্ড',
+        'toggle_menu' => 'মেনু সংকুচিত করুন',
+        'expand_menu' => 'মেনু প্রসারিত করুন',
         'validateYaml' => 'YAML সিনট্যাক্স যাচাই করুন'
     ]
 ];
