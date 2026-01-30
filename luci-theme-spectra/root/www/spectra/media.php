@@ -1359,6 +1359,50 @@ body {
         min-width: 44px;
     }
 }
+
+.collapse-toggle {
+    position: absolute;
+    top: 25px;
+    right: -12px;
+    background: #333;
+    border: 1px solid #444;
+    color: #fff;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 100;
+    transition: all 0.3s;
+}
+
+.collapse-toggle:hover {
+    background: #444;
+}
+
+.side-nav.collapsed {
+    width: 70px;
+    padding: 20px 10px;
+}
+
+.side-nav.collapsed .nav-item span:not(.nav-icon),
+.side-nav.collapsed .nav-section-title,
+.side-nav.collapsed .system-status {
+    display: none;
+}
+
+.side-nav.collapsed .nav-item {
+    padding: 12px;
+    justify-content: center;
+    margin: 5px 0;
+}
+
+.side-nav.collapsed .nav-icon {
+    margin: 0;
+    font-size: 1.3rem;
+}
 </style>
 <div class="main-container">
     <div class="content-area" id="contentArea">
@@ -1401,42 +1445,48 @@ body {
         </div>
         
         <div style="display: flex; flex: 1; overflow: hidden;">
-            <div class="side-nav">
+            <div class="side-nav" id="sideNav">
                 <div class="nav-section">
-                    <div class="nav-section-title" data-translate="media_categories">Media Categories</div>
-                    <a href="#" class="nav-item active" onclick="showSection('home')">
+                    <div style="display: flex; justify-content: flex-end; padding: 0 10px 15px 10px;">
+                        <button class="collapse-toggle" id="collapseToggle" onclick="toggleSidebar()" data-translate-tooltip="toggle_menu">
+                            <i class="fas fa-chevron-left"></i>
+                        </button>
+                    </div>
+                    <a href="#" class="nav-item active" onclick="showSection('home')" data-translate-tooltip="home">
                         <span class="nav-icon"><i class="fas fa-home"></i></span>
                         <span data-translate="home">Home</span>
                     </a>
-                    <a href="#" class="nav-item" onclick="showSection('music')">
+                    <a href="#" class="nav-item" onclick="showSection('music')" data-translate-tooltip="audio">
                         <span class="nav-icon"><i class="fas fa-music"></i></span>
                         <span data-translate="audio">Music</span>
                     </a>
-                    <a href="#" class="nav-item" onclick="showSection('video')">
+                    <a href="#" class="nav-item" onclick="showSection('video')" data-translate-tooltip="video">
                         <span class="nav-icon"><i class="fas fa-video"></i></span>
                         <span data-translate="video">Video</span>
                     </a>
-                    <a href="#" class="nav-item" onclick="showSection('image')">
+                    <a href="#" class="nav-item" onclick="showSection('image')" data-translate-tooltip="image">
                         <span class="nav-icon"><i class="fas fa-image"></i></span>
                         <span data-translate="image">Image</span>
                     </a>
-                    <a href="#" class="nav-item" onclick="showSection('recent')">
+                    <a href="#" class="nav-item" onclick="showSection('recent')" data-translate-tooltip="recent_play">
                         <span class="nav-icon"><i class="fas fa-history"></i></span>
                         <span data-translate="recent_play">Recent Play</span>
                     </a>
                 </div>
                 
-                <div class="nav-section">
-                    <div class="nav-section-title" data-translate="system_status">System Status</div>
-                    <?php if ($diskInfo): ?>
-                    <div style="padding: 15px; color: #aaa; font-size: 0.9rem;">
-                        <div><span data-translate="disk_usage_colon">Disk Usage:</span> <?= $diskInfo['used_mb'] ?>MB / <?= $diskInfo['total_mb'] ?>MB</div>
-                        <div style="height: 6px; background: #333; border-radius: 3px; margin: 10px 0; overflow: hidden;">
-                            <div style="width: <?= $diskInfo['used_percent'] ?>%; height: 100%; background: #4CAF50;"></div>
+                <div class="system-status" id="systemStatus">
+                    <div class="nav-section">
+                        <div class="nav-section-title" data-translate="system_status">System Status</div>
+                        <?php if ($diskInfo): ?>
+                        <div style="padding: 15px; color: #aaa; font-size: 0.9rem;">
+                            <div><span data-translate="disk_usage_colon">Disk Usage:</span> <?= $diskInfo['used_mb'] ?>MB / <?= $diskInfo['total_mb'] ?>MB</div>
+                            <div style="height: 6px; background: #333; border-radius: 3px; margin: 10px 0; overflow: hidden;">
+                                <div style="width: <?= $diskInfo['used_percent'] ?>%; height: 100%; background: #4CAF50;"></div>
+                            </div>
+                            <div><span data-translate="free_space">Free Space:</span> <?= $diskInfo['free_mb'] ?>MB</div>
                         </div>
-                        <div><span data-translate="free_space">Free Space:</span> <?= $diskInfo['free_mb'] ?>MB</div>
+                        <?php endif; ?>
                     </div>
-                    <?php endif; ?>
                 </div>
             </div>
             
@@ -1644,7 +1694,9 @@ body {
                              oncontextmenu="showMediaInfo(event, this)">
                             <div class="media-thumb"><i class="fas fa-music"></i></div>
                             <div class="media-info">
-                                <div class="media-name"><?= $item['safe_name'] ?></div>
+                                <div class="media-name" title="<?= htmlspecialchars($item['safe_name'], ENT_QUOTES, 'UTF-8') ?>">
+                                    <?= $item['safe_name'] ?>
+                                </div>
                                 <div class="media-meta">
                                     <span><?= strtoupper($item['ext']) ?></span>
                                     <span><?= formatFileSize($item['size']) ?></span>
@@ -1689,6 +1741,8 @@ body {
                             } else {
                                 $duration = $bitrate = $resolution = 'Unknown';
                             }
+
+                            $previewUrl = "?preview=1&path=" . urlencode($item['path']);
                         ?>
                         <div class="media-item hover-playable" 
                              data-type="video"
@@ -1701,9 +1755,27 @@ body {
                              data-ext="<?= strtoupper($item['ext']) ?>"
                              onclick="playMedia('<?= $item['safe_path'] ?>')"
                              oncontextmenu="showMediaInfo(event, this)">
-                            <div class="media-thumb"><i class="fas fa-video"></i></div>
+                             <div class="media-thumb">
+                                 <video class="video-thumbnail" 
+                                     preload="metadata"
+                                     playsinline
+                                     muted
+                                     style="width: 100%; height: 100%; object-fit: cover; border-radius: 8px;">
+                                 <source src="<?= $previewUrl ?>" type="video/mp4">
+                                 <source src="<?= $previewUrl ?>" type="video/webm">
+                                 <source src="<?= $previewUrl ?>" type="video/ogg">
+                                 <div style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+                                     <i class="fas fa-video"></i>
+                                 </div>
+                             </video>
+                             <div class="video-overlay" style="position: absolute; top: 10px; left: 10px; background: rgba(0,0,0,0.6); padding: 4px 8px; border-radius: 4px;">
+                                 <i class="fas fa-play text-white" style="font-size: 12px;"></i>
+                             </div>
+                         </div>
                             <div class="media-info">
-                                <div class="media-name"><?= $item['safe_name'] ?></div>
+                                <div class="media-name" title="<?= htmlspecialchars($item['safe_name'], ENT_QUOTES, 'UTF-8') ?>">
+                                    <?= $item['safe_name'] ?>
+                                </div>
                                 <div class="media-meta">
                                     <span><?= strtoupper($item['ext']) ?></span>
                                     <span><?= formatFileSize($item['size']) ?></span>
@@ -1758,7 +1830,9 @@ body {
                                      onerror="handleThumbError(this)">
                             </div>
                             <div class="media-info">
-                                <div class="media-name"><?= $item['safe_name'] ?></div>
+                                <div class="media-name" title="<?= htmlspecialchars($item['safe_name'], ENT_QUOTES, 'UTF-8') ?>">
+                                    <?= $item['safe_name'] ?>
+                                </div>
                                 <div class="media-meta">
                                     <span><?= strtoupper($item['ext']) ?></span>
                                     <span><?= formatFileSize($item['size']) ?></span>
@@ -1970,8 +2044,14 @@ function showSection(sectionId) {
     }
     
     document.querySelector('.media-grid-container').scrollTop = 0;
-}
     
+    if (sectionId === 'home') {
+        startSystemMonitoring();
+    } else {
+        stopSystemMonitoring();
+    }
+}
+     
 function playMedia(filePath) {    
     filePath = filePath.trim();
     
@@ -2575,7 +2655,9 @@ function initHoverPlay() {
             
             if (type === 'audio') {
                 hoverAudio = new Audio(src);
-                hoverAudio.volume = 0.5;
+                hoverAudio.volume = 0.9;
+                hoverAudio.play().catch(e => {
+                });
             } 
             else if (type === 'video' && userInteracted) {
                 const thumb = this.querySelector('.media-thumb');
@@ -2638,11 +2720,16 @@ function stopHoverPlay() {
         hoverVideo.pause();
         hoverVideo.currentTime = 0;
         
-        if (hoverVideoContainer && hoverVideoContainer.parentNode) {
-            hoverVideoContainer.parentNode.removeChild(hoverVideoContainer);
-            
-            const icon = hoverVideoContainer.parentNode.querySelector('i');
-            if (icon) icon.style.opacity = '1';
+        if (hoverVideoContainer) {
+            const parent = hoverVideoContainer.parentElement;
+            if (parent) {
+                const icon = parent.querySelector('i');
+                if (icon) icon.style.opacity = '1';
+                
+                if (parent.contains(hoverVideoContainer)) {
+                    parent.removeChild(hoverVideoContainer);
+                }
+            }
         }
         
         hoverVideo = null;
@@ -2786,6 +2873,24 @@ function initCharts() {
         console.log('Chart canvas not found');
         return;
     }
+
+    if (cpuChart) {
+        cpuChart.destroy();
+    }
+
+    if (memChart) {
+        memChart.destroy();
+    }
+    
+    const cpuContext = cpuCtx.getContext('2d');
+    const memContext = memCtx.getContext('2d');
+    cpuContext.clearRect(0, 0, cpuCtx.width, cpuCtx.height);
+    memContext.clearRect(0, 0, memCtx.width, memCtx.height);
+    
+    cpuCtx.width = cpuCtx.offsetWidth;
+    cpuCtx.height = cpuCtx.offsetHeight;
+    memCtx.width = memCtx.offsetWidth;
+    memCtx.height = memCtx.offsetHeight;
     
     cpuData = [];
     memData = [];
@@ -2957,6 +3062,15 @@ updateNetworkSpeed.lastTx = 0;
 function startSystemMonitoring() {
     stopSystemMonitoring();
     
+    if (cpuChart) {
+        cpuChart.destroy();
+        cpuChart = null;
+    }
+    if (memChart) {
+        memChart.destroy();
+        memChart = null;
+    }
+    
     if (document.getElementById('cpuChartCanvas') && typeof Chart !== 'undefined') {
         initCharts();
     } else if (typeof Chart === 'undefined') {
@@ -2978,35 +3092,49 @@ function stopSystemMonitoring() {
     }
 }
 
-function showSection(sectionId) {
-    document.querySelectorAll('.nav-item').forEach(item => {
-        item.classList.remove('active');
-    });
-    const navItem = document.querySelector(`.nav-item[onclick="showSection('${sectionId}')"]`);
-    if (navItem) {
-        navItem.classList.add('active');
-    }
+let sidebarCollapsed = false;
+
+function toggleSidebar() {
+    const sideNav = document.getElementById('sideNav');
+    const toggleBtn = document.getElementById('collapseToggle');
     
-    document.querySelectorAll('.grid-section').forEach(section => {
-        section.style.display = 'none';
-    });
-    const targetSection = document.getElementById(sectionId + 'Section');
-    if (targetSection) {
-        targetSection.style.display = 'block';
-    }
+    sidebarCollapsed = !sidebarCollapsed;
     
-    document.querySelector('.media-grid-container').scrollTop = 0;
-    
-    if (sectionId === 'home') {
-        startSystemMonitoring();
+    if (sidebarCollapsed) {
+        sideNav.classList.add('collapsed');
+        toggleBtn.innerHTML = '<i class="fas fa-chevron-right"></i>';
+        toggleBtn.style.transform = 'rotate(0deg)';
+        toggleBtn.setAttribute('data-translate-tooltip', 'expand_menu'); 
     } else {
-        stopSystemMonitoring();
+        sideNav.classList.remove('collapsed');
+        toggleBtn.innerHTML = '<i class="fas fa-chevron-left"></i>';
+        toggleBtn.style.transform = '';
+        toggleBtn.setAttribute('data-translate-tooltip', 'toggle_menu');
+    }
+    
+    localStorage.setItem('sidebarCollapsed', sidebarCollapsed ? 'true' : 'false');
+}
+
+function initSidebarState() {
+    const savedState = localStorage.getItem('sidebarCollapsed');
+    if (savedState === 'true') {
+        const sideNav = document.getElementById('sideNav');
+        const toggleBtn = document.getElementById('collapseToggle');
+        
+        if (sideNav && toggleBtn) {
+            sideNav.classList.add('collapsed');
+            toggleBtn.innerHTML = '<i class="fas fa-chevron-right"></i>';
+            toggleBtn.style.transform = 'rotate(0deg)';
+            toggleBtn.setAttribute('data-translate-tooltip', 'expand_menu');
+            sidebarCollapsed = true;
+        }
     }
 }
-    
+   
 document.addEventListener('DOMContentLoaded', function() {
     updateRecentList();
     initHoverPlay();
+    initSidebarState();
     startSystemMonitoring();
     initAutoPlayToggle();  
 
