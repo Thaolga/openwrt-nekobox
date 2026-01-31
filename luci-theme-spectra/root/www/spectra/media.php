@@ -1378,6 +1378,10 @@ body {
     display: none;
 }
 
+.side-nav.collapsed .lunar-sidebar {
+    display: none !important;
+}
+
 .side-nav.collapsed .nav-item {
     padding: 12px;
     justify-content: center;
@@ -1509,6 +1513,15 @@ body {
     overflow: hidden !important;
     text-overflow: ellipsis !important;
 }
+
+.lunar-sidebar {
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    margin-top: 10px;
+}
+
+.side-nav.collapsed .lunar-sidebar {
+    display: none !important;
+}
 </style>
 <div class="main-container">
     <div class="content-area" id="contentArea">
@@ -1594,10 +1607,21 @@ body {
                         <?php endif; ?>
                     </div>
                 </div>
-            </div>
 
-            <div class="resizer" id="resizer"></div>
-            
+                <div class="lunar-sidebar lunar-collapsible">
+                    <div class="nav-section">
+                        <div style="padding: 12px 15px;">
+                        <div style="text-align: center;">
+                            <div id="dateDisplay" style="color: #4CAF50;"></div>
+                            <div id="weekDisplay" style="color: #aaa; margin: 3px 0;"></div>
+                            <div id="lunarDisplay" style="color: #2196F3; font-size: 1.1rem; margin: 5px 0;"></div>
+                            <div id="timeDisplay" style="color: #9C27B0; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 10px; margin-top: 10px;"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+            <div class="resizer" id="resizer"></div>          
             <div class="media-grid-container" id="gridContainer">
                 <div id="homeSection" class="grid-section">
                     <div class="grid-title">
@@ -1646,19 +1670,51 @@ body {
                             <div class="card bg-dark border-secondary h-100">
                                 <div class="card-body">
                                     <h5 class="card-title text-success mb-4" data-translate="quick_actions">Quick Actions</h5>
-                                    <div class="d-grid gap-2">
-                                        <button class="btn btn-outline-light text-start" onclick="showSection('music')">
-                                            <i class="fas fa-music me-2"></i>
-                                            <span data-translate="browse_music">Browse Music</span>
-                                        </button>
-                                        <button class="btn btn-outline-light text-start" onclick="showSection('video')">
-                                            <i class="fas fa-video me-2"></i>
-                                            <span data-translate="browse_video">Browse Video</span>
-                                        </button>
-                                        <button class="btn btn-outline-light text-start" onclick="showSection('image')">
-                                            <i class="fas fa-image me-2"></i>
-                                            <span data-translate="browse_images">Browse Images</span>
-                                        </button>
+                                    <div class="row g-3">
+                                        <div class="col-6">
+                                            <div class="bg-black bg-opacity-25 rounded p-3 text-center quick-action-card" onclick="showSection('music')">
+                                                <div class="action-icon mb-3">
+                                                    <i class="fas fa-music fa-2x text-success"></i>
+                                                </div>
+                                                <div class="action-title text-white" data-translate="browse_music">Browse Music</div>
+                                                <div class="action-count small text-success mt-2">
+                                                    <?= count($media['music']) ?> <span data-translate="items">items</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-6">
+                                            <div class="bg-black bg-opacity-25 rounded p-3 text-center quick-action-card" onclick="showSection('video')">
+                                                <div class="action-icon mb-3">
+                                                    <i class="fas fa-video fa-2x text-primary"></i>
+                                                </div>
+                                                <div class="action-title text-white" data-translate="browse_video">Browse Video</div>
+                                                <div class="action-count small text-primary mt-2">
+                                                    <?= count($media['video']) ?> <span data-translate="items">items</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-6">
+                                            <div class="bg-black bg-opacity-25 rounded p-3 text-center quick-action-card" onclick="showSection('image')">
+                                                <div class="action-icon mb-3">
+                                                    <i class="fas fa-image fa-2x text-info"></i>
+                                                </div>
+                                                <div class="action-title text-white" data-translate="browse_images">Browse Images</div>
+                                                <div class="action-count small text-info mt-2">
+                                                    <?= count($media['image']) ?> <span data-translate="items">items</span>
+                                                </div>
+                                           </div>
+                                       </div>
+                                       <div class="col-6">
+                                          <div class="bg-black bg-opacity-25 rounded p-3 text-center quick-action-card" onclick="showSection('recent')">
+                                              <div class="action-icon mb-3">
+                                                  <i class="fas fa-history fa-2x text-warning"></i>
+                                              </div>
+                                              <div class="action-title text-white" data-translate="recent_play">Recent Play</div>
+                                              <div class="action-count small text-warning mt-2">
+                                                  <?= !empty($recent) ? count($recent) : 0 ?> <span data-translate="items">items</span>
+                                              </div>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
