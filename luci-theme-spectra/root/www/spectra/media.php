@@ -578,7 +578,7 @@ body {
     margin-bottom: 15px;
 }
 
-.nav-item {
+.side-nav .nav-item {
     display: flex;
     align-items: center;
     gap: 12px;
@@ -586,15 +586,17 @@ body {
     color: #ccc;
     text-decoration: none;
     transition: all 0.3s;
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
     border-left: 3px solid transparent;
     border-radius: 8px;
     margin: 5px 0;
 }
 
-.nav-item:hover {
-    background: rgba(51, 51, 51, 0.8);
-    color: white;
+.side-nav .nav-item:hover {
+    background-color: rgba(76, 175, 80, 0.2) !important;
+    color: white !important;
     transform: translateX(3px);
+    border-color: rgba(76, 175, 80, 0.5) !important;
 }
 
 .nav-item.active {
@@ -1107,6 +1109,11 @@ body {
     font-size: 1.2rem;
     padding: 5px;
     border-radius: 5px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 30px;
+    height: 30px;
 }
 
 .context-menu-close:hover {
@@ -1360,28 +1367,6 @@ body {
     }
 }
 
-.collapse-toggle {
-    position: absolute;
-    top: 25px;
-    right: -12px;
-    background: #333;
-    border: 1px solid #444;
-    color: #fff;
-    width: 28px;
-    height: 28px;
-    border-radius: 50%;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 100;
-    transition: all 0.3s;
-}
-
-.collapse-toggle:hover {
-    background: #444;
-}
-
 .side-nav.collapsed {
     width: 70px;
     padding: 20px 10px;
@@ -1403,12 +1388,116 @@ body {
     margin: 0;
     font-size: 1.3rem;
 }
+
+.fa-server {
+    cursor: pointer !important;
+    transition: transform 0.3s ease !important;
+    padding: 2px;
+    border-radius: 3px;
+}
+
+.fa-server:hover {
+    background: rgba(76, 175, 80, 0.1);
+    transform: rotate(90deg);
+}
+
+.side-nav.collapsed ~ #contentArea .fa-server {
+    transform: rotate(90deg);
+}
+
+.resizer {
+    width: 5px;
+    background: transparent;
+    cursor: col-resize;
+    position: relative;
+    z-index: 100;
+    transition: background 0.2s;
+    margin: 0 -2px;
+}
+
+.resizer:hover,
+.resizer.dragging {
+    background: #4CAF50;
+}
+
+.resizer::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 3px;
+    height: 30px;
+    background: #4CAF50;
+    border-radius: 2px;
+    opacity: 0;
+    transition: opacity 0.2s;
+}
+
+.resizer:hover::after {
+    opacity: 1;
+}
+
+.resizer.dragging::after {
+    opacity: 1;
+}
+
+.content-area {
+    position: relative;
+}
+
+.side-nav {
+    transition: width 0.3s ease;
+}
+
+.player-area {
+    min-width: 300px;
+    max-width: 80%;
+} 
+
+.card {
+    transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
+    border: 1px solid transparent;
+}
+
+.card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+    border-color: rgba(76, 175, 80, 0.3) !important;
+}
+
+.bg-black.bg-opacity-25,
+.status-tile {
+    transition: transform 0.3s ease, box-shadow 0.3s ease, background-color 0.3s ease;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.bg-black.bg-opacity-25:hover,
+.status-tile:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+    background-color: rgba(0, 0, 0, 0.4) !important;
+    border-color: rgba(76, 175, 80, 0.2) !important;
+}
+
+.card.border-secondary {
+    border-color: #444 !important;
+}
+
+.card.border-secondary:hover {
+    border-color: rgba(76, 175, 80, 0.5) !important;
+}
 </style>
 <div class="main-container">
     <div class="content-area" id="contentArea">
         <div class="top-bar">
             <div class="logo">
-                <h1><i class="fas fa-server"></i> <span data-translate="openwrt_media_center">OpenWrt Media Center</span></h1>
+                <h1>
+                    <i class="fas fa-server logo-toggle" onclick="toggleSidebar()" 
+                       data-translate-tooltip="toggle_menu" style="cursor: pointer; transition: transform 0.3s;">
+                    </i> 
+                    <span data-translate="openwrt_media_center">OpenWrt Media Center</span>
+                </h1>
             </div>
             
             <div class="stats">
@@ -1447,11 +1536,6 @@ body {
         <div style="display: flex; flex: 1; overflow: hidden;">
             <div class="side-nav" id="sideNav">
                 <div class="nav-section">
-                    <div style="display: flex; justify-content: flex-end; padding: 0 10px 15px 10px;">
-                        <button class="collapse-toggle" id="collapseToggle" onclick="toggleSidebar()" data-translate-tooltip="toggle_menu">
-                            <i class="fas fa-chevron-left"></i>
-                        </button>
-                    </div>
                     <a href="#" class="nav-item active" onclick="showSection('home')" data-translate-tooltip="home">
                         <span class="nav-icon"><i class="fas fa-home"></i></span>
                         <span data-translate="home">Home</span>
@@ -1489,6 +1573,8 @@ body {
                     </div>
                 </div>
             </div>
+
+            <div class="resizer" id="resizer"></div>
             
             <div class="media-grid-container" id="gridContainer">
                 <div id="homeSection" class="grid-section">
@@ -1496,152 +1582,231 @@ body {
                         <i class="fas fa-home"></i>
                         <span data-translate="welcome_to_media_center">Welcome to Media Center</span>
                     </div>
-                    
-                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
-                        <div style="background: #2c2c2c; border-radius: 10px; padding: 25px; border: 1px solid #444;">
-                            <h3 style="margin-bottom: 20px; color: #4CAF50;" data-translate="media_statistics">Media Statistics</h3>
-                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
-                                <div style="text-align: center; padding: 15px; background: #333; border-radius: 8px;">
-                                    <div style="font-size: 2rem; color: #4CAF50; margin-bottom: 5px;"><?= count($media['music']) ?></div>
-                                    <div style="color: #aaa;" data-translate="music_files">Music Files</div>
-                                </div>
-                                <div style="text-align: center; padding: 15px; background: #333; border-radius: 8px;">
-                                    <div style="font-size: 2rem; color: #4CAF50; margin-bottom: 5px;"><?= count($media['video']) ?></div>
-                                    <div style="color: #aaa;" data-translate="video_files">Video Files</div>
-                                </div>
-                                <div style="text-align: center; padding: 15px; background: #333; border-radius: 8px;">
-                                    <div style="font-size: 2rem; color: #4CAF50; margin-bottom: 5px;"><?= count($media['image']) ?></div>
-                                    <div style="color: #aaa;" data-translate="image_files">Image Files</div>
-                                </div>
-                                <div style="text-align: center; padding: 15px; background: #333; border-radius: 8px;">
-                                    <div style="font-size: 2rem; color: #4CAF50; margin-bottom: 5px;"><?= count($media['music']) + count($media['video']) + count($media['image']) ?></div>
-                                    <div style="color: #aaa;" data-translate="total_files">Total Files</div>
+                        
+                    <div class="row g-4">
+                        <div class="col-lg-6">
+                            <div class="card bg-dark border-secondary h-100">
+                                <div class="card-body">
+                                    <h5 class="card-title text-success mb-4" data-translate="media_statistics">Media Statistics</h5>
+                                    <div class="row g-3">
+                                        <div class="col-6">
+                                            <div class="bg-black bg-opacity-25 rounded p-3 text-center">
+                                                <div class="display-6 text-success mb-2"><?= count($media['music']) ?></div>
+                                                <div class="text-white-50" data-translate="music_files">Music Files</div>
+                                            </div>
+                                        </div>
+                                        <div class="col-6">
+                                            <div class="bg-black bg-opacity-25 rounded p-3 text-center">
+                                                <div class="display-6 text-success mb-2"><?= count($media['video']) ?></div>
+                                                <div class="text-white-50" data-translate="video_files">Video Files</div>
+                                            </div>
+                                        </div>
+                                        <div class="col-6">
+                                            <div class="bg-black bg-opacity-25 rounded p-3 text-center">
+                                                <div class="display-6 text-success mb-2"><?= count($media['image']) ?></div>
+                                                <div class="text-white-50" data-translate="image_files">Image Files</div>
+                                            </div>
+                                        </div>
+                                        <div class="col-6">
+                                            <div class="bg-black bg-opacity-25 rounded p-3 text-center">
+                                                <div class="display-6 text-success mb-2">
+                                                    <?= count($media['music']) + count($media['video']) + count($media['image']) ?>
+                                                </div>
+                                                <div class="text-white-50" data-translate="total_files">Total Files</div>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
 
-                        <div style="background: #2c2c2c; border-radius: 10px; padding: 25px; border: 1px solid #444;">
-                            <h3 style="margin-bottom: 20px; color: #4CAF50;" data-translate="quick_actions">Quick Actions</h3>
-                            <div style="display: flex; flex-direction: column; gap: 12px;">
-                                <button class="action-btn" onclick="showSection('music')" style="justify-content: flex-start; text-align: left;">
-                                    <i class="fas fa-music"></i>
-                                    <span data-translate="browse_music">Browse Music</span>
-                                </button>
-                                <button class="action-btn" onclick="showSection('video')" style="justify-content: flex-start; text-align: left;">
-                                    <i class="fas fa-video"></i>
-                                    <span data-translate="browse_video">Browse Video</span>
-                                </button>
-                                <button class="action-btn" onclick="showSection('image')" style="justify-content: flex-start; text-align: left;">
-                                    <i class="fas fa-image"></i>
-                                    <span data-translate="browse_images">Browse Images</span>
-                                </button>
+                        <div class="col-lg-6">
+                            <div class="card bg-dark border-secondary h-100">
+                                <div class="card-body">
+                                    <h5 class="card-title text-success mb-4" data-translate="quick_actions">Quick Actions</h5>
+                                    <div class="d-grid gap-2">
+                                        <button class="btn btn-outline-light text-start" onclick="showSection('music')">
+                                            <i class="fas fa-music me-2"></i>
+                                            <span data-translate="browse_music">Browse Music</span>
+                                        </button>
+                                        <button class="btn btn-outline-light text-start" onclick="showSection('video')">
+                                            <i class="fas fa-video me-2"></i>
+                                            <span data-translate="browse_video">Browse Video</span>
+                                        </button>
+                                        <button class="btn btn-outline-light text-start" onclick="showSection('image')">
+                                            <i class="fas fa-image me-2"></i>
+                                            <span data-translate="browse_images">Browse Images</span>
+                                        </button>
+                                    </div>
+                                </div>
                             </div>
                         </div>
 
-                        <div style="background: #2c2c2c; border-radius: 10px; padding: 25px; border: 1px solid #444;">
-                            <h3 style="margin-bottom: 20px; color: #4CAF50;" data-translate="system_status">System Status</h3>
-                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px;">
-                                <div style="text-align: center; padding: 15px; background: #333; border-radius: 8px;">
-                                    <div style="font-size: 1.5rem; color: #4CAF50; margin-bottom: 5px;" id="cpuUsageDisplay">--%</div>
-                                    <div style="color: #aaa;" data-translate="cpu_usage">CPU Usage</div>
-                                    <div style="font-size: 0.8rem; color: #666; margin-top: 5px;" id="cpuCoresDisplay">
-                                        <i class="fas fa-microchip"></i> <span id="cpuCoresValue">--</span> <span data-translate="cores">cores</span>
+                        <div class="col-lg-6">
+                            <div class="card bg-dark border-secondary h-100">
+                                <div class="card-body">
+                                    <h5 class="card-title text-success mb-4" data-translate="system_status">System Status</h5>
+                                    <div class="row g-3 mb-3">
+                                        <div class="col-6">
+                                            <div class="bg-black bg-opacity-25 rounded p-3 text-center">
+                                                <div class="h3 text-success mb-2" id="cpuUsageDisplay">--%</div>
+                                                <div class="text-white-50" data-translate="cpu_usage">CPU Usage</div>
+                                                <div class="small text-secondary mt-2">
+                                                    <i class="fas fa-microchip me-1"></i>
+                                                    <span id="cpuCoresValue">--</span> <span data-translate="cores">cores</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-6">
+                                            <div class="bg-black bg-opacity-25 rounded p-3 text-center">
+                                                <div class="h3 text-primary mb-2" id="memUsageDisplay">--%</div>
+                                                <div class="text-white-50" data-translate="memory_usage">Memory Usage</div>
+                                                <div class="small text-secondary mt-2">
+                                                    <i class="fas fa-memory me-1"></i>
+                                                    <span id="memUsedDisplay">--</span>/<span id="memTotalDisplay">--</span> MB
+                                                </div>
+                                            </div>
+                                        </div>
                                     </div>
-                                </div>
-                                <div style="text-align: center; padding: 15px; background: #333; border-radius: 8px;">
-                                    <div style="font-size: 1.5rem; color: #2196F3; margin-bottom: 5px;" id="memUsageDisplay">--%</div>
-                                    <div style="color: #aaa;" data-translate="memory_usage">Memory Usage</div>
-                                    <div style="font-size: 0.8rem; color: #666; margin-top: 5px;">
-                                        <i class="fas fa-memory"></i> <span id="memUsedDisplay">--</span>/<span id="memTotalDisplay">--</span> MB
-                                    </div>
-                                </div>
-                            </div>
 
-                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
-                                <div style="text-align: center; padding: 15px; background: #333; border-radius: 8px;">
-                                    <div style="font-size: 1.2rem; color: #3F51B5; margin-bottom: 5px;" id="openwrtVersionDisplay">--</div>
-                                    <div style="color: #aaa; font-size: 0.9rem;" data-translate="openwrt_version">OpenWrt Version</div>
+                                    <div class="row g-3">
+                                        <div class="col-6">
+                                            <div class="bg-black bg-opacity-25 rounded p-3 text-center status-tile d-flex flex-column justify-content-center">
+                                                <div class="h5 text-info mb-2" id="openwrtVersionDisplay">--</div>
+                                                <div class="small text-white-50" data-translate="openwrt_version">OpenWrt Version</div>
+                                            </div>
+                                        </div>
+                                        <div class="col-6">
+                                            <div class="bg-black bg-opacity-25 rounded p-3 text-center status-tile d-flex flex-column justify-content-center">
+                                                <div class="h5 text-brown mb-2" style="color: #795548;" id="kernelVersionDisplay">--</div>
+                                                <div class="small text-white-50" data-translate="kernel_version">Kernel Version</div>
+                                            </div>
+                                        </div>
+                                        <div class="col-6">
+                                            <div class="bg-black bg-opacity-25 rounded p-3 text-center status-tile d-flex flex-column justify-content-center">
+                                                <div class="h5 text-teal mb-2" style="color: #008000;" id="boardModelDisplay">--</div>
+                                                <div class="small text-white-50" data-translate="board_model">Board Model</div>
+                                            </div>
+                                        </div>
+                                        <div class="col-6">
+                                            <div class="bg-black bg-opacity-25 rounded p-3 text-center status-tile d-flex flex-column justify-content-center">
+                                                <div class="h5 text-warning mb-2" id="timeValue">--:--:--</div>
+                                                <div class="small text-white-50" data-translate="system_time">System Time</div>
+                                            </div>
+                                        </div>
+                                        <div class="col-6">
+                                            <div class="bg-black bg-opacity-25 rounded p-3 text-center status-tile d-flex flex-column justify-content-center">
+                                                <div class="h5 text-cyan mb-2" style="color: #8A2BE2;" id="timezoneDisplay">--</div>
+                                                <div class="small text-white-50" data-translate="timezone">Timezone</div>
+                                            </div>
+                                        </div>
+                                        <div class="col-6">
+                                            <div class="bg-black bg-opacity-25 rounded p-3 text-center status-tile d-flex flex-column justify-content-center">
+                                                <div class="h5 text-pink mb-2" style="color: #E91E63;" id="loadAvgDisplay">--</div>
+                                                <div class="small text-white-50" data-translate="load_average">Load Average</div>
+                                            </div>
+                                        </div>
+                                        <div class="col-12">
+                                            <div class="bg-black bg-opacity-25  rounded p-3 text-center">
+                                                <div class="h4 text-purple mb-2" style="color: #9C27B0;" id="uptimeDisplay">--:--:--</div>
+                                                <div class="small text-white-50" data-translate="uptime">Uptime</div>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
-                                <div style="text-align: center; padding: 15px; background: #333; border-radius: 8px;">
-                                    <div style="font-size: 1.2rem; color: #795548; margin-bottom: 5px;" id="kernelVersionDisplay">--</div>
-                                    <div style="color: #aaa; font-size: 0.9rem;" data-translate="kernel_version">Kernel Version</div>
-                                </div>
-                            </div>
-    
-                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
-                                <div style="text-align: center; padding: 15px; background: #333; border-radius: 8px;">
-                                    <div style="font-size: 1.2rem; color: #009688; margin-bottom: 5px;" id="boardModelDisplay">--</div>
-                                    <div style="color: #aaa; font-size: 0.9rem;" data-translate="board_model">Board Model</div>
-                                </div>
-                                <div style="text-align: center; padding: 15px; background: #333; border-radius: 8px;">
-                                    <div style="font-size: 1.2rem; color: #FF9800; margin-bottom: 5px;" id="timeValue">--:--:--</div>
-                                    <div style="color: #aaa; font-size: 0.9rem;" data-translate="system_time">System Time</div>
-                                </div>
-                            </div>
-    
-                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
-                                <div style="text-align: center; padding: 15px; background: #333; border-radius: 8px;">
-                                    <div style="font-size: 1.2rem; color: #00BCD4; margin-bottom: 5px;" id="timezoneDisplay">--</div>
-                                    <div style="color: #aaa; font-size: 0.9rem;" data-translate="timezone">Timezone</div>
-                                </div>
-                                <div style="text-align: center; padding: 15px; background: #333; border-radius: 8px;">
-                                    <div style="font-size: 1.2rem; color: #E91E63; margin-bottom: 5px;" id="loadAvgDisplay">--</div>
-                                    <div style="color: #aaa; font-size: 0.9rem;" data-translate="load_average">Load Average</div>
-                                </div>
-                            </div>
-    
-                            <div style="text-align: center; padding: 15px; background: #333; border-radius: 8px; margin-bottom: 0;">
-                                <div style="font-size: 1.2rem; color: #9C27B0; margin-bottom: 5px;" id="uptimeDisplay">--:--:--</div>
-                                <div style="color: #aaa; font-size: 0.9rem;" data-translate="uptime">Uptime</div>
                             </div>
                         </div>
 
-                        <div style="background: #2c2c2c; border-radius: 10px; padding: 25px; border: 1px solid #444;">
-                            <h3 style="margin-bottom: 20px; color: #4CAF50;" data-translate="system_monitoring">System Monitoring</h3>
-                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
-                                <div>
-                                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
-                                        <span style="color: #fff; font-weight: 500;" data-translate="cpu_usage">CPU Usage</span>
-                                        <span id="cpuUsageValue" style="color: #4CAF50; font-weight: bold;"><?= $systemInfo['cpu_usage'] ?>%</span>
+                        <div class="col-lg-6">
+                            <div class="card bg-dark border-secondary h-100">
+                                <div class="card-body">
+                                    <h5 class="card-title text-success mb-4" data-translate="system_monitoring">System Monitoring</h5>
+                                    <div class="row g-4 mb-4">
+                                        <div class="col-md-6">
+                                            <div class="card bg-black bg-opacity-25 border-secondary h-100">
+                                                <div class="card-body d-flex flex-column">
+                                                    <div class="d-flex justify-content-between align-items-center mb-2">
+                                                        <span class="text-white fw-medium" data-translate="cpu_usage">CPU Usage</span>
+                                                        <span class="text-success fw-bold" id="cpuUsageValue">
+                                                            <?= $systemInfo['cpu_usage'] ?>%
+                                                        </span>
+                                                    </div>
+                                                    <div class="progress mb-3" style="height: 30px;">
+                                                        <div class="progress-bar bg-success progress-bar-striped progress-bar-animated" 
+                                                             id="cpuUsageBar" 
+                                                             style="width: <?= min($systemInfo['cpu_usage'], 100) ?>%">
+                                                            <span class="visually-hidden">CPU Usage</span>
+                                                        </div>
+                                                    </div>
+                                                    <div class="flex-grow-1">
+                                                        <div class="bg-black rounded p-3 h-100">
+                                                            <canvas id="cpuChartCanvas" style="width: 100%; height: 100%;"></canvas>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="col-md-6">
+                                            <div class="card bg-black bg-opacity-25 border-secondary h-100">
+                                                <div class="card-body d-flex flex-column">
+                                                    <div class="d-flex justify-content-between align-items-center mb-2">
+                                                        <span class="text-white fw-medium" data-translate="memory_usage">Memory Usage</span>
+                                                        <span class="text-primary fw-bold" id="memUsageValue">
+                                                            <?= $systemInfo['mem_usage'] ?>%
+                                                        </span>
+                                                    </div>
+                                                    <div class="progress mb-3" style="height: 30px;">
+                                                        <div class="progress-bar bg-primary progress-bar-striped progress-bar-animated" 
+                                                             id="memUsageBar" 
+                                                             style="width: <?= min($systemInfo['mem_usage'], 100) ?>%">
+                                                            <span class="visually-hidden">Memory Usage</span>
+                                                        </div>
+                                                    </div>
+                                                    <div class="flex-grow-1">
+                                                        <div class="bg-black rounded p-3 h-100">
+                                                            <canvas id="memChartCanvas" style="width: 100%; height: 100%;"></canvas>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
                                     </div>
-                                    <div style="height: 30px; background: #333; border-radius: 15px; overflow: hidden; position: relative;">
-                                        <div id="cpuUsageBar" style="width: <?= min($systemInfo['cpu_usage'], 100) ?>%; height: 100%; background: linear-gradient(90deg, #4CAF50, #8BC34A); transition: width 1s ease; border-radius: 15px;"></div>
+
+                                    <div class="row g-3">
+                                        <div class="col-6 col-lg-3">
+                                            <div class="card bg-black bg-opacity-25 border-secondary h-100">
+                                                <div class="card-body d-flex flex-column align-items-center justify-content-center text-center p-3" style="min-height: 100px;">
+                                                    <div class="h5 text-warning mb-2" id="cpuTempDisplay">--°C</div>
+                                                    <div class="text-white-50 small" data-translate="cpu_temperature">CPU Temperature</div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-6 col-lg-3">
+                                            <div class="card bg-black bg-opacity-25 border-secondary h-100">
+                                                <div class="card-body d-flex flex-column align-items-center justify-content-center text-center p-3" style="min-height: 100px;">
+                                                    <div class="h5 text-purple mb-2"style="color: #9C27B0;" id="processCountDisplay">--</div>
+                                                    <div class="text-white-50 small" data-translate="running_processes">Running Processes</div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-6 col-lg-3">
+                                            <div class="card bg-black bg-opacity-25 border-secondary h-100">
+                                                <div class="card-body d-flex flex-column align-items-center justify-content-center text-center p-3" style="min-height: 100px;">
+                                                    <div class="h5 text-cyan mb-2" style="color: #00BCD4;" id="cpuFreqDisplay">--</div>
+                                                    <div class="text-white-50 small" data-translate="cpu_frequency">CPU Frequency</div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-6 col-lg-3">
+                                            <div class="card bg-black bg-opacity-25 border-secondary h-100">
+                                                <div class="card-body d-flex flex-column align-items-center justify-content-center text-center p-3" style="min-height: 100px;">
+                                                    <div class="h5 text-pink mb-2" id="networkSpeedDisplay">0 KB/s</div>
+                                                    <div class="text-white-50 small" data-translate="network_speed">Network Speed</div>
+                                                </div>
+                                            </div>
+                                        </div>
                                     </div>
-                                    <div id="cpuChart" style="height: 200px; margin-top: 20px; background: #222; border-radius: 10px; padding: 15px;">
-                                        <canvas id="cpuChartCanvas"></canvas>
-                                    </div>
-                                </div>
-                                
-                                <div>
-                                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
-                                        <span style="color: #fff; font-weight: 500;" data-translate="memory_usage">Memory Usage</span>
-                                        <span id="memUsageValue" style="color: #2196F3; font-weight: bold;"><?= $systemInfo['mem_usage'] ?>%</span>
-                                    </div>
-                                    <div style="height: 30px; background: #333; border-radius: 15px; overflow: hidden; position: relative;">
-                                        <div id="memUsageBar" style="width: <?= min($systemInfo['mem_usage'], 100) ?>%; height: 100%; background: linear-gradient(90deg, #2196F3, #03A9F4); transition: width 1s ease; border-radius: 15px;"></div>
-                                    </div>
-                                    <div id="memChart" style="height: 200px; margin-top: 20px; background: #222; border-radius: 10px; padding: 15px;">
-                                        <canvas id="memChartCanvas"></canvas>
-                                    </div>
-                                </div>
-                            </div>
-                            
-                            <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; margin-top: 30px;">
-                                <div style="text-align: center; padding: 15px; background: #333; border-radius: 8px;">
-                                    <div style="font-size: 1.2rem; color: #FF9800; margin-bottom: 5px;" id="cpuTempDisplay">--°C</div>
-                                    <div style="color: #aaa; font-size: 0.9rem;" data-translate="cpu_temperature">CPU Temperature</div>
-                                </div>
-                                <div style="text-align: center; padding: 15px; background: #333; border-radius: 8px;">
-                                    <div style="font-size: 1.2rem; color: #9C27B0; margin-bottom: 5px;" id="processCountDisplay">--</div>
-                                    <div style="color: #aaa; font-size: 0.9rem;" data-translate="running_processes">Running Processes</div>
-                                </div>
-                                <div style="text-align: center; padding: 15px; background: #333; border-radius: 8px;">
-                                    <div style="font-size: 1.2rem; color: #00BCD4; margin-bottom: 5px;" id="cpuFreqDisplay">--</div>
-                                    <div style="color: #aaa; font-size: 0.9rem;" data-translate="cpu_frequency">CPU Frequency</div>
-                                </div>
-                                <div style="text-align: center; padding: 15px; background: #333; border-radius: 8px;">
-                                    <div style="font-size: 1.2rem; color: #E91E63; margin-bottom: 5px;" id="networkSpeedDisplay">0 KB/s</div>
-                                    <div style="color: #aaa; font-size: 0.9rem;" data-translate="network_speed">Network Speed</div>
                                 </div>
                             </div>
                         </div>
@@ -1883,43 +2048,44 @@ body {
                     </div>
                 </div>
             </div>
-        </div>
-    </div>
-    
-    <div class="player-area" id="playerArea">
-        <div class="player-header">
-            <div class="player-title" id="playerTitle">
-                <i class="fas fa-play"></i>
-                <span data-translate="media_player">Media Player</span>
-            </div>
-            <div class="player-actions">
-                <button class="player-btn" onclick="toggleFullscreenPlayer()">
-                    <i class="fas fa-expand"></i>
-                </button>
-                <button class="player-btn" onclick="closePlayer()">
-                    <i class="fas fa-times"></i>
-                </button>
-            </div>
-        </div>
-        
-        <div class="player-content">
-            <audio id="audioPlayer" controls style="display: none;"></audio>
-            <video id="videoPlayer" controls style="display: none;"></video>
-            <img id="imageViewer" style="display: none;" />
-            <div id="playError" style="display: none; text-align: center; padding: 40px;">
-                <i class="fas fa-exclamation-triangle" style="font-size: 48px; color: #ff9800; margin-bottom: 20px;"></i>
-                <h3 style="margin-bottom: 10px;" data-translate="cannot_play_media">Cannot play media file</h3>
-                <p style="color: #aaa;" data-translate="possible_reasons">Possible reasons:</p>
-                <ul style="color: #aaa; text-align: left; margin-top: 10px; padding-left: 20px;">
-                    <li data-translate="reason_unsupported_format">File format not supported by browser</li>
-                    <li data-translate="reason_incorrect_path">File path is incorrect</li>
-                    <li data-translate="reason_server_unreachable">Server cannot access the file</li>
-                </ul>
+            
+            <div class="resizer" id="playerResizer"></div>
+            <div class="player-area" id="playerArea">
+                <div class="player-header">
+                    <div class="player-title" id="playerTitle">
+                        <i class="fas fa-play"></i>
+                        <span data-translate="media_player">Media Player</span>
+                    </div>
+                    <div class="player-actions">
+                        <button class="player-btn" onclick="toggleFullscreenPlayer()">
+                            <i class="fas fa-expand"></i>
+                        </button>
+                        <button class="player-btn" onclick="closePlayer()">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="player-content">
+                    <audio id="audioPlayer" controls style="display: none;"></audio>
+                    <video id="videoPlayer" controls style="display: none;"></video>
+                    <img id="imageViewer" style="display: none;" />
+                    <div id="playError" style="display: none; text-align: center; padding: 40px;">
+                        <i class="fas fa-exclamation-triangle" style="font-size: 48px; color: #ff9800; margin-bottom: 20px;"></i>
+                        <h3 style="margin-bottom: 10px;" data-translate="cannot_play_media">Cannot play media file</h3>
+                        <p style="color: #aaa;" data-translate="possible_reasons">Possible reasons:</p>
+                        <ul style="color: #aaa; text-align: left; margin-top: 10px; padding-left: 20px;">
+                            <li data-translate="reason_unsupported_format">File format not supported by browser</li>
+                            <li data-translate="reason_incorrect_path">File path is incorrect</li>
+                            <li data-translate="reason_server_unreachable">Server cannot access the file</li>
+                        </ul>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
 </div>
-    
+
 <div class="fullscreen-player" id="fullscreenPlayer">
     <div class="fullscreen-header">
         <div class="player-title" id="fullscreenTitle">
@@ -3092,24 +3258,263 @@ function stopSystemMonitoring() {
     }
 }
 
+let isResizing = false;
+let isPlayerResizing = false;
+let startX, startWidth, startPlayerWidth;
+
+function initResizer() {
+    const resizer = document.getElementById('resizer');
+    const playerResizer = document.getElementById('playerResizer');
+    const contentArea = document.getElementById('contentArea');
+    const playerArea = document.getElementById('playerArea');
+    const sideNav = document.getElementById('sideNav');
+    
+    if (resizer) {
+        resizer.addEventListener('mousedown', function(e) {
+            e.preventDefault();
+            isResizing = true;
+            startX = e.clientX;
+            startWidth = sideNav.offsetWidth;
+            resizer.classList.add('dragging');
+            
+            document.addEventListener('mousemove', handleSidebarResize);
+            document.addEventListener('mouseup', stopResize);
+        });
+        
+        resizer.addEventListener('touchstart', function(e) {
+            e.preventDefault();
+            isResizing = true;
+            startX = e.touches[0].clientX;
+            startWidth = sideNav.offsetWidth;
+            resizer.classList.add('dragging');
+            
+            document.addEventListener('touchmove', handleSidebarResizeTouch);
+            document.addEventListener('touchend', stopResizeTouch);
+        });
+    }
+    
+    if (playerResizer) {
+        playerResizer.addEventListener('mousedown', function(e) {
+            e.preventDefault();
+            if (!playerArea.classList.contains('active')) return;
+            
+            isPlayerResizing = true;
+            startX = e.clientX;
+            startPlayerWidth = playerArea.offsetWidth;
+            playerResizer.classList.add('dragging');
+            
+            document.addEventListener('mousemove', handlePlayerResize);
+            document.addEventListener('mouseup', stopPlayerResize);
+        });
+        
+        playerResizer.addEventListener('touchstart', function(e) {
+            e.preventDefault();
+            if (!playerArea.classList.contains('active')) return;
+            
+            isPlayerResizing = true;
+            startX = e.touches[0].clientX;
+            startPlayerWidth = playerArea.offsetWidth;
+            playerResizer.classList.add('dragging');
+            
+            document.addEventListener('touchmove', handlePlayerResizeTouch);
+            document.addEventListener('touchend', stopPlayerResizeTouch);
+        });
+    }
+}
+
+function handleSidebarResize(e) {
+    if (!isResizing) return;
+    
+    const sideNav = document.getElementById('sideNav');
+    const toggleIcon = document.querySelector('.fa-server');
+    const deltaX = e.clientX - startX;
+    let newWidth = startWidth + deltaX;
+    
+    newWidth = Math.max(70, Math.min(400, newWidth));
+    
+    if (sidebarCollapsed && newWidth > 70) {
+        if (toggleIcon) {
+            toggleIcon.style.transform = 'rotate(0deg)';
+            toggleIcon.setAttribute('data-translate-tooltip', 'toggle_menu');
+        }
+        sidebarCollapsed = false;
+        sideNav.classList.remove('collapsed');
+    }
+    
+    if (!sidebarCollapsed) {
+        sideNav.style.width = newWidth + 'px';
+        sideNav.style.transition = 'none';
+    }
+}
+
+function handleSidebarResizeTouch(e) {
+    if (!isResizing || !e.touches.length) return;
+    
+    const sideNav = document.getElementById('sideNav');
+    const toggleIcon = document.querySelector('.fa-server');
+    const deltaX = e.touches[0].clientX - startX;
+    let newWidth = startWidth + deltaX;
+    
+    newWidth = Math.max(70, Math.min(400, newWidth));
+    
+    if (sidebarCollapsed && newWidth > 70) {
+        if (toggleIcon) {
+            toggleIcon.style.transform = 'rotate(0deg)';
+            toggleIcon.setAttribute('data-translate-tooltip', 'toggle_menu');
+        }
+        sidebarCollapsed = false;
+        sideNav.classList.remove('collapsed');
+    }
+    
+    if (!sidebarCollapsed) {
+        sideNav.style.width = newWidth + 'px';
+        sideNav.style.transition = 'none';
+    }
+}
+
+function handlePlayerResize(e) {
+    if (!isPlayerResizing) return;
+    
+    const playerArea = document.getElementById('playerArea');
+    const deltaX = startX - e.clientX;
+    let newWidth = startPlayerWidth + deltaX;
+    
+    newWidth = Math.max(300, Math.min(window.innerWidth * 0.8, newWidth));
+    
+    playerArea.style.width = newWidth + 'px';
+    playerArea.style.transition = 'none';
+    playerArea.style.flex = 'none';
+}
+
+function handlePlayerResizeTouch(e) {
+    if (!isPlayerResizing || !e.touches.length) return;
+    
+    const playerArea = document.getElementById('playerArea');
+    const deltaX = startX - e.touches[0].clientX;
+    let newWidth = startPlayerWidth + deltaX;
+    
+    newWidth = Math.max(300, Math.min(window.innerWidth * 0.8, newWidth));
+    
+    playerArea.style.width = newWidth + 'px';
+    playerArea.style.transition = 'none';
+    playerArea.style.flex = 'none';
+}
+
+function stopResize() {
+    isResizing = false;
+    const resizer = document.getElementById('resizer');
+    if (resizer) {
+        resizer.classList.remove('dragging');
+    }
+    document.removeEventListener('mousemove', handleSidebarResize);
+    document.removeEventListener('mouseup', stopResize);
+    
+    const sideNav = document.getElementById('sideNav');
+    if (sideNav && !sidebarCollapsed) {
+        localStorage.setItem('sidebarWidth', sideNav.offsetWidth);
+        sideNav.style.transition = 'width 0.3s ease';
+    }
+}
+
+function stopResizeTouch() {
+    isResizing = false;
+    const resizer = document.getElementById('resizer');
+    if (resizer) {
+        resizer.classList.remove('dragging');
+    }
+    document.removeEventListener('touchmove', handleSidebarResizeTouch);
+    document.removeEventListener('touchend', stopResizeTouch);
+    
+    const sideNav = document.getElementById('sideNav');
+    if (sideNav && !sidebarCollapsed) {
+        localStorage.setItem('sidebarWidth', sideNav.offsetWidth);
+        sideNav.style.transition = 'width 0.3s ease';
+    }
+}
+
+function stopPlayerResize() {
+    isPlayerResizing = false;
+    const playerResizer = document.getElementById('playerResizer');
+    if (playerResizer) {
+        playerResizer.classList.remove('dragging');
+    }
+    document.removeEventListener('mousemove', handlePlayerResize);
+    document.removeEventListener('mouseup', stopPlayerResize);
+    
+    const playerArea = document.getElementById('playerArea');
+    if (playerArea) {
+        localStorage.setItem('playerWidth', playerArea.offsetWidth);
+        playerArea.style.transition = 'width 0.3s ease';
+    }
+}
+
+function stopPlayerResizeTouch() {
+    isPlayerResizing = false;
+    const playerResizer = document.getElementById('playerResizer');
+    if (playerResizer) {
+        playerResizer.classList.remove('dragging');
+    }
+    document.removeEventListener('touchmove', handlePlayerResizeTouch);
+    document.removeEventListener('touchend', stopPlayerResizeTouch);
+    
+    const playerArea = document.getElementById('playerArea');
+    if (playerArea) {
+        localStorage.setItem('playerWidth', playerArea.offsetWidth);
+        playerArea.style.transition = 'width 0.3s ease';
+    }
+}
+
+function updateCollapseButton(collapsed) {
+    const toggleBtn = document.getElementById('collapseToggle');
+    if (!toggleBtn) return;
+    
+    if (collapsed) {
+        toggleBtn.innerHTML = '<i class="fas fa-chevron-right"></i>';
+        toggleBtn.style.left = '-12px';
+        toggleBtn.setAttribute('data-translate-tooltip', 'expand_menu'); 
+    } else {
+        toggleBtn.innerHTML = '<i class="fas fa-chevron-left"></i>';
+        toggleBtn.style.left = '-12px';
+        toggleBtn.setAttribute('data-translate-tooltip', 'toggle_menu');
+    }
+}
+
+function loadSavedWidths() {
+    const savedPlayerWidth = localStorage.getItem('playerWidth');
+    const playerArea = document.getElementById('playerArea');
+    if (savedPlayerWidth && playerArea) {
+        playerArea.style.width = savedPlayerWidth + 'px';
+        playerArea.style.flex = 'none';
+    }
+}
+
 let sidebarCollapsed = false;
 
 function toggleSidebar() {
     const sideNav = document.getElementById('sideNav');
-    const toggleBtn = document.getElementById('collapseToggle');
+    const toggleIcon = document.querySelector('.fa-server');
     
     sidebarCollapsed = !sidebarCollapsed;
     
     if (sidebarCollapsed) {
+        sideNav.style.width = '70px';
         sideNav.classList.add('collapsed');
-        toggleBtn.innerHTML = '<i class="fas fa-chevron-right"></i>';
-        toggleBtn.style.transform = 'rotate(0deg)';
-        toggleBtn.setAttribute('data-translate-tooltip', 'expand_menu'); 
+        if (toggleIcon) {
+            toggleIcon.style.transform = 'rotate(90deg)';
+            toggleIcon.setAttribute('data-translate-tooltip', 'expand_menu');
+        }
     } else {
+        const savedWidth = localStorage.getItem('sidebarWidth');
+        if (savedWidth && parseInt(savedWidth) > 70) {
+            sideNav.style.width = savedWidth + 'px';
+        } else {
+            sideNav.style.width = '240px';
+        }
         sideNav.classList.remove('collapsed');
-        toggleBtn.innerHTML = '<i class="fas fa-chevron-left"></i>';
-        toggleBtn.style.transform = '';
-        toggleBtn.setAttribute('data-translate-tooltip', 'toggle_menu');
+        if (toggleIcon) {
+            toggleIcon.style.transform = 'rotate(0deg)';
+            toggleIcon.setAttribute('data-translate-tooltip', 'toggle_menu');
+        }
     }
     
     localStorage.setItem('sidebarCollapsed', sidebarCollapsed ? 'true' : 'false');
@@ -3117,16 +3522,31 @@ function toggleSidebar() {
 
 function initSidebarState() {
     const savedState = localStorage.getItem('sidebarCollapsed');
+    const toggleIcon = document.querySelector('.fa-server');
+    const sideNav = document.getElementById('sideNav');
+    
     if (savedState === 'true') {
-        const sideNav = document.getElementById('sideNav');
-        const toggleBtn = document.getElementById('collapseToggle');
-        
-        if (sideNav && toggleBtn) {
+        if (sideNav && toggleIcon) {
             sideNav.classList.add('collapsed');
-            toggleBtn.innerHTML = '<i class="fas fa-chevron-right"></i>';
-            toggleBtn.style.transform = 'rotate(0deg)';
-            toggleBtn.setAttribute('data-translate-tooltip', 'expand_menu');
+            sideNav.style.width = '70px';
+            toggleIcon.style.transform = 'rotate(90deg)';
+            toggleIcon.setAttribute('data-translate-tooltip', 'expand_menu');
             sidebarCollapsed = true;
+        }
+    } else {
+        const savedWidth = localStorage.getItem('sidebarWidth');
+        if (sideNav) {
+            if (savedWidth) {
+                sideNav.style.width = savedWidth + 'px';
+            } else {
+                sideNav.style.width = '240px';
+            }
+            sideNav.classList.remove('collapsed');
+            if (toggleIcon) {
+                toggleIcon.style.transform = 'rotate(0deg)';
+                toggleIcon.setAttribute('data-translate-tooltip', 'toggle_menu');
+            }
+            sidebarCollapsed = false;
         }
     }
 }
@@ -3135,9 +3555,11 @@ document.addEventListener('DOMContentLoaded', function() {
     updateRecentList();
     initHoverPlay();
     initSidebarState();
+    initResizer();
+    loadSavedWidths();
     startSystemMonitoring();
-    initAutoPlayToggle();  
-
+    initAutoPlayToggle();
+    
     if (typeof Chart !== 'undefined') {
         startSystemMonitoring();
     } else {
@@ -3149,6 +3571,24 @@ document.addEventListener('DOMContentLoaded', function() {
         document.head.appendChild(script);
     }
 
+    const playerArea = document.getElementById('playerArea');
+    const playerResizer = document.getElementById('playerResizer');
+    
+    const observer = new MutationObserver(function(mutations) {
+        mutations.forEach(function(mutation) {
+            if (mutation.attributeName === 'class') {
+                if (playerArea.classList.contains('active')) {
+                    playerResizer.style.display = 'block';
+                } else {
+                    playerResizer.style.display = 'none';
+                }
+            }
+        });
+    });
+    
+    if (playerArea) {
+        observer.observe(playerArea, { attributes: true });
+    }
 
     document.addEventListener('click', function(e) {
         const contextMenu = document.getElementById('mediaContextMenu');

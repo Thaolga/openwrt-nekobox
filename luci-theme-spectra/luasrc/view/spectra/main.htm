@@ -1,18 +1,25 @@
 <%+header%>
-
 <div class="spectra-map" id="spectra-search">
     <h2 name="content" data-translate="online_music_search">Online Music Search</h2>
     
     <div class="spectra-section">
         <div class="search-box">
-            <div class="search-input-group">
-                <input type="text" id="searchInput" class="search-input" 
-                       placeholder="Search for songs, artists, albums..." data-tooltip-title="search_placeholder" data-placeholder="search_placeholder">
-                <button id="searchButton" class="btn btn-primary">
-                    <i class="bi bi-search"></i> <span data-translate="search_button">Search</span>
+            <div class="uk-flex uk-flex-middle uk-margin-bottom">
+                <div class="uk-inline uk-width-expand">
+                    <span class="uk-form-icon" uk-icon="icon: search"></span>
+                    <input type="text" id="searchInput" 
+                           class="uk-input uk-width-expand"
+                           placeholder="Search for songs, artists, albums..."
+                           data-tooltip-title="search_placeholder" 
+                           data-placeholder="search_placeholder">
+                </div>
+                
+                <button id="searchButton" class="uk-button uk-button-primary uk-margin-left">
+                    <i class="bi bi-search"></i>
+                    <span data-translate="search_button">Search</span> 
                 </button>
             </div>
-            
+
             <div class="search-options">
                 <select id="searchType" class="cbi-input-select">
                     <option value="song" data-translate="song_type">Songs</option>
@@ -28,52 +35,27 @@
                     <option value="soundcloud">SoundCloud</option>
                 </select>
 
-                <button id="spectraClearCacheBtn" class="btn cbi-button cbi-button-remove" type="button" data-tooltip-title="clear_button">
-                    <i class="bi bi-trash"></i> <span data-translate="clear_button">Clear Cache</span>
-                </button>
+                <div class="uk-flex uk-flex-middle">
+                    <button id="spectraClearCacheBtn" class="uk-button uk-button-danger uk-margin-right" type="button">
+                        <i class="bi bi-trash"></i> <span data-translate="clear_button">Clear Cache</span>
+                    </button>
 
-                <button id="apiKeyConfigBtn" class="btn btn-default" type="button" 
-                    onclick="showApiKeyConfigPage()"
-                    data-tooltip-title="configure_api_keys">
-                        <i class="bi bi-key"></i> <span data-translate="configure_api_keys">Configure API Keys</span>
-                </button>
-            </div>
-        </div>
-        
-        <div class="search-results">
-            <div class="results-header">
-                <div class="results-info">
-                    <span id="resultsCount">0 results</span>
-                </div>
-                <div class="results-actions">
-                    <button id="playAllBtn" class="btn cbi-button cbi-button-apply" style="display: none;">
-                        <i class="bi bi-play-circle"></i> <span data-translate="play_all">Play All</span>
+                    <button id="apiKeyConfigBtn" class="uk-button uk-button-success" type="button" 
+                        onclick="showApiKeyConfigPage()">
+                            <i class="bi bi-key"></i> <span data-translate="configure_api_keys">Configure API Keys</span>
                     </button>
                 </div>
             </div>
-            
-            <div id="resultsContainer" class="results-grid">
-                <div class="no-results">
-                    <i class="bi bi-music-note-beamed"></i>
-                    <p data-translate="search_prompt">Search for music to get started</p>
-                </div>
-            </div>
-            
-            <div id="loadMoreContainer" style="display: none;">
-                <button id="loadMoreButton" class="btn btn-success">
-                    <i class="bi bi-arrow-down-circle"></i> <span data-translate="load_more">Load More</span>
-                </button>
-            </div>
         </div>
-        
-        <div class="current-playback">
+
+        <div class="current-playback" style="margin-bottom: 20px;">
             <div class="now-playing">
                 <div class="now-playing-info">
                     <div class="playing-cover">
                         <div id="playingCoverIcon" class="playing-cover-icon">
                             <i class="bi bi-music-note-beamed"></i>
                         </div>
-                            <img id="playingCoverImage" class="playing-cover-image" src="" alt="Cover" style="display: none;">
+                        <img id="playingCoverImage" class="playing-cover-image" src="" alt="Cover" style="display: none;">
                     </div>
                     <div class="playing-details">
                         <div id="playingTitle" class="playing-title" data-translate="not_playing">Not Playing</div>
@@ -114,6 +96,32 @@
                         <i class="fas fa-download"></i>
                     </button>
                 </div>
+            </div>
+        </div>
+        
+        <div class="search-results">
+            <div class="results-header">
+                <div class="results-info">
+                    <span id="resultsCount">0 results</span>
+                </div>
+                <div class="results-actions">
+                    <button id="playAllBtn" class="btn cbi-button cbi-button-apply" style="display: none;">
+                        <i class="bi bi-play-circle"></i> <span data-translate="play_all">Play All</span>
+                    </button>
+                </div>
+            </div>
+            
+            <div id="resultsContainer" class="results-grid">
+                <div class="no-results">
+                    <i class="bi bi-music-note-beamed"></i>
+                    <p data-translate="search_prompt">Search for music to get started</p>
+                </div>
+            </div>
+            
+            <div id="loadMoreContainer" style="display: none;">
+                <button id="loadMoreButton" class="btn btn-success">
+                    <i class="bi bi-arrow-down-circle"></i> <span data-translate="load_more">Load More</span>
+                </button>
             </div>
         </div>
     </div>
