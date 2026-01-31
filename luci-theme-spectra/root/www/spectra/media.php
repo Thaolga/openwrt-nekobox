@@ -1487,6 +1487,28 @@ body {
 .card.border-secondary:hover {
     border-color: rgba(76, 175, 80, 0.5) !important;
 }
+
+.player-title {
+    display: flex !important;
+    align-items: center !important;
+    gap: 8px !important;
+    color: var(--accent-tertiary);
+    min-width: 0 !important;
+}
+
+.player-title-text {
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    min-width: 0 !important;
+    flex: 1 !important;
+}
+
+.truncate {
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+}
 </style>
 <div class="main-container">
     <div class="content-area" id="contentArea">
@@ -1814,7 +1836,7 @@ body {
                 </div>
                 
                 <div id="musicSection" class="grid-section" style="display: none;">
-                    <div class="grid-title">
+                    <div class="grid-title" style="color: var(--accent-tertiary);">
                         <i class="fas fa-music"></i>
                         <span data-translate="audio">Music</span> (<?= count($media['music']) ?> <span data-translate="items">items</span>)
                     </div>
@@ -1874,7 +1896,7 @@ body {
                 </div>
                 
                 <div id="videoSection" class="grid-section" style="display: none;">
-                    <div class="grid-title">
+                    <div class="grid-title" style="color: var(--accent-tertiary);">
                         <i class="fas fa-video"></i>
                         <span data-translate="video">Video</span> (<?= count($media['video']) ?> <span data-translate="items">items</span>)
                     </div>
@@ -1953,7 +1975,7 @@ body {
                 </div>
                 
                 <div id="imageSection" class="grid-section" style="display: none;">
-                    <div class="grid-title">
+                    <div class="grid-title" style="color: var(--accent-tertiary);">
                         <i class="fas fa-image"></i>
                         <span data-translate="image">Image</span> (<?= count($media['image']) ?> <span data-translate="items">items</span>)
                     </div>
@@ -2324,8 +2346,32 @@ function playMedia(filePath) {
     }
     
     playerArea.classList.add('active');
-    
+
+    setPlayerTitle(fileName);    
     saveToRecent(filePath);
+}
+
+function setPlayerTitle(fileName) {
+    const playerTitle = document.getElementById('playerTitle');
+    
+    const icon = playerTitle.querySelector('i');
+    playerTitle.innerHTML = '';
+    if (icon) {
+        playerTitle.appendChild(icon);
+    } else {
+        const playIcon = document.createElement('i');
+        playIcon.className = 'fas fa-play';
+        playerTitle.appendChild(playIcon);
+    }
+    
+    const textSpan = document.createElement('span');
+    textSpan.className = 'player-title-text truncate';
+    textSpan.textContent = fileName;
+    textSpan.title = fileName;
+    
+    playerTitle.appendChild(textSpan);
+    
+    document.getElementById('playerArea').style.display = 'block';
 }
     
 function updateCurrentMediaList(category, filePath) {
