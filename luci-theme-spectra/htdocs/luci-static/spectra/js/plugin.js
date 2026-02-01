@@ -890,8 +890,39 @@ function updatePlayAllButton() {
     });
     
     if (playableCards.length > 0) {
-        playAllBtn.style.display = 'flex';
+        playAllBtn.style.display = 'inline-flex';
         playAllBtn.disabled = false;
+        
+        const resultsActions = document.querySelector('.results-actions');
+        if (resultsActions) {
+            let loadMoreBtn = resultsActions.querySelector('#loadMoreButton');
+            const translations = languageTranslations[currentLang] || languageTranslations['en'];
+            
+            if (!loadMoreBtn) {
+                loadMoreBtn = document.createElement('button');
+                loadMoreBtn.id = 'loadMoreButton';
+                loadMoreBtn.className = 'btn cbi-button cbi-button-secondary';
+                loadMoreBtn.innerHTML = `<i class="bi bi-arrow-down-circle"></i> ${translations['load_more'] || 'Load More'}`;
+                loadMoreBtn.onclick = loadMoreResults;
+                loadMoreBtn.style.marginLeft = '10px';
+                loadMoreBtn.style.display = 'inline-flex';
+
+                loadMoreBtn.style.cssText += `
+                    display: inline-flex;
+                    align-items: center;
+                    justify-content: center;
+                    gap: 6px;
+                `;
+                
+                playAllBtn.insertAdjacentElement('afterend', loadMoreBtn);
+            }
+            
+            if (searchResults.length >= itemsPerPage) {
+                loadMoreBtn.style.display = 'inline-flex';
+            } else {
+                loadMoreBtn.style.display = 'none';
+            }
+        }
     } else {
         playAllBtn.style.display = 'none';
         playAllBtn.disabled = true;
@@ -1184,14 +1215,17 @@ function playFromPlaylist(index, retryCount = 0) {
     updateCurrentIndexToLocalStorage(index);
     updateCardActiveState(item);
     
+    updatePlaylistProgress();
+    
     if (item.source === 'youtube') {
         playYouTubeAudioFromPlaylist(item, index);
     } else {
         playMusicFromPlaylist(item, index, retryCount);
     }
     
-    updatePlaylistHighlight(index);
-    updatePlaylistProgress();
+    setTimeout(() => {
+        updatePlaylistProgress();
+    }, 100);
 }
 
 function playYouTubeAudio(card) {
@@ -1629,6 +1663,7 @@ function playMusicFromPlaylist(item, index, retryCount = 0) {
     currentAudio.addEventListener('play', function() {
         playBtn.innerHTML = '<i class="bi bi-pause-fill"></i>';
         startTimeUpdateLoop();
+        updatePlaylistProgress();
     });
     
     currentAudio.addEventListener('pause', function() {
@@ -4261,14 +4296,25 @@ function stopPlaylistMode() {
     const playAllBtn = document.getElementById('playAllBtn');
     if (playAllBtn) {
         const playAllText = translations['play_all'] || 'Play All';
+        playAllBtn.className = 'btn cbi-button';
         playAllBtn.innerHTML = `<i class="bi bi-play-circle"></i> ${playAllText}`;
         playAllBtn.classList.remove('playing');
         playAllBtn.onclick = playAllSongs;
     }
     
-    const playlistContainer = document.querySelector('.spectra-playlist-container');
-    if (playlistContainer) {
-        playlistContainer.remove();
+    const playlistToggleBtn = document.getElementById('playlistToggleBtn');
+    if (playlistToggleBtn) {
+        playlistToggleBtn.style.display = 'none';
+    }
+    
+    const playlistModal = document.getElementById('playlist-modal');
+    if (playlistModal) {
+        if (typeof UIkit !== 'undefined' && UIkit.modal) {
+            UIkit.modal(playlistModal).hide();
+        }
+        setTimeout(() => {
+            playlistModal.remove();
+        }, 300);
     }
     
     localStorage.removeItem('spectra_playlist_state');
@@ -4281,69 +4327,255 @@ function stopPlaylistMode() {
 
 function showPlaylistUI(playlistItems) {
     const translations = languageTranslations[currentLang] || languageTranslations['en'];
-    const existingPlaylist = document.querySelector('.spectra-playlist-container');
-    if (existingPlaylist) {
-        existingPlaylist.remove();
+    
+    const playAllBtn = document.getElementById('playAllBtn');
+    
+    if (playAllBtn && playAllBtn.parentNode) {
+        let playlistToggleBtn = document.getElementById('playlistToggleBtn');
+        
+        if (!playlistToggleBtn) {
+            const playlistText = translations['playlist'] || 'Playlist';
+            playlistToggleBtn = document.createElement('button');
+            playlistToggleBtn.id = 'playlistToggleBtn';
+            playlistToggleBtn.className = 'btn cbi-button cbi-button-primary';
+            playlistToggleBtn.innerHTML = `<i class="bi bi-music-note-list"></i> ${playlistText}`;
+            playlistToggleBtn.setAttribute('uk-toggle', 'target: #playlist-modal');
+
+            playlistToggleBtn.style.cssText = `
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                gap: 6px;
+            `;
+            
+            playAllBtn.parentNode.insertBefore(playlistToggleBtn, playAllBtn);
+        }
+        
+        playlistToggleBtn.style.display = 'inline-flex';
     }
     
-    const resultsContainer = document.getElementById('resultsContainer');
-    const playlistContainer = document.createElement('div');
-    playlistContainer.className = 'spectra-playlist-container';
+    createPlaylistModal(playlistItems);
+}
 
-    const playlistText = translations['playlist'] || 'Playlist';
-    const playingText = translations['playing'] || 'Playing';
+function updatePlaylistProgressInMainUI() {
+    const progressContainer = document.getElementById('playlistProgressContainer');
+    if (!progressContainer && currentPlaylist && currentPlaylist.length > 0) {
+        const progressDiv = document.createElement('div');
+        progressDiv.id = 'playlistProgressContainer';
+        progressDiv.className = 'playlist-progress-container';
+        progressDiv.style.cssText = `
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-left: 10px;
+            color: var(--color-primary);
+            font-size: 14px;
+        `;
+        
+        const searchButtons = document.querySelector('.search-buttons');
+        if (searchButtons) {
+            searchButtons.appendChild(progressDiv);
+        } else {
+            const searchForm = document.querySelector('.search-form');
+            if (searchForm) {
+                searchForm.appendChild(progressDiv);
+            }
+        }
+    }
     
-    const playlistHeader = document.createElement('div');
-    playlistHeader.className = 'spectra-playlist-header';
-    playlistHeader.innerHTML = `
-        <h4 data-translate="playlist">Playlist</h4>
-        <div class="spectra-playall-progress">
-            <div class="spectra-progress-info">
-                <span data-translate="playing">Playing</span>
-                <span>${currentPlaylistIndex + 1} / ${playlistItems.length}</span>
+    if (currentPlaylist && currentPlaylist.length > 0) {
+        const progressContainer = document.getElementById('playlistProgressContainer');
+        if (progressContainer) {
+            const translations = languageTranslations[currentLang] || languageTranslations['en'];
+            progressContainer.innerHTML = `
+                <span style="color: var(--color-primary);">
+                    <i class="bi bi-music-note-list"></i>
+                    ${currentPlaylistIndex + 1}/${currentPlaylist.length}
+                </span>
+            `;
+        }
+    }
+}
+
+function createPlaylistModal(playlistItems) {
+    const translations = languageTranslations[currentLang] || languageTranslations['en'];
+    
+    const existingModal = document.getElementById('playlist-modal');
+    if (existingModal) {
+        existingModal.remove();
+    }
+    
+    let playlistHTML = `
+        <div class="spectra-playlist-container">
+            <div class="spectra-playlist-header">
+                <div class="spectra-playall-progress">
+                    <div class="spectra-progress-info">
+                        <span>${translations['playing'] || 'Playing'}</span>
+                        <span id="modal-playlist-progress">${currentPlaylistIndex + 1} / ${playlistItems.length}</span>
+                    </div>
+                    <div class="spectra-progress-bar">
+                        <div class="spectra-progress-fill" id="playAllProgress" style="width: ${((currentPlaylistIndex + 1) / playlistItems.length) * 100}%"></div>
+                    </div>
+                </div>
             </div>
-            <div class="spectra-progress-bar">
-                <div class="spectra-progress-fill" id="playAllProgress"></div>
+            <div class="spectra-playlist-list">
+    `;
+    
+    playlistItems.forEach((item, index) => {
+        playlistHTML += `
+            <div class="spectra-playlist-item" data-index="${index}">
+                <div class="spectra-playlist-item-index">${index + 1}</div>
+                <div class="spectra-playlist-item-cover">
+                    <img src="${item.cover}" alt="${item.title}" 
+                         onerror="this.src='/luci-static/resources/icons/cover.svg'"
+                         style="width: 32px; height: 32px; border-radius: 4px; object-fit: cover; margin: 0 12px;">
+                </div>
+                <div class="spectra-playlist-item-info">
+                    <div class="spectra-playlist-item-title" title="${item.title}">${item.title}</div>
+                    <div class="spectra-playlist-item-artist" title="${item.artist}">${item.artist}</div>
+                </div>
+                <div class="spectra-playlist-item-duration">${item.duration || '--:--'}</div>
+                <div class="spectra-playlist-item-actions">
+                    <button class="btn-icon">
+                        <i class="bi bi-play-fill"></i>
+                    </button>
+                </div>
+            </div>
+        `;
+    });
+    
+    playlistHTML += `
             </div>
         </div>
     `;
     
-    const playlistList = document.createElement('div');
-    playlistList.className = 'spectra-playlist-list';
+    const modalHTML = `
+<div id="playlist-modal" class="uk-modal" uk-modal>
+    <div class="uk-modal-dialog uk-modal-dialog-large modal-xxl">
+        <button class="uk-modal-close-default" type="button" uk-close></button>
+        <div class="uk-modal-header">
+            <h3 class="uk-modal-title">
+                <i class="bi bi-music-note-list uk-margin-small-right"></i>
+                ${translations['playlist'] || 'Playlist'}
+            </h3>
+        </div>
+        <div class="uk-modal-body" style="padding: 0; max-height: 60vh; overflow: hidden;">
+            <div class="playlist-modal-content" style="max-height: 60vh; overflow-y: auto;">
+                ${playlistHTML}
+            </div>
+        </div>
+        <div class="uk-modal-footer uk-text-right">
+            <div class="uk-flex uk-flex-between uk-flex-middle">
+                <div class="uk-text-small" style="color: var(--color-primary);">
+                    <i class="bi bi-info-circle uk-margin-small-right"></i>
+                    ${translations['click_to_play'] || 'Click on any track to play'}
+                </div>
+                <div>
+                    <button class="uk-button uk-button-danger uk-margin-small-right" onclick="stopPlaylistMode()">
+                        <i class="bi bi-stop-circle uk-margin-small-right"></i>
+                        ${translations['stop_all'] || 'Stop All'}
+                    </button>
+                    <button class="uk-button uk-button-secondary uk-modal-close">
+                        ${translations['close'] || 'Close'}
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>`;
     
-    playlistItems.forEach((item, index) => {
-        const playlistItem = document.createElement('div');
-        playlistItem.className = 'spectra-playlist-item';
-        playlistItem.dataset.index = index;
-        
-        playlistItem.innerHTML = `
-            <div class="spectra-playlist-item-index">${index + 1}</div>
-            <div class="spectra-playlist-item-info">
-                <div class="spectra-playlist-item-title" title="${item.title}">${item.title}</div>
-                <div class="spectra-playlist-item-artist" title="${item.artist}">${item.artist}</div>
-            </div>
-            <div class="spectra-playlist-item-duration">${item.duration || '--:--'}</div>
-            <div class="spectra-playlist-item-actions">
-                <button class="btn-icon" onclick="playFromPlaylist(${index})">
-                    <i class="bi bi-play-fill"></i>
-                </button>
-            </div>
-        `;
-        
-        playlistItem.addEventListener('click', function(e) {
-            if (!e.target.closest('.btn-icon')) {
-                playFromPlaylist(index);
+    document.body.insertAdjacentHTML('beforeend', modalHTML);
+    
+    const modal = document.getElementById('playlist-modal');
+    
+    setTimeout(() => {
+        const playlistItemsElements = modal.querySelectorAll('.spectra-playlist-item');
+        playlistItemsElements.forEach((item, index) => {
+            item.style.cursor = 'pointer';
+            item.addEventListener('click', function(e) {
+                if (!e.target.closest('.btn-icon')) {
+                    playFromPlaylist(index);
+                }
+            });
+            
+            const playBtn = item.querySelector('.btn-icon');
+            if (playBtn) {
+                playBtn.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    playFromPlaylist(index);
+                });
             }
         });
         
-        playlistList.appendChild(playlistItem);
-    });
+        updateModalPlaylistHighlight(currentPlaylistIndex);
+    }, 100);
     
-    playlistContainer.appendChild(playlistHeader);
-    playlistContainer.appendChild(playlistList);
-    resultsContainer.parentNode.insertBefore(playlistContainer, resultsContainer.nextSibling);
-    updatePlaylistHighlight(currentPlaylistIndex);
+    if (typeof UIkit !== 'undefined') {
+        UIkit.modal(modal);
+    }
+    
     updateUIText();
+}
+
+document.addEventListener('mousedown', e => {
+    const header = e.target.closest('.uk-modal-header');
+    if (!header) return;
+    
+    const dialog = header.closest('.uk-modal-dialog');
+    if (!dialog) return;
+    
+    const rect = dialog.getBoundingClientRect();
+    const offsetX = e.clientX - rect.left;
+    const offsetY = e.clientY - rect.top;
+    
+    dialog.style.cursor = 'grabbing';
+    header.style.cursor = 'grabbing';
+    dialog.style.boxShadow = '0 15px 50px rgba(0,0,0,0.4)';
+    dialog.style.transform = 'scale(1.02)';
+    
+    const move = e => {
+        dialog.style.position = 'fixed';
+        dialog.style.left = (e.clientX - offsetX) + 'px';
+        dialog.style.top = (e.clientY - offsetY) + 'px';
+        dialog.style.margin = '0';
+    };
+    
+    const up = () => {
+        document.removeEventListener('mousemove', move);
+        document.removeEventListener('mouseup', up);
+        dialog.style.boxShadow = '';
+        dialog.style.transform = '';
+    };
+    
+    document.addEventListener('mousemove', move);
+    document.addEventListener('mouseup', up);
+});
+
+function updateModalPlaylistHighlight(index) {
+    const modal = document.getElementById('playlist-modal');
+    if (!modal) return;
+    
+    const playlistItems = modal.querySelectorAll('.spectra-playlist-item');
+    playlistItems.forEach((item, i) => {
+        if (i === index) {
+            item.classList.add('playing');
+            
+            setTimeout(() => {
+                try {
+                    item.scrollIntoView({ 
+                        behavior: 'smooth', 
+                        block: 'center',
+                        inline: 'nearest' 
+                    });
+                } catch (error) {
+                    item.scrollIntoView({ block: 'center' });
+                }
+            }, 100);
+            
+        } else {
+            item.classList.remove('playing');
+        }
+    });
 }
 
 function scrollToPlaylistItem(index) {
@@ -4375,25 +4607,48 @@ function updatePlaylistHighlight(index) {
 }
 
 function updatePlaylistProgress() {
-    const progressInfo = document.querySelector('.spectra-progress-info');
-    const progressFill = document.getElementById('playAllProgress');
+    const modal = document.getElementById('playlist-modal');
+    if (!modal || !currentPlaylist || currentPlaylist.length === 0) return;
     
-    if (progressInfo && currentPlaylist && currentPlaylist.length > 0) {
-        const playingText = (languageTranslations[currentLang] || languageTranslations['en'])['playing'] || 'Playing';
-        progressInfo.innerHTML = `
-            <span data-translate="playing">${playingText}</span>
-            <span>${currentPlaylistIndex + 1} / ${currentPlaylist.length}</span>
-        `;
-        
-        if (progressFill) {
-            const progressPercent = ((currentPlaylistIndex + 1) / currentPlaylist.length) * 100;
-            progressFill.style.width = `${progressPercent}%`;
-        }
-        
-        if (typeof updateUIText === 'function') {
-            updateUIText();
-        }
+    const currentIndex = currentPlaylistIndex >= 0 ? currentPlaylistIndex + 1 : 1;
+    const progressPercent = (currentIndex / currentPlaylist.length) * 100;
+    
+    const progressText = modal.querySelector('#modal-playlist-progress');
+    if (progressText) {
+        progressText.textContent = `${currentIndex} / ${currentPlaylist.length}`;
     }
+    
+    const progressBar = modal.querySelector('#playAllProgress');
+    const progressBarContainer = modal.querySelector('.spectra-progress-bar');
+    
+    if (progressBar) {
+        progressBar.style.width = `${progressPercent}%`;
+        
+        progressBar.style.cssText += `
+            width: ${progressPercent}% !important;
+            background: linear-gradient(90deg, #4CAF50, #66BB6A) !important;
+            height: 6px !important;
+            border-radius: 3px !important;
+            position: absolute !important;
+            left: 0 !important;
+            top: 0 !important;
+            z-index: 10 !important;
+            display: block !important;
+            visibility: visible !important;
+            opacity: 1 !important;
+        `;
+    }
+    
+    if (progressBarContainer) {
+        progressBarContainer.style.cssText += `
+            background: #e0e0e0 !important;
+            position: relative !important;
+            overflow: hidden !important;
+            height: 6px !important;
+        `;
+    }
+    
+    updateModalPlaylistHighlight(currentPlaylistIndex);
 }
 
 function formatYouTubeDuration(isoDuration) {
