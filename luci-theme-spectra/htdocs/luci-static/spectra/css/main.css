@@ -540,31 +540,50 @@
 }
 
 .spectra-playlist-list {
-    max-height: 300px;
+    margin: 0 16px;
+    max-height: 412px;
     overflow-y: auto;
+    border-radius: 8px;
     border-radius: var(--radius-mini);
     border: var(--border-strong);
     scrollbar-width: thin;
     scrollbar-color: var(--accent-color) var(--surface-high);
+    padding: 4px; 
 }
 
 .spectra-playlist-item {
     display: flex;
     align-items: center;
-    padding: 6px var(--space-sm);
+    margin: 0 4px; 
+    padding: 12px 15px;
     border-bottom: var(--border-light);
     background: var(--surface);
     transition: all var(--duration-fast) var(--ease-in-out);
     min-height: 45px;
+    border-radius: 6px;
+    margin: 2px 4px;
 }
 
 .spectra-playlist-item:hover {
     background: color-mix(in oklch, var(--surface-high), transparent 20%);
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+#playlist-modal .uk-modal-dialog {
+    height: 650px;
 }
 
 .spectra-playlist-item.playing {
-    background: var(--state-info-bg);
+    background: var(--color-blue);
     border-left: 3px solid var(--accent-color);
+    border-radius: 6px;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.15);
+}
+
+.spectra-playlist-item.playing * {
+    color: #ffffff !important;
 }
 
 .spectra-playlist-item-index {
@@ -587,6 +606,17 @@
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+    max-width: 1000px;  
+    text-overflow: ellipsis;
+}
+
+@media (max-width: 768px) {
+    .spectra-playlist-item-title {
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        max-width: 220px;  
+    }
 }
 
 .spectra-playlist-item-artist {
@@ -634,8 +664,8 @@
 }
 
 .spectra-playall-progress {
-    margin-top: var(--space-md);
-    padding: var(--space-sm);
+    margin: 0 10px;
+    padding: 0 15px 8px; 
     background: var(--surface);
     border-radius: var(--radius-mini);
     border: var(--border-light);
@@ -644,6 +674,7 @@
 .spectra-progress-info {
     display: flex;
     justify-content: space-between;
+    margin-top: 6px;
     margin-bottom: 8px;
     font-size: var(--text-xs);
     color: var(--text-secondary);
@@ -656,7 +687,7 @@
     overflow: hidden;
 }
 
-.spectra-progress-fill {
+.playAllProgress {
     height: 100%;
     background: linear-gradient(90deg, var(--accent-color), var(--accent-secondary));
     border-radius: 3px;
