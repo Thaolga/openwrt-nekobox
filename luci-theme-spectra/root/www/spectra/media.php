@@ -463,7 +463,7 @@ $systemInfo = [
 
 body {
     font-family: var(--font-family, -apple-system, BlinkMacSystemFont, sans-serif);
-    background: #1a1a1a;
+    background: var(-bg-container) !important;
     color: #fff;
     height: 100vh;
     overflow: hidden;
@@ -488,8 +488,8 @@ body {
 
 .top-bar {
     padding: 20px 30px;
-    background: #2c2c2c;
-    border-bottom: 1px solid #444;
+    background: var(--bg-container);
+
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -497,7 +497,7 @@ body {
 
 .logo h1 {
     font-size: 1.5rem;
-    color: #4CAF50;
+    color: var(--accent-color);
     display: flex;
     align-items: center;
     gap: 10px;
@@ -515,13 +515,13 @@ body {
 .stat-value {
     font-size: 1.3rem;
     font-weight: bold;
-    color: #4CAF50;
+    color: var(--accent-color);
     display: block;
 }
 
 .stat-label {
     font-size: 0.85rem;
-    color: #aaa;
+    color: var(--text-primary);
     margin-top: 3px;
 }
 
@@ -531,9 +531,9 @@ body {
 }
 
 .action-btn {
-    background: #333;
+    background: var(--btn-primary-bg);
+    border: none !important;
     color: white;
-    border: 1px solid #555;
     padding: 8px 16px;
     border-radius: 6px;
     cursor: pointer;
@@ -544,8 +544,8 @@ body {
 }
 
 .action-btn:hover {
-    background: #444;
-    border-color: #666;
+    background: var(--item-hover-bg);
+    transform: scale(1.05);
 }
 
 .action-btn.primary {
@@ -555,14 +555,16 @@ body {
 
 .action-btn.primary:hover {
     background: #45a049;
+    transform: scale(1.05);
 }
 
 .side-nav {
     width: 240px;
-    background: #252525;
-    border-right: 1px solid #444;
+    background: var(--bg-container) !important;
+    box-shadow: 1px 0 3px -2px color-mix(in oklch, var(--bg-container), black 30%);
     padding: 20px 15px;
     overflow-y: auto;
+    color: var(--text-primary) !important;
 }
 
 .nav-section {
@@ -570,11 +572,11 @@ body {
 }
 
 .nav-section-title {
-    color: #888;
+    color: var(--text-primary);
     font-size: 0.9rem;
     text-transform: uppercase;
     padding: 0 0 10px;
-    border-bottom: 1px solid #333;
+    border-bottom: var(--border-strong);
     margin-bottom: 15px;
 }
 
@@ -583,24 +585,23 @@ body {
     align-items: center;
     gap: 12px;
     padding: 12px 15px;
-    color: #ccc;
+    color: var(--text-primary);
     text-decoration: none;
     transition: all 0.3s;
-    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+    border: var(--border-strong) !important;
     border-left: 3px solid transparent;
     border-radius: 8px;
     margin: 5px 0;
 }
 
 .side-nav .nav-item:hover {
-    background-color: rgba(76, 175, 80, 0.2) !important;
+    background-color: var(--accent-tertiary) !important;
     color: white !important;
     transform: translateX(3px);
-    border-color: rgba(76, 175, 80, 0.5) !important;
 }
 
 .nav-item.active {
-    background: #4CAF50;
+    background: var(--accent-color);
     color: white;
 }
 
@@ -614,13 +615,13 @@ body {
     flex: 1;
     padding: 30px;
     overflow-y: auto;
-    background: #1a1a1a;
+    background: var(--card-bg);
 }
 
 .grid-title {
     font-size: 1.4rem;
     margin-bottom: 25px;
-    color: white;
+    color: var(--accent-tertiary);
     display: flex;
     align-items: center;
     gap: 10px;
@@ -633,18 +634,18 @@ body {
 }
 
 .media-item {
-    background: #2c2c2c;
+    background: var(--bg-container);
     border-radius: 10px;
     overflow: hidden;
     cursor: pointer;
     transition: all 0.3s;
-    border: 1px solid #444;
+    border: var(--border-strong);
     position: relative;
 }
 
 .media-item:hover {
     transform: translateY(-5px);
-    border-color: #4CAF50;
+    border-color: var(--bg-container);
     box-shadow: 0 10px 20px rgba(0,0,0,0.3);
 }
 
@@ -677,7 +678,7 @@ body {
 .media-name {
     font-weight: 600;
     margin-bottom: 8px;
-    color: white;
+    color: var(--text-primary);
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -687,15 +688,15 @@ body {
     display: flex;
     justify-content: space-between;
     font-size: 0.85rem;
-    color: #aaa;
+    color: var(--text-secondary);
 }
 
 .player-area {
     width: 50%;
-    background: #000;
+    background: var(--bg-container);
     display: none;
     flex-direction: column;
-    border-left: 1px solid #333;
+    border-left: var(--border-strong);
 }
 
 .player-area.active {
@@ -704,7 +705,7 @@ body {
 
 .player-header {
     padding: 20px;
-    background: rgba(0, 0, 0, 0.8);
+    background: var(--bg-container);
     border-bottom: 1px solid #333;
     display: flex;
     justify-content: space-between;
@@ -725,9 +726,9 @@ body {
 }
 
 .player-btn {
-    background: rgba(255, 255, 255, 0.1);
-    border: none;
-    color: white;
+    background: var(--btn-primary-bg);
+    border: var(--border-strong);
+    color: #ffffff;
     width: 40px;
     height: 40px;
     border-radius: 50%;
@@ -739,7 +740,7 @@ body {
 }
 
 .player-btn:hover {
-    background: rgba(255, 255, 255, 0.2);
+    background: var(--item-hover-bg);
 }
 
 .player-content {
@@ -781,7 +782,7 @@ body {
 
 .fullscreen-header {
     padding: 20px;
-    background: rgba(0, 0, 0, 0.8);
+    background: var(--bg-container);
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -837,18 +838,6 @@ body {
     transform: translate(-50%, -50%);
     background: rgba(0, 0, 0, 0.8);
     border-radius: 10px;
-}
-
-.player-area {
-    width: 50%;
-    background: #000;
-    display: none;
-    flex-direction: column;
-    border-left: 1px solid #333;
-}
-
-.player-area.active {
-    display: flex;
 }
 
 .player-content {
@@ -929,9 +918,9 @@ body {
     text-align: center;
     padding: 60px 20px;
     color: #666;
-    background: #2c2c2c;
+    background:var(--bg-container);
     border-radius: 12px;
-    border: 1px solid #444;
+    border: var(--border-strong);
 }
 
 .empty-icon {
@@ -949,16 +938,16 @@ body {
     display: flex;
     align-items: center;
     padding: 12px 15px;
-    background: #2c2c2c;
+    background: var(--bg-container);
     border-radius: 8px;
     margin-bottom: 10px;
     cursor: pointer;
     transition: all 0.2s;
-    border: 1px solid #444;
+    border: var(--border-strong);
 }
 
 .recent-item:hover {
-    background: #333;
+    background: var(--bg-container);
     border-color: #4CAF50;
 }
 
@@ -966,7 +955,7 @@ body {
     width: 40px;
     height: 40px;
     border-radius: 6px;
-    background: rgba(76, 175, 80, 0.2);
+    background: var(--bg-container);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -982,7 +971,7 @@ body {
 .recent-name {
     font-weight: 500;
     margin-bottom: 3px;
-    color: white;
+    color: var(--text-primary);
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -990,7 +979,7 @@ body {
 
 .recent-path {
     font-size: 0.85rem;
-    color: #aaa;
+    color: var(--text-secondary);
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -1001,16 +990,16 @@ body {
 }
 
 ::-webkit-scrollbar-track {
-    background: #2c2c2c;
+    background-color: color-mix(in oklch, var(--header-bg), transparent 75%);
 }
 
 ::-webkit-scrollbar-thumb {
-    background: #555;
+    background: var(--accent-color);
     border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-    background: #666;
+    background: var(--item-hover-bg);
 }
 
 .loading {
@@ -1074,7 +1063,7 @@ body {
     transform: translate(-50%, -50%);
     width: 450px;
     background: #2c2c2c;
-    border: 1px solid #444;
+    border: var(--border-strong);
     border-radius: 10px;
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
     z-index: 10000;
@@ -1104,7 +1093,7 @@ body {
 .context-menu-close {
     background: none;
     border: none;
-    color: #aaa;
+    color: var(--text-secondary);
     cursor: pointer;
     font-size: 1.2rem;
     padding: 5px;
@@ -1135,7 +1124,7 @@ body {
 
 .info-label {
     width: 100px;
-    color: #aaa;
+    color: var(--text-secondary);
     font-size: 0.9rem;
     flex-shrink: 0;
 }
@@ -1459,37 +1448,68 @@ body {
     max-width: 80%;
 } 
 
+.text-white,
+.text-white-50 {
+    color: var(--text-primary) !important;
+}
+
+.card .bg-black.bg-opacity-25,
+.card .bg-opacity-25.bg-black,
+.quick-action-card,
+.status-tile {
+    background: var(--card-bg) !important;
+    border: var(--border-strong) !important;
+    transition: transform 0.3s ease !important;
+}
+
+.card .bg-black.bg-opacity-25:hover,
+.card .bg-opacity-25.bg-black:hover,
+.quick-action-card:hover,
+.status-tile:hover {
+    transform: translateY(-2px) !important;
+    background-color: var(--card-bg) !important;
+    border-color: #4CAF50 !important;
+}
+
 .card {
-    transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
-    border: 1px solid transparent;
+    background: var(--bg-container) !important;
+    transition: transform 0.3s ease !important;
+    border: none !important;
 }
 
 .card:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
-    border-color: rgba(76, 175, 80, 0.3) !important;
+    transform: translateY(-2px) !important;
+    border-color: #4CAF50 !important;
 }
 
-.bg-black.bg-opacity-25,
-.status-tile {
-    transition: transform 0.3s ease, box-shadow 0.3s ease, background-color 0.3s ease;
-    border: 1px solid rgba(255, 255, 255, 0.1);
+.col-lg-6 .card .bg-black.bg-opacity-25,
+.col-md-6 .card .bg-black.bg-opacity-25 {
+    background: var(--card-bg) !important;
 }
 
-.bg-black.bg-opacity-25:hover,
-.status-tile:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
-    background-color: rgba(0, 0, 0, 0.4) !important;
-    border-color: rgba(76, 175, 80, 0.2) !important;
+.row.g-3 .col-6 .bg-black.bg-opacity-25 {
+    background: var(--card-bg) !important;
 }
 
-.card.border-secondary {
-    border-color: #444 !important;
+.row.g-3 .col-12 .bg-black.bg-opacity-25 {
+    background: var(--card-bg) !important;
 }
 
-.card.border-secondary:hover {
-    border-color: rgba(76, 175, 80, 0.5) !important;
+.card.bg-black.bg-opacity-25.border-secondary {
+    background: var(--card-bg) !important;
+}
+
+.row.g-3 .col-6 .bg-black.bg-opacity-25.quick-action-card {
+    background: var(--card-bg) !important;
+}
+
+.card-body .bg-black.rounded {
+    background: var(--bg-container) !important;
+}
+
+.progress {
+    background-color: var(--bg-container) !important;
+    border: var(--border-strong) !important;
 }
 
 .player-title {
@@ -1597,9 +1617,9 @@ body {
                     <div class="nav-section">
                         <div class="nav-section-title" data-translate="system_status">System Status</div>
                         <?php if ($diskInfo): ?>
-                        <div style="padding: 15px; color: #aaa; font-size: 0.9rem;">
+                        <div style="padding: 15px; color: var(--text-primary); font-size: 0.9rem;">
                             <div><span data-translate="disk_usage_colon">Disk Usage:</span> <?= $diskInfo['used_mb'] ?>MB / <?= $diskInfo['total_mb'] ?>MB</div>
-                            <div style="height: 6px; background: #333; border-radius: 3px; margin: 10px 0; overflow: hidden;">
+                            <div style="height: 6px; background: #fff; border-radius: 3px; margin: 10px 0; overflow: hidden;">
                                 <div style="width: <?= $diskInfo['used_percent'] ?>%; height: 100%; background: #4CAF50;"></div>
                             </div>
                             <div><span data-translate="free_space">Free Space:</span> <?= $diskInfo['free_mb'] ?>MB</div>
@@ -1613,7 +1633,7 @@ body {
                         <div style="padding: 12px 15px;">
                         <div style="text-align: center;">
                             <div id="dateDisplay" style="color: #4CAF50;"></div>
-                            <div id="weekDisplay" style="color: #aaa; margin: 3px 0;"></div>
+                            <div id="weekDisplay" style="color: var(--text-primary); margin: 3px 0;"></div>
                             <div id="lunarDisplay" style="color: #2196F3; font-size: 1.1rem; margin: 5px 0;"></div>
                             <div id="timeDisplay" style="color: #9C27B0; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 10px; margin-top: 10px;"></div>
                         </div>
@@ -1799,7 +1819,7 @@ body {
                             <div class="card bg-dark border-secondary h-100">
                                 <div class="card-body">
                                     <h5 class="card-title text-success mb-4" data-translate="system_monitoring">System Monitoring</h5>
-                                    <div class="row g-4 mb-4">
+                                    <div class="row g-3 mb-3">
                                         <div class="col-md-6">
                                             <div class="card bg-black bg-opacity-25 border-secondary h-100">
                                                 <div class="card-body d-flex flex-column">
@@ -2138,7 +2158,7 @@ body {
                         <button class="player-btn" onclick="toggleFullscreenPlayer()">
                             <i class="fas fa-expand"></i>
                         </button>
-                        <button class="player-btn" onclick="closePlayer()">
+                        <button class="player-btn" onclick="closePlayer(); return false;">
                             <i class="fas fa-times"></i>
                         </button>
                     </div>
@@ -2150,9 +2170,9 @@ body {
                     <img id="imageViewer" style="display: none;" />
                     <div id="playError" style="display: none; text-align: center; padding: 40px;">
                         <i class="fas fa-exclamation-triangle" style="font-size: 48px; color: #ff9800; margin-bottom: 20px;"></i>
-                        <h3 style="margin-bottom: 10px;" data-translate="cannot_play_media">Cannot play media file</h3>
-                        <p style="color: #aaa;" data-translate="possible_reasons">Possible reasons:</p>
-                        <ul style="color: #aaa; text-align: left; margin-top: 10px; padding-left: 20px;">
+                        <h3 style="margin-bottom: 10px; color: var(--text-primary);" data-translate="cannot_play_media">Cannot play media file</h3>
+                        <p style="color: var(--text-secondary);" data-translate="possible_reasons">Possible reasons:</p>
+                        <ul style="color: var(--text-secondary); text-align: left; margin-top: 10px; padding-left: 20px;">
                             <li data-translate="reason_unsupported_format">File format not supported by browser</li>
                             <li data-translate="reason_incorrect_path">File path is incorrect</li>
                             <li data-translate="reason_server_unreachable">Server cannot access the file</li>
@@ -2160,33 +2180,6 @@ body {
                     </div>
                 </div>
             </div>
-        </div>
-    </div>
-</div>
-
-<div class="fullscreen-player" id="fullscreenPlayer">
-    <div class="fullscreen-header">
-        <div class="player-title" id="fullscreenTitle">
-            <i class="fas fa-play"></i>
-            <span data-translate="fullscreen_play">Fullscreen Play</span>
-        </div>
-        <div class="player-actions">
-            <button class="player-btn" onclick="toggleFullscreenPlayer()">
-                <i class="fas fa-compress"></i>
-            </button>
-            <button class="player-btn" onclick="closeFullscreenPlayer()">
-                <i class="fas fa-times"></i>
-            </button>
-        </div>
-    </div>
-    
-    <div class="fullscreen-content">
-        <audio id="fullscreenAudio" controls style="display: none;"></audio>
-        <video id="fullscreenVideo" controls style="display: none;"></video>
-        <img id="fullscreenImage" style="display: none;" />
-        <div id="fullscreenPlayError" style="display: none; text-align: center; padding: 40px;">
-            <i class="fas fa-exclamation-triangle" style="font-size: 48px; color: #ff9800; margin-bottom: 20px;"></i>
-            <h3 style="margin-bottom: 10px;" data-translate="cannot_play_media">Cannot play media file</h3>
         </div>
     </div>
 </div>
@@ -2602,220 +2595,80 @@ function closePlayer() {
     const playerArea = document.getElementById('playerArea');
     const audioPlayer = document.getElementById('audioPlayer');
     const videoPlayer = document.getElementById('videoPlayer');
+    const imageViewer = document.getElementById('imageViewer');
+    
+    if (document.fullscreenElement) {
+        if (document.exitFullscreen) {
+            document.exitFullscreen();
+        }
+    }
     
     if (imageSwitchTimer) {
         clearInterval(imageSwitchTimer);
         imageSwitchTimer = null;
     }
     
-    playerArea.classList.remove('active');
     audioPlayer.pause();
     videoPlayer.pause();
+    
+    playerArea.classList.remove('active');
+    playerArea.style.display = 'none'; 
+    
+    audioPlayer.style.display = 'none';
+    videoPlayer.style.display = 'none';
+    imageViewer.style.display = 'none';
+    
+    currentMedia = {
+        type: null,
+        src: null,
+        path: null,
+        ext: null,
+        wasPlaying: false
+    };
 }
     
 function toggleFullscreenPlayer() {
-    const fullscreenPlayer = document.getElementById('fullscreenPlayer');
-    const contentArea = document.getElementById('contentArea');
-    const playerArea = document.getElementById('playerArea');
-    
-    if (fullscreenPlayer.classList.contains('active')) {
-        closeFullscreenPlayer();
-    } else {
-        if (!currentMedia.src) return;
-        
-        const audioPlayer = document.getElementById('audioPlayer');
-        const videoPlayer = document.getElementById('videoPlayer');
-        const fullscreenAudio = document.getElementById('fullscreenAudio');
-        const fullscreenVideo = document.getElementById('fullscreenVideo');
-        const fullscreenImage = document.getElementById('fullscreenImage');
-        const fullscreenPlayError = document.getElementById('fullscreenPlayError');
-        const fullscreenTitle = document.getElementById('fullscreenTitle');
-        
-        if (currentMedia.type === 'audio') {
-            currentMedia.wasPlaying = !audioPlayer.paused;
-            audioPlayer.pause();
-        } else if (currentMedia.type === 'video') {
-            currentMedia.wasPlaying = !videoPlayer.paused;
-            videoPlayer.pause();
-        }
-        
-        fullscreenAudio.style.display = 'none';
-        fullscreenVideo.style.display = 'none';
-        fullscreenImage.style.display = 'none';
-        fullscreenPlayError.style.display = 'none';
-        
-        fullscreenAudio.pause();
-        fullscreenVideo.pause();
-        
-        fullscreenAudio.src = '';
-        fullscreenVideo.src = '';
-        fullscreenImage.src = '';
-        
-        if (currentMedia.type === 'audio') {
-            fullscreenAudio.src = currentMedia.src;
-            fullscreenAudio.load();
-            fullscreenAudio.style.display = 'block';
-            if (currentMedia.wasPlaying) {
-                fullscreenAudio.play();
-            }
-        } else if (currentMedia.type === 'video') {
-            fullscreenVideo.src = currentMedia.src;
-            fullscreenVideo.load();
-            fullscreenVideo.style.display = 'block';
-            if (currentMedia.wasPlaying) {
-                fullscreenVideo.play();
-            }
-        } else if (currentMedia.type === 'image') {
-            fullscreenImage.src = currentMedia.src;
-            fullscreenImage.style.display = 'block';
-        }
-        
-        contentArea.classList.add('fullscreen');
-        playerArea.classList.remove('active');
-        fullscreenPlayer.classList.add('active');
-        
-        const fileName = currentMedia.path.split('/').pop();
-        fullscreenTitle.innerHTML = `<i class="fas fa-play"></i>${fileName}`;
-    }
-}
-    
-function closeFullscreenPlayer() {
-    const fullscreenPlayer = document.getElementById('fullscreenPlayer');
-    const contentArea = document.getElementById('contentArea');
-    const audioPlayer = document.getElementById('audioPlayer');
     const videoPlayer = document.getElementById('videoPlayer');
-    const fullscreenAudio = document.getElementById('fullscreenAudio');
-    const fullscreenVideo = document.getElementById('fullscreenVideo');
+    const audioPlayer = document.getElementById('audioPlayer');
+    const imageViewer = document.getElementById('imageViewer');
     
-    fullscreenAudio.pause();
-    fullscreenVideo.pause();
+    let mediaElement;
+    if (videoPlayer.style.display === 'block') {
+        mediaElement = videoPlayer;
+    } else if (audioPlayer.style.display === 'block') {
+        mediaElement = audioPlayer;
+    } else if (imageViewer.style.display === 'block') {
+        mediaElement = imageViewer;
+    }
     
-    fullscreenPlayer.classList.remove('active');
-    contentArea.classList.remove('fullscreen');
+    if (!mediaElement) return;
     
-    if (currentMedia.src) {
-        const playerArea = document.getElementById('playerArea');
-        playerArea.classList.add('active');
-        
-        if (currentMedia.type === 'audio') {
-            if (currentMedia.wasPlaying) {
-                audioPlayer.play();
-            }
-        } else if (currentMedia.type === 'video') {
-            if (currentMedia.wasPlaying) {
-                videoPlayer.play();
-            }
+    if (!document.fullscreenElement) {
+        if (mediaElement.requestFullscreen) {
+            mediaElement.requestFullscreen();
+        } else if (mediaElement.webkitRequestFullscreen) {
+            mediaElement.webkitRequestFullscreen();
+        } else if (mediaElement.msRequestFullscreen) {
+            mediaElement.msRequestFullscreen();
+        }
+    } else {
+        if (document.exitFullscreen) {
+            document.exitFullscreen();
+        } else if (document.webkitExitFullscreen) {
+            document.webkitExitFullscreen();
+        } else if (document.msExitFullscreen) {
+            document.msExitFullscreen();
         }
     }
 }
-    
+   
 function refreshMedia() {
     updateRecentList();
     window.location.reload();
 }
     
 function toggleFullscreen() {
-    const fullscreenPlayer = document.getElementById('fullscreenPlayer');
-    
-    if (fullscreenPlayer.classList.contains('active')) {
-        closeFullscreenPlayer();
-        return;
-    }
-    
-    if (currentMedia.src) {
-        const audioPlayer = document.getElementById('audioPlayer');
-        const videoPlayer = document.getElementById('videoPlayer');
-        
-        if (currentMedia.type === 'audio') {
-            currentMedia.wasPlaying = !audioPlayer.paused;
-            audioPlayer.pause();
-        } else if (currentMedia.type === 'video') {
-            currentMedia.wasPlaying = !videoPlayer.paused;
-            videoPlayer.pause();
-        }
-        
-        activateFullscreenPlayer();
-    } else {
-        if (!document.fullscreenElement) {
-            document.documentElement.requestFullscreen().catch(err => {
-            });
-        } else {
-            if (document.exitFullscreen) {
-                document.exitFullscreen();
-            }
-        }
-    }
-}
-
-function activateFullscreenPlayer() {
-    const fullscreenPlayer = document.getElementById('fullscreenPlayer');
-    const contentArea = document.getElementById('contentArea');
-    const playerArea = document.getElementById('playerArea');
-    const fullscreenAudio = document.getElementById('fullscreenAudio');
-    const fullscreenVideo = document.getElementById('fullscreenVideo');
-    const fullscreenImage = document.getElementById('fullscreenImage');
-    const fullscreenTitle = document.getElementById('fullscreenTitle');
-    
-    contentArea.classList.add('fullscreen');
-    playerArea.classList.remove('active');
-    fullscreenPlayer.classList.add('active');
-    
-    fullscreenAudio.style.display = 'none';
-    fullscreenVideo.style.display = 'none';
-    fullscreenImage.style.display = 'none';
-    
-    fullscreenAudio.pause();
-    fullscreenVideo.pause();
-    
-    if (currentMedia.type === 'audio') {
-        fullscreenAudio.src = currentMedia.src;
-        fullscreenAudio.load();
-        fullscreenAudio.style.display = 'block';
-        if (currentMedia.wasPlaying) {
-            fullscreenAudio.play();
-        }
-    } else if (currentMedia.type === 'video') {
-        fullscreenVideo.src = currentMedia.src;
-        fullscreenVideo.load();
-        fullscreenVideo.style.display = 'block';
-        if (currentMedia.wasPlaying) {
-            fullscreenVideo.play();
-        }
-    } else if (currentMedia.type === 'image') {
-        fullscreenImage.src = currentMedia.src;
-        fullscreenImage.style.display = 'block';
-    }
-    
-    const fileName = currentMedia.path.split('/').pop();
-    fullscreenTitle.innerHTML = `<i class="fas fa-play"></i>${fileName}`;
-    
-    fullscreenPlayer.style.zIndex = '9999';
-}
-
-function closeFullscreenPlayer() {
-    const fullscreenPlayer = document.getElementById('fullscreenPlayer');
-    const contentArea = document.getElementById('contentArea');
-    const audioPlayer = document.getElementById('audioPlayer');
-    const videoPlayer = document.getElementById('videoPlayer');
-    const fullscreenAudio = document.getElementById('fullscreenAudio');
-    const fullscreenVideo = document.getElementById('fullscreenVideo');
-    
-    fullscreenAudio.pause();
-    fullscreenVideo.pause();
-    
-    fullscreenPlayer.classList.remove('active');
-    contentArea.classList.remove('fullscreen');
-    
-    if (currentMedia.src) {
-        const playerArea = document.getElementById('playerArea');
-        playerArea.classList.add('active');
-        
-        if (currentMedia.type === 'audio' && currentMedia.wasPlaying) {
-            audioPlayer.play();
-        } else if (currentMedia.type === 'video' && currentMedia.wasPlaying) {
-            videoPlayer.play();
-        }
-    }
+    toggleFullscreenPlayer();
 }
 
 function showMediaInfo(event, element) {
