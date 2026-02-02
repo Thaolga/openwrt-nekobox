@@ -2668,7 +2668,56 @@ function refreshMedia() {
 }
     
 function toggleFullscreen() {
-    toggleFullscreenPlayer();
+    const fullscreenBtn = document.querySelector('.action-btn.primary');
+    const icon = fullscreenBtn ? fullscreenBtn.querySelector('i') : null;
+    
+    if (!document.fullscreenElement) {
+        const elem = document.documentElement;
+        
+        if (icon) {
+            icon.className = 'fas fa-compress';
+            icon.style.opacity = '0.8';
+        }
+        
+        if (elem.requestFullscreen) {
+            elem.requestFullscreen().then(() => {
+                if (icon) {
+                    icon.style.opacity = '1';
+                }
+            }).catch(err => {
+                if (icon) {
+                    icon.className = 'fas fa-expand';
+                    icon.style.opacity = '1';
+                }
+            });
+        } else if (elem.webkitRequestFullscreen) {
+            elem.webkitRequestFullscreen();
+        } else if (elem.msRequestFullscreen) {
+            elem.msRequestFullscreen();
+        }
+    } else {
+        if (icon) {
+            icon.className = 'fas fa-expand';
+            icon.style.opacity = '0.8';
+        }
+        
+        if (document.exitFullscreen) {
+            document.exitFullscreen().then(() => {
+                if (icon) {
+                    icon.style.opacity = '1';
+                }
+            }).catch(err => {
+                if (icon) {
+                    icon.className = 'fas fa-compress';
+                    icon.style.opacity = '1';
+                }
+            });
+        } else if (document.webkitExitFullscreen) {
+            document.webkitExitFullscreen();
+        } else if (document.msExitFullscreen) {
+            document.msExitFullscreen();
+        }
+    }
 }
 
 function showMediaInfo(event, element) {
@@ -3505,6 +3554,26 @@ function initSidebarState() {
         }
     }
 }
+
+function updateFullscreenIcon() {
+    const fullscreenBtn = document.querySelector('.action-btn.primary');
+    if (!fullscreenBtn) return;
+    
+    const icon = fullscreenBtn.querySelector('i');
+    const textSpan = fullscreenBtn.querySelector('span');
+    
+    if (icon && textSpan) {
+        if (document.fullscreenElement) {
+            icon.className = 'fas fa-compress';
+            textSpan.textContent = textSpan.getAttribute('data-translate') === 'fullscreen_play' ? 
+                (translations['exit_fullscreen'] || 'Exit Fullscreen') : 'Exit Fullscreen';
+        } else {
+            icon.className = 'fas fa-expand';
+            textSpan.textContent = textSpan.getAttribute('data-translate') === 'fullscreen_play' ? 
+                (translations['fullscreen_play'] || 'Fullscreen Play') : 'Fullscreen Play';
+        }
+    }
+}
    
 document.addEventListener('DOMContentLoaded', function() {
     updateRecentList();
@@ -3525,6 +3594,13 @@ document.addEventListener('DOMContentLoaded', function() {
         };
         document.head.appendChild(script);
     }
+
+    document.addEventListener('fullscreenchange', updateFullscreenIcon);
+    document.addEventListener('webkitfullscreenchange', updateFullscreenIcon);
+    document.addEventListener('mozfullscreenchange', updateFullscreenIcon);
+    document.addEventListener('MSFullscreenChange', updateFullscreenIcon);
+    
+    updateFullscreenIcon();
 
     const playerArea = document.getElementById('playerArea');
     const playerResizer = document.getElementById('playerResizer');
