@@ -368,25 +368,6 @@ h2 {
 
 }
 
-.modal-content {
-	background: var(--bg-container);
-	border: 1px solid var(--border-color);
-}
-
-.modal-header {
-	background: var(--header-bg);
-	border-bottom: 1px solid var(--border-color);
-}
-
-.modal-title {
-	color: var(--accent-color) !important;
-}
-
-.modal-body {
-	background: var(--card-bg);
-	color: var(--text-primary);
-}
-
 label {
 	color: var(--text-primary) !important;
 }
@@ -837,53 +818,6 @@ body:hover,
 .file-list-item i {
 	color: var(--accent-color);
 	margin-right: 8px;
-}
-
-.btn-close {
-	width: 15px !important;
-	height: 15px !important;
-	background-color: #30e8dc !important;
-	border-radius: 6px !important;
-	border: none !important;
-	position: relative !important;
-	display: flex !important;
-	align-items: center !important;
-	justify-content: center !important;
-	cursor: pointer !important;
-	transition: background-color 0.2s ease, transform 0.2s ease !important;
-}
-
-.btn-close::before, 
-.btn-close::after {
-	content: '' !important;
-	position: absolute !important;
-	width: 12px !important;
-	height: 2px !important;
-	background-color: #ff4d4f !important;
-	border-radius: 2px !important;
-	transition: background-color 0.2s ease !important;
-}
-
-.btn-close::before {
-	transform: rotate(45deg) !important;
-}
-
-.btn-close::after {
-	transform: rotate(-45deg) !important;
-}
-
-.btn-close:hover {
-	background-color: #30e8dc !important;
-	transform: scale(1.1) !important;
-}
-
-.btn-close:hover::before, 
-.btn-close:hover::after {
-	background-color: #d9363e !important;
-}
-
-.btn-close:active {
-	transform: scale(0.9) !important;
 }
 
 .card:hover .fileCheckbox {

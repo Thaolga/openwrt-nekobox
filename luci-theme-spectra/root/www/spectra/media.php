@@ -7,11 +7,1387 @@ $EXCLUDE_DIRS = [
     '/var/lock', '/var/run', '/overlay/upper'
 ];
 
+$ARCHIVE_EXT = [
+    'zip', 'tar', 'gz', 'bz2', '7z', 'rar', 'tgz', 'tbz2'
+];
+
+$ARCHIVE_TOOLS = [
+    'zip' => 'zip',
+    'unzip' => 'unzip',
+    'tar' => 'tar',
+    'gzip' => 'gzip',
+    'gunzip' => 'gunzip',
+    'bzip2' => 'bzip2',
+    'bunzip2' => 'bunzip2',
+    '7z' => '7z',
+    'rar' => 'unrar'
+];
+
 $TYPE_EXT = [
     'music'  => ['mp3', 'ogg', 'wav', 'flac', 'm4a', 'aac'],
     'video'  => ['mp4', 'avi', 'mkv', 'mov', 'wmv', 'flv', 'webm'],
-    'image'  => ['jpg', 'jpeg', 'png', 'gif', 'bmp', 'webp', 'svg']
+    'image'  => ['jpg', 'jpeg', 'png', 'gif', 'bmp', 'webp', 'svg'],
+    'text'   => ['txt', 'log', 'conf', 'ini', 'json', 'xml', 'html', 'css', 'js', 'php', 'py', 'sh', 'md'],
+    'archive'=> ['zip', 'tar', 'gz', 'bz2', '7z', 'rar']
 ];
+
+if (isset($_GET['action'])) {
+    $action = $_GET['action'];
+    
+    if ($action === 'list_files') {
+        header('Content-Type: application/json');
+        
+        $path = isset($_GET['path']) ? urldecode($_GET['path']) : $ROOT_DIR;
+        $path = preg_replace('#/+#', '/', $path);
+        
+        if (substr($path, 0, 1) !== '/') {
+            $path = '/' . $path;
+        }
+        
+        $realPath = realpath($path);
+        if (!$realPath || strpos($realPath, $ROOT_DIR) !== 0) {
+            echo json_encode(['success' => false, 'error' => 'Invalid path']);
+            exit;
+        }
+        
+        foreach ($EXCLUDE_DIRS as $exclude) {
+            if (strpos($realPath, $exclude) === 0) {
+                echo json_encode(['success' => false, 'error' => 'Path excluded']);
+                exit;
+            }
+        }
+        
+        $items = [];
+        if (is_dir($realPath) && is_readable($realPath)) {
+            try {
+                $iterator = new DirectoryIterator($realPath);
+                
+                foreach ($iterator as $item) {
+                    if ($item->isDot()) continue;
+                    
+                    $itemPath = $item->getPathname();
+                    $itemRealPath = realpath($itemPath);
+                    
+                    if (!$itemRealPath) continue;
+                    
+                    $excluded = false;
+                    foreach ($EXCLUDE_DIRS as $exclude) {
+                        if (strpos($itemRealPath, $exclude) === 0) {
+                            $excluded = true;
+                            break;
+                        }
+                    }
+                    
+                    if ($excluded) continue;
+                    
+                    $isDir = $item->isDir();
+                    $size = $isDir ? 0 : $item->getSize();
+                    $perms = substr(sprintf('%o', $item->getPerms()), -4);
+                    $owner = function_exists('posix_getpwuid') ? posix_getpwuid($item->getOwner())['name'] : $item->getOwner();
+                    $group = function_exists('posix_getgrgid') ? posix_getgrgid($item->getGroup())['name'] : $item->getGroup();
+                    
+                    $type = 'file';
+                    $ext = strtolower($item->getExtension());
+                    $icon = 'fa-file';
+                    
+                    if ($isDir) {
+                        $type = 'directory';
+                        $icon = 'fa-folder';
+                    } elseif (in_array($ext, $TYPE_EXT['music'])) {
+                        $type = 'music';
+                        $icon = 'fa-music';
+                    } elseif (in_array($ext, $TYPE_EXT['video'])) {
+                        $type = 'video';
+                        $icon = 'fa-video';
+                    } elseif (in_array($ext, $TYPE_EXT['image'])) {
+                        $type = 'image';
+                        $icon = 'fa-image';
+                    } elseif (in_array($ext, $TYPE_EXT['text'])) {
+                        $type = 'text';
+                        $icon = 'fa-file-alt';
+                    } elseif (in_array($ext, $TYPE_EXT['archive'])) {
+                        $type = 'archive';
+                        $icon = 'fa-file-archive';
+                    } else {
+                        $icon = 'fa-file';
+                    }
+                    
+                    $items[] = [
+                        'name' => $item->getFilename(),
+                        'path' => $itemPath,
+                        'type' => $type,
+                        'is_dir' => $isDir,
+                        'size' => $size,
+                        'size_formatted' => formatFileSize($size),
+                        'modified' => $item->getMTime(),
+                        'modified_formatted' => date('Y-m-d H:i:s', $item->getMTime()),
+                        'permissions' => $perms,
+                        'owner' => $owner,
+                        'group' => $group,
+                        'icon' => $icon,
+                        'ext' => $ext,
+                        'safe_name' => htmlspecialchars($item->getFilename(), ENT_QUOTES, 'UTF-8'),
+                        'safe_path' => htmlspecialchars($itemPath, ENT_QUOTES, 'UTF-8')
+                    ];
+                }
+                
+                usort($items, function($a, $b) {
+                    if ($a['is_dir'] && !$b['is_dir']) return -1;
+                    if (!$a['is_dir'] && $b['is_dir']) return 1;
+                    return strcasecmp($a['name'], $b['name']);
+                });
+                
+                echo json_encode([
+                    'success' => true,
+                    'path' => $realPath,
+                    'parent' => dirname($realPath),
+                    'items' => $items,
+                    'disk_info' => getDiskInfo($realPath)
+                ]);
+                
+            } catch (Exception $e) {
+                echo json_encode(['success' => false, 'error' => $e->getMessage()]);
+            }
+        } else {
+            echo json_encode(['success' => false, 'error' => 'Directory not readable']);
+        }
+        exit;
+    }
+
+    elseif ($action === 'download_folder') {
+        header('Content-Type: application/octet-stream');
+        if (ob_get_level()) ob_end_clean();
+    
+        $path = isset($_GET['path']) ? urldecode($_GET['path']) : '';
+        $realPath = realpath($path);
+    
+        if (!$realPath || strpos($realPath, $ROOT_DIR) !== 0) {
+            http_response_code(403);
+            exit('Invalid path');
+        }
+        if (!is_dir($realPath)) {
+            http_response_code(400);
+            exit('Not a directory');
+        }
+    
+        $folderName = basename($realPath);
+        $tarFilename = $folderName . '.tar';
+        header('Content-Disposition: attachment; filename="' . rawurlencode($tarFilename) . '"');
+    
+        $cmd = "tar -cf - -C " . escapeshellarg(dirname($realPath)) . " " . escapeshellarg($folderName);
+    
+        passthru($cmd);
+        exit;
+    }
+   
+    if ($action === 'get_file_info') {
+        header('Content-Type: application/json');
+        
+        $path = isset($_GET['path']) ? urldecode($_GET['path']) : '';
+        $path = preg_replace('#/+#', '/', $path);
+        
+        if (substr($path, 0, 1) !== '/') {
+            $path = '/' . $path;
+        }
+        
+        $realPath = realpath($path);
+        if (!$realPath || strpos($realPath, $ROOT_DIR) !== 0) {
+            echo json_encode(['success' => false, 'error' => 'Invalid path']);
+            exit;
+        }
+        
+        foreach ($EXCLUDE_DIRS as $exclude) {
+            if (strpos($realPath, $exclude) === 0) {
+                echo json_encode(['success' => false, 'error' => 'Path excluded']);
+                exit;
+            }
+        }
+        
+        if (file_exists($realPath) && is_readable($realPath)) {
+            $isDir = is_dir($realPath);
+            $size = $isDir ? 0 : filesize($realPath);
+            $perms = substr(sprintf('%o', fileperms($realPath)), -4);
+            $owner = function_exists('posix_getpwuid') ? posix_getpwuid(fileowner($realPath))['name'] : fileowner($realPath);
+            $group = function_exists('posix_getgrgid') ? posix_getgrgid(filegroup($realPath))['name'] : filegroup($realPath);
+            
+            $info = [
+                'name' => basename($realPath),
+                'path' => $realPath,
+                'is_dir' => $isDir,
+                'size' => $size,
+                'size_formatted' => formatFileSize($size),
+                'modified' => filemtime($realPath),
+                'modified_formatted' => date('Y-m-d H:i:s', filemtime($realPath)),
+                'accessed' => fileatime($realPath),
+                'accessed_formatted' => date('Y-m-d H:i:s', fileatime($realPath)),
+                'created' => filectime($realPath),
+                'created_formatted' => date('Y-m-d H:i:s', filectime($realPath)),
+                'permissions' => $perms,
+                'owner' => $owner,
+                'group' => $group,
+                'inode' => fileinode($realPath),
+                'real_path' => $realPath
+            ];
+            
+            if (!$isDir) {
+                $ext = strtolower(pathinfo($realPath, PATHINFO_EXTENSION));
+                $info['extension'] = $ext;
+                $info['mime_type'] = getMimeType($ext);
+                
+                if (in_array($ext, $TYPE_EXT['music']) || in_array($ext, $TYPE_EXT['video'])) {
+                    $mediaInfo = getMediaInfo($realPath);
+                    if ($mediaInfo) {
+                        $info['media_info'] = $mediaInfo;
+                    }
+                } elseif (in_array($ext, $TYPE_EXT['image'])) {
+                    $imageInfo = @getimagesize($realPath);
+                    if ($imageInfo) {
+                        $info['image_info'] = [
+                            'width' => $imageInfo[0],
+                            'height' => $imageInfo[1],
+                            'mime' => $imageInfo['mime']
+                        ];
+                    }
+                }
+            }
+            
+            echo json_encode(['success' => true, 'info' => $info]);
+        } else {
+            echo json_encode(['success' => false, 'error' => 'File not found']);
+        }
+        exit;
+    }
+    
+    if ($action === 'create_folder') {
+        header('Content-Type: application/json');
+        
+        $path = isset($_GET['path']) ? urldecode($_GET['path']) : '';
+        $name = isset($_GET['name']) ? urldecode($_GET['name']) : '';
+        
+        if (empty($name)) {
+            echo json_encode(['success' => false, 'error' => 'Folder name is required']);
+            exit;
+        }
+
+        $name = preg_replace('/[\/:*?"<>|]/', '', $name);
+        
+        $path = rtrim($path, '/') . '/';
+        $fullPath = $path . $name;
+        
+        $fullPath = realpath(dirname($fullPath)) . '/' . $name;
+        
+        if (strpos($fullPath, $ROOT_DIR) !== 0) {
+            echo json_encode(['success' => false, 'error' => 'Invalid path']);
+            exit;
+        }
+        
+        if (file_exists($fullPath)) {
+            echo json_encode(['success' => false, 'error' => 'Folder already exists']);
+            exit;
+        }
+        
+        if (@mkdir($fullPath, 0755, true)) {
+            echo json_encode(['success' => true, 'message' => 'Folder created successfully']);
+        } else {
+            $error = error_get_last();
+            echo json_encode(['success' => false, 'error' => 'Failed to create folder: ' . ($error['message'] ?? 'Unknown error')]);
+        }
+        exit;
+    }
+
+    if ($action === 'create_file') {
+        header('Content-Type: application/json');
+        
+        $path = isset($_POST['path']) ? urldecode($_POST['path']) : '';
+        $name = isset($_POST['name']) ? urldecode($_POST['name']) : '';
+        
+        if (empty($name)) {
+            echo json_encode(['success' => false, 'error' => 'File name is required']);
+            exit;
+        }
+        
+        $name = preg_replace('/[\/:*?"<>|]/', '', $name);
+        
+        $fullPath = $path . '/' . $name;
+        $fullPath = preg_replace('#/+#', '/', $fullPath);
+        
+        if (substr($fullPath, 0, 1) !== '/') {
+            $fullPath = '/' . $fullPath;
+        }
+        
+        $realPath = realpath(dirname($fullPath));
+        if (!$realPath || strpos($realPath, $ROOT_DIR) !== 0) {
+            echo json_encode(['success' => false, 'error' => 'Invalid path']);
+            exit;
+        }
+        
+        if (file_exists($fullPath)) {
+            echo json_encode(['success' => false, 'error' => 'File already exists']);
+            exit;
+        }
+        
+        if (@file_put_contents($fullPath, '') !== false) {
+            echo json_encode(['success' => true, 'message' => 'File created successfully']);
+        } else {
+            echo json_encode(['success' => false, 'error' => 'Failed to create file']);
+        }
+        exit;
+    }
+    
+    if ($action === 'delete_item') {
+        header('Content-Type: application/json');
+        
+        $path = isset($_GET['path']) ? urldecode($_GET['path']) : '';
+        $path = preg_replace('#/+#', '/', $path);
+        
+        if (substr($path, 0, 1) !== '/') {
+            $path = '/' . $path;
+        }
+        
+        $realPath = realpath($path);
+        if (!$realPath || strpos($realPath, $ROOT_DIR) !== 0) {
+            echo json_encode(['success' => false, 'error' => 'Invalid path']);
+            exit;
+        }
+        
+        $success = false;
+        $message = '';
+        
+        if (is_dir($realPath)) {
+            if (deleteDirectory($realPath)) {
+                $success = true;
+                $message = 'Directory deleted successfully';
+            } else {
+                $message = 'Failed to delete directory';
+            }
+        } else {
+            if (@unlink($realPath)) {
+                $success = true;
+                $message = 'File deleted successfully';
+            } else {
+                $message = 'Failed to delete file';
+            }
+        }
+        
+        echo json_encode(['success' => $success, 'message' => $message]);
+        exit;
+    }
+    
+    if ($action === 'save_file') {
+        header('Content-Type: application/json; charset=utf-8');
+        
+        $path = isset($_POST['path']) ? urldecode($_POST['path']) : '';
+        $content = isset($_POST['content']) ? $_POST['content'] : '';
+        $isBase64 = isset($_POST['is_base64']) && $_POST['is_base64'] == '1';
+        
+        $path = preg_replace('#/+#', '/', $path);
+        
+        if (substr($path, 0, 1) !== '/') {
+            $path = '/' . $path;
+        }
+        
+        $realPath = realpath($path);
+        if (!$realPath || strpos($realPath, $ROOT_DIR) !== 0) {
+            echo json_encode(['success' => false, 'error' => 'Invalid path']);
+            exit;
+        }
+        
+        foreach ($EXCLUDE_DIRS as $exclude) {
+            if (strpos($realPath, $exclude) === 0) {
+                echo json_encode(['success' => false, 'error' => 'Path excluded']);
+                exit;
+            }
+        }
+        
+        if (file_exists($realPath) && is_writable($realPath)) {
+            try {
+                if ($isBase64) {
+                    $content = base64_decode($content);
+                    if ($content === false) {
+                        echo json_encode(['success' => false, 'error' => 'Failed to decode base64 content']);
+                        exit;
+                    }
+                }
+                
+                $result = file_put_contents($realPath, $content);
+                
+                if ($result !== false) {
+                    @chmod($realPath, 0644);
+                    echo json_encode(['success' => true, 'message' => 'File saved successfully']);
+                } else {
+                    echo json_encode(['success' => false, 'error' => 'Failed to save file']);
+                }
+            } catch (Exception $e) {
+                echo json_encode(['success' => false, 'error' => 'Error: ' . $e->getMessage()]);
+            }
+        } else {
+            echo json_encode(['success' => false, 'error' => 'File not writable']);
+        }
+        exit;
+    }
+    
+    if ($action === 'read_file') {
+        header('Content-Type: application/json; charset=utf-8');
+        
+        $path = isset($_GET['path']) ? urldecode($_GET['path']) : '';
+        $path = preg_replace('#/+#', '/', $path);
+        
+        if (substr($path, 0, 1) !== '/') {
+            $path = '/' . $path;
+        }
+        
+        $realPath = realpath($path);
+        if (!$realPath || strpos($realPath, $ROOT_DIR) !== 0) {
+            echo json_encode(['success' => false, 'error' => 'Invalid path']);
+            exit;
+        }
+        
+        foreach ($EXCLUDE_DIRS as $exclude) {
+            if (strpos($realPath, $exclude) === 0) {
+                echo json_encode(['success' => false, 'error' => 'Path excluded']);
+                exit;
+            }
+        }
+        
+        if (file_exists($realPath) && is_readable($realPath) && is_file($realPath)) {
+            $content = @file_get_contents($realPath);
+            if ($content !== false) {
+                $ext = strtolower(pathinfo($realPath, PATHINFO_EXTENSION));
+                $textExts = ['txt', 'log', 'conf', 'ini', 'json', 'xml', 'html', 'htm',
+                           'css', 'js', 'php', 'py', 'sh', 'md', 'yaml', 'yml',
+                           'csv', 'sql', 'bat', 'cmd', 'jsx', 'ts', 'tsx', 'vue',
+                           'c', 'cpp', 'h', 'hpp', 'java', 'go', 'rs', 'rb', 'perl',
+                           'lua', 'swift', 'kt', 'scala', 'groovy', 'dart'];
+                
+                $encoding = mb_detect_encoding($content, ['UTF-8', 'GBK', 'GB2312', 'BIG5', 'ASCII', 'ISO-8859-1'], true);
+                
+                if (!$encoding) {
+                    $encoding = 'UTF-8';
+                }
+                
+                if ($encoding !== 'UTF-8') {
+                    $content = mb_convert_encoding($content, 'UTF-8', $encoding);
+                }
+                
+                if (substr($content, 0, 3) === "\xEF\xBB\xBF") {
+                    $content = substr($content, 3);
+                }
+                
+                if (in_array($ext, $textExts) || filesize($realPath) < 1024 * 1024 * 5) {
+
+                    function safeBase64Encode($string) {
+                        $string = mb_convert_encoding($string, 'UTF-8', mb_detect_encoding($string));
+                        if (substr($string, 0, 3) === "\xEF\xBB\xBF") {
+                            $string = substr($string, 3);
+                        }
+                        return base64_encode($string);
+                    }
+                    
+                    $base64Content = safeBase64Encode($content);
+                    
+                    echo json_encode([
+                        'success' => true,
+                        'content_base64' => $base64Content,
+                        'is_base64' => true,
+                        'size' => filesize($realPath),
+                        'mime' => getMimeType($ext),
+                        'encoding' => 'UTF-8',
+                        'extension' => $ext
+                    ], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+                    
+                } else {
+                    echo json_encode([
+                        'success' => true,
+                        'content' => '⚠️ The file is too large or contains binary data. Please edit it directly on the server.',
+                        'is_base64' => false,
+                        'size' => filesize($realPath),
+                        'mime' => getMimeType($ext),
+                        'encoding' => 'binary'
+                    ]);
+                }
+            } else {
+                echo json_encode(['success' => false, 'error' => 'Failed to read file']);
+            }
+        } else {
+            echo json_encode(['success' => false, 'error' => 'File not readable']);
+        }
+        exit;
+    }
+    
+    if ($action === 'upload_file') {
+        header('Content-Type: application/json');
+        
+        $path = isset($_POST['path']) ? urldecode($_POST['path']) : '';
+        $path = preg_replace('#/+#', '/', $path);
+        
+        if (substr($path, 0, 1) !== '/') {
+            $path = '/' . $path;
+        }
+        
+        $realPath = realpath($path);
+        if (!$realPath || strpos($realPath, $ROOT_DIR) !== 0 || !is_dir($realPath)) {
+            echo json_encode(['success' => false, 'error' => 'Invalid path']);
+            exit;
+        }
+        
+        $uploadedFiles = [];
+        $errors = [];
+        
+        if (isset($_FILES['file'])) {
+            if (!is_array($_FILES['file']['name'])) {
+                $file = $_FILES['file'];
+                if ($file['error'] === UPLOAD_ERR_OK) {
+                    $fileName = preg_replace('/[\/:*?"<>|]/', '_', basename($file['name']));
+                    $targetFile = $realPath . '/' . $fileName;
+                    
+                    if (!file_exists($targetFile) && move_uploaded_file($file['tmp_name'], $targetFile)) {
+                        $uploadedFiles[] = $fileName;
+                    } else {
+                        $errors[] = $fileName;
+                    }
+                }
+            } else {
+                $fileCount = count($_FILES['file']['name']);
+                for ($i = 0; $i < $fileCount; $i++) {
+                    if ($_FILES['file']['error'][$i] === UPLOAD_ERR_OK) {
+                        $fileName = preg_replace('/[\/:*?"<>|]/', '_', basename($_FILES['file']['name'][$i]));
+                        $targetFile = $realPath . '/' . $fileName;
+                        
+                        if (!file_exists($targetFile) && move_uploaded_file($_FILES['file']['tmp_name'][$i], $targetFile)) {
+                            $uploadedFiles[] = $fileName;
+                        } else {
+                            $errors[] = $fileName;
+                        }
+                    }
+                }
+            }
+        }
+        
+        if (!empty($uploadedFiles)) {
+            echo json_encode([
+                'success' => true, 
+                'message' => 'Files uploaded successfully',
+                'files' => $uploadedFiles,
+                'error_files' => $errors
+            ]);
+        } else {
+            echo json_encode(['success' => false, 'error' => 'No files were uploaded']);
+        }
+        exit;
+    }
+
+    if ($action === 'rename_item') {
+        header('Content-Type: application/json');
+        
+        $oldPath = isset($_GET['old']) ? urldecode($_GET['old']) : '';
+        $newName = isset($_GET['new']) ? urldecode($_GET['new']) : '';
+        
+        if (empty($oldPath) || empty($newName)) {
+            echo json_encode(['success' => false, 'error' => 'Old path and new name are required']);
+            exit;
+        }
+        
+        $newName = preg_replace('/[\/:*?"<>|]/', '', $newName);
+        
+        $oldPath = preg_replace('#/+#', '/', $oldPath);
+        if (substr($oldPath, 0, 1) !== '/') {
+            $oldPath = '/' . $oldPath;
+        }
+        
+        $oldRealPath = realpath($oldPath);
+        if (!$oldRealPath || strpos($oldRealPath, $ROOT_DIR) !== 0) {
+            echo json_encode(['success' => false, 'error' => 'Invalid old path']);
+            exit;
+        }
+        
+        foreach ($EXCLUDE_DIRS as $exclude) {
+            if (strpos($oldRealPath, $exclude) === 0) {
+                echo json_encode(['success' => false, 'error' => 'Old path is excluded']);
+                exit;
+            }
+        }
+        
+        $newPath = dirname($oldRealPath) . '/' . $newName;
+        
+        if (file_exists($newPath)) {
+            echo json_encode(['success' => false, 'error' => 'New name already exists']);
+            exit;
+        }
+        
+        if (@rename($oldRealPath, $newPath)) {
+            echo json_encode(['success' => true, 'message' => 'Renamed successfully']);
+        } else {
+            echo json_encode(['success' => false, 'error' => 'Failed to rename']);
+        }
+        exit;
+    }
+
+    if ($action === 'move_item') {
+        header('Content-Type: application/json');
+        
+        $sourcePath = isset($_GET['source']) ? urldecode($_GET['source']) : '';
+        $destDir = isset($_GET['dest']) ? urldecode($_GET['dest']) : '';
+        
+        if (empty($sourcePath) || empty($destDir)) {
+            echo json_encode(['success' => false, 'error' => 'Source and destination are required']);
+            exit;
+        }
+        
+        $sourcePath = preg_replace('#/+#', '/', $sourcePath);
+        if (substr($sourcePath, 0, 1) !== '/') {
+            $sourcePath = '/' . $sourcePath;
+        }
+        
+        $destDir = preg_replace('#/+#', '/', $destDir);
+        if (substr($destDir, 0, 1) !== '/') {
+            $destDir = '/' . $destDir;
+        }
+        
+        $sourceRealPath = realpath($sourcePath);
+        $destRealPath = realpath($destDir);
+        
+        if (!$sourceRealPath || strpos($sourceRealPath, $ROOT_DIR) !== 0) {
+            echo json_encode(['success' => false, 'error' => 'Invalid source path']);
+            exit;
+        }
+        
+        if (!$destRealPath || strpos($destRealPath, $ROOT_DIR) !== 0) {
+            echo json_encode(['success' => false, 'error' => 'Invalid destination path']);
+            exit;
+        }
+        
+        foreach ($EXCLUDE_DIRS as $exclude) {
+            if (strpos($sourceRealPath, $exclude) === 0) {
+                echo json_encode(['success' => false, 'error' => 'Source path is excluded']);
+                exit;
+            }
+            if (strpos($destRealPath, $exclude) === 0) {
+                echo json_encode(['success' => false, 'error' => 'Destination path is excluded']);
+                exit;
+            }
+        }
+        
+        if (!is_dir($destRealPath)) {
+            echo json_encode(['success' => false, 'error' => 'Destination is not a directory']);
+            exit;
+        }
+        
+        $destPath = $destRealPath . '/' . basename($sourceRealPath);
+        
+        if (file_exists($destPath)) {
+            echo json_encode(['success' => false, 'error' => 'A file with the same name already exists in the destination']);
+            exit;
+        }
+        
+        if (@rename($sourceRealPath, $destPath)) {
+            echo json_encode(['success' => true, 'message' => 'Moved successfully']);
+        } else {
+            echo json_encode(['success' => false, 'error' => 'Failed to move']);
+        }
+        exit;
+    }
+
+    if ($action === 'search') {
+        header('Content-Type: application/json');
+        
+        $term = isset($_GET['term']) ? urldecode($_GET['term']) : '';
+        
+        if (empty($term)) {
+            echo json_encode(['success' => false, 'error' => 'Search term is required']);
+            exit;
+        }
+        
+        try {
+            $searchResults = searchFilesByName($ROOT_DIR, $term);
+            echo json_encode(['success' => true, 'results' => $searchResults]);
+        } catch (Exception $e) {
+            echo json_encode(['success' => false, 'error' => $e->getMessage()]);
+        }
+        exit;
+    }
+
+    if ($action === 'change_permissions') {
+        header('Content-Type: application/json');
+        
+        $path = isset($_POST['path']) ? urldecode($_POST['path']) : '';
+        $permissions = isset($_POST['permissions']) ? $_POST['permissions'] : '';
+        
+        if (empty($path) || empty($permissions)) {
+            echo json_encode(['success' => false, 'error' => 'Path and permission value are required']);
+            exit;
+        }
+        
+        if (!preg_match('/^[0-7]{3,4}$/', $permissions)) {
+            echo json_encode(['success' => false, 'error' => 'Invalid permission format']);
+            exit;
+        }
+        
+        $path = preg_replace('#/+#', '/', $path);
+        if (substr($path, 0, 1) !== '/') {
+            $path = '/' . $path;
+        }
+        
+        $realPath = realpath($path);
+        if (!$realPath || strpos($realPath, $ROOT_DIR) !== 0) {
+            echo json_encode(['success' => false, 'error' => 'Invalid path']);
+            exit;
+        }
+        
+        global $EXCLUDE_DIRS;
+        foreach ($EXCLUDE_DIRS as $exclude) {
+            if (strpos($realPath, $exclude) === 0) {
+                echo json_encode(['success' => false, 'error' => 'Path is excluded']);
+                exit;
+            }
+        }
+        
+        $mode = octdec($permissions);
+        
+        if (@chmod($realPath, $mode)) {
+            echo json_encode(['success' => true, 'message' => 'Permissions updated successfully']);
+        } else {
+            echo json_encode(['success' => false, 'error' => 'Failed to update permissions, please check file permissions']);
+        }
+        exit;
+    }
+
+    if ($action === 'copy_item') {
+        header('Content-Type: application/json');
+        
+        $sourcePath = isset($_GET['source']) ? urldecode($_GET['source']) : '';
+        $destDir = isset($_GET['dest']) ? urldecode($_GET['dest']) : '';
+        
+        if (empty($sourcePath) || empty($destDir)) {
+            echo json_encode(['success' => false, 'error' => 'Source and destination are required']);
+            exit;
+        }
+        
+        $sourcePath = preg_replace('#/+#', '/', $sourcePath);
+        if (substr($sourcePath, 0, 1) !== '/') {
+            $sourcePath = '/' . $sourcePath;
+        }
+        
+        $destDir = preg_replace('#/+#', '/', $destDir);
+        if (substr($destDir, 0, 1) !== '/') {
+            $destDir = '/' . $destDir;
+        }
+        
+        $sourceRealPath = realpath($sourcePath);
+        $destRealPath = realpath($destDir);
+        
+        if (!$sourceRealPath || strpos($sourceRealPath, $ROOT_DIR) !== 0) {
+            echo json_encode(['success' => false, 'error' => 'Invalid source path']);
+            exit;
+        }
+        
+        if (!$destRealPath || strpos($destRealPath, $ROOT_DIR) !== 0) {
+            echo json_encode(['success' => false, 'error' => 'Invalid destination path']);
+            exit;
+        }
+        
+        foreach ($EXCLUDE_DIRS as $exclude) {
+            if (strpos($sourceRealPath, $exclude) === 0) {
+                echo json_encode(['success' => false, 'error' => 'Source path is excluded']);
+                exit;
+            }
+            if (strpos($destRealPath, $exclude) === 0) {
+                echo json_encode(['success' => false, 'error' => 'Destination path is excluded']);
+                exit;
+            }
+        }
+        
+        if (!is_dir($destRealPath)) {
+            echo json_encode(['success' => false, 'error' => 'Destination is not a directory']);
+            exit;
+        }
+        
+        $destPath = $destRealPath . '/' . basename($sourceRealPath);
+        
+        if (file_exists($destPath)) {
+            echo json_encode(['success' => false, 'error' => 'A file with the same name already exists in the destination']);
+            exit;
+        }
+        
+        if (is_dir($sourceRealPath)) {
+            if (copyDirectory($sourceRealPath, $destPath)) {
+                echo json_encode(['success' => true, 'message' => 'Directory copied successfully']);
+            } else {
+                echo json_encode(['success' => false, 'error' => 'Failed to copy directory']);
+            }
+        } else {
+            if (@copy($sourceRealPath, $destPath)) {
+                echo json_encode(['success' => true, 'message' => 'File copied successfully']);
+            } else {
+                echo json_encode(['success' => false, 'error' => 'Failed to copy file']);
+            }
+        }
+        exit;
+    }
+
+    if ($action === 'archive_action') {
+        header('Content-Type: application/json');
+    
+        $actionType = isset($_POST['action_type']) ? $_POST['action_type'] : '';
+        $archiveType = isset($_POST['archive_type']) ? $_POST['archive_type'] : 'zip';
+        $destination = isset($_POST['destination']) ? urldecode($_POST['destination']) : '';
+    
+        $result = null;
+        $message = '';
+    
+        if ($actionType === 'extract') {
+            $path = isset($_POST['path']) ? urldecode($_POST['path']) : '';
+        
+            if (empty($path)) {
+                echo json_encode(['success' => false, 'error' => 'Path is required']);
+                exit;
+            }
+        
+            $realPath = realpath($path);
+            if (!$realPath || strpos($realPath, $ROOT_DIR) !== 0 || !is_file($realPath)) {
+                echo json_encode(['success' => false, 'error' => 'Not a valid archive file']);
+                exit;
+            }
+        
+            $ext = strtolower(pathinfo($realPath, PATHINFO_EXTENSION));
+        
+            if (empty($destination)) {
+                $destination = dirname($realPath);
+            }
+        
+            $destRealPath = $destination;
+            if (!file_exists($destRealPath)) {
+                @mkdir($destRealPath, 0755, true);
+            }
+        
+            if (!is_dir($destRealPath) || !is_writable($destRealPath)) {
+                echo json_encode(['success' => false, 'error' => 'Destination directory is not writable']);
+                exit;
+            }
+        
+            $result = extractArchive($realPath, $destRealPath, $ext);
+            $message = $result ? 'Archive extracted successfully' : 'Failed to extract archive';
+        
+        } elseif ($actionType === 'compress') {
+            if (empty($destination)) {
+                echo json_encode(['success' => false, 'error' => 'Destination is required']);
+                exit;
+            }
+        
+            $destDir = dirname($destination);
+            if (!file_exists($destDir)) {
+                @mkdir($destDir, 0755, true);
+            }
+        
+            if (isset($_POST['paths']) && is_array($_POST['paths'])) {
+                $paths = array_map('urldecode', $_POST['paths']);
+                $validPaths = [];
+            
+                foreach ($paths as $path) {
+                    $realPath = realpath($path);
+                    if ($realPath && strpos($realPath, $ROOT_DIR) === 0) {
+                        $validPaths[] = $realPath;
+                    }
+                }
+            
+                if (empty($validPaths)) {
+                    echo json_encode(['success' => false, 'error' => 'No valid files to compress']);
+                    exit;
+                }
+            
+                $result = createArchive($validPaths, $destination, $archiveType);
+                $message = $result ? 'Archive created successfully' : 'Failed to create archive';
+            
+            } elseif (isset($_POST['path'])) {
+                $path = urldecode($_POST['path']);
+                $realPath = realpath($path);
+            
+                if (!$realPath || strpos($realPath, $ROOT_DIR) !== 0) {
+                    echo json_encode(['success' => false, 'error' => 'Invalid path']);
+                    exit;
+                }
+            
+                $result = createArchive($realPath, $destination, $archiveType);
+                $message = $result ? 'Archive created successfully' : 'Failed to create archive';
+            
+            } else {
+                echo json_encode(['success' => false, 'error' => 'No files to compress']);
+                exit;
+            }
+        
+        } else {
+            echo json_encode(['success' => false, 'error' => 'Invalid action type']);
+            exit;
+        }
+    
+        echo json_encode([
+            'success' => $result,
+            'message' => $message,
+            'action' => $actionType,
+            'destination' => $destination
+        ]);
+        exit;
+    }
+}
+
+function extractArchive($archivePath, $destination, $type) {
+    global $ARCHIVE_TOOLS, $ROOT_DIR;
+    
+    $type = strtolower($type);
+    
+    $absArchivePath = realpath($archivePath) ?: $archivePath;
+    $absDestination = $destination;
+    
+    $absArchivePath = str_replace('//', '/', $absArchivePath);
+    $absDestination = str_replace('//', '/', $absDestination);
+    
+    if (strpos($absDestination, $ROOT_DIR) !== 0) {
+        return false;
+    }
+    
+    if (!file_exists($absArchivePath)) {
+        return false;
+    }
+    
+    if (!file_exists($absDestination)) {
+        @mkdir($absDestination, 0755, true);
+    }
+    
+    if (!is_writable($absDestination)) {
+        return false;
+    }
+    
+    if ($type === 'zip' && class_exists('ZipArchive')) {
+        $zip = new ZipArchive();
+        if ($zip->open($absArchivePath) === TRUE) {
+            $result = $zip->extractTo($absDestination);
+            $zip->close();
+            return $result;
+        }
+        return false;
+    }
+    
+    $absArchivePath = escapeshellarg($absArchivePath);
+    $absDestination = escapeshellarg($absDestination);
+    
+    switch($type) {
+        case 'zip':
+            if (!commandExists($ARCHIVE_TOOLS['unzip'])) return false;
+            $cmd = "cd $absDestination && {$ARCHIVE_TOOLS['unzip']} -q $absArchivePath 2>&1";
+            break;
+            
+        case 'tar':
+            if (!commandExists($ARCHIVE_TOOLS['tar'])) return false;
+            $cmd = "cd $absDestination && {$ARCHIVE_TOOLS['tar']} -xf $absArchivePath 2>&1";
+            break;
+            
+        case 'gz':
+            if (!commandExists($ARCHIVE_TOOLS['gunzip'])) return false;
+            $outputFile = pathinfo(trim($absArchivePath, "'"), PATHINFO_FILENAME);
+            $cmd = "cd $absDestination && {$ARCHIVE_TOOLS['gunzip']} -c $absArchivePath > " . escapeshellarg($outputFile) . " 2>&1";
+            break;
+            
+        case 'tar.gz':
+        case 'tgz':
+            if (!commandExists($ARCHIVE_TOOLS['tar'])) return false;
+            $cmd = "cd $absDestination && {$ARCHIVE_TOOLS['tar']} -xzf $absArchivePath 2>&1";
+            break;
+            
+        case 'bz2':
+            if (!commandExists($ARCHIVE_TOOLS['bunzip2'])) return false;
+            $outputFile = pathinfo(trim($absArchivePath, "'"), PATHINFO_FILENAME);
+            $cmd = "cd $absDestination && {$ARCHIVE_TOOLS['bunzip2']} -c $absArchivePath > " . escapeshellarg($outputFile) . " 2>&1";
+            break;
+            
+        case 'tar.bz2':
+        case 'tbz2':
+            if (!commandExists($ARCHIVE_TOOLS['tar'])) return false;
+            $cmd = "cd $absDestination && {$ARCHIVE_TOOLS['tar']} -xjf $absArchivePath 2>&1";
+            break;
+            
+        case '7z':
+            if (!commandExists($ARCHIVE_TOOLS['7z'])) return false;
+            $cmd = "{$ARCHIVE_TOOLS['7z']} x $absArchivePath -o$absDestination -y 2>&1";
+            break;
+            
+        case 'rar':
+            if (!commandExists($ARCHIVE_TOOLS['rar'])) return false;
+            $cmd = "cd $absDestination && {$ARCHIVE_TOOLS['rar']} x $absArchivePath 2>&1";
+            break;
+            
+        default:
+            return false;
+    }
+    
+    $output = shell_exec($cmd);
+    
+    if ($output && (strpos($output, 'error') !== false || strpos($output, 'Error') !== false)) {
+        return false;
+    }
+    
+    return true;
+}
+
+function createArchive($source, $destination, $type) {
+    global $ARCHIVE_TOOLS;
+    
+    $type = strtolower($type);
+    
+    if ($type === 'zip' && class_exists('ZipArchive')) {
+        $zip = new ZipArchive();
+        if ($zip->open($destination, ZipArchive::CREATE | ZipArchive::OVERWRITE) === TRUE) {
+            
+            if (is_array($source)) {
+                foreach ($source as $file) {
+                    if (file_exists($file)) {
+                        if (is_dir($file)) {
+                            $iterator = new RecursiveIteratorIterator(
+                                new RecursiveDirectoryIterator($file, RecursiveDirectoryIterator::SKIP_DOTS),
+                                RecursiveIteratorIterator::SELF_FIRST
+                            );
+                            
+                            $basePath = rtrim($file, '/') . '/';
+                            
+                            foreach ($iterator as $item) {
+                                $filePath = $item->getRealPath();
+                                
+                                $relativePath = substr($filePath, strlen($basePath));
+                                
+                                if ($item->isDir()) {
+                                    $zip->addEmptyDir(basename($file) . '/' . $relativePath);
+                                } else {
+                                    $zip->addFile($filePath, basename($file) . '/' . $relativePath);
+                                }
+                            }
+                        } else {
+                            $zip->addFile($file, basename($file));
+                        }
+                    }
+                }
+            } 
+            else {
+                if (is_dir($source)) {
+                    $iterator = new RecursiveIteratorIterator(
+                        new RecursiveDirectoryIterator($source, RecursiveDirectoryIterator::SKIP_DOTS),
+                        RecursiveIteratorIterator::SELF_FIRST
+                    );
+                    
+                    $basePath = rtrim($source, '/') . '/';
+                    
+                    foreach ($iterator as $item) {
+                        $filePath = $item->getRealPath();
+                        $relativePath = substr($filePath, strlen($basePath));
+                        
+                        if ($item->isDir()) {
+                            $zip->addEmptyDir($relativePath);
+                        } else {
+                            $zip->addFile($filePath, $relativePath);
+                        }
+                    }
+                } else {
+                    $zip->addFile($source, basename($source));
+                }
+            }
+            
+            $result = $zip->close();
+            return $result;
+        }
+        return false;
+    }
+    
+    $destination = escapeshellarg($destination);
+    
+    switch($type) {
+        case 'zip':
+            if (!commandExists($ARCHIVE_TOOLS['zip'])) return false;
+            
+            if (is_array($source)) {
+                $dirs = [];
+                $files = [];
+                
+                foreach ($source as $file) {
+                    if (is_dir($file)) {
+                        $parentDir = dirname($file);
+                        $dirName = basename($file);
+                        $cmd = "cd " . escapeshellarg($parentDir) . " && {$ARCHIVE_TOOLS['zip']} -r $destination $dirName 2>&1";
+                        $output = shell_exec($cmd);
+                        
+                        if ($output && (stripos($output, 'error') !== false || stripos($output, 'failed') !== false)) {
+                            return false;
+                        }
+                    } else {
+                        $files[] = escapeshellarg($file);
+                    }
+                }
+                
+                if (!empty($files)) {
+                    $filesList = implode(' ', $files);
+                    $cmd = "{$ARCHIVE_TOOLS['zip']} $destination $filesList 2>&1";
+                    $output = shell_exec($cmd);
+                    
+                    if ($output && (stripos($output, 'error') !== false || stripos($output, 'failed') !== false)) {
+                        return false;
+                    }
+                }
+                
+                return file_exists(trim($destination, "'"));
+                
+            } else {
+                $source = escapeshellarg($source);
+                if (is_dir($source)) {
+                    $parentDir = dirname(trim($source, "'"));
+                    $dirName = basename(trim($source, "'"));
+                    $cmd = "cd " . escapeshellarg($parentDir) . " && {$ARCHIVE_TOOLS['zip']} -r " . basename($destination) . " $dirName 2>&1";
+                } else {
+                    $cmd = "{$ARCHIVE_TOOLS['zip']} $destination $source 2>&1";
+                }
+            }
+            break;
+
+        case '7z':
+            if (!commandExists($ARCHIVE_TOOLS['7z'])) {
+                error_log("7z command not found");
+                return false;
+            }
+            
+            if (is_array($source)) {
+                $files = array();
+                foreach ($source as $file) {
+                    $files[] = escapeshellarg($file);
+                }
+                $filesList = implode(' ', $files);
+                $cmd = "{$ARCHIVE_TOOLS['7z']} a $destination $filesList 2>&1";
+            } else {
+                $source = escapeshellarg($source);
+                $cmd = "{$ARCHIVE_TOOLS['7z']} a $destination $source 2>&1";
+            }
+            break;
+            
+        case 'tar':
+            if (!commandExists($ARCHIVE_TOOLS['tar'])) return false;
+            
+            if (is_array($source)) {
+                $files = implode(' ', array_map('escapeshellarg', $source));
+                $cmd = "{$ARCHIVE_TOOLS['tar']} -cf $destination $files 2>&1";
+            } else {
+                $source = escapeshellarg($source);
+                $cmd = "{$ARCHIVE_TOOLS['tar']} -cf $destination $source 2>&1";
+            }
+            break;
+            
+        case 'gz':
+            if (!commandExists($ARCHIVE_TOOLS['gzip'])) return false;
+            if (is_array($source)) {
+                return false;
+            }
+            $source = escapeshellarg($source);
+            $cmd = "{$ARCHIVE_TOOLS['gzip']} -c $source > $destination 2>&1";
+            break;
+            
+        case 'bz2':
+            if (!commandExists($ARCHIVE_TOOLS['bzip2'])) return false;
+            if (is_array($source)) {
+                return false;
+            }
+            $source = escapeshellarg($source);
+            $cmd = "{$ARCHIVE_TOOLS['bzip2']} -c $source > $destination 2>&1";
+            break;
+            
+        default:
+            return false;
+    }
+    
+    $output = shell_exec($cmd);
+    
+    if ($output && (stripos($output, 'error') !== false || stripos($output, 'failed') !== false)) {
+        error_log("Compress error: $output - Command: $cmd");
+        return false;
+    }
+    
+    $destFile = trim($destination, "'");
+    if (!file_exists($destFile)) {
+        $destFile = trim($destination, '"');
+    }
+    
+    return file_exists($destFile);
+}
+
+function commandExists($command) {
+    $output = shell_exec("which $command 2>/dev/null");
+    return !empty($output);
+}
+
+function searchFilesByName($rootDir, $searchTerm) {
+    global $EXCLUDE_DIRS;
+    
+    $results = [];
+    
+    if (!is_dir($rootDir) || !is_readable($rootDir)) {
+        return $results;
+    }
+    
+    try {
+        $iterator = new RecursiveIteratorIterator(
+            new RecursiveDirectoryIterator($rootDir, RecursiveDirectoryIterator::SKIP_DOTS),
+            RecursiveIteratorIterator::SELF_FIRST
+        );
+        
+        foreach ($iterator as $file) {
+            $filePath = $file->getPathname();
+            $realPath = realpath($filePath);
+            
+            if (!$realPath) continue;
+            
+            foreach ($EXCLUDE_DIRS as $exclude) {
+                if (strpos($realPath, $exclude) === 0) {
+                    continue 2;
+                }
+            }
+            
+            $fileName = $file->getFilename();
+            $isDir = $file->isDir();
+            
+            if (fnmatch($searchTerm, $fileName, FNM_CASEFOLD)) {
+                $results[] = [
+                    'name' => $fileName,
+                    'path' => $filePath,
+                    'dir' => dirname($filePath),
+                    'is_dir' => $isDir,
+                    'size' => $isDir ? 0 : $file->getSize(),
+                    'size_formatted' => formatFileSize($isDir ? 0 : $file->getSize()),
+                    'modified' => $file->getMTime(),
+                    'modified_formatted' => date('Y-m-d H:i:s', $file->getMTime()),
+                    'extension' => $isDir ? '' : strtolower($file->getExtension())
+                ];
+                
+                if (count($results) >= 100) break;
+            }
+        }
+    } catch (Exception $e) {
+    }
+    
+    return $results;
+}
+
+function copyDirectory($source, $dest) {
+    if (!is_dir($dest)) {
+        if (!mkdir($dest, 0755, true)) {
+            return false;
+        }
+    }
+    
+    $iterator = new RecursiveIteratorIterator(
+        new RecursiveDirectoryIterator($source, RecursiveDirectoryIterator::SKIP_DOTS),
+        RecursiveIteratorIterator::SELF_FIRST
+    );
+    
+    foreach ($iterator as $item) {
+        $target = $dest . '/' . $iterator->getSubPathName();
+        
+        if ($item->isDir()) {
+            if (!is_dir($target)) {
+                if (!mkdir($target)) {
+                    return false;
+                }
+            }
+        } else {
+            if (!copy($item, $target)) {
+                return false;
+            }
+        }
+    }
+    
+    return true;
+}
+
+function deleteDirectory($dir) {
+    if (!file_exists($dir)) return true;
+    
+    if (!is_dir($dir)) return @unlink($dir);
+    
+    $items = scandir($dir);
+    foreach ($items as $item) {
+        if ($item == '.' || $item == '..') continue;
+        
+        $path = $dir . '/' . $item;
+        if (is_dir($path)) {
+            deleteDirectory($path);
+        } else {
+            @unlink($path);
+        }
+    }
+    
+    return @rmdir($dir);
+}
+
+function getMimeType($ext) {
+    $mimeMap = [
+        'jpg' => 'image/jpeg', 'jpeg' => 'image/jpeg', 'png' => 'image/png',
+        'gif' => 'image/gif', 'bmp' => 'image/bmp', 'webp' => 'image/webp',
+        'svg' => 'image/svg+xml', 'ico' => 'image/x-icon',
+        'mp3' => 'audio/mpeg', 'wav' => 'audio/wav', 'ogg' => 'audio/ogg',
+        'flac' => 'audio/flac', 'm4a' => 'audio/mp4', 'aac' => 'audio/aac',
+        'mp4' => 'video/mp4', 'avi' => 'video/x-msvideo', 'mkv' => 'video/x-matroska',
+        'mov' => 'video/quicktime', 'wmv' => 'video/x-ms-wmv', 'flv' => 'video/x-flv',
+        'webm' => 'video/webm',
+        'pdf' => 'application/pdf', 'zip' => 'application/zip',
+        'tar' => 'application/x-tar', 'gz' => 'application/gzip', 'bz2' => 'application/x-bzip2',
+        '7z' => 'application/x-7z-compressed', 'rar' => 'application/x-rar-compressed',
+        'txt' => 'text/plain', 'log' => 'text/plain', 'conf' => 'text/plain',
+        'ini' => 'text/plain', 'json' => 'application/json', 'xml' => 'application/xml',
+        'html' => 'text/html', 'css' => 'text/css', 'js' => 'application/javascript',
+        'php' => 'application/x-httpd-php', 'py' => 'text/x-python', 'sh' => 'application/x-sh',
+        'md' => 'text/markdown'
+    ];
+    
+    return $mimeMap[strtolower($ext)] ?? 'application/octet-stream';
+}
+
+function getMediaInfo($path) {
+    $ffmpegPath = '/usr/bin/ffmpeg';
+    if (!file_exists($ffmpegPath)) {
+        $ffmpegPath = 'ffmpeg';
+    }
+    
+    $cmd = "$ffmpegPath -i \"" . escapeshellarg($path) . "\" 2>&1";
+    $output = shell_exec($cmd);
+    
+    if (!$output) return null;
+    
+    $info = [];
+    
+    if (preg_match('/Duration:\s*(\d+):(\d+):(\d+\.\d+)/', $output, $matches)) {
+        $hours = intval($matches[1]);
+        $minutes = intval($matches[2]);
+        $seconds = floatval($matches[3]);
+        $totalSeconds = $hours * 3600 + $minutes * 60 + $seconds;
+        $info['duration'] = sprintf("%02d:%02d:%02d", $hours, $minutes, $seconds);
+        $info['duration_seconds'] = $totalSeconds;
+    }
+    
+    if (preg_match('/bitrate:\s*(\d+)\s*kb\/s/', $output, $matches)) {
+        $info['bitrate'] = $matches[1] . ' kbps';
+    }
+    
+    if (preg_match('/(\d{3,4})x(\d{3,4})/', $output, $matches)) {
+        $info['resolution'] = $matches[1] . 'x' . $matches[2];
+        $info['width'] = intval($matches[1]);
+        $info['height'] = intval($matches[2]);
+    }
+    
+    if (preg_match('/Stream.*Audio:.*?(\d+)\s*Hz/', $output, $matches)) {
+        $info['sample_rate'] = $matches[1] . ' Hz';
+    }
+    
+    if (preg_match('/Stream.*Video:.*?([a-zA-Z0-9]+)/', $output, $matches)) {
+        $info['video_codec'] = $matches[1];
+    }
+    
+    if (preg_match('/Stream.*Audio:.*?([a-zA-Z0-9]+)/', $output, $matches)) {
+        $info['audio_codec'] = $matches[1];
+    }
+    
+    return empty($info) ? null : $info;
+}
 
 if (isset($_GET['preview']) && $_GET['preview'] == '1' && isset($_GET['path'])) {
     $filePath = urldecode($_GET['path']);
@@ -464,7 +1840,7 @@ $systemInfo = [
 body {
     font-family: var(--font-family, -apple-system, BlinkMacSystemFont, sans-serif);
     background: var(-bg-container) !important;
-    color: #fff;
+    color: var(--text-primary);
     height: 100vh;
     overflow: hidden;
 }
@@ -528,34 +1904,6 @@ body {
 .actions {
     display: flex;
     gap: 10px;
-}
-
-.action-btn {
-    background: var(--btn-primary-bg);
-    border: none !important;
-    color: white;
-    padding: 8px 16px;
-    border-radius: 6px;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    transition: all 0.2s;
-}
-
-.action-btn:hover {
-    background: var(--item-hover-bg);
-    transform: scale(1.05);
-}
-
-.action-btn.primary {
-    background: #4CAF50;
-    border-color: #4CAF50;
-}
-
-.action-btn.primary:hover {
-    background: #45a049;
-    transform: scale(1.05);
 }
 
 .side-nav {
@@ -706,7 +2054,7 @@ body {
 .player-header {
     padding: 20px;
     background: var(--bg-container);
-    border-bottom: 1px solid #333;
+    border-bottom: var(--border-strong);
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -749,12 +2097,6 @@ body {
     align-items: center;
     justify-content: center;
     padding: 20px;
-}
-
-#audioPlayer, #videoPlayer {
-    width: 100%;
-    background: #000;
-    border-radius: 8px;
 }
 
 #imageViewer {
@@ -860,7 +2202,6 @@ body {
 #audioPlayer {
     width: 100%;
     max-width: 600px;
-    background: #000;
     border-radius: 8px;
 }
 
@@ -1066,7 +2407,7 @@ body {
     border: var(--border-strong);
     border-radius: 10px;
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
-    z-index: 10000;
+    z-index: 1000000;
     display: none;
 }
 
@@ -1074,8 +2415,7 @@ body {
     display: flex;
     align-items: center;
     padding: 15px 20px;
-    border-bottom: 1px solid #444;
-    background: #333;
+    background: var(--header-bg);
     border-radius: 10px 10px 0 0;
 }
 
@@ -1090,26 +2430,6 @@ body {
     flex: 1;
 }
 
-.context-menu-close {
-    background: none;
-    border: none;
-    color: var(--text-secondary);
-    cursor: pointer;
-    font-size: 1.2rem;
-    padding: 5px;
-    border-radius: 5px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 30px;
-    height: 30px;
-}
-
-.context-menu-close:hover {
-    background: #444;
-    color: #fff;
-}
-
 .context-menu-content {
     padding: 20px;
     max-height: 400px;
@@ -1122,6 +2442,10 @@ body {
     align-items: flex-start;
 }
 
+#mediaContextMenu {
+    background: var(--bg-container);
+}
+
 .info-label {
     width: 100px;
     color: var(--text-secondary);
@@ -1131,7 +2455,7 @@ body {
 
 .info-value {
     flex: 1;
-    color: #fff;
+    color: var(--text-primary);
     word-break: break-all;
     line-height: 1.4;
 }
@@ -1139,36 +2463,8 @@ body {
 .context-menu-actions {
     display: flex;
     padding: 15px 20px;
-    border-top: 1px solid #444;
+    border-top: var(--border-strong);
     gap: 10px;
-}
-
-.context-menu-btn {
-    flex: 1;
-    padding: 10px;
-    background: #333;
-    border: 1px solid #444;
-    border-radius: 5px;
-    color: #fff;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-    transition: all 0.2s;
-}
-
-.context-menu-btn:hover {
-    background: #444;
-}
-
-.context-menu-btn:first-child {
-    background: #4CAF50;
-    border-color: #4CAF50;
-}
-
-.context-menu-btn:first-child:hover {
-    background: #45a049;
 }
 
 .context-menu-overlay {
@@ -1316,16 +2612,6 @@ body {
 
     .logo h1 {
         margin-bottom: 12px;
-    }
-}
-
-@media (prefers-color-scheme: dark) {
-    body {
-        background: #0a0a0a;
-    }
-    
-    .media-item {
-        background: #222;
     }
 }
 
@@ -1542,6 +2828,718 @@ body {
 .side-nav.collapsed .lunar-sidebar {
     display: none !important;
 }
+
+.breadcrumb {
+    background: var(--bg-container);
+    padding: 12px 20px;
+    border-radius: 12px;
+
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.breadcrumb-item {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    color: var(--text-secondary);
+    cursor: pointer;
+    padding: 4px 8px;
+    border-radius: 4px;
+    transition: all 0.2s;
+}
+
+.breadcrumb-item:hover {
+    background: var(--accent-tertiary);
+    color: white;
+}
+
+.card-title,
+.small, small，
+.breadcrumb-separator {
+    color: var(--text-secondary) !important;
+}
+
+.breadcrumb-current {
+    color: var(--accent-color);
+    font-weight: 500;
+}
+
+.path-bar {
+    background: var(--bg-container);
+    padding: 10px 20px;
+    border-bottom: var(--border-strong);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.path-input {
+    flex: 1;
+    background: var(--card-bg);
+    border: var(--border-strong);
+    color: white;
+    padding: 8px 12px;
+    border-radius: 6px;
+    outline: none;
+}
+
+.path-input:focus {
+    border-color: var(--accent-color);
+}
+
+.toolbar {
+    background: var(--bg-container);
+    padding: 10px 20px;
+    border-radius: 12px;
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.file-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+    gap: 15px;
+    flex: 1;
+    overflow-y: auto;
+    padding-top: 15px;
+}
+
+.file-grid.folder-view {
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+}
+
+.file-item {
+    background: var(--bg-container);
+    border-radius: 8px;
+    padding: 15px;
+    cursor: pointer;
+    transition: all 0.3s;
+    border: var(--border-strong);
+    text-align: center;
+    position: relative;
+    min-height: 120px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    overflow: visible;
+}
+
+.file-item:hover {
+    transform: translateY(-3px);
+    border-color: var(--accent-color);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+}
+
+.file-item.selected {
+    background: var(--accent-tertiary);
+    border-color: var(--accent-color);
+}
+
+.file-icon {
+    font-size: 2rem;
+    margin-bottom: 10px;
+    color: var(--accent-color);
+}
+
+.file-icon.folder {
+    color: #FFA726;
+}
+
+.file-icon.image {
+    color: #4CAF50;
+}
+
+.file-icon.video {
+    color: #2196F3;
+}
+
+.file-icon.music {
+    color: #9C27B0;
+}
+
+.file-icon.text {
+    color: #757575;
+}
+
+.file-icon.archive {
+    color: #FF9800;
+}
+
+.file-name {
+    font-size: 0.85rem;
+    color: var(--text-primary);
+    word-break: break-word;
+    text-align: center;
+    width: 100%;
+    margin-bottom: 5px;
+    line-height: 1.3;
+}
+
+.file-size {
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+}
+
+.file-grid-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: none !important;
+}
+
+.view-toggle {
+    display: flex;
+    gap: 5px;
+}
+
+.view-toggle-btn {
+    background: var(--btn-primary-bg);
+    border: none;
+    color: white;
+    padding: 6px 10px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.view-toggle-btn.active {
+    background: var(--accent-color);
+}
+
+.view-toggle-btn:hover {
+    background: var(--item-hover-bg);
+}
+
+.context-menu-file {
+    background: var(--bg-container);
+    min-width: 200px;
+}
+
+.context-menu-file .menu-item {
+    padding: 10px 15px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    cursor: pointer;
+    transition: all 0.2s;
+    color: var(--text-primary);
+}
+
+.context-menu-file .menu-item:hover {
+    border-radius: 6px;
+    background: var(--accent-color);
+    color: white;
+}
+
+.context-menu-file .menu-divider {
+    height: 1px;
+    background: var(--border-strong);
+    margin: 5px 0;
+}
+
+.info-row {
+    display: flex;
+    padding: 8px 0;
+    border-bottom: 1px solid var(--border-strong);
+}
+
+.info-label {
+    width: 120px;
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+    flex-shrink: 0;
+}
+
+.info-value {
+    flex: 1;
+    color: var(--text-primary);
+    word-break: break-all;
+}
+
+.media-preview {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 200px;
+}
+
+.media-preview img,
+.media-preview video {
+    max-width: 100%;
+    max-height: 150px;
+    border-radius: 6px;
+}
+
+.file-actions {
+    display: none !important;
+}
+
+.file-item:hover .file-actions {
+    display: flex;
+}
+
+.selection-controls {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-left: auto;
+}
+
+.select-all-checkbox {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    cursor: pointer;
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+}
+
+.select-all-checkbox input[type="checkbox"] {
+    margin: 0;
+    cursor: pointer;
+}
+
+.selection-count {
+    background: var(--accent-tertiary);
+    color: white;
+    padding: 4px 10px;
+    border-radius: 12px;
+    font-size: 0.8rem;
+    display: none;
+}
+
+.selection-count.show {
+    display: block;
+}
+
+.file-action-btn {
+    background: rgba(0,0,0,0.7);
+    border: none;
+    color: white;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.8rem;
+    transition: all 0.2s;
+}
+
+.file-action-btn:hover {
+    background: var(--accent-color);
+    transform: scale(1.1);
+}
+
+.loading-files {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: var(--text-secondary);
+    font-size: 1.2rem;
+}
+
+.empty-folder {
+    text-align: center;
+    padding: 60px 20px;
+    color: var(--text-secondary);
+}
+
+.empty-folder i {
+    font-size: 3rem;
+    margin-bottom: 20px;
+    opacity: 0.5;
+}
+
+.file-selection-info {
+    display: none !important;
+}
+
+.file-selection-info.show {
+    display: flex;
+}
+
+.selection-actions {
+    display: flex;
+    gap: 10px;
+}
+
+.progress {
+    height: 20px;
+    background: var(--card-bg);
+    border-radius: 10px;
+    overflow: hidden;
+    margin: 10px 0;
+}
+
+.progress-bar {
+    height: 100%;
+    background: #4CAF50;
+    border-radius: 10px;
+    transition: width 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 0.8rem;
+}
+
+.media-grid-container::-webkit-scrollbar {
+    width: 8px;
+}
+
+.media-grid-container::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.media-grid-container::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 4px;
+}
+
+.file-item:hover .form-check {
+    display: block !important;
+}
+
+.file-item.selected .form-check {
+    display: block !important;
+}
+
+.file-item.selected {
+    background-color: rgba(76, 175, 80, 0.1);
+    border-color: #4CAF50;
+}
+
+list-group:hover {
+    background: color-mix(in oklch, var(--surface-high), transparent 20%) !important;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.editor-tabs-switcher {
+    background: var(--card-bg);
+    border-radius: 6px;
+    padding: 5px 10;
+    border: var(--border-strong);
+}
+
+.editor-tabs-list {
+    padding: 2px 0;
+}
+
+.editor-tab-switch {
+    padding: 4px 10px;
+    background: var(--btn-primary-bg);
+    color: white;
+    border-radius: 4px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    white-space: nowrap;
+    font-size: 0.85rem;
+    transition: all 0.2s;
+}
+
+.editor-tab-switch:hover {
+    background: var(--item-hover-bg);
+}
+
+.editor-tab-switch.active {
+    background: var(--accent-color);
+    box-shadow: 0 0 0 2px rgba(76, 175, 80, 0.3);
+}
+
+.editor-tab-switch .modified-dot {
+    width: 6px;
+    height: 6px;
+    background: #ff9800;
+    border-radius: 50%;
+    margin-left: 3px;
+}
+
+#selectedInfo {
+    color: var(--text-secondary);
+}
+
+.alert-secondary {
+    background: var(--bg-container) !important;
+    border: none !important;
+}
+
+.monaco-editor-container {
+    width: 100%;
+    height: 100%;
+    border: var(--border-strong);
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.editor-toolbar {
+    background: var(--bg-container);
+    padding: 10px;
+    border-bottom: var(--border-strong);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.editor-toolbar-left, .editor-toolbar-right {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.editor-language-select,
+.editor-fontsize-select,
+.editor-theme-select {
+    background: var(--card-bg);
+    color: var(--text-primary);
+    border: var(--border-strong);
+    border-radius: 4px;
+    padding: 6px 10px;
+    font-size: 0.85rem;
+    min-width: 100px;
+}
+
+.simple-editor {
+    width: 100%;
+    height: 100%;
+    min-height: 400px;
+    background: transparent;
+    color: var(--text-primary);
+    border: none;
+    resize: none;
+    font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+    font-size: 14px;
+    line-height: 1.5;
+    padding: 15px;
+    white-space: pre;
+    overflow-x: auto;
+}
+
+.simple-editor:focus {
+    outline: none;
+}
+
+.editor-status-bar {
+    background: var(--bg-container);
+    padding: 8px 15px;
+    border-top: var(--border-strong);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+}
+
+.editor-position-info {
+    display: flex;
+    gap: 15px;
+}
+
+.editor-encoding-info {
+    display: flex;
+    gap: 15px;
+}
+
+.editor-keyboard-shortcuts {
+    margin-top: 10px;
+    padding: 10px;
+    background: var(--card-bg);
+    border-radius: 6px;
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+}
+
+.editor-keyboard-shortcuts h6 {
+    margin-bottom: 8px;
+    color: var(--text-primary);
+}
+
+.shortcut-item {
+    display: flex;
+    justify-content: space-between;
+    padding: 4px 0;
+    border-bottom: 1px solid var(--border-strong);
+}
+
+.shortcut-item:last-child {
+    border-bottom: none;
+}
+
+.shortcut-key {
+    background: var(--bg-container);
+    padding: 2px 6px;
+    border-radius: 3px;
+    border: var(--border-strong);
+    font-family: monospace;
+}
+
+.monaco-editor {
+    background-color: var(--bg-container) !important;
+}
+
+.monaco-editor .scroll-decoration {
+    box-shadow: none !important;
+}
+
+.editor-loading {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    color: var(--text-secondary);
+    font-size: 1.2rem;
+}
+
+.editor-loading .spinner {
+    margin-right: 10px;
+}
+
+.monaco-editor .margin .current-line,
+.monaco-editor .margin-view-overlays .current-line {
+    display: none !important;
+    background-color: transparent !important;
+    border: none !important;
+}
+
+.upload-drop-area {
+    border: 2px dashed var(--border-color, #bbb) !important;
+    border-radius: 12px !important;
+}
+
+.upload-drop-area:hover {
+    border-color: var(--bs-primary) !important;
+    background-color: rgba(13, 110, 253, 0.05);
+}
+
+.upload-drop-area i.fa-cloud-upload-alt {
+    color: var(--text-primary) !important;
+    animation: uploadFloat 1.8s ease-in-out infinite;
+    transition: color 0.3s ease, transform 0.2s ease;
+}
+
+.upload-drop-area:active i.fa-cloud-upload-alt {
+    color: var(--bs-primary) !important;
+    transform: scale(1.15);
+}
+
+.upload-drop-area p {
+    color: var(--text-secondary) !important;
+}
+
+@keyframes uploadFloat {
+    0% { transform: translateY(0); }
+    50% { transform: translateY(-6px); }
+    100% { transform: translateY(0); }
+}
+
+.text-muted {
+    color: var(--text-secondary) !important;
+}
+
+.form-control {
+    color: var(--text-primary) !important;
+}
+
+.form-control::placeholder {
+    color: var(--text-secondary) !important;
+    opacity: 1 !important;
+}
+
+.col-md-9 .table-responsive .table.file-info-table {
+    --bs-table-bg: var(--card-bg) !important;
+}
+
+.col-md-9 .table-responsive .table.file-info-table td:nth-child(2) {
+    color: var(--text-primary) !important;
+}
+
+.file-item-upload {
+    background-color: var(--bg-container) !important;
+}
+
+.archive-menu {
+    position: relative;
+}
+
+.archive-submenu {
+    animation: fadeIn 0.2s ease;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateX(-10px); }
+    to { opacity: 1; transform: translateX(0); }
+}
+
+.menu-item:hover {
+    background: var(--accent-color);
+    color: white;
+}
+
+.context-menu-file {
+    max-height: 800px !important;
+    height: auto !important;
+    overflow-y: auto !important;
+}
+
+.context-menu-file .context-menu-content {
+    max-height: 700px !important;
+    overflow-y: auto !important;
+}
+
+.monaco-editor .char-insert,
+.monaco-editor .line-insert {
+    background-color: rgba(155, 185, 85, 0.2);
+}
+
+.monaco-editor .char-delete,
+.monaco-editor .line-delete {
+    background-color: rgba(255, 0, 0, 0.2);
+}
+
+.monaco-editor .diff-review-summary {
+    background: #2c2c2c;
+}
+
+#diffEditorContainer {
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.diff-toolbar {
+    background: #2c2c2c;
+}
+
+.diff-help {
+    background: var(--header-bg);
+}
+
+.text-diff-added {
+    color: #9bb955;
+}
+
+.text-diff-removed {
+    color: #ff6b6b;
+}
+
+.filePropertiesModal strong,
+#filePropertiesContent strong {
+    color: var(--text-primary) !important;
+}
 </style>
 <div class="main-container">
     <div class="content-area" id="contentArea">
@@ -1577,11 +3575,15 @@ body {
             </div>
             
             <div class="actions">
-                <button class="action-btn" onclick="refreshMedia()">
+                <button id="autoNextToggle" class="btn btn-primary" onclick="toggleAutoNext()">
+                    <i class="fas fa-toggle-off"></i>
+                    <span data-translate="auto_play">Auto Play</span>
+                </button>
+                <button class="btn btn-pink" onclick="refreshMedia()">
                     <i class="fas fa-redo"></i>
                     <span data-translate="refresh">Refresh</span>
                 </button>
-                <button class="action-btn primary" onclick="toggleFullscreen()">
+                <button class="btn btn-teal" onclick="toggleFullscreen()">
                     <i class="fas fa-expand"></i>
                     <span data-translate="fullscreen_play">Fullscreen Play</span>
                 </button>
@@ -1611,6 +3613,16 @@ body {
                         <span class="nav-icon"><i class="fas fa-history"></i></span>
                         <span data-translate="recent_play">Recent Play</span>
                     </a>
+                    <a href="#" class="nav-item" onclick="showSection('files')" data-translate-tooltip="file_manager">
+                        <span class="nav-icon"><i class="fas fa-folder"></i></span>
+                        <span data-translate="fileAssistant">File Manager</span>
+                    </a>
+                </div>
+
+                <div class="nav-section" id="fileTreeSection" style="display: none;">
+                    <div class="nav-section-title" data-translate="directory_tree">Directory Tree</div>
+                    <div id="directoryTree" style="max-height: 300px; overflow-y: auto;">
+                    </div>
                 </div>
                 
                 <div class="system-status" id="systemStatus">
@@ -2106,6 +4118,123 @@ body {
                     </div>
                     <?php endif; ?>
                 </div>
+
+                <div id="filesSection" class="grid-section" style="display: none;">
+                    <div class="grid-title" style="color: var(--accent-tertiary); display: flex; align-items: center; justify-content: space-between;">
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                        <i class="fas fa-folder"></i>
+                        <span data-translate="fileAssistant">File Manager</span>
+                    </div>
+
+                    <button class="btn btn-purple" onclick="toggleView()" id="viewToggleBtn">
+                        <i class="fas fa-edit" id="viewToggleIcon"></i>
+                        <span id="viewToggleText" data-translate="editor_view">Editor View</span>
+                    </button>
+                </div>
+                    
+                    <div class="file-grid-header">
+                        <div class="breadcrumb" id="breadcrumb">
+                        </div>
+
+                        <div class="editor-tabs-switcher" id="editorTabsSwitcher" style="display: none;">
+                            <div class="editor-tabs-container" style="display: flex; align-items: center; gap: 5px;">
+                                <span style="color: var(--text-secondary); font-size: 0.9rem;">
+                                    <i class="fas fa-file-edit"></i> <span data-translate="editing">Editing:</span>
+                                </span>
+                                <div class="editor-tabs-list" id="editorTabsList" style="display: flex; gap: 5px; overflow-x: auto;"></div>
+                                <button class="btn btn-sm btn-secondary" onclick="toggleEditorPanel()" style="white-space: nowrap;">
+                                    <i class="fas fa-chevron-down" id="editorToggleIcon"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="view-toggle">
+                            <button class="view-toggle-btn active" onclick="changeViewMode('grid')" data-translate-tooltip="grid_view">
+                                <i class="fas fa-th-large"></i>
+                            </button>
+                            <button class="view-toggle-btn" onclick="changeViewMode('list')" data-translate-tooltip="list_view">
+                                <i class="fas fa-list"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div id="editorPanel" style="display: none; max-height: 0; overflow: hidden; transition: all 0.3s ease;">
+                        <div style="display: flex; flex-direction: column; height: 95%; background: var(--bg-container); border: var(--border-strong); border-radius: 8px;">
+                            <div style="display: flex; overflow-x: auto; padding: 10px; border-bottom: var(--border-strong); gap: 5px;" id="editorPanelTabsNav"></div>
+        
+                            <div style="flex: 1; position: relative; overflow: hidden;" id="editorPanelContent">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="toolbar">
+                        <button class="btn btn-primary" onclick="navigateUp()">
+                            <i class="fas fa-arrow-up"></i>
+                            <span data-translate="goToParentDirectoryTitle">Up</span>
+                        </button>
+                        <button class="btn btn-teal" onclick="refreshFiles()">
+                            <i class="fas fa-redo"></i>
+                            <span data-translate="refresh">Refresh</span>
+                        </button>
+                        <button class="btn btn-coral" onclick="deleteSelected()">
+                            <i class="fas fa-trash"></i>
+                            <span data-translate="batch_delete">Delete</span>
+                        </button>
+                        <button class="btn btn-purple" data-bs-toggle="modal" data-bs-target="#createTypeModal">
+                            <i class="fas fa-folder-plus"></i>
+                            <span data-translate="createTitle">New Folder</span>
+                        </button>
+                        <button class="btn btn-pink" data-bs-toggle="modal" data-bs-target="#uploadModal">
+                            <i class="fas fa-upload"></i>
+                            <span data-translate="upload">Upload</span>
+                        </button>
+                        <button class="btn btn-orange" data-bs-toggle="modal" data-bs-target="#searchModal">
+                            <i class="fas fa-search"></i>
+                            <span data-translate="search">Search</span>
+                        </button>
+                    </div>
+
+                      <div class="selection-toolbar-container d-none mt-3" id="selectionToolbar">
+                          <div class="alert alert-secondary mb-0">
+                              <div class="d-flex justify-content-between flex-column flex-sm-row align-items-center">
+                                  <div class="mb-2 mb-sm-0">
+                                      <button class="btn btn-outline-primary btn-sm" onclick="selectAllFiles()">
+                                        <i class="fas fa-check-square me-1"></i>
+                                        <span data-translate="selectAll">Select All</span>
+                                      </button>
+                                      <span id="selectedInfo" class="ms-2 ms-sm-3"></span>
+                                  </div>
+                                  <div>
+                                      <button class="btn btn-danger btn-sm me-2" onclick="deleteSelected()">
+                                        <i class="fas fa-trash me-1"></i>
+                                        <span data-translate="batch_delete">Delete Selected Files</span>
+                                      </button>
+                                      <button class="btn btn-secondary btn-sm" onclick="clearSelection()">
+                                        <i class="fas fa-times me-1"></i>
+                                        <span data-translate="close">Close</span>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="file-selection-info" id="selectionInfo">
+                        <span id="selectedCount">0 items selected</span>
+                        <div class="selection-actions">
+                            <button class="btn btn-teal" onclick="clearSelection()" style="padding: 4px 8px; font-size: 0.8rem;">
+                                <i class="fas fa-times"></i>
+                                <span data-translate="clear">Clear</span>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="file-grid folder-view" id="fileGrid">
+                    </div>
+                    
+                    <div class="loading-files" id="loadingFiles" style="display: none;">
+                        <i class="fas fa-spinner fa-spin"></i>
+                        <span data-translate="loading_files">Loading files...</span>
+                    </div>
+                </div>
                 
                 <div id="recentSection" class="grid-section" style="display: none;">
                     <div class="grid-title">
@@ -2188,9 +4317,7 @@ body {
     <div class="context-menu-header">
         <i class="fas fa-info-circle"></i>
         <span data-translate="media_info">Media Info</span>
-        <button class="context-menu-close" onclick="hideContextMenu()">
-            <i class="fas fa-times"></i>
-        </button>
+        <button class="btn-close" onclick="hideContextMenu()"></button>
     </div>
     <div class="context-menu-content">
         <div class="info-item">
@@ -2222,12 +4349,12 @@ body {
             <span class="info-value" id="infoPath"></span>
         </div>
     </div>
-    <div class="context-menu-actions">
-        <button class="context-menu-btn" onclick="playSelectedMedia()">
+    <div class="context-menu-actions d-flex flex-row-reverse">
+        <button class="btn btn-primary" onclick="playSelectedMedia()">
             <i class="fas fa-play"></i>
             <span data-translate="play">Play</span>
         </button>
-        <button class="context-menu-btn" onclick="closeContextMenu()">
+        <button class="btn btn-dark-red" onclick="closeContextMenu()">
             <i class="fas fa-times"></i>
             <span data-translate="close">Close</span>
         </button>
@@ -2235,6 +4362,481 @@ body {
 </div>
 
 <div id="contextMenuOverlay" class="context-menu-overlay" style="display: none;" onclick="hideContextMenu()"></div>
+
+<div id="fileContextMenu" class="context-menu context-menu-file" style="display: none;">
+    <div class="context-menu-header">
+        <i class="fas fa-ellipsis-v"></i>
+        <span data-translate="file_actions">File Actions</span>
+        <button type="button" class="btn-close" onclick="hideFileContextMenu()"></button>
+    </div>
+    <div class="context-menu-content">
+        <div class="menu-item" onclick="contextMenuOpen()">
+            <i class="fas fa-folder-open me-2"></i>
+            <span data-translate="open">Open</span>
+        </div>
+        
+        <div class="menu-item" id="playMenuItem" style="display: none;" onclick="contextMenuPlay()">
+            <i class="fas fa-play me-2"></i>
+            <span data-translate="play">Play</span>
+        </div>
+        
+        <div class="menu-item" onclick="contextMenuDownload()">
+            <i class="fas fa-download me-2"></i>
+            <span data-translate="download">Download</span>
+        </div>
+        
+        <div class="menu-item" data-bs-toggle="modal" data-bs-target="#renameModal" onclick="prepareRenameModal()">
+            <i class="fas fa-edit me-2"></i>
+            <span data-translate="rename">Rename</span>
+        </div>
+        
+        <div class="menu-item" data-bs-toggle="modal" data-bs-target="#copyModal" onclick="prepareCopyModal()">
+            <i class="fas fa-copy me-2"></i>
+            <span data-translate="copy">Copy</span>
+        </div>
+        
+        <div class="menu-item" data-bs-toggle="modal" data-bs-target="#moveModal" onclick="prepareMoveModal()">
+            <i class="fas fa-cut me-2"></i>
+            <span data-translate="move">Move</span>
+        </div>
+        
+        <div class="menu-item" onclick="showChmodDialog()">
+            <i class="fas fa-key me-2"></i>
+            <span data-translate="permissions">Permissions</span>
+        </div>
+               
+        <div class="menu-item" onclick="showFileProperties()">
+            <i class="fas fa-info-circle me-2"></i>
+            <span data-translate="properties">Properties</span>
+        </div>
+        
+        <div class="menu-item" onclick="contextMenuDelete()">
+            <i class="fas fa-trash me-2"></i>
+            <span data-translate="delete">Delete</span>
+        </div>
+        <div class="menu-item" onclick="openTerminal()">
+            <i class="fas fa-terminal me-1"></i>
+            <span data-translate="open_terminal">Open Terminal</span>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="searchModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="fas fa-search me-2"></i>
+                    <span data-translate="searchFiles">Search Files</span>
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-3">
+                    <div class="input-group">
+                        <input type="text" id="searchInput" class="form-control" 
+                               data-translate-placeholder="search_placeholder"
+                               placeholder="Enter file name or use * wildcard (e.g.: *.mp3)"
+                               autofocus>
+                        <button class="btn btn-primary" type="button" onclick="searchFiles()">
+                            <i class="fas fa-search"></i>
+                            <span data-translate="search">Search</span>
+                        </button>
+                    </div>
+                    <div class="form-text mt-1" data-translate="search_hint">
+                        Tip: Use * as a wildcard (e.g., "*.mp3" to search for all MP3 files)
+                    </div>
+                </div>
+                
+                <div id="searchResults" style="max-height: 50vh; overflow-y: auto;">
+                    <div class="text-center text-muted py-4">
+                        <i class="fas fa-search fa-2x mb-2"></i>
+                        <p data-translate="enter_search_term">Enter a search term to start finding files</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="filePropertiesModal" tabindex="-1" aria-labelledby="filePropertiesModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="filePropertiesModalLabel">
+                    <i class="fas fa-info-circle me-2"></i>
+                    <span data-translate="file_properties">File Properties</span>
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div id="filePropertiesContent">
+                    <div class="text-center py-4">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                        <p class="mt-2" data-translate="loading">Loading...</p>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    <i class="fas fa-times me-1"></i>
+                    <span data-translate="close">Close</span>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="chmodModal" tabindex="-1" aria-labelledby="chmodModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg modal-dialog-centered">
+    <form method="post" onsubmit="return validateChmod()" class="modal-content no-loader">
+      <div class="modal-header">
+        <h5 class="modal-title" id="chmodModalLabel" data-translate="setPermissions">🔒 Set Permissions</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <input type="hidden" name="action" value="chmod">
+        <input type="hidden" name="path" id="chmodPath">
+
+        <div class="mb-3">
+          <label for="permissions" class="form-label" data-translate="permissionValue">
+            Permission value (e.g.: 0644)
+          </label>
+          <input type="text"
+                 name="permissions"
+                 id="permissions"
+                 class="form-control"
+                 maxlength="4"
+                 data-translate-placeholder="permissionPlaceholder"
+                 placeholder="0644"
+                 autocomplete="off">
+          <div class="form-text mt-1" data-translate="permissionHelp">
+            Please enter a valid permission value (three or four octal digits, e.g.: 644 or 0755)
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button"
+                class="btn btn-secondary"
+                data-bs-dismiss="modal"
+                data-translate="cancel">Cancel</button>
+        <button type="submit"
+                class="btn btn-primary"
+                data-translate="saveButton">Save</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<div class="modal fade" id="createTypeModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="fas fa-plus me-2"></i>
+                    <span data-translate="create_new">Create New</span>
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="row g-3">
+                    <div class="col-6">
+                        <div class="card text-center h-100 border-primary" 
+                             style="cursor: pointer;"
+                             data-bs-dismiss="modal"
+                             onclick="showCreateFolderModal()">
+                            <div class="card-body py-4">
+                                <i class="fas fa-folder-plus fa-3x text-primary mb-3"></i>
+                                <h5 class="card-title" data-translate="newFolder">Folder</h5>
+                                <p class="card-text text-muted small" data-translate="create_new_folder">
+                                    Create a new folder
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-6">
+                        <div class="card text-center h-100 border-success"
+                             style="cursor: pointer;"
+                             data-bs-dismiss="modal"
+                             onclick="showCreateFileModal()">
+                            <div class="card-body py-4">
+                                <i class="fas fa-file-circle-plus fa-3x text-success mb-3"></i>
+                                <h5 class="card-title" data-translate="newFile">File</h5>
+                                <p class="card-text text-muted small" data-translate="create_new_file">
+                                    Create a new file
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    <i class="fas fa-times me-1"></i>
+                    <span data-translate="cancel">Cancel</span>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="createFolderModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="fas fa-folder-plus me-2"></i>
+                    <span data-translate="newFolder">Create_new_folder</span>
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-3">
+                    <label for="folderNameInput" class="form-label" data-translate="folderName">Folder Name:</label>
+                    <input type="text" class="form-control" id="folderNameInput" data-translate-placeholder="enter_folder_name_placeholder">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    <i class="fas fa-times me-1"></i>
+                    <span data-translate="cancel">Cancel</span>
+                </button>
+                <button type="button" class="btn btn-primary" onclick="createFolder()">
+                    <i class="fas fa-check me-1"></i>
+                    <span data-translate="create">Create</span>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="createFileModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="fas fa-file-plus me-2"></i>
+                    <span data-translate="newFile" =">Create File</span>
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-3">
+                    <label for="fileNameInput" class="form-label" data-translate="file_name">File Name:</label>
+                    <input type="text" class="form-control" id="fileNameInput" data-translate-placeholder="enter_file_name_placeholder">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    <i class="fas fa-times me-1"></i>
+                    <span data-translate="cancel">Cancel</span>
+                </button>
+                <button type="button" class="btn btn-primary" onclick="createFile()">
+                    <i class="fas fa-check me-1"></i>
+                    <span data-translate="create">Create</span>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="uploadModal" tabindex="-1" aria-labelledby="uploadModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="uploadModalLabel">
+                    <i class="fas fa-upload me-2"></i>
+                    <span data-translate="uploadBtn">Upload Files</span>
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-3">
+                    <div class="border rounded p-5 text-center upload-drop-area" style="cursor: pointer;" onclick="document.getElementById('fileUploadInput').click()">
+                        <i class="fas fa-cloud-upload-alt fa-3x text-muted mb-3"></i>
+                        <h4 data-translate="click_to_select_files">Click to select files</h4>
+                        <p class="text-muted" data-translate="or_drag_and_drop">or drag and drop files here</p>
+                    </div>
+                    <input type="file" id="fileUploadInput" class="d-none" multiple onchange="handleFileSelect(event)">
+                </div>
+                <div id="fileList" class="mt-3"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    <i class="fas fa-times me-1"></i>
+                    <span data-translate="cancel">Cancel</span>
+                </button>
+                <button type="button" class="btn btn-primary" onclick="startUpload()">
+                    <i class="fas fa-upload me-1"></i>
+                    <span data-translate="upload">Upload</span>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="renameModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="fas fa-edit me-2"></i>
+                    <span data-translate="rename">Rename</span>
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-3">
+                    <label for="renameInput" class="form-label" data-translate="newName">New Name:</label>
+                    <input type="text" class="form-control" id="renameInput" 
+                           placeholder="Enter new name" autofocus>
+                </div>
+                <div class="alert alert-info mb-0">
+                    <small>
+                        <i class="fas fa-info-circle me-1"></i>
+                        <span data-translate="rename_warning">You are renaming: </span>
+                        <span id="renameOriginalName" class="fw-bold"></span>
+                    </small>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    <i class="fas fa-times me-1"></i>
+                    <span data-translate="cancel">Cancel</span>
+                </button>
+                <button type="button" class="btn btn-primary" onclick="performRename()">
+                    <i class="fas fa-check me-1"></i>
+                    <span data-translate="rename">Rename</span>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="moveModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="fas fa-cut me-2"></i>
+                    <span data-translate="move">Move</span>
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-3">
+                    <label for="movePath" class="form-label" data-translate="destination_path">Destination Path:</label>
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="fas fa-folder"></i></span>
+                        <input type="text" class="form-control" id="movePath" 
+                               placeholder="/path/to/destination" value="<?php echo $ROOT_DIR; ?>">
+                        <button class="btn btn-outline-secondary" type="button" onclick="browseForMovePath()">
+                            <i class="fas fa-folder-open"></i>
+                        </button>
+                    </div>
+                    <div class="form-text" data-translate="move_hint">
+                        Enter the destination path where you want to move the files/folders.
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <div class="alert alert-warning">
+                        <i class="fas fa-exclamation-triangle me-2"></i>
+                        <strong data-translate="moving">Moving:</strong>
+                        <div id="moveItemsList" class="mt-1"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    <i class="fas fa-times me-1"></i>
+                    <span data-translate="cancel">Cancel</span>
+                </button>
+                <button type="button" class="btn btn-primary" onclick="performMove()">
+                    <i class="fas fa-check me-1"></i>
+                    <span data-translate="move">Move</span>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="copyModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="fas fa-copy me-2"></i>
+                    <span data-translate="copy">Copy</span>
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-3">
+                    <label for="copyPath" class="form-label" data-translate="destination_path">Destination Path:</label>
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="fas fa-folder"></i></span>
+                        <input type="text" class="form-control" id="copyPath" 
+                               placeholder="/path/to/destination" value="<?php echo $ROOT_DIR; ?>">
+                        <button class="btn btn-outline-secondary" type="button" onclick="browseForCopyPath()">
+                            <i class="fas fa-folder-open"></i>
+                        </button>
+                    </div>
+                    <div class="form-text" data-translate="copy_hint">
+                        Enter the destination path where you want to copy the files/folders.
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle me-2"></i>
+                        <strong data-translate="copying">Copying:</strong>
+                        <div id="copyItemsList" class="mt-1"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    <i class="fas fa-times me-1"></i>
+                    <span data-translate="cancel">Cancel</span>
+                </button>
+                <button type="button" class="btn btn-primary" onclick="performCopy()">
+                    <i class="fas fa-check me-1"></i>
+                    <span data-translate="copy">Copy</span>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="terminalModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content" style="height: 80vh;">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="fas fa-terminal me-2"></i>
+                    <span data-translate="terminal">Terminal</span>
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body p-0">
+                <iframe 
+                    id="terminalIframe" 
+                    src="" 
+                    frameborder="0" 
+                    style="width: 100%; height: 100%;"
+                    title="Terminal">
+                </iframe>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    <span data-translate="close">Close</span>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
 
 <script>
 let selectedMediaElement = null;
@@ -2426,15 +5028,16 @@ function setPlayerTitle(fileName) {
 function updateCurrentMediaList(category, filePath) {
     try {
         const mediaLists = {
-            'music': <?php echo json_encode(array_column($media['music'], 'path')); ?>,
-            'video': <?php echo json_encode(array_column($media['video'], 'path')); ?>,
-            'image': <?php echo json_encode(array_column($media['image'], 'path')); ?>
+            'music': <?php echo json_encode(array_column($media['music'] ?? [], 'path')); ?>,
+            'video': <?php echo json_encode(array_column($media['video'] ?? [], 'path')); ?>,
+            'image': <?php echo json_encode(array_column($media['image'] ?? [], 'path')); ?>
         };
         
         currentMediaList = mediaLists[category] || [];
         currentMediaIndex = currentMediaList.indexOf(filePath);
         
     } catch (e) {
+        console.error('Error updating media list:', e);
         currentMediaList = [];
         currentMediaIndex = -1;
     }
@@ -2488,14 +5091,25 @@ function playPreviousMedia() {
     }
 }
     
-function toggleAutoNext() {
-    autoNextEnabled = !autoNextEnabled;
+function initAutoPlayToggle() {
     const toggleBtn = document.getElementById('autoNextToggle');
     if (toggleBtn) {
-        toggleBtn.innerHTML = autoNextEnabled ? 
-            `<i class="fas fa-toggle-on"></i> ${translations['auto_play'] || 'Auto Play'}` : 
-            `<i class="fas fa-toggle-off"></i> ${translations['auto_play'] || 'Auto Play'}`;
+        updateAutoPlayToggleButton();
     }
+}
+
+function updateAutoPlayToggleButton() {
+    const toggleBtn = document.getElementById('autoNextToggle');
+    if (toggleBtn) {
+        const icon = autoNextEnabled ? 'fa-toggle-on' : 'fa-toggle-off';
+        toggleBtn.innerHTML = `<i class="fas ${icon}"></i> <span>${translations['auto_play'] || 'Auto Play'}</span>`;
+    }
+}
+
+function toggleAutoNext() {
+    autoNextEnabled = !autoNextEnabled;
+    
+    updateAutoPlayToggleButton();
     
     showLogMessage(autoNextEnabled ? 
         (translations['auto_play_enabled'] || 'Auto play enabled') : 
@@ -2510,19 +5124,6 @@ function toggleAutoNext() {
                 imageSwitchTimer = null;
             }
         }
-    }
-}
-    
-function initAutoPlayToggle() {
-    const actions = document.querySelector('.actions');
-    if (actions) {
-        const toggleBtn = document.createElement('button');
-        toggleBtn.id = 'autoNextToggle';
-        toggleBtn.className = 'action-btn';
-        const icon = autoNextEnabled ? 'fa-toggle-on' : 'fa-toggle-off';
-        toggleBtn.innerHTML = `<i class="fas ${icon}"></i> <span>${translations['auto_play'] || 'Auto Play'}</span>`;
-        toggleBtn.onclick = toggleAutoNext;
-        actions.insertBefore(toggleBtn, actions.firstChild);
     }
 }
     
@@ -2668,12 +5269,34 @@ function refreshMedia() {
 }
     
 function toggleFullscreen() {
+    const diffModal = document.getElementById('diffEditorModal');
+    const isDiffModalOpen = diffModal && diffModal.classList.contains('show');
+    
+    const editorPanel = document.getElementById('editorPanel');
+    const isEditorOpen = editorPanel && editorPanel.style.display === 'block';
+    
+    let elem;
+    
+    if (isDiffModalOpen) {
+        elem = document.querySelector('#diffEditorModal .modal-content');
+        if (!elem) {
+            elem = document.documentElement;
+        }
+    } else if (isEditorOpen) {
+        elem = document.querySelector('#editorPanelContent');
+        if (!elem) {
+            elem = editorPanel;
+        }
+    } else {
+        elem = document.documentElement;
+    }
+    
+    if (!elem) return;
+    
     const fullscreenBtn = document.querySelector('.action-btn.primary');
     const icon = fullscreenBtn ? fullscreenBtn.querySelector('i') : null;
     
     if (!document.fullscreenElement) {
-        const elem = document.documentElement;
-        
         if (icon) {
             icon.className = 'fas fa-compress';
             icon.style.opacity = '0.8';
@@ -2692,6 +5315,8 @@ function toggleFullscreen() {
             });
         } else if (elem.webkitRequestFullscreen) {
             elem.webkitRequestFullscreen();
+        } else if (elem.mozRequestFullScreen) {
+            elem.mozRequestFullScreen();
         } else if (elem.msRequestFullscreen) {
             elem.msRequestFullscreen();
         }
@@ -2714,6 +5339,8 @@ function toggleFullscreen() {
             });
         } else if (document.webkitExitFullscreen) {
             document.webkitExitFullscreen();
+        } else if (document.mozCancelFullScreen) {
+            document.mozCancelFullScreen();
         } else if (document.msExitFullscreen) {
             document.msExitFullscreen();
         }
@@ -2794,11 +5421,6 @@ function closeContextMenu() {
     hideContextMenu();
 }
 
-document.addEventListener('keydown', function(e) {
-    if (e.key === 'Escape') {
-        hideContextMenu();
-    }
-});
 
 document.addEventListener('contextmenu', function(e) {
     const contextMenu = document.getElementById('mediaContextMenu');
@@ -3556,25 +6178,59 @@ function initSidebarState() {
 }
 
 function updateFullscreenIcon() {
-    const fullscreenBtn = document.querySelector('.action-btn.primary');
-    if (!fullscreenBtn) return;
+    const mediaFullscreenBtn = document.querySelector('.btn.btn-teal[onclick*="toggleFullscreen"]');
+    const diffFullscreenBtn = document.querySelector('#diffEditorModal .btn-outline-info');
+    const editorFullscreenBtn = document.querySelector('#editorPanel .btn-outline-info[onclick*="toggleFullscreen"]');
     
-    const icon = fullscreenBtn.querySelector('i');
-    const textSpan = fullscreenBtn.querySelector('span');
+    if (mediaFullscreenBtn) {
+        const icon = mediaFullscreenBtn.querySelector('i');
+        const textSpan = mediaFullscreenBtn.querySelector('span');
+        
+        if (icon && textSpan) {
+            if (document.fullscreenElement) {
+                icon.className = 'fas fa-compress';
+                if (translations['exit_fullscreen']) {
+                    textSpan.textContent = translations['exit_fullscreen'];
+                } else {
+                    textSpan.textContent = 'Exit Fullscreen';
+                }
+            } else {
+                icon.className = 'fas fa-expand';
+                if (translations['fullscreen_play']) {
+                    textSpan.textContent = translations['fullscreen_play'];
+                } else {
+                    textSpan.textContent = 'Fullscreen Play';
+                }
+            }
+        }
+    }
     
-    if (icon && textSpan) {
+    if (diffFullscreenBtn) {
         if (document.fullscreenElement) {
-            icon.className = 'fas fa-compress';
-            textSpan.textContent = textSpan.getAttribute('data-translate') === 'fullscreen_play' ? 
-                (translations['exit_fullscreen'] || 'Exit Fullscreen') : 'Exit Fullscreen';
+            diffFullscreenBtn.innerHTML = '<i class="fas fa-compress"></i>';
+            diffFullscreenBtn.setAttribute('title', translations['exit_fullscreen'] || 'Exit Fullscreen');
         } else {
-            icon.className = 'fas fa-expand';
-            textSpan.textContent = textSpan.getAttribute('data-translate') === 'fullscreen_play' ? 
-                (translations['fullscreen_play'] || 'Fullscreen Play') : 'Fullscreen Play';
+            diffFullscreenBtn.innerHTML = '<i class="fas fa-expand"></i>';
+            diffFullscreenBtn.setAttribute('title', translations['enter_fullscreen'] || 'Enter Fullscreen');
+        }
+    }
+    
+    if (editorFullscreenBtn) {
+        const icon = editorFullscreenBtn.querySelector('i');
+        const textSpan = editorFullscreenBtn.querySelector('span');
+        
+        if (icon && textSpan) {
+            if (document.fullscreenElement) {
+                icon.className = 'fas fa-compress';
+                textSpan.textContent = translations['exit_fullscreen'] || 'Exit Fullscreen';
+            } else {
+                icon.className = 'fas fa-expand';
+                textSpan.textContent = translations['fullscreen'] || 'Fullscreen';
+            }
         }
     }
 }
-   
+
 document.addEventListener('DOMContentLoaded', function() {
     updateRecentList();
     initHoverPlay();
@@ -3630,53 +6286,4939 @@ document.addEventListener('DOMContentLoaded', function() {
             hideContextMenu();
         }
     });
+});
+
+document.addEventListener('keydown', function(event) {
+    const target = event.target;
+    const isTyping = target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.isContentEditable;
     
-    document.addEventListener('keydown', function(e) {
-        if (e.key === 'Escape') {
-            if (document.getElementById('fullscreenPlayer').classList.contains('active')) {
-                closeFullscreenPlayer();
-            } else {
-                closePlayer();
-            }
-        }
-        if (e.key === ' ' && !e.target.matches('input, textarea, select, button')) {
-            e.preventDefault();
+    if (isTyping) return;
+    
+    const isMonacoEditor = target.closest('.monaco-editor');
+    if (isMonacoEditor && (event.code === 'Space' || event.code === 'KeyF' || event.code === 'Escape')) {
+        return;
+    }
+    
+    switch(event.code) {
+        case 'Space':
+            event.preventDefault();
             const audioPlayer = document.getElementById('audioPlayer');
             const videoPlayer = document.getElementById('videoPlayer');
             const fullscreenAudio = document.getElementById('fullscreenAudio');
             const fullscreenVideo = document.getElementById('fullscreenVideo');
             
-            if (fullscreenAudio.style.display === 'block') {
+            if (fullscreenAudio && fullscreenAudio.style.display === 'block') {
                 if (fullscreenAudio.paused) fullscreenAudio.play();
                 else fullscreenAudio.pause();
-            } else if (fullscreenVideo.style.display === 'block') {
+            } else if (fullscreenVideo && fullscreenVideo.style.display === 'block') {
                 if (fullscreenVideo.paused) fullscreenVideo.play();
                 else fullscreenVideo.pause();
-            } else if (audioPlayer.style.display === 'block') {
+            } else if (audioPlayer && audioPlayer.style.display === 'block') {
                 if (audioPlayer.paused) audioPlayer.play();
                 else audioPlayer.pause();
-            } else if (videoPlayer.style.display === 'block') {
+            } else if (videoPlayer && videoPlayer.style.display === 'block') {
                 if (videoPlayer.paused) videoPlayer.play();
                 else videoPlayer.pause();
             }
-        }
-        if (e.key === 'f' || e.key === 'F') {
-            e.preventDefault();
+            break;
+            
+        case 'Escape':
+            const mediaContextMenu = document.getElementById('mediaContextMenu');
+            const fileContextMenu = document.getElementById('fileContextMenu');
+            const contextMenuOverlay = document.getElementById('contextMenuOverlay');
+            
+            if (mediaContextMenu && mediaContextMenu.style.display === 'block') {
+                hideContextMenu();
+                event.preventDefault();
+            } else if (fileContextMenu && fileContextMenu.style.display === 'block') {
+                hideFileContextMenu();
+                event.preventDefault();
+            } else if (contextMenuOverlay && contextMenuOverlay.style.display === 'block') {
+                hideContextMenu();
+                hideFileContextMenu();
+                event.preventDefault();
+            }
+            else if (document.getElementById('fullscreenPlayer')?.classList.contains('active')) {
+                closeFullscreenPlayer();
+                event.preventDefault();
+            }
+            else if (document.getElementById('playerArea')?.classList.contains('active')) {
+                closePlayer();
+                event.preventDefault();
+            }
+            else if (document.getElementById('filePropertiesModal')?.classList.contains('show')) {
+                const modal = bootstrap.Modal.getInstance(document.getElementById('filePropertiesModal'));
+                if (modal) modal.hide();
+                event.preventDefault();
+            }
+            else if (document.getElementById('fileInfoDialog')?.style.display === 'block') {
+                document.getElementById('fileInfoDialog').style.display = 'none';
+                if (contextMenuOverlay) contextMenuOverlay.style.display = 'none';
+                event.preventDefault();
+            }
+            break;
+            
+        case 'KeyF':
+            event.preventDefault();
             toggleFullscreen();
-        }
-        if (e.key === 'ArrowRight') {
-            e.preventDefault();
+            break;
+            
+        case 'ArrowRight':
+            event.preventDefault();
             playNextMedia();
-        }
-        if (e.key === 'ArrowLeft') {
-            e.preventDefault();
+            break;
+            
+        case 'ArrowLeft':
+            event.preventDefault();
             playPreviousMedia();
+            break;
+            
+        case 'KeyA':
+            if (event.altKey) {
+                event.preventDefault();
+                toggleAutoNext();
+            }
+            break;                     
+            
+        case 'KeyF':
+            if (event.ctrlKey || event.metaKey) {
+                event.preventDefault();
+                const searchInput = document.getElementById('searchInput');
+                const searchModal = document.getElementById('searchModal');
+                
+                if (searchInput) {
+                    if (searchModal) {
+                        const modal = new bootstrap.Modal(searchModal);
+                        modal.show();
+                    }
+                    setTimeout(() => {
+                        searchInput.focus();
+                        searchInput.select();
+                    }, 100);
+                }
+            }
+            break;
+            
+        case 'KeyS':
+            if ((event.ctrlKey || event.metaKey) && activeEditorTab) {
+                event.preventDefault();
+                saveEditorContent(activeEditorTab);
+            }
+            break;
+            
+        case 'Enter':
+            if ((event.ctrlKey || event.metaKey) && document.getElementById('searchInput')?.value.trim()) {
+                event.preventDefault();
+                searchFiles();
+            }
+            break;
+            
+        case 'KeyF':
+            if ((event.ctrlKey || event.metaKey) && event.shiftKey && activeEditorTab) {
+                event.preventDefault();
+                const tab = editorTabs.find(t => t.id === activeEditorTab);
+                if (tab && tab.editorMode === 'advanced') {
+                    formatCode(activeEditorTab);
+                }
+            }
+            break;
+            
+        case 'F5':
+            event.preventDefault();
+            refreshFiles();
+            break;
+            
+        case 'Delete':
+            if (selectedFiles.size > 0) {
+                event.preventDefault();
+                deleteSelected();
+            }
+            break;
+            
+        case 'F2':
+            if (selectedFiles.size === 1) {
+                event.preventDefault();
+                prepareRenameModal();
+            }
+            break;
+            
+        case 'KeyA':
+            if (event.ctrlKey || event.metaKey) {
+                event.preventDefault();
+                const selectAllCheckbox = document.querySelector('.select-all-checkbox input[type="checkbox"]');
+                if (selectAllCheckbox) {
+                    selectAllCheckbox.checked = !selectAllCheckbox.checked;
+                    toggleSelectAll();
+                }
+            }
+            break;
+            
+        case 'KeyD':
+            if ((event.ctrlKey || event.metaKey) && selectedFiles.size > 0) {
+                event.preventDefault();
+                selectedFiles.forEach(path => {
+                    if (!document.querySelector(`.file-item[data-path="${path}"]`)?.getAttribute('data-is-dir')) {
+                        downloadFile(path);
+                    }
+                });
+            }
+            break;
+            
+        case 'KeyO':
+            if ((event.ctrlKey || event.metaKey) && selectedFiles.size === 1) {
+                event.preventDefault();
+                const path = Array.from(selectedFiles)[0];
+                const isDir = document.querySelector(`.file-item[data-path="${path}"]`)?.getAttribute('data-is-dir') === 'true';
+                if (!isDir) {
+                    editFile(path);
+                }
+            }
+            break;
+            
+        case 'KeyE':
+            if (event.ctrlKey || event.metaKey) {
+                event.preventDefault();
+                toggleView();
+            }
+            break;
+            
+        case 'KeyE':
+            if ((event.ctrlKey || event.metaKey) && event.shiftKey) {
+                event.preventDefault();
+                toggleView('editor');
+            }
+            break;
+            
+        case 'KeyF':
+            if ((event.ctrlKey || event.metaKey) && event.shiftKey) {
+                event.preventDefault();
+                toggleView('files');
+            }
+            break;
+            
+        case 'KeyW':
+            if ((event.ctrlKey || event.metaKey) && activeEditorTab) {
+                event.preventDefault();
+                closeEditorTab(activeEditorTab);
+            }
+            break;
+            
+        case 'KeyW':
+            if ((event.ctrlKey || event.metaKey) && event.shiftKey && editorTabs.length > 0) {
+                event.preventDefault();
+                closeAllEditorTabs();
+            }
+            break;
+    }
+});
+</script>
+
+<script>
+let currentPath = '/';
+let selectedFiles = new Set();
+let viewMode = 'grid';
+let fileContextMenuTarget = null;
+let uploadFilesList = [];
+let currentView = 'files'; 
+let monacoEditor = null;
+let currentEditorMode = 'simple';
+let monacoLoaded = false;
+let monacoLoading = false;
+let completionProvidersRegistered = false;
+
+async function loadFiles(path) {
+    const fileGrid = document.getElementById('fileGrid');
+    const loadingEl = document.getElementById('loadingFiles');
+    
+    if (!fileGrid || !loadingEl) return;
+    
+    fileGrid.innerHTML = '';
+    loadingEl.style.display = 'block';
+    
+    try {
+        const response = await fetch(`?action=list_files&path=${encodeURIComponent(path)}`);
+        const data = await response.json();
+        
+        if (data.success) {
+            currentPath = data.path;
+            updateBreadcrumb(data.path);
+            
+            if (data.items.length === 0) {
+                fileGrid.innerHTML = `
+                    <div class="empty-folder" style="grid-column: 1 / -1;">
+                        <i class="fas fa-folder-open"></i>
+                        <p data-translate="empty_folder">This folder is empty</p>
+                    </div>`;
+            } else {
+                let html = '';
+                data.items.forEach(item => {
+                    const isSelected = selectedFiles.has(item.path);
+                    const safePath = item.path.replace(/'/g, "\\'").replace(/"/g, '&quot;');
+                    const safeName = item.name.replace(/</g, '&lt;').replace(/>/g, '&gt;');
+                    const iconClass = item.is_dir ? 'folder' : item.type;
+                    
+                    html += `
+                    <div class="file-item position-relative ${isSelected ? 'selected' : ''}" 
+                         data-path="${safePath}"
+                         data-type="${item.type}"
+                         data-name="${safeName}"
+                         data-is-dir="${item.is_dir}"
+                         data-size="${item.size}"
+                         ondblclick="handleDoubleClick('${safePath}', ${item.is_dir}, '${item.type}')"
+                         oncontextmenu="showFileContextMenu(event, this)"
+                         onclick="handleFileClick(event, '${safePath}')">
+
+                        <div class="form-check position-absolute" style="top: 5px; left: 9px; z-index: 100; display: none;">
+                            <input class="form-check-input" type="checkbox" 
+                                   onclick="event.stopPropagation(); handleCheckboxClick(event, '${safePath}')">
+                        </div>
+
+                        <div class="file-icon mb-2">
+                            ${getFileIcon(item.name, item.ext, item.is_dir)}
+                        </div>
+                        <div class="file-name text-truncate w-100" title="${safeName}">
+                            ${truncateFileName(safeName)}
+                        </div>
+                        <div class="file-size text-muted small mt-1">
+                            ${item.is_dir ? (translations['folder'] || 'Folder') : item.size_formatted}
+                        </div>
+                    </div>`;
+                });
+                fileGrid.innerHTML = html;
+            }
+            
+        } else {
+            showLogMessage(data.error || 'Failed to load files', 'error');
         }
-        if (e.key === 'a' || e.key === 'A') {
-            e.preventDefault();
-            toggleAutoNext();
+    } catch (error) {
+        console.error('Failed to load files:', error);
+        showLogMessage('Failed to load files', 'error');
+    } finally {
+        loadingEl.style.display = 'none';
+        updateSelectionInfo();
+    }
+}
+
+function updateBreadcrumb(path) {
+    const breadcrumb = document.getElementById('breadcrumb');
+    if (!breadcrumb) return;
+    
+    const parts = path.split('/').filter(p => p);
+    let html = '';
+    
+    html += `<div class="breadcrumb-item" onclick="navigateTo('/')">
+                <i class="fas fa-home"></i>
+                <span>${translations['root'] || 'Root'}</span>
+            </div>`;
+    
+    let currentPath = '';
+    for (let i = 0; i < parts.length; i++) {
+        currentPath += '/' + parts[i];
+        const isLast = i === parts.length - 1;
+        const safePath = currentPath.replace(/'/g, "\\'").replace(/"/g, '&quot;');
+        
+        html += `<div class="breadcrumb-separator">/</div>`;
+        html += `<div class="breadcrumb-item ${isLast ? 'breadcrumb-current' : ''}" 
+                     onclick="${!isLast ? `navigateTo('${safePath}')` : ''}">
+                    <span>${parts[i]}</span>
+                </div>`;
+    }
+    
+    breadcrumb.innerHTML = html;
+}
+
+function navigateTo(path) {
+    if (!path) return;
+    selectedFiles.clear();
+    loadFiles(path);
+}
+
+function navigateUp() {
+    const parent = currentPath.split('/').slice(0, -1).join('/');
+    if (parent === '') {
+        navigateTo('/');
+    } else {
+        navigateTo(parent);
+    }
+}
+
+function refreshFiles() {
+    loadFiles(currentPath);
+}
+
+function truncateFileName(name, maxLength = 20) {
+    if (name.length <= maxLength) return name;
+    return name.substring(0, maxLength - 3) + '...';
+}
+
+function handleDoubleClick(path, isDir, type) {
+    if (isDir) {
+        navigateTo(path);
+    } else {
+        const fileName = path.split('/').pop();
+        const ext = fileName.toLowerCase().split('.');
+        const fileExt = ext.length > 1 ? ext.pop() : '';
+        
+        const mediaExts = [
+            'mp3', 'wav', 'ogg', 'flac', 'm4a', 'aac',
+            'mp4', 'avi', 'mkv', 'mov', 'wmv', 'flv', 'webm',
+            'jpg', 'jpeg', 'png', 'gif', 'bmp', 'webp', 'svg'
+        ];
+        
+        const textExts = [
+            'txt', 'log', 'conf', 'ini', 'json', 'xml', 'html', 'htm',
+            'css', 'js', 'php', 'py', 'sh', 'md', 'yaml', 'yml',
+            'csv', 'sql', 'bat', 'cmd'
+        ];
+        
+        if (mediaExts.includes(fileExt)) {
+            playMedia(path);
+        }
+        else if (textExts.includes(fileExt) || fileExt === '') {
+            editFile(path);
+        }
+        else {
+            editFile(path);
+        }
+    }
+}
+
+function toggleView(viewType = null) {
+    const viewToggleBtn = document.getElementById('viewToggleBtn');
+    const viewToggleIcon = document.getElementById('viewToggleIcon');
+    const viewToggleText = document.getElementById('viewToggleText');
+    
+    const fileManagerToolbar = document.getElementById('fileManagerToolbar');
+    const fileGrid = document.getElementById('fileGrid');
+    const selectionInfo = document.getElementById('selectionInfo');
+    const breadcrumb = document.getElementById('breadcrumb');
+    const viewToggle = document.querySelector('.view-toggle');
+    
+    const editorToolbar = document.getElementById('editorToolbar');
+    const editorPanel = document.getElementById('editorPanel');
+    const editorTabsSwitcher = document.getElementById('editorTabsSwitcher');
+    const editorTabsList = document.getElementById('editorTabsList');
+    const editorPanelContent = document.getElementById('editorPanelContent');
+    
+    const mainToolbar = document.querySelector('.toolbar');
+    const editorPanelDiv = document.getElementById('editorPanel');
+    
+    if (viewType) {
+        currentView = viewType;
+    } else {
+        currentView = currentView === 'files' ? 'editor' : 'files';
+    }
+    
+    if (currentView === 'files') {
+        editorTabs.forEach(tab => {
+            if (tab.monacoEditorInstance) {
+                const model = tab.monacoEditorInstance.getModel();
+                if (model) {
+                    tab.viewState = tab.monacoEditorInstance.saveViewState();
+                }
+            }
+        });
+    }
+
+    if (currentView === 'editor') {
+        viewToggleIcon.className = 'fas fa-folder';
+        viewToggleText.textContent = translations['file_view'] || 'File View';
+        viewToggleText.setAttribute('data-translate', 'file_view');
+        
+        if (mainToolbar) mainToolbar.style.display = 'none';
+        if (fileManagerToolbar) fileManagerToolbar.style.display = 'none';
+        if (fileGrid) fileGrid.style.display = 'none';
+        if (selectionInfo) selectionInfo.style.display = 'none';
+        if (breadcrumb) breadcrumb.style.display = 'none';
+        if (viewToggle) viewToggle.style.display = 'none';
+        
+        if (editorToolbar) editorToolbar.style.display = 'flex';
+        if (editorPanelDiv) {
+            editorPanelDiv.style.display = 'block';
+            editorPanelDiv.style.maxHeight = '';
+        }
+        if (editorTabsSwitcher) editorTabsSwitcher.style.display = 'block';
+        if (editorTabsList) editorTabsList.style.display = 'flex';
+        if (editorPanelContent) editorPanelContent.style.display = 'block';
+        
+        if (editorPanel) {
+            editorPanel.style.maxHeight = '';
+        }
+        
+    } else {
+        viewToggleIcon.className = 'fas fa-edit';
+        viewToggleText.textContent = translations['editor_view'] || 'Editor View';
+        viewToggleText.setAttribute('data-translate', 'editor_view');
+        
+        if (editorToolbar) editorToolbar.style.display = 'none';
+        if (editorPanelDiv) editorPanelDiv.style.display = 'none';
+        if (editorTabsSwitcher) editorTabsSwitcher.style.display = 'none';
+        if (editorTabsList) editorTabsList.style.display = 'none';
+        if (editorPanelContent) editorPanelContent.style.display = 'none';
+        
+        if (mainToolbar) mainToolbar.style.display = 'flex';
+        if (fileManagerToolbar) fileManagerToolbar.style.display = 'flex';
+        if (fileGrid) fileGrid.style.display = 'grid';
+        if (selectionInfo) selectionInfo.style.display = 'flex';
+        if (breadcrumb) breadcrumb.style.display = 'flex';
+        if (viewToggle) viewToggle.style.display = 'flex';
+    }
+}
+
+function isBinaryContent(content) {
+    if (!content || content.length === 0) return false;
+    
+    const checkLength = Math.min(1024, content.length);
+    let nullBytes = 0;
+    let controlChars = 0;
+    let asciiChars = 0;
+    
+    for (let i = 0; i < checkLength; i++) {
+        const charCode = content.charCodeAt(i);
+        
+        if (charCode === 0) nullBytes++;
+        if (charCode < 9 || (charCode > 13 && charCode < 32)) controlChars++;
+        if ((charCode >= 32 && charCode <= 126) || charCode === 9 || charCode === 10 || charCode === 13) asciiChars++;
+    }
+    
+    if (nullBytes > 0) return true;
+    
+    const controlRatio = controlChars / checkLength;
+    const asciiRatio = asciiChars / checkLength;
+    
+    return (controlRatio > 0.3 || asciiRatio < 0.7);
+}
+
+function getBinaryPreview(content) {
+    if (!content || content.length === 0) return '[Empty file]';
+    
+    const previewLength = Math.min(200, content.length);
+    let preview = '';
+    
+    for (let i = 0; i < previewLength; i++) {
+        const char = content[i];
+        if (char >= ' ' && char <= '~') {
+            preview += char;
+        } else {
+            preview += '.';
+        }
+    }
+    
+    if (content.length > previewLength) {
+        preview += '...';
+    }
+    
+    return preview;
+}
+
+function handleFileClick(event, filePath) {
+    if (event.target.type === 'checkbox' || 
+        event.target.closest('.form-check') ||
+        event.target.closest('.file-checkbox')) {
+        event.stopPropagation();
+        return;
+    }
+    
+    if (event.detail === 2) {
+        const fileItem = document.querySelector(`.file-item[data-path="${filePath}"]`);
+        if (fileItem) {
+            const isDir = fileItem.getAttribute('data-is-dir') === 'true';
+            const type = fileItem.getAttribute('data-type');
+            handleDoubleClick(filePath, isDir, type);
+        }
+        return;
+    }
+}
+
+function handleCheckboxClick(event, filePath) {
+    event.stopPropagation();
+    
+    const checkbox = event.target;
+    
+    if (checkbox.checked) {
+        selectedFiles.add(filePath);
+    } else {
+        selectedFiles.delete(filePath);
+    }
+    
+    updateFileSelection();
+    updateSelectionInfo();
+}
+
+function toggleFileSelection(filePath) {
+    if (selectedFiles.has(filePath)) {
+        selectedFiles.delete(filePath);
+    } else {
+        selectedFiles.add(filePath);
+    }
+    updateFileSelection();
+    updateSelectionInfo();
+}
+
+function updateFileSelection() {
+    document.querySelectorAll('.file-item').forEach(item => {
+        const path = item.getAttribute('data-path');
+        const checkbox = item.querySelector('input[type="checkbox"]');
+        
+        if (selectedFiles.has(path)) {
+            item.classList.add('selected');
+            if (checkbox) {
+                checkbox.checked = true;
+            }
+            const checkboxContainer = item.querySelector('.file-checkbox');
+            if (checkboxContainer) {
+                checkboxContainer.style.display = 'flex';
+                checkboxContainer.classList.add('visible');
+                checkboxContainer.classList.remove('invisible');
+            }
+        } else {
+            item.classList.remove('selected');
+            if (checkbox) {
+                checkbox.checked = false;
+            }
+            if (!item.classList.contains('hover')) {
+                const checkboxContainer = item.querySelector('.file-checkbox');
+                if (checkboxContainer) {
+                    checkboxContainer.style.display = 'none';
+                    checkboxContainer.classList.remove('visible');
+                    checkboxContainer.classList.add('invisible');
+                }
+            }
+        }
+    });
+}
+
+function updateSelectionInfo() {
+    const toolbar = document.getElementById('selectionToolbar');
+    const selectedInfo = document.getElementById('selectedInfo');
+    
+    if (!toolbar || !selectedInfo) return;
+    
+    const count = selectedFiles.size;
+    
+    if (count > 0) {
+        let totalSize = 0;
+        selectedFiles.forEach(path => {
+            const fileItem = document.querySelector(`.file-item[data-path="${path}"]`);
+            if (fileItem) {
+                const size = parseInt(fileItem.getAttribute('data-size') || '0');
+                totalSize += size;
+            }
+        });
+        
+        const sizeFormatted = formatFileSize(totalSize);
+        
+        selectedInfo.textContent = (translations['selected_count'] || 'Selected') + ' ' + count + ' ' + (translations['items'] || 'item(s)') + ', ' + (translations['total_size'] || 'Total') + ' ' + sizeFormatted;
+        toolbar.classList.remove('d-none');
+    } else {
+        toolbar.classList.add('d-none');
+    }
+}
+
+function toggleSelectAll() {
+    const selectAllCheckbox = document.querySelector('.select-all-checkbox input[type="checkbox"]');
+    if (!selectAllCheckbox) return;
+    
+    const fileItems = document.querySelectorAll('.file-item');
+    
+    if (selectAllCheckbox.checked) {
+        fileItems.forEach(item => {
+            const path = item.getAttribute('data-path');
+            selectedFiles.add(path);
+            
+            const checkbox = item.querySelector('input[type="checkbox"]');
+            if (checkbox) {
+                checkbox.checked = true;
+            }
+        });
+    } else {
+        selectedFiles.clear();
+        fileItems.forEach(item => {
+            const checkbox = item.querySelector('input[type="checkbox"]');
+            if (checkbox) {
+                checkbox.checked = false;
+            }
+        });
+    }
+    
+    updateFileSelection();
+    updateSelectionInfo();
+}
+
+function changeViewMode(mode) {
+    viewMode = mode;
+    const fileGrid = document.getElementById('fileGrid');
+    if (!fileGrid) return;
+    
+    const toggleButtons = document.querySelectorAll('.view-toggle-btn');
+    toggleButtons.forEach(btn => btn.classList.remove('active'));
+    
+    if (mode === 'grid') {
+        fileGrid.classList.add('folder-view');
+        document.querySelector('.view-toggle-btn[onclick*="grid"]').classList.add('active');
+    } else {
+        fileGrid.classList.remove('folder-view');
+        document.querySelector('.view-toggle-btn[onclick*="list"]').classList.add('active');
+    }
+}
+
+function clearSelection() {
+    selectedFiles.clear();
+    updateFileSelection();
+    updateSelectionInfo();
+}
+
+function showMultipleFileInfo() {
+    const dialog = document.getElementById('fileInfoDialog');
+    const content = document.getElementById('fileInfoContent');
+    const overlay = document.getElementById('contextMenuOverlay');
+    
+    if (!dialog || !content || !overlay) return;
+    
+    let totalSize = 0;
+    let folderCount = 0;
+    let fileCount = 0;
+    
+    selectedFiles.forEach(path => {
+        if (path.toLowerCase().includes('.')) {
+            fileCount++;
+        } else {
+            folderCount++;
+        }
+    });
+    
+    content.innerHTML = `
+        <div class="info-row">
+            <div class="info-label">
+                ${translations['selected_items'] || 'Selected Items'}:
+            </div>
+            <div class="info-value">${selectedFiles.size}</div>
+        </div>
+        <div class="info-row">
+            <div class="info-label">
+                ${translations['files'] || 'Files'}:
+            </div>
+            <div class="info-value">${fileCount}</div>
+        </div>
+        <div class="info-row">
+            <div class="info-label">
+                ${translations['folders'] || 'Folders'}:
+            </div>
+            <div class="info-value">${folderCount}</div>
+        </div>
+        <div class="info-row">
+            <div class="info-label">
+                ${translations['paths'] || 'Paths'}:
+            </div>
+            <div class="info-value">
+                ${Array.from(selectedFiles).map(p => 
+                    `<div class="mb-1">${p}</div>`
+                ).join('')}
+            </div>
+        </div>
+    `;
+    
+    dialog.style.display = 'block';
+    overlay.style.display = 'block';
+}
+
+function showFileContextMenu(event, target) {
+    event.preventDefault();
+    event.stopPropagation();
+    
+    fileContextMenuTarget = target;
+    
+    const path = target.getAttribute('data-path');
+    const isDir = target.getAttribute('data-is-dir') === 'true';
+    const fileName = path.split('/').pop();
+    const ext = fileName.toLowerCase().split('.').pop();
+    
+    if (!selectedFiles.has(path)) {
+        selectedFiles.clear();
+        selectedFiles.add(path);
+        updateFileSelection();
+    }
+    
+    const archiveExts = ['zip', 'tar', 'gz', 'bz2', '7z', 'rar', 'tgz', 'tbz2'];
+    const isArchive = archiveExts.includes(ext);
+    
+    const musicExts = ['mp3', 'wav', 'ogg', 'flac', 'm4a', 'aac'];
+    const videoExts = ['mp4', 'avi', 'mkv', 'mov', 'wmv', 'flv', 'webm'];
+    const imageExts = ['jpg', 'jpeg', 'png', 'gif', 'bmp', 'webp', 'svg'];
+    
+    const playMenuItem = document.getElementById('playMenuItem');
+    if (playMenuItem) {
+        const isMediaFile = musicExts.includes(ext) || videoExts.includes(ext) || imageExts.includes(ext);
+        playMenuItem.style.display = isMediaFile && !isDir ? 'flex' : 'none';
+    }
+    
+    const editMenuItem = document.getElementById('editMenuItem');
+    if (editMenuItem) {
+        editMenuItem.style.display = !isDir ? 'flex' : 'none';
+    }
+    
+    const archiveMenuItem = document.getElementById('archiveMenuItem');
+    const submenu = document.getElementById('archiveSubmenu');
+    const compressItem = document.getElementById('compressMenuItem');
+    const extractItem = document.getElementById('extractMenuItem');
+    const extractToItem = document.getElementById('extractToMenuItem');
+    
+    if (archiveMenuItem && submenu) {
+        archiveMenuItem.style.display = 'flex';
+        submenu.style.display = 'none';
+        
+        const chevron = archiveMenuItem.querySelector('.fa-chevron-down, .fa-chevron-up');
+        if (chevron) {
+            chevron.className = 'fas fa-chevron-down ms-auto';
+        }
+        
+        if (compressItem) {
+            compressItem.style.display = 'flex';
+        }
+        if (extractItem) {
+            extractItem.style.display = isArchive ? 'flex' : 'none';
+        }
+        if (extractToItem) {
+            extractToItem.style.display = isArchive ? 'flex' : 'none';
+        }
+    }
+    
+    const menu = document.getElementById('fileContextMenu');
+    const overlay = document.getElementById('contextMenuOverlay');
+    
+    if (!menu || !overlay) return;
+    
+    const menuRect = menu.getBoundingClientRect();
+    const menuWidth = menuRect.width || 200;
+    const menuHeight = menuRect.height || 350;
+    
+    const viewportWidth = window.innerWidth;
+    const viewportHeight = window.innerHeight;
+    
+    let x = event.clientX;
+    let y = event.clientY;
+    
+    if (x + menuWidth > viewportWidth - 10) {
+        x = Math.max(10, x - menuWidth);
+    }
+    
+    if (y + menuHeight > viewportHeight - 10) {
+        y = Math.max(10, y - menuHeight);
+    }
+    
+    x = Math.max(10, Math.min(x, viewportWidth - menuWidth - 10));
+    y = Math.max(10, Math.min(y, viewportHeight - menuHeight - 10));
+    
+    menu.style.left = x + 'px';
+    menu.style.top = y + 'px';
+    menu.style.display = 'block';
+    overlay.style.display = 'block';
+}
+
+function adjustMenuOnResize() {
+    const menu = document.getElementById('fileContextMenu');
+    const overlay = document.getElementById('contextMenuOverlay');
+    
+    if (!menu || menu.style.display !== 'block') return;
+    
+    const menuRect = menu.getBoundingClientRect();
+    const menuWidth = menuRect.width;
+    const menuHeight = menuRect.height;
+    
+    const viewportWidth = window.innerWidth;
+    const viewportHeight = window.innerHeight;
+    
+    let x = parseInt(menu.style.left) || 0;
+    let y = parseInt(menu.style.top) || 0;
+    
+    if (x + menuWidth > viewportWidth) {
+        x = Math.max(10, viewportWidth - menuWidth - 10);
+    }
+    
+    if (y + menuHeight > viewportHeight) {
+        y = Math.max(10, viewportHeight - menuHeight - 10);
+    }
+    
+    if (x < 0) x = 10;
+    if (y < 0) y = 10;
+    
+    menu.style.left = x + 'px';
+    menu.style.top = y + 'px';
+}
+
+window.addEventListener('resize', adjustMenuOnResize);
+
+window.addEventListener('scroll', adjustMenuOnResize);
+
+if (!document.querySelector('#archive-menu-styles')) {
+    const style = document.createElement('style');
+    style.id = 'archive-menu-styles';
+    style.textContent = `
+        .archive-submenu .menu-item {
+            padding: 8px 15px;
+            font-size: 0.9em;
+            opacity: 0.9;
+        }
+        
+        .archive-submenu .menu-item:hover {
+            background: var(--accent-tertiary);
+            color: white;
+            border-radius: 4px;
+        }
+        
+        .archive-menu {
+            cursor: pointer;
+        }
+        
+        .archive-menu:hover {
+            background: var(--accent-tertiary);
+            color: white;
+        }
+    `;
+    document.head.appendChild(style);
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    const menu = document.getElementById('fileContextMenu');
+    if (!menu) return;
+    
+    if (document.getElementById('archiveMenuItem')) return;
+    
+    const archiveMenuItem = document.createElement('div');
+    archiveMenuItem.id = 'archiveMenuItem';
+    archiveMenuItem.className = 'menu-item archive-menu';
+    archiveMenuItem.innerHTML = `
+        <i class="fas fa-file-archive me-2"></i>
+        <span data-translate="archive_operations">Archive Operations</span>
+        <i class="fas fa-chevron-down ms-auto"></i>
+    `;
+    
+    const permissionsItem = menu.querySelector('.menu-item[onclick*="showChmodDialog"]');
+    const propertiesItem = menu.querySelector('.menu-item[onclick*="showFileProperties"]');
+    
+    if (permissionsItem && propertiesItem) {
+        permissionsItem.parentNode.insertBefore(archiveMenuItem, propertiesItem);
+    } else {
+        const deleteItem = menu.querySelector('.menu-item[onclick*="contextMenuDelete"]');
+        if (deleteItem) {
+            deleteItem.parentNode.insertBefore(archiveMenuItem, deleteItem);
+        }
+    }
+    
+    const submenuContainer = document.createElement('div');
+    submenuContainer.id = 'archiveSubmenu';
+    submenuContainer.className = 'archive-submenu';
+    submenuContainer.style.cssText = `
+        display: none;
+        margin-left: 20px;
+        border-left: 2px solid var(--accent-color);
+        padding-left: 10px;
+    `;
+    
+    const compressItem = document.createElement('div');
+    compressItem.id = 'compressMenuItem';
+    compressItem.className = 'menu-item';
+    compressItem.innerHTML = `
+        <i class="fas fa-compress me-2"></i>
+        <span data-translate="compress_to">Compress to...</span>
+    `;
+    compressItem.addEventListener('click', (e) => {
+        e.stopPropagation();
+        showCompressDialog();
+        hideFileContextMenu();
+    });
+    
+    const extractItem = document.createElement('div');
+    extractItem.id = 'extractMenuItem';
+    extractItem.className = 'menu-item';
+    extractItem.innerHTML = `
+        <i class="fas fa-expand me-2"></i>
+        <span data-translate="extract_here">Extract here</span>
+    `;
+    extractItem.addEventListener('click', (e) => {
+        e.stopPropagation();
+        if (fileContextMenuTarget) {
+            const path = fileContextMenuTarget.getAttribute('data-path');
+            let cleanPath = path;
+            if (cleanPath.startsWith('//')) {
+                cleanPath = cleanPath.substring(1);
+            }
+            extractArchiveHere(cleanPath);
+        }
+        hideFileContextMenu();
+    });
+    
+    const extractToItem = document.createElement('div');
+    extractToItem.id = 'extractToMenuItem';
+    extractToItem.className = 'menu-item';
+    extractToItem.innerHTML = `
+        <i class="fas fa-folder-open me-2"></i>
+        <span data-translate="extract_to">Extract to...</span>
+    `;
+    extractToItem.addEventListener('click', (e) => {
+        e.stopPropagation();
+        showExtractDialog();
+        hideFileContextMenu();
+    });
+    
+    submenuContainer.appendChild(compressItem);
+    submenuContainer.appendChild(extractItem);
+    submenuContainer.appendChild(extractToItem);
+    
+    archiveMenuItem.parentNode.insertBefore(submenuContainer, archiveMenuItem.nextSibling);
+    
+    archiveMenuItem.addEventListener('click', function(e) {
+        e.stopPropagation();
+        e.preventDefault();
+        
+        const submenu = document.getElementById('archiveSubmenu');
+        const chevron = this.querySelector('.fa-chevron-down, .fa-chevron-up');
+        
+        if (submenu.style.display === 'block') {
+            submenu.style.display = 'none';
+            if (chevron) {
+                chevron.className = 'fas fa-chevron-down ms-auto';
+            }
+        } else {
+            submenu.style.display = 'block';
+            if (chevron) {
+                chevron.className = 'fas fa-chevron-up ms-auto';
+            }
         }
     });
 });
+
+function showCompressDialog() {
+    if (selectedFiles.size === 0) return;
+
+    const paths = Array.from(selectedFiles);
+    const fileNames = paths.map(p => p.split('/').pop()).join(', ');
+
+    const dialog = document.createElement('div');
+    dialog.className = 'modal fade';
+    dialog.id = 'compressModal';
+    dialog.innerHTML = `
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">
+                        <i class="fas fa-compress me-2"></i>
+                        ${translations['compress_files'] || 'Compress Files'}
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="archiveName" class="form-label">
+                            ${translations['archive_name'] || 'Archive Name:'}
+                        </label>
+                        <div class="input-group">
+                            <input type="text" class="form-control" id="archiveName" value="archive_${Date.now()}">
+                            <span class="input-group-text" id="archiveExtension">.zip</span>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">
+                            ${translations['archive_format'] || 'Archive Format:'}
+                        </label>
+                        <div class="btn-group w-100" role="group">
+                            <button type="button" class="btn btn-outline-primary active" data-format="zip">ZIP</button>
+                            <button type="button" class="btn btn-outline-primary" data-format="tar">TAR</button>
+                            <!-- <button type="button" class="btn btn-outline-primary" data-format="7z">7Z</button> -->
+                            <button type="button" class="btn btn-outline-primary" data-format="gz">GZ</button>
+                            <button type="button" class="btn btn-outline-primary" data-format="bz2">BZ2</button>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="compressDestination" class="form-label">
+                            ${translations['destination_path'] || 'Destination Path:'}
+                        </label>
+                        <div class="input-group">
+                            <input type="text" class="form-control" id="compressDestination" value="${currentPath}">
+                            <button class="btn btn-outline-secondary" type="button" onclick="browseForCompressPath()">
+                                <i class="fas fa-folder-open"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle me-2"></i>
+                        ${translations['compressing'] || 'Compressing:'}
+                        <div id="compressItemsList" class="mt-1">
+                            ${paths.map(p => `<div class="mb-1">${escapeHtml(p.split('/').pop())}</div>`).join('')}
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        <i class="fas fa-times me-1"></i>
+                        ${translations['cancel'] || 'Cancel'}
+                    </button>
+                    <button type="button" class="btn btn-primary" onclick="performCompress()">
+                        <i class="fas fa-check me-1"></i>
+                        ${translations['compress'] || 'Compress'}
+                    </button>
+                </div>
+            </div>
+        </div>
+    `;
+
+    document.body.appendChild(dialog);
+
+    const formatButtons = dialog.querySelectorAll('[data-format]');
+    formatButtons.forEach(btn => {
+        btn.addEventListener('click', function() {
+            formatButtons.forEach(b => b.classList.remove('active'));
+            this.classList.add('active');
+            const format = this.getAttribute('data-format');
+            document.getElementById('archiveExtension').textContent = '.' + format;
+        });
+    });
+
+    const modal = new bootstrap.Modal(dialog);
+    modal.show();
+
+    dialog.addEventListener('hidden.bs.modal', function() {
+        dialog.remove();
+    });
+}
+
+function browseForCompressPath() {
+    const path = prompt('Enter destination path:', currentPath);
+    if (path) {
+        document.getElementById('compressDestination').value = path;
+    }
+}
+
+function browseForExtractPath() {
+    const path = prompt('Enter destination path:', currentPath);
+    if (path) {
+        document.getElementById('extractDestination').value = path;
+    }
+}
+
+async function performCompress() {
+    if (selectedFiles.size === 0) return;
+    
+    const paths = Array.from(selectedFiles);
+    const destination = document.getElementById('compressDestination').value.trim();
+    const archiveNameInput = document.getElementById('archiveName').value.trim();
+    const formatBtn = document.querySelector('#compressModal [data-format].active');
+    const format = formatBtn ? formatBtn.getAttribute('data-format') : 'zip';
+    
+    if (!destination || !archiveNameInput) {
+        showLogMessage(translations['enter_archive_name_and_destination'] || 'Please enter archive name and destination path', 'warning');
+        return;
+    }
+    
+    const archiveName = destination.endsWith('/') 
+        ? destination + archiveNameInput + '.' + format
+        : destination + '/' + archiveNameInput + '.' + format;
+    
+    try {
+        const formData = new FormData();
+        formData.append('action_type', 'compress');
+        formData.append('archive_type', format);
+        formData.append('destination', archiveName);
+        
+        if (paths.length === 1) {
+            formData.append('path', paths[0]);
+        } else {
+            paths.forEach((path) => formData.append('paths[]', path));
+        }
+        
+        const response = await fetch('?action=archive_action', {
+            method: 'POST',
+            body: formData
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            showLogMessage(
+                (translations['successfully_compressed'] || 'Successfully compressed') + ` ${paths.length} ${translations['file_s'] || 'file(s)'}`,
+                'success'
+            );
+            speakMessage(
+                (translations['successfully_compressed'] || 'Successfully compressed') + ` ${paths.length} ${translations['file_s'] || 'file(s)'}`,
+                'success'
+            );
+            bootstrap.Modal.getInstance(document.getElementById('compressModal')).hide();
+            refreshFiles();
+        } else {
+            showLogMessage(data.error || translations['failed_to_create_archive'] || 'Failed to create archive', 'error');
+        }
+    } catch (error) {
+        showLogMessage((translations['failed_to_create_archive'] || 'Failed to create archive') + ': ' + error.message, 'error');
+    }
+}
+
+async function extractArchive() {
+    if (selectedFiles.size === 0) return;
+    
+    const path = Array.from(selectedFiles)[0];
+    
+    try {
+        let cleanPath = path;
+        if (cleanPath.startsWith('//')) {
+            cleanPath = cleanPath.substring(1);
+        }
+        
+        const extractToDir = dirname(cleanPath);
+        
+        const formData = new FormData();
+        formData.append('path', cleanPath);
+        formData.append('action_type', 'extract');
+        formData.append('destination', extractToDir);
+        
+        console.log('Extracting:', cleanPath, 'to:', extractToDir);
+        
+        const response = await fetch('?action=archive_action', {
+            method: 'POST',
+            body: formData
+        });
+        
+        const data = await response.json();
+        console.log('Extract response:', data);
+        
+        if (data.success) {
+            const Message = translations['archive_extracted_successfully'] || 'Archive extracted successfully';
+            showLogMessage(Message);
+            speakMessage(Message);
+            
+            loadFiles(extractToDir);
+            
+        } else {
+            showLogMessage(data.error || translations['failed_to_extract_archive'] || 'Failed to extract archive', 'error');
+        }
+    } catch (error) {
+        console.error('Extract error:', error);
+        showLogMessage((translations['failed_to_extract_archive'] || 'Failed to extract archive') + ': ' + error.message, 'error');
+    }
+}
+
+async function performExtract() {
+    if (selectedFiles.size === 0) return;
+    
+    const path = Array.from(selectedFiles)[0];
+    
+    let cleanPath = path;
+    if (cleanPath.startsWith('//')) {
+        cleanPath = cleanPath.substring(1);
+    }
+    
+    const destination = document.getElementById('extractDestination').value.trim();
+    
+    if (!destination) {
+        showLogMessage(translations['enter_destination_path'] || 'Please enter destination path', 'warning');
+        return;
+    }
+    
+    try {
+        const formData = new FormData();
+        formData.append('path', cleanPath);
+        formData.append('action_type', 'extract');
+        formData.append('destination', destination);
+        
+        const response = await fetch('?action=archive_action', {
+            method: 'POST',
+            body: formData
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            showLogMessage(translations['archive_extracted_successfully'] || 'Archive extracted successfully', 'success');
+            bootstrap.Modal.getInstance(document.getElementById('extractModal')).hide();
+            
+            loadFiles(destination);
+        } else {
+            showLogMessage(data.error || translations['failed_to_extract_archive'] || 'Failed to extract archive', 'error');
+        }
+   } catch (error) {
+        showLogMessage((translations['failed_to_extract_archive'] || 'Failed to extract archive') + ': ' + error.message, 'error');
+    }
+}
+
+async function extractArchiveHere(filePath) {
+    if (!filePath) return;
+    
+    try {
+        const extractToDir = dirname(filePath);
+        
+        const formData = new FormData();
+        formData.append('path', filePath);
+        formData.append('action_type', 'extract');
+        formData.append('destination', extractToDir);
+                
+        const response = await fetch('?action=archive_action', {
+            method: 'POST',
+            body: formData
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            showLogMessage(translations['archive_extracted_successfully'] || 'Archive extracted successfully', 'success');
+            
+            loadFiles(extractToDir);
+        } else {
+            showLogMessage(data.error || translations['failed_to_extract_archive'] || 'Failed to extract archive', 'error');
+        }
+    } catch (error) {
+        showLogMessage((translations['failed_to_extract_archive'] || 'Failed to extract archive') + ': ' + error.message, 'error');
+    }
+}
+
+function dirname(path) {
+    return path.substring(0, path.lastIndexOf('/')) || '/';
+}
+
+function showExtractDialog() {
+    if (selectedFiles.size === 0) return;
+
+    const path = Array.from(selectedFiles)[0];
+    const name = path.split('/').pop();
+
+    const dialog = document.createElement('div');
+    dialog.className = 'modal fade';
+    dialog.id = 'extractModal';
+    dialog.innerHTML = `
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">
+                        <i class="fas fa-expand me-2"></i>
+                        ${translations['extract_archive'] || 'Extract Archive'}
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="extractDestination" class="form-label">
+                            ${translations['destination_path'] || 'Destination Path:'}
+                        </label>
+                        <div class="input-group">
+                            <input type="text" class="form-control" id="extractDestination" value="${currentPath}">
+                            <button class="btn btn-outline-secondary" type="button" onclick="browseForExtractPath()">
+                                <i class="fas fa-folder-open"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle me-2"></i>
+                        ${translations['extracting'] || 'Extracting:'}
+                        <div class="mt-1">${escapeHtml(name)}</div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        <i class="fas fa-times me-1"></i>
+                        ${translations['cancel'] || 'Cancel'}
+                    </button>
+                    <button type="button" class="btn btn-primary" onclick="performExtract()">
+                        <i class="fas fa-check me-1"></i>
+                        ${translations['extract'] || 'Extract'}
+                    </button>
+                </div>
+            </div>
+        </div>
+    `;
+
+    document.body.appendChild(dialog);
+
+    const modal = new bootstrap.Modal(dialog);
+    modal.show();
+
+    dialog.addEventListener('hidden.bs.modal', function() {
+        dialog.remove();
+    });
+}
+
+function hideFileContextMenu() {
+    const menu = document.getElementById('fileContextMenu');
+    const overlay = document.getElementById('contextMenuOverlay');
+    
+    if (menu) {
+        menu.style.display = 'none';
+        menu.style.left = '';
+        menu.style.top = '';
+    }
+    if (overlay) overlay.style.display = 'none';
+    
+    fileContextMenuTarget = null;
+}
+
+function showFileProperties() {
+    if (!fileContextMenuTarget) return;
+    
+    const path = fileContextMenuTarget.getAttribute('data-path');
+    
+    if (!path || path.trim() === '') {
+         showLogMessage(translations['invalid_file_path'] || 'Invalid file path', 'error');
+        return;
+    }
+    
+    showFileInfoModal(path);
+    hideFileContextMenu();
+}
+
+function contextMenuOpen() {
+    if (!fileContextMenuTarget) return;
+    
+    const path = fileContextMenuTarget.getAttribute('data-path');
+    const isDir = fileContextMenuTarget.getAttribute('data-is-dir') === 'true';
+    const type = fileContextMenuTarget.getAttribute('data-type');
+    
+    handleDoubleClick(path, isDir, type);
+    hideFileContextMenu();
+}
+
+function contextMenuPlay() {
+    if (!fileContextMenuTarget) return;
+    
+    const path = fileContextMenuTarget.getAttribute('data-path');
+    playMedia(path);
+    hideFileContextMenu();
+}
+
+function contextMenuEdit() {
+    if (!fileContextMenuTarget) return;
+    
+    const path = fileContextMenuTarget.getAttribute('data-path');
+    editFile(path);
+    hideFileContextMenu();
+}
+
+function contextMenuDownload() {
+    if (!fileContextMenuTarget) return;
+    
+    const path = fileContextMenuTarget.getAttribute('data-path');
+    const isDir = fileContextMenuTarget.getAttribute('data-is-dir') === 'true';
+    
+    if (!isDir) {
+        const downloadUrl = `?preview=1&path=${encodeURIComponent(path)}`;
+        const link = document.createElement('a');
+        link.href = downloadUrl;
+        const fileName = path.split('/').pop();
+        link.download = fileName;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        showLogMessage(`${translations['starting_download'] || 'Starting download'}: ${fileName}`, 'info');
+    } else {
+        downloadFolderAsTar(path);
+    }
+    
+    hideFileContextMenu();
+}
+
+function downloadFolderAsTar(folderPath) {
+    const folderName = folderPath.split('/').pop();
+    showLogMessage(`${translations['packaging_folder'] || 'Packaging folder'}: ${folderName}...`, 'info');
+    speakMessage(`${translations['packaging_folder'] || 'Packaging folder'}: ${folderName}...`, 'info');
+    
+    const iframe = document.createElement('iframe');
+    iframe.style.display = 'none';
+    iframe.src = `?action=download_folder&path=${encodeURIComponent(folderPath)}`;
+    
+    iframe.onload = function() {
+        showLogMessage(`${translations['download_started'] || 'Download started'}: ${folderName}.tar`, 'success');
+        document.body.removeChild(iframe);
+    };
+    
+    iframe.onerror = function() {
+        showLogMessage(`${translations['packaging_failed'] || 'Packaging failed'}`, 'error');
+        document.body.removeChild(iframe);
+    };
+    
+    document.body.appendChild(iframe);
+}
+
+function contextMenuDelete() {
+    if (!fileContextMenuTarget) return;
+    
+    const path = fileContextMenuTarget.getAttribute('data-path');
+    if (!selectedFiles.has(path)) {
+        selectedFiles.clear();
+        selectedFiles.add(path);
+        updateFileSelection();
+        updateSelectionInfo();
+    }
+    
+    deleteSelected();
+    hideFileContextMenu();
+}
+
+function showCreateFolderModal() {
+    const input = document.getElementById('folderNameInput');
+    if (input) {
+        input.value = '';
+        input.focus();
+    }
+    const modal = new bootstrap.Modal(document.getElementById('createFolderModal'));
+    modal.show();
+}
+
+function showCreateFileModal() {
+    const input = document.getElementById('fileNameInput');
+    if (input) {
+        input.value = '';
+        input.focus();
+    }
+    const modal = new bootstrap.Modal(document.getElementById('createFileModal'));
+    modal.show();
+}
+
+async function createFolder() {
+    const input = document.getElementById('folderNameInput');
+    if (!input || !input.value.trim()) {
+        showLogMessage(
+            translations['enter_folder_name'] || 'Please enter folder name',
+            'warning'
+        );
+        return;
+    }
+
+    const folderName = input.value.trim();
+
+    try {
+        const response = await fetch(
+            `?action=create_folder&path=${encodeURIComponent(currentPath)}&name=${encodeURIComponent(folderName)}`
+        );
+        const data = await response.json();
+
+        if (data.success) {
+            showLogMessage(
+                data.message || translations['folder_created_success'] || 'Folder created successfully',
+                'success'
+            );
+
+            const modal = bootstrap.Modal.getInstance(
+                document.getElementById('createFolderModal')
+            );
+            if (modal) modal.hide();
+
+            refreshFiles();
+        } else {
+            showLogMessage(
+                data.error || translations['create_folder_failed'] || 'Failed to create folder',
+                'error'
+            );
+        }
+    } catch (error) {
+        showLogMessage(
+            (translations['create_folder_failed'] || 'Failed to create folder') + ': ' + error.message,
+            'error'
+        );
+    }
+}
+
+async function createFile() {
+    const input = document.getElementById('fileNameInput');
+    if (!input || !input.value.trim()) {
+        showLogMessage(translations['enter_file_name'] || 'Please enter file name', 'warning');
+        return;
+    }
+
+    try {
+        const formData = new FormData();
+        formData.append('path', currentPath);
+        formData.append('name', input.value.trim());
+
+        const response = await fetch('?action=create_file', {
+            method: 'POST',
+            body: formData
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+            showLogMessage(data.message || translations['file_created_success'] || 'File created successfully', 'success');
+            bootstrap.Modal.getInstance(document.getElementById('createFileModal')).hide();
+
+            const ext = input.value.trim().toLowerCase().split('.').pop();
+            const textExts = ['txt', 'log', 'conf', 'ini', 'json', 'xml', 'html', 'css', 'js', 'php', 'py', 'sh', 'md'];
+
+            if (textExts.includes(ext)) {
+                setTimeout(() => {
+                    editFile(currentPath + '/' + input.value.trim());
+                }, 500);
+            } else {
+                refreshFiles();
+            }
+        } else {
+            showLogMessage(data.error || translations['create_file_failed'] || 'Failed to create file', 'error');
+        }
+    } catch (error) {
+        showLogMessage((translations['create_file_failed'] || 'Failed to create file') + ': ' + error.message, 'error');
+    }
+}
+
+function prepareRenameModal() {
+    if (selectedFiles.size === 0) return;
+    
+    const path = Array.from(selectedFiles)[0];
+    const name = path.split('/').pop();
+    
+    document.getElementById('renameInput').value = name;
+    document.getElementById('renameOriginalName').textContent = name;
+    
+    hideFileContextMenu();
+}
+
+async function performRename() {
+    if (selectedFiles.size === 0) {
+        showLogMessage(translations['no_item_selected'] || 'No item selected', 'warning');
+        return;
+    }
+
+    const oldPath = Array.from(selectedFiles)[0];
+    const newName = document.getElementById('renameInput').value.trim();
+
+    if (!newName) {
+        showLogMessage(translations['enter_new_name'] || 'Please enter new name', 'warning');
+        return;
+    }
+
+    try {
+        const response = await fetch(`?action=rename_item&old=${encodeURIComponent(oldPath)}&new=${encodeURIComponent(newName)}`);
+        const data = await response.json();
+
+        if (data.success) {
+            const Message = translations['rename_success'] || 'Renamed successfully';
+            showLogMessage(Message);
+            speakMessage(Message);
+            bootstrap.Modal.getInstance(document.getElementById('renameModal')).hide();
+            selectedFiles.clear();
+            updateSelectionInfo();
+            refreshFiles();
+        } else {
+            showLogMessage(data.error || translations['rename_failed'] || 'Failed to rename', 'error');
+        }
+    } catch (error) {
+        showLogMessage(
+            (translations['rename_failed'] || 'Failed to rename') + ': ' + error.message,
+            'error'
+        );
+    }
+}
+
+function prepareMoveModal() {
+    if (selectedFiles.size === 0) return;
+    
+    const itemsList = document.getElementById('moveItemsList');
+    itemsList.innerHTML = '';
+    selectedFiles.forEach(path => {
+        const name = path.split('/').pop();
+        const isDir = document.querySelector(`.file-item[data-path="${path}"]`)?.getAttribute('data-is-dir') === 'true';
+        itemsList.innerHTML += `
+            <div class="d-flex align-items-center mb-1">
+                <i class="fas ${isDir ? 'fa-folder' : 'fa-file'} me-2 text-secondary"></i>
+                <span class="text-truncate">${name}</span>
+            </div>
+        `;
+    });
+    
+    document.getElementById('movePath').value = currentPath;
+    
+    hideFileContextMenu();
+}
+
+function browseForMovePath() {
+    const path = prompt('Enter destination path:', currentPath);
+    if (path) {
+        document.getElementById('movePath').value = path;
+    }
+}
+
+async function performMove() {
+    const destination = document.getElementById('movePath').value.trim();
+    if (!destination) {
+        showLogMessage(translations['enter_destination_path'] || 'Please enter destination path', 'warning');
+        return;
+    }
+
+    if (!confirm(`${translations['confirm_move'] || 'Move'} ${selectedFiles.size} ${translations['items'] || 'item(s)'} ${translations['to']} "${destination}"?`)) {
+        return;
+    }
+
+    let successCount = 0;
+    let errorCount = 0;
+
+    for (const sourcePath of selectedFiles) {
+        try {
+            const response = await fetch(`?action=move_item&source=${encodeURIComponent(sourcePath)}&dest=${encodeURIComponent(destination)}`);
+            const data = await response.json();
+
+            if (data.success) {
+                successCount++;
+            } else {
+                errorCount++;
+                // console.error('Move failed:', data.error);
+            }
+        } catch (error) {
+            errorCount++;
+            // console.error('Move error:', error);
+        }
+    }
+
+    if (successCount > 0) {
+        showLogMessage(
+            `${translations['move_success'] || 'Successfully moved'} ${successCount} ${translations['items'] || 'item(s)'}`,
+            'success'
+        );
+        selectedFiles.clear();
+        updateSelectionInfo();
+        bootstrap.Modal.getInstance(document.getElementById('moveModal')).hide();
+        refreshFiles();
+    }
+
+    if (errorCount > 0) {
+        showLogMessage(
+            `${translations['move_failed'] || 'Failed to move'} ${errorCount} ${translations['items'] || 'item(s)'}`,
+            'error'
+        );
+    }
+}
+
+function prepareCopyModal() {
+    if (selectedFiles.size === 0) return;
+    
+    const itemsList = document.getElementById('copyItemsList');
+    itemsList.innerHTML = '';
+    selectedFiles.forEach(path => {
+        const name = path.split('/').pop();
+        const isDir = document.querySelector(`.file-item[data-path="${path}"]`)?.getAttribute('data-is-dir') === 'true';
+        itemsList.innerHTML += `
+            <div class="d-flex align-items-center mb-1">
+                <i class="fas ${isDir ? 'fa-folder' : 'fa-file'} me-2 text-secondary"></i>
+                <span class="text-truncate">${name}</span>
+            </div>
+        `;
+    });
+    
+    document.getElementById('copyPath').value = currentPath;
+    
+    hideFileContextMenu();
+}
+
+function browseForCopyPath() {
+    const path = prompt('Enter destination path:', currentPath);
+    if (path) {
+        document.getElementById('copyPath').value = path;
+    }
+}
+
+async function performCopy() {
+    const destination = document.getElementById('copyPath').value.trim();
+    if (!destination) {
+        showLogMessage(translations['enter_destination_path'] || 'Please enter destination path', 'warning');
+        return;
+    }
+
+    if (!confirm(`${translations['confirm_copy'] || 'Copy'} ${selectedFiles.size} ${translations['items'] || 'item(s)'} ${translations['to']} "${destination}"?`)) {
+        return;
+    }
+
+    let successCount = 0;
+    let errorCount = 0;
+
+    for (const sourcePath of selectedFiles) {
+        try {
+            const response = await fetch(`?action=copy_item&source=${encodeURIComponent(sourcePath)}&dest=${encodeURIComponent(destination)}`);
+            const data = await response.json();
+
+            if (data.success) {
+                successCount++;
+            } else {
+                errorCount++;
+                // console.error('Copy failed:', data.error);
+            }
+        } catch (error) {
+            errorCount++;
+            // console.error('Copy error:', error);
+        }
+    }
+
+    if (successCount > 0) {
+        showLogMessage(
+            `${translations['copy_success'] || 'Successfully copied'} ${successCount} ${translations['items'] || 'item(s)'}`,
+            'success'
+        );
+        bootstrap.Modal.getInstance(document.getElementById('copyModal')).hide();
+        refreshFiles();
+    }
+
+    if (errorCount > 0) {
+        showLogMessage(
+            `${translations['copy_failed'] || 'Failed to copy'} ${errorCount} ${translations['items'] || 'item(s)'}`,
+            'error'
+        );
+    }
+}
+
+async function deleteSelected() {
+    if (selectedFiles.size === 0) {
+         showLogMessage(
+            translations['select_files_to_delete'] || 'Please select files to delete first',
+            'warning'
+        );
+        return;
+    }
+
+    const count = selectedFiles.size;
+    const fileNames = Array.from(selectedFiles)
+        .map(p => p.split('/').pop())
+        .join(', ');
+
+    const message =
+        `${translations['confirm_delete_items'] || 'Are you sure you want to delete'} ` +
+        `${count} ` +
+        `${translations['items'] || 'item(s)'}?\n\n${fileNames}`;
+
+    showConfirmation(encodeURIComponent(message), async () => {
+        let successCount = 0;
+        let errorCount = 0;
+
+        for (const path of selectedFiles) {
+            try {
+                const response = await fetch(
+                    `?action=delete_item&path=${encodeURIComponent(path)}`
+                );
+                const data = await response.json();
+
+                if (data.success) {
+                    successCount++;
+                } else {
+                    errorCount++;
+                    console.error(
+                        translations['delete_failed'] || 'Delete failed:',
+                        data.error
+                    );
+                }
+            } catch (error) {
+                errorCount++;
+                console.error(
+                    translations['delete_error'] || 'Delete error:',
+                    error
+                );
+            }
+        }
+
+        if (successCount > 0) {
+             showLogMessage(
+                `${translations['successfully_deleted'] || 'Successfully deleted'} ` +
+                `${successCount} ` +
+                `${translations['items'] || 'item(s)'}`,
+                'success'
+            );
+            selectedFiles.clear();
+            updateSelectionInfo();
+            refreshFiles();
+        }
+
+        if (errorCount > 0) {
+             showLogMessage(
+                `${translations['failed_to_delete'] || 'Failed to delete'} ` +
+                `${errorCount} ` +
+                `${translations['items'] || 'item(s)'}`,
+                'error'
+            );
+        }
+    });
+}
+
+async function showFileInfoModal(path) {
+    const content = document.getElementById('filePropertiesContent');
+    if (!content) return;
+
+    content.innerHTML = `
+        <div class="text-center py-4">
+            <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">${translations['loading'] || 'Loading...'}</span>
+            </div>
+            <p class="mt-2">${translations['loading'] || 'Loading...'}</p>
+        </div>`;
+
+    try {
+        const response = await fetch(`?action=get_file_info&path=${encodeURIComponent(path)}`);
+        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+
+        const data = await response.json();
+
+        if (data.success && data.info) {
+            const info = data.info;
+            const isDir = info.is_dir === true || info.is_dir === 'true';
+            const fileName = info.name || '';
+            const fileExt = info.extension || '';
+            
+            const fileIcon = getFileIcon(fileName, fileExt, isDir);
+
+            let html = `
+                <div class="container-fluid">
+                    <div class="row g-4">
+                        <div class="col-lg-4">
+                            <div class="card h-100 border shadow-sm">
+                                <div class="card-body d-flex flex-column align-items-center justify-content-center p-4">
+                                    <div class="mb-4" style="font-size: 3.5rem;">
+                                        ${fileIcon.replace('fa-2x', 'fa-3x')}
+                                    </div>
+                                    <div class="text-center w-100">
+                                        <h3 class="card-title mb-3 text-break" style="word-break: break-word;">
+                                            ${escapeHtml(fileName || translations['unknown'] || 'Unknown')}
+                                        </h3>
+                                        <div class="badge ${isDir ? 'bg-warning' : 'bg-success'} ${isDir ? 'text-dark' : 'text-white'} mb-4 p-2">
+                                            <i class="fas ${isDir ? 'fa-folder' : 'fa-file'} me-1 ${isDir ? '' : 'text-white'}"></i>
+                                            ${isDir ? translations['folder'] || 'Folder' : translations['file'] || 'File'}
+                                        </div>
+                                    </div>
+                                    <div class="w-100 mt-auto">
+                                        <hr class="my-3">
+                        `;
+            
+            if (!isDir && info.extension) {
+                html += `
+                        <div class="d-flex justify-content-between mb-2">
+                            <span class="text-muted">${translations['extension'] || 'Extension:'}</span>
+                            <strong>${escapeHtml(info.extension)}</strong>
+                        </div>
+                        <div class="d-flex justify-content-between mb-2">
+                            <span class="text-muted">${translations['fileSize'] || 'Size:'}</span>
+                            <strong>${info.size_formatted || '0 B'}</strong>
+                        </div>`;
+                        
+                if (info.media_info && info.media_info.duration) {
+                    html += `
+                        <div class="d-flex justify-content-between mb-2">
+                            <span class="text-muted">${translations['duration'] || 'Duration:'}</span>
+                            <strong>${info.media_info.duration}</strong>
+                        </div>`;
+                }
+                
+                if (info.image_info) {
+                    html += `
+                        <div class="d-flex justify-content-between mb-2">
+                            <span class="text-muted">${translations['resolution'] || 'Dimensions:'}</span>
+                            <strong>${info.image_info.width} × ${info.image_info.height}</strong>
+                        </div>`;
+                }
+            }
+            
+            html += `
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="col-lg-8">
+                            <div class="card h-100 border shadow-sm">
+                                <div class="card-body p-4">
+                                    <h4 class="card-title mb-4">
+                                        <i class="fas fa-info-circle me-2 text-primary"></i>
+                                        ${translations['details'] || 'Details'}
+                                    </h4>
+                                    
+                                    <div class="mb-4">
+                                        <h6 class="text-muted mb-3"><i class="fas fa-cog me-1"></i> ${translations['basic_info'] || 'Basic Information'}</h6>
+                                        <div class="row g-3">
+                                            <div class="col-md-6">
+                                                <div class="d-flex align-items-center mb-3">
+                                                    <div class="bg-light rounded p-3 me-3" style="width: 48px; height: 48px; display: flex; align-items: center; justify-content: center;">
+                                                        <i class="fas fa-ruler-combined text-primary"></i>
+                                                    </div>
+                                                    <div>
+                                                        <small class="text-muted d-block">${translations['fileSize'] || 'Size'}</small>
+                                                        <strong>${info.size_formatted || '0 B'}</strong>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <div class="d-flex align-items-center mb-3">
+                                                    <div class="bg-light rounded p-3 me-3" style="width: 48px; height: 48px; display: flex; align-items: center; justify-content: center;">
+                                                        <i class="fas fa-clock text-primary"></i>
+                                                    </div>
+                                                    <div>
+                                                        <small class="text-muted d-block">${translations['created_time'] || 'Created'}</small>
+                                                        <strong>${info.modified_formatted || translations['unknown'] || 'Unknown'}</strong>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <div class="d-flex align-items-center mb-3">
+                                                    <div class="bg-light rounded p-3 me-3" style="width: 48px; height: 48px; display: flex; align-items: center; justify-content: center;">
+                                                        <i class="fas fa-calendar-plus text-primary"></i>
+                                                    </div>
+                                                    <div>
+                                                        <small class="text-muted d-block">${translations['modifiedTime'] || 'Modified'}</small>
+                                                        <strong>${info.created_formatted || translations['unknown'] || 'Unknown'}</strong>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            ${!isDir && info.mime_type ? `
+                                            <div class="col-md-6">
+                                                <div class="d-flex align-items-center mb-3">
+                                                    <div class="bg-light rounded p-3 me-3" style="width: 48px; height: 48px; display: flex; align-items: center; justify-content: center;">
+                                                        <i class="fas fa-file-alt text-primary"></i>
+                                                    </div>
+                                                    <div>
+                                                        <small class="text-muted d-block">${translations['mime_type'] || 'MIME Type'}</small>
+                                                        <strong>${getMimeType(info.extension) || translations['unknown'] || 'Unknown'}</strong>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            ` : ''}
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="mb-4">
+                                        <h6 class="text-muted mb-3"><i class="fas fa-shield-alt me-1"></i> ${translations['permissions'] || 'Permissions'}</h6>
+                                        <div class="row g-3">
+                                            <div class="col-md-6">
+                                                <div class="d-flex align-items-center mb-3">
+                                                    <div class="bg-light rounded p-3 me-3" style="width: 48px; height: 48px; display: flex; align-items: center; justify-content: center;">
+                                                        <i class="fas fa-lock text-primary"></i>
+                                                    </div>
+                                                    <div>
+                                                        <small class="text-muted d-block">${translations['permissions'] || 'Permissions'}</small>
+                                                        <div class="d-flex align-items-center mt-1">
+                                                            <span class="badge bg-dark me-2">${info.permissions || '----'}</span>
+                                                            <button class="btn btn-sm btn-outline-primary" onclick="showChmodDialogForPath('${escapeHtml(path)}')">
+                                                                <i class="fas fa-edit me-1"></i> ${translations['change'] || 'Change'}
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <div class="d-flex align-items-center mb-3">
+                                                    <div class="bg-light rounded p-3 me-3" style="width: 48px; height: 48px; display: flex; align-items: center; justify-content: center;">
+                                                        <i class="fas fa-user text-primary"></i>
+                                                    </div>
+                                                    <div>
+                                                        <small class="text-muted d-block">${translations['owner'] || 'Owner'}</small>
+                                                        <strong>${escapeHtml(info.owner || translations['unknown'] || 'Unknown')}</strong>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <div class="d-flex align-items-center mb-3">
+                                                    <div class="bg-light rounded p-3 me-3" style="width: 48px; height: 48px; display: flex; align-items: center; justify-content: center;">
+                                                        <i class="fas fa-users text-primary"></i>
+                                                    </div>
+                                                    <div>
+                                                        <small class="text-muted d-block">${translations['group'] || 'Group'}</small>
+                                                        <strong>${escapeHtml(info.group || translations['unknown'] || 'Unknown')}</strong>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                                <div class="d-flex align-items-center mb-3">
+                                                    <div class="bg-light rounded p-3 me-3" style="width: 48px; height: 48px; display: flex; align-items: center; justify-content: center;">
+                                                        <i class="fas fa-folder-open text-primary"></i>
+                                                    </div>
+                                                    <div>
+                                                        <small class="text-muted d-block">${translations['file_path'] || 'Path'}</small>
+                                                        <div class="mt-1">
+                                                            <code class="d-block text-break" style="word-break: break-all;" title="${escapeHtml(info.path || path)}">
+                                                                ${escapeHtml(info.path || path)}
+                                                            </code>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>`;
+
+            content.innerHTML = html;
+            
+            const modal = new bootstrap.Modal(document.getElementById('filePropertiesModal'));
+            modal.show();
+
+        } else {
+            content.innerHTML = `
+                <div class="alert alert-danger">
+                    <i class="fas fa-exclamation-triangle me-2"></i>
+                    ${data.error || translations['get_file_info_failed'] || 'Failed to get file info'}
+                </div>`;
+        }
+
+    } catch (error) {
+        content.innerHTML = `
+            <div class="alert alert-danger">
+                <i class="fas fa-exclamation-triangle me-2"></i>
+                ${translations['get_file_info_failed'] || 'Failed to get file info'}
+            </div>`;
+    }
+}
+
+function getMimeType(ext) {
+    if (!ext) return 'application/octet-stream';
+    
+    const mimeMap = {
+        'jpg': 'image/jpeg',
+        'jpeg': 'image/jpeg', 
+        'png': 'image/png',
+        'gif': 'image/gif',
+        'bmp': 'image/bmp',
+        'webp': 'image/webp',
+        'svg': 'image/svg+xml',
+        'ico': 'image/x-icon',
+        
+        'mp3': 'audio/mpeg',
+        'wav': 'audio/wav',
+        'ogg': 'audio/ogg',
+        'flac': 'audio/flac',
+        'm4a': 'audio/mp4',
+        'aac': 'audio/aac',
+        
+        'mp4': 'video/mp4',
+        'avi': 'video/x-msvideo',
+        'mkv': 'video/x-matroska',
+        'mov': 'video/quicktime',
+        'wmv': 'video/x-ms-wmv',
+        'flv': 'video/x-flv',
+        'webm': 'video/webm',
+        
+        'pdf': 'application/pdf',
+        
+        'zip': 'application/zip',
+        'tar': 'application/x-tar',
+        'gz': 'application/gzip',
+        'bz2': 'application/x-bzip2',
+        '7z': 'application/x-7z-compressed',
+        'rar': 'application/x-rar-compressed',
+        
+        'txt': 'text/plain',
+        'log': 'text/plain',
+        'conf': 'text/plain',
+        'ini': 'text/plain',
+        'json': 'application/json',
+        'xml': 'application/xml',
+        'html': 'text/html',
+        'htm': 'text/html',
+        'css': 'text/css',
+        'js': 'application/javascript',
+        'php': 'application/x-httpd-php',
+        'py': 'text/x-python',
+        'sh': 'application/x-sh',
+        'md': 'text/markdown'
+    };
+    
+    const lowerExt = ext.toLowerCase();
+    return mimeMap[lowerExt] || 'application/octet-stream';
+}
+
+function escapeHtml(text) {
+    if (text === null || text === undefined) return '';
+    
+    const div = document.createElement('div');
+    div.textContent = String(text);
+    return div.innerHTML;
+}
+
+function showChmodDialog() {
+    if (!fileContextMenuTarget) return;
+    
+    const path = fileContextMenuTarget.getAttribute('data-path');
+    
+    fetch(`?action=get_file_info&path=${encodeURIComponent(path)}`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.success && data.info) {
+                document.getElementById('chmodPath').value = path;
+                
+                const currentPerms = data.info.permissions || '0644';
+                const cleanPerms = currentPerms.replace(/^0+/, '') || '644';
+                document.getElementById('permissions').value = cleanPerms;
+                
+                const fileName = path.split('/').pop();
+                document.getElementById('chmodModalLabel').innerText =
+                    `${translations['chmod_set_permissions'] || 'Set Permissions'}: ${fileName}`;
+                
+                hideFileContextMenu();
+                
+                const modal = new bootstrap.Modal(document.getElementById('chmodModal'));
+                modal.show();
+            } else {
+                showLogMessage(translations['chmod_cannot_get_info'] || 'Cannot get file information', 'error');
+            }
+        })
+        .catch(error => {
+            showLogMessage(translations['chmod_get_info_failed'] || 'Failed to get file information', 'error');
+        });
+}
+
+function validateChmod() {
+    const path = document.getElementById('chmodPath').value;
+    const permissions = document.getElementById('permissions').value.trim();
+    
+    if (!path) {
+        showLogMessage(translations['chmod_invalid_path'] || 'Invalid file path', 'error');
+        return false;
+    }
+    
+    if (!/^[0-7]{3,4}$/.test(permissions)) {
+        showLogMessage(translations['chmod_invalid_format'] || 'Please enter 3-4 digit octal number (0-7)', 'error');
+        return false;
+    }
+    
+    savePermissions(path, permissions);
+    return false;
+}
+
+async function savePermissions(path, permissions) {
+    try {
+        const formData = new FormData();
+        formData.append('path', path);
+        formData.append('permissions', permissions);
+        
+        const response = await fetch('?action=change_permissions', {
+            method: 'POST',
+            body: formData
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            const Message = translations['chmod_success'] || 'Permissions modified successfully';
+            showLogMessage(Message);
+            speakMessage(Message);
+            
+            const modal = bootstrap.Modal.getInstance(document.getElementById('chmodModal'));
+            if (modal) modal.hide();
+            
+            refreshFiles();
+        } else {
+            showLogMessage(
+                `${translations['chmod_failed'] || 'Modification failed'}: ${data.error || translations['unknown_error'] || 'Unknown error'}`,
+                'error'
+            );
+        }
+    } catch (error) {
+        showLogMessage(`${translations['chmod_failed'] || 'Modification failed'}: ${error.message}`, 'error');
+    }
+}
+
+function showChmodDialogForPath(path) {
+    document.getElementById('chmodPath').value = path;
+    document.getElementById('permissions').value = '';
+    
+    const propertiesModal = bootstrap.Modal.getInstance(document.getElementById('filePropertiesModal'));
+    if (propertiesModal) propertiesModal.hide();
+    
+    const modal = new bootstrap.Modal(document.getElementById('chmodModal'));
+    modal.show();
+}
+
+async function searchFiles() {
+    const searchTerm = document.getElementById('searchInput').value.trim();
+    
+    if (!searchTerm) {
+        showLogMessage(translations['search_enter_term'] || 'Please enter search term', 'warning');
+        return;
+    }
+    
+    const resultsContainer = document.getElementById('searchResults');
+    resultsContainer.innerHTML = `
+        <div class="text-center py-4">
+            <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">${translations['searching'] || 'Searching...'}</span>
+            </div>
+            <p class="mt-2">${translations['searching'] || 'Searching...'}</p>
+        </div>`;
+    
+    try {
+        const response = await fetch(`?action=search&term=${encodeURIComponent(searchTerm)}`);
+        const data = await response.json();
+        
+        if (data.success) {
+            const results = data.results;
+            resultsContainer.innerHTML = '';
+            
+            if (results.length === 0) {
+                resultsContainer.innerHTML = `
+                    <div class="text-center text-muted py-4">
+                        <i class="fas fa-search fa-2x mb-2"></i>
+                        <h6>${translations['search_no_results'] || 'No matching files found'}</h6>
+                        <p class="small">${translations['search_try_diff_keyword'] || 'Try different keywords'}</p>
+                    </div>`;
+                return;
+            }
+            
+            const header = document.createElement('div');
+            header.className = 'alert alert-info mb-3';
+            header.innerHTML = `
+                <i class="fas fa-info-circle me-2"></i>
+                ${translations['search_found_matches'] || 'Found'} ${results.length} ${translations['search_matches'] || 'matches'}
+            `;
+            resultsContainer.appendChild(header);
+            
+            const list = document.createElement('div');
+            list.className = 'list-group';
+            
+            results.forEach(file => {
+                const item = document.createElement('div');
+                item.className = 'list-group-item list-group-item-action';
+                item.style.cssText = `
+                    cursor: pointer;
+                    border: none;
+                    background: var(--bg-container);
+                    margin-bottom: 8px;
+                    border-radius: 8px;
+                    transition: all 0.2s;
+                `;
+                
+                item.addEventListener('mouseenter', function() {
+                    this.style.background = 'color-mix(in oklch, var(--bg-container), transparent 20%)';
+                });
+                
+                item.addEventListener('mouseleave', function() {
+                    this.style.background = 'var(--bg-container)';
+                });
+                
+                let displayPath = file.path;
+                if (displayPath.startsWith('//')) displayPath = displayPath.substring(1);
+                
+                item.innerHTML = `
+                    <div class="d-flex align-items-center">
+                        <div class="me-3">
+                            <i class="fas ${file.is_dir ? 'fa-folder text-warning' : 'fa-file text-primary'} fa-lg"></i>
+                        </div>
+                        <div class="flex-grow-1">
+                            <div class="fw-medium">${escapeHtml(file.name)}</div>
+                            <div class="small text-muted">
+                                <span>${file.size_formatted}</span>
+                                <span class="mx-2">•</span>
+                                <span>${file.modified_formatted}</span>
+                            </div>
+                            <div class="small">
+                                <code class="text-truncate d-block" style="max-width: 500px;">
+                                    ${escapeHtml(displayPath)}
+                                </code>
+                            </div>
+                        </div>
+                        <div>
+                            <button class="btn btn-sm btn-outline-primary" 
+                                    onclick="openFileDirectory('${escapeHtml(file.path)}', ${file.is_dir})"
+                                    style="white-space: nowrap;">
+                                <i class="fas fa-folder-open"></i>
+                                ${translations['search_open_directory'] || 'Open Directory'}
+                            </button>
+                        </div>
+                    </div>
+                `;
+                
+                list.appendChild(item);
+            });
+            
+            resultsContainer.appendChild(list);
+        } else {
+            resultsContainer.innerHTML = `
+                <div class="alert alert-danger">
+                    <i class="fas fa-exclamation-triangle me-2"></i>
+                    ${translations['search_failed'] || 'Search failed'}: ${data.error || translations['unknown_error'] || 'Unknown error'}
+                </div>`;
+        }
+    } catch (error) {
+        resultsContainer.innerHTML = `
+            <div class="alert alert-danger">
+                <i class="fas fa-exclamation-triangle me-2"></i>
+                ${translations['search_error'] || 'Search error'}: ${error.message}
+            </div>`;
+    }
+}
+
+function openFileDirectory(filePath, isDir) {
+    let fixedPath = filePath.startsWith('//') ? filePath.substring(1) : filePath;
+    const targetDir = isDir ? fixedPath : fixedPath.substring(0, fixedPath.lastIndexOf('/'));
+    
+    const modal = bootstrap.Modal.getInstance(document.getElementById('searchModal'));
+    if (modal) modal.hide();
+    
+    navigateTo(targetDir);
+    
+    showLogMessage(`${translations['search_navigated_to'] || 'Navigated to'}: ${targetDir}`, 'info');
+}
+
+let editorTabs = [];
+let activeEditorTab = null;
+
+function openEditor(path) {
+    if (!path) return;
+    
+    const existingTab = editorTabs.find(tab => tab.path === path);
+    if (existingTab) {
+        switchToEditorTab(existingTab.id);
+        return;
+    }
+    
+    const tabId = `editor-tab-${Date.now()}`;
+    const fileName = path.split('/').pop();
+    
+    const newTab = {
+        id: tabId,
+        path: path,
+        name: fileName,
+        content: '',
+        originalContent: '',
+        modified: false,
+        loading: true,
+        editorMode: currentEditorMode,
+        monacoEditorInstance: null
+    };
+    
+    editorTabs.push(newTab);
+    activeEditorTab = tabId;
+    
+    updateEditorUI();
+    loadFileContent(path, tabId);
+    updateEditorTabsSwitcher();
+}
+
+async function loadFileContent(path, tabId) {
+    try {
+        const response = await fetch(`?action=read_file&path=${encodeURIComponent(path)}`);
+        const data = await response.json();
+        
+        const tab = editorTabs.find(t => t.id === tabId);
+        if (!tab) return;
+        
+        if (data.success) {
+            let content = '';
+            
+            if (data.is_base64 && data.content_base64) {
+                try {
+                    const binaryString = atob(data.content_base64);
+                    const bytes = new Uint8Array(binaryString.length);
+                    for (let i = 0; i < binaryString.length; i++) {
+                        bytes[i] = binaryString.charCodeAt(i);
+                    }
+                    
+                    const decoder = new TextDecoder('utf-8');
+                    content = decoder.decode(bytes);
+                    
+                    if (!content || content.length === 0) {
+                        content = decodeURIComponent(escape(binaryString));
+                    }
+                    
+                } catch (e) {
+                    console.warn('Base64 decode error, trying alternative method:', e);
+                    
+                    try {
+                        const decoded = decodeURIComponent(escape(atob(data.content_base64)));
+                        content = decoded;
+                    } catch (e2) {
+                        console.error('Alternative decode also failed:', e2);
+                        content = data.content || 'Decoding error';
+                    }
+                }
+            } else {
+                content = data.content || '';
+            }
+            
+            tab.content = content;
+            tab.originalContent = content;
+            tab.loading = false;
+            
+            setTimeout(() => {
+                updateCharCount(tabId);
+                console.log('Character count after loading:', content.length);
+            }, 200);
+            
+            const editorMode = tab.editorMode || currentEditorMode;
+            
+            if (editorMode === 'advanced') {
+                if (tab.monacoEditorInstance) {
+                    tab.monacoEditorInstance.setValue(tab.content);
+                }
+            } else {
+                const simpleEditor = document.getElementById(`${tabId}-simple-editor`);
+                if (simpleEditor) {
+                    simpleEditor.value = tab.content;
+                    simpleEditor.readOnly = false;
+                    
+                    setTimeout(() => {
+                        simpleEditor.style.height = 'auto';
+                        simpleEditor.style.height = simpleEditor.scrollHeight + 'px';
+                    }, 100);
+                }
+            }
+            
+        } else {
+            const simpleEditor = document.getElementById(`${tabId}-simple-editor`);
+            if (simpleEditor) {
+                simpleEditor.value = `Error: ${data.error || 'Unknown error'}`;
+                simpleEditor.readOnly = true;
+            }
+            tab.loading = false;
+        }
+        
+        updateEditorUI();
+    } catch (error) {
+        const simpleEditor = document.getElementById(`${tabId}-simple-editor`);
+        if (simpleEditor) {
+            simpleEditor.value = `Error: ${error.message}`;
+            simpleEditor.readOnly = true;
+        }
+        
+        const tab = editorTabs.find(t => t.id === tabId);
+        if (tab) tab.loading = false;
+        
+        updateEditorUI();
+    }
+}
+
+function markEditorAsModified(tabId) {
+    const tab = editorTabs.find(t => t.id === tabId);
+    if (tab && !tab.loading) {
+        const editorMode = tab.editorMode || currentEditorMode;
+        
+        if (editorMode === 'advanced' && tab.monacoEditorInstance) {
+            tab.modified = tab.monacoEditorInstance.getValue() !== tab.originalContent;
+        } else {
+            const simpleEditor = document.getElementById(`${tabId}-simple-editor`);
+            if (simpleEditor && !simpleEditor.readOnly) {
+                tab.modified = simpleEditor.value !== tab.originalContent;
+            }
+        }
+        
+        updateCharCount(tabId);
+        updateEditorTabsUI();
+    }
+}
+
+async function saveEditorContent(tabId) {
+    const tab = editorTabs.find(t => t.id === tabId);
+    if (!tab) {
+        showLogMessage(translations['save_failed_tab_missing'] || 'Save failed: Tab does not exist', 'error');
+        return;
+    }
+    
+    if (tab.loading) {
+        showLogMessage(translations['save_wait_loading'] || 'File is loading, please save later', 'warning');
+        return;
+    }
+    
+    const editorMode = tab.editorMode || currentEditorMode;
+    let content = '';
+    
+    if (editorMode === 'advanced' && tab.monacoEditorInstance) {
+        content = tab.monacoEditorInstance.getValue();
+        tab.content = content;
+    } else {
+        const simpleEditor = document.getElementById(`${tabId}-simple-editor`);
+        if (simpleEditor && !simpleEditor.readOnly) {
+            content = simpleEditor.value;
+            tab.content = content;
+        } else {
+            content = tab.content || '';
+        }
+    }
+    
+    if (content === undefined || content === null) {
+        showLogMessage(translations['save_failed_empty'] || 'Save failed: Editor content is empty', 'error');
+        return;
+    }
+    
+    try {
+        const saveBtn = document.querySelector(`[onclick*="${tabId}"]`);
+        if (saveBtn) {
+            saveBtn.disabled = true;
+            saveBtn.innerHTML = `<i class="fas fa-spinner fa-spin"></i> ${translations['saving'] || 'Saving...'}`;
+        }
+        
+        const formData = new FormData();
+        formData.append('path', tab.path);
+        
+        if (content.length > 0) {
+            try {
+                const base64Content = btoa(unescape(encodeURIComponent(content)));
+                formData.append('content', base64Content);
+                formData.append('is_base64', '1');
+            } catch (e) {
+                formData.append('content', content);
+                formData.append('is_base64', '0');
+            }
+        } else {
+            formData.append('content', '');
+            formData.append('is_base64', '0');
+        }
+        
+        const response = await fetch('?action=save_file', {
+            method: 'POST',
+            body: formData
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            const Message = translations['save_success'] || 'File saved successfully';
+            showLogMessage(Message);
+            speakMessage(Message);
+            
+            tab.modified = false;
+            tab.content = content;
+            tab.originalContent = content;
+            
+            updateEditorUI();
+            refreshFiles();
+            
+        } else {
+            showLogMessage(`${translations['save_failed'] || 'Save failed'}: ${data.error}`, 'error');
+        }
+        
+    } catch (error) {
+        showLogMessage(`${translations['save_failed'] || 'Save failed'}: ${error.message}`, 'error');
+    } finally {
+        const saveBtn = document.querySelector(`[onclick*="${tabId}"]`);
+        if (saveBtn) {
+            saveBtn.disabled = false;
+            saveBtn.innerHTML = `<i class="fas fa-save"></i> ${translations['save'] || 'Save'}`;
+        }
+    }
+}
+
+function switchToEditorTab(tabId) {
+    activeEditorTab = tabId;
+    
+    const editorPanel = document.getElementById('editorPanel');
+    if (editorPanel.style.display === 'block') {
+        updateEditorPanelContent();
+    }
+    
+    updateEditorTabsSwitcher();
+}
+
+function toggleEditorPanel() {
+    const editorPanel = document.getElementById('editorPanel');
+    const toggleIcon = document.getElementById('editorToggleIcon');
+    
+    if (editorPanel.style.display === 'none' || editorPanel.style.display === '') {
+        editorPanel.style.display = 'block';
+        editorPanel.style.maxHeight = '100%';
+        toggleIcon.className = 'fas fa-chevron-up';
+        
+        updateEditorPanelContent();
+    } else {
+        editorPanel.style.maxHeight = '0';
+        setTimeout(() => {
+            editorPanel.style.display = 'none';
+        }, 300);
+        toggleIcon.className = 'fas fa-chevron-down';
+    }
+}
+
+function updateActiveEditor() {
+    document.querySelectorAll('.editor-container').forEach(container => {
+        container.style.display = 'none';
+    });
+    
+    if (activeEditorTab) {
+        const activeContainer = document.getElementById(`${activeEditorTab}-container`);
+        if (activeContainer) {
+            activeContainer.style.display = 'flex';
+        }
+    }
+}
+
+function loadMonacoEditor() {
+    if (monacoLoaded) return Promise.resolve();
+    if (monacoLoading) return new Promise(resolve => setTimeout(() => resolve(loadMonacoEditor()), 100));
+    
+    monacoLoading = true;
+    
+    return new Promise((resolve, reject) => {
+        if (!document.querySelector('link[href*="monaco-editor"]')) {
+            const link = document.createElement('link');
+            link.rel = 'stylesheet';
+            link.href = '/luci-static/spectra/css/editor.main.css';
+            document.head.appendChild(link);
+        }
+        
+        if (window.require) {
+            if (window.monaco && window.monaco.editor) {
+                monacoLoaded = true;
+                monacoLoading = false;
+                resolve();
+                return;
+            }
+        }
+        
+        const script = document.createElement('script');
+        script.src = '/luci-static/spectra/js/loader.js';
+        script.onload = () => {
+            require.config({ 
+                paths: { 
+                    'vs': 'https://cdn.jsdelivr.net/npm/monaco-editor@0.55.1/min/vs' 
+                } 
+            });
+            
+            require(['vs/editor/editor.main'], () => {
+                defineCustomThemes();
+                
+                monacoLoaded = true;
+                monacoLoading = false;
+                resolve();
+            });
+        };
+        script.onerror = (error) => {
+            monacoLoading = false;
+            reject(error);
+        };
+        document.head.appendChild(script);
+    });
+}
+
+function defineCustomThemes() {
+    monaco.editor.defineTheme('dark-plus', {
+        base: 'vs-dark',
+        inherit: true,
+        rules: [
+            { token: 'comment', foreground: '6A9955' },
+            { token: 'keyword', foreground: 'C586C0' },
+            { token: 'string', foreground: 'CE9178' },
+            { token: 'number', foreground: 'B5CEA8' },
+            { token: 'type', foreground: '4EC9B0' },
+            { token: 'class', foreground: '4EC9B0' },
+            { token: 'function', foreground: 'DCDCAA' }
+        ],
+        colors: {
+            'editor.background': '#1E1E1E',
+            'editor.foreground': '#D4D4D4',
+            'editorCursor.foreground': '#FFFFFF',
+            'editor.lineHighlightBackground': '#2D2D30',
+            'editorLineNumber.foreground': '#858585',
+            'editor.selectionBackground': '#264F78',
+            'editor.inactiveSelectionBackground': '#3A3D41'
+        }
+    });
+    
+    monaco.editor.defineTheme('github-light', {
+        base: 'vs',
+        inherit: true,
+        rules: [
+            { token: 'comment', foreground: '6a737d' },
+            { token: 'keyword', foreground: 'd73a49' },
+            { token: 'string', foreground: '032f62' },
+            { token: 'number', foreground: '005cc5' },
+            { token: 'type', foreground: '6f42c1' }
+        ],
+        colors: {
+            'editor.background': '#ffffff',
+            'editor.foreground': '#24292e',
+            'editor.lineHighlightBackground': '#f6f8fa'
+        }
+    });
+
+    monaco.editor.defineTheme('my-custom-theme', {
+        base: 'vs-dark',
+        inherit: true,
+        rules: [
+            { token: 'comment', foreground: 'ffa500', fontStyle: 'italic' },
+            { token: 'keyword', foreground: 'ff79c6' },
+            { token: 'string', foreground: '8be9fd' },
+            { token: 'keyword.php', foreground: 'ff79c6' },
+            { token: 'string.php', foreground: '8be9fd' },
+            { token: 'variable.php', foreground: '50fa7b' }
+        ],
+        colors: {
+            'editor.foreground': '#f8f8f2',
+            'editor.background': '#282a36',
+            'editorCursor.foreground': '#f8f8f0',
+            'editor.lineHighlightBackground': '#44475a',
+            'editorLineNumber.foreground': '#6272a4',
+            'editor.selectionBackground': '#44475a'
+        }
+    });
+    
+    monaco.editor.defineTheme('monokai', {
+        base: 'vs-dark',
+        inherit: true,
+        rules: [
+            { token: 'comment', foreground: '75715E' },
+            { token: 'string', foreground: 'E6DB74' },
+            { token: 'keyword', foreground: 'F92672' },
+            { token: 'number', foreground: 'AE81FF' },
+            { token: 'type', foreground: '66D9EF' },
+            { token: 'class', foreground: 'A6E22E' },
+            { token: 'function', foreground: 'A6E22E' },
+            { token: 'variable', foreground: 'F8F8F2' }
+        ],
+        colors: {
+            'editor.background': '#272822',
+            'editor.foreground': '#F8F8F2',
+            'editorCursor.foreground': '#F8F8F2',
+            'editor.lineHighlightBackground': '#3E3D32',
+            'editorLineNumber.foreground': '#90908A'
+        }
+    });
+    
+    monaco.editor.defineTheme('solarized-dark', {
+        base: 'vs-dark',
+        inherit: true,
+        rules: [
+            { token: 'comment', foreground: '586E75' },
+            { token: 'string', foreground: '2AA198' },
+            { token: 'keyword', foreground: '859900' },
+            { token: 'number', foreground: 'D33682' },
+            { token: 'type', foreground: 'B58900' },
+            { token: 'class', foreground: 'CB4B16' }
+        ],
+        colors: {
+            'editor.background': '#002B36',
+            'editor.foreground': '#839496',
+            'editorCursor.foreground': '#93A1A1',
+            'editor.lineHighlightBackground': '#073642'
+        }
+    });
+}
+
+function switchEditorMode(mode, tabId) {
+    const tab = editorTabs.find(t => t.id === tabId);
+    if (!tab) return;
+    
+    const modeText = document.getElementById(`editorModeText-${tabId}`);
+    if (modeText) {
+        modeText.textContent = mode === 'simple' 
+            ? (translations['switch_to_advanced_editor'] || 'Switch to Advanced Editor') 
+            : (translations['switch_to_simple_editor'] || 'Switch to Simple Editor');
+    }
+    
+    if (tab.editorMode === 'advanced' && tab.monacoEditorInstance) {
+        const model = tab.monacoEditorInstance.getModel();
+        if (model) {
+            tab.viewState = tab.monacoEditorInstance.saveViewState();
+        }
+        tab.monacoEditorInstance.dispose();
+        tab.monacoEditorInstance = null;
+    }
+    
+    tab.editorMode = mode;
+    
+    updateEditorUI();
+    
+    if (mode === 'advanced') {
+        loadMonacoEditor().then(() => {
+            setTimeout(() => {
+                initMonacoEditor(tabId);
+                setTimeout(() => {
+                    if (tab.monacoEditorInstance) {
+                        tab.monacoEditorInstance.setValue(tab.content || '');
+                        
+                        if (tab.viewState) {
+                            setTimeout(() => {
+                                tab.monacoEditorInstance.restoreViewState(tab.viewState);
+                                tab.monacoEditorInstance.focus();
+                            }, 50);
+                        }
+                    }
+                }, 100);
+            }, 50);
+        }).catch(error => {
+            tab.editorMode = 'simple';
+            updateEditorUI();
+            showLogMessage(
+                translations['advanced_editor_load_failed'] || 'Failed to load advanced editor, switched back to simple editor', 
+                'error'
+            );
+        });
+    } else {
+        setTimeout(() => {
+            const simpleEditor = document.getElementById(`${tabId}-simple-editor`);
+            if (simpleEditor) {
+                simpleEditor.value = tab.content || '';
+                
+                simpleEditor.style.height = 'auto';
+                simpleEditor.style.height = (simpleEditor.scrollHeight + 10) + 'px';
+                simpleEditor.focus();
+                
+                setupSimpleEditorEvents(tabId);
+            }
+            updateCharCount(tabId);
+        }, 100);
+    }
+}
+
+function setupSimpleEditorEvents(tabId) {
+    const simpleEditor = document.getElementById(`${tabId}-simple-editor`);
+    if (!simpleEditor) return;
+    
+    const newEditor = simpleEditor.cloneNode(true);
+    simpleEditor.parentNode.replaceChild(newEditor, simpleEditor);
+    
+    newEditor.addEventListener('input', function() {
+        const tab = editorTabs.find(t => t.id === tabId);
+        if (tab) {
+            const isModified = (this.value !== tab.originalContent);
+            if (tab.modified !== isModified) {
+                tab.modified = isModified;
+                updateEditorTabsUI();
+            }
+        }
+        
+        this.style.height = 'auto';
+        this.style.height = (this.scrollHeight + 10) + 'px';
+        
+        updateCharCount(tabId);
+    });
+    
+    newEditor.addEventListener('keydown', function(e) {
+        if (e.key === 'Tab') {
+            e.preventDefault();
+            const start = this.selectionStart;
+            const end = this.selectionEnd;
+            
+            this.value = this.value.substring(0, start) + '    ' + this.value.substring(end);
+            this.selectionStart = this.selectionEnd = start + 4;
+            this.dispatchEvent(new Event('input'));
+        }
+    });
+}
+
+async function initMonacoEditor(tabId) {
+    const tab = editorTabs.find(t => t.id === tabId);
+    if (!tab) return;
+    
+    if (!monacoLoaded) {
+        try {
+            await loadMonacoEditor();
+        } catch (error) {
+            console.error('Failed to load Monaco Editor:', error);
+            showLogMessage(translations['load_advanced_editor_failed'] || 'Failed to load advanced editor, switched back to simple editor', 'error');
+            switchEditorMode('simple', tabId);
+            return;
+        }
+    }
+    
+    const container = document.getElementById(`${tabId}-monaco-container`);
+    if (!container) return;
+    
+    if (tab.monacoEditorInstance) {
+        tab.monacoEditorInstance.dispose();
+        tab.monacoEditorInstance = null;
+    }
+    
+    container.innerHTML = '';
+    
+    try {
+        if (!completionProvidersRegistered) {
+            registerGlobalCompletionProviders();
+            completionProvidersRegistered = true;
+        }
+
+        const savedFontSize = localStorage.getItem('editorFontSize') || '16';
+        const detectedLanguage = detectLanguage(tab.name);
+        const theme = localStorage.getItem('editorTheme') || 'vs-dark';
+        
+        const editor = monaco.editor.create(container, {
+            value: tab.content || '',
+            language: detectedLanguage,
+            theme: theme,
+            automaticLayout: true,
+            fontSize: parseInt(savedFontSize),
+            lineNumbers: 'on',
+            minimap: { 
+                enabled: true,
+                scale: 2,
+                showSlider: 'always'
+            },
+            autoIndent: 'full',
+            autoClosingBrackets: 'always',
+            autoClosingQuotes: 'always',
+            autoSurround: 'languageDefined',
+            indentSize: 4,
+            tabSize: 4,
+            insertSpaces: true,
+            useTabStops: true,
+            scrollBeyondLastLine: true,
+            wordWrap: 'on',
+            wrappingIndent: 'indent',
+            renderLineHighlight: 'all',
+            scrollbar: {
+                vertical: 'auto',
+                horizontal: 'auto',
+                verticalHasArrows: true,
+                horizontalHasArrows: true,
+                verticalScrollbarSize: 12,
+                horizontalScrollbarSize: 12,
+                arrowSize: 20
+            },
+            formatOnPaste: true,
+            formatOnType: true,
+            suggestOnTriggerCharacters: true,
+            acceptSuggestionOnEnter: 'on',
+            tabCompletion: 'on',
+            wordBasedSuggestions: 'allDocuments',
+            parameterHints: { 
+                enabled: true,
+                cycle: true
+            },
+            hover: { 
+                enabled: true,
+                delay: 300
+            },
+            contextmenu: true,
+            quickSuggestions: { 
+                other: true, 
+                comments: true, 
+                strings: true 
+            },
+            suggest: {
+                showWords: true,
+                showKeywords: true,
+                showSnippets: true,
+                showClasses: true,
+                showFunctions: true,
+                showVariables: true,
+                showModules: true,
+                showReferences: true
+            },
+            snippetSuggestions: 'bottom',
+            inlineSuggest: {
+                enabled: true,
+                mode: 'prefix'
+            },
+            guides: {
+                bracketPairs: true,
+                highlightActiveBracketPair: true,
+                indentation: true
+            },
+            bracketPairColorization: {
+                enabled: true
+            },
+            cursorBlinking: 'blink',
+            cursorSmoothCaretAnimation: 'on',
+            cursorStyle: 'line',
+            folding: true,
+            foldingStrategy: 'auto',
+            foldingHighlight: true,
+            foldingImportsByDefault: true,
+            smoothScrolling: true,
+            mouseWheelZoom: true,
+            multiCursorMergeOverlapping: true,
+            overviewRulerLanes: 3,
+            fixedOverflowWidgets: true,
+            lineDecorationsWidth: 10,
+            padding: { top: 10, bottom: 10 },
+            renderWhitespace: 'selection',
+
+
+            rulers: [],
+            selectionClipboard: true,
+            selectionHighlight: true,
+            semanticHighlighting: {
+                enabled: true
+            },
+            showFoldingControls: 'always',
+            showUnused: true,
+            stickyScroll: {
+                enabled: true,
+                maxLineCount: 5
+            },
+            unicodeHighlight: {
+                ambiguousCharacters: true,
+                invisibleCharacters: true
+            },
+            wordSeparators: '`~!@#$%^&*()-=+[{]}\\|;:\'",.<>/?',
+            wrappingStrategy: 'advanced'
+        });
+        
+        tab.monacoEditorInstance = editor;
+
+        editor.onDidChangeModelContent(() => {
+            const currentContent = editor.getValue();
+            
+            if (tab.editorMode === 'advanced') {
+                tab.content = currentContent;
+            }
+            
+            tab.modified = (currentContent !== tab.originalContent);
+            updateCharCount(tabId);
+            updateEditorTabsUI();
+        });
+        
+        editor.onDidChangeCursorPosition((e) => {
+            updateEditorPositionInfo(tabId, e.position.lineNumber, e.position.column);
+        });
+        
+        editor.onDidChangeCursorSelection((e) => {
+            const selection = e.selection;
+            const selectedText = editor.getModel()?.getValueInRange(selection) || '';
+            updateSelectedTextInfo(tabId, selectedText);
+        });
+        
+        setupEditorShortcuts(editor, tabId);
+        
+        setTimeout(() => {
+            const languageSelect = document.getElementById(`${tabId}-language-select`);
+            if (languageSelect) {
+                languageSelect.value = detectedLanguage;
+            }
+            
+            const fontSizeSelect = document.querySelector(`#${tabId}-panel-container .editor-fontsize-select`);
+            if (fontSizeSelect) {
+                fontSizeSelect.value = savedFontSize;
+            }
+            
+            const themeSelect = document.querySelector(`#${tabId}-panel-container .editor-theme-select`);
+            if (themeSelect) {
+                themeSelect.value = theme;
+            }
+        }, 300);
+        
+        updateEditorPositionInfo(tabId, 1, 1);
+        
+    } catch (error) {
+        console.error('Failed to initialize Monaco Editor:', error);
+        showLogMessage(`${translations['init_advanced_editor_failed'] || 'Failed to initialize advanced editor'}: ${error.message}`, 'error');
+    }
+}
+
+function registerGlobalCompletionProviders() {
+    console.log('Registering global completion providers...');
+    
+    const globalCompletionProvider = {
+        provideCompletionItems: function(model, position) {
+            const word = model.getWordUntilPosition(position);
+            const range = {
+                startLineNumber: position.lineNumber,
+                endLineNumber: position.lineNumber,
+                startColumn: word.startColumn,
+                endColumn: word.endColumn
+            };
+            
+            const language = model.getLanguageIdentifier().language;
+            let suggestions = [];
+            
+            const commonSuggestions = [
+                { label: 'TODO', kind: monaco.languages.CompletionItemKind.Snippet, insertText: 'TODO: ${1:description}', detail: 'Todo item' },
+                { label: 'FIXME', kind: monaco.languages.CompletionItemKind.Snippet, insertText: 'FIXME: ${1:description}', detail: 'Fix needed' },
+                { label: 'NOTE', kind: monaco.languages.CompletionItemKind.Snippet, insertText: 'NOTE: ${1:description}', detail: 'Note' },
+                { label: 'BUG', kind: monaco.languages.CompletionItemKind.Snippet, insertText: 'BUG: ${1:description}', detail: 'Known bug' },
+                
+                // HTML
+                { label: 'div', kind: monaco.languages.CompletionItemKind.Keyword, insertText: '<div>${1:content}</div>', detail: 'div element' },
+                { label: 'span', kind: monaco.languages.CompletionItemKind.Keyword, insertText: '<span>${1:content}</span>', detail: 'span element' },
+                { label: 'p', kind: monaco.languages.CompletionItemKind.Keyword, insertText: '<p>${1:content}</p>', detail: 'paragraph' },
+                { label: 'a', kind: monaco.languages.CompletionItemKind.Keyword, insertText: '<a href="${1:#}">${2:link}</a>', detail: 'hyperlink' },
+                { label: 'img', kind: monaco.languages.CompletionItemKind.Keyword, insertText: '<img src="${1:src}" alt="${2:alt}">', detail: 'image' },
+                
+                // CSS
+                { label: 'color', kind: monaco.languages.CompletionItemKind.Property, insertText: 'color: ${1:#000};', detail: 'text color' },
+                { label: 'font-size', kind: monaco.languages.CompletionItemKind.Property, insertText: 'font-size: ${1:14}px;', detail: 'font size' },
+                { label: 'margin', kind: monaco.languages.CompletionItemKind.Property, insertText: 'margin: ${1:0};', detail: 'outer margin' },
+                { label: 'padding', kind: monaco.languages.CompletionItemKind.Property, insertText: 'padding: ${1:0};', detail: 'inner padding' },
+                
+                // JavaScript/TypeScript
+                { label: 'console.log', kind: monaco.languages.CompletionItemKind.Function, insertText: 'console.log(${1:value})', detail: 'output to console' },
+                { label: 'function', kind: monaco.languages.CompletionItemKind.Keyword, insertText: 'function ${1:name}(${2:params}) {\n\t${3:// code}\n}', detail: 'define function' },
+                { label: 'arrow', kind: monaco.languages.CompletionItemKind.Snippet, insertText: '${1:name} = (${2:params}) => {\n\t${3:// code}\n}', detail: 'arrow function' },
+                { label: 'class', kind: monaco.languages.CompletionItemKind.Keyword, insertText: 'class ${1:ClassName} {\n\tconstructor(${2:params}) {\n\t\t${3:// code}\n\t}\n}', detail: 'define class' },
+                
+                // Python
+                { label: 'def', kind: monaco.languages.CompletionItemKind.Keyword, insertText: 'def ${1:function_name}(${2:params}):\n\t${3:# code}', detail: 'define function' },
+                { label: 'class', kind: monaco.languages.CompletionItemKind.Keyword, insertText: 'class ${1:ClassName}:\n\tdef __init__(self${2:, params}):\n\t\t${3:# code}', detail: 'define class' },
+                { label: 'print', kind: monaco.languages.CompletionItemKind.Function, insertText: 'print(${1:value})', detail: 'output to console' },
+                
+                // PHP
+                { label: 'function', kind: monaco.languages.CompletionItemKind.Keyword, insertText: 'function ${1:name}(${2:$params}) {\n\t${3:// code}\n}', detail: 'define function' },
+                { label: 'class', kind: monaco.languages.CompletionItemKind.Keyword, insertText: 'class ${1:ClassName} {\n\tpublic function __construct(${2:$params}) {\n\t\t${3:// code}\n\t}\n}', detail: 'define class' },
+                { label: 'echo', kind: monaco.languages.CompletionItemKind.Keyword, insertText: 'echo ${1:string};', detail: 'output string' },
+            ];
+            
+            suggestions = suggestions.concat(commonSuggestions);
+            
+            switch(language) {
+                case 'javascript':
+                case 'typescript':
+                    suggestions = suggestions.concat([
+                        { label: 'let', kind: monaco.languages.CompletionItemKind.Keyword, insertText: 'let ${1:variable} = ${2:value};', detail: 'declare variable' },
+                        { label: 'const', kind: monaco.languages.CompletionItemKind.Keyword, insertText: 'const ${1:variable} = ${2:value};', detail: 'declare constant' },
+                        { label: 'import', kind: monaco.languages.CompletionItemKind.Keyword, insertText: 'import ${1:module} from \'${2:path}\';', detail: 'import module' },
+                        { label: 'export', kind: monaco.languages.CompletionItemKind.Keyword, insertText: 'export ${1:default} ${2:name};', detail: 'export module' },
+                    ]);
+                    break;
+                    
+                case 'python':
+                    suggestions = suggestions.concat([
+                        { label: 'import', kind: monaco.languages.CompletionItemKind.Keyword, insertText: 'import ${1:module}', detail: 'import module' },
+                        { label: 'from', kind: monaco.languages.CompletionItemKind.Keyword, insertText: 'from ${1:module} import ${2:name}', detail: 'import from module' },
+                        { label: 'if', kind: monaco.languages.CompletionItemKind.Keyword, insertText: 'if ${1:condition}:\n\t${2:# code}', detail: 'conditional statement' },
+                        { label: 'for', kind: monaco.languages.CompletionItemKind.Keyword, insertText: 'for ${1:item} in ${2:iterable}:\n\t${3:# code}', detail: 'for loop' },
+                    ]);
+                    break;
+                    
+                case 'php':
+                    suggestions = suggestions.concat([
+                        { label: '$this', kind: monaco.languages.CompletionItemKind.Variable, insertText: '$this', detail: 'current object' },
+                        { label: 'public', kind: monaco.languages.CompletionItemKind.Keyword, insertText: 'public $${1:variable};', detail: 'public property' },
+                        { label: 'private', kind: monaco.languages.CompletionItemKind.Keyword, insertText: 'private $${1:variable};', detail: 'private property' },
+                        { label: 'protected', kind: monaco.languages.CompletionItemKind.Keyword, insertText: 'protected $${1:variable};', detail: 'protected property' },
+                    ]);
+                    break;
+                    
+                case 'html':
+                    suggestions = suggestions.concat([
+                        { label: 'input', kind: monaco.languages.CompletionItemKind.Keyword, insertText: '<input type="${1:text}" name="${2:name}" value="${3:value}">', detail: 'input field' },
+                        { label: 'button', kind: monaco.languages.CompletionItemKind.Keyword, insertText: '<button type="${1:button}">${2:label}</button>', detail: 'button' },
+                        { label: 'form', kind: monaco.languages.CompletionItemKind.Keyword, insertText: '<form action="${1:#}" method="${2:post}">\n\t${3:content}\n</form>', detail: 'form' },
+                        { label: 'table', kind: monaco.languages.CompletionItemKind.Keyword, insertText: '<table>\n\t<tr>\n\t\t<td>${1:content}</td>\n\t</tr>\n</table>', detail: 'table' },
+                    ]);
+                    break;
+                    
+                case 'css':
+                    suggestions = suggestions.concat([
+                        { label: 'background', kind: monaco.languages.CompletionItemKind.Property, insertText: 'background: ${1:#fff};', detail: 'background' },
+                        { label: 'border', kind: monaco.languages.CompletionItemKind.Property, insertText: 'border: ${1:1px solid #000};', detail: 'border' },
+                        { label: 'width', kind: monaco.languages.CompletionItemKind.Property, insertText: 'width: ${1:100}px;', detail: 'width' },
+                        { label: 'height', kind: monaco.languages.CompletionItemKind.Property, insertText: 'height: ${1:100}px;', detail: 'height' },
+                    ]);
+                    break;
+                    
+                case 'sql':
+                    suggestions = suggestions.concat([
+                        { label: 'SELECT', kind: monaco.languages.CompletionItemKind.Keyword, insertText: 'SELECT ${1:*} FROM ${2:table}', detail: 'select query' },
+                        { label: 'INSERT', kind: monaco.languages.CompletionItemKind.Keyword, insertText: 'INSERT INTO ${1:table} (${2:columns}) VALUES (${3:values})', detail: 'insert statement' },
+                        { label: 'UPDATE', kind: monaco.languages.CompletionItemKind.Keyword, insertText: 'UPDATE ${1:table} SET ${2:column}=${3:value} WHERE ${4:condition}', detail: 'update statement' },
+                        { label: 'DELETE', kind: monaco.languages.CompletionItemKind.Keyword, insertText: 'DELETE FROM ${1:table} WHERE ${2:condition}', detail: 'delete statement' },
+                    ]);
+                    break;
+            }
+            
+            return {
+                suggestions: suggestions.map(suggestion => ({
+                    ...suggestion,
+                    range: range,
+                    insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet
+                }))
+            };
+        }
+    };
+    
+    const languages = [
+        'plaintext', 'javascript', 'typescript', 'html', 'css', 'php', 
+        'python', 'java', 'c', 'cpp', 'csharp', 'go', 'rust', 'ruby',
+        'perl', 'lua', 'swift', 'kotlin', 'scala', 'dart', 'json',
+        'xml', 'yaml', 'toml', 'ini', 'sql', 'markdown', 'shell',
+        'powershell', 'batch', 'dockerfile', 'makefile'
+    ];
+    
+    languages.forEach(language => {
+        try {
+            monaco.languages.registerCompletionItemProvider(language, globalCompletionProvider);
+        } catch (e) {
+            //console.log(`Cannot register completion provider for ${language}:`, e.message);
+        }
+    });
+    
+    //console.log('Global completion providers registered successfully');
+}
+
+function setupEditorShortcuts(editor, tabId) {
+    editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyS, () => {
+        saveEditorContent(tabId);
+    });
+    
+    editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyF, () => {
+        editor.getAction('actions.find').run();
+    });
+    
+    editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyH, () => {
+        editor.getAction('editor.action.startFindReplaceAction').run();
+    });
+    
+    editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyG, () => {
+        editor.getAction('editor.action.gotoLine').run();
+    });
+    
+    editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.Space, () => {
+        editor.trigger('', 'editor.action.triggerSuggest', {});
+    });
+    
+    editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyMod.Shift | monaco.KeyCode.KeyF, () => {
+        editor.getAction('editor.action.formatDocument').run();
+    });
+    
+    editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyMod.Shift | monaco.KeyCode.KeyK, () => {
+        editor.getAction('editor.action.deleteLines').run();
+    });
+    
+    editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.Slash, () => {
+        editor.getAction('editor.action.commentLine').run();
+    });
+    
+    editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyMod.Shift | monaco.KeyCode.Slash, () => {
+        editor.getAction('editor.action.blockComment').run();
+    });
+    
+    editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.BracketLeft, () => {
+        editor.getAction('editor.action.indentLines').run();
+    });
+    
+    editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.BracketRight, () => {
+        editor.getAction('editor.action.outdentLines').run();
+    });
+    
+    editor.addCommand(monaco.KeyMod.Alt | monaco.KeyMod.Shift | monaco.KeyCode.ArrowDown, () => {
+        editor.getAction('editor.action.copyLinesDownAction').run();
+    });
+    
+    editor.addCommand(monaco.KeyMod.Alt | monaco.KeyCode.ArrowUp, () => {
+        editor.getAction('editor.action.moveLinesUpAction').run();
+    });
+    
+    editor.addCommand(monaco.KeyMod.Alt | monaco.KeyCode.ArrowDown, () => {
+        editor.getAction('editor.action.moveLinesDownAction').run();
+    });
+}
+
+function updateSelectedTextInfo(tabId, selectedText) {
+    const selectedTextElement = document.getElementById(`${tabId}-selected-text-info`);
+    if (selectedTextElement) {
+        if (selectedText) {
+            selectedTextElement.textContent = `${translations['selected'] || 'Selected'}: ${selectedText.length} ${translations['characters'] || 'Characters'}`;
+        } else {
+            selectedTextElement.textContent = '';
+        }
+    }
+}
+
+function detectLanguage(filename) {
+    const ext = filename.toLowerCase().split('.').pop();
+    const languageMap = {
+        'js': 'javascript',
+        'jsx': 'javascript',
+        'mjs': 'javascript',
+        'cjs': 'javascript',
+        'ts': 'typescript',
+        'tsx': 'typescript',
+        'vue': 'vue',
+        'svelte': 'html',
+        'html': 'html',
+        'htm': 'html',
+        'xhtml': 'html',
+        'css': 'css',
+        'scss': 'scss',
+        'sass': 'sass',
+        'less': 'less',
+        'styl': 'stylus',
+        
+        'php': 'php',
+        'php3': 'php',
+        'php4': 'php',
+        'php5': 'php',
+        'php7': 'php',
+        'phtml': 'php',
+        'py': 'python',
+        'pyw': 'python',
+        'pyc': 'python',
+        'pyo': 'python',
+        'pyz': 'python',
+        'java': 'java',
+        'class': 'java',
+        'jar': 'java',
+        'c': 'c',
+        'h': 'c',
+        'cpp': 'cpp',
+        'cc': 'cpp',
+        'cxx': 'cpp',
+        'hpp': 'cpp',
+        'hxx': 'cpp',
+        'cs': 'csharp',
+        'csx': 'csharp',
+        'go': 'go',
+        'rs': 'rust',
+        'rb': 'ruby',
+        'erb': 'ruby',
+        'pl': 'perl',
+        'pm': 'perl',
+        't': 'perl',
+        'lua': 'lua',
+        'swift': 'swift',
+        'kt': 'kotlin',
+        'kts': 'kotlin',
+        'scala': 'scala',
+        'sc': 'scala',
+        'dart': 'dart',
+        'r': 'r',
+        'rmd': 'rmarkdown',
+        'jl': 'julia',
+        'hs': 'haskell',
+        'lhs': 'haskell',
+        'elm': 'elm',
+        'clj': 'clojure',
+        'cljs': 'clojure',
+        'cljc': 'clojure',
+        'edn': 'clojure',
+        'ex': 'elixir',
+        'exs': 'elixir',
+        'erl': 'erlang',
+        'hrl': 'erlang',
+        'fs': 'fsharp',
+        'fsx': 'fsharp',
+        'fsi': 'fsharp',
+        
+        'jsx': 'javascript',
+        'tsx': 'typescript',
+        'vue': 'vue',
+        'svelte': 'html',
+        'astro': 'javascript',
+        
+        'json': 'json',
+        'json5': 'javascript',
+        'jsonc': 'json',
+        'xml': 'xml',
+        'xsl': 'xml',
+        'xslt': 'xml',
+        'xsd': 'xml',
+        'yaml': 'yaml',
+        'yml': 'yaml',
+        'toml': 'toml',
+        'ini': 'ini',
+        'conf': 'ini',
+        'cfg': 'ini',
+        'properties': 'properties',
+        'env': 'properties',
+        
+        'sql': 'sql',
+        'mysql': 'sql',
+        'pgsql': 'sql',
+        'psql': 'sql',
+        'plsql': 'sql',
+        'ddl': 'sql',
+        'dml': 'sql',
+        
+        'md': 'markdown',
+        'markdown': 'markdown',
+        'mdx': 'markdown',
+        'txt': 'plaintext',
+        'text': 'plaintext',
+        'log': 'plaintext',
+        'rst': 'restructuredtext',
+        'tex': 'latex',
+        
+        'sh': 'shell',
+        'bash': 'shell',
+        'zsh': 'shell',
+        'fish': 'shell',
+        'ps1': 'powershell',
+        'psm1': 'powershell',
+        'psd1': 'powershell',
+        'bat': 'batch',
+        'cmd': 'batch',
+        
+        'dockerfile': 'dockerfile',
+        'docker': 'dockerfile',
+        'makefile': 'makefile',
+        'mk': 'makefile',
+        'cmake': 'cmake',
+        'gradle': 'gradle',
+        'groovy': 'groovy',
+        'jenkinsfile': 'groovy',
+        
+        'j2': 'jinja',
+        'jinja': 'jinja',
+        'jinja2': 'jinja',
+        'twig': 'twig',
+        'njk': 'nunjucks',
+        'liquid': 'liquid',
+        'hbs': 'handlebars',
+        'handlebars': 'handlebars',
+        
+        'svg': 'xml',
+        'graphql': 'graphql',
+        'gql': 'graphql',
+        'proto': 'protobuf',
+        'thrift': 'thrift',
+        'avdl': 'avro',
+        'avsc': 'json',
+        'ipynb': 'json',
+        'csv': 'csv',
+        'tsv': 'plaintext',
+        'diff': 'diff',
+        'patch': 'diff',
+        
+        'hosts': 'hosts',
+        'nginx': 'nginx',
+        'apache': 'apache',
+        'htaccess': 'apache',
+        'htpasswd': 'apache',
+        'gitignore': 'gitignore',
+        'gitattributes': 'gitattributes',
+        'editorconfig': 'editorconfig',
+        'eslintrc': 'json',
+        'prettierrc': 'json',
+        'babelrc': 'json',
+        'tsconfig': 'json',
+        'package': 'json',
+        'lock': 'json',
+    };
+    
+    return languageMap[ext] || 'plaintext';
+}
+
+function updateEditorPositionInfo(tabId, line, column) {
+    const positionElement = document.getElementById(`${tabId}-position-info`);
+    if (positionElement) {
+        positionElement.textContent = `${translations['line_label'] || 'Line'}: ${line}, ${translations['column_label'] || 'Column'}: ${column}`;
+    }
+}
+
+function formatCode(tabId) {
+    const tab = editorTabs.find(t => t.id === tabId);
+    if (!tab || !tab.monacoEditorInstance) return;
+
+    const editor = tab.monacoEditorInstance;
+
+    try {
+        editor.getAction('editor.action.formatDocument').run();
+        showLogMessage(translations['code_format_success'] || 'Code formatted successfully', 'success');
+    } catch (error) {
+        showLogMessage(
+            `${translations['code_format_error'] || 'Code format error'}: ${error.message}`,
+            'error'
+        );
+    }
+}
+
+function changeEditorTheme(tabId, theme) {
+    const tab = editorTabs.find(t => t.id === tabId);
+    if (!tab) return;
+    
+    try {
+        const themes = {
+            'vs-dark': 'vs-dark',
+            'vs': 'vs',
+            'hc-black': 'hc-black',
+            'my-custom-theme': {
+                base: 'vs-dark',
+                inherit: true,
+                rules: [
+                    { token: 'comment', foreground: 'ffa500', fontStyle: 'italic' },
+                    { token: 'keyword', foreground: 'ff79c6' },
+                    { token: 'string', foreground: '8be9fd' },
+                    { token: 'keyword.php', foreground: 'ff79c6' },
+                    { token: 'string.php', foreground: '8be9fd' },
+                    { token: 'variable.php', foreground: '50fa7b' }
+                ],
+                colors: {
+                    'editor.foreground': '#f8f8f2',
+                    'editor.background': '#282a36',
+                    'editorCursor.foreground': '#f8f8f0',
+                    'editor.lineHighlightBackground': '#44475a',
+                    'editorLineNumber.foreground': '#6272a4'
+                }
+            },
+            'monokai': {
+                base: 'vs-dark',
+                inherit: true,
+                rules: [
+                    { token: 'comment', foreground: '75715E' },
+                    { token: 'string', foreground: 'E6DB74' },
+                    { token: 'keyword', foreground: 'F92672' },
+                    { token: 'number', foreground: 'AE81FF' },
+                    { token: 'type', foreground: '66D9EF' },
+                    { token: 'class', foreground: 'A6E22E' },
+                    { token: 'function', foreground: 'A6E22E' },
+                    { token: 'variable', foreground: 'F8F8F2' }
+                ],
+                colors: {
+                    'editor.background': '#272822',
+                    'editor.foreground': '#F8F8F2',
+                    'editorCursor.foreground': '#F8F8F2',
+                    'editor.lineHighlightBackground': '#3E3D32',
+                    'editorLineNumber.foreground': '#90908A'
+                }
+            },
+            'solarized-dark': {
+                base: 'vs-dark',
+                inherit: true,
+                rules: [
+                    { token: 'comment', foreground: '586E75' },
+                    { token: 'string', foreground: '2AA198' },
+                    { token: 'keyword', foreground: '859900' },
+                    { token: 'number', foreground: 'D33682' },
+                    { token: 'type', foreground: 'B58900' },
+                    { token: 'class', foreground: 'CB4B16' }
+                ],
+                colors: {
+                    'editor.background': '#002B36',
+                    'editor.foreground': '#839496',
+                    'editorCursor.foreground': '#93A1A1',
+                    'editor.lineHighlightBackground': '#073642'
+                }
+            }
+        };
+        
+        if (themes[theme]) {
+            if (typeof themes[theme] === 'object') {
+                monaco.editor.defineTheme('custom-' + theme, themes[theme]);
+                monaco.editor.setTheme('custom-' + theme);
+            } else {
+                monaco.editor.setTheme(themes[theme]);
+            }
+            
+            localStorage.setItem('editorTheme', theme);
+            
+            const themeSelect = document.querySelector(`#${tabId}-panel-container .editor-theme-select`);
+            if (themeSelect) {
+                themeSelect.value = theme;
+            }
+            
+            showLogMessage(
+                `${translations['theme_switched_to'] || 'Theme switched to'}: ${theme}`,
+                'success'
+            );
+        }
+    } catch (error) {
+        showLogMessage(
+            `${translations['theme_change_error'] || 'Theme change error'}: ${error.message}`,
+            'error'
+        );
+    }
+}
+
+function changeEditorLanguage(tabId, language) {
+    const tab = editorTabs.find(t => t.id === tabId);
+    if (!tab || !tab.monacoEditorInstance) return;
+
+    const editor = tab.monacoEditorInstance;
+    const model = editor.getModel();
+
+    if (model) {
+        monaco.editor.setModelLanguage(model, language);
+
+        const languageSelect = document.getElementById(`${tabId}-language-select`);
+        if (languageSelect) {
+            languageSelect.value = language;
+        }
+
+        showLogMessage(
+            `${translations['language_switched_to'] || 'Language switched to'}: ${getLanguageDisplayName(language)}`,
+            'success'
+        );
+    }
+}
+
+function getLanguageDisplayName(language) {
+    const displayNames = {
+        'plaintext': translations['language_plaintext'] || 'plain text',
+        'javascript': 'JavaScript',
+        'typescript': 'TypeScript',
+        'html': 'HTML',
+        'css': 'CSS',
+        'php': 'PHP',
+        'python': 'Python',
+        'java': 'Java',
+        'c': 'C',
+        'cpp': 'C++',
+        'csharp': 'C#',
+        'go': 'Go',
+        'rust': 'Rust',
+        'ruby': 'Ruby',
+        'perl': 'Perl',
+        'lua': 'Lua',
+        'swift': 'Swift',
+        'kotlin': 'Kotlin',
+        'scala': 'Scala',
+        'dart': 'Dart',
+        'json': 'JSON',
+        'xml': 'XML',
+        'yaml': 'YAML',
+        'toml': 'TOML',
+        'ini': 'INI',
+        'csv': 'CSV',
+        'shell': 'Shell',
+        'powershell': 'PowerShell',
+        'batch': 'Batch',
+        'sql': 'SQL',
+        'mysql': 'MySQL',
+        'plsql': 'PL/SQL',
+        'postgresql': 'PostgreSQL',
+        'jinja': 'Jinja2',
+        'twig': 'Twig',
+        'handlebars': 'Handlebars',
+        'mustache': 'Mustache',
+        'dockerfile': 'Dockerfile',
+        'makefile': 'Makefile',
+        'gradle': 'Gradle',
+        'cmake': 'CMake',
+        'markdown': 'Markdown',
+        'restructuredtext': 'reStructuredText',
+        'latex': 'LaTeX',
+        'graphql': 'GraphQL',
+        'protobuf': 'Protocol Buffers',
+        'diff': 'Diff',
+        'nginx': 'Nginx',
+        'apache': 'Apache',
+        'gitignore': '.gitignore',
+        'editorconfig': '.editorconfig'
+    };
+    
+    return displayNames[language] || language;
+}
+
+function openFindReplace(tabId) {
+    const tab = editorTabs.find(t => t.id === tabId);
+    if (!tab || !tab.monacoEditorInstance) return;
+    
+    const editor = tab.monacoEditorInstance;
+    editor.getAction('actions.find').run();
+}
+
+function autoSaveContent(tabId) {
+    const tab = editorTabs.find(t => t.id === tabId);
+    if (!tab || !tab.modified) return;
+    
+    //console.log(`Auto-saving ${tab.name}...`);
+}
+
+function downloadCurrentFile(tabId) {
+    const tab = editorTabs.find(t => t.id === tabId);
+    if (!tab) return;
+
+    const content = tab.monacoEditorInstance ? 
+        tab.monacoEditorInstance.getValue() : 
+        document.getElementById(`${tabId}-simple-editor`)?.value || '';
+
+    const blob = new Blob([content], { type: 'text/plain' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = tab.name;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+
+    showLogMessage(
+        `${translations['file_download_started'] || 'File'} ${tab.name} ${translations['download_started'] || 'download started'}`,
+        'success'
+    );
+}
+
+function showKeyboardShortcuts() {
+    const shortcuts = [
+        { key: 'Ctrl/Cmd + S', desc: translations['save_file'] || 'Save file' },
+        { key: 'Ctrl/Cmd + F', desc: translations['search.find'] || 'Find' },
+        { key: 'Ctrl/Cmd + H', desc: translations['search.replace'] || 'Replace' },
+        { key: 'Ctrl/Cmd + Z', desc: translations['undo'] || 'Undo' },
+        { key: 'Ctrl/Cmd + Y', desc: translations['redo'] || 'Redo' },
+        { key: 'Ctrl/Cmd + D', desc: translations['duplicate_line'] || 'Duplicate current line' },
+        { key: 'Ctrl/Cmd + Shift + K', desc: translations['delete_line'] || 'Delete current line' },
+        { key: 'Ctrl/Cmd + /', desc: translations['toggle_comment'] || 'Comment/Uncomment' },
+        { key: 'Alt + ↑/↓', desc: translations['move_line'] || 'Move line up/down' },
+        { key: 'Ctrl/Cmd + Alt + ↑/↓', desc: translations['add_cursor'] || 'Add multiple cursors' },
+        { key: 'F12', desc: translations['go_to_definition'] || 'Go to definition' },
+        { key: 'Shift + F12', desc: translations['find_references'] || 'Find references' },
+        { key: 'Ctrl/Cmd + Space', desc: translations['trigger_suggestion'] || 'Trigger suggestion' },
+        { key: 'Ctrl/Cmd + Shift + F', desc: translations['format_document'] || 'Format document' }
+    ];
+
+    let html = `<div class="editor-keyboard-shortcuts">
+                    <h6>${translations['keyboard_shortcuts'] || 'Keyboard Shortcuts'}</h6>`;
+    
+    shortcuts.forEach(shortcut => {
+        html += `
+            <div class="shortcut-item">
+                <span class="shortcut-desc">${shortcut.desc}</span>
+                <span class="shortcut-key">${shortcut.key}</span>
+            </div>
+        `;
+    });
+
+    html += '</div>';
+
+    const statusBar = document.querySelector('.editor-status-bar');
+    if (statusBar) {
+        const existingHelp = document.querySelector('.editor-keyboard-shortcuts');
+        if (existingHelp) {
+            existingHelp.remove();
+        } else {
+            statusBar.insertAdjacentHTML('afterend', html);
+        }
+    }
+}
+
+function updateEditorUI() {
+    const editorPanel = document.getElementById('editorPanel');
+    const editorTabsSwitcher = document.getElementById('editorTabsSwitcher');
+    
+    if (editorTabs.length > 0) {
+        editorTabsSwitcher.style.display = 'block';
+        updateEditorTabsSwitcher();
+        
+        if (editorPanel.style.display === 'block') {
+            updateEditorPanelContent();
+        }
+    } else {
+        editorTabsSwitcher.style.display = 'none';
+        editorPanel.style.display = 'none';
+        editorPanel.style.maxHeight = '0';
+    }
+}
+
+function updateEditorPanelContent() {
+    const tabsNav = document.getElementById('editorPanelTabsNav');
+    const contentArea = document.getElementById('editorPanelContent');
+    
+    if (!tabsNav || !contentArea) return;
+    
+    tabsNav.innerHTML = '';
+    editorTabs.forEach(tab => {
+        const tabElement = document.createElement('div');
+        tabElement.className = `editor-tab ${tab.id === activeEditorTab ? 'active' : ''}`;
+        tabElement.style.cssText = `
+            padding: 8px 15px;
+            background: ${tab.id === activeEditorTab ? 'var(--accent-tertiary)' : 'var(--card-bg)'};
+            color: ${tab.id === activeEditorTab ? 'white' : 'var(--text-primary)'};
+            border-radius: 4px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            white-space: nowrap;
+            font-size: 14px;
+        `;
+        
+        tabElement.onclick = () => switchToEditorTab(tab.id);
+        
+        let tabName = escapeHtml(tab.name);
+        if (tab.modified) {
+            tabName = `* ${tabName}`;
+        }
+        
+        tabElement.innerHTML = `
+            <span>${tabName}</span>
+            <span style="margin-left: 8px;" onclick="closeEditorTab('${tab.id}', event)">
+                <i class="fas fa-times"></i>
+            </span>
+        `;
+        
+        tabsNav.appendChild(tabElement);
+    });
+    
+    contentArea.innerHTML = '';
+    
+    if (activeEditorTab) {
+        const tab = editorTabs.find(t => t.id === activeEditorTab);
+        if (tab) {
+            const editorContainer = document.createElement('div');
+            editorContainer.id = `${tab.id}-panel-container`;
+            editorContainer.style.cssText = `
+                height: 100%;
+                display: flex;
+                flex-direction: column;
+            `;
+            
+            const editorMode = tab.editorMode || currentEditorMode;
+            
+            editorContainer.innerHTML = `
+                <div class="editor-toolbar">
+                    <div class="editor-toolbar-left">
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <i class="fas fa-file"></i>
+                            <span>${escapeHtml(tab.name)}</span>
+                            ${tab.modified ? '<span style="color: var(--text-primary);">*</span>' : ''}
+                        </div>
+                        
+                        <button class="btn btn-sm btn-indigo editor-mode-toggle" 
+                                onclick="toggleEditorMode('${tab.id}')" 
+                                id="editorModeBtn-${tab.id}"
+                                title="${translations['toggle_editor_mode'] || 'Toggle editor mode'}">
+                            <i class="fas fa-exchange-alt"></i> 
+                            <span id="editorModeText-${tab.id}">
+                                ${editorMode === 'simple' 
+                                    ? (translations['switch_to_advanced'] || 'Switch to advanced editor') 
+                                    : (translations['switch_to_simple'] || 'Switch to simple editor')}
+                            </span>
+                        </button>
+
+                        ${editorMode === 'advanced' ? `
+                        <button class="btn btn-sm btn-purple" onclick="toggleComment('${tab.id}')" 
+                                title="${translations['toggle_comment'] || 'Toggle comment'}">
+                            <i class="fas fa-comment"></i> ${translations['toggle_comment'] || 'Toggle comment'}
+                        </button>
+
+                            <select class="editor-language-select" 
+                                    onchange="changeEditorLanguage('${tab.id}', this.value)" 
+                                    id="${tab.id}-language-select">
+                                <option value="plaintext">${translations['auto_detect'] || 'Auto detect'}</option>
+                                <option value="plaintext">${translations['plain_text'] || 'Plain text'}</option>
+                                <option value="html">HTML</option>
+                                <option value="css">CSS</option>
+                                <option value="javascript">JavaScript</option>
+                                <option value="typescript">TypeScript</option>
+                                <option value="jsx">JSX</option>
+                                <option value="tsx">TSX</option>
+                                <option value="vue">Vue</option>
+                                <option value="svelte">Svelte</option>
+                                <option value="php">PHP</option>
+                                <option value="python">Python</option>
+                                <option value="java">Java</option>
+                                <option value="c">C</option>
+                                <option value="cpp">C++</option>
+                                <option value="csharp">C#</option>
+                                <option value="go">Go</option>
+                                <option value="rust">Rust</option>
+                                <option value="ruby">Ruby</option>
+                                <option value="perl">Perl</option>
+                                <option value="lua">Lua</option>
+                                <option value="swift">Swift</option>
+                                <option value="kotlin">Kotlin</option>
+                                <option value="scala">Scala</option>
+                                <option value="dart">Dart</option>
+                                <option value="json">JSON</option>
+                                <option value="xml">XML</option>
+                                <option value="yaml">YAML</option>
+                                <option value="toml">TOML</option>
+                                <option value="ini">INI</option>
+                                <option value="csv">CSV</option>
+                                <option value="shell">Shell/Bash</option>
+                                <option value="powershell">PowerShell</option>
+                                <option value="batch">Batch</option>
+                                <option value="sql">SQL</option>
+                                <option value="mysql">MySQL</option>
+                                <option value="plsql">PL/SQL</option>
+                                <option value="postgresql">PostgreSQL</option>
+                                <option value="jinja">Jinja2</option>
+                                <option value="twig">Twig</option>
+                                <option value="handlebars">Handlebars</option>
+                                <option value="mustache">Mustache</option>
+                                <option value="dockerfile">Dockerfile</option>
+                                <option value="makefile">Makefile</option>
+                                <option value="gradle">Gradle</option>
+                                <option value="cmake">CMake</option>
+                                <option value="markdown">Markdown</option>
+                                <option value="restructuredtext">reStructuredText</option>
+                                <option value="latex">LaTeX</option>
+                                <option value="graphql">GraphQL</option>
+                                <option value="protobuf">Protocol Buffers</option>
+                                <option value="diff">Diff/Patch</option>
+                                <option value="nginx">Nginx</option>
+                                <option value="apache">Apache</option>
+                                <option value="gitignore">.gitignore</option>
+                                <option value="editorconfig">.editorconfig</option>
+                            </select> 
+                            <select class="editor-fontsize-select" 
+                                    onchange="changeEditorFontSize('${tab.id}', this.value)"
+                                    title="${translations['fontSizeL'] || 'Font Size'}"
+                                    style="margin-left: 8px;">
+                                <option value="10">10px</option>
+                                <option value="11">11px</option>
+                                <option value="12">12px</option>
+                                <option value="13">13px</option>
+                                <option value="14" selected>14px</option>
+                                <option value="15">15px</option>
+                                <option value="16">16px</option>
+                                <option value="17">17px</option>
+                                <option value="18">18px</option>
+                                <option value="20">20px</option>
+                                <option value="22">22px</option>
+                                <option value="24">24px</option>
+                                <option value="26">26px</option>
+                                <option value="28">28px</option>
+                                <option value="32">32px</option>
+                                <option value="36">36px</option>
+                            </select>                            
+                            <select class="editor-theme-select" onchange="changeEditorTheme('${tab.id}', this.value)">
+                                <option value="vs-dark">${translations['theme_dark'] || 'Dark theme'}</option>
+                                <option value="vs">${translations['theme_light'] || 'Light theme'}</option>
+                                <option value="hc-black">${translations['theme_high_contrast'] || 'High contrast'}</option>
+                                <option value="my-custom-theme">${translations['theme_custom'] || 'Custom Theme'}</option>
+                                <option value="monokai">Monokai</option>
+                                <option value="solarized-dark">Solarized Dark</option>
+                            </select>
+                            
+                        <button class="btn btn-sm btn-primary" onclick="formatCode('${tab.id}')">
+                            <i class="fas fa-brush"></i> ${translations['format'] || 'Format'}
+                        </button>
+
+                        <button class="btn btn-sm btn-pink" onclick="toggleFullscreen()" title="${translations['fullscreen'] || 'Fullscreen'}">
+                            <i class="fas fa-expand"></i> ${translations['fullscreen'] || 'Fullscreen'}
+                        </button>   
+
+                        <button class="btn btn-sm btn-orange" onclick="openDiffView('${tab.id}')"
+                        title="${translations['diff_view'] || 'Diff View'}">
+                            <i class="fas fa-code-compare"></i> ${translations['diff_view'] || 'Diff View'}
+                        </button>
+
+                        <button class="btn btn-sm btn-teal" onclick="openFindReplace('${tab.id}')">
+                            <i class="fas fa-search"></i> ${translations['search.find'] || 'Find'}
+                        </button>
+                        ` : ''}
+                    </div>
+
+                      <div class="editor-toolbar-right">     
+                        <button class="btn btn-sm btn-outline-info" onclick="downloadCurrentFile('${tab.id}')"
+                                title="${translations['download'] || 'Download'}">
+                            <i class="fas fa-download"></i>
+                        </button>
+
+                        <button class="btn btn-sm btn-outline-warning" onclick="showKeyboardShortcuts()"
+                                title="${translations['keyboard_shortcuts'] || 'Keyboard shortcuts'}">
+                            <i class="fas fa-keyboard"></i>
+                        </button>
+
+                        <button class="btn btn-sm btn-success" onclick="saveEditorContent('${tab.id}')">
+                            <i class="fas fa-save"></i> ${translations['save'] || 'Save'}
+                        </button>
+
+                        <button class="btn btn-sm btn-dark-red" onclick="closeEditorTab('${tab.id}')">
+                            <i class="fas fa-times"></i> ${translations['close'] || 'Close'}
+                        </button>
+                    </div>
+                </div>
+                
+                <div style="flex: 1; overflow: hidden; position: relative;">
+                    ${editorMode === 'simple' ? `
+                        <div class="simple-editor-container" style="height: calc(100vh - 200px); overflow: auto; border: 1px solid var(--border-color); border-radius: 4px;">
+                            <textarea id="${tab.id}-simple-editor" 
+                                      class="simple-editor"
+                                      placeholder="${tab.loading ? (translations['loading'] || 'Loading...') : (translations['start_editing'] || 'Start editing')}"
+                                      oninput="markEditorAsModified('${tab.id}')"
+                                      spellcheck="false"
+                                      ${tab.loading ? 'readonly' : ''}
+                                      wrap="off"
+                                      style="width: 100%; min-height: 100%; border: none; padding: 12px; font-family: monospace; font-size: 18px; line-height: 1.5; resize: none; background: var(--bg-container); color: var(--text-primary);">${escapeHtml(tab.content)}</textarea>
+                        </div>
+                    ` : `
+                        <div id="${tab.id}-monaco-container" class="monaco-editor-container">
+                            <div class="editor-loading">
+                                <div class="spinner-border spinner-border-sm" role="status"></div>
+                                ${translations['loading_advanced_editor'] || 'Loading advanced editor...'}
+                            </div>
+                        </div>
+                    `}
+                </div>
+                
+                <div class="editor-status-bar">
+                    <div class="editor-position-info">
+                        <span id="${tab.id}-position-info">
+                            ${translations['line'] || 'Line'}: 1, ${translations['column'] || 'Column'}: 1
+                        </span>
+                        <span id="${tab.id}-selected-text-info"></span>
+                        <span id="${tab.id}-char-count-info">
+                            ${translations['char_count_label'] || 'Characters'}: 0
+                        </span>
+                        <span>${formatFileSize((tab.content || '').length)}</span>
+                        <span>UTF-8</span>
+                    </div>
+                    <div class="editor-encoding-info">
+                        <span>${editorMode === 'advanced' ? (translations['advanced_editor'] || 'Advanced Editor') : (translations['simple_editor'] || 'Simple Editor')}</span>
+                        ${editorMode === 'advanced' ? `<span style="color: #4CAF50;">${translations['syntax_completion_enabled'] || 'Syntax completion enabled'}</span>` : ''}
+                    </div>
+                </div>
+            `;
+            
+            contentArea.appendChild(editorContainer);
+            
+            if (editorMode === 'advanced') {
+                setTimeout(() => {
+                    initMonacoEditor(tab.id);
+                }, 100);
+            } else {
+                const simpleEditor = document.getElementById(`${tab.id}-simple-editor`);
+                if (simpleEditor) {
+                    simpleEditor.value = tab.content || '';
+                    
+                    setTimeout(() => {
+                        simpleEditor.style.height = 'auto';
+                        simpleEditor.style.height = (simpleEditor.scrollHeight + 10) + 'px';
+                        
+                        setupSimpleEditorEvents(tab.id);
+                        updateCharCount(tab.id);
+                        
+                        function updateCursorAndCount() {
+                            const cursorPos = simpleEditor.selectionStart;
+                            const text = simpleEditor.value.substring(0, cursorPos);
+                            const lines = text.split('\n');
+                            const line = lines.length;
+                            const column = lines[lines.length - 1].length + 1;
+                            
+                            const positionElement = document.getElementById(`${tab.id}-position-info`);
+                            if (positionElement) {
+                                positionElement.textContent = `${translations['line_label'] || 'Line'}: ${line}, ${translations['column_label'] || 'Column'}: ${column}`;
+                            }
+                            const selectedText = simpleEditor.value.substring(
+                                simpleEditor.selectionStart,
+                                simpleEditor.selectionEnd
+                            );
+                            const selectedElement = document.getElementById(`${tab.id}-selected-text-info`);
+                            if (selectedElement) {
+                                if (selectedText && selectedText.length > 0) {
+                                    selectedElement.textContent = `${translations['selected'] || 'Selected'}: ${selectedText.length} ${translations['characters'] || 'characters'}`;
+                                } else {
+                                    selectedElement.textContent = '';
+                                }
+                            }
+                            
+                            updateCharCount(tab.id);
+                        }
+                        
+                        const events = ['input', 'keyup', 'click', 'mouseup', 'select'];
+                        events.forEach(eventName => {
+                            simpleEditor.addEventListener(eventName, updateCursorAndCount);
+                        });
+                        
+                        setTimeout(updateCursorAndCount, 50);
+                        
+                        simpleEditor.addEventListener('input', function() {
+                            this.style.height = 'auto';
+                            this.style.height = this.scrollHeight + 'px';
+                            markEditorAsModified(tab.id);
+                        });
+                    }, 100);
+                }
+            }
+
+            if (editorMode === 'advanced') {
+                setTimeout(() => {
+                    const language = detectLanguage(tab.name);
+                    const languageSelect = document.querySelector(`#${tab.id}-panel-container .editor-language-select`);
+                    if (languageSelect) {
+                        languageSelect.value = language;
+                    }
+                    
+                    const savedTheme = localStorage.getItem('editorTheme') || 'vs-dark';
+                    const themeSelect = document.querySelector(`#${tab.id}-panel-container .editor-theme-select`);
+                    if (themeSelect) {
+                        themeSelect.value = savedTheme;
+                    }
+                }, 200);
+            }
+        }
+    }
+}
+
+function changeEditorFontSize(tabId, fontSize) {
+    const tab = editorTabs.find(t => t.id === tabId);
+    if (!tab) return;
+
+    localStorage.setItem('editorFontSize', fontSize);
+
+    if (tab.monacoEditorInstance) {
+        tab.monacoEditorInstance.updateOptions({
+            fontSize: parseInt(fontSize)
+        });
+    }
+
+    const fontSizeSelect = document.querySelector(`#${tabId}-panel-container .editor-fontsize-select`);
+    if (fontSizeSelect) {
+        fontSizeSelect.value = fontSize;
+    }
+
+    showLogMessage(`${translations['font_size_set_to'] || 'Font size set to'}: ${fontSize}px`,'info');
+}
+
+function getFileIcon(filename, ext, isDir) {
+    if (isDir) {
+        return '<i class="fas fa-folder fa-2x" style="color: #FFA726;"></i>';
+    }
+    
+    const lowerExt = ext.toLowerCase();
+    const lowerName = filename.toLowerCase();
+    
+    if (['js', 'jsx', 'mjs', 'cjs'].includes(lowerExt)) return '<i class="fab fa-js-square fa-2x" style="color: #FFD600;"></i>';
+    if (['ts', 'tsx'].includes(lowerExt)) return '<i class="fas fa-code fa-2x" style="color: #1976D2;"></i>';
+    if (['vue'].includes(lowerExt)) return '<i class="fab fa-vuejs fa-2x" style="color: #4FC08D;"></i>';
+    if (['php', 'php3', 'php4', 'php5', 'php7'].includes(lowerExt)) return '<i class="fab fa-php fa-2x" style="color: #777BB4;"></i>';
+    if (['py', 'pyw', 'pyc', 'pyo'].includes(lowerExt)) return '<i class="fab fa-python fa-2x" style="color: #3776AB;"></i>';
+    if (['java', 'class', 'jar'].includes(lowerExt)) return '<i class="fab fa-java fa-2x" style="color: #007396;"></i>';
+    if (['c', 'h'].includes(lowerExt)) return '<i class="fas fa-file-code fa-2x" style="color: #A8B9CC;"></i>';
+    if (['cpp', 'cc', 'cxx', 'hpp', 'hxx'].includes(lowerExt)) return '<i class="fas fa-file-code fa-2x" style="color: #00599C;"></i>';
+    if (['cs', 'csx'].includes(lowerExt)) return '<i class="fas fa-file-code fa-2x" style="color: #239120;"></i>';
+    if (['go'].includes(lowerExt)) return '<i class="fas fa-file-code fa-2x" style="color: #00ADD8;"></i>';
+    if (['rs'].includes(lowerExt)) return '<i class="fas fa-file-code fa-2x" style="color: #DEA584;"></i>';
+    if (['rb', 'erb'].includes(lowerExt)) return '<i class="fas fa-gem fa-2x" style="color: #CC342D;"></i>';
+    if (['swift'].includes(lowerExt)) return '<i class="fab fa-swift fa-2x" style="color: #FA7343;"></i>';
+    if (['kt', 'kts'].includes(lowerExt)) return '<i class="fas fa-file-code fa-2x" style="color: #7F52FF;"></i>';
+    if (['scala', 'sc'].includes(lowerExt)) return '<i class="fas fa-file-code fa-2x" style="color: #DC322F;"></i>';
+    if (['dart'].includes(lowerExt)) return '<i class="fab fa-dart fa-2x" style="color: #0175C2;"></i>';
+    if (['r', 'rmd'].includes(lowerExt)) return '<i class="fas fa-file-code fa-2x" style="color: #276DC3;"></i>';
+    if (['html', 'htm', 'xhtml'].includes(lowerExt)) return '<i class="fab fa-html5 fa-2x" style="color: #E34F26;"></i>';
+    if (['css', 'scss', 'sass', 'less'].includes(lowerExt)) return '<i class="fab fa-css3-alt fa-2x" style="color: #1572B6;"></i>';
+    if (['json', 'json5', 'jsonc'].includes(lowerExt)) return '<i class="fas fa-file-code fa-2x" style="color: #F7DF1E;"></i>';
+    if (['xml', 'xsl', 'xslt', 'xsd'].includes(lowerExt)) return '<i class="fas fa-file-code fa-2x" style="color: #005A9C;"></i>';
+    if (['sql', 'mysql', 'pgsql', 'psql', 'plsql', 'ddl', 'dml'].includes(lowerExt)) return '<i class="fas fa-database fa-2x" style="color: #00758F;"></i>';
+    
+    if (['pdf'].includes(lowerExt)) return '<i class="fas fa-file-pdf fa-2x" style="color: #F44336;"></i>';
+    if (['doc', 'docx', 'odt', 'rtf', 'pages'].includes(lowerExt)) return '<i class="fas fa-file-word fa-2x" style="color: #2196F3;"></i>';
+    if (['xls', 'xlsx', 'ods', 'numbers'].includes(lowerExt)) return '<i class="fas fa-file-excel fa-2x" style="color: #4CAF50;"></i>';
+    if (['ppt', 'pptx', 'odp', 'key'].includes(lowerExt)) return '<i class="fas fa-file-powerpoint fa-2x" style="color: #FF9800;"></i>';
+    if (['txt', 'log', 'conf', 'ini', 'cfg', 'properties', 'env', 'gitignore', 'editorconfig', 'dockerfile', 'makefile'].includes(lowerExt)) return '<i class="fas fa-file-alt fa-2x" style="color: #757575;"></i>';
+    if (['md', 'markdown', 'mdx'].includes(lowerExt)) return '<i class="fab fa-markdown fa-2x" style="color: #000000;"></i>';
+    
+    if (['zip', 'tar', 'gz', 'bz2', '7z', 'rar', 'tgz', 'tbz2', 'xz', 'lz', 'cab', 'iso', 'apk', 'deb', 'rpm', 'dmg'].includes(lowerExt)) return '<i class="fas fa-file-archive fa-2x" style="color: #FF9800;"></i>';
+    
+    if (['jpg', 'jpeg', 'png', 'gif', 'bmp', 'webp', 'svg', 'ico', 'tiff', 'tif', 'heic', 'heif', 'raw', 'cr2', 'nef', 'psd', 'ai', 'eps'].includes(lowerExt)) return '<i class="fas fa-file-image fa-2x" style="color: #4CAF50;"></i>';
+    
+    if (['mp3', 'wav', 'ogg', 'flac', 'm4a', 'aac', 'wma', 'opus', 'mid', 'midi'].includes(lowerExt)) return '<i class="fas fa-file-audio fa-2x" style="color: #9C27B0;"></i>';
+    
+    if (['mp4', 'avi', 'mkv', 'mov', 'wmv', 'flv', 'webm', 'm4v', 'mpg', 'mpeg', 'ts', 'm2ts', 'rmvb', '3gp', 'vob', 'ogv', 'mts'].includes(lowerExt)) return '<i class="fas fa-file-video fa-2x" style="color: #2196F3;"></i>';
+    
+    if (['exe', 'msi', 'app', 'bat', 'cmd', 'sh', 'bash', 'zsh', 'fish', 'ps1', 'psm1', 'com'].includes(lowerExt)) return '<i class="fas fa-cog fa-2x" style="color: #795548;"></i>';
+    if (['jar'].includes(lowerExt)) return '<i class="fab fa-java fa-2x" style="color: #007396;"></i>';
+    
+    if (['ttf', 'otf', 'woff', 'woff2', 'eot', 'sfnt'].includes(lowerExt)) return '<i class="fas fa-font fa-2x" style="color: #9C27B0;"></i>';
+    
+    if (['epub', 'mobi', 'azw', 'azw3', 'fb2', 'djvu'].includes(lowerExt)) return '<i class="fas fa-book fa-2x" style="color: #795548;"></i>';
+    
+    if (['yml', 'yaml', 'toml', 'xml', 'json', 'ini', 'cfg', 'conf', 'env'].includes(lowerExt)) return '<i class="fas fa-cogs fa-2x" style="color: #607D8B;"></i>';
+    
+    if (['db', 'sqlite', 'sqlite3', 'mdb', 'accdb', 'frm', 'myd', 'myi'].includes(lowerExt)) return '<i class="fas fa-database fa-2x" style="color: #00758F;"></i>';
+    
+    if (['vdi', 'vmdk', 'vhd', 'vhdx', 'qcow2', 'img', 'iso', 'bin', 'nrg'].includes(lowerExt)) return '<i class="fas fa-hdd fa-2x" style="color: #757575;"></i>';
+    
+    if (lowerName === 'dockerfile' || lowerName === 'docker-compose.yml' || lowerName === 'docker-compose.yaml') {
+        return '<i class="fab fa-docker fa-2x" style="color: #2496ED;"></i>';
+    }
+    if (lowerName === 'readme' || lowerName === 'readme.md' || lowerName === 'readme.txt') {
+        return '<i class="fas fa-book-open fa-2x" style="color: #2196F3;"></i>';
+    }
+    if (lowerName === 'license' || lowerName === 'license.txt' || lowerName === 'license.md') {
+        return '<i class="fas fa-balance-scale fa-2x" style="color: #FF9800;"></i>';
+    }
+    if (lowerName === '.gitignore' || lowerName === '.gitattributes' || lowerName === '.gitmodules') {
+        return '<i class="fab fa-git-alt fa-2x" style="color: #F05032;"></i>';
+    }
+    
+    return '<i class="fas fa-file fa-2x" style="color: #757575;"></i>';
+}
+
+function toggleEditorMode(tabId) {
+    const tab = editorTabs.find(t => t.id === tabId);
+    if (!tab) return;
+    
+    const currentMode = tab.editorMode || currentEditorMode;
+    
+    const newMode = currentMode === 'simple' ? 'advanced' : 'simple';
+    
+    switchEditorMode(newMode, tabId);
+}
+
+function toggleComment(tabId) {
+    if (!tabId && activeEditorTab) {
+        tabId = activeEditorTab;
+    }
+    
+    if (!tabId) return;
+    
+    const tab = editorTabs.find(t => t.id === tabId);
+    if (!tab || tab.editorMode !== 'advanced' || !tab.monacoEditorInstance) return;
+    
+    tab.monacoEditorInstance.getAction('editor.action.commentLine').run();
+}
+
+function updateCharCount(tabId) {
+    const tab = editorTabs.find(t => t.id === tabId);
+    if (!tab) return;
+
+    let charCount = 0;
+
+    if (tab.monacoEditorInstance) {
+        const model = tab.monacoEditorInstance.getModel();
+        if (model) {
+            charCount = model.getValue().length;
+        }
+    } else {
+        const simpleEditor = document.getElementById(`${tabId}-simple-editor`);
+        if (simpleEditor) {
+            charCount = simpleEditor.value.length;
+        }
+    }
+
+    const charCountElement = document.getElementById(`${tabId}-char-count-info`);
+    if (charCountElement) {
+        const label = translations['char_count_label'] || 'Characters';
+        charCountElement.textContent = `${label}: ${charCount}`;
+    }
+}
+
+function updateEditorTabsSwitcher() {
+    const switcher = document.getElementById('editorTabsSwitcher');
+    const tabsList = document.getElementById('editorTabsList');
+    
+    if (!switcher || !tabsList) return;
+    
+    if (editorTabs.length > 0) {
+        switcher.style.display = 'block';
+        tabsList.innerHTML = '';
+        
+        editorTabs.forEach(tab => {
+            const tabElement = document.createElement('div');
+            tabElement.className = `editor-tab-switch ${tab.id === activeEditorTab ? 'active' : ''}`;
+            tabElement.title = tab.path;
+            tabElement.onclick = (e) => {
+                e.stopPropagation();
+                switchToEditorTab(tab.id);
+            };
+            
+            let tabName = escapeHtml(tab.name);
+            if (tab.modified) {
+                tabName = `* ${tabName}`;
+            }
+            
+            tabElement.innerHTML = `
+                <span>${tabName}</span>
+                <span class="close-tab-btn" onclick="closeEditorTab('${tab.id}', event)" style="margin-left: 5px; opacity: 0.7;">
+                    <i class="fas fa-times" style="font-size: 10px;"></i>
+                </span>
+            `;
+            
+            tabsList.appendChild(tabElement);
+        });
+    } else {
+        switcher.style.display = 'none';
+    }
+}
+
+function updateEditorTabsUI() {
+    const tabsNav = document.getElementById('editorTabsNav');
+    if (!tabsNav) return;
+    
+    tabsNav.innerHTML = '';
+    
+    editorTabs.forEach(tab => {
+        const tabElement = document.createElement('div');
+        tabElement.className = 'editor-tab';
+        tabElement.style.cssText = `
+            padding: 8px 15px;
+            background: ${tab.id === activeEditorTab ? 'var(--accent-tertiary)' : 'var(--card-bg)'};
+            color: ${tab.id === activeEditorTab ? 'white' : 'var(--text-primary)'};
+            border-radius: 4px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            white-space: nowrap;
+            font-size: 14px;
+        `;
+        
+        tabElement.onclick = () => switchToEditorTab(tab.id);
+        
+        let tabName = escapeHtml(tab.name);
+        if (tab.modified) {
+            tabName = `* ${tabName}`;
+        }
+        
+        tabElement.innerHTML = `
+            <span>${tabName}</span>
+            <span style="margin-left: 8px;" onclick="closeEditorTab('${tab.id}', event)">
+                <i class="fas fa-times"></i>
+            </span>
+        `;
+        
+        tabsNav.appendChild(tabElement);
+    });
+    
+    editorTabs.forEach(tab => {
+        if (!document.getElementById(`${tab.id}-container`)) {
+            createEditorContent(tab.id);
+        }
+    });
+}
+
+function closeEditorTab(tabId, event = null) {
+    if (event) event.stopPropagation();
+
+    const tab = editorTabs.find(t => t.id === tabId);
+    if (!tab) return;
+
+    const close = () => {
+        if (tab.monacoEditorInstance) {
+            tab.monacoEditorInstance.dispose();
+            tab.monacoEditorInstance = null;
+        }
+
+        if (tab._autoSaveTimer) {
+            clearTimeout(tab._autoSaveTimer);
+        }
+
+        editorTabs = editorTabs.filter(t => t.id !== tabId);
+
+        if (activeEditorTab === tabId) {
+            activeEditorTab = editorTabs.length > 0
+                ? editorTabs[editorTabs.length - 1].id
+                : null;
+        }
+
+        updateEditorUI();
+        updateEditorTabsSwitcher();
+    };
+
+    if (tab.modified) {
+        const confirmMessage =
+            (translations['confirm_close_unsaved_file']
+                || 'The file has unsaved changes. Are you sure you want to close it?')
+            .replace('{filename}', tab.name);
+
+        showConfirmation(confirmMessage, close);
+        return;
+    }
+
+    close();
+}
+
+function closeAllEditorTabs() {
+    if (editorTabs.length === 0) return;
+
+    const unsavedTabs = editorTabs.filter(tab => tab.modified);
+    if (unsavedTabs.length > 0) {
+        const fileNames = unsavedTabs.map(tab => tab.name).join(', ');
+
+        const confirmMessage =
+            (translations['confirm_close_all_unsaved_files']
+                || 'The following files have unsaved changes: {filenames}\nAre you sure you want to close all tabs?')
+                .replace('{filenames}', fileNames);
+
+        if (!confirm(confirmMessage)) {
+            return;
+        }
+    }
+
+    editorTabs.forEach(tab => {
+        if (tab.monacoEditorInstance) {
+            tab.monacoEditorInstance.dispose();
+        }
+        if (tab._autoSaveTimer) {
+            clearTimeout(tab._autoSaveTimer);
+        }
+    });
+
+    editorTabs = [];
+    activeEditorTab = null;
+    updateEditorUI();
+
+    if (currentView === 'editor') {
+        toggleView('files');
+    }
+}
+
+function editFile(path) {
+    openEditor(path);
+    toggleView('editor');
+}
+
+function downloadFile(path) {
+    window.open(`?preview=1&path=${encodeURIComponent(path)}`, '_blank');
+}
+
+function handleFileSelect(event) {
+    const files = event.target.files;
+    const fileList = document.getElementById('fileList');
+    
+    uploadFilesList = Array.from(files);
+    updateUploadFileList();
+    
+    event.target.value = '';
+}
+
+function removeUploadFile(index) {
+    uploadFilesList.splice(index, 1);
+    updateUploadFileList();
+}
+
+function updateUploadFileList() {
+    const fileList = document.getElementById('fileList');
+    fileList.innerHTML = '';
+    
+    if (uploadFilesList.length === 0) {
+        fileList.innerHTML = `
+            <div class="text-center text-muted py-3">
+                <i class="fas fa-cloud-upload-alt fa-2x mb-2"></i>
+                <p data-translate="no_files_selected">No files selected</p>
+            </div>`;
+        return;
+    }
+    
+    uploadFilesList.forEach((file, index) => {
+        const fileItem = document.createElement('div');
+        fileItem.className = 'file-item-upload d-flex align-items-center justify-content-between p-2 mb-2  rounded';
+        fileItem.innerHTML = `
+            <div class="d-flex align-items-center">
+                <i class="fas fa-file me-3 text-secondary"></i>
+                <div>
+                    <div class="file-name text-truncate" style="max-width: 300px;">${escapeHtml(file.name)}</div>
+                    <small class="text-muted">${formatFileSize(file.size)}</small>
+                </div>
+            </div>
+            <button class="btn btn-sm btn-danger" onclick="removeUploadFile(${index})">
+                <i class="fas fa-times"></i>
+            </button>
+        `;
+        
+        fileList.appendChild(fileItem);
+    });
+}
+
+async function startUpload() {
+    if (uploadFilesList.length === 0) {
+        showLogMessage(
+            translations['upload_select_files_warning'] || 'Please select files to upload',
+            'warning'
+        );
+        return;
+    }
+
+    const formData = new FormData();
+    formData.append('path', currentPath);
+
+    uploadFilesList.forEach(file => {
+        formData.append('file[]', file);
+    });
+
+    try {
+        const response = await fetch('?action=upload_file', {
+            method: 'POST',
+            body: formData
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+            showLogMessage(
+                `${translations['upload_success'] || 'Successfully uploaded'} ${uploadFilesList.length} file(s)`,
+                'success'
+            );
+
+            bootstrap.Modal
+                .getInstance(document.getElementById('uploadModal'))
+                .hide();
+
+            uploadFilesList = [];
+            updateUploadFileList();
+            refreshFiles();
+        } else {
+            showLogMessage(
+                data.error || (translations['uploadFailed'] || 'Upload failed'),
+                'error'
+            );
+        }
+    } catch (error) {
+        showLogMessage(
+            (translations['uploadFailed'] || 'Upload failed: ') + error.message,
+            'error'
+        );
+    }
+}
+
+function openDiffView(tabId) {
+    const tab = editorTabs.find(t => t.id === tabId);
+    if (!tab) return;
+    
+    let currentContent = '';
+    if (tab.monacoEditorInstance) {
+        currentContent = tab.monacoEditorInstance.getValue();
+    } else {
+        const simpleEditor = document.getElementById(`${tabId}-simple-editor`);
+        if (simpleEditor) {
+            currentContent = simpleEditor.value;
+        }
+    }
+    
+    createDiffEditorDialog(tab.name, currentContent, tabId);
+}
+
+function createDiffEditorDialog(filename, content, tabId) {
+    const dialog = document.createElement('div');
+    dialog.className = 'modal fade';
+    dialog.id = 'diffEditorModal';
+    dialog.innerHTML = `
+        <div class="modal-dialog modal-xl modal-dialog-centered modal-fullscreen-lg-down">
+            <div class="modal-content" style="height: 80vh;">
+                <div class="modal-header">
+                    <h5 class="modal-title">
+                        <i class="fas fa-code-compare me-2"></i>
+                        ${translations['diff_editor_title'] || 'Diff Editor'} - ${escapeHtml(filename)}
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"
+                            aria-label="${translations['close'] || 'Close'}"></button>
+                </div>
+
+                <div class="modal-body p-0 d-flex flex-column">
+                    <div class="diff-toolbar p-2 border-bottom d-flex justify-content-between align-items-center">
+                        <div>
+                            <span class="badge bg-primary me-2">
+                                ${translations['diff_left_label'] || 'Left: Original file (savable)'}
+                            </span>
+                            <span class="badge bg-success me-2">
+                                ${translations['diff_right_label'] || 'Right: Diff area (editable)'}
+                            </span>
+                        </div>
+
+                        <div class="btn-group">
+                            <button class="btn btn-sm btn-outline-secondary" onclick="resetRightEditor()">
+                                <i class="fas fa-undo"></i>
+                                ${translations['diff_reset_right'] || 'Reset Right'}
+                            </button>
+                            <button class="btn btn-sm btn-outline-secondary" onclick="copyRightToLeft()">
+                                <i class="fas fa-arrow-left"></i>
+                                ${translations['diff_apply_to_left'] || 'Apply to Left'}
+                            </button>
+                            <button class="btn btn-sm btn-outline-info" onclick="toggleFullscreen()"
+                                    title="${translations['enter_fullscreen'] || 'Enter fullscreen'}">
+                                <i class="fas fa-expand"></i>
+                            </button>
+                            <button class="btn btn-sm btn-primary" onclick="saveLeftEditor('${tabId}')">
+                                <i class="fas fa-save"></i>
+                                ${translations['save'] || 'Save'}
+                            </button>
+                        </div>
+                    </div>
+
+                    <div id="diffEditorContainer" class="flex-grow-1"></div>
+
+                    <div class="diff-help p-2 border-top small text-muted">
+                        <i class="fas fa-lightbulb me-1"></i>
+                        ${translations['diff_help'] ||
+                        'Tip: When editing on the right, green = added, red = removed. Ctrl+V works on both sides.'}
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+
+    document.body.appendChild(dialog);
+
+    const modal = new bootstrap.Modal(dialog);
+    modal.show();
+
+    setTimeout(() => {
+        initMonacoDiffEditor(content, filename, tabId);
+    }, 300);
+
+    dialog.addEventListener('hidden.bs.modal', function () {
+        if (document.fullscreenElement || 
+            document.webkitFullscreenElement || 
+            document.mozFullScreenElement || 
+            document.msFullscreenElement) {
+            exitFullscreen();
+        }
+        
+        dialog.remove();
+        if (window.diffEditor) {
+            window.diffEditor.dispose();
+            window.diffEditor = null;
+        }
+    });
+}
+
+function initMonacoDiffEditor(content, filename, tabId) {
+    if (!window.monaco) {
+        console.error('Monaco Editor not loaded');
+        return;
+    }
+    
+    const language = detectLanguage(filename);
+    
+    const currentTheme = localStorage.getItem('editorTheme') || 'vs-dark';
+    
+    const diffContainer = document.getElementById('diffEditorContainer');
+    if (!diffContainer) return;
+    
+    window.diffEditor = monaco.editor.createDiffEditor(diffContainer, {
+        theme: currentTheme,
+        readOnly: false,
+        automaticLayout: true,
+        enableSplitViewResizing: true,
+        renderSideBySide: true,
+        originalEditable: true,
+        renderIndicators: true,
+        ignoreTrimWhitespace: false,
+        renderValidationDecorations: 'on',
+        diffAlgorithm: 'advanced',
+        diffWordWrap: 'on',
+        folding: true,
+        minimap: { enabled: true },
+        scrollbar: {
+            vertical: 'auto',
+            horizontal: 'auto'
+        }
+    });
+    
+    const originalModel = monaco.editor.createModel(content, language);
+    const modifiedModel = monaco.editor.createModel(content, language);
+    
+    window.diffEditor.setModel({
+        original: originalModel,
+        modified: modifiedModel
+    });
+    
+    const originalEditor = window.diffEditor.getOriginalEditor();
+    const modifiedEditor = window.diffEditor.getModifiedEditor();
+    
+    originalEditor.updateOptions({
+        readOnly: false,
+        wordWrap: 'on',
+        lineNumbers: 'on',
+        suggestOnTriggerCharacters: true,
+        formatOnPaste: true,
+        formatOnType: true
+    });
+    
+    modifiedEditor.updateOptions({
+        readOnly: false,
+        wordWrap: 'on',
+        lineNumbers: 'on',
+        suggestOnTriggerCharacters: true,
+        formatOnPaste: true,
+        formatOnType: true
+    });
+    
+    window.currentDiffTabId = tabId;
+    
+    setTimeout(() => {
+        modifiedEditor.focus();
+    }, 100);
+}
+
+function resetRightEditor() {
+    if (!window.diffEditor) return;
+    
+    const originalEditor = window.diffEditor.getOriginalEditor();
+    const modifiedEditor = window.diffEditor.getModifiedEditor();
+    
+    const leftContent = originalEditor.getValue();
+    modifiedEditor.setValue(leftContent);
+    
+    showMessage(
+        translations['diff_reset_right_success'] || 'Right content has been reset to match the left',
+        'info'
+    );
+}
+
+function copyRightToLeft() {
+    if (!window.diffEditor) return;
+    
+    const originalEditor = window.diffEditor.getOriginalEditor();
+    const modifiedEditor = window.diffEditor.getModifiedEditor();
+    
+    const rightContent = modifiedEditor.getValue();
+    originalEditor.setValue(rightContent);
+    
+    showMessage(
+        translations['diff_apply_to_left_success'] || 'Right content has been applied to the left',
+        'success'
+    );
+}
+
+function saveLeftEditor(tabId) {
+    if (!window.diffEditor) return;
+    
+    const tab = editorTabs.find(t => t.id === tabId);
+    if (!tab) return;
+    
+    const originalEditor = window.diffEditor.getOriginalEditor();
+    const content = originalEditor.getValue();
+    
+    if (tab.monacoEditorInstance) {
+        tab.monacoEditorInstance.setValue(content);
+        tab.content = content;
+        tab.modified = (content !== tab.originalContent);
+    } else {
+        const simpleEditor = document.getElementById(`${tabId}-simple-editor`);
+        if (simpleEditor) {
+            simpleEditor.value = content;
+            tab.content = content;
+            tab.modified = (content !== tab.originalContent);
+            
+            simpleEditor.style.height = 'auto';
+            simpleEditor.style.height = simpleEditor.scrollHeight + 'px';
+        }
+    }
+    
+    updateEditorTabsUI();
+    
+    showMessage(
+        translations['diff_left_saved_success'] || 'Left content has been saved to the original file',
+        'success'
+    );
+    
+    const modal = bootstrap.Modal.getInstance(
+        document.getElementById('diffEditorModal')
+    );
+    if (modal) {
+        modal.hide();
+    }
+    
+    setTimeout(() => {
+        saveEditorContent(tabId);
+    }, 500);
+}
+
+function formatFileSize(bytes) {
+    if (bytes === 0) return "0 B";
+    const units = ['B', 'KB', 'MB', 'GB', 'TB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(1024));
+    return (bytes / Math.pow(1024, i)).toFixed(2) + ' ' + units[i];
+}
+
+function escapeHtml(text) {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+}
+
+function initEventListeners() {
+    document.addEventListener('click', function(e) {
+        const contextMenu = document.getElementById('fileContextMenu');
+        const overlay = document.getElementById('contextMenuOverlay');
+
+        if (contextMenu && contextMenu.style.display === 'block' &&
+            !contextMenu.contains(e.target)) {
+            hideFileContextMenu();
+        }
+
+        if (overlay && overlay.style.display === 'block' &&
+            e.target === overlay) {
+            hideFileContextMenu();
+            hideFileInfo();
+        }
+    });
+
+    document.addEventListener('DOMContentLoaded', function() {
+        const menuItems = document.querySelectorAll('#fileContextMenu .menu-item');
+        menuItems.forEach(item => {
+            const onclickAttr = item.getAttribute('onclick');
+            if (onclickAttr === 'showChmodDialog()') {
+                item.removeAttribute('onclick');
+                item.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    showChmodDialog();
+                });
+            }
+        });
+
+        const permMenuItem = document.querySelector('#fileContextMenu .menu-item[onclick="showChmodDialog()"]');
+        if (permMenuItem) {
+            permMenuItem.addEventListener('click', function(e) {
+                e.stopPropagation();
+                showChmodDialog();
+            });
+        }
+
+        menuItems.forEach(item => {
+            const onclickAttr = item.getAttribute('onclick');
+            if (onclickAttr) {
+                const funcName = onclickAttr.replace('onclick=', '').trim();
+                item.removeAttribute('onclick');
+                item.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    if (funcName === 'contextMenuOpen()') contextMenuOpen();
+                    else if (funcName === 'contextMenuPlay()') contextMenuPlay();
+                    else if (funcName === 'contextMenuEdit()') contextMenuEdit();
+                    else if (funcName === 'contextMenuDownload()') contextMenuDownload();
+                    else if (funcName === 'showFileProperties()') showFileProperties();
+                    else if (funcName === 'contextMenuDelete()') contextMenuDelete();
+                    else if (funcName.includes('prepare')) {
+                        eval(funcName);
+                    }
+                });
+            }
+        });
+    });
+}
+
+function getCurrentIP() {
+    const url = window.location.href;
+    const match = url.match(/https?:\/\/([^/:]+)/);
+    if (match && match[1]) {
+        return match[1];
+    }
+    return window.location.hostname;
+}
+
+function openTerminal() {
+    const ip = getCurrentIP();
+    const terminalUrl = `http://${ip}:7681/`;
+    
+    console.log('Opening terminal at:', terminalUrl);
+    
+    const terminalIframe = document.getElementById('terminalIframe');
+    
+    terminalIframe.src = terminalUrl;
+    
+    const modal = new bootstrap.Modal(document.getElementById('terminalModal'));
+    modal.show();
+    
+    document.getElementById('terminalModal').addEventListener('hidden.bs.modal', function() {
+        terminalIframe.src = '';
+    });
+    
+    hideFileContextMenu();
+}
+
+window.addEventListener('beforeunload', function(e) {
+    const unsavedTabs = editorTabs.filter(tab => tab.modified);
+    
+    if (unsavedTabs.length > 0) {
+        e.preventDefault();
+        e.returnValue = translations['unsaved_changes_warning'] 
+            || 'You have unsaved changes. Are you sure you want to leave?';
+        return e.returnValue;
+    }
+    
+    editorTabs.forEach(tab => {
+        if (tab.monacoEditorInstance) {
+            tab.monacoEditorInstance.dispose();
+        }
+    });
+});
+
+document.addEventListener('DOMContentLoaded', function() {
+    const savedTheme = localStorage.getItem('editorTheme');
+    if (!savedTheme) {
+        localStorage.setItem('editorTheme', 'vs-dark');
+    }
+    initEventListeners();
+
+    currentView = 'files';
+    
+    if (editorTabs && editorTabs.length > 0) {
+        toggleView('editor');
+    }
+    
+    const toolbar = document.querySelector('.toolbar');
+    if (toolbar) {
+        const selectAllDiv = document.createElement('div');
+        selectAllDiv.className = 'selection-controls';
+        selectAllDiv.innerHTML = `
+            <div class="select-all-checkbox">
+                <input type="checkbox" id="selectAllCheckbox" onchange="toggleSelectAll()">
+                <label for="selectAllCheckbox" data-translate="selectAll">Select All</label>
+            </div>
+        `;
+        toolbar.appendChild(selectAllDiv);
+    }
+    
+    const fileGridHeader = document.querySelector('.file-grid-header');
+    if (fileGridHeader) {
+        const selectionInfo = document.createElement('div');
+        selectionInfo.id = 'selectionInfo';
+        selectionInfo.className = 'file-selection-info';
+        
+        selectionInfo.innerHTML = `
+            <span id="selectedCount"></span>
+            <div class="selection-actions">
+                <button class="btn btn-teal" onclick="clearSelection()" style="padding: 6px 10px; font-size: 0.8rem;">
+                    <i class="fas fa-times"></i>
+                    <span data-translate="clear">Clear</span>
+                </button>
+            </div>
+        `;
+        
+        fileGridHeader.parentNode.insertBefore(selectionInfo, fileGridHeader.nextSibling);
+    }
+    
+    if (document.getElementById('fileGrid')) {
+        loadFiles('/');
+    }
+});
 </script>
+
 
