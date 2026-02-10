@@ -4665,13 +4665,14 @@ list-group:hover {
                 <div id="fileList" class="mt-3"></div>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
-                    <i class="fas fa-times me-1"></i>
-                    <span data-translate="cancel">Cancel</span>
-                </button>
+                <button type="button" class="btn btn-teal" id="updatePhpConfig"><i class="fas fa-unlock me-1"></i><span data-translate="unlock_php_upload_limit"></span></button>
                 <button type="button" class="btn btn-primary" onclick="startUpload()">
                     <i class="fas fa-upload me-1"></i>
                     <span data-translate="upload">Upload</span>
+                </button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    <i class="fas fa-times me-1"></i>
+                    <span data-translate="cancel">Cancel</span>
                 </button>
             </div>
         </div>
@@ -11218,6 +11219,28 @@ document.addEventListener('DOMContentLoaded', function() {
     if (document.getElementById('fileGrid')) {
         loadFiles('/');
     }
+});
+
+document.getElementById("updatePhpConfig").addEventListener("click", function() {
+    const confirmText = translations['confirm_update_php'] || "Are you sure you want to update PHP configuration?";
+    speakMessage(confirmText);
+    showConfirmation(confirmText, () => {
+        fetch("update_php_config.php", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" }
+        })
+        .then(response => response.json())
+        .then(data => {
+            const msg = data.message || "Configuration updated successfully.";
+            showLogMessage(msg);
+            speakMessage(msg);
+        })
+        .catch(error => {
+            const errMsg = translations['request_failed'] || ("Request failed: " + error.message);
+            showLogMessage(errMsg);
+            speakMessage(errMsg);
+        });
+    });
 });
 </script>
 
