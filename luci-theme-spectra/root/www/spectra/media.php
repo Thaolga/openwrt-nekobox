@@ -3,8 +3,7 @@ ini_set('memory_limit', '512M');
 $RECENT_MAX = 15;
 $ROOT_DIR = '/';
 $EXCLUDE_DIRS = [
-    '/proc', '/sys', '/dev', '/tmp', '/run', '/rom',
-    '/var/lock', '/var/run', '/overlay/upper'
+    '/dev', '/run', '/var/lock', '/var/run', '/overlay/upper'
 ];
 
 $ARCHIVE_EXT = [
@@ -532,12 +531,32 @@ if (isset($_GET['action'])) {
         
         $uploadedFiles = [];
         $errors = [];
+
+        function generateUniqueFilename($directory, $filename) {
+            $pathinfo = pathinfo($filename);
+            $name = $pathinfo['filename'];
+            $extension = isset($pathinfo['extension']) ? '.' . $pathinfo['extension'] : '';
+            $counter = 1;
+            $newFilename = $filename;
+        
+            while (file_exists($directory . '/' . $newFilename)) {
+                $newFilename = $name . '_' . $counter . $extension;
+                $counter++;
+            }
+        
+            return $newFilename;
+        }
         
         if (isset($_FILES['file'])) {
             if (!is_array($_FILES['file']['name'])) {
                 $file = $_FILES['file'];
                 if ($file['error'] === UPLOAD_ERR_OK) {
                     $fileName = preg_replace('/[\/:*?"<>|]/', '_', basename($file['name']));
+
+                    if (file_exists($realPath . '/' . $fileName)) {
+                        $fileName = generateUniqueFilename($realPath, $fileName);
+                    }
+
                     $targetFile = $realPath . '/' . $fileName;
                     
                     if (!file_exists($targetFile) && move_uploaded_file($file['tmp_name'], $targetFile)) {
@@ -551,6 +570,11 @@ if (isset($_GET['action'])) {
                 for ($i = 0; $i < $fileCount; $i++) {
                     if ($_FILES['file']['error'][$i] === UPLOAD_ERR_OK) {
                         $fileName = preg_replace('/[\/:*?"<>|]/', '_', basename($_FILES['file']['name'][$i]));
+
+                        if (file_exists($realPath . '/' . $fileName)) {
+                            $fileName = generateUniqueFilename($realPath, $fileName);
+                        }
+                    
                         $targetFile = $realPath . '/' . $fileName;
                         
                         if (!file_exists($targetFile) && move_uploaded_file($_FILES['file']['tmp_name'][$i], $targetFile)) {
@@ -3540,6 +3564,14 @@ list-group:hover {
 #filePropertiesContent strong {
     color: var(--text-primary) !important;
 }
+
+.alert.alert-warning,
+.input-group-text,
+.alert.alert-info {
+    background: var(--bg-container) !important;
+    border: var(--border-strong) !important;
+    color: var(--text-primary) !important;
+}
 </style>
 <div class="main-container">
     <div class="content-area" id="contentArea">
@@ -4131,7 +4163,7 @@ list-group:hover {
                         <span id="viewToggleText" data-translate="editor_view">Editor View</span>
                     </button>
                 </div>
-                    
+                 
                     <div class="file-grid-header">
                         <div class="breadcrumb" id="breadcrumb">
                         </div>
@@ -4422,7 +4454,7 @@ list-group:hover {
 </div>
 
 <div class="modal fade" id="searchModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-lg modal-dialog-centered">
+    <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title">
@@ -4460,7 +4492,7 @@ list-group:hover {
 </div>
 
 <div class="modal fade" id="filePropertiesModal" tabindex="-1" aria-labelledby="filePropertiesModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-xl modal-dialog-centered">
+    <div class="modal-dialog modal-xl">
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title" id="filePropertiesModalLabel">
@@ -4490,7 +4522,7 @@ list-group:hover {
 </div>
 
 <div class="modal fade" id="chmodModal" tabindex="-1" aria-labelledby="chmodModalLabel" aria-hidden="true">
-  <div class="modal-dialog modal-lg modal-dialog-centered">
+  <div class="modal-dialog modal-lg">
     <form method="post" onsubmit="return validateChmod()" class="modal-content no-loader">
       <div class="modal-header">
         <h5 class="modal-title" id="chmodModalLabel" data-translate="setPermissions">🔒 Set Permissions</h5>
@@ -4531,7 +4563,7 @@ list-group:hover {
 </div>
 
 <div class="modal fade" id="createTypeModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-lg modal-dialog-centered">
+    <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title">
@@ -4680,7 +4712,7 @@ list-group:hover {
 </div>
 
 <div class="modal fade" id="renameModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-lg modal-dialog-centered">
+    <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title">
@@ -4718,7 +4750,7 @@ list-group:hover {
 </div>
 
 <div class="modal fade" id="moveModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-lg modal-dialog-centered">
+    <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title">
@@ -4765,7 +4797,7 @@ list-group:hover {
 </div>
 
 <div class="modal fade" id="copyModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-lg modal-dialog-centered">
+    <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title">
@@ -4826,13 +4858,76 @@ list-group:hover {
                     id="terminalIframe" 
                     src="" 
                     frameborder="0" 
-                    style="width: 100%; height: 100%;"
-                    title="Terminal">
+                    style="width: 100%; height: 100%;">
                 </iframe>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
                     <span data-translate="close">Close</span>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="compressModal" tabindex="-1" aria-labelledby="compressModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="compressModalLabel">
+                    <i class="fas fa-compress me-2"></i>
+                    <span data-translate="compress_files">Compress Files</span>
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-3">
+                    <label for="archiveName" class="form-label">
+                        <span data-translate="archive_name">Archive Name:</span>
+                    </label>
+                    <div class="input-group">
+                        <input type="text" class="form-control" id="archiveName" value="archive" autocomplete="off">
+                        <span class="input-group-text" id="archiveExtension">.zip</span>
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">
+                        <span data-translate="archive_format">Archive Format:</span>
+                    </label>
+                    <div class="btn-group w-100" role="group" id="formatButtonsGroup">
+                        <button type="button" class="btn btn-outline-primary active" data-format="zip">ZIP</button>
+                        <button type="button" class="btn btn-outline-primary" data-format="tar">TAR</button>
+                        <button type="button" class="btn btn-outline-primary" data-format="gz">GZ</button>
+                        <button type="button" class="btn btn-outline-primary" data-format="bz2">BZ2</button>
+                        <!-- <button type="button" class="btn btn-outline-primary" data-format="7z">7Z</button> -->
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <label for="compressDestination" class="form-label">
+                        <span data-translate="destination_path">Destination Path:</span>
+                    </label>
+                    <div class="input-group">
+                        <input type="text" class="form-control" id="compressDestination" value="" autocomplete="off">
+                        <button class="btn btn-outline-secondary" type="button" onclick="browseForCompressPath()">
+                            <i class="fas fa-folder-open"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="alert alert-info mb-0">
+                    <i class="fas fa-info-circle me-2"></i>
+                    <strong data-translate="compressing">Compressing:</strong>
+                    <div id="compressItemsList" class="mt-2 small">
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    <i class="fas fa-times me-1"></i>
+                    <span data-translate="cancel">Cancel</span>
+                </button>
+                <button type="button" class="btn btn-primary" id="compressSubmitBtn" onclick="performCompress()">
+                    <i class="fas fa-check me-1"></i>
+                    <span data-translate="compress">Compress</span>
                 </button>
             </div>
         </div>
@@ -4906,7 +5001,7 @@ function playMedia(filePath) {
     const playError = document.getElementById('playError');
     const playerArea = document.getElementById('playerArea');
     const playerTitle = document.getElementById('playerTitle');
-    
+
     if (imageSwitchTimer) {
         clearInterval(imageSwitchTimer);
         imageSwitchTimer = null;
@@ -6436,46 +6531,6 @@ document.addEventListener('keydown', function(event) {
             }
             break;
             
-        case 'F2':
-            if (selectedFiles.size === 1) {
-                event.preventDefault();
-                prepareRenameModal();
-            }
-            break;
-            
-        case 'KeyA':
-            if (event.ctrlKey || event.metaKey) {
-                event.preventDefault();
-                const selectAllCheckbox = document.querySelector('.select-all-checkbox input[type="checkbox"]');
-                if (selectAllCheckbox) {
-                    selectAllCheckbox.checked = !selectAllCheckbox.checked;
-                    toggleSelectAll();
-                }
-            }
-            break;
-            
-        case 'KeyD':
-            if ((event.ctrlKey || event.metaKey) && selectedFiles.size > 0) {
-                event.preventDefault();
-                selectedFiles.forEach(path => {
-                    if (!document.querySelector(`.file-item[data-path="${path}"]`)?.getAttribute('data-is-dir')) {
-                        downloadFile(path);
-                    }
-                });
-            }
-            break;
-            
-        case 'KeyO':
-            if ((event.ctrlKey || event.metaKey) && selectedFiles.size === 1) {
-                event.preventDefault();
-                const path = Array.from(selectedFiles)[0];
-                const isDir = document.querySelector(`.file-item[data-path="${path}"]`)?.getAttribute('data-is-dir') === 'true';
-                if (!isDir) {
-                    editFile(path);
-                }
-            }
-            break;
-            
         case 'KeyE':
             if (event.ctrlKey || event.metaKey) {
                 event.preventDefault();
@@ -6544,6 +6599,15 @@ async function loadFiles(path) {
             currentPath = data.path;
             updateBreadcrumb(data.path);
             
+            const pathDisplay = document.getElementById('currentPathDisplay');
+            if (pathDisplay) {
+                pathDisplay.textContent = currentPath;
+            }
+            
+            let folderCount = 0;
+            let fileCount = 0;
+            let totalSize = 0;
+            
             if (data.items.length === 0) {
                 fileGrid.innerHTML = `
                     <div class="empty-folder" style="grid-column: 1 / -1;">
@@ -6553,19 +6617,27 @@ async function loadFiles(path) {
             } else {
                 let html = '';
                 data.items.forEach(item => {
+                    const isDir = item.is_dir;
                     const isSelected = selectedFiles.has(item.path);
                     const safePath = item.path.replace(/'/g, "\\'").replace(/"/g, '&quot;');
                     const safeName = item.name.replace(/</g, '&lt;').replace(/>/g, '&gt;');
-                    const iconClass = item.is_dir ? 'folder' : item.type;
+                    const iconClass = isDir ? 'folder' : item.type;
+                    
+                    if (isDir) {
+                        folderCount++;
+                    } else {
+                        fileCount++;
+                        totalSize += item.size;
+                    }
                     
                     html += `
                     <div class="file-item position-relative ${isSelected ? 'selected' : ''}" 
                          data-path="${safePath}"
                          data-type="${item.type}"
                          data-name="${safeName}"
-                         data-is-dir="${item.is_dir}"
+                         data-is-dir="${isDir}"
                          data-size="${item.size}"
-                         ondblclick="handleDoubleClick('${safePath}', ${item.is_dir}, '${item.type}')"
+                         ondblclick="handleDoubleClick('${safePath}', ${isDir}, '${item.type}')"
                          oncontextmenu="showFileContextMenu(event, this)"
                          onclick="handleFileClick(event, '${safePath}')">
 
@@ -6575,18 +6647,20 @@ async function loadFiles(path) {
                         </div>
 
                         <div class="file-icon mb-2">
-                            ${getFileIcon(item.name, item.ext, item.is_dir)}
+                            ${getFileIcon(item.name, item.ext, isDir)}
                         </div>
                         <div class="file-name text-truncate w-100" title="${safeName}">
                             ${truncateFileName(safeName)}
                         </div>
                         <div class="file-size text-muted small mt-1">
-                            ${item.is_dir ? (translations['folder'] || 'Folder') : item.size_formatted}
+                            ${isDir ? (translations['folder'] || 'Folder') : item.size_formatted}
                         </div>
                     </div>`;
                 });
                 fileGrid.innerHTML = html;
             }
+            
+            updateStatistics(folderCount, fileCount, totalSize);
             
         } else {
             showLogMessage(data.error || 'Failed to load files', 'error');
@@ -6600,6 +6674,20 @@ async function loadFiles(path) {
     }
 }
 
+function updateStatistics(folderCount, fileCount, totalSize) {
+    document.getElementById('totalFolders').textContent = folderCount;
+    document.getElementById('totalFiles').textContent = fileCount;
+    document.getElementById('totalSize').textContent = formatFileSize(totalSize);
+    updateSelectedCount();
+}
+
+function updateSelectedCount() {
+    const selectedItems = document.getElementById('selectedItems');
+    if (selectedItems) {
+        selectedItems.textContent = selectedFiles.size;
+    }
+}
+
 function updateBreadcrumb(path) {
     const breadcrumb = document.getElementById('breadcrumb');
     if (!breadcrumb) return;
@@ -6607,8 +6695,12 @@ function updateBreadcrumb(path) {
     const parts = path.split('/').filter(p => p);
     let html = '';
     
-    html += `<div class="breadcrumb-item" onclick="navigateTo('/')">
-                <i class="fas fa-home"></i>
+    html += `<div class="d-flex flex-wrap align-items-center gap-4">`;
+    
+    html += `<div class="d-flex align-items-center flex-wrap" style="gap: 8px;">`;
+    
+    html += `<div class="breadcrumb-item cursor-pointer" onclick="navigateTo('/')">
+                <i class="fas fa-home me-1"></i>
                 <span>${translations['root'] || 'Root'}</span>
             </div>`;
     
@@ -6618,14 +6710,43 @@ function updateBreadcrumb(path) {
         const isLast = i === parts.length - 1;
         const safePath = currentPath.replace(/'/g, "\\'").replace(/"/g, '&quot;');
         
-        html += `<div class="breadcrumb-separator">/</div>`;
-        html += `<div class="breadcrumb-item ${isLast ? 'breadcrumb-current' : ''}" 
+        html += `<span class="mx-1 text-muted">/</span>`;
+        html += `<div class="breadcrumb-item ${isLast ? 'breadcrumb-current fw-bold' : 'cursor-pointer'}" 
                      onclick="${!isLast ? `navigateTo('${safePath}')` : ''}">
                     <span>${parts[i]}</span>
                 </div>`;
     }
     
+    html += `</div>`;
+    
+    html += `<div class="d-flex align-items-center" style="border-left: 1px solid var(--accent-color); padding-left: 1.5rem;">`;
+    html += `<div class="files-statistics-bar d-flex align-items-center gap-4 flex-wrap">`;
+    html += `<div class="stat-item text-center" style="min-width: 60px;">
+                <div class="stat-value fw-bold text-primary" id="totalFolders">0</div>
+                <div class="stat-label small text-muted">${translations['folder'] || 'Folders'}</div>
+            </div>
+            <div class="stat-item text-center" style="min-width: 60px;">
+                <div class="stat-value fw-bold text-success" id="totalFiles">0</div>
+                <div class="stat-label small text-muted">${translations['file'] || 'Files'}</div>
+            </div>
+            <div class="stat-item text-center" style="min-width: 80px;">
+                <div class="stat-value fw-bold text-info" id="totalSize">0 B</div>
+                <div class="stat-label small text-muted">${translations['total_size'] || 'Total Size'}</div>
+            </div>
+            <div class="stat-item text-center" style="min-width: 60px;">
+                <div class="stat-value fw-bold text-warning" id="selectedItems">0</div>
+                <div class="stat-label small text-muted">${translations['selected'] || 'Selected'}</div>
+            </div>`;
+    html += `</div></div>`;
+    
+    html += `</div>`;
+    
     breadcrumb.innerHTML = html;
+    
+    const pathDisplay = document.getElementById('currentPathDisplay');
+    if (pathDisplay) {
+        pathDisplay.textContent = path || (translations['root'] || 'Root');
+    }
 }
 
 function navigateTo(path) {
@@ -6887,6 +7008,7 @@ function updateFileSelection() {
             }
         }
     });
+    updateSelectedCount();
 }
 
 function updateSelectionInfo() {
@@ -7290,98 +7412,70 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 function showCompressDialog() {
-    if (selectedFiles.size === 0) return;
+    if (selectedFiles.size === 0) {
+        showLogMessage('Please select files to compress first', 'warning');
+        return;
+    }
 
     const paths = Array.from(selectedFiles);
-    const fileNames = paths.map(p => p.split('/').pop()).join(', ');
-
-    const dialog = document.createElement('div');
-    dialog.className = 'modal fade';
-    dialog.id = 'compressModal';
-    dialog.innerHTML = `
-        <div class="modal-dialog modal-lg">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">
-                        <i class="fas fa-compress me-2"></i>
-                        ${translations['compress_files'] || 'Compress Files'}
-                    </h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <div class="mb-3">
-                        <label for="archiveName" class="form-label">
-                            ${translations['archive_name'] || 'Archive Name:'}
-                        </label>
-                        <div class="input-group">
-                            <input type="text" class="form-control" id="archiveName" value="archive_${Date.now()}">
-                            <span class="input-group-text" id="archiveExtension">.zip</span>
-                        </div>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">
-                            ${translations['archive_format'] || 'Archive Format:'}
-                        </label>
-                        <div class="btn-group w-100" role="group">
-                            <button type="button" class="btn btn-outline-primary active" data-format="zip">ZIP</button>
-                            <button type="button" class="btn btn-outline-primary" data-format="tar">TAR</button>
-                            <!-- <button type="button" class="btn btn-outline-primary" data-format="7z">7Z</button> -->
-                            <button type="button" class="btn btn-outline-primary" data-format="gz">GZ</button>
-                            <button type="button" class="btn btn-outline-primary" data-format="bz2">BZ2</button>
-                        </div>
-                    </div>
-                    <div class="mb-3">
-                        <label for="compressDestination" class="form-label">
-                            ${translations['destination_path'] || 'Destination Path:'}
-                        </label>
-                        <div class="input-group">
-                            <input type="text" class="form-control" id="compressDestination" value="${currentPath}">
-                            <button class="btn btn-outline-secondary" type="button" onclick="browseForCompressPath()">
-                                <i class="fas fa-folder-open"></i>
-                            </button>
-                        </div>
-                    </div>
-                    <div class="alert alert-info">
-                        <i class="fas fa-info-circle me-2"></i>
-                        ${translations['compressing'] || 'Compressing:'}
-                        <div id="compressItemsList" class="mt-1">
-                            ${paths.map(p => `<div class="mb-1">${escapeHtml(p.split('/').pop())}</div>`).join('')}
-                        </div>
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
-                        <i class="fas fa-times me-1"></i>
-                        ${translations['cancel'] || 'Cancel'}
-                    </button>
-                    <button type="button" class="btn btn-primary" onclick="performCompress()">
-                        <i class="fas fa-check me-1"></i>
-                        ${translations['compress'] || 'Compress'}
-                    </button>
-                </div>
-            </div>
-        </div>
-    `;
-
-    document.body.appendChild(dialog);
-
-    const formatButtons = dialog.querySelectorAll('[data-format]');
+    
+    const compressItemsList = document.getElementById('compressItemsList');
+    compressItemsList.innerHTML = '';
+    
+    paths.forEach(p => {
+        const name = p.split('/').pop();
+        const isDir = document.querySelector(`.file-item[data-path="${p}"]`)?.getAttribute('data-is-dir') === 'true';
+        const itemDiv = document.createElement('div');
+        itemDiv.className = 'd-flex align-items-center mb-2';
+        itemDiv.innerHTML = `
+            <i class="fas ${isDir ? 'fa-folder' : 'fa-file'} me-2 text-info"></i>
+            <span class="text-info">${escapeHtml(name)}</span>
+        `;
+        compressItemsList.appendChild(itemDiv);
+    });
+    
+    const archiveName = document.getElementById('archiveName');
+    if (paths.length === 1) {
+        const singlePath = paths[0];
+        const name = singlePath.split('/').pop();
+        const baseName = name.lastIndexOf('.') > 0 ? name.substring(0, name.lastIndexOf('.')) : name;
+        archiveName.value = baseName;
+    } else {
+        archiveName.value = 'archive_' + Date.now();
+    }
+    
+    document.getElementById('compressDestination').value = currentPath;
+    
+    const formatButtons = document.querySelectorAll('#formatButtonsGroup button[data-format]');
     formatButtons.forEach(btn => {
-        btn.addEventListener('click', function() {
-            formatButtons.forEach(b => b.classList.remove('active'));
-            this.classList.add('active');
-            const format = this.getAttribute('data-format');
-            document.getElementById('archiveExtension').textContent = '.' + format;
-        });
+        btn.classList.remove('active');
+        if (btn.getAttribute('data-format') === 'zip') {
+            btn.classList.add('active');
+        }
     });
-
-    const modal = new bootstrap.Modal(dialog);
+    
+    document.getElementById('archiveExtension').textContent = '.zip';
+    
+    const modal = new bootstrap.Modal(document.getElementById('compressModal'));
     modal.show();
-
-    dialog.addEventListener('hidden.bs.modal', function() {
-        dialog.remove();
-    });
 }
+
+document.addEventListener('DOMContentLoaded', function() {
+    const formatButtonsGroup = document.getElementById('formatButtonsGroup');
+    if (formatButtonsGroup) {
+        formatButtonsGroup.addEventListener('click', function(e) {
+            if (e.target.matches('button[data-format]')) {
+                const buttons = this.querySelectorAll('button[data-format]');
+                buttons.forEach(btn => btn.classList.remove('active'));
+                
+                e.target.classList.add('active');
+                
+                const format = e.target.getAttribute('data-format');
+                document.getElementById('archiveExtension').textContent = '.' + format;
+            }
+        });
+    }
+});
 
 function browseForCompressPath() {
     const path = prompt('Enter destination path:', currentPath);
@@ -7407,7 +7501,9 @@ async function performCompress() {
     const format = formatBtn ? formatBtn.getAttribute('data-format') : 'zip';
     
     if (!destination || !archiveNameInput) {
-        showLogMessage(translations['enter_archive_name_and_destination'] || 'Please enter archive name and destination path', 'warning');
+        const warningMessage = translations['enter_archive_name_and_destination'] || 'Please enter archive name and destination path';
+        showLogMessage(warningMessage, 'warning');
+        speakMessage(warningMessage, 'warning');
         return;
     }
     
@@ -7435,21 +7531,20 @@ async function performCompress() {
         const data = await response.json();
         
         if (data.success) {
-            showLogMessage(
-                (translations['successfully_compressed'] || 'Successfully compressed') + ` ${paths.length} ${translations['file_s'] || 'file(s)'}`,
-                'success'
-            );
-            speakMessage(
-                (translations['successfully_compressed'] || 'Successfully compressed') + ` ${paths.length} ${translations['file_s'] || 'file(s)'}`,
-                'success'
-            );
+            const successMessage = `${translations['successfully_compressed'] || 'Successfully compressed'} ${paths.length} ${translations['file_s'] || 'file(s)'}`;
+            showLogMessage(successMessage, 'success');
+            speakMessage(successMessage, 'success');
             bootstrap.Modal.getInstance(document.getElementById('compressModal')).hide();
             refreshFiles();
         } else {
-            showLogMessage(data.error || translations['failed_to_create_archive'] || 'Failed to create archive', 'error');
+            const errorMessage = data.error || translations['failed_to_create_archive'] || 'Failed to create archive';
+            showLogMessage(errorMessage, 'error');
+            speakMessage(errorMessage, 'error');
         }
     } catch (error) {
-        showLogMessage((translations['failed_to_create_archive'] || 'Failed to create archive') + ': ' + error.message, 'error');
+        const errorMessage = `${translations['failed_to_create_archive'] || 'Failed to create archive'}: ${error.message}`;
+        showLogMessage(errorMessage, 'error');
+        speakMessage(errorMessage, 'error');
     }
 }
 
@@ -7510,7 +7605,9 @@ async function performExtract() {
     const destination = document.getElementById('extractDestination').value.trim();
     
     if (!destination) {
-        showLogMessage(translations['enter_destination_path'] || 'Please enter destination path', 'warning');
+        const warningMessage = translations['enter_destination_path'] || 'Please enter destination path';
+        showLogMessage(warningMessage, 'warning');
+        speakMessage(warningMessage, 'warning');
         return;
     }
     
@@ -7528,15 +7625,21 @@ async function performExtract() {
         const data = await response.json();
         
         if (data.success) {
-            showLogMessage(translations['archive_extracted_successfully'] || 'Archive extracted successfully', 'success');
-            bootstrap.Modal.getInstance(document.getElementById('extractModal')).hide();
+            const successMessage = translations['archive_extracted_successfully'] || 'Archive extracted successfully';
+            showLogMessage(successMessage, 'success');
+            speakMessage(successMessage, 'success');
             
+            bootstrap.Modal.getInstance(document.getElementById('extractModal')).hide();
             loadFiles(destination);
         } else {
-            showLogMessage(data.error || translations['failed_to_extract_archive'] || 'Failed to extract archive', 'error');
+            const errorMessage = data.error || translations['failed_to_extract_archive'] || 'Failed to extract archive';
+            showLogMessage(errorMessage, 'error');
+            speakMessage(errorMessage, 'error');
         }
    } catch (error) {
-        showLogMessage((translations['failed_to_extract_archive'] || 'Failed to extract archive') + ': ' + error.message, 'error');
+        const errorMessage = `${translations['failed_to_extract_archive'] || 'Failed to extract archive'}: ${error.message}`;
+        showLogMessage(errorMessage, 'error');
+        speakMessage(errorMessage, 'error');
     }
 }
 
@@ -7559,14 +7662,20 @@ async function extractArchiveHere(filePath) {
         const data = await response.json();
         
         if (data.success) {
-            showLogMessage(translations['archive_extracted_successfully'] || 'Archive extracted successfully', 'success');
+            const successMessage = translations['archive_extracted_successfully'] || 'Archive extracted successfully';
+            showLogMessage(successMessage, 'success');
+            speakMessage(successMessage, 'success');
             
             loadFiles(extractToDir);
         } else {
-            showLogMessage(data.error || translations['failed_to_extract_archive'] || 'Failed to extract archive', 'error');
+            const errorMessage = data.error || translations['failed_to_extract_archive'] || 'Failed to extract archive';
+            showLogMessage(errorMessage, 'error');
+            speakMessage(errorMessage, 'error');
         }
     } catch (error) {
-        showLogMessage((translations['failed_to_extract_archive'] || 'Failed to extract archive') + ': ' + error.message, 'error');
+        const errorMessage = `${translations['failed_to_extract_archive'] || 'Failed to extract archive'}: ${error.message}`;
+        showLogMessage(errorMessage, 'error');
+        speakMessage(errorMessage, 'error');
     }
 }
 
@@ -7773,10 +7882,7 @@ function showCreateFileModal() {
 async function createFolder() {
     const input = document.getElementById('folderNameInput');
     if (!input || !input.value.trim()) {
-        showLogMessage(
-            translations['enter_folder_name'] || 'Please enter folder name',
-            'warning'
-        );
+        showLogMessage(translations['enter_folder_name'] || 'Please enter folder name', 'warning');
         return;
     }
 
@@ -7789,10 +7895,9 @@ async function createFolder() {
         const data = await response.json();
 
         if (data.success) {
-            showLogMessage(
-                data.message || translations['folder_created_success'] || 'Folder created successfully',
-                'success'
-            );
+            const successMessage = translations['folder_created_success'] || 'Folder created successfully';
+            showLogMessage(successMessage, 'success');
+            speakMessage(successMessage, 'success');
 
             const modal = bootstrap.Modal.getInstance(
                 document.getElementById('createFolderModal')
@@ -7801,16 +7906,12 @@ async function createFolder() {
 
             refreshFiles();
         } else {
-            showLogMessage(
-                data.error || translations['create_folder_failed'] || 'Failed to create folder',
-                'error'
-            );
+            const errorMessage = translations['create_folder_failed'] || 'Failed to create folder';
+            showLogMessage(data.error || errorMessage, 'error');
         }
     } catch (error) {
-        showLogMessage(
-            (translations['create_folder_failed'] || 'Failed to create folder') + ': ' + error.message,
-            'error'
-        );
+        const errorMessage = translations['create_folder_failed'] || 'Failed to create folder';
+        showLogMessage(errorMessage + ': ' + error.message, 'error');
     }
 }
 
@@ -7834,7 +7935,10 @@ async function createFile() {
         const data = await response.json();
 
         if (data.success) {
-            showLogMessage(data.message || translations['file_created_success'] || 'File created successfully', 'success');
+            const successMessage = translations['file_created_success'] || 'File created successfully';
+            showLogMessage(successMessage, 'success');
+            speakMessage(successMessage, 'success');
+            
             bootstrap.Modal.getInstance(document.getElementById('createFileModal')).hide();
 
             const ext = input.value.trim().toLowerCase().split('.').pop();
@@ -7848,10 +7952,12 @@ async function createFile() {
                 refreshFiles();
             }
         } else {
-            showLogMessage(data.error || translations['create_file_failed'] || 'Failed to create file', 'error');
+            const errorMessage = translations['create_file_failed'] || 'Failed to create file';
+            showLogMessage(data.error || errorMessage, 'error');
         }
     } catch (error) {
-        showLogMessage((translations['create_file_failed'] || 'Failed to create file') + ': ' + error.message, 'error');
+        const errorMessage = translations['create_file_failed'] || 'Failed to create file';
+        showLogMessage(errorMessage + ': ' + error.message, 'error');
     }
 }
 
@@ -7914,7 +8020,7 @@ function prepareMoveModal() {
         const isDir = document.querySelector(`.file-item[data-path="${path}"]`)?.getAttribute('data-is-dir') === 'true';
         itemsList.innerHTML += `
             <div class="d-flex align-items-center mb-1">
-                <i class="fas ${isDir ? 'fa-folder' : 'fa-file'} me-2 text-secondary"></i>
+                <i class="fas ${isDir ? 'fa-folder' : 'fa-file'} me-2"></i>
                 <span class="text-truncate">${name}</span>
             </div>
         `;
@@ -7935,7 +8041,9 @@ function browseForMovePath() {
 async function performMove() {
     const destination = document.getElementById('movePath').value.trim();
     if (!destination) {
-        showLogMessage(translations['enter_destination_path'] || 'Please enter destination path', 'warning');
+        const warningMessage = translations['enter_destination_path'] || 'Please enter destination path';
+        showLogMessage(warningMessage, 'warning');
+        speakMessage(warningMessage, 'warning');
         return;
     }
 
@@ -7964,10 +8072,9 @@ async function performMove() {
     }
 
     if (successCount > 0) {
-        showLogMessage(
-            `${translations['move_success'] || 'Successfully moved'} ${successCount} ${translations['items'] || 'item(s)'}`,
-            'success'
-        );
+        const successMessage = `${translations['move_success'] || 'Successfully moved'} ${successCount} ${translations['items'] || 'item(s)'}`;
+        showLogMessage(successMessage, 'success');
+        speakMessage(successMessage, 'success');
         selectedFiles.clear();
         updateSelectionInfo();
         bootstrap.Modal.getInstance(document.getElementById('moveModal')).hide();
@@ -7975,10 +8082,9 @@ async function performMove() {
     }
 
     if (errorCount > 0) {
-        showLogMessage(
-            `${translations['move_failed'] || 'Failed to move'} ${errorCount} ${translations['items'] || 'item(s)'}`,
-            'error'
-        );
+        const errorMessage = `${translations['move_failed'] || 'Failed to move'} ${errorCount} ${translations['items'] || 'item(s)'}`;
+        showLogMessage(errorMessage, 'error');
+        speakMessage(errorMessage, 'error');
     }
 }
 
@@ -7992,7 +8098,7 @@ function prepareCopyModal() {
         const isDir = document.querySelector(`.file-item[data-path="${path}"]`)?.getAttribute('data-is-dir') === 'true';
         itemsList.innerHTML += `
             <div class="d-flex align-items-center mb-1">
-                <i class="fas ${isDir ? 'fa-folder' : 'fa-file'} me-2 text-secondary"></i>
+                <i class="fas ${isDir ? 'fa-folder' : 'fa-file'} me-2"></i>
                 <span class="text-truncate">${name}</span>
             </div>
         `;
@@ -8013,11 +8119,16 @@ function browseForCopyPath() {
 async function performCopy() {
     const destination = document.getElementById('copyPath').value.trim();
     if (!destination) {
-        showLogMessage(translations['enter_destination_path'] || 'Please enter destination path', 'warning');
+        const warningMessage = translations['enter_destination_path'] || 'Please enter destination path';
+        showLogMessage(warningMessage, 'warning');
+        speakMessage(warningMessage, 'warning');
         return;
     }
 
-    if (!confirm(`${translations['confirm_copy'] || 'Copy'} ${selectedFiles.size} ${translations['items'] || 'item(s)'} ${translations['to']} "${destination}"?`)) {
+    const confirmMessage = `${translations['confirm_copy'] || 'Copy'} ${selectedFiles.size} ${translations['items'] || 'item(s)'} ${translations['to'] || 'to'} "${destination}"?`;
+    speakMessage(confirmMessage);
+    
+    if (!confirm(confirmMessage)) {
         return;
     }
 
@@ -8033,28 +8144,27 @@ async function performCopy() {
                 successCount++;
             } else {
                 errorCount++;
-                // console.error('Copy failed:', data.error);
+                //console.error('Copy failed:', data.error);
             }
         } catch (error) {
             errorCount++;
-            // console.error('Copy error:', error);
+            //console.error('Copy error:', error);
         }
     }
 
     if (successCount > 0) {
-        showLogMessage(
-            `${translations['copy_success'] || 'Successfully copied'} ${successCount} ${translations['items'] || 'item(s)'}`,
-            'success'
-        );
+        const successMessage = `${translations['copy_success'] || 'Successfully copied'} ${successCount} ${translations['items'] || 'item(s)'}`;
+        showLogMessage(successMessage, 'success');
+        speakMessage(successMessage, 'success');
+        
         bootstrap.Modal.getInstance(document.getElementById('copyModal')).hide();
         refreshFiles();
     }
 
     if (errorCount > 0) {
-        showLogMessage(
-            `${translations['copy_failed'] || 'Failed to copy'} ${errorCount} ${translations['items'] || 'item(s)'}`,
-            'error'
-        );
+        const errorMessage = `${translations['copy_failed'] || 'Failed to copy'} ${errorCount} ${translations['items'] || 'item(s)'}`;
+        showLogMessage(errorMessage, 'error');
+        speakMessage(errorMessage, 'error');
     }
 }
 
@@ -8107,12 +8217,12 @@ async function deleteSelected() {
         }
 
         if (successCount > 0) {
-             showLogMessage(
-                `${translations['successfully_deleted'] || 'Successfully deleted'} ` +
-                `${successCount} ` +
-                `${translations['items'] || 'item(s)'}`,
-                'success'
-            );
+            const successMessage = `${translations['successfully_deleted'] || 'Successfully deleted'} ` +
+                                   `${successCount} ` +
+                                   `${translations['items'] || 'item(s)'}`;
+            showLogMessage(successMessage, 'success');
+            speakMessage(successMessage, 'success');
+            
             selectedFiles.clear();
             updateSelectionInfo();
             refreshFiles();
@@ -8168,8 +8278,8 @@ async function showFileInfoModal(path) {
                                         <h3 class="card-title mb-3 text-break" style="word-break: break-word;">
                                             ${escapeHtml(fileName || translations['unknown'] || 'Unknown')}
                                         </h3>
-                                        <div class="badge ${isDir ? 'bg-warning' : 'bg-success'} ${isDir ? 'text-dark' : 'text-white'} mb-4 p-2">
-                                            <i class="fas ${isDir ? 'fa-folder' : 'fa-file'} me-1 ${isDir ? '' : 'text-white'}"></i>
+                                        <div class="badge mb-4 p-2 ${isDir ? 'bg-warning text-dark' : 'bg-success'}" style="${isDir ? '' : '--bs-badge-color: #fff; color: #fff !important;'}">
+                                            <i class="fas ${isDir ? 'fa-folder' : 'fa-file'} me-1" style="${isDir ? '' : 'color: inherit !important;'}"></i>
                                             ${isDir ? translations['folder'] || 'Folder' : translations['file'] || 'File'}
                                         </div>
                                     </div>
@@ -8519,7 +8629,9 @@ async function searchFiles() {
     const searchTerm = document.getElementById('searchInput').value.trim();
     
     if (!searchTerm) {
-        showLogMessage(translations['search_enter_term'] || 'Please enter search term', 'warning');
+        const warningMessage = translations['search_enter_term'] || 'Please enter search term';
+        showLogMessage(warningMessage, 'warning');
+        speakMessage(warningMessage, 'warning');
         return;
     }
     
@@ -8541,20 +8653,30 @@ async function searchFiles() {
             resultsContainer.innerHTML = '';
             
             if (results.length === 0) {
+                const noResultsMessage = translations['search_no_results'] || 'No matching files found';
+                const tryDifferentMessage = translations['search_try_diff_keyword'] || 'Try different keywords';
+                
+                showLogMessage(noResultsMessage, 'info');
+                speakMessage(noResultsMessage, 'info');
+                
                 resultsContainer.innerHTML = `
                     <div class="text-center text-muted py-4">
                         <i class="fas fa-search fa-2x mb-2"></i>
-                        <h6>${translations['search_no_results'] || 'No matching files found'}</h6>
-                        <p class="small">${translations['search_try_diff_keyword'] || 'Try different keywords'}</p>
+                        <h6>${noResultsMessage}</h6>
+                        <p class="small">${tryDifferentMessage}</p>
                     </div>`;
                 return;
             }
+            
+            const foundMessage = `${translations['search_found_matches'] || 'Found'} ${results.length} ${translations['search_matches'] || 'matches'}`;
+            showLogMessage(foundMessage, 'success');
+            speakMessage(foundMessage, 'success');
             
             const header = document.createElement('div');
             header.className = 'alert alert-info mb-3';
             header.innerHTML = `
                 <i class="fas fa-info-circle me-2"></i>
-                ${translations['search_found_matches'] || 'Found'} ${results.length} ${translations['search_matches'] || 'matches'}
+                ${foundMessage}
             `;
             resultsContainer.appendChild(header);
             
@@ -8618,17 +8740,25 @@ async function searchFiles() {
             
             resultsContainer.appendChild(list);
         } else {
+            const errorMessage = `${translations['search_failed'] || 'Search failed'}: ${data.error || translations['unknown_error'] || 'Unknown error'}`;
+            showLogMessage(errorMessage, 'error');
+            speakMessage(errorMessage, 'error');
+            
             resultsContainer.innerHTML = `
                 <div class="alert alert-danger">
                     <i class="fas fa-exclamation-triangle me-2"></i>
-                    ${translations['search_failed'] || 'Search failed'}: ${data.error || translations['unknown_error'] || 'Unknown error'}
+                    ${errorMessage}
                 </div>`;
         }
     } catch (error) {
+        const errorMessage = `${translations['search_error'] || 'Search error'}: ${error.message}`;
+        showLogMessage(errorMessage, 'error');
+        speakMessage(errorMessage, 'error');
+        
         resultsContainer.innerHTML = `
             <div class="alert alert-danger">
                 <i class="fas fa-exclamation-triangle me-2"></i>
-                ${translations['search_error'] || 'Search error'}: ${error.message}
+                ${errorMessage}
             </div>`;
     }
 }
@@ -8642,7 +8772,9 @@ function openFileDirectory(filePath, isDir) {
     
     navigateTo(targetDir);
     
-    showLogMessage(`${translations['search_navigated_to'] || 'Navigated to'}: ${targetDir}`, 'info');
+    const successMessage = `${translations['search_navigated_to'] || 'Navigated to'}: ${targetDir}`;
+    showLogMessage(successMessage, 'info');
+    speakMessage(successMessage, 'info');
 }
 
 let editorTabs = [];
@@ -9607,7 +9739,6 @@ function detectLanguage(filename) {
         'sass': 'sass',
         'less': 'less',
         'styl': 'stylus',
-        
         'php': 'php',
         'php3': 'php',
         'php4': 'php',
@@ -9662,13 +9793,7 @@ function detectLanguage(filename) {
         'fs': 'fsharp',
         'fsx': 'fsharp',
         'fsi': 'fsharp',
-        
-        'jsx': 'javascript',
-        'tsx': 'typescript',
-        'vue': 'vue',
-        'svelte': 'html',
         'astro': 'javascript',
-        
         'json': 'json',
         'json5': 'javascript',
         'jsonc': 'json',
@@ -9684,7 +9809,6 @@ function detectLanguage(filename) {
         'cfg': 'ini',
         'properties': 'properties',
         'env': 'properties',
-        
         'sql': 'sql',
         'mysql': 'sql',
         'pgsql': 'sql',
@@ -9692,7 +9816,6 @@ function detectLanguage(filename) {
         'plsql': 'sql',
         'ddl': 'sql',
         'dml': 'sql',
-        
         'md': 'markdown',
         'markdown': 'markdown',
         'mdx': 'markdown',
@@ -9701,7 +9824,6 @@ function detectLanguage(filename) {
         'log': 'plaintext',
         'rst': 'restructuredtext',
         'tex': 'latex',
-        
         'sh': 'shell',
         'bash': 'shell',
         'zsh': 'shell',
@@ -9711,16 +9833,13 @@ function detectLanguage(filename) {
         'psd1': 'powershell',
         'bat': 'batch',
         'cmd': 'batch',
-        
         'dockerfile': 'dockerfile',
         'docker': 'dockerfile',
         'makefile': 'makefile',
-        'mk': 'makefile',
         'cmake': 'cmake',
         'gradle': 'gradle',
         'groovy': 'groovy',
         'jenkinsfile': 'groovy',
-        
         'j2': 'jinja',
         'jinja': 'jinja',
         'jinja2': 'jinja',
@@ -9729,7 +9848,6 @@ function detectLanguage(filename) {
         'liquid': 'liquid',
         'hbs': 'handlebars',
         'handlebars': 'handlebars',
-        
         'svg': 'xml',
         'graphql': 'graphql',
         'gql': 'graphql',
@@ -9742,7 +9860,6 @@ function detectLanguage(filename) {
         'tsv': 'plaintext',
         'diff': 'diff',
         'patch': 'diff',
-        
         'hosts': 'hosts',
         'nginx': 'nginx',
         'apache': 'apache',
@@ -9757,6 +9874,82 @@ function detectLanguage(filename) {
         'tsconfig': 'json',
         'package': 'json',
         'lock': 'json',
+        'rc': 'shell',
+        'profile': 'shell',
+        'service': 'shell',
+        'timer': 'shell',
+        'network': 'shell',
+        'wireless': 'shell',
+        'firewall': 'shell',
+        'dhcp': 'shell',
+        'qos': 'shell',
+        'uci': 'shell',
+        'config': 'shell',
+        'ipk': 'plaintext',
+        'opk': 'plaintext',
+        'list': 'plaintext',
+        'status': 'plaintext',
+        'state': 'plaintext',
+        'cache': 'plaintext',
+        'ko': 'plaintext',
+        'elf': 'plaintext',
+        'bin': 'plaintext',
+        'img': 'plaintext',
+        'trx': 'plaintext',
+        'chk': 'plaintext',
+        'factory': 'plaintext',
+        'sysupgrade': 'plaintext',
+        'ash': 'shell',
+        'dash': 'shell',
+        'init': 'shell',
+        'rules': 'shell',
+        'module': 'shell',
+        'modprobe': 'shell',
+        'fstab': 'shell',
+        'mtab': 'plaintext',
+        'passwd': 'plaintext',
+        'shadow': 'plaintext',
+        'group': 'plaintext',
+        'route': 'shell',
+        'iptables': 'shell',
+        'nftables': 'shell',
+        'resolv': 'plaintext',
+        'inetd': 'shell',
+        'xinetd': 'shell',
+        'supervisor': 'ini',
+        'inc': 'makefile',
+        'bb': 'shell',
+        'bbclass': 'shell',
+        'rrd': 'plaintext',
+        'xmlrpc': 'xml',
+        'cbi': 'lua',
+        'tree': 'lua',
+        'pem': 'plaintext',
+        'crt': 'plaintext',
+        'key': 'plaintext',
+        'csr': 'plaintext',
+        'pfx': 'plaintext',
+        'der': 'plaintext',
+        'gz': 'plaintext',
+        'bz2': 'plaintext',
+        'xz': 'plaintext',
+        'lzma': 'plaintext',
+        'zst': 'plaintext',
+        'db': 'plaintext',
+        'sqlite': 'plaintext',
+        'sqlite3': 'plaintext',
+        'qcow2': 'plaintext',
+        'vmdk': 'plaintext',
+        'vdi': 'plaintext',
+        'dtb': 'plaintext',
+        'dts': 'plaintext',
+        'hex': 'plaintext',
+        'uf2': 'plaintext',
+        'pcap': 'plaintext',
+        'cap': 'plaintext',
+        'psk': 'plaintext',
+        'ovpn': 'shell',
+        'wg': 'shell',
     };
     
     return languageMap[ext] || 'plaintext';
@@ -10204,6 +10397,14 @@ function updateEditorPanelContent() {
                                 <option value="apache">Apache</option>
                                 <option value="gitignore">.gitignore</option>
                                 <option value="editorconfig">.editorconfig</option>
+                                <option value="shell">OpenWrt Config (.conf, .config)</option>
+                                <option value="shell">Shell Script (.sh, .bash, .ash)</option>
+                                <option value="shell">UCI Config (.uci)</option>
+                                <option value="lua">LuCI Lua Script (.lua)</option>
+                                <option value="makefile">Makefile</option>
+                                <option value="shell">System Config (.rc, .service)</option>
+                                <option value="shell">Network Config (.network, .wireless)</option>
+                                <option value="shell">Firewall Config (.firewall)</option>
                             </select> 
                             <select class="editor-fontsize-select" 
                                     onchange="changeEditorFontSize('${tab.id}', this.value)"
@@ -10270,7 +10471,7 @@ function updateEditorPanelContent() {
                         </button>
 
                         <button class="btn btn-sm btn-dark-red" onclick="closeEditorTab('${tab.id}')">
-                            <i class="fas fa-times"></i> ${translations['close'] || 'Close'}
+                            <i class="fa fa-reply-all"></i> ${translations['close'] || 'Close'}
                         </button>
                     </div>
                 </div>
@@ -10423,6 +10624,62 @@ function getFileIcon(filename, ext, isDir) {
     
     const lowerExt = ext.toLowerCase();
     const lowerName = filename.toLowerCase();
+
+    if (['ipk', 'opk'].includes(lowerExt)) {
+        return '<i class="fas fa-box-open fa-2x" style="color: #FF9800;"></i>';
+    }
+    
+    if (['apk'].includes(lowerExt)) {
+        return '<i class="fab fa-android fa-2x" style="color: #3DDC84;"></i>';
+    }
+    
+    if (['img', 'trx', 'chk', 'factory', 'sysupgrade'].includes(lowerExt)) {
+        return '<i class="fas fa-microchip fa-2x" style="color: #FF5722;"></i>';
+    }
+    
+    if (['ko'].includes(lowerExt)) {
+        return '<i class="fas fa-microchip fa-2x" style="color: #9C27B0;"></i>';
+    }
+    
+    if (['service', 'timer'].includes(lowerExt)) {
+        return '<i class="fas fa-cogs fa-2x" style="color: #607D8B;"></i>';
+    }
+    
+    if (['rc', 'init', 'ash', 'dash'].includes(lowerExt)) {
+        return '<i class="fas fa-terminal fa-2x" style="color: #4CAF50;"></i>';
+    }
+    
+    if (['pem', 'crt', 'key', 'csr', 'pfx', 'der'].includes(lowerExt)) {
+        return '<i class="fas fa-lock fa-2x" style="color: #FF9800;"></i>';
+    }
+    
+    if (['list'].includes(lowerExt)) {
+        return '<i class="fas fa-list-alt fa-2x" style="color: #2196F3;"></i>';
+    }
+    
+    if (['dtb', 'dts'].includes(lowerExt)) {
+        return '<i class="fas fa-microchip fa-2x" style="color: #673AB7;"></i>';
+    }
+    
+    if (['uci', 'config'].includes(lowerExt)) {
+        return '<i class="fas fa-cogs fa-2x" style="color: #FF5722;"></i>';
+    }
+    
+    if (['network', 'wireless', 'firewall', 'dhcp', 'system'].includes(lowerExt)) {
+        return '<i class="fas fa-cogs fa-2x" style="color: #2196F3;"></i>';
+    }
+    
+    if (['qcow2', 'vmdk', 'vdi'].includes(lowerExt)) {
+        return '<i class="fas fa-hdd fa-2x" style="color: #795548;"></i>';
+    }
+    
+    if (['pcap', 'cap'].includes(lowerExt)) {
+        return '<i class="fas fa-network-wired fa-2x" style="color: #2196F3;"></i>';
+    }
+    
+    if (['ovpn', 'wg'].includes(lowerExt)) {
+        return '<i class="fas fa-shield-alt fa-2x" style="color: #4CAF50;"></i>';
+    }
     
     if (['js', 'jsx', 'mjs', 'cjs'].includes(lowerExt)) return '<i class="fab fa-js-square fa-2x" style="color: #FFD600;"></i>';
     if (['ts', 'tsx'].includes(lowerExt)) return '<i class="fas fa-code fa-2x" style="color: #1976D2;"></i>';
@@ -10759,10 +11016,9 @@ function updateUploadFileList() {
 
 async function startUpload() {
     if (uploadFilesList.length === 0) {
-        showLogMessage(
-            translations['upload_select_files_warning'] || 'Please select files to upload',
-            'warning'
-        );
+        const warningMessage = translations['upload_select_files_warning'] || 'Please select files to upload';
+        showLogMessage(warningMessage, 'warning');
+        speakMessage(warningMessage, 'warning');
         return;
     }
 
@@ -10782,10 +11038,14 @@ async function startUpload() {
         const data = await response.json();
 
         if (data.success) {
-            showLogMessage(
-                `${translations['upload_success'] || 'Successfully uploaded'} ${uploadFilesList.length} file(s)`,
-                'success'
-            );
+            const successMessage = `${translations['upload_success'] || 'Successfully uploaded'} ` +
+                                   `${data.files.length} ` +
+                                   (data.files.length === 1 
+                                    ? (translations['file'] || 'file') 
+                                    : (translations['files'] || 'files'));
+            
+            showLogMessage(successMessage, 'success');
+            speakMessage(successMessage, 'success');
 
             bootstrap.Modal
                 .getInstance(document.getElementById('uploadModal'))
@@ -10795,16 +11055,14 @@ async function startUpload() {
             updateUploadFileList();
             refreshFiles();
         } else {
-            showLogMessage(
-                data.error || (translations['uploadFailed'] || 'Upload failed'),
-                'error'
-            );
+            const errorMessage = data.error || (translations['uploadFailed'] || 'Upload failed');
+            showLogMessage(errorMessage, 'error');
+            speakMessage(errorMessage, 'error');
         }
     } catch (error) {
-        showLogMessage(
-            (translations['uploadFailed'] || 'Upload failed: ') + error.message,
-            'error'
-        );
+        const errorMessage = (translations['uploadFailed'] || 'Upload failed: ') + error.message;
+        showLogMessage(errorMessage, 'error');
+        speakMessage(errorMessage, 'error');
     }
 }
 
