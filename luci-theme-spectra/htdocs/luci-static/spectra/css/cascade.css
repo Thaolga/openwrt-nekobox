@@ -2024,6 +2024,12 @@ div[style="width:100%;height:300px;border:1px solid #000;background:var(--color-
     color: var(--btn-success-bg);
 }
 
+.main .main-left .nav li .menu[data-title=Spectra]:before {
+    font-family: 'bootstrap-icons' !important;
+    content: "\F666";
+    color: oklch(var(--l) var(--c) var(--base-hue-7));
+}
+
 .main>.main-left>.nav>li.slide>.menu[data-title=Docker]:before {
     font-family: 'easeicon' !important;
     content: "\e659" !important;
