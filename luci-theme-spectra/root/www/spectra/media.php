@@ -6657,7 +6657,7 @@ async function loadFiles(path) {
                             ${truncateFileName(safeName)}
                         </div>
                         <div class="file-size text-muted small mt-1">
-                            ${isDir ? (translations['folder'] || 'Folder') : item.size_formatted}
+                            ${isDir ? `<span data-translate="folder">Folder</span>`  : item.size_formatted}
                         </div>
                     </div>`;
                 });
@@ -6675,6 +6675,7 @@ async function loadFiles(path) {
     } finally {
         loadingEl.style.display = 'none';
         updateSelectionInfo();
+        updateLanguage(currentLang);
     }
 }
 
@@ -7036,7 +7037,11 @@ function updateSelectionInfo() {
         
         const sizeFormatted = formatFileSize(totalSize);
         
-        selectedInfo.textContent = (translations['selected_count'] || 'Selected') + ' ' + count + ' ' + (translations['items'] || 'item(s)') + ', ' + (translations['total_size'] || 'Total') + ' ' + sizeFormatted;
+        const selectedText = translations['selected_count'] || 'Selected';
+        const itemsText = translations['items'] || 'item(s)';
+        const totalText = translations['total_size'] || 'Total';
+        
+        selectedInfo.textContent = `${selectedText} ${count} ${itemsText}, ${totalText} ${sizeFormatted}`;
         toolbar.classList.remove('d-none');
     } else {
         toolbar.classList.add('d-none');
