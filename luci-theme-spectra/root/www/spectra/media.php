@@ -5198,7 +5198,11 @@ function updateAutoPlayToggleButton() {
     const toggleBtn = document.getElementById('autoNextToggle');
     if (toggleBtn) {
         const icon = autoNextEnabled ? 'fa-toggle-on' : 'fa-toggle-off';
-        toggleBtn.innerHTML = `<i class="fas ${icon}"></i> <span>${translations['auto_play'] || 'Auto Play'}</span>`;
+        
+        const iconElement = toggleBtn.querySelector('i');
+        if (iconElement) {
+            iconElement.className = `fas ${icon}`;
+        }
     }
 }
 
@@ -6701,7 +6705,7 @@ function updateBreadcrumb(path) {
     
     html += `<div class="breadcrumb-item cursor-pointer" onclick="navigateTo('/')">
                 <i class="fas fa-home me-1"></i>
-                <span>${translations['root'] || 'Root'}</span>
+                <span data-translate="root">Root</span>
             </div>`;
     
     let currentPath = '';
@@ -6723,19 +6727,19 @@ function updateBreadcrumb(path) {
     html += `<div class="files-statistics-bar d-flex align-items-center gap-4 flex-wrap">`;
     html += `<div class="stat-item text-center" style="min-width: 60px;">
                 <div class="stat-value fw-bold text-primary" id="totalFolders">0</div>
-                <div class="stat-label small text-muted">${translations['folder'] || 'Folders'}</div>
+                <div class="stat-label small text-muted" data-translate="folder">Folders</div>
             </div>
             <div class="stat-item text-center" style="min-width: 60px;">
                 <div class="stat-value fw-bold text-success" id="totalFiles">0</div>
-                <div class="stat-label small text-muted">${translations['file'] || 'Files'}</div>
+                <div class="stat-label small text-muted" data-translate="file">Files</div>
             </div>
             <div class="stat-item text-center" style="min-width: 80px;">
                 <div class="stat-value fw-bold text-info" id="totalSize">0 B</div>
-                <div class="stat-label small text-muted">${translations['total_size'] || 'Total Size'}</div>
+                <div class="stat-label small text-muted" data-translate="total_size">Total Size</div>
             </div>
             <div class="stat-item text-center" style="min-width: 60px;">
                 <div class="stat-value fw-bold text-warning" id="selectedItems">0</div>
-                <div class="stat-label small text-muted">${translations['selected'] || 'Selected'}</div>
+                <div class="stat-label small text-muted" data-translate="selected">Selected</div>
             </div>`;
     html += `</div></div>`;
     
@@ -6745,8 +6749,9 @@ function updateBreadcrumb(path) {
     
     const pathDisplay = document.getElementById('currentPathDisplay');
     if (pathDisplay) {
-        pathDisplay.textContent = path || (translations['root'] || 'Root');
+        pathDisplay.innerHTML = `<span data-translate="root">Root</span>`;
     }
+    updateLanguage(currentLang);
 }
 
 function navigateTo(path) {
@@ -10323,26 +10328,26 @@ function updateEditorPanelContent() {
                         <button class="btn btn-sm btn-indigo editor-mode-toggle" 
                                 onclick="toggleEditorMode('${tab.id}')" 
                                 id="editorModeBtn-${tab.id}"
-                                title="${translations['toggle_editor_mode'] || 'Toggle editor mode'}">
+                                data-translate-tooltip="toggle_editor_mode">
                             <i class="fas fa-exchange-alt"></i> 
-                            <span id="editorModeText-${tab.id}">
-                                ${editorMode === 'simple' 
-                                    ? (translations['switch_to_advanced'] || 'Switch to advanced editor') 
-                                    : (translations['switch_to_simple'] || 'Switch to simple editor')}
+                            <span id="editorModeText-${tab.id}"
+                                data-translate="${editorMode === 'simple' ? 'switch_to_advanced' : 'switch_to_simple'}">
+                                ${editorMode === 'simple' ? 'Switch to advanced editor' : 'Switch to simple editor'}
                             </span>
                         </button>
 
                         ${editorMode === 'advanced' ? `
                         <button class="btn btn-sm btn-purple" onclick="toggleComment('${tab.id}')" 
-                                title="${translations['toggle_comment'] || 'Toggle comment'}">
-                            <i class="fas fa-comment"></i> ${translations['toggle_comment'] || 'Toggle comment'}
+                                data-translate-tooltip="toggle_comment">
+                            <i class="fas fa-comment"></i>
+                            <span data-translate="toggle_comment">Toggle comment</span>
                         </button>
 
                             <select class="editor-language-select" 
                                     onchange="changeEditorLanguage('${tab.id}', this.value)" 
                                     id="${tab.id}-language-select">
-                                <option value="plaintext">${translations['auto_detect'] || 'Auto detect'}</option>
-                                <option value="plaintext">${translations['plain_text'] || 'Plain text'}</option>
+                                <option value="plaintext" data-translate="auto_detect">Auto detect</option>
+                                <option value="plaintext" data-translate="plain_text">Plain text</option>
                                 <option value="html">HTML</option>
                                 <option value="css">CSS</option>
                                 <option value="javascript">JavaScript</option>
@@ -10408,7 +10413,7 @@ function updateEditorPanelContent() {
                             </select> 
                             <select class="editor-fontsize-select" 
                                     onchange="changeEditorFontSize('${tab.id}', this.value)"
-                                    title="${translations['fontSizeL'] || 'Font Size'}"
+                                    data-translate-tooltip="fontSizeL"
                                     style="margin-left: 8px;">
                                 <option value="10">10px</option>
                                 <option value="11">11px</option>
@@ -10428,50 +10433,56 @@ function updateEditorPanelContent() {
                                 <option value="36">36px</option>
                             </select>                            
                             <select class="editor-theme-select" onchange="changeEditorTheme('${tab.id}', this.value)">
-                                <option value="vs-dark">${translations['theme_dark'] || 'Dark theme'}</option>
-                                <option value="vs">${translations['theme_light'] || 'Light theme'}</option>
-                                <option value="hc-black">${translations['theme_high_contrast'] || 'High contrast'}</option>
-                                <option value="my-custom-theme">${translations['theme_custom'] || 'Custom Theme'}</option>
+                                <option value="vs-dark" data-translate="theme_dark">Dark theme</option>
+                                <option value="vs" data-translate="theme_light">Light theme</option>
+                                <option value="hc-black" data-translate="theme_high_contrast">High contrast</option>
+                                <option value="my-custom-theme" data-translate="theme_custom">Custom Theme</option>
                                 <option value="monokai">Monokai</option>
                                 <option value="solarized-dark">Solarized Dark</option>
                             </select>
                             
                         <button class="btn btn-sm btn-primary" onclick="formatCode('${tab.id}')">
-                            <i class="fas fa-brush"></i> ${translations['format'] || 'Format'}
+                            <i class="fas fa-brush"></i>
+                            <span data-translate="format">Format</span>
                         </button>
 
-                        <button class="btn btn-sm btn-pink" onclick="toggleFullscreen()" title="${translations['fullscreen'] || 'Fullscreen'}">
-                            <i class="fas fa-expand"></i> ${translations['fullscreen'] || 'Fullscreen'}
+                        <button class="btn btn-sm btn-pink" onclick="toggleFullscreen()" data-translate-tooltip="fullscreen">
+                            <i class="fas fa-expand"></i>
+                            <span data-translate="fullscreen">Fullscreen</span>
                         </button>   
 
                         <button class="btn btn-sm btn-orange" onclick="openDiffView('${tab.id}')"
-                        title="${translations['diff_view'] || 'Diff View'}">
-                            <i class="fas fa-code-compare"></i> ${translations['diff_view'] || 'Diff View'}
+                        data-translate-tooltip="diff_view">
+                            <i class="fas fa-code-compare"></i>
+                            <span data-translate="diff_view">Diff View</span>
                         </button>
 
                         <button class="btn btn-sm btn-teal" onclick="openFindReplace('${tab.id}')">
-                            <i class="fas fa-search"></i> ${translations['search.find'] || 'Find'}
+                            <i class="fas fa-search"></i>
+                            <span data-translate="search.find">Find</span>
                         </button>
                         ` : ''}
                     </div>
 
                       <div class="editor-toolbar-right">     
                         <button class="btn btn-sm btn-outline-info" onclick="downloadCurrentFile('${tab.id}')"
-                                title="${translations['download'] || 'Download'}">
+                                data-translate-tooltip="download">
                             <i class="fas fa-download"></i>
                         </button>
 
                         <button class="btn btn-sm btn-outline-warning" onclick="showKeyboardShortcuts()"
-                                title="${translations['keyboard_shortcuts'] || 'Keyboard shortcuts'}">
+                                data-translate-tooltip="keyboard_shortcuts">
                             <i class="fas fa-keyboard"></i>
                         </button>
 
                         <button class="btn btn-sm btn-success" onclick="saveEditorContent('${tab.id}')">
-                            <i class="fas fa-save"></i> ${translations['save'] || 'Save'}
+                            <i class="fas fa-save"></i>
+                            <span data-translate="save">Save</span>
                         </button>
 
                         <button class="btn btn-sm btn-dark-red" onclick="closeEditorTab('${tab.id}')">
-                            <i class="fa fa-reply-all"></i> ${translations['close'] || 'Close'}
+                            <i class="fa fa-reply-all"></i>
+                            <span data-translate="close">Close</span>
                         </button>
                     </div>
                 </div>
@@ -10492,7 +10503,7 @@ function updateEditorPanelContent() {
                         <div id="${tab.id}-monaco-container" class="monaco-editor-container">
                             <div class="editor-loading">
                                 <div class="spinner-border spinner-border-sm" role="status"></div>
-                                ${translations['loading_advanced_editor'] || 'Loading advanced editor...'}
+                                <span data-translate="loading_advanced_editor">Loading advanced editor...</span>
                             </div>
                         </div>
                     `}
@@ -10501,7 +10512,8 @@ function updateEditorPanelContent() {
                 <div class="editor-status-bar">
                     <div class="editor-position-info">
                         <span id="${tab.id}-position-info">
-                            ${translations['line'] || 'Line'}: 1, ${translations['column'] || 'Column'}: 1
+                            <span data-translate="line">Line</span>: 1,
+                            <span data-translate="column">Column</span>: 1
                         </span>
                         <span id="${tab.id}-selected-text-info"></span>
                         <span id="${tab.id}-char-count-info">
@@ -10511,8 +10523,10 @@ function updateEditorPanelContent() {
                         <span>UTF-8</span>
                     </div>
                     <div class="editor-encoding-info">
-                        <span>${editorMode === 'advanced' ? (translations['advanced_editor'] || 'Advanced Editor') : (translations['simple_editor'] || 'Simple Editor')}</span>
-                        ${editorMode === 'advanced' ? `<span style="color: #4CAF50;">${translations['syntax_completion_enabled'] || 'Syntax completion enabled'}</span>` : ''}
+                        <span data-translate="${editorMode === 'advanced' ? 'advanced_editor' : 'simple_editor'}">
+                            ${editorMode === 'advanced' ? 'Advanced Editor' : 'Simple Editor'}
+                        </span>
+                        ${editorMode === 'advanced' ? `<span style="color: #4CAF50;" data-translate="syntax_completion_enabled">Syntax completion enabled</span>` : ''}
                     </div>
                 </div>
             `;
@@ -10594,6 +10608,9 @@ function updateEditorPanelContent() {
                 }, 200);
             }
         }
+    }
+    if (typeof updateLanguage === 'function' && typeof currentLang !== 'undefined') {
+        updateLanguage(currentLang);
     }
 }
 
