@@ -7859,7 +7859,7 @@ const currentLang = "<?php echo $currentLang; ?>";
 let translations = langData[currentLang] || langData['en'];
 
 function startLanguageMonitoring() {
-    let currentLanguage = localStorage.getItem('language') || currentLang;   
+   let currentLanguage = currentLang;
     setInterval(() => {
         fetch('./save_language.php', {
             method: 'POST',
@@ -7877,14 +7877,13 @@ function startLanguageMonitoring() {
                     updateLanguage(newLanguage);
                     updateFlagIcon(newLanguage);
                     document.getElementById("langSelect").value = newLanguage;
-                    localStorage.setItem('language', newLanguage);
                     
-                    console.log('Language updated to:', newLanguage);
+                    //console.log('Language updated to:', newLanguage);
                 }
             }
         })
         .catch(error => {
-            console.error('Error checking language:', error);
+            //console.error('Error checking language:', error);
         });
     }, 2000);
 }
@@ -7908,7 +7907,6 @@ document.addEventListener("DOMContentLoaded", () => {
             langSelect.value = userLang;
         }
         
-        localStorage.setItem('language', userLang);
         startLanguageMonitoring();
     })
     .catch(error => {
@@ -7920,7 +7918,6 @@ document.addEventListener("DOMContentLoaded", () => {
             langSelect.value = currentLang;
         }
         
-        localStorage.setItem('language', currentLang);
         startLanguageMonitoring();
     });
 });
@@ -7930,7 +7927,6 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 function updateLanguage(lang) {
-    localStorage.setItem('language', lang); 
     translations = langData[lang] || langData['en'];  
 
     const translateElement = (el, attribute, property) => {
@@ -8306,7 +8302,6 @@ function changeLanguage(lang) {
         if (data.success) {
             updateLanguage(lang);  
             updateFlagIcon(lang);  
-            localStorage.setItem('language', lang);
             
             const langLabelMap = {
                 'zh': '语言已切换为简体中文',
