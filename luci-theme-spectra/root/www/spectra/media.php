@@ -3177,6 +3177,9 @@ body {
 .select-all-checkbox input[type="checkbox"] {
     margin: 0;
     cursor: pointer;
+    width: 18px;
+    height: 18px;
+    accent-color: var(--accent-color);
 }
 
 .selection-count {
@@ -4480,9 +4483,9 @@ list-group:hover {
             <i class="fas fa-sync-alt me-2"></i>
             <span data-translate="refresh">Refresh</span>
         </div>
-        <div class="menu-item" id="emptySelectAllItem" style="display: none;" onclick="selectAllFiles()">
-            <i class="fas fa-check-square me-2"></i>
-            <span data-translate="select_all">select_All</span>
+        <div class="menu-item" id="emptySelectAllItem" style="display: none;" onclick="toggleEmptySelectAll()">
+            <i class="fas fa-check-square me-2" id="emptySelectAllIcon"></i>
+            <span id="emptySelectAllText">Select All</span>
         </div>
         
         <div class="menu-item" id="globalPasteItem" style="display: none;" onclick="pasteFromClipboard()">
@@ -7279,36 +7282,93 @@ function updateSelectionInfo() {
     } else {
         toolbar.classList.add('d-none');
     }
+    updateSelectAllCheckbox();
+    updateEmptySelectAllItem();
 }
 
 function toggleSelectAll() {
-    const selectAllCheckbox = document.querySelector('.select-all-checkbox input[type="checkbox"]');
+    const selectAllCheckbox = document.getElementById('selectAllCheckbox');
     if (!selectAllCheckbox) return;
     
     const fileItems = document.querySelectorAll('.file-item');
+    const label = document.querySelector('label[for="selectAllCheckbox"]');
     
     if (selectAllCheckbox.checked) {
         fileItems.forEach(item => {
             const path = item.getAttribute('data-path');
-            selectedFiles.add(path);
-            
-            const checkbox = item.querySelector('input[type="checkbox"]');
-            if (checkbox) {
-                checkbox.checked = true;
+            if (path) {
+                selectedFiles.add(path);
             }
         });
+        if (label) {
+            label.innerHTML = translations['invertSelection'] || 'Deselect All';
+        }
     } else {
         selectedFiles.clear();
-        fileItems.forEach(item => {
-            const checkbox = item.querySelector('input[type="checkbox"]');
-            if (checkbox) {
-                checkbox.checked = false;
-            }
-        });
+        if (label) {
+            label.innerHTML = translations['select_all'] || 'Select All';
+        }
     }
-    
+
     updateFileSelection();
     updateSelectionInfo();
+}
+
+function updateSelectAllCheckbox() {
+    const selectAllCheckbox = document.getElementById('selectAllCheckbox');
+    const label = document.querySelector('label[for="selectAllCheckbox"]');
+    if (!selectAllCheckbox || !label) return;
+    
+    const fileItems = document.querySelectorAll('.file-item');
+    const checkedCount = selectedFiles.size;
+    
+    if (fileItems.length === 0) {
+        selectAllCheckbox.checked = false;
+        selectAllCheckbox.indeterminate = false;
+        label.innerHTML = translations['select_all'] || 'Select All';
+    } else if (checkedCount === 0) {
+        selectAllCheckbox.checked = false;
+        selectAllCheckbox.indeterminate = false;
+        label.innerHTML = translations['select_all'] || 'Select All';
+    } else if (checkedCount === fileItems.length) {
+        selectAllCheckbox.checked = true;
+        selectAllCheckbox.indeterminate = false;
+        label.innerHTML = translations['invertSelection'] || 'Deselect All';
+    } else {
+        selectAllCheckbox.checked = false;
+        selectAllCheckbox.indeterminate = true;
+        label.innerHTML = translations['select_all'] || 'Select All';
+    }
+}
+
+function toggleEmptySelectAll() {
+    const fileItems = document.querySelectorAll('.file-item');
+    const allSelected = fileItems.length > 0 && fileItems.length === selectedFiles.size;
+    
+    if (allSelected) {
+        clearSelection();
+    } else {
+        selectAllFiles();
+    }
+    hideFileContextMenu();
+}
+
+function updateEmptySelectAllItem() {
+    const emptySelectAllItem = document.getElementById('emptySelectAllItem');
+    if (!emptySelectAllItem) return;
+    
+    const fileItems = document.querySelectorAll('.file-item');
+    const allSelected = fileItems.length > 0 && fileItems.length === selectedFiles.size;
+    const icon = document.getElementById('emptySelectAllIcon');
+    const text = document.getElementById('emptySelectAllText');
+    
+    if (allSelected) {
+        icon.className = 'fas fa-times-circle me-2';
+        text.textContent = translations['deselect_all'] || 'Deselect All';
+    } else {
+        icon.className = 'fas fa-check-square me-2';
+        text.textContent = translations['select_all'] || 'Select All';
+    }
 }
 
 function changeViewMode(mode) {
@@ -7332,6 +7392,14 @@ function clearSelection() {
     selectedFiles.clear();
     updateFileSelection();
     updateSelectionInfo();
+    
+    const toolbar = document.getElementById('selectionToolbar');
+    if (toolbar) {
+        toolbar.classList.add('d-none');
+    }
+    
+    updateSelectAllCheckbox();
+    updateEmptySelectAllItem();
 }
 
 function showMultipleFileInfo() {
@@ -7513,6 +7581,7 @@ function showEmptyAreaMenuItems() {
     showMenuItem('emptyRefreshItem');
     showMenuItem('emptySelectAllItem');
     showMenuItem('emptyDivider2');
+    updateEmptySelectAllItem();
 }
 
 function showMenuItem(id) {
