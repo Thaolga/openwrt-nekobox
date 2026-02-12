@@ -4535,10 +4535,10 @@ list-group:hover {
             <span style="margin-left: auto; font-size: 0.8rem; opacity: 0.7;">Delete</span>
         </div>
         
-        <div class="menu-item archive-menu" id="archiveMenuItem">
+        <div class="menu-item archive-menu" id="archiveMenuItem" onclick="toggleArchiveSubmenu(event)">
             <i class="fas fa-file-archive me-2"></i>
             <span data-translate="archive_operations">Archive Operations</span>
-            <i class="fas fa-chevron-down ms-auto"></i>
+            <i class="fas fa-chevron-right ms-auto"></i>
         </div>
         <div id="archiveSubmenu" class="archive-submenu" style="display: none; margin-left: 20px;">
             <div class="menu-item" id="archiveCompressItem" onclick="showCompressDialog()">
@@ -6504,26 +6504,6 @@ document.addEventListener('DOMContentLoaded', function() {
             hideContextMenu();
         }
     });
-
-    try {
-        const savedClipboard = localStorage.getItem('fileClipboard');
-        if (savedClipboard) {
-            const data = JSON.parse(savedClipboard);
-            if (data.timestamp && (Date.now() - data.timestamp) < 30 * 60 * 1000) {
-                clipboardItems = {
-                    paths: new Set(data.paths),
-                    action: data.action,
-                    sourcePath: data.sourcePath,
-                    timestamp: data.timestamp
-                };
-                updatePasteMenuState();
-            } else {
-                localStorage.removeItem('fileClipboard');
-            }
-        }
-    } catch (e) {
-        //console.error('Failed to restore clipboard:', e);
-    }
 });
 
 document.addEventListener('keydown', function(event) {
@@ -6782,8 +6762,9 @@ async function loadFiles(path) {
                          ondblclick="handleDoubleClick('${safePath}', ${isDir}, '${item.type}')"
                          onclick="handleFileClick(event, '${safePath}')">
 
-                        <div class="form-check position-absolute" style="top: 5px; left: 9px; z-index: 100; display: none;">
+                        <div class="form-check position-absolute" style="top: 5px; left: 9px; z-index: 100; ${isSelected ? 'display: block;' : 'display: none;'}">
                             <input class="form-check-input" type="checkbox" 
+                                   ${isSelected ? 'checked' : ''}
                                    onclick="event.stopPropagation(); toggleFileSelection('${safePath}', this.checked)">
                         </div>
 
@@ -6824,6 +6805,7 @@ function initRightClick() {
     if (!fileGrid) return;
     
     fileGrid.removeEventListener('contextmenu', handleRightClick);
+    
     fileGrid.addEventListener('contextmenu', handleRightClick);
 }
 
@@ -6846,8 +6828,10 @@ function handleRightClick(event) {
         const fileName = path.split('/').pop();
         const ext = fileName.toLowerCase().split('.').pop();
         
-        if (!selectedFiles.has(path)) {
+        if (!selectedFiles.has(path) && !event.ctrlKey && !event.metaKey) {
             selectedFiles.clear();
+            selectedFiles.add(path);
+        } else if (!selectedFiles.has(path) && (event.ctrlKey || event.metaKey)) {
             selectedFiles.add(path);
         }
         
@@ -6856,6 +6840,13 @@ function handleRightClick(event) {
         
         showMenuItem('fileOpenItem');
         showMenuItem('fileDownloadItem');
+        showMenuItem('fileCutItem');
+        showMenuItem('fileCopyItem');
+        showMenuItem('fileRenameItem');
+        showMenuItem('fileDeleteItem');
+        showMenuItem('fileChmodItem');
+        showMenuItem('filePropertiesItem');
+        showMenuItem('fileTerminalItem');
         
         const mediaExts = ['mp3', 'wav', 'ogg', 'flac', 'm4a', 'aac', 
                            'mp4', 'avi', 'mkv', 'mov', 'wmv', 'flv', 'webm',
@@ -6870,89 +6861,39 @@ function handleRightClick(event) {
             showMenuItem('fileEditItem');
         }
         
-        showMenuItem('fileCutItem');
-        showMenuItem('fileCopyItem');
-        showMenuItem('fileRenameItem');
-        showMenuItem('fileDeleteItem');
-        showMenuItem('fileDivider1');
-        
         showMenuItem('archiveMenuItem');
-        // const archiveSubmenu = document.getElementById('archiveSubmenu');
-        // if (archiveSubmenu) archiveSubmenu.style.display = 'block';
-        showMenuItem('archiveDivider');
+        document.getElementById('archiveCompressItem').style.display = 'flex';
         
-        showMenuItem('fileChmodItem');
-        showMenuItem('filePropertiesItem');
-        showMenuItem('fileTerminalItem');
-        showMenuItem('fileDivider2');
+        const archiveExts = ['zip', 'tar', 'gz', 'bz2', '7z', 'rar', 'tgz', 'tbz2'];
+        if (!isDir && archiveExts.includes(ext)) {
+            document.getElementById('archiveExtractHereItem').style.display = 'flex';
+            document.getElementById('archiveExtractToItem').style.display = 'flex';
+        }
         
     } else {
+        selectedFiles.clear();
+        updateFileSelection();
+        updateSelectionInfo();
+        
         showMenuItem('emptyNewFolderItem');
         showMenuItem('emptyNewFileItem');
         showMenuItem('emptyUploadItem');
-        showMenuItem('emptyRenameItem');
-        showMenuItem('emptyCopyItem');
-        showMenuItem('emptyMoveItem');
         showMenuItem('emptyRefreshItem');
         showMenuItem('emptySelectAllItem');
-        showMenuItem('emptyDivider2');
     }
     
     updatePasteMenuState();
     
     positionContextMenu(menu, event);
-    
     menu.style.display = 'block';
     overlay.style.display = 'block';
 }
-
 function initFileGridRightClick() {
     const fileGrid = document.getElementById('fileGrid');
     if (!fileGrid) return;
     
     fileGrid.removeEventListener('contextmenu', handleGridRightClick);
     fileGrid.addEventListener('contextmenu', handleGridRightClick);
-}
-
-function handleGridRightClick(event) {
-    event.preventDefault();
-    event.stopPropagation();
-    
-    const menu = document.getElementById('fileContextMenu');
-    const overlay = document.getElementById('contextMenuOverlay');
-    
-    if (!menu || !overlay) return;
-    
-    hideAllContextMenuItems();
-    
-    const fileItem = event.target.closest('.file-item');
-    
-    if (fileItem) {
-        const path = fileItem.getAttribute('data-path');
-        const isDir = fileItem.getAttribute('data-is-dir') === 'true';
-        const fileName = path.split('/').pop();
-        const ext = fileName.toLowerCase().split('.').pop();
-        
-        selectedFiles.clear();
-        selectedFiles.add(path);
-        updateFileSelection();
-        updateSelectionInfo();
-        
-        showFileMenuItems(fileItem);
-        
-    } else {
-        selectedFiles.clear();
-        updateFileSelection();
-        updateSelectionInfo();
-        
-        showEmptyAreaMenuItems();
-    }
-    
-    updatePasteMenuState();
-    
-    positionContextMenu(menu, event);
-    menu.style.display = 'block';
-    overlay.style.display = 'block';
 }
 
 function updateStatistics(folderCount, fileCount, totalSize) {
@@ -7033,7 +6974,6 @@ function updateBreadcrumb(path) {
 
 function navigateTo(path) {
     if (!path) return;
-    selectedFiles.clear();
     loadFiles(path);
 }
 
@@ -7221,9 +7161,10 @@ function getBinaryPreview(content) {
 function handleFileClick(event, filePath) {
     if (event.target.type === 'checkbox' || 
         event.target.closest('.form-check') ||
-        event.target.closest('.file-checkbox')) {
+        event.target.closest('input[type="checkbox"]')) {
         
         const checkbox = event.target.type === 'checkbox' ? event.target : 
+                        event.target.querySelector('input[type="checkbox"]') ||
                         event.target.closest('input[type="checkbox"]');
         
         if (checkbox) {
@@ -7329,7 +7270,6 @@ function updateSelectionInfo() {
         });
         
         const sizeFormatted = formatFileSize(totalSize);
-        
         const selectedText = translations['selected_count'] || 'Selected';
         const itemsText = translations['items'] || 'item(s)';
         const totalText = translations['total_size'] || 'Total';
@@ -7886,115 +7826,25 @@ if (!document.querySelector('#archive-menu-styles')) {
     document.head.appendChild(style);
 }
 
-document.addEventListener('DOMContentLoaded', function() {
-    const menu = document.getElementById('fileContextMenu');
-    if (!menu) return;
+function toggleArchiveSubmenu(event) {
+    event.stopPropagation();
+    event.preventDefault();
     
-    if (document.getElementById('archiveMenuItem')) return;
+    const submenu = document.getElementById('archiveSubmenu');
+    const chevron = event.currentTarget.querySelector('.fa-chevron-right, .fa-chevron-down');
     
-    const archiveMenuItem = document.createElement('div');
-    archiveMenuItem.id = 'archiveMenuItem';
-    archiveMenuItem.className = 'menu-item archive-menu';
-    archiveMenuItem.innerHTML = `
-        <i class="fas fa-file-archive me-2"></i>
-        <span data-translate="archive_operations">Archive Operations</span>
-        <i class="fas fa-chevron-down ms-auto"></i>
-    `;
-    
-    const permissionsItem = menu.querySelector('.menu-item[onclick*="showChmodDialog"]');
-    const propertiesItem = menu.querySelector('.menu-item[onclick*="showFileProperties"]');
-    
-    if (permissionsItem && propertiesItem) {
-        permissionsItem.parentNode.insertBefore(archiveMenuItem, propertiesItem);
+    if (submenu.style.display === 'block') {
+        submenu.style.display = 'none';
+        if (chevron) {
+            chevron.className = 'fas fa-chevron-right ms-auto';
+        }
     } else {
-        const deleteItem = menu.querySelector('.menu-item[onclick*="contextMenuDelete"]');
-        if (deleteItem) {
-            deleteItem.parentNode.insertBefore(archiveMenuItem, deleteItem);
+        submenu.style.display = 'block';
+        if (chevron) {
+            chevron.className = 'fas fa-chevron-down ms-auto';
         }
     }
-    
-    const submenuContainer = document.createElement('div');
-    submenuContainer.id = 'archiveSubmenu';
-    submenuContainer.className = 'archive-submenu';
-    submenuContainer.style.cssText = `
-        display: none;
-        margin-left: 20px;
-        border-left: 2px solid var(--accent-color);
-        padding-left: 10px;
-    `;
-    
-    const compressItem = document.createElement('div');
-    compressItem.id = 'compressMenuItem';
-    compressItem.className = 'menu-item';
-    compressItem.innerHTML = `
-        <i class="fas fa-compress me-2"></i>
-        <span data-translate="compress_to">Compress to...</span>
-    `;
-    compressItem.addEventListener('click', (e) => {
-        e.stopPropagation();
-        showCompressDialog();
-        hideFileContextMenu();
-    });
-    
-    const extractItem = document.createElement('div');
-    extractItem.id = 'extractMenuItem';
-    extractItem.className = 'menu-item';
-    extractItem.innerHTML = `
-        <i class="fas fa-expand me-2"></i>
-        <span data-translate="extract_here">Extract here</span>
-    `;
-    extractItem.addEventListener('click', (e) => {
-        e.stopPropagation();
-        if (fileContextMenuTarget) {
-            const path = fileContextMenuTarget.getAttribute('data-path');
-            let cleanPath = path;
-            if (cleanPath.startsWith('//')) {
-                cleanPath = cleanPath.substring(1);
-            }
-            extractArchiveHere(cleanPath);
-        }
-        hideFileContextMenu();
-    });
-    
-    const extractToItem = document.createElement('div');
-    extractToItem.id = 'extractToMenuItem';
-    extractToItem.className = 'menu-item';
-    extractToItem.innerHTML = `
-        <i class="fas fa-folder-open me-2"></i>
-        <span data-translate="extract_to">Extract to...</span>
-    `;
-    extractToItem.addEventListener('click', (e) => {
-        e.stopPropagation();
-        showExtractDialog();
-        hideFileContextMenu();
-    });
-    
-    submenuContainer.appendChild(compressItem);
-    submenuContainer.appendChild(extractItem);
-    submenuContainer.appendChild(extractToItem);
-    
-    archiveMenuItem.parentNode.insertBefore(submenuContainer, archiveMenuItem.nextSibling);
-    
-    archiveMenuItem.addEventListener('click', function(e) {
-        e.stopPropagation();
-        e.preventDefault();
-        
-        const submenu = document.getElementById('archiveSubmenu');
-        const chevron = this.querySelector('.fa-chevron-down, .fa-chevron-up');
-        
-        if (submenu.style.display === 'block') {
-            submenu.style.display = 'none';
-            if (chevron) {
-                chevron.className = 'fas fa-chevron-down ms-auto';
-            }
-        } else {
-            submenu.style.display = 'block';
-            if (chevron) {
-                chevron.className = 'fas fa-chevron-up ms-auto';
-            }
-        }
-    });
-});
+}
 
 function toggleFileSelection(filePath, checked) {
     if (event) {
