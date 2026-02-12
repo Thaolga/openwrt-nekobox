@@ -1415,7 +1415,7 @@ function getMediaInfo($path) {
 
 if (isset($_GET['preview']) && $_GET['preview'] == '1' && isset($_GET['path'])) {
     $filePath = urldecode($_GET['path']);
-    
+    $filePath = preg_replace('/#.*$/', '', $filePath);   
     $filePath = preg_replace('#/+#', '/', $filePath);
     if (substr($filePath, 0, 1) !== '/') {
         $filePath = '/' . $filePath;
@@ -5108,14 +5108,19 @@ function showSection(sectionId) {
     }
 }
      
-function playMedia(filePath) {    
+let playMediaTimeout = null;
+let lastPlayedPath = null;
+
+function actuallyPlayMedia(filePath) {
     filePath = filePath.trim();
+    if (filePath.startsWith('//')) {
+        filePath = filePath.substring(1);
+    }
     
     const fileName = filePath.split('/').pop();
     const fileExt = fileName.split('.').pop().toLowerCase();
     
     const previewUrl = `?preview=1&path=${encodeURIComponent(filePath)}`;
-    
     const audioPlayer = document.getElementById('audioPlayer');
     const videoPlayer = document.getElementById('videoPlayer');
     const imageViewer = document.getElementById('imageViewer');
@@ -5171,12 +5176,12 @@ function playMedia(filePath) {
         audioPlayer.src = previewUrl;
         audioPlayer.load();
         audioPlayer.style.display = 'block';
+        audioPlayer.controls = true;
         audioPlayer.play().catch(e => {
             audioPlayer.style.display = 'none';
             playError.style.display = 'block';
         });
         currentMedia = { type: 'audio', src: previewUrl, path: filePath, ext: fileExt, wasPlaying: false };
-        
         updateCurrentMediaList('music', filePath);
     } 
     else if (videoExts.includes(fileExt)) {
@@ -5189,12 +5194,12 @@ function playMedia(filePath) {
         videoPlayer.src = previewUrl;
         videoPlayer.load();
         videoPlayer.style.display = 'block';
+        videoPlayer.controls = true;
         videoPlayer.play().catch(e => {
             videoPlayer.style.display = 'none';
             playError.style.display = 'block';
         });
         currentMedia = { type: 'video', src: previewUrl, path: filePath, ext: fileExt, wasPlaying: false };
-        
         updateCurrentMediaList('video', filePath);
     } 
     else if (imageExts.includes(fileExt)) {
@@ -5202,7 +5207,6 @@ function playMedia(filePath) {
         imageViewer.src = previewUrl;
         imageViewer.style.display = 'block';
         currentMedia = { type: 'image', src: previewUrl, path: filePath, ext: fileExt, wasPlaying: false };
-        
         updateCurrentMediaList('image', filePath);
         
         if (autoNextEnabled) {
@@ -5214,9 +5218,24 @@ function playMedia(filePath) {
     }
     
     playerArea.classList.add('active');
-
     setPlayerTitle(fileName);    
     saveToRecent(filePath);
+}
+
+function playMedia(filePath) {
+    if (playMediaTimeout) {
+        clearTimeout(playMediaTimeout);
+    }
+    
+    if (lastPlayedPath === filePath) {
+        playMediaTimeout = setTimeout(() => {
+            actuallyPlayMedia(filePath);
+        }, 100);
+        return;
+    }
+    
+    lastPlayedPath = filePath;
+    actuallyPlayMedia(filePath);
 }
 
 function setPlayerTitle(fileName) {
@@ -6762,7 +6781,6 @@ async function loadFiles(path) {
                          data-name="${safeName}"
                          data-is-dir="${isDir}"
                          data-size="${item.size}"
-                         ondblclick="handleDoubleClick('${safePath}', ${isDir}, '${item.type}')"
                          onclick="handleFileClick(event, '${safePath}')">
 
                         <div class="form-check position-absolute" style="top: 5px; left: 9px; z-index: 100; ${isSelected ? 'display: block;' : 'display: none;'}">
@@ -6895,8 +6913,8 @@ function initFileGridRightClick() {
     const fileGrid = document.getElementById('fileGrid');
     if (!fileGrid) return;
     
-    fileGrid.removeEventListener('contextmenu', handleGridRightClick);
-    fileGrid.addEventListener('contextmenu', handleGridRightClick);
+    //fileGrid.removeEventListener('contextmenu', handleGridRightClick);
+    //fileGrid.addEventListener('contextmenu', handleGridRightClick);
 }
 
 function updateStatistics(folderCount, fileCount, totalSize) {
@@ -7185,12 +7203,38 @@ function handleFileClick(event, filePath) {
         return;
     }
     
-    if (event.detail === 2) {
-        const fileItem = document.querySelector(`.file-item[data-path="${filePath}"]`);
-        if (fileItem) {
-            const isDir = fileItem.getAttribute('data-is-dir') === 'true';
-            const type = fileItem.getAttribute('data-type');
-            handleDoubleClick(filePath, isDir, type);
+    event.preventDefault();
+    event.stopPropagation();
+    
+    const fileItem = document.querySelector(`.file-item[data-path="${filePath}"]`);
+    if (fileItem) {
+        const isDir = fileItem.getAttribute('data-is-dir') === 'true';
+        const type = fileItem.getAttribute('data-type');
+        
+        if (isDir) {
+            navigateTo(filePath);
+        } else {
+            const fileName = filePath.split('/').pop();
+            const ext = fileName.toLowerCase().split('.').pop();
+            
+            const audioExts = ['mp3', 'wav', 'ogg', 'flac', 'm4a', 'aac'];
+            const videoExts = ['mp4', 'avi', 'mkv', 'mov', 'wmv', 'flv', 'webm'];
+            const imageExts = ['jpg', 'jpeg', 'png', 'gif', 'bmp', 'webp', 'svg'];
+            const textExts = [
+                'txt', 'log', 'conf', 'ini', 'json', 'xml', 'html', 'htm',
+                'css', 'js', 'php', 'py', 'sh', 'md', 'yaml', 'yml',
+                'csv', 'sql', 'bat', 'cmd'
+            ];
+            
+            if (audioExts.includes(ext) || videoExts.includes(ext) || imageExts.includes(ext)) {
+                playMedia(filePath);
+            }
+            else if (textExts.includes(ext) || ext === '') {
+                editFile(filePath);
+            }
+            else {
+                editFile(filePath);
+            }
         }
     }
 }
