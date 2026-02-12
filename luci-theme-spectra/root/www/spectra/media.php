@@ -1872,6 +1872,8 @@ body {
 .main-container {
     display: flex;
     height: 100vh;
+    padding-top: 20px;
+    box-sizing: border-box; 
 }
 
 .content-area {
@@ -1940,7 +1942,7 @@ body {
 }
 
 .nav-section {
-    margin-bottom: 25px;
+    margin-bottom: 20px;
 }
 
 .nav-section-title {
@@ -1957,6 +1959,30 @@ body {
     align-items: center;
     gap: 12px;
     padding: 12px 15px;
+    margin: 5px 0;
+    color: var(--text-primary);
+    text-decoration: none;
+    letter-spacing: 0.5px;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+    border: var(--border-strong);
+    border-left-width: 3px;
+    border-left-color: transparent;
+    border-radius: 8px;
+    transition:
+        background-color 0.3s ease,
+        color 0.3s ease,
+        transform 0.25s ease,
+        border-left-color 0.3s ease;
+    will-change: transform;
+}
+
+.side-nav .nav-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 15px;
     color: var(--text-primary);
     text-decoration: none;
     transition: all 0.3s;
@@ -1964,6 +1990,28 @@ body {
     border-left: 3px solid transparent;
     border-radius: 8px;
     margin: 5px 0;
+    cursor: pointer;
+    letter-spacing: 0.5px;
+    position: relative;
+    overflow: hidden;
+}
+
+.side-nav .nav-item::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.3);
+    transform: translate(-50%, -50%);
+    transition: width 0.6s, height 0.6s;
+}
+
+.side-nav .nav-item:hover::before {
+    width: 300%;
+    height: 300%;
 }
 
 .side-nav .nav-item:hover {
@@ -1975,7 +2023,7 @@ body {
 .nav-item.active {
     background: var(--accent-color);
     color: white;
-}
+} 
 
 .nav-icon {
     font-size: 1.2rem;
@@ -1992,7 +2040,7 @@ body {
 
 .grid-title {
     font-size: 1.4rem;
-    margin-bottom: 25px;
+    margin-bottom: 20px;
     color: var(--accent-tertiary);
     display: flex;
     align-items: center;
@@ -2930,6 +2978,7 @@ body {
     flex: 1;
     overflow-y: auto;
     padding-top: 15px;
+    min-height: 300px;
 }
 
 .file-grid.folder-view {
@@ -3176,6 +3225,18 @@ body {
     text-align: center;
     padding: 60px 20px;
     color: var(--text-secondary);
+}
+
+#filesSection {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    flex: 1;
+}
+
+#fileGrid {
+    flex: 1;
+    min-height: 0;
 }
 
 .empty-folder i {
@@ -3645,7 +3706,7 @@ list-group:hover {
                         <span class="nav-icon"><i class="fas fa-history"></i></span>
                         <span data-translate="recent_play">Recent Play</span>
                     </a>
-                    <a href="#" class="nav-item" onclick="showSection('files')" data-translate-tooltip="file_manager">
+                    <a href="#" class="nav-item" onclick="showSection('files')" data-translate-tooltip="fileAssistant">
                         <span class="nav-icon"><i class="fas fa-folder"></i></span>
                         <span data-translate="fileAssistant">File Manager</span>
                     </a>
@@ -4402,51 +4463,108 @@ list-group:hover {
         <button type="button" class="btn-close" onclick="hideFileContextMenu()"></button>
     </div>
     <div class="context-menu-content">
-        <div class="menu-item" onclick="contextMenuOpen()">
+        <div class="menu-item" id="emptyNewFolderItem" style="display: none;" onclick="showCreateFolderModal()">
+            <i class="fas fa-folder-plus me-2"></i>
+            <span data-translate="create_new_folder">Create a new folder</span>
+        </div>
+        <div class="menu-item" id="emptyNewFileItem" style="display: none;" onclick="showCreateFileModal()">
+            <i class="fas fa-file-circle-plus me-2"></i>
+            <span data-translate="create_new_file">Create a new file</span>
+        </div>
+        <div class="menu-item" id="emptyUploadItem" style="display: none;" onclick="document.querySelector('[data-bs-target=\'#uploadModal\']')?.click()">
+            <i class="fas fa-upload me-2"></i>
+            <span data-translate="upload">Upload</span>
+        </div>
+     
+        <div class="menu-item" id="emptyRefreshItem" style="display: none;" onclick="refreshFiles()">
+            <i class="fas fa-sync-alt me-2"></i>
+            <span data-translate="refresh">Refresh</span>
+        </div>
+        <div class="menu-item" id="emptySelectAllItem" style="display: none;" onclick="selectAllFiles()">
+            <i class="fas fa-check-square me-2"></i>
+            <span data-translate="select_all">select_All</span>
+        </div>
+        
+        <div class="menu-item" id="globalPasteItem" style="display: none;" onclick="pasteFromClipboard()">
+            <i class="fas fa-paste me-2"></i>
+            <span data-translate="paste">Paste</span>
+            <span id="pasteActionHint" style="margin-left: auto; font-size: 0.8rem; opacity: 0.7;"></span>
+        </div>
+        <div class="menu-divider" id="globalPasteDivider" style="display: none;"></div>
+        
+        <div class="menu-item" id="fileOpenItem" onclick="contextMenuOpen()">
             <i class="fas fa-folder-open me-2"></i>
             <span data-translate="open">Open</span>
         </div>
-        
-        <div class="menu-item" id="playMenuItem" style="display: none;" onclick="contextMenuPlay()">
+        <div class="menu-item" id="filePlayItem" style="display: none;" onclick="contextMenuPlay()">
             <i class="fas fa-play me-2"></i>
             <span data-translate="play">Play</span>
         </div>
-        
-        <div class="menu-item" onclick="contextMenuDownload()">
+        <div class="menu-item" id="fileEditItem" style="display: none;" onclick="contextMenuEdit()">
+            <i class="fas fa-edit me-2"></i>
+            <span data-translate="edit">Edit</span>
+        </div>
+        <div class="menu-item" id="fileDownloadItem" onclick="contextMenuDownload()">
             <i class="fas fa-download me-2"></i>
             <span data-translate="download">Download</span>
         </div>
         
-        <div class="menu-item" data-bs-toggle="modal" data-bs-target="#renameModal" onclick="prepareRenameModal()">
-            <i class="fas fa-edit me-2"></i>
-            <span data-translate="rename">Rename</span>
+        <div class="menu-item" id="fileCutItem" onclick="copyToClipboard('cut')">
+            <i class="fas fa-cut me-2"></i>
+            <span data-translate="cut">Cut</span>
+            <span style="margin-left: auto; font-size: 0.8rem; opacity: 0.7;">Ctrl+X</span>
         </div>
-        
-        <div class="menu-item" data-bs-toggle="modal" data-bs-target="#copyModal" onclick="prepareCopyModal()">
+        <div class="menu-item" id="fileCopyItem" onclick="copyToClipboard('copy')">
             <i class="fas fa-copy me-2"></i>
             <span data-translate="copy">Copy</span>
+            <span style="margin-left: auto; font-size: 0.8rem; opacity: 0.7;">Ctrl+C</span>
+        </div>
+        <div class="menu-item" id="filePasteItem" style="display: none;" onclick="pasteFromClipboard()">
+            <i class="fas fa-paste me-2"></i>
+            <span data-translate="paste">Paste</span>
+            <span style="margin-left: auto; font-size: 0.8rem; opacity: 0.7;">Ctrl+V</span>
+        </div>
+        <div class="menu-item" id="fileRenameItem" data-bs-toggle="modal" data-bs-target="#renameModal" onclick="prepareRenameModal()">
+            <i class="fas fa-edit me-2"></i>
+            <span data-translate="rename">Rename</span>
+            <span style="margin-left: auto; font-size: 0.8rem; opacity: 0.7;">F2</span>
+        </div>
+        <div class="menu-item" id="fileDeleteItem" onclick="contextMenuDelete()">
+            <i class="fas fa-trash me-2"></i>
+            <span data-translate="delete">Delete</span>
+            <span style="margin-left: auto; font-size: 0.8rem; opacity: 0.7;">Delete</span>
         </div>
         
-        <div class="menu-item" data-bs-toggle="modal" data-bs-target="#moveModal" onclick="prepareMoveModal()">
-            <i class="fas fa-cut me-2"></i>
-            <span data-translate="move">Move</span>
+        <div class="menu-item archive-menu" id="archiveMenuItem">
+            <i class="fas fa-file-archive me-2"></i>
+            <span data-translate="archive_operations">Archive Operations</span>
+            <i class="fas fa-chevron-down ms-auto"></i>
+        </div>
+        <div id="archiveSubmenu" class="archive-submenu" style="display: none; margin-left: 20px;">
+            <div class="menu-item" id="archiveCompressItem" onclick="showCompressDialog()">
+                <i class="fas fa-compress me-2"></i>
+                <span data-translate="compress_to">Compress to...</span>
+            </div>
+            <div class="menu-item" id="archiveExtractHereItem" onclick="extractArchiveHere(fileContextMenuTarget?.getAttribute('data-path'))">
+                <i class="fas fa-expand me-2"></i>
+                <span data-translate="extract_here">Extract here</span>
+            </div>
+            <div class="menu-item" id="archiveExtractToItem" onclick="showExtractDialog()">
+                <i class="fas fa-folder-open me-2"></i>
+                <span data-translate="extract_to">Extract to...</span>
+            </div>
         </div>
         
-        <div class="menu-item" onclick="showChmodDialog()">
+        <div class="menu-item" id="fileChmodItem" onclick="showChmodDialog()">
             <i class="fas fa-key me-2"></i>
             <span data-translate="permissions">Permissions</span>
         </div>
-               
-        <div class="menu-item" onclick="showFileProperties()">
+        <div class="menu-item" id="filePropertiesItem" onclick="showFileProperties()">
             <i class="fas fa-info-circle me-2"></i>
             <span data-translate="properties">Properties</span>
+            <span style="margin-left: auto; font-size: 0.8rem; opacity: 0.7;">Alt+Enter</span>
         </div>
-        
-        <div class="menu-item" onclick="contextMenuDelete()">
-            <i class="fas fa-trash me-2"></i>
-            <span data-translate="delete">Delete</span>
-        </div>
-        <div class="menu-item" onclick="openTerminal()">
+        <div class="menu-item" id="fileTerminalItem" onclick="openTerminal()">
             <i class="fas fa-terminal me-1"></i>
             <span data-translate="open_terminal">Open Terminal</span>
         </div>
@@ -4650,7 +4768,7 @@ list-group:hover {
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title">
-                    <i class="fas fa-file-plus me-2"></i>
+                    <i class="fas fa-file-circle-plus me-2"></i>
                     <span data-translate="newFile" =">Create File</span>
                 </h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
@@ -6386,6 +6504,26 @@ document.addEventListener('DOMContentLoaded', function() {
             hideContextMenu();
         }
     });
+
+    try {
+        const savedClipboard = localStorage.getItem('fileClipboard');
+        if (savedClipboard) {
+            const data = JSON.parse(savedClipboard);
+            if (data.timestamp && (Date.now() - data.timestamp) < 30 * 60 * 1000) {
+                clipboardItems = {
+                    paths: new Set(data.paths),
+                    action: data.action,
+                    sourcePath: data.sourcePath,
+                    timestamp: data.timestamp
+                };
+                updatePasteMenuState();
+            } else {
+                localStorage.removeItem('fileClipboard');
+            }
+        }
+    } catch (e) {
+        //console.error('Failed to restore clipboard:', e);
+    }
 });
 
 document.addEventListener('keydown', function(event) {
@@ -6642,12 +6780,11 @@ async function loadFiles(path) {
                          data-is-dir="${isDir}"
                          data-size="${item.size}"
                          ondblclick="handleDoubleClick('${safePath}', ${isDir}, '${item.type}')"
-                         oncontextmenu="showFileContextMenu(event, this)"
                          onclick="handleFileClick(event, '${safePath}')">
 
                         <div class="form-check position-absolute" style="top: 5px; left: 9px; z-index: 100; display: none;">
                             <input class="form-check-input" type="checkbox" 
-                                   onclick="event.stopPropagation(); handleCheckboxClick(event, '${safePath}')">
+                                   onclick="event.stopPropagation(); toggleFileSelection('${safePath}', this.checked)">
                         </div>
 
                         <div class="file-icon mb-2">
@@ -6677,6 +6814,145 @@ async function loadFiles(path) {
         updateSelectionInfo();
         updateLanguage(currentLang);
     }
+    setTimeout(() => {
+        initRightClick();
+    }, 200);
+}
+
+function initRightClick() {
+    const fileGrid = document.getElementById('fileGrid');
+    if (!fileGrid) return;
+    
+    fileGrid.removeEventListener('contextmenu', handleRightClick);
+    fileGrid.addEventListener('contextmenu', handleRightClick);
+}
+
+function handleRightClick(event) {
+    event.preventDefault();
+    event.stopPropagation();
+    
+    const menu = document.getElementById('fileContextMenu');
+    const overlay = document.getElementById('contextMenuOverlay');
+    
+    if (!menu || !overlay) return;
+    
+    hideAllContextMenuItems();
+    
+    const fileItem = event.target.closest('.file-item');
+    
+    if (fileItem) {
+        const path = fileItem.getAttribute('data-path');
+        const isDir = fileItem.getAttribute('data-is-dir') === 'true';
+        const fileName = path.split('/').pop();
+        const ext = fileName.toLowerCase().split('.').pop();
+        
+        if (!selectedFiles.has(path)) {
+            selectedFiles.clear();
+            selectedFiles.add(path);
+        }
+        
+        updateFileSelection();
+        updateSelectionInfo();
+        
+        showMenuItem('fileOpenItem');
+        showMenuItem('fileDownloadItem');
+        
+        const mediaExts = ['mp3', 'wav', 'ogg', 'flac', 'm4a', 'aac', 
+                           'mp4', 'avi', 'mkv', 'mov', 'wmv', 'flv', 'webm',
+                           'jpg', 'jpeg', 'png', 'gif', 'bmp', 'webp', 'svg'];
+        if (!isDir && mediaExts.includes(ext)) {
+            showMenuItem('filePlayItem');
+        }
+        
+        const textExts = ['txt', 'log', 'conf', 'ini', 'json', 'xml', 'html', 
+                          'css', 'js', 'php', 'py', 'sh', 'md', 'yml', 'yaml'];
+        if (!isDir && textExts.includes(ext)) {
+            showMenuItem('fileEditItem');
+        }
+        
+        showMenuItem('fileCutItem');
+        showMenuItem('fileCopyItem');
+        showMenuItem('fileRenameItem');
+        showMenuItem('fileDeleteItem');
+        showMenuItem('fileDivider1');
+        
+        showMenuItem('archiveMenuItem');
+        // const archiveSubmenu = document.getElementById('archiveSubmenu');
+        // if (archiveSubmenu) archiveSubmenu.style.display = 'block';
+        showMenuItem('archiveDivider');
+        
+        showMenuItem('fileChmodItem');
+        showMenuItem('filePropertiesItem');
+        showMenuItem('fileTerminalItem');
+        showMenuItem('fileDivider2');
+        
+    } else {
+        showMenuItem('emptyNewFolderItem');
+        showMenuItem('emptyNewFileItem');
+        showMenuItem('emptyUploadItem');
+        showMenuItem('emptyRenameItem');
+        showMenuItem('emptyCopyItem');
+        showMenuItem('emptyMoveItem');
+        showMenuItem('emptyRefreshItem');
+        showMenuItem('emptySelectAllItem');
+        showMenuItem('emptyDivider2');
+    }
+    
+    updatePasteMenuState();
+    
+    positionContextMenu(menu, event);
+    
+    menu.style.display = 'block';
+    overlay.style.display = 'block';
+}
+
+function initFileGridRightClick() {
+    const fileGrid = document.getElementById('fileGrid');
+    if (!fileGrid) return;
+    
+    fileGrid.removeEventListener('contextmenu', handleGridRightClick);
+    fileGrid.addEventListener('contextmenu', handleGridRightClick);
+}
+
+function handleGridRightClick(event) {
+    event.preventDefault();
+    event.stopPropagation();
+    
+    const menu = document.getElementById('fileContextMenu');
+    const overlay = document.getElementById('contextMenuOverlay');
+    
+    if (!menu || !overlay) return;
+    
+    hideAllContextMenuItems();
+    
+    const fileItem = event.target.closest('.file-item');
+    
+    if (fileItem) {
+        const path = fileItem.getAttribute('data-path');
+        const isDir = fileItem.getAttribute('data-is-dir') === 'true';
+        const fileName = path.split('/').pop();
+        const ext = fileName.toLowerCase().split('.').pop();
+        
+        selectedFiles.clear();
+        selectedFiles.add(path);
+        updateFileSelection();
+        updateSelectionInfo();
+        
+        showFileMenuItems(fileItem);
+        
+    } else {
+        selectedFiles.clear();
+        updateFileSelection();
+        updateSelectionInfo();
+        
+        showEmptyAreaMenuItems();
+    }
+    
+    updatePasteMenuState();
+    
+    positionContextMenu(menu, event);
+    menu.style.display = 'block';
+    overlay.style.display = 'block';
 }
 
 function updateStatistics(folderCount, fileCount, totalSize) {
@@ -6772,6 +7048,9 @@ function navigateUp() {
 
 function refreshFiles() {
     loadFiles(currentPath);
+    setTimeout(() => {
+        initRightClick();
+    }, 300);
 }
 
 function truncateFileName(name, maxLength = 20) {
@@ -6943,7 +7222,22 @@ function handleFileClick(event, filePath) {
     if (event.target.type === 'checkbox' || 
         event.target.closest('.form-check') ||
         event.target.closest('.file-checkbox')) {
-        event.stopPropagation();
+        
+        const checkbox = event.target.type === 'checkbox' ? event.target : 
+                        event.target.closest('input[type="checkbox"]');
+        
+        if (checkbox) {
+            event.stopPropagation();
+            
+            if (checkbox.checked) {
+                selectedFiles.add(filePath);
+            } else {
+                selectedFiles.delete(filePath);
+            }
+            
+            updateFileSelection();
+            updateSelectionInfo();
+        }
         return;
     }
     
@@ -6954,7 +7248,6 @@ function handleFileClick(event, filePath) {
             const type = fileItem.getAttribute('data-type');
             handleDoubleClick(filePath, isDir, type);
         }
-        return;
     }
 }
 
@@ -7155,97 +7448,379 @@ function showMultipleFileInfo() {
     overlay.style.display = 'block';
 }
 
-function showFileContextMenu(event, target) {
-    event.preventDefault();
-    event.stopPropagation();
+function positionContextMenu(menu, event) {
+    const x = event.clientX;
+    const y = event.clientY;
+    const menuWidth = menu.offsetWidth || 280;
+    const menuHeight = menu.offsetHeight || 400;
+    const windowWidth = window.innerWidth;
+    const windowHeight = window.innerHeight;
     
-    fileContextMenuTarget = target;
-    
-    const path = target.getAttribute('data-path');
-    const isDir = target.getAttribute('data-is-dir') === 'true';
-    const fileName = path.split('/').pop();
-    const ext = fileName.toLowerCase().split('.').pop();
-    
-    if (!selectedFiles.has(path)) {
-        selectedFiles.clear();
-        selectedFiles.add(path);
-        updateFileSelection();
+    let left = x;
+    if (x + menuWidth > windowWidth) {
+        left = Math.max(10, windowWidth - menuWidth - 10);
     }
     
-    const archiveExts = ['zip', 'tar', 'gz', 'bz2', '7z', 'rar', 'tgz', 'tbz2'];
-    const isArchive = archiveExts.includes(ext);
-    
-    const musicExts = ['mp3', 'wav', 'ogg', 'flac', 'm4a', 'aac'];
-    const videoExts = ['mp4', 'avi', 'mkv', 'mov', 'wmv', 'flv', 'webm'];
-    const imageExts = ['jpg', 'jpeg', 'png', 'gif', 'bmp', 'webp', 'svg'];
-    
-    const playMenuItem = document.getElementById('playMenuItem');
-    if (playMenuItem) {
-        const isMediaFile = musicExts.includes(ext) || videoExts.includes(ext) || imageExts.includes(ext);
-        playMenuItem.style.display = isMediaFile && !isDir ? 'flex' : 'none';
+    let top = y;
+    if (y + menuHeight > windowHeight) {
+        top = Math.max(10, windowHeight - menuHeight - 10);
     }
     
-    const editMenuItem = document.getElementById('editMenuItem');
-    if (editMenuItem) {
-        editMenuItem.style.display = !isDir ? 'flex' : 'none';
-    }
+    if (left < 10) left = 10;
     
-    const archiveMenuItem = document.getElementById('archiveMenuItem');
-    const submenu = document.getElementById('archiveSubmenu');
-    const compressItem = document.getElementById('compressMenuItem');
-    const extractItem = document.getElementById('extractMenuItem');
-    const extractToItem = document.getElementById('extractToMenuItem');
-    
-    if (archiveMenuItem && submenu) {
-        archiveMenuItem.style.display = 'flex';
-        submenu.style.display = 'none';
-        
-        const chevron = archiveMenuItem.querySelector('.fa-chevron-down, .fa-chevron-up');
-        if (chevron) {
-            chevron.className = 'fas fa-chevron-down ms-auto';
-        }
-        
-        if (compressItem) {
-            compressItem.style.display = 'flex';
-        }
-        if (extractItem) {
-            extractItem.style.display = isArchive ? 'flex' : 'none';
-        }
-        if (extractToItem) {
-            extractToItem.style.display = isArchive ? 'flex' : 'none';
-        }
-    }
-    
+    menu.style.left = left + 'px';
+    menu.style.top = top + 'px';
+}
+
+function handleDocumentClickForMenu(event) {
     const menu = document.getElementById('fileContextMenu');
     const overlay = document.getElementById('contextMenuOverlay');
     
-    if (!menu || !overlay) return;
+    if (menu && menu.style.display === 'block' && !menu.contains(event.target)) {
+        hideFileContextMenu();
+    }
+}
+
+function hideAllContextMenuItems() {
+    const allMenuItems = [
+        'fileOpenItem', 'filePlayItem', 'fileEditItem', 'fileDownloadItem',
+        'fileCutItem', 'fileCopyItem', 'filePasteItem', 'fileRenameItem',
+        'fileDeleteItem', 'fileChmodItem', 'filePropertiesItem', 'fileTerminalItem',
+        'emptyNewFolderItem', 'emptyNewFileItem', 'emptyUploadItem',
+        'emptyRefreshItem', 'emptySelectAllItem',
+        'globalPasteItem',
+        'archiveMenuItem'
+    ];
     
-    const menuRect = menu.getBoundingClientRect();
-    const menuWidth = menuRect.width || 200;
-    const menuHeight = menuRect.height || 350;
+    allMenuItems.forEach(id => {
+        const element = document.getElementById(id);
+        if (element) {
+            element.style.display = 'none';
+        }
+    });
     
-    const viewportWidth = window.innerWidth;
-    const viewportHeight = window.innerHeight;
+    const allDividers = [
+        'fileDivider1', 'fileDivider2', 'archiveDivider',
+        'emptyDivider1', 'emptyDivider2', 'globalPasteDivider'
+    ];
     
-    let x = event.clientX;
-    let y = event.clientY;
+    allDividers.forEach(id => {
+        const element = document.getElementById(id);
+        if (element) {
+            element.style.display = 'none';
+        }
+    });
     
-    if (x + menuWidth > viewportWidth - 10) {
-        x = Math.max(10, x - menuWidth);
+    const submenu = document.getElementById('archiveSubmenu');
+    if (submenu) {
+        submenu.style.display = 'none';
+    }
+}
+
+function showFileMenuItems(isDir, ext) {
+    showMenuItem('fileOpenItem');
+    showMenuItem('fileDownloadItem');
+    showMenuItem('fileCutItem');
+    showMenuItem('fileCopyItem');
+    showMenuItem('fileRenameItem');
+    showMenuItem('fileDeleteItem');
+    showMenuItem('fileChmodItem');
+    showMenuItem('filePropertiesItem');
+    showMenuItem('fileTerminalItem');
+    
+    const mediaExts = ['mp3', 'wav', 'ogg', 'flac', 'm4a', 'aac', 
+                       'mp4', 'avi', 'mkv', 'mov', 'wmv', 'flv', 'webm',
+                       'jpg', 'jpeg', 'png', 'gif', 'bmp', 'webp', 'svg'];
+    if (!isDir && mediaExts.includes(ext)) {
+        showMenuItem('filePlayItem');
     }
     
-    if (y + menuHeight > viewportHeight - 10) {
-        y = Math.max(10, y - menuHeight);
+    const textExts = ['txt', 'log', 'conf', 'ini', 'json', 'xml', 'html', 
+                      'css', 'js', 'php', 'py', 'sh', 'md', 'yml', 'yaml'];
+    if (!isDir && textExts.includes(ext)) {
+        showMenuItem('fileEditItem');
     }
     
-    x = Math.max(10, Math.min(x, viewportWidth - menuWidth - 10));
-    y = Math.max(10, Math.min(y, viewportHeight - menuHeight - 10));
+    showMenuItem('fileDivider1');
+    showMenuItem('fileDivider2');
     
-    menu.style.left = x + 'px';
-    menu.style.top = y + 'px';
-    menu.style.display = 'block';
-    overlay.style.display = 'block';
+    const archiveMenuItem = document.getElementById('archiveMenuItem');
+    const compressItem = document.getElementById('archiveCompressItem');
+    const extractHereItem = document.getElementById('archiveExtractHereItem');
+    const extractToItem = document.getElementById('archiveExtractToItem');
+    
+    if (archiveMenuItem) {
+        archiveMenuItem.style.display = 'flex';
+        showMenuItem('archiveDivider');
+    }
+    
+    if (compressItem) {
+        compressItem.style.display = 'flex';
+    }
+    
+    const archiveExts = ['zip', 'tar', 'gz', 'bz2', '7z', 'rar', 'tgz', 'tbz2'];
+    if (!isDir && archiveExts.includes(ext)) {
+        if (extractHereItem) extractHereItem.style.display = 'flex';
+        if (extractToItem) extractToItem.style.display = 'flex';
+    }
+}
+
+function showEmptyAreaMenuItems() {
+    showMenuItem('emptyNewFolderItem');
+    showMenuItem('emptyNewFileItem');
+    showMenuItem('emptyUploadItem');
+    showMenuItem('emptyDivider1');
+    showMenuItem('emptyRefreshItem');
+    showMenuItem('emptySelectAllItem');
+    showMenuItem('emptyDivider2');
+}
+
+function showMenuItem(id) {
+    const element = document.getElementById(id);
+    if (element) {
+        element.style.display = 'flex';
+    }
+}
+
+function updatePasteMenuState() {
+    const hasClipboard = clipboardItems && clipboardItems.paths && clipboardItems.paths.size > 0;
+    const pasteAction = clipboardItems?.action;
+    
+    const globalPasteItem = document.getElementById('globalPasteItem');
+    const globalPasteDivider = document.getElementById('globalPasteDivider');
+    
+    if (globalPasteItem) {
+        if (hasClipboard) {
+            globalPasteItem.style.display = 'flex';
+            
+            const hintSpan = globalPasteItem.querySelector('#pasteActionHint') || 
+                            (() => {
+                                const span = document.createElement('span');
+                                span.id = 'pasteActionHint';
+                                span.style.marginLeft = 'auto';
+                                span.style.fontSize = '0.8rem';
+                                span.style.opacity = '0.7';
+                                globalPasteItem.appendChild(span);
+                                return span;
+                            })();
+            
+            const actionText = pasteAction === 'cut' 
+                ? (translations['cut'] || 'Cut') 
+                : (translations['copy'] || 'Copied');
+            const count = clipboardItems.paths.size;
+            
+            const hintText = (translations['items_with_action'] || '{count}item(s) ({action})')
+                .replace('{count}', count)
+                .replace('{action}', actionText);
+            
+            hintSpan.textContent = hintText;
+        } else {
+            globalPasteItem.style.display = 'none';
+        }
+    }
+    
+    if (globalPasteDivider) {
+        globalPasteDivider.style.display = hasClipboard ? 'block' : 'none';
+    }
+    
+    const filePasteItem = document.getElementById('filePasteItem');
+    if (filePasteItem) {
+        const isFileItem = fileContextMenuTarget && 
+                          fileContextMenuTarget.classList.contains('file-item');
+        filePasteItem.style.display = hasClipboard && isFileItem ? 'flex' : 'none';
+    }
+}
+
+let clipboardItems = {
+    paths: new Set(),
+    action: null,
+    sourcePath: null
+};
+
+function copyToClipboard(action = 'copy') {
+    if (selectedFiles.size === 0) {
+        const message = translations['select_items_first'] || 'Please select items first';
+        showLogMessage(message, 'warning');
+        return false;
+    }
+    
+    clipboardItems = {
+        paths: new Set(selectedFiles),
+        action: action,
+        sourcePath: currentPath,
+        timestamp: Date.now()
+    };
+    
+    const actionText = action === 'copy' 
+        ? (translations['copied'] || 'Copied') 
+        : (translations['cut'] || 'Cut');
+    
+    const countText = (translations['items_count'] || '{count} item(s)')
+        .replace('{count}', selectedFiles.size);
+    
+    showLogMessage(`${actionText} ${countText}`, 'success');
+    
+    if (action === 'cut') {
+        document.querySelectorAll('.file-item.selected').forEach(item => {
+            item.style.opacity = '0.6';
+            item.classList.add('cut-item');
+        });
+    }
+    
+    updatePasteMenuState();
+    
+    try {
+        const clipboardData = {
+            paths: Array.from(clipboardItems.paths),
+            action: clipboardItems.action,
+            sourcePath: clipboardItems.sourcePath,
+            timestamp: clipboardItems.timestamp
+        };
+        localStorage.setItem('fileClipboard', JSON.stringify(clipboardData));
+    } catch (e) {
+        console.error('Failed to save clipboard to localStorage:', e);
+    }
+    
+    return true;
+}
+
+async function pasteFromClipboard() {
+    if (!clipboardItems || clipboardItems.paths.size === 0) {
+        const message = translations['clipboard_empty'] || 'No items to paste';
+        showLogMessage(message, 'warning');
+        return;
+    }
+    
+    let targetPath = currentPath;
+    
+    if (fileContextMenuTarget && fileContextMenuTarget.classList.contains('file-item')) {
+        const itemPath = fileContextMenuTarget.getAttribute('data-path');
+        const isDir = fileContextMenuTarget.getAttribute('data-is-dir') === 'true';
+        
+        if (isDir) {
+            targetPath = itemPath;
+        } else {
+            targetPath = itemPath.substring(0, itemPath.lastIndexOf('/')) || '/';
+        }
+    }
+    
+    if (clipboardItems.sourcePath === targetPath && clipboardItems.action === 'cut') {
+        const message = translations['cannot_paste_same_location'] || 'Cannot paste in the same location';
+        showLogMessage(message, 'warning');
+        return;
+    }
+    
+    const operation = clipboardItems.action === 'copy' ? 'copy' : 'move';
+    const operationText = operation === 'copy' 
+        ? (translations['copy'] || 'Copy') 
+        : (translations['move'] || 'Move');
+    
+    const confirmMessage = (translations['confirm_paste'] || '{operation} {count} item(s) to "{target}"?')
+        .replace('{operation}', operationText)
+        .replace('{count}', clipboardItems.paths.size)
+        .replace('{target}', targetPath);
+    
+    if (!confirm(confirmMessage)) return;
+    
+    let successCount = 0;
+    let errorCount = 0;
+    
+    for (const sourcePath of clipboardItems.paths) {
+        try {
+            const apiAction = operation === 'copy' ? 'copy_item' : 'move_item';
+            const response = await fetch(`?action=${apiAction}&source=${encodeURIComponent(sourcePath)}&dest=${encodeURIComponent(targetPath)}`);
+            const data = await response.json();
+            
+            if (data.success) {
+                successCount++;
+            } else {
+                errorCount++;
+                console.error('Operation failed:', data.error);
+            }
+        } catch (error) {
+            errorCount++;
+            console.error('Operation error:', error);
+        }
+    }
+    
+    if (clipboardItems.action === 'cut') {
+        clearClipboard();
+    }
+    
+    if (successCount > 0) {
+        const message = (translations['paste_success'] || 'Successfully {operation} {count} item(s)')
+            .replace('{operation}', operationText)
+            .replace('{count}', successCount);
+        showLogMessage(message, 'success');
+        refreshFiles();
+    }
+    
+    if (errorCount > 0) {
+        const message = (translations['paste_failed'] || 'Failed to {operation} {count} item(s)')
+            .replace('{operation}', operationText)
+            .replace('{count}', errorCount);
+        showLogMessage(message, 'error');
+    }
+    
+    hideFileContextMenu();
+}
+
+function clearClipboard() {
+    document.querySelectorAll('.file-item.cut-item').forEach(item => {
+        item.style.opacity = '1';
+        item.classList.remove('cut-item');
+    });
+    
+    clipboardItems.paths.clear();
+    clipboardItems.action = null;
+    clipboardItems.sourcePath = null;
+    
+    updatePasteMenuState();
+}
+
+document.addEventListener('click', function(e) {
+    const archiveMenuItem = e.target.closest('.archive-menu');
+    if (archiveMenuItem) {
+        e.preventDefault();
+        e.stopPropagation();
+        
+        const submenu = document.getElementById('archiveSubmenu');
+        const chevron = archiveMenuItem.querySelector('.fa-chevron-down, .fa-chevron-up');
+        
+        if (submenu) {
+            if (submenu.style.display === 'block') {
+                submenu.style.display = 'none';
+                if (chevron) chevron.className = 'fas fa-chevron-down ms-auto';
+            } else {
+                submenu.style.display = 'block';
+                if (chevron) chevron.className = 'fas fa-chevron-up ms-auto';
+            }
+        }
+    }
+});
+
+function selectAllFiles() {
+    const fileItems = document.querySelectorAll('.file-item');
+    selectedFiles.clear();
+    
+    fileItems.forEach(item => {
+        const path = item.getAttribute('data-path');
+        if (path) {
+            selectedFiles.add(path);
+            const checkbox = item.querySelector('input[type="checkbox"]');
+            if (checkbox) checkbox.checked = true;
+            item.classList.add('selected');
+        }
+    });
+    
+    updateSelectionInfo();
+    updateFileSelection();
+    
+    const selectedText = translations['select_all_complete'] || 
+                        translations['selected_items'] || 
+                        `Selected ${selectedFiles.size} items`;
+    
+    showLogMessage(`${selectedText} (${selectedFiles.size})`, 'info');
 }
 
 function adjustMenuOnResize() {
@@ -7421,7 +7996,22 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 });
 
+function toggleFileSelection(filePath, checked) {
+    if (event) {
+        event.stopPropagation();
+    }
+    
+    if (checked) {
+        selectedFiles.add(filePath);
+    } else {
+        selectedFiles.delete(filePath);
+    }
+    updateFileSelection();
+    updateSelectionInfo();
+}
+
 function showCompressDialog() {
+    hideFileContextMenu();
     if (selectedFiles.size === 0) {
         showLogMessage('Please select files to compress first', 'warning');
         return;
@@ -7485,6 +8075,9 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     }
+    setTimeout(() => {
+        initFileGridRightClick();
+    }, 500);
 });
 
 function browseForCompressPath() {
@@ -7558,102 +8151,15 @@ async function performCompress() {
     }
 }
 
-async function extractArchive() {
-    if (selectedFiles.size === 0) return;
-    
-    const path = Array.from(selectedFiles)[0];
-    
-    try {
-        let cleanPath = path;
-        if (cleanPath.startsWith('//')) {
-            cleanPath = cleanPath.substring(1);
-        }
-        
-        const extractToDir = dirname(cleanPath);
-        
-        const formData = new FormData();
-        formData.append('path', cleanPath);
-        formData.append('action_type', 'extract');
-        formData.append('destination', extractToDir);
-        
-        console.log('Extracting:', cleanPath, 'to:', extractToDir);
-        
-        const response = await fetch('?action=archive_action', {
-            method: 'POST',
-            body: formData
-        });
-        
-        const data = await response.json();
-        console.log('Extract response:', data);
-        
-        if (data.success) {
-            const Message = translations['archive_extracted_successfully'] || 'Archive extracted successfully';
-            showLogMessage(Message);
-            speakMessage(Message);
-            
-            loadFiles(extractToDir);
-            
-        } else {
-            showLogMessage(data.error || translations['failed_to_extract_archive'] || 'Failed to extract archive', 'error');
-        }
-    } catch (error) {
-        console.error('Extract error:', error);
-        showLogMessage((translations['failed_to_extract_archive'] || 'Failed to extract archive') + ': ' + error.message, 'error');
-    }
-}
-
-async function performExtract() {
-    if (selectedFiles.size === 0) return;
-    
-    const path = Array.from(selectedFiles)[0];
-    
-    let cleanPath = path;
-    if (cleanPath.startsWith('//')) {
-        cleanPath = cleanPath.substring(1);
-    }
-    
-    const destination = document.getElementById('extractDestination').value.trim();
-    
-    if (!destination) {
-        const warningMessage = translations['enter_destination_path'] || 'Please enter destination path';
-        showLogMessage(warningMessage, 'warning');
-        speakMessage(warningMessage, 'warning');
-        return;
-    }
-    
-    try {
-        const formData = new FormData();
-        formData.append('path', cleanPath);
-        formData.append('action_type', 'extract');
-        formData.append('destination', destination);
-        
-        const response = await fetch('?action=archive_action', {
-            method: 'POST',
-            body: formData
-        });
-        
-        const data = await response.json();
-        
-        if (data.success) {
-            const successMessage = translations['archive_extracted_successfully'] || 'Archive extracted successfully';
-            showLogMessage(successMessage, 'success');
-            speakMessage(successMessage, 'success');
-            
-            bootstrap.Modal.getInstance(document.getElementById('extractModal')).hide();
-            loadFiles(destination);
-        } else {
-            const errorMessage = data.error || translations['failed_to_extract_archive'] || 'Failed to extract archive';
-            showLogMessage(errorMessage, 'error');
-            speakMessage(errorMessage, 'error');
-        }
-   } catch (error) {
-        const errorMessage = `${translations['failed_to_extract_archive'] || 'Failed to extract archive'}: ${error.message}`;
-        showLogMessage(errorMessage, 'error');
-        speakMessage(errorMessage, 'error');
-    }
-}
-
 async function extractArchiveHere(filePath) {
+    if (!filePath) {
+        if (selectedFiles.size === 0) {
+            showLogMessage('Please select the file you want to extract first.', 'warning');
+            return;
+        }
+        filePath = Array.from(selectedFiles)[0];
+    }
+    
     if (!filePath) return;
     
     try {
@@ -7687,6 +8193,8 @@ async function extractArchiveHere(filePath) {
         showLogMessage(errorMessage, 'error');
         speakMessage(errorMessage, 'error');
     }
+    
+    hideFileContextMenu();
 }
 
 function dirname(path) {
@@ -7745,7 +8253,7 @@ function showExtractDialog() {
     `;
 
     document.body.appendChild(dialog);
-
+    hideFileContextMenu();
     const modal = new bootstrap.Modal(dialog);
     modal.show();
 
@@ -7769,51 +8277,55 @@ function hideFileContextMenu() {
 }
 
 function showFileProperties() {
-    if (!fileContextMenuTarget) return;
-    
-    const path = fileContextMenuTarget.getAttribute('data-path');
+    const path = Array.from(selectedFiles)[0];
     
     if (!path || path.trim() === '') {
          showLogMessage(translations['invalid_file_path'] || 'Invalid file path', 'error');
         return;
     }
     
-    showFileInfoModal(path);
     hideFileContextMenu();
+    showFileInfoModal(path);
 }
 
 function contextMenuOpen() {
-    if (!fileContextMenuTarget) return;
+    if (selectedFiles.size === 0) {
+        showLogMessage(translations['select_items_first'] || 'Please select items first', 'warning');
+        return;
+    }
     
-    const path = fileContextMenuTarget.getAttribute('data-path');
-    const isDir = fileContextMenuTarget.getAttribute('data-is-dir') === 'true';
-    const type = fileContextMenuTarget.getAttribute('data-type');
+    const path = Array.from(selectedFiles)[0];
+    const fileItem = document.querySelector(`.file-item[data-path="${path}"]`);
     
-    handleDoubleClick(path, isDir, type);
+    if (fileItem) {
+        const isDir = fileItem.getAttribute('data-is-dir') === 'true';
+        const type = fileItem.getAttribute('data-type');
+        handleDoubleClick(path, isDir, type);
+    }
+    
     hideFileContextMenu();
 }
 
 function contextMenuPlay() {
-    if (!fileContextMenuTarget) return;
+    if (selectedFiles.size === 0) {
+        showLogMessage(translations['select_items_first'] || 'Please select items first', 'warning');
+        return;
+    }
     
-    const path = fileContextMenuTarget.getAttribute('data-path');
+    const path = Array.from(selectedFiles)[0];
     playMedia(path);
     hideFileContextMenu();
 }
 
-function contextMenuEdit() {
-    if (!fileContextMenuTarget) return;
-    
-    const path = fileContextMenuTarget.getAttribute('data-path');
-    editFile(path);
-    hideFileContextMenu();
-}
-
 function contextMenuDownload() {
-    if (!fileContextMenuTarget) return;
+    if (selectedFiles.size === 0) {
+        showLogMessage(translations['select_items_first'] || 'Please select items first', 'warning');
+        return;
+    }
     
-    const path = fileContextMenuTarget.getAttribute('data-path');
-    const isDir = fileContextMenuTarget.getAttribute('data-is-dir') === 'true';
+    const path = Array.from(selectedFiles)[0];  
+    const fileItem = document.querySelector(`.file-item[data-path="${path}"]`);
+    const isDir = fileItem ? fileItem.getAttribute('data-is-dir') === 'true' : false;
     
     if (!isDir) {
         const downloadUrl = `?preview=1&path=${encodeURIComponent(path)}`;
@@ -7855,14 +8367,9 @@ function downloadFolderAsTar(folderPath) {
 }
 
 function contextMenuDelete() {
-    if (!fileContextMenuTarget) return;
-    
-    const path = fileContextMenuTarget.getAttribute('data-path');
-    if (!selectedFiles.has(path)) {
-        selectedFiles.clear();
-        selectedFiles.add(path);
-        updateFileSelection();
-        updateSelectionInfo();
+    if (selectedFiles.size === 0) {
+        showLogMessage('Please select the file you want to delete first.', 'warning');
+        return;
     }
     
     deleteSelected();
@@ -7870,6 +8377,7 @@ function contextMenuDelete() {
 }
 
 function showCreateFolderModal() {
+    hideFileContextMenu(); 
     const input = document.getElementById('folderNameInput');
     if (input) {
         input.value = '';
@@ -7880,6 +8388,7 @@ function showCreateFolderModal() {
 }
 
 function showCreateFileModal() {
+    hideFileContextMenu(); 
     const input = document.getElementById('fileNameInput');
     if (input) {
         input.value = '';
@@ -8017,164 +8526,6 @@ async function performRename() {
             (translations['rename_failed'] || 'Failed to rename') + ': ' + error.message,
             'error'
         );
-    }
-}
-
-function prepareMoveModal() {
-    if (selectedFiles.size === 0) return;
-    
-    const itemsList = document.getElementById('moveItemsList');
-    itemsList.innerHTML = '';
-    selectedFiles.forEach(path => {
-        const name = path.split('/').pop();
-        const isDir = document.querySelector(`.file-item[data-path="${path}"]`)?.getAttribute('data-is-dir') === 'true';
-        itemsList.innerHTML += `
-            <div class="d-flex align-items-center mb-1">
-                <i class="fas ${isDir ? 'fa-folder' : 'fa-file'} me-2"></i>
-                <span class="text-truncate">${name}</span>
-            </div>
-        `;
-    });
-    
-    document.getElementById('movePath').value = currentPath;
-    
-    hideFileContextMenu();
-}
-
-function browseForMovePath() {
-    const path = prompt('Enter destination path:', currentPath);
-    if (path) {
-        document.getElementById('movePath').value = path;
-    }
-}
-
-async function performMove() {
-    const destination = document.getElementById('movePath').value.trim();
-    if (!destination) {
-        const warningMessage = translations['enter_destination_path'] || 'Please enter destination path';
-        showLogMessage(warningMessage, 'warning');
-        speakMessage(warningMessage, 'warning');
-        return;
-    }
-
-    if (!confirm(`${translations['confirm_move'] || 'Move'} ${selectedFiles.size} ${translations['items'] || 'item(s)'} ${translations['to']} "${destination}"?`)) {
-        return;
-    }
-
-    let successCount = 0;
-    let errorCount = 0;
-
-    for (const sourcePath of selectedFiles) {
-        try {
-            const response = await fetch(`?action=move_item&source=${encodeURIComponent(sourcePath)}&dest=${encodeURIComponent(destination)}`);
-            const data = await response.json();
-
-            if (data.success) {
-                successCount++;
-            } else {
-                errorCount++;
-                // console.error('Move failed:', data.error);
-            }
-        } catch (error) {
-            errorCount++;
-            // console.error('Move error:', error);
-        }
-    }
-
-    if (successCount > 0) {
-        const successMessage = `${translations['move_success'] || 'Successfully moved'} ${successCount} ${translations['items'] || 'item(s)'}`;
-        showLogMessage(successMessage, 'success');
-        speakMessage(successMessage, 'success');
-        selectedFiles.clear();
-        updateSelectionInfo();
-        bootstrap.Modal.getInstance(document.getElementById('moveModal')).hide();
-        refreshFiles();
-    }
-
-    if (errorCount > 0) {
-        const errorMessage = `${translations['move_failed'] || 'Failed to move'} ${errorCount} ${translations['items'] || 'item(s)'}`;
-        showLogMessage(errorMessage, 'error');
-        speakMessage(errorMessage, 'error');
-    }
-}
-
-function prepareCopyModal() {
-    if (selectedFiles.size === 0) return;
-    
-    const itemsList = document.getElementById('copyItemsList');
-    itemsList.innerHTML = '';
-    selectedFiles.forEach(path => {
-        const name = path.split('/').pop();
-        const isDir = document.querySelector(`.file-item[data-path="${path}"]`)?.getAttribute('data-is-dir') === 'true';
-        itemsList.innerHTML += `
-            <div class="d-flex align-items-center mb-1">
-                <i class="fas ${isDir ? 'fa-folder' : 'fa-file'} me-2"></i>
-                <span class="text-truncate">${name}</span>
-            </div>
-        `;
-    });
-    
-    document.getElementById('copyPath').value = currentPath;
-    
-    hideFileContextMenu();
-}
-
-function browseForCopyPath() {
-    const path = prompt('Enter destination path:', currentPath);
-    if (path) {
-        document.getElementById('copyPath').value = path;
-    }
-}
-
-async function performCopy() {
-    const destination = document.getElementById('copyPath').value.trim();
-    if (!destination) {
-        const warningMessage = translations['enter_destination_path'] || 'Please enter destination path';
-        showLogMessage(warningMessage, 'warning');
-        speakMessage(warningMessage, 'warning');
-        return;
-    }
-
-    const confirmMessage = `${translations['confirm_copy'] || 'Copy'} ${selectedFiles.size} ${translations['items'] || 'item(s)'} ${translations['to'] || 'to'} "${destination}"?`;
-    speakMessage(confirmMessage);
-    
-    if (!confirm(confirmMessage)) {
-        return;
-    }
-
-    let successCount = 0;
-    let errorCount = 0;
-
-    for (const sourcePath of selectedFiles) {
-        try {
-            const response = await fetch(`?action=copy_item&source=${encodeURIComponent(sourcePath)}&dest=${encodeURIComponent(destination)}`);
-            const data = await response.json();
-
-            if (data.success) {
-                successCount++;
-            } else {
-                errorCount++;
-                //console.error('Copy failed:', data.error);
-            }
-        } catch (error) {
-            errorCount++;
-            //console.error('Copy error:', error);
-        }
-    }
-
-    if (successCount > 0) {
-        const successMessage = `${translations['copy_success'] || 'Successfully copied'} ${successCount} ${translations['items'] || 'item(s)'}`;
-        showLogMessage(successMessage, 'success');
-        speakMessage(successMessage, 'success');
-        
-        bootstrap.Modal.getInstance(document.getElementById('copyModal')).hide();
-        refreshFiles();
-    }
-
-    if (errorCount > 0) {
-        const errorMessage = `${translations['copy_failed'] || 'Failed to copy'} ${errorCount} ${translations['items'] || 'item(s)'}`;
-        showLogMessage(errorMessage, 'error');
-        speakMessage(errorMessage, 'error');
     }
 }
 
@@ -8542,9 +8893,14 @@ function escapeHtml(text) {
 }
 
 function showChmodDialog() {
-    if (!fileContextMenuTarget) return;
+    hideFileContextMenu();
     
-    const path = fileContextMenuTarget.getAttribute('data-path');
+    if (selectedFiles.size === 0) {
+        showLogMessage('Please select the file first.', 'warning');
+        return;
+    }
+    
+    const path = Array.from(selectedFiles)[0];
     
     fetch(`?action=get_file_info&path=${encodeURIComponent(path)}`)
         .then(response => response.json())
@@ -8835,29 +9191,9 @@ async function loadFileContent(path, tabId) {
             
             if (data.is_base64 && data.content_base64) {
                 try {
-                    const binaryString = atob(data.content_base64);
-                    const bytes = new Uint8Array(binaryString.length);
-                    for (let i = 0; i < binaryString.length; i++) {
-                        bytes[i] = binaryString.charCodeAt(i);
-                    }
-                    
-                    const decoder = new TextDecoder('utf-8');
-                    content = decoder.decode(bytes);
-                    
-                    if (!content || content.length === 0) {
-                        content = decodeURIComponent(escape(binaryString));
-                    }
-                    
+                    content = decodeURIComponent(escape(atob(data.content_base64)));
                 } catch (e) {
-                    console.warn('Base64 decode error, trying alternative method:', e);
-                    
-                    try {
-                        const decoded = decodeURIComponent(escape(atob(data.content_base64)));
-                        content = decoded;
-                    } catch (e2) {
-                        console.error('Alternative decode also failed:', e2);
-                        content = data.content || 'Decoding error';
-                    }
+                    content = 'Error: Cannot decode file content';
                 }
             } else {
                 content = data.content || '';
@@ -8866,11 +9202,6 @@ async function loadFileContent(path, tabId) {
             tab.content = content;
             tab.originalContent = content;
             tab.loading = false;
-            
-            setTimeout(() => {
-                updateCharCount(tabId);
-                console.log('Character count after loading:', content.length);
-            }, 200);
             
             const editorMode = tab.editorMode || currentEditorMode;
             
@@ -8890,6 +9221,8 @@ async function loadFileContent(path, tabId) {
                     }, 100);
                 }
             }
+            
+            updateCharCount(tabId);
             
         } else {
             const simpleEditor = document.getElementById(`${tabId}-simple-editor`);
@@ -9096,7 +9429,7 @@ function loadMonacoEditor() {
         script.onload = () => {
             require.config({ 
                 paths: { 
-                    'vs': 'https://cdn.jsdelivr.net/npm/monaco-editor@0.55.1/min/vs' 
+                    'vs': 'https://cdn.jsdelivr.net/npm/monaco-editor@0.55.1/min/vs'
                 } 
             });
             
@@ -9348,10 +9681,6 @@ async function initMonacoEditor(tabId) {
     container.innerHTML = '';
     
     try {
-        if (!completionProvidersRegistered) {
-            registerGlobalCompletionProviders();
-            completionProvidersRegistered = true;
-        }
 
         const savedFontSize = localStorage.getItem('editorFontSize') || '16';
         const detectedLanguage = detectLanguage(tab.name);
@@ -9519,146 +9848,6 @@ async function initMonacoEditor(tabId) {
         console.error('Failed to initialize Monaco Editor:', error);
         showLogMessage(`${translations['init_advanced_editor_failed'] || 'Failed to initialize advanced editor'}: ${error.message}`, 'error');
     }
-}
-
-function registerGlobalCompletionProviders() {
-    console.log('Registering global completion providers...');
-    
-    const globalCompletionProvider = {
-        provideCompletionItems: function(model, position) {
-            const word = model.getWordUntilPosition(position);
-            const range = {
-                startLineNumber: position.lineNumber,
-                endLineNumber: position.lineNumber,
-                startColumn: word.startColumn,
-                endColumn: word.endColumn
-            };
-            
-            const language = model.getLanguageIdentifier().language;
-            let suggestions = [];
-            
-            const commonSuggestions = [
-                { label: 'TODO', kind: monaco.languages.CompletionItemKind.Snippet, insertText: 'TODO: ${1:description}', detail: 'Todo item' },
-                { label: 'FIXME', kind: monaco.languages.CompletionItemKind.Snippet, insertText: 'FIXME: ${1:description}', detail: 'Fix needed' },
-                { label: 'NOTE', kind: monaco.languages.CompletionItemKind.Snippet, insertText: 'NOTE: ${1:description}', detail: 'Note' },
-                { label: 'BUG', kind: monaco.languages.CompletionItemKind.Snippet, insertText: 'BUG: ${1:description}', detail: 'Known bug' },
-                
-                // HTML
-                { label: 'div', kind: monaco.languages.CompletionItemKind.Keyword, insertText: '<div>${1:content}</div>', detail: 'div element' },
-                { label: 'span', kind: monaco.languages.CompletionItemKind.Keyword, insertText: '<span>${1:content}</span>', detail: 'span element' },
-                { label: 'p', kind: monaco.languages.CompletionItemKind.Keyword, insertText: '<p>${1:content}</p>', detail: 'paragraph' },
-                { label: 'a', kind: monaco.languages.CompletionItemKind.Keyword, insertText: '<a href="${1:#}">${2:link}</a>', detail: 'hyperlink' },
-                { label: 'img', kind: monaco.languages.CompletionItemKind.Keyword, insertText: '<img src="${1:src}" alt="${2:alt}">', detail: 'image' },
-                
-                // CSS
-                { label: 'color', kind: monaco.languages.CompletionItemKind.Property, insertText: 'color: ${1:#000};', detail: 'text color' },
-                { label: 'font-size', kind: monaco.languages.CompletionItemKind.Property, insertText: 'font-size: ${1:14}px;', detail: 'font size' },
-                { label: 'margin', kind: monaco.languages.CompletionItemKind.Property, insertText: 'margin: ${1:0};', detail: 'outer margin' },
-                { label: 'padding', kind: monaco.languages.CompletionItemKind.Property, insertText: 'padding: ${1:0};', detail: 'inner padding' },
-                
-                // JavaScript/TypeScript
-                { label: 'console.log', kind: monaco.languages.CompletionItemKind.Function, insertText: 'console.log(${1:value})', detail: 'output to console' },
-                { label: 'function', kind: monaco.languages.CompletionItemKind.Keyword, insertText: 'function ${1:name}(${2:params}) {\n\t${3:// code}\n}', detail: 'define function' },
-                { label: 'arrow', kind: monaco.languages.CompletionItemKind.Snippet, insertText: '${1:name} = (${2:params}) => {\n\t${3:// code}\n}', detail: 'arrow function' },
-                { label: 'class', kind: monaco.languages.CompletionItemKind.Keyword, insertText: 'class ${1:ClassName} {\n\tconstructor(${2:params}) {\n\t\t${3:// code}\n\t}\n}', detail: 'define class' },
-                
-                // Python
-                { label: 'def', kind: monaco.languages.CompletionItemKind.Keyword, insertText: 'def ${1:function_name}(${2:params}):\n\t${3:# code}', detail: 'define function' },
-                { label: 'class', kind: monaco.languages.CompletionItemKind.Keyword, insertText: 'class ${1:ClassName}:\n\tdef __init__(self${2:, params}):\n\t\t${3:# code}', detail: 'define class' },
-                { label: 'print', kind: monaco.languages.CompletionItemKind.Function, insertText: 'print(${1:value})', detail: 'output to console' },
-                
-                // PHP
-                { label: 'function', kind: monaco.languages.CompletionItemKind.Keyword, insertText: 'function ${1:name}(${2:$params}) {\n\t${3:// code}\n}', detail: 'define function' },
-                { label: 'class', kind: monaco.languages.CompletionItemKind.Keyword, insertText: 'class ${1:ClassName} {\n\tpublic function __construct(${2:$params}) {\n\t\t${3:// code}\n\t}\n}', detail: 'define class' },
-                { label: 'echo', kind: monaco.languages.CompletionItemKind.Keyword, insertText: 'echo ${1:string};', detail: 'output string' },
-            ];
-            
-            suggestions = suggestions.concat(commonSuggestions);
-            
-            switch(language) {
-                case 'javascript':
-                case 'typescript':
-                    suggestions = suggestions.concat([
-                        { label: 'let', kind: monaco.languages.CompletionItemKind.Keyword, insertText: 'let ${1:variable} = ${2:value};', detail: 'declare variable' },
-                        { label: 'const', kind: monaco.languages.CompletionItemKind.Keyword, insertText: 'const ${1:variable} = ${2:value};', detail: 'declare constant' },
-                        { label: 'import', kind: monaco.languages.CompletionItemKind.Keyword, insertText: 'import ${1:module} from \'${2:path}\';', detail: 'import module' },
-                        { label: 'export', kind: monaco.languages.CompletionItemKind.Keyword, insertText: 'export ${1:default} ${2:name};', detail: 'export module' },
-                    ]);
-                    break;
-                    
-                case 'python':
-                    suggestions = suggestions.concat([
-                        { label: 'import', kind: monaco.languages.CompletionItemKind.Keyword, insertText: 'import ${1:module}', detail: 'import module' },
-                        { label: 'from', kind: monaco.languages.CompletionItemKind.Keyword, insertText: 'from ${1:module} import ${2:name}', detail: 'import from module' },
-                        { label: 'if', kind: monaco.languages.CompletionItemKind.Keyword, insertText: 'if ${1:condition}:\n\t${2:# code}', detail: 'conditional statement' },
-                        { label: 'for', kind: monaco.languages.CompletionItemKind.Keyword, insertText: 'for ${1:item} in ${2:iterable}:\n\t${3:# code}', detail: 'for loop' },
-                    ]);
-                    break;
-                    
-                case 'php':
-                    suggestions = suggestions.concat([
-                        { label: '$this', kind: monaco.languages.CompletionItemKind.Variable, insertText: '$this', detail: 'current object' },
-                        { label: 'public', kind: monaco.languages.CompletionItemKind.Keyword, insertText: 'public $${1:variable};', detail: 'public property' },
-                        { label: 'private', kind: monaco.languages.CompletionItemKind.Keyword, insertText: 'private $${1:variable};', detail: 'private property' },
-                        { label: 'protected', kind: monaco.languages.CompletionItemKind.Keyword, insertText: 'protected $${1:variable};', detail: 'protected property' },
-                    ]);
-                    break;
-                    
-                case 'html':
-                    suggestions = suggestions.concat([
-                        { label: 'input', kind: monaco.languages.CompletionItemKind.Keyword, insertText: '<input type="${1:text}" name="${2:name}" value="${3:value}">', detail: 'input field' },
-                        { label: 'button', kind: monaco.languages.CompletionItemKind.Keyword, insertText: '<button type="${1:button}">${2:label}</button>', detail: 'button' },
-                        { label: 'form', kind: monaco.languages.CompletionItemKind.Keyword, insertText: '<form action="${1:#}" method="${2:post}">\n\t${3:content}\n</form>', detail: 'form' },
-                        { label: 'table', kind: monaco.languages.CompletionItemKind.Keyword, insertText: '<table>\n\t<tr>\n\t\t<td>${1:content}</td>\n\t</tr>\n</table>', detail: 'table' },
-                    ]);
-                    break;
-                    
-                case 'css':
-                    suggestions = suggestions.concat([
-                        { label: 'background', kind: monaco.languages.CompletionItemKind.Property, insertText: 'background: ${1:#fff};', detail: 'background' },
-                        { label: 'border', kind: monaco.languages.CompletionItemKind.Property, insertText: 'border: ${1:1px solid #000};', detail: 'border' },
-                        { label: 'width', kind: monaco.languages.CompletionItemKind.Property, insertText: 'width: ${1:100}px;', detail: 'width' },
-                        { label: 'height', kind: monaco.languages.CompletionItemKind.Property, insertText: 'height: ${1:100}px;', detail: 'height' },
-                    ]);
-                    break;
-                    
-                case 'sql':
-                    suggestions = suggestions.concat([
-                        { label: 'SELECT', kind: monaco.languages.CompletionItemKind.Keyword, insertText: 'SELECT ${1:*} FROM ${2:table}', detail: 'select query' },
-                        { label: 'INSERT', kind: monaco.languages.CompletionItemKind.Keyword, insertText: 'INSERT INTO ${1:table} (${2:columns}) VALUES (${3:values})', detail: 'insert statement' },
-                        { label: 'UPDATE', kind: monaco.languages.CompletionItemKind.Keyword, insertText: 'UPDATE ${1:table} SET ${2:column}=${3:value} WHERE ${4:condition}', detail: 'update statement' },
-                        { label: 'DELETE', kind: monaco.languages.CompletionItemKind.Keyword, insertText: 'DELETE FROM ${1:table} WHERE ${2:condition}', detail: 'delete statement' },
-                    ]);
-                    break;
-            }
-            
-            return {
-                suggestions: suggestions.map(suggestion => ({
-                    ...suggestion,
-                    range: range,
-                    insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet
-                }))
-            };
-        }
-    };
-    
-    const languages = [
-        'plaintext', 'javascript', 'typescript', 'html', 'css', 'php', 
-        'python', 'java', 'c', 'cpp', 'csharp', 'go', 'rust', 'ruby',
-        'perl', 'lua', 'swift', 'kotlin', 'scala', 'dart', 'json',
-        'xml', 'yaml', 'toml', 'ini', 'sql', 'markdown', 'shell',
-        'powershell', 'batch', 'dockerfile', 'makefile'
-    ];
-    
-    languages.forEach(language => {
-        try {
-            monaco.languages.registerCompletionItemProvider(language, globalCompletionProvider);
-        } catch (e) {
-            //console.log(`Cannot register completion provider for ${language}:`, e.message);
-        }
-    });
-    
-    //console.log('Global completion providers registered successfully');
 }
 
 function setupEditorShortcuts(editor, tabId) {
@@ -10492,9 +10681,9 @@ function updateEditorPanelContent() {
                     </div>
                 </div>
                 
-                <div style="flex: 1; overflow: hidden; position: relative;">
+<div style="flex: 1; overflow: hidden; position: relative;">
                     ${editorMode === 'simple' ? `
-                        <div class="simple-editor-container" style="height: calc(100vh - 200px); overflow: auto; border: 1px solid var(--border-color); border-radius: 4px;">
+                        <div class="simple-editor-container" style="height: calc(100vh - 240px); overflow: auto; border: 1px solid var(--border-color); border-radius: 4px;">
                             <textarea id="${tab.id}-simple-editor" 
                                       class="simple-editor"
                                       placeholder="${tab.loading ? (translations['loading'] || 'Loading...') : (translations['start_editing'] || 'Start editing')}"
@@ -10522,7 +10711,7 @@ function updateEditorPanelContent() {
                         </span>
                         <span id="${tab.id}-selected-text-info"></span>
                         <span id="${tab.id}-char-count-info">
-                            ${translations['char_count_label'] || 'Characters'}: 0
+                            <span data-translate="char_count_label">Characters</span>: 0
                         </span>
                         <span>${formatFileSize((tab.content || '').length)}</span>
                         <span>UTF-8</span>
@@ -10614,9 +10803,7 @@ function updateEditorPanelContent() {
             }
         }
     }
-    if (typeof updateLanguage === 'function' && typeof currentLang !== 'undefined') {
-        updateLanguage(currentLang);
-    }
+    updateLanguage(currentLang);
 }
 
 function changeEditorFontSize(tabId, fontSize) {
@@ -11115,39 +11302,33 @@ function createDiffEditorDialog(filename, content, tabId) {
                 <div class="modal-header">
                     <h5 class="modal-title">
                         <i class="fas fa-code-compare me-2"></i>
-                        ${translations['diff_editor_title'] || 'Diff Editor'} - ${escapeHtml(filename)}
+                        <span data-translate="diff_editor_title">Diff Editor</span> - ${escapeHtml(filename)}
                     </h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"
-                            aria-label="${translations['close'] || 'Close'}"></button>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
 
                 <div class="modal-body p-0 d-flex flex-column">
                     <div class="diff-toolbar p-2 border-bottom d-flex justify-content-between align-items-center">
                         <div>
-                            <span class="badge bg-primary me-2">
-                                ${translations['diff_left_label'] || 'Left: Original file (savable)'}
-                            </span>
-                            <span class="badge bg-success me-2">
-                                ${translations['diff_right_label'] || 'Right: Diff area (editable)'}
-                            </span>
+                            <span class="badge bg-primary me-2" data-translate="diff_left_label">Left: Original</span>
+                            <span class="badge bg-success me-2" data-translate="diff_right_label">Right: Diff</span>
                         </div>
 
                         <div class="btn-group">
-                            <button class="btn btn-sm btn-outline-secondary" onclick="resetRightEditor()">
+                            <button class="btn btn-sm btn-orange me-1" onclick="resetRightEditor()">
                                 <i class="fas fa-undo"></i>
-                                ${translations['diff_reset_right'] || 'Reset Right'}
+                                <span data-translate="diff_reset_right">Reset Right</span>
                             </button>
-                            <button class="btn btn-sm btn-outline-secondary" onclick="copyRightToLeft()">
+                            <button class="btn btn-sm btn-purple me-1" onclick="copyRightToLeft()">
                                 <i class="fas fa-arrow-left"></i>
-                                ${translations['diff_apply_to_left'] || 'Apply to Left'}
+                                <span data-translate="diff_apply_to_left">Apply to Left</span>
                             </button>
-                            <button class="btn btn-sm btn-outline-info" onclick="toggleFullscreen()"
-                                    title="${translations['enter_fullscreen'] || 'Enter fullscreen'}">
+                            <button class="btn btn-sm btn-pink me-1" onclick="toggleFullscreen()" data-translate-tooltip="enter_fullscreen">
                                 <i class="fas fa-expand"></i>
                             </button>
-                            <button class="btn btn-sm btn-primary" onclick="saveLeftEditor('${tabId}')">
+                            <button class="btn btn-sm btn-primary me-1" onclick="saveLeftEditor('${tabId}')">
                                 <i class="fas fa-save"></i>
-                                ${translations['save'] || 'Save'}
+                                <span data-translate="save">Save</span>
                             </button>
                         </div>
                     </div>
@@ -11156,8 +11337,7 @@ function createDiffEditorDialog(filename, content, tabId) {
 
                     <div class="diff-help p-2 border-top small text-muted">
                         <i class="fas fa-lightbulb me-1"></i>
-                        ${translations['diff_help'] ||
-                        'Tip: When editing on the right, green = added, red = removed. Ctrl+V works on both sides.'}
+                        <span data-translate="diff_help">Tip: When editing on the right, green = added, red = removed. Ctrl+V works on both sides.</span>
                     </div>
                 </div>
             </div>
@@ -11165,7 +11345,7 @@ function createDiffEditorDialog(filename, content, tabId) {
     `;
 
     document.body.appendChild(dialog);
-
+    updateLanguage(currentLang);
     const modal = new bootstrap.Modal(dialog);
     modal.show();
 
