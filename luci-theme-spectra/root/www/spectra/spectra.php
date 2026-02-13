@@ -632,6 +632,7 @@ $langData = [
         'export_hash'            => '导出哈希',
         'hash_exported'          => '哈希已导出',
         'cannot_hash_directory'  => '不能为目录计算哈希值',
+        'menucut' => '剪切',
         'file_summary' => '已选择 %d 个文件，合计 %s MB'
     ],
 
@@ -1265,6 +1266,7 @@ $langData = [
         'export_hash'            => '匯出雜湊',
         'hash_exported'          => '雜湊已匯出',
         'cannot_hash_directory'  => '不能為資料夾計算雜湊值',
+        'menucut' => '剪下',
         'validateYaml' => '驗證 YAML 語法'
     ],
 
@@ -1897,6 +1899,7 @@ $langData = [
         'export_hash'            => '해시 내보내기',
         'hash_exported'          => '해시가 내보내졌습니다',
         'cannot_hash_directory'  => '폴더에 대해 해시를 계산할 수 없습니다',
+        'menucut' => '잘라내기',
         'validateYaml' => 'YAML 구문 검증'
     ],
 
@@ -2528,6 +2531,7 @@ $langData = [
         'export_hash'            => 'ハッシュをエクスポート',
         'hash_exported'          => 'ハッシュがエクスポートされました',
         'cannot_hash_directory'  => 'フォルダのハッシュは計算できません',
+        'menucut' => '切り取り',
         'validateYaml' => 'YAML構文を検証'
     ],
 
@@ -3157,6 +3161,7 @@ $langData = [
         'export_hash'            => 'Xuất mã băm',
         'hash_exported'          => 'Đã xuất mã băm',
         'cannot_hash_directory'  => 'Không thể tính mã băm cho thư mục',
+        'menucut' => 'Cắt',
         'validateYaml' => 'Kiểm tra Cú pháp YAML'
     ],
 
@@ -3770,6 +3775,7 @@ $langData = [
         'export_hash'            => 'ส่งออกแฮช',
         'hash_exported'          => 'ส่งออกแฮชแล้ว',
         'cannot_hash_directory'  => 'ไม่สามารถคำนวณแฮชสำหรับโฟลเดอร์ได้',
+        'menucut' => 'ตัด',
         'validateYaml' => 'ตรวจสอบไวยากรณ์ YAML'
     ],
     'ru' => [
@@ -4384,6 +4390,7 @@ $langData = [
         'export_hash'            => 'Экспортировать хэш',
         'hash_exported'          => 'Хэш экспортирован',
         'cannot_hash_directory'  => 'Нельзя вычислить хэш для каталога',
+        'menucut' => 'Вырезать',
         'validateYaml' => 'Проверить синтаксис YAML'
     ],
     'ar' => [
@@ -5003,6 +5010,7 @@ $langData = [
         'export_hash'            => 'تصدير التجزئة',
         'hash_exported'          => 'تم تصدير التجزئة',
         'cannot_hash_directory'  => 'لا يمكن حساب التجزئة للمجلد',
+        'menucut' => 'قص',
         'validateYaml' => 'التحقق من صحة بناء جملة YAML'
     ],
     'es' => [
@@ -5616,6 +5624,7 @@ $langData = [
         'export_hash'            => 'Exportar hash',
         'hash_exported'          => 'Hash exportado',
         'cannot_hash_directory'  => 'No se puede calcular el hash de un directorio',
+        'menucut' => 'Cortar',
         'validateYaml' => 'Validar sintaxis YAML'
     ],
     'de' => [
@@ -6228,6 +6237,7 @@ $langData = [
         'hash_values'            => 'Hash-Werte',
         'export_hash'            => 'Hash exportieren',
         'hash_exported'          => 'Hash exportiert',
+        'menucut' => 'Ausschneiden',
         'cannot_hash_directory'  => 'Hash kann für ein Verzeichnis nicht berechnet werden',
         'validateYaml' => 'YAML-Syntax validieren'
     ],
@@ -6843,6 +6853,7 @@ $langData = [
         'export_hash'            => 'Exporter le hash',
         'hash_exported'          => 'Hash exporté',
         'cannot_hash_directory'  => 'Impossible de calculer le hash pour un dossier',
+        'menucut' => 'Couper',
         'validateYaml' => 'Valider la syntaxe YAML'
     ],
     'en' => [
@@ -7468,6 +7479,7 @@ $langData = [
         'export_hash'            => 'Export Hash',
         'hash_exported'          => 'Hash exported',
         'cannot_hash_directory'  => 'Cannot calculate hash for a directory',
+        'menucut' => 'Cut',
         'validateYaml' => 'Validate YAML Syntax'
     ],
     'bn' => [
@@ -8081,6 +8093,7 @@ $langData = [
         'export_hash'            => 'হ্যাশ রপ্তানি',
         'hash_exported'          => 'হ্যাশ রপ্তানি করা হয়েছে',
         'cannot_hash_directory'  => 'ফোল্ডারের জন্য হ্যাশ গণনা করা যায় না',
+        'menucut' => 'কেটে ফেলুন',
         'validateYaml' => 'YAML সিনট্যাক্স যাচাই করুন'
     ]
 ];
