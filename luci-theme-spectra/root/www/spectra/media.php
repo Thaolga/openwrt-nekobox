@@ -8234,9 +8234,7 @@ async function pasteFromClipboard() {
                 .replace('{operation}', operationText)
                 .replace('{count}', errorCount);
             showLogMessage(message, 'error');
-        }
-        
-        hideFileContextMenu();
+        }        
     });
 }
 
