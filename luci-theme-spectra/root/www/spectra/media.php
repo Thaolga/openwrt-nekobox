@@ -11596,6 +11596,20 @@ function closeAllEditorTabs() {
 }
 
 function editFile(path) {
+    const fileName = path.split('/').pop();
+    const ext = fileName.toLowerCase().split('.').pop();
+    
+    const archiveExts = ['zip', 'tar', 'gz', 'bz2', '7z', 'rar', 'tgz', 'tbz2'];
+    
+    if (archiveExts.includes(ext)) {
+        selectedFiles.clear();
+        selectedFiles.add(path);
+        updateFileSelection();
+        
+        showExtractDialog();
+        return;
+    }
+    
     openEditor(path);
     toggleView('editor');
 }
