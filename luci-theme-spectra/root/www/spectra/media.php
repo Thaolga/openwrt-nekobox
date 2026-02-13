@@ -259,16 +259,7 @@ if (isset($_GET['action'])) {
             exit;
         }
 
-        $name = basename($name);
-        $name = str_replace(' ', '_', $name);
-        $name = preg_replace('/[\/:*?"<>|\s]/', '_', $name);
-        $name = preg_replace('/[^\w\-\.\u4e00-\u9fff]/u', '_', $name);
-        $name = preg_replace('/_+/', '_', $name);
-        $name = trim($name, '._-');
-    
-        if (empty($name)) {
-            $name = 'new_folder_' . time();
-        }
+        $name = preg_replace('/[\/:*?"<>|]/', '', $name);
         
         $path = rtrim($path, '/') . '/';
         $fullPath = $path . $name;
@@ -305,16 +296,7 @@ if (isset($_GET['action'])) {
             exit;
         }
         
-        $name = basename($name);
-        $name = str_replace(' ', '_', $name);
-        $name = preg_replace('/[\/:*?"<>|\s]/', '_', $name);
-        $name = preg_replace('/[^\w\-\.\u4e00-\u9fff]/u', '_', $name);
-        $name = preg_replace('/_+/', '_', $name);
-        $name = trim($name, '._-');
-    
-        if (empty($name)) {
-            $name = 'new_file_' . time() . '.txt';
-        }
+        $name = preg_replace('/[\/:*?"<>|]/', '', $name);
         
         $fullPath = $path . '/' . $name;
         $fullPath = preg_replace('#/+#', '/', $fullPath);
@@ -541,20 +523,6 @@ if (isset($_GET['action'])) {
         $uploadedFiles = [];
         $errors = [];
 
-        function sanitizeFilename($filename) {
-            $filename = basename($filename);
-            $filename = str_replace(' ', '_', $filename);
-            $filename = preg_replace('/[^\w\-\.\u4e00-\u9fff]/u', '_', $filename);
-            $filename = preg_replace('/_+/', '_', $filename);
-            $filename = trim($filename, '._-');
-        
-            if (empty($filename)) {
-                $filename = 'upload_' . time();
-            }
-        
-            return $filename;
-        }
-
         function generateUniqueFilename($directory, $filename) {
             $pathinfo = pathinfo($filename);
             $name = $pathinfo['filename'];
@@ -574,7 +542,7 @@ if (isset($_GET['action'])) {
             if (!is_array($_FILES['file']['name'])) {
                 $file = $_FILES['file'];
                 if ($file['error'] === UPLOAD_ERR_OK) {
-                    $fileName = sanitizeFilename($file['name']);
+                    $fileName = preg_replace('/[\/:*?"<>|]/', '_', basename($file['name']));
 
                     if (file_exists($realPath . '/' . $fileName)) {
                         $fileName = generateUniqueFilename($realPath, $fileName);
@@ -592,7 +560,7 @@ if (isset($_GET['action'])) {
                 $fileCount = count($_FILES['file']['name']);
                 for ($i = 0; $i < $fileCount; $i++) {
                     if ($_FILES['file']['error'][$i] === UPLOAD_ERR_OK) {
-                        $fileName = sanitizeFilename($_FILES['file']['name'][$i]);
+                        $fileName = preg_replace('/[\/:*?"<>|]/', '_', basename($_FILES['file']['name'][$i]));
 
                         if (file_exists($realPath . '/' . $fileName)) {
                             $fileName = generateUniqueFilename($realPath, $fileName);
@@ -634,17 +602,7 @@ if (isset($_GET['action'])) {
             exit;
         }
         
-        $name = basename($name);
-        $name = str_replace(' ', '_', $name);
-        $name = preg_replace('/[\/:*?"<>|\s]/', '_', $name);
-        $name = preg_replace('/[^\w\-\.\u4e00-\u9fff]/u', '_', $name);
-        $name = preg_replace('/_+/', '_', $name);
-        $name = trim($name, '._-');
-    
-        if (empty($newName)) {
-            echo json_encode(['success' => false, 'error' => 'Invalid file name']);
-            exit;
-        }
+        $newName = preg_replace('/[\/:*?"<>|]/', '', $newName);
         
         $oldPath = preg_replace('#/+#', '/', $oldPath);
         if (substr($oldPath, 0, 1) !== '/') {
@@ -12208,7 +12166,9 @@ ${sha256Label} ${sha256}
     a.click();
     URL.revokeObjectURL(url);
     
-    showLogMessage(translations['hash_exported'] || 'Hash exported', 'success');
+    const successMsg = translations['hash_exported'] || 'Hash exported successfully';
+    showLogMessage(successMsg);
+    speakMessage(successMsg);
 }
 
 window.addEventListener('beforeunload', function(e) {
