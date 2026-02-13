@@ -8129,6 +8129,8 @@ function copyToClipboard(action = 'copy') {
     const countText = (translations['items_count'] || '{count} item(s)')
         .replace('{count}', selectedFiles.size);
     
+    hideFileContextMenu();
+
     showLogMessage(`${actionText} ${countText}`, 'success');
     
     if (action === 'cut') {
@@ -8191,49 +8193,51 @@ async function pasteFromClipboard() {
         .replace('{count}', clipboardItems.paths.size)
         .replace('{target}', targetPath);
     
-    if (!confirm(confirmMessage)) return;
-    
-    let successCount = 0;
-    let errorCount = 0;
-    
-    for (const sourcePath of clipboardItems.paths) {
-        try {
-            const apiAction = operation === 'copy' ? 'copy_item' : 'move_item';
-            const response = await fetch(`?action=${apiAction}&source=${encodeURIComponent(sourcePath)}&dest=${encodeURIComponent(targetPath)}`);
-            const data = await response.json();
-            
-            if (data.success) {
-                successCount++;
-            } else {
-                errorCount++;
-                console.error('Operation failed:', data.error);
-            }
-        } catch (error) {
-            errorCount++;
-            console.error('Operation error:', error);
-        }
-    }
-    
-    if (clipboardItems.action === 'cut') {
-        clearClipboard();
-    }
-    
-    if (successCount > 0) {
-        const message = (translations['paste_success'] || 'Successfully {operation} {count} item(s)')
-            .replace('{operation}', operationText)
-            .replace('{count}', successCount);
-        showLogMessage(message, 'success');
-        refreshFiles();
-    }
-    
-    if (errorCount > 0) {
-        const message = (translations['paste_failed'] || 'Failed to {operation} {count} item(s)')
-            .replace('{operation}', operationText)
-            .replace('{count}', errorCount);
-        showLogMessage(message, 'error');
-    }
-    
     hideFileContextMenu();
+
+    showConfirmation(confirmMessage, async () => {
+        let successCount = 0;
+        let errorCount = 0;
+        
+        for (const sourcePath of clipboardItems.paths) {
+            try {
+                const apiAction = operation === 'copy' ? 'copy_item' : 'move_item';
+                const response = await fetch(`?action=${apiAction}&source=${encodeURIComponent(sourcePath)}&dest=${encodeURIComponent(targetPath)}`);
+                const data = await response.json();
+                
+                if (data.success) {
+                    successCount++;
+                } else {
+                    errorCount++;
+                    console.error('Operation failed:', data.error);
+                }
+            } catch (error) {
+                errorCount++;
+                console.error('Operation error:', error);
+            }
+        }
+        
+        if (clipboardItems.action === 'cut') {
+            clearClipboard();
+        }
+        
+        if (successCount > 0) {
+            const message = (translations['paste_success'] || 'Successfully {operation} {count} item(s)')
+                .replace('{operation}', operationText)
+                .replace('{count}', successCount);
+            showLogMessage(message, 'success');
+            refreshFiles();
+        }
+        
+        if (errorCount > 0) {
+            const message = (translations['paste_failed'] || 'Failed to {operation} {count} item(s)')
+                .replace('{operation}', operationText)
+                .replace('{count}', errorCount);
+            showLogMessage(message, 'error');
+        }
+        
+        hideFileContextMenu();
+    });
 }
 
 function clearClipboard() {
