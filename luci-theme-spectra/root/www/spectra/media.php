@@ -4770,7 +4770,7 @@ list-group:hover {
         
         <div class="menu-item" id="fileCutItem" onclick="copyToClipboard('cut')">
             <i class="fas fa-cut me-2"></i>
-            <span data-translate="cut">Cut</span>
+            <span data-translate="menucut">Cut</span>
             <span style="margin-left: auto; font-size: 0.8rem; opacity: 0.7;">Ctrl+X</span>
         </div>
         <div class="menu-item" id="fileCopyItem" onclick="copyToClipboard('copy')">
