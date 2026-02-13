@@ -624,6 +624,14 @@ $langData = [
         'paste'                 => '粘贴',
         'items_with_action'     => '{count}个项目 ({action})',
         'edit'                  => '编辑',
+        'video_codec'           => '视频编码：',
+        'sample_rate'           => '采样率：',
+        'file_hash'              => '文件哈希值',
+        'calculating_hash'       => '正在计算哈希值...',
+        'hash_values'            => '哈希值',
+        'export_hash'            => '导出哈希',
+        'hash_exported'          => '哈希已导出',
+        'cannot_hash_directory'  => '不能为目录计算哈希值',
         'file_summary' => '已选择 %d 个文件，合计 %s MB'
     ],
 
@@ -1247,8 +1255,16 @@ $langData = [
         'copy'                  => '複製',
         'move'                  => '移動',
         'paste'                 => '貼上',
+        'video_codec'           => '視頻編碼：',
+        'sample_rate'           => '採樣率：',
         'items_with_action'     => '{count}個項目 ({action})',
         'edit'                  => '編輯',
+        'file_hash'              => '檔案雜湊值',
+        'calculating_hash'       => '正在計算雜湊值...',
+        'hash_values'            => '雜湊值',
+        'export_hash'            => '匯出雜湊',
+        'hash_exported'          => '雜湊已匯出',
+        'cannot_hash_directory'  => '不能為資料夾計算雜湊值',
         'validateYaml' => '驗證 YAML 語法'
     ],
 
@@ -1873,6 +1889,14 @@ $langData = [
         'paste'                 => '붙여넣기',
         'items_with_action'     => '{count}개 항목 ({action})',
         'edit'                  => '편집',
+        'video_codec'           => '비디오 코덱:',
+        'sample_rate'           => '샘플링 레이트:',
+        'file_hash'              => '파일 해시 값',
+        'calculating_hash'       => '해시 값을 계산 중...',
+        'hash_values'            => '해시 값',
+        'export_hash'            => '해시 내보내기',
+        'hash_exported'          => '해시가 내보내졌습니다',
+        'cannot_hash_directory'  => '폴더에 대해 해시를 계산할 수 없습니다',
         'validateYaml' => 'YAML 구문 검증'
     ],
 
@@ -2496,6 +2520,14 @@ $langData = [
         'paste'                 => '貼り付け',
         'items_with_action'     => '{count}個の項目 ({action})',
         'edit'                  => '編集',
+        'video_codec'           => 'ビデオコーデック:',
+        'sample_rate'           => 'サンプルレート:',
+        'file_hash'              => 'ファイルハッシュ値',
+        'calculating_hash'       => 'ハッシュ値を計算中...',
+        'hash_values'            => 'ハッシュ値',
+        'export_hash'            => 'ハッシュをエクスポート',
+        'hash_exported'          => 'ハッシュがエクスポートされました',
+        'cannot_hash_directory'  => 'フォルダのハッシュは計算できません',
         'validateYaml' => 'YAML構文を検証'
     ],
 
@@ -3117,6 +3149,14 @@ $langData = [
         'paste'                 => 'Dán',
         'items_with_action'     => '{count} mục ({action})',
         'edit'                  => 'Chỉnh sửa',
+        'video_codec'           => 'Bộ giải mã video:',
+        'sample_rate'           => 'Tần số lấy mẫu:',
+        'file_hash'              => 'Giá trị băm tệp',
+        'calculating_hash'       => 'Đang tính toán giá trị băm...',
+        'hash_values'            => 'Giá trị băm',
+        'export_hash'            => 'Xuất mã băm',
+        'hash_exported'          => 'Đã xuất mã băm',
+        'cannot_hash_directory'  => 'Không thể tính mã băm cho thư mục',
         'validateYaml' => 'Kiểm tra Cú pháp YAML'
     ],
 
@@ -3722,6 +3762,14 @@ $langData = [
         'paste'                 => 'วาง',
         'items_with_action'     => '{count} รายการ ({action})',
         'edit'                  => 'แก้ไข',
+        'video_codec'           => 'ตัวแปลงสัญญาณวิดีโอ:',
+        'sample_rate'           => 'อัตราการสุ่มตัวอย่าง:',
+        'file_hash'              => 'ค่าแฮชไฟล์',
+        'calculating_hash'       => 'กำลังคำนวณค่าแฮช...',
+        'hash_values'            => 'ค่าแฮช',
+        'export_hash'            => 'ส่งออกแฮช',
+        'hash_exported'          => 'ส่งออกแฮชแล้ว',
+        'cannot_hash_directory'  => 'ไม่สามารถคำนวณแฮชสำหรับโฟลเดอร์ได้',
         'validateYaml' => 'ตรวจสอบไวยากรณ์ YAML'
     ],
     'ru' => [
@@ -4328,6 +4376,14 @@ $langData = [
         'paste'                 => 'Вставить',
         'items_with_action'     => '{count} элемент(ов) ({action})',
         'edit'                  => 'Редактировать',
+        'video_codec'           => 'Видеокодек:',
+        'sample_rate'           => 'Частота дискретизации:',
+        'file_hash'              => 'Хэш файла',
+        'calculating_hash'       => 'Вычисление хэша...',
+        'hash_values'            => 'Значения хэша',
+        'export_hash'            => 'Экспортировать хэш',
+        'hash_exported'          => 'Хэш экспортирован',
+        'cannot_hash_directory'  => 'Нельзя вычислить хэш для каталога',
         'validateYaml' => 'Проверить синтаксис YAML'
     ],
     'ar' => [
@@ -4939,6 +4995,14 @@ $langData = [
         'paste'                 => 'لصق',
         'items_with_action'     => '{count} عنصر ({action})',
         'edit'                  => 'تعديل',
+        'video_codec'           => 'ترميز الفيديو:',
+        'sample_rate'           => 'معدل العينة:',
+        'file_hash'              => 'قيمة تجزئة الملف',
+        'calculating_hash'       => 'جارٍ حساب قيمة التجزئة...',
+        'hash_values'            => 'قيم التجزئة',
+        'export_hash'            => 'تصدير التجزئة',
+        'hash_exported'          => 'تم تصدير التجزئة',
+        'cannot_hash_directory'  => 'لا يمكن حساب التجزئة للمجلد',
         'validateYaml' => 'التحقق من صحة بناء جملة YAML'
     ],
     'es' => [
@@ -5544,6 +5608,14 @@ $langData = [
         'paste'                 => 'Pegar',
         'items_with_action'     => '{count} elemento(s) ({action})',
         'edit'                  => 'Editar',
+        'video_codec'           => 'Códec de video:',
+        'sample_rate'           => 'Frecuencia de muestreo:',
+        'file_hash'              => 'Hash del archivo',
+        'calculating_hash'       => 'Calculando hash...',
+        'hash_values'            => 'Valores hash',
+        'export_hash'            => 'Exportar hash',
+        'hash_exported'          => 'Hash exportado',
+        'cannot_hash_directory'  => 'No se puede calcular el hash de un directorio',
         'validateYaml' => 'Validar sintaxis YAML'
     ],
     'de' => [
@@ -6149,6 +6221,14 @@ $langData = [
         'paste'                 => 'Einfügen',
         'items_with_action'     => '{count} Element(e) ({action})',
         'edit'                  => 'Bearbeiten',
+        'video_codec'           => 'Video-Codec:',
+        'sample_rate'           => 'Abtastrate:',
+        'file_hash'              => 'Datei-Hash',
+        'calculating_hash'       => 'Hash wird berechnet...',
+        'hash_values'            => 'Hash-Werte',
+        'export_hash'            => 'Hash exportieren',
+        'hash_exported'          => 'Hash exportiert',
+        'cannot_hash_directory'  => 'Hash kann für ein Verzeichnis nicht berechnet werden',
         'validateYaml' => 'YAML-Syntax validieren'
     ],
 
@@ -6755,6 +6835,14 @@ $langData = [
         'paste'                 => 'Coller',
         'items_with_action'     => '{count} élément(s) ({action})',
         'edit'                  => 'Éditer',
+        'video_codec'           => 'Codec vidéo:',
+        'sample_rate'           => 'Taux d\'échantillonnage:',
+        'file_hash'              => 'Hash du fichier',
+        'calculating_hash'       => 'Calcul du hash...',
+        'hash_values'            => 'Valeurs de hash',
+        'export_hash'            => 'Exporter le hash',
+        'hash_exported'          => 'Hash exporté',
+        'cannot_hash_directory'  => 'Impossible de calculer le hash pour un dossier',
         'validateYaml' => 'Valider la syntaxe YAML'
     ],
     'en' => [
@@ -7372,6 +7460,14 @@ $langData = [
         'paste'                 => 'Paste',
         'items_with_action'     => '{count} item(s) ({action})',
         'edit'                  => 'Edit',
+        'video_codec'           => 'Video Codec:',
+        'sample_rate'           => 'Sample Rate:',
+        'file_hash'              => 'File Hash',
+        'calculating_hash'       => 'Calculating hash...',
+        'hash_values'            => 'Hash Values',
+        'export_hash'            => 'Export Hash',
+        'hash_exported'          => 'Hash exported',
+        'cannot_hash_directory'  => 'Cannot calculate hash for a directory',
         'validateYaml' => 'Validate YAML Syntax'
     ],
     'bn' => [
@@ -7977,6 +8073,14 @@ $langData = [
         'paste'                 => 'পেস্ট',
         'items_with_action'     => '{count}টি আইটেম ({action})',
         'edit'                  => 'সম্পাদনা',
+        'video_codec'           => 'ভিডিও কোডেক:',
+        'sample_rate'           => 'নমুনা হার:',
+        'file_hash'              => 'ফাইল হ্যাশ মান',
+        'calculating_hash'       => 'হ্যাশ মান গণনা করা হচ্ছে...',
+        'hash_values'            => 'হ্যাশ মানসমূহ',
+        'export_hash'            => 'হ্যাশ রপ্তানি',
+        'hash_exported'          => 'হ্যাশ রপ্তানি করা হয়েছে',
+        'cannot_hash_directory'  => 'ফোল্ডারের জন্য হ্যাশ গণনা করা যায় না',
         'validateYaml' => 'YAML সিনট্যাক্স যাচাই করুন'
     ]
 ];
@@ -8518,7 +8622,7 @@ function changeLanguage(lang) {
 <style>
 [data-theme="dark"] {
     --base-hue: 260;
-    --base-chroma: 0.03;
+    --base-chroma: 0.25;
     --danger-base: 15;
     --base-hue-1: 20;
     --base-hue-2: 200;
@@ -8527,7 +8631,7 @@ function changeLanguage(lang) {
     --base-hue-5: 270;
     --base-hue-6: 170;
     --base-hue-7: 340;
-    --l: 85%;
+    --l: 80%;
     --c: 0.25;
     --radius: 16px;
     --border-light: 1px solid oklch(60% 0.05 var(--base-hue) / 0.3);
@@ -8566,12 +8670,31 @@ function changeLanguage(lang) {
     --forest-bg: oklch(40% 0.3 calc(var(--base-hue) + 140));
     --rose-bg: oklch(45% 0.3 calc(var(--base-hue) + 350));
     --lavender-bg: oklch(43% 0.3 calc(var(--base-hue) + 270));
+    --glass-border: 1px solid oklch(0% 0 0 / 0.05);
+    --border-light: 1px solid oklch(90% 0.02 var(--base-hue) / 0.4);
+    --border-strong: 1px solid oklch(70% 0.1 var(--base-hue) / 0.6);
+
+    --breathing-glow: 0 0 15px oklch(85% 0.2 var(--base-hue) / 0.4),
+        0 0 30px oklch(85% 0.15 var(--base-hue) / 0.3),
+        0 0 45px oklch(85% 0.1 var(--base-hue) / 0.2);
+
+    --border-glow: 0 0 8px oklch(85% 0.2 var(--base-hue) / 0.4),
+        0 0 16px oklch(90% 0.25 var(--base-hue) / 0.3);
+
     --sand-bg: oklch(42% 0.3 calc(var(--base-hue) + 60));
 }
 
 [data-theme="light"] {
     --base-hue: 200;
-    --base-chroma: 0.01;
+    --base-chroma: 0.25;
+    --danger-base: 15;
+    --base-hue-1: 220;
+    --base-hue-2: 280;
+    --base-hue-3: 315;
+    --base-hue-4: 260;
+    --base-hue-5: 350;
+    --base-hue-6: 290;
+    --base-hue-7: 40;
     --l: 60%;
     --c: 0.25;
     --radius: 16px;

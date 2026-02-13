@@ -233,19 +233,10 @@ if (isset($_GET['action'])) {
                 $info['extension'] = $ext;
                 $info['mime_type'] = getMimeType($ext);
                 
-                if (in_array($ext, $TYPE_EXT['music']) || in_array($ext, $TYPE_EXT['video'])) {
-                    $mediaInfo = getMediaInfo($realPath);
+                if (in_array($ext, $TYPE_EXT['music']) || in_array($ext, $TYPE_EXT['video']) || in_array($ext, $TYPE_EXT['image'])) {
+                    $mediaInfo = getDetailedMediaInfo($realPath, $ext);
                     if ($mediaInfo) {
                         $info['media_info'] = $mediaInfo;
-                    }
-                } elseif (in_array($ext, $TYPE_EXT['image'])) {
-                    $imageInfo = @getimagesize($realPath);
-                    if ($imageInfo) {
-                        $info['image_info'] = [
-                            'width' => $imageInfo[0],
-                            'height' => $imageInfo[1],
-                            'mime' => $imageInfo['mime']
-                        ];
                     }
                 }
             }
@@ -268,7 +259,16 @@ if (isset($_GET['action'])) {
             exit;
         }
 
-        $name = preg_replace('/[\/:*?"<>|]/', '', $name);
+        $name = basename($name);
+        $name = str_replace(' ', '_', $name);
+        $name = preg_replace('/[\/:*?"<>|\s]/', '_', $name);
+        $name = preg_replace('/[^\w\-\.\u4e00-\u9fff]/u', '_', $name);
+        $name = preg_replace('/_+/', '_', $name);
+        $name = trim($name, '._-');
+    
+        if (empty($name)) {
+            $name = 'new_folder_' . time();
+        }
         
         $path = rtrim($path, '/') . '/';
         $fullPath = $path . $name;
@@ -305,7 +305,16 @@ if (isset($_GET['action'])) {
             exit;
         }
         
-        $name = preg_replace('/[\/:*?"<>|]/', '', $name);
+        $name = basename($name);
+        $name = str_replace(' ', '_', $name);
+        $name = preg_replace('/[\/:*?"<>|\s]/', '_', $name);
+        $name = preg_replace('/[^\w\-\.\u4e00-\u9fff]/u', '_', $name);
+        $name = preg_replace('/_+/', '_', $name);
+        $name = trim($name, '._-');
+    
+        if (empty($name)) {
+            $name = 'new_file_' . time() . '.txt';
+        }
         
         $fullPath = $path . '/' . $name;
         $fullPath = preg_replace('#/+#', '/', $fullPath);
@@ -532,6 +541,20 @@ if (isset($_GET['action'])) {
         $uploadedFiles = [];
         $errors = [];
 
+        function sanitizeFilename($filename) {
+            $filename = basename($filename);
+            $filename = str_replace(' ', '_', $filename);
+            $filename = preg_replace('/[^\w\-\.\u4e00-\u9fff]/u', '_', $filename);
+            $filename = preg_replace('/_+/', '_', $filename);
+            $filename = trim($filename, '._-');
+        
+            if (empty($filename)) {
+                $filename = 'upload_' . time();
+            }
+        
+            return $filename;
+        }
+
         function generateUniqueFilename($directory, $filename) {
             $pathinfo = pathinfo($filename);
             $name = $pathinfo['filename'];
@@ -551,7 +574,7 @@ if (isset($_GET['action'])) {
             if (!is_array($_FILES['file']['name'])) {
                 $file = $_FILES['file'];
                 if ($file['error'] === UPLOAD_ERR_OK) {
-                    $fileName = preg_replace('/[\/:*?"<>|]/', '_', basename($file['name']));
+                    $fileName = sanitizeFilename($file['name']);
 
                     if (file_exists($realPath . '/' . $fileName)) {
                         $fileName = generateUniqueFilename($realPath, $fileName);
@@ -569,7 +592,7 @@ if (isset($_GET['action'])) {
                 $fileCount = count($_FILES['file']['name']);
                 for ($i = 0; $i < $fileCount; $i++) {
                     if ($_FILES['file']['error'][$i] === UPLOAD_ERR_OK) {
-                        $fileName = preg_replace('/[\/:*?"<>|]/', '_', basename($_FILES['file']['name'][$i]));
+                        $fileName = sanitizeFilename($_FILES['file']['name'][$i]);
 
                         if (file_exists($realPath . '/' . $fileName)) {
                             $fileName = generateUniqueFilename($realPath, $fileName);
@@ -611,7 +634,17 @@ if (isset($_GET['action'])) {
             exit;
         }
         
-        $newName = preg_replace('/[\/:*?"<>|]/', '', $newName);
+        $name = basename($name);
+        $name = str_replace(' ', '_', $name);
+        $name = preg_replace('/[\/:*?"<>|\s]/', '_', $name);
+        $name = preg_replace('/[^\w\-\.\u4e00-\u9fff]/u', '_', $name);
+        $name = preg_replace('/_+/', '_', $name);
+        $name = trim($name, '._-');
+    
+        if (empty($newName)) {
+            echo json_encode(['success' => false, 'error' => 'Invalid file name']);
+            exit;
+        }
         
         $oldPath = preg_replace('#/+#', '/', $oldPath);
         if (substr($oldPath, 0, 1) !== '/') {
@@ -848,6 +881,69 @@ if (isset($_GET['action'])) {
         exit;
     }
 
+    if ($action === 'file_hash') {
+        header('Content-Type: application/json');
+    
+        $path = isset($_GET['path']) ? urldecode($_GET['path']) : '';
+    
+        $path = preg_replace('#/+#', '/', $path);
+        if (substr($path, 0, 1) !== '/') {
+            $path = '/' . $path;
+        }
+    
+        $realPath = realpath($path);
+        if (!$realPath || strpos($realPath, $ROOT_DIR) !== 0) {
+            echo json_encode(['success' => false, 'error' => 'Invalid path']);
+            exit;
+        }
+    
+        foreach ($EXCLUDE_DIRS as $exclude) {
+            if (strpos($realPath, $exclude) === 0) {
+                echo json_encode(['success' => false, 'error' => 'Path excluded']);
+                exit;
+            }
+        }
+    
+        if (!is_file($realPath) || !is_readable($realPath)) {
+            echo json_encode(['success' => false, 'error' => 'File not readable']);
+            exit;
+        }
+    
+        try {
+            if (!file_exists($realPath)) {
+                throw new Exception('File does not exist');
+            }
+        
+            $md5 = md5_file($realPath);
+            $sha1 = sha1_file($realPath);
+            $sha256 = hash_file('sha256', $realPath);
+        
+            if ($md5 === false || $sha1 === false || $sha256 === false) {
+                throw new Exception('Failed to calculate hash');
+            }
+        
+            $result = [
+                'success' => true,
+                'filename' => basename($realPath),
+                'path' => $realPath,
+                'size' => filesize($realPath),
+                'size_formatted' => formatFileSize(filesize($realPath)),
+                'md5' => $md5,
+                'sha1' => $sha1,
+                'sha256' => $sha256,
+                'modified' => date('Y-m-d H:i:s', filemtime($realPath))
+            ];
+        
+            echo json_encode($result);
+        } catch (Exception $e) {
+            echo json_encode([
+                'success' => false, 
+                'error' => 'Hash calculation failed: ' . $e->getMessage()
+            ]);
+        }
+        exit;
+    }
+
     if ($action === 'archive_action') {
         header('Content-Type: application/json');
     
@@ -951,6 +1047,125 @@ if (isset($_GET['action'])) {
         ]);
         exit;
     }
+}
+
+function getDetailedMediaInfo($filePath, $extension) {
+    $info = [];
+    
+    if (in_array($extension, ['jpg', 'jpeg', 'png', 'gif', 'bmp', 'webp', 'svg', 'ico'])) {
+        $imageInfo = @getimagesize($filePath);
+        if ($imageInfo) {
+            $info['type'] = 'image';
+            $info['width'] = $imageInfo[0];
+            $info['height'] = $imageInfo[1];
+            $info['resolution'] = $imageInfo[0] . 'x' . $imageInfo[1];
+            $info['mime'] = $imageInfo['mime'];
+            $info['bits'] = $imageInfo['bits'] ?? null;
+            $info['channels'] = $imageInfo['channels'] ?? null;
+        }
+        return $info;
+    }
+    
+    $ffprobePath = '/usr/bin/ffprobe';
+    $ffmpegPath = '/usr/bin/ffmpeg';
+    
+    if (file_exists($ffprobePath)) {
+        $cmd = $ffprobePath . " -v quiet -print_format json -show_format -show_streams " . escapeshellarg($filePath);
+        $output = shell_exec($cmd);
+        
+        if ($output) {
+            $data = json_decode($output, true);
+            if ($data) {
+                $info['type'] = in_array($extension, ['mp3', 'wav', 'ogg', 'flac', 'm4a', 'aac']) ? 'audio' : 'video';
+                $info['format'] = $data['format']['format_name'] ?? $extension;
+                $info['size'] = $data['format']['size'] ?? filesize($filePath);
+                $info['bitrate'] = isset($data['format']['bit_rate']) ? round($data['format']['bit_rate'] / 1000) . ' kbps' : null;
+                
+                if (isset($data['format']['duration'])) {
+                    $duration = floatval($data['format']['duration']);
+                    $hours = floor($duration / 3600);
+                    $minutes = floor(($duration % 3600) / 60);
+                    $seconds = floor($duration % 60);
+                    $info['duration'] = sprintf("%02d:%02d:%02d", $hours, $minutes, $seconds);
+                    $info['duration_seconds'] = $duration;
+                }
+                
+                foreach ($data['streams'] as $stream) {
+                    if ($stream['codec_type'] === 'video') {
+                        $info['video_codec'] = $stream['codec_name'] ?? null;
+                        $info['width'] = $stream['width'] ?? null;
+                        $info['height'] = $stream['height'] ?? null;
+                        if ($info['width'] && $info['height']) {
+                            $info['resolution'] = $info['width'] . 'x' . $info['height'];
+                        }
+                        $info['frame_rate'] = $stream['r_frame_rate'] ?? null;
+                        if ($info['frame_rate']) {
+                            $parts = explode('/', $info['frame_rate']);
+                            if (count($parts) == 2 && $parts[1] != 0) {
+                                $info['frame_rate'] = round($parts[0] / $parts[1], 2) . ' fps';
+                            }
+                        }
+                        break;
+                    }
+                }
+                
+                foreach ($data['streams'] as $stream) {
+                    if ($stream['codec_type'] === 'audio') {
+                        $info['audio_codec'] = $stream['codec_name'] ?? null;
+                        $info['sample_rate'] = isset($stream['sample_rate']) ? $stream['sample_rate'] . ' Hz' : null;
+                        $info['channels'] = $stream['channels'] ?? null;
+                        if ($info['channels']) {
+                            $channelNames = ['', 'Mono', 'Stereo', '2.1', '5.1', '7.1'];
+                            $info['channel_layout'] = $channelNames[$info['channels']] ?? $info['channels'] . ' channels';
+                        }
+                        break;
+                    }
+                }
+                
+                return $info;
+            }
+        }
+    }
+    
+    if (file_exists($ffmpegPath)) {
+        $cmd = $ffmpegPath . " -i " . escapeshellarg($filePath) . " 2>&1";
+        $output = shell_exec($cmd);
+        
+        if ($output) {
+            $info['type'] = in_array($extension, ['mp3', 'wav', 'ogg', 'flac', 'm4a', 'aac']) ? 'audio' : 'video';
+            
+            if (preg_match('/Duration:\s*(\d+):(\d+):(\d+\.\d+)/', $output, $matches)) {
+                $hours = intval($matches[1]);
+                $minutes = intval($matches[2]);
+                $seconds = intval($matches[3]);
+                $info['duration'] = sprintf("%02d:%02d:%02d", $hours, $minutes, $seconds);
+            }
+            
+            if (preg_match('/bitrate:\s*(\d+)\s*kb\/s/', $output, $matches)) {
+                $info['bitrate'] = $matches[1] . ' kbps';
+            }
+            
+            if (preg_match('/(\d{3,4})x(\d{3,4})/', $output, $matches)) {
+                $info['width'] = intval($matches[1]);
+                $info['height'] = intval($matches[2]);
+                $info['resolution'] = $matches[1] . 'x' . $matches[2];
+            }
+            
+            if (preg_match('/Stream.*Video:\s*([a-zA-Z0-9]+)/', $output, $matches)) {
+                $info['video_codec'] = $matches[1];
+            }
+            
+            if (preg_match('/Stream.*Audio:\s*([a-zA-Z0-9]+)/', $output, $matches)) {
+                $info['audio_codec'] = $matches[1];
+            }
+            
+            if (preg_match('/Stream.*Audio:.*?(\d+)\s*Hz/', $output, $matches)) {
+                $info['sample_rate'] = $matches[1] . ' Hz';
+            }
+        }
+    }
+    
+    return !empty($info) ? $info : null;
 }
 
 function extractArchive($archivePath, $destination, $type) {
@@ -2015,7 +2230,7 @@ body {
 }
 
 .side-nav .nav-item:hover {
-    background-color: var(--accent-tertiary) !important;
+    background-color: var(--accent-secondary) !important;
     color: white !important;
     transform: translateX(3px);
 }
@@ -3636,6 +3851,30 @@ list-group:hover {
     border: var(--border-strong) !important;
     color: var(--text-primary) !important;
 }
+
+.drag-select-box {
+    position: absolute;
+    background: rgba(76, 175, 80, 0.1);
+    border: 1px solid var(--accent-color);
+    pointer-events: none;
+    z-index: 1000;
+    display: none;
+}
+
+.file-grid.dragging .file-item {
+    user-select: none;
+}
+
+.bg-light {
+    background-color: var(--card-bg) !important;
+    border: var(--border-strong) !important;
+}
+
+.card-body {
+    border-radius: 8px; !important;
+    border: var(--glass-border);
+    box-shadow: var(--border-glow);
+}
 </style>
 <div class="main-container">
     <div class="content-area" id="contentArea">
@@ -3690,27 +3929,27 @@ list-group:hover {
             <div class="side-nav" id="sideNav">
                 <div class="nav-section">
                     <a href="#" class="nav-item active" onclick="showSection('home')" data-translate-tooltip="home">
-                        <span class="nav-icon"><i class="fas fa-home"></i></span>
+                        <span class="nav-icon"><i class="fas fa-home" style="color: #4CAF50;"></i></span>
                         <span data-translate="home">Home</span>
                     </a>
                     <a href="#" class="nav-item" onclick="showSection('music')" data-translate-tooltip="audio">
-                        <span class="nav-icon"><i class="fas fa-music"></i></span>
+                        <span class="nav-icon"><i class="fas fa-music" style="color: #9C27B0;"></i></span>
                         <span data-translate="audio">Music</span>
                     </a>
                     <a href="#" class="nav-item" onclick="showSection('video')" data-translate-tooltip="video">
-                        <span class="nav-icon"><i class="fas fa-video"></i></span>
+                        <span class="nav-icon"><i class="fas fa-video" style="color: #2196F3;"></i></span>
                         <span data-translate="video">Video</span>
                     </a>
                     <a href="#" class="nav-item" onclick="showSection('image')" data-translate-tooltip="image">
-                        <span class="nav-icon"><i class="fas fa-image"></i></span>
+                        <span class="nav-icon"><i class="fas fa-image" style="color: #FF9800;"></i></span>
                         <span data-translate="image">Image</span>
                     </a>
                     <a href="#" class="nav-item" onclick="showSection('recent')" data-translate-tooltip="recent_play">
-                        <span class="nav-icon"><i class="fas fa-history"></i></span>
+                        <span class="nav-icon"><i class="fas fa-history" style="color: #FF5722;"></i></span>
                         <span data-translate="recent_play">Recent Play</span>
                     </a>
                     <a href="#" class="nav-item" onclick="showSection('files')" data-translate-tooltip="fileAssistant">
-                        <span class="nav-icon"><i class="fas fa-folder"></i></span>
+                        <span class="nav-icon"><i class="fas fa-folder" style="color: #FFA726;"></i></span>
                         <span data-translate="fileAssistant">File Manager</span>
                     </a>
                 </div>
@@ -3723,18 +3962,35 @@ list-group:hover {
                 
                 <div class="system-status" id="systemStatus">
                     <div class="nav-section">
-                        <div class="nav-section-title" data-translate="system_status">System Status</div>
-                        <?php if ($diskInfo): ?>
-                        <div style="padding: 15px; color: var(--text-primary); font-size: 0.9rem;">
-                            <div><span data-translate="disk_usage_colon">Disk Usage:</span> <?= $diskInfo['used_mb'] ?>MB / <?= $diskInfo['total_mb'] ?>MB</div>
-                            <div style="height: 6px; background: #fff; border-radius: 3px; margin: 10px 0; overflow: hidden;">
-                                <div style="width: <?= $diskInfo['used_percent'] ?>%; height: 100%; background: #4CAF50;"></div>
-                            </div>
-                            <div><span data-translate="free_space">Free Space:</span> <?= $diskInfo['free_mb'] ?>MB</div>
+                        <div class="nav-section-title">
+                            <span data-translate="system_status">System Status</span>
                         </div>
-                        <?php endif; ?>
+                        <?php if ($diskInfo): ?>
+                        <div style="padding:15px;color:var(--text-primary);font-size:.9rem;">
+                            <div title="<?= __('used_space') ?> <?= formatFileSize($diskInfo['used']) ?> / <?= __('total') ?> <?= formatFileSize($diskInfo['total']) ?>"
+                                style="cursor:help;margin-bottom:10px;">
+                                <div class="d-flex flex-column gap-3 mb-3">
+                                    <span class="btn btn-primary btn-sm w-100 text-start">
+                                        <i class="fas fa-database me-2"></i>
+                                        <span data-translate="total">Total:</span> <?= formatFileSize($diskInfo['total']) ?>
+                                    </span>
+                                    <span class="btn btn-success btn-sm w-100 text-start">
+                                        <i class="fas fa-hdd me-2"></i>
+                                    <span data-translate="free">Free:</span> <?= formatFileSize($diskInfo['free']) ?>
+                                </span>
+                            </div>
+                        </div>
+                        <div style="height:6px;background:#fff;border-radius:3px;margin:10px 0;overflow:hidden;">
+                            <div style="width:<?= $diskInfo['used_percent'] ?>%;height:100%;background:#4CAF50;"></div>
+                        </div>
+                        <div title="<?= __('used_space') ?> <?= formatFileSize($diskInfo['used']) ?> / <?= __('total') ?> <?= formatFileSize($diskInfo['total']) ?>"
+                            style="cursor:help;">
+                            <span data-translate="used_space">Used Space:</span> <?= formatFileSize($diskInfo['used']) ?>
+                        </div>
                     </div>
-                </div>
+                    <?php endif; ?>
+                  </div>
+              </div>
 
                 <div class="lunar-sidebar lunar-collapsible">
                     <div class="nav-section">
@@ -4562,6 +4818,11 @@ list-group:hover {
             <i class="fas fa-key me-2"></i>
             <span data-translate="permissions">Permissions</span>
         </div>
+        <div class="menu-item" id="fileHashItem" style="display: none;" onclick="showFileHashDialog()">
+            <i class="fas fa-fingerprint me-2"></i>
+            <span data-translate="file_hash">File Hash</span>
+            <span style="margin-left: auto; font-size: 0.8rem; opacity: 0.7">MD5/SHA1/SHA256</span>
+        </div>
         <div class="menu-item" id="filePropertiesItem" onclick="showFileProperties()">
             <i class="fas fa-info-circle me-2"></i>
             <span data-translate="properties">Properties</span>
@@ -5049,6 +5310,96 @@ list-group:hover {
                 <button type="button" class="btn btn-primary" id="compressSubmitBtn" onclick="performCompress()">
                     <i class="fas fa-check me-1"></i>
                     <span data-translate="compress">Compress</span>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="fileHashModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="fas fa-fingerprint text-primary me-2"></i>
+                    <span data-translate="file_hash">File Hash</span>
+                    <small class="text-muted ms-2" id="hashFileName"></small>
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            
+            <div class="modal-body">
+                <div id="hashLoading" class="text-center py-5 d-none">
+                    <div class="spinner-border text-primary mb-3" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                    <p class="text-muted mb-0" data-translate="calculating_hash">Calculating hash...</p>
+                </div>
+                
+                <div id="hashContent" class="d-none">
+                    <div class="alert alert-info d-flex align-items-center mb-4">
+                        <i class="fas fa-info-circle me-2"></i>
+                        <span id="hashFilePath" class="fw-bold"></span>
+                    </div>
+                    
+                    <!-- MD5 -->
+                    <div class="mb-4">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <span class="fw-bold">
+                                <i class="fas fa-hashtag text-warning me-2"></i>MD5:
+                            </span>
+                        </div>
+                        <code id="hashMd5" class="d-block p-3 bg-light text-white rounded font-monospace"></code>
+                    </div>
+                    
+                    <!-- SHA1 -->
+                    <div class="mb-4">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <span class="fw-bold">
+                                <i class="fas fa-shield-alt text-info me-2"></i>SHA1:
+                            </span>
+                        </div>
+                        <code id="hashSha1" class="d-block p-3 bg-light text-white rounded font-monospace"></code>
+                    </div>
+                    
+                    <!-- SHA256 -->
+                    <div class="mb-3">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <span class="fw-bold">
+                                <i class="fas fa-lock text-success me-2"></i>SHA256:
+                            </span>
+                        </div>
+                        <textarea id="hashSha256" class="form-control bg-light text-white font-monospace" rows="2" readonly style="resize: none;"></textarea>
+                    </div>
+                    
+                    <div class="row mt-4 pt-3 border-top">
+                        <div class="col-md-6">
+                            <small class="text-muted">
+                                <i class="fas fa-file me-1"></i>
+                                <span data-translate="fileSize">大小</span>: <span id="hashFileSize"></span>
+                            </small>
+                        </div>
+                        <div class="col-md-6">
+                            <small class="text-muted">
+                                <i class="fas fa-clock me-1"></i>
+                                <span data-translate="modifiedTime">Modified</span>: <span id="hashFileMtime"></span>
+                            </small>
+                        </div>
+                    </div>
+                </div>
+                
+                <div id="hashError" class="text-center py-5 d-none">
+                    <i class="fas fa-exclamation-triangle text-danger fa-3x mb-3"></i>
+                    <p class="text-danger mb-0" id="hashErrorMessage"></p>
+                </div>
+            </div>
+            
+            <div class="modal-footer">
+                <button type="button" class="btn btn-success" onclick="exportCurrentHash()">
+                    <i class="fas fa-download me-1"></i><span data-translate="export_hash">Export Hash</span>
+                </button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    <i class="fas fa-times me-1"></i><span data-translate="close">Close</span>
                 </button>
             </div>
         </div>
@@ -6816,9 +7167,116 @@ async function loadFiles(path) {
         updateSelectionInfo();
         updateLanguage(currentLang);
     }
+
+    initDragSelect();
+
     setTimeout(() => {
         initRightClick();
     }, 200);
+}
+
+function initDragSelect() {
+    const fileGrid = document.getElementById('fileGrid');
+    if (!fileGrid) return;
+    
+    let isDragging = false;
+    let startX, startY;
+    let dragBox = document.querySelector('.drag-select-box');
+    
+    if (!dragBox) {
+        dragBox = document.createElement('div');
+        dragBox.className = 'drag-select-box';
+        document.body.appendChild(dragBox);
+    }
+    
+    fileGrid.addEventListener('mousedown', function(e) {
+        if (e.target === fileGrid || e.target.classList.contains('empty-folder') || 
+            e.target.parentElement === fileGrid || e.target === dragBox) {
+            
+            isDragging = true;
+            startX = e.clientX;
+            startY = e.clientY;
+            
+            dragBox.style.left = startX + 'px';
+            dragBox.style.top = startY + 'px';
+            dragBox.style.width = '0px';
+            dragBox.style.height = '0px';
+            dragBox.style.display = 'block';
+            
+            fileGrid.classList.add('dragging');
+            
+            if (!e.ctrlKey && !e.metaKey) {
+                selectedFiles.clear();
+                updateFileSelection();
+                updateSelectionInfo();
+            }
+            
+            e.preventDefault();
+        }
+    });
+    
+    document.addEventListener('mousemove', function(e) {
+        if (!isDragging) return;
+        
+        e.preventDefault();
+        
+        const left = Math.min(startX, e.clientX);
+        const top = Math.min(startY, e.clientY);
+        const width = Math.abs(startX - e.clientX);
+        const height = Math.abs(startY - e.clientY);
+        
+        dragBox.style.left = left + 'px';
+        dragBox.style.top = top + 'px';
+        dragBox.style.width = width + 'px';
+        dragBox.style.height = height + 'px';
+        
+        const dragRect = {
+            left: left,
+            top: top,
+            right: left + width,
+            bottom: top + height
+        };
+        
+        const fileItems = fileGrid.querySelectorAll('.file-item');
+        fileItems.forEach(item => {
+            const rect = item.getBoundingClientRect();
+            const isOverlap = !(rect.right < dragRect.left || 
+                               rect.left > dragRect.right || 
+                               rect.bottom < dragRect.top || 
+                               rect.top > dragRect.bottom);
+            
+            const path = item.getAttribute('data-path');
+            
+            if (isOverlap) {
+                if (e.ctrlKey || e.metaKey) {
+                    selectedFiles.add(path);
+                } else {
+                    selectedFiles.add(path);
+                }
+                item.classList.add('drag-selected');
+            } else {
+                if (!e.ctrlKey && !e.metaKey) {
+                    selectedFiles.delete(path);
+                    item.classList.remove('drag-selected');
+                }
+            }
+        });
+        
+        updateFileSelection();
+        updateSelectionInfo();
+    });
+    
+    document.addEventListener('mouseup', function(e) {
+        if (isDragging) {
+            isDragging = false;
+            dragBox.style.display = 'none';
+            fileGrid.classList.remove('dragging');
+            
+            document.querySelectorAll('.file-item.drag-selected').forEach(item => {
+                item.classList.remove('drag-selected');
+            });
+        }
+    });
 }
 
 function initRightClick() {
@@ -6868,6 +7326,15 @@ function handleRightClick(event) {
         showMenuItem('fileChmodItem');
         showMenuItem('filePropertiesItem');
         showMenuItem('fileTerminalItem');
+
+        const hashItem = document.getElementById('fileHashItem');
+        if (hashItem) {
+            if (!isDir && selectedFiles.size === 1) {
+                hashItem.style.display = 'flex';
+            } else {
+                hashItem.style.display = 'none';
+            }
+        }
         
         const mediaExts = ['mp3', 'wav', 'ogg', 'flac', 'm4a', 'aac', 
                            'mp4', 'avi', 'mkv', 'mov', 'wmv', 'flv', 'webm',
@@ -6908,13 +7375,6 @@ function handleRightClick(event) {
     positionContextMenu(menu, event);
     menu.style.display = 'block';
     overlay.style.display = 'block';
-}
-function initFileGridRightClick() {
-    const fileGrid = document.getElementById('fileGrid');
-    if (!fileGrid) return;
-    
-    //fileGrid.removeEventListener('contextmenu', handleGridRightClick);
-    //fileGrid.addEventListener('contextmenu', handleGridRightClick);
 }
 
 function updateStatistics(folderCount, fileCount, totalSize) {
@@ -7285,7 +7745,7 @@ function updateFileSelection() {
             if (checkbox) {
                 checkbox.checked = false;
             }
-            if (!item.classList.contains('hover')) {
+            if (!item.classList.contains('hover') && !item.classList.contains('drag-selected')) {
                 const checkboxContainer = item.querySelector('.file-checkbox');
                 if (checkboxContainer) {
                     checkboxContainer.style.display = 'none';
@@ -8039,7 +8499,7 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
     setTimeout(() => {
-        initFileGridRightClick();
+        initDragSelect();
     }, 500);
 });
 
@@ -8622,20 +9082,68 @@ async function showFileInfoModal(path) {
                             <strong>${info.size_formatted || '0 B'}</strong>
                         </div>`;
                         
-                if (info.media_info && info.media_info.duration) {
+            if (info.media_info) {
+                if (info.media_info.duration) {
                     html += `
                         <div class="d-flex justify-content-between mb-2">
                             <span class="text-muted">${translations['duration'] || 'Duration:'}</span>
                             <strong>${info.media_info.duration}</strong>
                         </div>`;
                 }
-                
-                if (info.image_info) {
+        
+                if (info.media_info.resolution) {
                     html += `
                         <div class="d-flex justify-content-between mb-2">
-                            <span class="text-muted">${translations['resolution'] || 'Dimensions:'}</span>
-                            <strong>${info.image_info.width} × ${info.image_info.height}</strong>
+                            <span class="text-muted">${translations['resolution'] || 'Resolution:'}</span>
+                            <strong>${info.media_info.resolution}</strong>
                         </div>`;
+                } else if (info.media_info.width && info.media_info.height) {
+                    html += `
+                        <div class="d-flex justify-content-between mb-2">
+                            <span class="text-muted">${translations['resolution'] || 'Resolution:'}</span>
+                            <strong>${info.media_info.width} × ${info.media_info.height}</strong>
+                        </div>`;
+                }
+        
+                if (info.media_info.bitrate) {
+                    html += `
+                        <div class="d-flex justify-content-between mb-2">
+                            <span class="text-muted">${translations['bitrate'] || 'Bitrate:'}</span>
+                            <strong>${info.media_info.bitrate}</strong>
+                        </div>`;
+                }
+        
+                if (info.media_info.video_codec) {
+                    html += `
+                        <div class="d-flex justify-content-between mb-2">
+                            <span class="text-muted">${translations['video_codec'] || 'Video Codec:'}</span>
+                            <strong>${info.media_info.video_codec.toUpperCase()}</strong>
+                        </div>`;
+                }
+        
+                if (info.media_info.frame_rate) {
+                    html += `
+                        <div class="d-flex justify-content-between mb-2">
+                            <span class="text-muted">${translations['frame_rate'] || 'Frame Rate:'}</span>
+                            <strong>${info.media_info.frame_rate}</strong>
+                        </div>`;
+                }
+             
+                if (info.media_info.sample_rate) {
+                    html += `
+                        <div class="d-flex justify-content-between mb-2">
+                            <span class="text-muted">${translations['sample_rate'] || 'Sample Rate:'}</span>
+                            <strong>${info.media_info.sample_rate}</strong>
+                        </div>`;
+                }
+        
+                if (info.media_info.channel_layout) {
+                    html += `
+                        <div class="d-flex justify-content-between mb-2">
+                            <span class="text-muted">${translations['audio_channels'] || 'Channels:'}</span>
+                            <strong>${info.media_info.channel_layout}</strong>
+                        </div>`;
+                    }
                 }
             }
             
@@ -11186,6 +11694,22 @@ function updateUploadFileList() {
     });
 }
 
+function previewSanitizedFilename(filename) {
+    let cleanName = filename;
+    cleanName = cleanName.split('/').pop();
+    cleanName = cleanName.replace(/ /g, '_');
+    cleanName = cleanName.replace(/[\/:*?"<>|\s]/g, '_');
+    cleanName = cleanName.replace(/_+/g, '_');
+    cleanName = cleanName.replace(/^[._-]+|[._-]+$/g, '');
+    
+    if (!cleanName) {
+        cleanName = 'upload_' + Date.now() + 
+                   (filename.includes('.') ? filename.substring(filename.lastIndexOf('.')) : '');
+    }
+    
+    return cleanName;
+}
+
 async function startUpload() {
     if (uploadFilesList.length === 0) {
         const warningMessage = translations['upload_select_files_warning'] || 'Please select files to upload';
@@ -11575,6 +12099,116 @@ function openTerminal() {
     });
     
     hideFileContextMenu();
+}
+
+let currentHashPath = null;
+
+async function showFileHashDialog() {
+    if (selectedFiles.size !== 1) {
+        showLogMessage(translations['select_items_first'] || 'Please select one file', 'warning');
+        return;
+    }
+    
+    const path = Array.from(selectedFiles)[0];
+    const fileItem = document.querySelector(`.file-item[data-path="${path}"]`);
+    const isDir = fileItem?.getAttribute('data-is-dir') === 'true';
+    
+    if (isDir) {
+        showLogMessage(translations['cannot_hash_directory'] || 'Cannot calculate hash for directory', 'warning');
+        return;
+    }
+    
+    hideFileContextMenu();
+    
+    currentHashPath = path;
+    
+    document.getElementById('hashLoading').classList.remove('d-none');
+    document.getElementById('hashContent').classList.add('d-none');
+    document.getElementById('hashError').classList.add('d-none');
+    
+    const fileName = path.replace(/^\/+/, '').split('/').pop();
+    document.getElementById('hashFileName').textContent = `- ${fileName}`;
+    document.getElementById('hashFilePath').textContent = '/' + path.replace(/^\/+/, '');
+    
+    document.getElementById('hashMd5').textContent = '';
+    document.getElementById('hashSha1').textContent = '';
+    document.getElementById('hashSha256').value = '';
+    document.getElementById('hashFileSize').textContent = '';
+    document.getElementById('hashFileMtime').textContent = '';
+    
+    const modal = new bootstrap.Modal(document.getElementById('fileHashModal'));
+    modal.show();
+    
+    try {
+        const response = await fetch(`?action=file_hash&path=${encodeURIComponent(path)}`);
+        const data = await response.json();
+        
+        if (data.success) {
+            document.getElementById('hashLoading').classList.add('d-none');
+            document.getElementById('hashContent').classList.remove('d-none');
+            
+            document.getElementById('hashMd5').textContent = data.md5;
+            document.getElementById('hashSha1').textContent = data.sha1;
+            document.getElementById('hashSha256').value = data.sha256;
+            document.getElementById('hashFileSize').textContent = data.size_formatted;
+            document.getElementById('hashFileMtime').textContent = data.modified;
+        } else {
+            document.getElementById('hashLoading').classList.add('d-none');
+            document.getElementById('hashError').classList.remove('d-none');
+            document.getElementById('hashErrorMessage').textContent = data.error || 'Calculation failed';
+        }
+    } catch (error) {
+        document.getElementById('hashLoading').classList.add('d-none');
+        document.getElementById('hashError').classList.remove('d-none');
+        document.getElementById('hashErrorMessage').textContent = `Request failed: ${error.message}`;
+    }
+}
+
+function exportCurrentHash() {
+    if (!currentHashPath) return;
+
+    const cleanPath = currentHashPath.replace(/^\/+/, '/');
+    const fileName = cleanPath.split('/').pop();
+    const md5 = document.getElementById('hashMd5').textContent;
+    const sha1 = document.getElementById('hashSha1').textContent;
+    const sha256 = document.getElementById('hashSha256').value;
+    const fileSize = document.getElementById('hashFileSize').textContent;
+    const fileTime = document.getElementById('hashFileMtime').textContent;
+    
+    const fileLabel = translations['file'] || 'File';
+    const pathLabel = translations['file_path'] || 'Path';
+    const sizeLabel = translations['fileSize'] || 'Size';
+    const timeLabel = translations['modifiedTime'] || 'Modified';
+    const generateLabel = translations['created_time'] || 'Generated';
+    const hashTitle = translations['hash_values'] || 'Hash Values';
+    const md5Label = 'MD5:';
+    const sha1Label = 'SHA1:';
+    const sha256Label = 'SHA256:';
+    
+    const content = `${fileLabel}: ${fileName}
+${pathLabel}: ${currentHashPath}
+${sizeLabel}: ${fileSize}
+${timeLabel}: ${fileTime}
+${generateLabel}: ${new Date().toLocaleString()}
+
+========== ${hashTitle} ==========
+
+${md5Label}   ${md5}
+${sha1Label}  ${sha1}
+${sha256Label} ${sha256}
+
+================================
+`;
+    
+    const blob = new Blob([content], { type: 'text/plain' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `${fileName}.hash.txt`;
+    a.click();
+    URL.revokeObjectURL(url);
+    
+    showLogMessage(translations['hash_exported'] || 'Hash exported', 'success');
 }
 
 window.addEventListener('beforeunload', function(e) {
