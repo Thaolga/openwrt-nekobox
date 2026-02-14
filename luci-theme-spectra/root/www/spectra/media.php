@@ -8189,8 +8189,7 @@ function hideAllContextMenuItems() {
         'emptyRefreshItem', 'emptySelectAllItem', 'fileCopyPathItem',
         'globalPasteItem',
         'archiveMenuItem',
-        'fileInstallItem', 'fileHashItem',
-        'archiveCompressItem', 'archiveExtractHereItem', 'archiveExtractToItem'
+        'fileInstallItem', 'fileHashItem'
     ];
     
     allMenuItems.forEach(id => {
