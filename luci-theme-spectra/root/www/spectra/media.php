@@ -2080,12 +2080,12 @@ opkg update && opkg install wget grep sed && LATEST_FILE=$(wget -qO- https://git
         if (localStorage.getItem('redirectAfterImage') === 'true') {
             localStorage.removeItem('redirectAfterImage');
             setTimeout(() => {
-                window.top.location.href = "/cgi-bin/luci/admin/services/spectra?bg=image";
+                window.top.location.href = "/cgi-bin/luci/admin/spectra/media?bg=image";
             }, 3000);
         } else if (localStorage.getItem('redirectAfterVideo') === 'true') {
             localStorage.removeItem('redirectAfterVideo');
             setTimeout(() => {
-                window.top.location.href = "/cgi-bin/luci/admin/services/spectra?bg=video";
+                window.top.location.href = "/cgi-bin/luci/admin/spectra/media?bg=video";
             }, 3000);
         }
     });
@@ -2961,7 +2961,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 logOutput.textContent = "Installation complete!";
                 setTimeout(() => {
                     updateModal.hide();
-                    window.top.location.href = "/cgi-bin/luci/admin/services/spectra";
+                    window.top.location.href = "/cgi-bin/luci/admin/spectra/media";
                 }, 3000);
             } else {
                 logOutput.textContent = data;
@@ -3383,7 +3383,7 @@ function toggleConfig() {
             updateStatus(data.mode);
             
             setTimeout(() => {
-                window.top.location.href = "/cgi-bin/luci/admin/services/spectra";
+                window.top.location.href = "/cgi-bin/luci/admin/spectra/media";
             }, 3000);
         } else {
             document.getElementById("status").innerText = "Switch failed: " + data.error;
