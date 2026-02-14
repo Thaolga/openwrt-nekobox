@@ -82,8 +82,30 @@ if (isset($_GET['action'])) {
                     $isDir = $item->isDir();
                     $size = $isDir ? 0 : $item->getSize();
                     $perms = substr(sprintf('%o', $item->getPerms()), -4);
-                    $owner = function_exists('posix_getpwuid') ? posix_getpwuid($item->getOwner())['name'] : $item->getOwner();
-                    $group = function_exists('posix_getgrgid') ? posix_getgrgid($item->getGroup())['name'] : $item->getGroup();
+
+                    $owner = 'unknown';
+                    try {
+                        if (function_exists('posix_getpwuid')) {
+                            $ownerInfo = posix_getpwuid($item->getOwner());
+                            $owner = $ownerInfo['name'] ?? 'unknown';
+                        } else {
+                            $owner = $item->getOwner();
+                        }
+                    } catch (Exception $e) {
+                        $owner = 'unknown';
+                    }
+                
+                    $group = 'unknown';
+                    try {
+                        if (function_exists('posix_getgrgid')) {
+                            $groupInfo = posix_getgrgid($item->getGroup());
+                            $group = $groupInfo['name'] ?? 'unknown';
+                        } else {
+                            $group = $item->getGroup();
+                        }
+                    } catch (Exception $e) {
+                        $group = 'unknown';
+                    }  
                     
                     $type = 'file';
                     $ext = strtolower($item->getExtension());
@@ -150,6 +172,117 @@ if (isset($_GET['action'])) {
         } else {
             echo json_encode(['success' => false, 'error' => 'Directory not readable']);
         }
+        exit;
+    }
+
+    if ($action === 'install_package') {
+        header('Content-Type: application/json');
+    
+        $path = isset($_POST['path']) ? urldecode($_POST['path']) : '';
+        $force = isset($_POST['force']) && $_POST['force'] == '1';
+        $update = isset($_POST['update']) && $_POST['update'] == '1';
+    
+        $realPath = realpath($path);
+        if (!$realPath || strpos($realPath, $ROOT_DIR) !== 0) {
+            echo json_encode(['success' => false, 'error' => 'Invalid path']);
+            exit;
+        }
+    
+        $ext = strtolower(pathinfo($realPath, PATHINFO_EXTENSION));
+        if (!in_array($ext, ['ipk', 'apk', 'run'])) {
+            echo json_encode(['success' => false, 'error' => 'Not a valid package file']);
+            exit;
+        }
+    
+        header('Content-Type: text/event-stream');
+        header('Cache-Control: no-cache');
+        header('X-Accel-Buffering: no');
+    
+        ob_implicit_flush(true);
+        ob_end_flush();
+    
+        $output = [];
+        $returnVar = 0;
+    
+        echo "event: start\n";
+        echo "data: " . json_encode(['message' => 'Starting installation...']) . "\n\n";
+ 
+        if ($ext === 'ipk') {
+            if ($update) {
+                echo "event: output\n";
+                echo "data: " . json_encode(['message' => 'Updating package lists...']) . "\n\n";
+            
+                $updateCmd = "opkg update 2>&1";
+                exec($updateCmd, $updateOutput, $updateReturn);
+                foreach ($updateOutput as $line) {
+                    echo "event: output\n";
+                    echo "data: " . json_encode(['message' => $line]) . "\n\n";
+                }
+            }
+        
+            $installCmd = "opkg install " . ($force ? "--force-depends --force-overwrite " : "") . escapeshellarg($realPath) . " 2>&1";
+        
+        } elseif ($ext === 'apk') {
+            $installCmd = "adb install " . ($force ? "-r " : "") . escapeshellarg($realPath) . " 2>&1";
+        
+        } elseif ($ext === 'run') {
+            echo "event: output\n";
+            echo "data: " . json_encode(['message' => 'Setting execute permission...']) . "\n\n";
+        
+            $chmodCmd = "chmod +x " . escapeshellarg($realPath) . " 2>&1";
+            exec($chmodCmd, $chmodOutput, $chmodReturn);
+        
+            if ($chmodReturn !== 0) {
+                echo "event: error\n";
+                echo "data: " . json_encode(['message' => 'Failed to set execute permission']) . "\n\n";
+                exit;
+            }
+        
+            echo "event: output\n";
+            echo "data: " . json_encode(['message' => 'Execute permission set successfully']) . "\n\n";
+        
+            $installCmd = escapeshellarg($realPath) . " 2>&1";
+        }
+
+        if (isset($installCmd)) {
+            $descriptors = [
+                0 => ["pipe", "r"],
+                1 => ["pipe", "w"],
+                2 => ["pipe", "w"]
+            ];
+        
+            $process = proc_open($installCmd, $descriptors, $pipes);
+        
+            if (is_resource($process)) {
+                while ($line = fgets($pipes[1])) {
+                    echo "event: output\n";
+                    echo "data: " . json_encode(['message' => trim($line)]) . "\n\n";
+                }
+            
+                while ($line = fgets($pipes[2])) {
+                    echo "event: output\n";
+                    echo "data: " . json_encode(['message' => trim($line)]) . "\n\n";
+                }
+            
+                fclose($pipes[0]);
+                fclose($pipes[1]);
+                fclose($pipes[2]);
+            
+                $returnVar = proc_close($process);
+            
+                if ($returnVar === 0) {
+                    echo "event: complete\n";
+                    echo "data: " . json_encode(['success' => true, 'message' => 'Installation completed successfully']) . "\n\n";
+                } else {
+                    echo "event: complete\n";
+                    echo "data: " . json_encode(['success' => false, 'message' => 'Installation failed']) . "\n\n";
+                }
+            } else {
+                echo "event: error\n";
+                echo "data: " . json_encode(['message' => 'Failed to start installation process']) . "\n\n";
+            }
+        }
+    
         exit;
     }
 
@@ -397,6 +530,13 @@ if (isset($_GET['action'])) {
                         echo json_encode(['success' => false, 'error' => 'Failed to decode base64 content']);
                         exit;
                     }
+                    if (!mb_check_encoding($content, 'UTF-8')) {
+                        $content = mb_convert_encoding($content, 'UTF-8', 'auto');
+                    }
+                } else {
+                    if (!mb_check_encoding($content, 'UTF-8')) {
+                        $content = mb_convert_encoding($content, 'UTF-8', 'auto');
+                    }
                 }
                 
                 $result = file_put_contents($realPath, $content);
@@ -477,8 +617,8 @@ if (isset($_GET['action'])) {
                     
                     echo json_encode([
                         'success' => true,
-                        'content_base64' => $base64Content,
-                        'is_base64' => true,
+                        'content' => $content,  
+                        'is_base64' => false,
                         'size' => filesize($realPath),
                         'mime' => getMimeType($ext),
                         'encoding' => 'UTF-8',
@@ -3833,6 +3973,13 @@ list-group:hover {
     border: var(--glass-border);
     box-shadow: var(--border-glow);
 }
+
+#fileContextMenu .menu-item i {
+    width: 20px;
+    text-align: center;
+    margin-right: 12px;
+    display: inline-block;
+}
 </style>
 <div class="main-container">
     <div class="content-area" id="contentArea">
@@ -4681,79 +4828,84 @@ list-group:hover {
     </div>
     <div class="context-menu-content">
         <div class="menu-item" id="emptyNewFolderItem" style="display: none;" onclick="showCreateFolderModal()">
-            <i class="fas fa-folder-plus me-2"></i>
+            <i class="fas fa-folder-plus me-2" style="color:#1E88E5;"></i>
             <span data-translate="create_new_folder">Create a new folder</span>
         </div>
         <div class="menu-item" id="emptyNewFileItem" style="display: none;" onclick="showCreateFileModal()">
-            <i class="fas fa-file-circle-plus me-2"></i>
+            <i class="fas fa-file-circle-plus me-2" style="color:#43A047;"></i>
             <span data-translate="create_new_file">Create a new file</span>
         </div>
         <div class="menu-item" id="emptyUploadItem" style="display: none;" onclick="document.querySelector('[data-bs-target=\'#uploadModal\']')?.click()">
-            <i class="fas fa-upload me-2"></i>
+            <i class="fas fa-upload me-2" style="color:#FB8C00;"></i>
             <span data-translate="upload">Upload</span>
         </div>
      
         <div class="menu-item" id="emptyRefreshItem" style="display: none;" onclick="refreshFiles()">
-            <i class="fas fa-sync-alt me-2"></i>
+            <i class="fas fa-sync-alt me-2" style="color:#00897B;"></i>
             <span data-translate="refresh">Refresh</span>
         </div>
         <div class="menu-item" id="emptySelectAllItem" style="display: none;" onclick="toggleEmptySelectAll()">
-            <i class="fas fa-check-square me-2" id="emptySelectAllIcon"></i>
+            <i class="fas fa-check-square me-2" id="emptySelectAllIcon" style="color:#3949AB;"></i>
             <span id="emptySelectAllText">Select All</span>
         </div>
         
         <div class="menu-item" id="globalPasteItem" style="display: none;" onclick="pasteFromClipboard()">
-            <i class="fas fa-paste me-2"></i>
+            <i class="fas fa-paste me-2" style="color:#8E24AA;"></i>
             <span data-translate="paste">Paste</span>
             <span id="pasteActionHint" style="margin-left: auto; font-size: 0.8rem; opacity: 0.7;"></span>
         </div>
         <div class="menu-divider" id="globalPasteDivider" style="display: none;"></div>
         
         <div class="menu-item" id="fileOpenItem" onclick="contextMenuOpen()">
-            <i class="fas fa-folder-open me-2"></i>
+            <i class="fas fa-folder-open me-2" style="color:#039BE5;"></i>
             <span data-translate="open">Open</span>
         </div>
         <div class="menu-item" id="filePlayItem" style="display: none;" onclick="contextMenuPlay()">
-            <i class="fas fa-play me-2"></i>
+            <i class="fas fa-play me-2" style="color:#D81B60;"></i>
             <span data-translate="play">Play</span>
         </div>
         <div class="menu-item" id="fileEditItem" style="display: none;" onclick="contextMenuEdit()">
-            <i class="fas fa-edit me-2"></i>
+            <i class="fas fa-edit me-2" style="color:#7CB342;"></i>
             <span data-translate="edit">Edit</span>
         </div>
         <div class="menu-item" id="fileDownloadItem" onclick="contextMenuDownload()">
-            <i class="fas fa-download me-2"></i>
+            <i class="fas fa-download me-2" style="color:#00ACC1;"></i>
             <span data-translate="download">Download</span>
         </div>
         
         <div class="menu-item" id="fileCutItem" onclick="copyToClipboard('cut')">
-            <i class="fas fa-cut me-2"></i>
+            <i class="fas fa-cut me-2" style="color:#C62828;"></i>
             <span data-translate="menucut">Cut</span>
             <span style="margin-left: auto; font-size: 0.8rem; opacity: 0.7;">Ctrl+X</span>
         </div>
         <div class="menu-item" id="fileCopyItem" onclick="copyToClipboard('copy')">
-            <i class="fas fa-copy me-2"></i>
+            <i class="fas fa-copy me-2" style="color:#5E35B1;"></i>
             <span data-translate="copy">Copy</span>
             <span style="margin-left: auto; font-size: 0.8rem; opacity: 0.7;">Ctrl+C</span>
         </div>
+        <div class="menu-item" id="fileCopyPathItem" onclick="copyFilePath()">
+            <i class="fas fa-link me-2" style="color: #2196F3;"></i>
+            <span data-translate="copy_file_path">Copy File Path</span>
+            <span style="margin-left: auto; font-size: 0.8rem; opacity: 0.7;">Ctrl+Shift+C</span>
+        </div>
         <div class="menu-item" id="filePasteItem" style="display: none;" onclick="pasteFromClipboard()">
-            <i class="fas fa-paste me-2"></i>
+            <i class="fas fa-paste me-2" style="color:#F4511E;"></i>
             <span data-translate="paste">Paste</span>
             <span style="margin-left: auto; font-size: 0.8rem; opacity: 0.7;">Ctrl+V</span>
         </div>
         <div class="menu-item" id="fileRenameItem" data-bs-toggle="modal" data-bs-target="#renameModal" onclick="prepareRenameModal()">
-            <i class="fas fa-edit me-2"></i>
+            <i class="fas fa-edit me-2" style="color:#6D4C41;"></i>
             <span data-translate="rename">Rename</span>
             <span style="margin-left: auto; font-size: 0.8rem; opacity: 0.7;">F2</span>
         </div>
         <div class="menu-item" id="fileDeleteItem" onclick="contextMenuDelete()">
-            <i class="fas fa-trash me-2"></i>
+            <i class="fas fa-trash me-2" style="color:#E53935;"></i>
             <span data-translate="delete">Delete</span>
             <span style="margin-left: auto; font-size: 0.8rem; opacity: 0.7;">Delete</span>
         </div>
         
         <div class="menu-item archive-menu" id="archiveMenuItem" onclick="toggleArchiveSubmenu(event)">
-            <i class="fas fa-file-archive me-2"></i>
+            <i class="fas fa-file-archive me-2" style="color:#512DA8;"></i>
             <span data-translate="archive_operations">Archive Operations</span>
             <i class="fas fa-chevron-right ms-auto"></i>
         </div>
@@ -4771,23 +4923,28 @@ list-group:hover {
                 <span data-translate="extract_to">Extract to...</span>
             </div>
         </div>
-        
+      
         <div class="menu-item" id="fileChmodItem" onclick="showChmodDialog()">
-            <i class="fas fa-key me-2"></i>
+            <i class="fas fa-key me-2" style="color:#FBC02D;"></i>
             <span data-translate="permissions">Permissions</span>
         </div>
+        <div class="menu-item" id="fileInstallItem" style="display: none;" onclick="showInstallDialog()">
+            <i class="fas fa-box-open me-2" style="color: #FF9800;"></i>
+            <span data-translate="install_package">Install Package</span>
+            <span style="margin-left: auto; font-size: 0.8rem; opacity: 0.7;">IPK/APK</span>
+        </div>
         <div class="menu-item" id="fileHashItem" style="display: none;" onclick="showFileHashDialog()">
-            <i class="fas fa-fingerprint me-2"></i>
+            <i class="fas fa-fingerprint me-2" style="color:#455A64;"></i>
             <span data-translate="file_hash">File Hash</span>
             <span style="margin-left: auto; font-size: 0.8rem; opacity: 0.7">MD5/SHA1/SHA256</span>
         </div>
         <div class="menu-item" id="filePropertiesItem" onclick="showFileProperties()">
-            <i class="fas fa-info-circle me-2"></i>
+            <i class="fas fa-info-circle me-2" style="color:#1976D2;"></i>
             <span data-translate="properties">Properties</span>
             <span style="margin-left: auto; font-size: 0.8rem; opacity: 0.7;">Alt+Enter</span>
         </div>
         <div class="menu-item" id="fileTerminalItem" onclick="openTerminal()">
-            <i class="fas fa-terminal me-1"></i>
+            <i class="fas fa-terminal me-2" style="color:#00FF00;"></i>
             <span data-translate="open_terminal">Open Terminal</span>
         </div>
     </div>
@@ -5334,7 +5491,7 @@ list-group:hover {
                         <div class="col-md-6">
                             <small class="text-muted">
                                 <i class="fas fa-file me-1"></i>
-                                <span data-translate="fileSize">大小</span>: <span id="hashFileSize"></span>
+                                <span data-translate="fileSize">Size</span>: <span id="hashFileSize"></span>
                             </small>
                         </div>
                         <div class="col-md-6">
@@ -5358,6 +5515,66 @@ list-group:hover {
                 </button>
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
                     <i class="fas fa-times me-1"></i><span data-translate="close">Close</span>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="installModal" tabindex="-1" aria-labelledby="installModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="installModalLabel">
+                    <i class="fas fa-box-open me-2"></i>
+                    <span data-translate="install_package">Install Package</span>
+                    <span id="installPackageName" class="ms-2 text-info"></span>
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-3">
+                    <div class="alert alert-info" id="installInfo">
+                        <i class="fas fa-info-circle me-2"></i>
+                        <span id="installInfoText" data-translate="install_info">Installing package...</span>
+                    </div>
+                </div>
+                
+                <div class="mb-3">
+                    <div class="form-check form-switch mb-2">
+                        <input class="form-check-input" type="checkbox" id="installForceCheck">
+                        <label class="form-check-label" for="installForceCheck" data-translate="install_force">
+                            Force installation (override dependencies/overwrite)
+                        </label>
+                    </div>
+                    <div class="form-check form-switch" id="installUpdateCheckContainer" style="display: block;">
+                        <input class="form-check-input" type="checkbox" id="installUpdateCheck" checked>
+                        <label class="form-check-label" for="installUpdateCheck" data-translate="install_update">
+                            Update package lists before installation
+                        </label>
+                    </div>
+                </div>
+                
+                <div class="mb-3">
+                    <div class="progress" style="height: 30px;">
+                        <div id="installProgress" class="progress-bar progress-bar-striped progress-bar-animated" 
+                             role="progressbar" style="width: 0%">
+                            <span id="installProgressText">0%</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="mb-3">
+                    <label class="form-label fw-bold" data-translate="install_output">Installation Output:</label>
+                    <div id="installOutput" class="bg-dark text-success p-3 rounded" 
+                         style="height: 300px; overflow-y: auto; font-family: monospace; font-size: 13px;">
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    <i class="fas fa-times me-1"></i>
+                    <span data-translate="close">Close</span>
                 </button>
             </div>
         </div>
@@ -7279,11 +7496,23 @@ function handleRightClick(event) {
         showMenuItem('fileDownloadItem');
         showMenuItem('fileCutItem');
         showMenuItem('fileCopyItem');
+        showMenuItem('fileCopyPathItem');
         showMenuItem('fileRenameItem');
         showMenuItem('fileDeleteItem');
         showMenuItem('fileChmodItem');
         showMenuItem('filePropertiesItem');
         showMenuItem('fileTerminalItem');
+
+        const installItem = document.getElementById('fileInstallItem');
+        if (installItem) {
+            const installExts = ['ipk', 'apk', 'run'];
+            if (!isDir && installExts.includes(ext) && selectedFiles.size === 1) {
+                installItem.style.display = 'flex';
+            } else {
+                installItem.style.display = 'none';
+            }
+        }
+
 
         const hashItem = document.getElementById('fileHashItem');
         if (hashItem) {
@@ -7957,9 +8186,11 @@ function hideAllContextMenuItems() {
         'fileCutItem', 'fileCopyItem', 'filePasteItem', 'fileRenameItem',
         'fileDeleteItem', 'fileChmodItem', 'filePropertiesItem', 'fileTerminalItem',
         'emptyNewFolderItem', 'emptyNewFileItem', 'emptyUploadItem',
-        'emptyRefreshItem', 'emptySelectAllItem',
+        'emptyRefreshItem', 'emptySelectAllItem', 'fileCopyPathItem',
         'globalPasteItem',
-        'archiveMenuItem'
+        'archiveMenuItem',
+        'fileInstallItem', 'fileHashItem',
+        'archiveCompressItem', 'archiveExtractHereItem', 'archiveExtractToItem'
     ];
     
     allMenuItems.forEach(id => {
@@ -8010,7 +8241,7 @@ function showFileMenuItems(isDir, ext) {
     if (!isDir && textExts.includes(ext)) {
         showMenuItem('fileEditItem');
     }
-    
+
     showMenuItem('fileDivider1');
     showMenuItem('fileDivider2');
     
@@ -9620,14 +9851,10 @@ async function loadFileContent(path, tabId) {
         if (data.success) {
             let content = '';
             
-            if (data.is_base64 && data.content_base64) {
-                try {
-                    content = decodeURIComponent(escape(atob(data.content_base64)));
-                } catch (e) {
-                    content = 'Error: Cannot decode file content';
-                }
+            if (data.content !== undefined) {
+                content = data.content;
             } else {
-                content = data.content || '';
+                content = '';
             }
             
             tab.content = content;
@@ -11265,7 +11492,7 @@ function getFileIcon(filename, ext, isDir) {
     const lowerExt = ext.toLowerCase();
     const lowerName = filename.toLowerCase();
 
-    if (['ipk', 'opk'].includes(lowerExt)) {
+    if (['ipk', 'apk', 'run'].includes(lowerExt)) {
         return '<i class="fas fa-box-open fa-2x" style="color: #FF9800;"></i>';
     }
     
@@ -12186,6 +12413,307 @@ ${sha256Label} ${sha256}
     showLogMessage(successMsg);
     speakMessage(successMsg);
 }
+
+let installEventSource = null;
+
+function showInstallDialog() {
+    if (selectedFiles.size !== 1) {
+        showLogMessage(translations['select_one_package'] || 'Please select one package file', 'warning');
+        return;
+    }
+    
+    const path = Array.from(selectedFiles)[0];
+    const fileName = path.split('/').pop();
+    const ext = fileName.toLowerCase().split('.').pop();
+    
+    if (!['ipk', 'apk', 'run'].includes(ext)) {
+        showLogMessage(translations['invalid_package'] || 'Not a valid package file', 'error');
+        return;
+    }
+    
+    document.getElementById('installPackageName').textContent = fileName;
+    document.getElementById('installProgress').style.width = '0%';
+    document.getElementById('installProgressText').textContent = '0%';
+    document.getElementById('installOutput').innerHTML = '';
+    
+    const updateCheckContainer = document.getElementById('installUpdateCheckContainer');
+    const forceCheckLabel = document.querySelector('label[for="installForceCheck"]');
+    
+    if (ext === 'ipk') {
+        updateCheckContainer.style.display = 'block';
+        if (forceCheckLabel) {
+            forceCheckLabel.innerHTML = translations['install_force'] || 'Force installation (override dependencies/overwrite))';
+        }
+    } else if (ext === 'apk') {
+        updateCheckContainer.style.display = 'none';
+        if (forceCheckLabel) {
+            forceCheckLabel.innerHTML = translations['install_force_apk'] || 'Force installation (-r replace existing)';
+        }
+    } else if (ext === 'run') {
+        updateCheckContainer.style.display = 'none';
+        if (forceCheckLabel) {
+            forceCheckLabel.innerHTML = translations['install_force_run'] || 'Force execution (add execute permission)';
+        }
+    }
+    
+    document.getElementById('installForceCheck').checked = true;
+    document.getElementById('installUpdateCheck').checked = true;
+    
+    document.getElementById('installInfoText').innerHTML = 
+        `${translations['installing'] || 'Installing'}: <strong>${escapeHtml(fileName)}</strong>`;
+    
+    hideFileContextMenu();
+    
+    const modal = new bootstrap.Modal(document.getElementById('installModal'));
+    modal.show();
+    
+    startPackageInstallation(path, ext);
+}
+
+function startPackageInstallation(path, ext) {
+    if (installEventSource) {
+        installEventSource.close();
+    }
+    
+    const formData = new FormData();
+    formData.append('path', path);
+    formData.append('force', document.getElementById('installForceCheck').checked ? '1' : '0');
+    formData.append('update', document.getElementById('installUpdateCheck').checked ? '1' : '0');
+    
+    const output = document.getElementById('installOutput');
+    output.innerHTML = '';
+    
+    fetch('?action=install_package', {
+        method: 'POST',
+        body: formData
+    }).then(response => {
+        const reader = response.body.getReader();
+        const decoder = new TextDecoder();
+        
+        function readStream() {
+            reader.read().then(({ done, value }) => {
+                if (done) return;
+                
+                const text = decoder.decode(value);
+                const events = text.split('\n\n');
+                
+                events.forEach(event => {
+                    if (!event.trim()) return;
+                    
+                    const lines = event.split('\n');
+                    let eventType = 'message';
+                    let eventData = '';
+                    
+                    lines.forEach(line => {
+                        if (line.startsWith('event: ')) {
+                            eventType = line.substring(7);
+                        } else if (line.startsWith('data: ')) {
+                            try {
+                                eventData = JSON.parse(line.substring(6));
+                            } catch {
+                                eventData = { message: line.substring(6) };
+                            }
+                        }
+                    });
+                    
+                    handleInstallEvent(eventType, eventData);
+                });
+                
+                readStream();
+            });
+        }
+        
+        readStream();
+    }).catch(error => {
+        appendInstallOutput(`Error: ${error.message}`, 'error');
+        updateInstallProgress(100, 'error');
+    });
+}
+
+function handleInstallEvent(eventType, data) {
+    const output = document.getElementById('installOutput');
+    
+    switch(eventType) {
+        case 'output':
+            appendInstallOutput(data.message);
+            break;
+            
+        case 'start':
+            appendInstallOutput('🚀 ' + data.message, 'info');
+            break;
+            
+        case 'complete':
+            if (data.success) {
+                appendInstallOutput('✅ ' + data.message, 'success');
+                updateInstallProgress(100, 'success');
+            } else {
+                appendInstallOutput('❌ ' + data.message, 'error');
+                updateInstallProgress(100, 'error');
+            }
+            break;
+            
+        case 'error':
+            appendInstallOutput('❌ ' + data.message, 'error');
+            updateInstallProgress(100, 'error');
+            break;
+    }
+}
+
+function appendInstallOutput(message, type = 'normal') {
+    const output = document.getElementById('installOutput');
+    const line = document.createElement('div');
+    line.style.marginBottom = '2px';
+    line.style.whiteSpace = 'pre-wrap';
+    line.style.wordBreak = 'break-all';
+    
+    let prefix = '';
+    let color = '#00ff00';
+    
+    switch(type) {
+        case 'error':
+            prefix = '⚠️ ';
+            color = '#ff6b6b';
+            break;
+        case 'success':
+            prefix = '✓ ';
+            color = '#4CAF50';
+            break;
+        case 'info':
+            prefix = 'ℹ️ ';
+            color = '#2196F3';
+            break;
+        case 'warning':
+            prefix = '⚠️ ';
+            color = '#ff9800';
+            break;
+    }
+    
+    line.innerHTML = `<span style="color: ${color}">${escapeHtml(prefix + message)}</span>`;
+    output.appendChild(line);
+    output.scrollTop = output.scrollHeight;
+    
+    const lines = output.children.length;
+    if (lines > 20) {
+        const progress = Math.min(90, lines);
+        updateInstallProgress(progress);
+    }
+}
+
+function updateInstallProgress(percent, status = 'normal') {
+    const progressBar = document.getElementById('installProgress');
+    const progressText = document.getElementById('installProgressText');
+    
+    progressBar.style.width = percent + '%';
+    progressText.textContent = percent + '%';
+    
+    if (status === 'error') {
+        progressBar.classList.remove('bg-success');
+        progressBar.classList.add('bg-danger');
+    } else if (status === 'success') {
+        progressBar.classList.remove('progress-bar-animated');
+        progressBar.classList.add('bg-success');
+    } else {
+        progressBar.classList.add('bg-primary');
+    }
+}
+
+function updateFileContextMenuItems() {
+    const path = fileContextMenuTarget?.getAttribute('data-path');
+    if (path) {
+        const fileName = path.split('/').pop();
+        const ext = fileName.toLowerCase().split('.').pop();
+        
+        const installItem = document.getElementById('fileInstallItem');
+        const installDivider = document.getElementById('installDivider');
+        
+        if (ext === 'ipk' || ext === 'apk') {
+            installItem.style.display = 'flex';
+            installDivider.style.display = 'block';
+        } else {
+            installItem.style.display = 'none';
+            installDivider.style.display = 'none';
+        }
+    }
+}
+
+function showFileMenuItems(isDir, ext) {
+    const installItem = document.getElementById('fileInstallItem');
+    const installDivider = document.getElementById('installDivider');
+    
+    if (!isDir && (ext === 'ipk' || ext === 'apk')) {
+        installItem.style.display = 'flex';
+        installDivider.style.display = 'block';
+    } else {
+        installItem.style.display = 'none';
+        installDivider.style.display = 'none';
+    }
+}
+
+function copyFilePath() {
+    if (selectedFiles.size === 0) {
+        showLogMessage(translations['select_items_first'] || 'Please select items first', 'warning');
+        return;
+    }
+    
+    let path = Array.from(selectedFiles)[0];
+    
+    path = path.replace(/\/+/g, '/');
+    
+    if (navigator.clipboard && typeof navigator.clipboard.writeText === 'function') {
+        navigator.clipboard.writeText(path).then(() => {
+            const successMsg = translations['file_path_copied'] || 'File path copied to clipboard';
+            showLogMessage(successMsg, 'success');
+            speakMessage(successMsg, 'success');
+        }).catch(err => {
+            fallbackCopy(path);
+        });
+    } else {
+        fallbackCopy(path);
+    }
+    
+    hideFileContextMenu();
+}
+
+function fallbackCopy(text) {
+    try {
+        const textarea = document.createElement('textarea');
+        textarea.value = text;
+        textarea.style.position = 'fixed';
+        textarea.style.opacity = '0';
+        textarea.style.left = '-999999px';
+        textarea.style.top = '-999999px';
+        document.body.appendChild(textarea);
+        
+        textarea.focus();
+        textarea.select();
+        
+        const successful = document.execCommand('copy');
+        document.body.removeChild(textarea);
+        
+        if (successful) {
+            const successMsg = translations['file_path_copied'] || 'File path copied to clipboard';
+            showLogMessage(successMsg, 'success');
+            speakMessage(successMsg, 'success');
+        } else {
+            throw new Error('Copy command failed');
+        }
+    } catch (err) {
+        const msg = translations['copy_manually'] || 'Please copy the address manually: ' + text;
+        showLogMessage(msg, 'info');
+        
+        prompt(translations['copy_file_path'] || 'Copy File Path', text);
+    }
+}
+
+document.getElementById('installModal').addEventListener('hidden.bs.modal', function() {
+    if (installEventSource) {
+        installEventSource.close();
+        installEventSource = null;
+    }
+    document.getElementById('installOutput').innerHTML = '';
+    document.getElementById('installProgress').style.width = '0%';
+    document.getElementById('installProgressText').textContent = '0%';
+});
 
 window.addEventListener('beforeunload', function(e) {
     const unsavedTabs = editorTabs.filter(tab => tab.modified);
