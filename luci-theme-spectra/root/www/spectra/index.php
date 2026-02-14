@@ -2185,7 +2185,6 @@ body {
 .main-container {
     display: flex;
     height: 100vh;
-    padding-top: 20px;
     box-sizing: border-box; 
 }
 
