@@ -1189,7 +1189,7 @@ body:hover,
 <div class="card-header d-flex justify-content-between align-items-center py-2">
     <div class="time-display">
         <span id="dateDisplay" style="color: #4CAF50;"></span>
-        <span id="weekDisplay" style="color: #FF9800;">></span>
+        <span id="weekDisplay" style="color: #FF9800;"></span>
         <span id="lunarDisplay" class="lunar-text" style="color: #F48FB1;"></span>
         <span id="timeDisplay"></span>
     </div>
