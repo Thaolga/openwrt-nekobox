@@ -1,3435 +1,12809 @@
 <?php
-ini_set('memory_limit', '256M');
-$base_dir = __DIR__;
-$upload_dir = $base_dir . '/stream';
-$allowed_types = ['jpg', 'jpeg', 'png', 'gif', 'webp', 'mp4', 'webm', 'mkv', 'mp3', 'wav', 'flac', 'ogg'];
-$background_type = '';
-$background_src = '';
-$lang = $_POST['lang'] ?? $_GET['lang'] ?? 'en';
-$lang = isset($langData[$lang]) ? $lang : 'en';
+ini_set('memory_limit', '512M');
+$RECENT_MAX = 15;
+$ROOT_DIR = '/';
+$EXCLUDE_DIRS = [
+    '/dev', '/run', '/var/lock', '/var/run', '/overlay/upper'
+];
 
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['upload_file'])) {
-    $files = $_FILES['upload_file'];
-    $upload_errors = [];
+$ARCHIVE_EXT = [
+    'zip', 'tar', 'gz', 'bz2', '7z', 'rar', 'tgz', 'tbz2'
+];
+
+$ARCHIVE_TOOLS = [
+    'zip' => 'zip',
+    'unzip' => 'unzip',
+    'tar' => 'tar',
+    'gzip' => 'gzip',
+    'gunzip' => 'gunzip',
+    'bzip2' => 'bzip2',
+    'bunzip2' => 'bunzip2',
+    '7z' => '7z',
+    'rar' => 'unrar'
+];
+
+$TYPE_EXT = [
+    'music'  => ['mp3', 'ogg', 'wav', 'flac', 'm4a', 'aac'],
+    'video'  => ['mp4', 'avi', 'mkv', 'mov', 'wmv', 'flv', 'webm'],
+    'image'  => ['jpg', 'jpeg', 'png', 'gif', 'bmp', 'webp', 'svg'],
+    'text'   => ['txt', 'log', 'conf', 'ini', 'json', 'xml', 'html', 'css', 'js', 'php', 'py', 'sh', 'md'],
+    'archive'=> ['zip', 'tar', 'gz', 'bz2', '7z', 'rar']
+];
+
+if (isset($_GET['action'])) {
+    $action = $_GET['action'];
     
-    foreach ($files['name'] as $key => $filename) {
-        if ($files['error'][$key] === UPLOAD_ERR_OK) {
-            $raw_filename = urldecode($filename);
+    if ($action === 'list_files') {
+        header('Content-Type: application/json');
+        
+        $path = isset($_GET['path']) ? urldecode($_GET['path']) : $ROOT_DIR;
+        $path = preg_replace('#/+#', '/', $path);
+        
+        if (substr($path, 0, 1) !== '/') {
+            $path = '/' . $path;
+        }
+        
+        $realPath = realpath($path);
+        if (!$realPath || strpos($realPath, $ROOT_DIR) !== 0) {
+            echo json_encode(['success' => false, 'error' => 'Invalid path']);
+            exit;
+        }
+        
+        foreach ($EXCLUDE_DIRS as $exclude) {
+            if (strpos($realPath, $exclude) === 0) {
+                echo json_encode(['success' => false, 'error' => 'Path excluded']);
+                exit;
+            }
+        }
+        
+        $items = [];
+        if (is_dir($realPath) && is_readable($realPath)) {
+            try {
+                $iterator = new DirectoryIterator($realPath);
+                
+                foreach ($iterator as $item) {
+                    if ($item->isDot()) continue;
+                    
+                    $itemPath = $item->getPathname();
+                    $itemRealPath = realpath($itemPath);
+                    
+                    if (!$itemRealPath) continue;
+                    
+                    $excluded = false;
+                    foreach ($EXCLUDE_DIRS as $exclude) {
+                        if (strpos($itemRealPath, $exclude) === 0) {
+                            $excluded = true;
+                            break;
+                        }
+                    }
+                    
+                    if ($excluded) continue;
+                    
+                    $isDir = $item->isDir();
+                    $size = $isDir ? 0 : $item->getSize();
+                    $perms = substr(sprintf('%o', $item->getPerms()), -4);
+
+                    $owner = 'unknown';
+                    try {
+                        if (function_exists('posix_getpwuid')) {
+                            $ownerInfo = posix_getpwuid($item->getOwner());
+                            $owner = $ownerInfo['name'] ?? 'unknown';
+                        } else {
+                            $owner = $item->getOwner();
+                        }
+                    } catch (Exception $e) {
+                        $owner = 'unknown';
+                    }
+                
+                    $group = 'unknown';
+                    try {
+                        if (function_exists('posix_getgrgid')) {
+                            $groupInfo = posix_getgrgid($item->getGroup());
+                            $group = $groupInfo['name'] ?? 'unknown';
+                        } else {
+                            $group = $item->getGroup();
+                        }
+                    } catch (Exception $e) {
+                        $group = 'unknown';
+                    }  
+                    
+                    $type = 'file';
+                    $ext = strtolower($item->getExtension());
+                    $icon = 'fa-file';
+                    
+                    if ($isDir) {
+                        $type = 'directory';
+                        $icon = 'fa-folder';
+                    } elseif (in_array($ext, $TYPE_EXT['music'])) {
+                        $type = 'music';
+                        $icon = 'fa-music';
+                    } elseif (in_array($ext, $TYPE_EXT['video'])) {
+                        $type = 'video';
+                        $icon = 'fa-video';
+                    } elseif (in_array($ext, $TYPE_EXT['image'])) {
+                        $type = 'image';
+                        $icon = 'fa-image';
+                    } elseif (in_array($ext, $TYPE_EXT['text'])) {
+                        $type = 'text';
+                        $icon = 'fa-file-alt';
+                    } elseif (in_array($ext, $TYPE_EXT['archive'])) {
+                        $type = 'archive';
+                        $icon = 'fa-file-archive';
+                    } else {
+                        $icon = 'fa-file';
+                    }
+                    
+                    $items[] = [
+                        'name' => $item->getFilename(),
+                        'path' => $itemPath,
+                        'type' => $type,
+                        'is_dir' => $isDir,
+                        'size' => $size,
+                        'size_formatted' => formatFileSize($size),
+                        'modified' => $item->getMTime(),
+                        'modified_formatted' => date('Y-m-d H:i:s', $item->getMTime()),
+                        'permissions' => $perms,
+                        'owner' => $owner,
+                        'group' => $group,
+                        'icon' => $icon,
+                        'ext' => $ext,
+                        'safe_name' => htmlspecialchars($item->getFilename(), ENT_QUOTES, 'UTF-8'),
+                        'safe_path' => htmlspecialchars($itemPath, ENT_QUOTES, 'UTF-8')
+                    ];
+                }
+                
+                usort($items, function($a, $b) {
+                    if ($a['is_dir'] && !$b['is_dir']) return -1;
+                    if (!$a['is_dir'] && $b['is_dir']) return 1;
+                    return strcasecmp($a['name'], $b['name']);
+                });
+                
+                echo json_encode([
+                    'success' => true,
+                    'path' => $realPath,
+                    'parent' => dirname($realPath),
+                    'items' => $items,
+                    'disk_info' => getDiskInfo($realPath)
+                ]);
+                
+            } catch (Exception $e) {
+                echo json_encode(['success' => false, 'error' => $e->getMessage()]);
+            }
+        } else {
+            echo json_encode(['success' => false, 'error' => 'Directory not readable']);
+        }
+        exit;
+    }
+
+    if ($action === 'install_package') {
+        header('Content-Type: application/json');
+    
+        $path = isset($_POST['path']) ? urldecode($_POST['path']) : '';
+        $force = isset($_POST['force']) && $_POST['force'] == '1';
+        $update = isset($_POST['update']) && $_POST['update'] == '1';
+    
+        $realPath = realpath($path);
+        if (!$realPath || strpos($realPath, $ROOT_DIR) !== 0) {
+            echo json_encode(['success' => false, 'error' => 'Invalid path']);
+            exit;
+        }
+    
+        $ext = strtolower(pathinfo($realPath, PATHINFO_EXTENSION));
+        if (!in_array($ext, ['ipk', 'apk', 'run'])) {
+            echo json_encode(['success' => false, 'error' => 'Not a valid package file']);
+            exit;
+        }
+    
+        header('Content-Type: text/event-stream');
+        header('Cache-Control: no-cache');
+        header('X-Accel-Buffering: no');
+    
+        ob_implicit_flush(true);
+        ob_end_flush();
+    
+        $output = [];
+        $returnVar = 0;
+    
+        echo "event: start\n";
+        echo "data: " . json_encode(['message' => 'Starting installation...']) . "\n\n";
+ 
+        if ($ext === 'ipk') {
+            if ($update) {
+                echo "event: output\n";
+                echo "data: " . json_encode(['message' => 'Updating package lists...']) . "\n\n";
             
-            $ext = strtolower(pathinfo($raw_filename, PATHINFO_EXTENSION));
-            if (!in_array($ext, $allowed_types)) {
-                $upload_errors[] = sprintf($langData[$lang]['upload_error_type_not_supported'] ?? 'Unsupported file type: %s', $raw_filename);
-                continue;
+                $updateCmd = "opkg update 2>&1";
+                exec($updateCmd, $updateOutput, $updateReturn);
+                foreach ($updateOutput as $line) {
+                    echo "event: output\n";
+                    echo "data: " . json_encode(['message' => $line]) . "\n\n";
+                }
+            }
+        
+            $installCmd = "opkg install " . ($force ? "--force-depends --force-overwrite " : "") . escapeshellarg($realPath) . " 2>&1";
+        
+        } elseif ($ext === 'apk') {
+            $installCmd = "adb install " . ($force ? "-r " : "") . escapeshellarg($realPath) . " 2>&1";
+        
+        } elseif ($ext === 'run') {
+            echo "event: output\n";
+            echo "data: " . json_encode(['message' => 'Setting execute permission...']) . "\n\n";
+        
+            $chmodCmd = "chmod +x " . escapeshellarg($realPath) . " 2>&1";
+            exec($chmodCmd, $chmodOutput, $chmodReturn);
+        
+            if ($chmodReturn !== 0) {
+                echo "event: error\n";
+                echo "data: " . json_encode(['message' => 'Failed to set execute permission']) . "\n\n";
+                exit;
+            }
+        
+            echo "event: output\n";
+            echo "data: " . json_encode(['message' => 'Execute permission set successfully']) . "\n\n";
+        
+            $installCmd = escapeshellarg($realPath) . " 2>&1";
+        }
+
+        if (isset($installCmd)) {
+            $descriptors = [
+                0 => ["pipe", "r"],
+                1 => ["pipe", "w"],
+                2 => ["pipe", "w"]
+            ];
+        
+            $process = proc_open($installCmd, $descriptors, $pipes);
+        
+            if (is_resource($process)) {
+                while ($line = fgets($pipes[1])) {
+                    echo "event: output\n";
+                    echo "data: " . json_encode(['message' => trim($line)]) . "\n\n";
+                }
+            
+                while ($line = fgets($pipes[2])) {
+                    echo "event: output\n";
+                    echo "data: " . json_encode(['message' => trim($line)]) . "\n\n";
+                }
+            
+                fclose($pipes[0]);
+                fclose($pipes[1]);
+                fclose($pipes[2]);
+            
+                $returnVar = proc_close($process);
+            
+                if ($returnVar === 0) {
+                    echo "event: complete\n";
+                    echo "data: " . json_encode(['success' => true, 'message' => 'Installation completed successfully']) . "\n\n";
+                } else {
+                    echo "event: complete\n";
+                    echo "data: " . json_encode(['success' => false, 'message' => 'Installation failed']) . "\n\n";
+                }
+            } else {
+                echo "event: error\n";
+                echo "data: " . json_encode(['message' => 'Failed to start installation process']) . "\n\n";
+            }
+        }
+    
+        exit;
+    }
+
+    elseif ($action === 'download_folder') {
+        header('Content-Type: application/octet-stream');
+        if (ob_get_level()) ob_end_clean();
+    
+        $path = isset($_GET['path']) ? urldecode($_GET['path']) : '';
+        $realPath = realpath($path);
+    
+        if (!$realPath || strpos($realPath, $ROOT_DIR) !== 0) {
+            http_response_code(403);
+            exit('Invalid path');
+        }
+        if (!is_dir($realPath)) {
+            http_response_code(400);
+            exit('Not a directory');
+        }
+    
+        $folderName = basename($realPath);
+        $tarFilename = $folderName . '.tar';
+        header('Content-Disposition: attachment; filename="' . rawurlencode($tarFilename) . '"');
+    
+        $cmd = "tar -cf - -C " . escapeshellarg(dirname($realPath)) . " " . escapeshellarg($folderName);
+    
+        passthru($cmd);
+        exit;
+    }
+   
+    if ($action === 'get_file_info') {
+        header('Content-Type: application/json');
+        
+        $path = isset($_GET['path']) ? urldecode($_GET['path']) : '';
+        $path = preg_replace('#/+#', '/', $path);
+        
+        if (substr($path, 0, 1) !== '/') {
+            $path = '/' . $path;
+        }
+        
+        $realPath = realpath($path);
+        if (!$realPath || strpos($realPath, $ROOT_DIR) !== 0) {
+            echo json_encode(['success' => false, 'error' => 'Invalid path']);
+            exit;
+        }
+        
+        foreach ($EXCLUDE_DIRS as $exclude) {
+            if (strpos($realPath, $exclude) === 0) {
+                echo json_encode(['success' => false, 'error' => 'Path excluded']);
+                exit;
+            }
+        }
+        
+        if (file_exists($realPath) && is_readable($realPath)) {
+            $isDir = is_dir($realPath);
+            $size = $isDir ? 0 : filesize($realPath);
+            $perms = substr(sprintf('%o', fileperms($realPath)), -4);
+            $owner = function_exists('posix_getpwuid') ? posix_getpwuid(fileowner($realPath))['name'] : fileowner($realPath);
+            $group = function_exists('posix_getgrgid') ? posix_getgrgid(filegroup($realPath))['name'] : filegroup($realPath);
+            
+            $info = [
+                'name' => basename($realPath),
+                'path' => $realPath,
+                'is_dir' => $isDir,
+                'size' => $size,
+                'size_formatted' => formatFileSize($size),
+                'modified' => filemtime($realPath),
+                'modified_formatted' => date('Y-m-d H:i:s', filemtime($realPath)),
+                'accessed' => fileatime($realPath),
+                'accessed_formatted' => date('Y-m-d H:i:s', fileatime($realPath)),
+                'created' => filectime($realPath),
+                'created_formatted' => date('Y-m-d H:i:s', filectime($realPath)),
+                'permissions' => $perms,
+                'owner' => $owner,
+                'group' => $group,
+                'inode' => fileinode($realPath),
+                'real_path' => $realPath
+            ];
+            
+            if (!$isDir) {
+                $ext = strtolower(pathinfo($realPath, PATHINFO_EXTENSION));
+                $info['extension'] = $ext;
+                $info['mime_type'] = getMimeType($ext);
+                
+                if (in_array($ext, $TYPE_EXT['music']) || in_array($ext, $TYPE_EXT['video']) || in_array($ext, $TYPE_EXT['image'])) {
+                    $mediaInfo = getDetailedMediaInfo($realPath, $ext);
+                    if ($mediaInfo) {
+                        $info['media_info'] = $mediaInfo;
+                    }
+                }
             }
             
-            $basename = pathinfo($raw_filename, PATHINFO_FILENAME);
-            
-            $safe_basename = preg_replace([
-                '/[^\p{L}\p{N}_\- ]/u',
-                '/\s+/',
-                '/_+/',
-                '/-+/'
-            ], [
-                '_',
-                '_',
-                '_',
-                '-'
-            ], $basename);
-            
-            $safe_basename = trim($safe_basename, '_.- ');
-            
-            if (empty($safe_basename)) {
-                $safe_basename = uniqid();
+            echo json_encode(['success' => true, 'info' => $info]);
+        } else {
+            echo json_encode(['success' => false, 'error' => 'File not found']);
+        }
+        exit;
+    }
+    
+    if ($action === 'create_folder') {
+        header('Content-Type: application/json');
+        
+        $path = isset($_GET['path']) ? urldecode($_GET['path']) : '';
+        $name = isset($_GET['name']) ? urldecode($_GET['name']) : '';
+        
+        if (empty($name)) {
+            echo json_encode(['success' => false, 'error' => 'Folder name is required']);
+            exit;
+        }
+
+        $name = preg_replace('/[\/:*?"<>|]/', '', $name);
+        
+        $path = rtrim($path, '/') . '/';
+        $fullPath = $path . $name;
+        
+        $fullPath = realpath(dirname($fullPath)) . '/' . $name;
+        
+        if (strpos($fullPath, $ROOT_DIR) !== 0) {
+            echo json_encode(['success' => false, 'error' => 'Invalid path']);
+            exit;
+        }
+        
+        if (file_exists($fullPath)) {
+            echo json_encode(['success' => false, 'error' => 'Folder already exists']);
+            exit;
+        }
+        
+        if (@mkdir($fullPath, 0755, true)) {
+            echo json_encode(['success' => true, 'message' => 'Folder created successfully']);
+        } else {
+            $error = error_get_last();
+            echo json_encode(['success' => false, 'error' => 'Failed to create folder: ' . ($error['message'] ?? 'Unknown error')]);
+        }
+        exit;
+    }
+
+    if ($action === 'create_file') {
+        header('Content-Type: application/json');
+        
+        $path = isset($_POST['path']) ? urldecode($_POST['path']) : '';
+        $name = isset($_POST['name']) ? urldecode($_POST['name']) : '';
+        
+        if (empty($name)) {
+            echo json_encode(['success' => false, 'error' => 'File name is required']);
+            exit;
+        }
+        
+        $name = preg_replace('/[\/:*?"<>|]/', '', $name);
+        
+        $fullPath = $path . '/' . $name;
+        $fullPath = preg_replace('#/+#', '/', $fullPath);
+        
+        if (substr($fullPath, 0, 1) !== '/') {
+            $fullPath = '/' . $fullPath;
+        }
+        
+        $realPath = realpath(dirname($fullPath));
+        if (!$realPath || strpos($realPath, $ROOT_DIR) !== 0) {
+            echo json_encode(['success' => false, 'error' => 'Invalid path']);
+            exit;
+        }
+        
+        if (file_exists($fullPath)) {
+            echo json_encode(['success' => false, 'error' => 'File already exists']);
+            exit;
+        }
+        
+        if (@file_put_contents($fullPath, '') !== false) {
+            echo json_encode(['success' => true, 'message' => 'File created successfully']);
+        } else {
+            echo json_encode(['success' => false, 'error' => 'Failed to create file']);
+        }
+        exit;
+    }
+    
+    if ($action === 'delete_item') {
+        header('Content-Type: application/json');
+        
+        $path = isset($_GET['path']) ? urldecode($_GET['path']) : '';
+        $path = preg_replace('#/+#', '/', $path);
+        
+        if (substr($path, 0, 1) !== '/') {
+            $path = '/' . $path;
+        }
+        
+        $realPath = realpath($path);
+        if (!$realPath || strpos($realPath, $ROOT_DIR) !== 0) {
+            echo json_encode(['success' => false, 'error' => 'Invalid path']);
+            exit;
+        }
+        
+        $success = false;
+        $message = '';
+        
+        if (is_dir($realPath)) {
+            if (deleteDirectory($realPath)) {
+                $success = true;
+                $message = 'Directory deleted successfully';
+            } else {
+                $message = 'Failed to delete directory';
             }
-            
+        } else {
+            if (@unlink($realPath)) {
+                $success = true;
+                $message = 'File deleted successfully';
+            } else {
+                $message = 'Failed to delete file';
+            }
+        }
+        
+        echo json_encode(['success' => $success, 'message' => $message]);
+        exit;
+    }
+    
+    if ($action === 'save_file') {
+        header('Content-Type: application/json; charset=utf-8');
+        
+        $path = isset($_POST['path']) ? urldecode($_POST['path']) : '';
+        $content = isset($_POST['content']) ? $_POST['content'] : '';
+        $isBase64 = isset($_POST['is_base64']) && $_POST['is_base64'] == '1';
+        
+        $path = preg_replace('#/+#', '/', $path);
+        
+        if (substr($path, 0, 1) !== '/') {
+            $path = '/' . $path;
+        }
+        
+        $realPath = realpath($path);
+        if (!$realPath || strpos($realPath, $ROOT_DIR) !== 0) {
+            echo json_encode(['success' => false, 'error' => 'Invalid path']);
+            exit;
+        }
+        
+        foreach ($EXCLUDE_DIRS as $exclude) {
+            if (strpos($realPath, $exclude) === 0) {
+                echo json_encode(['success' => false, 'error' => 'Path excluded']);
+                exit;
+            }
+        }
+        
+        if (file_exists($realPath) && is_writable($realPath)) {
+            try {
+                if ($isBase64) {
+                    $content = base64_decode($content);
+                    if ($content === false) {
+                        echo json_encode(['success' => false, 'error' => 'Failed to decode base64 content']);
+                        exit;
+                    }
+                    if (!mb_check_encoding($content, 'UTF-8')) {
+                        $content = mb_convert_encoding($content, 'UTF-8', 'auto');
+                    }
+                } else {
+                    if (!mb_check_encoding($content, 'UTF-8')) {
+                        $content = mb_convert_encoding($content, 'UTF-8', 'auto');
+                    }
+                }
+                
+                $result = file_put_contents($realPath, $content);
+                
+                if ($result !== false) {
+                    @chmod($realPath, 0644);
+                    echo json_encode(['success' => true, 'message' => 'File saved successfully']);
+                } else {
+                    echo json_encode(['success' => false, 'error' => 'Failed to save file']);
+                }
+            } catch (Exception $e) {
+                echo json_encode(['success' => false, 'error' => 'Error: ' . $e->getMessage()]);
+            }
+        } else {
+            echo json_encode(['success' => false, 'error' => 'File not writable']);
+        }
+        exit;
+    }
+    
+    if ($action === 'read_file') {
+        header('Content-Type: application/json; charset=utf-8');
+        
+        $path = isset($_GET['path']) ? urldecode($_GET['path']) : '';
+        $path = preg_replace('#/+#', '/', $path);
+        
+        if (substr($path, 0, 1) !== '/') {
+            $path = '/' . $path;
+        }
+        
+        $realPath = realpath($path);
+        if (!$realPath || strpos($realPath, $ROOT_DIR) !== 0) {
+            echo json_encode(['success' => false, 'error' => 'Invalid path']);
+            exit;
+        }
+        
+        foreach ($EXCLUDE_DIRS as $exclude) {
+            if (strpos($realPath, $exclude) === 0) {
+                echo json_encode(['success' => false, 'error' => 'Path excluded']);
+                exit;
+            }
+        }
+        
+        if (file_exists($realPath) && is_readable($realPath) && is_file($realPath)) {
+            $content = @file_get_contents($realPath);
+            if ($content !== false) {
+                $ext = strtolower(pathinfo($realPath, PATHINFO_EXTENSION));
+                $textExts = ['txt', 'log', 'conf', 'ini', 'json', 'xml', 'html', 'htm',
+                           'css', 'js', 'php', 'py', 'sh', 'md', 'yaml', 'yml',
+                           'csv', 'sql', 'bat', 'cmd', 'jsx', 'ts', 'tsx', 'vue',
+                           'c', 'cpp', 'h', 'hpp', 'java', 'go', 'rs', 'rb', 'perl',
+                           'lua', 'swift', 'kt', 'scala', 'groovy', 'dart'];
+                
+                $encoding = mb_detect_encoding($content, ['UTF-8', 'GBK', 'GB2312', 'BIG5', 'ASCII', 'ISO-8859-1'], true);
+                
+                if (!$encoding) {
+                    $encoding = 'UTF-8';
+                }
+                
+                if ($encoding !== 'UTF-8') {
+                    $content = mb_convert_encoding($content, 'UTF-8', $encoding);
+                }
+                
+                if (substr($content, 0, 3) === "\xEF\xBB\xBF") {
+                    $content = substr($content, 3);
+                }
+                
+                if (in_array($ext, $textExts) || filesize($realPath) < 1024 * 1024 * 5) {
+
+                    function safeBase64Encode($string) {
+                        $string = mb_convert_encoding($string, 'UTF-8', mb_detect_encoding($string));
+                        if (substr($string, 0, 3) === "\xEF\xBB\xBF") {
+                            $string = substr($string, 3);
+                        }
+                        return base64_encode($string);
+                    }
+                    
+                    $base64Content = safeBase64Encode($content);
+                    
+                    echo json_encode([
+                        'success' => true,
+                        'content' => $content,  
+                        'is_base64' => false,
+                        'size' => filesize($realPath),
+                        'mime' => getMimeType($ext),
+                        'encoding' => 'UTF-8',
+                        'extension' => $ext
+                    ], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+                    
+                } else {
+                    echo json_encode([
+                        'success' => true,
+                        'content' => '⚠️ The file is too large or contains binary data. Please edit it directly on the server.',
+                        'is_base64' => false,
+                        'size' => filesize($realPath),
+                        'mime' => getMimeType($ext),
+                        'encoding' => 'binary'
+                    ]);
+                }
+            } else {
+                echo json_encode(['success' => false, 'error' => 'Failed to read file']);
+            }
+        } else {
+            echo json_encode(['success' => false, 'error' => 'File not readable']);
+        }
+        exit;
+    }
+    
+    if ($action === 'upload_file') {
+        header('Content-Type: application/json');
+        
+        $path = isset($_POST['path']) ? urldecode($_POST['path']) : '';
+        $path = preg_replace('#/+#', '/', $path);
+        
+        if (substr($path, 0, 1) !== '/') {
+            $path = '/' . $path;
+        }
+        
+        $realPath = realpath($path);
+        if (!$realPath || strpos($realPath, $ROOT_DIR) !== 0 || !is_dir($realPath)) {
+            echo json_encode(['success' => false, 'error' => 'Invalid path']);
+            exit;
+        }
+        
+        $uploadedFiles = [];
+        $errors = [];
+
+        function generateUniqueFilename($directory, $filename) {
+            $pathinfo = pathinfo($filename);
+            $name = $pathinfo['filename'];
+            $extension = isset($pathinfo['extension']) ? '.' . $pathinfo['extension'] : '';
             $counter = 1;
-            $final_name = "{$safe_basename}.{$ext}";
-            $target_path = "{$upload_dir}/{$final_name}";
-            while (file_exists($target_path)) {
-                $final_name = "{$safe_basename}_{$counter}.{$ext}";
-                $target_path = "{$upload_dir}/{$final_name}";
+            $newFilename = $filename;
+        
+            while (file_exists($directory . '/' . $newFilename)) {
+                $newFilename = $name . '_' . $counter . $extension;
                 $counter++;
             }
+        
+            return $newFilename;
+        }
+        
+        if (isset($_FILES['file'])) {
+            if (!is_array($_FILES['file']['name'])) {
+                $file = $_FILES['file'];
+                if ($file['error'] === UPLOAD_ERR_OK) {
+                    $fileName = preg_replace('/[\/:*?"<>|]/', '_', basename($file['name']));
+
+                    if (file_exists($realPath . '/' . $fileName)) {
+                        $fileName = generateUniqueFilename($realPath, $fileName);
+                    }
+
+                    $targetFile = $realPath . '/' . $fileName;
+                    
+                    if (!file_exists($targetFile) && move_uploaded_file($file['tmp_name'], $targetFile)) {
+                        $uploadedFiles[] = $fileName;
+                    } else {
+                        $errors[] = $fileName;
+                    }
+                }
+            } else {
+                $fileCount = count($_FILES['file']['name']);
+                for ($i = 0; $i < $fileCount; $i++) {
+                    if ($_FILES['file']['error'][$i] === UPLOAD_ERR_OK) {
+                        $fileName = preg_replace('/[\/:*?"<>|]/', '_', basename($_FILES['file']['name'][$i]));
+
+                        if (file_exists($realPath . '/' . $fileName)) {
+                            $fileName = generateUniqueFilename($realPath, $fileName);
+                        }
+                    
+                        $targetFile = $realPath . '/' . $fileName;
+                        
+                        if (!file_exists($targetFile) && move_uploaded_file($_FILES['file']['tmp_name'][$i], $targetFile)) {
+                            $uploadedFiles[] = $fileName;
+                        } else {
+                            $errors[] = $fileName;
+                        }
+                    }
+                }
+            }
+        }
+        
+        if (!empty($uploadedFiles)) {
+            echo json_encode([
+                'success' => true, 
+                'message' => 'Files uploaded successfully',
+                'files' => $uploadedFiles,
+                'error_files' => $errors
+            ]);
+        } else {
+            echo json_encode(['success' => false, 'error' => 'No files were uploaded']);
+        }
+        exit;
+    }
+
+    if ($action === 'rename_item') {
+        header('Content-Type: application/json');
+        
+        $oldPath = isset($_GET['old']) ? urldecode($_GET['old']) : '';
+        $newName = isset($_GET['new']) ? urldecode($_GET['new']) : '';
+        
+        if (empty($oldPath) || empty($newName)) {
+            echo json_encode(['success' => false, 'error' => 'Old path and new name are required']);
+            exit;
+        }
+        
+        $newName = preg_replace('/[\/:*?"<>|]/', '', $newName);
+        
+        $oldPath = preg_replace('#/+#', '/', $oldPath);
+        if (substr($oldPath, 0, 1) !== '/') {
+            $oldPath = '/' . $oldPath;
+        }
+        
+        $oldRealPath = realpath($oldPath);
+        if (!$oldRealPath || strpos($oldRealPath, $ROOT_DIR) !== 0) {
+            echo json_encode(['success' => false, 'error' => 'Invalid old path']);
+            exit;
+        }
+        
+        foreach ($EXCLUDE_DIRS as $exclude) {
+            if (strpos($oldRealPath, $exclude) === 0) {
+                echo json_encode(['success' => false, 'error' => 'Old path is excluded']);
+                exit;
+            }
+        }
+        
+        $newPath = dirname($oldRealPath) . '/' . $newName;
+        
+        if (file_exists($newPath)) {
+            echo json_encode(['success' => false, 'error' => 'New name already exists']);
+            exit;
+        }
+        
+        if (@rename($oldRealPath, $newPath)) {
+            echo json_encode(['success' => true, 'message' => 'Renamed successfully']);
+        } else {
+            echo json_encode(['success' => false, 'error' => 'Failed to rename']);
+        }
+        exit;
+    }
+
+    if ($action === 'move_item') {
+        header('Content-Type: application/json');
+        
+        $sourcePath = isset($_GET['source']) ? urldecode($_GET['source']) : '';
+        $destDir = isset($_GET['dest']) ? urldecode($_GET['dest']) : '';
+        
+        if (empty($sourcePath) || empty($destDir)) {
+            echo json_encode(['success' => false, 'error' => 'Source and destination are required']);
+            exit;
+        }
+        
+        $sourcePath = preg_replace('#/+#', '/', $sourcePath);
+        if (substr($sourcePath, 0, 1) !== '/') {
+            $sourcePath = '/' . $sourcePath;
+        }
+        
+        $destDir = preg_replace('#/+#', '/', $destDir);
+        if (substr($destDir, 0, 1) !== '/') {
+            $destDir = '/' . $destDir;
+        }
+        
+        $sourceRealPath = realpath($sourcePath);
+        $destRealPath = realpath($destDir);
+        
+        if (!$sourceRealPath || strpos($sourceRealPath, $ROOT_DIR) !== 0) {
+            echo json_encode(['success' => false, 'error' => 'Invalid source path']);
+            exit;
+        }
+        
+        if (!$destRealPath || strpos($destRealPath, $ROOT_DIR) !== 0) {
+            echo json_encode(['success' => false, 'error' => 'Invalid destination path']);
+            exit;
+        }
+        
+        foreach ($EXCLUDE_DIRS as $exclude) {
+            if (strpos($sourceRealPath, $exclude) === 0) {
+                echo json_encode(['success' => false, 'error' => 'Source path is excluded']);
+                exit;
+            }
+            if (strpos($destRealPath, $exclude) === 0) {
+                echo json_encode(['success' => false, 'error' => 'Destination path is excluded']);
+                exit;
+            }
+        }
+        
+        if (!is_dir($destRealPath)) {
+            echo json_encode(['success' => false, 'error' => 'Destination is not a directory']);
+            exit;
+        }
+        
+        $destPath = $destRealPath . '/' . basename($sourceRealPath);
+        
+        if (file_exists($destPath)) {
+            echo json_encode(['success' => false, 'error' => 'A file with the same name already exists in the destination']);
+            exit;
+        }
+        
+        if (@rename($sourceRealPath, $destPath)) {
+            echo json_encode(['success' => true, 'message' => 'Moved successfully']);
+        } else {
+            echo json_encode(['success' => false, 'error' => 'Failed to move']);
+        }
+        exit;
+    }
+
+    if ($action === 'search') {
+        header('Content-Type: application/json');
+        
+        $term = isset($_GET['term']) ? urldecode($_GET['term']) : '';
+        
+        if (empty($term)) {
+            echo json_encode(['success' => false, 'error' => 'Search term is required']);
+            exit;
+        }
+        
+        try {
+            $searchResults = searchFilesByName($ROOT_DIR, $term);
+            echo json_encode(['success' => true, 'results' => $searchResults]);
+        } catch (Exception $e) {
+            echo json_encode(['success' => false, 'error' => $e->getMessage()]);
+        }
+        exit;
+    }
+
+    if ($action === 'change_permissions') {
+        header('Content-Type: application/json');
+        
+        $path = isset($_POST['path']) ? urldecode($_POST['path']) : '';
+        $permissions = isset($_POST['permissions']) ? $_POST['permissions'] : '';
+        
+        if (empty($path) || empty($permissions)) {
+            echo json_encode(['success' => false, 'error' => 'Path and permission value are required']);
+            exit;
+        }
+        
+        if (!preg_match('/^[0-7]{3,4}$/', $permissions)) {
+            echo json_encode(['success' => false, 'error' => 'Invalid permission format']);
+            exit;
+        }
+        
+        $path = preg_replace('#/+#', '/', $path);
+        if (substr($path, 0, 1) !== '/') {
+            $path = '/' . $path;
+        }
+        
+        $realPath = realpath($path);
+        if (!$realPath || strpos($realPath, $ROOT_DIR) !== 0) {
+            echo json_encode(['success' => false, 'error' => 'Invalid path']);
+            exit;
+        }
+        
+        global $EXCLUDE_DIRS;
+        foreach ($EXCLUDE_DIRS as $exclude) {
+            if (strpos($realPath, $exclude) === 0) {
+                echo json_encode(['success' => false, 'error' => 'Path is excluded']);
+                exit;
+            }
+        }
+        
+        $mode = octdec($permissions);
+        
+        if (@chmod($realPath, $mode)) {
+            echo json_encode(['success' => true, 'message' => 'Permissions updated successfully']);
+        } else {
+            echo json_encode(['success' => false, 'error' => 'Failed to update permissions, please check file permissions']);
+        }
+        exit;
+    }
+
+    if ($action === 'copy_item') {
+        header('Content-Type: application/json');
+        
+        $sourcePath = isset($_GET['source']) ? urldecode($_GET['source']) : '';
+        $destDir = isset($_GET['dest']) ? urldecode($_GET['dest']) : '';
+        
+        if (empty($sourcePath) || empty($destDir)) {
+            echo json_encode(['success' => false, 'error' => 'Source and destination are required']);
+            exit;
+        }
+        
+        $sourcePath = preg_replace('#/+#', '/', $sourcePath);
+        if (substr($sourcePath, 0, 1) !== '/') {
+            $sourcePath = '/' . $sourcePath;
+        }
+        
+        $destDir = preg_replace('#/+#', '/', $destDir);
+        if (substr($destDir, 0, 1) !== '/') {
+            $destDir = '/' . $destDir;
+        }
+        
+        $sourceRealPath = realpath($sourcePath);
+        $destRealPath = realpath($destDir);
+        
+        if (!$sourceRealPath || strpos($sourceRealPath, $ROOT_DIR) !== 0) {
+            echo json_encode(['success' => false, 'error' => 'Invalid source path']);
+            exit;
+        }
+        
+        if (!$destRealPath || strpos($destRealPath, $ROOT_DIR) !== 0) {
+            echo json_encode(['success' => false, 'error' => 'Invalid destination path']);
+            exit;
+        }
+        
+        foreach ($EXCLUDE_DIRS as $exclude) {
+            if (strpos($sourceRealPath, $exclude) === 0) {
+                echo json_encode(['success' => false, 'error' => 'Source path is excluded']);
+                exit;
+            }
+            if (strpos($destRealPath, $exclude) === 0) {
+                echo json_encode(['success' => false, 'error' => 'Destination path is excluded']);
+                exit;
+            }
+        }
+        
+        if (!is_dir($destRealPath)) {
+            echo json_encode(['success' => false, 'error' => 'Destination is not a directory']);
+            exit;
+        }
+        
+        $destPath = $destRealPath . '/' . basename($sourceRealPath);
+        
+        if (file_exists($destPath)) {
+            echo json_encode(['success' => false, 'error' => 'A file with the same name already exists in the destination']);
+            exit;
+        }
+        
+        if (is_dir($sourceRealPath)) {
+            if (copyDirectory($sourceRealPath, $destPath)) {
+                echo json_encode(['success' => true, 'message' => 'Directory copied successfully']);
+            } else {
+                echo json_encode(['success' => false, 'error' => 'Failed to copy directory']);
+            }
+        } else {
+            if (@copy($sourceRealPath, $destPath)) {
+                echo json_encode(['success' => true, 'message' => 'File copied successfully']);
+            } else {
+                echo json_encode(['success' => false, 'error' => 'Failed to copy file']);
+            }
+        }
+        exit;
+    }
+
+    if ($action === 'file_hash') {
+        header('Content-Type: application/json');
+    
+        $path = isset($_GET['path']) ? urldecode($_GET['path']) : '';
+    
+        $path = preg_replace('#/+#', '/', $path);
+        if (substr($path, 0, 1) !== '/') {
+            $path = '/' . $path;
+        }
+    
+        $realPath = realpath($path);
+        if (!$realPath || strpos($realPath, $ROOT_DIR) !== 0) {
+            echo json_encode(['success' => false, 'error' => 'Invalid path']);
+            exit;
+        }
+    
+        foreach ($EXCLUDE_DIRS as $exclude) {
+            if (strpos($realPath, $exclude) === 0) {
+                echo json_encode(['success' => false, 'error' => 'Path excluded']);
+                exit;
+            }
+        }
+    
+        if (!is_file($realPath) || !is_readable($realPath)) {
+            echo json_encode(['success' => false, 'error' => 'File not readable']);
+            exit;
+        }
+    
+        try {
+            if (!file_exists($realPath)) {
+                throw new Exception('File does not exist');
+            }
+        
+            $md5 = md5_file($realPath);
+            $sha1 = sha1_file($realPath);
+            $sha256 = hash_file('sha256', $realPath);
+        
+            if ($md5 === false || $sha1 === false || $sha256 === false) {
+                throw new Exception('Failed to calculate hash');
+            }
+        
+            $result = [
+                'success' => true,
+                'filename' => basename($realPath),
+                'path' => $realPath,
+                'size' => filesize($realPath),
+                'size_formatted' => formatFileSize(filesize($realPath)),
+                'md5' => $md5,
+                'sha1' => $sha1,
+                'sha256' => $sha256,
+                'modified' => date('Y-m-d H:i:s', filemtime($realPath))
+            ];
+        
+            echo json_encode($result);
+        } catch (Exception $e) {
+            echo json_encode([
+                'success' => false, 
+                'error' => 'Hash calculation failed: ' . $e->getMessage()
+            ]);
+        }
+        exit;
+    }
+
+    if ($action === 'archive_action') {
+        header('Content-Type: application/json');
+    
+        $actionType = isset($_POST['action_type']) ? $_POST['action_type'] : '';
+        $archiveType = isset($_POST['archive_type']) ? $_POST['archive_type'] : 'zip';
+        $destination = isset($_POST['destination']) ? urldecode($_POST['destination']) : '';
+    
+        $result = null;
+        $message = '';
+    
+        if ($actionType === 'extract') {
+            $path = isset($_POST['path']) ? urldecode($_POST['path']) : '';
+        
+            if (empty($path)) {
+                echo json_encode(['success' => false, 'error' => 'Path is required']);
+                exit;
+            }
+        
+            $realPath = realpath($path);
+            if (!$realPath || strpos($realPath, $ROOT_DIR) !== 0 || !is_file($realPath)) {
+                echo json_encode(['success' => false, 'error' => 'Not a valid archive file']);
+                exit;
+            }
+        
+            $ext = strtolower(pathinfo($realPath, PATHINFO_EXTENSION));
+        
+            if (empty($destination)) {
+                $destination = dirname($realPath);
+            }
+        
+            $destRealPath = $destination;
+            if (!file_exists($destRealPath)) {
+                @mkdir($destRealPath, 0755, true);
+            }
+        
+            if (!is_dir($destRealPath) || !is_writable($destRealPath)) {
+                echo json_encode(['success' => false, 'error' => 'Destination directory is not writable']);
+                exit;
+            }
+        
+            $result = extractArchive($realPath, $destRealPath, $ext);
+            $message = $result ? 'Archive extracted successfully' : 'Failed to extract archive';
+        
+        } elseif ($actionType === 'compress') {
+            if (empty($destination)) {
+                echo json_encode(['success' => false, 'error' => 'Destination is required']);
+                exit;
+            }
+        
+            $destDir = dirname($destination);
+            if (!file_exists($destDir)) {
+                @mkdir($destDir, 0755, true);
+            }
+        
+            if (isset($_POST['paths']) && is_array($_POST['paths'])) {
+                $paths = array_map('urldecode', $_POST['paths']);
+                $validPaths = [];
             
-            if (!move_uploaded_file($files['tmp_name'][$key], $target_path)) {
-                $upload_errors[] = sprintf($langData[$lang]['upload_error_move_failed'] ?? 'Upload failed: %s', $final_name);
+                foreach ($paths as $path) {
+                    $realPath = realpath($path);
+                    if ($realPath && strpos($realPath, $ROOT_DIR) === 0) {
+                        $validPaths[] = $realPath;
+                    }
+                }
+            
+                if (empty($validPaths)) {
+                    echo json_encode(['success' => false, 'error' => 'No valid files to compress']);
+                    exit;
+                }
+            
+                $result = createArchive($validPaths, $destination, $archiveType);
+                $message = $result ? 'Archive created successfully' : 'Failed to create archive';
+            
+            } elseif (isset($_POST['path'])) {
+                $path = urldecode($_POST['path']);
+                $realPath = realpath($path);
+            
+                if (!$realPath || strpos($realPath, $ROOT_DIR) !== 0) {
+                    echo json_encode(['success' => false, 'error' => 'Invalid path']);
+                    exit;
+                }
+            
+                $result = createArchive($realPath, $destination, $archiveType);
+                $message = $result ? 'Archive created successfully' : 'Failed to create archive';
+            
+            } else {
+                echo json_encode(['success' => false, 'error' => 'No files to compress']);
+                exit;
+            }
+        
+        } else {
+            echo json_encode(['success' => false, 'error' => 'Invalid action type']);
+            exit;
+        }
+    
+        echo json_encode([
+            'success' => $result,
+            'message' => $message,
+            'action' => $actionType,
+            'destination' => $destination
+        ]);
+        exit;
+    }
+}
+
+function getDetailedMediaInfo($filePath, $extension) {
+    $info = [];
+    
+    if (in_array($extension, ['jpg', 'jpeg', 'png', 'gif', 'bmp', 'webp', 'svg', 'ico'])) {
+        $imageInfo = @getimagesize($filePath);
+        if ($imageInfo) {
+            $info['type'] = 'image';
+            $info['width'] = $imageInfo[0];
+            $info['height'] = $imageInfo[1];
+            $info['resolution'] = $imageInfo[0] . 'x' . $imageInfo[1];
+            $info['mime'] = $imageInfo['mime'];
+            $info['bits'] = $imageInfo['bits'] ?? null;
+            $info['channels'] = $imageInfo['channels'] ?? null;
+        }
+        return $info;
+    }
+    
+    $ffprobePath = '/usr/bin/ffprobe';
+    $ffmpegPath = '/usr/bin/ffmpeg';
+    
+    if (file_exists($ffprobePath)) {
+        $cmd = $ffprobePath . " -v quiet -print_format json -show_format -show_streams " . escapeshellarg($filePath);
+        $output = shell_exec($cmd);
+        
+        if ($output) {
+            $data = json_decode($output, true);
+            if ($data) {
+                $info['type'] = in_array($extension, ['mp3', 'wav', 'ogg', 'flac', 'm4a', 'aac']) ? 'audio' : 'video';
+                $info['format'] = $data['format']['format_name'] ?? $extension;
+                $info['size'] = $data['format']['size'] ?? filesize($filePath);
+                $info['bitrate'] = isset($data['format']['bit_rate']) ? round($data['format']['bit_rate'] / 1000) . ' kbps' : null;
+                
+                if (isset($data['format']['duration'])) {
+                    $duration = floatval($data['format']['duration']);
+                    $hours = floor($duration / 3600);
+                    $minutes = floor(($duration % 3600) / 60);
+                    $seconds = floor($duration % 60);
+                    $info['duration'] = sprintf("%02d:%02d:%02d", $hours, $minutes, $seconds);
+                    $info['duration_seconds'] = $duration;
+                }
+                
+                foreach ($data['streams'] as $stream) {
+                    if ($stream['codec_type'] === 'video') {
+                        $info['video_codec'] = $stream['codec_name'] ?? null;
+                        $info['width'] = $stream['width'] ?? null;
+                        $info['height'] = $stream['height'] ?? null;
+                        if ($info['width'] && $info['height']) {
+                            $info['resolution'] = $info['width'] . 'x' . $info['height'];
+                        }
+                        $info['frame_rate'] = $stream['r_frame_rate'] ?? null;
+                        if ($info['frame_rate']) {
+                            $parts = explode('/', $info['frame_rate']);
+                            if (count($parts) == 2 && $parts[1] != 0) {
+                                $info['frame_rate'] = round($parts[0] / $parts[1], 2) . ' fps';
+                            }
+                        }
+                        break;
+                    }
+                }
+                
+                foreach ($data['streams'] as $stream) {
+                    if ($stream['codec_type'] === 'audio') {
+                        $info['audio_codec'] = $stream['codec_name'] ?? null;
+                        $info['sample_rate'] = isset($stream['sample_rate']) ? $stream['sample_rate'] . ' Hz' : null;
+                        $info['channels'] = $stream['channels'] ?? null;
+                        if ($info['channels']) {
+                            $channelNames = ['', 'Mono', 'Stereo', '2.1', '5.1', '7.1'];
+                            $info['channel_layout'] = $channelNames[$info['channels']] ?? $info['channels'] . ' channels';
+                        }
+                        break;
+                    }
+                }
+                
+                return $info;
             }
         }
     }
     
-    if (!empty($upload_errors)) {
-        $error_message = urlencode(implode("\n", $upload_errors));
-        header("Location: " . $_SERVER['PHP_SELF'] . "?error=" . $error_message);
-        exit;
-    }
-}
-
-if (isset($_GET['delete'])) {
-    $file = $upload_dir . '/' . basename($_GET['delete']);
-    if (file_exists($file)) {
-        unlink($file);
-        header('Location: ' . $_SERVER['PHP_SELF']);
-        exit;
-    }
-}
-
-if (isset($_POST['rename'])) {
-    $oldName = $_POST['old_name'];
-    $newName = trim($_POST['new_name']);
-
-    $oldPath = $upload_dir . DIRECTORY_SEPARATOR . basename($oldName);
-    $newPath = $upload_dir . DIRECTORY_SEPARATOR . basename($newName);
-
-    $error = '';
-    if (!file_exists($oldPath)) {
-        $error = 'Original file does not exist';
-    } elseif ($newName === '') {
-        $error = 'File name cannot be empty';
-    } elseif (preg_match('/[\\\\\/:*?"<>|]/', $newName)) {
-        $error = 'Contains invalid characters: \/:*?"<>|';
-    } elseif (file_exists($newPath)) {
-        $error = 'Target file already exists';
-    }
-
-    if (!$error) {
-        if (rename($oldPath, $newPath)) {
-            header("Location: " . $_SERVER['REQUEST_URI']);
-            exit();
-        } else {
-            $error = 'Operation failed (permissions/character issues)';
+    if (file_exists($ffmpegPath)) {
+        $cmd = $ffmpegPath . " -i " . escapeshellarg($filePath) . " 2>&1";
+        $output = shell_exec($cmd);
+        
+        if ($output) {
+            $info['type'] = in_array($extension, ['mp3', 'wav', 'ogg', 'flac', 'm4a', 'aac']) ? 'audio' : 'video';
+            
+            if (preg_match('/Duration:\s*(\d+):(\d+):(\d+\.\d+)/', $output, $matches)) {
+                $hours = intval($matches[1]);
+                $minutes = intval($matches[2]);
+                $seconds = intval($matches[3]);
+                $info['duration'] = sprintf("%02d:%02d:%02d", $hours, $minutes, $seconds);
+            }
+            
+            if (preg_match('/bitrate:\s*(\d+)\s*kb\/s/', $output, $matches)) {
+                $info['bitrate'] = $matches[1] . ' kbps';
+            }
+            
+            if (preg_match('/(\d{3,4})x(\d{3,4})/', $output, $matches)) {
+                $info['width'] = intval($matches[1]);
+                $info['height'] = intval($matches[2]);
+                $info['resolution'] = $matches[1] . 'x' . $matches[2];
+            }
+            
+            if (preg_match('/Stream.*Video:\s*([a-zA-Z0-9]+)/', $output, $matches)) {
+                $info['video_codec'] = $matches[1];
+            }
+            
+            if (preg_match('/Stream.*Audio:\s*([a-zA-Z0-9]+)/', $output, $matches)) {
+                $info['audio_codec'] = $matches[1];
+            }
+            
+            if (preg_match('/Stream.*Audio:.*?(\d+)\s*Hz/', $output, $matches)) {
+                $info['sample_rate'] = $matches[1] . ' Hz';
+            }
         }
     }
-
-    if ($error) {
-        echo '<div class="alert alert-danger mb-3">Error: ' 
-             . htmlspecialchars($error, ENT_QUOTES, 'UTF-8') 
-             . '</div>';
-    }
+    
+    return !empty($info) ? $info : null;
 }
 
-if (isset($_GET['download'])) {
-    $file = $_GET['download'];
-    $filePath = $upload_dir . '/' . $file;
+function extractArchive($archivePath, $destination, $type) {
+    global $ARCHIVE_TOOLS, $ROOT_DIR;
+    
+    $type = strtolower($type);
+    
+    $absArchivePath = realpath($archivePath) ?: $archivePath;
+    $absDestination = $destination;
+    
+    $absArchivePath = str_replace('//', '/', $absArchivePath);
+    $absDestination = str_replace('//', '/', $absDestination);
+    
+    if (strpos($absDestination, $ROOT_DIR) !== 0) {
+        return false;
+    }
+    
+    if (!file_exists($absArchivePath)) {
+        return false;
+    }
+    
+    if (!file_exists($absDestination)) {
+        @mkdir($absDestination, 0755, true);
+    }
+    
+    if (!is_writable($absDestination)) {
+        return false;
+    }
+    
+    if ($type === 'zip' && class_exists('ZipArchive')) {
+        $zip = new ZipArchive();
+        if ($zip->open($absArchivePath) === TRUE) {
+            $result = $zip->extractTo($absDestination);
+            $zip->close();
+            return $result;
+        }
+        return false;
+    }
+    
+    $absArchivePath = escapeshellarg($absArchivePath);
+    $absDestination = escapeshellarg($absDestination);
+    
+    switch($type) {
+        case 'zip':
+            if (!commandExists($ARCHIVE_TOOLS['unzip'])) return false;
+            $cmd = "cd $absDestination && {$ARCHIVE_TOOLS['unzip']} -q $absArchivePath 2>&1";
+            break;
+            
+        case 'tar':
+            if (!commandExists($ARCHIVE_TOOLS['tar'])) return false;
+            $cmd = "cd $absDestination && {$ARCHIVE_TOOLS['tar']} -xf $absArchivePath 2>&1";
+            break;
+            
+        case 'gz':
+            if (!commandExists($ARCHIVE_TOOLS['gunzip'])) return false;
+            $outputFile = pathinfo(trim($absArchivePath, "'"), PATHINFO_FILENAME);
+            $cmd = "cd $absDestination && {$ARCHIVE_TOOLS['gunzip']} -c $absArchivePath > " . escapeshellarg($outputFile) . " 2>&1";
+            break;
+            
+        case 'tar.gz':
+        case 'tgz':
+            if (!commandExists($ARCHIVE_TOOLS['tar'])) return false;
+            $cmd = "cd $absDestination && {$ARCHIVE_TOOLS['tar']} -xzf $absArchivePath 2>&1";
+            break;
+            
+        case 'bz2':
+            if (!commandExists($ARCHIVE_TOOLS['bunzip2'])) return false;
+            $outputFile = pathinfo(trim($absArchivePath, "'"), PATHINFO_FILENAME);
+            $cmd = "cd $absDestination && {$ARCHIVE_TOOLS['bunzip2']} -c $absArchivePath > " . escapeshellarg($outputFile) . " 2>&1";
+            break;
+            
+        case 'tar.bz2':
+        case 'tbz2':
+            if (!commandExists($ARCHIVE_TOOLS['tar'])) return false;
+            $cmd = "cd $absDestination && {$ARCHIVE_TOOLS['tar']} -xjf $absArchivePath 2>&1";
+            break;
+            
+        case '7z':
+            if (!commandExists($ARCHIVE_TOOLS['7z'])) return false;
+            $cmd = "{$ARCHIVE_TOOLS['7z']} x $absArchivePath -o$absDestination -y 2>&1";
+            break;
+            
+        case 'rar':
+            if (!commandExists($ARCHIVE_TOOLS['rar'])) return false;
+            $cmd = "cd $absDestination && {$ARCHIVE_TOOLS['rar']} x $absArchivePath 2>&1";
+            break;
+            
+        default:
+            return false;
+    }
+    
+    $output = shell_exec($cmd);
+    
+    if ($output && (strpos($output, 'error') !== false || strpos($output, 'Error') !== false)) {
+        return false;
+    }
+    
+    return true;
+}
 
-    if (file_exists($filePath)) {
-        header('Content-Description: File Transfer');
-        header('Content-Type: application/octet-stream');
-        header('Content-Disposition: attachment; filename="' . basename($filePath) . '"');
-        header('Expires: 0');
-        header('Cache-Control: must-revalidate');
-        header('Pragma: public');
-        header('Content-Length: ' . filesize($filePath));
-        readfile($filePath);
+function createArchive($source, $destination, $type) {
+    global $ARCHIVE_TOOLS;
+    
+    $type = strtolower($type);
+    
+    if ($type === 'zip' && class_exists('ZipArchive')) {
+        $zip = new ZipArchive();
+        if ($zip->open($destination, ZipArchive::CREATE | ZipArchive::OVERWRITE) === TRUE) {
+            
+            if (is_array($source)) {
+                foreach ($source as $file) {
+                    if (file_exists($file)) {
+                        if (is_dir($file)) {
+                            $iterator = new RecursiveIteratorIterator(
+                                new RecursiveDirectoryIterator($file, RecursiveDirectoryIterator::SKIP_DOTS),
+                                RecursiveIteratorIterator::SELF_FIRST
+                            );
+                            
+                            $basePath = rtrim($file, '/') . '/';
+                            
+                            foreach ($iterator as $item) {
+                                $filePath = $item->getRealPath();
+                                
+                                $relativePath = substr($filePath, strlen($basePath));
+                                
+                                if ($item->isDir()) {
+                                    $zip->addEmptyDir(basename($file) . '/' . $relativePath);
+                                } else {
+                                    $zip->addFile($filePath, basename($file) . '/' . $relativePath);
+                                }
+                            }
+                        } else {
+                            $zip->addFile($file, basename($file));
+                        }
+                    }
+                }
+            } 
+            else {
+                if (is_dir($source)) {
+                    $iterator = new RecursiveIteratorIterator(
+                        new RecursiveDirectoryIterator($source, RecursiveDirectoryIterator::SKIP_DOTS),
+                        RecursiveIteratorIterator::SELF_FIRST
+                    );
+                    
+                    $basePath = rtrim($source, '/') . '/';
+                    
+                    foreach ($iterator as $item) {
+                        $filePath = $item->getRealPath();
+                        $relativePath = substr($filePath, strlen($basePath));
+                        
+                        if ($item->isDir()) {
+                            $zip->addEmptyDir($relativePath);
+                        } else {
+                            $zip->addFile($filePath, $relativePath);
+                        }
+                    }
+                } else {
+                    $zip->addFile($source, basename($source));
+                }
+            }
+            
+            $result = $zip->close();
+            return $result;
+        }
+        return false;
+    }
+    
+    $destination = escapeshellarg($destination);
+    
+    switch($type) {
+        case 'zip':
+            if (!commandExists($ARCHIVE_TOOLS['zip'])) return false;
+            
+            if (is_array($source)) {
+                $dirs = [];
+                $files = [];
+                
+                foreach ($source as $file) {
+                    if (is_dir($file)) {
+                        $parentDir = dirname($file);
+                        $dirName = basename($file);
+                        $cmd = "cd " . escapeshellarg($parentDir) . " && {$ARCHIVE_TOOLS['zip']} -r $destination $dirName 2>&1";
+                        $output = shell_exec($cmd);
+                        
+                        if ($output && (stripos($output, 'error') !== false || stripos($output, 'failed') !== false)) {
+                            return false;
+                        }
+                    } else {
+                        $files[] = escapeshellarg($file);
+                    }
+                }
+                
+                if (!empty($files)) {
+                    $filesList = implode(' ', $files);
+                    $cmd = "{$ARCHIVE_TOOLS['zip']} $destination $filesList 2>&1";
+                    $output = shell_exec($cmd);
+                    
+                    if ($output && (stripos($output, 'error') !== false || stripos($output, 'failed') !== false)) {
+                        return false;
+                    }
+                }
+                
+                return file_exists(trim($destination, "'"));
+                
+            } else {
+                $source = escapeshellarg($source);
+                if (is_dir($source)) {
+                    $parentDir = dirname(trim($source, "'"));
+                    $dirName = basename(trim($source, "'"));
+                    $cmd = "cd " . escapeshellarg($parentDir) . " && {$ARCHIVE_TOOLS['zip']} -r " . basename($destination) . " $dirName 2>&1";
+                } else {
+                    $cmd = "{$ARCHIVE_TOOLS['zip']} $destination $source 2>&1";
+                }
+            }
+            break;
+
+        case '7z':
+            if (!commandExists($ARCHIVE_TOOLS['7z'])) {
+                error_log("7z command not found");
+                return false;
+            }
+            
+            if (is_array($source)) {
+                $files = array();
+                foreach ($source as $file) {
+                    $files[] = escapeshellarg($file);
+                }
+                $filesList = implode(' ', $files);
+                $cmd = "{$ARCHIVE_TOOLS['7z']} a $destination $filesList 2>&1";
+            } else {
+                $source = escapeshellarg($source);
+                $cmd = "{$ARCHIVE_TOOLS['7z']} a $destination $source 2>&1";
+            }
+            break;
+            
+        case 'tar':
+            if (!commandExists($ARCHIVE_TOOLS['tar'])) return false;
+            
+            if (is_array($source)) {
+                $files = implode(' ', array_map('escapeshellarg', $source));
+                $cmd = "{$ARCHIVE_TOOLS['tar']} -cf $destination $files 2>&1";
+            } else {
+                $source = escapeshellarg($source);
+                $cmd = "{$ARCHIVE_TOOLS['tar']} -cf $destination $source 2>&1";
+            }
+            break;
+            
+        case 'gz':
+            if (!commandExists($ARCHIVE_TOOLS['gzip'])) return false;
+            if (is_array($source)) {
+                return false;
+            }
+            $source = escapeshellarg($source);
+            $cmd = "{$ARCHIVE_TOOLS['gzip']} -c $source > $destination 2>&1";
+            break;
+            
+        case 'bz2':
+            if (!commandExists($ARCHIVE_TOOLS['bzip2'])) return false;
+            if (is_array($source)) {
+                return false;
+            }
+            $source = escapeshellarg($source);
+            $cmd = "{$ARCHIVE_TOOLS['bzip2']} -c $source > $destination 2>&1";
+            break;
+            
+        default:
+            return false;
+    }
+    
+    $output = shell_exec($cmd);
+    
+    if ($output && (stripos($output, 'error') !== false || stripos($output, 'failed') !== false)) {
+        error_log("Compress error: $output - Command: $cmd");
+        return false;
+    }
+    
+    $destFile = trim($destination, "'");
+    if (!file_exists($destFile)) {
+        $destFile = trim($destination, '"');
+    }
+    
+    return file_exists($destFile);
+}
+
+function commandExists($command) {
+    $output = shell_exec("which $command 2>/dev/null");
+    return !empty($output);
+}
+
+function searchFilesByName($rootDir, $searchTerm) {
+    global $EXCLUDE_DIRS;
+    
+    $results = [];
+    
+    if (!is_dir($rootDir) || !is_readable($rootDir)) {
+        return $results;
+    }
+    
+    try {
+        $iterator = new RecursiveIteratorIterator(
+            new RecursiveDirectoryIterator($rootDir, RecursiveDirectoryIterator::SKIP_DOTS),
+            RecursiveIteratorIterator::SELF_FIRST
+        );
+        
+        foreach ($iterator as $file) {
+            $filePath = $file->getPathname();
+            $realPath = realpath($filePath);
+            
+            if (!$realPath) continue;
+            
+            foreach ($EXCLUDE_DIRS as $exclude) {
+                if (strpos($realPath, $exclude) === 0) {
+                    continue 2;
+                }
+            }
+            
+            $fileName = $file->getFilename();
+            $isDir = $file->isDir();
+            
+            if (fnmatch($searchTerm, $fileName, FNM_CASEFOLD)) {
+                $results[] = [
+                    'name' => $fileName,
+                    'path' => $filePath,
+                    'dir' => dirname($filePath),
+                    'is_dir' => $isDir,
+                    'size' => $isDir ? 0 : $file->getSize(),
+                    'size_formatted' => formatFileSize($isDir ? 0 : $file->getSize()),
+                    'modified' => $file->getMTime(),
+                    'modified_formatted' => date('Y-m-d H:i:s', $file->getMTime()),
+                    'extension' => $isDir ? '' : strtolower($file->getExtension())
+                ];
+                
+                if (count($results) >= 100) break;
+            }
+        }
+    } catch (Exception $e) {
+    }
+    
+    return $results;
+}
+
+function copyDirectory($source, $dest) {
+    if (!is_dir($dest)) {
+        if (!mkdir($dest, 0755, true)) {
+            return false;
+        }
+    }
+    
+    $iterator = new RecursiveIteratorIterator(
+        new RecursiveDirectoryIterator($source, RecursiveDirectoryIterator::SKIP_DOTS),
+        RecursiveIteratorIterator::SELF_FIRST
+    );
+    
+    foreach ($iterator as $item) {
+        $target = $dest . '/' . $iterator->getSubPathName();
+        
+        if ($item->isDir()) {
+            if (!is_dir($target)) {
+                if (!mkdir($target)) {
+                    return false;
+                }
+            }
+        } else {
+            if (!copy($item, $target)) {
+                return false;
+            }
+        }
+    }
+    
+    return true;
+}
+
+function deleteDirectory($dir) {
+    if (!file_exists($dir)) return true;
+    
+    if (!is_dir($dir)) return @unlink($dir);
+    
+    $items = scandir($dir);
+    foreach ($items as $item) {
+        if ($item == '.' || $item == '..') continue;
+        
+        $path = $dir . '/' . $item;
+        if (is_dir($path)) {
+            deleteDirectory($path);
+        } else {
+            @unlink($path);
+        }
+    }
+    
+    return @rmdir($dir);
+}
+
+function getMimeType($ext) {
+    $mimeMap = [
+        'jpg' => 'image/jpeg', 'jpeg' => 'image/jpeg', 'png' => 'image/png',
+        'gif' => 'image/gif', 'bmp' => 'image/bmp', 'webp' => 'image/webp',
+        'svg' => 'image/svg+xml', 'ico' => 'image/x-icon',
+        'mp3' => 'audio/mpeg', 'wav' => 'audio/wav', 'ogg' => 'audio/ogg',
+        'flac' => 'audio/flac', 'm4a' => 'audio/mp4', 'aac' => 'audio/aac',
+        'mp4' => 'video/mp4', 'avi' => 'video/x-msvideo', 'mkv' => 'video/x-matroska',
+        'mov' => 'video/quicktime', 'wmv' => 'video/x-ms-wmv', 'flv' => 'video/x-flv',
+        'webm' => 'video/webm',
+        'pdf' => 'application/pdf', 'zip' => 'application/zip',
+        'tar' => 'application/x-tar', 'gz' => 'application/gzip', 'bz2' => 'application/x-bzip2',
+        '7z' => 'application/x-7z-compressed', 'rar' => 'application/x-rar-compressed',
+        'txt' => 'text/plain', 'log' => 'text/plain', 'conf' => 'text/plain',
+        'ini' => 'text/plain', 'json' => 'application/json', 'xml' => 'application/xml',
+        'html' => 'text/html', 'css' => 'text/css', 'js' => 'application/javascript',
+        'php' => 'application/x-httpd-php', 'py' => 'text/x-python', 'sh' => 'application/x-sh',
+        'md' => 'text/markdown'
+    ];
+    
+    return $mimeMap[strtolower($ext)] ?? 'application/octet-stream';
+}
+
+function getMediaInfo($path) {
+    $ffmpegPath = '/usr/bin/ffmpeg';
+    if (!file_exists($ffmpegPath)) {
+        $ffmpegPath = 'ffmpeg';
+    }
+    
+    $cmd = "$ffmpegPath -i \"" . escapeshellarg($path) . "\" 2>&1";
+    $output = shell_exec($cmd);
+    
+    if (!$output) return null;
+    
+    $info = [];
+    
+    if (preg_match('/Duration:\s*(\d+):(\d+):(\d+\.\d+)/', $output, $matches)) {
+        $hours = intval($matches[1]);
+        $minutes = intval($matches[2]);
+        $seconds = floatval($matches[3]);
+        $totalSeconds = $hours * 3600 + $minutes * 60 + $seconds;
+        $info['duration'] = sprintf("%02d:%02d:%02d", $hours, $minutes, $seconds);
+        $info['duration_seconds'] = $totalSeconds;
+    }
+    
+    if (preg_match('/bitrate:\s*(\d+)\s*kb\/s/', $output, $matches)) {
+        $info['bitrate'] = $matches[1] . ' kbps';
+    }
+    
+    if (preg_match('/(\d{3,4})x(\d{3,4})/', $output, $matches)) {
+        $info['resolution'] = $matches[1] . 'x' . $matches[2];
+        $info['width'] = intval($matches[1]);
+        $info['height'] = intval($matches[2]);
+    }
+    
+    if (preg_match('/Stream.*Audio:.*?(\d+)\s*Hz/', $output, $matches)) {
+        $info['sample_rate'] = $matches[1] . ' Hz';
+    }
+    
+    if (preg_match('/Stream.*Video:.*?([a-zA-Z0-9]+)/', $output, $matches)) {
+        $info['video_codec'] = $matches[1];
+    }
+    
+    if (preg_match('/Stream.*Audio:.*?([a-zA-Z0-9]+)/', $output, $matches)) {
+        $info['audio_codec'] = $matches[1];
+    }
+    
+    return empty($info) ? null : $info;
+}
+
+if (isset($_GET['preview']) && $_GET['preview'] == '1' && isset($_GET['path'])) {
+    $filePath = urldecode($_GET['path']);
+    $filePath = preg_replace('/#.*$/', '', $filePath);   
+    $filePath = preg_replace('#/+#', '/', $filePath);
+    if (substr($filePath, 0, 1) !== '/') {
+        $filePath = '/' . $filePath;
+    }
+    
+    $realPath = realpath($filePath);
+    if (!$realPath || strpos($realPath, $ROOT_DIR) !== 0) {
+        http_response_code(403);
+        header('Content-Type: text/plain');
+        exit('Access Denied: Invalid path');
+    }
+    
+    foreach ($EXCLUDE_DIRS as $exclude) {
+        if (strpos($realPath, $exclude) === 0) {
+            http_response_code(403);
+            header('Content-Type: text/plain');
+            exit('Access Denied: Path is excluded');
+        }
+    }
+    
+    if (file_exists($realPath) && is_readable($realPath)) {
+        $ext = strtolower(pathinfo($realPath, PATHINFO_EXTENSION));
+        $mimeMap = [
+            'jpg' => 'image/jpeg', 'jpeg' => 'image/jpeg', 'svg' => 'image/svg+xml',
+            'png' => 'image/png', 'gif' => 'image/gif', 'svgz' => 'image/svg+xml',
+            'bmp' => 'image/bmp', 'webp' => 'image/webp',
+            'mp3' => 'audio/mpeg', 'wav' => 'audio/wav',
+            'ogg' => 'audio/ogg', 'flac' => 'audio/flac',
+            'm4a' => 'audio/mp4', 'aac' => 'audio/aac',
+            'mp4' => 'video/mp4', 'avi' => 'video/x-msvideo',
+            'mkv' => 'video/x-matroska', 'mov' => 'video/quicktime',
+            'wmv' => 'video/x-ms-wmv', 'flv' => 'video/x-flv',
+            'webm' => 'video/webm'
+        ];
+        
+        $mimeType = $mimeMap[$ext] ?? 'application/octet-stream';
+        
+        header('Content-Type: ' . $mimeType);
+        header('Content-Length: ' . filesize($realPath));
+        header('Cache-Control: max-age=3600');
+        readfile($realPath);
         exit;
     } else {
-        $error = "File not found: " . htmlspecialchars($file);
+        http_response_code(404);
+        header('Content-Type: text/plain');
+        exit('File not found or not readable: ' . $filePath);
     }
 }
 
-if (isset($_POST['batch_delete'])) {
-    $deleted_files = [];
-    foreach ($_POST['filenames'] as $filename) {
-        $file = $upload_dir . '/' . basename($filename);
-        if (file_exists($file)) {
-            unlink($file);
-            $deleted_files[] = $filename;
+function getCpuUsageSimple() {
+    if (!is_readable('/proc/stat')) {
+        return 0;
+    }
+    
+    $content1 = @file_get_contents('/proc/stat');
+    if ($content1 === false) {
+        return 0;
+    }
+    
+    $lines1 = explode("\n", $content1);
+    if (empty($lines1[0])) {
+        return 0;
+    }
+    
+    if (function_exists('time_nanosleep')) {
+        time_nanosleep(0, 100000000);
+    } else {
+        $start = microtime(true);
+        while (microtime(true) - $start < 0.1) {
         }
     }
+    
+    $content2 = @file_get_contents('/proc/stat');
+    if ($content2 === false) {
+        return 0;
+    }
+    
+    $lines2 = explode("\n", $content2);
+    if (empty($lines2[0])) {
+        return 0;
+    }
+    
+    $cpu1 = preg_split('/\s+/', trim($lines1[0]));
+    $cpu2 = preg_split('/\s+/', trim($lines2[0]));
+    
+    if (count($cpu1) < 5 || count($cpu2) < 5) {
+        return 0;
+    }
+    
+    $total1 = intval($cpu1[1]) + intval($cpu1[2]) + intval($cpu1[3]) + intval($cpu1[4]);
+    $idle1 = intval($cpu1[4]);
+    
+    $total2 = intval($cpu2[1]) + intval($cpu2[2]) + intval($cpu2[3]) + intval($cpu2[4]);
+    $idle2 = intval($cpu2[4]);
+    
+    $totalDiff = $total2 - $total1;
+    $idleDiff = $idle2 - $idle1;
+    
+    if ($totalDiff > 0) {
+        $usage = (($totalDiff - $idleDiff) / $totalDiff) * 100;
+        return round($usage, 1);
+    }
+    
+    return 0;
+}
+
+if (isset($_GET['ajax']) && $_GET['ajax'] == '1') {
     header('Content-Type: application/json');
-    echo json_encode(['success' => true, 'deleted_files' => $deleted_files]);
+
+    $dt = json_decode(shell_exec("ubus call system board"), true);
+    $devices = $dt['model'] ?? 'Unknown';
+    
+    $cpuUsage = getCpuUsageSimple();
+
+    $tmpramTotal = exec("cat /proc/meminfo | grep MemTotal | awk '{print \$2}'");
+    $tmpramAvailable = exec("cat /proc/meminfo | grep MemAvailable | awk '{print \$2}'");
+    
+    $tmpramTotal = intval($tmpramTotal);
+    $tmpramAvailable = intval($tmpramAvailable);
+    
+    $ramTotal = number_format(($tmpramTotal / 1024), 1);
+    $ramAvailable = number_format(($tmpramAvailable / 1024), 1);
+    $ramUsage = number_format((($tmpramTotal - $tmpramAvailable) / 1024), 1);
+    $memUsage = $tmpramTotal > 0 ? round((($tmpramTotal - $tmpramAvailable) / $tmpramTotal) * 100, 1) : 0;
+    
+    $raw_uptime = exec("cat /proc/uptime | awk '{print \$1}'");
+    $days = floor($raw_uptime / 86400);
+    $hours = floor(($raw_uptime / 3600) % 24);
+    $minutes = floor(($raw_uptime / 60) % 60);
+    $seconds = floor($raw_uptime % 60);
+    $uptimeText = "{$days} days {$hours} hours {$minutes} minutes {$seconds} seconds";
+    
+    $cpuLoad = shell_exec("cat /proc/loadavg");
+    $cpuLoad = explode(' ', $cpuLoad);
+    $cpuLoadAvg1Min = round($cpuLoad[0], 2);
+    $cpuLoadAvg5Min = round($cpuLoad[1], 2);
+    $cpuLoadAvg15Min = round($cpuLoad[2], 2);
+    
+    $timezone = trim(shell_exec("uci get system.@system[0].zonename 2>/dev/null"));
+    if (!$timezone) {
+        $timezone = trim(shell_exec("cat /etc/TZ 2>/dev/null"));
+        if (!$timezone) {
+            $timezone = 'UTC';
+        }
+    }
+    date_default_timezone_set($timezone);
+    $currentTime = date("Y-m-d H:i:s");
+    
+    $cpuTemp = '--';
+    $tempFiles = [
+        '/sys/class/thermal/thermal_zone0/temp',
+        '/sys/devices/virtual/thermal/thermal_zone0/temp'
+    ];
+    foreach ($tempFiles as $tempFile) {
+        if (file_exists($tempFile)) {
+            $temp = intval(file_get_contents($tempFile));
+            if ($temp > 0) {
+                $cpuTemp = $temp > 1000 ? round($temp / 1000, 1) : round($temp, 1);
+                break;
+            }
+        }
+    }
+    
+    $cpuCores = exec("grep -c '^processor' /proc/cpuinfo");
+    $cpuCores = intval($cpuCores) ?: 1;
+    
+    $cpuFreq = '--';
+    $freqFiles = [
+        '/sys/devices/system/cpu/cpu0/cpufreq/scaling_cur_freq',
+        '/sys/devices/system/cpu/cpu0/cpufreq/cpuinfo_cur_freq',
+        '/proc/cpuinfo'
+    ];
+    
+    foreach ($freqFiles as $freqFile) {
+        if (file_exists($freqFile)) {
+            if ($freqFile === '/proc/cpuinfo') {
+                $freqContent = file_get_contents($freqFile);
+                if (preg_match('/cpu MHz\s*:\s*([\d.]+)/', $freqContent, $matches)) {
+                    $freq = floatval($matches[1]);
+                    $cpuFreq = round($freq, 0) . ' MHz';
+                    break;
+                }
+            } else {
+                $freqContent = file_get_contents($freqFile);
+                if ($freqContent !== false) {
+                    $freq = intval(trim($freqContent));
+                    if ($freq > 0) {
+                        if ($freq > 1000) {
+                            $cpuFreq = round($freq / 1000, 1) . ' GHz';
+                        } else {
+                            $cpuFreq = $freq . ' MHz';
+                        }
+                        break;
+                    }
+                }
+            }
+        }
+    }
+    
+    $processCount = intval(shell_exec("ps | wc -l")) - 1;
+    
+    $networkRx = 0;
+    $networkTx = 0;
+    
+    $netStat = @file('/proc/net/dev');
+    if ($netStat) {
+        $interfaces = ['br-lan', 'eth0', 'eth1', 'wlan0', 'wlan1'];
+        
+        foreach ($netStat as $line) {
+            if (strpos($line, ':') === false) continue;
+            
+            foreach ($interfaces as $interface) {
+                $pattern = '/^\s*' . $interface . ':\s+(\d+)\s+\d+\s+\d+\s+\d+\s+\d+\s+\d+\s+\d+\s+\d+\s+(\d+)/';
+                if (preg_match($pattern, $line, $matches)) {
+                    $networkRx = intval($matches[1]);
+                    $networkTx = intval($matches[2]);
+                    break 2;
+                }
+            }
+        }
+    }
+    
+    if ($networkRx == 0 && $networkTx == 0 && $netStat) {
+        foreach ($netStat as $line) {
+            if (strpos($line, ':') !== false && !preg_match('/^\s*lo:/', $line)) {
+                if (preg_match('/^\s*(\w+):\s+(\d+)\s+\d+\s+\d+\s+\d+\s+\d+\s+\d+\s+\d+\s+\d+\s+(\d+)/', $line, $matches)) {
+                    $networkRx = intval($matches[2]);
+                    $networkTx = intval($matches[3]);
+                    break;
+                }
+            }
+        }
+    }
+    
+    $diskInfo = disk_free_space('/') !== false ? [
+        'total' => disk_total_space('/'),
+        'free' => disk_free_space('/'),
+        'used' => disk_total_space('/') - disk_free_space('/')
+    ] : null;
+    
+    $diskUsage = $diskInfo ? round(($diskInfo['used'] / $diskInfo['total']) * 100, 1) : 0;
+    $diskTotal = $diskInfo ? round($diskInfo['total'] / (1024*1024*1024), 2) : 0;
+    $diskUsed = $diskInfo ? round($diskInfo['used'] / (1024*1024*1024), 2) : 0;
+
+    $openwrtVersion = trim(shell_exec("cat /etc/openwrt_release | grep 'DISTRIB_DESCRIPTION' | cut -d'=' -f2 | sed \"s/['\\\"]//g\""));
+    if (!$openwrtVersion) {
+        $openwrtVersion = trim(shell_exec("cat /etc/openwrt_release | grep 'DISTRIB_DESCRIPTION' | awk -F\"='\" '{print \$2}' | sed \"s/'//g\""));
+    }
+    if (!$openwrtVersion) {
+        $openwrtVersion = $dt['release']['distribution'] . ' ' . $dt['release']['version'] ?? 'Unknown';
+    }
+    
+    $kernelVersion = trim(shell_exec("uname -r"));
+    if (!$kernelVersion) {
+        $kernelVersion = trim(shell_exec("cat /proc/version | awk '{print \$3}'"));
+    }
+    
+    $boardInfo = json_decode(shell_exec("ubus call system board"), true);
+    $boardModel = $boardInfo['model'] ?? 'Unknown';
+    
+    echo json_encode([
+        'success' => true,
+        'cpu_usage' => $cpuUsage,
+        'mem_usage' => $memUsage,
+        'mem_total' => $ramTotal,
+        'mem_used' => $ramUsage,
+        'mem_free' => $ramAvailable,
+        'cpu_temp' => $cpuTemp,
+        'process_count' => $processCount,
+        'cpu_cores' => $cpuCores,
+        'cpu_freq' => $cpuFreq,
+        'network_rx' => $networkRx,
+        'network_tx' => $networkTx,
+        'load_avg' => "$cpuLoadAvg1Min, $cpuLoadAvg5Min, $cpuLoadAvg15Min",
+        'uptime' => $uptimeText,
+        'system_time' => $currentTime,
+        'timezone' => $timezone,
+        'disk_usage' => $diskUsage,
+        'disk_total' => $diskTotal,
+        'disk_used' => $diskUsed,
+        'openwrt_version' => $openwrtVersion,
+        'kernel_version' => $kernelVersion,
+        'board_model' => $boardModel
+    ]);
     exit;
 }
 
-$files = array_diff(scandir($upload_dir), ['..', '.', '.htaccess', 'index.php']);
-$files = array_filter($files, function ($file) use ($upload_dir) {
-    $ext = pathinfo($file, PATHINFO_EXTENSION);
-    return !in_array(strtolower($ext), ['php', 'txt', 'json']) && basename($file) !== 'shares' && !is_dir($upload_dir . DIRECTORY_SEPARATOR . $file);
-});
+function getDiskInfo($path = '/') {
+    $freeSpace = @disk_free_space($path);
+    $totalSpace = @disk_total_space($path);
+    
+    if ($freeSpace === false || $totalSpace === false) {
+        return null;
+    }
+    
+    $usedSpace = $totalSpace - $freeSpace;
+    $usedPercent = $totalSpace > 0 ? round(($usedSpace / $totalSpace) * 100, 1) : 0;
+    
+    $free_mb = round($freeSpace / (1024*1024), 1);
+    $total_mb = round($totalSpace / (1024*1024), 1);
+    $used_mb = round($usedSpace / (1024*1024), 1);
+    
+    return [
+        'free' => $freeSpace,
+        'total' => $totalSpace,
+        'used' => $usedSpace,
+        'used_percent' => $usedPercent,
+        'free_mb' => $free_mb,
+        'total_mb' => $total_mb,
+        'used_mb' => $used_mb
+    ];
+}
 
-if (isset($_GET['background'])) {
-    $background_src = 'stream/' . htmlspecialchars($_GET['background']);
-    $ext = strtolower(pathinfo($background_src, PATHINFO_EXTENSION));
-    if (in_array($ext, ['jpg', 'jpeg', 'png', 'gif'])) {
-        $background_type = 'image';
-    } elseif (in_array($ext, ['mp4', 'webm', 'mkv'])) {
-        $background_type = 'video';
+function scanDirectory($path, $maxDepth = 5) {
+    global $EXCLUDE_DIRS;
+    $files = [];
+    $seenFiles = [];
+    
+    if (!is_dir($path) || !is_readable($path)) {
+        return $files;
+    }
+    
+    $path = preg_replace('#/+#', '/', $path);
+    
+    foreach ($EXCLUDE_DIRS as $exclude) {
+        if (strpos($path, $exclude) === 0) {
+            return $files;
+        }
+    }
+    
+    try {
+        $iterator = new RecursiveIteratorIterator(
+            new RecursiveDirectoryIterator($path, RecursiveDirectoryIterator::SKIP_DOTS),
+            RecursiveIteratorIterator::SELF_FIRST,
+            RecursiveIteratorIterator::CATCH_GET_CHILD
+        );
+        
+        foreach ($iterator as $file) {
+            if ($iterator->getDepth() > $maxDepth) {
+                $iterator->next();
+                continue;
+            }
+            
+            if ($file->isFile() && $file->isReadable()) {
+                $filePath = $file->getPathname();
+                $realPath = realpath($filePath);
+                
+                if (!$realPath) continue;
+                
+                $excluded = false;
+                foreach ($EXCLUDE_DIRS as $exclude) {
+                    if (strpos($realPath, $exclude) === 0) {
+                        $excluded = true;
+                        break;
+                    }
+                }
+                
+                if ($excluded) continue;
+
+                $fileName = $file->getFilename();
+                $fileSize = $file->getSize();
+                $fileKey = $fileName . '_' . $fileSize;
+                
+                if (isset($seenFiles[$fileKey])) {
+                    continue;
+                }
+                
+                $seenFiles[$fileKey] = true;
+                
+                $files[] = [
+                    'path' => $realPath,
+                    'name' => $file->getFilename(),
+                    'size' => $file->getSize(),
+                    'mtime' => $file->getMTime(),
+                    'ext' => strtolower($file->getExtension()),
+                    'safe_path' => htmlspecialchars($realPath, ENT_QUOTES, 'UTF-8'),
+                    'safe_name' => htmlspecialchars($file->getFilename(), ENT_QUOTES, 'UTF-8')
+                ];
+            }
+        }
+    } catch (Exception $e) {
+    }
+    
+    return $files;
+}
+
+function formatFileSize($bytes) {
+    if ($bytes == 0) return "0 B";
+    $units = ['B', 'KB', 'MB', 'GB', 'TB'];
+    $i = floor(log($bytes, 1024));
+    return round($bytes / pow(1024, $i), 2) . ' ' . $units[$i];
+}
+
+function getVideoThumbnail($videoPath) {
+    return "?thumbnail=1&path=" . urlencode($videoPath);
+}
+
+$media = ['music' => [], 'video' => [], 'image' => []];
+$files = scanDirectory($ROOT_DIR);
+
+foreach ($files as $file) {
+    $ext = $file['ext'];
+    foreach ($TYPE_EXT as $type => $exts) {
+        if (in_array($ext, $exts)) {
+            $media[$type][] = $file;
+            break;
+        }
     }
 }
-?>
 
-<?php
-if (!empty($_GET['error'])) {
-    echo '<div class="alert alert-danger mt-3 mx-3" role="alert" id="log-message">';
-    echo nl2br(htmlspecialchars(urldecode($_GET['error'])));
-    echo '</div>';
+foreach ($media as &$files) {
+    usort($files, function($a, $b) {
+        return $b['mtime'] - $a['mtime'];
+    });
 }
+
+$diskInfo = getDiskInfo('/');
+$recent = isset($_COOKIE['recent_media']) ? json_decode($_COOKIE['recent_media'], true) : [];
+$systemInfo = [
+    'cpu_usage' => 0,
+    'mem_usage' => 0,
+    'mem_total' => 0,
+    'mem_used' => 0,
+    'mem_free' => 0,
+    'uptime' => '',
+    'load_avg' => '',
+    'system_time' => date('Y-m-d H:i:s'),
+    'timezone' => 'UTC'
+];
 ?>
 
 <head>
-    <meta charset="utf-8">
-    <title>Media File Management</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title data-translate="openwrt_media_center">OpenWrt Media Center</title>
     <?php include './spectra.php'; ?>
-    <script>
-        const phpBackgroundType = '<?= $background_type ?>';
-        const phpBackgroundSrc = '<?= $background_src ?>';
-    </script>
-
-    <style>
-      #mainContainer { display: none; }
-    </style>
-
-    <script>
-      document.addEventListener('DOMContentLoaded', function() {
-        try {
-            const container = document.getElementById('mainContainer');
-              if (!container) return;
-
-              const isFullscreen = localStorage.getItem('fullscreenState') === 'true';
-        
-              container.classList.toggle('container-fluid', isFullscreen);
-              container.classList.toggle('container-sm', !isFullscreen);
-
-              container.style.display = 'block';
-        
-              const toggleBtn = document.getElementById('toggleScreenBtn');
-              if (toggleBtn) {
-                  const icon = toggleBtn.querySelector('i');
-                  icon.className = isFullscreen ? 'bi-fullscreen-exit' : 'bi-arrows-fullscreen';
-              }
-
-              toggleBtn.addEventListener('click', function() {
-                  const isNowFullscreen = container.classList.contains('container-fluid');
-                  const icon = this.querySelector('i');
-            
-                  container.classList.toggle('container-fluid', !isNowFullscreen);
-                  container.classList.toggle('container-sm', isNowFullscreen);
-            
-                  icon.className = isNowFullscreen ? 'bi-arrows-fullscreen' : 'bi-fullscreen-exit';
-                  localStorage.setItem('fullscreenState', !isNowFullscreen);
-              });
-
-          } catch (error) {
-              const container = document.getElementById('mainContainer');
-              if (container) container.style.display = 'block';
-          }
-      });
-    </script>
+</head>
 
 <style>
-html,
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
 body {
-        color: var(--text-primary);
-        -webkit-backdrop-filter: blur(10px);
-        transition: all 0.3s ease;
-        font-family: 'Fredoka One', cursive;
-        font-weight: 400; 
-        background: inherit !important;
-        font-family: var(--font-family, -apple-system, BlinkMacSystemFont, sans-serif);
+    font-family: var(--font-family, -apple-system, BlinkMacSystemFont, sans-serif);
+    background: var(-bg-container) !important;
+    color: var(--text-primary);
+    height: 100vh;
+    overflow: hidden;
 }
 
-.container-bg,
-.card,
-.modal-content,
-.table {
-        --bg-l: oklch(30% 0 0); 
-        color: oklch(calc(100% - var(--bg-l)) 0 0);
-}
-
-.container-bg {
-        padding: 20px;
-	border-radius: 10px;
-	background: var(--bg-container);
-        margin-top: 15px !important;
-        box-shadow: 1px 0 3px -2px color-mix(in oklch, var(--bg-container), black 30%) !important;
-}
-
-.time-display {
-	font-size: 1.4rem !important;
-	color: var(--text-primary);
-	padding: 6px 12px !important;
-	display: flex !important;
-	align-items: center !important;
-	flex-wrap: wrap !important;
-	gap: 8px !important;
-}
-
-.week-display {
-	color: var(--text-secondary);
-	margin-left: 6px !important;
-}
-
-.lunar-text {
-	color: var(--text-secondary);
-}
-
-#timeDisplay {
-	font-weight: 500 !important;
-	color: var(--accent-color);
-	margin-left: auto !important;
-}
-
-.modern-time {
-	font-weight: 500 !important;
-}
-
-.ancient-time {
-	margin-left: 4px !important;
-	letter-spacing: 1px !important;
-}
-
-.card {
-	background: var(--card-bg);
-	border: 1px solid var(--border-color);
-        border-radius: 1rem;
-        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
-        transition: all 0.3s ease;
-        overflow: hidden;
-
-}
-
-.card:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-}
-
-.card img,
-.card video {
-        border-top-left-radius: 1rem;
-        border-top-right-radius: 1rem;
-}
-
-.card-header {
-	background: var(--card-bg) !important;
-	border-bottom: 1px solid var(--card-bg);
-}
-
-.table {
-	--bs-table-bg: var(--card-bg);
-	--bs-table-color: var(--text-primary);
-	--bs-table-border-color: var(--border-color);
-	--bs-table-striped-bg: rgba(0, 0, 0, 0.05);
-}
-
-.btn {
-	border-radius: 8px;
-	font-weight: bold;
-	transition: transform 0.2s;
-}
-
-.btn:hover {
-	transform: scale(1.1);
-}
-
-.btn-primary {
-	background: var(--btn-primary-bg);
-	border: 1px solid var(--border-color);
-}
-
-.btn-info {
-	background-color: var(--btn-info-bg) !important;
-	color: white !important;
-	border: none !important; 
-
-	&:hover {
-		background-color: var(--btn-info-hover) !important;
-		color: white !important;
-	}
-}
-
-.btn-warning {
-	background-color: var(--btn-warning-bg) !important;
-	color: white !important;
-	border: none !important; 
-
-	&:hover {
-		background-color: var(--btn-warning-hover) !important;
-		color: white !important;
-	}
-}
-
-#status {
-	font-size: 22px;
-	color: var(--accent-color) !important;
-}
-
-h5,
-h2 {
-	color: var(--accent-color) !important;
-        font-weight: bold;
-}
-
-.img-thumbnail {
-	background: var(--bg-container);
-	border: 1px solid var(--border-color);
-}
-
-#toggleButton {
-        background-color: var(--sand-bg);
-
-}
-
-label {
-	color: var(--text-primary) !important;
-}
-
-label[for="selectAll"] {
-	margin-left: 8px;
-	vertical-align: middle;
-}
-
-.preview-container {
-	position: relative;
-	width: 100%;
-	height: 300px; 
-	overflow: hidden;
-	display: flex;
-	align-items: center;
-	justify-content: center;
-}
-
-.file-info-overlay {
-	position: absolute;
-	bottom: 0;
-	left: 0;
-	right: 0;
-	background: rgba(0,0,0,0.7);
-	color: white;
-	padding: 0.5rem;
-	transform: translateY(100%);
-	transition: 0.2s;
-	font-size: 0.8em;
-}
-
-.file-type-indicator {
-	position: absolute;
-	top: 8px;
-	right: 8px;
-	z-index: 2;
-	background: rgba(0,0,0,0.6);
-	padding: 4px 10px;
-	border-radius: 15px;
-	display: flex;
-	align-items: center;
-	gap: 6px;
-	backdrop-filter: blur(2px);
-}
-
-.preview-container:hover .file-info-overlay {
-	transform: translateY(0);
-}
-
-.preview-img {
-    position: absolute;
-    min-width: 100%;
-    min-height: 100%;
-    object-fit: cover; 
-}
-
-.preview-container:hover .preview-img {
-	transform: scale(1.05);
-}
-
-.video-wrapper {
-	width: 100%;
-	height: 0;
-	padding-top: 56.25%;
-	position: relative;
-}
-
-.preview-video {
-	position: absolute;
-	top: 0;
-	left: 0;
-	width: 100%;
-	height: 100%;
-        object-fit: cover; 
-}
-
-.preview-video:hover::after {
-	content: "";
-	position: absolute;
-	top: 50%;
-	left: 50%;
-	transform: translate(-50%,-50%);
-	width: 40px;
-	height: 40px;
-	background: rgba(255,255,255,0.8) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='%23000000'%3E%3Cpath d='M8 5v14l11-7z'/%3E%3C/svg%3E") no-repeat center;
-	border-radius: 50%;
-	opacity: 0.8;
-	pointer-events: none;
-}
-
-.card:hover .preview-img {
-	transform: scale(1.03);
-}
-
-.fileCheckbox {
-	margin-right: 8px;
-	transform: scale(1.2);
-}
-
-#previewImage, #previewVideo {
-        max-width: 100%;
-        max-height: 100vh;
-        object-fit: contain;  
-}
-
-.card-body.pt-2.mt-2 .d-flex {
-        justify-content: center;
-}
-
-.card-body.pt-2.mt-2 .d-flex .btn {
-        margin: 0 5px; 
-}
-
-.d-flex {
-        white-space: nowrap;
-}
-
-#playlistContainer .list-group-item {
-	cursor: pointer;
-	transition: background-color 0.3s, transform 0.2s;
-	padding: 0.75rem 1rem;
-	word-wrap: break-word;
-	word-break: break-word;
-	overflow-wrap: break-word;
-	white-space: normal;
-	background-color: var(--card-bg);
-	color: var(--playlist-text);
-	border-left: var(--item-border);
-}
-
-#playlistContainer .list-group-item:hover {
-	background-color: var(--item-hover-bg) !important;
-	box-shadow: var(--item-hover-shadow);
-	transform: scale(1.02);
-	--playlist-text: oklch(100% 0 0); 
-	color: var(--playlist-text);
-}
-
-[data-theme="light"] #playlistContainer .list-group-item:hover {
-	--playlist-text: oklch(20% 0 0); 
-}
-
-#playlistContainer .badge {
-	width: 24px;
-	text-align: center;
-	font-weight: normal;
-	background-color: var(--btn-primary-bg);
-	color: var(--text-primary);
-}
-
-#playlistContainer .delete-item {
-	opacity: 0.6;
-	transition: opacity 0.3s;
-	color: var(--text-primary);
-}
-
-#playlistContainer .delete-item:hover {
-	opacity: 1;
-}
-
-#playlistContainer {
-	overflow-x: hidden;
-	overflow-y: auto;
-	background-color: var(--bg-container);
-}
-
-#playlistContainer .text-truncate {
-	display: inline-block;
-	width: 100%;
-	white-space: normal;
-	word-wrap: break-word;
-	word-break: break-word;
-	font-size: 1.1em;
-	line-height: 1.4;
-	color: var(--text-primary);
-}
-
-#playlistContainer .list-group-item {
-	padding: 1rem 1.5rem;
-	margin-bottom: 3px;
-	border-radius: 6px;
-	transition: all 0.3s ease;
-	background-color: var(--card-bg);
-	color: var(--text-primary);
-}
-
-#playlistContainer .list-group-item:nth-child(odd) {
-	background-color: var(--card-bg);
-	border-left: 3px solid var(--border-color);
-	color: var(--text-primary);
-}
-
-#playlistContainer .list-group-item:nth-child(even) {
-	background-color: var(--card-bg);
-	border-left: 3px solid var(--border-color);
-	color: var(--text-primary);
-}
-
-#playlistContainer .list-group-item.active {
-	background: var(--color-accent) !important;  
-	border-color: var(--color-accent);      
-	box-shadow: none;
-	z-index: 2;
-	color: var(--text-primary);
-}
-
-#playlistContainer .list-group-item:hover {
-	background-color: var(--color-accent);
-	transform: translateX(5px);
-	cursor: pointer;
-}
-
-.text-muted {
-	color: var(--accent-color) !important;
-	font-size: 1.2em;
-	letter-spacing: 0.5px;
-	opacity: 0.7;
-}
-
-::-webkit-scrollbar {
-	width: 8px;
-        opacity: 0 !important;
-        transition: opacity 0.3s ease-in-out;
-}
-
-::-webkit-scrollbar-thumb {
-	background: var(--accent-color);
-	border-radius: 4px;
-}
-
-::-webkit-scrollbar-track {
-	margin: 50px 0;
-}
-
-body:hover, 
-.container:hover, 
-#playlistContainer:hover {
-	overflow-x: hidden !important;
-        overflow-y: auto !important;
-}
-
-#playlistContainer {
-        cursor: default; 
-}
-
-#playlistContainer:hover {
-        cursor: grab;    
-}
-
-#playlistContainer:active {
-        cursor: grabbing;
-}
-
-::-webkit-scrollbar:horizontal {
-	display: none !important;
-	height: 0 !important;
-}
-
-@supports (scrollbar-width: none) {
-	html {
-		scrollbar-width: none !important;
-	}
-}
-
-.drop-zone {
-	position: relative;
-	border: 2px dashed transparent;
-	border-radius: 10px;
-	padding: 2rem;
-	z-index: 1;
-}
-
-.drop-zone::before {
-	content: "";
-	position: absolute;
-	top: -2px;
-	left: -2px;
-	right: -2px;
-	bottom: -2px;
-	z-index: -1;
-	border: 2px dashed var(--bs-primary);
-	border-radius: 10px;
-	animation: border-wave 2s linear infinite;
-	pointer-events: none;
-	mask-image: linear-gradient(90deg, #000 50%, transparent 0%);
-	mask-size: 10px 100%;
-	mask-repeat: repeat;
-	-webkit-mask-image: linear-gradient(90deg, #000 50%, transparent 0%);
-	-webkit-mask-size: 10px 100%;
-	-webkit-mask-repeat: repeat;
-}
-
-@keyframes border-wave {
-	0% {
-		mask-position: 0 0;
-	}
-
-	100% {
-		mask-position: 100% 0;
-	}
-}
-
-.drop-zone:hover::before {
-	border-color: var(--accent-color);
-}
-
-.upload-icon {
-	font-size: 50px;
-	color: var(--accent-color);
-	margin-bottom: 15px;
-}
-
-.upload-text {
-	font-size: 18px;
-	font-weight: 500;
-	color: var(--text-primary);
-	margin-bottom: 10px;
-}
-
-#customUploadButton {
-	--btn-hover-bg: color-mix(in oklch, var(--btn-primary-bg), white 8%);
-	background: var(--btn-primary-bg);
-	position: relative;
-	overflow: hidden;
-	&: :after {
-		content: "";
-	position: absolute;
-	top: 0;
-	left: 0;
-	width: 100%;
-	height: 100%;
-	background: radial-gradient(circle at 50% 50%, 
-			oklch(100% 0 0 / 0.15) 0%, 
-			transparent 70%);
-	opacity: 0;
-	transition: opacity 0.3s ease;
-}
-	
-	&:hover {
-	background: var(--btn-hover-bg);
-	transform: translateY(-2px) scale(1.05);
-	&: :after {
-			opacity: 1;
-}
-	}
-}
-
-.file-list {
-	max-height: 200px;
-	overflow-y: auto;
-	background: var(--file-list-bg);
-	border: 1px solid var(--file-list-border);
-	scrollbar-width: thin;
-	scrollbar-color: var(--accent-color) transparent;
-	&: :-webkit-scrollbar-thumb {
-		background: var(--accent-color);
-	border-radius: 4px;
-}
-}
-
-.file-list-item {
-	border-bottom-color: color-mix(in oklch, var(--file-list-border), transparent 50%);
-	transition: background 0.2s ease;
-	&: hover {
-		background: color-mix(in oklch, var(--btn-primary-bg), transparent 80%);
-}
-}
-
-.remove-file {
-	color: var(--accent-color) !important;
-	transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.remove-file:hover {
-	color: oklch(65% 0.25 15) !important;
-	filter: drop-shadow(0 0 4px oklch(65% 0.3 15 / 0.3));
-	transform: scale(1.15);
-}
-
-[data-theme="light"] .remove-file:hover {
-	color: oklch(50% 0.3 15) !important;
-	filter: drop-shadow(0 0 6px oklch(50% 0.3 15 / 0.2));
-}
-
-@keyframes danger-pulse {
-	0% {
-		opacity: 0.8;
-	}
-
-	50% {
-		opacity: 1;
-	}
-
-	100% {
-		opacity: 0.8;
-	}
-}
-
-.remove-file:hover::after {
-	position: absolute;
-	right: -1.2em;
-	top: 50%;
-	transform: translateY(-50%);
-	animation: danger-pulse 1.5s ease infinite;
-	filter: hue-rotate(-20deg);
-}
-
-.file-list-item {
-	display: flex;
-	justify-content: space-between;
-	align-items: center;
-	padding: 8px 12px;
-	min-height: 42px;
-}
-
-.remove-file {
-	display: inline-flex !important;
-	align-items: center;
-	justify-content: center;
-	width: 24px;
-	height: 24px;
-	margin-left: 12px;
-	font-size: 1.25rem;
-	vertical-align: middle;
-	position: relative;
-	top: 1px;
-}
-
-.bi-file-earmark {
-	font-size: 1.1rem;
-	margin-right: 10px;
-	position: relative;
-	top: -1px;
-}
-
-.file-list-item > div:first-child {
-	display: inline-flex;
-	align-items: center;
-	max-width: calc(100% - 40px);
-	line-height: 1.4;
-}
-
-.file-list-item:last-child {
-	border-bottom: none;
-}
-
-.file-list-item i {
-	color: var(--accent-color);
-	margin-right: 8px;
-}
-
-.card:hover .fileCheckbox {
-        filter: drop-shadow(0 0 3px rgba(13, 110, 253, 0.5));
-}
-
-@media (max-width: 576px) {
-        .fileCheckbox {
-            transform: scale(1.1) !important;
-        }
-}
-</style>
-
-<style>
-.custom-btn {
-    padding: 4px 8px;
-    font-size: 14px;
-    gap: 4px;
-}
-
-.custom-btn i {
-    font-size: 16px;
-}
-
-.d-flex .custom-btn {
-    margin: 0 4px;
-}
-
-.share-btn.custom-btn {
-    background-color: #ffc107;
-    color: #fff;
-    padding: 6px 8px;
-    font-size: 14px;
-}
-
-.share-btn.custom-btn i {
-    font-size: 16px;
-}
-
-.set-bg-btn.custom-btn {
-    background-color: #17a2b8;
-    color: #fff;
-    padding: 6px 8px;
-    font-size: 14px;
-}
-
-#previewModal .modal-body {
-    height: 65vh;
+.main-container {
     display: flex;
-    align-items: center;
-    justify-content: center;
-    position: relative; 
+    height: 100vh;
+    padding-top: 20px;
+    box-sizing: border-box; 
 }
 
-#previewImage,
-#previewVideo {
-    max-height: 100%;
-    width: 100%;
-    object-fit: contain;
+.content-area {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    transition: all 0.3s ease;
 }
 
-#previewAudio {
-    width: auto;
-    max-width: 80%;
-    margin: 20px auto 0;
-    display: block;
-    border-radius: 10px;
-    padding: 5px 10px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-}
-
-#previewAudio.d-none {
+.content-area.fullscreen {
     display: none;
 }
 
-.hover-tips {
-    font-size: 1.3rem;
+.top-bar {
+    padding: 20px 30px;
+    background: var(--bg-container);
+
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.logo h1 {
+    font-size: 1.5rem;
     color: var(--accent-color);
-    margin-top: 10px; 
-
+    display: flex;
+    align-items: center;
+    gap: 10px;
 }
 
-.file-info-overlay p {
-    margin-bottom: 0.5rem; 
-    text-align: left; 
+.stats {
+    display: flex;
+    gap: 25px;
 }
 
-.preview-nav-btn {
+.stat-item {
+    text-align: center;
+}
+
+.stat-value {
+    font-size: 1.3rem;
+    font-weight: bold;
+    color: var(--accent-color);
+    display: block;
+}
+
+.stat-label {
+    font-size: 0.85rem;
+    color: var(--text-primary);
+    margin-top: 3px;
+}
+
+.actions {
+    display: flex;
+    gap: 10px;
+}
+
+.side-nav {
+    width: 240px;
+    background: var(--bg-container) !important;
+    box-shadow: 1px 0 3px -2px color-mix(in oklch, var(--bg-container), black 30%);
+    padding: 20px 15px;
+    overflow-y: auto;
+    color: var(--text-primary) !important;
+}
+
+.nav-section {
+    margin-bottom: 20px;
+}
+
+.nav-section-title {
+    color: var(--text-primary);
+    font-size: 0.9rem;
+    text-transform: uppercase;
+    padding: 0 0 10px;
+    border-bottom: var(--border-strong);
+    margin-bottom: 15px;
+}
+
+.side-nav .nav-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 15px;
+    margin: 5px 0;
+    color: var(--text-primary);
+    text-decoration: none;
+    letter-spacing: 0.5px;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+    border: var(--border-strong);
+    border-left-width: 3px;
+    border-left-color: transparent;
+    border-radius: 8px;
+    transition:
+        background-color 0.3s ease,
+        color 0.3s ease,
+        transform 0.25s ease,
+        border-left-color 0.3s ease;
+    will-change: transform;
+}
+
+.side-nav .nav-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 15px;
+    color: var(--text-primary);
+    text-decoration: none;
+    transition: all 0.3s;
+    border: var(--border-strong) !important;
+    border-left: 3px solid transparent;
+    border-radius: 8px;
+    margin: 5px 0;
+    cursor: pointer;
+    letter-spacing: 0.5px;
+    position: relative;
+    overflow: hidden;
+}
+
+.side-nav .nav-item::before {
+    content: '';
     position: absolute;
     top: 50%;
-    transform: translateY(-50%);
-    font-size: 3rem;
-    color: var(--nav-btn-color); 
+    left: 50%;
+    width: 0;
+    height: 0;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.3);
+    transform: translate(-50%, -50%);
+    transition: width 0.6s, height 0.6s;
+}
+
+.side-nav .nav-item:hover::before {
+    width: 300%;
+    height: 300%;
+}
+
+.side-nav .nav-item:hover {
+    background-color: var(--accent-secondary) !important;
+    color: white !important;
+    transform: translateX(3px);
+}
+
+.nav-item.active {
+    background: var(--accent-color);
+    color: white;
+} 
+
+.nav-icon {
+    font-size: 1.2rem;
+    width: 24px;
+    margin-right: 12px;
+}
+
+.media-grid-container {
+    flex: 1;
+    padding: 30px;
+    overflow-y: auto;
+    background: var(--card-bg);
+}
+
+.grid-title {
+    font-size: 1.4rem;
+    margin-bottom: 20px;
+    color: var(--accent-tertiary);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.media-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 20px;
+}
+
+.media-item {
+    background: var(--bg-container);
+    border-radius: 10px;
+    overflow: hidden;
     cursor: pointer;
+    transition: all 0.3s;
+    border: var(--border-strong);
+    position: relative;
+}
+
+.media-item:hover {
+    transform: translateY(-5px);
+    border-color: var(--bg-container);
+    box-shadow: 0 10px 20px rgba(0,0,0,0.3);
+}
+
+.media-thumb {
+    width: 100%;
+    height: 140px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    overflow: hidden;
+}
+
+.media-thumb img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.media-thumb i {
+    font-size: 2.5rem;
+    color: white;
+}
+
+.media-info {
+    padding: 15px;
+}
+
+.media-name {
+    font-weight: 600;
+    margin-bottom: 8px;
+    color: var(--text-primary);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.media-meta {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+}
+
+.player-area {
+    width: 50%;
+    background: var(--bg-container);
+    display: none;
+    flex-direction: column;
+    border-left: var(--border-strong);
+}
+
+.player-area.active {
+    display: flex;
+}
+
+.player-header {
+    padding: 20px;
+    background: var(--bg-container);
+    border-bottom: var(--border-strong);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.player-title {
+    font-size: 1.2rem;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.player-actions {
+    display: flex;
+    gap: 10px;
+}
+
+.player-btn {
+    background: var(--btn-primary-bg);
+    border: var(--border-strong);
+    color: #ffffff;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+}
+
+.player-btn:hover {
+    background: var(--item-hover-bg);
+}
+
+.player-content {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+}
+
+#imageViewer {
+    max-width: 100%;
+    max-height: 80vh;
+    border-radius: 8px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+}
+
+.fullscreen-player {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: #000;
     z-index: 1000;
-    opacity: 0;
-    transition: opacity 0.3s;
+    display: none;
 }
 
-.modal-content:hover .preview-nav-btn {
-    opacity: 1;
+.fullscreen-player.active {
+    display: flex;
+    flex-direction: column;
 }
 
-#prevBtn {
-    left: 20px;
+.fullscreen-header {
+    padding: 20px;
+    background: var(--bg-container);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 1001;
 }
 
-#nextBtn {
-    right: 20px;
+.fullscreen-content {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+    padding: 0;
+    margin: 0;
 }
 
-.loading-spinner {
+#fullscreenVideo {
+    width: 100%;
+    height: 100%;
+    background: #000;
+    object-fit: contain;
+}
+
+#fullscreenAudio {
+    width: 80%;
+    max-width: 800px;
+    background: #000;
+    position: relative;
+    z-index: 1002;
+}
+
+#fullscreenImage {
+    width: auto;
+    height: auto;
+    max-width: 95%;
+    max-height: 95%;
+    object-fit: contain;
+    margin: auto;
+}
+
+#fullscreenPlayError {
+    color: #fff;
+    text-align: center;
+    padding: 40px;
     position: absolute;
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    width: 40px;
-    height: 40px;
-    border: 3px solid var(--border-color);
-    border-top: 3px solid var(--accent-color);
-    border-radius: 50%;
-    animation: spin 1s linear infinite;
-    display: none;
+    background: rgba(0, 0, 0, 0.8);
+    border-radius: 10px;
 }
 
-@keyframes spin {
-    0% { transform: translate(-50%, -50%) rotate(0deg); }
-    100% { transform: translate(-50%, -50%) rotate(360deg); }
+.player-content {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    position: relative;
 }
 
-@keyframes pulse {
-    0% { transform: scale(1); }
-    50% { transform: scale(1.2); }
-    100% { transform: scale(1); }
+#videoPlayer {
+    width: 100%;
+    max-height: calc(100vh - 120px);
+    background: #000;
+    border-radius: 8px;
+    object-fit: contain;
 }
 
-.drag-handle {
-    cursor: grab;
-    z-index: 10;
-    user-select: none;
-}
-.sortable-chosen .drag-handle {
-    cursor: grabbing;
+#audioPlayer {
+    width: 100%;
+    max-width: 600px;
+    border-radius: 8px;
 }
 
-[data-filename] {
-    cursor: grab;
-}
-.sortable-chosen {
-    cursor: grabbing !important;
-}
-
-.upload-area i {
-    animation: pulse 1s infinite;
+#imageViewer {
+    max-width: 90%;
+    max-height: 80vh;
+    border-radius: 8px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+    object-fit: contain;
 }
 
-.file-checkbox-wrapper {
+.fullscreen-player {
+    animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+.fullscreen-player:fullscreen #fullscreenVideo::-webkit-media-controls-panel,
+.fullscreen-player:fullscreen #fullscreenAudio::-webkit-media-controls-panel {
     opacity: 0;
-    transition: opacity 0.2s ease-in-out;
+    transition: opacity 0.3s;
 }
 
-.fileCheckbox:checked + .file-checkbox-wrapper,
-.file-checkbox-wrapper.force-visible {
-    opacity: 1 !important;
+.fullscreen-player:fullscreen:hover #fullscreenVideo::-webkit-media-controls-panel,
+.fullscreen-player:fullscreen:hover #fullscreenAudio::-webkit-media-controls-panel {
+    opacity: 1;
 }
 
-@media (min-width: 768px) {
-    .card:hover .file-checkbox-wrapper:not(.force-visible) {
-        opacity: 1;
+@media (max-width: 768px) {
+    .player-area {
+        width: 100%;
+    }
+    
+    #fullscreenAudio {
+        width: 90%;
+    }
+    
+    #fullscreenImage {
+        max-width: 98%;
+        max-height: 90%;
     }
 }
 
-@media (max-width: 767.98px) {
-    .file-checkbox-wrapper {
+@media (hover: none) and (pointer: coarse) {
+    #fullscreenVideo::-webkit-media-controls-panel,
+    #fullscreenAudio::-webkit-media-controls-panel {
         opacity: 1 !important;
     }
 }
 
-@media (max-width: 576px) {
-    .card-body .btn {
-        font-size: 0.75rem !important;  
-        padding: 0.25rem 0.5rem !important; 
-        white-space: nowrap;  
-    }
- }
-
-@media (max-width: 768px) {
-    #previewAudio {
-        width: 95% !important;
-        max-width: none;
-    }
+.empty-state {
+    text-align: center;
+    padding: 60px 20px;
+    color: #666;
+    background:var(--bg-container);
+    border-radius: 12px;
+    border: var(--border-strong);
 }
 
-@media (max-width: 768px) {
-    .me-3.d-flex.gap-2.mt-4.ps-2 {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 0.3rem;
-        padding-left: 15px; 
-        margin-bottom: 0.5rem !important; 
-  }
-
-@media (max-width: 768px) {
-    .controls {
-        gap: 0.1rem;  
-    }
-
-    .controls .control-btn {
-        font-size: 0.7rem;  
-        padding: 0.1rem 0.2rem;  
-        border-radius: 50%;  
-    }
-
-    .controls .btn {
-        padding: 0.1rem 0.2rem; 
-    }
+.empty-icon {
+    font-size: 3.5rem;
+    margin-bottom: 20px;
+    opacity: 0.5;
+    color: #4CAF50;
 }
 
-@media (max-width: 575.98px) {
-  .time-display {
-    display: flex !important;
-    flex-wrap: wrap !important;
-    gap: 0.25rem 0.5rem !important;
-    font-size: 1.05rem !important;
-  }
-
-  .time-display > span {
-    box-sizing: border-box;
-    white-space: nowrap !important;
-    overflow: visible !important;
-  }
-
-  .time-display > span:nth-child(1),
-  .time-display > span:nth-child(2) {
-    flex: 0 0 33.33% !important;
-    order: 1;
-  }
-
-  .time-display > span:nth-child(3),
-  .time-display > span:nth-child(4) {
-    flex: 0 0 100% !important;
-    order: 2;
-    margin-top: 0.25rem !important;
-    text-align: center !important;
-  }
-
-  .lunar-text {
-    font-size: 1.05rem !important;
-    letter-spacing: -0.3px !important;
-  }
+.recent-list {
+    padding: 20px;
 }
 
-@media (max-width: 576px) {
-  #fontToggleBtn {
-    margin-right: 8px;
-  }
-  #langBtnWrapper {
-    margin-left: 6px;
-  }
+.recent-item {
+    display: flex;
+    align-items: center;
+    padding: 12px 15px;
+    background: var(--bg-container);
+    border-radius: 8px;
+    margin-bottom: 10px;
+    cursor: pointer;
+    transition: all 0.2s;
+    border: var(--border-strong);
 }
 
-@media (max-width: 576px) {
-  .share-btn.custom-btn {
-    display: none !important;
-  }
+.recent-item:hover {
+    background: var(--bg-container);
+    border-color: #4CAF50;
 }
 
-@media (max-width: 576px) {
-  .custom-btn {
-    margin-right: 0px !important;
-  }
+.recent-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 6px;
+    background: var(--bg-container);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 15px;
+    color: #4CAF50;
 }
 
-@media (max-width: 575.98px) {
-  #fontToggleBtn {
-    min-height: 26px;
-    padding: 8px 14px;
-  }
-
-  #fontToggleBtn i {
-    font-size: 1.1rem;
-  }
+.recent-info {
+    flex: 1;
+    min-width: 0;
 }
 
-@media (max-width: 576px) {
-    .card-body .custom-btn {
-        padding: 0.2rem 0.3rem !important;
-        font-size: 0.8rem !important;
-    }
+.recent-name {
+    font-weight: 500;
+    margin-bottom: 3px;
+    color: var(--text-primary);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
-@media (max-width: 576px) {
-    #fileGrid .card {
-        padding: 0.25rem;
-    }
-
-    #fileGrid .card .card-body {
-        padding: 0.25rem;
-    }
-
-    #fileGrid .card h5,
-    #fileGrid .card p,
-    #fileGrid .card .file-info-overlay p {
-        font-size: 0.75rem;
-        margin: 0.125rem 0;
-    }
-
-    #fileGrid .card .preview-container {
-        max-height: 180px;
-        overflow: hidden;
-    }
-
-    #fileGrid .card .custom-btn {
-        padding: 0.25rem 0.4rem;
-        font-size: 0.75rem;
-    }
+.recent-path {
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
-@media (max-width: 768px) {
-    .btn i {
-        font-size: 0.8rem !important;
-        margin-left: 3px;
-    }
+::-webkit-scrollbar {
+    width: 8px;
 }
 
-@media (max-width: 575.98px) {
-  #selectAll-container input[type="checkbox"] {
-    transform: scale(1) !important;
-    width: 1em !important;
-    height: 1em !important;
-    margin-left: 0 !important;
-    margin-right: 0.3rem !important;
+::-webkit-scrollbar-track {
+    background-color: color-mix(in oklch, var(--header-bg), transparent 75%);
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--accent-color);
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: var(--item-hover-bg);
+}
+
+.loading {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: white;
+    font-size: 14px;
+}
+
+.warning-badge {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: #ff9800;
+    color: white;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 0.7rem;
+    font-weight: bold;
+}
+
+.media-item {
+    animation: fadeIn 0.3s ease forwards;
+    opacity: 0;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.fullscreen-player video {
+    width: 100vw;
+    height: 100vh;
+    object-fit: contain;
+}
+
+.fullscreen-player img {
+    max-width: 95vw;
+    max-height: 95vh;
+    object-fit: contain;
+}
+
+.skeleton {
+    background: linear-gradient(90deg, #2c2c2c 25%, #333 50%, #2c2c2c 75%);
+    background-size: 200% 100%;
+    animation: loading 1.5s infinite;
+}
+
+@keyframes loading {
+    0% { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
+}
+
+.context-menu {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 450px;
+    background: #2c2c2c;
+    border: var(--border-strong);
+    border-radius: 10px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+    z-index: 1000000;
+    display: none;
+}
+
+.context-menu-header {
+    display: flex;
+    align-items: center;
+    padding: 15px 20px;
+    background: var(--header-bg);
+    border-radius: 10px 10px 0 0;
+}
+
+.context-menu-header i {
+    color: #4CAF50;
+    margin-right: 10px;
+    font-size: 1.2rem;
+}
+
+.context-menu-header span {
+    font-weight: bold;
+    flex: 1;
+}
+
+.context-menu-content {
+    padding: 20px;
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+.info-item {
+    display: flex;
+    margin-bottom: 15px;
+    align-items: flex-start;
+}
+
+#mediaContextMenu {
+    background: var(--bg-container);
+}
+
+.info-label {
+    width: 100px;
+    color: var(--text-secondary);
+    font-size: 0.9rem;
     flex-shrink: 0;
-  }
-
-  #selectAll-container {
-    flex-wrap: nowrap !important;
-    gap: 0.2rem !important;
-    overflow-x: auto;
-  }
-
-  #selectAll-container input[type="checkbox"] {
-    margin-right: 0.15rem !important;
-  }
-
-  #selectAll-container label[for="selectAll"] {
-    margin-right: 0.2rem !important;
-  }
-
-  #selectAll-container input[type="color"],
-  #selectAll-container button {
-    margin-right: 0.2rem !important;
-  }
 }
 
+.info-value {
+    flex: 1;
+    color: var(--text-primary);
+    word-break: break-all;
+    line-height: 1.4;
+}
+
+.context-menu-actions {
+    display: flex;
+    padding: 15px 20px;
+    border-top: var(--border-strong);
+    gap: 10px;
+}
+
+.context-menu-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 9999;
+    display: none;
+}
+
+.chart-container {
+    position: relative;
+    width: 100%;
+}
+
+.chart-canvas {
+    width: 100% !important;
+    height: 100% !important;
+}
+
+@keyframes pulse {
+    0% { opacity: 0.7; }
+    50% { opacity: 1; }
+    100% { opacity: 0.7; }
+}
+
+.critical {
+    animation: pulse 1s infinite;
+}
+
+.status-card {
+    background: #333;
+    border-radius: 10px;
+    padding: 15px;
+    transition: all 0.3s;
+}
+
+.status-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+}
+
+.system-time {
+    font-family: 'Courier New', monospace;
+    letter-spacing: 1px;
+}
+
+.time-updating {
+    animation: timePulse 1s infinite;
+}
+
+@keyframes timePulse {
+    0% { opacity: 0.8; }
+    50% { opacity: 1; }
+    100% { opacity: 0.8; }
+}
+
+@media (max-width: 768px) {
+    #homeSection > div:first-child {
+        grid-template-columns: 1fr;
+    }
+
+    .system-status-grid {
+        grid-template-columns: 1fr !important;
+    }
+    
+    .system-charts {
+        grid-template-columns: 1fr;
+    }
+    
+    .real-time-stats {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 480px) {
+    .real-time-stats {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 1200px) {
+    .main-container {
+        flex-direction: column;
+    }
+    
+    .player-area {
+        width: 100%;
+        height: 50vh;
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        z-index: 1000;
+    }
+    
+    .content-area {
+        height: 50vh;
+    }
+    
+    .side-nav {
+        width: 100%;
+        height: auto;
+        flex-direction: row;
+        overflow-x: auto;
+        padding: 10px;
+    }
+    
+    .nav-section {
+        padding: 15px;
+        border-bottom: none;
+        border-right: 1px solid #333;
+    }
+}
+
+@media (max-width: 768px) {
+    .media-grid {
+        grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+        gap: 12px;
+    }
+    
+    .top-bar {
+        padding: 15px;
+        flex-wrap: wrap;
+    }
+    
+    .stats {
+        order: 3;
+        width: 100%;
+        justify-content: space-around;
+        margin-top: 15px;
+    }
+
+    .side-nav {
+        width: 180px;
+        padding: 15px 0;
+    }
+    
+    .nav-item {
+        padding: 10px 12px;
+    }
+
+    .logo h1 {
+        margin-bottom: 12px;
+    }
+}
+
+.media-item:focus-visible,
+.nav-item:focus-visible,
+.action-btn:focus-visible {
+    outline: 2px solid #4CAF50;
+    outline-offset: 2px;
+}
+
+.hover-playable {
+    position: relative;
+}
+
+.hover-video-container {
+    z-index: 100 !important;
+}
+
+@media (hover: none) and (pointer: coarse) {
+    .media-item:hover {
+        transform: none;
+    }
+    
+    .action-btn,
+    .player-btn {
+        min-height: 44px;
+        min-width: 44px;
+    }
+}
+
+.side-nav.collapsed {
+    width: 70px;
+    padding: 20px 10px;
+}
+
+.side-nav.collapsed .nav-item span:not(.nav-icon),
+.side-nav.collapsed .nav-section-title,
+.side-nav.collapsed .system-status {
+    display: none;
+}
+
+.side-nav.collapsed .lunar-sidebar {
+    display: none !important;
+}
+
+.side-nav.collapsed .nav-item {
+    padding: 12px;
+    justify-content: center;
+    margin: 5px 0;
+}
+
+.side-nav.collapsed .nav-icon {
+    margin: 0;
+    font-size: 1.3rem;
+}
+
+.fa-server {
+    cursor: pointer !important;
+    transition: transform 0.3s ease !important;
+    padding: 2px;
+    border-radius: 3px;
+}
+
+.fa-server:hover {
+    background: rgba(76, 175, 80, 0.1);
+    transform: rotate(90deg);
+}
+
+.side-nav.collapsed ~ #contentArea .fa-server {
+    transform: rotate(90deg);
+}
+
+.resizer {
+    width: 5px;
+    background: var(--bg-container);
+    cursor: col-resize;
+    position: relative;
+    z-index: 100;
+    transition: background 0.2s;
+    margin: 0 -2px;
+}
+
+.resizer:hover,
+.resizer.dragging {
+    background: var(--accent-color);
+}
+
+.resizer::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 3px;
+    height: 30px;
+    background: var(--bg-container);
+    border-radius: 2px;
+    opacity: 0;
+    transition: opacity 0.2s;
+}
+
+.resizer:hover::after,
+.resizer.dragging::after {
+    opacity: 1;
+    background: var(--accent-color);
+}
+
+.resizer.dragging::after {
+    opacity: 1;
+}
+
+.content-area {
+    position: relative;
+}
+
+.side-nav {
+    transition: width 0.3s ease;
+}
+
+.player-area {
+    min-width: 300px;
+    max-width: 80%;
+} 
+
+.text-white,
+.text-white-50 {
+    color: var(--text-primary) !important;
+}
+
+.card .bg-black.bg-opacity-25,
+.card .bg-opacity-25.bg-black,
+.quick-action-card,
+.status-tile {
+    background: var(--card-bg) !important;
+    border: var(--border-strong) !important;
+    transition: transform 0.3s ease !important;
+}
+
+.card .bg-black.bg-opacity-25:hover,
+.card .bg-opacity-25.bg-black:hover,
+.quick-action-card:hover,
+.status-tile:hover {
+    transform: translateY(-2px) !important;
+    background-color: var(--card-bg) !important;
+    border-color: #4CAF50 !important;
+}
+
+.card {
+    background: var(--bg-container) !important;
+    transition: transform 0.3s ease !important;
+    border: none !important;
+}
+
+.card:hover {
+    transform: translateY(-2px) !important;
+    border-color: #4CAF50 !important;
+}
+
+.col-lg-6 .card .bg-black.bg-opacity-25,
+.col-md-6 .card .bg-black.bg-opacity-25 {
+    background: var(--card-bg) !important;
+}
+
+.row.g-3 .col-6 .bg-black.bg-opacity-25 {
+    background: var(--card-bg) !important;
+}
+
+.row.g-3 .col-12 .bg-black.bg-opacity-25 {
+    background: var(--card-bg) !important;
+}
+
+.card.bg-black.bg-opacity-25.border-secondary {
+    background: var(--card-bg) !important;
+}
+
+.row.g-3 .col-6 .bg-black.bg-opacity-25.quick-action-card {
+    background: var(--card-bg) !important;
+}
+
+.card-body .bg-black.rounded {
+    background: var(--bg-container) !important;
+}
+
+.progress {
+    background-color: var(--bg-container) !important;
+    border: var(--border-strong) !important;
+}
+
+.player-title {
+    display: flex !important;
+    align-items: center !important;
+    gap: 8px !important;
+    color: var(--accent-tertiary);
+    min-width: 0 !important;
+}
+
+.player-title-text {
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    min-width: 0 !important;
+    flex: 1 !important;
+}
+
+.truncate {
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+}
+
+.lunar-sidebar {
+    border-top: var(--border-strong);
+    margin-top: 10px;
+}
+
+.side-nav.collapsed .lunar-sidebar {
+    display: none !important;
+}
+
+.breadcrumb {
+    background: var(--bg-container);
+    padding: 12px 20px;
+    border-radius: 12px;
+
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.breadcrumb-item {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    color: var(--text-secondary);
+    cursor: pointer;
+    padding: 4px 8px;
+    border-radius: 4px;
+    transition: all 0.2s;
+}
+
+.breadcrumb-item:hover {
+    background: var(--accent-tertiary);
+    color: white;
+}
+
+.card-title,
+.small, small，
+.breadcrumb-separator {
+    color: var(--text-secondary) !important;
+}
+
+.breadcrumb-current {
+    color: var(--accent-color);
+    font-weight: 500;
+}
+
+.path-bar {
+    background: var(--bg-container);
+    padding: 10px 20px;
+    border-bottom: var(--border-strong);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.path-input {
+    flex: 1;
+    background: var(--card-bg);
+    border: var(--border-strong);
+    color: white;
+    padding: 8px 12px;
+    border-radius: 6px;
+    outline: none;
+}
+
+.path-input:focus {
+    border-color: var(--accent-color);
+}
+
+.toolbar {
+    background: var(--bg-container);
+    padding: 10px 20px;
+    border-radius: 12px;
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.file-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+    gap: 15px;
+    flex: 1;
+    overflow-y: auto;
+    padding-top: 15px;
+    min-height: 300px;
+}
+
+.file-grid.folder-view {
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+}
+
+.file-item {
+    background: var(--bg-container);
+    border-radius: 8px;
+    padding: 15px;
+    cursor: pointer;
+    transition: all 0.3s;
+    border: var(--border-strong);
+    text-align: center;
+    position: relative;
+    min-height: 120px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    overflow: visible;
+}
+
+.file-item:hover {
+    transform: translateY(-3px);
+    border-color: var(--accent-color);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+}
+
+.file-item.selected {
+    background: var(--accent-tertiary);
+    border-color: var(--accent-color);
+}
+
+.file-icon {
+    font-size: 2rem;
+    margin-bottom: 10px;
+    color: var(--accent-color);
+}
+
+.file-icon.folder {
+    color: #FFA726;
+}
+
+.file-icon.image {
+    color: #4CAF50;
+}
+
+.file-icon.video {
+    color: #2196F3;
+}
+
+.file-icon.music {
+    color: #9C27B0;
+}
+
+.file-icon.text {
+    color: #757575;
+}
+
+.file-icon.archive {
+    color: #FF9800;
+}
+
+.file-name {
+    font-size: 0.85rem;
+    color: var(--text-primary);
+    word-break: break-word;
+    text-align: center;
+    width: 100%;
+    margin-bottom: 5px;
+    line-height: 1.3;
+}
+
+.file-size {
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+}
+
+.file-grid-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: none !important;
+}
+
+.view-toggle {
+    display: flex;
+    gap: 5px;
+}
+
+.view-toggle-btn {
+    background: var(--btn-primary-bg);
+    border: none;
+    color: white;
+    padding: 6px 10px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.view-toggle-btn.active {
+    background: var(--accent-color);
+}
+
+.view-toggle-btn:hover {
+    background: var(--item-hover-bg);
+}
+
+.context-menu-file {
+    background: var(--bg-container);
+    min-width: 200px;
+}
+
+.context-menu-file .menu-item {
+    padding: 10px 15px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    cursor: pointer;
+    transition: all 0.2s;
+    color: var(--text-primary);
+}
+
+.context-menu-file .menu-item:hover {
+    border-radius: 6px;
+    background: var(--accent-color);
+    color: white;
+}
+
+.context-menu-file .menu-divider {
+    height: 1px;
+    background: var(--border-strong);
+    margin: 5px 0;
+}
+
+.info-row {
+    display: flex;
+    padding: 8px 0;
+    border-bottom: 1px solid var(--border-strong);
+}
+
+.info-label {
+    width: 120px;
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+    flex-shrink: 0;
+}
+
+.info-value {
+    flex: 1;
+    color: var(--text-primary);
+    word-break: break-all;
+}
+
+.media-preview {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 200px;
+}
+
+.media-preview img,
+.media-preview video {
+    max-width: 100%;
+    max-height: 150px;
+    border-radius: 6px;
+}
+
+.file-actions {
+    display: none !important;
+}
+
+.file-item:hover .file-actions {
+    display: flex;
+}
+
+.selection-controls {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-left: auto;
+}
+
+.select-all-checkbox {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    cursor: pointer;
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+}
+
+.select-all-checkbox input[type="checkbox"] {
+    margin: 0;
+    cursor: pointer;
+    width: 18px;
+    height: 18px;
+    accent-color: var(--accent-color);
+}
+
+.selection-count {
+    background: var(--accent-tertiary);
+    color: white;
+    padding: 4px 10px;
+    border-radius: 12px;
+    font-size: 0.8rem;
+    display: none;
+}
+
+.selection-count.show {
+    display: block;
+}
+
+.file-action-btn {
+    background: rgba(0,0,0,0.7);
+    border: none;
+    color: white;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.8rem;
+    transition: all 0.2s;
+}
+
+.file-action-btn:hover {
+    background: var(--accent-color);
+    transform: scale(1.1);
+}
+
+.loading-files {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: var(--text-secondary);
+    font-size: 1.2rem;
+}
+
+.empty-folder {
+    text-align: center;
+    padding: 60px 20px;
+    color: var(--text-secondary);
+}
+
+#filesSection {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    flex: 1;
+}
+
+#fileGrid {
+    flex: 1;
+    min-height: 0;
+}
+
+.empty-folder i {
+    font-size: 3rem;
+    margin-bottom: 20px;
+    opacity: 0.5;
+}
+
+.file-selection-info {
+    display: none !important;
+}
+
+.file-selection-info.show {
+    display: flex;
+}
+
+.selection-actions {
+    display: flex;
+    gap: 10px;
+}
+
+.progress {
+    height: 20px;
+    background: var(--card-bg);
+    border-radius: 10px;
+    overflow: hidden;
+    margin: 10px 0;
+}
+
+.progress-bar {
+    height: 100%;
+    background: #4CAF50;
+    border-radius: 10px;
+    transition: width 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 0.8rem;
+}
+
+.media-grid-container::-webkit-scrollbar {
+    width: 8px;
+}
+
+.media-grid-container::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.media-grid-container::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 4px;
+}
+
+.file-item:hover .form-check {
+    display: block !important;
+}
+
+.file-item.selected .form-check {
+    display: block !important;
+}
+
+.file-item.selected {
+    background-color: rgba(76, 175, 80, 0.1);
+    border-color: #4CAF50;
+}
+
+list-group:hover {
+    background: color-mix(in oklch, var(--surface-high), transparent 20%) !important;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.editor-tabs-switcher {
+    background: var(--card-bg);
+    border-radius: 6px;
+    padding: 5px 10;
+    border: var(--border-strong);
+}
+
+.editor-tabs-list {
+    padding: 2px 0;
+}
+
+.editor-tab-switch {
+    padding: 4px 10px;
+    background: var(--btn-primary-bg);
+    color: white;
+    border-radius: 4px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    white-space: nowrap;
+    font-size: 0.85rem;
+    transition: all 0.2s;
+}
+
+.editor-tab-switch:hover {
+    background: var(--item-hover-bg);
+}
+
+.editor-tab-switch.active {
+    background: var(--accent-color);
+    box-shadow: 0 0 0 2px rgba(76, 175, 80, 0.3);
+}
+
+.editor-tab-switch .modified-dot {
+    width: 6px;
+    height: 6px;
+    background: #ff9800;
+    border-radius: 50%;
+    margin-left: 3px;
+}
+
+#selectedInfo {
+    color: var(--text-secondary);
+}
+
+.alert-secondary {
+    background: var(--bg-container) !important;
+    border: none !important;
+}
+
+.monaco-editor-container {
+    width: 100%;
+    height: 100%;
+    border: var(--border-strong);
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.editor-toolbar {
+    background: var(--bg-container);
+    padding: 10px;
+    border-bottom: var(--border-strong);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.editor-toolbar-left, .editor-toolbar-right {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.editor-language-select,
+.editor-fontsize-select,
+.editor-theme-select {
+    background: var(--card-bg);
+    color: var(--text-primary);
+    border: var(--border-strong);
+    border-radius: 4px;
+    padding: 6px 10px;
+    font-size: 0.85rem;
+    min-width: 100px;
+}
+
+.simple-editor {
+    width: 100%;
+    height: 100%;
+    min-height: 400px;
+    background: transparent;
+    color: var(--text-primary);
+    border: none;
+    resize: none;
+    font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+    font-size: 14px;
+    line-height: 1.5;
+    padding: 15px;
+    white-space: pre;
+    overflow-x: auto;
+}
+
+.simple-editor:focus {
+    outline: none;
+}
+
+.editor-status-bar {
+    background: var(--bg-container);
+    padding: 8px 15px;
+    border-top: var(--border-strong);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+}
+
+.editor-position-info {
+    display: flex;
+    gap: 15px;
+}
+
+.editor-encoding-info {
+    display: flex;
+    gap: 15px;
+}
+
+.editor-keyboard-shortcuts {
+    margin-top: 10px;
+    padding: 10px;
+    background: var(--card-bg);
+    border-radius: 6px;
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+}
+
+.editor-keyboard-shortcuts h6 {
+    margin-bottom: 8px;
+    color: var(--text-primary);
+}
+
+.shortcut-item {
+    display: flex;
+    justify-content: space-between;
+    padding: 4px 0;
+    border-bottom: 1px solid var(--border-strong);
+}
+
+.shortcut-item:last-child {
+    border-bottom: none;
+}
+
+.shortcut-key {
+    background: var(--bg-container);
+    padding: 2px 6px;
+    border-radius: 3px;
+    border: var(--border-strong);
+    font-family: monospace;
+}
+
+.monaco-editor {
+    background-color: var(--bg-container) !important;
+}
+
+.monaco-editor .scroll-decoration {
+    box-shadow: none !important;
+}
+
+.editor-loading {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    color: var(--text-secondary);
+    font-size: 1.2rem;
+}
+
+.editor-loading .spinner {
+    margin-right: 10px;
+}
+
+.monaco-editor .margin .current-line,
+.monaco-editor .margin-view-overlays .current-line {
+    display: none !important;
+    background-color: transparent !important;
+    border: none !important;
+}
+
+.upload-drop-area {
+    border: 2px dashed var(--border-color, #bbb) !important;
+    border-radius: 12px !important;
+}
+
+.upload-drop-area:hover {
+    border-color: var(--bs-primary) !important;
+    background-color: rgba(13, 110, 253, 0.05);
+}
+
+.upload-drop-area i.fa-cloud-upload-alt {
+    color: var(--text-primary) !important;
+    animation: uploadFloat 1.8s ease-in-out infinite;
+    transition: color 0.3s ease, transform 0.2s ease;
+}
+
+.upload-drop-area:active i.fa-cloud-upload-alt {
+    color: var(--bs-primary) !important;
+    transform: scale(1.15);
+}
+
+.upload-drop-area p {
+    color: var(--text-secondary) !important;
+}
+
+@keyframes uploadFloat {
+    0% { transform: translateY(0); }
+    50% { transform: translateY(-6px); }
+    100% { transform: translateY(0); }
+}
+
+.text-muted {
+    color: var(--text-secondary) !important;
+}
+
+.form-control {
+    color: var(--text-primary) !important;
+}
+
+.form-control::placeholder {
+    color: var(--text-secondary) !important;
+    opacity: 1 !important;
+}
+
+.col-md-9 .table-responsive .table.file-info-table {
+    --bs-table-bg: var(--card-bg) !important;
+}
+
+.col-md-9 .table-responsive .table.file-info-table td:nth-child(2) {
+    color: var(--text-primary) !important;
+}
+
+.file-item-upload {
+    background-color: var(--bg-container) !important;
+}
+
+.archive-menu {
+    position: relative;
+}
+
+.archive-submenu {
+    animation: fadeIn 0.2s ease;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateX(-10px); }
+    to { opacity: 1; transform: translateX(0); }
+}
+
+.menu-item:hover {
+    background: var(--accent-color);
+    color: white;
+}
+
+.context-menu-file {
+    max-height: 800px !important;
+    height: auto !important;
+    overflow-y: auto !important;
+}
+
+.context-menu-file .context-menu-content {
+    max-height: 700px !important;
+    overflow-y: auto !important;
+}
+
+.monaco-editor .char-insert,
+.monaco-editor .line-insert {
+    background-color: rgba(155, 185, 85, 0.2);
+}
+
+.monaco-editor .char-delete,
+.monaco-editor .line-delete {
+    background-color: rgba(255, 0, 0, 0.2);
+}
+
+.monaco-editor .diff-review-summary {
+    background: #2c2c2c;
+}
+
+#diffEditorContainer {
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.diff-toolbar {
+    background: #2c2c2c;
+}
+
+.diff-help {
+    background: var(--header-bg);
+}
+
+.text-diff-added {
+    color: #9bb955;
+}
+
+.text-diff-removed {
+    color: #ff6b6b;
+}
+
+.filePropertiesModal strong,
+#filePropertiesContent strong {
+    color: var(--text-primary) !important;
+}
+
+.alert.alert-warning,
+.input-group-text,
+.alert.alert-info {
+    background: var(--bg-container) !important;
+    border: var(--border-strong) !important;
+    color: var(--text-primary) !important;
+}
+
+.drag-select-box {
+    position: absolute;
+    background: rgba(76, 175, 80, 0.1);
+    border: 1px solid var(--accent-color);
+    pointer-events: none;
+    z-index: 1000;
+    display: none;
+}
+
+.file-grid.dragging .file-item {
+    user-select: none;
+}
+
+.bg-light {
+    background-color: var(--card-bg) !important;
+    border: var(--border-strong) !important;
+}
+
+.card-body {
+    border-radius: 8px; !important;
+    border: var(--glass-border);
+    box-shadow: var(--border-glow);
+}
+
+#fileContextMenu .menu-item i {
+    width: 20px;
+    text-align: center;
+    margin-right: 12px;
+    display: inline-block;
+}
 </style>
-
-<div class="container-sm container-bg text-center mt-4" id="mainContainer">
-   <div class="alert alert-secondary d-none" id="toolbar">
-        <div class="d-flex justify-content-between flex-column flex-sm-row">
-            <div>
-                <button class="btn btn-outline-primary" id="selectAllBtn" data-translate="select_all"></button>
-                <span id="selectedInfo"></span>
+<div class="main-container">
+    <div class="content-area" id="contentArea">
+        <div class="top-bar">
+            <div class="logo">
+                <h1>
+                    <i class="fas fa-server logo-toggle" onclick="toggleSidebar()" 
+                       data-translate-tooltip="toggle_menu" style="cursor: pointer; transition: transform 0.3s;">
+                    </i> 
+                    <span data-translate="openwrt_media_center">OpenWrt Media Center</span>
+                </h1>
             </div>
-            <button class="btn btn-danger" id="batchDeleteBtn" data-translate="batch_delete"></button>
-        </div>
-    </div>
-<div class="card">
-<div class="card-header d-flex justify-content-between align-items-center py-2">
-    <div class="time-display">
-        <span id="dateDisplay" style="color: #4CAF50;"></span>
-        <span id="weekDisplay" style="color: #FF9800;">></span>
-        <span id="lunarDisplay" class="lunar-text" style="color: #F48FB1;"></span>
-        <span id="timeDisplay"></span>
-    </div>
-    <div class="weather-display d-flex align-items-center d-none d-sm-inline">
-      <i id="weatherIcon" class="wi wi-na" style="font-size:28px; margin-right:4px;"></i>
-      <span id="cityNameDisplay" style="color:var(--accent-color); font-weight:700;"></span>
-      <span id="weatherText" style="color:var(--accent-color); font-weight: 700;"></span>
-    </div>
-</div>
-    <div class="card-header d-flex flex-column flex-md-row justify-content-between align-items-center text-center gap-2">
-        <h5 class="mb-0" style="line-height: 40px; height: 40px;" data-translate="spectra_config"></h5>
-        <p id="status" class="mb-0"><span data-translate="current_mode"></span></p>
-        <button id="toggleButton" onclick="toggleConfig()" class="btn btn-primary" data-translate="toggle_mode"></button>
-    </div>
-        <div class="d-flex align-items-center">
-            <?php
-            $mountPoint = '/'; 
-            $freeSpace = @disk_free_space($mountPoint);
-            $totalSpace = @disk_total_space($mountPoint);
-            $usedSpace = $totalSpace - $freeSpace;
             
-            function formatSize($bytes) {
-                $units = ['B', 'KB', 'MB', 'GB', 'TB'];
-                $index = 0;
-                while ($bytes >= 1024 && $index < count($units) - 1) {
-                    $bytes /= 1024;
-                    $index++;
-                }
-                return round($bytes, 2) . ' ' . $units[$index];
-            }
-            ?>  
-            <div class="me-3 d-flex gap-2 mt-2 ps-2" 
-                 data-translate-tooltip="mount_info" data-mount-point="<?= $mountPoint ?>" data-used-space="<?= $usedSpace ? formatSize($usedSpace) : 'N/A' ?>" data-tooltip="">
-                <span class="btn btn-primary btn-sm mb-2 d-none d-sm-inline"><i class="bi bi-hdd"></i> <span data-translate="total">Total：</span><?= $totalSpace ? formatSize($totalSpace) : 'N/A' ?></span>
-                <span class="btn btn-success btn-sm mb-2  d-none d-sm-inline"><i class="bi bi-hdd"></i> <span data-translate="free">Free：</span><?= $freeSpace ? formatSize($freeSpace) : 'N/A' ?></span>
+            <div class="stats">
+                <div class="stat-item">
+                    <span class="stat-value"><?= count($media['music']) ?></span>
+                    <span class="stat-label" data-translate="audio">Music</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-value"><?= count($media['video']) ?></span>
+                    <span class="stat-label" data-translate="video">Video</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-value"><?= count($media['image']) ?></span>
+                    <span class="stat-label" data-translate="image">Image</span>
+                </div>
+                <?php if ($diskInfo): ?>
+                <div class="stat-item">
+                    <span class="stat-value"><?= $diskInfo['used_percent'] ?>%</span>
+                    <span class="stat-label" data-translate="disk_usage">Disk Usage</span>
+                </div>
+                <?php endif; ?>
             </div>
-            <button class="btn btn-info" data-bs-toggle="modal" data-bs-target="#updateConfirmModal" data-translate-tooltip="check_update"><i class="fas fa-cloud-download-alt"></i> <span class="btn-label"></span></button>
-            <button class="btn btn-warning ms-2" data-bs-toggle="modal" data-bs-target="#uploadModal" data-translate-tooltip="batch_upload"><i class="bi bi-upload"></i> <span class="btn-label"></span></button>
-            <button class="btn btn-primary ms-2" id="openPlayerBtn" data-bs-toggle="modal" data-bs-target="#playerModal" data-translate-tooltip="add_to_playlist"><i class="bi bi-play-btn"></i> <span class="btn-label"></span></button>
-            <button class="btn btn-success ms-2 d-none d-sm-inline" id="toggleScreenBtn" data-translate-tooltip="toggle_fullscreen"><i class="bi bi-arrows-fullscreen"></i></button>
-            <button type="button" class="btn btn-primary ms-2 d-none d-sm-inline" onclick="showIpDetailModal()" data-translate-tooltip="ip_info"><i class="fa-solid fa-satellite-dish"></i></button>
-            <button class="btn btn-danger ms-2" id="clearBackgroundBtn" data-translate-tooltip="clear_background"><i class="bi bi-trash"></i> <span class="btn-label"></span></button> 
+            
+            <div class="actions">
+                <button id="autoNextToggle" class="btn btn-primary" onclick="toggleAutoNext()">
+                    <i class="fas fa-toggle-off"></i>
+                    <span data-translate="auto_play">Auto Play</span>
+                </button>
+                <button class="btn btn-pink" onclick="refreshMedia()">
+                    <i class="fas fa-redo"></i>
+                    <span data-translate="refresh">Refresh</span>
+                </button>
+                <button class="btn btn-teal" onclick="toggleFullscreen()">
+                    <i class="fas fa-expand"></i>
+                    <span data-translate="fullscreen_play">Fullscreen Play</span>
+                </button>
+            </div>
         </div>
-    </div>
-        <h2 class="mt-3 mb-0" data-translate="file_list">File List</h2>
-    <div class="card-body">
-        <?php if (isset($error)): ?>
-            <div class="alert alert-danger"><?= $error ?></div>
-        <?php endif; ?>
         
-        <div class="d-flex align-items-center mb-3 ps-2" id="selectAll-container">
-            <input type="checkbox" id="selectAll" class="form-check-input me-2 shadow-sm" style="width: 1.05em; height: 1.05em; border-radius: 0.35em; margin-left: 1px; transform: scale(1.2)">
-            <label for="selectAll" class="form-check-label fs-5 ms-1" style="margin-right: 10px;" data-translate="select_all">Select All</label>
+        <div style="display: flex; flex: 1; overflow: hidden;">
+            <div class="side-nav" id="sideNav">
+                <div class="nav-section">
+                    <a href="#" class="nav-item active" onclick="showSection('home')" data-translate-tooltip="home">
+                        <span class="nav-icon"><i class="fas fa-home" style="color: #4CAF50;"></i></span>
+                        <span data-translate="home">Home</span>
+                    </a>
+                    <a href="#" class="nav-item" onclick="showSection('music')" data-translate-tooltip="audio">
+                        <span class="nav-icon"><i class="fas fa-music" style="color: #9C27B0;"></i></span>
+                        <span data-translate="audio">Music</span>
+                    </a>
+                    <a href="#" class="nav-item" onclick="showSection('video')" data-translate-tooltip="video">
+                        <span class="nav-icon"><i class="fas fa-video" style="color: #2196F3;"></i></span>
+                        <span data-translate="video">Video</span>
+                    </a>
+                    <a href="#" class="nav-item" onclick="showSection('image')" data-translate-tooltip="image">
+                        <span class="nav-icon"><i class="fas fa-image" style="color: #FF9800;"></i></span>
+                        <span data-translate="image">Image</span>
+                    </a>
+                    <a href="#" class="nav-item" onclick="showSection('recent')" data-translate-tooltip="recent_play">
+                        <span class="nav-icon"><i class="fas fa-history" style="color: #FF5722;"></i></span>
+                        <span data-translate="recent_play">Recent Play</span>
+                    </a>
+                    <a href="#" class="nav-item" onclick="showSection('files')" data-translate-tooltip="fileAssistant">
+                        <span class="nav-icon"><i class="fas fa-folder" style="color: #FFA726;"></i></span>
+                        <span data-translate="fileAssistant">File Manager</span>
+                    </a>
+                </div>
 
-        <div class="ms-auto" style="margin-right: 20px;">
-            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#langModal">
-                <img id="flagIcon" src="/luci-static/ipip/flags/<?php echo $flagFile; ?>" style="width:30px; height:22px; object-fit: contain;">
-                <span data-translate="change_language">Change Language</span>
-            </button>
-        </div>
-    </div>
-        <?php
-            $history_file = './lib/background_history.txt';
-            $background_history = file_exists($history_file) ? file($history_file, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES) : [];
-
-            usort($files, function ($a, $b) use ($background_history) {
-                $posA = array_search($a, $background_history);
-                $posB = array_search($b, $background_history);
-                return ($posA === false ? PHP_INT_MAX : $posA) - ($posB === false ? PHP_INT_MAX : $posB);
-            });
-        ?>
-        <div  id="fileGrid" class="row row-cols-2 row-cols-md-4 row-cols-lg-5 g-4">
-            <?php foreach ($files as $file): 
-                $path = $upload_dir . '/' . $file;
-                $size = filesize($path);
-                $ext = strtolower(pathinfo($file, PATHINFO_EXTENSION));
-                $isImage = in_array($ext, ['jpg','jpeg','png','gif']);
-                $isVideo = in_array($ext, ['mp4', 'webm', 'ogg', 'mkv']);
-                $isAudio = in_array($ext, ['mp3', 'wav', 'flac']);
-                $isMedia = $isImage || $isVideo || $isAudio;
-                $resolution = '';
-                $duration = '';
-                $bitrate = '';
-                if ($isImage) {
-                    $imageInfo = @getimagesize($path);
-                    if ($imageInfo) {
-                        $resolution = $imageInfo[0] . 'x' . $imageInfo[1];
-                    }
-                } elseif ($isVideo) {
-                    $ffmpegPath = '/usr/bin/ffmpeg'; 
-                    $cmd = "$ffmpegPath -i \"$path\" 2>&1";
-                    $output = shell_exec($cmd);
-
-                    if ($output) {
-                        if (preg_match('/(\d{3,4})x(\d{3,4})/', $output, $matches)) {
-                            $resolution = $matches[1] . 'x' . $matches[2];
-                        }
-
-                        if (preg_match('/Duration: (\d+):(\d+):(\d+)\.(\d+)/', $output, $matches)) {
-                            $hours = intval($matches[1]);
-                            $minutes = intval($matches[2]);
-                            $seconds = intval($matches[3]);
-                            $duration = sprintf('%02d:%02d:%02d', $hours, $minutes, $seconds);
-                        }
-
-                        if (preg_match('/bitrate: (\d+) kb\/s/', $output, $matches)) {
-                            $bitrate = $matches[1] . ' kbps';
-                        }
-                    } else {
-                        $resolution = 'Resolution cannot be obtained';
-                        $duration = 'Duration cannot be obtained';
-                        $bitrate = 'Bitrate cannot be obtained';
-                    }
-                } elseif ($isAudio) { 
-                    $ffmpegPath = '/usr/bin/ffmpeg';
-                    $cmd = "$ffmpegPath -i \"$path\" 2>&1";
-                    $output = shell_exec($cmd);
-
-                    if ($output) {
-                        if (preg_match('/Duration:\s*(\d+):(\d+):(\d+)/', $output, $matches)) {
-                            $duration = sprintf("%02d:%02d:%02d", $matches[1], $matches[2], $matches[3]);
-                        }
-
-                        if (preg_match('/bitrate:\s*(\d+)\s*kb\/s/', $output, $matches) || 
-                           preg_match('/Stream.*Audio:.*?(\d+)\s*kb\/s/', $output, $matches)) {
-                            $bitrate = $matches[1] . ' kbps';
-                        }
-                    } else {
-                        $duration = 'Duration cannot be obtained';
-                        $bitrate = 'Bitrate cannot be obtained';
-                    }
-                }
-            ?>
-            <div class="col" data-filename="<?= htmlspecialchars($file) ?>">
-                <div class="card h-100 shadow-sm position-relative"> 
-                    <div class="file-checkbox-wrapper position-absolute start-0 top-0 m-2 z-2">
-                        <input type="checkbox" 
-                               class="fileCheckbox form-check-input shadow" 
-                               value="stream/<?= htmlspecialchars($file) ?>"
-                               data-size="<?= $size ?>"
-                               style="width: 1.05em !important; height: 1.05em !important; border-radius: 0.35em; transform: scale(1.2);">
+                <div class="nav-section" id="fileTreeSection" style="display: none;">
+                    <div class="nav-section-title" data-translate="directory_tree">Directory Tree</div>
+                    <div id="directoryTree" style="max-height: 300px; overflow-y: auto;">
                     </div>
-                    <div class="position-relative">
-                        <?php if ($isMedia): ?>
-                        <div class="preview-container">
-                            <div class="file-type-indicator">
-                                <?php if ($isImage): ?>
-                                    <i class="fas fa-image text-white"></i>
-                                    <span class="text-white small" data-translate="image">Image</span>
-                                <?php elseif ($isVideo): ?>
-                                    <i class="fas fa-play-circle text-white"></i>
-                                    <span class="text-white small" data-translate="video">Video</span>
-                                <?php elseif ($isAudio): ?>
-                                    <i class="fas fa-music text-white"></i>
-                                    <span class="text-white small" data-translate="audio">Audio</span>
-                                <?php endif; ?>
-                            </div>
-
-                            <?php if ($isImage): ?>
-                                <img src="stream/<?= htmlspecialchars($file) ?>" 
-                                     class="card-img-top preview-img img-fluid"
-                                     data-bs-toggle="modal" 
-                                     data-bs-target="#previewModal"
-                                     data-type="image"
-                                      data-src="stream/<?= htmlspecialchars($file) ?>">
-                            <?php elseif ($isVideo): ?>
-                                <video class="card-img-top preview-video"
-                                       data-bs-toggle="modal"
-                                       data-bs-target="#previewModal"
-                                       data-type="video"
-                                       data-src="stream/<?= htmlspecialchars($file) ?>">
-                                    <source src="stream/<?= htmlspecialchars($file) ?>" type="video/mp4">
-                                    <source src="stream/<?= htmlspecialchars($file) ?>" type="video/webm">
-                                    <source src="stream/<?= htmlspecialchars($file) ?>" type="video/ogg">
-                                </video>
-                            <?php elseif ($isAudio): ?>
-                                <div class="preview-audio-container" 
-                                     data-bs-toggle="modal" 
-                                     data-bs-target="#previewModal"
-                                     data-src="stream/<?= htmlspecialchars($file) ?>"
-                                     data-type="audio">
-                                    <div class="audio-placeholder">
-                                        <i class="bi bi-file-music fs-1 text-muted"></i>
-                                        <div class="hover-tips" data-translate="hover_to_preview">Click to activate hover preview</div>
-                                    </div>
-                                        <audio class="hover-audio" preload="none"></audio>
-                                </div>
-                            <?php endif; ?>
-
-                            <div class="file-info-overlay">
-                                <p class="mb-1 small"><span data-translate="filename">Name：</span> <?= htmlspecialchars($file) ?></p>
-                                <p class="mb-1 small"><span data-translate="filesize">Size：</span> <?= round($size/(1024*1024),2) ?> MB</p>
-                                <?php if ($duration): ?><p class="mb-1 small"><span data-translate="duration">Duration：</span><?= $duration ?></p><?php endif; ?>
-                                <?php if ($resolution): ?><p class="mb-1 small"><span data-translate="resolution">Resolution：</span> <?= $resolution ?></p><?php endif; ?>
-                                <?php if ($bitrate): ?><p class="mb-1 small"><span data-translate="bitrate">Bitrate：</span> <?= $bitrate ?></p><?php endif; ?>
-                                <p class="mb-0 small text-uppercase"><span data-translate="type">Type：</span> <?= $ext ?></p>
+                </div>
+                
+                <div class="system-status" id="systemStatus">
+                    <div class="nav-section">
+                        <div class="nav-section-title">
+                            <span data-translate="system_status">System Status</span>
+                        </div>
+                        <?php if ($diskInfo): ?>
+                        <div style="padding:15px;color:var(--text-primary);font-size:.9rem;">
+                            <div title="<?= __('used_space') ?> <?= formatFileSize($diskInfo['used']) ?> / <?= __('total') ?> <?= formatFileSize($diskInfo['total']) ?>"
+                                style="cursor:help;margin-bottom:10px;">
+                                <div class="d-flex flex-column gap-3 mb-3">
+                                    <span class="btn btn-primary btn-sm w-100 text-start">
+                                        <i class="fas fa-database me-2"></i>
+                                        <span data-translate="total">Total:</span> <?= formatFileSize($diskInfo['total']) ?>
+                                    </span>
+                                    <span class="btn btn-success btn-sm w-100 text-start">
+                                        <i class="fas fa-hdd me-2"></i>
+                                    <span data-translate="free">Free:</span> <?= formatFileSize($diskInfo['free']) ?>
+                                </span>
                             </div>
                         </div>
-                        <?php else: ?>
-                        <div class="card-body text-center">
-                            <div class="file-type-indicator">
-                                <i class="bi bi-file-earmark-text-fill text-white"></i>
-                                <span class="text-white small" data-translate="document">Document</span>
-                            </div>
-                            <i class="bi bi-file-earmark fs-1 text-muted"></i>
-                            <p class="small mb-0"><?= htmlspecialchars($file) ?></p>
+                        <div style="height:6px;background:#fff;border-radius:3px;margin:10px 0;overflow:hidden;">
+                            <div style="width:<?= $diskInfo['used_percent'] ?>%;height:100%;background:#4CAF50;"></div>
                         </div>
-                        <?php endif; ?>
+                        <div title="<?= __('used_space') ?> <?= formatFileSize($diskInfo['used']) ?> / <?= __('total') ?> <?= formatFileSize($diskInfo['total']) ?>"
+                            style="cursor:help;">
+                            <span data-translate="used_space">Used Space:</span> <?= formatFileSize($diskInfo['used']) ?>
+                        </div>
                     </div>
-                    
-                    <div class="card-body pt-2 mt-2">
-                        <div class="d-flex flex-nowrap align-items-center justify-content-between gap-2">                         
-                            <div class="d-flex flex-nowrap gap-1 flex-grow-1" style="min-width: 0;">
-                                <button class="btn btn-danger custom-btn" onclick="handleDeleteConfirmation('<?= urlencode($file) ?>')" data-translate-tooltip="delete"><i class="bi bi-trash"></i></button>
-                                <button class="btn btn-primary custom-btn" data-bs-toggle="modal" data-bs-target="#renameModal-<?= md5($file) ?>" data-translate-tooltip="rename"><i class="bi bi-pencil"></i></button>
-                                <a href="?download=<?= urlencode($file) ?>" class="btn btn-success custom-btn"><i class="bi bi-download" data-translate-tooltip="download"></i></a>   
-                                <button class="btn btn-warning share-btn custom-btn"data-filename="<?= htmlspecialchars($file) ?>"data-bs-toggle="modal"data-bs-target="#shareModal" data-translate-tooltip="shareLinkLabel"><i class="bi bi-share"></i></button>
-                                <?php if ($isMedia): ?>
-                                <button class="btn btn-info set-bg-btn custom-btn" 
-                                        data-src="<?= htmlspecialchars($file) ?>"
-                                        data-type="<?= $isVideo ? 'video' : ($isAudio ? 'audio' : 'image') ?>"
-                                        onclick="setBackground('<?= htmlspecialchars($file) ?>')"
-                                        data-translate-tooltip="set_background">
-                                    <i class="bi <?= $isVideo ? 'bi-play-btn' : ($isAudio ? 'bi-music-note-beamed' : 'bi-image') ?>"></i>
-                                </button>
-                                <?php endif; ?>  
-                            </div>
+                    <?php endif; ?>
+                  </div>
+              </div>
+
+                <div class="lunar-sidebar lunar-collapsible">
+                    <div class="nav-section">
+                        <div style="padding: 12px 15px;">
+                        <div style="text-align: center;">
+                            <div id="dateDisplay" style="color: #4CAF50;"></div>
+                            <div id="weekDisplay" style="color: var(--text-primary); margin: 3px 0;"></div>
+                            <div id="lunarDisplay" style="color: #2196F3; font-size: 1.1rem; margin: 5px 0;"></div>
+                            <div id="timeDisplay" style="color: #9C27B0; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 10px; margin-top: 10px;"></div>
                         </div>
                     </div>
                 </div>
             </div>
-            <?php endforeach; ?>
         </div>
-    </div>
-</div>
+            <div class="resizer" id="resizer"></div>          
+            <div class="media-grid-container" id="gridContainer">
+                <div id="homeSection" class="grid-section">
+                    <div class="grid-title">
+                        <i class="fas fa-home"></i>
+                        <span data-translate="welcome_to_media_center">Welcome to Media Center</span>
+                    </div>
+                        
+                    <div class="row g-4">
+                        <div class="col-lg-6">
+                            <div class="card bg-dark border-secondary h-100">
+                                <div class="card-body">
+                                    <h5 class="card-title text-success mb-4" data-translate="media_statistics">Media Statistics</h5>
+                                    <div class="row g-3">
+                                        <div class="col-6">
+                                            <div class="bg-black bg-opacity-25 rounded p-3 text-center">
+                                                <div class="display-6 text-success mb-2"><?= count($media['music']) ?></div>
+                                                <div class="text-white-50" data-translate="music_files">Music Files</div>
+                                            </div>
+                                        </div>
+                                        <div class="col-6">
+                                            <div class="bg-black bg-opacity-25 rounded p-3 text-center">
+                                                <div class="display-6 text-success mb-2"><?= count($media['video']) ?></div>
+                                                <div class="text-white-50" data-translate="video_files">Video Files</div>
+                                            </div>
+                                        </div>
+                                        <div class="col-6">
+                                            <div class="bg-black bg-opacity-25 rounded p-3 text-center">
+                                                <div class="display-6 text-success mb-2"><?= count($media['image']) ?></div>
+                                                <div class="text-white-50" data-translate="image_files">Image Files</div>
+                                            </div>
+                                        </div>
+                                        <div class="col-6">
+                                            <div class="bg-black bg-opacity-25 rounded p-3 text-center">
+                                                <div class="display-6 text-success mb-2">
+                                                    <?= count($media['music']) + count($media['video']) + count($media['image']) ?>
+                                                </div>
+                                                <div class="text-white-50" data-translate="total_files">Total Files</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
 
-<div class="modal fade" id="previewModal" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false">
-    <div class="modal-dialog modal-xl">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" data-translate="preview">Preview</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-            </div>
-            <div class="modal-body text-center position-relative">
-                <div class="loading-spinner"></div>
-                <div id="prevBtn" class="preview-nav-btn"><i class="bi bi-chevron-left"></i></div>
-                <div id="nextBtn" class="preview-nav-btn"><i class="bi bi-chevron-right"></i></div>
-                <img id="previewImage" src="" class="img-fluid d-none">
-                <audio id="previewAudio" controls class="d-none w-100"></audio>
-                <video id="previewVideo" controls class="d-none">
-                    <source id="previewVideoSource" src="" type="video/mp4">
-                </video>
-          </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary me-2" data-bs-dismiss="modal" data-translate="cancel">Cancel</button>
-                <button class="btn btn-info me-2" id="fitTogglePreview" data-translate="fit_cover">Cover</button>
-                <button class="btn btn-primary" id="fullscreenToggle" data-translate="toggle_fullscreen">Toggle Fullscreen</button>
-            </div>
-        </div>
-    </div>
-</div>
+                        <div class="col-lg-6">
+                            <div class="card bg-dark border-secondary h-100">
+                                <div class="card-body">
+                                    <h5 class="card-title text-success mb-4" data-translate="quick_actions">Quick Actions</h5>
+                                    <div class="row g-3">
+                                        <div class="col-6">
+                                            <div class="bg-black bg-opacity-25 rounded p-3 text-center quick-action-card" onclick="showSection('music')">
+                                                <div class="action-icon mb-3">
+                                                    <i class="fas fa-music fa-2x text-success"></i>
+                                                </div>
+                                                <div class="action-title text-white" data-translate="browse_music">Browse Music</div>
+                                                <div class="action-count small text-success mt-2">
+                                                    <?= count($media['music']) ?> <span data-translate="items">items</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-6">
+                                            <div class="bg-black bg-opacity-25 rounded p-3 text-center quick-action-card" onclick="showSection('video')">
+                                                <div class="action-icon mb-3">
+                                                    <i class="fas fa-video fa-2x text-primary"></i>
+                                                </div>
+                                                <div class="action-title text-white" data-translate="browse_video">Browse Video</div>
+                                                <div class="action-count small text-primary mt-2">
+                                                    <?= count($media['video']) ?> <span data-translate="items">items</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-6">
+                                            <div class="bg-black bg-opacity-25 rounded p-3 text-center quick-action-card" onclick="showSection('image')">
+                                                <div class="action-icon mb-3">
+                                                    <i class="fas fa-image fa-2x text-info"></i>
+                                                </div>
+                                                <div class="action-title text-white" data-translate="browse_images">Browse Images</div>
+                                                <div class="action-count small text-info mt-2">
+                                                    <?= count($media['image']) ?> <span data-translate="items">items</span>
+                                                </div>
+                                           </div>
+                                       </div>
+                                       <div class="col-6">
+                                          <div class="bg-black bg-opacity-25 rounded p-3 text-center quick-action-card" onclick="showSection('recent')">
+                                              <div class="action-icon mb-3">
+                                                  <i class="fas fa-history fa-2x text-warning"></i>
+                                              </div>
+                                              <div class="action-title text-white" data-translate="recent_play">Recent Play</div>
+                                              <div class="action-count small text-warning mt-2">
+                                                  <?= !empty($recent) ? count($recent) : 0 ?> <span data-translate="items">items</span>
+                                              </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
 
-<form id="batchDeleteForm" method="post" style="display: none;">
-    <input type="hidden" name="batch_delete" value="1">
-</form>
-    </div>
+                        <div class="col-lg-6">
+                            <div class="card bg-dark border-secondary h-100">
+                                <div class="card-body">
+                                    <h5 class="card-title text-success mb-4" data-translate="system_status">System Status</h5>
+                                    <div class="row g-3 mb-3">
+                                        <div class="col-6">
+                                            <div class="bg-black bg-opacity-25 rounded p-3 text-center">
+                                                <div class="h3 text-success mb-2" id="cpuUsageDisplay">--%</div>
+                                                <div class="text-white-50" data-translate="cpu_usage">CPU Usage</div>
+                                                <div class="small text-secondary mt-2">
+                                                    <i class="fas fa-microchip me-1"></i>
+                                                    <span id="cpuCoresValue">--</span> <span data-translate="cores">cores</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-6">
+                                            <div class="bg-black bg-opacity-25 rounded p-3 text-center">
+                                                <div class="h3 text-primary mb-2" id="memUsageDisplay">--%</div>
+                                                <div class="text-white-50" data-translate="memory_usage">Memory Usage</div>
+                                                <div class="small text-secondary mt-2">
+                                                    <i class="fas fa-memory me-1"></i>
+                                                    <span id="memUsedDisplay">--</span>/<span id="memTotalDisplay">--</span> MB
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
 
-<div class="modal fade" id="uploadModal" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false">
-    <div class="modal-dialog modal-xl">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" data-translate="batch_upload"></h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-            </div>
-            <div class="modal-body">
-                <div class="alert alert-warning" data-translate="supported_formats"></div>
-                <form id="uploadForm" method="post" enctype="multipart/form-data">
-                    <div class="drop-zone border rounded p-5 text-center mb-3">
-                        <input type="file" name="upload_file[]" id="upload_file" multiple 
-                               style="opacity: 0; position: absolute; z-index: -1">
-                        <div class="upload-area">
-                            <i class="fas fa-cloud-upload-alt text-primary mb-3" style="font-size: 4rem;"></i>
-                            <div class="fs-5 mb-2" data-translate="drop_files_here"></div>
-                            <div class="text-muted upload-or mb-3" data-translate="or"></div>
-                            <button type="button" class="btn btn-primary btn-lg" id="customUploadButton">
-                                <i class="bi bi-folder2-open me-2"></i><span data-translate="select_files"></span>
-                            </button>
-                            <div class="file-list mt-3"></div>
+                                    <div class="row g-3">
+                                        <div class="col-6">
+                                            <div class="bg-black bg-opacity-25 rounded p-3 text-center status-tile d-flex flex-column justify-content-center">
+                                                <div class="h5 text-info mb-2" id="openwrtVersionDisplay">--</div>
+                                                <div class="small text-white-50" data-translate="openwrt_version">OpenWrt Version</div>
+                                            </div>
+                                        </div>
+                                        <div class="col-6">
+                                            <div class="bg-black bg-opacity-25 rounded p-3 text-center status-tile d-flex flex-column justify-content-center">
+                                                <div class="h5 text-brown mb-2" style="color: #795548;" id="kernelVersionDisplay">--</div>
+                                                <div class="small text-white-50" data-translate="kernel_version">Kernel Version</div>
+                                            </div>
+                                        </div>
+                                        <div class="col-6">
+                                            <div class="bg-black bg-opacity-25 rounded p-3 text-center status-tile d-flex flex-column justify-content-center">
+                                                <div class="h5 text-teal mb-2" style="color: #008000;" id="boardModelDisplay">--</div>
+                                                <div class="small text-white-50" data-translate="board_model">Board Model</div>
+                                            </div>
+                                        </div>
+                                        <div class="col-6">
+                                            <div class="bg-black bg-opacity-25 rounded p-3 text-center status-tile d-flex flex-column justify-content-center">
+                                                <div class="h5 text-warning mb-2" id="timeValue">--:--:--</div>
+                                                <div class="small text-white-50" data-translate="system_time">System Time</div>
+                                            </div>
+                                        </div>
+                                        <div class="col-6">
+                                            <div class="bg-black bg-opacity-25 rounded p-3 text-center status-tile d-flex flex-column justify-content-center">
+                                                <div class="h5 text-cyan mb-2" style="color: #8A2BE2;" id="timezoneDisplay">--</div>
+                                                <div class="small text-white-50" data-translate="timezone">Timezone</div>
+                                            </div>
+                                        </div>
+                                        <div class="col-6">
+                                            <div class="bg-black bg-opacity-25 rounded p-3 text-center status-tile d-flex flex-column justify-content-center">
+                                                <div class="h5 text-pink mb-2" style="color: #E91E63;" id="loadAvgDisplay">--</div>
+                                                <div class="small text-white-50" data-translate="load_average">Load Average</div>
+                                            </div>
+                                        </div>
+                                        <div class="col-12">
+                                            <div class="bg-black bg-opacity-25  rounded p-3 text-center">
+                                                <div class="h4 text-purple mb-2" style="color: #9C27B0;" id="uptimeDisplay">--:--:--</div>
+                                                <div class="small text-white-50" data-translate="uptime">Uptime</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-lg-6">
+                            <div class="card bg-dark border-secondary h-100">
+                                <div class="card-body">
+                                    <h5 class="card-title text-success mb-4" data-translate="system_monitoring">System Monitoring</h5>
+                                    <div class="row g-3 mb-3">
+                                        <div class="col-md-6">
+                                            <div class="card bg-black bg-opacity-25 border-secondary h-100">
+                                                <div class="card-body d-flex flex-column">
+                                                    <div class="d-flex justify-content-between align-items-center mb-2">
+                                                        <span class="text-white fw-medium" data-translate="cpu_usage">CPU Usage</span>
+                                                        <span class="text-success fw-bold" id="cpuUsageValue">
+                                                            <?= $systemInfo['cpu_usage'] ?>%
+                                                        </span>
+                                                    </div>
+                                                    <div class="progress mb-3" style="height: 30px;">
+                                                        <div class="progress-bar bg-success progress-bar-striped progress-bar-animated" 
+                                                             id="cpuUsageBar" 
+                                                             style="width: <?= min($systemInfo['cpu_usage'], 100) ?>%">
+                                                            <span class="visually-hidden">CPU Usage</span>
+                                                        </div>
+                                                    </div>
+                                                    <div class="flex-grow-1">
+                                                        <div class="bg-black rounded p-3 h-100">
+                                                            <canvas id="cpuChartCanvas" style="width: 100%; height: 100%;"></canvas>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="col-md-6">
+                                            <div class="card bg-black bg-opacity-25 border-secondary h-100">
+                                                <div class="card-body d-flex flex-column">
+                                                    <div class="d-flex justify-content-between align-items-center mb-2">
+                                                        <span class="text-white fw-medium" data-translate="memory_usage">Memory Usage</span>
+                                                        <span class="text-primary fw-bold" id="memUsageValue">
+                                                            <?= $systemInfo['mem_usage'] ?>%
+                                                        </span>
+                                                    </div>
+                                                    <div class="progress mb-3" style="height: 30px;">
+                                                        <div class="progress-bar bg-primary progress-bar-striped progress-bar-animated" 
+                                                             id="memUsageBar" 
+                                                             style="width: <?= min($systemInfo['mem_usage'], 100) ?>%">
+                                                            <span class="visually-hidden">Memory Usage</span>
+                                                        </div>
+                                                    </div>
+                                                    <div class="flex-grow-1">
+                                                        <div class="bg-black rounded p-3 h-100">
+                                                            <canvas id="memChartCanvas" style="width: 100%; height: 100%;"></canvas>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="row g-3">
+                                        <div class="col-6 col-lg-3">
+                                            <div class="card bg-black bg-opacity-25 border-secondary h-100">
+                                                <div class="card-body d-flex flex-column align-items-center justify-content-center text-center p-3" style="min-height: 100px;">
+                                                    <div class="h5 text-warning mb-2" id="cpuTempDisplay">--°C</div>
+                                                    <div class="text-white-50 small" data-translate="cpu_temperature">CPU Temperature</div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-6 col-lg-3">
+                                            <div class="card bg-black bg-opacity-25 border-secondary h-100">
+                                                <div class="card-body d-flex flex-column align-items-center justify-content-center text-center p-3" style="min-height: 100px;">
+                                                    <div class="h5 text-purple mb-2"style="color: #9C27B0;" id="processCountDisplay">--</div>
+                                                    <div class="text-white-50 small" data-translate="running_processes">Running Processes</div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-6 col-lg-3">
+                                            <div class="card bg-black bg-opacity-25 border-secondary h-100">
+                                                <div class="card-body d-flex flex-column align-items-center justify-content-center text-center p-3" style="min-height: 100px;">
+                                                    <div class="h5 text-cyan mb-2" style="color: #00BCD4;" id="cpuFreqDisplay">--</div>
+                                                    <div class="text-white-50 small" data-translate="cpu_frequency">CPU Frequency</div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-6 col-lg-3">
+                                            <div class="card bg-black bg-opacity-25 border-secondary h-100">
+                                                <div class="card-body d-flex flex-column align-items-center justify-content-center text-center p-3" style="min-height: 100px;">
+                                                    <div class="h5 text-pink mb-2" id="networkSpeedDisplay">0 KB/s</div>
+                                                    <div class="text-white-50 small" data-translate="network_speed">Network Speed</div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
-                </form>
+                </div>
+                
+                <div id="musicSection" class="grid-section" style="display: none;">
+                    <div class="grid-title" style="color: var(--accent-tertiary);">
+                        <i class="fas fa-music"></i>
+                        <span data-translate="audio">Music</span> (<?= count($media['music']) ?> <span data-translate="items">items</span>)
+                    </div>
+                    
+                    <?php if (empty($media['music'])): ?>
+                    <div class="empty-state">
+                        <div class="empty-icon">
+                            <i class="fas fa-music"></i>
+                        </div>
+                        <p style="margin-top: 15px;" data-translate="no_music_files_found">No music files found</p>
+                    </div>
+                    <?php else: ?>
+                    <div class="media-grid">
+                        <?php foreach ($media['music'] as $item): 
+                            $path = $item['path'];
+                            $file = basename($path);
+                            $ext = strtolower(pathinfo($file, PATHINFO_EXTENSION));
+                            $size = $item['size'];
+                            
+                            $duration = $bitrate = '';
+                            $ffmpegPath = '/usr/bin/ffmpeg';
+                            $cmd = "$ffmpegPath -i \"$path\" 2>&1";
+                            $output = shell_exec($cmd);
+                            
+                            if ($output) {
+                                preg_match('/Duration:\s*(\d+):(\d+):(\d+)/', $output, $matches) && $duration = sprintf("%02d:%02d:%02d", $matches[1], $matches[2], $matches[3]);
+                                (preg_match('/bitrate:\s*(\d+)\s*kb\/s/', $output, $matches) || preg_match('/Stream.*Audio:.*?(\d+)\s*kb\/s/', $output, $matches)) && $bitrate = $matches[1] . ' kbps';
+                            } else {
+                                $duration = $bitrate = 'Unknown';
+                            }
+                        ?>
+                        <div class="media-item hover-playable" 
+                             data-type="audio"
+                             data-src="?preview=1&path=<?= urlencode($item['path']) ?>"
+                             data-filename="<?= htmlspecialchars($item['safe_name']) ?>"
+                             data-filesize="<?= formatFileSize($item['size']) ?>"
+                             data-duration="<?= $duration ?>"
+                             data-bitrate="<?= $bitrate ?>"
+                             data-resolution="N/A"
+                             data-ext="<?= strtoupper($item['ext']) ?>"
+                             onclick="playMedia('<?= $item['safe_path'] ?>')"
+                             oncontextmenu="showMediaInfo(event, this)">
+                            <div class="media-thumb"><i class="fas fa-music"></i></div>
+                            <div class="media-info">
+                                <div class="media-name" title="<?= htmlspecialchars($item['safe_name'], ENT_QUOTES, 'UTF-8') ?>">
+                                    <?= $item['safe_name'] ?>
+                                </div>
+                                <div class="media-meta">
+                                    <span><?= strtoupper($item['ext']) ?></span>
+                                    <span><?= formatFileSize($item['size']) ?></span>
+                                </div>
+                            </div>
+                        </div>
+                        <?php endforeach; ?>
+                    </div>
+                    <?php endif; ?>
+                </div>
+                
+                <div id="videoSection" class="grid-section" style="display: none;">
+                    <div class="grid-title" style="color: var(--accent-tertiary);">
+                        <i class="fas fa-video"></i>
+                        <span data-translate="video">Video</span> (<?= count($media['video']) ?> <span data-translate="items">items</span>)
+                    </div>
+                    
+                    <?php if (empty($media['video'])): ?>
+                    <div class="empty-state">
+                        <div class="empty-icon">
+                            <i class="fas fa-video"></i>
+                        </div>
+                        <p style="margin-top: 15px;" data-translate="no_video_files_found">No video files found</p>
+                    </div>
+                    <?php else: ?>
+                    <div class="media-grid">
+                        <?php foreach ($media['video'] as $item): 
+                            $path = $item['path'];
+                            $file = basename($path);
+                            $ext = strtolower(pathinfo($file, PATHINFO_EXTENSION));
+                            $size = $item['size'];
+                            
+                            $duration = $bitrate = $resolution = '';
+                            $ffmpegPath = '/usr/bin/ffmpeg';
+                            $cmd = "$ffmpegPath -i \"$path\" 2>&1";
+                            $output = shell_exec($cmd);
+                            
+                            if ($output) {
+                                preg_match('/Duration:\s*(\d+):(\d+):(\d+)/', $output, $matches) && $duration = sprintf("%02d:%02d:%02d", $matches[1], $matches[2], $matches[3]);
+                                (preg_match('/bitrate:\s*(\d+)\s*kb\/s/', $output, $matches) || preg_match('/Stream.*Video:.*?(\d+)\s*kb\/s/', $output, $matches)) && $bitrate = $matches[1] . ' kbps';
+                                preg_match('/(\d{3,4})x(\d{3,4})/', $output, $matches) && $resolution = $matches[1] . 'x' . $matches[2];
+                            } else {
+                                $duration = $bitrate = $resolution = 'Unknown';
+                            }
+
+                            $previewUrl = "?preview=1&path=" . urlencode($item['path']);
+                        ?>
+                        <div class="media-item hover-playable" 
+                             data-type="video"
+                             data-src="?preview=1&path=<?= urlencode($item['path']) ?>"
+                             data-filename="<?= htmlspecialchars($item['safe_name']) ?>"
+                             data-filesize="<?= formatFileSize($item['size']) ?>"
+                             data-duration="<?= $duration ?>"
+                             data-bitrate="<?= $bitrate ?>"
+                             data-resolution="<?= $resolution ?>"
+                             data-ext="<?= strtoupper($item['ext']) ?>"
+                             onclick="playMedia('<?= $item['safe_path'] ?>')"
+                             oncontextmenu="showMediaInfo(event, this)">
+                             <div class="media-thumb">
+                                 <video class="video-thumbnail" 
+                                     preload="metadata"
+                                     playsinline
+                                     muted
+                                     style="width: 100%; height: 100%; object-fit: cover; border-radius: 8px;">
+                                 <source src="<?= $previewUrl ?>" type="video/mp4">
+                                 <source src="<?= $previewUrl ?>" type="video/webm">
+                                 <source src="<?= $previewUrl ?>" type="video/ogg">
+                                 <div style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+                                     <i class="fas fa-video"></i>
+                                 </div>
+                             </video>
+                             <div class="video-overlay" style="position: absolute; top: 10px; left: 10px; background: rgba(0,0,0,0.6); padding: 4px 8px; border-radius: 4px;">
+                                 <i class="fas fa-play text-white" style="font-size: 12px;"></i>
+                             </div>
+                         </div>
+                            <div class="media-info">
+                                <div class="media-name" title="<?= htmlspecialchars($item['safe_name'], ENT_QUOTES, 'UTF-8') ?>">
+                                    <?= $item['safe_name'] ?>
+                                </div>
+                                <div class="media-meta">
+                                    <span><?= strtoupper($item['ext']) ?></span>
+                                    <span><?= formatFileSize($item['size']) ?></span>
+                                </div>
+                            </div>
+                        </div>
+                        <?php endforeach; ?>
+                    </div>
+                    <?php endif; ?>
+                </div>
+                
+                <div id="imageSection" class="grid-section" style="display: none;">
+                    <div class="grid-title" style="color: var(--accent-tertiary);">
+                        <i class="fas fa-image"></i>
+                        <span data-translate="image">Image</span> (<?= count($media['image']) ?> <span data-translate="items">items</span>)
+                    </div>
+                    
+                    <?php if (empty($media['image'])): ?>
+                    <div class="empty-state">
+                        <div class="empty-icon">
+                            <i class="fas fa-image"></i>
+                        </div>
+                        <p style="margin-top: 15px;" data-translate="no_image_files_found">No image files found</p>
+                    </div>
+                    <?php else: ?>
+                    <div class="media-grid">
+                        <?php foreach ($media['image'] as $item): 
+                            $path = $item['path'];
+                            $file = basename($path);
+                            $ext = strtolower(pathinfo($file, PATHINFO_EXTENSION));
+                            $size = $item['size'];
+                            
+                            $resolution = 'Unknown';
+                            $imageInfo = @getimagesize($path);
+                            $imageInfo && $resolution = $imageInfo[0] . 'x' . $imageInfo[1];
+                        ?>
+                        <div class="media-item" 
+                             data-type="image"
+                             data-src="?preview=1&path=<?= urlencode($item['path']) ?>"
+                             data-filename="<?= htmlspecialchars($item['safe_name']) ?>"
+                             data-filesize="<?= formatFileSize($item['size']) ?>"
+                             data-duration="N/A"
+                             data-bitrate="N/A"
+                             data-resolution="<?= $resolution ?>"
+                             data-ext="<?= strtoupper($item['ext']) ?>"
+                             onclick="playMedia('<?= $item['safe_path'] ?>')"
+                             oncontextmenu="showMediaInfo(event, this)">
+                            <div class="media-thumb">
+                                <img src="?preview=1&path=<?= urlencode($item['path']) ?>" 
+                                     alt="<?= $item['safe_name'] ?>"
+                                     loading="lazy"
+                                     onerror="handleThumbError(this)">
+                            </div>
+                            <div class="media-info">
+                                <div class="media-name" title="<?= htmlspecialchars($item['safe_name'], ENT_QUOTES, 'UTF-8') ?>">
+                                    <?= $item['safe_name'] ?>
+                                </div>
+                                <div class="media-meta">
+                                    <span><?= strtoupper($item['ext']) ?></span>
+                                    <span><?= formatFileSize($item['size']) ?></span>
+                                </div>
+                            </div>
+                        </div>
+                        <?php endforeach; ?>
+                    </div>
+                    <?php endif; ?>
+                </div>
+
+                <div id="filesSection" class="grid-section" style="display: none;">
+                    <div class="grid-title" style="color: var(--accent-tertiary); display: flex; align-items: center; justify-content: space-between;">
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                        <i class="fas fa-folder"></i>
+                        <span data-translate="fileAssistant">File Manager</span>
+                    </div>
+
+                    <button class="btn btn-purple" onclick="toggleView()" id="viewToggleBtn">
+                        <i class="fas fa-edit" id="viewToggleIcon"></i>
+                        <span id="viewToggleText" data-translate="editor_view">Editor View</span>
+                    </button>
+                </div>
+                 
+                    <div class="file-grid-header">
+                        <div class="breadcrumb" id="breadcrumb">
+                        </div>
+
+                        <div class="editor-tabs-switcher" id="editorTabsSwitcher" style="display: none;">
+                            <div class="editor-tabs-container" style="display: flex; align-items: center; gap: 5px;">
+                                <span style="color: var(--text-secondary); font-size: 0.9rem;">
+                                    <i class="fas fa-file-edit"></i> <span data-translate="editing">Editing:</span>
+                                </span>
+                                <div class="editor-tabs-list" id="editorTabsList" style="display: flex; gap: 5px; overflow-x: auto;"></div>
+                                <button class="btn btn-sm btn-secondary" onclick="toggleEditorPanel()" style="white-space: nowrap;">
+                                    <i class="fas fa-chevron-down" id="editorToggleIcon"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="view-toggle">
+                            <button class="view-toggle-btn active" onclick="changeViewMode('grid')" data-translate-tooltip="grid_view">
+                                <i class="fas fa-th-large"></i>
+                            </button>
+                            <button class="view-toggle-btn" onclick="changeViewMode('list')" data-translate-tooltip="list_view">
+                                <i class="fas fa-list"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div id="editorPanel" style="display: none; max-height: 0; overflow: hidden; transition: all 0.3s ease;">
+                        <div style="display: flex; flex-direction: column; height: 95%; background: var(--bg-container); border: var(--border-strong); border-radius: 8px;">
+                            <div style="display: flex; overflow-x: auto; padding: 10px; border-bottom: var(--border-strong); gap: 5px;" id="editorPanelTabsNav"></div>
+        
+                            <div style="flex: 1; position: relative; overflow: hidden;" id="editorPanelContent">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="toolbar">
+                        <button class="btn btn-primary" onclick="navigateUp()">
+                            <i class="fas fa-arrow-up"></i>
+                            <span data-translate="goToParentDirectoryTitle">Up</span>
+                        </button>
+                        <button class="btn btn-teal" onclick="refreshFiles()">
+                            <i class="fas fa-redo"></i>
+                            <span data-translate="refresh">Refresh</span>
+                        </button>
+                        <button class="btn btn-coral" onclick="deleteSelected()">
+                            <i class="fas fa-trash"></i>
+                            <span data-translate="batch_delete">Delete</span>
+                        </button>
+                        <button class="btn btn-purple" data-bs-toggle="modal" data-bs-target="#createTypeModal">
+                            <i class="fas fa-folder-plus"></i>
+                            <span data-translate="createTitle">New Folder</span>
+                        </button>
+                        <button class="btn btn-pink" data-bs-toggle="modal" data-bs-target="#uploadModal">
+                            <i class="fas fa-upload"></i>
+                            <span data-translate="upload">Upload</span>
+                        </button>
+                        <button class="btn btn-orange" data-bs-toggle="modal" data-bs-target="#searchModal">
+                            <i class="fas fa-search"></i>
+                            <span data-translate="search">Search</span>
+                        </button>
+                    </div>
+
+                      <div class="selection-toolbar-container d-none mt-3" id="selectionToolbar">
+                          <div class="alert alert-secondary mb-0">
+                              <div class="d-flex justify-content-between flex-column flex-sm-row align-items-center">
+                                  <div class="mb-2 mb-sm-0">
+                                      <button class="btn btn-outline-primary btn-sm" onclick="selectAllFiles()">
+                                        <i class="fas fa-check-square me-1"></i>
+                                        <span data-translate="selectAll">Select All</span>
+                                      </button>
+                                      <span id="selectedInfo" class="ms-2 ms-sm-3"></span>
+                                  </div>
+                                  <div>
+                                      <button class="btn btn-danger btn-sm me-2" onclick="deleteSelected()">
+                                        <i class="fas fa-trash me-1"></i>
+                                        <span data-translate="batch_delete">Delete Selected Files</span>
+                                      </button>
+                                      <button class="btn btn-secondary btn-sm" onclick="clearSelection()">
+                                        <i class="fas fa-times me-1"></i>
+                                        <span data-translate="close">Close</span>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="file-selection-info" id="selectionInfo">
+                        <span id="selectedCount">0 items selected</span>
+                        <div class="selection-actions">
+                            <button class="btn btn-teal" onclick="clearSelection()" style="padding: 4px 8px; font-size: 0.8rem;">
+                                <i class="fas fa-times"></i>
+                                <span data-translate="clear">Clear</span>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="file-grid folder-view" id="fileGrid">
+                    </div>
+                    
+                    <div class="loading-files" id="loadingFiles" style="display: none;">
+                        <i class="fas fa-spinner fa-spin"></i>
+                        <span data-translate="loading_files">Loading files...</span>
+                    </div>
+                </div>
+                
+                <div id="recentSection" class="grid-section" style="display: none;">
+                    <div class="grid-title">
+                        <i class="fas fa-history"></i>
+                        <span data-translate="recent_play">Recent Play</span>
+                    </div>
+                    
+                    <div class="recent-list" id="recentList">
+                        <?php if (empty($recent)): ?>
+                        <div class="empty-state">
+                            <div class="empty-icon">
+                                <i class="fas fa-play-circle"></i>
+                            </div>
+                            <p style="margin-top: 15px;" data-translate="no_playback_history">No playback history</p>
+                        </div>
+                        <?php else: ?>
+                            <?php foreach (array_slice($recent, 0, 10) as $file): ?>
+                            <?php
+                            $ext = strtolower(pathinfo($file, PATHINFO_EXTENSION));
+                            $icon = 'fas fa-image';
+                            if (in_array($ext, $TYPE_EXT['music'])) {
+                                $icon = 'fas fa-music';
+                            } elseif (in_array($ext, $TYPE_EXT['video'])) {
+                                $icon = 'fas fa-video';
+                            }
+                            ?>
+                            <div class="recent-item" onclick="playMedia('<?= htmlspecialchars($file, ENT_QUOTES, 'UTF-8') ?>')">
+                                <div class="recent-icon">
+                                    <i class="<?= $icon ?>"></i>
+                                </div>
+                                <div class="recent-info">
+                                    <div class="recent-name"><?= htmlspecialchars(basename($file), ENT_QUOTES, 'UTF-8') ?></div>
+                                    <div class="recent-path"><?= htmlspecialchars(dirname($file), ENT_QUOTES, 'UTF-8') ?></div>
+                                </div>
+                            </div>
+                            <?php endforeach; ?>
+                        <?php endif; ?>
+                    </div>
+                </div>
             </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-warning" id="updatePhpConfig" data-translate="unlock_php_upload_limit"></button>
-                <button class="btn btn-primary" onclick="$('#uploadForm').submit()" data-translate="upload"></button>
-                <button class="btn btn-secondary" data-bs-dismiss="modal" data-translate="cancel"></button>
+            
+            <div class="resizer" id="playerResizer"></div>
+            <div class="player-area" id="playerArea">
+                <div class="player-header">
+                    <div class="player-title" id="playerTitle">
+                        <i class="fas fa-play"></i>
+                        <span data-translate="media_player">Media Player</span>
+                    </div>
+                    <div class="player-actions">
+                        <button class="player-btn" onclick="toggleFullscreenPlayer()">
+                            <i class="fas fa-expand"></i>
+                        </button>
+                        <button class="player-btn" onclick="closePlayer(); return false;">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="player-content">
+                    <audio id="audioPlayer" controls style="display: none;"></audio>
+                    <video id="videoPlayer" controls style="display: none;"></video>
+                    <img id="imageViewer" style="display: none;" />
+                    <div id="playError" style="display: none; text-align: center; padding: 40px;">
+                        <i class="fas fa-exclamation-triangle" style="font-size: 48px; color: #ff9800; margin-bottom: 20px;"></i>
+                        <h3 style="margin-bottom: 10px; color: var(--text-primary);" data-translate="cannot_play_media">Cannot play media file</h3>
+                        <p style="color: var(--text-secondary);" data-translate="possible_reasons">Possible reasons:</p>
+                        <ul style="color: var(--text-secondary); text-align: left; margin-top: 10px; padding-left: 20px;">
+                            <li data-translate="reason_unsupported_format">File format not supported by browser</li>
+                            <li data-translate="reason_incorrect_path">File path is incorrect</li>
+                            <li data-translate="reason_server_unreachable">Server cannot access the file</li>
+                        </ul>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
 </div>
 
-<?php foreach ($files as $file): ?>
-<div class="modal fade" id="renameModal-<?= md5($file) ?>" tabindex="-1" aria-labelledby="renameModalLabel-<?= md5($file) ?>" aria-hidden="true">
-    <div class="modal-dialog modal-lg">
-        <form class="modal-content" method="post" action="">
-            <input type="hidden" name="old_name" value="<?= htmlspecialchars($file, ENT_QUOTES, 'UTF-8') ?>">
+<div id="mediaContextMenu" class="context-menu" style="display: none;">
+    <div class="context-menu-header">
+        <i class="fas fa-info-circle"></i>
+        <span data-translate="media_info">Media Info</span>
+        <button class="btn-close" onclick="hideContextMenu()"></button>
+    </div>
+    <div class="context-menu-content">
+        <div class="info-item">
+            <span class="info-label" data-translate="filename">Name:</span>
+            <span class="info-value" id="infoFilename"></span>
+        </div>
+        <div class="info-item">
+            <span class="info-label" data-translate="filesize">Size:</span>
+            <span class="info-value" id="infoFilesize"></span>
+        </div>
+        <div class="info-item">
+            <span class="info-label" data-translate="type">Type:</span>
+            <span class="info-value" id="infoType"></span>
+        </div>
+        <div class="info-item" id="durationItem">
+            <span class="info-label" data-translate="duration">Duration:</span>
+            <span class="info-value" id="infoDuration"></span>
+        </div>
+        <div class="info-item" id="resolutionItem">
+            <span class="info-label" data-translate="resolution">Resolution:</span>
+            <span class="info-value" id="infoResolution"></span>
+        </div>
+        <div class="info-item" id="bitrateItem">
+            <span class="info-label" data-translate="bitrate">Bitrate:</span>
+            <span class="info-value" id="infoBitrate"></span>
+        </div>
+        <div class="info-item">
+            <span class="info-label" data-translate="file_path">Path:</span>
+            <span class="info-value" id="infoPath"></span>
+        </div>
+    </div>
+    <div class="context-menu-actions d-flex flex-row-reverse">
+        <button class="btn btn-primary" onclick="playSelectedMedia()">
+            <i class="fas fa-play"></i>
+            <span data-translate="play">Play</span>
+        </button>
+        <button class="btn btn-dark-red" onclick="closeContextMenu()">
+            <i class="fas fa-times"></i>
+            <span data-translate="close">Close</span>
+        </button>
+    </div>
+</div>
 
+<div id="contextMenuOverlay" class="context-menu-overlay" style="display: none;" onclick="hideContextMenu()"></div>
+
+<div id="fileContextMenu" class="context-menu context-menu-file" style="display: none;">
+    <div class="context-menu-header">
+        <i class="fas fa-ellipsis-v"></i>
+        <span data-translate="file_actions">File Actions</span>
+        <button type="button" class="btn-close" onclick="hideFileContextMenu()"></button>
+    </div>
+    <div class="context-menu-content">
+        <div class="menu-item" id="emptyNewFolderItem" style="display: none;" onclick="showCreateFolderModal()">
+            <i class="fas fa-folder-plus me-2" style="color:#1E88E5;"></i>
+            <span data-translate="create_new_folder">Create a new folder</span>
+        </div>
+        <div class="menu-item" id="emptyNewFileItem" style="display: none;" onclick="showCreateFileModal()">
+            <i class="fas fa-file-circle-plus me-2" style="color:#43A047;"></i>
+            <span data-translate="create_new_file">Create a new file</span>
+        </div>
+        <div class="menu-item" id="emptyUploadItem" style="display: none;" onclick="document.querySelector('[data-bs-target=\'#uploadModal\']')?.click()">
+            <i class="fas fa-upload me-2" style="color:#FB8C00;"></i>
+            <span data-translate="upload">Upload</span>
+        </div>
+     
+        <div class="menu-item" id="emptyRefreshItem" style="display: none;" onclick="refreshFiles()">
+            <i class="fas fa-sync-alt me-2" style="color:#00897B;"></i>
+            <span data-translate="refresh">Refresh</span>
+        </div>
+        <div class="menu-item" id="emptySelectAllItem" style="display: none;" onclick="toggleEmptySelectAll()">
+            <i class="fas fa-check-square me-2" id="emptySelectAllIcon" style="color:#3949AB;"></i>
+            <span id="emptySelectAllText">Select All</span>
+        </div>
+        
+        <div class="menu-item" id="globalPasteItem" style="display: none;" onclick="pasteFromClipboard()">
+            <i class="fas fa-paste me-2" style="color:#8E24AA;"></i>
+            <span data-translate="paste">Paste</span>
+            <span id="pasteActionHint" style="margin-left: auto; font-size: 0.8rem; opacity: 0.7;"></span>
+        </div>
+        <div class="menu-divider" id="globalPasteDivider" style="display: none;"></div>
+        
+        <div class="menu-item" id="fileOpenItem" onclick="contextMenuOpen()">
+            <i class="fas fa-folder-open me-2" style="color:#039BE5;"></i>
+            <span data-translate="open">Open</span>
+        </div>
+        <div class="menu-item" id="filePlayItem" style="display: none;" onclick="contextMenuPlay()">
+            <i class="fas fa-play me-2" style="color:#D81B60;"></i>
+            <span data-translate="play">Play</span>
+        </div>
+        <div class="menu-item" id="fileEditItem" style="display: none;" onclick="contextMenuEdit()">
+            <i class="fas fa-edit me-2" style="color:#7CB342;"></i>
+            <span data-translate="edit">Edit</span>
+        </div>
+        <div class="menu-item" id="fileDownloadItem" onclick="contextMenuDownload()">
+            <i class="fas fa-download me-2" style="color:#00ACC1;"></i>
+            <span data-translate="download">Download</span>
+        </div>
+        
+        <div class="menu-item" id="fileCutItem" onclick="copyToClipboard('cut')">
+            <i class="fas fa-cut me-2" style="color:#C62828;"></i>
+            <span data-translate="menucut">Cut</span>
+            <span style="margin-left: auto; font-size: 0.8rem; opacity: 0.7;">Ctrl+X</span>
+        </div>
+        <div class="menu-item" id="fileCopyItem" onclick="copyToClipboard('copy')">
+            <i class="fas fa-copy me-2" style="color:#5E35B1;"></i>
+            <span data-translate="copy">Copy</span>
+            <span style="margin-left: auto; font-size: 0.8rem; opacity: 0.7;">Ctrl+C</span>
+        </div>
+        <div class="menu-item" id="fileCopyPathItem" onclick="copyFilePath()">
+            <i class="fas fa-link me-2" style="color: #2196F3;"></i>
+            <span data-translate="copy_file_path">Copy File Path</span>
+            <span style="margin-left: auto; font-size: 0.8rem; opacity: 0.7;">Ctrl+Shift+C</span>
+        </div>
+        <div class="menu-item" id="filePasteItem" style="display: none;" onclick="pasteFromClipboard()">
+            <i class="fas fa-paste me-2" style="color:#F4511E;"></i>
+            <span data-translate="paste">Paste</span>
+            <span style="margin-left: auto; font-size: 0.8rem; opacity: 0.7;">Ctrl+V</span>
+        </div>
+        <div class="menu-item" id="fileRenameItem" data-bs-toggle="modal" data-bs-target="#renameModal" onclick="prepareRenameModal()">
+            <i class="fas fa-edit me-2" style="color:#6D4C41;"></i>
+            <span data-translate="rename">Rename</span>
+            <span style="margin-left: auto; font-size: 0.8rem; opacity: 0.7;">F2</span>
+        </div>
+        <div class="menu-item" id="fileDeleteItem" onclick="contextMenuDelete()">
+            <i class="fas fa-trash me-2" style="color:#E53935;"></i>
+            <span data-translate="delete">Delete</span>
+            <span style="margin-left: auto; font-size: 0.8rem; opacity: 0.7;">Delete</span>
+        </div>
+        
+        <div class="menu-item archive-menu" id="archiveMenuItem" onclick="toggleArchiveSubmenu(event)">
+            <i class="fas fa-file-archive me-2" style="color:#512DA8;"></i>
+            <span data-translate="archive_operations">Archive Operations</span>
+            <i class="fas fa-chevron-right ms-auto"></i>
+        </div>
+        <div id="archiveSubmenu" class="archive-submenu" style="display: none; margin-left: 20px;">
+            <div class="menu-item" id="archiveCompressItem" onclick="showCompressDialog()">
+                <i class="fas fa-compress me-2"></i>
+                <span data-translate="compress_to">Compress to...</span>
+            </div>
+            <div class="menu-item" id="archiveExtractHereItem" onclick="extractArchiveHere(fileContextMenuTarget?.getAttribute('data-path'))">
+                <i class="fas fa-expand me-2"></i>
+                <span data-translate="extract_here">Extract here</span>
+            </div>
+            <div class="menu-item" id="archiveExtractToItem" onclick="showExtractDialog()">
+                <i class="fas fa-folder-open me-2"></i>
+                <span data-translate="extract_to">Extract to...</span>
+            </div>
+        </div>
+      
+        <div class="menu-item" id="fileChmodItem" onclick="showChmodDialog()">
+            <i class="fas fa-key me-2" style="color:#FBC02D;"></i>
+            <span data-translate="permissions">Permissions</span>
+        </div>
+        <div class="menu-item" id="fileInstallItem" style="display: none;" onclick="showInstallDialog()">
+            <i class="fas fa-box-open me-2" style="color: #FF9800;"></i>
+            <span data-translate="install_package">Install Package</span>
+            <span style="margin-left: auto; font-size: 0.8rem; opacity: 0.7;">IPK/APK</span>
+        </div>
+        <div class="menu-item" id="fileHashItem" style="display: none;" onclick="showFileHashDialog()">
+            <i class="fas fa-fingerprint me-2" style="color:#455A64;"></i>
+            <span data-translate="file_hash">File Hash</span>
+            <span style="margin-left: auto; font-size: 0.8rem; opacity: 0.7">MD5/SHA1/SHA256</span>
+        </div>
+        <div class="menu-item" id="filePropertiesItem" onclick="showFileProperties()">
+            <i class="fas fa-info-circle me-2" style="color:#1976D2;"></i>
+            <span data-translate="properties">Properties</span>
+            <span style="margin-left: auto; font-size: 0.8rem; opacity: 0.7;">Alt+Enter</span>
+        </div>
+        <div class="menu-item" id="fileTerminalItem" onclick="openTerminal()">
+            <i class="fas fa-terminal me-2" style="color:#00FF00;"></i>
+            <span data-translate="open_terminal">Open Terminal</span>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="searchModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="renameModalLabel-<?= md5($file) ?>" data-translate="rename_file">
-                    <?= htmlspecialchars($file, ENT_QUOTES, 'UTF-8') ?>
+                <h5 class="modal-title">
+                    <i class="fas fa-search me-2"></i>
+                    <span data-translate="searchFiles">Search Files</span>
                 </h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-
             <div class="modal-body">
                 <div class="mb-3">
-                    <label for="newName-<?= md5($file) ?>" data-translate="new_filename">New Filename</label>
-                    <input 
-                        type="text" 
-                        class="form-control" 
-                        id="newName-<?= md5($file) ?>" 
-                        name="new_name"
-                        value="<?= htmlspecialchars($file, ENT_QUOTES, 'UTF-8') ?>"
-                        data-translate-title="invalid_filename_chars"
-                    >
+                    <div class="input-group">
+                        <input type="text" id="searchInput" class="form-control" 
+                               data-translate-placeholder="search_placeholder"
+                               placeholder="Enter file name or use * wildcard (e.g.: *.mp3)"
+                               autofocus>
+                        <button class="btn btn-primary" type="button" onclick="searchFiles()">
+                            <i class="fas fa-search"></i>
+                            <span data-translate="search">Search</span>
+                        </button>
+                    </div>
+                    <div class="form-text mt-1" data-translate="search_hint">
+                        Tip: Use * as a wildcard (e.g., "*.mp3" to search for all MP3 files)
+                    </div>
                 </div>
-            </div>
-
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" data-translate="cancel">Cancel</button>
-                <button type="submit" class="btn btn-primary" name="rename" data-translate="confirm">Rename</button>
-            </div>
-        </form>
-    </div>
-</div>
-<?php endforeach; ?>
-
-<html lang="<?php echo $currentLang; ?>">
-<div class="modal fade" id="langModal" tabindex="-1" aria-labelledby="langModalLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="langModalLabel" data-translate="select_language">Select Language</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <select id="langSelect" class="form-select" onchange="changeLanguage(this.value)">
-                    <option value="zh" data-translate="simplified_chinese">Simplified Chinese</option>
-                    <option value="hk" data-translate="traditional_chinese">Traditional Chinese</option>
-                    <option value="en" data-translate="english">English</option>
-                    <option value="ko" data-translate="korean">Korean</option>
-                    <option value="vi" data-translate="vietnamese">Vietnamese</option>
-                    <option value="th" data-translate="thailand">Thailand</option>
-                    <option value="ja" data-translate="japanese"></option>
-                    <option value="ru" data-translate="russian"></option>
-                    <option value="de" data-translate="germany">Germany</option>
-                    <option value="fr" data-translate="france">France</option>
-                    <option value="ar" data-translate="arabic"></option>
-                    <option value="es" data-translate="spanish">spanish</option>
-                    <option value="bn" data-translate="bangladesh">Bangladesh</option>
-                </select>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" data-translate="close">Close</button>
+                
+                <div id="searchResults" style="max-height: 50vh; overflow-y: auto;">
+                    <div class="text-center text-muted py-4">
+                        <i class="fas fa-search fa-2x mb-2"></i>
+                        <p data-translate="enter_search_term">Enter a search term to start finding files</p>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
 </div>
 
-<div class="modal fade" id="playerModal" tabindex="-1" aria-labelledby="playerModalLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+<div class="modal fade" id="filePropertiesModal" tabindex="-1" aria-labelledby="filePropertiesModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-xl">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="playerModalLabel" data-translate="media_player"></h5>
+                <h5 class="modal-title" id="filePropertiesModalLabel">
+                    <i class="fas fa-info-circle me-2"></i>
+                    <span data-translate="file_properties">File Properties</span>
+                </h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <div class="modal-body  p-0 m-0 d-flex flex-column" style="height: 65vh;">
-                <div class="row g-3 flex-grow-1 h-100">
-                    <div class="col-md-8 d-flex flex-column h-100">
-                        <div class="ratio ratio-16x9 bg-dark rounded flex-grow-1 position-relative">
-                            <video id="mainPlayer" controls class="w-100 h-100 d-none"></video>
-                            <img id="imagePlayer" class="w-100 h-100 d-none object-fit-contain">
+            <div class="modal-body">
+                <div id="filePropertiesContent">
+                    <div class="text-center py-4">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">Loading...</span>
                         </div>
-                    </div>
-                    <div class="col-md-4 d-flex flex-column h-100">
-                        <h6 class="pt-3 mb-3" data-translate="playlist"></h6>
-                        <div class="list-group flex-grow-1 overflow-auto" id="playlistContainer"></div>
+                        <p class="mt-2" data-translate="loading">Loading...</p>
                     </div>
                 </div>
             </div>
             <div class="modal-footer">
-                <button class="btn btn-sm btn-danger" id="clearPlaylist">
-                    <i class="bi bi-trash"></i>
-                    <span data-translate="clear_list"></span>
-                </button>
-                <button class="btn btn-sm btn-info" id="fitTogglePlayer">
-                    <i class="bi bi-aspect-ratio"></i>
-                    <span data-translate="fit_cover">Cover</span>
-                </button>
-                <button class="btn btn-sm btn-primary" id="togglePlaylist">
-                    <i class="bi bi-list-ul"></i>
-                    <span data-translate="toggle_list"></span>
-                </button>
-                <button class="btn btn-sm btn-info" id="togglePip" style="display: none;">
-                    <i class="bi bi-pip"></i>
-                    <span data-translate="picture_in_picture"></span>
-                </button>
-                <button class="btn btn-sm btn-success" id="toggleFullscreen">
-                    <i class="bi bi-arrows-fullscreen"></i>
-                    <span data-translate="fullscreen"></span>
-                </button>
-                <button class="btn btn-sm btn-secondary" data-bs-dismiss="modal">
-                    <i class="bi bi-x-lg"></i>
-                    <span data-translate="close"></span>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    <i class="fas fa-times me-1"></i>
+                    <span data-translate="close">Close</span>
                 </button>
             </div>
         </div>
     </div>
 </div>
 
-<div class="modal fade" id="updateConfirmModal" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" data-translate="theme_download"></h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-            </div>
-            <div class="modal-body">
-                <div id="currentVersionInfo" class="alert alert-info" data-translate="current_version"></div>
-                <div id="themeVersionInfo" class="alert alert-warning" data-translate="fetching_version"></div>
-                <textarea id="copyCommand" class="form-control" rows="3" readonly>
-opkg update && opkg install wget grep sed && LATEST_FILE=$(wget -qO- https://github.com/Thaolga/openwrt-nekobox/releases/expanded_assets/1.8.8 | grep -o 'luci-theme-spectra_[0-9A-Za-z.\-_]*_all.ipk' | head -n1) && wget -O /tmp/"$LATEST_FILE" "https://github.com/Thaolga/openwrt-nekobox/releases/download/1.8.8/$LATEST_FILE" && opkg install --force-reinstall /tmp/"$LATEST_FILE" && rm -f /tmp/"$LATEST_FILE"
-</textarea>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" data-translate="cancel"></button>
-                <a id="confirmUpdateLink" href="#" class="btn btn-danger" target="_blank" data-translate="download_local"></a>
-                <button id="copyCommandBtn" class="btn btn-info" data-translate="copy_command"></button>
-                <button id="updatePluginBtn" class="btn btn-primary" data-translate="update_plugin">update_plugin</button>
-            </div>
-        </div>
-    </div>
-</div>
-
-<div class="modal fade custom-modal" id="ipDetailModal" tabindex="-1" role="dialog" aria-labelledby="ipDetailModalLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
-    <div class="modal-dialog modal-xl draggable" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="ipDetailModalLabel" data-translate="ip_info">IP Details</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-            <div class="modal-body">
-                <div class="detail-row">
-                    <span class="detail-label" data-translate="ip_address">IP Address</span>
-                    <span class="detail-value"></span>
-                </div>
-                <div class="detail-row">
-                    <span class="detail-label" data-translate="location">Location</span>
-                    <span class="detail-value"></span>
-                </div>
-                <div class="detail-row">
-                    <span class="detail-label" data-translate="isp">ISP</span>
-                    <span class="detail-value"></span>
-                </div>
-                <div class="detail-row">
-                    <span class="detail-label">ASN</span>
-                    <span class="detail-value"></span>
-                </div>
-                <div class="detail-row">
-                    <span class="detail-label" data-translate="timezone">Timezone</span>
-                    <span class="detail-value"></span>
-                </div>
-                <div class="detail-row map-coord-row" style="display: none;">
-                    <span class="detail-label" data-translate="latitude_longitude">Coordinates</span>
-                    <span class="detail-value"></span>
-                </div>
-                <div class="detail-row map-container" style="height: 400px; margin-top: 20px; display: none;">
-                    <div id="leafletMap" style="width: 100%; height: 100%;"></div>
-                </div>
-                <h5 style="margin-top: 15px;" data-translate="latency_info">Latency Info</h5>
-                <div class="detail-row" id="delayInfo" style="display: flex; flex-wrap: wrap;"></div>
-                </div>
-              <div class="modal-footer">
-                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" data-translate="cancel"></button>
-            </div>
-        </div>
-    </div>
-</div>
-
-<div class="modal fade" id="shareModal" tabindex="-1" aria-labelledby="shareModalLabel" aria-hidden="true">
+<div class="modal fade" id="chmodModal" tabindex="-1" aria-labelledby="chmodModalLabel" aria-hidden="true">
   <div class="modal-dialog modal-lg">
-    <div class="modal-content">
+    <form method="post" onsubmit="return validateChmod()" class="modal-content no-loader">
       <div class="modal-header">
-        <h5 class="modal-title" id="shareModalLabel" data-translate="createShareLink">Create Share Link</h5>
-        <button type="button" class="btn-close" aria-label="Close"></button>
+        <h5 class="modal-title" id="chmodModalLabel" data-translate="setPermissions">🔒 Set Permissions</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <div class="modal-body">
-        <form id="shareForm">
-          <div class="mb-3">
-            <label for="expireTime" class="form-label" data-translate="expireTimeLabel">Expiration Time</label>
-            <select class="form-select" id="expireTime" name="expire">
-              <option value="3600" data-translate="expire1Hour">1 Hour</option>
-              <option value="86400" selected data-translate="expire1Day">1 Day</option>
-              <option value="604800" data-translate="expire7Days">7 Days</option>
-              <option value="2592000" data-translate="expire30Days">30 Days</option>
-            </select>
+        <input type="hidden" name="action" value="chmod">
+        <input type="hidden" name="path" id="chmodPath">
+
+        <div class="mb-3">
+          <label for="permissions" class="form-label" data-translate="permissionValue">
+            Permission value (e.g.: 0644)
+          </label>
+          <input type="text"
+                 name="permissions"
+                 id="permissions"
+                 class="form-control"
+                 maxlength="4"
+                 data-translate-placeholder="permissionPlaceholder"
+                 placeholder="0644"
+                 autocomplete="off">
+          <div class="form-text mt-1" data-translate="permissionHelp">
+            Please enter a valid permission value (three or four octal digits, e.g.: 644 or 0755)
           </div>
-          <div class="mb-3">
-            <label for="maxDownloads" class="form-label" data-translate="maxDownloadsLabel">Max Downloads</label>
-            <select class="form-select" id="maxDownloads" name="max_downloads">
-              <option value="1" data-translate="max1Download">1 Time</option>
-              <option value="5" data-translate="max5Downloads">5 Time</option>
-              <option value="10" data-translate="max10Downloads">10 Time</option>
-              <option value="0" selected data-translate="maxUnlimited">Unlimited</option>
-            </select>
-          </div>
-          <div class="mb-3">
-            <label for="shareLink" class="form-label" data-translate="shareLinkLabel">Share Link</label>
-            <div class="input-group">
-              <input type="text" class="form-control" id="shareLink" readonly>
-              <button class="btn btn-outline-secondary" type="button" id="copyLinkBtn" data-translate-title="copyLinkButton">
-                <i class="bi bi-clipboard"></i>
-              </button>
-            </div>
-          </div>
-        </form>
+        </div>
       </div>
       <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal"><i class="fa fa-times" aria-hidden="true"></i> <span data-translate="closeButtonFooter">Close</span></button>
-        <button type="button" class="btn btn-warning" id="cleanExpiredBtn"><i class="fa fa-broom" aria-hidden="true"></i> <span data-translate="cleanExpiredButton">Clean Expired</span></button>
-        <button type="button" class="btn btn-danger" id="deleteAllBtn"><i class="fa fa-trash" aria-hidden="true"></i> <span data-translate="deleteAllButton">Delete All</span></button>
-        <button type="button" class="btn btn-primary" id="generateShareBtn"><i class="fa fa-link" aria-hidden="true"></i> <span data-translate="generateLinkButton">Generate Link</span></button>
+        <button type="button"
+                class="btn btn-secondary"
+                data-bs-dismiss="modal"
+                data-translate="cancel">Cancel</button>
+        <button type="submit"
+                class="btn btn-primary"
+                data-translate="saveButton">Save</button>
       </div>
-    </div>
+    </form>
   </div>
 </div>
 
-<div class="modal fade" id="updateModal" tabindex="-1" aria-labelledby="updateModalLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+<div class="modal fade" id="createTypeModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="updateModalLabel" data-translate="updateModalLabel">Update status</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
+                <h5 class="modal-title">
+                    <i class="fas fa-plus me-2"></i>
+                    <span data-translate="create_new">Create New</span>
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="row g-3">
+                    <div class="col-6">
+                        <div class="card text-center h-100 border-primary" 
+                             style="cursor: pointer;"
+                             data-bs-dismiss="modal"
+                             onclick="showCreateFolderModal()">
+                            <div class="card-body py-4">
+                                <i class="fas fa-folder-plus fa-3x text-primary mb-3"></i>
+                                <h5 class="card-title" data-translate="newFolder">Folder</h5>
+                                <p class="card-text text-muted small" data-translate="create_new_folder">
+                                    Create a new folder
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-6">
+                        <div class="card text-center h-100 border-success"
+                             style="cursor: pointer;"
+                             data-bs-dismiss="modal"
+                             onclick="showCreateFileModal()">
+                            <div class="card-body py-4">
+                                <i class="fas fa-file-circle-plus fa-3x text-success mb-3"></i>
+                                <h5 class="card-title" data-translate="newFile">File</h5>
+                                <p class="card-text text-muted small" data-translate="create_new_file">
+                                    Create a new file
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    <i class="fas fa-times me-1"></i>
+                    <span data-translate="cancel">Cancel</span>
                 </button>
             </div>
-            <div class="modal-body text-center">
-                <div id="updateDescription" class="alert alert-info mb-3" data-translate="updateDescription"></div>
-                <pre id="logOutput" style="white-space: pre-wrap; word-wrap: break-word; text-align: left; display: inline-block;" data-translate="waitingMessage">Waiting for the operation to begin...</pre>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="createFolderModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="fas fa-folder-plus me-2"></i>
+                    <span data-translate="newFolder">Create_new_folder</span>
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-3">
+                    <label for="folderNameInput" class="form-label" data-translate="folderName">Folder Name:</label>
+                    <input type="text" class="form-control" id="folderNameInput" data-translate-placeholder="enter_folder_name_placeholder">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    <i class="fas fa-times me-1"></i>
+                    <span data-translate="cancel">Cancel</span>
+                </button>
+                <button type="button" class="btn btn-primary" onclick="createFolder()">
+                    <i class="fas fa-check me-1"></i>
+                    <span data-translate="create">Create</span>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="createFileModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="fas fa-file-circle-plus me-2"></i>
+                    <span data-translate="newFile" =">Create File</span>
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-3">
+                    <label for="fileNameInput" class="form-label" data-translate="file_name">File Name:</label>
+                    <input type="text" class="form-control" id="fileNameInput" data-translate-placeholder="enter_file_name_placeholder">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    <i class="fas fa-times me-1"></i>
+                    <span data-translate="cancel">Cancel</span>
+                </button>
+                <button type="button" class="btn btn-primary" onclick="createFile()">
+                    <i class="fas fa-check me-1"></i>
+                    <span data-translate="create">Create</span>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="uploadModal" tabindex="-1" aria-labelledby="uploadModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="uploadModalLabel">
+                    <i class="fas fa-upload me-2"></i>
+                    <span data-translate="uploadBtn">Upload Files</span>
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-3">
+                    <div class="border rounded p-5 text-center upload-drop-area" style="cursor: pointer;" onclick="document.getElementById('fileUploadInput').click()">
+                        <i class="fas fa-cloud-upload-alt fa-3x text-muted mb-3"></i>
+                        <h4 data-translate="click_to_select_files">Click to select files</h4>
+                        <p class="text-muted" data-translate="or_drag_and_drop">or drag and drop files here</p>
+                    </div>
+                    <input type="file" id="fileUploadInput" class="d-none" multiple onchange="handleFileSelect(event)">
+                </div>
+                <div id="fileList" class="mt-3"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-teal" id="updatePhpConfig"><i class="fas fa-unlock me-1"></i><span data-translate="unlock_php_upload_limit"></span></button>
+                <button type="button" class="btn btn-primary" onclick="startUpload()">
+                    <i class="fas fa-upload me-1"></i>
+                    <span data-translate="upload">Upload</span>
+                </button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    <i class="fas fa-times me-1"></i>
+                    <span data-translate="cancel">Cancel</span>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="renameModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="fas fa-edit me-2"></i>
+                    <span data-translate="rename">Rename</span>
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-3">
+                    <label for="renameInput" class="form-label" data-translate="newName">New Name:</label>
+                    <input type="text" class="form-control" id="renameInput" 
+                           placeholder="Enter new name" autofocus>
+                </div>
+                <div class="alert alert-info mb-0">
+                    <small>
+                        <i class="fas fa-info-circle me-1"></i>
+                        <span data-translate="rename_warning">You are renaming: </span>
+                        <span id="renameOriginalName" class="fw-bold"></span>
+                    </small>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    <i class="fas fa-times me-1"></i>
+                    <span data-translate="cancel">Cancel</span>
+                </button>
+                <button type="button" class="btn btn-primary" onclick="performRename()">
+                    <i class="fas fa-check me-1"></i>
+                    <span data-translate="rename">Rename</span>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="moveModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="fas fa-cut me-2"></i>
+                    <span data-translate="move">Move</span>
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-3">
+                    <label for="movePath" class="form-label" data-translate="destination_path">Destination Path:</label>
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="fas fa-folder"></i></span>
+                        <input type="text" class="form-control" id="movePath" 
+                               placeholder="/path/to/destination" value="<?php echo $ROOT_DIR; ?>">
+                        <button class="btn btn-outline-secondary" type="button" onclick="browseForMovePath()">
+                            <i class="fas fa-folder-open"></i>
+                        </button>
+                    </div>
+                    <div class="form-text" data-translate="move_hint">
+                        Enter the destination path where you want to move the files/folders.
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <div class="alert alert-warning">
+                        <i class="fas fa-exclamation-triangle me-2"></i>
+                        <strong data-translate="moving">Moving:</strong>
+                        <div id="moveItemsList" class="mt-1"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    <i class="fas fa-times me-1"></i>
+                    <span data-translate="cancel">Cancel</span>
+                </button>
+                <button type="button" class="btn btn-primary" onclick="performMove()">
+                    <i class="fas fa-check me-1"></i>
+                    <span data-translate="move">Move</span>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="copyModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="fas fa-copy me-2"></i>
+                    <span data-translate="copy">Copy</span>
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-3">
+                    <label for="copyPath" class="form-label" data-translate="destination_path">Destination Path:</label>
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="fas fa-folder"></i></span>
+                        <input type="text" class="form-control" id="copyPath" 
+                               placeholder="/path/to/destination" value="<?php echo $ROOT_DIR; ?>">
+                        <button class="btn btn-outline-secondary" type="button" onclick="browseForCopyPath()">
+                            <i class="fas fa-folder-open"></i>
+                        </button>
+                    </div>
+                    <div class="form-text" data-translate="copy_hint">
+                        Enter the destination path where you want to copy the files/folders.
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle me-2"></i>
+                        <strong data-translate="copying">Copying:</strong>
+                        <div id="copyItemsList" class="mt-1"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    <i class="fas fa-times me-1"></i>
+                    <span data-translate="cancel">Cancel</span>
+                </button>
+                <button type="button" class="btn btn-primary" onclick="performCopy()">
+                    <i class="fas fa-check me-1"></i>
+                    <span data-translate="copy">Copy</span>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="terminalModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content" style="height: 80vh;">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="fas fa-terminal me-2"></i>
+                    <span data-translate="terminal">Terminal</span>
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body p-0">
+                <iframe 
+                    id="terminalIframe" 
+                    src="" 
+                    frameborder="0" 
+                    style="width: 100%; height: 100%;">
+                </iframe>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    <span data-translate="close">Close</span>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="compressModal" tabindex="-1" aria-labelledby="compressModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="compressModalLabel">
+                    <i class="fas fa-compress me-2"></i>
+                    <span data-translate="compress_files">Compress Files</span>
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-3">
+                    <label for="archiveName" class="form-label">
+                        <span data-translate="archive_name">Archive Name:</span>
+                    </label>
+                    <div class="input-group">
+                        <input type="text" class="form-control" id="archiveName" value="archive" autocomplete="off">
+                        <span class="input-group-text" id="archiveExtension">.zip</span>
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">
+                        <span data-translate="archive_format">Archive Format:</span>
+                    </label>
+                    <div class="btn-group w-100" role="group" id="formatButtonsGroup">
+                        <button type="button" class="btn btn-outline-primary active" data-format="zip">ZIP</button>
+                        <button type="button" class="btn btn-outline-primary" data-format="tar">TAR</button>
+                        <button type="button" class="btn btn-outline-primary" data-format="gz">GZ</button>
+                        <button type="button" class="btn btn-outline-primary" data-format="bz2">BZ2</button>
+                        <!-- <button type="button" class="btn btn-outline-primary" data-format="7z">7Z</button> -->
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <label for="compressDestination" class="form-label">
+                        <span data-translate="destination_path">Destination Path:</span>
+                    </label>
+                    <div class="input-group">
+                        <input type="text" class="form-control" id="compressDestination" value="" autocomplete="off">
+                        <button class="btn btn-outline-secondary" type="button" onclick="browseForCompressPath()">
+                            <i class="fas fa-folder-open"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="alert alert-info mb-0">
+                    <i class="fas fa-info-circle me-2"></i>
+                    <strong data-translate="compressing">Compressing:</strong>
+                    <div id="compressItemsList" class="mt-2 small">
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    <i class="fas fa-times me-1"></i>
+                    <span data-translate="cancel">Cancel</span>
+                </button>
+                <button type="button" class="btn btn-primary" id="compressSubmitBtn" onclick="performCompress()">
+                    <i class="fas fa-check me-1"></i>
+                    <span data-translate="compress">Compress</span>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="fileHashModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="fas fa-fingerprint text-primary me-2"></i>
+                    <span data-translate="file_hash">File Hash</span>
+                    <small class="text-muted ms-2" id="hashFileName"></small>
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            
+            <div class="modal-body">
+                <div id="hashLoading" class="text-center py-5 d-none">
+                    <div class="spinner-border text-primary mb-3" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                    <p class="text-muted mb-0" data-translate="calculating_hash">Calculating hash...</p>
+                </div>
+                
+                <div id="hashContent" class="d-none">
+                    <div class="alert alert-info d-flex align-items-center mb-4">
+                        <i class="fas fa-info-circle me-2"></i>
+                        <span id="hashFilePath" class="fw-bold"></span>
+                    </div>
+                    
+                    <!-- MD5 -->
+                    <div class="mb-4">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <span class="fw-bold">
+                                <i class="fas fa-hashtag text-warning me-2"></i>MD5:
+                            </span>
+                        </div>
+                        <code id="hashMd5" class="d-block p-3 bg-light text-white rounded font-monospace"></code>
+                    </div>
+                    
+                    <!-- SHA1 -->
+                    <div class="mb-4">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <span class="fw-bold">
+                                <i class="fas fa-shield-alt text-info me-2"></i>SHA1:
+                            </span>
+                        </div>
+                        <code id="hashSha1" class="d-block p-3 bg-light text-white rounded font-monospace"></code>
+                    </div>
+                    
+                    <!-- SHA256 -->
+                    <div class="mb-3">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <span class="fw-bold">
+                                <i class="fas fa-lock text-success me-2"></i>SHA256:
+                            </span>
+                        </div>
+                        <textarea id="hashSha256" class="form-control bg-light text-white font-monospace" rows="2" readonly style="resize: none;"></textarea>
+                    </div>
+                    
+                    <div class="row mt-4 pt-3 border-top">
+                        <div class="col-md-6">
+                            <small class="text-muted">
+                                <i class="fas fa-file me-1"></i>
+                                <span data-translate="fileSize">Size</span>: <span id="hashFileSize"></span>
+                            </small>
+                        </div>
+                        <div class="col-md-6">
+                            <small class="text-muted">
+                                <i class="fas fa-clock me-1"></i>
+                                <span data-translate="modifiedTime">Modified</span>: <span id="hashFileMtime"></span>
+                            </small>
+                        </div>
+                    </div>
+                </div>
+                
+                <div id="hashError" class="text-center py-5 d-none">
+                    <i class="fas fa-exclamation-triangle text-danger fa-3x mb-3"></i>
+                    <p class="text-danger mb-0" id="hashErrorMessage"></p>
+                </div>
+            </div>
+            
+            <div class="modal-footer">
+                <button type="button" class="btn btn-success" onclick="exportCurrentHash()">
+                    <i class="fas fa-download me-1"></i><span data-translate="export_hash">Export Hash</span>
+                </button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    <i class="fas fa-times me-1"></i><span data-translate="close">Close</span>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="installModal" tabindex="-1" aria-labelledby="installModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="installModalLabel">
+                    <i class="fas fa-box-open me-2"></i>
+                    <span data-translate="install_package">Install Package</span>
+                    <span id="installPackageName" class="ms-2 text-info"></span>
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-3">
+                    <div class="alert alert-info" id="installInfo">
+                        <i class="fas fa-info-circle me-2"></i>
+                        <span id="installInfoText" data-translate="install_info">Installing package...</span>
+                    </div>
+                </div>
+                
+                <div class="mb-3">
+                    <div class="form-check form-switch mb-2">
+                        <input class="form-check-input" type="checkbox" id="installForceCheck">
+                        <label class="form-check-label" for="installForceCheck" data-translate="install_force">
+                            Force installation (override dependencies/overwrite)
+                        </label>
+                    </div>
+                    <div class="form-check form-switch" id="installUpdateCheckContainer" style="display: block;">
+                        <input class="form-check-input" type="checkbox" id="installUpdateCheck" checked>
+                        <label class="form-check-label" for="installUpdateCheck" data-translate="install_update">
+                            Update package lists before installation
+                        </label>
+                    </div>
+                </div>
+                
+                <div class="mb-3">
+                    <div class="progress" style="height: 30px;">
+                        <div id="installProgress" class="progress-bar progress-bar-striped progress-bar-animated" 
+                             role="progressbar" style="width: 0%">
+                            <span id="installProgressText">0%</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="mb-3">
+                    <label class="form-label fw-bold" data-translate="install_output">Installation Output:</label>
+                    <div id="installOutput" class="bg-dark text-success p-3 rounded" 
+                         style="height: 300px; overflow-y: auto; font-family: monospace; font-size: 13px;">
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    <i class="fas fa-times me-1"></i>
+                    <span data-translate="close">Close</span>
+                </button>
             </div>
         </div>
     </div>
 </div>
 
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        const dropZone = document.querySelector('.drop-zone');
-        const fileInput = document.getElementById('upload_file');
-        const customButton = document.getElementById('customUploadButton');
-        const fileList = document.querySelector('.file-list');
+let selectedMediaElement = null;
+let selectedMediaPath = '';
+let hoverAudio = null;
+let hoverVideo = null;
+let userInteracted = false;    
+let imageSwitchTimer = null;  
+let autoNextEnabled = true;   
+let currentMediaList = [];    
+let currentMediaIndex = -1;
 
-        customButton.addEventListener('click', () => fileInput.click());
-
-        function updateFileList() {
-            fileList.innerHTML = "";
-            Array.from(fileInput.files).forEach(file => {
-                const fileItem = document.createElement('div');
-                fileItem.className = 'file-list-item';
-                fileItem.innerHTML = `
-                    <div class="d-flex align-items-center">
-                        <i class="bi bi-file-earmark"></i> ${file.name}
-                    </div>
-                    <i class="bi bi-x remove-file"></i>
-                `;
-
-                fileItem.querySelector('.remove-file').addEventListener('click', () => {
-                    fileItem.remove();
-                    removeFileFromInput(file);
-                });
-
-                fileList.appendChild(fileItem);
-            });
-        }
-
-        function removeFileFromInput(fileToRemove) {
-            const dataTransfer = new DataTransfer();
-            Array.from(fileInput.files).forEach(file => {
-                if (file !== fileToRemove) {
-                    dataTransfer.items.add(file);
-                }
-            });
-            fileInput.files = dataTransfer.files;
-        }
-
-        function formatFileSize(bytes) {
-            if (bytes === 0) return '0 Bytes';
-            const k = 1024;
-            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
-            const i = Math.floor(Math.log(bytes) / Math.log(k));
-            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
-        }
-
-        fileInput.addEventListener('change', updateFileList);
-
-        ['dragenter', 'dragover'].forEach(eventName => {
-            dropZone.addEventListener(eventName, highlight, false);
-        });
-
-        ['dragleave', 'drop'].forEach(eventName => {
-            dropZone.addEventListener(eventName, unhighlight, false);
-        });
-
-        function highlight(e) {
-            e.preventDefault();
-            dropZone.classList.add('dragover');
-        }
-
-        function unhighlight(e) {
-            e.preventDefault();
-            dropZone.classList.remove('dragover');
-        }
-
-        dropZone.addEventListener('drop', function(e) {
-            e.preventDefault();
-            const files = e.dataTransfer.files;
-            if (files.length) {
-                const dataTransfer = new DataTransfer();
-            
-                if (fileInput.files) {
-                    Array.from(fileInput.files).forEach(file => 
-                        dataTransfer.items.add(file)
-                    );
-                }
-            
-                Array.from(files).forEach(file => 
-                    dataTransfer.items.add(file)
-                );
-            
-                fileInput.files = dataTransfer.files;
-                updateFileList();
-            }
-        });
-    });
-</script>
-
-<script>
-    $(document).ready(function() {
-        $('#selectAll').change(function() {
-            $('.fileCheckbox').prop('checked', this.checked);
-            updateSelectionInfo();
-        });
-
-        $('.fileCheckbox').change(function() {
-            $('#selectAll').prop('checked', $('.fileCheckbox:checked').length === $('.fileCheckbox').length);
-            updateSelectionInfo();
-        });
-
-        $('#selectAllBtn').click(function() {
-            const allChecked = $('.fileCheckbox:checked').length === $('.fileCheckbox').length;
-            $('.fileCheckbox').prop('checked', !allChecked).trigger('change');
-        });
-
-        $('#batchDeleteBtn').click(function() {
-            const files = $('.fileCheckbox:checked').map(function() { return $(this).val(); }).get();
-            if (files.length === 0) { 
-                alert(translations['select_files_to_delete'] || 'Please select files to delete first');  
-                return; 
-            }
-            const confirmText = (translations['confirm_batch_delete'] || 'Are you sure you want to delete the selected %d files?').replace('%d', files.length);
-            showConfirmation(confirmText, () => {
-                const batchDeleteForm = $('#batchDeleteForm');
-                batchDeleteForm.empty();
-                batchDeleteForm.append('<input type="hidden" name="batch_delete" value="1">');
-                files.forEach(file => {
-                    batchDeleteForm.append(`<input type="hidden" name="filenames[]" value="${file}">`);
-                });
-                batchDeleteForm.submit();
-            });
-        });
-
-        function updateSelectionInfo() {
-            const checked = $('.fileCheckbox:checked');
-            const count = checked.length;
-            const totalSize = checked.toArray().reduce((sum, el) => sum + parseInt($(el).data('size')), 0);
-            if (count > 0) {
-                $('#toolbar').removeClass('d-none');
-                $('#selectedInfo').html((translations['file_summary'] || 'Selected %d files，total %s MB').replace('%d', count).replace('%s', (totalSize / (1024 * 1024)).toFixed(2)));
-            } else {
-                $('#toolbar').addClass('d-none');
-            }
-        }
-
-        $('.preview-img').click(function() {
-            const src = $(this).data('src');
-            $('#previewImage').attr('src', src).removeClass('d-none');
-            $('#previewVideo').addClass('d-none');
-        });
-
-        $('.preview-video').click(function() {
-            const src = $(this).data('src');
-            $('#previewVideoSource').attr('src', src);
-            $('#previewVideo')[0].load();
-            $('#previewVideo').removeClass('d-none');
-            $('#previewImage').addClass('d-none');
-        });
-
-        $('#previewModal').on('hidden.bs.modal', function() {
-            $('#previewVideo')[0].pause();
-        });
-
-        $('.set-bg-btn').click(function() {
-            const src = $(this).data('src');
-            const type = $(this).data('type');
-            setBackground(src, type);
-        });
-
-        $('#clearBackgroundBtn').click(function() {
-            const confirmMessage = translations['confirm_clear_background'] || 'Are you sure you want to clear the background?';
-            speakMessage(translations['confirm_clear_background'] || 'Are you sure you want to clear the background?');
-            showConfirmation(confirmMessage, () => {
-                setTimeout(() => {
-                    clearExistingBackground();
-                    localStorage.removeItem('phpBackgroundSrc');
-                    localStorage.removeItem('phpBackgroundType');
-                    localStorage.removeItem('backgroundSet');
-
-                    const clearedMsg = translations['background_cleared'] || 'Background cleared!';
-                    showLogMessage(clearedMsg);
-                    speakMessage(clearedMsg);
-
-                    setTimeout(() => {
-                          window.top.location.href = "/cgi-bin/luci/admin/services/spectra";
-                    }, 3000);
-
-                }, 0);
-            });
-        });
-
-        function setBackground(src, type) {
-            if (type === 'image') {
-                setImageBackground(src);
-            } else if (type === 'video') {
-                setVideoBackground(src);
-            }
-        }
-    });
-
-    $('#batchDeleteForm').submit(function(e) {
-        e.preventDefault();
-        const formData = $(this).serialize();
-        $.post('', formData, function(response) {
-            let message = '';
-            if (response.success) {
-                message = translations['batch_delete_success'] || '✅ Batch delete successful';
-                showLogMessage(message);
-                speakMessage(message);
-                setTimeout(() => {
-                      location.reload();
-                }, 2500);
-            } else {
-                message = translations['batch_delete_failed'] || '❌ Batch delete failed';
-                showLogMessage(message);
-                speakMessage(message);
-            }
-        }, 'json');
-    });
-
-    function setImageBackground(src) {
-        clearExistingBackground();
-        document.body.style.background = `url('/spectra/stream/${src}') no-repeat center center fixed`;
-        document.body.style.backgroundSize = 'cover';
-        localStorage.setItem('phpBackgroundSrc', src);
-        localStorage.setItem('phpBackgroundType', 'image');
-        localStorage.setItem('redirectAfterImage', 'true');
-        checkAndReload();
+function handleThumbError(img) {
+    img.style.display = 'none';
+    const thumb = img.parentElement;
+    if (thumb) {
+        thumb.innerHTML = '<i class="fas fa-image"></i>';
     }
+}
+    
+let currentMedia = {
+    type: null,
+    src: null,
+    path: null,
+    ext: null,
+    wasPlaying: false  
+};
 
-    function setVideoBackground(src, isPHP = false) {
-        clearExistingBackground();
-        let existingVideoTag = document.getElementById("background-video");
-        if (existingVideoTag) {
-            existingVideoTag.src = `/spectra/stream/${src}`;
-        } else {
-            let videoTag = document.createElement("video");
-            videoTag.className = "video-background";
-            videoTag.id = "background-video";
-            videoTag.autoplay = true;
-            videoTag.loop = true;
-            videoTag.muted = localStorage.getItem('videoMuted') === 'true';
-            videoTag.playsInline = true;
-            videoTag.innerHTML = `
-                <source src="/spectra/stream/${src}" type="video/mp4">
-                Your browser does not support the video tag.
-            `;
-            document.body.prepend(videoTag);
-
-            let styleTag = document.querySelector("#video-style");
-            if (!styleTag) {
-                styleTag = document.createElement("style");
-                styleTag.id = "video-style";
-                document.head.appendChild(styleTag);
-            }
-            styleTag.innerHTML = `
-                body {
-                    background: transparent !important;
-                    margin: 0;
-                    padding: 0;
-                    height: 100vh;
-                    overflow: hidden;
-                }
-                .video-background {
-                    position: fixed;
-                    top: 50%;
-                    left: 50%;
-                    width: auto;
-                    height: auto;
-                    min-width: 100%;
-                    min-height: 100%;
-                    transform: translate(-50%, -50%);
-                    object-fit: cover;
-                    z-index: -1;
-                }
-                .video-background + .wrapper span {
-                    display: none !important;
-                }
-            `;
-        }
-        localStorage.setItem('phpBackgroundSrc', src);
-        localStorage.setItem('phpBackgroundType', 'video');
-        if (isPHP) {
-            document.querySelector('.sound-toggle div').textContent = '🔊';
-            videoTag.muted = false;
-        }
-        localStorage.setItem('redirectAfterVideo', 'true');
-        checkAndReload();
+function showSection(sectionId) {
+    document.querySelectorAll('.nav-item').forEach(item => {
+        item.classList.remove('active');
+    });
+    const navItem = document.querySelector(`.nav-item[onclick="showSection('${sectionId}')"]`);
+    if (navItem) {
+        navItem.classList.add('active');
     }
-
-    function clearExistingBackground() {
-        document.body.style.background = ''; 
-        let existingVideoTag = document.getElementById("background-video");
-        if (existingVideoTag) {
-            existingVideoTag.remove(); 
-        }
-        let styleTag = document.querySelector("#video-style");
-        if (styleTag) {
-            styleTag.remove(); 
-        }
+    
+    document.querySelectorAll('.grid-section').forEach(section => {
+        section.style.display = 'none';
+    });
+    const targetSection = document.getElementById(sectionId + 'Section');
+    if (targetSection) {
+        targetSection.style.display = 'block';
     }
-
-    function checkAndReload() {
-        if (!localStorage.getItem('backgroundSet')) {
-            localStorage.setItem('backgroundSet', 'true');
-            location.reload();
-        }
-    }
-
-    if (phpBackgroundSrc && phpBackgroundType) {
-        if (phpBackgroundType === 'image') {
-            setImageBackground(phpBackgroundSrc);
-        } else if (phpBackgroundType === 'video') {
-            setVideoBackground(phpBackgroundSrc, true);
-        }
-    }
-
-    document.querySelectorAll('.preview-video').forEach(video => {
-        video.addEventListener('mouseenter', () => {
-            video.play().catch(() => {})
-        })
-        video.addEventListener('mouseleave', () => {
-            video.pause()
-            video.currentTime = 0
-        })
-    });
-
-    $(document).ready(function () {
-        $(".set-bg-btn").click(function () {
-            const bgSrc = $(this).data("src");
-            const bgType = $(this).data("type");
-            setTimeout(function () {
-                location.reload();
-            }, 1000);
-        });
-    });
-
-    window.addEventListener('load', function () {
-        if (localStorage.getItem('redirectAfterImage') === 'true') {
-            localStorage.removeItem('redirectAfterImage');
-            setTimeout(() => {
-                window.top.location.href = "/cgi-bin/luci/admin/services/spectra?bg=image";
-            }, 3000);
-        } else if (localStorage.getItem('redirectAfterVideo') === 'true') {
-            localStorage.removeItem('redirectAfterVideo');
-            setTimeout(() => {
-                window.top.location.href = "/cgi-bin/luci/admin/services/spectra?bg=video";
-            }, 3000);
-        }
-    });
-</script>
-
-<script>
-    document.getElementById("updatePhpConfig").addEventListener("click", function() {
-        const confirmText = translations['confirm_update_php'] || "Are you sure you want to update PHP configuration?";
-        speakMessage(confirmText);
-        showConfirmation(confirmText, () => {
-            fetch("update_php_config.php", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" }
-            })
-            .then(response => response.json())
-            .then(data => {
-                const msg = data.message || "Configuration updated successfully.";
-                showLogMessage(msg);
-                speakMessage(msg);
-            })
-            .catch(error => {
-                const errMsg = translations['request_failed'] || ("Request failed: " + error.message);
-                showLogMessage(errMsg);
-                speakMessage(errMsg);
-            });
-        });
-    });
-</script>
-
-<script>
-    let mediaInteraction = false;
-
-    document.addEventListener('DOMContentLoaded', function() {
-        const previewModal = document.getElementById('previewModal');
-        const modalAudio = document.getElementById('previewAudio');
-
-        previewModal.addEventListener('show.bs.modal', function(event) {
-            const trigger = event.relatedTarget;
-            const src = trigger.dataset.src;
-            const mediaType = trigger.dataset.type || '';
-
-            if (mediaType === 'audio') {
-                modalAudio.innerHTML = ''; 
-                const source = document.createElement('source');
-                source.src = src;
-                source.type = `audio/${src.split('.').pop()}`;
-                modalAudio.appendChild(source);
-                modalAudio.load();
-                modalAudio.classList.remove('d-none'); 
-            } else {
-                modalAudio.classList.add('d-none'); 
-            }
-        });
-
-        previewModal.addEventListener('hidden.bs.modal', () => {
-            modalAudio.pause(); 
-        });
-
-        document.querySelectorAll('.preview-audio-container').forEach(container => {
-            const audio = new Audio();
-            audio.src = container.dataset.src;
-            audio.volume = 0.5;
-            const hoverTips = container.querySelector('.hover-tips'); 
-
-            container.addEventListener('mouseenter', () => {
-                if (!mediaInteraction) {
-                    container.classList.add('needs-interact');
-                    return;
-                }
-                audio.play().catch(() => {
-                    container.classList.add('needs-interact');
-                });
-            });
-
-            container.addEventListener('mouseleave', () => {
-                audio.pause();
-                audio.currentTime = 0;
-            });
-
-            container.addEventListener('click', (e) => {
-                if (!mediaInteraction) {
-                    e.preventDefault();
-                    mediaInteraction = true;
-                    document.body.classList.add('media-active');
-                    container.classList.remove('needs-interact');
-                    if (hoverTips) hoverTips.style.display = 'none';
-                }
-            });
-        });
-
-        document.addEventListener('click', () => {
-            if (!mediaInteraction) {
-                mediaInteraction = true;
-                document.body.classList.add('media-active');
-                document.querySelectorAll('.hover-tips').forEach(tip => tip.style.display = 'none');
-            }
-        });
-    });
-</script>
-
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        const player = document.getElementById('mainPlayer');
-        const imagePlayer = document.getElementById('imagePlayer');
-        const playlistContainer = document.getElementById('playlistContainer');
-        let playlist = JSON.parse(localStorage.getItem('mediaPlaylist') || '[]');
-        let currentIndex = 0;
-        let imageTimer = null;
-
-        function savePlaylist() {
-            localStorage.setItem('mediaPlaylist', JSON.stringify(playlist));
-        }
-
-        function renderPlaylist() {
-            playlistContainer.innerHTML = '';
-            playlist.forEach((file, index) => {
-                const item = document.createElement('a');
-                item.className = `list-group-item list-group-item-action d-flex justify-content-between 
-                                align-items-center ${index === currentIndex ? 'active' : ''}`;
-                item.innerHTML = `
-                    <div class="d-flex align-items-center gap-2">
-                        <span class="badge bg-secondary">${index + 1}</span>
-                        <span class="text-truncate">${file.name}</span>
-                    </div>
-                    <div class="d-flex align-items-center gap-2">
-                        <small class="text-muted">${file.type.toUpperCase()}</small>
-                        <button class="btn btn-sm btn-danger p-0 delete-item"><i class="bi bi-x"></i></button>
-                    </div>
-                `;
-                item.onclick = () => playMedia(index);
-                item.querySelector('.delete-item').onclick = (e) => {
-                    e.stopPropagation();
-                    playlist.splice(index, 1);
-                    if(currentIndex >= index) currentIndex--;
-                    savePlaylist();
-                    renderPlaylist();
-                    if(index === currentIndex) playNext();
-                };
-                playlistContainer.appendChild(item);
-            });
-
-            setTimeout(() => {
-                const activeItem = playlistContainer.querySelector('.list-group-item.active');
-                if (activeItem) {
-                    activeItem.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-                }
-            }, 50);
-        }
-
-        function playMedia(index) {
-            currentIndex = index;
-            const media = playlist[index];
-        
-            player.classList.add('d-none');
-            imagePlayer.classList.add('d-none');
-            clearTimeout(imageTimer);
-
-            if(media.type === 'image') {
-                imagePlayer.src = media.url;
-                imagePlayer.classList.remove('d-none');
-                imageTimer = setTimeout(playNext, 5000);
-            } else {
-                player.src = media.url;
-                player.classList.remove('d-none');
-                player.load();
-                player.play();
-            }
-
-            renderPlaylist();
-        }
-
-        function findNextValidIndex(startIndex) {
-            let newIndex = startIndex;
-             do {
-                newIndex = (newIndex + 1) % playlist.length;
-                if(newIndex === startIndex) return -1; 
-            } while(playlist[newIndex].type === 'image')
-            return newIndex;
-        }
-
-        function playNext() {
-            if(playlist.length === 0) return;
-        
-            const nextIndex = findNextValidIndex(currentIndex);
-            if(nextIndex === -1) return; 
-        
-            playMedia(nextIndex);
-        }
-
-        document.getElementById('openPlayerBtn').addEventListener('click', () => {
-            const selectedFiles = Array.from(document.querySelectorAll('.fileCheckbox:checked'))
-                .map(checkbox => {
-                    const card = checkbox.closest('.card');
-                    return {
-                        name: checkbox.value,
-                        url: checkbox.value,
-                        type: card.querySelector('video') ? 'video' :
-                              card.querySelector('audio') ? 'audio' :
-                              card.querySelector('img') ? 'image' : 'file'
-                    };
-                });
-
-            const validFiles = selectedFiles.filter(f => ['video','audio','image'].includes(f.type));
-            validFiles.forEach(file => {
-                if (!playlist.some(existing => existing.url === file.url)) {
-                    playlist.push(file);
-                }
-            });
-
-            const firstPlayable = playlist.findIndex(f => f.type !== 'image');
-            if(firstPlayable !== -1) {
-                currentIndex = firstPlayable - 1; 
-                playNext();
-            }
-
-            savePlaylist();
-            renderPlaylist();
-        });
-
-        document.getElementById('clearPlaylist').addEventListener('click', () => {
-            playlist = [];
-            currentIndex = 0;
-            player.src = '';
-            imagePlayer.src = '';
-            savePlaylist();
-            renderPlaylist();
-        });
-
-        player.addEventListener('ended', playNext);
-        renderPlaylist();
-    });
-</script> 
-<style>
-.col-md-8, .col-md-12 {
-	transition: all 0.3s ease;
-}
-
-.fullscreen-modal {
-	width: 100vw !important;
-	height: 100vh !important;
-	margin: 0 !important;
-	padding: 0 !important;
-	max-width: none !important;
-}
-
-.fullscreen-modal .modal-content {
-	height: 100%;
-	display: flex;
-	flex-direction: column;
-}
-
-.fullscreen-modal .modal-header,
-.fullscreen-modal .modal-footer {
-	flex-shrink: 0;
-	min-height: 60px;
-}
-
-.fullscreen-modal .modal-body {
-	flex: 1;
-	min-height: 0;
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	padding: 10px;
-}
-
-#previewVideo {
-	max-width: 100%;
-	max-height: 100%;
-	width: auto;
-        height: 100% !important; 
-	object-fit: contain;
-}
-
-.modal-content:fullscreen .row {
-	--playlist-width: 450px;
-}
-
-.modal-content:fullscreen .col-md-8 {
-	flex: 1 1 calc(100% - var(--playlist-width)) !important;
-	max-width: calc(100% - var(--playlist-width)) !important;
-}
-
-.modal-content:fullscreen .col-md-4 {
-	flex: 0 0 var(--playlist-width) !important;
-	max-width: var(--playlist-width) !important;
-	transition: all 0.3s;
-}
-
-.modal-content:fullscreen #playlistContainer {
-	font-size: 0.9em;
-	padding: 0 0.5rem;
-}
-
-.col-md-4 {
-	transition: all 0.3s ease-in-out;
-}
-
-.modal-content:fullscreen .col-md-8.col-md-12 {
-	flex: 0 0 100% !important;
-	max-width: 100% !important;
-}
-
-.modal-content:fullscreen {
-	width: 100vw !important;
-	height: 100vh !important;
-	border-radius: 0 !important;
-	margin: 0 !important;
-}
-
-@media (max-width: 768px) {
-	#togglePlaylist {
-		display: none;
-	}
-}
-
-@media (max-width: 767px) {
-	#playerModal .col-md-4 h6 {
-		text-align: left;
-		margin-bottom: 10px;
-	}
-}
-</style>
-
-<script>
-function calculateAvailableHeight() {
-  const header = document.querySelector('header');
-  const footer = document.querySelector('footer');
-  const headerHeight = header ? header.offsetHeight : 0;
-  const footerHeight = footer ? footer.offsetHeight : 0;
-  return window.innerHeight - headerHeight - footerHeight;
-}
-
-document.getElementById("fullscreenToggle").addEventListener("click", function () {
-    const modalDialog = document.querySelector("#previewModal .modal-xl"); 
-    const btn = document.getElementById("fullscreenToggle");
-
-    if (!document.fullscreenElement) {
-        modalDialog.dataset.originalWidth = modalDialog.style.width;
-        modalDialog.dataset.originalHeight = modalDialog.style.height;
-        
-        if (modalDialog.requestFullscreen) modalDialog.requestFullscreen();
-        
-        modalDialog.classList.add("fullscreen-modal");
-        btn.innerText = translations['exit_fullscreen'] || 'Exit Fullscreen';
+    
+    document.querySelector('.media-grid-container').scrollTop = 0;
+    
+    if (sectionId === 'home') {
+        startSystemMonitoring();
     } else {
-        if (document.exitFullscreen) document.exitFullscreen();
-        
-        modalDialog.classList.remove("fullscreen-modal");
-        if (window.innerWidth <= 576) {
-            modalDialog.style.height = `${calculateAvailableHeight()}px`;
-        } else {
-            modalDialog.style.width = modalDialog.dataset.originalWidth;
-            modalDialog.style.height = modalDialog.dataset.originalHeight;
-        }
-        btn.innerText = translations['enter_fullscreen'] || 'Enter Fullscreen';
-    }
-});
-
-function handleFullscreenChange() {
-    const isFullscreen = !!document.fullscreenElement;
-    const modalDialog = document.querySelector("#previewModal .modal-xl");
-    const btn = document.getElementById("fullscreenToggle");
-
-    if (!isFullscreen && modalDialog) {
-        modalDialog.classList.remove("fullscreen-modal");
-        if (window.innerWidth <= 576) {
-            modalDialog.style.height = `${calculateAvailableHeight()}px`;
-            window.addEventListener('resize', handleVerticalResize);
-        } else {
-            modalDialog.style.width = modalDialog.dataset.originalWidth;
-            modalDialog.style.height = modalDialog.dataset.originalHeight;
-        }
-        btn.innerText = translations['enter_fullscreen'] || 'Enter Fullscreen';
+        stopSystemMonitoring();
     }
 }
+     
+let playMediaTimeout = null;
+let lastPlayedPath = null;
 
-function handleVerticalResize() {
-    if (window.innerWidth > 576) return;
-    const modalDialog = document.querySelector("#previewModal .modal-xl");
-    modalDialog.style.height = `${calculateAvailableHeight()}px`;
-}
-
-document.addEventListener('fullscreenchange', handleFullscreenChange);
-window.addEventListener('resize', handleVerticalResize);
-</script>
-
-<style>
-.modal-xl {
-    max-width: 1140px;
-    width: 80%;
-    margin: 1rem auto; 
-    transition: height 0.3s ease; 
-}
-
-.fullscreen-modal {
-    max-width: none !important;
-    width: 100vw !important;
-    height: 100vh !important;
-    margin: 0;
-}
-
-.modal-footer {
-    position: relative; 
-    height: 60px;
-    flex-shrink: 0; 
-    border: none !important; 
-    box-shadow: none !important;
-    background-color: var(--header-bg) !important;
-    border-top: 1px solid var(--border-color) !important;
-}
-
-#previewVideo {
-    width: 100% !important;
-    height: 100% !important;
-    object-fit: fill;
-}
-
-@media (max-width: 576px) {
-    .modal-xl:not(.fullscreen-modal) {
-        max-height: calc(100vh - var(--header-height) - var(--footer-height));
-        overflow-y: auto;
+function actuallyPlayMedia(filePath) {
+    filePath = filePath.trim();
+    if (filePath.startsWith('//')) {
+        filePath = filePath.substring(1);
     }
-}
-
-#previewModal .modal-body {
-    padding: 0 !important;
-    border: none !important;
-    box-shadow: none !important;
-}
-
-#previewModal .modal-content {
-    border-radius: 0.3rem;
-    box-shadow: var(--bs-box-shadow);
-}
-
-#previewModal .modal-footer {
-    background-color: var(--header-bg) !important;
-    border-top: 1px solid var(--border-color) !important;
-}
-</style>
-
-<script>
-const playlistToggleBtn = document.getElementById('togglePlaylist');
-const playlistColumn = document.querySelector('.col-md-4');
-const fullscreenBtn = document.getElementById('toggleFullscreen');
-const modalContent = document.querySelector('#playerModal .modal-content');
-const videoElement = document.querySelector('#videoElement'); 
-const pipButton = document.getElementById('togglePip');
-const mainPlayer = document.getElementById('mainPlayer');
-let isPlaylistVisible = true;
-
-if ('pictureInPictureEnabled' in document) {
-    pipButton.style.display = 'inline-block'; 
     
-    pipButton.addEventListener('click', async () => {
-        try {
-            if (document.pictureInPictureElement) {
-                await document.exitPictureInPicture();
-            } else {
-                if (mainPlayer.classList.contains('d-none')) {
-                    return alert(translations['pip_not_supported'] || 'Current media does not support Picture-in-Picture');
-                }
-                await mainPlayer.requestPictureInPicture();
+    const fileName = filePath.split('/').pop();
+    const fileExt = fileName.split('.').pop().toLowerCase();
+    
+    const previewUrl = `?preview=1&path=${encodeURIComponent(filePath)}`;
+    const audioPlayer = document.getElementById('audioPlayer');
+    const videoPlayer = document.getElementById('videoPlayer');
+    const imageViewer = document.getElementById('imageViewer');
+    const playError = document.getElementById('playError');
+    const playerArea = document.getElementById('playerArea');
+    const playerTitle = document.getElementById('playerTitle');
+
+    if (imageSwitchTimer) {
+        clearInterval(imageSwitchTimer);
+        imageSwitchTimer = null;
+    }
+    
+    audioPlayer.style.display = 'none';
+    videoPlayer.style.display = 'none';
+    imageViewer.style.display = 'none';
+    playError.style.display = 'none';
+    
+    audioPlayer.pause();
+    videoPlayer.pause();
+    
+    playerTitle.innerHTML = `<i class="fas fa-play"></i>${fileName}`;
+    
+    const musicExts = ['mp3', 'wav', 'ogg', 'flac', 'm4a', 'aac'];
+    const videoExts = ['mp4', 'avi', 'mkv', 'mov', 'wmv', 'flv', 'webm'];
+    const imageExts = ['jpg', 'jpeg', 'png', 'gif', 'bmp', 'webp', 'svg'];
+    
+    audioPlayer.src = '';
+    videoPlayer.src = '';
+    imageViewer.src = '';
+    
+    audioPlayer.onerror = null;
+    videoPlayer.onerror = null;
+    imageViewer.onerror = null;
+    audioPlayer.onended = null;  
+    videoPlayer.onended = null;  
+    
+    function handleMediaError(element, type) {
+        return function(e) {
+            element.style.display = 'none';
+            playError.style.display = 'block';
+            playerArea.classList.add('active');
+            currentMedia = { type: null, src: null, path: null, ext: null, wasPlaying: false };
+        };
+    }
+    
+    if (musicExts.includes(fileExt)) {
+        audioPlayer.onerror = handleMediaError(audioPlayer, translations['audio'] || 'Audio');
+        audioPlayer.onended = function() {
+            if (autoNextEnabled) {
+                playNextMedia();
             }
-        } catch (error) {
-            console.error(translations['pip_operation_failed'] || 'Picture-in-Picture operation failed:', error);
+        };
+        audioPlayer.src = previewUrl;
+        audioPlayer.load();
+        audioPlayer.style.display = 'block';
+        audioPlayer.controls = true;
+        audioPlayer.play().catch(e => {
+            audioPlayer.style.display = 'none';
+            playError.style.display = 'block';
+        });
+        currentMedia = { type: 'audio', src: previewUrl, path: filePath, ext: fileExt, wasPlaying: false };
+        updateCurrentMediaList('music', filePath);
+    } 
+    else if (videoExts.includes(fileExt)) {
+        videoPlayer.onerror = handleMediaError(videoPlayer, translations['video'] || 'Video');
+        videoPlayer.onended = function() {
+            if (autoNextEnabled) {
+                playNextMedia();
+            }
+        };
+        videoPlayer.src = previewUrl;
+        videoPlayer.load();
+        videoPlayer.style.display = 'block';
+        videoPlayer.controls = true;
+        videoPlayer.play().catch(e => {
+            videoPlayer.style.display = 'none';
+            playError.style.display = 'block';
+        });
+        currentMedia = { type: 'video', src: previewUrl, path: filePath, ext: fileExt, wasPlaying: false };
+        updateCurrentMediaList('video', filePath);
+    } 
+    else if (imageExts.includes(fileExt)) {
+        imageViewer.onerror = handleMediaError(imageViewer, translations['image'] || 'Image');
+        imageViewer.src = previewUrl;
+        imageViewer.style.display = 'block';
+        currentMedia = { type: 'image', src: previewUrl, path: filePath, ext: fileExt, wasPlaying: false };
+        updateCurrentMediaList('image', filePath);
+        
+        if (autoNextEnabled) {
+            startImageAutoSwitch();
         }
-    });
-
-    mainPlayer.addEventListener('enterpictureinpicture', () => {
-        pipButton.querySelector('i').className = 'bi bi-pip-fill';
-        pipButton.innerHTML = pipButton.querySelector('i').outerHTML + 
-            ` ${translations['exit_picture_in_picture'] || 'Exit Picture-in-Picture'}`;
-    });
-
-    mainPlayer.addEventListener('leavepictureinpicture', () => {
-        pipButton.querySelector('i').className = 'bi bi-pip';
-        pipButton.innerHTML = pipButton.querySelector('i').outerHTML + 
-            ` ${translations['picture_in_picture'] || 'Picture-in-Picture'}`;
-    });
+    } else {
+        playError.style.display = 'block';
+        playerArea.classList.add('active');
+    }
+    
+    playerArea.classList.add('active');
+    setPlayerTitle(fileName);    
+    saveToRecent(filePath);
 }
 
-playlistToggleBtn.addEventListener('click', () => {
-    isPlaylistVisible = !isPlaylistVisible;
-    playlistColumn.classList.toggle('d-none');
+function playMedia(filePath) {
+    if (playMediaTimeout) {
+        clearTimeout(playMediaTimeout);
+    }
     
-    const icon = playlistToggleBtn.querySelector('i');
-    icon.className = isPlaylistVisible ? 'bi bi-list-ul' : 'bi bi-layout-sidebar';
-    playlistToggleBtn.innerHTML = icon.outerHTML + ' ' + 
-        (isPlaylistVisible ? translations['hide_playlist'] || 'Hide Playlist' : translations['show_playlist'] || 'Show Playlist');
+    if (lastPlayedPath === filePath) {
+        playMediaTimeout = setTimeout(() => {
+            actuallyPlayMedia(filePath);
+        }, 100);
+        return;
+    }
     
-    const mainColumn = document.querySelector('.col-md-8');
-    mainColumn.classList.toggle('col-md-12');
-    
-    checkFullscreenState(); 
-});
+    lastPlayedPath = filePath;
+    actuallyPlayMedia(filePath);
+}
 
-function toggleFullscreen() {
-    if (!document.fullscreenElement) {
-        modalContent.requestFullscreen().then(() => {
-            updateFullscreenButton(true); 
-            checkFullscreenState();
-        }).catch(console.error);
+function setPlayerTitle(fileName) {
+    const playerTitle = document.getElementById('playerTitle');
+    
+    const icon = playerTitle.querySelector('i');
+    playerTitle.innerHTML = '';
+    if (icon) {
+        playerTitle.appendChild(icon);
     } else {
-        document.exitFullscreen();
+        const playIcon = document.createElement('i');
+        playIcon.className = 'fas fa-play';
+        playerTitle.appendChild(playIcon);
+    }
+    
+    const textSpan = document.createElement('span');
+    textSpan.className = 'player-title-text truncate';
+    textSpan.textContent = fileName;
+    textSpan.title = fileName;
+    
+    playerTitle.appendChild(textSpan);
+    
+    document.getElementById('playerArea').style.display = 'block';
+}
+    
+function updateCurrentMediaList(category, filePath) {
+    try {
+        const mediaLists = {
+            'music': <?php echo json_encode(array_column($media['music'] ?? [], 'path')); ?>,
+            'video': <?php echo json_encode(array_column($media['video'] ?? [], 'path')); ?>,
+            'image': <?php echo json_encode(array_column($media['image'] ?? [], 'path')); ?>
+        };
+        
+        currentMediaList = mediaLists[category] || [];
+        currentMediaIndex = currentMediaList.indexOf(filePath);
+        
+    } catch (e) {
+        console.error('Error updating media list:', e);
+        currentMediaList = [];
+        currentMediaIndex = -1;
+    }
+}
+    
+function startImageAutoSwitch() {
+    if (imageSwitchTimer) {
+        clearInterval(imageSwitchTimer);
+    }
+    
+    if (!autoNextEnabled || currentMediaList.length < 2) {
+        return;
+    }
+        
+    imageSwitchTimer = setInterval(() => {
+        playNextMedia();
+    }, 5000);
+}
+    
+function playNextMedia() {
+    if (!autoNextEnabled) {
+        return;
+    }
+
+    if (currentMediaList.length === 0 || currentMediaIndex === -1) {
+        return;
+    }
+    
+    const nextIndex = (currentMediaIndex + 1) % currentMediaList.length;
+    const nextFilePath = currentMediaList[nextIndex];
+    
+    if (nextFilePath) {
+        playMedia(nextFilePath);
+    }
+}
+    
+function playPreviousMedia() {
+    if (!autoNextEnabled) {
+        return;
+    }
+
+    if (currentMediaList.length === 0 || currentMediaIndex === -1) {
+        return;
+    }
+    
+    const prevIndex = (currentMediaIndex - 1 + currentMediaList.length) % currentMediaList.length;
+    const prevFilePath = currentMediaList[prevIndex];
+    
+    if (prevFilePath) {
+        playMedia(prevFilePath);
+    }
+}
+    
+function initAutoPlayToggle() {
+    const toggleBtn = document.getElementById('autoNextToggle');
+    if (toggleBtn) {
+        updateAutoPlayToggleButton();
     }
 }
 
-function updateFullscreenButton(isFullscreen) {
-    const icon = fullscreenBtn.querySelector('i');
-    if (isFullscreen) {
-        icon.className = 'bi bi-fullscreen-exit';
-        fullscreenBtn.innerHTML = icon.outerHTML + ` ${translations['exit_fullscreen'] || 'Exit Fullscreen'}`;
-    } else {
-        icon.className = 'bi bi-arrows-fullscreen';
-        fullscreenBtn.innerHTML = icon.outerHTML + ` ${translations['enter_fullscreen'] || 'Enter Fullscreen'}`;
+function updateAutoPlayToggleButton() {
+    const toggleBtn = document.getElementById('autoNextToggle');
+    if (toggleBtn) {
+        const icon = autoNextEnabled ? 'fa-toggle-on' : 'fa-toggle-off';
+        
+        const iconElement = toggleBtn.querySelector('i');
+        if (iconElement) {
+            iconElement.className = `fas ${icon}`;
+        }
     }
 }
 
-document.addEventListener('fullscreenchange', () => {
-    const isFullscreen = !!document.fullscreenElement;
-    updateFullscreenButton(isFullscreen); 
-    checkFullscreenState();
-});
-
-function checkFullscreenState() {
-    const modalContent = document.querySelector('#playerModal .modal-content');
-    const videoContainer = modalContent.querySelector('.video-container');
+function toggleAutoNext() {
+    autoNextEnabled = !autoNextEnabled;
+    
+    updateAutoPlayToggleButton();
+    
+    showLogMessage(autoNextEnabled ? 
+        (translations['auto_play_enabled'] || 'Auto play enabled') : 
+        (translations['auto_play_disabled'] || 'Auto play disabled'));
+    
+    if (currentMedia.type === 'image') {
+        if (autoNextEnabled && currentMediaList.length > 1) {
+            startImageAutoSwitch();
+        } else {
+            if (imageSwitchTimer) {
+                clearInterval(imageSwitchTimer);
+                imageSwitchTimer = null;
+            }
+        }
+    }
+}
+    
+function saveToRecent(filePath) {
+    try {
+        let recent = JSON.parse(localStorage.getItem('recent_media') || '[]');
+        
+        recent = recent.filter(f => f !== filePath);
+        
+        recent.unshift(filePath);
+        
+        if (recent.length > <?= $RECENT_MAX ?>) {
+            recent = recent.slice(0, <?= $RECENT_MAX ?>);
+        }
+        
+        localStorage.setItem('recent_media', JSON.stringify(recent));
+        
+        updateRecentList();
+    } catch (e) {
+    }
+}
+    
+function updateRecentList() {
+    try {
+        const recent = JSON.parse(localStorage.getItem('recent_media') || '[]');
+        const recentList = document.getElementById('recentList');
+        
+        if (!recentList) return;
+        
+        if (recent.length === 0) {
+            recentList.innerHTML = `
+                <div class="empty-state">
+                    <div class="empty-icon">
+                        <i class="fas fa-play-circle"></i>
+                    </div>
+                    <p style="margin-top: 15px;">${translations['no_playback_history'] || 'No playback history'}</p>
+                </div>`;
+            return;
+        }
+        
+        const musicExts = ['mp3', 'wav', 'ogg', 'flac', 'm4a', 'aac'];
+        const videoExts = ['mp4', 'avi', 'mkv', 'mov', 'wmv', 'flv', 'webm'];
+        
+        recentList.innerHTML = recent.slice(0, 20).map(file => {
+            const ext = file.split('.').pop().toLowerCase();
+            let icon = 'fas fa-image';
+            if (musicExts.includes(ext)) icon = 'fas fa-music';
+            else if (videoExts.includes(ext)) icon = 'fas fa-video';
+            
+            const safePath = file.replace(/'/g, "\\'").replace(/"/g, '&quot;');
+            const safeName = file.split('/').pop().replace(/</g, '&lt;').replace(/>/g, '&gt;');
+            const safeDir = file.split('/').slice(0, -1).join('/').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+            
+            return `
+            <div class="recent-item" onclick="playMedia('${safePath}')">
+                <div class="recent-icon">
+                    <i class="${icon}"></i>
+                </div>
+                <div class="recent-info">
+                    <div class="recent-name">${safeName}</div>
+                    <div class="recent-path">${safeDir}</div>
+                </div>
+            </div>`;
+        }).join('');
+    } catch (e) {
+    }
+}
+    
+function closePlayer() {
+    const playerArea = document.getElementById('playerArea');
+    const audioPlayer = document.getElementById('audioPlayer');
+    const videoPlayer = document.getElementById('videoPlayer');
+    const imageViewer = document.getElementById('imageViewer');
     
     if (document.fullscreenElement) {
-        const footerHeight = document.querySelector('.modal-footer').offsetHeight;
-        videoContainer.style.height = `calc(100vh - ${footerHeight}px)`;
-        videoElement.style.height = '100%';
-    } else {
-        videoContainer.style.height = isPlaylistVisible ? 'calc(100vh - 180px)' : 'calc(100vh - 120px)';
-    }
-}
-
-document.addEventListener('fullscreenchange', checkFullscreenState);
-
-fullscreenBtn.addEventListener('click', toggleFullscreen);
-
-let resizeTimer;
-window.addEventListener('resize', () => {
-    clearTimeout(resizeTimer);
-    resizeTimer = setTimeout(checkFullscreenState, 100);
-});
-
-updateFullscreenButton(false); 
-</script>
-
-<script>
-document.addEventListener('DOMContentLoaded', function () {
-    const modalElement = document.getElementById('updateConfirmModal');
-    const versionInfo = document.getElementById('themeVersionInfo');
-    const currentVersionInfo = document.getElementById('currentVersionInfo');
-    const downloadLink = document.getElementById('confirmUpdateLink');
-
-    modalElement.addEventListener('shown.bs.modal', function () {
-        versionInfo.textContent = translations['fetching_version'] || 'Fetching version info...';
-        currentVersionInfo.textContent = translations['unable_to_fetch_current_version'] || 'Fetching current version...';
-        downloadLink.href = '#';
-
-        fetch('check_theme_update.php')
-            .then(response => response.json())
-            .then(data => {
-                if (data.currentVersion) {
-                    currentVersionInfo.textContent = `${translations['current_version'] || 'Current Version'}: ${data.currentVersion}`;
-                } else {
-                    currentVersionInfo.textContent = translations['unable_to_fetch_current_version'] || 'Unable to fetch the current version info';
-                }
-
-                if (data.version && data.url) {
-                    versionInfo.textContent = `${translations['latest_version'] || 'Latest Version'}: ${data.version}`;
-                    downloadLink.href = data.url;
-                } else {
-                    versionInfo.textContent = translations['unable_to_fetch_version'] || 'Unable to fetch the latest version info';
-                }
-            })
-            .catch(() => {
-                versionInfo.textContent = translations['request_failed'] || 'Request failed, please try again later';
-            });
-    });
-});
-</script>
-
-<script>
-let mediaFiles = [];
-let currentPreviewIndex = -1;
-let mediaTimer = null;
-
-const fitModes = [
-  { mode: 'cover',      labelKey: 'fit_cover' },
-  { mode: 'contain',    labelKey: 'fit_contain' },
-  { mode: 'fill',       labelKey: 'fit_fill' },
-  { mode: 'none',       labelKey: 'fit_none' },
-  { mode: 'scale-down', labelKey: 'fit_scale-down' },
-];
-let currentFitIndex = 0;
-
-const fitButtons = ['fitTogglePreview', 'fitTogglePlayer'];
-
-function applyFitMode(announce = true) {
-  const currentMode = fitModes[currentFitIndex];
-  const label = translations?.[currentMode.labelKey] || currentMode.mode;
-
-  ['previewImage', 'previewVideo', 'mainPlayer'].forEach(id => {
-    const el = document.getElementById(id);
-    if (el) el.style.objectFit = currentMode.mode;
-  });
-
-  fitButtons.forEach(id => {
-    const btn = document.getElementById(id);
-    if (btn) {
-      const span = btn.querySelector('span[data-translate]');
-      if (span) {
-        span.textContent = label;
-      } else {
-        btn.textContent = label;
-      }
-    }
-  });
-
-  if (!announce) return;
-
-  const prefix = translations?.['current_fit_mode'] || 'Current mode';
-  const messageText = `${prefix}: ${label}`;
-  if (typeof showLogMessage === 'function') showLogMessage(messageText);
-  if (typeof speakMessage === 'function') speakMessage(messageText);
-}
-
-fitButtons.forEach(btnId => {
-  const btn = document.getElementById(btnId);
-  if (btn) {
-    btn.addEventListener('click', () => {
-      currentFitIndex = (currentFitIndex + 1) % fitModes.length;
-      applyFitMode(true);
-    });
-  }
-});
-
-function initMediaFiles() {
-  mediaFiles = [];
-  document.querySelectorAll('[data-bs-target="#previewModal"]').forEach((el, index) => {
-    if (el.dataset.src) {
-      mediaFiles.push({
-        src: el.dataset.src,
-        type: el.dataset.type || 'image',
-        element: el
-      });
-      el.dataset.fileIndex = index;
-    }
-  });
-}
-
-function cleanMediaElements() {
-  if (mediaTimer) {
-    clearTimeout(mediaTimer);
-    mediaTimer = null;
-  }
-  ['Image','Audio','Video'].forEach(kind => {
-    const el = document.getElementById('preview' + kind);
-    if (el) {
-      el.classList.add('d-none');
-      if (kind !== 'Video' && kind !== 'Image') {
-        el.src = '';
-      }
-      if (kind === 'Video' || kind === 'Audio') {
-        el.pause();
-        el.onended = null;
-        if (kind === 'Video') {
-          el.querySelector('source').src = '';
+        if (document.exitFullscreen) {
+            document.exitFullscreen();
         }
-      }
     }
-  });
+    
+    if (imageSwitchTimer) {
+        clearInterval(imageSwitchTimer);
+        imageSwitchTimer = null;
+    }
+    
+    audioPlayer.pause();
+    videoPlayer.pause();
+    
+    playerArea.classList.remove('active');
+    playerArea.style.display = 'none'; 
+    
+    audioPlayer.style.display = 'none';
+    videoPlayer.style.display = 'none';
+    imageViewer.style.display = 'none';
+    
+    currentMedia = {
+        type: null,
+        src: null,
+        path: null,
+        ext: null,
+        wasPlaying: false
+    };
 }
-
-function loadAndPlayMedia() {
-  cleanMediaElements();
-  applyFitMode(false); 
-
-  const currentFile = mediaFiles[currentPreviewIndex];
-  if (!currentFile) return;
-
-  switch (currentFile.type) {
-    case 'image': {
-      const img = document.getElementById('previewImage');
-      img.src = currentFile.src;
-      img.classList.remove('d-none');
-      mediaTimer = setTimeout(() => {
-        document.getElementById('nextBtn').click();
-      }, 5000);
-      break;
+    
+function toggleFullscreenPlayer() {
+    const videoPlayer = document.getElementById('videoPlayer');
+    const audioPlayer = document.getElementById('audioPlayer');
+    const imageViewer = document.getElementById('imageViewer');
+    
+    let mediaElement;
+    if (videoPlayer.style.display === 'block') {
+        mediaElement = videoPlayer;
+    } else if (audioPlayer.style.display === 'block') {
+        mediaElement = audioPlayer;
+    } else if (imageViewer.style.display === 'block') {
+        mediaElement = imageViewer;
     }
-    case 'video': {
-      const video = document.getElementById('previewVideo');
-      const source = video.querySelector('source');
-      source.src = currentFile.src;
-      video.load();
-      video.classList.remove('d-none');
-      video.onended = () => {
-        document.getElementById('nextBtn').click();
-      };
-      video.play().catch(e => console.log('Video play failed:', e));
-      break;
+    
+    if (!mediaElement) return;
+    
+    if (!document.fullscreenElement) {
+        if (mediaElement.requestFullscreen) {
+            mediaElement.requestFullscreen();
+        } else if (mediaElement.webkitRequestFullscreen) {
+            mediaElement.webkitRequestFullscreen();
+        } else if (mediaElement.msRequestFullscreen) {
+            mediaElement.msRequestFullscreen();
+        }
+    } else {
+        if (document.exitFullscreen) {
+            document.exitFullscreen();
+        } else if (document.webkitExitFullscreen) {
+            document.webkitExitFullscreen();
+        } else if (document.msExitFullscreen) {
+            document.msExitFullscreen();
+        }
     }
-    case 'audio': {
-      const audio = document.getElementById('previewAudio');
-      audio.src = currentFile.src;
-      audio.classList.remove('d-none');
-      audio.onended = () => {
-        document.getElementById('nextBtn').click();
-      };
-      audio.play().catch(e => console.log('Audio play failed:', e));
-      break;
-    }
-  }
 }
-
-document.getElementById('previewModal').addEventListener('show.bs.modal', function(e) {
-  initMediaFiles();
-  currentPreviewIndex = parseInt(e.relatedTarget.dataset.fileIndex);
-  currentFitIndex = 0;
-  loadAndPlayMedia();
-});
-
-document.getElementById('playerModal').addEventListener('show.bs.modal', function () {
-  currentFitIndex = 0;
-  applyFitMode(false);
-});
-
-document.getElementById('prevBtn').addEventListener('click', () => {
-  currentPreviewIndex = (currentPreviewIndex - 1 + mediaFiles.length) % mediaFiles.length;
-  loadAndPlayMedia();
-});
-
-document.getElementById('nextBtn').addEventListener('click', () => {
-  currentPreviewIndex = (currentPreviewIndex + 1) % mediaFiles.length;
-  loadAndPlayMedia();
-});
-
-document.addEventListener('keydown', (e) => {
-  const modal = document.getElementById('previewModal');
-  if (!modal.classList.contains('show')) return;
-
-  const key = e.key.toLowerCase();
-  if (key === 'a') {
-    document.getElementById('prevBtn').click();
-  } else if (key === 'd') {
-    document.getElementById('nextBtn').click();
-  }
-});
-</script>
-
-<script>
-function setBackground(filename) {
-    fetch('set_background.php', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-        body: 'file=' + encodeURIComponent(filename)
-    }).then(() => location.reload()) 
-      .catch(error => console.error('Request failed:', error));
+   
+function refreshMedia() {
+    updateRecentList();
+    window.location.reload();
 }
-</script>
-
-<script>
-document.addEventListener("DOMContentLoaded", function () {
-    const logMessages = document.querySelectorAll('#log-message');
-
-    logMessages.forEach(message => {
-        setTimeout(() => {
-            message.style.transition = "opacity 0.5s ease-out";  
-            message.style.opacity = '0';  
-            setTimeout(() => {
-                message.remove();  
-            }, 500); 
-        }, 4000); 
-    });
-});
-</script>
-
-<script>
-document.addEventListener('change', function(e) {
-    if(e.target.classList.contains('fileCheckbox')) {
-        const wrapper = e.target.closest('.file-checkbox-wrapper');
-        wrapper.classList.toggle('force-visible', e.target.checked);
+    
+function toggleFullscreen() {
+    const diffModal = document.getElementById('diffEditorModal');
+    const isDiffModalOpen = diffModal && diffModal.classList.contains('show');
+    
+    const editorPanel = document.getElementById('editorPanel');
+    const isEditorOpen = editorPanel && editorPanel.style.display === 'block';
+    
+    let elem;
+    
+    if (isDiffModalOpen) {
+        elem = document.querySelector('#diffEditorModal .modal-content');
+        if (!elem) {
+            elem = document.documentElement;
+        }
+    } else if (isEditorOpen) {
+        elem = document.querySelector('#editorPanelContent');
+        if (!elem) {
+            elem = editorPanel;
+        }
+    } else {
+        elem = document.documentElement;
+    }
+    
+    if (!elem) return;
+    
+    const fullscreenBtn = document.querySelector('.action-btn.primary');
+    const icon = fullscreenBtn ? fullscreenBtn.querySelector('i') : null;
+    
+    if (!document.fullscreenElement) {
+        if (icon) {
+            icon.className = 'fas fa-compress';
+            icon.style.opacity = '0.8';
+        }
         
-        const allCheckboxes = [...document.querySelectorAll('.fileCheckbox:not(#selectAll)')];
-        const allChecked = allCheckboxes.every(c => c.checked);
-        document.getElementById('selectAll').checked = allChecked;
+        if (elem.requestFullscreen) {
+            elem.requestFullscreen().then(() => {
+                if (icon) {
+                    icon.style.opacity = '1';
+                }
+            }).catch(err => {
+                if (icon) {
+                    icon.className = 'fas fa-expand';
+                    icon.style.opacity = '1';
+                }
+            });
+        } else if (elem.webkitRequestFullscreen) {
+            elem.webkitRequestFullscreen();
+        } else if (elem.mozRequestFullScreen) {
+            elem.mozRequestFullScreen();
+        } else if (elem.msRequestFullscreen) {
+            elem.msRequestFullscreen();
+        }
+    } else {
+        if (icon) {
+            icon.className = 'fas fa-expand';
+            icon.style.opacity = '0.8';
+        }
+        
+        if (document.exitFullscreen) {
+            document.exitFullscreen().then(() => {
+                if (icon) {
+                    icon.style.opacity = '1';
+                }
+            }).catch(err => {
+                if (icon) {
+                    icon.className = 'fas fa-compress';
+                    icon.style.opacity = '1';
+                }
+            });
+        } else if (document.webkitExitFullscreen) {
+            document.webkitExitFullscreen();
+        } else if (document.mozCancelFullScreen) {
+            document.mozCancelFullScreen();
+        } else if (document.msExitFullscreen) {
+            document.msExitFullscreen();
+        }
+    }
+}
+
+function showMediaInfo(event, element) {
+    event.preventDefault();
+    event.stopPropagation();
+    
+    selectedMediaElement = element;
+    selectedMediaPath = element.getAttribute('data-src') ? 
+        element.getAttribute('data-src').split('path=')[1] : '';
+    
+    const filename = element.getAttribute('data-filename') || 'Unknown';
+    const filesize = element.getAttribute('data-filesize') || 'Unknown';
+    const type = element.getAttribute('data-type') || 'Unknown';
+    const duration = element.getAttribute('data-duration') || 'N/A';
+    const resolution = element.getAttribute('data-resolution') || 'N/A';
+    const bitrate = element.getAttribute('data-bitrate') || 'N/A';
+    const fileExt = element.getAttribute('data-ext') || 'Unknown';
+    
+    const fullPath = element.getAttribute('data-src') ? 
+        decodeURIComponent(element.getAttribute('data-src').split('path=')[1]) : 'Unknown';
+        document.getElementById('infoFilename').textContent = filename;
+        document.getElementById('infoFilesize').textContent = filesize;
+        document.getElementById('infoType').textContent = `${type} (${fileExt})`;
+        document.getElementById('infoDuration').textContent = duration;
+        document.getElementById('infoResolution').textContent = resolution;
+        document.getElementById('infoBitrate').textContent = bitrate;
+        document.getElementById('infoPath').textContent = fullPath;
+   
+    const durationItem = document.getElementById('durationItem');
+    const resolutionItem = document.getElementById('resolutionItem');
+    const bitrateItem = document.getElementById('bitrateItem');
+    
+    if (type === 'audio') {
+        durationItem.style.display = 'flex';
+        resolutionItem.style.display = 'none';
+        bitrateItem.style.display = 'flex';
+    } else if (type === 'video') {
+        durationItem.style.display = 'flex';
+        resolutionItem.style.display = 'flex';
+        bitrateItem.style.display = 'flex';
+    } else if (type === 'image') {
+        durationItem.style.display = 'none';
+        resolutionItem.style.display = 'flex';
+        bitrateItem.style.display = 'none';
+    }
+    
+    document.getElementById('mediaContextMenu').style.display = 'block';
+    document.getElementById('contextMenuOverlay').style.display = 'block';
+}
+
+function hideContextMenu() {
+    document.getElementById('mediaContextMenu').style.display = 'none';
+    document.getElementById('contextMenuOverlay').style.display = 'none';
+    selectedMediaElement = null;
+    selectedMediaPath = '';
+}
+
+function playSelectedMedia() {
+    if (selectedMediaPath) {
+        const safePath = decodeURIComponent(selectedMediaPath);
+        playMedia(safePath);
+    } else if (selectedMediaElement) {
+        const clickEvent = new MouseEvent('click', {
+            bubbles: true,
+            cancelable: true,
+            view: window
+        });
+        selectedMediaElement.dispatchEvent(clickEvent);
+    }
+    hideContextMenu();
+}
+
+function closeContextMenu() {
+    hideContextMenu();
+}
+
+
+document.addEventListener('contextmenu', function(e) {
+    const contextMenu = document.getElementById('mediaContextMenu');
+    if (contextMenu.style.display === 'block') {
+        e.preventDefault();
+    }
+}); 
+
+document.addEventListener('click', function() {
+    if (!userInteracted) {
+        userInteracted = true;
     }
 });
 
-document.getElementById('selectAll').addEventListener('change', function(e) {
-    const checkboxes = document.querySelectorAll('.fileCheckbox:not(#selectAll)');
-    checkboxes.forEach(checkbox => {
-        checkbox.checked = e.target.checked;
-        const wrapper = checkbox.closest('.file-checkbox-wrapper');
-        wrapper.classList.toggle('force-visible', e.target.checked);
-    });
-});
-</script>
-
-<script>
-document.addEventListener("DOMContentLoaded", function () {
-    const grid = document.getElementById("fileGrid");
-
-    const isSmallScreen = window.innerWidth < 768;
-
-    if (!isSmallScreen) {
-        new Sortable(grid, {
-            animation: 150,
-            onEnd: function () {
-                const filenames = Array.from(grid.querySelectorAll('[data-filename]'))
-                                      .map(el => el.getAttribute('data-filename'));
+function initHoverPlay() {
+    const items = document.querySelectorAll('.hover-playable');
+    
+    items.forEach(item => {
+        item.addEventListener('mouseenter', function() {
+            const type = this.getAttribute('data-type');
+            const src = this.getAttribute('data-src');
+            
+            stopHoverPlay();
+            
+            if (type === 'audio') {
+                hoverAudio = new Audio(src);
+                hoverAudio.volume = 0.9;
+                hoverAudio.play().catch(e => {
+                });
+            } 
+            else if (type === 'video' && userInteracted) {
+                const thumb = this.querySelector('.media-thumb');
+                if (!thumb) return;
                 
-                fetch('order_handler.php', {
-                    method: 'POST',
-                    headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({ order: filenames })
-                })
-                .then(response => response.ok ? console.log('Order saved.') : console.error('Failed to save.'))
-                .catch(console.error);
+                hoverVideoContainer = document.createElement('div');
+                hoverVideoContainer.className = 'hover-video-container';
+                hoverVideoContainer.style.cssText = `
+                    position: absolute;
+                    top: 0;
+                    left: 0;
+                    width: 100%;
+                    height: 100%;
+                    z-index: 10;
+                    border-radius: 8px;
+                    overflow: hidden;
+                    background: #000;
+                `;
+                
+                hoverVideo = document.createElement('video');
+                hoverVideo.src = src;
+                hoverVideo.controls = false;
+                hoverVideo.autoplay = true;
+                hoverVideo.muted = false;
+                hoverVideo.playsInline = true;
+                hoverVideo.style.cssText = `
+                    width: 100%;
+                    height: 100%;
+                    object-fit: cover;
+                `;
+                
+                hoverVideoContainer.appendChild(hoverVideo);
+                thumb.appendChild(hoverVideoContainer);
+                
+                const icon = thumb.querySelector('i');
+                if (icon) icon.style.opacity = '0.3';
+                
+                hoverVideo.play().catch(e => {
+                    if (hoverVideoContainer && hoverVideoContainer.parentNode) {
+                        hoverVideoContainer.parentNode.removeChild(hoverVideoContainer);
+                    }
+                });
             }
         });
+        
+        item.addEventListener('mouseleave', function() {
+            stopHoverPlay();
+        });
+    });
+}
+
+function stopHoverPlay() {
+    if (hoverAudio) {
+        hoverAudio.pause();
+        hoverAudio.currentTime = 0;
+        hoverAudio = null;
+    }
+    
+    if (hoverVideo) {
+        hoverVideo.pause();
+        hoverVideo.currentTime = 0;
+        
+        if (hoverVideoContainer) {
+            const parent = hoverVideoContainer.parentElement;
+            if (parent) {
+                const icon = parent.querySelector('i');
+                if (icon) icon.style.opacity = '1';
+                
+                if (parent.contains(hoverVideoContainer)) {
+                    parent.removeChild(hoverVideoContainer);
+                }
+            }
+        }
+        
+        hoverVideo = null;
+        hoverVideoContainer = null;
+    }
+}
+
+let cpuChart = null;
+let memChart = null;
+let cpuData = [];
+let memData = [];
+let timeLabels = [];
+let maxDataPoints = 30;
+let networkHistory = [];
+let systemMonitorInterval = null;
+let lastNetworkRx = 0;
+let lastNetworkTx = 0;
+
+async function updateSystemInfo() {
+    try {
+        const response = await fetch('?ajax=1');
+        const data = await response.json();
+        
+        if (data.success) {
+            let cpuUsage = parseFloat(data.cpu_usage) || 0;
+            cpuUsage = Math.max(0, Math.min(100, cpuUsage));
+            
+            updateElementText('cpuUsageDisplay', cpuUsage.toFixed(1) + '%');
+            updateElementText('cpuUsageValue', cpuUsage.toFixed(1) + '%');
+            
+            const cpuBar = document.getElementById('cpuUsageBar');
+            if (cpuBar) {
+                cpuBar.style.width = Math.min(cpuUsage, 100) + '%';
+            }
+            
+            updateElementText('cpuCoresValue', data.cpu_cores || '--');
+            
+            updateElementText('cpuFreqDisplay', data.cpu_freq || '--');
+
+            if (data.openwrt_version) {
+                updateElementText('openwrtVersionDisplay', data.openwrt_version || 'Unknown');
+            }
+            
+            if (data.kernel_version) {
+                updateElementText('kernelVersionDisplay', data.kernel_version || 'Unknown');
+            }
+            
+            if (data.board_model) {
+                updateElementText('boardModelDisplay', data.board_model || 'Unknown');
+            }
+            
+            const memUsage = parseFloat(data.mem_usage) || 0;
+            updateElementText('memUsageDisplay', memUsage.toFixed(1) + '%');
+            updateElementText('memUsageValue', memUsage.toFixed(1) + '%');
+            
+            const memBar = document.getElementById('memUsageBar');
+            if (memBar) memBar.style.width = Math.min(memUsage, 100) + '%';
+            
+            if (data.mem_total !== undefined && data.mem_used !== undefined) {
+                const cleanNumber = (str) => {
+                    if (typeof str === 'string') {
+                        return parseFloat(str.replace(/,/g, ''));
+                    }
+                    return parseFloat(str || 0);
+                };
+    
+                const memUsed = cleanNumber(data.mem_used);
+                const memTotal = cleanNumber(data.mem_total);
+    
+                updateElementText('memUsedDisplay', memUsed.toFixed(1));
+                updateElementText('memTotalDisplay', memTotal.toFixed(1));
+            }    
+     
+            if (cpuChart && memChart) {
+                updateChartData(cpuUsage, memUsage);
+            }
+            
+            if (data.cpu_temp && data.cpu_temp !== '--') {
+                updateElementText('cpuTempDisplay', data.cpu_temp + '°C');
+                const tempElement = document.getElementById('cpuTempDisplay');
+                const temp = parseFloat(data.cpu_temp);
+                
+                if (temp > 70) {
+                    tempElement.style.color = '#F44336';
+                } else if (temp > 60) {
+                    tempElement.style.color = '#FF9800';
+                } else {
+                    tempElement.style.color = '#4CAF50';
+                }
+            }
+            
+            updateElementText('processCountDisplay', data.process_count || '--');
+            
+            const uptimeElement = document.getElementById('uptimeDisplay');
+            if (uptimeElement && data.uptime) {
+                let uptimeText = data.uptime;
+    
+                uptimeText = uptimeText.replace(/days/gi, translations['uptime_days'] || 'days')
+                                                  .replace(/hours/gi, translations['uptime_hours'] || 'hours')
+                                                  .replace(/minutes/gi, translations['minutes'] || 'minutes')
+                                                  .replace(/seconds/gi, translations['seconds'] || 'seconds');
+                uptimeElement.textContent = uptimeText;
+            }
+            
+            updateElementText('loadAvgDisplay', data.load_avg || '--');
+            
+            updateElementText('timeValue', data.system_time || '--:--:--');
+            updateElementText('timezoneDisplay', data.timezone || 'UTC');
+            
+            if (data.network_rx !== undefined && data.network_tx !== undefined) {
+                updateNetworkSpeed(data.network_rx, data.network_tx);
+            }
+        }
+    } catch (error) {
+        console.error('Failed to update system info:', error);
+        showErrorState();
+    }
+}
+
+function updateElementText(elementId, text) {
+    const element = document.getElementById(elementId);
+    if (element) element.textContent = text;
+}
+
+function showErrorState() {
+    updateElementText('cpuUsageDisplay', '--%');
+    updateElementText('memUsageDisplay', '--%');
+    updateElementText('cpuTempDisplay', '--°C');
+    updateElementText('processCountDisplay', '--');
+    updateElementText('uptimeDisplay', '--:--:--');
+    updateElementText('loadAvgDisplay', '--');
+    updateElementText('timeValue', '--:--:--');
+    updateElementText('timezoneDisplay', '--');
+}
+
+function initCharts() {
+    const cpuCtx = document.getElementById('cpuChartCanvas');
+    const memCtx = document.getElementById('memChartCanvas');
+    
+    if (!cpuCtx || !memCtx) {
+        console.log('Chart canvas not found');
+        return;
+    }
+
+    if (cpuChart) {
+        cpuChart.destroy();
+    }
+
+    if (memChart) {
+        memChart.destroy();
+    }
+    
+    const cpuContext = cpuCtx.getContext('2d');
+    const memContext = memCtx.getContext('2d');
+    cpuContext.clearRect(0, 0, cpuCtx.width, cpuCtx.height);
+    memContext.clearRect(0, 0, memCtx.width, memCtx.height);
+    
+    cpuCtx.width = cpuCtx.offsetWidth;
+    cpuCtx.height = cpuCtx.offsetHeight;
+    memCtx.width = memCtx.offsetWidth;
+    memCtx.height = memCtx.offsetHeight;
+    
+    cpuData = [];
+    memData = [];
+    timeLabels = [];
+    
+    for (let i = 0; i < maxDataPoints; i++) {
+        cpuData.push(0);
+        memData.push(0);
+        timeLabels.push('');
+    }
+    
+    try {
+        cpuChart = new Chart(cpuCtx.getContext('2d'), {
+            type: 'line',
+            data: {
+                labels: timeLabels,
+                datasets: [{
+                    label: 'CPU Usage',
+                    data: cpuData,
+                    borderColor: '#4CAF50',
+                    backgroundColor: 'rgba(76, 175, 80, 0.1)',
+                    borderWidth: 2,
+                    fill: true,
+                    tension: 0.3,
+                    pointRadius: 0
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        callbacks: {
+                            label: (ctx) => `CPU: ${ctx.parsed.y.toFixed(1)}%`
+                        }
+                    }
+                },
+                scales: {
+                    x: { display: false },
+                    y: {
+                        min: 0,
+                        max: 100,
+                        ticks: {
+                            color: '#888',
+                            callback: (value) => `${value}%`
+                        },
+                        grid: { color: 'rgba(255,255,255,0.1)' }
+                    }
+                }
+            }
+        });
+        
+        memChart = new Chart(memCtx.getContext('2d'), {
+            type: 'line',
+            data: {
+                labels: timeLabels,
+                datasets: [{
+                    label: 'Memory Usage',
+                    data: memData,
+                    borderColor: '#2196F3',
+                    backgroundColor: 'rgba(33, 150, 243, 0.1)',
+                    borderWidth: 2,
+                    fill: true,
+                    tension: 0.3,
+                    pointRadius: 0
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        callbacks: {
+                            label: (ctx) => `Memory: ${ctx.parsed.y.toFixed(1)}%`
+                        }
+                    }
+                },
+                scales: {
+                    x: { display: false },
+                    y: {
+                        min: 0,
+                        max: 100,
+                        ticks: {
+                            color: '#888',
+                            callback: (value) => `${value}%`
+                        },
+                        grid: { color: 'rgba(255,255,255,0.1)' }
+                    }
+                }
+            }
+        });
+    } catch (error) {
+        console.error('Error initializing charts:', error);
+    }
+}
+
+function updateChartData(cpuValue, memValue) {
+    if (!cpuChart || !memChart) return;
+    
+    cpuData.push(cpuValue);
+    memData.push(memValue);
+    
+    if (cpuData.length > maxDataPoints) {
+        cpuData.shift();
+        memData.shift();
+    }
+    
+    cpuChart.data.datasets[0].data = cpuData;
+    memChart.data.datasets[0].data = memData;
+    
+    cpuChart.update('none');
+    memChart.update('none');
+}
+
+function updateNetworkSpeed(rx, tx) {
+    const networkElement = document.getElementById('networkSpeedDisplay');
+    if (!networkElement) return;
+    
+    const currentTime = Date.now();
+    
+    if (typeof updateNetworkSpeed.lastTime === 'undefined') {
+        updateNetworkSpeed.lastTime = currentTime;
+        updateNetworkSpeed.lastRx = rx;
+        updateNetworkSpeed.lastTx = tx;
+        return;
+    }
+    
+    const timeDiff = (currentTime - updateNetworkSpeed.lastTime) / 1000;
+    
+    if (timeDiff > 0) {
+        const rxSpeed = (rx - updateNetworkSpeed.lastRx) / timeDiff;
+        const txSpeed = (tx - updateNetworkSpeed.lastTx) / timeDiff;
+        const totalSpeed = rxSpeed + txSpeed;
+        
+        let displayText, color;
+        
+        if (totalSpeed < 1024) {
+            displayText = totalSpeed.toFixed(1) + ' B/s';
+            color = '#4CAF50';
+        } else if (totalSpeed < 1024 * 1024) {
+            displayText = (totalSpeed / 1024).toFixed(1) + ' KB/s';
+            color = '#2196F3';
+        } else {
+            displayText = (totalSpeed / (1024 * 1024)).toFixed(1) + ' MB/s';
+            color = '#E91E63';
+        }
+        
+        networkElement.innerHTML = `${displayText}<br>
+                                   <span style="font-size: 0.8rem; color: #888;">
+                                   ↓${(rxSpeed < 1024 ? rxSpeed.toFixed(1) + ' B' : 
+                                       rxSpeed < 1024 * 1024 ? (rxSpeed / 1024).toFixed(1) + ' KB' : 
+                                       (rxSpeed / (1024 * 1024)).toFixed(1) + ' MB')}/s ↑
+                                   ${(txSpeed < 1024 ? txSpeed.toFixed(1) + ' B' : 
+                                       txSpeed < 1024 * 1024 ? (txSpeed / 1024).toFixed(1) + ' KB' : 
+                                       (txSpeed / (1024 * 1024)).toFixed(1) + ' MB')}/s</span>`;
+        networkElement.style.color = color;
+        
+        updateNetworkSpeed.lastTime = currentTime;
+        updateNetworkSpeed.lastRx = rx;
+        updateNetworkSpeed.lastTx = tx;
+    }
+}
+updateNetworkSpeed.lastTime = undefined;
+updateNetworkSpeed.lastRx = 0;
+updateNetworkSpeed.lastTx = 0;
+
+function startSystemMonitoring() {
+    stopSystemMonitoring();
+    
+    if (cpuChart) {
+        cpuChart.destroy();
+        cpuChart = null;
+    }
+    if (memChart) {
+        memChart.destroy();
+        memChart = null;
+    }
+    
+    if (document.getElementById('cpuChartCanvas') && typeof Chart !== 'undefined') {
+        initCharts();
+    } else if (typeof Chart === 'undefined') {
+        const script = document.createElement('script');
+        script.src = '/luci-static/spectra/js/chart.js';
+        script.onload = initCharts;
+        document.head.appendChild(script);
+    }
+    
+    updateSystemInfo();
+    
+    systemMonitorInterval = setInterval(updateSystemInfo, 1000);
+}
+
+function stopSystemMonitoring() {
+    if (systemMonitorInterval) {
+        clearInterval(systemMonitorInterval);
+        systemMonitorInterval = null;
+    }
+}
+
+let isResizing = false;
+let isPlayerResizing = false;
+let startX, startWidth, startPlayerWidth;
+
+function initResizer() {
+    const resizer = document.getElementById('resizer');
+    const playerResizer = document.getElementById('playerResizer');
+    const contentArea = document.getElementById('contentArea');
+    const playerArea = document.getElementById('playerArea');
+    const sideNav = document.getElementById('sideNav');
+    
+    if (resizer) {
+        resizer.addEventListener('mousedown', function(e) {
+            e.preventDefault();
+            isResizing = true;
+            startX = e.clientX;
+            startWidth = sideNav.offsetWidth;
+            resizer.classList.add('dragging');
+            
+            document.addEventListener('mousemove', handleSidebarResize);
+            document.addEventListener('mouseup', stopResize);
+        });
+        
+        resizer.addEventListener('touchstart', function(e) {
+            e.preventDefault();
+            isResizing = true;
+            startX = e.touches[0].clientX;
+            startWidth = sideNav.offsetWidth;
+            resizer.classList.add('dragging');
+            
+            document.addEventListener('touchmove', handleSidebarResizeTouch);
+            document.addEventListener('touchend', stopResizeTouch);
+        });
+    }
+    
+    if (playerResizer) {
+        playerResizer.addEventListener('mousedown', function(e) {
+            e.preventDefault();
+            if (!playerArea.classList.contains('active')) return;
+            
+            isPlayerResizing = true;
+            startX = e.clientX;
+            startPlayerWidth = playerArea.offsetWidth;
+            playerResizer.classList.add('dragging');
+            
+            document.addEventListener('mousemove', handlePlayerResize);
+            document.addEventListener('mouseup', stopPlayerResize);
+        });
+        
+        playerResizer.addEventListener('touchstart', function(e) {
+            e.preventDefault();
+            if (!playerArea.classList.contains('active')) return;
+            
+            isPlayerResizing = true;
+            startX = e.touches[0].clientX;
+            startPlayerWidth = playerArea.offsetWidth;
+            playerResizer.classList.add('dragging');
+            
+            document.addEventListener('touchmove', handlePlayerResizeTouch);
+            document.addEventListener('touchend', stopPlayerResizeTouch);
+        });
+    }
+}
+
+function handleSidebarResize(e) {
+    if (!isResizing) return;
+    
+    const sideNav = document.getElementById('sideNav');
+    const toggleIcon = document.querySelector('.fa-server');
+    const deltaX = e.clientX - startX;
+    let newWidth = startWidth + deltaX;
+    
+    newWidth = Math.max(70, Math.min(400, newWidth));
+    
+    if (sidebarCollapsed && newWidth > 70) {
+        if (toggleIcon) {
+            toggleIcon.style.transform = 'rotate(0deg)';
+            toggleIcon.setAttribute('data-translate-tooltip', 'toggle_menu');
+        }
+        sidebarCollapsed = false;
+        sideNav.classList.remove('collapsed');
+    }
+    
+    if (!sidebarCollapsed) {
+        sideNav.style.width = newWidth + 'px';
+        sideNav.style.transition = 'none';
+    }
+}
+
+function handleSidebarResizeTouch(e) {
+    if (!isResizing || !e.touches.length) return;
+    
+    const sideNav = document.getElementById('sideNav');
+    const toggleIcon = document.querySelector('.fa-server');
+    const deltaX = e.touches[0].clientX - startX;
+    let newWidth = startWidth + deltaX;
+    
+    newWidth = Math.max(70, Math.min(400, newWidth));
+    
+    if (sidebarCollapsed && newWidth > 70) {
+        if (toggleIcon) {
+            toggleIcon.style.transform = 'rotate(0deg)';
+            toggleIcon.setAttribute('data-translate-tooltip', 'toggle_menu');
+        }
+        sidebarCollapsed = false;
+        sideNav.classList.remove('collapsed');
+    }
+    
+    if (!sidebarCollapsed) {
+        sideNav.style.width = newWidth + 'px';
+        sideNav.style.transition = 'none';
+    }
+}
+
+function handlePlayerResize(e) {
+    if (!isPlayerResizing) return;
+    
+    const playerArea = document.getElementById('playerArea');
+    const deltaX = startX - e.clientX;
+    let newWidth = startPlayerWidth + deltaX;
+    
+    newWidth = Math.max(300, Math.min(window.innerWidth * 0.8, newWidth));
+    
+    playerArea.style.width = newWidth + 'px';
+    playerArea.style.transition = 'none';
+    playerArea.style.flex = 'none';
+}
+
+function handlePlayerResizeTouch(e) {
+    if (!isPlayerResizing || !e.touches.length) return;
+    
+    const playerArea = document.getElementById('playerArea');
+    const deltaX = startX - e.touches[0].clientX;
+    let newWidth = startPlayerWidth + deltaX;
+    
+    newWidth = Math.max(300, Math.min(window.innerWidth * 0.8, newWidth));
+    
+    playerArea.style.width = newWidth + 'px';
+    playerArea.style.transition = 'none';
+    playerArea.style.flex = 'none';
+}
+
+function stopResize() {
+    isResizing = false;
+    const resizer = document.getElementById('resizer');
+    if (resizer) {
+        resizer.classList.remove('dragging');
+    }
+    document.removeEventListener('mousemove', handleSidebarResize);
+    document.removeEventListener('mouseup', stopResize);
+    
+    const sideNav = document.getElementById('sideNav');
+    if (sideNav && !sidebarCollapsed) {
+        localStorage.setItem('sidebarWidth', sideNav.offsetWidth);
+        sideNav.style.transition = 'width 0.3s ease';
+    }
+}
+
+function stopResizeTouch() {
+    isResizing = false;
+    const resizer = document.getElementById('resizer');
+    if (resizer) {
+        resizer.classList.remove('dragging');
+    }
+    document.removeEventListener('touchmove', handleSidebarResizeTouch);
+    document.removeEventListener('touchend', stopResizeTouch);
+    
+    const sideNav = document.getElementById('sideNav');
+    if (sideNav && !sidebarCollapsed) {
+        localStorage.setItem('sidebarWidth', sideNav.offsetWidth);
+        sideNav.style.transition = 'width 0.3s ease';
+    }
+}
+
+function stopPlayerResize() {
+    isPlayerResizing = false;
+    const playerResizer = document.getElementById('playerResizer');
+    if (playerResizer) {
+        playerResizer.classList.remove('dragging');
+    }
+    document.removeEventListener('mousemove', handlePlayerResize);
+    document.removeEventListener('mouseup', stopPlayerResize);
+    
+    const playerArea = document.getElementById('playerArea');
+    if (playerArea) {
+        localStorage.setItem('playerWidth', playerArea.offsetWidth);
+        playerArea.style.transition = 'width 0.3s ease';
+    }
+}
+
+function stopPlayerResizeTouch() {
+    isPlayerResizing = false;
+    const playerResizer = document.getElementById('playerResizer');
+    if (playerResizer) {
+        playerResizer.classList.remove('dragging');
+    }
+    document.removeEventListener('touchmove', handlePlayerResizeTouch);
+    document.removeEventListener('touchend', stopPlayerResizeTouch);
+    
+    const playerArea = document.getElementById('playerArea');
+    if (playerArea) {
+        localStorage.setItem('playerWidth', playerArea.offsetWidth);
+        playerArea.style.transition = 'width 0.3s ease';
+    }
+}
+
+function updateCollapseButton(collapsed) {
+    const toggleBtn = document.getElementById('collapseToggle');
+    if (!toggleBtn) return;
+    
+    if (collapsed) {
+        toggleBtn.innerHTML = '<i class="fas fa-chevron-right"></i>';
+        toggleBtn.style.left = '-12px';
+        toggleBtn.setAttribute('data-translate-tooltip', 'expand_menu'); 
     } else {
-        //console.log('Drag and drop is disabled on small screens.');
+        toggleBtn.innerHTML = '<i class="fas fa-chevron-left"></i>';
+        toggleBtn.style.left = '-12px';
+        toggleBtn.setAttribute('data-translate-tooltip', 'toggle_menu');
+    }
+}
+
+function loadSavedWidths() {
+    const savedPlayerWidth = localStorage.getItem('playerWidth');
+    const playerArea = document.getElementById('playerArea');
+    if (savedPlayerWidth && playerArea) {
+        playerArea.style.width = savedPlayerWidth + 'px';
+        playerArea.style.flex = 'none';
+    }
+}
+
+let sidebarCollapsed = false;
+
+function toggleSidebar() {
+    const sideNav = document.getElementById('sideNav');
+    const toggleIcon = document.querySelector('.fa-server');
+    
+    sidebarCollapsed = !sidebarCollapsed;
+    
+    if (sidebarCollapsed) {
+        sideNav.style.width = '70px';
+        sideNav.classList.add('collapsed');
+        if (toggleIcon) {
+            toggleIcon.style.transform = 'rotate(90deg)';
+            toggleIcon.setAttribute('data-translate-tooltip', 'expand_menu');
+        }
+    } else {
+        const savedWidth = localStorage.getItem('sidebarWidth');
+        if (savedWidth && parseInt(savedWidth) > 70) {
+            sideNav.style.width = savedWidth + 'px';
+        } else {
+            sideNav.style.width = '240px';
+        }
+        sideNav.classList.remove('collapsed');
+        if (toggleIcon) {
+            toggleIcon.style.transform = 'rotate(0deg)';
+            toggleIcon.setAttribute('data-translate-tooltip', 'toggle_menu');
+        }
+    }
+    
+    localStorage.setItem('sidebarCollapsed', sidebarCollapsed ? 'true' : 'false');
+}
+
+function initSidebarState() {
+    const savedState = localStorage.getItem('sidebarCollapsed');
+    const toggleIcon = document.querySelector('.fa-server');
+    const sideNav = document.getElementById('sideNav');
+    
+    if (savedState === 'true') {
+        if (sideNav && toggleIcon) {
+            sideNav.classList.add('collapsed');
+            sideNav.style.width = '70px';
+            toggleIcon.style.transform = 'rotate(90deg)';
+            toggleIcon.setAttribute('data-translate-tooltip', 'expand_menu');
+            sidebarCollapsed = true;
+        }
+    } else {
+        const savedWidth = localStorage.getItem('sidebarWidth');
+        if (sideNav) {
+            if (savedWidth) {
+                sideNav.style.width = savedWidth + 'px';
+            } else {
+                sideNav.style.width = '240px';
+            }
+            sideNav.classList.remove('collapsed');
+            if (toggleIcon) {
+                toggleIcon.style.transform = 'rotate(0deg)';
+                toggleIcon.setAttribute('data-translate-tooltip', 'toggle_menu');
+            }
+            sidebarCollapsed = false;
+        }
+    }
+}
+
+function updateFullscreenIcon() {
+    const mediaFullscreenBtn = document.querySelector('.btn.btn-teal[onclick*="toggleFullscreen"]');
+    const diffFullscreenBtn = document.querySelector('#diffEditorModal .btn-outline-info');
+    const editorFullscreenBtn = document.querySelector('#editorPanel .btn-outline-info[onclick*="toggleFullscreen"]');
+    
+    if (mediaFullscreenBtn) {
+        const icon = mediaFullscreenBtn.querySelector('i');
+        const textSpan = mediaFullscreenBtn.querySelector('span');
+        
+        if (icon && textSpan) {
+            if (document.fullscreenElement) {
+                icon.className = 'fas fa-compress';
+                if (translations['exit_fullscreen']) {
+                    textSpan.textContent = translations['exit_fullscreen'];
+                } else {
+                    textSpan.textContent = 'Exit Fullscreen';
+                }
+            } else {
+                icon.className = 'fas fa-expand';
+                if (translations['fullscreen_play']) {
+                    textSpan.textContent = translations['fullscreen_play'];
+                } else {
+                    textSpan.textContent = 'Fullscreen Play';
+                }
+            }
+        }
+    }
+    
+    if (diffFullscreenBtn) {
+        if (document.fullscreenElement) {
+            diffFullscreenBtn.innerHTML = '<i class="fas fa-compress"></i>';
+            diffFullscreenBtn.setAttribute('title', translations['exit_fullscreen'] || 'Exit Fullscreen');
+        } else {
+            diffFullscreenBtn.innerHTML = '<i class="fas fa-expand"></i>';
+            diffFullscreenBtn.setAttribute('title', translations['enter_fullscreen'] || 'Enter Fullscreen');
+        }
+    }
+    
+    if (editorFullscreenBtn) {
+        const icon = editorFullscreenBtn.querySelector('i');
+        const textSpan = editorFullscreenBtn.querySelector('span');
+        
+        if (icon && textSpan) {
+            if (document.fullscreenElement) {
+                icon.className = 'fas fa-compress';
+                textSpan.textContent = translations['exit_fullscreen'] || 'Exit Fullscreen';
+            } else {
+                icon.className = 'fas fa-expand';
+                textSpan.textContent = translations['fullscreen'] || 'Fullscreen';
+            }
+        }
+    }
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    updateRecentList();
+    initHoverPlay();
+    initSidebarState();
+    initResizer();
+    loadSavedWidths();
+    startSystemMonitoring();
+    initAutoPlayToggle();
+    
+    if (typeof Chart !== 'undefined') {
+        startSystemMonitoring();
+    } else {
+        const script = document.createElement('script');
+        script.src = '/luci-static/spectra/js/chart.js';
+        script.onload = function() {
+            startSystemMonitoring();
+        };
+        document.head.appendChild(script);
+    }
+
+    document.addEventListener('fullscreenchange', updateFullscreenIcon);
+    document.addEventListener('webkitfullscreenchange', updateFullscreenIcon);
+    document.addEventListener('mozfullscreenchange', updateFullscreenIcon);
+    document.addEventListener('MSFullscreenChange', updateFullscreenIcon);
+    
+    updateFullscreenIcon();
+
+    const playerArea = document.getElementById('playerArea');
+    const playerResizer = document.getElementById('playerResizer');
+    
+    const observer = new MutationObserver(function(mutations) {
+        mutations.forEach(function(mutation) {
+            if (mutation.attributeName === 'class') {
+                if (playerArea.classList.contains('active')) {
+                    playerResizer.style.display = 'block';
+                } else {
+                    playerResizer.style.display = 'none';
+                }
+            }
+        });
+    });
+    
+    if (playerArea) {
+        observer.observe(playerArea, { attributes: true });
+    }
+
+    document.addEventListener('click', function(e) {
+        const contextMenu = document.getElementById('mediaContextMenu');
+        const overlay = document.getElementById('contextMenuOverlay');
+        if (contextMenu.style.display === 'block' && 
+            !contextMenu.contains(e.target) && 
+            !overlay.contains(e.target)) {
+            hideContextMenu();
+        }
+    });
+});
+
+document.addEventListener('keydown', function(event) {
+    const target = event.target;
+    const isTyping = target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.isContentEditable;
+    
+    if (isTyping) return;
+    
+    const isMonacoEditor = target.closest('.monaco-editor');
+    if (isMonacoEditor && (event.code === 'Space' || event.code === 'KeyF' || event.code === 'Escape')) {
+        return;
+    }
+    
+    switch(event.code) {
+        case 'Space':
+            event.preventDefault();
+            const audioPlayer = document.getElementById('audioPlayer');
+            const videoPlayer = document.getElementById('videoPlayer');
+            const fullscreenAudio = document.getElementById('fullscreenAudio');
+            const fullscreenVideo = document.getElementById('fullscreenVideo');
+            
+            if (fullscreenAudio && fullscreenAudio.style.display === 'block') {
+                if (fullscreenAudio.paused) fullscreenAudio.play();
+                else fullscreenAudio.pause();
+            } else if (fullscreenVideo && fullscreenVideo.style.display === 'block') {
+                if (fullscreenVideo.paused) fullscreenVideo.play();
+                else fullscreenVideo.pause();
+            } else if (audioPlayer && audioPlayer.style.display === 'block') {
+                if (audioPlayer.paused) audioPlayer.play();
+                else audioPlayer.pause();
+            } else if (videoPlayer && videoPlayer.style.display === 'block') {
+                if (videoPlayer.paused) videoPlayer.play();
+                else videoPlayer.pause();
+            }
+            break;
+            
+        case 'Escape':
+            const mediaContextMenu = document.getElementById('mediaContextMenu');
+            const fileContextMenu = document.getElementById('fileContextMenu');
+            const contextMenuOverlay = document.getElementById('contextMenuOverlay');
+            
+            if (mediaContextMenu && mediaContextMenu.style.display === 'block') {
+                hideContextMenu();
+                event.preventDefault();
+            } else if (fileContextMenu && fileContextMenu.style.display === 'block') {
+                hideFileContextMenu();
+                event.preventDefault();
+            } else if (contextMenuOverlay && contextMenuOverlay.style.display === 'block') {
+                hideContextMenu();
+                hideFileContextMenu();
+                event.preventDefault();
+            }
+            else if (document.getElementById('fullscreenPlayer')?.classList.contains('active')) {
+                closeFullscreenPlayer();
+                event.preventDefault();
+            }
+            else if (document.getElementById('playerArea')?.classList.contains('active')) {
+                closePlayer();
+                event.preventDefault();
+            }
+            else if (document.getElementById('filePropertiesModal')?.classList.contains('show')) {
+                const modal = bootstrap.Modal.getInstance(document.getElementById('filePropertiesModal'));
+                if (modal) modal.hide();
+                event.preventDefault();
+            }
+            else if (document.getElementById('fileInfoDialog')?.style.display === 'block') {
+                document.getElementById('fileInfoDialog').style.display = 'none';
+                if (contextMenuOverlay) contextMenuOverlay.style.display = 'none';
+                event.preventDefault();
+            }
+            break;
+            
+        case 'KeyF':
+            event.preventDefault();
+            toggleFullscreen();
+            break;
+            
+        case 'ArrowRight':
+            event.preventDefault();
+            playNextMedia();
+            break;
+            
+        case 'ArrowLeft':
+            event.preventDefault();
+            playPreviousMedia();
+            break;
+            
+        case 'KeyA':
+            if (event.altKey) {
+                event.preventDefault();
+                toggleAutoNext();
+            }
+            break;                     
+            
+        case 'KeyF':
+            if (event.ctrlKey || event.metaKey) {
+                event.preventDefault();
+                const searchInput = document.getElementById('searchInput');
+                const searchModal = document.getElementById('searchModal');
+                
+                if (searchInput) {
+                    if (searchModal) {
+                        const modal = new bootstrap.Modal(searchModal);
+                        modal.show();
+                    }
+                    setTimeout(() => {
+                        searchInput.focus();
+                        searchInput.select();
+                    }, 100);
+                }
+            }
+            break;
+            
+        case 'KeyS':
+            if ((event.ctrlKey || event.metaKey) && activeEditorTab) {
+                event.preventDefault();
+                saveEditorContent(activeEditorTab);
+            }
+            break;
+            
+        case 'Enter':
+            if ((event.ctrlKey || event.metaKey) && document.getElementById('searchInput')?.value.trim()) {
+                event.preventDefault();
+                searchFiles();
+            }
+            break;
+            
+        case 'KeyF':
+            if ((event.ctrlKey || event.metaKey) && event.shiftKey && activeEditorTab) {
+                event.preventDefault();
+                const tab = editorTabs.find(t => t.id === activeEditorTab);
+                if (tab && tab.editorMode === 'advanced') {
+                    formatCode(activeEditorTab);
+                }
+            }
+            break;
+            
+        case 'F5':
+            event.preventDefault();
+            refreshFiles();
+            break;
+            
+        case 'Delete':
+            if (selectedFiles.size > 0) {
+                event.preventDefault();
+                deleteSelected();
+            }
+            break;
+            
+        case 'KeyE':
+            if (event.ctrlKey || event.metaKey) {
+                event.preventDefault();
+                toggleView();
+            }
+            break;
+            
+        case 'KeyE':
+            if ((event.ctrlKey || event.metaKey) && event.shiftKey) {
+                event.preventDefault();
+                toggleView('editor');
+            }
+            break;
+            
+        case 'KeyF':
+            if ((event.ctrlKey || event.metaKey) && event.shiftKey) {
+                event.preventDefault();
+                toggleView('files');
+            }
+            break;
+            
+        case 'KeyW':
+            if ((event.ctrlKey || event.metaKey) && activeEditorTab) {
+                event.preventDefault();
+                closeEditorTab(activeEditorTab);
+            }
+            break;
+            
+        case 'KeyW':
+            if ((event.ctrlKey || event.metaKey) && event.shiftKey && editorTabs.length > 0) {
+                event.preventDefault();
+                closeAllEditorTabs();
+            }
+            break;
     }
 });
 </script>
 
 <script>
-function clearBackgroundDirectly() {
-    clearExistingBackground();
-    localStorage.removeItem('phpBackgroundSrc');
-    localStorage.removeItem('phpBackgroundType');
-    localStorage.removeItem('backgroundSet');
+let currentPath = '/';
+let selectedFiles = new Set();
+let viewMode = 'grid';
+let fileContextMenuTarget = null;
+let uploadFilesList = [];
+let currentView = 'files'; 
+let monacoEditor = null;
+let currentEditorMode = 'simple';
+let monacoLoaded = false;
+let monacoLoading = false;
+let completionProvidersRegistered = false;
+
+async function loadFiles(path) {
+    const fileGrid = document.getElementById('fileGrid');
+    const loadingEl = document.getElementById('loadingFiles');
+    
+    if (!fileGrid || !loadingEl) return;
+    
+    fileGrid.innerHTML = '';
+    loadingEl.style.display = 'block';
+    
+    try {
+        const response = await fetch(`?action=list_files&path=${encodeURIComponent(path)}`);
+        const data = await response.json();
+        
+        if (data.success) {
+            currentPath = data.path;
+            updateBreadcrumb(data.path);
+            
+            const pathDisplay = document.getElementById('currentPathDisplay');
+            if (pathDisplay) {
+                pathDisplay.textContent = currentPath;
+            }
+            
+            let folderCount = 0;
+            let fileCount = 0;
+            let totalSize = 0;
+            
+            if (data.items.length === 0) {
+                fileGrid.innerHTML = `
+                    <div class="empty-folder" style="grid-column: 1 / -1;">
+                        <i class="fas fa-folder-open"></i>
+                        <p data-translate="empty_folder">This folder is empty</p>
+                    </div>`;
+            } else {
+                let html = '';
+                data.items.forEach(item => {
+                    const isDir = item.is_dir;
+                    const isSelected = selectedFiles.has(item.path);
+                    const safePath = item.path.replace(/'/g, "\\'").replace(/"/g, '&quot;');
+                    const safeName = item.name.replace(/</g, '&lt;').replace(/>/g, '&gt;');
+                    const iconClass = isDir ? 'folder' : item.type;
+                    
+                    if (isDir) {
+                        folderCount++;
+                    } else {
+                        fileCount++;
+                        totalSize += item.size;
+                    }
+                    
+                    html += `
+                    <div class="file-item position-relative ${isSelected ? 'selected' : ''}" 
+                         data-path="${safePath}"
+                         data-type="${item.type}"
+                         data-name="${safeName}"
+                         data-is-dir="${isDir}"
+                         data-size="${item.size}"
+                         onclick="handleFileClick(event, '${safePath}')">
+
+                        <div class="form-check position-absolute" style="top: 5px; left: 9px; z-index: 100; ${isSelected ? 'display: block;' : 'display: none;'}">
+                            <input class="form-check-input" type="checkbox" 
+                                   ${isSelected ? 'checked' : ''}
+                                   onclick="event.stopPropagation(); toggleFileSelection('${safePath}', this.checked)">
+                        </div>
+
+                        <div class="file-icon mb-2">
+                            ${getFileIcon(item.name, item.ext, isDir)}
+                        </div>
+                        <div class="file-name text-truncate w-100" title="${safeName}">
+                            ${truncateFileName(safeName)}
+                        </div>
+                        <div class="file-size text-muted small mt-1">
+                            ${isDir ? `<span data-translate="folder">Folder</span>`  : item.size_formatted}
+                        </div>
+                    </div>`;
+                });
+                fileGrid.innerHTML = html;
+            }
+            
+            updateStatistics(folderCount, fileCount, totalSize);
+            
+        } else {
+            showLogMessage(data.error || 'Failed to load files', 'error');
+        }
+    } catch (error) {
+        console.error('Failed to load files:', error);
+        showLogMessage('Failed to load files', 'error');
+    } finally {
+        loadingEl.style.display = 'none';
+        updateSelectionInfo();
+        updateLanguage(currentLang);
+    }
+
+    initDragSelect();
+
+    setTimeout(() => {
+        initRightClick();
+    }, 200);
 }
 
-document.addEventListener('DOMContentLoaded', function () {
-    const copyButton = document.getElementById('copyCommandBtn');
-    const copyCommandTextarea = document.getElementById('copyCommand');
-
-    copyButton.addEventListener('click', function () {
-        copyCommandTextarea.select();
-        document.execCommand('copy'); 
-        const message = translations['command_copied'] || 'Command copied to clipboard!';
-        showLogMessage(message);
-        speakMessage(message);
+function initDragSelect() {
+    const fileGrid = document.getElementById('fileGrid');
+    if (!fileGrid) return;
+    
+    let isDragging = false;
+    let startX, startY;
+    let dragBox = document.querySelector('.drag-select-box');
+    
+    if (!dragBox) {
+        dragBox = document.createElement('div');
+        dragBox.className = 'drag-select-box';
+        document.body.appendChild(dragBox);
+    }
+    
+    fileGrid.addEventListener('mousedown', function(e) {
+        if (e.target === fileGrid || e.target.classList.contains('empty-folder') || 
+            e.target.parentElement === fileGrid || e.target === dragBox) {
+            
+            isDragging = true;
+            startX = e.clientX;
+            startY = e.clientY;
+            
+            dragBox.style.left = startX + 'px';
+            dragBox.style.top = startY + 'px';
+            dragBox.style.width = '0px';
+            dragBox.style.height = '0px';
+            dragBox.style.display = 'block';
+            
+            fileGrid.classList.add('dragging');
+            
+            if (!e.ctrlKey && !e.metaKey) {
+                selectedFiles.clear();
+                updateFileSelection();
+                updateSelectionInfo();
+            }
+            
+            e.preventDefault();
+        }
     });
-});
-</script>
-
-<script>
-document.addEventListener('DOMContentLoaded', function () {
-    const updatePluginBtn = document.getElementById('updatePluginBtn');
-    const updateConfirmModal = new bootstrap.Modal(document.getElementById('updateConfirmModal'));
-    const updateModal = new bootstrap.Modal(document.getElementById('updateModal'));
-    const logOutput = document.getElementById('logOutput');
-
-    updatePluginBtn.addEventListener('click', function () {
-        updateConfirmModal.hide();
-        updateModal.show();
-
-        fetch('install_theme.php', {
-            method: 'POST',
-        })
-        .then(response => response.text())
-        .then(data => {
-            if (data.includes("Installation complete!")) {
-                logOutput.textContent = "Installation complete!";
-                setTimeout(() => {
-                    updateModal.hide();
-                    window.top.location.href = "/cgi-bin/luci/admin/services/spectra";
-                }, 3000);
+    
+    document.addEventListener('mousemove', function(e) {
+        if (!isDragging) return;
+        
+        e.preventDefault();
+        
+        const left = Math.min(startX, e.clientX);
+        const top = Math.min(startY, e.clientY);
+        const width = Math.abs(startX - e.clientX);
+        const height = Math.abs(startY - e.clientY);
+        
+        dragBox.style.left = left + 'px';
+        dragBox.style.top = top + 'px';
+        dragBox.style.width = width + 'px';
+        dragBox.style.height = height + 'px';
+        
+        const dragRect = {
+            left: left,
+            top: top,
+            right: left + width,
+            bottom: top + height
+        };
+        
+        const fileItems = fileGrid.querySelectorAll('.file-item');
+        fileItems.forEach(item => {
+            const rect = item.getBoundingClientRect();
+            const isOverlap = !(rect.right < dragRect.left || 
+                               rect.left > dragRect.right || 
+                               rect.bottom < dragRect.top || 
+                               rect.top > dragRect.bottom);
+            
+            const path = item.getAttribute('data-path');
+            
+            if (isOverlap) {
+                if (e.ctrlKey || e.metaKey) {
+                    selectedFiles.add(path);
+                } else {
+                    selectedFiles.add(path);
+                }
+                item.classList.add('drag-selected');
             } else {
-                logOutput.textContent = data;
+                if (!e.ctrlKey && !e.metaKey) {
+                    selectedFiles.delete(path);
+                    item.classList.remove('drag-selected');
+                }
+            }
+        });
+        
+        updateFileSelection();
+        updateSelectionInfo();
+    });
+    
+    document.addEventListener('mouseup', function(e) {
+        if (isDragging) {
+            isDragging = false;
+            dragBox.style.display = 'none';
+            fileGrid.classList.remove('dragging');
+            
+            document.querySelectorAll('.file-item.drag-selected').forEach(item => {
+                item.classList.remove('drag-selected');
+            });
+        }
+    });
+}
+
+function initRightClick() {
+    const fileGrid = document.getElementById('fileGrid');
+    if (!fileGrid) return;
+    
+    fileGrid.removeEventListener('contextmenu', handleRightClick);
+    
+    fileGrid.addEventListener('contextmenu', handleRightClick);
+}
+
+function handleRightClick(event) {
+    event.preventDefault();
+    event.stopPropagation();
+    
+    const menu = document.getElementById('fileContextMenu');
+    const overlay = document.getElementById('contextMenuOverlay');
+    
+    if (!menu || !overlay) return;
+    
+    hideAllContextMenuItems();
+    
+    const fileItem = event.target.closest('.file-item');
+    
+    if (fileItem) {
+        const path = fileItem.getAttribute('data-path');
+        const isDir = fileItem.getAttribute('data-is-dir') === 'true';
+        const fileName = path.split('/').pop();
+        const ext = fileName.toLowerCase().split('.').pop();
+        
+        if (!selectedFiles.has(path) && !event.ctrlKey && !event.metaKey) {
+            selectedFiles.clear();
+            selectedFiles.add(path);
+        } else if (!selectedFiles.has(path) && (event.ctrlKey || event.metaKey)) {
+            selectedFiles.add(path);
+        }
+        
+        updateFileSelection();
+        updateSelectionInfo();
+        
+        showMenuItem('fileOpenItem');
+        showMenuItem('fileDownloadItem');
+        showMenuItem('fileCutItem');
+        showMenuItem('fileCopyItem');
+        showMenuItem('fileCopyPathItem');
+        showMenuItem('fileRenameItem');
+        showMenuItem('fileDeleteItem');
+        showMenuItem('fileChmodItem');
+        showMenuItem('filePropertiesItem');
+        showMenuItem('fileTerminalItem');
+
+        const installItem = document.getElementById('fileInstallItem');
+        if (installItem) {
+            const installExts = ['ipk', 'apk', 'run'];
+            if (!isDir && installExts.includes(ext) && selectedFiles.size === 1) {
+                installItem.style.display = 'flex';
+            } else {
+                installItem.style.display = 'none';
+            }
+        }
+
+
+        const hashItem = document.getElementById('fileHashItem');
+        if (hashItem) {
+            if (!isDir && selectedFiles.size === 1) {
+                hashItem.style.display = 'flex';
+            } else {
+                hashItem.style.display = 'none';
+            }
+        }
+        
+        const mediaExts = ['mp3', 'wav', 'ogg', 'flac', 'm4a', 'aac', 
+                           'mp4', 'avi', 'mkv', 'mov', 'wmv', 'flv', 'webm',
+                           'jpg', 'jpeg', 'png', 'gif', 'bmp', 'webp', 'svg'];
+        if (!isDir && mediaExts.includes(ext)) {
+            showMenuItem('filePlayItem');
+        }
+        
+        const textExts = ['txt', 'log', 'conf', 'ini', 'json', 'xml', 'html', 
+                          'css', 'js', 'php', 'py', 'sh', 'md', 'yml', 'yaml'];
+        if (!isDir && textExts.includes(ext)) {
+            showMenuItem('fileEditItem');
+        }
+        
+        showMenuItem('archiveMenuItem');
+        document.getElementById('archiveCompressItem').style.display = 'flex';
+        
+        const archiveExts = ['zip', 'tar', 'gz', 'bz2', '7z', 'rar', 'tgz', 'tbz2'];
+        if (!isDir && archiveExts.includes(ext)) {
+            document.getElementById('archiveExtractHereItem').style.display = 'flex';
+            document.getElementById('archiveExtractToItem').style.display = 'flex';
+        }
+        
+    } else {
+        selectedFiles.clear();
+        updateFileSelection();
+        updateSelectionInfo();
+        
+        showMenuItem('emptyNewFolderItem');
+        showMenuItem('emptyNewFileItem');
+        showMenuItem('emptyUploadItem');
+        showMenuItem('emptyRefreshItem');
+        showMenuItem('emptySelectAllItem');
+    }
+    
+    updatePasteMenuState();
+    
+    positionContextMenu(menu, event);
+    menu.style.display = 'block';
+    overlay.style.display = 'block';
+}
+
+function updateStatistics(folderCount, fileCount, totalSize) {
+    document.getElementById('totalFolders').textContent = folderCount;
+    document.getElementById('totalFiles').textContent = fileCount;
+    document.getElementById('totalSize').textContent = formatFileSize(totalSize);
+    updateSelectedCount();
+}
+
+function updateSelectedCount() {
+    const selectedItems = document.getElementById('selectedItems');
+    if (selectedItems) {
+        selectedItems.textContent = selectedFiles.size;
+    }
+}
+
+function updateBreadcrumb(path) {
+    const breadcrumb = document.getElementById('breadcrumb');
+    if (!breadcrumb) return;
+    
+    const parts = path.split('/').filter(p => p);
+    let html = '';
+    
+    html += `<div class="d-flex flex-wrap align-items-center gap-4">`;
+    
+    html += `<div class="d-flex align-items-center flex-wrap" style="gap: 8px;">`;
+    
+    html += `<div class="breadcrumb-item cursor-pointer" onclick="navigateTo('/')">
+                <i class="fas fa-home me-1"></i>
+                <span data-translate="root">Root</span>
+            </div>`;
+    
+    let currentPath = '';
+    for (let i = 0; i < parts.length; i++) {
+        currentPath += '/' + parts[i];
+        const isLast = i === parts.length - 1;
+        const safePath = currentPath.replace(/'/g, "\\'").replace(/"/g, '&quot;');
+        
+        html += `<span class="mx-1 text-muted">/</span>`;
+        html += `<div class="breadcrumb-item ${isLast ? 'breadcrumb-current fw-bold' : 'cursor-pointer'}" 
+                     onclick="${!isLast ? `navigateTo('${safePath}')` : ''}">
+                    <span>${parts[i]}</span>
+                </div>`;
+    }
+    
+    html += `</div>`;
+    
+    html += `<div class="d-flex align-items-center" style="border-left: 1px solid var(--accent-color); padding-left: 1.5rem;">`;
+    html += `<div class="files-statistics-bar d-flex align-items-center gap-4 flex-wrap">`;
+    html += `<div class="stat-item text-center" style="min-width: 60px;">
+                <div class="stat-value fw-bold text-primary" id="totalFolders">0</div>
+                <div class="stat-label small text-muted" data-translate="folder">Folders</div>
+            </div>
+            <div class="stat-item text-center" style="min-width: 60px;">
+                <div class="stat-value fw-bold text-success" id="totalFiles">0</div>
+                <div class="stat-label small text-muted" data-translate="file">Files</div>
+            </div>
+            <div class="stat-item text-center" style="min-width: 80px;">
+                <div class="stat-value fw-bold text-info" id="totalSize">0 B</div>
+                <div class="stat-label small text-muted" data-translate="total_size">Total Size</div>
+            </div>
+            <div class="stat-item text-center" style="min-width: 60px;">
+                <div class="stat-value fw-bold text-warning" id="selectedItems">0</div>
+                <div class="stat-label small text-muted" data-translate="selected">Selected</div>
+            </div>`;
+    html += `</div></div>`;
+    
+    html += `</div>`;
+    
+    breadcrumb.innerHTML = html;
+    
+    const pathDisplay = document.getElementById('currentPathDisplay');
+    if (pathDisplay) {
+        pathDisplay.innerHTML = `<span data-translate="root">Root</span>`;
+    }
+    updateLanguage(currentLang);
+}
+
+function navigateTo(path) {
+    if (!path) return;
+    loadFiles(path);
+}
+
+function navigateUp() {
+    const parent = currentPath.split('/').slice(0, -1).join('/');
+    if (parent === '') {
+        navigateTo('/');
+    } else {
+        navigateTo(parent);
+    }
+}
+
+function refreshFiles() {
+    loadFiles(currentPath);
+    setTimeout(() => {
+        initRightClick();
+    }, 300);
+}
+
+function truncateFileName(name, maxLength = 20) {
+    if (name.length <= maxLength) return name;
+    return name.substring(0, maxLength - 3) + '...';
+}
+
+function handleDoubleClick(path, isDir, type) {
+    if (isDir) {
+        navigateTo(path);
+    } else {
+        const fileName = path.split('/').pop();
+        const ext = fileName.toLowerCase().split('.');
+        const fileExt = ext.length > 1 ? ext.pop() : '';
+        
+        const mediaExts = [
+            'mp3', 'wav', 'ogg', 'flac', 'm4a', 'aac',
+            'mp4', 'avi', 'mkv', 'mov', 'wmv', 'flv', 'webm',
+            'jpg', 'jpeg', 'png', 'gif', 'bmp', 'webp', 'svg'
+        ];
+        
+        const textExts = [
+            'txt', 'log', 'conf', 'ini', 'json', 'xml', 'html', 'htm',
+            'css', 'js', 'php', 'py', 'sh', 'md', 'yaml', 'yml',
+            'csv', 'sql', 'bat', 'cmd'
+        ];
+        
+        if (mediaExts.includes(fileExt)) {
+            playMedia(path);
+        }
+        else if (textExts.includes(fileExt) || fileExt === '') {
+            editFile(path);
+        }
+        else {
+            editFile(path);
+        }
+    }
+}
+
+function toggleView(viewType = null) {
+    const viewToggleBtn = document.getElementById('viewToggleBtn');
+    const viewToggleIcon = document.getElementById('viewToggleIcon');
+    const viewToggleText = document.getElementById('viewToggleText');
+    
+    const fileManagerToolbar = document.getElementById('fileManagerToolbar');
+    const fileGrid = document.getElementById('fileGrid');
+    const selectionInfo = document.getElementById('selectionInfo');
+    const breadcrumb = document.getElementById('breadcrumb');
+    const viewToggle = document.querySelector('.view-toggle');
+    
+    const editorToolbar = document.getElementById('editorToolbar');
+    const editorPanel = document.getElementById('editorPanel');
+    const editorTabsSwitcher = document.getElementById('editorTabsSwitcher');
+    const editorTabsList = document.getElementById('editorTabsList');
+    const editorPanelContent = document.getElementById('editorPanelContent');
+    
+    const mainToolbar = document.querySelector('.toolbar');
+    const editorPanelDiv = document.getElementById('editorPanel');
+    
+    if (viewType) {
+        currentView = viewType;
+    } else {
+        currentView = currentView === 'files' ? 'editor' : 'files';
+    }
+    
+    if (currentView === 'files') {
+        editorTabs.forEach(tab => {
+            if (tab.monacoEditorInstance) {
+                const model = tab.monacoEditorInstance.getModel();
+                if (model) {
+                    tab.viewState = tab.monacoEditorInstance.saveViewState();
+                }
+            }
+        });
+    }
+
+    if (currentView === 'editor') {
+        viewToggleIcon.className = 'fas fa-folder';
+        viewToggleText.textContent = translations['file_view'] || 'File View';
+        viewToggleText.setAttribute('data-translate', 'file_view');
+        
+        if (mainToolbar) mainToolbar.style.display = 'none';
+        if (fileManagerToolbar) fileManagerToolbar.style.display = 'none';
+        if (fileGrid) fileGrid.style.display = 'none';
+        if (selectionInfo) selectionInfo.style.display = 'none';
+        if (breadcrumb) breadcrumb.style.display = 'none';
+        if (viewToggle) viewToggle.style.display = 'none';
+        
+        if (editorToolbar) editorToolbar.style.display = 'flex';
+        if (editorPanelDiv) {
+            editorPanelDiv.style.display = 'block';
+            editorPanelDiv.style.maxHeight = '';
+        }
+        if (editorTabsSwitcher) editorTabsSwitcher.style.display = 'block';
+        if (editorTabsList) editorTabsList.style.display = 'flex';
+        if (editorPanelContent) editorPanelContent.style.display = 'block';
+        
+        if (editorPanel) {
+            editorPanel.style.maxHeight = '';
+        }
+        
+    } else {
+        viewToggleIcon.className = 'fas fa-edit';
+        viewToggleText.textContent = translations['editor_view'] || 'Editor View';
+        viewToggleText.setAttribute('data-translate', 'editor_view');
+        
+        if (editorToolbar) editorToolbar.style.display = 'none';
+        if (editorPanelDiv) editorPanelDiv.style.display = 'none';
+        if (editorTabsSwitcher) editorTabsSwitcher.style.display = 'none';
+        if (editorTabsList) editorTabsList.style.display = 'none';
+        if (editorPanelContent) editorPanelContent.style.display = 'none';
+        
+        if (mainToolbar) mainToolbar.style.display = 'flex';
+        if (fileManagerToolbar) fileManagerToolbar.style.display = 'flex';
+        if (fileGrid) fileGrid.style.display = 'grid';
+        if (selectionInfo) selectionInfo.style.display = 'flex';
+        if (breadcrumb) breadcrumb.style.display = 'flex';
+        if (viewToggle) viewToggle.style.display = 'flex';
+    }
+}
+
+function isBinaryContent(content) {
+    if (!content || content.length === 0) return false;
+    
+    const checkLength = Math.min(1024, content.length);
+    let nullBytes = 0;
+    let controlChars = 0;
+    let asciiChars = 0;
+    
+    for (let i = 0; i < checkLength; i++) {
+        const charCode = content.charCodeAt(i);
+        
+        if (charCode === 0) nullBytes++;
+        if (charCode < 9 || (charCode > 13 && charCode < 32)) controlChars++;
+        if ((charCode >= 32 && charCode <= 126) || charCode === 9 || charCode === 10 || charCode === 13) asciiChars++;
+    }
+    
+    if (nullBytes > 0) return true;
+    
+    const controlRatio = controlChars / checkLength;
+    const asciiRatio = asciiChars / checkLength;
+    
+    return (controlRatio > 0.3 || asciiRatio < 0.7);
+}
+
+function getBinaryPreview(content) {
+    if (!content || content.length === 0) return '[Empty file]';
+    
+    const previewLength = Math.min(200, content.length);
+    let preview = '';
+    
+    for (let i = 0; i < previewLength; i++) {
+        const char = content[i];
+        if (char >= ' ' && char <= '~') {
+            preview += char;
+        } else {
+            preview += '.';
+        }
+    }
+    
+    if (content.length > previewLength) {
+        preview += '...';
+    }
+    
+    return preview;
+}
+
+function handleFileClick(event, filePath) {
+    if (event.target.type === 'checkbox' || 
+        event.target.closest('.form-check') ||
+        event.target.closest('input[type="checkbox"]')) {
+        
+        const checkbox = event.target.type === 'checkbox' ? event.target : 
+                        event.target.querySelector('input[type="checkbox"]') ||
+                        event.target.closest('input[type="checkbox"]');
+        
+        if (checkbox) {
+            event.stopPropagation();
+            
+            if (checkbox.checked) {
+                selectedFiles.add(filePath);
+            } else {
+                selectedFiles.delete(filePath);
+            }
+            
+            updateFileSelection();
+            updateSelectionInfo();
+        }
+        return;
+    }
+    
+    event.preventDefault();
+    event.stopPropagation();
+    
+    const fileItem = document.querySelector(`.file-item[data-path="${filePath}"]`);
+    if (fileItem) {
+        const isDir = fileItem.getAttribute('data-is-dir') === 'true';
+        const type = fileItem.getAttribute('data-type');
+        
+        if (isDir) {
+            navigateTo(filePath);
+        } else {
+            const fileName = filePath.split('/').pop();
+            const ext = fileName.toLowerCase().split('.').pop();
+            
+            const audioExts = ['mp3', 'wav', 'ogg', 'flac', 'm4a', 'aac'];
+            const videoExts = ['mp4', 'avi', 'mkv', 'mov', 'wmv', 'flv', 'webm'];
+            const imageExts = ['jpg', 'jpeg', 'png', 'gif', 'bmp', 'webp', 'svg'];
+            const textExts = [
+                'txt', 'log', 'conf', 'ini', 'json', 'xml', 'html', 'htm',
+                'css', 'js', 'php', 'py', 'sh', 'md', 'yaml', 'yml',
+                'csv', 'sql', 'bat', 'cmd'
+            ];
+            
+            if (audioExts.includes(ext) || videoExts.includes(ext) || imageExts.includes(ext)) {
+                playMedia(filePath);
+            }
+            else if (textExts.includes(ext) || ext === '') {
+                editFile(filePath);
+            }
+            else {
+                editFile(filePath);
+            }
+        }
+    }
+}
+
+function handleCheckboxClick(event, filePath) {
+    event.stopPropagation();
+    
+    const checkbox = event.target;
+    
+    if (checkbox.checked) {
+        selectedFiles.add(filePath);
+    } else {
+        selectedFiles.delete(filePath);
+    }
+    
+    updateFileSelection();
+    updateSelectionInfo();
+}
+
+function toggleFileSelection(filePath) {
+    if (selectedFiles.has(filePath)) {
+        selectedFiles.delete(filePath);
+    } else {
+        selectedFiles.add(filePath);
+    }
+    updateFileSelection();
+    updateSelectionInfo();
+}
+
+function updateFileSelection() {
+    document.querySelectorAll('.file-item').forEach(item => {
+        const path = item.getAttribute('data-path');
+        const checkbox = item.querySelector('input[type="checkbox"]');
+        
+        if (selectedFiles.has(path)) {
+            item.classList.add('selected');
+            if (checkbox) {
+                checkbox.checked = true;
+            }
+            const checkboxContainer = item.querySelector('.file-checkbox');
+            if (checkboxContainer) {
+                checkboxContainer.style.display = 'flex';
+                checkboxContainer.classList.add('visible');
+                checkboxContainer.classList.remove('invisible');
+            }
+        } else {
+            item.classList.remove('selected');
+            if (checkbox) {
+                checkbox.checked = false;
+            }
+            if (!item.classList.contains('hover') && !item.classList.contains('drag-selected')) {
+                const checkboxContainer = item.querySelector('.file-checkbox');
+                if (checkboxContainer) {
+                    checkboxContainer.style.display = 'none';
+                    checkboxContainer.classList.remove('visible');
+                    checkboxContainer.classList.add('invisible');
+                }
+            }
+        }
+    });
+    updateSelectedCount();
+}
+
+function updateSelectionInfo() {
+    const toolbar = document.getElementById('selectionToolbar');
+    const selectedInfo = document.getElementById('selectedInfo');
+    
+    if (!toolbar || !selectedInfo) return;
+    
+    const count = selectedFiles.size;
+    
+    if (count > 0) {
+        let totalSize = 0;
+        selectedFiles.forEach(path => {
+            const fileItem = document.querySelector(`.file-item[data-path="${path}"]`);
+            if (fileItem) {
+                const size = parseInt(fileItem.getAttribute('data-size') || '0');
+                totalSize += size;
+            }
+        });
+        
+        const sizeFormatted = formatFileSize(totalSize);
+        const selectedText = translations['selected_count'] || 'Selected';
+        const itemsText = translations['items'] || 'item(s)';
+        const totalText = translations['total_size'] || 'Total';
+        
+        selectedInfo.textContent = `${selectedText} ${count} ${itemsText}, ${totalText} ${sizeFormatted}`;
+        toolbar.classList.remove('d-none');
+    } else {
+        toolbar.classList.add('d-none');
+    }
+    updateSelectAllCheckbox();
+    updateEmptySelectAllItem();
+}
+
+function toggleSelectAll() {
+    const selectAllCheckbox = document.getElementById('selectAllCheckbox');
+    if (!selectAllCheckbox) return;
+    
+    const fileItems = document.querySelectorAll('.file-item');
+    const label = document.querySelector('label[for="selectAllCheckbox"]');
+    
+    if (selectAllCheckbox.checked) {
+        fileItems.forEach(item => {
+            const path = item.getAttribute('data-path');
+            if (path) {
+                selectedFiles.add(path);
+            }
+        });
+        if (label) {
+            label.innerHTML = translations['invertSelection'] || 'Deselect All';
+        }
+    } else {
+        selectedFiles.clear();
+        if (label) {
+            label.innerHTML = translations['select_all'] || 'Select All';
+        }
+    }
+
+    updateFileSelection();
+    updateSelectionInfo();
+}
+
+function updateSelectAllCheckbox() {
+    const selectAllCheckbox = document.getElementById('selectAllCheckbox');
+    const label = document.querySelector('label[for="selectAllCheckbox"]');
+    if (!selectAllCheckbox || !label) return;
+    
+    const fileItems = document.querySelectorAll('.file-item');
+    const checkedCount = selectedFiles.size;
+    
+    if (fileItems.length === 0) {
+        selectAllCheckbox.checked = false;
+        selectAllCheckbox.indeterminate = false;
+        label.innerHTML = translations['select_all'] || 'Select All';
+    } else if (checkedCount === 0) {
+        selectAllCheckbox.checked = false;
+        selectAllCheckbox.indeterminate = false;
+        label.innerHTML = translations['select_all'] || 'Select All';
+    } else if (checkedCount === fileItems.length) {
+        selectAllCheckbox.checked = true;
+        selectAllCheckbox.indeterminate = false;
+        label.innerHTML = translations['invertSelection'] || 'Deselect All';
+    } else {
+        selectAllCheckbox.checked = false;
+        selectAllCheckbox.indeterminate = true;
+        label.innerHTML = translations['select_all'] || 'Select All';
+    }
+}
+
+function toggleEmptySelectAll() {
+    const fileItems = document.querySelectorAll('.file-item');
+    const allSelected = fileItems.length > 0 && fileItems.length === selectedFiles.size;
+    
+    if (allSelected) {
+        clearSelection();
+    } else {
+        selectAllFiles();
+    }
+    hideFileContextMenu();
+}
+
+function updateEmptySelectAllItem() {
+    const emptySelectAllItem = document.getElementById('emptySelectAllItem');
+    if (!emptySelectAllItem) return;
+    
+    const fileItems = document.querySelectorAll('.file-item');
+    const allSelected = fileItems.length > 0 && fileItems.length === selectedFiles.size;
+    const icon = document.getElementById('emptySelectAllIcon');
+    const text = document.getElementById('emptySelectAllText');
+    
+    if (allSelected) {
+        icon.className = 'fas fa-times-circle me-2';
+        text.textContent = translations['deselect_all'] || 'Deselect All';
+    } else {
+        icon.className = 'fas fa-check-square me-2';
+        text.textContent = translations['select_all'] || 'Select All';
+    }
+}
+
+function changeViewMode(mode) {
+    viewMode = mode;
+    const fileGrid = document.getElementById('fileGrid');
+    if (!fileGrid) return;
+    
+    const toggleButtons = document.querySelectorAll('.view-toggle-btn');
+    toggleButtons.forEach(btn => btn.classList.remove('active'));
+    
+    if (mode === 'grid') {
+        fileGrid.classList.add('folder-view');
+        document.querySelector('.view-toggle-btn[onclick*="grid"]').classList.add('active');
+    } else {
+        fileGrid.classList.remove('folder-view');
+        document.querySelector('.view-toggle-btn[onclick*="list"]').classList.add('active');
+    }
+}
+
+function clearSelection() {
+    selectedFiles.clear();
+    updateFileSelection();
+    updateSelectionInfo();
+    
+    const toolbar = document.getElementById('selectionToolbar');
+    if (toolbar) {
+        toolbar.classList.add('d-none');
+    }
+    
+    updateSelectAllCheckbox();
+    updateEmptySelectAllItem();
+}
+
+function showMultipleFileInfo() {
+    const dialog = document.getElementById('fileInfoDialog');
+    const content = document.getElementById('fileInfoContent');
+    const overlay = document.getElementById('contextMenuOverlay');
+    
+    if (!dialog || !content || !overlay) return;
+    
+    let totalSize = 0;
+    let folderCount = 0;
+    let fileCount = 0;
+    
+    selectedFiles.forEach(path => {
+        if (path.toLowerCase().includes('.')) {
+            fileCount++;
+        } else {
+            folderCount++;
+        }
+    });
+    
+    content.innerHTML = `
+        <div class="info-row">
+            <div class="info-label">
+                ${translations['selected_items'] || 'Selected Items'}:
+            </div>
+            <div class="info-value">${selectedFiles.size}</div>
+        </div>
+        <div class="info-row">
+            <div class="info-label">
+                ${translations['files'] || 'Files'}:
+            </div>
+            <div class="info-value">${fileCount}</div>
+        </div>
+        <div class="info-row">
+            <div class="info-label">
+                ${translations['folders'] || 'Folders'}:
+            </div>
+            <div class="info-value">${folderCount}</div>
+        </div>
+        <div class="info-row">
+            <div class="info-label">
+                ${translations['paths'] || 'Paths'}:
+            </div>
+            <div class="info-value">
+                ${Array.from(selectedFiles).map(p => 
+                    `<div class="mb-1">${p}</div>`
+                ).join('')}
+            </div>
+        </div>
+    `;
+    
+    dialog.style.display = 'block';
+    overlay.style.display = 'block';
+}
+
+function positionContextMenu(menu, event) {
+    const x = event.clientX;
+    const y = event.clientY;
+    const menuWidth = menu.offsetWidth || 280;
+    const menuHeight = menu.offsetHeight || 400;
+    const windowWidth = window.innerWidth;
+    const windowHeight = window.innerHeight;
+    
+    let left = x;
+    if (x + menuWidth > windowWidth) {
+        left = Math.max(10, windowWidth - menuWidth - 10);
+    }
+    
+    let top = y;
+    if (y + menuHeight > windowHeight) {
+        top = Math.max(10, windowHeight - menuHeight - 10);
+    }
+    
+    if (left < 10) left = 10;
+    
+    menu.style.left = left + 'px';
+    menu.style.top = top + 'px';
+}
+
+function handleDocumentClickForMenu(event) {
+    const menu = document.getElementById('fileContextMenu');
+    const overlay = document.getElementById('contextMenuOverlay');
+    
+    if (menu && menu.style.display === 'block' && !menu.contains(event.target)) {
+        hideFileContextMenu();
+    }
+}
+
+function hideAllContextMenuItems() {
+    const allMenuItems = [
+        'fileOpenItem', 'filePlayItem', 'fileEditItem', 'fileDownloadItem',
+        'fileCutItem', 'fileCopyItem', 'filePasteItem', 'fileRenameItem',
+        'fileDeleteItem', 'fileChmodItem', 'filePropertiesItem', 'fileTerminalItem',
+        'emptyNewFolderItem', 'emptyNewFileItem', 'emptyUploadItem',
+        'emptyRefreshItem', 'emptySelectAllItem', 'fileCopyPathItem',
+        'globalPasteItem',
+        'archiveMenuItem',
+        'fileInstallItem', 'fileHashItem'
+    ];
+    
+    allMenuItems.forEach(id => {
+        const element = document.getElementById(id);
+        if (element) {
+            element.style.display = 'none';
+        }
+    });
+    
+    const allDividers = [
+        'fileDivider1', 'fileDivider2', 'archiveDivider',
+        'emptyDivider1', 'emptyDivider2', 'globalPasteDivider'
+    ];
+    
+    allDividers.forEach(id => {
+        const element = document.getElementById(id);
+        if (element) {
+            element.style.display = 'none';
+        }
+    });
+    
+    const submenu = document.getElementById('archiveSubmenu');
+    if (submenu) {
+        submenu.style.display = 'none';
+    }
+}
+
+function showFileMenuItems(isDir, ext) {
+    showMenuItem('fileOpenItem');
+    showMenuItem('fileDownloadItem');
+    showMenuItem('fileCutItem');
+    showMenuItem('fileCopyItem');
+    showMenuItem('fileRenameItem');
+    showMenuItem('fileDeleteItem');
+    showMenuItem('fileChmodItem');
+    showMenuItem('filePropertiesItem');
+    showMenuItem('fileTerminalItem');
+    
+    const mediaExts = ['mp3', 'wav', 'ogg', 'flac', 'm4a', 'aac', 
+                       'mp4', 'avi', 'mkv', 'mov', 'wmv', 'flv', 'webm',
+                       'jpg', 'jpeg', 'png', 'gif', 'bmp', 'webp', 'svg'];
+    if (!isDir && mediaExts.includes(ext)) {
+        showMenuItem('filePlayItem');
+    }
+    
+    const textExts = ['txt', 'log', 'conf', 'ini', 'json', 'xml', 'html', 
+                      'css', 'js', 'php', 'py', 'sh', 'md', 'yml', 'yaml'];
+    if (!isDir && textExts.includes(ext)) {
+        showMenuItem('fileEditItem');
+    }
+
+    showMenuItem('fileDivider1');
+    showMenuItem('fileDivider2');
+    
+    const archiveMenuItem = document.getElementById('archiveMenuItem');
+    const compressItem = document.getElementById('archiveCompressItem');
+    const extractHereItem = document.getElementById('archiveExtractHereItem');
+    const extractToItem = document.getElementById('archiveExtractToItem');
+    
+    if (archiveMenuItem) {
+        archiveMenuItem.style.display = 'flex';
+        showMenuItem('archiveDivider');
+    }
+    
+    if (compressItem) {
+        compressItem.style.display = 'flex';
+    }
+    
+    const archiveExts = ['zip', 'tar', 'gz', 'bz2', '7z', 'rar', 'tgz', 'tbz2'];
+    if (!isDir && archiveExts.includes(ext)) {
+        if (extractHereItem) extractHereItem.style.display = 'flex';
+        if (extractToItem) extractToItem.style.display = 'flex';
+    }
+}
+
+function showEmptyAreaMenuItems() {
+    showMenuItem('emptyNewFolderItem');
+    showMenuItem('emptyNewFileItem');
+    showMenuItem('emptyUploadItem');
+    showMenuItem('emptyDivider1');
+    showMenuItem('emptyRefreshItem');
+    showMenuItem('emptySelectAllItem');
+    showMenuItem('emptyDivider2');
+    updateEmptySelectAllItem();
+}
+
+function showMenuItem(id) {
+    const element = document.getElementById(id);
+    if (element) {
+        element.style.display = 'flex';
+    }
+}
+
+function updatePasteMenuState() {
+    const hasClipboard = clipboardItems && clipboardItems.paths && clipboardItems.paths.size > 0;
+    const pasteAction = clipboardItems?.action;
+    
+    const globalPasteItem = document.getElementById('globalPasteItem');
+    const globalPasteDivider = document.getElementById('globalPasteDivider');
+    
+    if (globalPasteItem) {
+        if (hasClipboard) {
+            globalPasteItem.style.display = 'flex';
+            
+            const hintSpan = globalPasteItem.querySelector('#pasteActionHint') || 
+                            (() => {
+                                const span = document.createElement('span');
+                                span.id = 'pasteActionHint';
+                                span.style.marginLeft = 'auto';
+                                span.style.fontSize = '0.8rem';
+                                span.style.opacity = '0.7';
+                                globalPasteItem.appendChild(span);
+                                return span;
+                            })();
+            
+            const actionText = pasteAction === 'cut' 
+                ? (translations['cut'] || 'Cut') 
+                : (translations['copy'] || 'Copied');
+            const count = clipboardItems.paths.size;
+            
+            const hintText = (translations['items_with_action'] || '{count}item(s) ({action})')
+                .replace('{count}', count)
+                .replace('{action}', actionText);
+            
+            hintSpan.textContent = hintText;
+        } else {
+            globalPasteItem.style.display = 'none';
+        }
+    }
+    
+    if (globalPasteDivider) {
+        globalPasteDivider.style.display = hasClipboard ? 'block' : 'none';
+    }
+    
+    const filePasteItem = document.getElementById('filePasteItem');
+    if (filePasteItem) {
+        const isFileItem = fileContextMenuTarget && 
+                          fileContextMenuTarget.classList.contains('file-item');
+        filePasteItem.style.display = hasClipboard && isFileItem ? 'flex' : 'none';
+    }
+}
+
+let clipboardItems = {
+    paths: new Set(),
+    action: null,
+    sourcePath: null
+};
+
+function copyToClipboard(action = 'copy') {
+    if (selectedFiles.size === 0) {
+        const message = translations['select_items_first'] || 'Please select items first';
+        showLogMessage(message, 'warning');
+        return false;
+    }
+    
+    clipboardItems = {
+        paths: new Set(selectedFiles),
+        action: action,
+        sourcePath: currentPath,
+        timestamp: Date.now()
+    };
+    
+    const actionText = action === 'copy' 
+        ? (translations['copied'] || 'Copied') 
+        : (translations['cut'] || 'Cut');
+    
+    const countText = (translations['items_count'] || '{count} item(s)')
+        .replace('{count}', selectedFiles.size);
+    
+    hideFileContextMenu();
+
+    showLogMessage(`${actionText} ${countText}`, 'success');
+    
+    if (action === 'cut') {
+        document.querySelectorAll('.file-item.selected').forEach(item => {
+            item.style.opacity = '0.6';
+            item.classList.add('cut-item');
+        });
+    }
+    
+    updatePasteMenuState();
+    
+    try {
+        const clipboardData = {
+            paths: Array.from(clipboardItems.paths),
+            action: clipboardItems.action,
+            sourcePath: clipboardItems.sourcePath,
+            timestamp: clipboardItems.timestamp
+        };
+        localStorage.setItem('fileClipboard', JSON.stringify(clipboardData));
+    } catch (e) {
+        console.error('Failed to save clipboard to localStorage:', e);
+    }
+    
+    return true;
+}
+
+async function pasteFromClipboard() {
+    if (!clipboardItems || clipboardItems.paths.size === 0) {
+        const message = translations['clipboard_empty'] || 'No items to paste';
+        showLogMessage(message, 'warning');
+        return;
+    }
+    
+    let targetPath = currentPath;
+    
+    if (fileContextMenuTarget && fileContextMenuTarget.classList.contains('file-item')) {
+        const itemPath = fileContextMenuTarget.getAttribute('data-path');
+        const isDir = fileContextMenuTarget.getAttribute('data-is-dir') === 'true';
+        
+        if (isDir) {
+            targetPath = itemPath;
+        } else {
+            targetPath = itemPath.substring(0, itemPath.lastIndexOf('/')) || '/';
+        }
+    }
+    
+    if (clipboardItems.sourcePath === targetPath && clipboardItems.action === 'cut') {
+        const message = translations['cannot_paste_same_location'] || 'Cannot paste in the same location';
+        showLogMessage(message, 'warning');
+        return;
+    }
+    
+    const operation = clipboardItems.action === 'copy' ? 'copy' : 'move';
+    const operationText = operation === 'copy' 
+        ? (translations['copy'] || 'Copy') 
+        : (translations['move'] || 'Move');
+    
+    const confirmMessage = (translations['confirm_paste'] || '{operation} {count} item(s) to "{target}"?')
+        .replace('{operation}', operationText)
+        .replace('{count}', clipboardItems.paths.size)
+        .replace('{target}', targetPath);
+    
+    hideFileContextMenu();
+
+    showConfirmation(confirmMessage, async () => {
+        let successCount = 0;
+        let errorCount = 0;
+        
+        for (const sourcePath of clipboardItems.paths) {
+            try {
+                const apiAction = operation === 'copy' ? 'copy_item' : 'move_item';
+                const response = await fetch(`?action=${apiAction}&source=${encodeURIComponent(sourcePath)}&dest=${encodeURIComponent(targetPath)}`);
+                const data = await response.json();
+                
+                if (data.success) {
+                    successCount++;
+                } else {
+                    errorCount++;
+                    console.error('Operation failed:', data.error);
+                }
+            } catch (error) {
+                errorCount++;
+                console.error('Operation error:', error);
+            }
+        }
+        
+        if (clipboardItems.action === 'cut') {
+            clearClipboard();
+        }
+        
+        if (successCount > 0) {
+            const message = (translations['paste_success'] || 'Successfully {operation} {count} item(s)')
+                .replace('{operation}', operationText)
+                .replace('{count}', successCount);
+            showLogMessage(message, 'success');
+            refreshFiles();
+        }
+        
+        if (errorCount > 0) {
+            const message = (translations['paste_failed'] || 'Failed to {operation} {count} item(s)')
+                .replace('{operation}', operationText)
+                .replace('{count}', errorCount);
+            showLogMessage(message, 'error');
+        }        
+    });
+}
+
+function clearClipboard() {
+    document.querySelectorAll('.file-item.cut-item').forEach(item => {
+        item.style.opacity = '1';
+        item.classList.remove('cut-item');
+    });
+    
+    clipboardItems.paths.clear();
+    clipboardItems.action = null;
+    clipboardItems.sourcePath = null;
+    
+    updatePasteMenuState();
+}
+
+document.addEventListener('click', function(e) {
+    const archiveMenuItem = e.target.closest('.archive-menu');
+    if (archiveMenuItem) {
+        e.preventDefault();
+        e.stopPropagation();
+        
+        const submenu = document.getElementById('archiveSubmenu');
+        const chevron = archiveMenuItem.querySelector('.fa-chevron-down, .fa-chevron-up');
+        
+        if (submenu) {
+            if (submenu.style.display === 'block') {
+                submenu.style.display = 'none';
+                if (chevron) chevron.className = 'fas fa-chevron-down ms-auto';
+            } else {
+                submenu.style.display = 'block';
+                if (chevron) chevron.className = 'fas fa-chevron-up ms-auto';
+            }
+        }
+    }
+});
+
+function selectAllFiles() {
+    const fileItems = document.querySelectorAll('.file-item');
+    selectedFiles.clear();
+    
+    fileItems.forEach(item => {
+        const path = item.getAttribute('data-path');
+        if (path) {
+            selectedFiles.add(path);
+            const checkbox = item.querySelector('input[type="checkbox"]');
+            if (checkbox) checkbox.checked = true;
+            item.classList.add('selected');
+        }
+    });
+    
+    updateSelectionInfo();
+    updateFileSelection();
+    
+    const selectedText = translations['select_all_complete'] || 
+                        translations['selected_items'] || 
+                        `Selected ${selectedFiles.size} items`;
+    
+    showLogMessage(`${selectedText} (${selectedFiles.size})`, 'info');
+}
+
+function adjustMenuOnResize() {
+    const menu = document.getElementById('fileContextMenu');
+    const overlay = document.getElementById('contextMenuOverlay');
+    
+    if (!menu || menu.style.display !== 'block') return;
+    
+    const menuRect = menu.getBoundingClientRect();
+    const menuWidth = menuRect.width;
+    const menuHeight = menuRect.height;
+    
+    const viewportWidth = window.innerWidth;
+    const viewportHeight = window.innerHeight;
+    
+    let x = parseInt(menu.style.left) || 0;
+    let y = parseInt(menu.style.top) || 0;
+    
+    if (x + menuWidth > viewportWidth) {
+        x = Math.max(10, viewportWidth - menuWidth - 10);
+    }
+    
+    if (y + menuHeight > viewportHeight) {
+        y = Math.max(10, viewportHeight - menuHeight - 10);
+    }
+    
+    if (x < 0) x = 10;
+    if (y < 0) y = 10;
+    
+    menu.style.left = x + 'px';
+    menu.style.top = y + 'px';
+}
+
+window.addEventListener('resize', adjustMenuOnResize);
+
+window.addEventListener('scroll', adjustMenuOnResize);
+
+if (!document.querySelector('#archive-menu-styles')) {
+    const style = document.createElement('style');
+    style.id = 'archive-menu-styles';
+    style.textContent = `
+        .archive-submenu .menu-item {
+            padding: 8px 15px;
+            font-size: 0.9em;
+            opacity: 0.9;
+        }
+        
+        .archive-submenu .menu-item:hover {
+            background: var(--accent-tertiary);
+            color: white;
+            border-radius: 4px;
+        }
+        
+        .archive-menu {
+            cursor: pointer;
+        }
+        
+        .archive-menu:hover {
+            background: var(--accent-tertiary);
+            color: white;
+        }
+    `;
+    document.head.appendChild(style);
+}
+
+function toggleArchiveSubmenu(event) {
+    event.stopPropagation();
+    event.preventDefault();
+    
+    const submenu = document.getElementById('archiveSubmenu');
+    const chevron = event.currentTarget.querySelector('.fa-chevron-right, .fa-chevron-down');
+    
+    if (submenu.style.display === 'block') {
+        submenu.style.display = 'none';
+        if (chevron) {
+            chevron.className = 'fas fa-chevron-right ms-auto';
+        }
+    } else {
+        submenu.style.display = 'block';
+        if (chevron) {
+            chevron.className = 'fas fa-chevron-down ms-auto';
+        }
+    }
+}
+
+function toggleFileSelection(filePath, checked) {
+    if (event) {
+        event.stopPropagation();
+    }
+    
+    if (checked) {
+        selectedFiles.add(filePath);
+    } else {
+        selectedFiles.delete(filePath);
+    }
+    updateFileSelection();
+    updateSelectionInfo();
+}
+
+function showCompressDialog() {
+    hideFileContextMenu();
+    if (selectedFiles.size === 0) {
+        showLogMessage('Please select files to compress first', 'warning');
+        return;
+    }
+
+    const paths = Array.from(selectedFiles);
+    
+    const compressItemsList = document.getElementById('compressItemsList');
+    compressItemsList.innerHTML = '';
+    
+    paths.forEach(p => {
+        const name = p.split('/').pop();
+        const isDir = document.querySelector(`.file-item[data-path="${p}"]`)?.getAttribute('data-is-dir') === 'true';
+        const itemDiv = document.createElement('div');
+        itemDiv.className = 'd-flex align-items-center mb-2';
+        itemDiv.innerHTML = `
+            <i class="fas ${isDir ? 'fa-folder' : 'fa-file'} me-2 text-info"></i>
+            <span class="text-info">${escapeHtml(name)}</span>
+        `;
+        compressItemsList.appendChild(itemDiv);
+    });
+    
+    const archiveName = document.getElementById('archiveName');
+    if (paths.length === 1) {
+        const singlePath = paths[0];
+        const name = singlePath.split('/').pop();
+        const baseName = name.lastIndexOf('.') > 0 ? name.substring(0, name.lastIndexOf('.')) : name;
+        archiveName.value = baseName;
+    } else {
+        archiveName.value = 'archive_' + Date.now();
+    }
+    
+    document.getElementById('compressDestination').value = currentPath;
+    
+    const formatButtons = document.querySelectorAll('#formatButtonsGroup button[data-format]');
+    formatButtons.forEach(btn => {
+        btn.classList.remove('active');
+        if (btn.getAttribute('data-format') === 'zip') {
+            btn.classList.add('active');
+        }
+    });
+    
+    document.getElementById('archiveExtension').textContent = '.zip';
+    
+    const modal = new bootstrap.Modal(document.getElementById('compressModal'));
+    modal.show();
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    const formatButtonsGroup = document.getElementById('formatButtonsGroup');
+    if (formatButtonsGroup) {
+        formatButtonsGroup.addEventListener('click', function(e) {
+            if (e.target.matches('button[data-format]')) {
+                const buttons = this.querySelectorAll('button[data-format]');
+                buttons.forEach(btn => btn.classList.remove('active'));
+                
+                e.target.classList.add('active');
+                
+                const format = e.target.getAttribute('data-format');
+                document.getElementById('archiveExtension').textContent = '.' + format;
+            }
+        });
+    }
+    setTimeout(() => {
+        initDragSelect();
+    }, 500);
+});
+
+function browseForCompressPath() {
+    const path = prompt('Enter destination path:', currentPath);
+    if (path) {
+        document.getElementById('compressDestination').value = path;
+    }
+}
+
+function browseForExtractPath() {
+    const path = prompt('Enter destination path:', currentPath);
+    if (path) {
+        document.getElementById('extractDestination').value = path;
+    }
+}
+
+async function performCompress() {
+    if (selectedFiles.size === 0) return;
+    
+    const paths = Array.from(selectedFiles);
+    const destination = document.getElementById('compressDestination').value.trim();
+    const archiveNameInput = document.getElementById('archiveName').value.trim();
+    const formatBtn = document.querySelector('#compressModal [data-format].active');
+    const format = formatBtn ? formatBtn.getAttribute('data-format') : 'zip';
+    
+    if (!destination || !archiveNameInput) {
+        const warningMessage = translations['enter_archive_name_and_destination'] || 'Please enter archive name and destination path';
+        showLogMessage(warningMessage, 'warning');
+        speakMessage(warningMessage, 'warning');
+        return;
+    }
+    
+    const archiveName = destination.endsWith('/') 
+        ? destination + archiveNameInput + '.' + format
+        : destination + '/' + archiveNameInput + '.' + format;
+    
+    try {
+        const formData = new FormData();
+        formData.append('action_type', 'compress');
+        formData.append('archive_type', format);
+        formData.append('destination', archiveName);
+        
+        if (paths.length === 1) {
+            formData.append('path', paths[0]);
+        } else {
+            paths.forEach((path) => formData.append('paths[]', path));
+        }
+        
+        const response = await fetch('?action=archive_action', {
+            method: 'POST',
+            body: formData
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            const successMessage = `${translations['successfully_compressed'] || 'Successfully compressed'} ${paths.length} ${translations['file_s'] || 'file(s)'}`;
+            showLogMessage(successMessage, 'success');
+            speakMessage(successMessage, 'success');
+            bootstrap.Modal.getInstance(document.getElementById('compressModal')).hide();
+            refreshFiles();
+        } else {
+            const errorMessage = data.error || translations['failed_to_create_archive'] || 'Failed to create archive';
+            showLogMessage(errorMessage, 'error');
+            speakMessage(errorMessage, 'error');
+        }
+    } catch (error) {
+        const errorMessage = `${translations['failed_to_create_archive'] || 'Failed to create archive'}: ${error.message}`;
+        showLogMessage(errorMessage, 'error');
+        speakMessage(errorMessage, 'error');
+    }
+}
+
+async function extractArchiveHere(filePath) {
+    if (!filePath) {
+        if (selectedFiles.size === 0) {
+            showLogMessage('Please select the file you want to extract first.', 'warning');
+            return;
+        }
+        filePath = Array.from(selectedFiles)[0];
+    }
+    
+    if (!filePath) return;
+    
+    try {
+        const extractToDir = dirname(filePath);
+        
+        const formData = new FormData();
+        formData.append('path', filePath);
+        formData.append('action_type', 'extract');
+        formData.append('destination', extractToDir);
+                
+        const response = await fetch('?action=archive_action', {
+            method: 'POST',
+            body: formData
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            const successMessage = translations['archive_extracted_successfully'] || 'Archive extracted successfully';
+            showLogMessage(successMessage, 'success');
+            speakMessage(successMessage, 'success');
+            
+            loadFiles(extractToDir);
+        } else {
+            const errorMessage = data.error || translations['failed_to_extract_archive'] || 'Failed to extract archive';
+            showLogMessage(errorMessage, 'error');
+            speakMessage(errorMessage, 'error');
+        }
+    } catch (error) {
+        const errorMessage = `${translations['failed_to_extract_archive'] || 'Failed to extract archive'}: ${error.message}`;
+        showLogMessage(errorMessage, 'error');
+        speakMessage(errorMessage, 'error');
+    }
+    
+    hideFileContextMenu();
+}
+
+function dirname(path) {
+    return path.substring(0, path.lastIndexOf('/')) || '/';
+}
+
+function showExtractDialog() {
+    if (selectedFiles.size === 0) return;
+
+    const path = Array.from(selectedFiles)[0];
+    const name = path.split('/').pop();
+
+    const dialog = document.createElement('div');
+    dialog.className = 'modal fade';
+    dialog.id = 'extractModal';
+    dialog.innerHTML = `
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">
+                        <i class="fas fa-expand me-2"></i>
+                        ${translations['extract_archive'] || 'Extract Archive'}
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="extractDestination" class="form-label">
+                            ${translations['destination_path'] || 'Destination Path:'}
+                        </label>
+                        <div class="input-group">
+                            <input type="text" class="form-control" id="extractDestination" value="${currentPath}">
+                            <button class="btn btn-outline-secondary" type="button" onclick="browseForExtractPath()">
+                                <i class="fas fa-folder-open"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle me-2"></i>
+                        ${translations['extracting'] || 'Extracting:'}
+                        <div class="mt-1">${escapeHtml(name)}</div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        <i class="fas fa-times me-1"></i>
+                        ${translations['cancel'] || 'Cancel'}
+                    </button>
+                    <button type="button" class="btn btn-primary" onclick="performExtract()">
+                        <i class="fas fa-check me-1"></i>
+                        ${translations['extract'] || 'Extract'}
+                    </button>
+                </div>
+            </div>
+        </div>
+    `;
+
+    document.body.appendChild(dialog);
+    hideFileContextMenu();
+    const modal = new bootstrap.Modal(dialog);
+    modal.show();
+
+    dialog.addEventListener('hidden.bs.modal', function() {
+        dialog.remove();
+    });
+}
+
+function hideFileContextMenu() {
+    const menu = document.getElementById('fileContextMenu');
+    const overlay = document.getElementById('contextMenuOverlay');
+    
+    if (menu) {
+        menu.style.display = 'none';
+        menu.style.left = '';
+        menu.style.top = '';
+    }
+    if (overlay) overlay.style.display = 'none';
+    
+    fileContextMenuTarget = null;
+}
+
+function showFileProperties() {
+    const path = Array.from(selectedFiles)[0];
+    
+    if (!path || path.trim() === '') {
+         showLogMessage(translations['invalid_file_path'] || 'Invalid file path', 'error');
+        return;
+    }
+    
+    hideFileContextMenu();
+    showFileInfoModal(path);
+}
+
+function contextMenuOpen() {
+    if (selectedFiles.size === 0) {
+        showLogMessage(translations['select_items_first'] || 'Please select items first', 'warning');
+        return;
+    }
+    
+    const path = Array.from(selectedFiles)[0];
+    const fileItem = document.querySelector(`.file-item[data-path="${path}"]`);
+    
+    if (fileItem) {
+        const isDir = fileItem.getAttribute('data-is-dir') === 'true';
+        const type = fileItem.getAttribute('data-type');
+        handleDoubleClick(path, isDir, type);
+    }
+    
+    hideFileContextMenu();
+}
+
+function contextMenuPlay() {
+    if (selectedFiles.size === 0) {
+        showLogMessage(translations['select_items_first'] || 'Please select items first', 'warning');
+        return;
+    }
+    
+    const path = Array.from(selectedFiles)[0];
+    playMedia(path);
+    hideFileContextMenu();
+}
+
+function contextMenuDownload() {
+    if (selectedFiles.size === 0) {
+        showLogMessage(translations['select_items_first'] || 'Please select items first', 'warning');
+        return;
+    }
+    
+    const path = Array.from(selectedFiles)[0];  
+    const fileItem = document.querySelector(`.file-item[data-path="${path}"]`);
+    const isDir = fileItem ? fileItem.getAttribute('data-is-dir') === 'true' : false;
+    
+    if (!isDir) {
+        const downloadUrl = `?preview=1&path=${encodeURIComponent(path)}`;
+        const link = document.createElement('a');
+        link.href = downloadUrl;
+        const fileName = path.split('/').pop();
+        link.download = fileName;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        showLogMessage(`${translations['starting_download'] || 'Starting download'}: ${fileName}`, 'info');
+    } else {
+        downloadFolderAsTar(path);
+    }
+    
+    hideFileContextMenu();
+}
+
+function downloadFolderAsTar(folderPath) {
+    const folderName = folderPath.split('/').pop();
+    showLogMessage(`${translations['packaging_folder'] || 'Packaging folder'}: ${folderName}...`, 'info');
+    speakMessage(`${translations['packaging_folder'] || 'Packaging folder'}: ${folderName}...`, 'info');
+    
+    const iframe = document.createElement('iframe');
+    iframe.style.display = 'none';
+    iframe.src = `?action=download_folder&path=${encodeURIComponent(folderPath)}`;
+    
+    iframe.onload = function() {
+        showLogMessage(`${translations['download_started'] || 'Download started'}: ${folderName}.tar`, 'success');
+        document.body.removeChild(iframe);
+    };
+    
+    iframe.onerror = function() {
+        showLogMessage(`${translations['packaging_failed'] || 'Packaging failed'}`, 'error');
+        document.body.removeChild(iframe);
+    };
+    
+    document.body.appendChild(iframe);
+}
+
+function contextMenuDelete() {
+    if (selectedFiles.size === 0) {
+        showLogMessage('Please select the file you want to delete first.', 'warning');
+        return;
+    }
+    
+    deleteSelected();
+    hideFileContextMenu();
+}
+
+function showCreateFolderModal() {
+    hideFileContextMenu(); 
+    const input = document.getElementById('folderNameInput');
+    if (input) {
+        input.value = '';
+        input.focus();
+    }
+    const modal = new bootstrap.Modal(document.getElementById('createFolderModal'));
+    modal.show();
+}
+
+function showCreateFileModal() {
+    hideFileContextMenu(); 
+    const input = document.getElementById('fileNameInput');
+    if (input) {
+        input.value = '';
+        input.focus();
+    }
+    const modal = new bootstrap.Modal(document.getElementById('createFileModal'));
+    modal.show();
+}
+
+async function createFolder() {
+    const input = document.getElementById('folderNameInput');
+    if (!input || !input.value.trim()) {
+        showLogMessage(translations['enter_folder_name'] || 'Please enter folder name', 'warning');
+        return;
+    }
+
+    const folderName = input.value.trim();
+
+    try {
+        const response = await fetch(
+            `?action=create_folder&path=${encodeURIComponent(currentPath)}&name=${encodeURIComponent(folderName)}`
+        );
+        const data = await response.json();
+
+        if (data.success) {
+            const successMessage = translations['folder_created_success'] || 'Folder created successfully';
+            showLogMessage(successMessage, 'success');
+            speakMessage(successMessage, 'success');
+
+            const modal = bootstrap.Modal.getInstance(
+                document.getElementById('createFolderModal')
+            );
+            if (modal) modal.hide();
+
+            refreshFiles();
+        } else {
+            const errorMessage = translations['create_folder_failed'] || 'Failed to create folder';
+            showLogMessage(data.error || errorMessage, 'error');
+        }
+    } catch (error) {
+        const errorMessage = translations['create_folder_failed'] || 'Failed to create folder';
+        showLogMessage(errorMessage + ': ' + error.message, 'error');
+    }
+}
+
+async function createFile() {
+    const input = document.getElementById('fileNameInput');
+    if (!input || !input.value.trim()) {
+        showLogMessage(translations['enter_file_name'] || 'Please enter file name', 'warning');
+        return;
+    }
+
+    try {
+        const formData = new FormData();
+        formData.append('path', currentPath);
+        formData.append('name', input.value.trim());
+
+        const response = await fetch('?action=create_file', {
+            method: 'POST',
+            body: formData
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+            const successMessage = translations['file_created_success'] || 'File created successfully';
+            showLogMessage(successMessage, 'success');
+            speakMessage(successMessage, 'success');
+            
+            bootstrap.Modal.getInstance(document.getElementById('createFileModal')).hide();
+
+            const ext = input.value.trim().toLowerCase().split('.').pop();
+            const textExts = ['txt', 'log', 'conf', 'ini', 'json', 'xml', 'html', 'css', 'js', 'php', 'py', 'sh', 'md'];
+
+            if (textExts.includes(ext)) {
                 setTimeout(() => {
-                    updateModal.hide();
-                }, 5000);
+                    editFile(currentPath + '/' + input.value.trim());
+                }, 500);
+            } else {
+                refreshFiles();
+            }
+        } else {
+            const errorMessage = translations['create_file_failed'] || 'Failed to create file';
+            showLogMessage(data.error || errorMessage, 'error');
+        }
+    } catch (error) {
+        const errorMessage = translations['create_file_failed'] || 'Failed to create file';
+        showLogMessage(errorMessage + ': ' + error.message, 'error');
+    }
+}
+
+function prepareRenameModal() {
+    if (selectedFiles.size === 0) return;
+    
+    const path = Array.from(selectedFiles)[0];
+    const name = path.split('/').pop();
+    
+    document.getElementById('renameInput').value = name;
+    document.getElementById('renameOriginalName').textContent = name;
+    
+    hideFileContextMenu();
+}
+
+async function performRename() {
+    if (selectedFiles.size === 0) {
+        showLogMessage(translations['no_item_selected'] || 'No item selected', 'warning');
+        return;
+    }
+
+    const oldPath = Array.from(selectedFiles)[0];
+    const newName = document.getElementById('renameInput').value.trim();
+
+    if (!newName) {
+        showLogMessage(translations['enter_new_name'] || 'Please enter new name', 'warning');
+        return;
+    }
+
+    try {
+        const response = await fetch(`?action=rename_item&old=${encodeURIComponent(oldPath)}&new=${encodeURIComponent(newName)}`);
+        const data = await response.json();
+
+        if (data.success) {
+            const Message = translations['rename_success'] || 'Renamed successfully';
+            showLogMessage(Message);
+            speakMessage(Message);
+            bootstrap.Modal.getInstance(document.getElementById('renameModal')).hide();
+            selectedFiles.clear();
+            updateSelectionInfo();
+            refreshFiles();
+        } else {
+            showLogMessage(data.error || translations['rename_failed'] || 'Failed to rename', 'error');
+        }
+    } catch (error) {
+        showLogMessage(
+            (translations['rename_failed'] || 'Failed to rename') + ': ' + error.message,
+            'error'
+        );
+    }
+}
+
+async function deleteSelected() {
+    if (selectedFiles.size === 0) {
+         showLogMessage(
+            translations['select_files_to_delete'] || 'Please select files to delete first',
+            'warning'
+        );
+        return;
+    }
+
+    const count = selectedFiles.size;
+    const fileNames = Array.from(selectedFiles)
+        .map(p => p.split('/').pop())
+        .join(', ');
+
+    const message =
+        `${translations['confirm_delete_items'] || 'Are you sure you want to delete'} ` +
+        `${count} ` +
+        `${translations['items'] || 'item(s)'}?\n\n${fileNames}`;
+
+    showConfirmation(encodeURIComponent(message), async () => {
+        let successCount = 0;
+        let errorCount = 0;
+
+        for (const path of selectedFiles) {
+            try {
+                const response = await fetch(
+                    `?action=delete_item&path=${encodeURIComponent(path)}`
+                );
+                const data = await response.json();
+
+                if (data.success) {
+                    successCount++;
+                } else {
+                    errorCount++;
+                    console.error(
+                        translations['delete_failed'] || 'Delete failed:',
+                        data.error
+                    );
+                }
+            } catch (error) {
+                errorCount++;
+                console.error(
+                    translations['delete_error'] || 'Delete error:',
+                    error
+                );
+            }
+        }
+
+        if (successCount > 0) {
+            const successMessage = `${translations['successfully_deleted'] || 'Successfully deleted'} ` +
+                                   `${successCount} ` +
+                                   `${translations['items'] || 'item(s)'}`;
+            showLogMessage(successMessage, 'success');
+            speakMessage(successMessage, 'success');
+            
+            selectedFiles.clear();
+            updateSelectionInfo();
+            refreshFiles();
+        }
+
+        if (errorCount > 0) {
+             showLogMessage(
+                `${translations['failed_to_delete'] || 'Failed to delete'} ` +
+                `${errorCount} ` +
+                `${translations['items'] || 'item(s)'}`,
+                'error'
+            );
+        }
+    });
+}
+
+async function showFileInfoModal(path) {
+    const content = document.getElementById('filePropertiesContent');
+    if (!content) return;
+
+    content.innerHTML = `
+        <div class="text-center py-4">
+            <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">${translations['loading'] || 'Loading...'}</span>
+            </div>
+            <p class="mt-2">${translations['loading'] || 'Loading...'}</p>
+        </div>`;
+
+    try {
+        const response = await fetch(`?action=get_file_info&path=${encodeURIComponent(path)}`);
+        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+
+        const data = await response.json();
+
+        if (data.success && data.info) {
+            const info = data.info;
+            const isDir = info.is_dir === true || info.is_dir === 'true';
+            const fileName = info.name || '';
+            const fileExt = info.extension || '';
+            
+            const fileIcon = getFileIcon(fileName, fileExt, isDir);
+
+            let html = `
+                <div class="container-fluid">
+                    <div class="row g-4">
+                        <div class="col-lg-4">
+                            <div class="card h-100 border shadow-sm">
+                                <div class="card-body d-flex flex-column align-items-center justify-content-center p-4">
+                                    <div class="mb-4" style="font-size: 3.5rem;">
+                                        ${fileIcon.replace('fa-2x', 'fa-3x')}
+                                    </div>
+                                    <div class="text-center w-100">
+                                        <h3 class="card-title mb-3 text-break" style="word-break: break-word;">
+                                            ${escapeHtml(fileName || translations['unknown'] || 'Unknown')}
+                                        </h3>
+                                        <div class="badge mb-4 p-2 ${isDir ? 'bg-warning text-dark' : 'bg-success'}" style="${isDir ? '' : '--bs-badge-color: #fff; color: #fff !important;'}">
+                                            <i class="fas ${isDir ? 'fa-folder' : 'fa-file'} me-1" style="${isDir ? '' : 'color: inherit !important;'}"></i>
+                                            ${isDir ? translations['folder'] || 'Folder' : translations['file'] || 'File'}
+                                        </div>
+                                    </div>
+                                    <div class="w-100 mt-auto">
+                                        <hr class="my-3">
+                        `;
+            
+            if (!isDir && info.extension) {
+                html += `
+                        <div class="d-flex justify-content-between mb-2">
+                            <span class="text-muted">${translations['extension'] || 'Extension:'}</span>
+                            <strong>${escapeHtml(info.extension)}</strong>
+                        </div>
+                        <div class="d-flex justify-content-between mb-2">
+                            <span class="text-muted">${translations['fileSize'] || 'Size:'}</span>
+                            <strong>${info.size_formatted || '0 B'}</strong>
+                        </div>`;
+                        
+            if (info.media_info) {
+                if (info.media_info.duration) {
+                    html += `
+                        <div class="d-flex justify-content-between mb-2">
+                            <span class="text-muted">${translations['duration'] || 'Duration:'}</span>
+                            <strong>${info.media_info.duration}</strong>
+                        </div>`;
+                }
+        
+                if (info.media_info.resolution) {
+                    html += `
+                        <div class="d-flex justify-content-between mb-2">
+                            <span class="text-muted">${translations['resolution'] || 'Resolution:'}</span>
+                            <strong>${info.media_info.resolution}</strong>
+                        </div>`;
+                } else if (info.media_info.width && info.media_info.height) {
+                    html += `
+                        <div class="d-flex justify-content-between mb-2">
+                            <span class="text-muted">${translations['resolution'] || 'Resolution:'}</span>
+                            <strong>${info.media_info.width} × ${info.media_info.height}</strong>
+                        </div>`;
+                }
+        
+                if (info.media_info.bitrate) {
+                    html += `
+                        <div class="d-flex justify-content-between mb-2">
+                            <span class="text-muted">${translations['bitrate'] || 'Bitrate:'}</span>
+                            <strong>${info.media_info.bitrate}</strong>
+                        </div>`;
+                }
+        
+                if (info.media_info.video_codec) {
+                    html += `
+                        <div class="d-flex justify-content-between mb-2">
+                            <span class="text-muted">${translations['video_codec'] || 'Video Codec:'}</span>
+                            <strong>${info.media_info.video_codec.toUpperCase()}</strong>
+                        </div>`;
+                }
+        
+                if (info.media_info.frame_rate) {
+                    html += `
+                        <div class="d-flex justify-content-between mb-2">
+                            <span class="text-muted">${translations['frame_rate'] || 'Frame Rate:'}</span>
+                            <strong>${info.media_info.frame_rate}</strong>
+                        </div>`;
+                }
+             
+                if (info.media_info.sample_rate) {
+                    html += `
+                        <div class="d-flex justify-content-between mb-2">
+                            <span class="text-muted">${translations['sample_rate'] || 'Sample Rate:'}</span>
+                            <strong>${info.media_info.sample_rate}</strong>
+                        </div>`;
+                }
+        
+                if (info.media_info.channel_layout) {
+                    html += `
+                        <div class="d-flex justify-content-between mb-2">
+                            <span class="text-muted">${translations['audio_channels'] || 'Channels:'}</span>
+                            <strong>${info.media_info.channel_layout}</strong>
+                        </div>`;
+                    }
+                }
+            }
+            
+            html += `
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="col-lg-8">
+                            <div class="card h-100 border shadow-sm">
+                                <div class="card-body p-4">
+                                    <h4 class="card-title mb-4">
+                                        <i class="fas fa-info-circle me-2 text-primary"></i>
+                                        ${translations['details'] || 'Details'}
+                                    </h4>
+                                    
+                                    <div class="mb-4">
+                                        <h6 class="text-muted mb-3"><i class="fas fa-cog me-1"></i> ${translations['basic_info'] || 'Basic Information'}</h6>
+                                        <div class="row g-3">
+                                            <div class="col-md-6">
+                                                <div class="d-flex align-items-center mb-3">
+                                                    <div class="bg-light rounded p-3 me-3" style="width: 48px; height: 48px; display: flex; align-items: center; justify-content: center;">
+                                                        <i class="fas fa-ruler-combined text-primary"></i>
+                                                    </div>
+                                                    <div>
+                                                        <small class="text-muted d-block">${translations['fileSize'] || 'Size'}</small>
+                                                        <strong>${info.size_formatted || '0 B'}</strong>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <div class="d-flex align-items-center mb-3">
+                                                    <div class="bg-light rounded p-3 me-3" style="width: 48px; height: 48px; display: flex; align-items: center; justify-content: center;">
+                                                        <i class="fas fa-clock text-primary"></i>
+                                                    </div>
+                                                    <div>
+                                                        <small class="text-muted d-block">${translations['created_time'] || 'Created'}</small>
+                                                        <strong>${info.modified_formatted || translations['unknown'] || 'Unknown'}</strong>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <div class="d-flex align-items-center mb-3">
+                                                    <div class="bg-light rounded p-3 me-3" style="width: 48px; height: 48px; display: flex; align-items: center; justify-content: center;">
+                                                        <i class="fas fa-calendar-plus text-primary"></i>
+                                                    </div>
+                                                    <div>
+                                                        <small class="text-muted d-block">${translations['modifiedTime'] || 'Modified'}</small>
+                                                        <strong>${info.created_formatted || translations['unknown'] || 'Unknown'}</strong>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            ${!isDir && info.mime_type ? `
+                                            <div class="col-md-6">
+                                                <div class="d-flex align-items-center mb-3">
+                                                    <div class="bg-light rounded p-3 me-3" style="width: 48px; height: 48px; display: flex; align-items: center; justify-content: center;">
+                                                        <i class="fas fa-file-alt text-primary"></i>
+                                                    </div>
+                                                    <div>
+                                                        <small class="text-muted d-block">${translations['mime_type'] || 'MIME Type'}</small>
+                                                        <strong>${getMimeType(info.extension) || translations['unknown'] || 'Unknown'}</strong>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            ` : ''}
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="mb-4">
+                                        <h6 class="text-muted mb-3"><i class="fas fa-shield-alt me-1"></i> ${translations['permissions'] || 'Permissions'}</h6>
+                                        <div class="row g-3">
+                                            <div class="col-md-6">
+                                                <div class="d-flex align-items-center mb-3">
+                                                    <div class="bg-light rounded p-3 me-3" style="width: 48px; height: 48px; display: flex; align-items: center; justify-content: center;">
+                                                        <i class="fas fa-lock text-primary"></i>
+                                                    </div>
+                                                    <div>
+                                                        <small class="text-muted d-block">${translations['permissions'] || 'Permissions'}</small>
+                                                        <div class="d-flex align-items-center mt-1">
+                                                            <span class="badge bg-dark me-2">${info.permissions || '----'}</span>
+                                                            <button class="btn btn-sm btn-outline-primary" onclick="showChmodDialogForPath('${escapeHtml(path)}')">
+                                                                <i class="fas fa-edit me-1"></i> ${translations['change'] || 'Change'}
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <div class="d-flex align-items-center mb-3">
+                                                    <div class="bg-light rounded p-3 me-3" style="width: 48px; height: 48px; display: flex; align-items: center; justify-content: center;">
+                                                        <i class="fas fa-user text-primary"></i>
+                                                    </div>
+                                                    <div>
+                                                        <small class="text-muted d-block">${translations['owner'] || 'Owner'}</small>
+                                                        <strong>${escapeHtml(info.owner || translations['unknown'] || 'Unknown')}</strong>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <div class="d-flex align-items-center mb-3">
+                                                    <div class="bg-light rounded p-3 me-3" style="width: 48px; height: 48px; display: flex; align-items: center; justify-content: center;">
+                                                        <i class="fas fa-users text-primary"></i>
+                                                    </div>
+                                                    <div>
+                                                        <small class="text-muted d-block">${translations['group'] || 'Group'}</small>
+                                                        <strong>${escapeHtml(info.group || translations['unknown'] || 'Unknown')}</strong>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                                <div class="d-flex align-items-center mb-3">
+                                                    <div class="bg-light rounded p-3 me-3" style="width: 48px; height: 48px; display: flex; align-items: center; justify-content: center;">
+                                                        <i class="fas fa-folder-open text-primary"></i>
+                                                    </div>
+                                                    <div>
+                                                        <small class="text-muted d-block">${translations['file_path'] || 'Path'}</small>
+                                                        <div class="mt-1">
+                                                            <code class="d-block text-break" style="word-break: break-all;" title="${escapeHtml(info.path || path)}">
+                                                                ${escapeHtml(info.path || path)}
+                                                            </code>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>`;
+
+            content.innerHTML = html;
+            
+            const modal = new bootstrap.Modal(document.getElementById('filePropertiesModal'));
+            modal.show();
+
+        } else {
+            content.innerHTML = `
+                <div class="alert alert-danger">
+                    <i class="fas fa-exclamation-triangle me-2"></i>
+                    ${data.error || translations['get_file_info_failed'] || 'Failed to get file info'}
+                </div>`;
+        }
+
+    } catch (error) {
+        content.innerHTML = `
+            <div class="alert alert-danger">
+                <i class="fas fa-exclamation-triangle me-2"></i>
+                ${translations['get_file_info_failed'] || 'Failed to get file info'}
+            </div>`;
+    }
+}
+
+function getMimeType(ext) {
+    if (!ext) return 'application/octet-stream';
+    
+    const mimeMap = {
+        'jpg': 'image/jpeg',
+        'jpeg': 'image/jpeg', 
+        'png': 'image/png',
+        'gif': 'image/gif',
+        'bmp': 'image/bmp',
+        'webp': 'image/webp',
+        'svg': 'image/svg+xml',
+        'ico': 'image/x-icon',
+        
+        'mp3': 'audio/mpeg',
+        'wav': 'audio/wav',
+        'ogg': 'audio/ogg',
+        'flac': 'audio/flac',
+        'm4a': 'audio/mp4',
+        'aac': 'audio/aac',
+        
+        'mp4': 'video/mp4',
+        'avi': 'video/x-msvideo',
+        'mkv': 'video/x-matroska',
+        'mov': 'video/quicktime',
+        'wmv': 'video/x-ms-wmv',
+        'flv': 'video/x-flv',
+        'webm': 'video/webm',
+        
+        'pdf': 'application/pdf',
+        
+        'zip': 'application/zip',
+        'tar': 'application/x-tar',
+        'gz': 'application/gzip',
+        'bz2': 'application/x-bzip2',
+        '7z': 'application/x-7z-compressed',
+        'rar': 'application/x-rar-compressed',
+        
+        'txt': 'text/plain',
+        'log': 'text/plain',
+        'conf': 'text/plain',
+        'ini': 'text/plain',
+        'json': 'application/json',
+        'xml': 'application/xml',
+        'html': 'text/html',
+        'htm': 'text/html',
+        'css': 'text/css',
+        'js': 'application/javascript',
+        'php': 'application/x-httpd-php',
+        'py': 'text/x-python',
+        'sh': 'application/x-sh',
+        'md': 'text/markdown'
+    };
+    
+    const lowerExt = ext.toLowerCase();
+    return mimeMap[lowerExt] || 'application/octet-stream';
+}
+
+function escapeHtml(text) {
+    if (text === null || text === undefined) return '';
+    
+    const div = document.createElement('div');
+    div.textContent = String(text);
+    return div.innerHTML;
+}
+
+function showChmodDialog() {
+    hideFileContextMenu();
+    
+    if (selectedFiles.size === 0) {
+        showLogMessage('Please select the file first.', 'warning');
+        return;
+    }
+    
+    const path = Array.from(selectedFiles)[0];
+    
+    fetch(`?action=get_file_info&path=${encodeURIComponent(path)}`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.success && data.info) {
+                document.getElementById('chmodPath').value = path;
+                
+                const currentPerms = data.info.permissions || '0644';
+                const cleanPerms = currentPerms.replace(/^0+/, '') || '644';
+                document.getElementById('permissions').value = cleanPerms;
+                
+                const fileName = path.split('/').pop();
+                document.getElementById('chmodModalLabel').innerText =
+                    `${translations['chmod_set_permissions'] || 'Set Permissions'}: ${fileName}`;
+                
+                hideFileContextMenu();
+                
+                const modal = new bootstrap.Modal(document.getElementById('chmodModal'));
+                modal.show();
+            } else {
+                showLogMessage(translations['chmod_cannot_get_info'] || 'Cannot get file information', 'error');
             }
         })
         .catch(error => {
-            const message = translations['installation_complete'] || 'Installation complete!';
-            logOutput.textContent = '';
-            logOutput.textContent = message;
-            showLogMessage(message);
-            speakMessage(message);
+            showLogMessage(translations['chmod_get_info_failed'] || 'Failed to get file information', 'error');
+        });
+}
 
+function validateChmod() {
+    const path = document.getElementById('chmodPath').value;
+    const permissions = document.getElementById('permissions').value.trim();
+    
+    if (!path) {
+        showLogMessage(translations['chmod_invalid_path'] || 'Invalid file path', 'error');
+        return false;
+    }
+    
+    if (!/^[0-7]{3,4}$/.test(permissions)) {
+        showLogMessage(translations['chmod_invalid_format'] || 'Please enter 3-4 digit octal number (0-7)', 'error');
+        return false;
+    }
+    
+    savePermissions(path, permissions);
+    return false;
+}
+
+async function savePermissions(path, permissions) {
+    try {
+        const formData = new FormData();
+        formData.append('path', path);
+        formData.append('permissions', permissions);
+        
+        const response = await fetch('?action=change_permissions', {
+            method: 'POST',
+            body: formData
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            const Message = translations['chmod_success'] || 'Permissions modified successfully';
+            showLogMessage(Message);
+            speakMessage(Message);
+            
+            const modal = bootstrap.Modal.getInstance(document.getElementById('chmodModal'));
+            if (modal) modal.hide();
+            
+            refreshFiles();
+        } else {
+            showLogMessage(
+                `${translations['chmod_failed'] || 'Modification failed'}: ${data.error || translations['unknown_error'] || 'Unknown error'}`,
+                'error'
+            );
+        }
+    } catch (error) {
+        showLogMessage(`${translations['chmod_failed'] || 'Modification failed'}: ${error.message}`, 'error');
+    }
+}
+
+function showChmodDialogForPath(path) {
+    document.getElementById('chmodPath').value = path;
+    document.getElementById('permissions').value = '';
+    
+    const propertiesModal = bootstrap.Modal.getInstance(document.getElementById('filePropertiesModal'));
+    if (propertiesModal) propertiesModal.hide();
+    
+    const modal = new bootstrap.Modal(document.getElementById('chmodModal'));
+    modal.show();
+}
+
+async function searchFiles() {
+    const searchTerm = document.getElementById('searchInput').value.trim();
+    
+    if (!searchTerm) {
+        const warningMessage = translations['search_enter_term'] || 'Please enter search term';
+        showLogMessage(warningMessage, 'warning');
+        speakMessage(warningMessage, 'warning');
+        return;
+    }
+    
+    const resultsContainer = document.getElementById('searchResults');
+    resultsContainer.innerHTML = `
+        <div class="text-center py-4">
+            <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">${translations['searching'] || 'Searching...'}</span>
+            </div>
+            <p class="mt-2">${translations['searching'] || 'Searching...'}</p>
+        </div>`;
+    
+    try {
+        const response = await fetch(`?action=search&term=${encodeURIComponent(searchTerm)}`);
+        const data = await response.json();
+        
+        if (data.success) {
+            const results = data.results;
+            resultsContainer.innerHTML = '';
+            
+            if (results.length === 0) {
+                const noResultsMessage = translations['search_no_results'] || 'No matching files found';
+                const tryDifferentMessage = translations['search_try_diff_keyword'] || 'Try different keywords';
+                
+                showLogMessage(noResultsMessage, 'info');
+                speakMessage(noResultsMessage, 'info');
+                
+                resultsContainer.innerHTML = `
+                    <div class="text-center text-muted py-4">
+                        <i class="fas fa-search fa-2x mb-2"></i>
+                        <h6>${noResultsMessage}</h6>
+                        <p class="small">${tryDifferentMessage}</p>
+                    </div>`;
+                return;
+            }
+            
+            const foundMessage = `${translations['search_found_matches'] || 'Found'} ${results.length} ${translations['search_matches'] || 'matches'}`;
+            showLogMessage(foundMessage, 'success');
+            speakMessage(foundMessage, 'success');
+            
+            const header = document.createElement('div');
+            header.className = 'alert alert-info mb-3';
+            header.innerHTML = `
+                <i class="fas fa-info-circle me-2"></i>
+                ${foundMessage}
+            `;
+            resultsContainer.appendChild(header);
+            
+            const list = document.createElement('div');
+            list.className = 'list-group';
+            
+            results.forEach(file => {
+                const item = document.createElement('div');
+                item.className = 'list-group-item list-group-item-action';
+                item.style.cssText = `
+                    cursor: pointer;
+                    border: none;
+                    background: var(--bg-container);
+                    margin-bottom: 8px;
+                    border-radius: 8px;
+                    transition: all 0.2s;
+                `;
+                
+                item.addEventListener('mouseenter', function() {
+                    this.style.background = 'color-mix(in oklch, var(--bg-container), transparent 20%)';
+                });
+                
+                item.addEventListener('mouseleave', function() {
+                    this.style.background = 'var(--bg-container)';
+                });
+                
+                let displayPath = file.path;
+                if (displayPath.startsWith('//')) displayPath = displayPath.substring(1);
+                
+                item.innerHTML = `
+                    <div class="d-flex align-items-center">
+                        <div class="me-3">
+                            <i class="fas ${file.is_dir ? 'fa-folder text-warning' : 'fa-file text-primary'} fa-lg"></i>
+                        </div>
+                        <div class="flex-grow-1">
+                            <div class="fw-medium">${escapeHtml(file.name)}</div>
+                            <div class="small text-muted">
+                                <span>${file.size_formatted}</span>
+                                <span class="mx-2">•</span>
+                                <span>${file.modified_formatted}</span>
+                            </div>
+                            <div class="small">
+                                <code class="text-truncate d-block" style="max-width: 500px;">
+                                    ${escapeHtml(displayPath)}
+                                </code>
+                            </div>
+                        </div>
+                        <div>
+                            <button class="btn btn-sm btn-outline-primary" 
+                                    onclick="openFileDirectory('${escapeHtml(file.path)}', ${file.is_dir})"
+                                    style="white-space: nowrap;">
+                                <i class="fas fa-folder-open"></i>
+                                ${translations['search_open_directory'] || 'Open Directory'}
+                            </button>
+                        </div>
+                    </div>
+                `;
+                
+                list.appendChild(item);
+            });
+            
+            resultsContainer.appendChild(list);
+        } else {
+            const errorMessage = `${translations['search_failed'] || 'Search failed'}: ${data.error || translations['unknown_error'] || 'Unknown error'}`;
+            showLogMessage(errorMessage, 'error');
+            speakMessage(errorMessage, 'error');
+            
+            resultsContainer.innerHTML = `
+                <div class="alert alert-danger">
+                    <i class="fas fa-exclamation-triangle me-2"></i>
+                    ${errorMessage}
+                </div>`;
+        }
+    } catch (error) {
+        const errorMessage = `${translations['search_error'] || 'Search error'}: ${error.message}`;
+        showLogMessage(errorMessage, 'error');
+        speakMessage(errorMessage, 'error');
+        
+        resultsContainer.innerHTML = `
+            <div class="alert alert-danger">
+                <i class="fas fa-exclamation-triangle me-2"></i>
+                ${errorMessage}
+            </div>`;
+    }
+}
+
+function openFileDirectory(filePath, isDir) {
+    let fixedPath = filePath.startsWith('//') ? filePath.substring(1) : filePath;
+    const targetDir = isDir ? fixedPath : fixedPath.substring(0, fixedPath.lastIndexOf('/'));
+    
+    const modal = bootstrap.Modal.getInstance(document.getElementById('searchModal'));
+    if (modal) modal.hide();
+    
+    navigateTo(targetDir);
+    
+    const successMessage = `${translations['search_navigated_to'] || 'Navigated to'}: ${targetDir}`;
+    showLogMessage(successMessage, 'info');
+    speakMessage(successMessage, 'info');
+}
+
+let editorTabs = [];
+let activeEditorTab = null;
+
+function openEditor(path) {
+    if (!path) return;
+    
+    const existingTab = editorTabs.find(tab => tab.path === path);
+    if (existingTab) {
+        switchToEditorTab(existingTab.id);
+        return;
+    }
+    
+    const tabId = `editor-tab-${Date.now()}`;
+    const fileName = path.split('/').pop();
+    
+    const newTab = {
+        id: tabId,
+        path: path,
+        name: fileName,
+        content: '',
+        originalContent: '',
+        modified: false,
+        loading: true,
+        editorMode: currentEditorMode,
+        monacoEditorInstance: null
+    };
+    
+    editorTabs.push(newTab);
+    activeEditorTab = tabId;
+    
+    updateEditorUI();
+    loadFileContent(path, tabId);
+    updateEditorTabsSwitcher();
+}
+
+async function loadFileContent(path, tabId) {
+    try {
+        const response = await fetch(`?action=read_file&path=${encodeURIComponent(path)}`);
+        const data = await response.json();
+        
+        const tab = editorTabs.find(t => t.id === tabId);
+        if (!tab) return;
+        
+        if (data.success) {
+            let content = '';
+            
+            if (data.content !== undefined) {
+                content = data.content;
+            } else {
+                content = '';
+            }
+            
+            tab.content = content;
+            tab.originalContent = content;
+            tab.loading = false;
+            
+            const editorMode = tab.editorMode || currentEditorMode;
+            
+            if (editorMode === 'advanced') {
+                if (tab.monacoEditorInstance) {
+                    tab.monacoEditorInstance.setValue(tab.content);
+                }
+            } else {
+                const simpleEditor = document.getElementById(`${tabId}-simple-editor`);
+                if (simpleEditor) {
+                    simpleEditor.value = tab.content;
+                    simpleEditor.readOnly = false;
+                    
+                    setTimeout(() => {
+                        simpleEditor.style.height = 'auto';
+                        simpleEditor.style.height = simpleEditor.scrollHeight + 'px';
+                    }, 100);
+                }
+            }
+            
+            updateCharCount(tabId);
+            
+        } else {
+            const simpleEditor = document.getElementById(`${tabId}-simple-editor`);
+            if (simpleEditor) {
+                simpleEditor.value = `Error: ${data.error || 'Unknown error'}`;
+                simpleEditor.readOnly = true;
+            }
+            tab.loading = false;
+        }
+        
+        updateEditorUI();
+    } catch (error) {
+        const simpleEditor = document.getElementById(`${tabId}-simple-editor`);
+        if (simpleEditor) {
+            simpleEditor.value = `Error: ${error.message}`;
+            simpleEditor.readOnly = true;
+        }
+        
+        const tab = editorTabs.find(t => t.id === tabId);
+        if (tab) tab.loading = false;
+        
+        updateEditorUI();
+    }
+}
+
+function markEditorAsModified(tabId) {
+    const tab = editorTabs.find(t => t.id === tabId);
+    if (tab && !tab.loading) {
+        const editorMode = tab.editorMode || currentEditorMode;
+        
+        if (editorMode === 'advanced' && tab.monacoEditorInstance) {
+            tab.modified = tab.monacoEditorInstance.getValue() !== tab.originalContent;
+        } else {
+            const simpleEditor = document.getElementById(`${tabId}-simple-editor`);
+            if (simpleEditor && !simpleEditor.readOnly) {
+                tab.modified = simpleEditor.value !== tab.originalContent;
+            }
+        }
+        
+        updateCharCount(tabId);
+        updateEditorTabsUI();
+    }
+}
+
+async function saveEditorContent(tabId) {
+    const tab = editorTabs.find(t => t.id === tabId);
+    if (!tab) {
+        showLogMessage(translations['save_failed_tab_missing'] || 'Save failed: Tab does not exist', 'error');
+        return;
+    }
+    
+    if (tab.loading) {
+        showLogMessage(translations['save_wait_loading'] || 'File is loading, please save later', 'warning');
+        return;
+    }
+    
+    const editorMode = tab.editorMode || currentEditorMode;
+    let content = '';
+    
+    if (editorMode === 'advanced' && tab.monacoEditorInstance) {
+        content = tab.monacoEditorInstance.getValue();
+        tab.content = content;
+    } else {
+        const simpleEditor = document.getElementById(`${tabId}-simple-editor`);
+        if (simpleEditor && !simpleEditor.readOnly) {
+            content = simpleEditor.value;
+            tab.content = content;
+        } else {
+            content = tab.content || '';
+        }
+    }
+    
+    if (content === undefined || content === null) {
+        showLogMessage(translations['save_failed_empty'] || 'Save failed: Editor content is empty', 'error');
+        return;
+    }
+    
+    try {
+        const saveBtn = document.querySelector(`[onclick*="${tabId}"]`);
+        if (saveBtn) {
+            saveBtn.disabled = true;
+            saveBtn.innerHTML = `<i class="fas fa-spinner fa-spin"></i> ${translations['saving'] || 'Saving...'}`;
+        }
+        
+        const formData = new FormData();
+        formData.append('path', tab.path);
+        
+        if (content.length > 0) {
+            try {
+                const base64Content = btoa(unescape(encodeURIComponent(content)));
+                formData.append('content', base64Content);
+                formData.append('is_base64', '1');
+            } catch (e) {
+                formData.append('content', content);
+                formData.append('is_base64', '0');
+            }
+        } else {
+            formData.append('content', '');
+            formData.append('is_base64', '0');
+        }
+        
+        const response = await fetch('?action=save_file', {
+            method: 'POST',
+            body: formData
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            const Message = translations['save_success'] || 'File saved successfully';
+            showLogMessage(Message);
+            speakMessage(Message);
+            
+            tab.modified = false;
+            tab.content = content;
+            tab.originalContent = content;
+            
+            updateEditorUI();
+            refreshFiles();
+            
+        } else {
+            showLogMessage(`${translations['save_failed'] || 'Save failed'}: ${data.error}`, 'error');
+        }
+        
+    } catch (error) {
+        showLogMessage(`${translations['save_failed'] || 'Save failed'}: ${error.message}`, 'error');
+    } finally {
+        const saveBtn = document.querySelector(`[onclick*="${tabId}"]`);
+        if (saveBtn) {
+            saveBtn.disabled = false;
+            saveBtn.innerHTML = `<i class="fas fa-save"></i> ${translations['save'] || 'Save'}`;
+        }
+    }
+}
+
+function switchToEditorTab(tabId) {
+    activeEditorTab = tabId;
+    
+    const editorPanel = document.getElementById('editorPanel');
+    if (editorPanel.style.display === 'block') {
+        updateEditorPanelContent();
+    }
+    
+    updateEditorTabsSwitcher();
+}
+
+function toggleEditorPanel() {
+    const editorPanel = document.getElementById('editorPanel');
+    const toggleIcon = document.getElementById('editorToggleIcon');
+    
+    if (editorPanel.style.display === 'none' || editorPanel.style.display === '') {
+        editorPanel.style.display = 'block';
+        editorPanel.style.maxHeight = '100%';
+        toggleIcon.className = 'fas fa-chevron-up';
+        
+        updateEditorPanelContent();
+    } else {
+        editorPanel.style.maxHeight = '0';
+        setTimeout(() => {
+            editorPanel.style.display = 'none';
+        }, 300);
+        toggleIcon.className = 'fas fa-chevron-down';
+    }
+}
+
+function updateActiveEditor() {
+    document.querySelectorAll('.editor-container').forEach(container => {
+        container.style.display = 'none';
+    });
+    
+    if (activeEditorTab) {
+        const activeContainer = document.getElementById(`${activeEditorTab}-container`);
+        if (activeContainer) {
+            activeContainer.style.display = 'flex';
+        }
+    }
+}
+
+function loadMonacoEditor() {
+    if (monacoLoaded) return Promise.resolve();
+    if (monacoLoading) return new Promise(resolve => setTimeout(() => resolve(loadMonacoEditor()), 100));
+    
+    monacoLoading = true;
+    
+    return new Promise((resolve, reject) => {
+        if (!document.querySelector('link[href*="monaco-editor"]')) {
+            const link = document.createElement('link');
+            link.rel = 'stylesheet';
+            link.href = '/luci-static/spectra/css/editor.main.css';
+            document.head.appendChild(link);
+        }
+        
+        if (window.require) {
+            if (window.monaco && window.monaco.editor) {
+                monacoLoaded = true;
+                monacoLoading = false;
+                resolve();
+                return;
+            }
+        }
+        
+        const script = document.createElement('script');
+        script.src = '/luci-static/spectra/js/loader.js';
+        script.onload = () => {
+            require.config({ 
+                paths: { 
+                    'vs': 'https://cdn.jsdelivr.net/npm/monaco-editor@0.55.1/min/vs'
+                } 
+            });
+            
+            require(['vs/editor/editor.main'], () => {
+                defineCustomThemes();
+                
+                monacoLoaded = true;
+                monacoLoading = false;
+                resolve();
+            });
+        };
+        script.onerror = (error) => {
+            monacoLoading = false;
+            reject(error);
+        };
+        document.head.appendChild(script);
+    });
+}
+
+function defineCustomThemes() {
+    monaco.editor.defineTheme('dark-plus', {
+        base: 'vs-dark',
+        inherit: true,
+        rules: [
+            { token: 'comment', foreground: '6A9955' },
+            { token: 'keyword', foreground: 'C586C0' },
+            { token: 'string', foreground: 'CE9178' },
+            { token: 'number', foreground: 'B5CEA8' },
+            { token: 'type', foreground: '4EC9B0' },
+            { token: 'class', foreground: '4EC9B0' },
+            { token: 'function', foreground: 'DCDCAA' }
+        ],
+        colors: {
+            'editor.background': '#1E1E1E',
+            'editor.foreground': '#D4D4D4',
+            'editorCursor.foreground': '#FFFFFF',
+            'editor.lineHighlightBackground': '#2D2D30',
+            'editorLineNumber.foreground': '#858585',
+            'editor.selectionBackground': '#264F78',
+            'editor.inactiveSelectionBackground': '#3A3D41'
+        }
+    });
+    
+    monaco.editor.defineTheme('github-light', {
+        base: 'vs',
+        inherit: true,
+        rules: [
+            { token: 'comment', foreground: '6a737d' },
+            { token: 'keyword', foreground: 'd73a49' },
+            { token: 'string', foreground: '032f62' },
+            { token: 'number', foreground: '005cc5' },
+            { token: 'type', foreground: '6f42c1' }
+        ],
+        colors: {
+            'editor.background': '#ffffff',
+            'editor.foreground': '#24292e',
+            'editor.lineHighlightBackground': '#f6f8fa'
+        }
+    });
+
+    monaco.editor.defineTheme('my-custom-theme', {
+        base: 'vs-dark',
+        inherit: true,
+        rules: [
+            { token: 'comment', foreground: 'ffa500', fontStyle: 'italic' },
+            { token: 'keyword', foreground: 'ff79c6' },
+            { token: 'string', foreground: '8be9fd' },
+            { token: 'keyword.php', foreground: 'ff79c6' },
+            { token: 'string.php', foreground: '8be9fd' },
+            { token: 'variable.php', foreground: '50fa7b' }
+        ],
+        colors: {
+            'editor.foreground': '#f8f8f2',
+            'editor.background': '#282a36',
+            'editorCursor.foreground': '#f8f8f0',
+            'editor.lineHighlightBackground': '#44475a',
+            'editorLineNumber.foreground': '#6272a4',
+            'editor.selectionBackground': '#44475a'
+        }
+    });
+    
+    monaco.editor.defineTheme('monokai', {
+        base: 'vs-dark',
+        inherit: true,
+        rules: [
+            { token: 'comment', foreground: '75715E' },
+            { token: 'string', foreground: 'E6DB74' },
+            { token: 'keyword', foreground: 'F92672' },
+            { token: 'number', foreground: 'AE81FF' },
+            { token: 'type', foreground: '66D9EF' },
+            { token: 'class', foreground: 'A6E22E' },
+            { token: 'function', foreground: 'A6E22E' },
+            { token: 'variable', foreground: 'F8F8F2' }
+        ],
+        colors: {
+            'editor.background': '#272822',
+            'editor.foreground': '#F8F8F2',
+            'editorCursor.foreground': '#F8F8F2',
+            'editor.lineHighlightBackground': '#3E3D32',
+            'editorLineNumber.foreground': '#90908A'
+        }
+    });
+    
+    monaco.editor.defineTheme('solarized-dark', {
+        base: 'vs-dark',
+        inherit: true,
+        rules: [
+            { token: 'comment', foreground: '586E75' },
+            { token: 'string', foreground: '2AA198' },
+            { token: 'keyword', foreground: '859900' },
+            { token: 'number', foreground: 'D33682' },
+            { token: 'type', foreground: 'B58900' },
+            { token: 'class', foreground: 'CB4B16' }
+        ],
+        colors: {
+            'editor.background': '#002B36',
+            'editor.foreground': '#839496',
+            'editorCursor.foreground': '#93A1A1',
+            'editor.lineHighlightBackground': '#073642'
+        }
+    });
+}
+
+function switchEditorMode(mode, tabId) {
+    const tab = editorTabs.find(t => t.id === tabId);
+    if (!tab) return;
+    
+    const modeText = document.getElementById(`editorModeText-${tabId}`);
+    if (modeText) {
+        modeText.textContent = mode === 'simple' 
+            ? (translations['switch_to_advanced_editor'] || 'Switch to Advanced Editor') 
+            : (translations['switch_to_simple_editor'] || 'Switch to Simple Editor');
+    }
+    
+    if (tab.editorMode === 'advanced' && tab.monacoEditorInstance) {
+        const model = tab.monacoEditorInstance.getModel();
+        if (model) {
+            tab.viewState = tab.monacoEditorInstance.saveViewState();
+        }
+        tab.monacoEditorInstance.dispose();
+        tab.monacoEditorInstance = null;
+    }
+    
+    tab.editorMode = mode;
+    
+    updateEditorUI();
+    
+    if (mode === 'advanced') {
+        loadMonacoEditor().then(() => {
             setTimeout(() => {
-                updateModal.hide();
-            }, 5000);
+                initMonacoEditor(tabId);
+                setTimeout(() => {
+                    if (tab.monacoEditorInstance) {
+                        tab.monacoEditorInstance.setValue(tab.content || '');
+                        
+                        if (tab.viewState) {
+                            setTimeout(() => {
+                                tab.monacoEditorInstance.restoreViewState(tab.viewState);
+                                tab.monacoEditorInstance.focus();
+                            }, 50);
+                        }
+                    }
+                }, 100);
+            }, 50);
+        }).catch(error => {
+            tab.editorMode = 'simple';
+            updateEditorUI();
+            showLogMessage(
+                translations['advanced_editor_load_failed'] || 'Failed to load advanced editor, switched back to simple editor', 
+                'error'
+            );
+        });
+    } else {
+        setTimeout(() => {
+            const simpleEditor = document.getElementById(`${tabId}-simple-editor`);
+            if (simpleEditor) {
+                simpleEditor.value = tab.content || '';
+                
+                simpleEditor.style.height = 'auto';
+                simpleEditor.style.height = (simpleEditor.scrollHeight + 10) + 'px';
+                simpleEditor.focus();
+                
+                setupSimpleEditorEvents(tabId);
+            }
+            updateCharCount(tabId);
+        }, 100);
+    }
+}
+
+function setupSimpleEditorEvents(tabId) {
+    const simpleEditor = document.getElementById(`${tabId}-simple-editor`);
+    if (!simpleEditor) return;
+    
+    const newEditor = simpleEditor.cloneNode(true);
+    simpleEditor.parentNode.replaceChild(newEditor, simpleEditor);
+    
+    newEditor.addEventListener('input', function() {
+        const tab = editorTabs.find(t => t.id === tabId);
+        if (tab) {
+            const isModified = (this.value !== tab.originalContent);
+            if (tab.modified !== isModified) {
+                tab.modified = isModified;
+                updateEditorTabsUI();
+            }
+        }
+        
+        this.style.height = 'auto';
+        this.style.height = (this.scrollHeight + 10) + 'px';
+        
+        updateCharCount(tabId);
+    });
+    
+    newEditor.addEventListener('keydown', function(e) {
+        if (e.key === 'Tab') {
+            e.preventDefault();
+            const start = this.selectionStart;
+            const end = this.selectionEnd;
+            
+            this.value = this.value.substring(0, start) + '    ' + this.value.substring(end);
+            this.selectionStart = this.selectionEnd = start + 4;
+            this.dispatchEvent(new Event('input'));
+        }
+    });
+}
+
+async function initMonacoEditor(tabId) {
+    const tab = editorTabs.find(t => t.id === tabId);
+    if (!tab) return;
+    
+    if (!monacoLoaded) {
+        try {
+            await loadMonacoEditor();
+        } catch (error) {
+            console.error('Failed to load Monaco Editor:', error);
+            showLogMessage(translations['load_advanced_editor_failed'] || 'Failed to load advanced editor, switched back to simple editor', 'error');
+            switchEditorMode('simple', tabId);
+            return;
+        }
+    }
+    
+    const container = document.getElementById(`${tabId}-monaco-container`);
+    if (!container) return;
+    
+    if (tab.monacoEditorInstance) {
+        tab.monacoEditorInstance.dispose();
+        tab.monacoEditorInstance = null;
+    }
+    
+    container.innerHTML = '';
+    
+    try {
+
+        const savedFontSize = localStorage.getItem('editorFontSize') || '16';
+        const detectedLanguage = detectLanguage(tab.name);
+        const theme = localStorage.getItem('editorTheme') || 'vs-dark';
+        
+        const editor = monaco.editor.create(container, {
+            value: tab.content || '',
+            language: detectedLanguage,
+            theme: theme,
+            automaticLayout: true,
+            fontSize: parseInt(savedFontSize),
+            lineNumbers: 'on',
+            minimap: { 
+                enabled: true,
+                scale: 2,
+                showSlider: 'always'
+            },
+            autoIndent: 'full',
+            autoClosingBrackets: 'always',
+            autoClosingQuotes: 'always',
+            autoSurround: 'languageDefined',
+            indentSize: 4,
+            tabSize: 4,
+            insertSpaces: true,
+            useTabStops: true,
+            scrollBeyondLastLine: true,
+            wordWrap: 'on',
+            wrappingIndent: 'indent',
+            renderLineHighlight: 'all',
+            scrollbar: {
+                vertical: 'auto',
+                horizontal: 'auto',
+                verticalHasArrows: true,
+                horizontalHasArrows: true,
+                verticalScrollbarSize: 12,
+                horizontalScrollbarSize: 12,
+                arrowSize: 20
+            },
+            formatOnPaste: true,
+            formatOnType: true,
+            suggestOnTriggerCharacters: true,
+            acceptSuggestionOnEnter: 'on',
+            tabCompletion: 'on',
+            wordBasedSuggestions: 'allDocuments',
+            parameterHints: { 
+                enabled: true,
+                cycle: true
+            },
+            hover: { 
+                enabled: true,
+                delay: 300
+            },
+            contextmenu: true,
+            quickSuggestions: { 
+                other: true, 
+                comments: true, 
+                strings: true 
+            },
+            suggest: {
+                showWords: true,
+                showKeywords: true,
+                showSnippets: true,
+                showClasses: true,
+                showFunctions: true,
+                showVariables: true,
+                showModules: true,
+                showReferences: true
+            },
+            snippetSuggestions: 'bottom',
+            inlineSuggest: {
+                enabled: true,
+                mode: 'prefix'
+            },
+            guides: {
+                bracketPairs: true,
+                highlightActiveBracketPair: true,
+                indentation: true
+            },
+            bracketPairColorization: {
+                enabled: true
+            },
+            cursorBlinking: 'blink',
+            cursorSmoothCaretAnimation: 'on',
+            cursorStyle: 'line',
+            folding: true,
+            foldingStrategy: 'auto',
+            foldingHighlight: true,
+            foldingImportsByDefault: true,
+            smoothScrolling: true,
+            mouseWheelZoom: true,
+            multiCursorMergeOverlapping: true,
+            overviewRulerLanes: 3,
+            fixedOverflowWidgets: true,
+            lineDecorationsWidth: 10,
+            padding: { top: 10, bottom: 10 },
+            renderWhitespace: 'selection',
+
+
+            rulers: [],
+            selectionClipboard: true,
+            selectionHighlight: true,
+            semanticHighlighting: {
+                enabled: true
+            },
+            showFoldingControls: 'always',
+            showUnused: true,
+            stickyScroll: {
+                enabled: true,
+                maxLineCount: 5
+            },
+            unicodeHighlight: {
+                ambiguousCharacters: true,
+                invisibleCharacters: true
+            },
+            wordSeparators: '`~!@#$%^&*()-=+[{]}\\|;:\'",.<>/?',
+            wrappingStrategy: 'advanced'
+        });
+        
+        tab.monacoEditorInstance = editor;
+
+        editor.onDidChangeModelContent(() => {
+            const currentContent = editor.getValue();
+            
+            if (tab.editorMode === 'advanced') {
+                tab.content = currentContent;
+            }
+            
+            tab.modified = (currentContent !== tab.originalContent);
+            updateCharCount(tabId);
+            updateEditorTabsUI();
+        });
+        
+        editor.onDidChangeCursorPosition((e) => {
+            updateEditorPositionInfo(tabId, e.position.lineNumber, e.position.column);
+        });
+        
+        editor.onDidChangeCursorSelection((e) => {
+            const selection = e.selection;
+            const selectedText = editor.getModel()?.getValueInRange(selection) || '';
+            updateSelectedTextInfo(tabId, selectedText);
+        });
+        
+        setupEditorShortcuts(editor, tabId);
+        
+        setTimeout(() => {
+            const languageSelect = document.getElementById(`${tabId}-language-select`);
+            if (languageSelect) {
+                languageSelect.value = detectedLanguage;
+            }
+            
+            const fontSizeSelect = document.querySelector(`#${tabId}-panel-container .editor-fontsize-select`);
+            if (fontSizeSelect) {
+                fontSizeSelect.value = savedFontSize;
+            }
+            
+            const themeSelect = document.querySelector(`#${tabId}-panel-container .editor-theme-select`);
+            if (themeSelect) {
+                themeSelect.value = theme;
+            }
+        }, 300);
+        
+        updateEditorPositionInfo(tabId, 1, 1);
+        
+    } catch (error) {
+        console.error('Failed to initialize Monaco Editor:', error);
+        showLogMessage(`${translations['init_advanced_editor_failed'] || 'Failed to initialize advanced editor'}: ${error.message}`, 'error');
+    }
+}
+
+function setupEditorShortcuts(editor, tabId) {
+    editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyS, () => {
+        saveEditorContent(tabId);
+    });
+    
+    editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyF, () => {
+        editor.getAction('actions.find').run();
+    });
+    
+    editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyH, () => {
+        editor.getAction('editor.action.startFindReplaceAction').run();
+    });
+    
+    editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyG, () => {
+        editor.getAction('editor.action.gotoLine').run();
+    });
+    
+    editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.Space, () => {
+        editor.trigger('', 'editor.action.triggerSuggest', {});
+    });
+    
+    editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyMod.Shift | monaco.KeyCode.KeyF, () => {
+        editor.getAction('editor.action.formatDocument').run();
+    });
+    
+    editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyMod.Shift | monaco.KeyCode.KeyK, () => {
+        editor.getAction('editor.action.deleteLines').run();
+    });
+    
+    editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.Slash, () => {
+        editor.getAction('editor.action.commentLine').run();
+    });
+    
+    editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyMod.Shift | monaco.KeyCode.Slash, () => {
+        editor.getAction('editor.action.blockComment').run();
+    });
+    
+    editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.BracketLeft, () => {
+        editor.getAction('editor.action.indentLines').run();
+    });
+    
+    editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.BracketRight, () => {
+        editor.getAction('editor.action.outdentLines').run();
+    });
+    
+    editor.addCommand(monaco.KeyMod.Alt | monaco.KeyMod.Shift | monaco.KeyCode.ArrowDown, () => {
+        editor.getAction('editor.action.copyLinesDownAction').run();
+    });
+    
+    editor.addCommand(monaco.KeyMod.Alt | monaco.KeyCode.ArrowUp, () => {
+        editor.getAction('editor.action.moveLinesUpAction').run();
+    });
+    
+    editor.addCommand(monaco.KeyMod.Alt | monaco.KeyCode.ArrowDown, () => {
+        editor.getAction('editor.action.moveLinesDownAction').run();
+    });
+}
+
+function updateSelectedTextInfo(tabId, selectedText) {
+    const selectedTextElement = document.getElementById(`${tabId}-selected-text-info`);
+    if (selectedTextElement) {
+        if (selectedText) {
+            selectedTextElement.textContent = `${translations['selected'] || 'Selected'}: ${selectedText.length} ${translations['characters'] || 'Characters'}`;
+        } else {
+            selectedTextElement.textContent = '';
+        }
+    }
+}
+
+function detectLanguage(filename) {
+    const ext = filename.toLowerCase().split('.').pop();
+    const languageMap = {
+        'js': 'javascript',
+        'jsx': 'javascript',
+        'mjs': 'javascript',
+        'cjs': 'javascript',
+        'ts': 'typescript',
+        'tsx': 'typescript',
+        'vue': 'vue',
+        'svelte': 'html',
+        'html': 'html',
+        'htm': 'html',
+        'xhtml': 'html',
+        'css': 'css',
+        'scss': 'scss',
+        'sass': 'sass',
+        'less': 'less',
+        'styl': 'stylus',
+        'php': 'php',
+        'php3': 'php',
+        'php4': 'php',
+        'php5': 'php',
+        'php7': 'php',
+        'phtml': 'php',
+        'py': 'python',
+        'pyw': 'python',
+        'pyc': 'python',
+        'pyo': 'python',
+        'pyz': 'python',
+        'java': 'java',
+        'class': 'java',
+        'jar': 'java',
+        'c': 'c',
+        'h': 'c',
+        'cpp': 'cpp',
+        'cc': 'cpp',
+        'cxx': 'cpp',
+        'hpp': 'cpp',
+        'hxx': 'cpp',
+        'cs': 'csharp',
+        'csx': 'csharp',
+        'go': 'go',
+        'rs': 'rust',
+        'rb': 'ruby',
+        'erb': 'ruby',
+        'pl': 'perl',
+        'pm': 'perl',
+        't': 'perl',
+        'lua': 'lua',
+        'swift': 'swift',
+        'kt': 'kotlin',
+        'kts': 'kotlin',
+        'scala': 'scala',
+        'sc': 'scala',
+        'dart': 'dart',
+        'r': 'r',
+        'rmd': 'rmarkdown',
+        'jl': 'julia',
+        'hs': 'haskell',
+        'lhs': 'haskell',
+        'elm': 'elm',
+        'clj': 'clojure',
+        'cljs': 'clojure',
+        'cljc': 'clojure',
+        'edn': 'clojure',
+        'ex': 'elixir',
+        'exs': 'elixir',
+        'erl': 'erlang',
+        'hrl': 'erlang',
+        'fs': 'fsharp',
+        'fsx': 'fsharp',
+        'fsi': 'fsharp',
+        'astro': 'javascript',
+        'json': 'json',
+        'json5': 'javascript',
+        'jsonc': 'json',
+        'xml': 'xml',
+        'xsl': 'xml',
+        'xslt': 'xml',
+        'xsd': 'xml',
+        'yaml': 'yaml',
+        'yml': 'yaml',
+        'toml': 'toml',
+        'ini': 'ini',
+        'conf': 'ini',
+        'cfg': 'ini',
+        'properties': 'properties',
+        'env': 'properties',
+        'sql': 'sql',
+        'mysql': 'sql',
+        'pgsql': 'sql',
+        'psql': 'sql',
+        'plsql': 'sql',
+        'ddl': 'sql',
+        'dml': 'sql',
+        'md': 'markdown',
+        'markdown': 'markdown',
+        'mdx': 'markdown',
+        'txt': 'plaintext',
+        'text': 'plaintext',
+        'log': 'plaintext',
+        'rst': 'restructuredtext',
+        'tex': 'latex',
+        'sh': 'shell',
+        'bash': 'shell',
+        'zsh': 'shell',
+        'fish': 'shell',
+        'ps1': 'powershell',
+        'psm1': 'powershell',
+        'psd1': 'powershell',
+        'bat': 'batch',
+        'cmd': 'batch',
+        'dockerfile': 'dockerfile',
+        'docker': 'dockerfile',
+        'makefile': 'makefile',
+        'cmake': 'cmake',
+        'gradle': 'gradle',
+        'groovy': 'groovy',
+        'jenkinsfile': 'groovy',
+        'j2': 'jinja',
+        'jinja': 'jinja',
+        'jinja2': 'jinja',
+        'twig': 'twig',
+        'njk': 'nunjucks',
+        'liquid': 'liquid',
+        'hbs': 'handlebars',
+        'handlebars': 'handlebars',
+        'svg': 'xml',
+        'graphql': 'graphql',
+        'gql': 'graphql',
+        'proto': 'protobuf',
+        'thrift': 'thrift',
+        'avdl': 'avro',
+        'avsc': 'json',
+        'ipynb': 'json',
+        'csv': 'csv',
+        'tsv': 'plaintext',
+        'diff': 'diff',
+        'patch': 'diff',
+        'hosts': 'hosts',
+        'nginx': 'nginx',
+        'apache': 'apache',
+        'htaccess': 'apache',
+        'htpasswd': 'apache',
+        'gitignore': 'gitignore',
+        'gitattributes': 'gitattributes',
+        'editorconfig': 'editorconfig',
+        'eslintrc': 'json',
+        'prettierrc': 'json',
+        'babelrc': 'json',
+        'tsconfig': 'json',
+        'package': 'json',
+        'lock': 'json',
+        'rc': 'shell',
+        'profile': 'shell',
+        'service': 'shell',
+        'timer': 'shell',
+        'network': 'shell',
+        'wireless': 'shell',
+        'firewall': 'shell',
+        'dhcp': 'shell',
+        'qos': 'shell',
+        'uci': 'shell',
+        'config': 'shell',
+        'ipk': 'plaintext',
+        'opk': 'plaintext',
+        'list': 'plaintext',
+        'status': 'plaintext',
+        'state': 'plaintext',
+        'cache': 'plaintext',
+        'ko': 'plaintext',
+        'elf': 'plaintext',
+        'bin': 'plaintext',
+        'img': 'plaintext',
+        'trx': 'plaintext',
+        'chk': 'plaintext',
+        'factory': 'plaintext',
+        'sysupgrade': 'plaintext',
+        'ash': 'shell',
+        'dash': 'shell',
+        'init': 'shell',
+        'rules': 'shell',
+        'module': 'shell',
+        'modprobe': 'shell',
+        'fstab': 'shell',
+        'mtab': 'plaintext',
+        'passwd': 'plaintext',
+        'shadow': 'plaintext',
+        'group': 'plaintext',
+        'route': 'shell',
+        'iptables': 'shell',
+        'nftables': 'shell',
+        'resolv': 'plaintext',
+        'inetd': 'shell',
+        'xinetd': 'shell',
+        'supervisor': 'ini',
+        'inc': 'makefile',
+        'bb': 'shell',
+        'bbclass': 'shell',
+        'rrd': 'plaintext',
+        'xmlrpc': 'xml',
+        'cbi': 'lua',
+        'tree': 'lua',
+        'pem': 'plaintext',
+        'crt': 'plaintext',
+        'key': 'plaintext',
+        'csr': 'plaintext',
+        'pfx': 'plaintext',
+        'der': 'plaintext',
+        'gz': 'plaintext',
+        'bz2': 'plaintext',
+        'xz': 'plaintext',
+        'lzma': 'plaintext',
+        'zst': 'plaintext',
+        'db': 'plaintext',
+        'sqlite': 'plaintext',
+        'sqlite3': 'plaintext',
+        'qcow2': 'plaintext',
+        'vmdk': 'plaintext',
+        'vdi': 'plaintext',
+        'dtb': 'plaintext',
+        'dts': 'plaintext',
+        'hex': 'plaintext',
+        'uf2': 'plaintext',
+        'pcap': 'plaintext',
+        'cap': 'plaintext',
+        'psk': 'plaintext',
+        'ovpn': 'shell',
+        'wg': 'shell',
+    };
+    
+    return languageMap[ext] || 'plaintext';
+}
+
+function updateEditorPositionInfo(tabId, line, column) {
+    const positionElement = document.getElementById(`${tabId}-position-info`);
+    if (positionElement) {
+        positionElement.textContent = `${translations['line_label'] || 'Line'}: ${line}, ${translations['column_label'] || 'Column'}: ${column}`;
+    }
+}
+
+function formatCode(tabId) {
+    const tab = editorTabs.find(t => t.id === tabId);
+    if (!tab || !tab.monacoEditorInstance) return;
+
+    const editor = tab.monacoEditorInstance;
+
+    try {
+        editor.getAction('editor.action.formatDocument').run();
+        showLogMessage(translations['code_format_success'] || 'Code formatted successfully', 'success');
+    } catch (error) {
+        showLogMessage(
+            `${translations['code_format_error'] || 'Code format error'}: ${error.message}`,
+            'error'
+        );
+    }
+}
+
+function changeEditorTheme(tabId, theme) {
+    const tab = editorTabs.find(t => t.id === tabId);
+    if (!tab) return;
+    
+    try {
+        const themes = {
+            'vs-dark': 'vs-dark',
+            'vs': 'vs',
+            'hc-black': 'hc-black',
+            'my-custom-theme': {
+                base: 'vs-dark',
+                inherit: true,
+                rules: [
+                    { token: 'comment', foreground: 'ffa500', fontStyle: 'italic' },
+                    { token: 'keyword', foreground: 'ff79c6' },
+                    { token: 'string', foreground: '8be9fd' },
+                    { token: 'keyword.php', foreground: 'ff79c6' },
+                    { token: 'string.php', foreground: '8be9fd' },
+                    { token: 'variable.php', foreground: '50fa7b' }
+                ],
+                colors: {
+                    'editor.foreground': '#f8f8f2',
+                    'editor.background': '#282a36',
+                    'editorCursor.foreground': '#f8f8f0',
+                    'editor.lineHighlightBackground': '#44475a',
+                    'editorLineNumber.foreground': '#6272a4'
+                }
+            },
+            'monokai': {
+                base: 'vs-dark',
+                inherit: true,
+                rules: [
+                    { token: 'comment', foreground: '75715E' },
+                    { token: 'string', foreground: 'E6DB74' },
+                    { token: 'keyword', foreground: 'F92672' },
+                    { token: 'number', foreground: 'AE81FF' },
+                    { token: 'type', foreground: '66D9EF' },
+                    { token: 'class', foreground: 'A6E22E' },
+                    { token: 'function', foreground: 'A6E22E' },
+                    { token: 'variable', foreground: 'F8F8F2' }
+                ],
+                colors: {
+                    'editor.background': '#272822',
+                    'editor.foreground': '#F8F8F2',
+                    'editorCursor.foreground': '#F8F8F2',
+                    'editor.lineHighlightBackground': '#3E3D32',
+                    'editorLineNumber.foreground': '#90908A'
+                }
+            },
+            'solarized-dark': {
+                base: 'vs-dark',
+                inherit: true,
+                rules: [
+                    { token: 'comment', foreground: '586E75' },
+                    { token: 'string', foreground: '2AA198' },
+                    { token: 'keyword', foreground: '859900' },
+                    { token: 'number', foreground: 'D33682' },
+                    { token: 'type', foreground: 'B58900' },
+                    { token: 'class', foreground: 'CB4B16' }
+                ],
+                colors: {
+                    'editor.background': '#002B36',
+                    'editor.foreground': '#839496',
+                    'editorCursor.foreground': '#93A1A1',
+                    'editor.lineHighlightBackground': '#073642'
+                }
+            }
+        };
+        
+        if (themes[theme]) {
+            if (typeof themes[theme] === 'object') {
+                monaco.editor.defineTheme('custom-' + theme, themes[theme]);
+                monaco.editor.setTheme('custom-' + theme);
+            } else {
+                monaco.editor.setTheme(themes[theme]);
+            }
+            
+            localStorage.setItem('editorTheme', theme);
+            
+            const themeSelect = document.querySelector(`#${tabId}-panel-container .editor-theme-select`);
+            if (themeSelect) {
+                themeSelect.value = theme;
+            }
+            
+            showLogMessage(
+                `${translations['theme_switched_to'] || 'Theme switched to'}: ${theme}`,
+                'success'
+            );
+        }
+    } catch (error) {
+        showLogMessage(
+            `${translations['theme_change_error'] || 'Theme change error'}: ${error.message}`,
+            'error'
+        );
+    }
+}
+
+function changeEditorLanguage(tabId, language) {
+    const tab = editorTabs.find(t => t.id === tabId);
+    if (!tab || !tab.monacoEditorInstance) return;
+
+    const editor = tab.monacoEditorInstance;
+    const model = editor.getModel();
+
+    if (model) {
+        monaco.editor.setModelLanguage(model, language);
+
+        const languageSelect = document.getElementById(`${tabId}-language-select`);
+        if (languageSelect) {
+            languageSelect.value = language;
+        }
+
+        showLogMessage(
+            `${translations['language_switched_to'] || 'Language switched to'}: ${getLanguageDisplayName(language)}`,
+            'success'
+        );
+    }
+}
+
+function getLanguageDisplayName(language) {
+    const displayNames = {
+        'plaintext': translations['language_plaintext'] || 'plain text',
+        'javascript': 'JavaScript',
+        'typescript': 'TypeScript',
+        'html': 'HTML',
+        'css': 'CSS',
+        'php': 'PHP',
+        'python': 'Python',
+        'java': 'Java',
+        'c': 'C',
+        'cpp': 'C++',
+        'csharp': 'C#',
+        'go': 'Go',
+        'rust': 'Rust',
+        'ruby': 'Ruby',
+        'perl': 'Perl',
+        'lua': 'Lua',
+        'swift': 'Swift',
+        'kotlin': 'Kotlin',
+        'scala': 'Scala',
+        'dart': 'Dart',
+        'json': 'JSON',
+        'xml': 'XML',
+        'yaml': 'YAML',
+        'toml': 'TOML',
+        'ini': 'INI',
+        'csv': 'CSV',
+        'shell': 'Shell',
+        'powershell': 'PowerShell',
+        'batch': 'Batch',
+        'sql': 'SQL',
+        'mysql': 'MySQL',
+        'plsql': 'PL/SQL',
+        'postgresql': 'PostgreSQL',
+        'jinja': 'Jinja2',
+        'twig': 'Twig',
+        'handlebars': 'Handlebars',
+        'mustache': 'Mustache',
+        'dockerfile': 'Dockerfile',
+        'makefile': 'Makefile',
+        'gradle': 'Gradle',
+        'cmake': 'CMake',
+        'markdown': 'Markdown',
+        'restructuredtext': 'reStructuredText',
+        'latex': 'LaTeX',
+        'graphql': 'GraphQL',
+        'protobuf': 'Protocol Buffers',
+        'diff': 'Diff',
+        'nginx': 'Nginx',
+        'apache': 'Apache',
+        'gitignore': '.gitignore',
+        'editorconfig': '.editorconfig'
+    };
+    
+    return displayNames[language] || language;
+}
+
+function openFindReplace(tabId) {
+    const tab = editorTabs.find(t => t.id === tabId);
+    if (!tab || !tab.monacoEditorInstance) return;
+    
+    const editor = tab.monacoEditorInstance;
+    editor.getAction('actions.find').run();
+}
+
+function autoSaveContent(tabId) {
+    const tab = editorTabs.find(t => t.id === tabId);
+    if (!tab || !tab.modified) return;
+    
+    //console.log(`Auto-saving ${tab.name}...`);
+}
+
+function downloadCurrentFile(tabId) {
+    const tab = editorTabs.find(t => t.id === tabId);
+    if (!tab) return;
+
+    const content = tab.monacoEditorInstance ? 
+        tab.monacoEditorInstance.getValue() : 
+        document.getElementById(`${tabId}-simple-editor`)?.value || '';
+
+    const blob = new Blob([content], { type: 'text/plain' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = tab.name;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+
+    showLogMessage(
+        `${translations['file_download_started'] || 'File'} ${tab.name} ${translations['download_started'] || 'download started'}`,
+        'success'
+    );
+}
+
+function showKeyboardShortcuts() {
+    const shortcuts = [
+        { key: 'Ctrl/Cmd + S', desc: translations['save_file'] || 'Save file' },
+        { key: 'Ctrl/Cmd + F', desc: translations['search.find'] || 'Find' },
+        { key: 'Ctrl/Cmd + H', desc: translations['search.replace'] || 'Replace' },
+        { key: 'Ctrl/Cmd + Z', desc: translations['undo'] || 'Undo' },
+        { key: 'Ctrl/Cmd + Y', desc: translations['redo'] || 'Redo' },
+        { key: 'Ctrl/Cmd + D', desc: translations['duplicate_line'] || 'Duplicate current line' },
+        { key: 'Ctrl/Cmd + Shift + K', desc: translations['delete_line'] || 'Delete current line' },
+        { key: 'Ctrl/Cmd + /', desc: translations['toggle_comment'] || 'Comment/Uncomment' },
+        { key: 'Alt + ↑/↓', desc: translations['move_line'] || 'Move line up/down' },
+        { key: 'Ctrl/Cmd + Alt + ↑/↓', desc: translations['add_cursor'] || 'Add multiple cursors' },
+        { key: 'F12', desc: translations['go_to_definition'] || 'Go to definition' },
+        { key: 'Shift + F12', desc: translations['find_references'] || 'Find references' },
+        { key: 'Ctrl/Cmd + Space', desc: translations['trigger_suggestion'] || 'Trigger suggestion' },
+        { key: 'Ctrl/Cmd + Shift + F', desc: translations['format_document'] || 'Format document' }
+    ];
+
+    let html = `<div class="editor-keyboard-shortcuts">
+                    <h6>${translations['keyboard_shortcuts'] || 'Keyboard Shortcuts'}</h6>`;
+    
+    shortcuts.forEach(shortcut => {
+        html += `
+            <div class="shortcut-item">
+                <span class="shortcut-desc">${shortcut.desc}</span>
+                <span class="shortcut-key">${shortcut.key}</span>
+            </div>
+        `;
+    });
+
+    html += '</div>';
+
+    const statusBar = document.querySelector('.editor-status-bar');
+    if (statusBar) {
+        const existingHelp = document.querySelector('.editor-keyboard-shortcuts');
+        if (existingHelp) {
+            existingHelp.remove();
+        } else {
+            statusBar.insertAdjacentHTML('afterend', html);
+        }
+    }
+}
+
+function updateEditorUI() {
+    const editorPanel = document.getElementById('editorPanel');
+    const editorTabsSwitcher = document.getElementById('editorTabsSwitcher');
+    
+    if (editorTabs.length > 0) {
+        editorTabsSwitcher.style.display = 'block';
+        updateEditorTabsSwitcher();
+        
+        if (editorPanel.style.display === 'block') {
+            updateEditorPanelContent();
+        }
+    } else {
+        editorTabsSwitcher.style.display = 'none';
+        editorPanel.style.display = 'none';
+        editorPanel.style.maxHeight = '0';
+    }
+}
+
+function updateEditorPanelContent() {
+    const tabsNav = document.getElementById('editorPanelTabsNav');
+    const contentArea = document.getElementById('editorPanelContent');
+    
+    if (!tabsNav || !contentArea) return;
+    
+    tabsNav.innerHTML = '';
+    editorTabs.forEach(tab => {
+        const tabElement = document.createElement('div');
+        tabElement.className = `editor-tab ${tab.id === activeEditorTab ? 'active' : ''}`;
+        tabElement.style.cssText = `
+            padding: 8px 15px;
+            background: ${tab.id === activeEditorTab ? 'var(--accent-tertiary)' : 'var(--card-bg)'};
+            color: ${tab.id === activeEditorTab ? 'white' : 'var(--text-primary)'};
+            border-radius: 4px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            white-space: nowrap;
+            font-size: 14px;
+        `;
+        
+        tabElement.onclick = () => switchToEditorTab(tab.id);
+        
+        let tabName = escapeHtml(tab.name);
+        if (tab.modified) {
+            tabName = `* ${tabName}`;
+        }
+        
+        tabElement.innerHTML = `
+            <span>${tabName}</span>
+            <span style="margin-left: 8px;" onclick="closeEditorTab('${tab.id}', event)">
+                <i class="fas fa-times"></i>
+            </span>
+        `;
+        
+        tabsNav.appendChild(tabElement);
+    });
+    
+    contentArea.innerHTML = '';
+    
+    if (activeEditorTab) {
+        const tab = editorTabs.find(t => t.id === activeEditorTab);
+        if (tab) {
+            const editorContainer = document.createElement('div');
+            editorContainer.id = `${tab.id}-panel-container`;
+            editorContainer.style.cssText = `
+                height: 100%;
+                display: flex;
+                flex-direction: column;
+            `;
+            
+            const editorMode = tab.editorMode || currentEditorMode;
+            
+            editorContainer.innerHTML = `
+                <div class="editor-toolbar">
+                    <div class="editor-toolbar-left">
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <i class="fas fa-file"></i>
+                            <span>${escapeHtml(tab.name)}</span>
+                            ${tab.modified ? '<span style="color: var(--text-primary);">*</span>' : ''}
+                        </div>
+                        
+                        <button class="btn btn-sm btn-indigo editor-mode-toggle" 
+                                onclick="toggleEditorMode('${tab.id}')" 
+                                id="editorModeBtn-${tab.id}"
+                                data-translate-tooltip="toggle_editor_mode">
+                            <i class="fas fa-exchange-alt"></i> 
+                            <span id="editorModeText-${tab.id}"
+                                data-translate="${editorMode === 'simple' ? 'switch_to_advanced' : 'switch_to_simple'}">
+                                ${editorMode === 'simple' ? 'Switch to advanced editor' : 'Switch to simple editor'}
+                            </span>
+                        </button>
+
+                        ${editorMode === 'advanced' ? `
+                        <button class="btn btn-sm btn-purple" onclick="toggleComment('${tab.id}')" 
+                                data-translate-tooltip="toggle_comment">
+                            <i class="fas fa-comment"></i>
+                            <span data-translate="toggle_comment">Toggle comment</span>
+                        </button>
+
+                            <select class="editor-language-select" 
+                                    onchange="changeEditorLanguage('${tab.id}', this.value)" 
+                                    id="${tab.id}-language-select">
+                                <option value="plaintext" data-translate="auto_detect">Auto detect</option>
+                                <option value="plaintext" data-translate="plain_text">Plain text</option>
+                                <option value="html">HTML</option>
+                                <option value="css">CSS</option>
+                                <option value="javascript">JavaScript</option>
+                                <option value="typescript">TypeScript</option>
+                                <option value="jsx">JSX</option>
+                                <option value="tsx">TSX</option>
+                                <option value="vue">Vue</option>
+                                <option value="svelte">Svelte</option>
+                                <option value="php">PHP</option>
+                                <option value="python">Python</option>
+                                <option value="java">Java</option>
+                                <option value="c">C</option>
+                                <option value="cpp">C++</option>
+                                <option value="csharp">C#</option>
+                                <option value="go">Go</option>
+                                <option value="rust">Rust</option>
+                                <option value="ruby">Ruby</option>
+                                <option value="perl">Perl</option>
+                                <option value="lua">Lua</option>
+                                <option value="swift">Swift</option>
+                                <option value="kotlin">Kotlin</option>
+                                <option value="scala">Scala</option>
+                                <option value="dart">Dart</option>
+                                <option value="json">JSON</option>
+                                <option value="xml">XML</option>
+                                <option value="yaml">YAML</option>
+                                <option value="toml">TOML</option>
+                                <option value="ini">INI</option>
+                                <option value="csv">CSV</option>
+                                <option value="shell">Shell/Bash</option>
+                                <option value="powershell">PowerShell</option>
+                                <option value="batch">Batch</option>
+                                <option value="sql">SQL</option>
+                                <option value="mysql">MySQL</option>
+                                <option value="plsql">PL/SQL</option>
+                                <option value="postgresql">PostgreSQL</option>
+                                <option value="jinja">Jinja2</option>
+                                <option value="twig">Twig</option>
+                                <option value="handlebars">Handlebars</option>
+                                <option value="mustache">Mustache</option>
+                                <option value="dockerfile">Dockerfile</option>
+                                <option value="makefile">Makefile</option>
+                                <option value="gradle">Gradle</option>
+                                <option value="cmake">CMake</option>
+                                <option value="markdown">Markdown</option>
+                                <option value="restructuredtext">reStructuredText</option>
+                                <option value="latex">LaTeX</option>
+                                <option value="graphql">GraphQL</option>
+                                <option value="protobuf">Protocol Buffers</option>
+                                <option value="diff">Diff/Patch</option>
+                                <option value="nginx">Nginx</option>
+                                <option value="apache">Apache</option>
+                                <option value="gitignore">.gitignore</option>
+                                <option value="editorconfig">.editorconfig</option>
+                                <option value="shell">OpenWrt Config (.conf, .config)</option>
+                                <option value="shell">Shell Script (.sh, .bash, .ash)</option>
+                                <option value="shell">UCI Config (.uci)</option>
+                                <option value="lua">LuCI Lua Script (.lua)</option>
+                                <option value="makefile">Makefile</option>
+                                <option value="shell">System Config (.rc, .service)</option>
+                                <option value="shell">Network Config (.network, .wireless)</option>
+                                <option value="shell">Firewall Config (.firewall)</option>
+                            </select> 
+                            <select class="editor-fontsize-select" 
+                                    onchange="changeEditorFontSize('${tab.id}', this.value)"
+                                    data-translate-tooltip="fontSizeL"
+                                    style="margin-left: 8px;">
+                                <option value="10">10px</option>
+                                <option value="11">11px</option>
+                                <option value="12">12px</option>
+                                <option value="13">13px</option>
+                                <option value="14" selected>14px</option>
+                                <option value="15">15px</option>
+                                <option value="16">16px</option>
+                                <option value="17">17px</option>
+                                <option value="18">18px</option>
+                                <option value="20">20px</option>
+                                <option value="22">22px</option>
+                                <option value="24">24px</option>
+                                <option value="26">26px</option>
+                                <option value="28">28px</option>
+                                <option value="32">32px</option>
+                                <option value="36">36px</option>
+                            </select>                            
+                            <select class="editor-theme-select" onchange="changeEditorTheme('${tab.id}', this.value)">
+                                <option value="vs-dark" data-translate="theme_dark">Dark theme</option>
+                                <option value="vs" data-translate="theme_light">Light theme</option>
+                                <option value="hc-black" data-translate="theme_high_contrast">High contrast</option>
+                                <option value="my-custom-theme" data-translate="theme_custom">Custom Theme</option>
+                                <option value="monokai">Monokai</option>
+                                <option value="solarized-dark">Solarized Dark</option>
+                            </select>
+                            
+                        <button class="btn btn-sm btn-primary" onclick="formatCode('${tab.id}')">
+                            <i class="fas fa-brush"></i>
+                            <span data-translate="format">Format</span>
+                        </button>
+
+                        <button class="btn btn-sm btn-pink" onclick="toggleFullscreen()" data-translate-tooltip="fullscreen">
+                            <i class="fas fa-expand"></i>
+                            <span data-translate="fullscreen">Fullscreen</span>
+                        </button>   
+
+                        <button class="btn btn-sm btn-orange" onclick="openDiffView('${tab.id}')"
+                        data-translate-tooltip="diff_view">
+                            <i class="fas fa-code-compare"></i>
+                            <span data-translate="diff_view">Diff View</span>
+                        </button>
+
+                        <button class="btn btn-sm btn-teal" onclick="openFindReplace('${tab.id}')">
+                            <i class="fas fa-search"></i>
+                            <span data-translate="search.find">Find</span>
+                        </button>
+                        ` : ''}
+                    </div>
+
+                      <div class="editor-toolbar-right">     
+                        <button class="btn btn-sm btn-outline-info" onclick="downloadCurrentFile('${tab.id}')"
+                                data-translate-tooltip="download">
+                            <i class="fas fa-download"></i>
+                        </button>
+
+                        <button class="btn btn-sm btn-outline-warning" onclick="showKeyboardShortcuts()"
+                                data-translate-tooltip="keyboard_shortcuts">
+                            <i class="fas fa-keyboard"></i>
+                        </button>
+
+                        <button class="btn btn-sm btn-success" onclick="saveEditorContent('${tab.id}')">
+                            <i class="fas fa-save"></i>
+                            <span data-translate="save">Save</span>
+                        </button>
+
+                        <button class="btn btn-sm btn-dark-red" onclick="closeEditorTab('${tab.id}')">
+                            <i class="fa fa-reply-all"></i>
+                            <span data-translate="close">Close</span>
+                        </button>
+                    </div>
+                </div>
+                
+<div style="flex: 1; overflow: hidden; position: relative;">
+                    ${editorMode === 'simple' ? `
+                        <div class="simple-editor-container" style="height: calc(100vh - 240px); overflow: auto; border: 1px solid var(--border-color); border-radius: 4px;">
+                            <textarea id="${tab.id}-simple-editor" 
+                                      class="simple-editor"
+                                      placeholder="${tab.loading ? (translations['loading'] || 'Loading...') : (translations['start_editing'] || 'Start editing')}"
+                                      oninput="markEditorAsModified('${tab.id}')"
+                                      spellcheck="false"
+                                      ${tab.loading ? 'readonly' : ''}
+                                      wrap="off"
+                                      style="width: 100%; min-height: 100%; border: none; padding: 12px; font-family: monospace; font-size: 18px; line-height: 1.5; resize: none; background: var(--bg-container); color: var(--text-primary);">${escapeHtml(tab.content)}</textarea>
+                        </div>
+                    ` : `
+                        <div id="${tab.id}-monaco-container" class="monaco-editor-container">
+                            <div class="editor-loading">
+                                <div class="spinner-border spinner-border-sm" role="status"></div>
+                                <span data-translate="loading_advanced_editor">Loading advanced editor...</span>
+                            </div>
+                        </div>
+                    `}
+                </div>
+                
+                <div class="editor-status-bar">
+                    <div class="editor-position-info">
+                        <span id="${tab.id}-position-info">
+                            <span data-translate="line">Line</span>: 1,
+                            <span data-translate="column">Column</span>: 1
+                        </span>
+                        <span id="${tab.id}-selected-text-info"></span>
+                        <span id="${tab.id}-char-count-info">
+                            <span data-translate="char_count_label">Characters</span>: 0
+                        </span>
+                        <span>${formatFileSize((tab.content || '').length)}</span>
+                        <span>UTF-8</span>
+                    </div>
+                    <div class="editor-encoding-info">
+                        <span data-translate="${editorMode === 'advanced' ? 'advanced_editor' : 'simple_editor'}">
+                            ${editorMode === 'advanced' ? 'Advanced Editor' : 'Simple Editor'}
+                        </span>
+                        ${editorMode === 'advanced' ? `<span style="color: #4CAF50;" data-translate="syntax_completion_enabled">Syntax completion enabled</span>` : ''}
+                    </div>
+                </div>
+            `;
+            
+            contentArea.appendChild(editorContainer);
+            
+            if (editorMode === 'advanced') {
+                setTimeout(() => {
+                    initMonacoEditor(tab.id);
+                }, 100);
+            } else {
+                const simpleEditor = document.getElementById(`${tab.id}-simple-editor`);
+                if (simpleEditor) {
+                    simpleEditor.value = tab.content || '';
+                    
+                    setTimeout(() => {
+                        simpleEditor.style.height = 'auto';
+                        simpleEditor.style.height = (simpleEditor.scrollHeight + 10) + 'px';
+                        
+                        setupSimpleEditorEvents(tab.id);
+                        updateCharCount(tab.id);
+                        
+                        function updateCursorAndCount() {
+                            const cursorPos = simpleEditor.selectionStart;
+                            const text = simpleEditor.value.substring(0, cursorPos);
+                            const lines = text.split('\n');
+                            const line = lines.length;
+                            const column = lines[lines.length - 1].length + 1;
+                            
+                            const positionElement = document.getElementById(`${tab.id}-position-info`);
+                            if (positionElement) {
+                                positionElement.textContent = `${translations['line_label'] || 'Line'}: ${line}, ${translations['column_label'] || 'Column'}: ${column}`;
+                            }
+                            const selectedText = simpleEditor.value.substring(
+                                simpleEditor.selectionStart,
+                                simpleEditor.selectionEnd
+                            );
+                            const selectedElement = document.getElementById(`${tab.id}-selected-text-info`);
+                            if (selectedElement) {
+                                if (selectedText && selectedText.length > 0) {
+                                    selectedElement.textContent = `${translations['selected'] || 'Selected'}: ${selectedText.length} ${translations['characters'] || 'characters'}`;
+                                } else {
+                                    selectedElement.textContent = '';
+                                }
+                            }
+                            
+                            updateCharCount(tab.id);
+                        }
+                        
+                        const events = ['input', 'keyup', 'click', 'mouseup', 'select'];
+                        events.forEach(eventName => {
+                            simpleEditor.addEventListener(eventName, updateCursorAndCount);
+                        });
+                        
+                        setTimeout(updateCursorAndCount, 50);
+                        
+                        simpleEditor.addEventListener('input', function() {
+                            this.style.height = 'auto';
+                            this.style.height = this.scrollHeight + 'px';
+                            markEditorAsModified(tab.id);
+                        });
+                    }, 100);
+                }
+            }
+
+            if (editorMode === 'advanced') {
+                setTimeout(() => {
+                    const language = detectLanguage(tab.name);
+                    const languageSelect = document.querySelector(`#${tab.id}-panel-container .editor-language-select`);
+                    if (languageSelect) {
+                        languageSelect.value = language;
+                    }
+                    
+                    const savedTheme = localStorage.getItem('editorTheme') || 'vs-dark';
+                    const themeSelect = document.querySelector(`#${tab.id}-panel-container .editor-theme-select`);
+                    if (themeSelect) {
+                        themeSelect.value = savedTheme;
+                    }
+                }, 200);
+            }
+        }
+    }
+    updateLanguage(currentLang);
+}
+
+function changeEditorFontSize(tabId, fontSize) {
+    const tab = editorTabs.find(t => t.id === tabId);
+    if (!tab) return;
+
+    localStorage.setItem('editorFontSize', fontSize);
+
+    if (tab.monacoEditorInstance) {
+        tab.monacoEditorInstance.updateOptions({
+            fontSize: parseInt(fontSize)
+        });
+    }
+
+    const fontSizeSelect = document.querySelector(`#${tabId}-panel-container .editor-fontsize-select`);
+    if (fontSizeSelect) {
+        fontSizeSelect.value = fontSize;
+    }
+
+    showLogMessage(`${translations['font_size_set_to'] || 'Font size set to'}: ${fontSize}px`,'info');
+}
+
+function getFileIcon(filename, ext, isDir) {
+    if (isDir) {
+        return '<i class="fas fa-folder fa-2x" style="color: #FFA726;"></i>';
+    }
+    
+    const lowerExt = ext.toLowerCase();
+    const lowerName = filename.toLowerCase();
+
+    if (['ipk', 'apk', 'run'].includes(lowerExt)) {
+        return '<i class="fas fa-box-open fa-2x" style="color: #FF9800;"></i>';
+    }
+    
+    if (['apk'].includes(lowerExt)) {
+        return '<i class="fab fa-android fa-2x" style="color: #3DDC84;"></i>';
+    }
+    
+    if (['img', 'trx', 'chk', 'factory', 'sysupgrade'].includes(lowerExt)) {
+        return '<i class="fas fa-microchip fa-2x" style="color: #FF5722;"></i>';
+    }
+    
+    if (['ko'].includes(lowerExt)) {
+        return '<i class="fas fa-microchip fa-2x" style="color: #9C27B0;"></i>';
+    }
+    
+    if (['service', 'timer'].includes(lowerExt)) {
+        return '<i class="fas fa-cogs fa-2x" style="color: #607D8B;"></i>';
+    }
+    
+    if (['rc', 'init', 'ash', 'dash'].includes(lowerExt)) {
+        return '<i class="fas fa-terminal fa-2x" style="color: #4CAF50;"></i>';
+    }
+    
+    if (['pem', 'crt', 'key', 'csr', 'pfx', 'der'].includes(lowerExt)) {
+        return '<i class="fas fa-lock fa-2x" style="color: #FF9800;"></i>';
+    }
+    
+    if (['list'].includes(lowerExt)) {
+        return '<i class="fas fa-list-alt fa-2x" style="color: #2196F3;"></i>';
+    }
+    
+    if (['dtb', 'dts'].includes(lowerExt)) {
+        return '<i class="fas fa-microchip fa-2x" style="color: #673AB7;"></i>';
+    }
+    
+    if (['uci', 'config'].includes(lowerExt)) {
+        return '<i class="fas fa-cogs fa-2x" style="color: #FF5722;"></i>';
+    }
+    
+    if (['network', 'wireless', 'firewall', 'dhcp', 'system'].includes(lowerExt)) {
+        return '<i class="fas fa-cogs fa-2x" style="color: #2196F3;"></i>';
+    }
+    
+    if (['qcow2', 'vmdk', 'vdi'].includes(lowerExt)) {
+        return '<i class="fas fa-hdd fa-2x" style="color: #795548;"></i>';
+    }
+    
+    if (['pcap', 'cap'].includes(lowerExt)) {
+        return '<i class="fas fa-network-wired fa-2x" style="color: #2196F3;"></i>';
+    }
+    
+    if (['ovpn', 'wg'].includes(lowerExt)) {
+        return '<i class="fas fa-shield-alt fa-2x" style="color: #4CAF50;"></i>';
+    }
+    
+    if (['js', 'jsx', 'mjs', 'cjs'].includes(lowerExt)) return '<i class="fab fa-js-square fa-2x" style="color: #FFD600;"></i>';
+    if (['ts', 'tsx'].includes(lowerExt)) return '<i class="fas fa-code fa-2x" style="color: #1976D2;"></i>';
+    if (['vue'].includes(lowerExt)) return '<i class="fab fa-vuejs fa-2x" style="color: #4FC08D;"></i>';
+    if (['php', 'php3', 'php4', 'php5', 'php7'].includes(lowerExt)) return '<i class="fab fa-php fa-2x" style="color: #777BB4;"></i>';
+    if (['py', 'pyw', 'pyc', 'pyo'].includes(lowerExt)) return '<i class="fab fa-python fa-2x" style="color: #3776AB;"></i>';
+    if (['java', 'class', 'jar'].includes(lowerExt)) return '<i class="fab fa-java fa-2x" style="color: #007396;"></i>';
+    if (['c', 'h'].includes(lowerExt)) return '<i class="fas fa-file-code fa-2x" style="color: #A8B9CC;"></i>';
+    if (['cpp', 'cc', 'cxx', 'hpp', 'hxx'].includes(lowerExt)) return '<i class="fas fa-file-code fa-2x" style="color: #00599C;"></i>';
+    if (['cs', 'csx'].includes(lowerExt)) return '<i class="fas fa-file-code fa-2x" style="color: #239120;"></i>';
+    if (['go'].includes(lowerExt)) return '<i class="fas fa-file-code fa-2x" style="color: #00ADD8;"></i>';
+    if (['rs'].includes(lowerExt)) return '<i class="fas fa-file-code fa-2x" style="color: #DEA584;"></i>';
+    if (['rb', 'erb'].includes(lowerExt)) return '<i class="fas fa-gem fa-2x" style="color: #CC342D;"></i>';
+    if (['swift'].includes(lowerExt)) return '<i class="fab fa-swift fa-2x" style="color: #FA7343;"></i>';
+    if (['kt', 'kts'].includes(lowerExt)) return '<i class="fas fa-file-code fa-2x" style="color: #7F52FF;"></i>';
+    if (['scala', 'sc'].includes(lowerExt)) return '<i class="fas fa-file-code fa-2x" style="color: #DC322F;"></i>';
+    if (['dart'].includes(lowerExt)) return '<i class="fab fa-dart fa-2x" style="color: #0175C2;"></i>';
+    if (['r', 'rmd'].includes(lowerExt)) return '<i class="fas fa-file-code fa-2x" style="color: #276DC3;"></i>';
+    if (['html', 'htm', 'xhtml'].includes(lowerExt)) return '<i class="fab fa-html5 fa-2x" style="color: #E34F26;"></i>';
+    if (['css', 'scss', 'sass', 'less'].includes(lowerExt)) return '<i class="fab fa-css3-alt fa-2x" style="color: #1572B6;"></i>';
+    if (['json', 'json5', 'jsonc'].includes(lowerExt)) return '<i class="fas fa-file-code fa-2x" style="color: #F7DF1E;"></i>';
+    if (['xml', 'xsl', 'xslt', 'xsd'].includes(lowerExt)) return '<i class="fas fa-file-code fa-2x" style="color: #005A9C;"></i>';
+    if (['sql', 'mysql', 'pgsql', 'psql', 'plsql', 'ddl', 'dml'].includes(lowerExt)) return '<i class="fas fa-database fa-2x" style="color: #00758F;"></i>';
+    
+    if (['pdf'].includes(lowerExt)) return '<i class="fas fa-file-pdf fa-2x" style="color: #F44336;"></i>';
+    if (['doc', 'docx', 'odt', 'rtf', 'pages'].includes(lowerExt)) return '<i class="fas fa-file-word fa-2x" style="color: #2196F3;"></i>';
+    if (['xls', 'xlsx', 'ods', 'numbers'].includes(lowerExt)) return '<i class="fas fa-file-excel fa-2x" style="color: #4CAF50;"></i>';
+    if (['ppt', 'pptx', 'odp', 'key'].includes(lowerExt)) return '<i class="fas fa-file-powerpoint fa-2x" style="color: #FF9800;"></i>';
+    if (['txt', 'log', 'conf', 'ini', 'cfg', 'properties', 'env', 'gitignore', 'editorconfig', 'dockerfile', 'makefile'].includes(lowerExt)) return '<i class="fas fa-file-alt fa-2x" style="color: #757575;"></i>';
+    if (['md', 'markdown', 'mdx'].includes(lowerExt)) return '<i class="fab fa-markdown fa-2x" style="color: #000000;"></i>';
+    
+    if (['zip', 'tar', 'gz', 'bz2', '7z', 'rar', 'tgz', 'tbz2', 'xz', 'lz', 'cab', 'iso', 'apk', 'deb', 'rpm', 'dmg'].includes(lowerExt)) return '<i class="fas fa-file-archive fa-2x" style="color: #FF9800;"></i>';
+    
+    if (['jpg', 'jpeg', 'png', 'gif', 'bmp', 'webp', 'svg', 'ico', 'tiff', 'tif', 'heic', 'heif', 'raw', 'cr2', 'nef', 'psd', 'ai', 'eps'].includes(lowerExt)) return '<i class="fas fa-file-image fa-2x" style="color: #4CAF50;"></i>';
+    
+    if (['mp3', 'wav', 'ogg', 'flac', 'm4a', 'aac', 'wma', 'opus', 'mid', 'midi'].includes(lowerExt)) return '<i class="fas fa-file-audio fa-2x" style="color: #9C27B0;"></i>';
+    
+    if (['mp4', 'avi', 'mkv', 'mov', 'wmv', 'flv', 'webm', 'm4v', 'mpg', 'mpeg', 'ts', 'm2ts', 'rmvb', '3gp', 'vob', 'ogv', 'mts'].includes(lowerExt)) return '<i class="fas fa-file-video fa-2x" style="color: #2196F3;"></i>';
+    
+    if (['exe', 'msi', 'app', 'bat', 'cmd', 'sh', 'bash', 'zsh', 'fish', 'ps1', 'psm1', 'com'].includes(lowerExt)) return '<i class="fas fa-cog fa-2x" style="color: #795548;"></i>';
+    if (['jar'].includes(lowerExt)) return '<i class="fab fa-java fa-2x" style="color: #007396;"></i>';
+    
+    if (['ttf', 'otf', 'woff', 'woff2', 'eot', 'sfnt'].includes(lowerExt)) return '<i class="fas fa-font fa-2x" style="color: #9C27B0;"></i>';
+    
+    if (['epub', 'mobi', 'azw', 'azw3', 'fb2', 'djvu'].includes(lowerExt)) return '<i class="fas fa-book fa-2x" style="color: #795548;"></i>';
+    
+    if (['yml', 'yaml', 'toml', 'xml', 'json', 'ini', 'cfg', 'conf', 'env'].includes(lowerExt)) return '<i class="fas fa-cogs fa-2x" style="color: #607D8B;"></i>';
+    
+    if (['db', 'sqlite', 'sqlite3', 'mdb', 'accdb', 'frm', 'myd', 'myi'].includes(lowerExt)) return '<i class="fas fa-database fa-2x" style="color: #00758F;"></i>';
+    
+    if (['vdi', 'vmdk', 'vhd', 'vhdx', 'qcow2', 'img', 'iso', 'bin', 'nrg'].includes(lowerExt)) return '<i class="fas fa-hdd fa-2x" style="color: #757575;"></i>';
+    
+    if (lowerName === 'dockerfile' || lowerName === 'docker-compose.yml' || lowerName === 'docker-compose.yaml') {
+        return '<i class="fab fa-docker fa-2x" style="color: #2496ED;"></i>';
+    }
+    if (lowerName === 'readme' || lowerName === 'readme.md' || lowerName === 'readme.txt') {
+        return '<i class="fas fa-book-open fa-2x" style="color: #2196F3;"></i>';
+    }
+    if (lowerName === 'license' || lowerName === 'license.txt' || lowerName === 'license.md') {
+        return '<i class="fas fa-balance-scale fa-2x" style="color: #FF9800;"></i>';
+    }
+    if (lowerName === '.gitignore' || lowerName === '.gitattributes' || lowerName === '.gitmodules') {
+        return '<i class="fab fa-git-alt fa-2x" style="color: #F05032;"></i>';
+    }
+    
+    return '<i class="fas fa-file fa-2x" style="color: #757575;"></i>';
+}
+
+function toggleEditorMode(tabId) {
+    const tab = editorTabs.find(t => t.id === tabId);
+    if (!tab) return;
+    
+    const currentMode = tab.editorMode || currentEditorMode;
+    
+    const newMode = currentMode === 'simple' ? 'advanced' : 'simple';
+    
+    switchEditorMode(newMode, tabId);
+}
+
+function toggleComment(tabId) {
+    if (!tabId && activeEditorTab) {
+        tabId = activeEditorTab;
+    }
+    
+    if (!tabId) return;
+    
+    const tab = editorTabs.find(t => t.id === tabId);
+    if (!tab || tab.editorMode !== 'advanced' || !tab.monacoEditorInstance) return;
+    
+    tab.monacoEditorInstance.getAction('editor.action.commentLine').run();
+}
+
+function updateCharCount(tabId) {
+    const tab = editorTabs.find(t => t.id === tabId);
+    if (!tab) return;
+
+    let charCount = 0;
+
+    if (tab.monacoEditorInstance) {
+        const model = tab.monacoEditorInstance.getModel();
+        if (model) {
+            charCount = model.getValue().length;
+        }
+    } else {
+        const simpleEditor = document.getElementById(`${tabId}-simple-editor`);
+        if (simpleEditor) {
+            charCount = simpleEditor.value.length;
+        }
+    }
+
+    const charCountElement = document.getElementById(`${tabId}-char-count-info`);
+    if (charCountElement) {
+        const label = translations['char_count_label'] || 'Characters';
+        charCountElement.textContent = `${label}: ${charCount}`;
+    }
+}
+
+function updateEditorTabsSwitcher() {
+    const switcher = document.getElementById('editorTabsSwitcher');
+    const tabsList = document.getElementById('editorTabsList');
+    
+    if (!switcher || !tabsList) return;
+    
+    if (editorTabs.length > 0) {
+        switcher.style.display = 'block';
+        tabsList.innerHTML = '';
+        
+        editorTabs.forEach(tab => {
+            const tabElement = document.createElement('div');
+            tabElement.className = `editor-tab-switch ${tab.id === activeEditorTab ? 'active' : ''}`;
+            tabElement.title = tab.path;
+            tabElement.onclick = (e) => {
+                e.stopPropagation();
+                switchToEditorTab(tab.id);
+            };
+            
+            let tabName = escapeHtml(tab.name);
+            if (tab.modified) {
+                tabName = `* ${tabName}`;
+            }
+            
+            tabElement.innerHTML = `
+                <span>${tabName}</span>
+                <span class="close-tab-btn" onclick="closeEditorTab('${tab.id}', event)" style="margin-left: 5px; opacity: 0.7;">
+                    <i class="fas fa-times" style="font-size: 10px;"></i>
+                </span>
+            `;
+            
+            tabsList.appendChild(tabElement);
+        });
+    } else {
+        switcher.style.display = 'none';
+    }
+}
+
+function updateEditorTabsUI() {
+    const tabsNav = document.getElementById('editorTabsNav');
+    if (!tabsNav) return;
+    
+    tabsNav.innerHTML = '';
+    
+    editorTabs.forEach(tab => {
+        const tabElement = document.createElement('div');
+        tabElement.className = 'editor-tab';
+        tabElement.style.cssText = `
+            padding: 8px 15px;
+            background: ${tab.id === activeEditorTab ? 'var(--accent-tertiary)' : 'var(--card-bg)'};
+            color: ${tab.id === activeEditorTab ? 'white' : 'var(--text-primary)'};
+            border-radius: 4px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            white-space: nowrap;
+            font-size: 14px;
+        `;
+        
+        tabElement.onclick = () => switchToEditorTab(tab.id);
+        
+        let tabName = escapeHtml(tab.name);
+        if (tab.modified) {
+            tabName = `* ${tabName}`;
+        }
+        
+        tabElement.innerHTML = `
+            <span>${tabName}</span>
+            <span style="margin-left: 8px;" onclick="closeEditorTab('${tab.id}', event)">
+                <i class="fas fa-times"></i>
+            </span>
+        `;
+        
+        tabsNav.appendChild(tabElement);
+    });
+    
+    editorTabs.forEach(tab => {
+        if (!document.getElementById(`${tab.id}-container`)) {
+            createEditorContent(tab.id);
+        }
+    });
+}
+
+function closeEditorTab(tabId, event = null) {
+    if (event) event.stopPropagation();
+
+    const tab = editorTabs.find(t => t.id === tabId);
+    if (!tab) return;
+
+    const close = () => {
+        if (tab.monacoEditorInstance) {
+            tab.monacoEditorInstance.dispose();
+            tab.monacoEditorInstance = null;
+        }
+
+        if (tab._autoSaveTimer) {
+            clearTimeout(tab._autoSaveTimer);
+        }
+
+        editorTabs = editorTabs.filter(t => t.id !== tabId);
+
+        if (activeEditorTab === tabId) {
+            activeEditorTab = editorTabs.length > 0
+                ? editorTabs[editorTabs.length - 1].id
+                : null;
+        }
+
+        updateEditorUI();
+        updateEditorTabsSwitcher();
+    };
+
+    if (tab.modified) {
+        const confirmMessage =
+            (translations['confirm_close_unsaved_file']
+                || 'The file has unsaved changes. Are you sure you want to close it?')
+            .replace('{filename}', tab.name);
+
+        showConfirmation(confirmMessage, close);
+        return;
+    }
+
+    close();
+}
+
+function closeAllEditorTabs() {
+    if (editorTabs.length === 0) return;
+
+    const unsavedTabs = editorTabs.filter(tab => tab.modified);
+    if (unsavedTabs.length > 0) {
+        const fileNames = unsavedTabs.map(tab => tab.name).join(', ');
+
+        const confirmMessage =
+            (translations['confirm_close_all_unsaved_files']
+                || 'The following files have unsaved changes: {filenames}\nAre you sure you want to close all tabs?')
+                .replace('{filenames}', fileNames);
+
+        if (!confirm(confirmMessage)) {
+            return;
+        }
+    }
+
+    editorTabs.forEach(tab => {
+        if (tab.monacoEditorInstance) {
+            tab.monacoEditorInstance.dispose();
+        }
+        if (tab._autoSaveTimer) {
+            clearTimeout(tab._autoSaveTimer);
+        }
+    });
+
+    editorTabs = [];
+    activeEditorTab = null;
+    updateEditorUI();
+
+    if (currentView === 'editor') {
+        toggleView('files');
+    }
+}
+
+function editFile(path) {
+    const fileName = path.split('/').pop();
+    const ext = fileName.toLowerCase().split('.').pop();
+    
+    const archiveExts = ['zip', 'tar', 'gz', 'bz2', '7z', 'rar', 'tgz', 'tbz2'];
+    
+    if (archiveExts.includes(ext)) {
+        selectedFiles.clear();
+        selectedFiles.add(path);
+        updateFileSelection();
+        
+        showExtractDialog();
+        return;
+    }
+    
+    openEditor(path);
+    toggleView('editor');
+}
+
+function downloadFile(path) {
+    window.open(`?preview=1&path=${encodeURIComponent(path)}`, '_blank');
+}
+
+function handleFileSelect(event) {
+    const files = event.target.files;
+    const fileList = document.getElementById('fileList');
+    
+    uploadFilesList = Array.from(files);
+    updateUploadFileList();
+    
+    event.target.value = '';
+}
+
+function removeUploadFile(index) {
+    uploadFilesList.splice(index, 1);
+    updateUploadFileList();
+}
+
+function updateUploadFileList() {
+    const fileList = document.getElementById('fileList');
+    fileList.innerHTML = '';
+    
+    if (uploadFilesList.length === 0) {
+        fileList.innerHTML = `
+            <div class="text-center text-muted py-3">
+                <i class="fas fa-cloud-upload-alt fa-2x mb-2"></i>
+                <p data-translate="no_files_selected">No files selected</p>
+            </div>`;
+        return;
+    }
+    
+    uploadFilesList.forEach((file, index) => {
+        const fileItem = document.createElement('div');
+        fileItem.className = 'file-item-upload d-flex align-items-center justify-content-between p-2 mb-2  rounded';
+        fileItem.innerHTML = `
+            <div class="d-flex align-items-center">
+                <i class="fas fa-file me-3 text-secondary"></i>
+                <div>
+                    <div class="file-name text-truncate" style="max-width: 300px;">${escapeHtml(file.name)}</div>
+                    <small class="text-muted">${formatFileSize(file.size)}</small>
+                </div>
+            </div>
+            <button class="btn btn-sm btn-danger" onclick="removeUploadFile(${index})">
+                <i class="fas fa-times"></i>
+            </button>
+        `;
+        
+        fileList.appendChild(fileItem);
+    });
+}
+
+function previewSanitizedFilename(filename) {
+    let cleanName = filename;
+    cleanName = cleanName.split('/').pop();
+    cleanName = cleanName.replace(/ /g, '_');
+    cleanName = cleanName.replace(/[\/:*?"<>|\s]/g, '_');
+    cleanName = cleanName.replace(/_+/g, '_');
+    cleanName = cleanName.replace(/^[._-]+|[._-]+$/g, '');
+    
+    if (!cleanName) {
+        cleanName = 'upload_' + Date.now() + 
+                   (filename.includes('.') ? filename.substring(filename.lastIndexOf('.')) : '');
+    }
+    
+    return cleanName;
+}
+
+async function startUpload() {
+    if (uploadFilesList.length === 0) {
+        const warningMessage = translations['upload_select_files_warning'] || 'Please select files to upload';
+        showLogMessage(warningMessage, 'warning');
+        speakMessage(warningMessage, 'warning');
+        return;
+    }
+
+    const formData = new FormData();
+    formData.append('path', currentPath);
+
+    uploadFilesList.forEach(file => {
+        formData.append('file[]', file);
+    });
+
+    try {
+        const response = await fetch('?action=upload_file', {
+            method: 'POST',
+            body: formData
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+            const successMessage = `${translations['upload_success'] || 'Successfully uploaded'} ` +
+                                   `${data.files.length} ` +
+                                   (data.files.length === 1 
+                                    ? (translations['file'] || 'file') 
+                                    : (translations['files'] || 'files'));
+            
+            showLogMessage(successMessage, 'success');
+            speakMessage(successMessage, 'success');
+
+            bootstrap.Modal
+                .getInstance(document.getElementById('uploadModal'))
+                .hide();
+
+            uploadFilesList = [];
+            updateUploadFileList();
+            refreshFiles();
+        } else {
+            const errorMessage = data.error || (translations['uploadFailed'] || 'Upload failed');
+            showLogMessage(errorMessage, 'error');
+            speakMessage(errorMessage, 'error');
+        }
+    } catch (error) {
+        const errorMessage = (translations['uploadFailed'] || 'Upload failed: ') + error.message;
+        showLogMessage(errorMessage, 'error');
+        speakMessage(errorMessage, 'error');
+    }
+}
+
+function openDiffView(tabId) {
+    const tab = editorTabs.find(t => t.id === tabId);
+    if (!tab) return;
+    
+    let currentContent = '';
+    if (tab.monacoEditorInstance) {
+        currentContent = tab.monacoEditorInstance.getValue();
+    } else {
+        const simpleEditor = document.getElementById(`${tabId}-simple-editor`);
+        if (simpleEditor) {
+            currentContent = simpleEditor.value;
+        }
+    }
+    
+    createDiffEditorDialog(tab.name, currentContent, tabId);
+}
+
+function createDiffEditorDialog(filename, content, tabId) {
+    const dialog = document.createElement('div');
+    dialog.className = 'modal fade';
+    dialog.id = 'diffEditorModal';
+    dialog.innerHTML = `
+        <div class="modal-dialog modal-xl modal-dialog-centered modal-fullscreen-lg-down">
+            <div class="modal-content" style="height: 80vh;">
+                <div class="modal-header">
+                    <h5 class="modal-title">
+                        <i class="fas fa-code-compare me-2"></i>
+                        <span data-translate="diff_editor_title">Diff Editor</span> - ${escapeHtml(filename)}
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+
+                <div class="modal-body p-0 d-flex flex-column">
+                    <div class="diff-toolbar p-2 border-bottom d-flex justify-content-between align-items-center">
+                        <div>
+                            <span class="badge bg-primary me-2" data-translate="diff_left_label">Left: Original</span>
+                            <span class="badge bg-success me-2" data-translate="diff_right_label">Right: Diff</span>
+                        </div>
+
+                        <div class="btn-group">
+                            <button class="btn btn-sm btn-orange me-1" onclick="resetRightEditor()">
+                                <i class="fas fa-undo"></i>
+                                <span data-translate="diff_reset_right">Reset Right</span>
+                            </button>
+                            <button class="btn btn-sm btn-purple me-1" onclick="copyRightToLeft()">
+                                <i class="fas fa-arrow-left"></i>
+                                <span data-translate="diff_apply_to_left">Apply to Left</span>
+                            </button>
+                            <button class="btn btn-sm btn-pink me-1" onclick="toggleFullscreen()" data-translate-tooltip="enter_fullscreen">
+                                <i class="fas fa-expand"></i>
+                            </button>
+                            <button class="btn btn-sm btn-primary me-1" onclick="saveLeftEditor('${tabId}')">
+                                <i class="fas fa-save"></i>
+                                <span data-translate="save">Save</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div id="diffEditorContainer" class="flex-grow-1"></div>
+
+                    <div class="diff-help p-2 border-top small text-muted">
+                        <i class="fas fa-lightbulb me-1"></i>
+                        <span data-translate="diff_help">Tip: When editing on the right, green = added, red = removed. Ctrl+V works on both sides.</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+
+    document.body.appendChild(dialog);
+    updateLanguage(currentLang);
+    const modal = new bootstrap.Modal(dialog);
+    modal.show();
+
+    setTimeout(() => {
+        initMonacoDiffEditor(content, filename, tabId);
+    }, 300);
+
+    dialog.addEventListener('hidden.bs.modal', function () {
+        if (document.fullscreenElement || 
+            document.webkitFullscreenElement || 
+            document.mozFullScreenElement || 
+            document.msFullscreenElement) {
+            exitFullscreen();
+        }
+        
+        dialog.remove();
+        if (window.diffEditor) {
+            window.diffEditor.dispose();
+            window.diffEditor = null;
+        }
+    });
+}
+
+function initMonacoDiffEditor(content, filename, tabId) {
+    if (!window.monaco) {
+        console.error('Monaco Editor not loaded');
+        return;
+    }
+    
+    const language = detectLanguage(filename);
+    
+    const currentTheme = localStorage.getItem('editorTheme') || 'vs-dark';
+    
+    const diffContainer = document.getElementById('diffEditorContainer');
+    if (!diffContainer) return;
+    
+    window.diffEditor = monaco.editor.createDiffEditor(diffContainer, {
+        theme: currentTheme,
+        readOnly: false,
+        automaticLayout: true,
+        enableSplitViewResizing: true,
+        renderSideBySide: true,
+        originalEditable: true,
+        renderIndicators: true,
+        ignoreTrimWhitespace: false,
+        renderValidationDecorations: 'on',
+        diffAlgorithm: 'advanced',
+        diffWordWrap: 'on',
+        folding: true,
+        minimap: { enabled: true },
+        scrollbar: {
+            vertical: 'auto',
+            horizontal: 'auto'
+        }
+    });
+    
+    const originalModel = monaco.editor.createModel(content, language);
+    const modifiedModel = monaco.editor.createModel(content, language);
+    
+    window.diffEditor.setModel({
+        original: originalModel,
+        modified: modifiedModel
+    });
+    
+    const originalEditor = window.diffEditor.getOriginalEditor();
+    const modifiedEditor = window.diffEditor.getModifiedEditor();
+    
+    originalEditor.updateOptions({
+        readOnly: false,
+        wordWrap: 'on',
+        lineNumbers: 'on',
+        suggestOnTriggerCharacters: true,
+        formatOnPaste: true,
+        formatOnType: true
+    });
+    
+    modifiedEditor.updateOptions({
+        readOnly: false,
+        wordWrap: 'on',
+        lineNumbers: 'on',
+        suggestOnTriggerCharacters: true,
+        formatOnPaste: true,
+        formatOnType: true
+    });
+    
+    window.currentDiffTabId = tabId;
+    
+    setTimeout(() => {
+        modifiedEditor.focus();
+    }, 100);
+}
+
+function resetRightEditor() {
+    if (!window.diffEditor) return;
+    
+    const originalEditor = window.diffEditor.getOriginalEditor();
+    const modifiedEditor = window.diffEditor.getModifiedEditor();
+    
+    const leftContent = originalEditor.getValue();
+    modifiedEditor.setValue(leftContent);
+    
+    showMessage(
+        translations['diff_reset_right_success'] || 'Right content has been reset to match the left',
+        'info'
+    );
+}
+
+function copyRightToLeft() {
+    if (!window.diffEditor) return;
+    
+    const originalEditor = window.diffEditor.getOriginalEditor();
+    const modifiedEditor = window.diffEditor.getModifiedEditor();
+    
+    const rightContent = modifiedEditor.getValue();
+    originalEditor.setValue(rightContent);
+    
+    showMessage(
+        translations['diff_apply_to_left_success'] || 'Right content has been applied to the left',
+        'success'
+    );
+}
+
+function saveLeftEditor(tabId) {
+    if (!window.diffEditor) return;
+    
+    const tab = editorTabs.find(t => t.id === tabId);
+    if (!tab) return;
+    
+    const originalEditor = window.diffEditor.getOriginalEditor();
+    const content = originalEditor.getValue();
+    
+    if (tab.monacoEditorInstance) {
+        tab.monacoEditorInstance.setValue(content);
+        tab.content = content;
+        tab.modified = (content !== tab.originalContent);
+    } else {
+        const simpleEditor = document.getElementById(`${tabId}-simple-editor`);
+        if (simpleEditor) {
+            simpleEditor.value = content;
+            tab.content = content;
+            tab.modified = (content !== tab.originalContent);
+            
+            simpleEditor.style.height = 'auto';
+            simpleEditor.style.height = simpleEditor.scrollHeight + 'px';
+        }
+    }
+    
+    updateEditorTabsUI();
+    
+    showMessage(
+        translations['diff_left_saved_success'] || 'Left content has been saved to the original file',
+        'success'
+    );
+    
+    const modal = bootstrap.Modal.getInstance(
+        document.getElementById('diffEditorModal')
+    );
+    if (modal) {
+        modal.hide();
+    }
+    
+    setTimeout(() => {
+        saveEditorContent(tabId);
+    }, 500);
+}
+
+function formatFileSize(bytes) {
+    if (bytes === 0) return "0 B";
+    const units = ['B', 'KB', 'MB', 'GB', 'TB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(1024));
+    return (bytes / Math.pow(1024, i)).toFixed(2) + ' ' + units[i];
+}
+
+function escapeHtml(text) {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+}
+
+function initEventListeners() {
+    document.addEventListener('click', function(e) {
+        const contextMenu = document.getElementById('fileContextMenu');
+        const overlay = document.getElementById('contextMenuOverlay');
+
+        if (contextMenu && contextMenu.style.display === 'block' &&
+            !contextMenu.contains(e.target)) {
+            hideFileContextMenu();
+        }
+
+        if (overlay && overlay.style.display === 'block' &&
+            e.target === overlay) {
+            hideFileContextMenu();
+            hideFileInfo();
+        }
+    });
+
+    document.addEventListener('DOMContentLoaded', function() {
+        const menuItems = document.querySelectorAll('#fileContextMenu .menu-item');
+        menuItems.forEach(item => {
+            const onclickAttr = item.getAttribute('onclick');
+            if (onclickAttr === 'showChmodDialog()') {
+                item.removeAttribute('onclick');
+                item.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    showChmodDialog();
+                });
+            }
+        });
+
+        const permMenuItem = document.querySelector('#fileContextMenu .menu-item[onclick="showChmodDialog()"]');
+        if (permMenuItem) {
+            permMenuItem.addEventListener('click', function(e) {
+                e.stopPropagation();
+                showChmodDialog();
+            });
+        }
+
+        menuItems.forEach(item => {
+            const onclickAttr = item.getAttribute('onclick');
+            if (onclickAttr) {
+                const funcName = onclickAttr.replace('onclick=', '').trim();
+                item.removeAttribute('onclick');
+                item.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    if (funcName === 'contextMenuOpen()') contextMenuOpen();
+                    else if (funcName === 'contextMenuPlay()') contextMenuPlay();
+                    else if (funcName === 'contextMenuEdit()') contextMenuEdit();
+                    else if (funcName === 'contextMenuDownload()') contextMenuDownload();
+                    else if (funcName === 'showFileProperties()') showFileProperties();
+                    else if (funcName === 'contextMenuDelete()') contextMenuDelete();
+                    else if (funcName.includes('prepare')) {
+                        eval(funcName);
+                    }
+                });
+            }
+        });
+    });
+}
+
+function getCurrentIP() {
+    const url = window.location.href;
+    const match = url.match(/https?:\/\/([^/:]+)/);
+    if (match && match[1]) {
+        return match[1];
+    }
+    return window.location.hostname;
+}
+
+function openTerminal() {
+    const ip = getCurrentIP();
+    const terminalUrl = `http://${ip}:7681/`;
+    
+    console.log('Opening terminal at:', terminalUrl);
+    
+    const terminalIframe = document.getElementById('terminalIframe');
+    
+    terminalIframe.src = terminalUrl;
+    
+    const modal = new bootstrap.Modal(document.getElementById('terminalModal'));
+    modal.show();
+    
+    document.getElementById('terminalModal').addEventListener('hidden.bs.modal', function() {
+        terminalIframe.src = '';
+    });
+    
+    hideFileContextMenu();
+}
+
+let currentHashPath = null;
+
+async function showFileHashDialog() {
+    if (selectedFiles.size !== 1) {
+        showLogMessage(translations['select_items_first'] || 'Please select one file', 'warning');
+        return;
+    }
+    
+    const path = Array.from(selectedFiles)[0];
+    const fileItem = document.querySelector(`.file-item[data-path="${path}"]`);
+    const isDir = fileItem?.getAttribute('data-is-dir') === 'true';
+    
+    if (isDir) {
+        showLogMessage(translations['cannot_hash_directory'] || 'Cannot calculate hash for directory', 'warning');
+        return;
+    }
+    
+    hideFileContextMenu();
+    
+    currentHashPath = path;
+    
+    document.getElementById('hashLoading').classList.remove('d-none');
+    document.getElementById('hashContent').classList.add('d-none');
+    document.getElementById('hashError').classList.add('d-none');
+    
+    const fileName = path.replace(/^\/+/, '').split('/').pop();
+    document.getElementById('hashFileName').textContent = `- ${fileName}`;
+    document.getElementById('hashFilePath').textContent = '/' + path.replace(/^\/+/, '');
+    
+    document.getElementById('hashMd5').textContent = '';
+    document.getElementById('hashSha1').textContent = '';
+    document.getElementById('hashSha256').value = '';
+    document.getElementById('hashFileSize').textContent = '';
+    document.getElementById('hashFileMtime').textContent = '';
+    
+    const modal = new bootstrap.Modal(document.getElementById('fileHashModal'));
+    modal.show();
+    
+    try {
+        const response = await fetch(`?action=file_hash&path=${encodeURIComponent(path)}`);
+        const data = await response.json();
+        
+        if (data.success) {
+            document.getElementById('hashLoading').classList.add('d-none');
+            document.getElementById('hashContent').classList.remove('d-none');
+            
+            document.getElementById('hashMd5').textContent = data.md5;
+            document.getElementById('hashSha1').textContent = data.sha1;
+            document.getElementById('hashSha256').value = data.sha256;
+            document.getElementById('hashFileSize').textContent = data.size_formatted;
+            document.getElementById('hashFileMtime').textContent = data.modified;
+        } else {
+            document.getElementById('hashLoading').classList.add('d-none');
+            document.getElementById('hashError').classList.remove('d-none');
+            document.getElementById('hashErrorMessage').textContent = data.error || 'Calculation failed';
+        }
+    } catch (error) {
+        document.getElementById('hashLoading').classList.add('d-none');
+        document.getElementById('hashError').classList.remove('d-none');
+        document.getElementById('hashErrorMessage').textContent = `Request failed: ${error.message}`;
+    }
+}
+
+function exportCurrentHash() {
+    if (!currentHashPath) return;
+
+    const cleanPath = currentHashPath.replace(/^\/+/, '/');
+    const fileName = cleanPath.split('/').pop();
+    const md5 = document.getElementById('hashMd5').textContent;
+    const sha1 = document.getElementById('hashSha1').textContent;
+    const sha256 = document.getElementById('hashSha256').value;
+    const fileSize = document.getElementById('hashFileSize').textContent;
+    const fileTime = document.getElementById('hashFileMtime').textContent;
+    
+    const fileLabel = translations['file'] || 'File';
+    const pathLabel = translations['file_path'] || 'Path';
+    const sizeLabel = translations['fileSize'] || 'Size';
+    const timeLabel = translations['modifiedTime'] || 'Modified';
+    const generateLabel = translations['created_time'] || 'Generated';
+    const hashTitle = translations['hash_values'] || 'Hash Values';
+    const md5Label = 'MD5:';
+    const sha1Label = 'SHA1:';
+    const sha256Label = 'SHA256:';
+    
+    const content = `${fileLabel}: ${fileName}
+${pathLabel}: ${currentHashPath}
+${sizeLabel}: ${fileSize}
+${timeLabel}: ${fileTime}
+${generateLabel}: ${new Date().toLocaleString()}
+
+========== ${hashTitle} ==========
+
+${md5Label}   ${md5}
+${sha1Label}  ${sha1}
+${sha256Label} ${sha256}
+
+================================
+`;
+    
+    const blob = new Blob([content], { type: 'text/plain' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `${fileName}.hash.txt`;
+    a.click();
+    URL.revokeObjectURL(url);
+    
+    const successMsg = translations['hash_exported'] || 'Hash exported successfully';
+    showLogMessage(successMsg);
+    speakMessage(successMsg);
+}
+
+let installEventSource = null;
+
+function showInstallDialog() {
+    if (selectedFiles.size !== 1) {
+        showLogMessage(translations['select_one_package'] || 'Please select one package file', 'warning');
+        return;
+    }
+    
+    const path = Array.from(selectedFiles)[0];
+    const fileName = path.split('/').pop();
+    const ext = fileName.toLowerCase().split('.').pop();
+    
+    if (!['ipk', 'apk', 'run'].includes(ext)) {
+        showLogMessage(translations['invalid_package'] || 'Not a valid package file', 'error');
+        return;
+    }
+    
+    document.getElementById('installPackageName').textContent = fileName;
+    document.getElementById('installProgress').style.width = '0%';
+    document.getElementById('installProgressText').textContent = '0%';
+    document.getElementById('installOutput').innerHTML = '';
+    
+    const updateCheckContainer = document.getElementById('installUpdateCheckContainer');
+    const forceCheckLabel = document.querySelector('label[for="installForceCheck"]');
+    
+    if (ext === 'ipk') {
+        updateCheckContainer.style.display = 'block';
+        if (forceCheckLabel) {
+            forceCheckLabel.innerHTML = translations['install_force'] || 'Force installation (override dependencies/overwrite))';
+        }
+    } else if (ext === 'apk') {
+        updateCheckContainer.style.display = 'none';
+        if (forceCheckLabel) {
+            forceCheckLabel.innerHTML = translations['install_force_apk'] || 'Force installation (-r replace existing)';
+        }
+    } else if (ext === 'run') {
+        updateCheckContainer.style.display = 'none';
+        if (forceCheckLabel) {
+            forceCheckLabel.innerHTML = translations['install_force_run'] || 'Force execution (add execute permission)';
+        }
+    }
+    
+    document.getElementById('installForceCheck').checked = true;
+    document.getElementById('installUpdateCheck').checked = true;
+    
+    document.getElementById('installInfoText').innerHTML = 
+        `${translations['installing'] || 'Installing'}: <strong>${escapeHtml(fileName)}</strong>`;
+    
+    hideFileContextMenu();
+    
+    const modal = new bootstrap.Modal(document.getElementById('installModal'));
+    modal.show();
+    
+    startPackageInstallation(path, ext);
+}
+
+function startPackageInstallation(path, ext) {
+    if (installEventSource) {
+        installEventSource.close();
+    }
+    
+    const formData = new FormData();
+    formData.append('path', path);
+    formData.append('force', document.getElementById('installForceCheck').checked ? '1' : '0');
+    formData.append('update', document.getElementById('installUpdateCheck').checked ? '1' : '0');
+    
+    const output = document.getElementById('installOutput');
+    output.innerHTML = '';
+    
+    fetch('?action=install_package', {
+        method: 'POST',
+        body: formData
+    }).then(response => {
+        const reader = response.body.getReader();
+        const decoder = new TextDecoder();
+        
+        function readStream() {
+            reader.read().then(({ done, value }) => {
+                if (done) return;
+                
+                const text = decoder.decode(value);
+                const events = text.split('\n\n');
+                
+                events.forEach(event => {
+                    if (!event.trim()) return;
+                    
+                    const lines = event.split('\n');
+                    let eventType = 'message';
+                    let eventData = '';
+                    
+                    lines.forEach(line => {
+                        if (line.startsWith('event: ')) {
+                            eventType = line.substring(7);
+                        } else if (line.startsWith('data: ')) {
+                            try {
+                                eventData = JSON.parse(line.substring(6));
+                            } catch {
+                                eventData = { message: line.substring(6) };
+                            }
+                        }
+                    });
+                    
+                    handleInstallEvent(eventType, eventData);
+                });
+                
+                readStream();
+            });
+        }
+        
+        readStream();
+    }).catch(error => {
+        appendInstallOutput(`Error: ${error.message}`, 'error');
+        updateInstallProgress(100, 'error');
+    });
+}
+
+function handleInstallEvent(eventType, data) {
+    const output = document.getElementById('installOutput');
+    
+    switch(eventType) {
+        case 'output':
+            appendInstallOutput(data.message);
+            break;
+            
+        case 'start':
+            appendInstallOutput('🚀 ' + data.message, 'info');
+            break;
+            
+        case 'complete':
+            if (data.success) {
+                appendInstallOutput('✅ ' + data.message, 'success');
+                updateInstallProgress(100, 'success');
+            } else {
+                appendInstallOutput('❌ ' + data.message, 'error');
+                updateInstallProgress(100, 'error');
+            }
+            break;
+            
+        case 'error':
+            appendInstallOutput('❌ ' + data.message, 'error');
+            updateInstallProgress(100, 'error');
+            break;
+    }
+}
+
+function appendInstallOutput(message, type = 'normal') {
+    const output = document.getElementById('installOutput');
+    const line = document.createElement('div');
+    line.style.marginBottom = '2px';
+    line.style.whiteSpace = 'pre-wrap';
+    line.style.wordBreak = 'break-all';
+    
+    let prefix = '';
+    let color = '#00ff00';
+    
+    switch(type) {
+        case 'error':
+            prefix = '⚠️ ';
+            color = '#ff6b6b';
+            break;
+        case 'success':
+            prefix = '✓ ';
+            color = '#4CAF50';
+            break;
+        case 'info':
+            prefix = 'ℹ️ ';
+            color = '#2196F3';
+            break;
+        case 'warning':
+            prefix = '⚠️ ';
+            color = '#ff9800';
+            break;
+    }
+    
+    line.innerHTML = `<span style="color: ${color}">${escapeHtml(prefix + message)}</span>`;
+    output.appendChild(line);
+    output.scrollTop = output.scrollHeight;
+    
+    const lines = output.children.length;
+    if (lines > 20) {
+        const progress = Math.min(90, lines);
+        updateInstallProgress(progress);
+    }
+}
+
+function updateInstallProgress(percent, status = 'normal') {
+    const progressBar = document.getElementById('installProgress');
+    const progressText = document.getElementById('installProgressText');
+    
+    progressBar.style.width = percent + '%';
+    progressText.textContent = percent + '%';
+    
+    if (status === 'error') {
+        progressBar.classList.remove('bg-success');
+        progressBar.classList.add('bg-danger');
+    } else if (status === 'success') {
+        progressBar.classList.remove('progress-bar-animated');
+        progressBar.classList.add('bg-success');
+    } else {
+        progressBar.classList.add('bg-primary');
+    }
+}
+
+function updateFileContextMenuItems() {
+    const path = fileContextMenuTarget?.getAttribute('data-path');
+    if (path) {
+        const fileName = path.split('/').pop();
+        const ext = fileName.toLowerCase().split('.').pop();
+        
+        const installItem = document.getElementById('fileInstallItem');
+        const installDivider = document.getElementById('installDivider');
+        
+        if (ext === 'ipk' || ext === 'apk') {
+            installItem.style.display = 'flex';
+            installDivider.style.display = 'block';
+        } else {
+            installItem.style.display = 'none';
+            installDivider.style.display = 'none';
+        }
+    }
+}
+
+function showFileMenuItems(isDir, ext) {
+    const installItem = document.getElementById('fileInstallItem');
+    const installDivider = document.getElementById('installDivider');
+    
+    if (!isDir && (ext === 'ipk' || ext === 'apk')) {
+        installItem.style.display = 'flex';
+        installDivider.style.display = 'block';
+    } else {
+        installItem.style.display = 'none';
+        installDivider.style.display = 'none';
+    }
+}
+
+function copyFilePath() {
+    if (selectedFiles.size === 0) {
+        showLogMessage(translations['select_items_first'] || 'Please select items first', 'warning');
+        return;
+    }
+    
+    let path = Array.from(selectedFiles)[0];
+    
+    path = path.replace(/\/+/g, '/');
+    
+    if (navigator.clipboard && typeof navigator.clipboard.writeText === 'function') {
+        navigator.clipboard.writeText(path).then(() => {
+            const successMsg = translations['file_path_copied'] || 'File path copied to clipboard';
+            showLogMessage(successMsg, 'success');
+            speakMessage(successMsg, 'success');
+        }).catch(err => {
+            fallbackCopy(path);
+        });
+    } else {
+        fallbackCopy(path);
+    }
+    
+    hideFileContextMenu();
+}
+
+function fallbackCopy(text) {
+    try {
+        const textarea = document.createElement('textarea');
+        textarea.value = text;
+        textarea.style.position = 'fixed';
+        textarea.style.opacity = '0';
+        textarea.style.left = '-999999px';
+        textarea.style.top = '-999999px';
+        document.body.appendChild(textarea);
+        
+        textarea.focus();
+        textarea.select();
+        
+        const successful = document.execCommand('copy');
+        document.body.removeChild(textarea);
+        
+        if (successful) {
+            const successMsg = translations['file_path_copied'] || 'File path copied to clipboard';
+            showLogMessage(successMsg, 'success');
+            speakMessage(successMsg, 'success');
+        } else {
+            throw new Error('Copy command failed');
+        }
+    } catch (err) {
+        const msg = translations['copy_manually'] || 'Please copy the address manually: ' + text;
+        showLogMessage(msg, 'info');
+        
+        prompt(translations['copy_file_path'] || 'Copy File Path', text);
+    }
+}
+
+document.getElementById('installModal').addEventListener('hidden.bs.modal', function() {
+    if (installEventSource) {
+        installEventSource.close();
+        installEventSource = null;
+    }
+    document.getElementById('installOutput').innerHTML = '';
+    document.getElementById('installProgress').style.width = '0%';
+    document.getElementById('installProgressText').textContent = '0%';
+});
+
+window.addEventListener('beforeunload', function(e) {
+    const unsavedTabs = editorTabs.filter(tab => tab.modified);
+    
+    if (unsavedTabs.length > 0) {
+        e.preventDefault();
+        e.returnValue = translations['unsaved_changes_warning'] 
+            || 'You have unsaved changes. Are you sure you want to leave?';
+        return e.returnValue;
+    }
+    
+    editorTabs.forEach(tab => {
+        if (tab.monacoEditorInstance) {
+            tab.monacoEditorInstance.dispose();
+        }
+    });
+});
+
+document.addEventListener('DOMContentLoaded', function() {
+    const savedTheme = localStorage.getItem('editorTheme');
+    if (!savedTheme) {
+        localStorage.setItem('editorTheme', 'vs-dark');
+    }
+    initEventListeners();
+
+    currentView = 'files';
+    
+    if (editorTabs && editorTabs.length > 0) {
+        toggleView('editor');
+    }
+    
+    const toolbar = document.querySelector('.toolbar');
+    if (toolbar) {
+        const selectAllDiv = document.createElement('div');
+        selectAllDiv.className = 'selection-controls';
+        selectAllDiv.innerHTML = `
+            <div class="select-all-checkbox">
+                <input type="checkbox" id="selectAllCheckbox" onchange="toggleSelectAll()">
+                <label for="selectAllCheckbox" data-translate="selectAll">Select All</label>
+            </div>
+        `;
+        toolbar.appendChild(selectAllDiv);
+    }
+    
+    const fileGridHeader = document.querySelector('.file-grid-header');
+    if (fileGridHeader) {
+        const selectionInfo = document.createElement('div');
+        selectionInfo.id = 'selectionInfo';
+        selectionInfo.className = 'file-selection-info';
+        
+        selectionInfo.innerHTML = `
+            <span id="selectedCount"></span>
+            <div class="selection-actions">
+                <button class="btn btn-teal" onclick="clearSelection()" style="padding: 6px 10px; font-size: 0.8rem;">
+                    <i class="fas fa-times"></i>
+                    <span data-translate="clear">Clear</span>
+                </button>
+            </div>
+        `;
+        
+        fileGridHeader.parentNode.insertBefore(selectionInfo, fileGridHeader.nextSibling);
+    }
+    
+    if (document.getElementById('fileGrid')) {
+        loadFiles('/');
+    }
+});
+
+document.getElementById("updatePhpConfig").addEventListener("click", function() {
+    const confirmText = translations['confirm_update_php'] || "Are you sure you want to update PHP configuration?";
+    speakMessage(confirmText);
+    showConfirmation(confirmText, () => {
+        fetch("update_php_config.php", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" }
+        })
+        .then(response => response.json())
+        .then(data => {
+            const msg = data.message || "Configuration updated successfully.";
+            showLogMessage(msg);
+            speakMessage(msg);
+        })
+        .catch(error => {
+            const errMsg = translations['request_failed'] || ("Request failed: " + error.message);
+            showLogMessage(errMsg);
+            speakMessage(errMsg);
         });
     });
 });
 </script>
 
-<script>
-document.addEventListener('DOMContentLoaded', () => {
-  let currentFilename = '';
-  const shareModal = document.getElementById('shareModal');
-  const shareLinkInput = document.getElementById('shareLink');
-  const copyLinkBtn = document.getElementById('copyLinkBtn');
-  const generateShareBtn = document.getElementById('generateShareBtn');
 
-  shareModal.addEventListener('show.bs.modal', (event) => {
-    currentFilename = event.relatedTarget.dataset.filename;
-  });
-
-  generateShareBtn.addEventListener('click', async () => {
-    const expire = parseInt(document.getElementById('expireTime').value, 10) || 0;
-    const maxDownloads = parseInt(document.getElementById('maxDownloads').value, 10) || 0;
-
-    try {
-       if (!currentFilename) throw new Error(translations['fileNotSelected'] || 'No file selected');
-      
-      const response = await fetch('./share.php', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          action: 'create',
-          filename: currentFilename,
-          expire: expire,
-          max_downloads: maxDownloads,
-        }),
-      });
-
-      const data = await response.json();
-      if (!response.ok || !data.success) {
-        throw new Error(data.message || `${translations['httpError']} ${response.status}`);
-      }
-
-      const link = `${window.location.origin}/spectra/download.php?token=${data.token}`;
-      shareLinkInput.value = link;
-      const message = translations['linkGenerated'] || '✅ Share link generated';
-      showLogMessage(message);
-      speakMessage(message);
-    } catch (error) {
-      console.error('Error:', error);
-      showLogMessage(`${translations['operationFailed'] || '❌ Operation failed'}: ${error.message}`);
-    }
-  });
-
-  copyLinkBtn.addEventListener('click', async () => {
-    try {
-      if (!shareLinkInput.value) throw new Error(translations['generateLinkFirst'] || 'Please generate the share link first');
-      
-      await navigator.clipboard.writeText(shareLinkInput.value);
-      showLogMessage(translations['linkCopied'] || '📋 Link copied to clipboard');
-    } catch (error) {
-      console.error('Copy failed:', error);
-      showLogMessage(`${translations['copyFailed'] || '❌ Copy failed'}: ${error.message}`);
-      shareLinkInput.select();
-      shareLinkInput.setSelectionRange(0, 99999);
-    }
-  });
-});
-
-const cleanExpiredBtn = document.getElementById('cleanExpiredBtn');
-cleanExpiredBtn.addEventListener('click', async () => {
-  try {
-    const res = await fetch('./manage_tokens.php?action=clean');
-    const result = await res.json();
-
-    if (result.success) {
-      const msg = (translations['cleanSuccess'] || '✅ Clean completed').replace('%s', result.deleted);
-      showLogMessage(msg);
-      speakMessage(msg);
-    } else {
-      throw new Error(result.message || 'Operation failed');
-    }
-  } catch (err) {
-    showLogMessage(`${translations['operationFailed'] || '❌ Operation failed'}: ${err.message}`);
-  }
-});
-
-const deleteAllBtn = document.getElementById('deleteAllBtn');
-if (deleteAllBtn) {
-  deleteAllBtn.addEventListener('click', () => {
-    const confirmMessage = translations['confirmDeleteAll'] || '⚠️ Are you sure you want to delete ALL share records?';
-    showConfirmation(confirmMessage, async () => {
-      try {
-        const res = await fetch('./manage_tokens.php?action=delete_all');
-        const result = await res.json();
-
-        if (result.success) {
-          const msg = (translations['deleteSuccess'] || '✅ All share records deleted').replace('%s', result.deleted);
-          showLogMessage(msg);
-          speakMessage(msg);
-        } else {
-          throw new Error(result.message || 'Operation failed');
-        }
-      } catch (err) {
-        showLogMessage(`${translations['operationFailed'] || '❌ Operation failed'}: ${err.message}`);
-      }
-    });
-  });
-}
-</script>
-
-<script>
-async function translateText(text, targetLang = null) {
-  if (!text?.trim()) return text;
-  const countryToLang = {
-    'CN':'zh-CN','HK':'zh-HK','TW':'zh-TW','JA':'ja',
-    'KO':'ko','VI':'vi','TH':'th','GB':'en','FR':'fr',
-    'DE':'de','RU':'ru','US':'en','MX':'es'
-  };
-  if (!targetLang) targetLang = localStorage.getItem('language') || 'CN';
-  targetLang = countryToLang[targetLang.toUpperCase()] || targetLang;
-  const apiLangMap = {
-    'zh-CN':'zh-CN','zh-HK':'zh-HK','zh-TW':'zh-TW',
-    'ja':'ja','ko':'ko','vi':'vi','en':'en-GB','ru':'ru'
-  };
-  const apiTargetLang = apiLangMap[targetLang] || targetLang;
-  const detectJP = t => /[\u3040-\u309F\u30A0-\u30FF\u4E00-\u9FAF]/.test(t);
-  const sourceLang = detectJP(text) ? 'ja' : 'en';
-  if (sourceLang.split('-')[0] === apiTargetLang.split('-')[0]) return text;
-  const cacheKey = `trans_${sourceLang}_${apiTargetLang}_${text}`;
-  const cached = localStorage.getItem(cacheKey);
-  if (cached) return cached;
-  const url = `https://api.mymemory.translated.net/get?q=${encodeURIComponent(text)}&langpair=${sourceLang}|${apiTargetLang}`;
-  try {
-    const res  = await fetch(url);
-    const data = await res.json();
-    const translated = data.responseData?.translatedText || text;
-    localStorage.setItem(cacheKey, translated);
-    return translated;
-  } catch {
-    return text;
-  }
-}
-
-let IP = {
-  ipApis: [
-    {url:'https://api.ipify.org?format=json', type:'json', key:'ip'},
-    {url:'https://ipapi.co/json/',           type:'json', key:'ip'}
-  ],
-  get(url,type) { return fetch(url,{cache:'no-store'}).then(r=> type==='text'?r.text():r.json()); },
-  async fetchIP() {
-    for (let api of this.ipApis) {
-      try {
-        const data = await this.get(api.url, api.type);
-        const ip = api.type==='json'
-          ? (api.key? data[api.key]: data.ip)
-          : (data.match(/\d+\.\d+\.\d+\.\d+/)||[])[0];
-        if (ip) return ip;
-      } catch {}
-    }
-    throw new Error('Unable to retrieve IP');
-  }
-};
-
-async function fetchGeo(ip) {
-  for (let url of [
-    `https://ipapi.co/${ip}/json/`,
-    `https://api.ip.sb/geoip/${ip}`
-  ]) {
-    try { return await IP.get(url,'json'); }
-    catch {}
-  }
-  throw new Error('Unable to retrieve geographic information');
-}
-
-const pingSites = { Baidu:'https://www.baidu.com', Taobao:'https://www.taobao.com', YouTube:'https://www.youtube.com', Google:'https://www.google.com', GitHub:'https://www.github.com', OpenAI:'https://www.openai.com' };
-async function checkAllPings() {
-  const res = {};
-  for (let [name,url] of Object.entries(pingSites)) {
-    try {
-      const t0 = performance.now();
-      await fetch(url,{mode:'no-cors',cache:'no-cache'});
-      res[name] = Math.round(performance.now()-t0);
-    } catch {
-      res[name] = 'Timeout';
-    }
-  }
-  return res;
-}
-
-async function showIpDetailModal() {
-  const modalEl = document.getElementById('ipDetailModal');
-  const modal   = new bootstrap.Modal(modalEl,{backdrop:'static',keyboard:false});
-  modal.show();
-
-  modalEl.querySelectorAll('.detail-value').forEach(el=>el.innerHTML=`<span class="spinner-border spinner-border-sm"></span>`);
-  document.getElementById('delayInfo').innerHTML=`<span class="spinner-border spinner-border-sm"></span>`;
-  document.querySelector('.map-coord-row').style.display='none';
-  document.querySelector('.map-container').style.display='none';
-
-  try {
-    const ip  = await IP.fetchIP();
-    const geo = await fetchGeo(ip);
-
-    const parts = [geo.city,geo.region,geo.country_name].filter(Boolean);
-    const unique = parts.filter((v,i,a)=>a.indexOf(v)===i).join(' ');
-    const locationText = await translateText(unique);
-
-    let isp = geo.org || geo.isp || '';
-    isp = await translateText(isp);
-
-    const asn = geo.asn || geo.as?.split(' ')[0] || '   ';
-    const asnName = geo.asn_org || geo.as_name || geo.as?.split(' ').slice(1).join(' ') || '';
-    const asnNameTranslated = await translateText(asnName);
-
-    const vals = modalEl.querySelectorAll('.detail-row .detail-value');
-    vals[0].textContent = ip;
-    vals[1].textContent = locationText;
-    vals[2].textContent = isp;
-    vals[3].textContent = [asn, asnNameTranslated].filter(Boolean).join(' ');
-    vals[4].textContent = geo.timezone || '';
-
-    if (geo.latitude && geo.longitude) {
-      document.querySelector('.map-coord-row').style.display='flex';
-      document.querySelector('.map-coord-row .detail-value').textContent = `${geo.latitude}, ${geo.longitude}`;
-      document.querySelector('.map-container').style.display='block';
-
-      setTimeout(()=>{
-        if (window._leafletMap) window._leafletMap.remove();
-        window._leafletMap = L.map('leafletMap').setView([geo.latitude,geo.longitude],10);
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(window._leafletMap);
-        L.marker([geo.latitude,geo.longitude])
-         .addTo(window._leafletMap)
-         .bindPopup(locationText).openPopup();
-         window._leafletMap.addControl(new L.Control.FullScreen({
-             position: 'topright',
-             title: ' ',
-             titleCancel: ' ',
-             content: '<i class="fas fa-expand"></i>',
-             contentCancel: '<i class="fas fa-compress"></i>'
-         }));
-      },200);
-    }
-
-    const p = await checkAllPings();
-    document.getElementById('delayInfo').innerHTML = Object.entries(p).map(([n,t])=>{
-      const color = typeof t==='number'
-        ? (t<300?'#09B63F':t<700?'#FFA500':'#ff6b6b')
-        : '#ff6b6b';
-      return `<span style="margin-right:20px;color:${color}">${n}: ${t==='Timeout'?'Timeout':t+'ms'}</span>`;
-    }).join('');
-
-  } catch (err) {
-    console.error(err);
-    modalEl.querySelector('.modal-body').innerHTML = `
-      <div style="padding:20px;text-align:center;color:#c00;">
-        <p>Failed to retrieve the information, please try again later.</p>
-      </div>`;
-  }
-}
-</script>
-
-<link rel="stylesheet" href="/luci-static/spectra/css/leaflet.css" />
-<script src="/luci-static/spectra/js/leaflet.js"></script>
-<link rel="stylesheet" href="/luci-static/spectra/css/Control.FullScreen.min.css">
-<script src="/luci-static/spectra/js/Control.FullScreen.min.js"></script>
-
-<style>
-
-#ipDetailModal .modal-body h5 {
-    margin: 20px 0 15px !important;
-}
-
-.detail-row {
-    display: flex;
-    margin-bottom: 10px;
-    line-height: 1.6;
-}
-
-.detail-label {
-    flex: 0 0 200px;
-    text-align: left;
-    font-weight: 500;
-    padding-right: 18px;
-}
-
-.detail-value {
-    flex: 1;
-    text-align: left;
-    word-break: break-all;
-    margin-left: 0;
-}
-
-.leaflet-popup-content-wrapper {
-    background-color: var(--header-bg) !important;
-    border-top: 1px solid var(--border-color) !important;
-    color: var(--accent-color) !important;
-}
-
-.leaflet-popup-tip {
-    background-color: var(--header-bg) !important;
-}
-</style>
-
-<script>
-document.addEventListener("DOMContentLoaded", async () => {
-  const weatherIcon = document.getElementById("weatherIcon");
-  const cityNameDisplay = document.getElementById("cityNameDisplay");
-  const weatherText = document.getElementById("weatherText");
-
-  function owmCodeToWiClass(code) {
-    const map = {
-      '01d': 'day-sunny',    '01n': 'night-clear',
-      '02d': 'day-cloudy',   '02n': 'night-cloudy',
-      '03d': 'cloud',        '03n': 'cloud',
-      '04d': 'cloudy',       '04n': 'cloudy',
-      '09d': 'showers',      '09n': 'showers',
-      '10d': 'day-rain',     '10n': 'night-alt-rain',
-      '11d': 'thunderstorm', '11n': 'thunderstorm',
-      '13d': 'snow',         '13n': 'snow',
-      '50d': 'fog',          '50n': 'fog'
-    };
-    return map[code] || 'na';
-  }
-
-  async function getCurrentLanguage() {
-    try {
-      const res = await fetch('./save_language.php', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-        body: 'action=get_language'
-      });
-      const data = await res.json();
-      if (data.success && data.language) return data.language;
-    } catch (_) {}
-    return 'zh';
-  }
-
-  async function loadWeather() {
-    try {
-      const lang = await getCurrentLanguage();
-      const localCity = localStorage.getItem('city');
-      const res = await fetch("./weather_translation.php");
-      if (!res.ok) return;
-
-      const data = await res.json();
-      const cities = data.cities || {};
-
-      let cityKey = localCity && cities[localCity] ? localCity : Object.keys(cities)[0];
-      if (!cityKey) return;
-
-      const cityData = cities[cityKey];
-      const translations = cityData.translations || {};
-      const langData = translations[lang] || translations["zh"] || {};
-
-      const cityName = langData.city || cityKey;
-      const weatherDict = langData.weather || {};
-      const lastIcon = langData.lastIcon || "na";
-
-      const temp = cityData.temp != null ? Number(cityData.temp).toFixed(1) : '';
-
-      const weatherKey = Object.keys(weatherDict)[0];
-      const weatherValue = weatherDict[weatherKey] || "";
-
-      cityNameDisplay.textContent = cityName + " ";
-      weatherText.innerHTML = weatherValue + (temp !== '' ? `&nbsp;${temp}℃` : '');
-
-      const wiClass = owmCodeToWiClass(lastIcon);
-      weatherIcon.className = `wi wi-${wiClass}`;
-
-      const colorMap = {
-        '01d':'#FFD700','01n':'#FFE4B5',
-        '02d':'#C0C0C0','02n':'#A9A9A9',
-        '09d':'#00BFFF','09n':'#1E90FF',
-        '10d':'#1E90FF','10n':'#104E8B',
-        '11d':'#FFA500','11n':'#FF8C00',
-        '13d':'#ADD8E6','13n':'#B0E0E6',
-        '50d':'#C0C0C0','50n':'#808080'
-      };
-      weatherIcon.style.color = colorMap[lastIcon] || '#FFF';
-
-    } catch (_) {
-    }
-  }
-
-  await loadWeather();
-});
-</script>
-
-<script>
-let userInteracted = false;
-
-function toggleConfig() {
-    fetch("./theme-switcher.php", { 
-        method: "POST",
-        headers: {
-            'Content-Type': 'application/json'
-        }
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            userInteracted = true;
-            updateStatus(data.mode);
-            
-            setTimeout(() => {
-                window.top.location.href = "/cgi-bin/luci/admin/services/spectra";
-            }, 3000);
-        } else {
-            document.getElementById("status").innerText = "Switch failed: " + data.error;
-        }
-    })
-    .catch(error => {
-        document.getElementById("status").innerText = "Request error: " + error;
-    });
-}
-
-function updateStatus(theme) {
-    const btn = document.getElementById("toggleButton");
-    const status = document.getElementById("status");
-    
-    if (theme === "dark") {
-        const message = translations['current_mode_dark'] || "Current Mode: Dark Mode";
-        btn.innerHTML = `<i class="bi bi-sun"></i> ${translations['switch_to_light_mode'] || 'Switch to Light Mode'}`;
-        status.innerText = message;
-
-        if (userInteracted && typeof showLogMessage === 'function') {
-            showLogMessage(message);
-        }
-        if (userInteracted && typeof speakMessage === 'function') {
-            speakMessage(message);
-        }
-    } else {
-        const message = translations['current_mode_light'] || "Current Mode: Light Mode";
-        btn.innerHTML = `<i class="bi bi-moon"></i> ${translations['switch_to_dark_mode'] || 'Switch to Dark Mode'}`;
-        status.innerText = message;
-        if (userInteracted && typeof showLogMessage === 'function') {
-            showLogMessage(message);
-        }
-        if (userInteracted && typeof speakMessage === 'function') {
-            speakMessage(message);
-        }
-    }
-}
-
-fetch("./theme-switcher.php")
-    .then(res => res.json())
-    .then(data => {
-        if(data.mode) {
-            updateStatus(data.mode);
-        }
-    })
-    .catch(error => {
-        document.getElementById("status").innerText = "Error retrieving mode: " + error;
-    });
-</script>
