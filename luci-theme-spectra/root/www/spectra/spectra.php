@@ -652,6 +652,7 @@ $langData = [
         'installing'             => '正在安装',
         'copy_file_path'         => '复制文件地址',
         'file_path_copied'       => '文件地址已复制到剪贴板',
+        'files'                   => '个文件',
         'file_summary' => '已选择 %d 个文件，合计 %s MB'
     ],
 
@@ -1305,6 +1306,7 @@ $langData = [
         'installing'             => '正在安裝',
         'copy_file_path'         => '複製文件地址',
         'file_path_copied'       => '文件地址已複製到剪貼板',
+        'files'                   => '個檔案',
         'validateYaml' => '驗證 YAML 語法'
     ],
 
@@ -1957,6 +1959,7 @@ $langData = [
         'installing'             => '설치 중',
         'copy_file_path'   => '파일 경로 복사',
         'file_path_copied' => '파일 경로가 클립보드에 복사되었습니다',
+        'files'                   => '개 파일',
         'validateYaml' => 'YAML 구문 검증'
     ],
 
@@ -2608,6 +2611,7 @@ $langData = [
         'installing'             => 'インストール中',
         'copy_file_path'   => 'ファイルパスをコピー',
         'file_path_copied' => 'ファイルパスがクリップボードにコピーされました',
+        'files'                   => 'ファイル',
         'validateYaml' => 'YAML構文を検証'
     ],
 
@@ -3257,6 +3261,7 @@ $langData = [
         'installing'             => 'Đang cài đặt',
         'copy_file_path'   => 'Sao chép đường dẫn tệp',
         'file_path_copied' => 'Đường dẫn tệp đã được sao chép vào clipboard',
+        'files'                   => ' tệp',
         'validateYaml' => 'Kiểm tra Cú pháp YAML'
     ],
 
@@ -3890,6 +3895,7 @@ $langData = [
         'installing'             => 'กำลังติดตั้ง',
         'copy_file_path'   => 'คัดลอกที่อยู่ไฟล์',
         'file_path_copied' => 'ที่อยู่ไฟล์ถูกคัดลอกไปยังคลิปบอร์ดแล้ว',
+        'files'                   => ' ไฟล์',
         'validateYaml' => 'ตรวจสอบไวยากรณ์ YAML'
     ],
     'ru' => [
@@ -4524,6 +4530,7 @@ $langData = [
         'installing'             => 'Установка',
         'copy_file_path'   => 'Копировать путь к файлу',
         'file_path_copied' => 'Путь к файлу скопирован в буфер обмена',
+        'upload_success'          => 'Успешно загружено',
         'validateYaml' => 'Проверить синтаксис YAML'
     ],
     'ar' => [
@@ -5163,6 +5170,7 @@ $langData = [
         'installing'             => 'جارٍ التثبيت',
         'copy_file_path'   => 'نسخ مسار الملف',
         'file_path_copied' => 'تم نسخ مسار الملف إلى الحافظة',
+        'upload_success'          => 'تم الرفع بنجاح',
         'validateYaml' => 'التحقق من صحة بناء جملة YAML'
     ],
     'es' => [
@@ -5796,6 +5804,7 @@ $langData = [
         'installing'             => 'Instalando',
         'copy_file_path'   => 'Copiar ruta del archivo',
         'file_path_copied' => 'Ruta del archivo copiada al portapapeles',
+        'files'                   => ' archivos',
         'validateYaml' => 'Validar sintaxis YAML'
     ],
     'de' => [
@@ -6429,6 +6438,7 @@ $langData = [
         'installing'             => 'Installation läuft',
         'copy_file_path'   => 'Dateipfad kopieren',
         'file_path_copied' => 'Dateipfad in die Zwischenablage kopiert',
+        'files'                   => ' Dateien',
         'validateYaml' => 'YAML-Syntax validieren'
     ],
 
@@ -7063,6 +7073,7 @@ $langData = [
         'installing'             => 'Installation en cours',
         'copy_file_path'   => 'Copier le chemin du fichier',
         'file_path_copied' => 'Chemin du fichier copié dans le presse-papiers',
+        'files'                   => ' fichiers',
         'validateYaml' => 'Valider la syntaxe YAML'
     ],
     'en' => [
@@ -7708,6 +7719,7 @@ $langData = [
         'menucut' => 'Cut',
         'copy_file_path'         => 'Copy File Path',
         'file_path_copied'       => 'File path copied to clipboard',
+        'files'                   => ' files',
         'validateYaml' => 'Validate YAML Syntax'
     ],
     'bn' => [
@@ -8341,6 +8353,7 @@ $langData = [
         'installing'             => 'ইনস্টল হচ্ছে',
         'copy_file_path'   => 'ফাইলের পথ কপি করুন',
         'file_path_copied' => 'ফাইলের পথ ক্লিপবোর্ডে কপি হয়েছে',
+        'files'                   => 'টি ফাইল',
         'validateYaml' => 'YAML সিনট্যাক্স যাচাই করুন'
     ]
 ];
