@@ -10038,7 +10038,7 @@ function getLunar(date) {
 function updateDateTime() {
     try {
         const now = new Date();
-        const lang = localStorage.getItem('language') || 'zh'; 
+        const lang = currentLang; 
         const translations = langData[lang] || langData['en']; 
 
         const hours = now.getHours();
