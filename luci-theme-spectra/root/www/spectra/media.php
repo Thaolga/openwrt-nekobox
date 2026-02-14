@@ -1923,7 +1923,7 @@ opkg update && opkg install wget grep sed && LATEST_FILE=$(wget -qO- https://git
                     speakMessage(clearedMsg);
 
                     setTimeout(() => {
-                          window.top.location.href = "/cgi-bin/luci/admin/services/spectra";
+                          window.top.location.href = "/cgi-bin/luci/admin/spectra/media";
                     }, 3000);
 
                 }, 0);
