@@ -4952,7 +4952,7 @@ list-group:hover {
 </div>
 
 <div class="modal fade" id="searchModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-lg">
+    <div class="modal-dialog modal-xl">
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title">
@@ -4984,6 +4984,12 @@ list-group:hover {
                         <p data-translate="enter_search_term">Enter a search term to start finding files</p>
                     </div>
                 </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    <i class="fas fa-times me-1"></i>
+                    <span data-translate="cancel">Cancel</span>
+                </button>
             </div>
         </div>
     </div>
@@ -7342,6 +7348,35 @@ async function loadFiles(path) {
         loadingEl.style.display = 'none';
         updateSelectionInfo();
         updateLanguage(currentLang);
+        
+        setTimeout(() => {
+            const highlightPath = sessionStorage.getItem('highlightFile');
+            if (highlightPath) {
+                const fileItem = document.querySelector(`[data-path="${highlightPath}"]`);
+                if (fileItem) {
+                    document.querySelectorAll('.file-item').forEach(el => {
+                        el.style.backgroundColor = '';
+                        el.style.borderColor = '';
+                        el.style.boxShadow = '';
+                    });
+                    
+                    fileItem.style.backgroundColor = 'rgba(76, 175, 80, 0.2)';
+                    fileItem.style.borderColor = '#4CAF50';
+                    fileItem.style.boxShadow = '0 0 10px rgba(76, 175, 80, 0.5)';
+                    fileItem.style.transition = 'all 0.3s ease';
+                    
+                    fileItem.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    
+                    setTimeout(() => {
+                        fileItem.style.backgroundColor = '';
+                        fileItem.style.borderColor = '';
+                        fileItem.style.boxShadow = '';
+                    }, 15000);
+                    
+                    sessionStorage.removeItem('highlightFile');
+                }
+            }
+        }, 500);
     }
 
     initDragSelect();
@@ -9797,6 +9832,10 @@ function openFileDirectory(filePath, isDir) {
     
     const modal = bootstrap.Modal.getInstance(document.getElementById('searchModal'));
     if (modal) modal.hide();
+    
+    if (!isDir) {
+        sessionStorage.setItem('highlightFile', fixedPath);
+    }
     
     navigateTo(targetDir);
     
