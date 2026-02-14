@@ -7012,6 +7012,7 @@ document.addEventListener('DOMContentLoaded', function() {
     loadSavedWidths();
     startSystemMonitoring();
     initAutoPlayToggle();
+    initDragAndDrop();
     
     if (typeof Chart !== 'undefined') {
         startSystemMonitoring();
@@ -11894,6 +11895,30 @@ function handleFileSelect(event) {
     updateUploadFileList();
     
     event.target.value = '';
+}
+
+function initDragAndDrop() {
+    const dropArea = document.querySelector('.upload-drop-area');
+    const fileInput = document.getElementById('fileUploadInput');
+
+    if (!dropArea || !fileInput) return;
+
+    ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+        dropArea.addEventListener(eventName, (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+        }, false);
+    });
+
+    dropArea.addEventListener('drop', (e) => {
+        const dt = e.dataTransfer;
+        const files = dt.files;
+
+        if (files.length > 0) {
+            uploadFilesList = uploadFilesList.concat(Array.from(files));
+            updateUploadFileList();
+        }
+    }, false);
 }
 
 function removeUploadFile(index) {
