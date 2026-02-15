@@ -1562,6 +1562,8 @@ function searchFilesByName($rootDir, $searchTerm) {
         return $results;
     }
     
+    $searchTermLower = strtolower($searchTerm);
+    
     try {
         $iterator = new RecursiveIteratorIterator(
             new RecursiveDirectoryIterator($rootDir, RecursiveDirectoryIterator::SKIP_DOTS),
@@ -1581,9 +1583,10 @@ function searchFilesByName($rootDir, $searchTerm) {
             }
             
             $fileName = $file->getFilename();
+            $fileNameLower = strtolower($fileName);
             $isDir = $file->isDir();
             
-            if (fnmatch($searchTerm, $fileName, FNM_CASEFOLD)) {
+            if (strpos($fileNameLower, $searchTermLower) !== false) {
                 $results[] = [
                     'name' => $fileName,
                     'path' => $filePath,
@@ -1593,7 +1596,8 @@ function searchFilesByName($rootDir, $searchTerm) {
                     'size_formatted' => formatFileSize($isDir ? 0 : $file->getSize()),
                     'modified' => $file->getMTime(),
                     'modified_formatted' => date('Y-m-d H:i:s', $file->getMTime()),
-                    'extension' => $isDir ? '' : strtolower($file->getExtension())
+                    'extension' => $isDir ? '' : strtolower($file->getExtension()),
+                    'matched_part' => highlightMatch($fileName, $searchTerm)
                 ];
                 
                 if (count($results) >= 100) break;
@@ -1603,6 +1607,21 @@ function searchFilesByName($rootDir, $searchTerm) {
     }
     
     return $results;
+}
+
+function highlightMatch($fileName, $searchTerm) {
+    $position = stripos($fileName, $searchTerm);
+    if ($position !== false) {
+        $before = substr($fileName, 0, $position);
+        $match = substr($fileName, $position, strlen($searchTerm));
+        $after = substr($fileName, $position + strlen($searchTerm));
+        return [
+            'before' => $before,
+            'match' => $match,
+            'after' => $after
+        ];
+    }
+    return null;
 }
 
 function copyDirectory($source, $dest) {
@@ -4401,18 +4420,6 @@ list-group:hover {
                             $file = basename($path);
                             $ext = strtolower(pathinfo($file, PATHINFO_EXTENSION));
                             $size = $item['size'];
-                            
-                            $duration = $bitrate = '';
-                            $ffmpegPath = '/usr/bin/ffmpeg';
-                            $cmd = "$ffmpegPath -i \"$path\" 2>&1";
-                            $output = shell_exec($cmd);
-                            
-                            if ($output) {
-                                preg_match('/Duration:\s*(\d+):(\d+):(\d+)/', $output, $matches) && $duration = sprintf("%02d:%02d:%02d", $matches[1], $matches[2], $matches[3]);
-                                (preg_match('/bitrate:\s*(\d+)\s*kb\/s/', $output, $matches) || preg_match('/Stream.*Audio:.*?(\d+)\s*kb\/s/', $output, $matches)) && $bitrate = $matches[1] . ' kbps';
-                            } else {
-                                $duration = $bitrate = 'Unknown';
-                            }
                         ?>
                         <div class="media-item hover-playable" 
                              data-type="audio"
@@ -4424,7 +4431,7 @@ list-group:hover {
                              data-resolution="N/A"
                              data-ext="<?= strtoupper($item['ext']) ?>"
                              onclick="playMedia('<?= $item['safe_path'] ?>')"
-                             oncontextmenu="showMediaInfo(event, this)">
+                             oncontextmenu="showFileInfoModal('<?= $item['safe_path'] ?>'); return false;">
                             <div class="media-thumb"><i class="fas fa-music"></i></div>
                             <div class="media-info">
                                 <div class="media-name" title="<?= htmlspecialchars($item['safe_name'], ENT_QUOTES, 'UTF-8') ?>">
@@ -4461,19 +4468,6 @@ list-group:hover {
                             $file = basename($path);
                             $ext = strtolower(pathinfo($file, PATHINFO_EXTENSION));
                             $size = $item['size'];
-                            
-                            $duration = $bitrate = $resolution = '';
-                            $ffmpegPath = '/usr/bin/ffmpeg';
-                            $cmd = "$ffmpegPath -i \"$path\" 2>&1";
-                            $output = shell_exec($cmd);
-                            
-                            if ($output) {
-                                preg_match('/Duration:\s*(\d+):(\d+):(\d+)/', $output, $matches) && $duration = sprintf("%02d:%02d:%02d", $matches[1], $matches[2], $matches[3]);
-                                (preg_match('/bitrate:\s*(\d+)\s*kb\/s/', $output, $matches) || preg_match('/Stream.*Video:.*?(\d+)\s*kb\/s/', $output, $matches)) && $bitrate = $matches[1] . ' kbps';
-                                preg_match('/(\d{3,4})x(\d{3,4})/', $output, $matches) && $resolution = $matches[1] . 'x' . $matches[2];
-                            } else {
-                                $duration = $bitrate = $resolution = 'Unknown';
-                            }
 
                             $previewUrl = "?preview=1&path=" . urlencode($item['path']);
                         ?>
@@ -4487,7 +4481,7 @@ list-group:hover {
                              data-resolution="<?= $resolution ?>"
                              data-ext="<?= strtoupper($item['ext']) ?>"
                              onclick="playMedia('<?= $item['safe_path'] ?>')"
-                             oncontextmenu="showMediaInfo(event, this)">
+                             oncontextmenu="showFileInfoModal('<?= $item['safe_path'] ?>'); return false;">
                              <div class="media-thumb">
                                  <video class="video-thumbnail" 
                                      preload="metadata"
@@ -4539,11 +4533,7 @@ list-group:hover {
                             $path = $item['path'];
                             $file = basename($path);
                             $ext = strtolower(pathinfo($file, PATHINFO_EXTENSION));
-                            $size = $item['size'];
-                            
-                            $resolution = 'Unknown';
-                            $imageInfo = @getimagesize($path);
-                            $imageInfo && $resolution = $imageInfo[0] . 'x' . $imageInfo[1];
+                            $size = $item['size'];                            
                         ?>
                         <div class="media-item" 
                              data-type="image"
@@ -4555,7 +4545,7 @@ list-group:hover {
                              data-resolution="<?= $resolution ?>"
                              data-ext="<?= strtoupper($item['ext']) ?>"
                              onclick="playMedia('<?= $item['safe_path'] ?>')"
-                             oncontextmenu="showMediaInfo(event, this)">
+                             oncontextmenu="showFileInfoModal('<?= $item['safe_path'] ?>'); return false;">
                             <div class="media-thumb">
                                 <img src="?preview=1&path=<?= urlencode($item['path']) ?>" 
                                      alt="<?= $item['safe_name'] ?>"
@@ -4771,55 +4761,7 @@ list-group:hover {
     </div>
 </div>
 
-<div id="mediaContextMenu" class="context-menu" style="display: none;">
-    <div class="context-menu-header">
-        <i class="fas fa-info-circle"></i>
-        <span data-translate="media_info">Media Info</span>
-        <button class="btn-close" onclick="hideContextMenu()"></button>
-    </div>
-    <div class="context-menu-content">
-        <div class="info-item">
-            <span class="info-label" data-translate="filename">Name:</span>
-            <span class="info-value" id="infoFilename"></span>
-        </div>
-        <div class="info-item">
-            <span class="info-label" data-translate="filesize">Size:</span>
-            <span class="info-value" id="infoFilesize"></span>
-        </div>
-        <div class="info-item">
-            <span class="info-label" data-translate="type">Type:</span>
-            <span class="info-value" id="infoType"></span>
-        </div>
-        <div class="info-item" id="durationItem">
-            <span class="info-label" data-translate="duration">Duration:</span>
-            <span class="info-value" id="infoDuration"></span>
-        </div>
-        <div class="info-item" id="resolutionItem">
-            <span class="info-label" data-translate="resolution">Resolution:</span>
-            <span class="info-value" id="infoResolution"></span>
-        </div>
-        <div class="info-item" id="bitrateItem">
-            <span class="info-label" data-translate="bitrate">Bitrate:</span>
-            <span class="info-value" id="infoBitrate"></span>
-        </div>
-        <div class="info-item">
-            <span class="info-label" data-translate="file_path">Path:</span>
-            <span class="info-value" id="infoPath"></span>
-        </div>
-    </div>
-    <div class="context-menu-actions d-flex flex-row-reverse">
-        <button class="btn btn-primary" onclick="playSelectedMedia()">
-            <i class="fas fa-play"></i>
-            <span data-translate="play">Play</span>
-        </button>
-        <button class="btn btn-dark-red" onclick="closeContextMenu()">
-            <i class="fas fa-times"></i>
-            <span data-translate="close">Close</span>
-        </button>
-    </div>
-</div>
-
-<div id="contextMenuOverlay" class="context-menu-overlay" style="display: none;" onclick="hideContextMenu()"></div>
+<div id="contextMenuOverlay" class="context-menu-overlay" style="display: none;" onclick="hideFileContextMenu()"></div>
 
 <div id="fileContextMenu" class="context-menu context-menu-file" style="display: none;">
     <div class="context-menu-header">
@@ -4965,7 +4907,7 @@ list-group:hover {
                 <div class="mb-3">
                     <div class="input-group">
                         <input type="text" id="searchInput" class="form-control" 
-                               data-translate-placeholder="search_placeholder"
+                               data-translate-placeholder="search_empty_input"
                                placeholder="Enter file name or use * wildcard (e.g.: *.mp3)"
                                autofocus>
                         <button class="btn btn-primary" type="button" onclick="searchFiles()">
@@ -6120,88 +6062,6 @@ function toggleFullscreen() {
     }
 }
 
-function showMediaInfo(event, element) {
-    event.preventDefault();
-    event.stopPropagation();
-    
-    selectedMediaElement = element;
-    selectedMediaPath = element.getAttribute('data-src') ? 
-        element.getAttribute('data-src').split('path=')[1] : '';
-    
-    const filename = element.getAttribute('data-filename') || 'Unknown';
-    const filesize = element.getAttribute('data-filesize') || 'Unknown';
-    const type = element.getAttribute('data-type') || 'Unknown';
-    const duration = element.getAttribute('data-duration') || 'N/A';
-    const resolution = element.getAttribute('data-resolution') || 'N/A';
-    const bitrate = element.getAttribute('data-bitrate') || 'N/A';
-    const fileExt = element.getAttribute('data-ext') || 'Unknown';
-    
-    const fullPath = element.getAttribute('data-src') ? 
-        decodeURIComponent(element.getAttribute('data-src').split('path=')[1]) : 'Unknown';
-        document.getElementById('infoFilename').textContent = filename;
-        document.getElementById('infoFilesize').textContent = filesize;
-        document.getElementById('infoType').textContent = `${type} (${fileExt})`;
-        document.getElementById('infoDuration').textContent = duration;
-        document.getElementById('infoResolution').textContent = resolution;
-        document.getElementById('infoBitrate').textContent = bitrate;
-        document.getElementById('infoPath').textContent = fullPath;
-   
-    const durationItem = document.getElementById('durationItem');
-    const resolutionItem = document.getElementById('resolutionItem');
-    const bitrateItem = document.getElementById('bitrateItem');
-    
-    if (type === 'audio') {
-        durationItem.style.display = 'flex';
-        resolutionItem.style.display = 'none';
-        bitrateItem.style.display = 'flex';
-    } else if (type === 'video') {
-        durationItem.style.display = 'flex';
-        resolutionItem.style.display = 'flex';
-        bitrateItem.style.display = 'flex';
-    } else if (type === 'image') {
-        durationItem.style.display = 'none';
-        resolutionItem.style.display = 'flex';
-        bitrateItem.style.display = 'none';
-    }
-    
-    document.getElementById('mediaContextMenu').style.display = 'block';
-    document.getElementById('contextMenuOverlay').style.display = 'block';
-}
-
-function hideContextMenu() {
-    document.getElementById('mediaContextMenu').style.display = 'none';
-    document.getElementById('contextMenuOverlay').style.display = 'none';
-    selectedMediaElement = null;
-    selectedMediaPath = '';
-}
-
-function playSelectedMedia() {
-    if (selectedMediaPath) {
-        const safePath = decodeURIComponent(selectedMediaPath);
-        playMedia(safePath);
-    } else if (selectedMediaElement) {
-        const clickEvent = new MouseEvent('click', {
-            bubbles: true,
-            cancelable: true,
-            view: window
-        });
-        selectedMediaElement.dispatchEvent(clickEvent);
-    }
-    hideContextMenu();
-}
-
-function closeContextMenu() {
-    hideContextMenu();
-}
-
-
-document.addEventListener('contextmenu', function(e) {
-    const contextMenu = document.getElementById('mediaContextMenu');
-    if (contextMenu.style.display === 'block') {
-        e.preventDefault();
-    }
-}); 
-
 document.addEventListener('click', function() {
     if (!userInteracted) {
         userInteracted = true;
@@ -7050,16 +6910,6 @@ document.addEventListener('DOMContentLoaded', function() {
     if (playerArea) {
         observer.observe(playerArea, { attributes: true });
     }
-
-    document.addEventListener('click', function(e) {
-        const contextMenu = document.getElementById('mediaContextMenu');
-        const overlay = document.getElementById('contextMenuOverlay');
-        if (contextMenu.style.display === 'block' && 
-            !contextMenu.contains(e.target) && 
-            !overlay.contains(e.target)) {
-            hideContextMenu();
-        }
-    });
 });
 
 document.addEventListener('keydown', function(event) {
@@ -7402,12 +7252,15 @@ function initDragSelect() {
     }
     
     fileGrid.addEventListener('mousedown', function(e) {
+        const scrollLeft = window.pageXOffset || document.documentElement.scrollLeft;
+        const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+        
         if (e.target === fileGrid || e.target.classList.contains('empty-folder') || 
             e.target.parentElement === fileGrid || e.target === dragBox) {
             
             isDragging = true;
-            startX = e.clientX;
-            startY = e.clientY;
+            startX = e.clientX + scrollLeft;
+            startY = e.clientY + scrollTop;
             
             dragBox.style.left = startX + 'px';
             dragBox.style.top = startY + 'px';
@@ -7432,10 +7285,16 @@ function initDragSelect() {
         
         e.preventDefault();
         
-        const left = Math.min(startX, e.clientX);
-        const top = Math.min(startY, e.clientY);
-        const width = Math.abs(startX - e.clientX);
-        const height = Math.abs(startY - e.clientY);
+        const scrollLeft = window.pageXOffset || document.documentElement.scrollLeft;
+        const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+        
+        const currentX = e.clientX + scrollLeft;
+        const currentY = e.clientY + scrollTop;
+        
+        const left = Math.min(startX, currentX);
+        const top = Math.min(startY, currentY);
+        const width = Math.abs(startX - currentX);
+        const height = Math.abs(startY - currentY);
         
         dragBox.style.left = left + 'px';
         dragBox.style.top = top + 'px';
@@ -7443,10 +7302,10 @@ function initDragSelect() {
         dragBox.style.height = height + 'px';
         
         const dragRect = {
-            left: left,
-            top: top,
-            right: left + width,
-            bottom: top + height
+            left: left - scrollLeft,
+            top: top - scrollTop,
+            right: left + width - scrollLeft,
+            bottom: top + height - scrollTop
         };
         
         const fileItems = fileGrid.querySelectorAll('.file-item');
@@ -7460,11 +7319,7 @@ function initDragSelect() {
             const path = item.getAttribute('data-path');
             
             if (isOverlap) {
-                if (e.ctrlKey || e.metaKey) {
-                    selectedFiles.add(path);
-                } else {
-                    selectedFiles.add(path);
-                }
+                selectedFiles.add(path);
                 item.classList.add('drag-selected');
             } else {
                 if (!e.ctrlKey && !e.metaKey) {
@@ -9740,7 +9595,8 @@ async function searchFiles() {
             header.className = 'alert alert-info mb-3';
             header.innerHTML = `
                 <i class="fas fa-info-circle me-2"></i>
-                ${foundMessage}
+                <strong>"${escapeHtml(searchTerm)}"</strong> ${translations['search_results_for'] || 'search results for'}
+                <span class="badge bg-primary ms-2">${results.length}</span>
             `;
             resultsContainer.appendChild(header);
             
@@ -9770,31 +9626,65 @@ async function searchFiles() {
                 let displayPath = file.path;
                 if (displayPath.startsWith('//')) displayPath = displayPath.substring(1);
                 
+                let fileNameDisplay = escapeHtml(file.name);
+                if (file.matched_part) {
+                    fileNameDisplay = `${escapeHtml(file.matched_part.before)}<span class="bg-warning text-dark">${escapeHtml(file.matched_part.match)}</span>${escapeHtml(file.matched_part.after)}`;
+                } else {
+                    const regex = new RegExp(`(${escapeRegExp(searchTerm)})`, 'gi');
+                    fileNameDisplay = escapeHtml(file.name).replace(regex, '<span class="bg-warning text-dark">$1</span>');
+                }
+
+                const mediaExts = ['mp3', 'wav', 'ogg', 'flac', 'm4a', 'aac', 'mp4', 'avi', 'mkv', 'mov', 'wmv', 'flv', 'webm', 'jpg', 'jpeg', 'png', 'gif', 'bmp', 'webp', 'svg'];
+                const fileExt = file.name.split('.').pop().toLowerCase();
+                const isMedia = mediaExts.includes(fileExt);
+                
                 item.innerHTML = `
                     <div class="d-flex align-items-center">
                         <div class="me-3">
                             <i class="fas ${file.is_dir ? 'fa-folder text-warning' : 'fa-file text-primary'} fa-lg"></i>
                         </div>
                         <div class="flex-grow-1">
-                            <div class="fw-medium">${escapeHtml(file.name)}</div>
+                            <div class="fw-medium">${fileNameDisplay}</div>
                             <div class="small text-muted">
                                 <span>${file.size_formatted}</span>
                                 <span class="mx-2">•</span>
                                 <span>${file.modified_formatted}</span>
                             </div>
                             <div class="small">
-                                <code class="text-truncate d-block" style="max-width: 500px;">
+                                <code class="text-truncate d-block" style="max-width: 500px; color: var(--text-secondary);">
                                     ${escapeHtml(displayPath)}
                                 </code>
                             </div>
                         </div>
                         <div>
-                            <button class="btn btn-sm btn-outline-primary" 
-                                    onclick="openFileDirectory('${escapeHtml(file.path)}', ${file.is_dir})"
-                                    style="white-space: nowrap;">
-                                <i class="fas fa-folder-open"></i>
-                                ${translations['search_open_directory'] || 'Open Directory'}
-                            </button>
+                            <div class="d-flex gap-2">
+                                ${!file.is_dir ? `
+                                    ${isMedia ? `
+                                        <button class="btn btn-sm btn-outline-info" 
+                                                onclick="closeSearchModalAndPlay('${escapeHtml(file.path)}')"
+                                                style="white-space: nowrap;"
+                                                title="${translations['play'] || 'Play'}">
+                                            <i class="fas fa-play"></i>
+                                            <span class="d-none d-md-inline">${translations['play'] || 'Play'}</span>
+                                        </button>
+                                    ` : `
+                                        <button class="btn btn-sm btn-outline-success" 
+                                                onclick="closeSearchModalAndEdit('${escapeHtml(file.path)}')"
+                                                style="white-space: nowrap;"
+                                                title="${translations['edit_file'] || 'Edit File'}">
+                                            <i class="fas fa-edit"></i>
+                                            <span class="d-none d-md-inline">${translations['edit'] || 'Edit'}</span>
+                                        </button>
+                                    `}
+                                ` : ''}
+                                <button class="btn btn-sm btn-outline-primary" 
+                                        onclick="openFileDirectory('${escapeHtml(file.path)}', ${file.is_dir})"
+                                        style="white-space: nowrap;"
+                                        title="${translations['search_open_directory'] || 'Open Directory'}">
+                                    <i class="fas fa-folder-open"></i>
+                                    <span class="d-none d-md-inline">${translations['search_open_directory'] || 'Open Directory'}</span>
+                                </button>
+                            </div>
                         </div>
                     </div>
                 `;
@@ -9825,6 +9715,32 @@ async function searchFiles() {
                 ${errorMessage}
             </div>`;
     }
+}
+
+function closeSearchModalAndPlay(path) {
+    const searchModal = bootstrap.Modal.getInstance(document.getElementById('searchModal'));
+    if (searchModal) {
+        searchModal.hide();
+    }
+    
+    setTimeout(() => {
+        playMedia(path);
+    }, 300);
+}
+
+function closeSearchModalAndEdit(path) {
+    const searchModal = bootstrap.Modal.getInstance(document.getElementById('searchModal'));
+    if (searchModal) {
+        searchModal.hide();
+    }
+    
+    setTimeout(() => {
+        editFile(path);
+    }, 300);
+}
+
+function escapeRegExp(string) {
+    return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 }
 
 function openFileDirectory(filePath, isDir) {
@@ -10324,6 +10240,21 @@ function setupSimpleEditorEvents(tabId) {
     const newEditor = simpleEditor.cloneNode(true);
     simpleEditor.parentNode.replaceChild(newEditor, simpleEditor);
     
+    function updateCursorPosition() {
+        const cursorPos = newEditor.selectionStart;
+        const text = newEditor.value.substring(0, cursorPos);
+        const lines = text.split('\n');
+        const line = lines.length;
+        const column = lines[lines.length - 1].length + 1;
+        
+        const positionElement = document.getElementById(`${tabId}-position-info`);
+        if (positionElement) {
+            const lineText = translations['line_label'] || 'Line';
+            const columnText = translations['column_label'] || 'Column';
+            positionElement.textContent = `${lineText}: ${line}, ${columnText}: ${column}`;
+        }
+    }
+    
     newEditor.addEventListener('input', function() {
         const tab = editorTabs.find(t => t.id === tabId);
         if (tab) {
@@ -10338,7 +10269,13 @@ function setupSimpleEditorEvents(tabId) {
         this.style.height = (this.scrollHeight + 10) + 'px';
         
         updateCharCount(tabId);
+        updateCursorPosition();
     });
+    
+    newEditor.addEventListener('click', updateCursorPosition);
+    newEditor.addEventListener('keyup', updateCursorPosition);
+    newEditor.addEventListener('select', updateCursorPosition);
+    newEditor.addEventListener('mouseup', updateCursorPosition);
     
     newEditor.addEventListener('keydown', function(e) {
         if (e.key === 'Tab') {
@@ -10349,8 +10286,12 @@ function setupSimpleEditorEvents(tabId) {
             this.value = this.value.substring(0, start) + '    ' + this.value.substring(end);
             this.selectionStart = this.selectionEnd = start + 4;
             this.dispatchEvent(new Event('input'));
+            
+            setTimeout(updateCursorPosition, 10);
         }
     });
+    
+    setTimeout(updateCursorPosition, 100);
 }
 
 async function initMonacoEditor(tabId) {
@@ -12199,7 +12140,7 @@ function resetRightEditor() {
     const leftContent = originalEditor.getValue();
     modifiedEditor.setValue(leftContent);
     
-    showMessage(
+    showLogMessage(
         translations['diff_reset_right_success'] || 'Right content has been reset to match the left',
         'info'
     );
@@ -12214,7 +12155,7 @@ function copyRightToLeft() {
     const rightContent = modifiedEditor.getValue();
     originalEditor.setValue(rightContent);
     
-    showMessage(
+    showLogMessage(
         translations['diff_apply_to_left_success'] || 'Right content has been applied to the left',
         'success'
     );
@@ -12247,11 +12188,6 @@ function saveLeftEditor(tabId) {
     
     updateEditorTabsUI();
     
-    showMessage(
-        translations['diff_left_saved_success'] || 'Left content has been saved to the original file',
-        'success'
-    );
-    
     const modal = bootstrap.Modal.getInstance(
         document.getElementById('diffEditorModal')
     );
@@ -12259,9 +12195,7 @@ function saveLeftEditor(tabId) {
         modal.hide();
     }
     
-    setTimeout(() => {
-        saveEditorContent(tabId);
-    }, 500);
+    saveEditorContent(tabId);
 }
 
 function formatFileSize(bytes) {
