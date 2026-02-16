@@ -731,6 +731,127 @@ if (isset($_GET['action'])) {
         exit;
     }
 
+    if ($action === 'upload_folder') {
+        header('Content-Type: application/json');
+    
+        $path = isset($_POST['path']) ? urldecode($_POST['path']) : '';
+        $realPath = realpath($path);
+    
+        if (!$realPath || strpos($realPath, $ROOT_DIR) !== 0 || !is_dir($realPath)) {
+            echo json_encode(['success' => false, 'error' => 'Invalid path']);
+            exit;
+        }
+    
+        $uploaded = 0;
+        $errors = [];
+    
+        if (isset($_FILES['files']) && isset($_POST['paths'])) {
+            $files = $_FILES['files'];
+            $paths = $_POST['paths'];
+        
+            for ($i = 0; $i < count($paths); $i++) {
+                if ($files['error'][$i] === UPLOAD_ERR_OK) {
+                    $relativePath = $paths[$i];
+                    $targetPath = $realPath . '/' . $relativePath;
+                
+                    if (move_uploaded_file($files['tmp_name'][$i], $targetPath)) {
+                        $uploaded++;
+                    } else {
+                        $errors[] = "Failed to upload: $relativePath";
+                    }
+                }
+            }
+        }
+    
+        echo json_encode([
+            'success' => $uploaded > 0,
+            'files_uploaded' => $uploaded,
+            'errors' => $errors
+        ]);
+        exit;
+    }
+
+    if ($action === 'convert_media') {
+        header('Content-Type: application/json');
+    
+        $input = json_decode(file_get_contents('php://input'), true);
+        $inputFile = $input['input'];
+        $outputFile = $input['output'];
+        $format = $input['format'];
+        $quality = $input['quality'];
+    
+        if (strpos(realpath($inputFile), $ROOT_DIR) !== 0 || 
+            strpos(realpath(dirname($outputFile)), $ROOT_DIR) !== 0) {
+            echo json_encode(['success' => false, 'error' => 'Invalid path']);
+            exit;
+        }
+    
+        $ffmpegPath = '/usr/bin/ffmpeg';
+    
+        $quality_param = '';
+        switch($quality) {
+            case 'high':
+                $quality_param = $format === 'mp3' ? '-b:a 320k' : '-crf 18';
+                break;
+            case 'medium':
+                $quality_param = $format === 'mp3' ? '-b:a 192k' : '-crf 23';
+                break;
+            case 'low':
+                $quality_param = $format === 'mp3' ? '-b:a 128k' : '-crf 28';
+                break;
+        }
+    
+        $cmd = $ffmpegPath . " -i " . escapeshellarg($inputFile) . " -y";
+    
+        switch($format) {
+            case 'mp3':
+                $cmd .= " -acodec libmp3lame $quality_param";
+                break;
+            case 'wav':
+                $cmd .= " -acodec pcm_s16le";
+                break;
+            case 'ogg':
+                $cmd .= " -acodec libvorbis -q:a " . ($quality === 'high' ? '8' : ($quality === 'medium' ? '5' : '3'));
+                break;
+            case 'flac':
+                $cmd .= " -acodec flac";
+                break;
+            case 'aac':
+            case 'm4a':
+                $cmd .= " -acodec aac $quality_param";
+                break;
+            case 'mp4':
+                $cmd .= " -c:v libx264 -preset medium $quality_param -c:a aac -b:a 128k";
+                break;
+            case 'avi':
+                $cmd .= " -c:v mpeg4 -q:v " . ($quality === 'high' ? '2' : ($quality === 'medium' ? '5' : '8')) . " -c:a mp3 -b:a 128k";
+                break;
+            case 'mkv':
+                $cmd .= " -c:v libx264 -preset medium $quality_param -c:a aac -b:a 128k";
+                break;
+            case 'mov':
+                $cmd .= " -c:v libx264 -preset medium $quality_param -c:a aac -b:a 128k";
+                break;
+            case 'webm':
+                $cmd .= " -c:v libvpx-vp9 -crf " . ($quality === 'high' ? '18' : ($quality === 'medium' ? '23' : '28')) . " -b:v 0 -c:a libopus -b:a 128k";
+                break;
+            case 'gif':
+                $cmd .= " -vf fps=10,scale=480:-1:flags=lanczos -c:v gif";
+                break;
+        }
+    
+        $cmd .= " " . escapeshellarg($outputFile) . " 2>&1";
+    
+        exec($cmd, $output, $returnCode);
+    
+        if ($returnCode === 0 && file_exists($outputFile)) {
+            echo json_encode(['success' => true]);
+        } else {
+            echo json_encode(['success' => false, 'error' => implode("\n", $output)]);
+        }
+        exit;
+    }
+
     if ($action === 'rename_item') {
         header('Content-Type: application/json');
         
@@ -4874,6 +4995,11 @@ list-group:hover {
             <span data-translate="batch_rename">Batch Rename</span>
             <span style="margin-left: auto; font-size: 0.8rem; opacity: 0.7;">Ctrl+B</span>
         </div>
+        <div class="menu-item" id="fileConvertItem" style="display: none;" onclick="showConvertDialog()">
+            <i class="fas fa-exchange-alt me-2" style="color: #9C27B0;"></i>
+            <span data-translate="batch_convert">Batch Format Conversion</span>
+            <span style="margin-left: auto; font-size: 0.8rem; opacity: 0.7;">FFmpeg</span>
+        </div>
         <div class="menu-item" id="fileDeleteItem" onclick="contextMenuDelete()">
             <i class="fas fa-trash me-2" style="color:#E53935;"></i>
             <span data-translate="delete">Delete</span>
@@ -5630,6 +5756,90 @@ list-group:hover {
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal"><i class="fas fa-times me-1"></i><span data-translate="cancel">Cancel</span></button>
                 <button type="button" class="btn btn-primary" onclick="executeBatchRename()"><i class="fas fa-check me-1"></i><span data-translate="rename">Rename</span></button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="convertModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="fas fa-exchange-alt me-2 text-purple"></i>
+                    <span data-translate="batch_convert">'Batch Format Conversion</span>
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="card bg-dark bg-opacity-25 border-secondary mb-3">
+                    <div class="card-header fw-bold d-flex justify-content-between align-items-center">
+                        <div>
+                            <i class="fas fa-list me-2"></i>
+                            <span data-translate="files_to_convert">Files to Convert</span>
+                        </div>
+                        <span class="badge bg-primary" id="convertFilesCount">0</span>
+                    </div>
+                    <div class="card-body p-2">
+                        <div id="convertFileList" class="list-group list-group-flush" style="max-height:200px; overflow-y:auto;"></div>
+                    </div>
+                </div>
+
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <label for="convertFormat" class="form-label" data-translate="output_format">Output Format</label>
+                        <select class="form-select" id="convertFormat">
+                            <optgroup data-translate="audio_formats">
+                                <option value="mp3">MP3</option>
+                                <option value="wav">WAV</option>
+                                <option value="ogg">OGG</option>
+                                <option value="flac">FLAC</option>
+                                <option value="aac">AAC</option>
+                                <option value="m4a">M4A</option>
+                            </optgroup>
+                            <optgroup data-translate="video_formats">
+                                <option value="mp4">MP4</option>
+                                <option value="avi">AVI</option>
+                                <option value="mkv">MKV</option>
+                                <option value="mov">MOV</option>
+                                <option value="webm">WEBM</option>
+                                <option value="gif">GIF</option>
+                            </optgroup>
+                        </select>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label for="convertQuality" class="form-label" data-translate="quality">Quality / Bitrate</label>
+                        <select class="form-select" id="convertQuality">
+                            <option value="high" data-translate="high_quality">High Quality</option>
+                            <option value="medium" selected data-translate="medium_quality">Medium Quality</option>
+                            <option value="low" data-translate="low_quality">Low Quality</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div id="convertProgressArea" style="display: none;">
+                    <div class="mb-2 d-flex justify-content-between">
+                        <span data-translate="converting">Converting...</span>
+                        <span id="convertProgressText">0/0</span>
+                    </div>
+                    <div class="progress mb-3" style="height: 25px;">
+                        <div id="convertProgressBar" class="progress-bar progress-bar-striped progress-bar-animated bg-success" 
+                             role="progressbar" style="width: 0%">0%</div>
+                    </div>
+                    <div id="convertLog" class="bg-dark text-success p-2 rounded" 
+                         style="height: 150px; overflow-y: auto; font-family: monospace; font-size: 12px;"></div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    <i class="fas fa-times me-1"></i>
+                    <span data-translate="cancel">Cancel</span>
+                </button>
+                <button type="button" class="btn btn-primary" onclick="startConvert()">
+                    <i class="fas fa-play me-1"></i>
+                    <span data-translate="start_convert">Start Conversion</span>
+                </button>
             </div>
         </div>
     </div>
@@ -7511,7 +7721,6 @@ function handleRightClick(event) {
             }
         }
 
-
         const hashItem = document.getElementById('fileHashItem');
         if (hashItem) {
             if (!isDir && selectedFiles.size === 1) {
@@ -7526,6 +7735,7 @@ function handleRightClick(event) {
                            'jpg', 'jpeg', 'png', 'gif', 'bmp', 'webp', 'svg'];
         if (!isDir && mediaExts.includes(ext)) {
             showMenuItem('filePlayItem');
+            showMenuItem('fileConvertItem');
         }
         
         const textExts = ['txt', 'log', 'conf', 'ini', 'json', 'xml', 'html', 
@@ -8187,7 +8397,7 @@ function hideAllContextMenuItems() {
         'emptyNewFolderItem', 'emptyNewFileItem', 'emptyUploadItem',
         'emptyRefreshItem', 'emptySelectAllItem', 'fileCopyPathItem',
         'globalPasteItem', 'fileBatchRenameItem',
-        'archiveMenuItem',
+        'archiveMenuItem', 'fileConvertItem',
         'fileInstallItem', 'fileHashItem'
     ];
     
@@ -8687,6 +8897,29 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     }
+    
+    const uploadModal = document.getElementById('uploadModal');
+    if (uploadModal) {
+        uploadModal.addEventListener('show.bs.modal', function() {
+            uploadFilesList = [];
+            
+            const fileList = document.getElementById('fileList');
+            if (fileList) {
+                fileList.innerHTML = '';
+            }
+            
+            const fileListCard = document.getElementById('fileListCard');
+            if (fileListCard) {
+                fileListCard.style.display = 'none';
+            }
+            
+            const fileInput = document.getElementById('fileUploadInput');
+            if (fileInput) {
+                fileInput.value = '';
+            }
+        });
+    }
+    
     setTimeout(() => {
         initDragSelect();
     }, 500);
@@ -11936,12 +12169,46 @@ function downloadFile(path) {
 }
 
 function handleFileSelect(event) {
-    const files = event.target.files;
-    const fileList = document.getElementById('fileList');
+    const files = Array.from(event.target.files);
     
-    uploadFilesList = Array.from(files);
+    uploadFilesList = [];
+    const folderSet = new Set();
+    
+    files.forEach(file => {
+        if (file.webkitRelativePath) {
+            const folderName = file.webkitRelativePath.split('/')[0];
+            folderSet.add(folderName);
+        }
+    });
+    
+    files.forEach(file => {
+        if (file.webkitRelativePath) {
+            const folderName = file.webkitRelativePath.split('/')[0];
+            file._isFolderFile = true;
+            file._folderName = folderName;
+            file._fullPath = file.webkitRelativePath;
+            uploadFilesList.push(file);
+        } else {
+            uploadFilesList.push(file);
+        }
+    });
+    
+    folderSet.forEach(folderName => {
+        const hasFolderFiles = uploadFilesList.some(f => f._folderName === folderName);
+        if (hasFolderFiles) {
+            const folderObj = {
+                _isFolder: true,
+                _folderName: folderName,
+                _files: uploadFilesList.filter(f => f._folderName === folderName),
+                size: uploadFilesList
+                    .filter(f => f._folderName === folderName)
+                    .reduce((sum, f) => sum + f.size, 0)
+            };
+            uploadFilesList.unshift(folderObj);
+        }
+    });
+    
     updateUploadFileList();
-    
     event.target.value = '';
 }
 
@@ -11976,35 +12243,150 @@ function removeUploadFile(index) {
 
 function updateUploadFileList() {
     const fileList = document.getElementById('fileList');
+    const fileListCard = document.getElementById('fileListCard');
+    
     fileList.innerHTML = '';
     
     if (uploadFilesList.length === 0) {
-        fileList.innerHTML = `
-            <div class="text-center text-muted py-3">
-                <i class="fas fa-cloud-upload-alt fa-2x mb-2"></i>
-                <p data-translate="no_files_selected">No files selected</p>
-            </div>`;
+        if (fileListCard) {
+            fileListCard.style.display = 'none';
+        }
         return;
     }
     
-    uploadFilesList.forEach((file, index) => {
-        const fileItem = document.createElement('div');
-        fileItem.className = 'file-item-upload d-flex align-items-center justify-content-between p-2 mb-2  rounded';
-        fileItem.innerHTML = `
-            <div class="d-flex align-items-center">
-                <i class="fas fa-file me-3 text-secondary"></i>
-                <div>
-                    <div class="file-name text-truncate" style="max-width: 300px;">${escapeHtml(file.name)}</div>
-                    <small class="text-muted">${formatFileSize(file.size)}</small>
+    if (fileListCard) {
+        fileListCard.style.display = 'block';
+    }
+    
+    let totalSize = 0;
+    let fileCount = 0;
+    let folderCount = 0;
+    
+    uploadFilesList.forEach(item => {
+        if (item._isFolder) {
+            folderCount++;
+            totalSize += item.size;
+            fileCount += item._files.length;
+        } else if (!item._isFolderFile) {
+            fileCount++;
+            totalSize += item.size;
+        }
+    });
+    
+    const totalItems = uploadFilesList.length;
+    
+    const statsCard = document.createElement('div');
+    statsCard.className = 'card bg-primary bg-opacity-10 border-primary mb-3';
+    statsCard.innerHTML = `
+        <div class="card-body">
+            <div class="row g-3 text-center">
+                <div class="col-3">
+                    <div class="stat-value text-primary fs-4 fw-bold">${totalItems}</div>
+                    <div class="stat-label small text-muted" data-translate="items">Items</div>
+                </div>
+                <div class="col-3">
+                    <div class="stat-value text-success fs-4 fw-bold">${fileCount}</div>
+                    <div class="stat-label small text-muted" data-translate="total_files">Total Files</div>
+                </div>
+                <div class="col-3">
+                    <div class="stat-value text-info fs-4 fw-bold">${folderCount}</div>
+                    <div class="stat-label small text-muted" data-translate="folders">Folders</div>
+                </div>
+                <div class="col-3">
+                    <div class="stat-value text-warning fs-4 fw-bold">${formatFileSize(totalSize)}</div>
+                    <div class="stat-label small text-muted" data-translate="total_size">Total Size</div>
                 </div>
             </div>
-            <button class="btn btn-sm btn-danger" onclick="removeUploadFile(${index})">
-                <i class="fas fa-times"></i>
-            </button>
-        `;
-        
-        fileList.appendChild(fileItem);
+        </div>
+    `;
+    fileList.appendChild(statsCard);
+    
+    const scrollContainer = document.createElement('div');
+    scrollContainer.className = 'upload-scroll-container';
+    scrollContainer.style.cssText = `
+        max-height: 400px;
+        overflow-y: auto;
+        padding-right: 5px;
+    `;
+    
+    uploadFilesList.forEach((item, index) => {
+        if (item._isFolder) {
+            const folderCard = document.createElement('div');
+            folderCard.className = 'card bg-warning bg-opacity-10 border-warning mb-2';
+            folderCard.innerHTML = `
+                <div class="card-body p-2">
+                    <div class="d-flex align-items-center">
+                        <div class="flex-shrink-0 me-3">
+                            <i class="fas fa-folder fa-2x" style="color: #FFA726;"></i>
+                        </div>
+                        <div class="flex-grow-1">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <span class="fw-bold">${escapeHtml(item._folderName)}</span>
+                                    <span class="badge bg-info ms-2">${item._files.length} files</span>
+                                </div>
+                                <div class="d-flex align-items-center">
+                                    <span class="text-warning fw-bold me-3 align-self-center">${formatFileSize(item.size)}</span>
+                                    <button class="btn btn-sm btn-link text-danger p-0" 
+                                            onclick="removeFolder('${item._folderName}')">
+                                        <i class="fas fa-times"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="small text-muted mt-1">
+                                <i class="fas fa-layer-group me-1"></i>
+                                Folder will be uploaded with structure
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            scrollContainer.appendChild(folderCard);
+        } else if (!item._isFolderFile) {
+            const fileCard = document.createElement('div');
+            fileCard.className = 'card bg-dark bg-opacity-25 border-secondary mb-2';
+            fileCard.innerHTML = `
+                <div class="card-body p-2">
+                    <div class="d-flex align-items-center">
+                        <div class="flex-shrink-0 me-3">
+                            <i class="fas fa-file fa-lg" style="color: #4CAF50;"></i>
+                        </div>
+                        <div class="flex-grow-1">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div style="word-break: break-word; padding-right: 10px;"  
+                                     title="${escapeHtml(item.name)}">
+                                    ${escapeHtml(item.name)}
+                                </div>
+                                <button class="btn btn-sm btn-danger" onclick="removeUploadFile(${index})"><i class="fas fa-times"></i></button>
+                            </div>
+                            <div class="small text-muted mt-1">
+                                <span class="badge bg-secondary me-2">${item.name.split('.').pop().toUpperCase()}</span>
+                                <span class="text-success">${formatFileSize(item.size)}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            scrollContainer.appendChild(fileCard);
+        }
     });
+    
+    fileList.appendChild(scrollContainer);
+    updateLanguage(currentLang);
+}
+
+function removeFolder(folderName) {
+    uploadFilesList = uploadFilesList.filter(item => {
+        if (item._isFolder && item._folderName === folderName) {
+            return false;
+        }
+        if (item._folderName === folderName) {
+            return false;
+        }
+        return true;
+    });
+    
+    updateUploadFileList();
 }
 
 function previewSanitizedFilename(filename) {
@@ -12035,11 +12417,17 @@ async function startUpload() {
     formData.append('path', currentPath);
 
     uploadFilesList.forEach(file => {
-        formData.append('file[]', file);
+        if (file._isFolderFile) {
+            formData.append('files[]', file);
+            formData.append('paths[]', file._fullPath);
+        } else {
+            formData.append('files[]', file);
+            formData.append('paths[]', file.name);
+        }
     });
 
     try {
-        const response = await fetch('?action=upload_file', {
+        const response = await fetch('?action=upload_folder', {
             method: 'POST',
             body: formData
         });
@@ -12047,21 +12435,18 @@ async function startUpload() {
         const data = await response.json();
 
         if (data.success) {
+            const uploadedCount = data.files_uploaded || uploadFilesList.length;
             const successMessage = `${translations['upload_success'] || 'Successfully uploaded'} ` +
-                                   `${data.files.length} ` +
-                                   (data.files.length === 1 
+                                   `${uploadedCount} ` +
+                                   (uploadedCount === 1 
                                     ? (translations['file'] || 'file') 
                                     : (translations['files'] || 'files'));
             
             showLogMessage(successMessage, 'success');
             speakMessage(successMessage, 'success');
 
-            bootstrap.Modal
-                .getInstance(document.getElementById('uploadModal'))
-                .hide();
-
+            bootstrap.Modal.getInstance(document.getElementById('uploadModal')).hide();
             uploadFilesList = [];
-            updateUploadFileList();
             refreshFiles();
         } else {
             const errorMessage = data.error || (translations['uploadFailed'] || 'Upload failed');
@@ -13038,6 +13423,181 @@ async function executeBatchRename() {
         message = (translations['rename_failed_count'] || 'Failed to rename {count} file(s)').replace('{count}', errorCount);
         showLogMessage(message, 'error');
     }
+}
+
+let convertFiles = [];
+
+function showConvertDialog() {
+    if (selectedFiles.size === 0) {
+        showLogMessage(translations['select_files_first'] || 'Please select files first', 'warning');
+        return;
+        return;
+    }
+    
+    convertFiles = Array.from(selectedFiles).filter(path => {
+        const ext = path.split('.').pop().toLowerCase();
+        const mediaExts = ['mp3', 'wav', 'ogg', 'flac', 'm4a', 'aac', 'mp4', 'avi', 'mkv', 'mov', 'wmv', 'flv', 'webm'];
+        return mediaExts.includes(ext);
+    }).map(path => {
+        const name = path.split('/').pop();
+        return {
+            path: path,
+            name: name,
+            nameWithoutExt: name.includes('.') ? name.substring(0, name.lastIndexOf('.')) : name,
+            ext: name.includes('.') ? name.split('.').pop() : ''
+        };
+    });
+    
+    updateConvertFileList();
+    
+    hideFileContextMenu();
+    
+    const modal = new bootstrap.Modal(document.getElementById('convertModal'));
+    modal.show();
+}
+
+function updateConvertFileList() {
+    const listContainer = document.getElementById('convertFileList');
+    const countBadge = document.getElementById('convertFilesCount');
+    
+    if (!listContainer) return;
+    
+    listContainer.innerHTML = '';
+    
+    if (convertFiles.length === 0) {
+        listContainer.innerHTML = '<div class="text-center text-muted py-3">' + 
+            (translations['no_files_selected'] || 'No files selected') + '</div>';
+        if (countBadge) countBadge.textContent = '0';
+        return;
+    }
+    
+    convertFiles.forEach((file, index) => {
+        const itemDiv = document.createElement('div');
+        itemDiv.className = 'list-group-item d-flex justify-content-between align-items-center';
+        itemDiv.style.background = 'transparent';
+        itemDiv.style.borderBottom = '1px solid var(--border-color)';
+        
+        const icon = file.ext.match(/(mp3|wav|ogg|flac|m4a|aac)/) ? 'fa-music' : 'fa-video';
+        const color = file.ext.match(/(mp3|wav|ogg|flac|m4a|aac)/) ? '#9C27B0' : '#2196F3';
+        
+        itemDiv.innerHTML = `
+            <div>
+                <i class="fas ${icon} me-2" style="color: ${color}"></i>
+                <span>${escapeHtml(file.name)}</span>
+            </div>
+            <button class="btn btn-sm btn-danger" onclick="removeConvertFile(${index})">
+                <i class="fas fa-times"></i>
+            </button>
+        `;
+        
+        listContainer.appendChild(itemDiv);
+    });
+    
+    if (countBadge) countBadge.textContent = convertFiles.length;
+}
+
+function removeConvertFile(index) {
+    convertFiles.splice(index, 1);
+    updateConvertFileList();
+}
+
+async function startConvert() {
+    if (convertFiles.length === 0) {
+        showLogMessage(translations['select_files_first'] || 'Please select files first', 'warning');
+        return;
+    }
+    
+    const format = document.getElementById('convertFormat').value;
+    const quality = document.getElementById('convertQuality').value;
+    
+    document.getElementById('convertProgressArea').style.display = 'block';
+    document.getElementById('convertLog').innerHTML = '';
+    
+    let success = 0;
+    let failed = 0;
+    
+    for (let i = 0; i < convertFiles.length; i++) {
+        const file = convertFiles[i];
+        
+        const timestamp = Date.now() + Math.floor(Math.random() * 1000);
+        const outputName = `${file.nameWithoutExt}_${timestamp}.${format}`;
+        
+        const outputPath = currentPath + '/' + outputName;
+        
+        const progress = ((i) / convertFiles.length * 100).toFixed(0);
+        document.getElementById('convertProgressBar').style.width = progress + '%';
+        document.getElementById('convertProgressBar').textContent = progress + '%';
+        document.getElementById('convertProgressText').textContent = `${i}/${convertFiles.length}`;
+        
+        appendConvertLog(
+            (translations['converting_file'] || 'Converting') + `: ${file.name} -> ${outputName}`
+        );
+        
+        try {
+            const response = await fetch('?action=convert_media', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    input: file.path,
+                    output: outputPath,
+                    format: format,
+                    quality: quality
+                })
+            });
+            
+            const data = await response.json();
+            
+            if (data.success) {
+                success++;
+                appendConvertLog(
+                    `✅ ${translations['convert_success'] || 'Converted successfully'}: ${outputName}`, 
+                    'success'
+                );
+            } else {
+                failed++;
+                appendConvertLog(
+                    `❌ ${translations['convert_failed'] || 'Conversion failed'}: ${data.error}`, 
+                    'error'
+                );
+            }
+        } catch (error) {
+            failed++;
+            appendConvertLog(
+                `❌ ${translations['convert_error'] || 'Conversion error'}: ${error.message}`, 
+                'error'
+            );
+        }
+    }
+    
+    document.getElementById('convertProgressBar').style.width = '100%';
+    document.getElementById('convertProgressBar').textContent = '100%';
+    document.getElementById('convertProgressText').textContent = `${convertFiles.length}/${convertFiles.length}`;
+    
+    const completeMsg = translations['convert_complete'] || 'Conversion complete';
+    appendConvertLog(
+        `\n${completeMsg}: ${success} ${translations['success'] || 'success'}, ${failed} ${translations['failed'] || 'failed'}`, 
+        success > 0 ? 'success' : 'error'
+    );
+    
+    refreshFiles();
+}
+
+function appendConvertLog(message, type = 'normal') {
+    const log = document.getElementById('convertLog');
+    const line = document.createElement('div');
+    
+    let color = '#00ff00';
+    if (type === 'error') color = '#ff6b6b';
+    else if (type === 'success') color = '#4CAF50';
+    
+    line.style.color = color;
+    line.style.marginBottom = '2px';
+    line.textContent = message;
+    
+    log.appendChild(line);
+    log.scrollTop = log.scrollHeight;
 }
 
 window.addEventListener('beforeunload', function(e) {
