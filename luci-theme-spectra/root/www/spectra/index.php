@@ -4203,6 +4203,82 @@ list-group:hover {
 .table>:not(caption)>*>* {
     color: var(--text-primary) !important;
 }
+
+.file-item.playing {
+    background-color: rgba(76, 175, 80, 0.2) !important;
+    border-color: #4CAF50 !important;
+    box-shadow: 0 0 15px rgba(76, 175, 80, 0.5) !important;
+    transform: translateY(-2px);
+    position: relative;
+    z-index: 10;
+}
+
+.file-item.playing::after {
+    content: '▶';
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    color: #4CAF50;
+    font-size: 12px;
+    background: rgba(0, 0, 0, 0.5);
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    animation: pulse 1.5s infinite;
+}
+
+.media-item.playing {
+    background-color: rgba(76, 175, 80, 0.2) !important;
+    border-color: #4CAF50 !important;
+    box-shadow: 0 0 15px rgba(76, 175, 80, 0.5) !important;
+    transform: translateY(-2px);
+    position: relative;
+    z-index: 10;
+}
+
+.media-item.playing::after {
+    content: '▶';
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    color: #4CAF50;
+    font-size: 12px;
+    background: rgba(0, 0, 0, 0.5);
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    animation: pulse 1.5s infinite;
+}
+
+.file-item.playing .file-icon i,
+.media-item.playing .media-thumb i {
+    color: #4CAF50 !important;
+    filter: drop-shadow(0 0 5px #4CAF50);
+}
+
+.file-item.playing .file-name,
+.media-item.playing .media-name {
+    color: #4CAF50 !important;
+    font-weight: bold;
+}
+
+.file-item.playing .file-size,
+.media-item.playing .media-meta {
+    color: #4CAF50 !important;
+    opacity: 0.9;
+}
+
+@keyframes pulse {
+    0% { opacity: 0.7; transform: scale(1); }
+    50% { opacity: 1; transform: scale(1.1); }
+    100% { opacity: 0.7; transform: scale(1); }
+}
 </style>
 <div class="main-container">
     <div class="content-area" id="contentArea">
@@ -4706,9 +4782,6 @@ list-group:hover {
                                      <i class="fas fa-video"></i>
                                  </div>
                              </video>
-                             <div class="video-overlay" style="position: absolute; top: 10px; left: 10px; background: rgba(0,0,0,0.6); padding: 4px 8px; border-radius: 4px;">
-                                 <i class="fas fa-play text-white" style="font-size: 12px;"></i>
-                             </div>
                          </div>
                             <div class="media-info">
                                 <div class="media-name" title="<?= htmlspecialchars($item['safe_name'], ENT_QUOTES, 'UTF-8') ?>">
@@ -5958,6 +6031,10 @@ function showSection(sectionId) {
     } else {
         stopSystemMonitoring();
     }
+
+    setTimeout(() => {
+        restorePlayingHighlight();
+    }, 300);
 }
      
 let playMediaTimeout = null;
@@ -5989,6 +6066,8 @@ function actuallyPlayMedia(filePath) {
         fileImageSwitchTimer = null;
     }
     
+    clearAllHighlights();
+    
     audioPlayer.style.display = 'none';
     videoPlayer.style.display = 'none';
     imageViewer.style.display = 'none';
@@ -6019,15 +6098,19 @@ function actuallyPlayMedia(filePath) {
             playError.style.display = 'block';
             playerArea.classList.add('active');
             currentMedia = { type: null, src: null, path: null, ext: null, wasPlaying: false };
+            clearAllHighlights();
         };
     }
     
     const currentSection = document.querySelector('.grid-section:not([style*="display: none"])')?.id || '';
     const isFileManager = currentSection === 'filesSection';
     
+    highlightCurrentPlayingFile(filePath, isFileManager);
+    
     if (musicExts.includes(fileExt)) {
         audioPlayer.onerror = handleMediaError(audioPlayer, translations['audio'] || 'Audio');
         audioPlayer.onended = function() {
+            clearAllHighlights();
             if (autoNextEnabled) {
                 if (isFileManager) {
                     playNextFileMedia();
@@ -6043,6 +6126,7 @@ function actuallyPlayMedia(filePath) {
         audioPlayer.play().catch(e => {
             audioPlayer.style.display = 'none';
             playError.style.display = 'block';
+            clearAllHighlights();
         });
         currentMedia = { type: 'audio', src: previewUrl, path: filePath, ext: fileExt, wasPlaying: false };
         
@@ -6055,6 +6139,7 @@ function actuallyPlayMedia(filePath) {
     else if (videoExts.includes(fileExt)) {
         videoPlayer.onerror = handleMediaError(videoPlayer, translations['video'] || 'Video');
         videoPlayer.onended = function() {
+            clearAllHighlights();
             if (autoNextEnabled) {
                 if (isFileManager) {
                     playNextFileMedia();
@@ -6070,6 +6155,7 @@ function actuallyPlayMedia(filePath) {
         videoPlayer.play().catch(e => {
             videoPlayer.style.display = 'none';
             playError.style.display = 'block';
+            clearAllHighlights();
         });
         currentMedia = { type: 'video', src: previewUrl, path: filePath, ext: fileExt, wasPlaying: false };
         
@@ -6101,11 +6187,89 @@ function actuallyPlayMedia(filePath) {
     } else {
         playError.style.display = 'block';
         playerArea.classList.add('active');
+        clearAllHighlights();
     }
     
     playerArea.classList.add('active');
     setPlayerTitle(fileName);    
     saveToRecent(filePath);
+}
+
+function clearAllHighlights() {
+    document.querySelectorAll('.file-item').forEach(item => {
+        item.classList.remove('playing');
+        item.style.backgroundColor = '';
+        item.style.borderColor = '';
+        item.style.boxShadow = '';
+        item.style.transform = '';
+    });
+    
+    document.querySelectorAll('.media-item').forEach(item => {
+        item.classList.remove('playing');
+        item.style.backgroundColor = '';
+        item.style.borderColor = '';
+        item.style.boxShadow = '';
+        item.style.transform = '';
+    });
+}
+
+function highlightCurrentPlayingFile(filePath, isFileManager) {
+    clearAllHighlights();
+    
+    if (isFileManager) {
+        const fileItem = document.querySelector(`.file-item[data-path="${filePath}"]`);
+        if (fileItem) {
+            fileItem.classList.add('playing');
+            fileItem.style.backgroundColor = 'rgba(76, 175, 80, 0.2)';
+            fileItem.style.borderColor = '#4CAF50';
+            fileItem.style.boxShadow = '0 0 15px rgba(76, 175, 80, 0.5)';
+            fileItem.style.transform = 'translateY(-2px)';
+            fileItem.style.transition = 'all 0.3s ease';
+            fileItem.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+    } else {
+        const mediaItem = document.querySelector(`.media-item[data-src="?preview=1&path=${encodeURIComponent(filePath)}"]`);
+        if (mediaItem) {
+            mediaItem.classList.add('playing');
+            mediaItem.style.backgroundColor = 'rgba(76, 175, 80, 0.2)';
+            mediaItem.style.borderColor = '#4CAF50';
+            mediaItem.style.boxShadow = '0 0 15px rgba(76, 175, 80, 0.5)';
+            mediaItem.style.transform = 'translateY(-2px)';
+            mediaItem.style.transition = 'all 0.3s ease';
+            mediaItem.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+    }
+}
+
+function restorePlayingHighlight() {
+    if (currentMedia && currentMedia.path) {
+        const currentSection = document.querySelector('.grid-section:not([style*="display: none"])')?.id || '';
+        const isFileManager = currentSection === 'filesSection';
+        
+        if (isFileManager) {
+            const fileExists = currentFileMediaList.includes(currentMedia.path);
+            if (fileExists) {
+                highlightCurrentPlayingFile(currentMedia.path, true);
+            } else {
+                clearAllHighlights();
+            }
+        } else {
+            let mediaExists = false;
+            if (currentSection === 'musicSection' && currentMedia.type === 'audio') {
+                mediaExists = currentMediaList.includes(currentMedia.path);
+            } else if (currentSection === 'videoSection' && currentMedia.type === 'video') {
+                mediaExists = currentMediaList.includes(currentMedia.path);
+            } else if (currentSection === 'imageSection' && currentMedia.type === 'image') {
+                mediaExists = currentMediaList.includes(currentMedia.path);
+            }
+            
+            if (mediaExists) {
+                highlightCurrentPlayingFile(currentMedia.path, false);
+            } else {
+                clearAllHighlights();
+            }
+        }
+    }
 }
 
 function playMedia(filePath) {
@@ -6462,6 +6626,8 @@ function closePlayer() {
         clearInterval(fileImageSwitchTimer);
         fileImageSwitchTimer = null;
     }
+    
+    clearAllHighlights();
     
     audioPlayer.pause();
     videoPlayer.pause();
@@ -7848,6 +8014,7 @@ async function loadFiles(path) {
         }, 500);
         updateCurrentFileMediaList();
     }
+    restorePlayingHighlight();
 
     initDragSelect();
 
