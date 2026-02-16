@@ -6048,6 +6048,7 @@ function actuallyPlayMedia(filePath) {
     
     const fileName = filePath.split('/').pop();
     const fileExt = fileName.split('.').pop().toLowerCase();
+    const nameWithoutExt = fileName.replace(/\.[^/.]+$/, "");
     
     const previewUrl = `?preview=1&path=${encodeURIComponent(filePath)}`;
     const audioPlayer = document.getElementById('audioPlayer');
@@ -6056,6 +6057,11 @@ function actuallyPlayMedia(filePath) {
     const playError = document.getElementById('playError');
     const playerArea = document.getElementById('playerArea');
     const playerTitle = document.getElementById('playerTitle');
+
+    const playingPrefix = translations['now_playing'] || 'Now playing';
+    const playingMessage = `${playingPrefix}：${nameWithoutExt}`;
+    showLogMessage(playingMessage);
+    speakMessage(playingMessage);
 
     if (imageSwitchTimer) {
         clearInterval(imageSwitchTimer);
