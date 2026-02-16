@@ -1163,6 +1163,54 @@ if (isset($_GET['action'])) {
         exit;
     }
 
+    if ($action === 'full_scan') {
+        header('Content-Type: application/json');
+    
+        $media = ['music' => [], 'video' => [], 'image' => []];
+        $files = scanDirectory($ROOT_DIR, 20);
+    
+        foreach ($files as $file) {
+            $ext = $file['ext'];
+            foreach ($TYPE_EXT as $type => $exts) {
+                if (in_array($ext, $exts)) {
+                    $media[$type][] = $file;
+                    break;
+                }
+            }
+        }
+    
+        foreach ($media as &$files) {
+            usort($files, function($a, $b) {
+                return $b['mtime'] - $a['mtime'];
+            });
+        }
+    
+        $cacheFile = './lib/media_cache.json';
+        file_put_contents($cacheFile, json_encode($media));
+    
+        echo json_encode(['success' => true]);
+        exit;
+    }
+
+    if ($action === 'clear_cache') {
+        header('Content-Type: application/json');
+    
+        $cacheFile = './lib/media_cache.json';
+        $success = false;
+    
+        if (file_exists($cacheFile)) {
+            $success = unlink($cacheFile);
+        } else {
+            $success = true;
+        }
+    
+        echo json_encode([
+            'success' => $success,
+            'message' => $success ? 'Cache cleared' : 'Failed to clear cache'
+        ]);
+        exit;
+    }
+
     if ($action === 'archive_action') {
         header('Content-Type: application/json');
     
@@ -2182,7 +2230,7 @@ function getDiskInfo($path = '/') {
     ];
 }
 
-function scanDirectory($path, $maxDepth = 5) {
+function scanDirectory($path, $maxDepth = 5, $fast = false) {
     global $EXCLUDE_DIRS;
     $files = [];
     $seenFiles = [];
@@ -2206,12 +2254,9 @@ function scanDirectory($path, $maxDepth = 5) {
             RecursiveIteratorIterator::CATCH_GET_CHILD
         );
         
+        $iterator->setMaxDepth($maxDepth);
+        
         foreach ($iterator as $file) {
-            if ($iterator->getDepth() > $maxDepth) {
-                $iterator->next();
-                continue;
-            }
-            
             if ($file->isFile() && $file->isReadable()) {
                 $filePath = $file->getPathname();
                 $realPath = realpath($filePath);
@@ -2238,18 +2283,36 @@ function scanDirectory($path, $maxDepth = 5) {
                 
                 $seenFiles[$fileKey] = true;
                 
-                $files[] = [
-                    'path' => $realPath,
-                    'name' => $file->getFilename(),
-                    'size' => $file->getSize(),
-                    'mtime' => $file->getMTime(),
-                    'ext' => strtolower($file->getExtension()),
-                    'safe_path' => htmlspecialchars($realPath, ENT_QUOTES, 'UTF-8'),
-                    'safe_name' => htmlspecialchars($file->getFilename(), ENT_QUOTES, 'UTF-8')
-                ];
+                if ($fast) {
+                    $ext = strtolower($file->getExtension());
+                    $files[] = [
+                        'path' => $realPath,
+                        'name' => $fileName,
+                        'size' => $fileSize,
+                        'mtime' => $file->getMTime(),
+                        'ext' => $ext,
+                        'safe_path' => htmlspecialchars($realPath, ENT_QUOTES, 'UTF-8'),
+                        'safe_name' => htmlspecialchars($fileName, ENT_QUOTES, 'UTF-8')
+                    ];
+                } else {
+                    $files[] = [
+                        'path' => $realPath,
+                        'name' => $fileName,
+                        'size' => $fileSize,
+                        'mtime' => $file->getMTime(),
+                        'ext' => strtolower($file->getExtension()),
+                        'safe_path' => htmlspecialchars($realPath, ENT_QUOTES, 'UTF-8'),
+                        'safe_name' => htmlspecialchars($fileName, ENT_QUOTES, 'UTF-8')
+                    ];
+                }
+            }
+            
+            if (count($files) % 100 == 0) {
+                gc_collect_cycles();
             }
         }
     } catch (Exception $e) {
+        error_log("Scan error: " . $e->getMessage());
     }
     
     return $files;
@@ -2267,22 +2330,13 @@ function getVideoThumbnail($videoPath) {
 }
 
 $media = ['music' => [], 'video' => [], 'image' => []];
-$files = scanDirectory($ROOT_DIR);
 
-foreach ($files as $file) {
-    $ext = $file['ext'];
-    foreach ($TYPE_EXT as $type => $exts) {
-        if (in_array($ext, $exts)) {
-            $media[$type][] = $file;
-            break;
-        }
+$cacheFile = './lib/media_cache.json';
+if (file_exists($cacheFile)) {
+    $cached = json_decode(file_get_contents($cacheFile), true);
+    if ($cached) {
+        $media = $cached;
     }
-}
-
-foreach ($media as &$files) {
-    usort($files, function($a, $b) {
-        return $b['mtime'] - $a['mtime'];
-    });
 }
 
 $diskInfo = getDiskInfo('/');
@@ -4184,6 +4238,14 @@ list-group:hover {
             </div>
             
             <div class="actions">
+                <button id="scanButton" class="btn btn-info" onclick="performFullScan()" data-translate-tooltip="full_scan_tooltip">
+                    <i class="fas fa-search"></i>
+                    <span data-translate="full_scan">Full Scan</span>
+                </button>
+                <button id="clearCacheButton" class="btn btn-warning" onclick="clearMediaCache()">
+                    <i class="fas fa-trash"></i>
+                    <span data-translate="clear_cache">Clear Cache</span>
+                </button>
                 <button id="autoNextToggle" class="btn btn-primary" onclick="toggleAutoNext()">
                     <i class="fas fa-toggle-off"></i>
                     <span data-translate="auto_play">Auto Play</span>
@@ -6296,6 +6358,72 @@ function toggleFullscreenPlayer() {
 function refreshMedia() {
     updateRecentList();
     window.location.reload();
+}
+
+function performFullScan() {
+    const scanBtn = document.getElementById('scanButton');
+    const originalText = scanBtn.innerHTML;
+    
+    showConfirmation(
+        translations['confirm_full_scan'] || 'This will scan the entire file system. This may take a while. Continue?',
+        async () => {
+            scanBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> ' + (translations['scanning'] || 'Scanning...');
+            scanBtn.disabled = true;
+            
+            try {
+                const response = await fetch('?action=full_scan');
+                const data = await response.json();
+                
+                if (data.success) {
+                    showLogMessage(translations['scan_complete'] || 'Scan complete', 'success');
+                    setTimeout(() => {
+                        window.location.reload();
+                    }, 4000);
+                } else {
+                    showLogMessage(translations['scan_failed'] || 'Scan failed', 'error');
+                    scanBtn.innerHTML = originalText;
+                    scanBtn.disabled = false;
+                }
+            } catch (error) {
+                showLogMessage(translations['scan_error'] || 'Scan error: ' + error.message, 'error');
+                scanBtn.innerHTML = originalText;
+                scanBtn.disabled = false;
+            }
+        }
+    );
+}
+
+function clearMediaCache() {
+    showConfirmation(
+        translations['confirm_clear_cache'] || 'This will clear the media cache. Continue?',
+        async () => {
+            const btn = document.getElementById('clearCacheButton');
+            const originalText = btn.innerHTML;
+            
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> ' + (translations['clearing'] || 'Clearing...');
+            btn.disabled = true;
+            
+            try {
+                const response = await fetch('?action=clear_cache');
+                const data = await response.json();
+                
+                if (data.success) {
+                    showLogMessage(translations['cache_cleared'] || 'Cache cleared', 'success');
+                    setTimeout(() => {
+                        window.location.reload();
+                    }, 3000);
+                } else {
+                    showLogMessage(translations['clear_failed'] || 'Failed to clear cache', 'error');
+                    btn.innerHTML = originalText;
+                    btn.disabled = false;
+                }
+            } catch (error) {
+                showLogMessage(translations['clear_error'] || 'Error: ' + error.message, 'error');
+                btn.innerHTML = originalText;
+                btn.disabled = false;
+            }
+        }
+    );
 }
     
 function toggleFullscreen() {
