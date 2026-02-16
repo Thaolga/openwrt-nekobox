@@ -5984,6 +5984,10 @@ function actuallyPlayMedia(filePath) {
         clearInterval(imageSwitchTimer);
         imageSwitchTimer = null;
     }
+    if (fileImageSwitchTimer) {
+        clearInterval(fileImageSwitchTimer);
+        fileImageSwitchTimer = null;
+    }
     
     audioPlayer.style.display = 'none';
     videoPlayer.style.display = 'none';
@@ -6018,11 +6022,18 @@ function actuallyPlayMedia(filePath) {
         };
     }
     
+    const currentSection = document.querySelector('.grid-section:not([style*="display: none"])')?.id || '';
+    const isFileManager = currentSection === 'filesSection';
+    
     if (musicExts.includes(fileExt)) {
         audioPlayer.onerror = handleMediaError(audioPlayer, translations['audio'] || 'Audio');
         audioPlayer.onended = function() {
             if (autoNextEnabled) {
-                playNextMedia();
+                if (isFileManager) {
+                    playNextFileMedia();
+                } else {
+                    playNextMedia();
+                }
             }
         };
         audioPlayer.src = previewUrl;
@@ -6034,13 +6045,22 @@ function actuallyPlayMedia(filePath) {
             playError.style.display = 'block';
         });
         currentMedia = { type: 'audio', src: previewUrl, path: filePath, ext: fileExt, wasPlaying: false };
-        updateCurrentMediaList('music', filePath);
+        
+        if (isFileManager) {
+            updateFileMediaList(filePath);
+        } else {
+            updateCurrentMediaList('music', filePath);
+        }
     } 
     else if (videoExts.includes(fileExt)) {
         videoPlayer.onerror = handleMediaError(videoPlayer, translations['video'] || 'Video');
         videoPlayer.onended = function() {
             if (autoNextEnabled) {
-                playNextMedia();
+                if (isFileManager) {
+                    playNextFileMedia();
+                } else {
+                    playNextMedia();
+                }
             }
         };
         videoPlayer.src = previewUrl;
@@ -6052,17 +6072,31 @@ function actuallyPlayMedia(filePath) {
             playError.style.display = 'block';
         });
         currentMedia = { type: 'video', src: previewUrl, path: filePath, ext: fileExt, wasPlaying: false };
-        updateCurrentMediaList('video', filePath);
+        
+        if (isFileManager) {
+            updateFileMediaList(filePath);
+        } else {
+            updateCurrentMediaList('video', filePath);
+        }
     } 
     else if (imageExts.includes(fileExt)) {
         imageViewer.onerror = handleMediaError(imageViewer, translations['image'] || 'Image');
         imageViewer.src = previewUrl;
         imageViewer.style.display = 'block';
         currentMedia = { type: 'image', src: previewUrl, path: filePath, ext: fileExt, wasPlaying: false };
-        updateCurrentMediaList('image', filePath);
+        
+        if (isFileManager) {
+            updateFileMediaList(filePath);
+        } else {
+            updateCurrentMediaList('image', filePath);
+        }
         
         if (autoNextEnabled) {
-            startImageAutoSwitch();
+            if (isFileManager) {
+                startFileImageAutoSwitch();
+            } else {
+                startImageAutoSwitch();
+            }
         }
     } else {
         playError.style.display = 'block';
@@ -6088,6 +6122,115 @@ function playMedia(filePath) {
     
     lastPlayedPath = filePath;
     actuallyPlayMedia(filePath);
+}
+
+function updateCurrentFileMediaList() {
+    const fileItems = document.querySelectorAll('.file-item');
+    currentFileMediaList = [];
+    
+    const mediaExts = [
+        'mp3', 'wav', 'ogg', 'flac', 'm4a', 'aac',
+        'mp4', 'avi', 'mkv', 'mov', 'wmv', 'flv', 'webm',
+        'jpg', 'jpeg', 'png', 'gif', 'bmp', 'webp', 'svg'
+    ];
+    
+    fileItems.forEach(item => {
+        const path = item.getAttribute('data-path');
+        const isDir = item.getAttribute('data-is-dir') === 'true';
+        
+        if (!isDir && path) {
+            const ext = path.split('.').pop().toLowerCase();
+            if (mediaExts.includes(ext)) {
+                currentFileMediaList.push(path);
+            }
+        }
+    });
+}
+
+function updateFileMediaList(filePath) {
+    updateCurrentFileMediaList();
+    currentFileMediaIndex = currentFileMediaList.indexOf(filePath);
+    console.log('File media index:', currentFileMediaIndex, 'Total:', currentFileMediaList.length);
+}
+
+function startFileImageAutoSwitch() {
+    if (fileImageSwitchTimer) {
+        clearInterval(fileImageSwitchTimer);
+    }
+    
+    if (!autoNextEnabled || currentFileMediaList.length < 2) {
+        return;
+    }
+    
+    fileImageSwitchTimer = setInterval(() => {
+        playNextFileMedia();
+    }, 5000);
+}
+
+function playNextFileMedia() {
+    if (!autoNextEnabled) {
+        return;
+    }
+
+    const currentSection = document.querySelector('.grid-section:not([style*="display: none"])')?.id || '';
+    const isFileManager = currentSection === 'filesSection';
+    
+    if (isFileManager) {
+        if (currentFileMediaList.length === 0 || currentFileMediaIndex === -1) {
+            return;
+        }
+        
+        const nextIndex = (currentFileMediaIndex + 1) % currentFileMediaList.length;
+        const nextFilePath = currentFileMediaList[nextIndex];
+        
+        if (nextFilePath) {
+            playMedia(nextFilePath);
+        }
+    } else {
+        if (currentMediaList.length === 0 || currentMediaIndex === -1) {
+            return;
+        }
+        
+        const nextIndex = (currentMediaIndex + 1) % currentMediaList.length;
+        const nextFilePath = currentMediaList[nextIndex];
+        
+        if (nextFilePath) {
+            playMedia(nextFilePath);
+        }
+    }
+}
+
+function playPreviousFileMedia() {
+    if (!autoNextEnabled) {
+        return;
+    }
+
+    const currentSection = document.querySelector('.grid-section:not([style*="display: none"])')?.id || '';
+    const isFileManager = currentSection === 'filesSection';
+    
+    if (isFileManager) {
+        if (currentFileMediaList.length === 0 || currentFileMediaIndex === -1) {
+            return;
+        }
+        
+        const prevIndex = (currentFileMediaIndex - 1 + currentFileMediaList.length) % currentFileMediaList.length;
+        const prevFilePath = currentFileMediaList[prevIndex];
+        
+        if (prevFilePath) {
+            playMedia(prevFilePath);
+        }
+    } else {
+        if (currentMediaList.length === 0 || currentMediaIndex === -1) {
+            return;
+        }
+        
+        const prevIndex = (currentMediaIndex - 1 + currentMediaList.length) % currentMediaList.length;
+        const prevFilePath = currentMediaList[prevIndex];
+        
+        if (prevFilePath) {
+            playMedia(prevFilePath);
+        }
+    }
 }
 
 function setPlayerTitle(fileName) {
@@ -6207,13 +6350,28 @@ function toggleAutoNext() {
         (translations['auto_play_enabled'] || 'Auto play enabled') : 
         (translations['auto_play_disabled'] || 'Auto play disabled'));
     
+    const currentSection = document.querySelector('.grid-section:not([style*="display: none"])')?.id || '';
+    const isFileManager = currentSection === 'filesSection';
+    
     if (currentMedia.type === 'image') {
-        if (autoNextEnabled && currentMediaList.length > 1) {
-            startImageAutoSwitch();
+        if (autoNextEnabled) {
+            if (isFileManager) {
+                if (currentFileMediaList.length > 1) {
+                    startFileImageAutoSwitch();
+                }
+            } else {
+                if (currentMediaList.length > 1) {
+                    startImageAutoSwitch();
+                }
+            }
         } else {
             if (imageSwitchTimer) {
                 clearInterval(imageSwitchTimer);
                 imageSwitchTimer = null;
+            }
+            if (fileImageSwitchTimer) {
+                clearInterval(fileImageSwitchTimer);
+                fileImageSwitchTimer = null;
             }
         }
     }
@@ -6299,6 +6457,10 @@ function closePlayer() {
     if (imageSwitchTimer) {
         clearInterval(imageSwitchTimer);
         imageSwitchTimer = null;
+    }
+    if (fileImageSwitchTimer) {
+        clearInterval(fileImageSwitchTimer);
+        fileImageSwitchTimer = null;
     }
     
     audioPlayer.pause();
@@ -7432,12 +7594,22 @@ document.addEventListener('keydown', function(event) {
             
         case 'ArrowRight':
             event.preventDefault();
-            playNextMedia();
+            const currentSection = document.querySelector('.grid-section:not([style*="display: none"])')?.id || '';
+            if (currentSection === 'filesSection') {
+                playNextFileMedia();
+            } else {
+                playNextMedia();
+            }
             break;
             
         case 'ArrowLeft':
             event.preventDefault();
-            playPreviousMedia();
+            const currentSectionLeft = document.querySelector('.grid-section:not([style*="display: none"])')?.id || '';
+            if (currentSectionLeft === 'filesSection') {
+                playPreviousFileMedia();
+            } else {
+                playPreviousMedia();
+            }
             break;
             
         case 'KeyA':
@@ -7545,6 +7717,9 @@ let currentPath = '/';
 let selectedFiles = new Set();
 let viewMode = 'grid';
 let fileContextMenuTarget = null;
+let currentFileMediaList = [];
+let currentFileMediaIndex = -1;
+let fileImageSwitchTimer = null;  
 let uploadFilesList = [];
 let currentView = 'files'; 
 let monacoEditor = null;
@@ -7671,6 +7846,7 @@ async function loadFiles(path) {
                 }
             }
         }, 500);
+        updateCurrentFileMediaList();
     }
 
     initDragSelect();
