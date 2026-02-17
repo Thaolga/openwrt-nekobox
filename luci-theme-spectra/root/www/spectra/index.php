@@ -3974,7 +3974,7 @@ list-group:hover {
 .editor-toolbar-left, .editor-toolbar-right {
     display: flex;
     align-items: center;
-    gap: 10px;
+    gap: 8px;
     flex-wrap: wrap;
 }
 
@@ -12231,8 +12231,7 @@ function updateEditorPanelContent() {
                             </select> 
                             <select class="editor-fontsize-select" 
                                     onchange="changeEditorFontSize('${tab.id}', this.value)"
-                                    data-translate-tooltip="fontSizeL"
-                                    style="margin-left: 8px;">
+                                    data-translate-tooltip="fontSizeL">
                                 <option value="10">10px</option>
                                 <option value="11">11px</option>
                                 <option value="12">12px</option>
