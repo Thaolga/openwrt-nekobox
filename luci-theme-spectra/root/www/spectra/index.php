@@ -4612,7 +4612,7 @@ list-group:hover {
                                     <div class="row g-3">
                                         <div class="col-6">
                                             <div class="bg-black bg-opacity-25 rounded p-3 text-center status-tile d-flex flex-column justify-content-center">
-                                                <div class="h5 text-info mb-2" id="openwrtVersionDisplay">--</div>
+                                                <div class="h5 text-info mb-2 text-truncate" id="openwrtVersionDisplay">--</div>
                                                 <div class="small text-white-50" data-translate="openwrt_version">OpenWrt Version</div>
                                             </div>
                                         </div>
@@ -4624,7 +4624,7 @@ list-group:hover {
                                         </div>
                                         <div class="col-6">
                                             <div class="bg-black bg-opacity-25 rounded p-3 text-center status-tile d-flex flex-column justify-content-center">
-                                                <div class="h5 text-teal mb-2" style="color: #008000;" id="boardModelDisplay">--</div>
+                                                <div class="h5 text-teal mb-2 text-truncate" style="color: #008000;" id="boardModelDisplay">--</div>
                                                 <div class="small text-white-50" data-translate="board_model">Board Model</div>
                                             </div>
                                         </div>
@@ -7133,7 +7133,9 @@ async function updateSystemInfo() {
             updateElementText('cpuFreqDisplay', data.cpu_freq || '--');
 
             if (data.openwrt_version) {
-                updateElementText('openwrtVersionDisplay', data.openwrt_version || 'Unknown');
+                const el = document.getElementById('openwrtVersionDisplay');
+                el.textContent = data.openwrt_version || 'Unknown';
+                el.title = data.openwrt_version || 'Unknown';
             }
             
             if (data.kernel_version) {
@@ -7141,7 +7143,9 @@ async function updateSystemInfo() {
             }
             
             if (data.board_model) {
-                updateElementText('boardModelDisplay', data.board_model || 'Unknown');
+                const el = document.getElementById('boardModelDisplay');
+                el.textContent = data.board_model || 'Unknown';
+                el.title = data.board_model || 'Unknown';
             }
             
             const memUsage = parseFloat(data.mem_usage) || 0;
@@ -7207,7 +7211,6 @@ async function updateSystemInfo() {
             }
         }
     } catch (error) {
-        console.error('Failed to update system info:', error);
         showErrorState();
     }
 }
