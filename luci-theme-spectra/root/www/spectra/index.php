@@ -6166,10 +6166,14 @@ function actuallyPlayMedia(filePath) {
     const playerArea = document.getElementById('playerArea');
     const playerTitle = document.getElementById('playerTitle');
 
-    const playingPrefix = translations['now_playing'] || 'Now playing';
-    const playingMessage = `${playingPrefix}：${nameWithoutExt}`;
-    showLogMessage(playingMessage);
-    speakMessage(playingMessage);
+    if (fileExt !== 'jpg' && fileExt !== 'jpeg' && fileExt !== 'png' && 
+        fileExt !== 'gif' && fileExt !== 'bmp' && fileExt !== 'webp' && 
+        fileExt !== 'svg') {
+        const playingPrefix = translations['now_playing'] || 'Now playing';
+        const playingMessage = `${playingPrefix}：${nameWithoutExt}`;
+        showLogMessage(playingMessage);
+        speakMessage(playingMessage);
+    }
 
     if (imageSwitchTimer) {
         clearInterval(imageSwitchTimer);
