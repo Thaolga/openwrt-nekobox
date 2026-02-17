@@ -12228,14 +12228,6 @@ function updateEditorPanelContent() {
                                 <option value="apache">Apache</option>
                                 <option value="gitignore">.gitignore</option>
                                 <option value="editorconfig">.editorconfig</option>
-                                <option value="shell">OpenWrt Config (.conf, .config)</option>
-                                <option value="shell">Shell Script (.sh, .bash, .ash)</option>
-                                <option value="shell">UCI Config (.uci)</option>
-                                <option value="lua">LuCI Lua Script (.lua)</option>
-                                <option value="makefile">Makefile</option>
-                                <option value="shell">System Config (.rc, .service)</option>
-                                <option value="shell">Network Config (.network, .wireless)</option>
-                                <option value="shell">Firewall Config (.firewall)</option>
                             </select> 
                             <select class="editor-fontsize-select" 
                                     onchange="changeEditorFontSize('${tab.id}', this.value)"
