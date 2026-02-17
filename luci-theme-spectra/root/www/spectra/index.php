@@ -14248,6 +14248,20 @@ function appendConvertLog(message, type = 'normal') {
     log.scrollTop = log.scrollHeight;
 }
 
+function playPreviousMedia() {
+    if (!autoNextEnabled) return;
+    
+    const playlist = playlistCache['/'] || [];
+    
+    if (playlist.length === 0) return;
+    
+    const currentIndex = playlist.indexOf(currentMedia?.path);
+    if (currentIndex === -1) return;
+    
+    const prevIndex = (currentIndex - 1 + playlist.length) % playlist.length;
+    playMedia(playlist[prevIndex]);
+}
+
 window.addEventListener('beforeunload', function(e) {
     const unsavedTabs = editorTabs.filter(tab => tab.modified);
     
