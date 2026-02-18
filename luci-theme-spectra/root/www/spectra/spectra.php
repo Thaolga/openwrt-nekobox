@@ -709,6 +709,8 @@ $langData = [
         'clear_error'            => '清空错误',
         'full_scan_tooltip' => '全盘扫描获取的媒体文件会占用大量内存，不用请使用清理按键清空数据',
         'now_playing' => '正在播放',
+        'cpu_model'        => 'CPU型号',
+        'tooltip_playlist' => '播放任意目錄媒體檔案，自動建立播放列表',
         'file_summary' => '已选择 %d 个文件，合计 %s MB'
     ],
 
@@ -1419,6 +1421,8 @@ $langData = [
         'clear_error'            => '清空錯誤',
         'full_scan_tooltip' => '全盤掃描獲取的媒體文件會佔用大量內存，唔用請使用清理按鍵清空數據',
         'now_playing' => '正在播放',
+        'tooltip_playlist' => '播放任意目錄媒體檔案，自動建立播放列表',
+        'cpu_model'        => 'CPU型號',
         'validateYaml' => '驗證 YAML 語法'
     ],
 
@@ -2127,7 +2131,9 @@ $langData = [
         'clear_failed'           => '지우기 실패',
         'clear_error'            => '지우기 오류',
         'full_scan_tooltip' => '전체 스캔으로 가져온 미디어 파일은 많은 메모리를 차지합니다. 사용하지 않을 경우 정리 버튼을 사용하여 데이터를 비우십시오.',
+        'tooltip_playlist'       => '모든 미디어 폴더에서 재생 목록 자동 생성',
         'now_playing' => '재생 중',
+        'cpu_model'        => 'CPU 모델',
         'validateYaml' => 'YAML 구문 검증'
     ],
 
@@ -2836,6 +2842,8 @@ $langData = [
         'clear_error'            => 'クリアエラー',
         'full_scan_tooltip' => '全スキャンで取得したメディアファイルは多くのメモリを占有します。使用しない場合は、クリアボタンを使用してデータを空にしてください。',
         'now_playing' => '再生中',
+        'cpu_model'        => 'CPUモデル',
+        'tooltip_playlist'       => '任意のメディアフォルダから再生リストを自動作成',
         'validateYaml' => 'YAML構文を検証'
     ],
 
@@ -3542,6 +3550,8 @@ $langData = [
         'clear_error'            => 'Lỗi xóa',
         'full_scan_tooltip' => 'Tệp phương tiện được lấy từ quét toàn bộ ổ đĩa sẽ chiếm nhiều bộ nhớ. Nếu không sử dụng, vui lòng dùng nút dọn dẹp để xóa dữ liệu.',
         'now_playing' => 'Đang phát',
+        'cpu_model'        => 'Mẫu CPU',
+        'tooltip_playlist'       => 'Tạo danh sách phát thông minh từ bất kỳ thư mục media nào',
         'validateYaml' => 'Kiểm tra Cú pháp YAML'
     ],
 
@@ -4232,6 +4242,8 @@ $langData = [
         'clear_error'            => 'ข้อผิดพลาดการล้างแคช',
         'full_scan_tooltip' => 'ไฟล์มีเดียที่ได้จากการสแกนทั้งระบบจะใช้หน่วยความจำจำนวนมาก หากไม่ใช้งานกรุณาใช้ปุ่มล้างข้อมูลเพื่อลบข้อมูล',
         'now_playing' => 'กำลังเล่น',
+        'cpu_model'        => 'รุ่น CPU',
+        'tooltip_playlist'       => 'สร้างเพลย์ลิสต์อัตโนมัติจากโฟลเดอร์สื่อใดก็ได้',
         'validateYaml' => 'ตรวจสอบไวยากรณ์ YAML'
     ],
     'ru' => [
@@ -4923,6 +4935,8 @@ $langData = [
         'clear_error'            => 'Ошибка очистки',
         'full_scan_tooltip' => 'Медиафайлы, полученные при полном сканировании, занимают много памяти. Если не используете, пожалуйста, используйте кнопку очистки для удаления данных.',
         'now_playing' => 'Сейчас воспроизводится',
+        'cpu_model'        => 'Модель CPU',
+        'tooltip_playlist'       => 'Автоматически создать плейлист из любой папки с медиа',
         'validateYaml' => 'Проверить синтаксис YAML'
     ],
     'ar' => [
@@ -5619,6 +5633,8 @@ $langData = [
         'clear_error'            => 'خطأ في المسح',
         'full_scan_tooltip' => 'ملفات الوسائط التي تم الحصول عليها من الفحص الكامل تستهلك الكثير من الذاكرة، إذا لم تستخدمها يرجى استخدام زر التنظيف لمسح البيانات',
         'now_playing' => 'قيد التشغيل الآن',
+        'tooltip_playlist'       => 'إنشاء قائمة تشغيل تلقائيًا من أي مجلد وسائط',
+        'cpu_model'        => 'طراز المعالج',
         'validateYaml' => 'التحقق من صحة بناء جملة YAML'
     ],
     'es' => [
@@ -6307,6 +6323,8 @@ $langData = [
         'clear_error'            => 'Error de limpieza',
         'full_scan_tooltip' => 'Los archivos multimedia obtenidos del escaneo completo ocupan mucha memoria. Si no los usa, utilice el botón de limpieza para vaciar los datos.',
         'now_playing' => 'Reproduciendo ahora',
+        'cpu_model'        => 'Modelo de CPU',
+        'tooltip_playlist'       => 'Crear lista de reproducción desde cualquier carpeta de medios de forma inteligente',
         'validateYaml' => 'Validar sintaxis YAML'
     ],
     'de' => [
@@ -6997,6 +7015,8 @@ $langData = [
         'clear_error'            => 'Löschfehler',
         'full_scan_tooltip' => 'Mediendateien, die durch einen vollständigen Scan erfasst werden, beanspruchen viel Speicher. Wenn Sie sie nicht verwenden, leeren Sie die Daten bitte mit der Bereinigungstaste.',
         'now_playing' => 'Wird gerade abgespielt',
+        'tooltip_playlist'       => 'Intelligente Wiedergabeliste aus beliebigen Medienordnern erstellen',
+        'cpu_model'        => 'CPU-Modell',
         'validateYaml' => 'YAML-Syntax validieren'
     ],
 
@@ -7688,6 +7708,8 @@ $langData = [
         'clear_error'            => 'Erreur de vidage',
         'full_scan_tooltip' => 'Les fichiers multimédias obtenus par une analyse complète occupent beaucoup de mémoire. Si vous ne les utilisez pas, veuillez utiliser le bouton de nettoyage pour vider les données.',
         'now_playing' => 'Lecture en cours',
+        'tooltip_playlist'       => 'Créer automatiquement une playlist à partir de n’importe quel dossier média',
+        'cpu_model'        => 'Modèle du CPU',
         'validateYaml' => 'Valider la syntaxe YAML'
     ],
     'en' => [
@@ -8390,6 +8412,8 @@ $langData = [
         'clear_error'            => 'Error clearing cache',
         'full_scan_tooltip' => 'Media files obtained from full scan will take up a lot of memory. If not in use, please use the clear button to empty the data.',
         'now_playing' => 'Now Playing',
+        'cpu_model'        => 'CPU Model',
+        'tooltip_playlist'       => 'Intelligently create playlist from any media folder',
         'validateYaml' => 'Validate YAML Syntax'
     ],
     'bn' => [
@@ -9080,6 +9104,8 @@ $langData = [
         'clear_error'            => 'সাফ করতে ত্রুটি',
         'full_scan_tooltip' => 'সম্পূর্ণ স্ক্যান থেকে প্রাপ্ত মিডিয়া ফাইলগুলি প্রচুর মেমরি গ্রহণ করবে। ব্যবহার না করলে ডেটা খালি করতে ক্লিয়ার বাটন ব্যবহার করুন।',
         'now_playing' => 'এখন চলছে',
+        'tooltip_playlist'       => 'যেকোনো মিডিয়া ফোল্ডার থেকে স্বয়ংক্রিয়ভাবে প্লেলিস্ট তৈরি করুন',
+        'cpu_model'        => 'CPU মডেল',
         'validateYaml' => 'YAML সিনট্যাক্স যাচাই করুন'
     ]
 ];
