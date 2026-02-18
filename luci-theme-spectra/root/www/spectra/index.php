@@ -155,6 +155,17 @@ if (isset($_GET['action'])) {
                 usort($items, function($a, $b) {
                     if ($a['is_dir'] && !$b['is_dir']) return -1;
                     if (!$a['is_dir'] && $b['is_dir']) return 1;
+                    preg_match('/(\d+)/', $a['name'], $matchesA);
+                    preg_match('/(\d+)/', $b['name'], $matchesB);
+    
+                    if (isset($matchesA[1]) && isset($matchesB[1])) {
+                        $numA = intval($matchesA[1]);
+                        $numB = intval($matchesB[1]);
+        
+                        if ($numA !== $numB) {
+                            return $numA - $numB;
+                        }
+                    }
                     return strcasecmp($a['name'], $b['name']);
                 });
                 
@@ -1278,7 +1289,7 @@ if (isset($_GET['action'])) {
     
         if (file_put_contents(
             $cacheFile,
-            json_encode($playlists, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES),
+            json_encode($playlists, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE),
             LOCK_EX
         )) {
             echo json_encode(['success' => true]);
