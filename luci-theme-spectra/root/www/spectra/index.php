@@ -2142,6 +2142,19 @@ if (isset($_GET['ajax']) && $_GET['ajax'] == '1') {
     }
     date_default_timezone_set($timezone);
     $currentTime = date("Y-m-d H:i:s");
+
+    $cpuModel = 'Unknown';
+    if (file_exists('/proc/cpuinfo')) {
+        $cpuInfoContent = file_get_contents('/proc/cpuinfo');
+        if (preg_match('/model name\s*:\s*(.+)/', $cpuInfoContent, $matches)) {
+            $cpuModel = trim($matches[1]);
+            $cpuModel = preg_replace('/\bProcessor\b/i', '', $cpuModel);
+            $cpuModel = preg_replace('/\s+/', ' ', $cpuModel);
+            $cpuModel = trim($cpuModel);
+        } elseif (preg_match('/Hardware\s*:\s*(.+)/', $cpuInfoContent, $matches)) {
+            $cpuModel = trim($matches[1]);
+        }
+    }
     
     $cpuTemp = '--';
     $tempFiles = [
@@ -2258,6 +2271,7 @@ if (isset($_GET['ajax']) && $_GET['ajax'] == '1') {
     echo json_encode([
         'success' => true,
         'cpu_usage' => $cpuUsage,
+        'cpu_model' => $cpuModel,
         'mem_usage' => $memUsage,
         'mem_total' => $ramTotal,
         'mem_used' => $ramUsage,
@@ -4283,21 +4297,24 @@ list-group:hover {
     color: var(--text-primary) !important;
 }
 
+.playlist-card.playing,
 .file-item.playing,
 .media-item.playing {
     background-color: rgba(76, 175, 80, 0.05) !important;
-    border-color: #4CAF50 !important;
+    border: 2px solid #4CAF50 !important;
     transform: translateY(-2px);
     position: relative;
     z-index: 10;
 }
 
+[data-theme="dark"] .playlist-card.playing,
 [data-theme="dark"] .file-item.playing,
 [data-theme="dark"] .media-item.playing {
     border: var(--glass-border) !important;
     box-shadow: var(--border-glow) !important;
 }
 
+.playlist-card.playing::after,
 .file-item.playing::after,
 .media-item.playing::after {
     content: '';
@@ -4316,6 +4333,7 @@ list-group:hover {
     animation: softPulse 2s infinite ease-in-out;
 }
 
+.playlist-card.playing::after,
 .file-item.playing:hover::after,
 .media-item.playing:hover::after {
     opacity: 1;
@@ -4344,6 +4362,20 @@ list-group:hover {
     0% { opacity: 0.7; transform: scale(1); }
     50% { opacity: 1; transform: scale(1.05); }
     100% { opacity: 0.7; transform: scale(1); }
+}
+
+#playlistItems {
+    padding: 1rem 1.5rem !important;
+    margin: 0;
+}
+
+.playlist-card {
+    max-width: 100%;
+    overflow: hidden;
+}
+
+#playlistCount {
+    color: var(--accent-color) !important;
 }
 </style>
 <div class="main-container">
@@ -4380,6 +4412,7 @@ list-group:hover {
             </div>
             
             <div class="actions">
+                <button class="btn btn-purple" data-bs-toggle="modal" data-bs-target="#playlistModal" data-translate-tooltip="tooltip_playlist"> <i class="fas fa-list"></i> <span data-translate="playlist">Playlist</span></button>
                 <button id="scanButton" class="btn btn-info" onclick="performFullScan()" data-translate-tooltip="full_scan_tooltip">
                     <i class="fas fa-search"></i>
                     <span data-translate="full_scan">Full Scan</span>
@@ -4392,7 +4425,7 @@ list-group:hover {
                     <i class="fas fa-toggle-off"></i>
                     <span data-translate="auto_play">Auto Play</span>
                 </button>
-                <button class="btn btn-pink" onclick="refreshMedia()">
+                <button class="btn btn-pink d-none d-sm-inline" onclick="refreshMedia()">
                     <i class="fas fa-redo"></i>
                     <span data-translate="refresh">Refresh</span>
                 </button>
@@ -4498,26 +4531,26 @@ list-group:hover {
                                     <h5 class="card-title text-success mb-4" data-translate="media_statistics">Media Statistics</h5>
                                     <div class="row g-3">
                                         <div class="col-6">
-                                            <div class="bg-black bg-opacity-25 rounded p-3 text-center">
-                                                <div class="display-6 text-success mb-2"><?= count($media['music']) ?></div>
-                                                <div class="text-white-50" data-translate="music_files">Music Files</div>
+                                            <div class="bg-black bg-opacity-25 rounded p-3 text-center" style="height: 110px; display: flex; flex-direction: column; justify-content: center; align-items: center;">
+                                                <div class="fs-4 text-success mb-1"><?= count($media['music']) ?></div>
+                                                <div class="text-white-50 small" data-translate="music_files">Music Files</div>
                                             </div>
                                         </div>
                                         <div class="col-6">
-                                            <div class="bg-black bg-opacity-25 rounded p-3 text-center">
-                                                <div class="display-6 text-success mb-2"><?= count($media['video']) ?></div>
-                                                <div class="text-white-50" data-translate="video_files">Video Files</div>
+                                            <div class="bg-black bg-opacity-25 rounded p-3 text-center" style="height: 110px; display: flex; flex-direction: column; justify-content: center; align-items: center;">
+                                                <div class="fs-4 text-success mb-1"><?= count($media['video']) ?></div>
+                                                <div class="text-white-50 small" data-translate="video_files">Video Files</div>
                                             </div>
                                         </div>
                                         <div class="col-6">
-                                            <div class="bg-black bg-opacity-25 rounded p-3 text-center">
-                                                <div class="display-6 text-success mb-2"><?= count($media['image']) ?></div>
-                                                <div class="text-white-50" data-translate="image_files">Image Files</div>
+                                            <div class="bg-black bg-opacity-25 rounded p-3 text-center" style="height: 110px; display: flex; flex-direction: column; justify-content: center; align-items: center;">
+                                                <div class="fs-4 text-success mb-1"><?= count($media['image']) ?></div>
+                                                <div class="text-white-50 small" data-translate="image_files">Image Files</div>
                                             </div>
                                         </div>
                                         <div class="col-6">
-                                            <div class="bg-black bg-opacity-25 rounded p-3 text-center">
-                                                <div class="display-6 text-success mb-2">
+                                            <div class="bg-black bg-opacity-25 rounded p-3 text-center" style="height: 110px; display: flex; flex-direction: column; justify-content: center; align-items: center;">
+                                                <div class="fs-4 text-success mb-1">
                                                     <?= count($media['music']) + count($media['video']) + count($media['image']) ?>
                                                 </div>
                                                 <div class="text-white-50" data-translate="total_files">Total Files</div>
@@ -4533,54 +4566,34 @@ list-group:hover {
                                 <div class="card-body">
                                     <h5 class="card-title text-success mb-4" data-translate="quick_actions">Quick Actions</h5>
                                     <div class="row g-3">
-                                        <div class="col-6">
-                                            <div class="bg-black bg-opacity-25 rounded p-3 text-center quick-action-card" onclick="showSection('music')">
-                                                <div class="action-icon mb-3">
-                                                    <i class="fas fa-music fa-2x text-success"></i>
-                                                </div>
-                                                <div class="action-title text-white" data-translate="browse_music">Browse Music</div>
-                                                <div class="action-count small text-success mt-2">
-                                                    <?= count($media['music']) ?> <span data-translate="items">items</span>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="col-6">
-                                            <div class="bg-black bg-opacity-25 rounded p-3 text-center quick-action-card" onclick="showSection('video')">
-                                                <div class="action-icon mb-3">
-                                                    <i class="fas fa-video fa-2x text-primary"></i>
-                                                </div>
-                                                <div class="action-title text-white" data-translate="browse_video">Browse Video</div>
-                                                <div class="action-count small text-primary mt-2">
-                                                    <?= count($media['video']) ?> <span data-translate="items">items</span>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="col-6">
-                                            <div class="bg-black bg-opacity-25 rounded p-3 text-center quick-action-card" onclick="showSection('image')">
-                                                <div class="action-icon mb-3">
-                                                    <i class="fas fa-image fa-2x text-info"></i>
-                                                </div>
-                                                <div class="action-title text-white" data-translate="browse_images">Browse Images</div>
-                                                <div class="action-count small text-info mt-2">
-                                                    <?= count($media['image']) ?> <span data-translate="items">items</span>
-                                                </div>
+                                        <?php
+                                        $actions = [
+                                            ['id' => 'music', 'icon' => 'fa-music', 'color' => 'text-success', 'label' => 'browse_music', 'count' => count($media['music'])],
+                                            ['id' => 'video', 'icon' => 'fa-video', 'color' => 'text-primary', 'label' => 'browse_video', 'count' => count($media['video'])],
+                                            ['id' => 'image', 'icon' => 'fa-image', 'color' => 'text-info', 'label' => 'browse_images', 'count' => count($media['image'])],
+                                            ['id' => 'recent', 'icon' => 'fa-history', 'color' => 'text-warning', 'label' => 'recent_play', 'count' => !empty($recent) ? count($recent) : 0]
+                                        ];
+                                        foreach ($actions as $action): ?>
+                                            <div class="col-6">
+                                                <div class="bg-black bg-opacity-25 rounded p-3 text-center quick-action-card"
+                                                    onclick="showSection('<?= $action['id'] ?>')"
+                                                    style="height: 110px; display: flex; flex-direction: column; justify-content: center; align-items: center; cursor: pointer;">
+                                                   <div class="mb-2">
+                                                       <i class="fas <?= $action['icon'] ?> <?= $action['color'] ?> fs-4"></i>
+                                                   </div>
+                                                   <div class="text-white small fw-medium" data-translate="<?= $action['label'] ?>">
+                                                       <?= ucfirst(str_replace('_', ' ', $action['label'])) ?>
+                                                   </div>
+                                                   <div class="small <?= $action['color'] ?> mt-1">
+                                                       <?= $action['count'] ?> <span data-translate="items">items</span>
+                                                   </div>
+                                               </div>
                                            </div>
-                                       </div>
-                                       <div class="col-6">
-                                          <div class="bg-black bg-opacity-25 rounded p-3 text-center quick-action-card" onclick="showSection('recent')">
-                                              <div class="action-icon mb-3">
-                                                  <i class="fas fa-history fa-2x text-warning"></i>
-                                              </div>
-                                              <div class="action-title text-white" data-translate="recent_play">Recent Play</div>
-                                              <div class="action-count small text-warning mt-2">
-                                                  <?= !empty($recent) ? count($recent) : 0 ?> <span data-translate="items">items</span>
-                                              </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+                                       <?php endforeach; ?>
+                                   </div>
+                               </div>
+                           </div>
+                       </div>
 
                         <div class="col-lg-6">
                             <div class="card bg-dark border-secondary h-100">
@@ -4588,20 +4601,20 @@ list-group:hover {
                                     <h5 class="card-title text-success mb-4" data-translate="system_status">System Status</h5>
                                     <div class="row g-3 mb-3">
                                         <div class="col-6">
-                                            <div class="bg-black bg-opacity-25 rounded p-3 text-center">
-                                                <div class="h3 text-success mb-2" id="cpuUsageDisplay">--%</div>
+                                            <div class="bg-black bg-opacity-25 rounded p-3 text-center" style="height: 110px; display: flex; flex-direction: column; justify-content: center; align-items: center;">
+                                                <div class="fs-4 text-success mb-1" id="cpuUsageDisplay">--%</div>
                                                 <div class="text-white-50" data-translate="cpu_usage">CPU Usage</div>
-                                                <div class="small text-secondary mt-2">
+                                                <div class="small text-secondary mt-1">
                                                     <i class="fas fa-microchip me-1"></i>
                                                     <span id="cpuCoresValue">--</span> <span data-translate="cores">cores</span>
                                                 </div>
                                             </div>
                                         </div>
                                         <div class="col-6">
-                                            <div class="bg-black bg-opacity-25 rounded p-3 text-center">
-                                                <div class="h3 text-primary mb-2" id="memUsageDisplay">--%</div>
+                                            <div class="bg-black bg-opacity-25 rounded p-3 text-center" style="height: 110px; display: flex; flex-direction: column; justify-content: center; align-items: center;">
+                                                <div class="fs-4 text-primary mb-1" id="memUsageDisplay">--%</div>
                                                 <div class="text-white-50" data-translate="memory_usage">Memory Usage</div>
-                                                <div class="small text-secondary mt-2">
+                                                <div class="small text-secondary mt-1">
                                                     <i class="fas fa-memory me-1"></i>
                                                     <span id="memUsedDisplay">--</span>/<span id="memTotalDisplay">--</span> MB
                                                 </div>
@@ -4630,8 +4643,8 @@ list-group:hover {
                                         </div>
                                         <div class="col-6">
                                             <div class="bg-black bg-opacity-25 rounded p-3 text-center status-tile d-flex flex-column justify-content-center">
-                                                <div class="h5 text-warning mb-2" id="timeValue">--:--:--</div>
-                                                <div class="small text-white-50" data-translate="system_time">System Time</div>
+                                                <div class="h5 text-cyan mb-2 text-truncate" style="color: #008B8B;" id="cpuModelDisplay">--</div>
+                                                <div class="small text-white-50" data-translate="cpu_model">CPU Model</div>
                                             </div>
                                         </div>
                                         <div class="col-6">
@@ -4646,9 +4659,15 @@ list-group:hover {
                                                 <div class="small text-white-50" data-translate="load_average">Load Average</div>
                                             </div>
                                         </div>
-                                        <div class="col-12">
-                                            <div class="bg-black bg-opacity-25  rounded p-3 text-center">
-                                                <div class="h4 text-purple mb-2" style="color: #9C27B0;" id="uptimeDisplay">--:--:--</div>
+                                        <div class="col-6">
+                                            <div class="bg-black bg-opacity-25 rounded p-3 text-center status-tile d-flex flex-column justify-content-center">
+                                                <div class="h5 text-warning mb-2" id="timeValue">--:--:--</div>
+                                                <div class="small text-white-50" data-translate="system_time">System Time</div>
+                                            </div>
+                                        </div>
+                                        <div class="col-6">
+                                            <div class="bg-black bg-opacity-25 rounded p-3 text-center status-tile d-flex flex-column justify-content-center">
+                                                <div class="h5 text-purple mb-2" style="color: #9C27B0;" id="uptimeDisplay">--:--:--</div>
                                                 <div class="small text-white-50" data-translate="uptime">Uptime</div>
                                             </div>
                                         </div>
@@ -5082,6 +5101,7 @@ list-group:hover {
                         <span data-translate="media_player">Media Player</span>
                     </div>
                     <div class="player-actions">
+
                         <button class="player-btn" onclick="toggleFullscreenPlayer()">
                             <i class="fas fa-expand"></i>
                         </button>
@@ -5831,7 +5851,7 @@ list-group:hover {
 </div>
 
 <div class="modal fade" id="installModal" tabindex="-1" aria-labelledby="installModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-lg modal-dialog-scrollable">
+    <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title" id="installModalLabel">
@@ -6040,6 +6060,34 @@ list-group:hover {
                 <button type="button" class="btn btn-primary" onclick="startConvert()">
                     <i class="fas fa-play me-1"></i>
                     <span data-translate="start_convert">Start Conversion</span>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="playlistModal" tabindex="-1">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="fas fa-list me-2 text-success"></i>
+                    <span data-translate="playlist">Playlist</span>
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body p-0">
+                <div class="list-group list-group-flush"
+                     id="playlistItems"
+                     style="max-height: 60vh; overflow-y: auto;">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <span class="me-auto" id="playlistCount"></span>
+                <button type="button"
+                        class="btn btn-secondary"
+                        data-bs-dismiss="modal" data-translate="cancel">
+                    Cancel
                 </button>
             </div>
         </div>
@@ -7122,6 +7170,7 @@ async function updateSystemInfo() {
             
             updateElementText('cpuUsageDisplay', cpuUsage.toFixed(1) + '%');
             updateElementText('cpuUsageValue', cpuUsage.toFixed(1) + '%');
+            updateElementText('cpuModelDisplay', data.cpu_model || 'Unknown');
             
             const cpuBar = document.getElementById('cpuUsageBar');
             if (cpuBar) {
@@ -7946,7 +7995,7 @@ document.addEventListener('keydown', function(event) {
                 playPreviousMedia();
             }
             break;
-            
+
         case 'KeyA':
             if (event.altKey) {
                 event.preventDefault();
@@ -14239,20 +14288,6 @@ function appendConvertLog(message, type = 'normal') {
     log.scrollTop = log.scrollHeight;
 }
 
-function playPreviousMedia() {
-    if (!autoNextEnabled) return;
-    
-    const playlist = playlistCache['/'] || [];
-    
-    if (playlist.length === 0) return;
-    
-    const currentIndex = playlist.indexOf(currentMedia?.path);
-    if (currentIndex === -1) return;
-    
-    const prevIndex = (currentIndex - 1 + playlist.length) % playlist.length;
-    playMedia(playlist[prevIndex]);
-}
-
 window.addEventListener('beforeunload', function(e) {
     const unsavedTabs = editorTabs.filter(tab => tab.modified);
     
@@ -14340,5 +14375,211 @@ document.getElementById("updatePhpConfig").addEventListener("click", function() 
             speakMessage(errMsg);
         });
     });
+});
+</script>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    const playlistModalEl = document.getElementById('playlistModal');
+
+    playlistModalEl.addEventListener('show.bs.modal', async () => {
+        try {
+            const playlistContainer = document.getElementById('playlistItems');
+            const playlistCount = document.getElementById('playlistCount');
+            
+            playlistContainer.innerHTML = `
+                <div class="col-12 text-center py-5">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                    <p class="mt-2 text-muted">Loading playlist...</p>
+                </div>
+            `;
+            playlistCount.textContent = 'Loading...';
+            
+            const res = await fetch(`./lib/playlist_cache.json?t=${Date.now()}`);
+            const data = await res.json();
+
+            const playlist = Object.values(data)[0] || [];
+
+            playlistContainer.innerHTML = '';
+            playlistContainer.className = 'row g-3 p-3';
+            
+            playlist.forEach((file, index) => {
+                const fileName = file.split('/').pop();
+                const extIndex = fileName.lastIndexOf('.');
+                const nameWithoutExt = extIndex !== -1 ? fileName.substring(0, extIndex) : fileName;
+                const fileExt = fileName.substring(extIndex + 1).toLowerCase();
+                
+                let iconClass = 'fa-file';
+                let iconColor = '#757575';
+                
+                if (['mp3', 'wav', 'ogg', 'flac', 'm4a', 'aac'].includes(fileExt)) {
+                    iconClass = 'fa-music';
+                    iconColor = '#9C27B0';
+                } else if (['mp4', 'avi', 'mkv', 'mov', 'wmv', 'flv', 'webm'].includes(fileExt)) {
+                    iconClass = 'fa-video';
+                    iconColor = '#2196F3';
+                } else if (['jpg', 'jpeg', 'png', 'gif', 'bmp', 'webp', 'svg'].includes(fileExt)) {
+                    iconClass = 'fa-image';
+                    iconColor = '#4CAF50';
+                }
+                
+                const col = document.createElement('div');
+                col.className = 'col-6 col-md-4 col-lg-3';
+                
+                const card = document.createElement('div');
+                card.className = 'card h-100 playlist-card';
+                card.style.cursor = 'pointer';
+                card.style.transition = 'all 0.3s ease';
+                card.setAttribute('data-path', file);
+                card.setAttribute('data-index', index);
+                card.setAttribute('title', fileName);
+                
+                card.innerHTML = `
+                    <div class="card-body text-center p-3">
+                        <div class="position-absolute top-0 start-0 m-2">
+                            <span class="badge bg-secondary">${index + 1}</span>
+                        </div>
+                        <i class="fas ${iconClass} fa-3x mb-3" style="color: ${iconColor};"></i>
+                        <div class="card-title h6 text-truncate mb-2">
+                            ${truncateFileName(nameWithoutExt, 15)}
+                        </div>
+                        <div class="small text-muted">
+                            ${fileExt.toUpperCase()}
+                        </div>
+                    </div>
+                `;
+                
+                card.addEventListener('click', () => {
+                    currentMediaList = playlist;
+                    playMedia(file);
+                });
+                
+                card.addEventListener('mouseenter', () => {
+                    card.style.transform = 'translateY(-5px)';
+                    card.style.boxShadow = '0 10px 20px rgba(0,0,0,0.3)';
+                });
+                
+                card.addEventListener('mouseleave', () => {
+                    card.style.transform = 'translateY(0)';
+                    card.style.boxShadow = 'none';
+                });
+                
+                col.appendChild(card);
+                playlistContainer.appendChild(col);
+            });
+
+            playlistCount.textContent = playlist.length + ' ' + (translations['files'] || 'Files');
+            
+            setTimeout(highlightCurrentPlaylistCard, 200);
+
+        } catch (err) {
+            console.error('Failed to load playlist:', err);
+            
+            const playlistContainer = document.getElementById('playlistItems');
+            const playlistCount = document.getElementById('playlistCount');
+            
+            playlistContainer.innerHTML = `
+                <div class="col-12 text-center py-5">
+                    <i class="fas fa-exclamation-circle text-danger fa-3x mb-3"></i>
+                    <p class="text-danger">Failed to load playlist</p>
+                </div>
+            `;
+            playlistCount.textContent = '0 Files';
+        }
+    });
+
+    const audioPlayer = document.getElementById('audioPlayer');
+    const videoPlayer = document.getElementById('videoPlayer');
+
+    if (audioPlayer) {
+        audioPlayer.addEventListener('ended', function() {
+            if (autoNextEnabled && currentMediaList.length > 0 && currentMedia && currentMedia.path) {
+                const currentIndex = currentMediaList.indexOf(currentMedia.path);
+                if (currentIndex !== -1 && currentIndex < currentMediaList.length - 1) {
+                    playMedia(currentMediaList[currentIndex + 1]);
+                }
+            }
+        });
+    }
+
+    if (videoPlayer) {
+        videoPlayer.addEventListener('ended', function() {
+            if (autoNextEnabled && currentMediaList.length > 0 && currentMedia && currentMedia.path) {
+                const currentIndex = currentMediaList.indexOf(currentMedia.path);
+                if (currentIndex !== -1 && currentIndex < currentMediaList.length - 1) {
+                    playMedia(currentMediaList[currentIndex + 1]);
+                }
+            }
+        });
+    }
+});
+
+function truncateFileName(name, maxLength = 15) {
+    if (name.length <= maxLength) return name;
+    const extIndex = name.lastIndexOf('.');
+    if (extIndex === -1) {
+        return name.substring(0, maxLength - 3) + '...';
+    }
+    const nameWithoutExt = name.substring(0, extIndex);
+    const ext = name.substring(extIndex);
+    if (nameWithoutExt.length <= maxLength - 3) {
+        return name;
+    }
+    return nameWithoutExt.substring(0, maxLength - 3 - ext.length) + '...' + ext;
+}
+
+function highlightCurrentPlaylistCard() {
+    const playlistCards = document.querySelectorAll('.playlist-card');
+    if (!playlistCards.length || !currentMedia || !currentMedia.path) return;
+    
+    playlistCards.forEach(card => {
+        card.classList.remove('playing');
+        
+        if (card.getAttribute('data-path') === currentMedia.path) {
+            card.classList.add('playing');
+            
+            setTimeout(() => {
+                card.scrollIntoView({
+                    behavior: 'smooth',
+                    block: 'nearest',
+                    inline: 'nearest'
+                });
+            }, 100);
+        }
+    });
+}
+
+document.addEventListener('play', function(e) {
+    if (e.target.id === 'audioPlayer' || e.target.id === 'videoPlayer') {
+        setTimeout(highlightCurrentPlaylistCard, 100);
+    }
+}, true);
+
+document.addEventListener('keydown', function(e) {
+    const tag = document.activeElement.tagName;
+    if (tag === 'INPUT' || tag === 'TEXTAREA') return;
+
+    if (!currentMediaList || !currentMedia || !currentMedia.path) return;
+
+    const currentIndex = currentMediaList.indexOf(currentMedia.path);
+    if (currentIndex === -1) return;
+
+    switch (e.key.toLowerCase()) {
+        case 'arrowleft':
+            e.preventDefault();
+            if (currentIndex > 0) {
+                playMedia(currentMediaList[currentIndex - 1]);
+            }
+            break;
+
+        case 'arrowright':
+            e.preventDefault();
+            if (currentIndex < currentMediaList.length - 1) {
+                playMedia(currentMediaList[currentIndex + 1]);
+            }
+            break;
+    }
 });
 </script>
