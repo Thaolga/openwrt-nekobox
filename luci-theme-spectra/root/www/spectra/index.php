@@ -1327,6 +1327,116 @@ if (isset($_GET['action'])) {
         exit;
     }
 
+    if ($action === 'video_thumbnail') {
+        $path = isset($_GET['path']) ? urldecode($_GET['path']) : '';
+        
+        $realPath = realpath($path);
+        if (!$realPath || strpos($realPath, $ROOT_DIR) !== 0) {
+            http_response_code(404);
+            exit;
+        }
+        
+        $ext = strtolower(pathinfo($realPath, PATHINFO_EXTENSION));
+        $videoExts = ['mp4', 'avi', 'mkv', 'mov', 'wmv', 'flv', 'webm', '3gp', 'ogv', 'mpg', 'mpeg'];
+        
+        if (!in_array($ext, $videoExts)) {
+            http_response_code(400);
+            exit;
+        }
+        
+        $ffmpegPath = '/usr/bin/ffmpeg';
+        if (!file_exists($ffmpegPath)) {
+            header('Content-Type: image/svg+xml');
+            echo '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#2196F3"><path d="M18 9v10H6V9h12zM16 7H8v2h8V7zm2-2H6v2h12V5z"/></svg>';
+            exit;
+        }
+        
+        $cacheDir = './video_thumbs/';
+        if (!is_dir($cacheDir)) {
+            mkdir($cacheDir, 0755, true);
+        }
+        
+        $handle = fopen($realPath, 'rb');
+        $firstChunk = fread($handle, 65536);
+        fclose($handle);
+        
+        $fileSize = filesize($realPath);
+        $contentHash = md5($firstChunk . $fileSize);
+        
+        $cacheFile = $cacheDir . $contentHash . '.jpg';
+        $cacheInfo = $cacheDir . $contentHash . '.json';
+        
+        if (file_exists($cacheFile) && file_exists($cacheInfo)) {
+            $info = json_decode(file_get_contents($cacheInfo), true);
+            if ($info && $info['size'] == $fileSize) {
+                header('Content-Type: image/jpeg');
+                header('Content-Length: ' . filesize($cacheFile));
+                header('Cache-Control: max-age=31536000');
+                header('X-Cache-Hit: true');
+                readfile($cacheFile);
+                exit;
+            }
+        }
+        
+        $cmd = $ffmpegPath . " -ss 00:00:01 -i " . escapeshellarg($realPath) .
+               " -vframes 1 -vf scale=320:-1 -q:v 2 -y " .
+               escapeshellarg($cacheFile) . " 2>&1";
+        
+        exec($cmd, $output, $returnCode);
+        
+        if ($returnCode === 0 && file_exists($cacheFile)) {
+            $cacheInfoData = [
+                'path' => $realPath,
+                'size' => $fileSize,
+                'hash' => $contentHash,
+                'created' => time()
+            ];
+            file_put_contents($cacheInfo, json_encode($cacheInfoData));
+            
+            header('Content-Type: image/jpeg');
+            header('Content-Length: ' . filesize($cacheFile));
+            header('Cache-Control: max-age=31536000');
+            header('X-Cache-Hit: false');
+            readfile($cacheFile);
+        } else {
+            header('Content-Type: image/svg+xml');
+            echo '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#2196F3"><path d="M18 9v10H6V9h12zM16 7H8v2h8V7zm2-2H6v2h12V5z"/></svg>';
+        }
+        exit;
+    }
+
+    if ($action === 'clean_thumbnail_cache') {
+        $cacheDir = './video_thumbs/';
+        $days = isset($_GET['days']) ? intval($_GET['days']) : 30;
+        
+        if (!is_dir($cacheDir)) {
+            echo json_encode(['success' => true, 'cleaned' => 0]);
+            exit;
+        }
+        
+        $files = glob($cacheDir . '*.jpg');
+        $cleaned = 0;
+        $now = time();
+        
+        foreach ($files as $file) {
+            if ($now - filemtime($file) > $days * 86400) {
+                unlink($file);
+                $infoFile = str_replace('.jpg', '.json', $file);
+                if (file_exists($infoFile)) {
+                    unlink($infoFile);
+                }
+                $cleaned++;
+            }
+        }
+        
+        echo json_encode([
+            'success' => true,
+            'cleaned' => $cleaned,
+            'message' => "Cleaned $cleaned old cache files"
+        ]);
+        exit;
+    }
+
     if ($action === 'archive_action') {
         header('Content-Type: application/json');
     
@@ -4498,6 +4608,89 @@ list-group:hover {
 .player-nav-overlay {
     position: absolute;
     z-index: 30;
+}
+
+.video-thumb-card {
+    position: relative;
+    overflow: hidden;
+    border: none !important;
+    background: transparent !important;
+}
+
+.video-thumb-card .card-body {
+    padding: 0 !important;
+    position: relative;
+}
+
+.video-thumb-container {
+    position: relative;
+    width: 100%;
+    height: 150px;
+    background: #000;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.video-thumb-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.3s ease;
+}
+
+.video-thumb-card:hover .video-thumb-img {
+    transform: scale(1.05);
+}
+
+.play-icon-overlay {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    z-index: 2;
+}
+
+.video-thumb-card:hover .play-icon-overlay {
+    opacity: 1;
+}
+
+.video-title-overlay {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: linear-gradient(transparent, rgba(0, 0, 0, 0.8));
+    padding: 20px 10px 10px 10px;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    z-index: 1;
+}
+
+.video-thumb-card:hover .video-title-overlay {
+    opacity: 1;
+}
+
+.duration-badge {
+    position: absolute;
+    bottom: 5px;
+    right: 5px;
+    background: rgba(0, 0, 0, 0.7);
+    color: white;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 0.8rem;
+    z-index: 2;
+}
+
+.default-thumb {
+    height: 150px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-radius: 8px;
 }
 </style>
 <div class="main-container">
@@ -14821,62 +15014,190 @@ document.addEventListener('DOMContentLoaded', () => {
                 const extIndex = fileName.lastIndexOf('.');
                 const nameWithoutExt = extIndex !== -1 ? fileName.substring(0, extIndex) : fileName;
                 const fileExt = fileName.substring(extIndex + 1).toLowerCase();
-                
+                const isVideo = ['mp4', 'avi', 'mkv', 'mov', 'wmv', 'flv', 'webm', '3gp', 'ogv', 'mpg', 'mpeg'].includes(fileExt);
+                const isImage = ['jpg', 'jpeg', 'png', 'gif', 'bmp', 'webp', 'svg'].includes(fileExt);
+                const isAudio = ['mp3', 'wav', 'ogg', 'flac', 'm4a', 'aac'].includes(fileExt);
+    
                 let iconClass = 'fa-file';
                 let iconColor = '#757575';
-                
-                if (['mp3', 'wav', 'ogg', 'flac', 'm4a', 'aac'].includes(fileExt)) {
+    
+                if (isAudio) {
                     iconClass = 'fa-music';
                     iconColor = '#9C27B0';
-                } else if (['mp4', 'avi', 'mkv', 'mov', 'wmv', 'flv', 'webm', '3gp', 'ogv', 'mpg', 'mpeg'].includes(fileExt)) {
+                } else if (isVideo) {
                     iconClass = 'fa-video';
                     iconColor = '#2196F3';
-                } else if (['jpg', 'jpeg', 'png', 'gif', 'bmp', 'webp', 'svg'].includes(fileExt)) {
+                } else if (isImage) {
                     iconClass = 'fa-image';
                     iconColor = '#4CAF50';
                 }
                 
                 const col = document.createElement('div');
                 col.className = 'col-6 col-md-4 col-lg-3';
-                
+
                 const card = document.createElement('div');
-                card.className = 'card h-100 playlist-card';
+                card.className = 'card h-100 playlist-card video-thumb-card';
                 card.style.cursor = 'pointer';
                 card.style.transition = 'all 0.3s ease';
+                card.style.position = 'relative';
+                card.style.overflow = 'hidden';
                 card.setAttribute('data-path', file);
                 card.setAttribute('data-index', index);
+                card.setAttribute('data-ext', fileExt);
                 card.setAttribute('title', fileName);
-                
+
+                let thumbnailHtml = '';
+
+                if (isVideo) {
+                    const thumbnailUrl =
+                        `?action=video_thumbnail&path=${encodeURIComponent(file)}&t=${Date.now()}`;
+
+                    thumbnailHtml = `
+                        <div class="video-thumb-container"
+                             style="width: 100%; height: 150px; background: #000; position: relative;">
+                            <img class="video-thumb-img"
+                                 src="${thumbnailUrl}"
+                                 alt="${escapeHtml(fileName)}"
+                                 style="width: 100%; height: 100%; object-fit: cover; display: block;"
+                                 onerror="this.style.display='none'; this.parentElement.innerHTML='<i class=\\'fas ${iconClass}\\' style=\\'font-size: 3rem; color: ${iconColor}; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);\\'></i>';">
+                            <div class="play-icon-overlay"
+                                 style="position: absolute; top: 50%; left: 50%;
+                                        transform: translate(-50%, -50%);
+                                        opacity: 0; transition: opacity 0.3s;">
+                                 <i class="fas fa-play-circle"
+                                     style="font-size: 3rem;
+                                         color: rgba(255,255,255,0.9);
+                                         filter: drop-shadow(0 2px 5px rgba(0,0,0,0.3));">
+                                </i>
+                            </div>
+
+                            <div class="duration-badge"
+                                 style="position: absolute; bottom: 5px; right: 5px;
+                                        background: rgba(0,0,0,0.7);
+                                        color: white; padding: 2px 6px;
+                                        border-radius: 4px; font-size: 0.8rem;">
+                                <i class="fas fa-clock"></i> --:--
+                            </div>
+                        </div>
+                    `;
+                } else if (isImage) {
+                    const imageUrl = `?preview=1&path=${encodeURIComponent(file)}`;
+                    thumbnailHtml = `
+                        <div class="image-thumb-container"
+                             style="width: 100%; height: 150px; background: #f0f0f0; position: relative; overflow: hidden;">
+                            <img class="image-thumb-img"
+                                 src="${imageUrl}"
+                                 alt="${escapeHtml(fileName)}"
+                                 style="width: 100%; height: 100%; object-fit: cover; display: block;"
+                                 loading="lazy"
+                                 onerror="this.style.display='none'; this.parentElement.innerHTML='<i class=\\'fas ${iconClass}\\' style=\\'font-size: 3rem; color: ${iconColor}; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);\\'></i>';">
+                            <div class="play-icon-overlay"
+                                 style="position: absolute; top: 50%; left: 50%;
+                                        transform: translate(-50%, -50%);
+                                        opacity: 0; transition: opacity 0.3s;">
+                                <i class="fas fa-search-plus"
+                                   style="font-size: 2.5rem;
+                                          color: rgba(255,255,255,0.9);
+                                          filter: drop-shadow(0 2px 5px rgba(0,0,0,0.3));">
+                                </i>
+                            </div>
+                        </div>
+                    `;
+                } else {
+                    thumbnailHtml = `
+                        <div class="default-thumb"
+                             style="height: 150px; display: flex;
+                                    align-items: center; justify-content: center;
+                                    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+                            <i class="fas ${iconClass} fa-3x"
+                               style="color: white;"></i>
+                        </div>
+                    `;
+                }
+
                 card.innerHTML = `
-                    <div class="card-body text-center p-3">
-                        <div class="position-absolute top-0 start-0 m-2">
-                            <span class="badge bg-secondary">${index + 1}</span>
+                    <div class="card-body p-0">
+                        ${thumbnailHtml}
+
+                        <div class="video-title-overlay"
+                             style="position: absolute; bottom: 0; left: 0; right: 0;
+                                    background: linear-gradient(transparent, rgba(0,0,0,0.8));
+                                    padding: 20px 10px 10px 10px;
+                                    opacity: 0; transition: opacity 0.3s;">
+
+                            <div class="text-white small text-truncate"
+                                 style="text-shadow: 1px 1px 2px rgba(0,0,0,0.5);"
+                                 title="${escapeHtml(nameWithoutExt)}">
+                                ${truncateFileName(nameWithoutExt, 20)}
+                            </div>
+
+                            <div class="d-flex justify-content-between mt-1">
+                                <span class="badge bg-primary"
+                                      style="font-size: 0.7rem;">
+                                    ${fileExt.toUpperCase()}
+                                </span>
+
+                                <span class="badge bg-secondary video-duration-badge"
+                                      style="font-size: 0.7rem;">
+                                    --:--
+                                </span>
+                            </div>
                         </div>
-                        <i class="fas ${iconClass} fa-3x mb-3" style="color: ${iconColor};"></i>
-                        <div class="card-title h6 text-truncate mb-2">
-                            ${truncateFileName(nameWithoutExt, 15)}
-                        </div>
-                        <div class="small text-muted">
-                            ${fileExt.toUpperCase()}
+
+                        <div class="position-absolute top-0 start-0 m-2"
+                             style="z-index: 2;">
+                            <span class="badge bg-secondary">
+                                ${index + 1}
+                            </span>
                         </div>
                     </div>
                 `;
-                
+
+                if (isVideo) {
+                    getVideoDuration(file)
+                        .then(duration => {
+                            const durationBadge = card.querySelector('.duration-badge');
+                            const durationSpan = card.querySelector('.video-duration-badge');
+
+                            if (durationBadge) {
+                                durationBadge.innerHTML =
+                                    `<i class="fas fa-clock"></i> ${duration}`;
+                            }
+
+                            if (durationSpan) {
+                                durationSpan.textContent = duration;
+                            }
+                        })
+                        .catch(() => {});
+                }
+
+                card.addEventListener('mouseenter', () => {
+                    card.style.transform = 'translateY(-5px)';
+                    card.style.boxShadow = '0 10px 20px rgba(0,0,0,0.3)';
+
+                    const titleOverlay = card.querySelector('.video-title-overlay');
+                    const playIcon = card.querySelector('.play-icon-overlay');
+
+                    if (titleOverlay) titleOverlay.style.opacity = '1';
+                    if (playIcon) playIcon.style.opacity = '1';
+                });
+
+                card.addEventListener('mouseleave', () => {
+                    card.style.transform = 'translateY(0)';
+                    card.style.boxShadow = 'none';
+
+                    const titleOverlay = card.querySelector('.video-title-overlay');
+                    const playIcon = card.querySelector('.play-icon-overlay');
+
+                    if (titleOverlay) titleOverlay.style.opacity = '0';
+                    if (playIcon) playIcon.style.opacity = '0';
+                });
+
                 card.addEventListener('click', () => {
                     currentMediaList = playlist;
                     playMedia(file);
                 });
-                
-                card.addEventListener('mouseenter', () => {
-                    card.style.transform = 'translateY(-5px)';
-                    card.style.boxShadow = '0 10px 20px rgba(0,0,0,0.3)';
-                });
-                
-                card.addEventListener('mouseleave', () => {
-                    card.style.transform = 'translateY(0)';
-                    card.style.boxShadow = 'none';
-                });
-                
+
                 col.appendChild(card);
                 playlistContainer.appendChild(col);
             });
@@ -14959,6 +15280,36 @@ function highlightCurrentPlaylistCard() {
                 });
             }, 100);
         }
+    });
+}
+
+async function getVideoDuration(videoPath) {
+    return new Promise((resolve) => {
+        const video = document.createElement('video');
+        video.preload = 'metadata';
+        video.src = `?preview=1&path=${encodeURIComponent(videoPath)}`;
+        
+        video.onloadedmetadata = function() {
+            const duration = video.duration;
+            URL.revokeObjectURL(video.src);
+            
+            const hours = Math.floor(duration / 3600);
+            const minutes = Math.floor((duration % 3600) / 60);
+            const seconds = Math.floor(duration % 60);
+            
+            let durationStr;
+            if (hours > 0) {
+                durationStr = `${hours}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+            } else {
+                durationStr = `${minutes}:${seconds.toString().padStart(2, '0')}`;
+            }
+            
+            resolve(durationStr);
+        };
+        
+        video.onerror = function() {
+            resolve('--:--');
+        };
     });
 }
 
