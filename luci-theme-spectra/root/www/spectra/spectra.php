@@ -710,6 +710,7 @@ $langData = [
         'full_scan_tooltip' => '全盘扫描获取的媒体文件会占用大量内存，不用请使用清理按键清空数据',
         'now_playing' => '正在播放',
         'cpu_model'        => 'CPU型号',
+        'transcoding_play' => '正在转码播放: {format} 格式',
         'tooltip_playlist' => '播放任意目錄媒體檔案，自動建立播放列表',
         'file_summary' => '已选择 %d 个文件，合计 %s MB'
     ],
@@ -1423,6 +1424,7 @@ $langData = [
         'now_playing' => '正在播放',
         'tooltip_playlist' => '播放任意目錄媒體檔案，自動建立播放列表',
         'cpu_model'        => 'CPU型號',
+        'transcoding_play' => '正在轉碼播放: {format} 格式',
         'validateYaml' => '驗證 YAML 語法'
     ],
 
@@ -2134,6 +2136,7 @@ $langData = [
         'tooltip_playlist'       => '모든 미디어 폴더에서 재생 목록 자동 생성',
         'now_playing' => '재생 중',
         'cpu_model'        => 'CPU 모델',
+        'transcoding_play' => '{format} 형식으로 트랜스코딩하여 재생 중',
         'validateYaml' => 'YAML 구문 검증'
     ],
 
@@ -2844,6 +2847,7 @@ $langData = [
         'now_playing' => '再生中',
         'cpu_model'        => 'CPUモデル',
         'tooltip_playlist'       => '任意のメディアフォルダから再生リストを自動作成',
+        'transcoding_play' => '{format} 形式でトランスコード再生中',
         'validateYaml' => 'YAML構文を検証'
     ],
 
@@ -3552,6 +3556,7 @@ $langData = [
         'now_playing' => 'Đang phát',
         'cpu_model'        => 'Mẫu CPU',
         'tooltip_playlist'       => 'Tạo danh sách phát thông minh từ bất kỳ thư mục media nào',
+        'transcoding_play' => 'Đang chuyển mã và phát định dạng {format}',
         'validateYaml' => 'Kiểm tra Cú pháp YAML'
     ],
 
@@ -4244,6 +4249,7 @@ $langData = [
         'now_playing' => 'กำลังเล่น',
         'cpu_model'        => 'รุ่น CPU',
         'tooltip_playlist'       => 'สร้างเพลย์ลิสต์อัตโนมัติจากโฟลเดอร์สื่อใดก็ได้',
+        'transcoding_play' => 'กำลังแปลงรหัสและเล่นไฟล์รูปแบบ {format}',
         'validateYaml' => 'ตรวจสอบไวยากรณ์ YAML'
     ],
     'ru' => [
@@ -4937,6 +4943,7 @@ $langData = [
         'now_playing' => 'Сейчас воспроизводится',
         'cpu_model'        => 'Модель CPU',
         'tooltip_playlist'       => 'Автоматически создать плейлист из любой папки с медиа',
+        'transcoding_play' => 'Выполняется перекодирование и воспроизведение формата {format}',
         'validateYaml' => 'Проверить синтаксис YAML'
     ],
     'ar' => [
@@ -5635,6 +5642,7 @@ $langData = [
         'now_playing' => 'قيد التشغيل الآن',
         'tooltip_playlist'       => 'إنشاء قائمة تشغيل تلقائيًا من أي مجلد وسائط',
         'cpu_model'        => 'طراز المعالج',
+        'transcoding_play' => 'جارٍ تحويل الترميز وتشغيل تنسيق {format}',
         'validateYaml' => 'التحقق من صحة بناء جملة YAML'
     ],
     'es' => [
@@ -6325,6 +6333,7 @@ $langData = [
         'now_playing' => 'Reproduciendo ahora',
         'cpu_model'        => 'Modelo de CPU',
         'tooltip_playlist'       => 'Crear lista de reproducción desde cualquier carpeta de medios de forma inteligente',
+        'transcoding_play' => 'Transcodificando y reproduciendo formato {format}',
         'validateYaml' => 'Validar sintaxis YAML'
     ],
     'de' => [
@@ -7017,6 +7026,7 @@ $langData = [
         'now_playing' => 'Wird gerade abgespielt',
         'tooltip_playlist'       => 'Intelligente Wiedergabeliste aus beliebigen Medienordnern erstellen',
         'cpu_model'        => 'CPU-Modell',
+        'transcoding_play' => 'Transkodierung und Wiedergabe im {format}-Format',
         'validateYaml' => 'YAML-Syntax validieren'
     ],
 
@@ -7710,6 +7720,7 @@ $langData = [
         'now_playing' => 'Lecture en cours',
         'tooltip_playlist'       => 'Créer automatiquement une playlist à partir de n’importe quel dossier média',
         'cpu_model'        => 'Modèle du CPU',
+        'transcoding_play' => 'Transcodage et lecture au format {format}',
         'validateYaml' => 'Valider la syntaxe YAML'
     ],
     'en' => [
@@ -8414,6 +8425,7 @@ $langData = [
         'now_playing' => 'Now Playing',
         'cpu_model'        => 'CPU Model',
         'tooltip_playlist'       => 'Intelligently create playlist from any media folder',
+        'transcoding_play' => 'Transcoding and playing: {format} format',
         'validateYaml' => 'Validate YAML Syntax'
     ],
     'bn' => [
@@ -9106,6 +9118,7 @@ $langData = [
         'now_playing' => 'এখন চলছে',
         'tooltip_playlist'       => 'যেকোনো মিডিয়া ফোল্ডার থেকে স্বয়ংক্রিয়ভাবে প্লেলিস্ট তৈরি করুন',
         'cpu_model'        => 'CPU মডেল',
+        'transcoding_play' => '{format} ফরম্যাটে ট্রান্সকোড করে প্লে করা হচ্ছে',
         'validateYaml' => 'YAML সিনট্যাক্স যাচাই করুন'
     ]
 ];
@@ -9515,51 +9528,42 @@ function speakMessage(message) {
             return;
         }
 
-        const xhr = new XMLHttpRequest();
-        xhr.open('GET', './lib/language.txt', true);
-        xhr.onreadystatechange = function() {
-            if (xhr.readyState === 4 && xhr.status === 200) {
-                const lang = xhr.responseText.trim();
-                
-                const voiceKey = getVoicePreferenceKey(lang);
-                const savedVoiceIndex = localStorage.getItem(voiceKey);
-                
-                let selectedVoice = null;
-                
-                if (savedVoiceIndex !== null) {
-                    const targetLangs = langToVoiceLangMap[lang] || [languageStandardMap[lang] || lang];
-                    const filteredVoices = voices.filter(voice => 
-                        targetLangs.some(targetLang => voice.lang.startsWith(targetLang))
-                    );
-                    selectedVoice = filteredVoices[savedVoiceIndex];
-                }
-                
-                if (!selectedVoice) {
-                    const chineseVoiceKey = getChineseVoiceKey();
-                    const savedChineseIndex = localStorage.getItem(chineseVoiceKey);
-                    const chineseVoices = voices.filter(voice => 
-                        ['zh-CN', 'zh-HK', 'zh-TW'].some(lang => voice.lang.startsWith(lang))
-                    );
-                    
-                    if (savedChineseIndex !== null && chineseVoices[savedChineseIndex]) {
-                        selectedVoice = chineseVoices[savedChineseIndex];
-                    } else if (chineseVoices.length > 0) {
-                        selectedVoice = chineseVoices[0];
-                    }
-                }
-                
-                if (!selectedVoice) {
-                    selectedVoice = voices.find(voice => voice.lang.includes('zh')) || voices[0];
-                }
-                
-                if (selectedVoice) {
-                    const utterance = new SpeechSynthesisUtterance(message);
-                    utterance.voice = selectedVoice;
-                    speechSynthesis.speak(utterance);
-                }
+        const voiceKey = getVoicePreferenceKey(currentLang);
+        const savedVoiceIndex = localStorage.getItem(voiceKey);
+        
+        let selectedVoice = null;
+        
+        if (savedVoiceIndex !== null) {
+            const targetLangs = langToVoiceLangMap[currentLang] || [languageStandardMap[currentLang] || currentLang];
+            const filteredVoices = voices.filter(voice => 
+                targetLangs.some(targetLang => voice.lang.startsWith(targetLang))
+            );
+            selectedVoice = filteredVoices[savedVoiceIndex];
+        }
+        
+        if (!selectedVoice) {
+            const chineseVoiceKey = getChineseVoiceKey();
+            const savedChineseIndex = localStorage.getItem(chineseVoiceKey);
+            const chineseVoices = voices.filter(voice => 
+                ['zh-CN', 'zh-HK', 'zh-TW'].some(lang => voice.lang.startsWith(lang))
+            );
+            
+            if (savedChineseIndex !== null && chineseVoices[savedChineseIndex]) {
+                selectedVoice = chineseVoices[savedChineseIndex];
+            } else if (chineseVoices.length > 0) {
+                selectedVoice = chineseVoices[0];
             }
-        };
-        xhr.send();
+        }
+        
+        if (!selectedVoice) {
+            selectedVoice = voices[0];
+        }
+        
+        if (selectedVoice) {
+            const utterance = new SpeechSynthesisUtterance(message);
+            utterance.voice = selectedVoice;
+            speechSynthesis.speak(utterance);
+        }
     }
 
     speakWithVoices();
