@@ -1203,12 +1203,56 @@ if (isset($_GET['action'])) {
 
     if ($action === 'full_scan') {
         header('Content-Type: application/json');
-    
         $media = ['music' => [], 'video' => [], 'image' => []];
         $files = scanDirectory($ROOT_DIR, 20);
-    
         foreach ($files as $file) {
             $ext = $file['ext'];
+            
+            if (in_array($ext, ['mp4', 'avi', 'mkv', 'mov', 'wmv', 'flv', 'webm', '3gp', 'ogv', 'mpg', 'mpeg', 
+                               'mp3', 'wav', 'ogg', 'flac', 'm4a', 'aac'])) {
+                if (in_array($ext, ['mp4', 'avi', 'mkv', 'mov', 'wmv', 'flv', 'webm', '3gp', 'ogv', 'mpg', 'mpeg'])) {
+                    $handle = fopen($file['path'], 'rb');
+                    $firstChunk = fread($handle, 65536);
+                    fclose($handle);
+                    $contentHash = md5($firstChunk . $file['size']);
+                    $cacheInfo = './video_thumbs/' . $contentHash . '.json';
+                    
+                    if (file_exists($cacheInfo)) {
+                        $info = json_decode(file_get_contents($cacheInfo), true);
+                        $durationSeconds = $info['duration'] ?? 0;
+                        $hours = floor($durationSeconds / 3600);
+                        $minutes = floor(($durationSeconds % 3600) / 60);
+                        $seconds = $durationSeconds % 60;
+                        
+                        if ($hours > 0) {
+                            $file['duration'] = sprintf("%02d:%02d:%02d", $hours, $minutes, $seconds);
+                        } else {
+                            $file['duration'] = sprintf("%02d:%02d", $minutes, $seconds);
+                        }
+                    } else {
+                        $ffmpegPath = '/usr/bin/ffmpeg';
+                        $duration = '--:--';
+                        $cmd = $ffmpegPath . " -i " . escapeshellarg($file['path']) . " 2>&1";
+                        $output = shell_exec($cmd);
+                        if ($output && preg_match('/Duration: (\d{2}):(\d{2}):(\d{2})\.\d+/', $output, $matches)) {
+                            $duration = $matches[1] . ':' . $matches[2] . ':' . $matches[3];
+                        }
+                        $file['duration'] = $duration;
+                    }
+                } else {
+                    $ffmpegPath = '/usr/bin/ffmpeg';
+                    $duration = '--:--';
+                    $cmd = $ffmpegPath . " -i " . escapeshellarg($file['path']) . " 2>&1";
+                    $output = shell_exec($cmd);
+                    if ($output && preg_match('/Duration: (\d{2}):(\d{2}):(\d{2})\.\d+/', $output, $matches)) {
+                        $duration = $matches[1] . ':' . $matches[2] . ':' . $matches[3];
+                    }
+                    $file['duration'] = $duration;
+                }
+            } else {
+                $file['duration'] = '--:--';
+            }
+            
             foreach ($TYPE_EXT as $type => $exts) {
                 if (in_array($ext, $exts)) {
                     $media[$type][] = $file;
@@ -1216,16 +1260,15 @@ if (isset($_GET['action'])) {
                 }
             }
         }
-    
+
         foreach ($media as &$files) {
             usort($files, function($a, $b) {
                 return $b['mtime'] - $a['mtime'];
             });
         }
-    
+
         $cacheFile = './lib/media_cache.json';
         file_put_contents($cacheFile, json_encode($media));
-    
         echo json_encode(['success' => true]);
         exit;
     }
@@ -1377,6 +1420,17 @@ if (isset($_GET['action'])) {
                 exit;
             }
         }
+
+        $duration = '0';
+        $durationCmd = $ffmpegPath . " -i " . escapeshellarg($realPath) . " 2>&1";
+        $output = shell_exec($durationCmd);
+        if ($output && preg_match('/Duration: (\d{2}):(\d{2}):(\d{2})\.\d+/', $output, $matches)) {
+            $hours = intval($matches[1]);
+            $minutes = intval($matches[2]);
+            $seconds = intval($matches[3]);
+            $durationSeconds = $hours * 3600 + $minutes * 60 + $seconds;
+            $duration = round($durationSeconds);
+        }
         
         $cmd = $ffmpegPath . " -ss 00:00:01 -i " . escapeshellarg($realPath) .
                " -vframes 1 -vf scale=320:-1 -q:v 2 -y " .
@@ -1389,6 +1443,7 @@ if (isset($_GET['action'])) {
                 'path' => $realPath,
                 'size' => $fileSize,
                 'hash' => $contentHash,
+                'duration' => $duration,
                 'created' => time()
             ];
             file_put_contents($cacheInfo, json_encode($cacheInfoData));
@@ -1407,32 +1462,19 @@ if (isset($_GET['action'])) {
 
     if ($action === 'clean_thumbnail_cache') {
         $cacheDir = './video_thumbs/';
-        $days = isset($_GET['days']) ? intval($_GET['days']) : 30;
         
-        if (!is_dir($cacheDir)) {
-            echo json_encode(['success' => true, 'cleaned' => 0]);
-            exit;
-        }
-        
-        $files = glob($cacheDir . '*.jpg');
-        $cleaned = 0;
-        $now = time();
-        
-        foreach ($files as $file) {
-            if ($now - filemtime($file) > $days * 86400) {
-                unlink($file);
-                $infoFile = str_replace('.jpg', '.json', $file);
-                if (file_exists($infoFile)) {
-                    unlink($infoFile);
-                }
-                $cleaned++;
+        if (is_dir($cacheDir)) {
+            if (function_exists('exec')) {
+                exec('rm -rf ' . escapeshellarg($cacheDir));
+            } else {
+                deleteDirectory($cacheDir);
             }
         }
         
         echo json_encode([
             'success' => true,
-            'cleaned' => $cleaned,
-            'message' => "Cleaned $cleaned old cache files"
+            'cleaned' => 'all',
+            'message' => 'Thumbnail cache cleared successfully'
         ]);
         exit;
     }
@@ -2179,12 +2221,51 @@ if (isset($_GET['preview']) && $_GET['preview'] == '1' && isset($_GET['path'])) 
         ];
         
         $mimeType = $mimeMap[$ext] ?? 'application/octet-stream';
+        $size = filesize($realPath);
         
-        header('Content-Type: ' . $mimeType);
-        header('Content-Length: ' . filesize($realPath));
-        header('Cache-Control: max-age=3600');
-        readfile($realPath);
+        $range = isset($_SERVER['HTTP_RANGE']) ? $_SERVER['HTTP_RANGE'] : null;
+        
+        if ($range && preg_match('/^bytes=(\d+)-(\d*)$/', $range, $matches)) {
+            $start = intval($matches[1]);
+            $end = isset($matches[2]) && $matches[2] !== '' ? intval($matches[2]) : $size - 1;
+            
+            if ($start >= $size || $end >= $size) {
+                header('HTTP/1.1 416 Requested Range Not Satisfiable');
+                header('Content-Range: bytes */' . $size);
+                exit;
+            }
+            
+            header('HTTP/1.1 206 Partial Content');
+            header('Content-Range: bytes ' . $start . '-' . $end . '/' . $size);
+            header('Content-Length: ' . ($end - $start + 1));
+            header('Content-Type: ' . $mimeType);
+            header('Accept-Ranges: bytes');
+            header('Cache-Control: max-age=3600');
+            
+            $fp = fopen($realPath, 'rb');
+            fseek($fp, $start);
+            $bytesToSend = $end - $start + 1;
+            $buffer = 8192;
+            
+            while ($bytesToSend > 0 && !feof($fp)) {
+                $readSize = min($buffer, $bytesToSend);
+                echo fread($fp, $readSize);
+                $bytesToSend -= $readSize;
+                flush();
+            }
+            fclose($fp);
+            
+        } else {
+            header('HTTP/1.1 200 OK');
+            header('Content-Type: ' . $mimeType);
+            header('Content-Length: ' . $size);
+            header('Accept-Ranges: bytes');
+            header('Cache-Control: max-age=3600');
+            
+            readfile($realPath);
+        }
         exit;
+        
     } else {
         http_response_code(404);
         header('Content-Type: text/plain');
@@ -2909,16 +2990,39 @@ body {
 .player-content {
     flex: 1;
     display: flex;
-    align-items: center;
+    align-items: flex-start;
     justify-content: center;
-    padding: 20px;
+    padding: 40px 20px 20px 20px;
+    position: relative;
+}
+
+#videoPlayer,
+#audioPlayer,
+#imageViewer {
+    width: 100%;
+    border-radius: 8px;
+}
+
+#videoPlayer,
+#imageViewer {
+    max-height: calc(100vh - 120px);
+    object-fit: contain;
+}
+
+#videoPlayer {
+    background: #000;
+}
+
+#audioPlayer {
+    max-width: 600px;
 }
 
 #imageViewer {
     max-width: 100%;
     max-height: 80vh;
-    border-radius: 8px;
+    object-fit: contain;
     box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+    border-radius: 8px;
 }
 
 .fullscreen-player {
@@ -2930,6 +3034,7 @@ body {
     background: #000;
     z-index: 1000;
     display: none;
+    animation: fadeIn 0.3s ease;
 }
 
 .fullscreen-player.active {
@@ -2995,44 +3100,6 @@ body {
     transform: translate(-50%, -50%);
     background: rgba(0, 0, 0, 0.8);
     border-radius: 10px;
-}
-
-.player-content {
-    flex: 1;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 20px;
-    position: relative;
-}
-
-#videoPlayer,
-#audioPlayer,
-#imageViewer {
-    width: 100%;
-    border-radius: 8px;
-}
-
-#videoPlayer,
-#imageViewer {
-    max-height: calc(100vh - 120px);
-    object-fit: contain;
-}
-
-#videoPlayer {
-    background: #000;
-}
-
-#audioPlayer {
-    max-width: 600px;
-}
-
-#imageViewer {
-    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-}
-
-.fullscreen-player {
-    animation: fadeIn 0.3s ease;
 }
 
 @keyframes fadeIn {
@@ -4605,11 +4672,6 @@ list-group:hover {
     z-index: 10;
 }
 
-.player-nav-overlay {
-    position: absolute;
-    z-index: 30;
-}
-
 .video-thumb-card {
     position: relative;
     overflow: hidden;
@@ -4692,6 +4754,28 @@ list-group:hover {
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     border-radius: 8px;
 }
+
+.media-duration {
+    position: absolute;
+    top: 8px;
+    left: 8px;
+    min-width: 0;
+    height: 24px;
+    border-radius: 28px;
+    padding: 0 10px;
+    backdrop-filter: blur(16px);
+    background: rgba(0, 0, 0, 0.3);
+    text-shadow: 0 0 2px #000;
+    color: #fff;
+    font-size: 12px;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 5;
+    border: none;
+    line-height: 1;
+}
 </style>
 <div class="main-container">
     <div class="content-area" id="contentArea">
@@ -4744,9 +4828,9 @@ list-group:hover {
                     <i class="fas fa-redo"></i>
                     <span data-translate="refresh">Refresh</span>
                 </button>
-                <button class="btn btn-teal" onclick="toggleFullscreen()">
+                <button class="btn btn-teal" onclick="toggleFullscreen()" data-translate-tooltip="toggle_fullscreen">
                     <i class="fas fa-expand"></i>
-                    <span data-translate="fullscreen_play">Fullscreen Play</span>
+                    <span data-translate="enter_fullscreen">Fullscreen Play</span>
                 </button>
             </div>
         </div>
@@ -5102,11 +5186,12 @@ list-group:hover {
                     </div>
                     <?php else: ?>
                     <div class="media-grid">
-                        <?php foreach ($media['music'] as $item): 
+                        <?php foreach ($media['music'] as $index => $item):  
                             $path = $item['path'];
                             $file = basename($path);
                             $ext = strtolower(pathinfo($file, PATHINFO_EXTENSION));
                             $size = $item['size'];
+                            $duration = $item['duration'] ?? '--:--'; 
                         ?>
                         <div class="media-item hover-playable" 
                              data-type="audio"
@@ -5119,10 +5204,11 @@ list-group:hover {
                              data-ext="<?= strtoupper($item['ext']) ?>"
                              onclick="playMedia('<?= $item['safe_path'] ?>')"
                              oncontextmenu="showFileInfoModal('<?= $item['safe_path'] ?>'); return false;">
+                                 <span class="media-duration"><?= $duration ?></span>
                             <div class="media-thumb"><i class="fas fa-music"></i></div>
                             <div class="media-info">
                                 <div class="media-name" title="<?= htmlspecialchars($item['safe_name'], ENT_QUOTES, 'UTF-8') ?>">
-                                    <?= $item['safe_name'] ?>
+                                    <?= ($index + 1) . '. ' . $item['safe_name'] ?>
                                 </div>
                                 <div class="media-meta">
                                     <span><?= strtoupper($item['ext']) ?></span>
@@ -5150,13 +5236,13 @@ list-group:hover {
                     </div>
                     <?php else: ?>
                     <div class="media-grid">
-                        <?php foreach ($media['video'] as $item): 
+                        <?php foreach ($media['video'] as $index => $item): 
                             $path = $item['path'];
                             $file = basename($path);
                             $ext = strtolower(pathinfo($file, PATHINFO_EXTENSION));
                             $size = $item['size'];
-
-                            $previewUrl = "?preview=1&path=" . urlencode($item['path']);
+                            $duration = $item['duration'] ?? '--:--'; 
+                            $thumbnailUrl = "?action=video_thumbnail&path=" . urlencode($item['path']);
                         ?>
                         <div class="media-item hover-playable" 
                              data-type="video"
@@ -5170,22 +5256,15 @@ list-group:hover {
                              onclick="playMedia('<?= $item['safe_path'] ?>')"
                              oncontextmenu="showFileInfoModal('<?= $item['safe_path'] ?>'); return false;">
                              <div class="media-thumb">
-                                 <video class="video-thumbnail" 
-                                     preload="metadata"
-                                     playsinline
-                                     muted
-                                     style="width: 100%; height: 100%; object-fit: cover; border-radius: 8px;">
-                                 <source src="<?= $previewUrl ?>" type="video/mp4">
-                                 <source src="<?= $previewUrl ?>" type="video/webm">
-                                 <source src="<?= $previewUrl ?>" type="video/ogg">
-                                 <div style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
-                                     <i class="fas fa-video"></i>
-                                 </div>
-                             </video>
-                         </div>
+                                 <img src="<?= $thumbnailUrl ?>" 
+                                     alt="<?= htmlspecialchars($item['safe_name']) ?>"
+                                     style="width: 100%; height: 100%; object-fit: cover; border-radius: 8px;"
+                                     onerror="this.style.display='none'; this.parentElement.innerHTML='<i class=\'fas fa-video\'></i>';">
+                                    <span class="media-duration"><?= $duration ?></span>
+                             </div>
                             <div class="media-info">
                                 <div class="media-name" title="<?= htmlspecialchars($item['safe_name'], ENT_QUOTES, 'UTF-8') ?>">
-                                    <?= $item['safe_name'] ?>
+                                    <?= ($index + 1) . '. ' . $item['safe_name'] ?>
                                 </div>
                                 <div class="media-meta">
                                     <span><?= strtoupper($item['ext']) ?></span>
@@ -5213,7 +5292,7 @@ list-group:hover {
                     </div>
                     <?php else: ?>
                     <div class="media-grid">
-                        <?php foreach ($media['image'] as $item): 
+                        <?php foreach ($media['image'] as $index => $item): 
                             $path = $item['path'];
                             $file = basename($path);
                             $ext = strtolower(pathinfo($file, PATHINFO_EXTENSION));
@@ -5238,7 +5317,7 @@ list-group:hover {
                             </div>
                             <div class="media-info">
                                 <div class="media-name" title="<?= htmlspecialchars($item['safe_name'], ENT_QUOTES, 'UTF-8') ?>">
-                                    <?= $item['safe_name'] ?>
+                                    <?= ($index + 1) . '. ' . $item['safe_name'] ?>
                                 </div>
                                 <div class="media-meta">
                                     <span><?= strtoupper($item['ext']) ?></span>
@@ -5417,10 +5496,10 @@ list-group:hover {
                     </div>
                     <div class="player-actions">
 
-                        <button class="player-btn" onclick="toggleFullscreenPlayer()">
+                        <button class="player-btn" onclick="toggleFullscreenPlayer()" data-translate-tooltip="toggle_fullscreen">
                             <i class="fas fa-expand"></i>
                         </button>
-                        <button class="player-btn" onclick="closePlayer(); return false;">
+                        <button class="player-btn" onclick="closePlayer(); return false;" data-translate-tooltip="close">
                             <i class="fas fa-times"></i>
                         </button>
                     </div>
@@ -5441,11 +5520,11 @@ list-group:hover {
                         </ul>
                     </div>
                 <div class="player-nav-overlay">
-                    <div class="player-nav-btn prev-btn" onclick="playPreviousFileMedia()">
-                        <i class="fas fa-step-backward"></i>
+                    <div class="player-nav-btn prev-btn" onclick="playPreviousMedia()">
+                        <i class="fas fa-chevron-left"></i>
                     </div>
-                        <div class="player-nav-btn next-btn" onclick="playNextFileMedia()">
-                            <i class="fas fa-step-forward"></i>
+                        <div class="player-nav-btn next-btn" onclick="playNextMedia()">
+                            <i class="fas fa-chevron-right"></i>
                        </div>
                    </div>
                 </div>
@@ -6407,6 +6486,13 @@ list-group:hover {
             </div>
             <div class="modal-footer">
                 <span class="me-auto" id="playlistCount"></span>
+                <button type="button" 
+                        class="btn btn-pink me-2" 
+                        onclick="cleanThumbnailCache()"
+                        data-translate-tooltip="clean_thumbnail_cache">
+                    <i class="fas fa-trash-alt me-1"></i>
+                    <span data-translate="clean_thumbnails">Clean Thumbnails</span>
+                </button>
                 <button type="button"
                         class="btn btn-secondary"
                         data-bs-dismiss="modal" data-translate="cancel">
@@ -6418,24 +6504,47 @@ list-group:hover {
 </div>
 
 <script>
-let selectedMediaElement = null;
-let selectedMediaPath = '';
 let hoverAudio = null;
 let hoverVideo = null;
-let userInteracted = false;    
-let imageSwitchTimer = null;  
-let autoNextEnabled = true;   
-let currentMediaList = [];
-let currentMediaIndex = -1;
+let hoverVideoContainer = null;
+let currentPlaylist = [];
+let currentPlaylistIndex = -1;
+let autoNextEnabled = true;
+let imageSwitchTimer = null; 
+let userInteracted = false;
+let installEventSource = null;
+let batchRenameFiles = [];
+let convertFiles = [];
+let currentHashPath = null;
+let editorTabs = [];
+let activeEditorTab = null;
+let currentPath = '/';
+let selectedFiles = new Set();
+let viewMode = 'grid';
+let fileContextMenuTarget = null;
+let uploadFilesList = [];
+let currentView = 'files'; 
+let monacoEditor = null;
+let currentEditorMode = 'simple';
+let monacoLoaded = false;
+let monacoLoading = false;
+let completionProvidersRegistered = false;
+let playlistCache = {};
+let sidebarCollapsed = false;
+let isResizing = false;
+let isPlayerResizing = false;
+let startX, startWidth, startPlayerWidth;
+let cpuChart = null;
+let memChart = null;
+let cpuData = [];
+let memData = [];
+let timeLabels = [];
+let maxDataPoints = 30;
+let networkHistory = [];
+let systemMonitorInterval = null;
+let lastNetworkRx = 0;
+let lastNetworkTx = 0;    
 
-function handleThumbError(img) {
-    img.style.display = 'none';
-    const thumb = img.parentElement;
-    if (thumb) {
-        thumb.innerHTML = '<i class="fas fa-image"></i>';
-    }
-}
-    
 let currentMedia = {
     type: null,
     src: null,
@@ -6514,11 +6623,8 @@ async function saveSectionPlaylistToCache(sectionId) {
     } catch (error) {
     }
 }
-     
-let playMediaTimeout = null;
-let lastPlayedPath = null;
 
-function actuallyPlayMedia(filePath) {
+function playMedia(filePath) {
     filePath = filePath.trim();
     if (filePath.startsWith('//')) {
         filePath = filePath.substring(1);
@@ -6581,7 +6687,7 @@ function actuallyPlayMedia(filePath) {
     if (needsTranscoding) {
         const format = isVideo ? 'mp4' : 'mp3';
         previewUrl = `?action=transcode&path=${encodeURIComponent(filePath)}&format=${format}`;
-        showLogMessage((translations['transcoding_play'] || 'Transcoding: {format} format').replace('{format}', fileExt.toUpperCase()), 'info');
+        //showLogMessage((translations['transcoding_play'] || 'Transcoding: {format} format').replace('{format}', fileExt.toUpperCase()), 'info');
     } else {
         previewUrl = `?preview=1&path=${encodeURIComponent(filePath)}`;
     }
@@ -6604,10 +6710,6 @@ function actuallyPlayMedia(filePath) {
         clearInterval(imageSwitchTimer);
         imageSwitchTimer = null;
     }
-    if (fileImageSwitchTimer) {
-        clearInterval(fileImageSwitchTimer);
-        fileImageSwitchTimer = null;
-    }
     
     clearAllHighlights();
     
@@ -6619,7 +6721,8 @@ function actuallyPlayMedia(filePath) {
     audioPlayer.pause();
     videoPlayer.pause();
     
-    playerTitle.innerHTML = `<i class="fas fa-play"></i>${fileName}${needsTranscoding ? ' (Transcoding in progress)' : ''}`;
+    const displayName = fileName.length > 30 ? fileName.substring(0, 27) + '...' : fileName;
+    playerTitle.innerHTML = `<i class="fas fa-play me-2"></i><span class="text-truncate" title="${fileName}">${displayName}</span>`; 
     
     audioPlayer.src = '';
     videoPlayer.src = '';
@@ -6641,64 +6744,16 @@ function actuallyPlayMedia(filePath) {
         };
     }
     
-    const currentSection = document.querySelector('.grid-section:not([style*="display: none"])')?.id || '';
-    const isFileManager = currentSection === 'filesSection';
-    highlightCurrentPlayingFile(filePath, isFileManager);
+    updatePlaylistAndIndex(filePath, fileDir);
     
-    if (isFileManager) {
-        let dirPlaylist = playlistCache[fileDir];
-        
-        if (!dirPlaylist || dirPlaylist.length === 0) {
-            dirPlaylist = [filePath];
-        }
-        
-        currentPlaylistDir = fileDir;
-        currentFileMediaList = dirPlaylist;
-        currentFileMediaIndex = currentFileMediaList.indexOf(filePath);
-        
-        if (currentFileMediaIndex === -1 && currentFileMediaList.length > 0) {
-            currentFileMediaIndex = 0;
-        }
-                
-        if (playlistCache[fileDir] && playlistCache[fileDir].length > 0) {
-            savePlaylistToCache(fileDir, playlistCache[fileDir]);
-        }
-    } 
-    else {
-        if (currentSection === 'musicSection' || currentSection === 'videoSection' || currentSection === 'imageSection') {
-            const playlist = [];
-            const mediaItems = document.querySelectorAll(`#${currentSection} .media-item`);
-            mediaItems.forEach(item => {
-                const dataSrc = item.getAttribute('data-src');
-                if (dataSrc) {
-                    const match = dataSrc.match(/path=([^&]+)/);
-                    if (match) {
-                        const path = decodeURIComponent(match[1]);
-                        playlist.push(path);
-                    }
-                }
-            });
-            
-            if (playlist.length > 0) {
-                currentMediaList = playlist;
-                currentMediaIndex = currentMediaList.indexOf(filePath);   
-                const firstFile = playlist[0];
-                const dir = firstFile.substring(0, firstFile.lastIndexOf('/')) || '/';
-                savePlaylistToCache(dir, playlist);
-            }
-        }
-    }
+    highlightCurrentPlayingFile(filePath);
     
     if (isAudio) {
         audioPlayer.onerror = handleMediaError(audioPlayer, translations['audio'] || 'Audio');
         audioPlayer.onended = function() {
             clearAllHighlights();
             if (autoNextEnabled) {
-                if (isFileManager) {
-                    playNextFileMedia();
-                } else {
-                    playNextMedia();
-                }
+                playNextMedia();
             }
         };
         audioPlayer.src = previewUrl;
@@ -6723,11 +6778,7 @@ function actuallyPlayMedia(filePath) {
         videoPlayer.onended = function() {
             clearAllHighlights();
             if (autoNextEnabled) {
-                if (isFileManager) {
-                    playNextFileMedia();
-                } else {
-                    playNextMedia();
-                }
+                playNextMedia();
             }
         };
         videoPlayer.src = previewUrl;
@@ -6754,11 +6805,7 @@ function actuallyPlayMedia(filePath) {
         currentMedia = { type: 'image', src: previewUrl, path: filePath, ext: fileExt, wasPlaying: false };
         
         if (autoNextEnabled) {
-            if (isFileManager) {
-                startFileImageAutoSwitch();
-            } else {
-                startImageAutoSwitch();
-            }
+            startImageAutoSwitch();
         }
     } else {
         playError.style.display = 'block';
@@ -6766,9 +6813,39 @@ function actuallyPlayMedia(filePath) {
         clearAllHighlights();
     }
     
-    playerArea.classList.add('active');
-    setPlayerTitle(fileName);    
+    playerArea.classList.add('active'); 
     saveToRecent(filePath);
+    setTimeout(adjustNavButtons, 200);
+    setTimeout(adjustNavButtons, 800);
+}
+
+function adjustNavButtons() {
+    const playerContent = document.querySelector('.player-content');
+    const navOverlay = document.querySelector('.player-nav-overlay');
+    const videoPlayer = document.getElementById('videoPlayer');
+    const imageViewer = document.getElementById('imageViewer');
+    
+    if (!playerContent || !navOverlay) return;
+    
+    let mediaElement = null;
+    if (videoPlayer.style.display === 'block') mediaElement = videoPlayer;
+    else if (imageViewer.style.display === 'block') mediaElement = imageViewer;
+    else return;
+    
+    if (!mediaElement) return;
+    
+    requestAnimationFrame(() => {
+        const mediaRect = mediaElement.getBoundingClientRect();
+        const contentRect = playerContent.getBoundingClientRect();
+        
+        const relativeTop = mediaRect.top - contentRect.top;
+        const relativeHeight = mediaRect.height;
+        
+        if (relativeTop >= 0 && relativeHeight > 0) {
+            navOverlay.style.top = relativeTop + 'px';
+            navOverlay.style.height = relativeHeight + 'px';
+        }
+    });
 }
 
 async function loadPlaylistCache() {
@@ -6778,9 +6855,186 @@ async function loadPlaylistCache() {
             const data = await response.json();
             if (data.success && data.playlist) {
                 playlistCache[currentPath] = data.playlist;
+                currentPlaylist = data.playlist;
             }
         }
     } catch (error) {
+        //console.error('Failed to load playlist cache:', error);
+    }
+}
+
+function restorePlayingHighlight() {
+    if (currentMedia && currentMedia.path) {
+        highlightCurrentPlayingFile(currentMedia.path);
+    }
+}
+
+async function updatePlaylistAndIndex(filePath, fileDir) {
+    try {
+        const response = await fetch(`?action=get_playlist&dir=${encodeURIComponent(fileDir)}`);
+        const data = await response.json();
+        
+        if (data.success && data.playlist && data.playlist.length > 0) {
+            currentPlaylist = data.playlist;
+        } else {
+            currentPlaylist = collectMediaFromCurrentView(fileDir);
+            if (currentPlaylist.length > 0) {
+                await savePlaylistToCache(fileDir, currentPlaylist);
+            }
+        }
+        
+        currentPlaylistIndex = currentPlaylist.indexOf(filePath);
+        if (currentPlaylistIndex === -1 && currentPlaylist.length > 0) {
+            currentPlaylistIndex = 0;
+        }
+        
+        playlistCache[fileDir] = currentPlaylist;
+        
+    } catch (error) {
+        currentPlaylist = collectMediaFromCurrentView(fileDir);
+        currentPlaylistIndex = currentPlaylist.indexOf(filePath);
+        if (currentPlaylistIndex === -1 && currentPlaylist.length > 0) {
+            currentPlaylistIndex = 0;
+        }
+        playlistCache[fileDir] = currentPlaylist;
+    }
+}
+
+function collectMediaFromCurrentView(dir) {
+    const mediaFiles = [];
+    const mediaExts = [
+        'mp3', 'wav', 'ogg', 'flac', 'm4a', 'aac', 'wma', 'opus',
+        'ape', 'wv', 'tta', 'tak', 'dts', 'dsf', 'dff', 'sacd',
+        'mid', 'midi', 'rmi', 'kar', 'ac3', 'eac3', 'truehd', 'thd',
+        'pcm', 'adpcm', 'amr', 'awb', 'sln', 'vox', 'gsm', 'ra',
+        'ram', 'au', 'snd', 'voc', 'cda', '8svx', 'aiff', 'aif',
+        'aifc', 'afc', 'weba', 'mka', 'spx', 'oga', 'tta', 'm3u', 'm3u8', 'pls',
+        'mp4', 'avi', 'mkv', 'mov', 'wmv', 'flv', 'webm', 'm4v',
+        '3gp', '3g2', 'ogv', 'mpg', 'mpeg', 'mpe', 'mpv', 'm2v',
+        'ts', 'm2ts', 'mts', 'm2t', 'tod', 'mod', 'vro', 'vob',
+        'ifo', 'bup', 'iso', 'img', 'rm', 'rmvb', 'rv', 'qt',
+        'hdmov', 'moov', 'dv', 'mqv', 'asf', 'asx', 'wm', 'wmx',
+        'wvx', 'divx', 'xvid', 'f4v', 'f4p', 'f4a', 'f4b', 'swf',
+        'fla', 'avchd', 'mxf', 'gxf', 'lxv', 'nsv', 'nut', 'nuv',
+        'ogm', 'ogx', 'bik', 'smk', 'vp6', 'vp7', 'vp8', 'vp9',
+        'av1', 'hevc', 'h264', 'h265',
+        'jpg', 'jpeg', 'jpe', 'jfif', 'png', 'gif', 'bmp', 'webp',
+        'svg', 'svgz', 'ico', 'cur', 'raw', 'cr2', 'cr3', 'crw',
+        'nef', 'nrw', 'arw', 'srf', 'sr2', 'raf', 'dng', 'orf',
+        'rw2', 'pef', 'ptx', 'x3f', 'erf', 'mrw', 'mef', 'mdc',
+        'kdc', 'dcr', 'k25', 'bay', 'bmq', 'ciff', 'psd', 'psb',
+        'ai', 'eps', 'epsf', 'epsi', 'tiff', 'tif', 'djvu', 'djv',
+        'jxr', 'wdp', 'hdp', 'heic', 'heif', 'heics', 'heifs',
+        'avci', 'avcs', 'exr', 'hdr', 'pfm', 'ppm', 'pgm', 'pbm',
+        'pnm', 'pcx', 'tga', 'icb', 'vda', 'vst', 'pix', 'pxr',
+        'xbm', 'xpm', 'wbmp', 'cals', 'fpx', 'fpx', 'pcd', 'psp',
+        'pspimage', 'xcf', 'kra', 'cpt', 'pat', 'abr'
+    ];
+    
+    const currentSection = document.querySelector('.grid-section:not([style*="display: none"])')?.id || '';
+    
+    if (currentSection === 'filesSection') {
+        document.querySelectorAll('.file-item').forEach(item => {
+            const path = item.getAttribute('data-path');
+            const isDir = item.getAttribute('data-is-dir') === 'true';
+            
+            if (!isDir && path) {
+                const ext = path.split('.').pop().toLowerCase();
+                if (mediaExts.includes(ext)) {
+                    mediaFiles.push(path);
+                }
+            }
+        });
+    } else {
+        const mediaItems = document.querySelectorAll(`#${currentSection} .media-item`);
+        mediaItems.forEach(item => {
+            const dataSrc = item.getAttribute('data-src');
+            if (dataSrc) {
+                const match = dataSrc.match(/path=([^&]+)/);
+                if (match) {
+                    const path = decodeURIComponent(match[1]);
+                    mediaFiles.push(path);
+                }
+            }
+        });
+    }
+    
+    return mediaFiles;
+}
+
+function playNextMedia() {
+    if (!autoNextEnabled) return;
+    if (currentPlaylist.length === 0 || currentPlaylistIndex === -1) return;
+    
+    const nextIndex = (currentPlaylistIndex + 1) % currentPlaylist.length;
+    const nextFilePath = currentPlaylist[nextIndex];
+    
+    if (nextFilePath) {
+        playMedia(nextFilePath);
+    }
+}
+
+function playPreviousMedia() {
+    if (!autoNextEnabled) return;
+    if (currentPlaylist.length === 0 || currentPlaylistIndex === -1) return;
+    
+    const prevIndex = (currentPlaylistIndex - 1 + currentPlaylist.length) % currentPlaylist.length;
+    const prevFilePath = currentPlaylist[prevIndex];
+    
+    if (prevFilePath) {
+        playMedia(prevFilePath);
+    }
+}
+
+function startImageAutoSwitch() {
+    if (imageSwitchTimer) {
+        clearInterval(imageSwitchTimer);
+    }
+    
+    if (!autoNextEnabled || currentPlaylist.length < 2) {
+        return;
+    }
+    
+    imageSwitchTimer = setInterval(() => {
+        playNextMedia();
+    }, 5000);
+}
+
+function clearAllHighlights() {
+    document.querySelectorAll('.file-item, .media-item, .playlist-card').forEach(item => {
+        item.classList.remove('playing');
+        item.style.backgroundColor = '';
+        item.style.borderColor = '';
+        item.style.boxShadow = '';
+        item.style.transform = '';
+    });
+}
+
+function highlightCurrentPlayingFile(filePath) {
+    clearAllHighlights();
+    
+    const fileItem = document.querySelector(`.file-item[data-path="${filePath}"]`);
+    if (fileItem) {
+        fileItem.classList.add('playing');
+        fileItem.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
+    
+    const mediaItem = document.querySelector(`.media-item[data-src="?preview=1&path=${encodeURIComponent(filePath)}"]`);
+    if (mediaItem) {
+        mediaItem.classList.add('playing');
+        mediaItem.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
+    
+    const playlistCard = document.querySelector(`.playlist-card[data-path="${filePath}"]`);
+    if (playlistCard) {
+        playlistCard.classList.add('playing');
+        setTimeout(() => {
+            playlistCard.scrollIntoView({
+                behavior: 'smooth',
+                block: 'nearest',
+                inline: 'nearest'
+            });
+        }, 100);
     }
 }
 
@@ -6800,294 +7054,54 @@ async function savePlaylistToCache(dir, playlist) {
         });
         const data = await response.json();
         if (data.success) {
-            playlistCache[dir] = playlist;
+            //console.log('Playlist saved to cache');
         }
     } catch (error) {
+        //console.error('Failed to save playlist:', error);
     }
 }
 
-function updateCurrentPlaylist(dir, playlist, currentFile) {
-    currentPlaylistDir = dir;
-    if (playlist) {
-        playlistCache[dir] = playlist;
-    }
+function closePlayer() {
+    const playerArea = document.getElementById('playerArea');
+    const audioPlayer = document.getElementById('audioPlayer');
+    const videoPlayer = document.getElementById('videoPlayer');
+    const imageViewer = document.getElementById('imageViewer');
     
-    if (dir === currentPath) {
-        currentFileMediaList = playlistCache[dir] || [];
-        currentFileMediaIndex = currentFileMediaList.indexOf(currentFile);
-    }
-}
-
-function clearAllHighlights() {
-    document.querySelectorAll('.file-item').forEach(item => {
-        item.classList.remove('playing');
-        item.style.backgroundColor = '';
-        item.style.borderColor = '';
-        item.style.boxShadow = '';
-        item.style.transform = '';
-    });
-    
-    document.querySelectorAll('.media-item').forEach(item => {
-        item.classList.remove('playing');
-        item.style.backgroundColor = '';
-        item.style.borderColor = '';
-        item.style.boxShadow = '';
-        item.style.transform = '';
-    });
-}
-
-function highlightCurrentPlayingFile(filePath, isFileManager) {
-    clearAllHighlights();
-    
-    if (isFileManager) {
-        const fileItem = document.querySelector(`.file-item[data-path="${filePath}"]`);
-        if (fileItem) {
-            fileItem.classList.add('playing');
-            fileItem.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-        }
-    } else {
-        const mediaItem = document.querySelector(`.media-item[data-src="?preview=1&path=${encodeURIComponent(filePath)}"]`);
-        if (mediaItem) {
-            mediaItem.classList.add('playing');
-            mediaItem.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    if (document.fullscreenElement) {
+        if (document.exitFullscreen) {
+            document.exitFullscreen();
         }
     }
-}
-
-function restorePlayingHighlight() {
-    if (currentMedia && currentMedia.path) {
-        const currentSection = document.querySelector('.grid-section:not([style*="display: none"])')?.id || '';
-        const isFileManager = currentSection === 'filesSection';
-        
-        if (isFileManager) {
-            const fileExists = currentFileMediaList.includes(currentMedia.path);
-            if (fileExists) {
-                highlightCurrentPlayingFile(currentMedia.path, true);
-            } else {
-                clearAllHighlights();
-            }
-        } else {
-            let mediaExists = false;
-            if (currentSection === 'musicSection' && currentMedia.type === 'audio') {
-                mediaExists = currentMediaList.includes(currentMedia.path);
-            } else if (currentSection === 'videoSection' && currentMedia.type === 'video') {
-                mediaExists = currentMediaList.includes(currentMedia.path);
-            } else if (currentSection === 'imageSection' && currentMedia.type === 'image') {
-                mediaExists = currentMediaList.includes(currentMedia.path);
-            }
-            
-            if (mediaExists) {
-                highlightCurrentPlayingFile(currentMedia.path, false);
-            } else {
-                clearAllHighlights();
-            }
-        }
-    }
-}
-
-function playMedia(filePath) {
-    if (playMediaTimeout) {
-        clearTimeout(playMediaTimeout);
-    }
     
-    if (lastPlayedPath === filePath) {
-        playMediaTimeout = setTimeout(() => {
-            actuallyPlayMedia(filePath);
-        }, 100);
-        return;
-    }
-    
-    lastPlayedPath = filePath;
-    actuallyPlayMedia(filePath);
-}
-
-function updateCurrentFileMediaList() {
-    const fileItems = document.querySelectorAll('.file-item');
-    currentFileMediaList = [];
-    
-    const mediaExts = [
-        'mp3', 'wav', 'ogg', 'flac', 'm4a', 'aac',
-        'mp4', 'avi', 'mkv', 'mov', 'wmv', 'flv', 'webm',
-        '3gp', '3g2', 'ogv', 'mpg', 'mpeg',
-        'jpg', 'jpeg', 'png', 'gif', 'bmp', 'webp', 'svg'
-    ];
-    
-    fileItems.forEach(item => {
-        const path = item.getAttribute('data-path');
-        const isDir = item.getAttribute('data-is-dir') === 'true';
-        
-        if (!isDir && path) {
-            const ext = path.split('.').pop().toLowerCase();
-            if (mediaExts.includes(ext)) {
-                currentFileMediaList.push(path);
-            }
-        }
-    });
-}
-
-function updateFileMediaList(filePath) {
-    const fileDir = filePath.substring(0, filePath.lastIndexOf('/')) || '/';
-    
-    if (playlistCache[fileDir] && playlistCache[fileDir].length > 0) {
-        currentFileMediaList = playlistCache[fileDir];
-        currentPlaylistDir = fileDir;
-    } else {
-        const fileItems = document.querySelectorAll('.file-item');
-        const newList = [];
-        
-        const mediaExts = [
-            'mp3', 'wav', 'ogg', 'flac', 'm4a', 'aac',
-            'mp4', 'avi', 'mkv', 'mov', 'wmv', 'flv', 'webm',
-            '3gp', '3g2', 'ogv', 'mpg', 'mpeg', 
-            'jpg', 'jpeg', 'png', 'gif', 'bmp', 'webp', 'svg'
-        ];
-        
-        fileItems.forEach(item => {
-            const path = item.getAttribute('data-path');
-            const isDir = item.getAttribute('data-is-dir') === 'true';
-            
-            if (!isDir && path) {
-                const ext = path.split('.').pop().toLowerCase();
-                if (mediaExts.includes(ext)) {
-                    newList.push(path);
-                }
-            }
-        });
-        
-        currentFileMediaList = newList;
-        currentPlaylistDir = fileDir;
-        playlistCache[fileDir] = newList;
-    }
-    
-    currentFileMediaIndex = currentFileMediaList.indexOf(filePath);
-}
-
-function startFileImageAutoSwitch() {
-    if (fileImageSwitchTimer) {
-        clearInterval(fileImageSwitchTimer);
-    }
-    
-    if (!autoNextEnabled || currentFileMediaList.length < 2) {
-        return;
-    }
-    
-    fileImageSwitchTimer = setInterval(() => {
-        playNextFileMedia();
-    }, 5000);
-}
-
-function playNextFileMedia() {
-    if (!autoNextEnabled) {
-        return;
-    }
-
-    if (currentFileMediaList.length === 0 || currentFileMediaIndex === -1) {
-        return;
-    }
-    
-    const nextIndex = (currentFileMediaIndex + 1) % currentFileMediaList.length;
-    const nextFilePath = currentFileMediaList[nextIndex];
-    
-    if (nextFilePath) {
-        playMedia(nextFilePath);
-    }
-}
-
-function playPreviousFileMedia() {
-    if (!autoNextEnabled) {
-        return;
-    }
-
-    if (currentFileMediaList.length === 0 || currentFileMediaIndex === -1) {
-        return;
-    }
-    
-    const prevIndex = (currentFileMediaIndex - 1 + currentFileMediaList.length) % currentFileMediaList.length;
-    const prevFilePath = currentFileMediaList[prevIndex];
-    
-    if (prevFilePath) {
-        playMedia(prevFilePath);
-    }
-}
-
-function setPlayerTitle(fileName) {
-    const playerTitle = document.getElementById('playerTitle');
-    
-    const icon = playerTitle.querySelector('i');
-    playerTitle.innerHTML = '';
-    if (icon) {
-        playerTitle.appendChild(icon);
-    } else {
-        const playIcon = document.createElement('i');
-        playIcon.className = 'fas fa-play';
-        playerTitle.appendChild(playIcon);
-    }
-    
-    const textSpan = document.createElement('span');
-    textSpan.className = 'player-title-text truncate';
-    textSpan.textContent = fileName;
-    textSpan.title = fileName;
-    
-    playerTitle.appendChild(textSpan);
-    
-    document.getElementById('playerArea').style.display = 'block';
-}
-    
-function updateCurrentMediaList(category, filePath) {
-    try {
-        const mediaLists = {
-            'music': <?php echo json_encode(array_column($media['music'] ?? [], 'path')); ?>,
-            'video': <?php echo json_encode(array_column($media['video'] ?? [], 'path')); ?>,
-            'image': <?php echo json_encode(array_column($media['image'] ?? [], 'path')); ?>
-        };
-        
-        currentMediaList = mediaLists[category] || [];
-        currentMediaIndex = currentMediaList.indexOf(filePath);
-        
-    } catch (e) {
-        console.error('Error updating media list:', e);
-        currentMediaList = [];
-        currentMediaIndex = -1;
-    }
-}
-    
-function startImageAutoSwitch() {
     if (imageSwitchTimer) {
         clearInterval(imageSwitchTimer);
+        imageSwitchTimer = null;
     }
     
-    if (!autoNextEnabled || currentMediaList.length < 2) {
-        return;
-    }
-        
-    imageSwitchTimer = setInterval(() => {
-        playNextMedia();
-    }, 5000);
+    clearAllHighlights();
+    
+    audioPlayer.pause();
+    videoPlayer.pause();
+    
+    playerArea.classList.remove('active');
+    playerArea.style.display = 'none'; 
+    
+    audioPlayer.style.display = 'none';
+    videoPlayer.style.display = 'none';
+    imageViewer.style.display = 'none';
+    
+    currentMedia = {
+        type: null,
+        src: null,
+        path: null,
+        ext: null,
+        wasPlaying: false
+    };
+    
+    currentPlaylist = [];
+    currentPlaylistIndex = -1;
 }
     
-function playNextMedia() {
-    if (!autoNextEnabled) return;
-    if (currentMediaList.length === 0 || currentMediaIndex === -1) return;
-    
-    const nextIndex = (currentMediaIndex + 1) % currentMediaList.length;
-    const nextFilePath = currentMediaList[nextIndex];
-    
-    if (nextFilePath) {
-        playMedia(nextFilePath);
-    }
-}
-
-function playNextFileMedia() {
-    if (!autoNextEnabled) return;
-    if (currentFileMediaList.length === 0 || currentFileMediaIndex === -1) return;
-    
-    const nextIndex = (currentFileMediaIndex + 1) % currentFileMediaList.length;
-    const nextFilePath = currentFileMediaList[nextIndex];
-    
-    if (nextFilePath) {
-        playMedia(nextFilePath);
-    }
-}
 function initAutoPlayToggle() {
     const toggleBtn = document.getElementById('autoNextToggle');
     if (toggleBtn) {
@@ -7158,8 +7172,7 @@ function saveToRecent(filePath) {
         localStorage.setItem('recent_media', JSON.stringify(recent));
         
         updateRecentList();
-    } catch (e) {
-    }
+    } catch (e) {}
 }
     
 function updateRecentList() {
@@ -7204,52 +7217,9 @@ function updateRecentList() {
                 </div>
             </div>`;
         }).join('');
-    } catch (e) {
-    }
+    } catch (e) {}
 }
-    
-function closePlayer() {
-    const playerArea = document.getElementById('playerArea');
-    const audioPlayer = document.getElementById('audioPlayer');
-    const videoPlayer = document.getElementById('videoPlayer');
-    const imageViewer = document.getElementById('imageViewer');
-    
-    if (document.fullscreenElement) {
-        if (document.exitFullscreen) {
-            document.exitFullscreen();
-        }
-    }
-    
-    if (imageSwitchTimer) {
-        clearInterval(imageSwitchTimer);
-        imageSwitchTimer = null;
-    }
-    if (fileImageSwitchTimer) {
-        clearInterval(fileImageSwitchTimer);
-        fileImageSwitchTimer = null;
-    }
-    
-    clearAllHighlights();
-    
-    audioPlayer.pause();
-    videoPlayer.pause();
-    
-    playerArea.classList.remove('active');
-    playerArea.style.display = 'none'; 
-    
-    audioPlayer.style.display = 'none';
-    videoPlayer.style.display = 'none';
-    imageViewer.style.display = 'none';
-    
-    currentMedia = {
-        type: null,
-        src: null,
-        path: null,
-        ext: null,
-        wasPlaying: false
-    };
-}
-    
+        
 function toggleFullscreenPlayer() {
     const videoPlayer = document.getElementById('videoPlayer');
     const audioPlayer = document.getElementById('audioPlayer');
@@ -7535,17 +7505,6 @@ function stopHoverPlay() {
     }
 }
 
-let cpuChart = null;
-let memChart = null;
-let cpuData = [];
-let memData = [];
-let timeLabels = [];
-let maxDataPoints = 30;
-let networkHistory = [];
-let systemMonitorInterval = null;
-let lastNetworkRx = 0;
-let lastNetworkTx = 0;
-
 async function updateSystemInfo() {
     try {
         const response = await fetch('?ajax=1');
@@ -7786,7 +7745,7 @@ function initCharts() {
             }
         });
     } catch (error) {
-        console.error('Error initializing charts:', error);
+        //console.error('Error initializing charts:', error);
     }
 }
 
@@ -7892,10 +7851,6 @@ function stopSystemMonitoring() {
         systemMonitorInterval = null;
     }
 }
-
-let isResizing = false;
-let isPlayerResizing = false;
-let startX, startWidth, startPlayerWidth;
 
 function initResizer() {
     const resizer = document.getElementById('resizer');
@@ -8123,8 +8078,6 @@ function loadSavedWidths() {
     }
 }
 
-let sidebarCollapsed = false;
-
 function toggleSidebar() {
     const sideNav = document.getElementById('sideNav');
     const toggleIcon = document.querySelector('.fa-server');
@@ -8205,8 +8158,8 @@ function updateFullscreenIcon() {
                 }
             } else {
                 icon.className = 'fas fa-expand';
-                if (translations['fullscreen_play']) {
-                    textSpan.textContent = translations['fullscreen_play'];
+                if (translations['enter_fullscreen']) {
+                    textSpan.textContent = translations['enter_fullscreen'];
                 } else {
                     textSpan.textContent = 'Fullscreen Play';
                 }
@@ -8239,267 +8192,6 @@ function updateFullscreenIcon() {
         }
     }
 }
-
-document.addEventListener('DOMContentLoaded', function() {
-    updateRecentList();
-    initHoverPlay();
-    initSidebarState();
-    initResizer();
-    loadSavedWidths();
-    startSystemMonitoring();
-    initAutoPlayToggle();
-    initDragAndDrop();
-    
-    if (typeof Chart !== 'undefined') {
-        startSystemMonitoring();
-    } else {
-        const script = document.createElement('script');
-        script.src = '/luci-static/spectra/js/chart.js';
-        script.onload = function() {
-            startSystemMonitoring();
-        };
-        document.head.appendChild(script);
-    }
-
-    document.addEventListener('fullscreenchange', updateFullscreenIcon);
-    document.addEventListener('webkitfullscreenchange', updateFullscreenIcon);
-    document.addEventListener('mozfullscreenchange', updateFullscreenIcon);
-    document.addEventListener('MSFullscreenChange', updateFullscreenIcon);
-    
-    updateFullscreenIcon();
-
-    const playerArea = document.getElementById('playerArea');
-    const playerResizer = document.getElementById('playerResizer');
-    
-    const observer = new MutationObserver(function(mutations) {
-        mutations.forEach(function(mutation) {
-            if (mutation.attributeName === 'class') {
-                if (playerArea.classList.contains('active')) {
-                    playerResizer.style.display = 'block';
-                } else {
-                    playerResizer.style.display = 'none';
-                }
-            }
-        });
-    });
-    
-    if (playerArea) {
-        observer.observe(playerArea, { attributes: true });
-    }
-});
-
-document.addEventListener('keydown', function(event) {
-    const target = event.target;
-    const isTyping = target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.isContentEditable;
-    
-    if (isTyping) return;
-    
-    const isMonacoEditor = target.closest('.monaco-editor');
-    if (isMonacoEditor && (event.code === 'Space' || event.code === 'KeyF' || event.code === 'Escape')) {
-        return;
-    }
-    
-    switch(event.code) {
-        case 'Space':
-            event.preventDefault();
-            const audioPlayer = document.getElementById('audioPlayer');
-            const videoPlayer = document.getElementById('videoPlayer');
-            const fullscreenAudio = document.getElementById('fullscreenAudio');
-            const fullscreenVideo = document.getElementById('fullscreenVideo');
-            
-            if (fullscreenAudio && fullscreenAudio.style.display === 'block') {
-                if (fullscreenAudio.paused) fullscreenAudio.play();
-                else fullscreenAudio.pause();
-            } else if (fullscreenVideo && fullscreenVideo.style.display === 'block') {
-                if (fullscreenVideo.paused) fullscreenVideo.play();
-                else fullscreenVideo.pause();
-            } else if (audioPlayer && audioPlayer.style.display === 'block') {
-                if (audioPlayer.paused) audioPlayer.play();
-                else audioPlayer.pause();
-            } else if (videoPlayer && videoPlayer.style.display === 'block') {
-                if (videoPlayer.paused) videoPlayer.play();
-                else videoPlayer.pause();
-            }
-            break;
-            
-        case 'Escape':
-            const mediaContextMenu = document.getElementById('mediaContextMenu');
-            const fileContextMenu = document.getElementById('fileContextMenu');
-            const contextMenuOverlay = document.getElementById('contextMenuOverlay');
-            
-            if (mediaContextMenu && mediaContextMenu.style.display === 'block') {
-                hideContextMenu();
-                event.preventDefault();
-            } else if (fileContextMenu && fileContextMenu.style.display === 'block') {
-                hideFileContextMenu();
-                event.preventDefault();
-            } else if (contextMenuOverlay && contextMenuOverlay.style.display === 'block') {
-                hideContextMenu();
-                hideFileContextMenu();
-                event.preventDefault();
-            }
-            else if (document.getElementById('fullscreenPlayer')?.classList.contains('active')) {
-                closeFullscreenPlayer();
-                event.preventDefault();
-            }
-            else if (document.getElementById('playerArea')?.classList.contains('active')) {
-                closePlayer();
-                event.preventDefault();
-            }
-            else if (document.getElementById('filePropertiesModal')?.classList.contains('show')) {
-                const modal = bootstrap.Modal.getInstance(document.getElementById('filePropertiesModal'));
-                if (modal) modal.hide();
-                event.preventDefault();
-            }
-            else if (document.getElementById('fileInfoDialog')?.style.display === 'block') {
-                document.getElementById('fileInfoDialog').style.display = 'none';
-                if (contextMenuOverlay) contextMenuOverlay.style.display = 'none';
-                event.preventDefault();
-            }
-            break;
-            
-        case 'KeyF':
-            event.preventDefault();
-            toggleFullscreen();
-            break;
-            
-        case 'ArrowRight':
-            event.preventDefault();
-            const currentSection = document.querySelector('.grid-section:not([style*="display: none"])')?.id || '';
-            if (currentSection === 'filesSection') {
-                playNextFileMedia();
-            } else {
-                playNextMedia();
-            }
-            break;
-            
-        case 'ArrowLeft':
-            event.preventDefault();
-            const currentSectionLeft = document.querySelector('.grid-section:not([style*="display: none"])')?.id || '';
-            if (currentSectionLeft === 'filesSection') {
-                playPreviousFileMedia();
-            } else {
-                playPreviousMedia();
-            }
-            break;
-
-        case 'KeyA':
-            if (event.altKey) {
-                event.preventDefault();
-                toggleAutoNext();
-            }
-            break;                     
-            
-        case 'KeyF':
-            if (event.ctrlKey || event.metaKey) {
-                event.preventDefault();
-                const searchInput = document.getElementById('searchInput');
-                const searchModal = document.getElementById('searchModal');
-                
-                if (searchInput) {
-                    if (searchModal) {
-                        const modal = new bootstrap.Modal(searchModal);
-                        modal.show();
-                    }
-                    setTimeout(() => {
-                        searchInput.focus();
-                        searchInput.select();
-                    }, 100);
-                }
-            }
-            break;
-            
-        case 'KeyS':
-            if ((event.ctrlKey || event.metaKey) && activeEditorTab) {
-                event.preventDefault();
-                saveEditorContent(activeEditorTab);
-            }
-            break;
-            
-        case 'Enter':
-            if ((event.ctrlKey || event.metaKey) && document.getElementById('searchInput')?.value.trim()) {
-                event.preventDefault();
-                searchFiles();
-            }
-            break;
-            
-        case 'KeyF':
-            if ((event.ctrlKey || event.metaKey) && event.shiftKey && activeEditorTab) {
-                event.preventDefault();
-                const tab = editorTabs.find(t => t.id === activeEditorTab);
-                if (tab && tab.editorMode === 'advanced') {
-                    formatCode(activeEditorTab);
-                }
-            }
-            break;
-            
-        case 'F5':
-            event.preventDefault();
-            refreshFiles();
-            break;
-            
-        case 'Delete':
-            if (selectedFiles.size > 0) {
-                event.preventDefault();
-                deleteSelected();
-            }
-            break;
-            
-        case 'KeyE':
-            if (event.ctrlKey || event.metaKey) {
-                event.preventDefault();
-                toggleView();
-            }
-            break;
-            
-        case 'KeyE':
-            if ((event.ctrlKey || event.metaKey) && event.shiftKey) {
-                event.preventDefault();
-                toggleView('editor');
-            }
-            break;
-            
-        case 'KeyF':
-            if ((event.ctrlKey || event.metaKey) && event.shiftKey) {
-                event.preventDefault();
-                toggleView('files');
-            }
-            break;
-            
-        case 'KeyW':
-            if ((event.ctrlKey || event.metaKey) && activeEditorTab) {
-                event.preventDefault();
-                closeEditorTab(activeEditorTab);
-            }
-            break;
-            
-        case 'KeyW':
-            if ((event.ctrlKey || event.metaKey) && event.shiftKey && editorTabs.length > 0) {
-                event.preventDefault();
-                closeAllEditorTabs();
-            }
-            break;
-    }
-});
-</script>
-
-<script>
-let currentPath = '/';
-let selectedFiles = new Set();
-let viewMode = 'grid';
-let fileContextMenuTarget = null;
-let currentFileMediaList = [];
-let currentFileMediaIndex = -1;
-let fileImageSwitchTimer = null;  
-let uploadFilesList = [];
-let currentView = 'files'; 
-let monacoEditor = null;
-let currentEditorMode = 'simple';
-let monacoLoaded = false;
-let monacoLoading = false;
-let completionProvidersRegistered = false;
-let playlistCache = {};
-let currentPlaylistDir = ''; 
 
 async function loadFiles(path) {
     const fileGrid = document.getElementById('fileGrid');
@@ -10016,53 +9708,6 @@ function showCompressDialog() {
     modal.show();
 }
 
-document.addEventListener('DOMContentLoaded', function() {
-    const formatButtonsGroup = document.getElementById('formatButtonsGroup');
-    if (formatButtonsGroup) {
-        formatButtonsGroup.addEventListener('click', function(e) {
-            if (e.target.matches('button[data-format]')) {
-                const buttons = this.querySelectorAll('button[data-format]');
-                buttons.forEach(btn => btn.classList.remove('active'));
-                
-                e.target.classList.add('active');
-                
-                const format = e.target.getAttribute('data-format');
-                document.getElementById('archiveExtension').textContent = '.' + format;
-            }
-        });
-    }
-    
-    const uploadModal = document.getElementById('uploadModal');
-    if (uploadModal) {
-        uploadModal.addEventListener('show.bs.modal', function() {
-            uploadFilesList = [];
-            
-            const fileList = document.getElementById('fileList');
-            if (fileList) {
-                fileList.innerHTML = '';
-            }
-            
-            const fileListCard = document.getElementById('fileListCard');
-            if (fileListCard) {
-                fileListCard.style.display = 'none';
-            }
-            
-            const fileInput = document.getElementById('fileUploadInput');
-            if (fileInput) {
-                fileInput.value = '';
-            }
-        });
-    }
-    
-    setTimeout(() => {
-        initDragSelect();
-
-        if (document.getElementById('fileGrid')) {
-            loadPlaylistCache();
-        }
-    }, 500);
-});
-
 function browseForCompressPath() {
     const path = prompt('Enter destination path:', currentPath);
     if (path) {
@@ -11301,9 +10946,6 @@ function openFileDirectory(filePath, isDir) {
     showLogMessage(successMessage, 'info');
     speakMessage(successMessage, 'info');
 }
-
-let editorTabs = [];
-let activeEditorTab = null;
 
 function openEditor(path) {
     if (!path) return;
@@ -13790,7 +13432,7 @@ function createDiffEditorDialog(filename, content, tabId) {
                 </div>
 
                 <div class="modal-body p-0 d-flex flex-column">
-                    <div class="diff-toolbar p-2 border-bottom d-flex justify-content-between align-items-center">
+                    <div class="diff-toolbar p-2 d-flex justify-content-between align-items-center">
                         <div>
                             <span class="badge bg-primary me-2" data-translate="diff_left_label">Left: Original</span>
                             <span class="badge bg-success me-2" data-translate="diff_right_label">Right: Diff</span>
@@ -13817,7 +13459,7 @@ function createDiffEditorDialog(filename, content, tabId) {
 
                     <div id="diffEditorContainer" class="flex-grow-1"></div>
 
-                    <div class="diff-help p-2 border-top small text-muted">
+                    <div class="diff-help p-2 small text-muted">
                         <i class="fas fa-lightbulb me-1"></i>
                         <span data-translate="diff_help">Tip: When editing on the right, green = added, red = removed. Ctrl+V works on both sides.</span>
                     </div>
@@ -14084,8 +13726,6 @@ function openTerminal() {
     hideFileContextMenu();
 }
 
-let currentHashPath = null;
-
 async function showFileHashDialog() {
     if (selectedFiles.size !== 1) {
         showLogMessage(translations['select_items_first'] || 'Please select one file', 'warning');
@@ -14195,8 +13835,6 @@ ${sha256Label} ${sha256}
     showLogMessage(successMsg);
     speakMessage(successMsg);
 }
-
-let installEventSource = null;
 
 function showInstallDialog() {
     if (selectedFiles.size !== 1) {
@@ -14497,8 +14135,6 @@ document.getElementById('installModal').addEventListener('hidden.bs.modal', func
     document.getElementById('installProgressText').textContent = '0%';
 });
 
-let batchRenameFiles = [];
-
 function showBatchRenameDialog() {
     if (selectedFiles.size === 0) {
         showLogMessage(translations['select_files_to_rename'] || 'Please select files to rename', 'warning');
@@ -14717,8 +14353,6 @@ async function executeBatchRename() {
     }
 }
 
-let convertFiles = [];
-
 function showConvertDialog() {
     if (selectedFiles.size === 0) {
         showLogMessage(translations['select_files_first'] || 'Please select files first', 'warning');
@@ -14892,6 +14526,37 @@ function appendConvertLog(message, type = 'normal') {
     log.scrollTop = log.scrollHeight;
 }
 
+async function cleanThumbnailCache() {
+    const confirmMessage = translations['confirm_clean_thumbnails'] || 
+                          'Are you sure you want to clean all video thumbnails?';
+    
+    showConfirmation(confirmMessage, async () => {
+        try {
+            const response = await fetch('?action=clean_thumbnail_cache');
+            const data = await response.json();
+            
+            if (data.success) {
+                const successMsg = translations['thumbnails_cleaned'] || 'Thumbnail cache cleaned successfully';
+                showLogMessage(successMsg, 'success');
+                speakMessage(successMsg, 'success');
+                
+                setTimeout(() => {
+                    location.reload();
+                }, 2500);
+            } else {
+                const errorMsg = translations['clean_thumbnails_failed'] || 'Failed to clean thumbnail cache';
+                showLogMessage(errorMsg, 'error');
+                speakMessage(errorMsg, 'error');
+            }
+        } catch (error) {
+            const errorMsg = (translations['clean_thumbnails_error'] || 'Error cleaning thumbnails') + ': ' + error.message;
+            showLogMessage(errorMsg, 'error');
+            speakMessage(errorMsg, 'error');
+        }
+    });
+}
+
+
 window.addEventListener('beforeunload', function(e) {
     const unsavedTabs = editorTabs.filter(tab => tab.modified);
     
@@ -14910,6 +14575,79 @@ window.addEventListener('beforeunload', function(e) {
 });
 
 document.addEventListener('DOMContentLoaded', function() {
+    updateRecentList();
+    initHoverPlay();
+    initSidebarState();
+    initResizer();
+    loadSavedWidths();
+    startSystemMonitoring();
+    initAutoPlayToggle();
+    initDragAndDrop();
+    
+    if (typeof Chart !== 'undefined') {
+        startSystemMonitoring();
+    } else {
+        const script = document.createElement('script');
+        script.src = '/luci-static/spectra/js/chart.js';
+        script.onload = function() {
+            startSystemMonitoring();
+        };
+        document.head.appendChild(script);
+    }
+
+    document.addEventListener('fullscreenchange', updateFullscreenIcon);
+    document.addEventListener('webkitfullscreenchange', updateFullscreenIcon);
+    document.addEventListener('mozfullscreenchange', updateFullscreenIcon);
+    document.addEventListener('MSFullscreenChange', updateFullscreenIcon);
+    updateFullscreenIcon();
+
+    const playerArea = document.getElementById('playerArea');
+    const playerResizer = document.getElementById('playerResizer');
+
+    const formatButtonsGroup = document.getElementById('formatButtonsGroup');
+    if (formatButtonsGroup) {
+        formatButtonsGroup.addEventListener('click', function(e) {
+            if (e.target.matches('button[data-format]')) {
+                const buttons = this.querySelectorAll('button[data-format]');
+                buttons.forEach(btn => btn.classList.remove('active'));
+                e.target.classList.add('active');
+                
+                const format = e.target.getAttribute('data-format');
+                document.getElementById('archiveExtension').textContent = '.' + format;
+            }
+        });
+    }
+    
+    const uploadModal = document.getElementById('uploadModal');
+    if (uploadModal) {
+        uploadModal.addEventListener('show.bs.modal', function() {
+            uploadFilesList = [];
+            
+            const fileList = document.getElementById('fileList');
+            if (fileList) {
+                fileList.innerHTML = '';
+            }
+            
+            const fileListCard = document.getElementById('fileListCard');
+            if (fileListCard) {
+                fileListCard.style.display = 'none';
+            }
+            
+            const fileInput = document.getElementById('fileUploadInput');
+            if (fileInput) {
+                fileInput.value = '';
+            }
+        });
+    }
+    
+    setTimeout(() => {
+        initDragSelect();
+
+        if (document.getElementById('fileGrid')) {
+            loadPlaylistCache();
+        }
+    }, 500);
+    
     const savedTheme = localStorage.getItem('editorTheme');
     if (!savedTheme) {
         localStorage.setItem('editorTheme', 'vs-dark');
@@ -14957,6 +14695,17 @@ document.addEventListener('DOMContentLoaded', function() {
     if (document.getElementById('fileGrid')) {
         loadFiles('/');
     }
+
+    const events = [
+        'resize', 'scroll', 'load', 'loadedmetadata',
+        'playing', 'fullscreenchange'
+    ];
+    
+    events.forEach(event => {
+        window.addEventListener(event, adjustNavButtons);
+    });
+    
+    setInterval(adjustNavButtons, 1000);
 });
 
 document.getElementById("updatePhpConfig").addEventListener("click", function() {
@@ -14980,11 +14729,11 @@ document.getElementById("updatePhpConfig").addEventListener("click", function() 
         });
     });
 });
-</script>
 
-<script>
 document.addEventListener('DOMContentLoaded', () => {
     const playlistModalEl = document.getElementById('playlistModal');
+    let hoverVideoTimer = null;
+    let currentHoverCard = null;
 
     playlistModalEl.addEventListener('show.bs.modal', async () => {
         try {
@@ -15044,6 +14793,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 card.setAttribute('data-path', file);
                 card.setAttribute('data-index', index);
                 card.setAttribute('data-ext', fileExt);
+                card.setAttribute('data-is-video', isVideo);
                 card.setAttribute('title', fileName);
 
                 let thumbnailHtml = '';
@@ -15053,9 +14803,9 @@ document.addEventListener('DOMContentLoaded', () => {
                         `?action=video_thumbnail&path=${encodeURIComponent(file)}&t=${Date.now()}`;
 
                     thumbnailHtml = `
-                        <div class="video-thumb-container"
+                        <div class="video-thumb-container hover-video-parent"
                              style="width: 100%; height: 150px; background: #000; position: relative;">
-                            <img class="video-thumb-img"
+                            <img class="video-thumb-img hover-thumb-img"
                                  src="${thumbnailUrl}"
                                  alt="${escapeHtml(fileName)}"
                                  style="width: 100%; height: 100%; object-fit: cover; display: block;"
@@ -15127,7 +14877,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
                             <div class="text-white small text-truncate"
                                  style="text-shadow: 1px 1px 2px rgba(0,0,0,0.5);"
-                                 title="${escapeHtml(nameWithoutExt)}">
+                                 data-translate-tooltip="${escapeHtml(nameWithoutExt)}">
                                 ${truncateFileName(nameWithoutExt, 20)}
                             </div>
 
@@ -15154,21 +14904,71 @@ document.addEventListener('DOMContentLoaded', () => {
                 `;
 
                 if (isVideo) {
-                    getVideoDuration(file)
-                        .then(duration => {
-                            const durationBadge = card.querySelector('.duration-badge');
-                            const durationSpan = card.querySelector('.video-duration-badge');
+                    let hoverVideo = null;
+                    let hoverTimer = null;
 
-                            if (durationBadge) {
-                                durationBadge.innerHTML =
-                                    `<i class="fas fa-clock"></i> ${duration}`;
+                    card.addEventListener('mouseenter', () => {
+                        if (currentHoverCard && currentHoverCard !== card) {
+                            stopHoverVideo(currentHoverCard);
+                        }
+                        
+                        currentHoverCard = card;
+                        
+                        hoverTimer = setTimeout(() => {
+                            const thumbContainer = card.querySelector('.video-thumb-container');
+                            const thumbImg = card.querySelector('.hover-thumb-img');
+                            
+                            if (thumbContainer && thumbImg) {
+                                thumbImg.style.opacity = '0';
+                                
+                                hoverVideo = document.createElement('video');
+                                hoverVideo.src = `?preview=1&path=${encodeURIComponent(file)}`;
+                                hoverVideo.muted = true;
+                                hoverVideo.loop = true;
+                                hoverVideo.playsInline = true;
+                                hoverVideo.style.cssText = `
+                                    position: absolute;
+                                    top: 0;
+                                    left: 0;
+                                    width: 100%;
+                                    height: 100%;
+                                    object-fit: cover;
+                                    z-index: 10;
+                                `;
+                                
+                                const playPromise = hoverVideo.play();
+                                if (playPromise !== undefined) {
+                                    playPromise.catch(e => {
+                                        if (thumbImg) thumbImg.style.opacity = '1';
+                                    });
+                                }
+                                
+                                thumbContainer.appendChild(hoverVideo);
                             }
+                        }, 500);
+                    });
 
-                            if (durationSpan) {
-                                durationSpan.textContent = duration;
-                            }
-                        })
-                        .catch(() => {});
+                    card.addEventListener('mouseleave', () => {
+                        if (hoverTimer) {
+                            clearTimeout(hoverTimer);
+                        }
+                        
+                        if (hoverVideo) {
+                            hoverVideo.pause();
+                            hoverVideo.currentTime = 0;
+                            hoverVideo.remove();
+                            hoverVideo = null;
+                        }
+                        
+                        const thumbImg = card.querySelector('.hover-thumb-img');
+                        if (thumbImg) {
+                            thumbImg.style.opacity = '1';
+                        }
+                        
+                        if (currentHoverCard === card) {
+                            currentHoverCard = null;
+                        }
+                    });
                 }
 
                 card.addEventListener('mouseenter', () => {
@@ -15198,6 +14998,24 @@ document.addEventListener('DOMContentLoaded', () => {
                     playMedia(file);
                 });
 
+                if (isVideo) {
+                    getVideoDuration(file)
+                        .then(duration => {
+                            const durationBadge = card.querySelector('.duration-badge');
+                            const durationSpan = card.querySelector('.video-duration-badge');
+
+                            if (durationBadge) {
+                                durationBadge.innerHTML =
+                                    `<i class="fas fa-clock"></i> ${duration}`;
+                            }
+
+                            if (durationSpan) {
+                                durationSpan.textContent = duration;
+                            }
+                        })
+                        .catch(() => {});
+                }
+
                 col.appendChild(card);
                 playlistContainer.appendChild(col);
             });
@@ -15221,6 +15039,22 @@ document.addEventListener('DOMContentLoaded', () => {
             playlistCount.textContent = '0 Files';
         }
     });
+
+    function stopHoverVideo(card) {
+        if (!card) return;
+        
+        const existingVideo = card.querySelector('video');
+        if (existingVideo) {
+            existingVideo.pause();
+            existingVideo.currentTime = 0;
+            existingVideo.remove();
+        }
+        
+        const thumbImg = card.querySelector('.hover-thumb-img');
+        if (thumbImg) {
+            thumbImg.style.opacity = '1';
+        }
+    }
 
     const audioPlayer = document.getElementById('audioPlayer');
     const videoPlayer = document.getElementById('videoPlayer');
@@ -15319,27 +15153,171 @@ document.addEventListener('play', function(e) {
     }
 }, true);
 
-document.addEventListener('keydown', function(e) {
-    const tag = document.activeElement.tagName;
-    if (tag === 'INPUT' || tag === 'TEXTAREA') return;
-
-    if (!currentMediaList || !currentMedia || !currentMedia.path) return;
-
-    const currentIndex = currentMediaList.indexOf(currentMedia.path);
-    if (currentIndex === -1) return;
-
-    switch (e.key.toLowerCase()) {
-        case 'arrowleft':
-            e.preventDefault();
-            if (currentIndex > 0) {
-                playMedia(currentMediaList[currentIndex - 1]);
+document.addEventListener('keydown', function(event) {
+    const target = event.target;
+    const isTyping = target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.isContentEditable;
+    
+    if (isTyping) return;
+    
+    const isMonacoEditor = target.closest('.monaco-editor');
+    if (isMonacoEditor && (event.code === 'Space' || event.code === 'KeyF' || event.code === 'Escape')) {
+        return;
+    }
+    
+    switch(event.code) {
+        case 'Space':
+            event.preventDefault();
+            const audioPlayer = document.getElementById('audioPlayer');
+            const videoPlayer = document.getElementById('videoPlayer');
+            
+            if (audioPlayer && audioPlayer.style.display === 'block') {
+                if (audioPlayer.paused) audioPlayer.play();
+                else audioPlayer.pause();
+            } else if (videoPlayer && videoPlayer.style.display === 'block') {
+                if (videoPlayer.paused) videoPlayer.play();
+                else videoPlayer.pause();
             }
             break;
+            
+        case 'Escape':
+            const fileContextMenu = document.getElementById('fileContextMenu');
+            const contextMenuOverlay = document.getElementById('contextMenuOverlay');
+            
+            if (fileContextMenu && fileContextMenu.style.display === 'block') {
+                hideFileContextMenu();
+                event.preventDefault();
+            } else if (contextMenuOverlay && contextMenuOverlay.style.display === 'block') {
+                hideFileContextMenu();
+                event.preventDefault();
+            }
+            else if (document.getElementById('playerArea')?.classList.contains('active')) {
+                closePlayer();
+                event.preventDefault();
+            }
+            else if (document.getElementById('filePropertiesModal')?.classList.contains('show')) {
+                const modal = bootstrap.Modal.getInstance(document.getElementById('filePropertiesModal'));
+                if (modal) modal.hide();
+                event.preventDefault();
+            }
+            break;
+            
+        case 'KeyF':
+            event.preventDefault();
+            toggleFullscreen();
+            break;
 
-        case 'arrowright':
-            e.preventDefault();
-            if (currentIndex < currentMediaList.length - 1) {
-                playMedia(currentMediaList[currentIndex + 1]);
+        case 'ArrowUp':
+            event.preventDefault();
+            const playlistBtn = document.querySelector('[data-bs-target="#playlistModal"]');
+            if (playlistBtn) {
+                playlistBtn.click();
+            }
+           break;
+            
+        case 'ArrowRight':
+            event.preventDefault();
+            playNextMedia();
+            break;
+            
+        case 'ArrowLeft':
+            event.preventDefault();
+            playPreviousMedia();
+            break;
+
+        case 'KeyA':
+            if (event.altKey) {
+                event.preventDefault();
+                toggleAutoNext();
+            }
+            break;                     
+            
+        case 'KeyF':
+            if (event.ctrlKey || event.metaKey) {
+                event.preventDefault();
+                const searchInput = document.getElementById('searchInput');
+                const searchModal = document.getElementById('searchModal');
+                
+                if (searchInput) {
+                    if (searchModal) {
+                        const modal = new bootstrap.Modal(searchModal);
+                        modal.show();
+                    }
+                    setTimeout(() => {
+                        searchInput.focus();
+                        searchInput.select();
+                    }, 100);
+                }
+            }
+            break;
+            
+        case 'KeyS':
+            if ((event.ctrlKey || event.metaKey) && activeEditorTab) {
+                event.preventDefault();
+                saveEditorContent(activeEditorTab);
+            }
+            break;
+            
+        case 'Enter':
+            if ((event.ctrlKey || event.metaKey) && document.getElementById('searchInput')?.value.trim()) {
+                event.preventDefault();
+                searchFiles();
+            }
+            break;
+            
+        case 'KeyF':
+            if ((event.ctrlKey || event.metaKey) && event.shiftKey && activeEditorTab) {
+                event.preventDefault();
+                const tab = editorTabs.find(t => t.id === activeEditorTab);
+                if (tab && tab.editorMode === 'advanced') {
+                    formatCode(activeEditorTab);
+                }
+            }
+            break;
+            
+        case 'F5':
+            event.preventDefault();
+            refreshFiles();
+            break;
+            
+        case 'Delete':
+            if (selectedFiles.size > 0) {
+                event.preventDefault();
+                deleteSelected();
+            }
+            break;
+            
+        case 'KeyE':
+            if (event.ctrlKey || event.metaKey) {
+                event.preventDefault();
+                toggleView();
+            }
+            break;
+            
+        case 'KeyE':
+            if ((event.ctrlKey || event.metaKey) && event.shiftKey) {
+                event.preventDefault();
+                toggleView('editor');
+            }
+            break;
+            
+        case 'KeyF':
+            if ((event.ctrlKey || event.metaKey) && event.shiftKey) {
+                event.preventDefault();
+                toggleView('files');
+            }
+            break;
+            
+        case 'KeyW':
+            if ((event.ctrlKey || event.metaKey) && activeEditorTab) {
+                event.preventDefault();
+                closeEditorTab(activeEditorTab);
+            }
+            break;
+            
+        case 'KeyW':
+            if ((event.ctrlKey || event.metaKey) && event.shiftKey && editorTabs.length > 0) {
+                event.preventDefault();
+                closeAllEditorTabs();
             }
             break;
     }

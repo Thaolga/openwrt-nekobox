@@ -712,6 +712,14 @@ $langData = [
         'cpu_model'        => 'CPU型号',
         'transcoding_play' => '正在转码播放: {format} 格式',
         'tooltip_playlist' => '播放任意目錄媒體檔案，自動建立播放列表',
+        'frame_rate'               => '帧率:',
+        'audio_channels'           => '声道:',
+        'clean_thumbnails'         => '清理缩略图',
+        'clean_thumbnail_cache'    => '清理视频缩略图缓存',
+        'confirm_clean_thumbnails' => '确定要清理所有视频缩略图吗？这将释放磁盘空间。',
+        'thumbnails_cleaned'       => '缩略图缓存清理成功',
+        'clean_thumbnails_failed'  => '清理缩略图缓存失败',
+        'clean_thumbnails_error'   => '清理缩略图时出错',
         'file_summary' => '已选择 %d 个文件，合计 %s MB'
     ],
 
@@ -1425,6 +1433,14 @@ $langData = [
         'tooltip_playlist' => '播放任意目錄媒體檔案，自動建立播放列表',
         'cpu_model'        => 'CPU型號',
         'transcoding_play' => '正在轉碼播放: {format} 格式',
+        'frame_rate'               => '幀率:',
+        'audio_channels'           => '聲道:',
+        'clean_thumbnails'         => '清理縮略圖',
+        'clean_thumbnail_cache'    => '清理影片縮略圖快取',
+        'confirm_clean_thumbnails' => '確定要清理所有影片縮略圖嗎？這將釋放磁碟空間。',
+        'thumbnails_cleaned'       => '縮略圖快取清理成功',
+        'clean_thumbnails_failed'  => '清理縮略圖快取失敗',
+        'clean_thumbnails_error'   => '清理縮略圖時發生錯誤',
         'validateYaml' => '驗證 YAML 語法'
     ],
 
@@ -2137,6 +2153,14 @@ $langData = [
         'now_playing' => '재생 중',
         'cpu_model'        => 'CPU 모델',
         'transcoding_play' => '{format} 형식으로 트랜스코딩하여 재생 중',
+        'frame_rate'               => '프레임 속도:',
+        'audio_channels'           => '오디오 채널:',
+        'clean_thumbnails'         => '썸네일 정리',
+        'clean_thumbnail_cache'    => '비디오 썸네일 캐시 정리',
+        'confirm_clean_thumbnails' => '모든 비디오 썸네일을 정리하시겠습니까? 디스크 공간이 확보됩니다.',
+        'thumbnails_cleaned'       => '썸네일 캐시 정리 완료',
+        'clean_thumbnails_failed'  => '썸네일 캐시 정리 실패',
+        'clean_thumbnails_error'   => '썸네일 정리 중 오류 발생',
         'validateYaml' => 'YAML 구문 검증'
     ],
 
@@ -2848,6 +2872,14 @@ $langData = [
         'cpu_model'        => 'CPUモデル',
         'tooltip_playlist'       => '任意のメディアフォルダから再生リストを自動作成',
         'transcoding_play' => '{format} 形式でトランスコード再生中',
+        'frame_rate'               => 'フレームレート:',
+        'audio_channels'           => 'オーディオチャンネル:',
+        'clean_thumbnails'         => 'サムネイルを削除',
+        'clean_thumbnail_cache'    => '動画サムネイルキャッシュを削除',
+        'confirm_clean_thumbnails' => 'すべての動画サムネイルを削除しますか？ディスク容量が解放されます。',
+        'thumbnails_cleaned'       => 'サムネイルキャッシュの削除に成功しました',
+        'clean_thumbnails_failed'  => 'サムネイルキャッシュの削除に失敗しました',
+        'clean_thumbnails_error'   => 'サムネイル削除中にエラーが発生しました',
         'validateYaml' => 'YAML構文を検証'
     ],
 
@@ -3556,6 +3588,14 @@ $langData = [
         'now_playing' => 'Đang phát',
         'cpu_model'        => 'Mẫu CPU',
         'tooltip_playlist'       => 'Tạo danh sách phát thông minh từ bất kỳ thư mục media nào',
+        'frame_rate'               => 'Tốc độ khung hình:',
+        'audio_channels'           => 'Kênh âm thanh:',
+        'clean_thumbnails'         => 'Dọn dẹp hình thu nhỏ',
+        'clean_thumbnail_cache'    => 'Dọn dẹp bộ nhớ đệm hình thu nhỏ video',
+        'confirm_clean_thumbnails' => 'Bạn có chắc muốn xóa tất cả hình thu nhỏ video? Điều này sẽ giải phóng dung lượng đĩa.',
+        'thumbnails_cleaned'       => 'Đã dọn dẹp bộ nhớ đệm hình thu nhỏ thành công',
+        'clean_thumbnails_failed'  => 'Dọn dẹp bộ nhớ đệm hình thu nhỏ thất bại',
+        'clean_thumbnails_error'   => 'Có lỗi khi dọn dẹp hình thu nhỏ',
         'transcoding_play' => 'Đang chuyển mã và phát định dạng {format}',
         'validateYaml' => 'Kiểm tra Cú pháp YAML'
     ],
@@ -4250,6 +4290,14 @@ $langData = [
         'cpu_model'        => 'รุ่น CPU',
         'tooltip_playlist'       => 'สร้างเพลย์ลิสต์อัตโนมัติจากโฟลเดอร์สื่อใดก็ได้',
         'transcoding_play' => 'กำลังแปลงรหัสและเล่นไฟล์รูปแบบ {format}',
+        'frame_rate'               => 'อัตราเฟรม:',
+        'audio_channels'           => 'ช่องเสียง:',
+        'clean_thumbnails'         => 'ล้างภาพขนาดย่อ',
+        'clean_thumbnail_cache'    => 'ล้างแคชภาพขนาดย่อวิดีโอ',
+        'confirm_clean_thumbnails' => 'คุณแน่ใจหรือไม่ว่าต้องการล้างภาพขนาดย่อวิดีโอทั้งหมด? การดำเนินการนี้จะเพิ่มพื้นที่ดิสก์',
+        'thumbnails_cleaned'       => 'ล้างแคชภาพขนาดย่อสำเร็จ',
+        'clean_thumbnails_failed'  => 'ล้างแคชภาพขนาดย่อไม่สำเร็จ',
+        'clean_thumbnails_error'   => 'เกิดข้อผิดพลาดขณะล้างภาพขนาดย่อ',
         'validateYaml' => 'ตรวจสอบไวยากรณ์ YAML'
     ],
     'ru' => [
@@ -4944,6 +4992,14 @@ $langData = [
         'cpu_model'        => 'Модель CPU',
         'tooltip_playlist'       => 'Автоматически создать плейлист из любой папки с медиа',
         'transcoding_play' => 'Выполняется перекодирование и воспроизведение формата {format}',
+        'frame_rate'               => 'Частота кадров:',
+        'audio_channels'           => 'Аудиоканалы:',
+        'clean_thumbnails'         => 'Очистить миниатюры',
+        'clean_thumbnail_cache'    => 'Очистить кэш миниатюр видео',
+        'confirm_clean_thumbnails' => 'Вы уверены, что хотите удалить все миниатюры видео? Это освободит место на диске.',
+        'thumbnails_cleaned'       => 'Кэш миниатюр успешно очищен',
+        'clean_thumbnails_failed'  => 'Не удалось очистить кэш миниатюр',
+        'clean_thumbnails_error'   => 'Ошибка при очистке миниатюр',
         'validateYaml' => 'Проверить синтаксис YAML'
     ],
     'ar' => [
@@ -5643,6 +5699,14 @@ $langData = [
         'tooltip_playlist'       => 'إنشاء قائمة تشغيل تلقائيًا من أي مجلد وسائط',
         'cpu_model'        => 'طراز المعالج',
         'transcoding_play' => 'جارٍ تحويل الترميز وتشغيل تنسيق {format}',
+        'frame_rate'               => 'معدل الإطارات:',
+        'audio_channels'           => 'قنوات الصوت:',
+        'clean_thumbnails'         => 'تنظيف الصور المصغرة',
+        'clean_thumbnail_cache'    => 'تنظيف ذاكرة التخزين المؤقت لصور الفيديو المصغرة',
+        'confirm_clean_thumbnails' => 'هل أنت متأكد من أنك تريد حذف جميع الصور المصغرة للفيديو؟ سيؤدي ذلك إلى تحرير مساحة على القرص.',
+        'thumbnails_cleaned'       => 'تم تنظيف ذاكرة الصور المصغرة بنجاح',
+        'clean_thumbnails_failed'  => 'فشل في تنظيف ذاكرة الصور المصغرة',
+        'clean_thumbnails_error'   => 'حدث خطأ أثناء تنظيف الصور المصغرة',
         'validateYaml' => 'التحقق من صحة بناء جملة YAML'
     ],
     'es' => [
@@ -6334,6 +6398,14 @@ $langData = [
         'cpu_model'        => 'Modelo de CPU',
         'tooltip_playlist'       => 'Crear lista de reproducción desde cualquier carpeta de medios de forma inteligente',
         'transcoding_play' => 'Transcodificando y reproduciendo formato {format}',
+        'frame_rate'               => 'Velocidad de fotogramas:',
+        'audio_channels'           => 'Canales de audio:',
+        'clean_thumbnails'         => 'Limpiar miniaturas',
+        'clean_thumbnail_cache'    => 'Limpiar caché de miniaturas de video',
+        'confirm_clean_thumbnails' => '¿Está seguro de que desea eliminar todas las miniaturas de video? Esto liberará espacio en disco.',
+        'thumbnails_cleaned'       => 'Caché de miniaturas limpiada correctamente',
+        'clean_thumbnails_failed'  => 'Error al limpiar la caché de miniaturas',
+        'clean_thumbnails_error'   => 'Error al limpiar las miniaturas',
         'validateYaml' => 'Validar sintaxis YAML'
     ],
     'de' => [
@@ -7027,6 +7099,14 @@ $langData = [
         'tooltip_playlist'       => 'Intelligente Wiedergabeliste aus beliebigen Medienordnern erstellen',
         'cpu_model'        => 'CPU-Modell',
         'transcoding_play' => 'Transkodierung und Wiedergabe im {format}-Format',
+        'frame_rate'               => 'Bildrate:',
+        'audio_channels'           => 'Audiokanäle:',
+        'clean_thumbnails'         => 'Vorschaubilder bereinigen',
+        'clean_thumbnail_cache'    => 'Video-Vorschaubild-Cache bereinigen',
+        'confirm_clean_thumbnails' => 'Möchten Sie wirklich alle Video-Vorschaubilder löschen? Dadurch wird Speicherplatz freigegeben.',
+        'thumbnails_cleaned'       => 'Vorschaubild-Cache erfolgreich bereinigt',
+        'clean_thumbnails_failed'  => 'Bereinigung des Vorschaubild-Caches fehlgeschlagen',
+        'clean_thumbnails_error'   => 'Fehler beim Bereinigen der Vorschaubilder',
         'validateYaml' => 'YAML-Syntax validieren'
     ],
 
@@ -7721,6 +7801,14 @@ $langData = [
         'tooltip_playlist'       => 'Créer automatiquement une playlist à partir de n’importe quel dossier média',
         'cpu_model'        => 'Modèle du CPU',
         'transcoding_play' => 'Transcodage et lecture au format {format}',
+        'frame_rate'               => 'Fréquence d’images:',
+        'audio_channels'           => 'Canaux audio:',
+        'clean_thumbnails'         => 'Nettoyer les miniatures',
+        'clean_thumbnail_cache'    => 'Nettoyer le cache des miniatures vidéo',
+        'confirm_clean_thumbnails' => 'Êtes-vous sûr de vouloir supprimer toutes les miniatures vidéo ? Cela libérera de l’espace disque.',
+        'thumbnails_cleaned'       => 'Cache des miniatures nettoyé avec succès',
+        'clean_thumbnails_failed'  => 'Échec du nettoyage du cache des miniatures',
+        'clean_thumbnails_error'   => 'Erreur lors du nettoyage des miniatures',
         'validateYaml' => 'Valider la syntaxe YAML'
     ],
     'en' => [
@@ -8426,6 +8514,14 @@ $langData = [
         'cpu_model'        => 'CPU Model',
         'tooltip_playlist'       => 'Intelligently create playlist from any media folder',
         'transcoding_play' => 'Transcoding and playing: {format} format',
+        'frame_rate'               => 'Frame Rate:',
+        'audio_channels'           => 'Channels:',
+        'clean_thumbnails'         => 'Clean Thumbnails',
+        'clean_thumbnail_cache'    => 'Clean Video Thumbnail Cache',
+        'confirm_clean_thumbnails' => 'Are you sure you want to clean all video thumbnails? This will free up disk space.',
+        'thumbnails_cleaned'       => 'Thumbnail cache cleaned successfully',
+        'clean_thumbnails_failed'  => 'Failed to clean thumbnail cache',
+        'clean_thumbnails_error'   => 'Error occurred while cleaning thumbnails',
         'validateYaml' => 'Validate YAML Syntax'
     ],
     'bn' => [
@@ -9119,6 +9215,14 @@ $langData = [
         'tooltip_playlist'       => 'যেকোনো মিডিয়া ফোল্ডার থেকে স্বয়ংক্রিয়ভাবে প্লেলিস্ট তৈরি করুন',
         'cpu_model'        => 'CPU মডেল',
         'transcoding_play' => '{format} ফরম্যাটে ট্রান্সকোড করে প্লে করা হচ্ছে',
+        'frame_rate'               => 'ফ্রেম রেট:',
+        'audio_channels'           => 'অডিও চ্যানেল:',
+        'clean_thumbnails'         => 'থাম্বনেইল পরিষ্কার করুন',
+        'clean_thumbnail_cache'    => 'ভিডিও থাম্বনেইল ক্যাশ পরিষ্কার করুন',
+        'confirm_clean_thumbnails' => 'আপনি কি নিশ্চিত যে সব ভিডিও থাম্বনেইল মুছতে চান? এতে ডিস্ক স্পেস খালি হবে।',
+        'thumbnails_cleaned'       => 'থাম্বনেইল ক্যাশ সফলভাবে পরিষ্কার হয়েছে',
+        'clean_thumbnails_failed'  => 'থাম্বনেইল ক্যাশ পরিষ্কার করতে ব্যর্থ',
+        'clean_thumbnails_error'   => 'থাম্বনেইল পরিষ্কার করার সময় ত্রুটি ঘটেছে',
         'validateYaml' => 'YAML সিনট্যাক্স যাচাই করুন'
     ]
 ];
@@ -10808,8 +10912,6 @@ function updateDateTime() {
     try {
         const now = new Date();
         const lang = currentLang; 
-        const translations = langData[lang] || langData['en']; 
-
         const hours = now.getHours();
         const minutes = now.getMinutes();
         const ancientTime = getAncientTime(now, translations);
