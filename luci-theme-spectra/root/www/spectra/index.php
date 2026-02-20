@@ -8915,8 +8915,16 @@ function handleFileClick(event, filePath) {
                 'hosts', 'nginx', 'apache', 'htaccess'
             ];
             
+            const installExts = ['ipk', 'apk', 'run'];
+            
             if (audioExts.includes(ext) || videoExts.includes(ext) || imageExts.includes(ext)) {
                 playMedia(filePath);
+            }
+            else if (installExts.includes(ext)) {
+                selectedFiles.clear();
+                selectedFiles.add(filePath);
+                updateFileSelection();
+                showInstallDialog();
             }
             else if (textExts.includes(ext) || ext === '') {
                 editFile(filePath);
