@@ -13650,6 +13650,17 @@ function escapeHtml(text) {
     return div.innerHTML;
 }
 
+function contextMenuEdit() {
+    if (selectedFiles.size === 0) {
+        showLogMessage(translations['select_items_first'] || 'Please select items first', 'warning');
+        return;
+    }
+    
+    const path = Array.from(selectedFiles)[0];
+    editFile(path);
+    hideFileContextMenu();
+}
+
 function initEventListeners() {
     document.addEventListener('click', function(e) {
         const contextMenu = document.getElementById('fileContextMenu');
@@ -13691,7 +13702,7 @@ function initEventListeners() {
         menuItems.forEach(item => {
             const onclickAttr = item.getAttribute('onclick');
             if (onclickAttr) {
-                const funcName = onclickAttr.replace('onclick=', '').trim();
+                const funcName = onclickAttr.replace('onclick=', '').replace('()', '').trim();
                 item.removeAttribute('onclick');
                 item.addEventListener('click', function(e) {
                     e.stopPropagation();
@@ -13702,7 +13713,7 @@ function initEventListeners() {
                     else if (funcName === 'showFileProperties()') showFileProperties();
                     else if (funcName === 'contextMenuDelete()') contextMenuDelete();
                     else if (funcName.includes('prepare')) {
-                        eval(funcName);
+                        eval(funcName + '()');
                     }
                 });
             }
