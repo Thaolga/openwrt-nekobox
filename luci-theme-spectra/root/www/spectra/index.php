@@ -5804,7 +5804,7 @@ list-group:hover {
     </div>
 </div>
 
-<div class="modal fade" id="searchModal" tabindex="-1" aria-hidden="true">
+<div class="modal fade" id="searchModal" tabindex="-1" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
     <div class="modal-dialog modal-xl">
         <div class="modal-content">
             <div class="modal-header">
@@ -5848,7 +5848,7 @@ list-group:hover {
     </div>
 </div>
 
-<div class="modal fade" id="filePropertiesModal" tabindex="-1" aria-labelledby="filePropertiesModalLabel" aria-hidden="true">
+<div class="modal fade" id="filePropertiesModal" tabindex="-1" aria-labelledby="filePropertiesModalLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
     <div class="modal-dialog modal-xl">
         <div class="modal-content">
             <div class="modal-header">
@@ -5878,7 +5878,7 @@ list-group:hover {
     </div>
 </div>
 
-<div class="modal fade" id="chmodModal" tabindex="-1" aria-labelledby="chmodModalLabel" aria-hidden="true">
+<div class="modal fade" id="chmodModal" tabindex="-1" aria-labelledby="chmodModalLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
   <div class="modal-dialog modal-lg">
     <form method="post" onsubmit="return validateChmod()" class="modal-content no-loader">
       <div class="modal-header">
@@ -5919,7 +5919,7 @@ list-group:hover {
   </div>
 </div>
 
-<div class="modal fade" id="createTypeModal" tabindex="-1" aria-hidden="true">
+<div class="modal fade" id="createTypeModal" tabindex="-1" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">
@@ -5972,7 +5972,7 @@ list-group:hover {
     </div>
 </div>
 
-<div class="modal fade" id="createFolderModal" tabindex="-1" aria-hidden="true">
+<div class="modal fade" id="createFolderModal" tabindex="-1" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">
@@ -6002,7 +6002,7 @@ list-group:hover {
     </div>
 </div>
 
-<div class="modal fade" id="createFileModal" tabindex="-1" aria-hidden="true">
+<div class="modal fade" id="createFileModal" tabindex="-1" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">
@@ -6032,7 +6032,7 @@ list-group:hover {
     </div>
 </div>
 
-<div class="modal fade" id="uploadModal" tabindex="-1" aria-labelledby="uploadModalLabel" aria-hidden="true">
+<div class="modal fade" id="uploadModal" tabindex="-1" aria-labelledby="uploadModalLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">
@@ -6068,7 +6068,7 @@ list-group:hover {
     </div>
 </div>
 
-<div class="modal fade" id="renameModal" tabindex="-1" aria-hidden="true">
+<div class="modal fade" id="renameModal" tabindex="-1" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">
@@ -6106,7 +6106,7 @@ list-group:hover {
     </div>
 </div>
 
-<div class="modal fade" id="moveModal" tabindex="-1" aria-hidden="true">
+<div class="modal fade" id="moveModal" tabindex="-1" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">
@@ -6153,7 +6153,7 @@ list-group:hover {
     </div>
 </div>
 
-<div class="modal fade" id="copyModal" tabindex="-1" aria-hidden="true">
+<div class="modal fade" id="copyModal" tabindex="-1" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">
@@ -6200,7 +6200,7 @@ list-group:hover {
     </div>
 </div>
 
-<div class="modal fade" id="terminalModal" tabindex="-1" aria-hidden="true">
+<div class="modal fade" id="terminalModal" tabindex="-1" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
     <div class="modal-dialog modal-xl">
         <div class="modal-content" style="height: 80vh;">
             <div class="modal-header">
@@ -6227,7 +6227,7 @@ list-group:hover {
     </div>
 </div>
 
-<div class="modal fade" id="compressModal" tabindex="-1" aria-labelledby="compressModalLabel" aria-hidden="true">
+<div class="modal fade" id="compressModal" tabindex="-1" aria-labelledby="compressModalLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">
@@ -6291,7 +6291,7 @@ list-group:hover {
     </div>
 </div>
 
-<div class="modal fade" id="fileHashModal" tabindex="-1" aria-hidden="true">
+<div class="modal fade" id="fileHashModal" tabindex="-1" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
     <div class="modal-dialog modal-lg modal-dialog-centered">
         <div class="modal-content">
             <div class="modal-header">
@@ -6381,7 +6381,7 @@ list-group:hover {
     </div>
 </div>
 
-<div class="modal fade" id="installModal" tabindex="-1" aria-labelledby="installModalLabel" aria-hidden="true">
+<div class="modal fade" id="installModal" tabindex="-1" aria-labelledby="installModalLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">
@@ -6441,7 +6441,7 @@ list-group:hover {
     </div>
 </div>
 
-<div class="modal fade" id="batchRenameModal" tabindex="-1" aria-hidden="true">
+<div class="modal fade" id="batchRenameModal" tabindex="-1" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
     <div class="modal-dialog modal-xl">
         <div class="modal-content">
             <div class="modal-header">
@@ -6513,7 +6513,7 @@ list-group:hover {
     </div>
 </div>
 
-<div class="modal fade" id="convertModal" tabindex="-1" aria-hidden="true">
+<div class="modal fade" id="convertModal" tabindex="-1" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
     <div class="modal-dialog modal-xl">
         <div class="modal-content">
             <div class="modal-header">
@@ -6604,7 +6604,7 @@ list-group:hover {
     </div>
 </div>
 
-<div class="modal fade" id="playlistModal" tabindex="-1">
+<div class="modal fade" id="playlistModal" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false">
     <div class="modal-dialog modal-xl">
         <div class="modal-content">
             <div class="modal-header">
@@ -6639,7 +6639,7 @@ list-group:hover {
     </div>
 </div>
 
-<div class="modal fade" id="scanModal" tabindex="-1" aria-labelledby="scanModalLabel" aria-hidden="true">
+<div class="modal fade" id="scanModal" tabindex="-1" aria-labelledby="scanModalLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">
@@ -6755,7 +6755,7 @@ list-group:hover {
     </div>
 </div>
 
-<div class="modal fade" id="qrcodeModal" tabindex="-1" aria-hidden="true">
+<div class="modal fade" id="qrcodeModal" tabindex="-1" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
             <div class="modal-header">
@@ -10189,6 +10189,10 @@ function showExtractDialog() {
     const dialog = document.createElement('div');
     dialog.className = 'modal fade';
     dialog.id = 'extractModal';
+    dialog.setAttribute('tabindex', '-1');
+    dialog.setAttribute('aria-hidden', 'true');
+    dialog.setAttribute('data-bs-backdrop', 'static');
+    dialog.setAttribute('data-bs-keyboard', 'false');
     dialog.innerHTML = `
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
@@ -13774,6 +13778,10 @@ function createDiffEditorDialog(filename, content, tabId) {
     const dialog = document.createElement('div');
     dialog.className = 'modal fade';
     dialog.id = 'diffEditorModal';
+    dialog.setAttribute('tabindex', '-1');
+    dialog.setAttribute('aria-hidden', 'true');
+    dialog.setAttribute('data-bs-backdrop', 'static');
+    dialog.setAttribute('data-bs-keyboard', 'false');
     dialog.innerHTML = `
         <div class="modal-dialog modal-xl modal-dialog-centered modal-fullscreen-lg-down">
             <div class="modal-content" style="height: 80vh;">
