@@ -8801,6 +8801,15 @@ function handleRightClick(event) {
             }
         }
 
+        const qrcodeItem = document.getElementById('fileQrcodeItem');
+        if (qrcodeItem) {
+            if (!isDir && selectedFiles.size === 1) {
+                qrcodeItem.style.display = 'flex';
+            } else {
+                qrcodeItem.style.display = 'none';
+            }
+        }
+
         const hashItem = document.getElementById('fileHashItem');
         if (hashItem) {
             if (!isDir && selectedFiles.size === 1) {
@@ -9523,7 +9532,7 @@ function hideAllContextMenuItems() {
         'emptyRefreshItem', 'emptySelectAllItem', 'fileCopyPathItem',
         'globalPasteItem', 'fileBatchRenameItem',
         'archiveMenuItem', 'fileConvertItem',
-        'fileInstallItem', 'fileHashItem'
+        'fileInstallItem', 'fileHashItem', 'fileQrcodeItem'
     ];
     
     allMenuItems.forEach(id => {
@@ -9562,13 +9571,6 @@ function showFileMenuItems(isDir, ext) {
     showMenuItem('filePropertiesItem');
     showMenuItem('fileTerminalItem');
 
-    const qrcodeItem = document.getElementById('fileQrcodeItem');
-    if (!isDir) {
-        qrcodeItem.style.display = 'flex';
-    } else {
-        qrcodeItem.style.display = 'none';
-    }
-    
     const mediaExts = ['mp3', 'wav', 'ogg', 'flac', 'm4a', 'aac', 
                        'mp4', 'avi', 'mkv', 'mov', 'wmv', 'flv', 'webm',
                        '3gp', '3g2', 'ogv', 'mpg', 'mpeg',
