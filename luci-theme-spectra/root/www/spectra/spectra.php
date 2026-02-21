@@ -720,6 +720,19 @@ $langData = [
         'thumbnails_cleaned'       => '缩略图缓存清理成功',
         'clean_thumbnails_failed'  => '清理缩略图缓存失败',
         'clean_thumbnails_error'   => '清理缩略图时出错',
+        'generate_qrcode'   => '生成二维码',
+        'file_qrcode'       => '文件二维码',
+        'scan'                    => '扫描',
+        'cached'                  => '已缓存',
+        'full_media_scan'         => '全媒体扫描',
+        'confirm_clear_cache_type'=> '清除 {type} 缓存？',
+        'cache_type_cleared'      => '{type} 缓存已清除',
+        'clear_type_failed'       => '清除 {type} 缓存失败',
+        'scan_type_complete'      => '{type} 扫描完成：找到 {count} 个文件',
+        'scan_type_failed'        => '{type} 扫描失败',
+        'clear_failed'            => '清除失败',
+        'scanning'                => '扫描中...',
+        'clearing'                => '清除中...',
         'file_summary' => '已选择 %d 个文件，合计 %s MB'
     ],
 
@@ -1441,6 +1454,19 @@ $langData = [
         'thumbnails_cleaned'       => '縮略圖快取清理成功',
         'clean_thumbnails_failed'  => '清理縮略圖快取失敗',
         'clean_thumbnails_error'   => '清理縮略圖時發生錯誤',
+        'generate_qrcode'   => '生成二維碼',
+        'file_qrcode'       => '文件二維碼',
+        'scan'                    => '掃描',
+        'cached'                  => '已快取',
+        'full_media_scan'         => '全媒體掃描',
+        'confirm_clear_cache_type'=> '清除 {type} 快取？',
+        'cache_type_cleared'      => '{type} 快取已清除',
+        'clear_type_failed'       => '清除 {type} 快取失敗',
+        'scan_type_complete'      => '{type} 掃描完成：找到 {count} 個檔案',
+        'scan_type_failed'        => '{type} 掃描失敗',
+        'clear_failed'            => '清除失敗',
+        'scanning'                => '掃描中...',
+        'clearing'                => '清除中...',
         'validateYaml' => '驗證 YAML 語法'
     ],
 
@@ -2161,6 +2187,19 @@ $langData = [
         'thumbnails_cleaned'       => '썸네일 캐시 정리 완료',
         'clean_thumbnails_failed'  => '썸네일 캐시 정리 실패',
         'clean_thumbnails_error'   => '썸네일 정리 중 오류 발생',
+        'generate_qrcode'   => 'QR 코드 생성',
+        'file_qrcode'       => '파일 QR 코드',
+        'scan'                    => '스캔',
+        'cached'                  => '캐시됨',
+        'full_media_scan'         => '전체 미디어 스캔',
+        'confirm_clear_cache_type'=> '{type} 캐시를 삭제하시겠습니까?',
+        'cache_type_cleared'      => '{type} 캐시가 삭제되었습니다',
+        'clear_type_failed'       => '{type} 캐시 삭제 실패',
+        'scan_type_complete'      => '{type} 스캔 완료: {count}개 파일 발견',
+        'scan_type_failed'        => '{type} 스캔 실패',
+        'clear_failed'            => '삭제 실패',
+        'scanning'                => '스캔 중...',
+        'clearing'                => '삭제 중...',
         'validateYaml' => 'YAML 구문 검증'
     ],
 
@@ -2880,6 +2919,19 @@ $langData = [
         'thumbnails_cleaned'       => 'サムネイルキャッシュの削除に成功しました',
         'clean_thumbnails_failed'  => 'サムネイルキャッシュの削除に失敗しました',
         'clean_thumbnails_error'   => 'サムネイル削除中にエラーが発生しました',
+        'generate_qrcode'   => 'QRコードを生成',
+        'file_qrcode'       => 'ファイルQRコード',
+        'scan'                    => 'スキャン',
+        'cached'                  => 'キャッシュ済み',
+        'full_media_scan'         => '全メディアスキャン',
+        'confirm_clear_cache_type'=> '{type} キャッシュを削除しますか？',
+        'cache_type_cleared'      => '{type} キャッシュを削除しました',
+        'clear_type_failed'       => '{type} キャッシュの削除に失敗しました',
+        'scan_type_complete'      => '{type} スキャン完了：{count} 件のファイルを検出',
+        'scan_type_failed'        => '{type} スキャン失敗',
+        'clear_failed'            => '削除失敗',
+        'scanning'                => 'スキャン中...',
+        'clearing'                => '削除中...',
         'validateYaml' => 'YAML構文を検証'
     ],
 
@@ -3597,6 +3649,19 @@ $langData = [
         'clean_thumbnails_failed'  => 'Dọn dẹp bộ nhớ đệm hình thu nhỏ thất bại',
         'clean_thumbnails_error'   => 'Có lỗi khi dọn dẹp hình thu nhỏ',
         'transcoding_play' => 'Đang chuyển mã và phát định dạng {format}',
+        'generate_qrcode'   => 'Tạo mã QR',
+        'file_qrcode'       => 'Mã QR tệp',
+        'scan'                    => 'Quét',
+        'cached'                  => 'Đã lưu cache',
+        'full_media_scan'         => 'Quét toàn bộ media',
+        'confirm_clear_cache_type'=> 'Xóa bộ nhớ đệm {type}?',
+        'cache_type_cleared'      => 'Đã xóa bộ nhớ đệm {type}',
+        'clear_type_failed'       => 'Xóa bộ nhớ đệm {type} thất bại',
+        'scan_type_complete'      => 'Quét {type} hoàn tất: tìm thấy {count} tệp',
+        'scan_type_failed'        => 'Quét {type} thất bại',
+        'clear_failed'            => 'Xóa thất bại',
+        'scanning'                => 'Đang quét...',
+        'clearing'                => 'Đang xóa...',
         'validateYaml' => 'Kiểm tra Cú pháp YAML'
     ],
 
@@ -4298,6 +4363,19 @@ $langData = [
         'thumbnails_cleaned'       => 'ล้างแคชภาพขนาดย่อสำเร็จ',
         'clean_thumbnails_failed'  => 'ล้างแคชภาพขนาดย่อไม่สำเร็จ',
         'clean_thumbnails_error'   => 'เกิดข้อผิดพลาดขณะล้างภาพขนาดย่อ',
+        'generate_qrcode'   => 'สร้างคิวอาร์โค้ด',
+        'file_qrcode'       => 'คิวอาร์โค้ดไฟล์',
+        'scan'                    => 'สแกน',
+        'cached'                  => 'แคชแล้ว',
+        'full_media_scan'         => 'สแกนสื่อทั้งหมด',
+        'confirm_clear_cache_type'=> 'ล้างแคช {type} หรือไม่?',
+        'cache_type_cleared'      => 'ล้างแคช {type} แล้ว',
+        'clear_type_failed'       => 'ล้างแคช {type} ไม่สำเร็จ',
+        'scan_type_complete'      => 'สแกน {type} เสร็จสิ้น: พบ {count} ไฟล์',
+        'scan_type_failed'        => 'สแกน {type} ล้มเหลว',
+        'clear_failed'            => 'ล้างไม่สำเร็จ',
+        'scanning'                => 'กำลังสแกน...',
+        'clearing'                => 'กำลังล้าง...',
         'validateYaml' => 'ตรวจสอบไวยากรณ์ YAML'
     ],
     'ru' => [
@@ -5000,6 +5078,19 @@ $langData = [
         'thumbnails_cleaned'       => 'Кэш миниатюр успешно очищен',
         'clean_thumbnails_failed'  => 'Не удалось очистить кэш миниатюр',
         'clean_thumbnails_error'   => 'Ошибка при очистке миниатюр',
+        'generate_qrcode'   => 'Создать QR-код',
+        'file_qrcode'       => 'QR-код файла',
+        'scan'                    => 'Сканировать',
+        'cached'                  => 'В кэше',
+        'full_media_scan'         => 'Полное сканирование медиа',
+        'confirm_clear_cache_type'=> 'Очистить кэш {type}?',
+        'cache_type_cleared'      => 'Кэш {type} очищен',
+        'clear_type_failed'       => 'Не удалось очистить кэш {type}',
+        'scan_type_complete'      => 'Сканирование {type} завершено: найдено {count} файлов',
+        'scan_type_failed'        => 'Сканирование {type} не удалось',
+        'clear_failed'            => 'Очистка не удалась',
+        'scanning'                => 'Сканирование...',
+        'clearing'                => 'Очистка...',
         'validateYaml' => 'Проверить синтаксис YAML'
     ],
     'ar' => [
@@ -5707,6 +5798,19 @@ $langData = [
         'thumbnails_cleaned'       => 'تم تنظيف ذاكرة الصور المصغرة بنجاح',
         'clean_thumbnails_failed'  => 'فشل في تنظيف ذاكرة الصور المصغرة',
         'clean_thumbnails_error'   => 'حدث خطأ أثناء تنظيف الصور المصغرة',
+        'generate_qrcode'   => 'إنشاء رمز QR',
+        'file_qrcode'       => 'رمز QR للملف',
+        'scan'                    => 'فحص',
+        'cached'                  => 'تم التخزين المؤقت',
+        'full_media_scan'         => 'فحص الوسائط الكامل',
+        'confirm_clear_cache_type'=> 'مسح ذاكرة التخزين المؤقت {type}؟',
+        'cache_type_cleared'      => 'تم مسح ذاكرة {type}',
+        'clear_type_failed'       => 'فشل في مسح ذاكرة {type}',
+        'scan_type_complete'      => 'اكتمل فحص {type}: تم العثور على {count} ملف',
+        'scan_type_failed'        => 'فشل فحص {type}',
+        'clear_failed'            => 'فشل المسح',
+        'scanning'                => 'جارٍ الفحص...',
+        'clearing'                => 'جارٍ المسح...',
         'validateYaml' => 'التحقق من صحة بناء جملة YAML'
     ],
     'es' => [
@@ -6406,6 +6510,19 @@ $langData = [
         'thumbnails_cleaned'       => 'Caché de miniaturas limpiada correctamente',
         'clean_thumbnails_failed'  => 'Error al limpiar la caché de miniaturas',
         'clean_thumbnails_error'   => 'Error al limpiar las miniaturas',
+        'generate_qrcode'   => 'Generar código QR',
+        'file_qrcode'       => 'Código QR del archivo',
+        'scan'                    => 'Escanear',
+        'cached'                  => 'En caché',
+        'full_media_scan'         => 'Escaneo completo de medios',
+        'confirm_clear_cache_type'=> '¿Borrar caché de {type}?',
+        'cache_type_cleared'      => 'Caché de {type} borrada',
+        'clear_type_failed'       => 'Error al borrar la caché de {type}',
+        'scan_type_complete'      => 'Escaneo de {type} completo: {count} archivos encontrados',
+        'scan_type_failed'        => 'Escaneo de {type} fallido',
+        'clear_failed'            => 'Error al borrar',
+        'scanning'                => 'Escaneando...',
+        'clearing'                => 'Borrando...',
         'validateYaml' => 'Validar sintaxis YAML'
     ],
     'de' => [
@@ -7107,6 +7224,19 @@ $langData = [
         'thumbnails_cleaned'       => 'Vorschaubild-Cache erfolgreich bereinigt',
         'clean_thumbnails_failed'  => 'Bereinigung des Vorschaubild-Caches fehlgeschlagen',
         'clean_thumbnails_error'   => 'Fehler beim Bereinigen der Vorschaubilder',
+        'generate_qrcode'   => 'QR-Code generieren',
+        'file_qrcode'       => 'Datei-QR-Code',
+        'scan'                    => 'Scannen',
+        'cached'                  => 'Im Cache',
+        'full_media_scan'         => 'Vollständiger Medienscan',
+        'confirm_clear_cache_type'=> '{type}-Cache löschen?',
+        'cache_type_cleared'      => '{type}-Cache gelöscht',
+        'clear_type_failed'       => '{type}-Cache konnte nicht gelöscht werden',
+        'scan_type_complete'      => '{type}-Scan abgeschlossen: {count} Dateien gefunden',
+        'scan_type_failed'        => '{type}-Scan fehlgeschlagen',
+        'clear_failed'            => 'Löschen fehlgeschlagen',
+        'scanning'                => 'Scannen...',
+        'clearing'                => 'Löschen...',
         'validateYaml' => 'YAML-Syntax validieren'
     ],
 
@@ -7809,6 +7939,19 @@ $langData = [
         'thumbnails_cleaned'       => 'Cache des miniatures nettoyé avec succès',
         'clean_thumbnails_failed'  => 'Échec du nettoyage du cache des miniatures',
         'clean_thumbnails_error'   => 'Erreur lors du nettoyage des miniatures',
+        'generate_qrcode'   => 'Générer un code QR',
+        'file_qrcode'       => 'Code QR du fichier',
+        'scan'                    => 'Analyser',
+        'cached'                  => 'En cache',
+        'full_media_scan'         => 'Analyse complète des médias',
+        'confirm_clear_cache_type'=> 'Supprimer le cache {type} ?',
+        'cache_type_cleared'      => 'Cache {type} supprimé',
+        'clear_type_failed'       => 'Échec de la suppression du cache {type}',
+        'scan_type_complete'      => 'Analyse {type} terminée : {count} fichiers trouvés',
+        'scan_type_failed'        => 'Échec de l’analyse {type}',
+        'clear_failed'            => 'Échec de la suppression',
+        'scanning'                => 'Analyse en cours...',
+        'clearing'                => 'Suppression en cours...',
         'validateYaml' => 'Valider la syntaxe YAML'
     ],
     'en' => [
@@ -8522,6 +8665,19 @@ $langData = [
         'thumbnails_cleaned'       => 'Thumbnail cache cleaned successfully',
         'clean_thumbnails_failed'  => 'Failed to clean thumbnail cache',
         'clean_thumbnails_error'   => 'Error occurred while cleaning thumbnails',
+        'generate_qrcode'   => 'Generate QR Code',
+        'file_qrcode'       => 'File QR Code',
+        'scan'                    => 'Scan',
+        'cached'                  => 'Cached',
+        'full_media_scan'         => 'Full Media Scan',
+        'confirm_clear_cache_type'=> 'Clear {type} cache?',
+        'cache_type_cleared'      => '{type} cache cleared',
+        'clear_type_failed'       => 'Failed to clear {type} cache',
+        'scan_type_complete'      => '{type} scan complete: found {count} files',
+        'scan_type_failed'        => '{type} scan failed',
+        'clear_failed'            => 'Clear failed',
+        'scanning'                => 'Scanning...',
+        'clearing'                => 'Clearing...',
         'validateYaml' => 'Validate YAML Syntax'
     ],
     'bn' => [
@@ -9223,6 +9379,19 @@ $langData = [
         'thumbnails_cleaned'       => 'থাম্বনেইল ক্যাশ সফলভাবে পরিষ্কার হয়েছে',
         'clean_thumbnails_failed'  => 'থাম্বনেইল ক্যাশ পরিষ্কার করতে ব্যর্থ',
         'clean_thumbnails_error'   => 'থাম্বনেইল পরিষ্কার করার সময় ত্রুটি ঘটেছে',
+        'generate_qrcode'   => 'কিউআর কোড তৈরি করুন',
+        'file_qrcode'       => 'ফাইল কিউআর কোড',
+        'scan'                    => 'স্ক্যান',
+        'cached'                  => 'ক্যাশ করা হয়েছে',
+        'full_media_scan'         => 'সম্পূর্ণ মিডিয়া স্ক্যান',
+        'confirm_clear_cache_type'=> '{type} ক্যাশ মুছবেন?',
+        'cache_type_cleared'      => '{type} ক্যাশ মুছে ফেলা হয়েছে',
+        'clear_type_failed'       => '{type} ক্যাশ মুছতে ব্যর্থ',
+        'scan_type_complete'      => '{type} স্ক্যান সম্পন্ন: {count} টি ফাইল পাওয়া গেছে',
+        'scan_type_failed'        => '{type} স্ক্যান ব্যর্থ',
+        'clear_failed'            => 'মুছতে ব্যর্থ',
+        'scanning'                => 'স্ক্যান চলছে...',
+        'clearing'                => 'মুছা হচ্ছে...',
         'validateYaml' => 'YAML সিনট্যাক্স যাচাই করুন'
     ]
 ];
@@ -9684,6 +9853,11 @@ function getChineseVoiceKey() {
     return 'voicePreference_chinese';
 }
 
+function logAndSpeak(message, type = '') {
+    showLogMessage(message, type);
+    speakMessage(message);
+}
+
 function updateFlagIcon(lang) {
     const flagImg = document.getElementById('flagIcon');
     if (!flagImg) return;
@@ -9740,19 +9914,147 @@ function changeLanguage(lang) {
             };
 
             const message = langLabelMap[lang] || 'Language switched';
-
-            if (typeof speakMessage === 'function') {
-                speakMessage(message);
-            }
-            if (typeof showLogMessage === 'function') {
-                showLogMessage(message);
-            }
+            logAndSpeak(message);
         }
     });
 }
 </script>
 
 <style>
+:root {
+    /* ===== Core Design Tokens ===== */
+    --base-hue: 260;
+    --base-chroma: 0.25;
+    --danger-base: 15;
+    --l: 80%;
+    --c: 0.25;
+       
+    /* ===== Neutral Color System ===== */
+    --neutral-50: oklch(98% 0.01 var(--base-hue));
+    --neutral-100: oklch(95% 0.015 var(--base-hue));
+    --neutral-200: oklch(90% 0.02 var(--base-hue));
+    --neutral-300: oklch(85% 0.025 var(--base-hue));
+    --neutral-400: oklch(75% 0.03 var(--base-hue));
+    --neutral-500: oklch(65% 0.035 var(--base-hue));
+    --neutral-600: oklch(55% 0.04 var(--base-hue));
+    --neutral-700: oklch(45% 0.045 var(--base-hue));
+    --neutral-800: oklch(35% 0.05 var(--base-hue));
+    --neutral-900: oklch(25% 0.055 var(--base-hue));
+    
+    /* ===== Spacing Scale ===== */
+    --space-unit: 4px;
+    --space-xs: calc(var(--space-unit) * 1);   /* 4px */
+    --space-sm: calc(var(--space-unit) * 2);   /* 8px */
+    --space-md: calc(var(--space-unit) * 4);   /* 16px */
+    --space-lg: calc(var(--space-unit) * 6);   /* 24px */
+    --space-xl: calc(var(--space-unit) * 8);   /* 32px */
+    --space-2xl: calc(var(--space-unit) * 12); /* 48px */
+    --space-3xl: calc(var(--space-unit) * 16); /* 64px */
+    
+    /* ===== Typography Scale ===== */
+    --text-xs: 0.75rem;    /* 12px */
+    --text-sm: 0.875rem;   /* 14px */
+    --text-base: 1rem;     /* 16px */
+    --text-lg: 1.125rem;   /* 18px */
+    --text-xl: 1.25rem;    /* 20px */
+    --text-2xl: 1.5rem;    /* 24px */
+    --text-3xl: 1.875rem;  /* 30px */
+    --text-4xl: 2.25rem;   /* 36px */
+    
+    /* ===== Motion System ===== */
+    --ease-linear: linear;
+    --ease-in: cubic-bezier(0.4, 0, 1, 1);
+    --ease-out: cubic-bezier(0, 0, 0.2, 1);
+    --ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);
+    --ease-spring: cubic-bezier(0.68, -0.55, 0.265, 1.55);
+    
+    /* Animation durations */
+    --duration-fast: 150ms;
+    --duration-normal: 250ms;
+    --duration-slow: 350ms;
+    --duration-very-slow: 500ms;
+    
+    /* ===== Shadow System ===== */
+    /* Base elevation levels */
+    --shadow-sm: 0 1px 2px oklch(0% 0 0 / 0.05);
+    --shadow-md: 0 4px 6px -1px oklch(0% 0 0 / 0.1), 0 2px 4px -2px oklch(0% 0 0 / 0.1);
+    --shadow-lg: 0 10px 15px -3px oklch(0% 0 0 / 0.1), 0 4px 6px -4px oklch(0% 0 0 / 0.1);
+    --shadow-xl: 0 20px 25px -5px oklch(0% 0 0 / 0.1), 0 8px 10px -6px oklch(0% 0 0 / 0.1);
+    --glass-border: 1px solid oklch(100% 0 0 / 0.1);
+    
+    /* Emphasis shadows */
+    --shadow-focus: 0 0 0 3px color-mix(in oklch, var(--accent-color), transparent 70%);
+    --shadow-ring: 0 0 0 4px color-mix(in oklch, var(--accent-color), transparent 80%);
+    
+    /* State backgrounds (subtle) */
+    --state-success-bg: color-mix(in oklch, var(--state-success), transparent 90%);
+    --state-info-bg: color-mix(in oklch, var(--state-info), transparent 90%);
+    --state-warning-bg: color-mix(in oklch, var(--state-warning), transparent 90%);
+    --state-danger-bg: color-mix(in oklch, var(--state-danger), transparent 90%);
+    
+    /* State borders */
+    --state-success-border: color-mix(in oklch, var(--state-success), transparent 70%);
+    --state-danger-border: color-mix(in oklch, var(--state-danger), transparent 70%);
+    --active-bg: oklch(var(--l) var(--base-chroma) var(--base-hue));
+    
+    /* ===== Surface Elevation System ===== */
+    /* Base surfaces */
+    --surface: var(--card-bg);
+    --surface-elevated: color-mix(in oklch, var(--card-bg), white 10%);
+    --surface-high: color-mix(in oklch, var(--card-bg), white 20%);
+    --surface-highest: color-mix(in oklch, var(--card-bg), white 30%);
+    
+    /* Floating surfaces */
+    --surface-floating: color-mix(in oklch, var(--card-bg), white 15%);
+    --surface-modal: color-mix(in oklch, var(--card-bg), white 25%);
+    
+    /* ===== Glassmorphism Effects ===== */
+    --glass-blur: blur(20px);
+    --glass-blur-light: blur(12px);
+    --glass-blur-small: blur(10px);
+    --glass-blur-mini: blur(6px);
+    --glass-opacity: 0.85;
+    
+    /* ===== Radius System ===== */
+    --radius: 20px;
+    --radius-small: 12px;
+    --radius-mini: 8px;
+    --radius-full: 9999px;
+    --radius-pill: 50px;    
+
+    --color-red: oklch(55% 0.3 25);
+    --color-orange: oklch(65% 0.25 55);
+    --color-yellow: oklch(75% 0.25 90);
+    --color-green: oklch(65% 0.3 140);
+    --color-blue: oklch(55% 0.3 240);
+    --color-indigo: oklch(45% 0.35 280);
+    --color-violet: oklch(55% 0.35 310);
+
+    --color-cyan: oklch(70% 0.2 200);
+    --color-magenta: oklch(60% 0.35 330);
+    --color-pink: oklch(65% 0.3 350);
+    --color-brown: oklch(45% 0.15 45);
+    --color-gray: oklch(55.75% 0.0165 244.9);
+    --color-black: oklch(15% 0.05 0);
+    --color-white: oklch(98% 0.01 0);
+
+    --state-success: oklch(65% 0.3 140);
+    --state-info: oklch(55% 0.3 240);
+    --state-warning: oklch(75% 0.25 90);
+    --state-danger: oklch(65% 0.25 15);
+
+    --shadow-inset: 
+        2px 0 6px -2px color-mix(in oklch, var(--bg-container), black 30%),
+        -2px 0 6px -2px color-mix(in oklch, var(--bg-container), black 30%),
+        0 2px 6px -2px color-mix(in oklch, var(--bg-container), black 30%),
+        0 -2px 6px -2px color-mix(in oklch, var(--bg-container), black 30%);
+
+    --shadow-intensity: 0.25;
+    --text-shadow: 0 1px 2px oklch(0% 0 0 / 0.3);
+    --transition-speed: 0.3s;
+    --highlight-intensity: 0.8;
+}
+
 [data-theme="dark"] {
     --base-hue: 260;
     --base-chroma: 0.25;
@@ -9767,8 +10069,13 @@ function changeLanguage(lang) {
     --l: 80%;
     --c: 0.25;
     --radius: 16px;
+
+    --border-color: oklch(40% var(--base-chroma) var(--base-hue));
     --border-light: 1px solid oklch(60% 0.05 var(--base-hue) / 0.3);
     --border-strong: 1px solid oklch(70% 0.1 var(--base-hue) / 0.6);
+    --glow-primary: oklch(82% 0.32 var(--base-hue));
+    --glow-secondary: oklch(78% 0.28 calc(var(--base-hue) + 10));
+
     --bg-body: oklch(40% var(--base-chroma) var(--base-hue) / 90%);
     --bg-container: oklch(30% var(--base-chroma) var(--base-hue));
     --text-primary: oklch(95% 0 0);
@@ -9777,7 +10084,7 @@ function changeLanguage(lang) {
     --accent-tertiary: oklch(72% 0.18 calc(var(--base-hue) + 120));
     --card-bg: oklch(25% var(--base-chroma) var(--base-hue));
     --header-bg: oklch(35% var(--base-chroma) var(--base-hue));
-    --border-color: oklch(40% var(--base-chroma) var(--base-hue));
+
     --btn-primary-bg: oklch(50% 0.15 var(--base-hue));
     --btn-success-bg: oklch(50% 0.2 240);
     --nav-btn-color: oklch(95% 0 0 / 80%);
@@ -9815,6 +10122,63 @@ function changeLanguage(lang) {
         0 0 16px oklch(90% 0.25 var(--base-hue) / 0.3);
 
     --sand-bg: oklch(42% 0.3 calc(var(--base-hue) + 60));
+    --breathing-animation: breathing 3s ease-in-out infinite;
+
+    --glow-border: 1px solid color-mix(in oklch, var(--glow-primary), transparent 20%);
+
+    --glow-shadow-default:
+        0 2px 8px 1px color-mix(in oklch, var(--glow-primary), transparent 40%),
+        0 4px 24px 2px color-mix(in oklch, var(--glow-secondary), transparent 60%),
+        inset 0 0 12px color-mix(in oklch, var(--glow-primary), transparent 70%),
+        0 0 20px 6px oklch(82% 0.32 260 / 0);
+
+    --glow-shadow-hover:
+        0 4px 16px 2px color-mix(in oklch, var(--glow-primary), transparent 30%),
+        0 8px 32px 4px color-mix(in oklch, var(--glow-secondary), transparent 50%),
+        inset 0 0 24px color-mix(in oklch, var(--glow-primary), transparent 60%),
+        0 0 28px 8px oklch(82% 0.32 260 / 0.7);
+
+    --glow-shadow-breath-start:
+        0 2px 8px 1px color-mix(in oklch, var(--glow-primary), transparent 40%),
+        0 4px 24px 2px color-mix(in oklch, var(--glow-secondary), transparent 60%),
+        inset 0 0 12px color-mix(in oklch, var(--glow-primary), transparent 70%),
+        0 0 8px 2px oklch(90% 0.4 260 / 0.3);
+
+    --glow-shadow-breath-middle:
+        0 1px 4px 0.5px color-mix(in oklch, var(--glow-primary), transparent 60%),
+        0 2px 12px 1px color-mix(in oklch, var(--glow-secondary), transparent 80%),
+        inset 0 0 6px color-mix(in oklch, var(--glow-primary), transparent 85%),
+        0 0 16px 3px oklch(95% 0.45 260 / 0.9);
+
+    --glow-primary-hover: oklch(88% 0.35 var(--base-hue));
+    --glow-secondary-hover: oklch(85% 0.3 calc(var(--base-hue) + 15));
+}
+
+@keyframes breathing {
+    0%, 100% {
+        box-shadow: 
+            0 2px 8px 1px color-mix(in oklch, var(--glow-primary), transparent 40%),
+            0 4px 24px 2px color-mix(in oklch, var(--glow-secondary), transparent 60%),
+            inset 0 0 12px color-mix(in oklch, var(--glow-primary), transparent 70%);
+    }
+    50% {
+        box-shadow: 
+            0 4px 16px 2px color-mix(in oklch, var(--glow-primary), transparent 30%),
+            0 8px 32px 4px color-mix(in oklch, var(--glow-secondary), transparent 50%),
+            inset 0 0 24px color-mix(in oklch, var(--glow-primary), transparent 60%);
+    }
+}
+
+@keyframes section-breath {
+
+    0%,
+    100% {
+        box-shadow: var(--glow-shadow-breath-start);
+    }
+
+    50% {
+        box-shadow: var(--glow-shadow-breath-middle);
+    }
 }
 
 [data-theme="light"] {
@@ -10078,6 +10442,82 @@ function changeLanguage(lang) {
 
 .btn-close:active {
 	transform: scale(0.9) !important;
+}
+
+.form-check {
+    margin-bottom: 0;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.form-check-input {
+    width: 1.1em;
+    height: 1.1em;
+    margin: 0;
+    background-color: var(--bg-container);
+    border: var(--border-strong);
+    appearance: none;
+    -webkit-appearance: none;
+    transition: var(--transition);
+}
+
+.form-check-input:checked {
+    background-color: var(--accent-color);
+    border-color: var(--accent-color);
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3e%3cpath fill='none' stroke='%23fff' stroke-linecap='round' stroke-linejoin='round' stroke-width='3' d='M6 10l3 3l6-6'/%3e%3c/svg%3e");
+}
+
+.form-check-label {
+    color: var(--text-secondary);
+    font-size: 0.875rem;
+    cursor: pointer;
+}
+
+[data-theme="dark"] .form-check-input[type="checkbox"] {
+    border: 1px solid color-mix(in oklch, var(--glow-primary), transparent 50%);
+    background-color: color-mix(in oklch, var(--bg-body), transparent 20%);
+    box-shadow: 0 0 6px color-mix(in oklch, var(--glow-primary), transparent 70%);
+    transition: all 0.3s ease;
+}
+
+[data-theme="dark"] .form-check-input:checked[type="checkbox"] {
+    background-color: var(--glow-primary);
+    border-color: var(--glow-primary);
+    box-shadow: 0 0 8px var(--glow-primary),
+        inset 0 0 4px white;
+}
+
+[data-theme="dark"] .form-check-input[type="radio"] {
+    border: 1px solid color-mix(in oklch, var(--glow-primary), transparent 50%);
+    background-color: color-mix(in oklch, var(--bg-body), transparent 20%);
+    box-shadow: 0 0 6px color-mix(in oklch, var(--glow-primary), transparent 70%);
+    transition: all 0.3s ease;
+}
+
+[data-theme="dark"] .form-check-input:checked[type="radio"] {
+    background-color: var(--glow-primary);
+    border-color: var(--glow-primary);
+    box-shadow: 0 0 8px var(--glow-primary),
+        inset 0 0 6px color-mix(in oklch, white, transparent 60%);
+}
+
+[data-theme="dark"] .form-check-input:hover {
+    box-shadow: 0 0 10px color-mix(in oklch, var(--glow-primary), transparent 50%);
+}
+
+[data-theme="dark"] .form-check-input:disabled {
+    opacity: 0.5;
+    box-shadow: 0 0 4px color-mix(in oklch, var(--glow-primary), transparent 80%);
+}
+
+[data-theme="dark"] table a svg {
+    filter: drop-shadow(0 0 2px color-mix(in oklch, var(--glow-primary), transparent 30%));
+    transition: filter 0.3s ease;
+}
+
+[data-theme="dark"] table a:hover svg {
+    filter: drop-shadow(0 0 6px var(--glow-primary));
 }
 </style>
     <link href="/luci-static/spectra/css/bootstrap-icons.css" rel="stylesheet">
@@ -10683,10 +11123,13 @@ body {
 <script>
 window.showLogMessage = (function() {
     const bgColors = [
-        'var(--ocean-bg)',
-        'var(--forest-bg)',
-        'var(--lavender-bg)',
-        'var(--sand-bg)'
+        'oklch(var(--l) var(--c) var(--base-hue-1))',
+        'oklch(var(--l) var(--c) var(--base-hue-2))',
+        'oklch(var(--l) var(--c) var(--base-hue-3))',
+        'oklch(var(--l) var(--c) var(--base-hue-4))',
+        'oklch(var(--l) var(--c) var(--base-hue-5))',
+        'oklch(var(--l) var(--c) var(--base-hue-6))',
+        'oklch(var(--l) var(--c) var(--base-hue-7))'
     ];
     
     let currentIndex = 0;

@@ -2,6 +2,10 @@
 ini_set('memory_limit', '512M');
 $RECENT_MAX = 15;
 $ROOT_DIR = '/';
+$MEDIA_CACHE_DIR = './lib/';
+$MUSIC_CACHE_FILE = $MEDIA_CACHE_DIR . 'music_cache.json';
+$VIDEO_CACHE_FILE = $MEDIA_CACHE_DIR . 'video_cache.json';
+$IMAGE_CACHE_FILE = $MEDIA_CACHE_DIR . 'image_cache.json';
 $EXCLUDE_DIRS = [
     '/dev', '/run', '/var/lock', '/var/run', '/overlay/upper'
 ];
@@ -849,6 +853,28 @@ if (isset($_GET['action'])) {
             case 'gif':
                 $cmd .= " -vf fps=10,scale=480:-1:flags=lanczos -c:v gif";
                 break;
+            case 'mp2':
+                $cmd .= " -acodec mp2 -b:a " . ($quality === 'high' ? '384k' : ($quality === 'medium' ? '256k' : '192k'));
+                break;
+            case 'ac3':
+                $cmd .= " -acodec ac3 -b:a " . ($quality === 'high' ? '640k' : ($quality === 'medium' ? '448k' : '384k'));
+                break;
+            case 'dts':
+                $cmd .= " -acodec dts -strict -2 -b:a " . ($quality === 'high' ? '1536k' : ($quality === 'medium' ? '768k' : '512k'));
+                break;
+            case 'wmv':
+                $cmd .= " -c:v wmv2 -b:v " . ($quality === 'high' ? '2000k' : ($quality === 'medium' ? '1000k' : '500k')) . " -c:a wmav2 -b:a 128k";
+                break;
+            case 'flv':
+                $cmd .= " -c:v flv -b:v " . ($quality === 'high' ? '1500k' : ($quality === 'medium' ? '800k' : '400k')) . " -c:a mp3 -b:a 128k -f flv";
+                break;
+            case '3gp':
+                $cmd .= " -c:v h263 -vf 'scale=176:144' -b:v " . ($quality === 'high' ? '500k' : ($quality === 'medium' ? '300k' : '150k')) . " -c:a aac -b:a 64k -ac 1 -ar 8000 -f 3gp";
+                break;
+            case 'hevc':
+            case 'h265':
+                $cmd .= " -c:v libx264 -preset medium -crf " . ($quality === 'high' ? '18' : ($quality === 'medium' ? '23' : '28')) . " -c:a aac -b:a 128k";
+                break;
         }
     
         $cmd .= " " . escapeshellarg($outputFile) . " 2>&1";
@@ -1203,41 +1229,43 @@ if (isset($_GET['action'])) {
 
     if ($action === 'full_scan') {
         header('Content-Type: application/json');
-        $media = ['music' => [], 'video' => [], 'image' => []];
+        
+        $type = isset($_GET['type']) ? $_GET['type'] : '';
+        $validTypes = ['music', 'video', 'image'];
+        
+        if (!in_array($type, $validTypes)) {
+            echo json_encode(['success' => false, 'error' => 'Invalid scan type']);
+            exit;
+        }
+        
+        if (!is_dir($MEDIA_CACHE_DIR)) {
+            mkdir($MEDIA_CACHE_DIR, 0755, true);
+        }
+        
+        $media = [];
         $files = scanDirectory($ROOT_DIR, 20);
+        
         foreach ($files as $file) {
             $ext = $file['ext'];
             
-            if (in_array($ext, ['mp4', 'avi', 'mkv', 'mov', 'wmv', 'flv', 'webm', '3gp', 'ogv', 'mpg', 'mpeg', 
-                               'mp3', 'wav', 'ogg', 'flac', 'm4a', 'aac'])) {
-                if (in_array($ext, ['mp4', 'avi', 'mkv', 'mov', 'wmv', 'flv', 'webm', '3gp', 'ogv', 'mpg', 'mpeg'])) {
-                    $handle = fopen($file['path'], 'rb');
-                    $firstChunk = fread($handle, 65536);
-                    fclose($handle);
-                    $contentHash = md5($firstChunk . $file['size']);
-                    $cacheInfo = './video_thumbs/' . $contentHash . '.json';
+            if ($type === 'video' && in_array($ext, ['mp4', 'avi', 'mkv', 'mov', 'wmv', 'flv', 'webm', '3gp', 'ogv', 'mpg', 'mpeg'])) {
+                $handle = fopen($file['path'], 'rb');
+                $firstChunk = fread($handle, 65536);
+                fclose($handle);
+                $contentHash = md5($firstChunk . $file['size']);
+                $cacheInfo = './video_thumbs/' . $contentHash . '.json';
+                
+                if (file_exists($cacheInfo)) {
+                    $info = json_decode(file_get_contents($cacheInfo), true);
+                    $durationSeconds = $info['duration'] ?? 0;
+                    $hours = floor($durationSeconds / 3600);
+                    $minutes = floor(($durationSeconds % 3600) / 60);
+                    $seconds = $durationSeconds % 60;
                     
-                    if (file_exists($cacheInfo)) {
-                        $info = json_decode(file_get_contents($cacheInfo), true);
-                        $durationSeconds = $info['duration'] ?? 0;
-                        $hours = floor($durationSeconds / 3600);
-                        $minutes = floor(($durationSeconds % 3600) / 60);
-                        $seconds = $durationSeconds % 60;
-                        
-                        if ($hours > 0) {
-                            $file['duration'] = sprintf("%02d:%02d:%02d", $hours, $minutes, $seconds);
-                        } else {
-                            $file['duration'] = sprintf("%02d:%02d", $minutes, $seconds);
-                        }
+                    if ($hours > 0) {
+                        $file['duration'] = sprintf("%02d:%02d:%02d", $hours, $minutes, $seconds);
                     } else {
-                        $ffmpegPath = '/usr/bin/ffmpeg';
-                        $duration = '--:--';
-                        $cmd = $ffmpegPath . " -i " . escapeshellarg($file['path']) . " 2>&1";
-                        $output = shell_exec($cmd);
-                        if ($output && preg_match('/Duration: (\d{2}):(\d{2}):(\d{2})\.\d+/', $output, $matches)) {
-                            $duration = $matches[1] . ':' . $matches[2] . ':' . $matches[3];
-                        }
-                        $file['duration'] = $duration;
+                        $file['duration'] = sprintf("%02d:%02d", $minutes, $seconds);
                     }
                 } else {
                     $ffmpegPath = '/usr/bin/ffmpeg';
@@ -1249,45 +1277,125 @@ if (isset($_GET['action'])) {
                     }
                     $file['duration'] = $duration;
                 }
-            } else {
-                $file['duration'] = '--:--';
-            }
-            
-            foreach ($TYPE_EXT as $type => $exts) {
-                if (in_array($ext, $exts)) {
-                    $media[$type][] = $file;
-                    break;
+                
+                $media[] = $file;
+            } elseif ($type === 'music' && in_array($ext, ['mp3', 'wav', 'ogg', 'flac', 'm4a', 'aac'])) {
+                $ffmpegPath = '/usr/bin/ffmpeg';
+                $duration = '--:--';
+                $cmd = $ffmpegPath . " -i " . escapeshellarg($file['path']) . " 2>&1";
+                $output = shell_exec($cmd);
+                if ($output && preg_match('/Duration: (\d{2}):(\d{2}):(\d{2})\.\d+/', $output, $matches)) {
+                    $duration = $matches[1] . ':' . $matches[2] . ':' . $matches[3];
                 }
+                $file['duration'] = $duration;
+                $media[] = $file;
+            } elseif ($type === 'image' && in_array($ext, ['jpg', 'jpeg', 'png', 'gif', 'bmp', 'webp', 'svg'])) {
+                $media[] = $file;
             }
         }
 
-        foreach ($media as &$files) {
-            usort($files, function($a, $b) {
-                return $b['mtime'] - $a['mtime'];
-            });
-        }
+        usort($media, function($a, $b) {
+            return $b['mtime'] - $a['mtime'];
+        });
 
-        $cacheFile = './lib/media_cache.json';
-        file_put_contents($cacheFile, json_encode($media));
-        echo json_encode(['success' => true]);
+        $cacheFile = $type === 'music' ? $MUSIC_CACHE_FILE :
+                    ($type === 'video' ? $VIDEO_CACHE_FILE : $IMAGE_CACHE_FILE);
+        
+        $result = file_put_contents($cacheFile, json_encode($media));
+        
+        echo json_encode([
+            'success' => $result !== false,
+            'type' => $type,
+            'count' => count($media),
+            'message' => $result !== false ? 'Scan completed' : 'Failed to save cache'
+        ]);
         exit;
     }
 
-    if ($action === 'clear_cache') {
+    if ($action === 'clear_cache_type') {
         header('Content-Type: application/json');
-    
-        $cacheFile = './lib/media_cache.json';
+        
+        $type = isset($_GET['type']) ? $_GET['type'] : '';
+        $validTypes = ['music', 'video', 'image'];
+        
+        if (!in_array($type, $validTypes)) {
+            echo json_encode(['success' => false, 'error' => 'Invalid cache type']);
+            exit;
+        }
+        
+        $cacheFile = $type === 'music' ? $MUSIC_CACHE_FILE :
+                    ($type === 'video' ? $VIDEO_CACHE_FILE : $IMAGE_CACHE_FILE);
+        
         $success = false;
-    
         if (file_exists($cacheFile)) {
             $success = unlink($cacheFile);
         } else {
             $success = true;
         }
-    
+        
         echo json_encode([
             'success' => $success,
-            'message' => $success ? 'Cache cleared' : 'Failed to clear cache'
+            'type' => $type,
+            'message' => $success ? ucfirst($type) . ' cache cleared' : 'Failed to clear cache'
+        ]);
+        exit;
+    }
+
+    if ($action === 'get_media') {
+        header('Content-Type: application/json');
+        
+        $type = isset($_GET['type']) ? $_GET['type'] : '';
+        $validTypes = ['music', 'video', 'image'];
+        
+        if (!in_array($type, $validTypes)) {
+            echo json_encode(['success' => false, 'error' => 'Invalid media type']);
+            exit;
+        }
+        
+        $cacheFile = $type === 'music' ? $MUSIC_CACHE_FILE :
+                    ($type === 'video' ? $VIDEO_CACHE_FILE : $IMAGE_CACHE_FILE);
+        
+        $media = [];
+        if (file_exists($cacheFile)) {
+            $media = json_decode(file_get_contents($cacheFile), true) ?: [];
+        }
+        
+        echo json_encode([
+            'success' => true,
+            'type' => $type,
+            'media' => $media
+        ]);
+        exit;
+    }
+
+    if ($action === 'clear_cache') {
+        header('Content-Type: application/json');
+        
+        $success = true;
+        $messages = [];
+        
+        $cacheFiles = [
+            'music' => $MUSIC_CACHE_FILE,
+            'video' => $VIDEO_CACHE_FILE,
+            'image' => $IMAGE_CACHE_FILE
+        ];
+        
+        foreach ($cacheFiles as $type => $file) {
+            if (file_exists($file)) {
+                if (unlink($file)) {
+                    $messages[] = ucfirst($type) . ' cache cleared';
+                } else {
+                    $success = false;
+                    $messages[] = 'Failed to clear ' . $type . ' cache';
+                }
+            } else {
+                $messages[] = ucfirst($type) . ' cache not found';
+            }
+        }
+        
+        echo json_encode([
+            'success' => $success,
+            'message' => implode(', ', $messages)
         ]);
         exit;
     }
@@ -2208,16 +2316,37 @@ if (isset($_GET['preview']) && $_GET['preview'] == '1' && isset($_GET['path'])) 
     if (file_exists($realPath) && is_readable($realPath)) {
         $ext = strtolower(pathinfo($realPath, PATHINFO_EXTENSION));
         $mimeMap = [
-            'jpg' => 'image/jpeg', 'jpeg' => 'image/jpeg', 'svg' => 'image/svg+xml',
-            'png' => 'image/png', 'gif' => 'image/gif', 'svgz' => 'image/svg+xml',
-            'bmp' => 'image/bmp', 'webp' => 'image/webp',
-            'mp3' => 'audio/mpeg', 'wav' => 'audio/wav',
-            'ogg' => 'audio/ogg', 'flac' => 'audio/flac',
-            'm4a' => 'audio/mp4', 'aac' => 'audio/aac',
-            'mp4' => 'video/mp4', 'avi' => 'video/x-msvideo',
-            'mkv' => 'video/x-matroska', 'mov' => 'video/quicktime',
-            'wmv' => 'video/x-ms-wmv', 'flv' => 'video/x-flv',
-            'webm' => 'video/webm'
+            'jpg' => 'image/jpeg', 'jpeg' => 'image/jpeg', 'jpe' => 'image/jpeg', 'jfif' => 'image/jpeg',
+            'png' => 'image/png', 'gif' => 'image/gif', 'bmp' => 'image/bmp', 'webp' => 'image/webp',
+            'svg' => 'image/svg+xml', 'svgz' => 'image/svg+xml', 'ico' => 'image/x-icon', 'cur' => 'image/x-icon',
+            'tiff' => 'image/tiff', 'tif' => 'image/tiff', 'psd' => 'image/vnd.adobe.photoshop',
+            'heic' => 'image/heic', 'heif' => 'image/heif', 'avif' => 'image/avif',
+            'mp3' => 'audio/mpeg', 'wav' => 'audio/wav', 'ogg' => 'audio/ogg', 'flac' => 'audio/flac',
+            'm4a' => 'audio/mp4', 'aac' => 'audio/aac', 'wma' => 'audio/x-ms-wma', 'opus' => 'audio/opus',
+            'mp2' => 'audio/mpeg', 'ac3' => 'audio/ac3', 'dts' => 'audio/vnd.dts', 'eac3' => 'audio/eac3',
+            'ape' => 'audio/ape', 'wv' => 'audio/wavpack', 'tta' => 'audio/tta', 'tak' => 'audio/tak',
+            'dsf' => 'audio/dsd', 'dff' => 'audio/dsd', 'sacd' => 'audio/sacd',
+            'mid' => 'audio/midi', 'midi' => 'audio/midi', 'rmi' => 'audio/midi',
+            'amr' => 'audio/amr', 'awb' => 'audio/amr-wb', 'sln' => 'audio/speex',
+            'ra' => 'audio/vnd.rn-realaudio', 'ram' => 'audio/vnd.rn-realaudio',
+            'aiff' => 'audio/aiff', 'aif' => 'audio/aiff', 'aifc' => 'audio/aiff',
+            'caf' => 'audio/x-caf', 'm4r' => 'audio/mp4', 'xmf' => 'audio/mobile-xmf',
+            'mp4' => 'video/mp4', 'm4v' => 'video/x-m4v', 'avi' => 'video/x-msvideo',
+            'mkv' => 'video/x-matroska', 'mov' => 'video/quicktime', 'wmv' => 'video/x-ms-wmv',
+            'flv' => 'video/x-flv', 'webm' => 'video/webm', '3gp' => 'video/3gpp', '3g2' => 'video/3gpp2',
+            'ogv' => 'video/ogg', 'mpg' => 'video/mpeg', 'mpeg' => 'video/mpeg', 'mpe' => 'video/mpeg',
+            'ts' => 'video/mp2t', 'm2ts' => 'video/mp2t', 'mts' => 'video/mp2t',
+            'vob' => 'video/dvd', 'ifo' => 'video/dvd', 'bup' => 'video/dvd',
+            'rm' => 'video/vnd.rn-realvideo', 'rmvb' => 'video/vnd.rn-realvideo',
+            'qt' => 'video/quicktime', 'hdmov' => 'video/quicktime', 'dv' => 'video/dv',
+            'asf' => 'video/x-ms-asf', 'asx' => 'video/x-ms-asf',
+            'divx' => 'video/divx', 'xvid' => 'video/xvid',
+            'f4v' => 'video/mp4', 'f4p' => 'video/mp4', 'f4a' => 'video/mp4', 'f4b' => 'video/mp4',
+            'avchd' => 'video/avchd', 'mxf' => 'video/mxf', 'gxf' => 'video/gxf',
+            'mj2' => 'video/mj2', 'drc' => 'video/vnd.dlna.mpeg-tts',
+            'dnxhd' => 'video/dnxhd', 'prores' => 'video/prores',
+            'vp8' => 'video/vp8', 'vp9' => 'video/vp9', 'av1' => 'video/av1',
+            'hevc' => 'video/hevc', 'h264' => 'video/h264', 'h265' => 'video/h265'
         ];
         
         $mimeType = $mimeMap[$ext] ?? 'application/octet-stream';
@@ -2652,11 +2781,28 @@ function getVideoThumbnail($videoPath) {
 
 $media = ['music' => [], 'video' => [], 'image' => []];
 
-$cacheFile = './lib/media_cache.json';
-if (file_exists($cacheFile)) {
-    $cached = json_decode(file_get_contents($cacheFile), true);
+$musicFile = './lib/music_cache.json';
+$videoFile = './lib/video_cache.json';
+$imageFile = './lib/image_cache.json';
+
+if (file_exists($musicFile)) {
+    $cached = json_decode(file_get_contents($musicFile), true);
     if ($cached) {
-        $media = $cached;
+        $media['music'] = $cached;
+    }
+}
+
+if (file_exists($videoFile)) {
+    $cached = json_decode(file_get_contents($videoFile), true);
+    if ($cached) {
+        $media['video'] = $cached;
+    }
+}
+
+if (file_exists($imageFile)) {
+    $cached = json_decode(file_get_contents($imageFile), true);
+    if ($cached) {
+        $media['image'] = $cached;
     }
 }
 
@@ -3981,23 +4127,6 @@ body {
     margin-left: auto;
 }
 
-.select-all-checkbox {
-    display: flex;
-    align-items: center;
-    gap: 5px;
-    cursor: pointer;
-    color: var(--text-secondary);
-    font-size: 0.9rem;
-}
-
-.select-all-checkbox input[type="checkbox"] {
-    margin: 0;
-    cursor: pointer;
-    width: 18px;
-    height: 18px;
-    accent-color: var(--accent-color);
-}
-
 .selection-count {
     background: var(--accent-tertiary);
     color: white;
@@ -4812,13 +4941,9 @@ list-group:hover {
             
             <div class="actions">
                 <button class="btn btn-purple" data-bs-toggle="modal" data-bs-target="#playlistModal" data-translate-tooltip="tooltip_playlist"> <i class="fas fa-list"></i> <span data-translate="playlist">Playlist</span></button>
-                <button id="scanButton" class="btn btn-info" onclick="performFullScan()" data-translate-tooltip="full_scan_tooltip">
+                <button class="btn btn-info" data-bs-toggle="modal" data-bs-target="#scanModal" data-translate-tooltip="full_scan_tooltip">
                     <i class="fas fa-search"></i>
                     <span data-translate="full_scan">Full Scan</span>
-                </button>
-                <button id="clearCacheButton" class="btn btn-warning" onclick="clearMediaCache()">
-                    <i class="fas fa-trash"></i>
-                    <span data-translate="clear_cache">Clear Cache</span>
                 </button>
                 <button id="autoNextToggle" class="btn btn-primary" onclick="toggleAutoNext()">
                     <i class="fas fa-toggle-off"></i>
@@ -5668,6 +5793,10 @@ list-group:hover {
             <span data-translate="properties">Properties</span>
             <span style="margin-left: auto; font-size: 0.8rem; opacity: 0.7;">Alt+Enter</span>
         </div>
+        <div class="menu-item" id="fileQrcodeItem" data-bs-toggle="modal" data-bs-target="#qrcodeModal" onclick="prepareQrCode()">
+            <i class="fas fa-qrcode me-2" style="color: #9C27B0;"></i>
+            <span data-translate="generate_qrcode">Generate QR Code</span>
+        </div>
         <div class="menu-item" id="fileTerminalItem" onclick="openTerminal()">
             <i class="fas fa-terminal me-2" style="color:#00FF00;"></i>
             <span data-translate="open_terminal">Open Terminal</span>
@@ -6419,6 +6548,9 @@ list-group:hover {
                                 <option value="flac">FLAC</option>
                                 <option value="aac">AAC</option>
                                 <option value="m4a">M4A</option>
+                                <option value="mp2">MP2</option>
+                                <option value="ac3">AC3</option>
+                                <option value="dts">DTS</option>
                             </optgroup>
                             <optgroup data-translate="video_formats">
                                 <option value="mp4">MP4</option>
@@ -6426,6 +6558,10 @@ list-group:hover {
                                 <option value="mkv">MKV</option>
                                 <option value="mov">MOV</option>
                                 <option value="webm">WEBM</option>
+                                <option value="wmv">WMV</option>
+                                <option value="flv">FLV</option>
+                                <option value="3gp">3GP</option>
+                                <option value="hevc">HEVC/H.265</option>
                                 <option value="gif">GIF</option>
                             </optgroup>
                         </select>
@@ -6503,6 +6639,145 @@ list-group:hover {
     </div>
 </div>
 
+<div class="modal fade" id="scanModal" tabindex="-1" aria-labelledby="scanModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="scanModalLabel">
+                    <i class="fas fa-search me-2"></i>
+                    <span data-translate="full_media_scan">Full Media Scan</span>
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="row g-3 mb-4">
+                    <div class="col-md-4">
+                        <div class="card h-100 text-center border-primary">
+                            <div class="card-body">
+                                <i class="fas fa-music fa-3x text-primary mb-3"></i>
+                                <h6 class="card-subtitle mb-2 text-muted" data-translate="audio">Music</h6>
+                                <p class="card-text">
+                                    <span class="badge bg-primary" id="musicCount"><?= count($media['music']) ?></span> <span data-translate="files">Files</span>
+                                </p>
+                                <button class="btn btn-primary w-100" onclick="performFullScan('music')" id="scanMusicBtn">
+                                    <i class="fas fa-search me-1"></i>
+                                    <span data-translate="scan">Scan</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="card h-100 text-center border-primary">
+                            <div class="card-body">
+                                <i class="fas fa-video fa-3x text-primary mb-3"></i>
+                                <h6 class="card-subtitle mb-2 text-muted" data-translate="video">Video</h6>
+                                <p class="card-text">
+                                    <span class="badge bg-primary" id="videoCount"><?= count($media['video']) ?></span> <span data-translate="files">Files</span>
+                                </p>
+                                <button class="btn btn-primary w-100" onclick="performFullScan('video')" id="scanVideoBtn">
+                                    <i class="fas fa-search me-1"></i>
+                                    <span data-translate="scan">Scan</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="card h-100 text-center border-primary">
+                            <div class="card-body">
+                                <i class="fas fa-image fa-3x text-primary mb-3"></i>
+                                <h6 class="card-subtitle mb-2 text-muted" data-translate="image">Image</h6>
+                                <p class="card-text">
+                                    <span class="badge bg-primary" id="imageCount"><?= count($media['image']) ?></span> <span data-translate="files">Files</span>
+                                </p>
+                                <button class="btn btn-primary w-100" onclick="performFullScan('image')" id="scanImageBtn">
+                                    <i class="fas fa-search me-1"></i>
+                                    <span data-translate="scan">Scan</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row g-3">
+                    <div class="col-md-4">
+                        <div class="card h-100 text-center border-danger">
+                            <div class="card-body">
+                                <i class="fas fa-music fa-3x text-danger mb-3"></i>
+                                <h6 class="card-subtitle mb-2 text-muted" data-translate="audio">Music</h6>
+                                <p class="card-text">
+                                    <span class="badge bg-danger" id="musicCacheCount"><?= count($media['music']) ?></span> <span data-translate="files">Files</span>
+                                </p>
+                                <button class="btn btn-danger w-100" onclick="clearCacheType('music')" id="clearMusicCacheBtn">
+                                    <i class="fas fa-trash me-1"></i>
+                                    <span data-translate="clear">Clear</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="card h-100 text-center border-danger">
+                            <div class="card-body">
+                                <i class="fas fa-video fa-3x text-danger mb-3"></i>
+                                <h6 class="card-subtitle mb-2 text-muted" data-translate="video">Video</h6>
+                                <p class="card-text">
+                                    <span class="badge bg-danger" id="videoCacheCount"><?= count($media['video']) ?></span> <span data-translate="files">Files</span>
+                                </p>
+                                <button class="btn btn-danger w-100" onclick="clearCacheType('video')" id="clearVideoCacheBtn">
+                                    <i class="fas fa-trash me-1"></i>
+                                    <span data-translate="clear">Clear</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="card h-100 text-center border-danger">
+                            <div class="card-body">
+                                <i class="fas fa-image fa-3x text-danger mb-3"></i>
+                                <h6 class="card-subtitle mb-2 text-muted" data-translate="image">Image</h6>
+                                <p class="card-text">
+                                    <span class="badge bg-danger" id="imageCacheCount"><?= count($media['image']) ?></span> <span data-translate="files">Files</span>
+                                </p>
+                                <button class="btn btn-danger w-100" onclick="clearCacheType('image')" id="clearImageCacheBtn">
+                                    <i class="fas fa-trash me-1"></i>
+                                    <span data-translate="clear">Clear</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    <span data-translate="close">Close</span>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="qrcodeModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="fas fa-qrcode text-purple me-2"></i>
+                    <span data-translate="file_qrcode">File QR Code</span>
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body text-center">
+                <p class="text-break small mb-3" id="qrcodeFileName"></p>
+                <div id="qrcodeContainer" class="mb-3 p-3 bg-white d-inline-block rounded"></div>
+                <p class="text-break small text-muted" id="qrcodeFileUrl"></p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    <span data-translate="close">Close</span>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
 <script>
 let hoverAudio = null;
 let hoverVideo = null;
@@ -6642,7 +6917,7 @@ function playMedia(filePath) {
         'pcm', 'adpcm', 'amr', 'awb', 'sln', 'vox', 'gsm', 'ra',
         'ram', 'au', 'snd', 'voc', 'cda', '8svx', 'aiff', 'aif',
         'aifc', 'afc', 'weba', 'mka', 'spx', 'oga', 'tta', 'm3u',
-        'm3u8', 'pls'
+        'm3u8', 'pls', 'mp2'
     ];
     
     const videoExts = [
@@ -6702,8 +6977,7 @@ function playMedia(filePath) {
     if (!isImage) {
         const playingPrefix = translations['now_playing'] || 'Now playing';
         const playingMessage = `${playingPrefix}：${nameWithoutExt}`;
-        showLogMessage(playingMessage);
-        speakMessage(playingMessage);
+        logAndSpeak(playingMessage);
     }
 
     if (imageSwitchTimer) {
@@ -7126,7 +7400,7 @@ function toggleAutoNext() {
     
     updateAutoPlayToggleButton();
     
-    showLogMessage(autoNextEnabled ? 
+    logAndSpeak(autoNextEnabled ? 
         (translations['auto_play_enabled'] || 'Auto play enabled') : 
         (translations['auto_play_disabled'] || 'Auto play disabled'));
     
@@ -7260,70 +7534,88 @@ function refreshMedia() {
     window.location.reload();
 }
 
-function performFullScan() {
-    const scanBtn = document.getElementById('scanButton');
-    const originalText = scanBtn.innerHTML;
+async function clearCacheType(type) {
+    const typeNames = {
+        'music': translations['audio'] || 'Music',
+        'video': translations['video'] || 'Video', 
+        'image': translations['image'] || 'Image'
+    };
+    
+    const confirmMsg = (translations['confirm_clear_cache_type'] || 'Clear {type} cache?').replace('{type}', typeNames[type]);
     
     showConfirmation(
-        translations['confirm_full_scan'] || 'This will scan the entire file system. This may take a while. Continue?',
+        confirmMsg,
         async () => {
-            scanBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> ' + (translations['scanning'] || 'Scanning...');
-            scanBtn.disabled = true;
-            
-            try {
-                const response = await fetch('?action=full_scan');
-                const data = await response.json();
-                
-                if (data.success) {
-                    showLogMessage(translations['scan_complete'] || 'Scan complete', 'success');
-                    setTimeout(() => {
-                        window.location.reload();
-                    }, 4000);
-                } else {
-                    showLogMessage(translations['scan_failed'] || 'Scan failed', 'error');
-                    scanBtn.innerHTML = originalText;
-                    scanBtn.disabled = false;
-                }
-            } catch (error) {
-                showLogMessage(translations['scan_error'] || 'Scan error: ' + error.message, 'error');
-                scanBtn.innerHTML = originalText;
-                scanBtn.disabled = false;
-            }
-        }
-    );
-}
-
-function clearMediaCache() {
-    showConfirmation(
-        translations['confirm_clear_cache'] || 'This will clear the media cache. Continue?',
-        async () => {
-            const btn = document.getElementById('clearCacheButton');
-            const originalText = btn.innerHTML;
+            const btn = event.currentTarget;
+            const originalHtml = btn.innerHTML;
             
             btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> ' + (translations['clearing'] || 'Clearing...');
             btn.disabled = true;
             
             try {
-                const response = await fetch('?action=clear_cache');
+                const response = await fetch(`?action=clear_cache_type&type=${type}`);
                 const data = await response.json();
                 
                 if (data.success) {
-                    showLogMessage(translations['cache_cleared'] || 'Cache cleared', 'success');
+                    const successMsg = (translations['cache_type_cleared'] || '{type} cache cleared')
+                        .replace('{type}', typeNames[type]);
+                    logAndSpeak(successMsg, 'success');
                     setTimeout(() => {
-                        window.location.reload();
+                        location.reload();
                     }, 3000);
                 } else {
-                    showLogMessage(translations['clear_failed'] || 'Failed to clear cache', 'error');
-                    btn.innerHTML = originalText;
-                    btn.disabled = false;
+                    const errorMsg = (translations['clear_type_failed'] || 'Failed to clear {type} cache')
+                        .replace('{type}', typeNames[type]);
+                    logAndSpeak(errorMsg, 'error');
                 }
             } catch (error) {
-                showLogMessage(translations['clear_error'] || 'Error: ' + error.message, 'error');
-                btn.innerHTML = originalText;
+                const errorMsg = (translations['clear_error'] || 'Error clearing cache');
+                logAndSpeak(errorMsg, 'error');
+            } finally {
+                btn.innerHTML = originalHtml;
                 btn.disabled = false;
             }
         }
     );
+}
+
+async function performFullScan(type) {
+    const typeNames = {
+        'music': translations['audio'] || 'Music',
+        'video': translations['video'] || 'Video',
+        'image': translations['image'] || 'Image'
+    };
+    
+    const btn = event.currentTarget;
+    const originalHtml = btn.innerHTML;
+    
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> ' + (translations['scanning'] || 'Scanning...');
+    btn.disabled = true;
+    
+    try {
+        const response = await fetch(`?action=full_scan&type=${type}`);
+        const data = await response.json();
+        
+        if (data.success) {
+            const successMsg = (translations['scan_type_complete'] || '{type} scan complete: {count} files found')
+                .replace('{type}', typeNames[type])
+                .replace('{count}', data.count);
+            logAndSpeak(successMsg, 'success');
+            setTimeout(() => {
+                location.reload();
+            }, 3500);
+        } else {
+            const errorMsg = (translations['scan_type_failed'] || '{type} scan failed')
+                .replace('{type}', typeNames[type]);
+            showLogMessage(errorMsg, 'error');
+        }
+    } catch (error) {
+        const errorMsg = (translations['scan_error'] || 'Scan error');
+        showLogMessage(errorMsg, 'error');
+    } finally {
+        btn.innerHTML = originalHtml;
+        btn.disabled = false;
+    }
 }
     
 function toggleFullscreen() {
@@ -7449,7 +7741,7 @@ function initHoverPlay() {
                 hoverVideo.src = src;
                 hoverVideo.controls = false;
                 hoverVideo.autoplay = true;
-                hoverVideo.muted = false;
+                hoverVideo.muted = true;
                 hoverVideo.playsInline = true;
                 hoverVideo.style.cssText = `
                     width: 100%;
@@ -8866,7 +9158,7 @@ function handleFileClick(event, filePath) {
             const audioExts = [
                 'mp3', 'wav', 'ogg', 'flac', 'm4a', 'aac', 'wma', 'opus',
                 'ape', 'wv', 'tta', 'tak', 'dts', 'dsf', 'dff', 'sacd',
-                'mid', 'midi', 'rmi', 'kar',
+                'mid', 'midi', 'rmi', 'kar', 'mp2', 'caf', 'm4r', 'xmf',
                 'ac3', 'eac3', 'truehd', 'thd', 'pcm', 'adpcm', 'amr',
                 'awb', 'sln', 'vox', 'gsm', 'ra', 'ram', 'au', 'snd',
                 'voc', 'cda', '8svx', 'aiff', 'aif', 'aifc', 'afc',
@@ -8877,7 +9169,7 @@ function handleFileClick(event, filePath) {
                 'mp4', 'avi', 'mkv', 'mov', 'wmv', 'flv', 'webm', 'm4v',
                 '3gp', '3g2', 'ogv', 'mpg', 'mpeg', 'mpe', 'mpv', 'm2v',
                 'ts', 'm2ts', 'mts', 'm2t', 'tod', 'mod', 'vro',
-                'vob', 'ifo', 'bup', 'iso', 'img',
+                'vob', 'ifo', 'bup', 'iso', 'img','mj2', 'drc', 'dnxhd', 'prores',
                 'rm', 'rmvb', 'rv', 'ra', 'ram',
                 'qt', 'hdmov', 'moov', 'dv', 'mqv',
                 'asf', 'asx', 'wm', 'wmx', 'wvx',
@@ -9269,6 +9561,13 @@ function showFileMenuItems(isDir, ext) {
     showMenuItem('fileChmodItem');
     showMenuItem('filePropertiesItem');
     showMenuItem('fileTerminalItem');
+
+    const qrcodeItem = document.getElementById('fileQrcodeItem');
+    if (!isDir) {
+        qrcodeItem.style.display = 'flex';
+    } else {
+        qrcodeItem.style.display = 'none';
+    }
     
     const mediaExts = ['mp3', 'wav', 'ogg', 'flac', 'm4a', 'aac', 
                        'mp4', 'avi', 'mkv', 'mov', 'wmv', 'flv', 'webm',
@@ -9384,7 +9683,7 @@ let clipboardItems = {
 function copyToClipboard(action = 'copy') {
     if (selectedFiles.size === 0) {
         const message = translations['select_items_first'] || 'Please select items first';
-        showLogMessage(message, 'warning');
+        logAndSpeak(message, 'warning');
         return false;
     }
     
@@ -9404,7 +9703,7 @@ function copyToClipboard(action = 'copy') {
     
     hideFileContextMenu();
 
-    showLogMessage(`${actionText} ${countText}`, 'success');
+    logAndSpeak(`${actionText} ${countText}`, 'success');
     
     if (action === 'cut') {
         document.querySelectorAll('.file-item.selected').forEach(item => {
@@ -9433,7 +9732,7 @@ function copyToClipboard(action = 'copy') {
 async function pasteFromClipboard() {
     if (!clipboardItems || clipboardItems.paths.size === 0) {
         const message = translations['clipboard_empty'] || 'No items to paste';
-        showLogMessage(message, 'warning');
+        logAndSpeak(message, 'warning');
         return;
     }
     
@@ -9452,7 +9751,7 @@ async function pasteFromClipboard() {
     
     if (clipboardItems.sourcePath === targetPath && clipboardItems.action === 'cut') {
         const message = translations['cannot_paste_same_location'] || 'Cannot paste in the same location';
-        showLogMessage(message, 'warning');
+        logAndSpeak(message, 'warning');
         return;
     }
     
@@ -9498,7 +9797,7 @@ async function pasteFromClipboard() {
             const message = (translations['paste_success'] || 'Successfully {operation} {count} item(s)')
                 .replace('{operation}', operationText)
                 .replace('{count}', successCount);
-            showLogMessage(message, 'success');
+            logAndSpeak(message, 'success');
             refreshFiles();
         }
         
@@ -9506,7 +9805,7 @@ async function pasteFromClipboard() {
             const message = (translations['paste_failed'] || 'Failed to {operation} {count} item(s)')
                 .replace('{operation}', operationText)
                 .replace('{count}', errorCount);
-            showLogMessage(message, 'error');
+            logAndSpeak(message, 'error');
         }        
     });
 }
@@ -9566,7 +9865,7 @@ function selectAllFiles() {
                         translations['selected_items'] || 
                         `Selected ${selectedFiles.size} items`;
     
-    showLogMessage(`${selectedText} (${selectedFiles.size})`, 'info');
+    logAndSpeak(`${selectedText} (${selectedFiles.size})`, 'info');
 }
 
 function adjustMenuOnResize() {
@@ -9669,7 +9968,7 @@ function toggleFileSelection(filePath, checked) {
 function showCompressDialog() {
     hideFileContextMenu();
     if (selectedFiles.size === 0) {
-        showLogMessage('Please select files to compress first', 'warning');
+        logAndSpeak('Please select files to compress first', 'warning');
         return;
     }
 
@@ -9741,8 +10040,7 @@ async function performCompress() {
     
     if (!destination || !archiveNameInput) {
         const warningMessage = translations['enter_archive_name_and_destination'] || 'Please enter archive name and destination path';
-        showLogMessage(warningMessage, 'warning');
-        speakMessage(warningMessage, 'warning');
+        logAndSpeak(warningMessage, 'warning');
         return;
     }
     
@@ -9771,26 +10069,23 @@ async function performCompress() {
         
         if (data.success) {
             const successMessage = `${translations['successfully_compressed'] || 'Successfully compressed'} ${paths.length} ${translations['file_s'] || 'file(s)'}`;
-            showLogMessage(successMessage, 'success');
-            speakMessage(successMessage, 'success');
+            logAndSpeak(successMessage, 'success');
             bootstrap.Modal.getInstance(document.getElementById('compressModal')).hide();
             refreshFiles();
         } else {
             const errorMessage = data.error || translations['failed_to_create_archive'] || 'Failed to create archive';
-            showLogMessage(errorMessage, 'error');
-            speakMessage(errorMessage, 'error');
+            logAndSpeak(errorMessage, 'error');
         }
     } catch (error) {
         const errorMessage = `${translations['failed_to_create_archive'] || 'Failed to create archive'}: ${error.message}`;
-        showLogMessage(errorMessage, 'error');
-        speakMessage(errorMessage, 'error');
+        logAndSpeak(errorMessage, 'error');
     }
 }
 
 async function extractArchiveHere(filePath) {
     if (!filePath) {
         if (selectedFiles.size === 0) {
-            showLogMessage('Please select the file you want to extract first.', 'warning');
+            logAndSpeak('Please select the file you want to extract first.', 'warning');
             return;
         }
         filePath = Array.from(selectedFiles)[0];
@@ -9815,19 +10110,16 @@ async function extractArchiveHere(filePath) {
         
         if (data.success) {
             const successMessage = translations['archive_extracted_successfully'] || 'Archive extracted successfully';
-            showLogMessage(successMessage, 'success');
-            speakMessage(successMessage, 'success');
+            logAndSpeak(successMessage, 'success');
             
             loadFiles(extractToDir);
         } else {
             const errorMessage = data.error || translations['failed_to_extract_archive'] || 'Failed to extract archive';
-            showLogMessage(errorMessage, 'error');
-            speakMessage(errorMessage, 'error');
+            logAndSpeak(errorMessage, 'error');
         }
     } catch (error) {
         const errorMessage = `${translations['failed_to_extract_archive'] || 'Failed to extract archive'}: ${error.message}`;
-        showLogMessage(errorMessage, 'error');
-        speakMessage(errorMessage, 'error');
+        logAndSpeak(errorMessage, 'error');
     }
     
     hideFileContextMenu();
@@ -9872,19 +10164,16 @@ async function performExtract() {
         
         if (data.success) {
             const successMessage = translations['archive_extracted_successfully'] || 'Archive extracted successfully';
-            showLogMessage(successMessage, 'success');
-            speakMessage(successMessage, 'success');
+            logAndSpeak(successMessage, 'success');
             
             refreshFiles();
         } else {
             const errorMessage = data.error || translations['failed_to_extract_archive'] || 'Failed to extract archive';
-            showLogMessage(errorMessage, 'error');
-            speakMessage(errorMessage, 'error');
+            logAndSpeak(errorMessage, 'error');
         }
     } catch (error) {
         const errorMessage = `${translations['failed_to_extract_archive'] || 'Failed to extract archive'}: ${error.message}`;
-        showLogMessage(errorMessage, 'error');
-        speakMessage(errorMessage, 'error');
+        logAndSpeak(errorMessage, 'error');
     }
     
     selectedFiles.clear();
@@ -9970,7 +10259,7 @@ function showFileProperties() {
     const path = Array.from(selectedFiles)[0];
     
     if (!path || path.trim() === '') {
-         showLogMessage(translations['invalid_file_path'] || 'Invalid file path', 'error');
+         logAndSpeak(translations['invalid_file_path'] || 'Invalid file path', 'error');
         return;
     }
     
@@ -9980,7 +10269,7 @@ function showFileProperties() {
 
 function contextMenuOpen() {
     if (selectedFiles.size === 0) {
-        showLogMessage(translations['select_items_first'] || 'Please select items first', 'warning');
+        logAndSpeak(translations['select_items_first'] || 'Please select items first', 'warning');
         return;
     }
     
@@ -9998,7 +10287,7 @@ function contextMenuOpen() {
 
 function contextMenuPlay() {
     if (selectedFiles.size === 0) {
-        showLogMessage(translations['select_items_first'] || 'Please select items first', 'warning');
+        logAndSpeak(translations['select_items_first'] || 'Please select items first', 'warning');
         return;
     }
     
@@ -10009,7 +10298,7 @@ function contextMenuPlay() {
 
 function contextMenuDownload() {
     if (selectedFiles.size === 0) {
-        showLogMessage(translations['select_items_first'] || 'Please select items first', 'warning');
+        logAndSpeak(translations['select_items_first'] || 'Please select items first', 'warning');
         return;
     }
     
@@ -10026,7 +10315,7 @@ function contextMenuDownload() {
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
-        showLogMessage(`${translations['starting_download'] || 'Starting download'}: ${fileName}`, 'info');
+        logAndSpeak(`${translations['starting_download'] || 'Starting download'}: ${fileName}`, 'info');
     } else {
         downloadFolderAsTar(path);
     }
@@ -10036,20 +10325,19 @@ function contextMenuDownload() {
 
 function downloadFolderAsTar(folderPath) {
     const folderName = folderPath.split('/').pop();
-    showLogMessage(`${translations['packaging_folder'] || 'Packaging folder'}: ${folderName}...`, 'info');
-    speakMessage(`${translations['packaging_folder'] || 'Packaging folder'}: ${folderName}...`, 'info');
+    logAndSpeak(`${translations['packaging_folder'] || 'Packaging folder'}: ${folderName}...`, 'info');
     
     const iframe = document.createElement('iframe');
     iframe.style.display = 'none';
     iframe.src = `?action=download_folder&path=${encodeURIComponent(folderPath)}`;
     
     iframe.onload = function() {
-        showLogMessage(`${translations['download_started'] || 'Download started'}: ${folderName}.tar`, 'success');
+        logAndSpeak(`${translations['download_started'] || 'Download started'}: ${folderName}.tar`, 'success');
         document.body.removeChild(iframe);
     };
     
     iframe.onerror = function() {
-        showLogMessage(`${translations['packaging_failed'] || 'Packaging failed'}`, 'error');
+        logAndSpeak(`${translations['packaging_failed'] || 'Packaging failed'}`, 'error');
         document.body.removeChild(iframe);
     };
     
@@ -10058,7 +10346,7 @@ function downloadFolderAsTar(folderPath) {
 
 function contextMenuDelete() {
     if (selectedFiles.size === 0) {
-        showLogMessage('Please select the file you want to delete first.', 'warning');
+        logAndSpeak('Please select the file you want to delete first.', 'warning');
         return;
     }
     
@@ -10091,7 +10379,7 @@ function showCreateFileModal() {
 async function createFolder() {
     const input = document.getElementById('folderNameInput');
     if (!input || !input.value.trim()) {
-        showLogMessage(translations['enter_folder_name'] || 'Please enter folder name', 'warning');
+        logAndSpeak(translations['enter_folder_name'] || 'Please enter folder name', 'warning');
         return;
     }
 
@@ -10105,8 +10393,7 @@ async function createFolder() {
 
         if (data.success) {
             const successMessage = translations['folder_created_success'] || 'Folder created successfully';
-            showLogMessage(successMessage, 'success');
-            speakMessage(successMessage, 'success');
+            logAndSpeak(successMessage, 'success');
 
             const modal = bootstrap.Modal.getInstance(
                 document.getElementById('createFolderModal')
@@ -10116,18 +10403,18 @@ async function createFolder() {
             refreshFiles();
         } else {
             const errorMessage = translations['create_folder_failed'] || 'Failed to create folder';
-            showLogMessage(data.error || errorMessage, 'error');
+            logAndSpeak(data.error || errorMessage, 'error');
         }
     } catch (error) {
         const errorMessage = translations['create_folder_failed'] || 'Failed to create folder';
-        showLogMessage(errorMessage + ': ' + error.message, 'error');
+        logAndSpeak(errorMessage + ': ' + error.message, 'error');
     }
 }
 
 async function createFile() {
     const input = document.getElementById('fileNameInput');
     if (!input || !input.value.trim()) {
-        showLogMessage(translations['enter_file_name'] || 'Please enter file name', 'warning');
+        logAndSpeak(translations['enter_file_name'] || 'Please enter file name', 'warning');
         return;
     }
 
@@ -10145,8 +10432,7 @@ async function createFile() {
 
         if (data.success) {
             const successMessage = translations['file_created_success'] || 'File created successfully';
-            showLogMessage(successMessage, 'success');
-            speakMessage(successMessage, 'success');
+            logAndSpeak(successMessage, 'success');
             
             bootstrap.Modal.getInstance(document.getElementById('createFileModal')).hide();
 
@@ -10162,11 +10448,11 @@ async function createFile() {
             }
         } else {
             const errorMessage = translations['create_file_failed'] || 'Failed to create file';
-            showLogMessage(data.error || errorMessage, 'error');
+            logAndSpeak(data.error || errorMessage, 'error');
         }
     } catch (error) {
         const errorMessage = translations['create_file_failed'] || 'Failed to create file';
-        showLogMessage(errorMessage + ': ' + error.message, 'error');
+        logAndSpeak(errorMessage + ': ' + error.message, 'error');
     }
 }
 
@@ -10184,7 +10470,7 @@ function prepareRenameModal() {
 
 async function performRename() {
     if (selectedFiles.size === 0) {
-        showLogMessage(translations['no_item_selected'] || 'No item selected', 'warning');
+        logAndSpeak(translations['no_item_selected'] || 'No item selected', 'warning');
         return;
     }
 
@@ -10192,7 +10478,7 @@ async function performRename() {
     const newName = document.getElementById('renameInput').value.trim();
 
     if (!newName) {
-        showLogMessage(translations['enter_new_name'] || 'Please enter new name', 'warning');
+        logAndSpeak(translations['enter_new_name'] || 'Please enter new name', 'warning');
         return;
     }
 
@@ -10202,17 +10488,16 @@ async function performRename() {
 
         if (data.success) {
             const Message = translations['rename_success'] || 'Renamed successfully';
-            showLogMessage(Message);
-            speakMessage(Message);
+            logAndSpeak(Message);
             bootstrap.Modal.getInstance(document.getElementById('renameModal')).hide();
             selectedFiles.clear();
             updateSelectionInfo();
             refreshFiles();
         } else {
-            showLogMessage(data.error || translations['rename_failed'] || 'Failed to rename', 'error');
+            logAndSpeak(data.error || translations['rename_failed'] || 'Failed to rename', 'error');
         }
     } catch (error) {
-        showLogMessage(
+        logAndSpeak(
             (translations['rename_failed'] || 'Failed to rename') + ': ' + error.message,
             'error'
         );
@@ -10221,7 +10506,7 @@ async function performRename() {
 
 async function deleteSelected() {
     if (selectedFiles.size === 0) {
-         showLogMessage(
+         logAndSpeak(
             translations['select_files_to_delete'] || 'Please select files to delete first',
             'warning'
         );
@@ -10271,8 +10556,7 @@ async function deleteSelected() {
             const successMessage = `${translations['successfully_deleted'] || 'Successfully deleted'} ` +
                                    `${successCount} ` +
                                    `${translations['items'] || 'item(s)'}`;
-            showLogMessage(successMessage, 'success');
-            speakMessage(successMessage, 'success');
+            logAndSpeak(successMessage, 'success');
             
             selectedFiles.clear();
             updateSelectionInfo();
@@ -10280,7 +10564,7 @@ async function deleteSelected() {
         }
 
         if (errorCount > 0) {
-             showLogMessage(
+             logAndSpeak(
                 `${translations['failed_to_delete'] || 'Failed to delete'} ` +
                 `${errorCount} ` +
                 `${translations['items'] || 'item(s)'}`,
@@ -10643,7 +10927,7 @@ function showChmodDialog() {
     hideFileContextMenu();
     
     if (selectedFiles.size === 0) {
-        showLogMessage('Please select the file first.', 'warning');
+        logAndSpeak('Please select the file first.', 'warning');
         return;
     }
     
@@ -10668,11 +10952,11 @@ function showChmodDialog() {
                 const modal = new bootstrap.Modal(document.getElementById('chmodModal'));
                 modal.show();
             } else {
-                showLogMessage(translations['chmod_cannot_get_info'] || 'Cannot get file information', 'error');
+                logAndSpeak(translations['chmod_cannot_get_info'] || 'Cannot get file information', 'error');
             }
         })
         .catch(error => {
-            showLogMessage(translations['chmod_get_info_failed'] || 'Failed to get file information', 'error');
+            logAndSpeak(translations['chmod_get_info_failed'] || 'Failed to get file information', 'error');
         });
 }
 
@@ -10681,12 +10965,12 @@ function validateChmod() {
     const permissions = document.getElementById('permissions').value.trim();
     
     if (!path) {
-        showLogMessage(translations['chmod_invalid_path'] || 'Invalid file path', 'error');
+        logAndSpeak(translations['chmod_invalid_path'] || 'Invalid file path', 'error');
         return false;
     }
     
     if (!/^[0-7]{3,4}$/.test(permissions)) {
-        showLogMessage(translations['chmod_invalid_format'] || 'Please enter 3-4 digit octal number (0-7)', 'error');
+        logAndSpeak(translations['chmod_invalid_format'] || 'Please enter 3-4 digit octal number (0-7)', 'error');
         return false;
     }
     
@@ -10709,21 +10993,20 @@ async function savePermissions(path, permissions) {
         
         if (data.success) {
             const Message = translations['chmod_success'] || 'Permissions modified successfully';
-            showLogMessage(Message);
-            speakMessage(Message);
+            logAndSpeak(Message);
             
             const modal = bootstrap.Modal.getInstance(document.getElementById('chmodModal'));
             if (modal) modal.hide();
             
             refreshFiles();
         } else {
-            showLogMessage(
+            logAndSpeak(
                 `${translations['chmod_failed'] || 'Modification failed'}: ${data.error || translations['unknown_error'] || 'Unknown error'}`,
                 'error'
             );
         }
     } catch (error) {
-        showLogMessage(`${translations['chmod_failed'] || 'Modification failed'}: ${error.message}`, 'error');
+        logAndSpeak(`${translations['chmod_failed'] || 'Modification failed'}: ${error.message}`, 'error');
     }
 }
 
@@ -10743,8 +11026,7 @@ async function searchFiles() {
     
     if (!searchTerm) {
         const warningMessage = translations['search_enter_term'] || 'Please enter search term';
-        showLogMessage(warningMessage, 'warning');
-        speakMessage(warningMessage, 'warning');
+        logAndSpeak(warningMessage, 'warning');
         return;
     }
     
@@ -10769,8 +11051,7 @@ async function searchFiles() {
                 const noResultsMessage = translations['search_no_results'] || 'No matching files found';
                 const tryDifferentMessage = translations['search_try_diff_keyword'] || 'Try different keywords';
                 
-                showLogMessage(noResultsMessage, 'info');
-                speakMessage(noResultsMessage, 'info');
+                logAndSpeak(noResultsMessage, 'info');
                 
                 resultsContainer.innerHTML = `
                     <div class="text-center text-muted py-4">
@@ -10782,8 +11063,7 @@ async function searchFiles() {
             }
             
             const foundMessage = `${translations['search_found_matches'] || 'Found'} ${results.length} ${translations['search_matches'] || 'matches'}`;
-            showLogMessage(foundMessage, 'success');
-            speakMessage(foundMessage, 'success');
+            logAndSpeak(foundMessage, 'success');
             
             const header = document.createElement('div');
             header.className = 'alert alert-info mb-3';
@@ -10889,8 +11169,7 @@ async function searchFiles() {
             resultsContainer.appendChild(list);
         } else {
             const errorMessage = `${translations['search_failed'] || 'Search failed'}: ${data.error || translations['unknown_error'] || 'Unknown error'}`;
-            showLogMessage(errorMessage, 'error');
-            speakMessage(errorMessage, 'error');
+            logAndSpeak(errorMessage, 'error');
             
             resultsContainer.innerHTML = `
                 <div class="alert alert-danger">
@@ -10900,8 +11179,7 @@ async function searchFiles() {
         }
     } catch (error) {
         const errorMessage = `${translations['search_error'] || 'Search error'}: ${error.message}`;
-        showLogMessage(errorMessage, 'error');
-        speakMessage(errorMessage, 'error');
+        logAndSpeak(errorMessage, 'error');
         
         resultsContainer.innerHTML = `
             <div class="alert alert-danger">
@@ -10951,8 +11229,7 @@ function openFileDirectory(filePath, isDir) {
     navigateTo(targetDir);
     
     const successMessage = `${translations['search_navigated_to'] || 'Navigated to'}: ${targetDir}`;
-    showLogMessage(successMessage, 'info');
-    speakMessage(successMessage, 'info');
+    logAndSpeak(successMessage, 'info');
 }
 
 function openEditor(path) {
@@ -11075,12 +11352,12 @@ function markEditorAsModified(tabId) {
 async function saveEditorContent(tabId) {
     const tab = editorTabs.find(t => t.id === tabId);
     if (!tab) {
-        showLogMessage(translations['save_failed_tab_missing'] || 'Save failed: Tab does not exist', 'error');
+        logAndSpeak(translations['save_failed_tab_missing'] || 'Save failed: Tab does not exist', 'error');
         return;
     }
     
     if (tab.loading) {
-        showLogMessage(translations['save_wait_loading'] || 'File is loading, please save later', 'warning');
+        logAndSpeak(translations['save_wait_loading'] || 'File is loading, please save later', 'warning');
         return;
     }
     
@@ -11101,7 +11378,7 @@ async function saveEditorContent(tabId) {
     }
     
     if (content === undefined || content === null) {
-        showLogMessage(translations['save_failed_empty'] || 'Save failed: Editor content is empty', 'error');
+        logAndSpeak(translations['save_failed_empty'] || 'Save failed: Editor content is empty', 'error');
         return;
     }
     
@@ -11138,8 +11415,7 @@ async function saveEditorContent(tabId) {
         
         if (data.success) {
             const Message = translations['save_success'] || 'File saved successfully';
-            showLogMessage(Message);
-            speakMessage(Message);
+            logAndSpeak(Message);
             
             tab.modified = false;
             tab.content = content;
@@ -11149,11 +11425,11 @@ async function saveEditorContent(tabId) {
             refreshFiles();
             
         } else {
-            showLogMessage(`${translations['save_failed'] || 'Save failed'}: ${data.error}`, 'error');
+            logAndSpeak(`${translations['save_failed'] || 'Save failed'}: ${data.error}`, 'error');
         }
         
     } catch (error) {
-        showLogMessage(`${translations['save_failed'] || 'Save failed'}: ${error.message}`, 'error');
+        logAndSpeak(`${translations['save_failed'] || 'Save failed'}: ${error.message}`, 'error');
     } finally {
         const saveBtn = document.querySelector(`[onclick*="${tabId}"]`);
         if (saveBtn) {
@@ -11402,7 +11678,7 @@ function switchEditorMode(mode, tabId) {
         }).catch(error => {
             tab.editorMode = 'simple';
             updateEditorUI();
-            showLogMessage(
+            logAndSpeak(
                 translations['advanced_editor_load_failed'] || 'Failed to load advanced editor, switched back to simple editor', 
                 'error'
             );
@@ -11494,7 +11770,7 @@ async function initMonacoEditor(tabId) {
             await loadMonacoEditor();
         } catch (error) {
             console.error('Failed to load Monaco Editor:', error);
-            showLogMessage(translations['load_advanced_editor_failed'] || 'Failed to load advanced editor, switched back to simple editor', 'error');
+            logAndSpeak(translations['load_advanced_editor_failed'] || 'Failed to load advanced editor, switched back to simple editor', 'error');
             switchEditorMode('simple', tabId);
             return;
         }
@@ -11676,7 +11952,7 @@ async function initMonacoEditor(tabId) {
         
     } catch (error) {
         console.error('Failed to initialize Monaco Editor:', error);
-        showLogMessage(`${translations['init_advanced_editor_failed'] || 'Failed to initialize advanced editor'}: ${error.message}`, 'error');
+        logAndSpeak(`${translations['init_advanced_editor_failed'] || 'Failed to initialize advanced editor'}: ${error.message}`, 'error');
     }
 }
 
@@ -11999,9 +12275,9 @@ function formatCode(tabId) {
 
     try {
         editor.getAction('editor.action.formatDocument').run();
-        showLogMessage(translations['code_format_success'] || 'Code formatted successfully', 'success');
+        logAndSpeak(translations['code_format_success'] || 'Code formatted successfully', 'success');
     } catch (error) {
-        showLogMessage(
+        logAndSpeak(
             `${translations['code_format_error'] || 'Code format error'}: ${error.message}`,
             'error'
         );
@@ -12092,13 +12368,13 @@ function changeEditorTheme(tabId, theme) {
                 themeSelect.value = theme;
             }
             
-            showLogMessage(
+            logAndSpeak(
                 `${translations['theme_switched_to'] || 'Theme switched to'}: ${theme}`,
                 'success'
             );
         }
     } catch (error) {
-        showLogMessage(
+        logAndSpeak(
             `${translations['theme_change_error'] || 'Theme change error'}: ${error.message}`,
             'error'
         );
@@ -12120,7 +12396,7 @@ function changeEditorLanguage(tabId, language) {
             languageSelect.value = language;
         }
 
-        showLogMessage(
+        logAndSpeak(
             `${translations['language_switched_to'] || 'Language switched to'}: ${getLanguageDisplayName(language)}`,
             'success'
         );
@@ -12216,7 +12492,7 @@ function downloadCurrentFile(tabId) {
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
 
-    showLogMessage(
+    logAndSpeak(
         `${translations['file_download_started'] || 'File'} ${tab.name} ${translations['download_started'] || 'download started'}`,
         'success'
     );
@@ -12642,7 +12918,7 @@ function changeEditorFontSize(tabId, fontSize) {
         fontSizeSelect.value = fontSize;
     }
 
-    showLogMessage(`${translations['font_size_set_to'] || 'Font size set to'}: ${fontSize}px`,'info');
+    logAndSpeak(`${translations['font_size_set_to'] || 'Font size set to'}: ${fontSize}px`,'info');
 }
 
 function getFileIcon(filename, ext, isDir) {
@@ -12709,7 +12985,6 @@ function getFileIcon(filename, ext, isDir) {
         return '<i class="fas fa-shield-alt fa-2x" style="color: #4CAF50;"></i>';
     }
 
-    
     if (['js', 'jsx', 'mjs', 'cjs'].includes(lowerExt)) return '<i class="fab fa-js-square fa-2x" style="color: #FFD600;"></i>';
     if (['ts', 'tsx'].includes(lowerExt)) return '<i class="fas fa-code fa-2x" style="color: #1976D2;"></i>';
     if (['vue'].includes(lowerExt)) return '<i class="fab fa-vuejs fa-2x" style="color: #4FC08D;"></i>';
@@ -12799,6 +13074,11 @@ function getFileIcon(filename, ext, isDir) {
         return '<i class="fas fa-compact-disc fa-2x" style="color: #4ECDC4;"></i>';
     if (['m4a', 'aac'].includes(lowerExt)) 
         return '<i class="fas fa-headphones fa-2x" style="color: #FFA07A;"></i>';
+    if (['mp2', 'ac3', 'dts'].includes(lowerExt)) 
+        return '<i class="fas fa-music fa-2x" style="color: #FF6B6B;"></i>';
+
+    if (['hevc', 'h265'].includes(lowerExt)) 
+        return '<i class="fas fa-film fa-2x" style="color: #2196F3;"></i>';
 
     if (['wma', 'opus', 'mid', 'midi'].includes(lowerExt)) 
         return '<i class="fas fa-file-audio fa-2x" style="color: #9C27B0;"></i>';
@@ -13355,8 +13635,7 @@ function previewSanitizedFilename(filename) {
 async function startUpload() {
     if (uploadFilesList.length === 0) {
         const warningMessage = translations['upload_select_files_warning'] || 'Please select files to upload';
-        showLogMessage(warningMessage, 'warning');
-        speakMessage(warningMessage, 'warning');
+        logAndSpeak(warningMessage, 'warning');
         return;
     }
 
@@ -13389,21 +13668,18 @@ async function startUpload() {
                                     ? (translations['file'] || 'file') 
                                     : (translations['files'] || 'files'));
             
-            showLogMessage(successMessage, 'success');
-            speakMessage(successMessage, 'success');
+            logAndSpeak(successMessage, 'success');
 
             bootstrap.Modal.getInstance(document.getElementById('uploadModal')).hide();
             uploadFilesList = [];
             refreshFiles();
         } else {
             const errorMessage = data.error || (translations['uploadFailed'] || 'Upload failed');
-            showLogMessage(errorMessage, 'error');
-            speakMessage(errorMessage, 'error');
+            logAndSpeak(errorMessage, 'error');
         }
     } catch (error) {
         const errorMessage = (translations['uploadFailed'] || 'Upload failed: ') + error.message;
-        showLogMessage(errorMessage, 'error');
-        speakMessage(errorMessage, 'error');
+        logAndSpeak(errorMessage, 'error');
     }
 }
 
@@ -13579,7 +13855,7 @@ function resetRightEditor() {
     const leftContent = originalEditor.getValue();
     modifiedEditor.setValue(leftContent);
     
-    showLogMessage(
+    logAndSpeak(
         translations['diff_reset_right_success'] || 'Right content has been reset to match the left',
         'info'
     );
@@ -13594,7 +13870,7 @@ function copyRightToLeft() {
     const rightContent = modifiedEditor.getValue();
     originalEditor.setValue(rightContent);
     
-    showLogMessage(
+    logAndSpeak(
         translations['diff_apply_to_left_success'] || 'Right content has been applied to the left',
         'success'
     );
@@ -13652,7 +13928,7 @@ function escapeHtml(text) {
 
 function contextMenuEdit() {
     if (selectedFiles.size === 0) {
-        showLogMessage(translations['select_items_first'] || 'Please select items first', 'warning');
+        logAndSpeak(translations['select_items_first'] || 'Please select items first', 'warning');
         return;
     }
     
@@ -13747,7 +14023,7 @@ function openTerminal() {
 
 async function showFileHashDialog() {
     if (selectedFiles.size !== 1) {
-        showLogMessage(translations['select_items_first'] || 'Please select one file', 'warning');
+        logAndSpeak(translations['select_items_first'] || 'Please select one file', 'warning');
         return;
     }
     
@@ -13756,7 +14032,7 @@ async function showFileHashDialog() {
     const isDir = fileItem?.getAttribute('data-is-dir') === 'true';
     
     if (isDir) {
-        showLogMessage(translations['cannot_hash_directory'] || 'Cannot calculate hash for directory', 'warning');
+        logAndSpeak(translations['cannot_hash_directory'] || 'Cannot calculate hash for directory', 'warning');
         return;
     }
     
@@ -13851,13 +14127,12 @@ ${sha256Label} ${sha256}
     URL.revokeObjectURL(url);
     
     const successMsg = translations['hash_exported'] || 'Hash exported successfully';
-    showLogMessage(successMsg);
-    speakMessage(successMsg);
+    logAndSpeak(successMsg);
 }
 
 function showInstallDialog() {
     if (selectedFiles.size !== 1) {
-        showLogMessage(translations['select_one_package'] || 'Please select one package file', 'warning');
+        logAndSpeak(translations['select_one_package'] || 'Please select one package file', 'warning');
         return;
     }
     
@@ -13866,7 +14141,7 @@ function showInstallDialog() {
     const ext = fileName.toLowerCase().split('.').pop();
     
     if (!['ipk', 'apk', 'run'].includes(ext)) {
-        showLogMessage(translations['invalid_package'] || 'Not a valid package file', 'error');
+        logAndSpeak(translations['invalid_package'] || 'Not a valid package file', 'error');
         return;
     }
     
@@ -14090,7 +14365,7 @@ function showFileMenuItems(isDir, ext) {
 
 function copyFilePath() {
     if (selectedFiles.size === 0) {
-        showLogMessage(translations['select_items_first'] || 'Please select items first', 'warning');
+        logAndSpeak(translations['select_items_first'] || 'Please select items first', 'warning');
         return;
     }
     
@@ -14101,8 +14376,7 @@ function copyFilePath() {
     if (navigator.clipboard && typeof navigator.clipboard.writeText === 'function') {
         navigator.clipboard.writeText(path).then(() => {
             const successMsg = translations['file_path_copied'] || 'File path copied to clipboard';
-            showLogMessage(successMsg, 'success');
-            speakMessage(successMsg, 'success');
+            logAndSpeak(successMsg, 'success');
         }).catch(err => {
             fallbackCopy(path);
         });
@@ -14131,14 +14405,13 @@ function fallbackCopy(text) {
         
         if (successful) {
             const successMsg = translations['file_path_copied'] || 'File path copied to clipboard';
-            showLogMessage(successMsg, 'success');
-            speakMessage(successMsg, 'success');
+            logAndSpeak(successMsg, 'success');
         } else {
             throw new Error('Copy command failed');
         }
     } catch (err) {
         const msg = translations['copy_manually'] || 'Please copy the address manually: ' + text;
-        showLogMessage(msg, 'info');
+        logAndSpeak(msg, 'info');
         
         prompt(translations['copy_file_path'] || 'Copy File Path', text);
     }
@@ -14156,7 +14429,7 @@ document.getElementById('installModal').addEventListener('hidden.bs.modal', func
 
 function showBatchRenameDialog() {
     if (selectedFiles.size === 0) {
-        showLogMessage(translations['select_files_to_rename'] || 'Please select files to rename', 'warning');
+        logAndSpeak(translations['select_files_to_rename'] || 'Please select files to rename', 'warning');
         return;
     }
     
@@ -14296,13 +14569,13 @@ async function executeBatchRename() {
     const removeSpecialChars = document.getElementById('removeSpecialChars').checked;
     
     if (!pattern) {
-        showLogMessage(translations['enter_rename_pattern'] || 'Please enter rename pattern', 'warning');
+        logAndSpeak(translations['enter_rename_pattern'] || 'Please enter rename pattern', 'warning');
         return;
     }
     
     bootstrap.Modal.getInstance(document.getElementById('batchRenameModal')).hide();
     
-    showLogMessage(translations['renaming_files'] || 'Renaming files...', 'info');
+    logAndSpeak(translations['renaming_files'] || 'Renaming files...', 'info');
     
     let successCount = 0;
     let errorCount = 0;
@@ -14362,19 +14635,18 @@ async function executeBatchRename() {
     let message = '';
     if (successCount > 0) {
         message = (translations['rename_success_count'] || 'Successfully renamed {count} file(s)').replace('{count}', successCount);
-        showLogMessage(message, 'success');
-        speakMessage(message, 'success');
+        logAndSpeak(message, 'success');
     }
     
     if (errorCount > 0) {
         message = (translations['rename_failed_count'] || 'Failed to rename {count} file(s)').replace('{count}', errorCount);
-        showLogMessage(message, 'error');
+        logAndSpeak(message, 'error');
     }
 }
 
 function showConvertDialog() {
     if (selectedFiles.size === 0) {
-        showLogMessage(translations['select_files_first'] || 'Please select files first', 'warning');
+        logAndSpeak(translations['select_files_first'] || 'Please select files first', 'warning');
         return;
         return;
     }
@@ -14448,7 +14720,7 @@ function removeConvertFile(index) {
 
 async function startConvert() {
     if (convertFiles.length === 0) {
-        showLogMessage(translations['select_files_first'] || 'Please select files first', 'warning');
+        logAndSpeak(translations['select_files_first'] || 'Please select files first', 'warning');
         return;
     }
     
@@ -14556,25 +14828,64 @@ async function cleanThumbnailCache() {
             
             if (data.success) {
                 const successMsg = translations['thumbnails_cleaned'] || 'Thumbnail cache cleaned successfully';
-                showLogMessage(successMsg, 'success');
-                speakMessage(successMsg, 'success');
+                logAndSpeak(successMsg, 'success');
                 
                 setTimeout(() => {
                     location.reload();
                 }, 2500);
             } else {
                 const errorMsg = translations['clean_thumbnails_failed'] || 'Failed to clean thumbnail cache';
-                showLogMessage(errorMsg, 'error');
-                speakMessage(errorMsg, 'error');
+                logAndSpeak(errorMsg, 'error');
             }
         } catch (error) {
             const errorMsg = (translations['clean_thumbnails_error'] || 'Error cleaning thumbnails') + ': ' + error.message;
-            showLogMessage(errorMsg, 'error');
-            speakMessage(errorMsg, 'error');
+            logAndSpeak(errorMsg, 'error');
         }
     });
 }
 
+function prepareQrCode() {
+    if (selectedFiles.size === 0) return;
+    
+    const path = Array.from(selectedFiles)[0];
+    const fileName = path.split('/').pop();
+    
+    const baseUrl = window.location.origin + window.location.pathname;
+    const fileUrl = `${baseUrl}?preview=1&path=${encodeURIComponent(path)}`;
+    
+    document.getElementById('qrcodeFileName').textContent = fileName;
+    document.getElementById('qrcodeFileUrl').textContent = fileUrl;
+    
+    const container = document.getElementById('qrcodeContainer');
+    container.innerHTML = '';
+    
+    if (typeof QRCode === 'undefined') {
+        const script = document.createElement('script');
+        script.src = '/luci-static/spectra/js/qrcode.min.js';
+        script.onload = () => {
+            new QRCode(container, {
+                text: fileUrl,
+                width: 200,
+                height: 200,
+                colorDark: '#000000',
+                colorLight: '#ffffff',
+                correctLevel: QRCode.CorrectLevel.H
+            });
+        };
+        document.head.appendChild(script);
+    } else {
+        new QRCode(container, {
+            text: fileUrl,
+            width: 200,
+            height: 200,
+            colorDark: '#000000',
+            colorLight: '#ffffff',
+            correctLevel: QRCode.CorrectLevel.H
+        });
+    }
+    
+    hideFileContextMenu();
+}
 
 window.addEventListener('beforeunload', function(e) {
     const unsavedTabs = editorTabs.filter(tab => tab.modified);
@@ -14685,7 +14996,7 @@ document.addEventListener('DOMContentLoaded', function() {
         selectAllDiv.className = 'selection-controls';
         selectAllDiv.innerHTML = `
             <div class="select-all-checkbox">
-                <input type="checkbox" id="selectAllCheckbox" onchange="toggleSelectAll()">
+                <input type="checkbox" class="form-check-input mt-1" id="selectAllCheckbox" onchange="toggleSelectAll()">
                 <label for="selectAllCheckbox" data-translate="selectAll">Select All</label>
             </div>
         `;
@@ -14738,13 +15049,11 @@ document.getElementById("updatePhpConfig").addEventListener("click", function() 
         .then(response => response.json())
         .then(data => {
             const msg = data.message || "Configuration updated successfully.";
-            showLogMessage(msg);
-            speakMessage(msg);
+            logAndSpeak(msg);
         })
         .catch(error => {
             const errMsg = translations['request_failed'] || ("Request failed: " + error.message);
-            showLogMessage(errMsg);
-            speakMessage(errMsg);
+            logAndSpeak(errMsg);
         });
     });
 });
@@ -14782,9 +15091,16 @@ document.addEventListener('DOMContentLoaded', () => {
                 const extIndex = fileName.lastIndexOf('.');
                 const nameWithoutExt = extIndex !== -1 ? fileName.substring(0, extIndex) : fileName;
                 const fileExt = fileName.substring(extIndex + 1).toLowerCase();
-                const isVideo = ['mp4', 'avi', 'mkv', 'mov', 'wmv', 'flv', 'webm', '3gp', 'ogv', 'mpg', 'mpeg'].includes(fileExt);
-                const isImage = ['jpg', 'jpeg', 'png', 'gif', 'bmp', 'webp', 'svg'].includes(fileExt);
-                const isAudio = ['mp3', 'wav', 'ogg', 'flac', 'm4a', 'aac'].includes(fileExt);
+                const isVideo = ['mp4', 'avi', 'mkv', 'mov', 'wmv', 'flv', 'webm', '3gp', '3g2', 'ogv', 'mpg', 'mpeg', 'm4v', 
+                                 'ts', 'm2ts', 'mts', 'vob', 'rm', 'rmvb', 'divx', 'xvid', 'f4v', 'avchd', 'mxf',
+                                 'vp8', 'vp9', 'av1', 'hevc', 'h264', 'h265'].includes(fileExt);
+    
+                const isImage = ['jpg', 'jpeg', 'jpe', 'jfif', 'png', 'gif', 'bmp', 'webp', 'svg', 'svgz', 'ico', 'cur',
+                                 'tiff', 'tif', 'psd', 'heic', 'heif', 'avif'].includes(fileExt);
+    
+                const isAudio = ['mp3', 'wav', 'ogg', 'flac', 'm4a', 'aac', 'wma', 'opus', 'mp2', 'ac3', 'dts', 'eac3',
+                                 'ape', 'wv', 'tta', 'tak', 'dsf', 'dff', 'sacd', 'mid', 'midi', 'amr',
+                                 'aiff', 'aif', 'caf', 'm4r', 'xmf'].includes(fileExt);
     
                 let iconClass = 'fa-file';
                 let iconColor = '#757575';
@@ -14818,8 +15134,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 let thumbnailHtml = '';
 
                 if (isVideo) {
-                    const thumbnailUrl =
-                        `?action=video_thumbnail&path=${encodeURIComponent(file)}&t=${Date.now()}`;
+                    const thumbnailUrl = `?action=video_thumbnail&path=${encodeURIComponent(file)}&t=${Date.now()}`;
+                    const duration = '--:--';
 
                     thumbnailHtml = `
                         <div class="video-thumb-container hover-video-parent"
@@ -14845,7 +15161,7 @@ document.addEventListener('DOMContentLoaded', () => {
                                         background: rgba(0,0,0,0.7);
                                         color: white; padding: 2px 6px;
                                         border-radius: 4px; font-size: 0.8rem;">
-                                <i class="fas fa-clock"></i> --:--
+                                <i class="fas fa-clock"></i> ${duration}
                             </div>
                         </div>
                     `;
@@ -14869,6 +15185,24 @@ document.addEventListener('DOMContentLoaded', () => {
                                           color: rgba(255,255,255,0.9);
                                           filter: drop-shadow(0 2px 5px rgba(0,0,0,0.3));">
                                 </i>
+                            </div>
+                        </div>
+                    `;
+                } else if (isAudio) {
+                    const duration = '--:--';
+                    thumbnailHtml = `
+                        <div class="default-thumb"
+                             style="height: 150px; display: flex;
+                                    align-items: center; justify-content: center;
+                                    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); position: relative;">
+                            <i class="fas ${iconClass} fa-3x"
+                               style="color: white;"></i>
+                            <div class="duration-badge"
+                                 style="position: absolute; bottom: 5px; right: 5px;
+                                        background: rgba(0,0,0,0.7);
+                                        color: white; padding: 2px 6px;
+                                        border-radius: 4px; font-size: 0.8rem;">
+                                <i class="fas fa-clock"></i> ${duration}
                             </div>
                         </div>
                     `;
@@ -14904,11 +15238,6 @@ document.addEventListener('DOMContentLoaded', () => {
                                 <span class="badge bg-primary"
                                       style="font-size: 0.7rem;">
                                     ${fileExt.toUpperCase()}
-                                </span>
-
-                                <span class="badge bg-secondary video-duration-badge"
-                                      style="font-size: 0.7rem;">
-                                    --:--
                                 </span>
                             </div>
                         </div>
@@ -14954,7 +15283,7 @@ document.addEventListener('DOMContentLoaded', () => {
                                     object-fit: cover;
                                     z-index: 10;
                                 `;
-                                
+                
                                 const playPromise = hoverVideo.play();
                                 if (playPromise !== undefined) {
                                     playPromise.catch(e => {
@@ -15017,23 +15346,12 @@ document.addEventListener('DOMContentLoaded', () => {
                     playMedia(file);
                 });
 
-                if (isVideo) {
-                    getVideoDuration(file)
-                        .then(duration => {
-                            const durationBadge = card.querySelector('.duration-badge');
-                            const durationSpan = card.querySelector('.video-duration-badge');
-
-                            if (durationBadge) {
-                                durationBadge.innerHTML =
-                                    `<i class="fas fa-clock"></i> ${duration}`;
-                            }
-
-                            if (durationSpan) {
-                                durationSpan.textContent = duration;
-                            }
-                        })
-                        .catch(() => {});
-                }
+                getMediaDuration(file).then(duration => {
+                    const durationBadge = card.querySelector('.duration-badge');
+                    if (durationBadge) {
+                        durationBadge.innerHTML = `<i class="fas fa-clock"></i> ${duration}`;
+                    }
+                });
 
                 col.appendChild(card);
                 playlistContainer.appendChild(col);
@@ -15101,6 +15419,28 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 });
 
+async function getMediaDuration(mediaPath) {
+    try {
+        const response = await fetch(`?action=get_file_info&path=${encodeURIComponent(mediaPath)}`);
+        const data = await response.json();
+        
+        if (data.success && data.info && data.info.media_info && data.info.media_info.duration) {
+            let duration = data.info.media_info.duration;
+            
+            if (duration.startsWith('00:')) {
+                duration = duration.substring(3);
+            }
+            
+            return duration;
+        }
+        
+        return '--:--';
+    } catch (error) {
+        logAndSpeak('Failed to get media duration:', error);
+        return '--:--';
+    }
+}
+
 function truncateFileName(name, maxLength = 15) {
     if (name.length <= maxLength) return name;
     const extIndex = name.lastIndexOf('.');
@@ -15133,36 +15473,6 @@ function highlightCurrentPlaylistCard() {
                 });
             }, 100);
         }
-    });
-}
-
-async function getVideoDuration(videoPath) {
-    return new Promise((resolve) => {
-        const video = document.createElement('video');
-        video.preload = 'metadata';
-        video.src = `?preview=1&path=${encodeURIComponent(videoPath)}`;
-        
-        video.onloadedmetadata = function() {
-            const duration = video.duration;
-            URL.revokeObjectURL(video.src);
-            
-            const hours = Math.floor(duration / 3600);
-            const minutes = Math.floor((duration % 3600) / 60);
-            const seconds = Math.floor(duration % 60);
-            
-            let durationStr;
-            if (hours > 0) {
-                durationStr = `${hours}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
-            } else {
-                durationStr = `${minutes}:${seconds.toString().padStart(2, '0')}`;
-            }
-            
-            resolve(durationStr);
-        };
-        
-        video.onerror = function() {
-            resolve('--:--');
-        };
     });
 }
 
