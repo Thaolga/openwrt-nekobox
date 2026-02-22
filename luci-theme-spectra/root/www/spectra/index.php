@@ -3140,6 +3140,15 @@ body {
     justify-content: center;
     padding: 40px 20px 20px 20px;
     position: relative;
+    overflow: auto;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+}
+
+.player-content::-webkit-scrollbar {
+    display: none;
+    width: 0;
+    background: transparent;
 }
 
 #videoPlayer,
@@ -4709,10 +4718,6 @@ list-group:hover {
     .player-nav-btn i {
         font-size: 18px;
     }
-}
-
-.player-content {
-    position: relative;
 }
 
 #videoPlayer, #audioPlayer, #imageViewer {
@@ -7015,6 +7020,10 @@ function playMedia(filePath) {
         videoPlayer.load();
         videoPlayer.style.display = 'block';
         videoPlayer.controls = true;
+        videoPlayer.style.height = 'auto';
+        videoPlayer.style.maxHeight = 'calc(100vh - 200px)';
+        videoPlayer.style.width = '100%';
+        videoPlayer.style.objectFit = 'contain';
         videoPlayer.play().catch(e => {
             videoPlayer.style.display = 'none';
             playError.style.display = 'block';
@@ -7032,6 +7041,10 @@ function playMedia(filePath) {
         imageViewer.onerror = handleMediaError(imageViewer, translations['image'] || 'Image');
         imageViewer.src = previewUrl;
         imageViewer.style.display = 'block';
+        imageViewer.style.height = 'auto';
+        imageViewer.style.maxHeight = 'calc(100vh - 200px)';
+        imageViewer.style.width = '100%';
+        imageViewer.style.objectFit = 'contain';
         currentMedia = { type: 'image', src: previewUrl, path: filePath, ext: fileExt, wasPlaying: false };
         
         if (autoNextEnabled) {
