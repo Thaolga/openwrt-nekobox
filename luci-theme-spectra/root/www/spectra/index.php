@@ -3081,7 +3081,7 @@ body {
 }
 
 .player-area {
-    width: 50%;
+    width: 400px;
     background: var(--bg-container);
     display: none;
     flex-direction: column;
