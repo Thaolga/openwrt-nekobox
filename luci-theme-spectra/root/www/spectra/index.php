@@ -3428,87 +3428,6 @@ body {
     100% { background-position: -200% 0; }
 }
 
-.context-menu {
-    position: fixed;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    width: 450px;
-    background: #2c2c2c;
-    border: var(--border-strong);
-    border-radius: 10px;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
-    z-index: 1000000;
-    display: none;
-}
-
-.context-menu-header {
-    display: flex;
-    align-items: center;
-    padding: 15px 20px;
-    background: var(--header-bg);
-    border-radius: 10px 10px 0 0;
-}
-
-.context-menu-header i {
-    color: #4CAF50;
-    margin-right: 10px;
-    font-size: 1.2rem;
-}
-
-.context-menu-header span {
-    font-weight: bold;
-    flex: 1;
-}
-
-.context-menu-content {
-    padding: 20px;
-    max-height: 400px;
-    overflow-y: auto;
-}
-
-.info-item {
-    display: flex;
-    margin-bottom: 15px;
-    align-items: flex-start;
-}
-
-#mediaContextMenu {
-    background: var(--bg-container);
-}
-
-.info-label {
-    width: 100px;
-    color: var(--text-secondary);
-    font-size: 0.9rem;
-    flex-shrink: 0;
-}
-
-.info-value {
-    flex: 1;
-    color: var(--text-primary);
-    word-break: break-all;
-    line-height: 1.4;
-}
-
-.context-menu-actions {
-    display: flex;
-    padding: 15px 20px;
-    border-top: var(--border-strong);
-    gap: 10px;
-}
-
-.context-menu-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0, 0, 0, 0.5);
-    z-index: 9999;
-    display: none;
-}
-
 .chart-container {
     position: relative;
     width: 100%;
@@ -4905,6 +4824,42 @@ list-group:hover {
     border: none;
     line-height: 1;
 }
+
+.context-menu-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 999999;
+    display: none;
+}
+
+.context-menu {
+    position: fixed !important;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 450px;
+    border: var(--border-strong);
+    border-radius: 10px;
+    box-shadow:var(--shadow-inset);
+    z-index: 1000000;
+    display: none;
+}
+
+[data-theme="dark"] .context-menu {
+    animation: var(--breathing-animation);
+}
+
+.top-action-item:hover {
+    background: color-mix(in oklch, var(--bg-body), transparent 20%) !important;
+}
+
+.top-action-item:hover i,
+.top-action-item:hover span {
+    color: var(--accent-tertiary) !important;
+}
 </style>
 <div class="main-container">
     <div class="content-area" id="contentArea">
@@ -5661,101 +5616,102 @@ list-group:hover {
 <div id="contextMenuOverlay" class="context-menu-overlay" style="display: none;" onclick="hideFileContextMenu()"></div>
 
 <div id="fileContextMenu" class="context-menu context-menu-file" style="display: none;">
-    <div class="context-menu-header">
-        <i class="fas fa-ellipsis-v"></i>
-        <span data-translate="file_actions">File Actions</span>
-        <button type="button" class="btn-close" onclick="hideFileContextMenu()"></button>
+    <div class="d-flex px-3 pt-3 pb-2 gap-2 border-bottom border-secondary">
+        <div class="d-flex flex-column align-items-center py-1 flex-fill rounded top-action-item" onclick="copyToClipboard('cut')">
+            <div class="mb-1 fs-4">
+                <i class="fas fa-cut" style="color:oklch(var(--l) var(--c) var(--base-hue-6));"></i>
+            </div>
+            <div class="fs-6 text-center" data-translate="menucut">Cut</div>
+        </div>
+        <div class="d-flex flex-column align-items-center py-1 flex-fill rounded top-action-item" onclick="copyToClipboard('copy')">
+            <div class="mb-1 fs-4">
+                <i class="fas fa-copy" style="color:oklch(var(--l) var(--c) var(--base-hue-5));"></i>
+            </div>
+            <div class="fs-6 text-center" data-translate="copy">Copy</div>
+        </div>
+        <div class="d-flex flex-column align-items-center py-1 flex-fill rounded top-action-item" data-bs-toggle="modal" data-bs-target="#renameModal" onclick="prepareRenameModal()">
+            <div class="mb-1 fs-4">
+                <i class="fas fa-edit" style="color:oklch(var(--l) var(--c) var(--base-hue-2));"></i>
+            </div>
+            <div class="fs-6 text-center" data-translate="rename">Rename</div>
+        </div>
+        <div class="d-flex flex-column align-items-center py-1 flex-fill rounded top-action-item" onclick="contextMenuDelete()">
+            <div class="mb-1 fs-4">
+                <i class="fas fa-trash" style="color:var(--color-pink);"></i>
+            </div>
+            <div class="fs-6 text-center" data-translate="delete">Delete</div>
+        </div>
     </div>
+    
     <div class="context-menu-content">
         <div class="menu-item" id="emptyNewFolderItem" style="display: none;" onclick="showCreateFolderModal()">
-            <i class="fas fa-folder-plus me-2" style="color:#1E88E5;"></i>
+            <i class="fas fa-folder-plus me-2" style="color:oklch(var(--l) var(--c) var(--base-hue-1));"></i>
             <span data-translate="create_new_folder">Create a new folder</span>
         </div>
         <div class="menu-item" id="emptyNewFileItem" style="display: none;" onclick="showCreateFileModal()">
-            <i class="fas fa-file-circle-plus me-2" style="color:#43A047;"></i>
+            <i class="fas fa-file-circle-plus me-2" style="color:oklch(var(--l) var(--c) var(--base-hue-2));"></i>
             <span data-translate="create_new_file">Create a new file</span>
         </div>
         <div class="menu-item" id="emptyUploadItem" style="display: none;" onclick="document.querySelector('[data-bs-target=\'#uploadModal\']')?.click()">
-            <i class="fas fa-upload me-2" style="color:#FB8C00;"></i>
+            <i class="fas fa-upload me-2" style="color:oklch(var(--l) var(--c) var(--base-hue-3));"></i>
             <span data-translate="upload">Upload</span>
         </div>
      
         <div class="menu-item" id="emptyRefreshItem" style="display: none;" onclick="refreshFiles()">
-            <i class="fas fa-sync-alt me-2" style="color:#00897B;"></i>
+            <i class="fas fa-sync-alt me-2" style="color:oklch(var(--l) var(--c) var(--base-hue-4));"></i>
             <span data-translate="refresh">Refresh</span>
         </div>
         <div class="menu-item" id="emptySelectAllItem" style="display: none;" onclick="toggleEmptySelectAll()">
-            <i class="fas fa-check-square me-2" id="emptySelectAllIcon" style="color:#3949AB;"></i>
+            <i class="fas fa-check-square me-2" id="emptySelectAllIcon" style="color:oklch(var(--l) var(--c) var(--base-hue-5));"></i>
             <span id="emptySelectAllText">Select All</span>
         </div>
         
         <div class="menu-item" id="globalPasteItem" style="display: none;" onclick="pasteFromClipboard()">
-            <i class="fas fa-paste me-2" style="color:#8E24AA;"></i>
+            <i class="fas fa-paste me-2" style="color:oklch(var(--l) var(--c) var(--base-hue));"></i>
             <span data-translate="paste">Paste</span>
             <span id="pasteActionHint" style="margin-left: auto; font-size: 0.8rem; opacity: 0.7;"></span>
         </div>
         <div class="menu-divider" id="globalPasteDivider" style="display: none;"></div>
         
         <div class="menu-item" id="fileOpenItem" onclick="contextMenuOpen()">
-            <i class="fas fa-folder-open me-2" style="color:#039BE5;"></i>
+            <i class="fas fa-folder-open me-2" style="color:oklch(var(--l) var(--c) var(--base-hue-6));"></i>
             <span data-translate="open">Open</span>
         </div>
         <div class="menu-item" id="filePlayItem" style="display: none;" onclick="contextMenuPlay()">
-            <i class="fas fa-play me-2" style="color:#D81B60;"></i>
+            <i class="fas fa-play me-2" style="color:oklch(var(--l) var(--c) var(--base-hue-7));"></i>
             <span data-translate="play">Play</span>
         </div>
         <div class="menu-item" id="fileEditItem" style="display: none;" onclick="contextMenuEdit()">
-            <i class="fas fa-edit me-2" style="color:#7CB342;"></i>
+            <i class="fas fa-edit me-2" style="color:var(--lavender-bg);"></i>
             <span data-translate="edit">Edit</span>
         </div>
         <div class="menu-item" id="fileDownloadItem" onclick="contextMenuDownload()">
-            <i class="fas fa-download me-2" style="color:#00ACC1;"></i>
+            <i class="fas fa-download me-2" style="color:var(--accent-tertiary);"></i>
             <span data-translate="download">Download</span>
         </div>
-        
-        <div class="menu-item" id="fileCutItem" onclick="copyToClipboard('cut')">
-            <i class="fas fa-cut me-2" style="color:#C62828;"></i>
-            <span data-translate="menucut">Cut</span>
-            <span style="margin-left: auto; font-size: 0.8rem; opacity: 0.7;">Ctrl+X</span>
-        </div>
-        <div class="menu-item" id="fileCopyItem" onclick="copyToClipboard('copy')">
-            <i class="fas fa-copy me-2" style="color:#5E35B1;"></i>
-            <span data-translate="copy">Copy</span>
-            <span style="margin-left: auto; font-size: 0.8rem; opacity: 0.7;">Ctrl+C</span>
-        </div>
         <div class="menu-item" id="fileCopyPathItem" onclick="copyFilePath()">
-            <i class="fas fa-link me-2" style="color: #2196F3;"></i>
+            <i class="fas fa-link me-2" style="color: var(--rose-bg);"></i>
             <span data-translate="copy_file_path">Copy File Path</span>
             <span style="margin-left: auto; font-size: 0.8rem; opacity: 0.7;">Ctrl+Shift+C</span>
         </div>
         <div class="menu-item" id="filePasteItem" style="display: none;" onclick="pasteFromClipboard()">
-            <i class="fas fa-paste me-2" style="color:#F4511E;"></i>
+            <i class="fas fa-paste me-2" style="color:var(--accent-secondary);"></i>
             <span data-translate="paste">Paste</span>
             <span style="margin-left: auto; font-size: 0.8rem; opacity: 0.7;">Ctrl+V</span>
         </div>
-        <div class="menu-item" id="fileRenameItem" data-bs-toggle="modal" data-bs-target="#renameModal" onclick="prepareRenameModal()">
-            <i class="fas fa-edit me-2" style="color:#6D4C41;"></i>
-            <span data-translate="rename">Rename</span>
-            <span style="margin-left: auto; font-size: 0.8rem; opacity: 0.7;">F2</span>
-        </div>
         <div class="menu-item" id="fileBatchRenameItem" onclick="showBatchRenameDialog()">
-            <i class="fas fa-i-cursor me-2" style="color:#9C27B0;"></i>
+            <i class="fas fa-i-cursor me-2" style="color:oklch(var(--l) var(--c) var(--base-hue-1))"></i>
             <span data-translate="batch_rename">Batch Rename</span>
             <span style="margin-left: auto; font-size: 0.8rem; opacity: 0.7;">Ctrl+B</span>
         </div>
         <div class="menu-item" id="fileConvertItem" style="display: none;" onclick="showConvertDialog()">
-            <i class="fas fa-exchange-alt me-2" style="color: #9C27B0;"></i>
+            <i class="fas fa-exchange-alt me-2" style="color: oklch(var(--l) var(--c) var(--base-hue-2));"></i>
             <span data-translate="batch_convert">Batch Format Conversion</span>
             <span style="margin-left: auto; font-size: 0.8rem; opacity: 0.7;">FFmpeg</span>
-        </div>
-        <div class="menu-item" id="fileDeleteItem" onclick="contextMenuDelete()">
-            <i class="fas fa-trash me-2" style="color:#E53935;"></i>
-            <span data-translate="delete">Delete</span>
-            <span style="margin-left: auto; font-size: 0.8rem; opacity: 0.7;">Delete</span>
-        </div>
-        
+        </div>       
+
         <div class="menu-item archive-menu" id="archiveMenuItem" onclick="toggleArchiveSubmenu(event)">
-            <i class="fas fa-file-archive me-2" style="color:#512DA8;"></i>
+            <i class="fas fa-file-archive me-2" style="color:oklch(var(--l) var(--c) var(--base-hue-7));"></i>
             <span data-translate="archive_operations">Archive Operations</span>
             <i class="fas fa-chevron-right ms-auto"></i>
         </div>
@@ -5773,32 +5729,32 @@ list-group:hover {
                 <span data-translate="extract_to">Extract to...</span>
             </div>
         </div>
-      
+   
         <div class="menu-item" id="fileChmodItem" onclick="showChmodDialog()">
-            <i class="fas fa-key me-2" style="color:#FBC02D;"></i>
+            <i class="fas fa-key me-2" style="color:oklch(var(--l) var(--c) var(--base-hue-3));"></i>
             <span data-translate="permissions">Permissions</span>
         </div>
         <div class="menu-item" id="fileInstallItem" style="display: none;" onclick="showInstallDialog()">
-            <i class="fas fa-box-open me-2" style="color: #FF9800;"></i>
+            <i class="fas fa-box-open me-2" style="color: oklch(var(--l) var(--c) var(--base-hue-4));"></i>
             <span data-translate="install_package">Install Package</span>
             <span style="margin-left: auto; font-size: 0.8rem; opacity: 0.7;">IPK/APK</span>
         </div>
         <div class="menu-item" id="fileHashItem" style="display: none;" onclick="showFileHashDialog()">
-            <i class="fas fa-fingerprint me-2" style="color:#455A64;"></i>
+            <i class="fas fa-fingerprint me-2" style="color:oklch(var(--l) var(--c) var(--base-hue-6));"></i>
             <span data-translate="file_hash">File Hash</span>
             <span style="margin-left: auto; font-size: 0.8rem; opacity: 0.7">MD5/SHA1/SHA256</span>
         </div>
         <div class="menu-item" id="filePropertiesItem" onclick="showFileProperties()">
-            <i class="fas fa-info-circle me-2" style="color:#1976D2;"></i>
+            <i class="fas fa-info-circle me-2" style="color:oklch(var(--l) var(--c) var(--base-hue-5));"></i>
             <span data-translate="properties">Properties</span>
             <span style="margin-left: auto; font-size: 0.8rem; opacity: 0.7;">Alt+Enter</span>
         </div>
         <div class="menu-item" id="fileQrcodeItem" data-bs-toggle="modal" data-bs-target="#qrcodeModal" onclick="prepareQrCode()">
-            <i class="fas fa-qrcode me-2" style="color: #9C27B0;"></i>
+            <i class="fas fa-qrcode me-2" style="color: var(--ocean-bg);"></i>
             <span data-translate="generate_qrcode">Generate QR Code</span>
         </div>
         <div class="menu-item" id="fileTerminalItem" onclick="openTerminal()">
-            <i class="fas fa-terminal me-2" style="color:#00FF00;"></i>
+            <i class="fas fa-terminal me-2" style="color:var(--forest-bg);"></i>
             <span data-translate="open_terminal">Open Terminal</span>
         </div>
     </div>
@@ -8760,7 +8716,7 @@ function handleRightClick(event) {
     if (!menu || !overlay) return;
     
     hideAllContextMenuItems();
-    
+
     const fileItem = event.target.closest('.file-item');
     
     if (fileItem) {
@@ -9499,19 +9455,45 @@ function showMultipleFileInfo() {
 }
 
 function positionContextMenu(menu, event) {
+    const originalDisplay = menu.style.display;
+    menu.style.display = 'block';
+    menu.style.visibility = 'hidden';
+    
     const menuWidth = menu.offsetWidth || 280;
     const menuHeight = menu.offsetHeight || 400;
+    
+    let left = event.clientX;
+    let top = event.clientY;
+    
     const windowWidth = window.innerWidth;
     const windowHeight = window.innerHeight;
     
-    let left = (windowWidth - menuWidth) / 2;
-    let top = (windowHeight - menuHeight) / 2;
+    const spaceRight = windowWidth - left;
+    const spaceLeft = left;
+    const spaceBottom = windowHeight - top;
+    const spaceTop = top;
     
-    left = Math.max(20, Math.min(left, windowWidth - menuWidth - 20));
-    top = Math.max(20, Math.min(top, windowHeight - menuHeight - 20));
+    if (spaceRight >= menuWidth + 10) {
+        left = left;
+    } else if (spaceLeft >= menuWidth + 10) {
+        left = left - menuWidth;
+    } else {
+        left = (windowWidth - menuWidth) / 2;
+    }
     
+    top = top + 200;
+    
+    left = Math.max(10, Math.min(left, windowWidth - menuWidth - 10));
+    top = Math.max(10, Math.min(top, windowHeight - menuHeight - 10));
+    
+    menu.style.position = 'fixed';
     menu.style.left = left + 'px';
     menu.style.top = top + 'px';
+    menu.style.visibility = 'visible';
+    
+    if (originalDisplay === 'none') {
+        menu.style.display = originalDisplay;
+    }
 }
 
 function handleDocumentClickForMenu(event) {
