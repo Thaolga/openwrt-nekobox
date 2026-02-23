@@ -605,7 +605,7 @@ include './spectra.php';
                     </div>
                     <div class="toolbar">
                         <button class="btn btn-primary" onclick="navigateUp()">
-                            <i class="fas fa-arrow-up"></i>
+                            <i class="fa fa-level-up-alt"></i>
                             <span data-translate="goToParentDirectoryTitle">Up</span>
                         </button>
                         <button class="btn btn-teal" onclick="refreshFiles()">
@@ -4009,7 +4009,7 @@ function updateBreadcrumb(path) {
     html += `<div class="d-flex align-items-center flex-wrap" style="gap: 8px;">`;
     
     html += `<div class="breadcrumb-item cursor-pointer" onclick="navigateTo('/')">
-                <i class="fas fa-home me-1"></i>
+                <i class="fas fa-home me-1" style="color: oklch(var(--l) var(--c) var(--base-hue-5));"></i>
                 <span data-translate="root">Root</span>
             </div>`;
     
