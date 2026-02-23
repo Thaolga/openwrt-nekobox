@@ -733,6 +733,10 @@ $langData = [
         'clear_failed'            => '清除失败',
         'scanning'                => '扫描中...',
         'clearing'                => '清除中...',
+        'drag_to_resize_sidebar' => '拖动调整侧边栏宽度',
+        'drag_to_resize_player'  => '拖动调整播放器宽度',
+        'fit_mode_toggle'      => '切换显示模式',
+        'image_formats'        => '图片格式',
         'file_summary' => '已选择 %d 个文件，合计 %s MB'
     ],
 
@@ -1467,6 +1471,10 @@ $langData = [
         'clear_failed'            => '清除失敗',
         'scanning'                => '掃描中...',
         'clearing'                => '清除中...',
+        'fit_mode_toggle'      => '切換顯示模式',
+        'image_formats'        => '圖片格式',
+        'drag_to_resize_sidebar' => '拖動調整側邊欄寬度',
+        'drag_to_resize_player'  => '拖動調整播放器寬度',
         'validateYaml' => '驗證 YAML 語法'
     ],
 
@@ -2200,6 +2208,10 @@ $langData = [
         'clear_failed'            => '삭제 실패',
         'scanning'                => '스캔 중...',
         'clearing'                => '삭제 중...',
+        'drag_to_resize_sidebar' => '사이드바 크기 조절',
+        'drag_to_resize_player'  => '플레이어 크기 조절',
+        'fit_mode_toggle'      => '표시 모드 전환',
+        'image_formats'        => '이미지 형식',
         'validateYaml' => 'YAML 구문 검증'
     ],
 
@@ -2932,6 +2944,10 @@ $langData = [
         'clear_failed'            => '削除失敗',
         'scanning'                => 'スキャン中...',
         'clearing'                => '削除中...',
+        'fit_mode_toggle'      => '表示モードを切り替え',
+        'image_formats'        => '画像形式',
+        'drag_to_resize_sidebar' => 'サイドバーの幅をドラッグして調整',
+        'drag_to_resize_player'  => 'プレーヤーの幅をドラッグして調整',
         'validateYaml' => 'YAML構文を検証'
     ],
 
@@ -3662,6 +3678,10 @@ $langData = [
         'clear_failed'            => 'Xóa thất bại',
         'scanning'                => 'Đang quét...',
         'clearing'                => 'Đang xóa...',
+        'drag_to_resize_sidebar' => 'Kéo để thay đổi kích thước thanh bên',
+        'drag_to_resize_player'  => 'Kéo để thay đổi kích thước trình phát',
+        'fit_mode_toggle'      => 'Chuyển đổi chế độ hiển thị',
+        'image_formats'        => 'Định dạng hình ảnh',
         'validateYaml' => 'Kiểm tra Cú pháp YAML'
     ],
 
@@ -4376,6 +4396,10 @@ $langData = [
         'clear_failed'            => 'ล้างไม่สำเร็จ',
         'scanning'                => 'กำลังสแกน...',
         'clearing'                => 'กำลังล้าง...',
+        'fit_mode_toggle'      => 'สลับโหมดการแสดงผล',
+        'image_formats'        => 'รูปแบบภาพ',
+        'drag_to_resize_sidebar' => 'ลากเพื่อปรับขนาดแถบด้านข้าง',
+        'drag_to_resize_player'  => 'ลากเพื่อปรับขนาดเครื่องเล่น',
         'validateYaml' => 'ตรวจสอบไวยากรณ์ YAML'
     ],
     'ru' => [
@@ -5091,6 +5115,10 @@ $langData = [
         'clear_failed'            => 'Очистка не удалась',
         'scanning'                => 'Сканирование...',
         'clearing'                => 'Очистка...',
+        'fit_mode_toggle'      => 'Переключить режим отображения',
+        'image_formats'        => 'Форматы изображений',
+        'drag_to_resize_sidebar' => 'Перетащите для изменения ширины боковой панели',
+        'drag_to_resize_player'  => 'Перетащите для изменения ширины плеера',
         'validateYaml' => 'Проверить синтаксис YAML'
     ],
     'ar' => [
@@ -5811,6 +5839,10 @@ $langData = [
         'clear_failed'            => 'فشل المسح',
         'scanning'                => 'جارٍ الفحص...',
         'clearing'                => 'جارٍ المسح...',
+        'fit_mode_toggle'      => 'تبديل وضع العرض',
+        'image_formats'        => 'تنسيقات الصور',
+        'drag_to_resize_sidebar' => 'اسحب لتغيير حجم الشريط الجانبي',
+        'drag_to_resize_player'  => 'اسحب لتغيير حجم المشغل',
         'validateYaml' => 'التحقق من صحة بناء جملة YAML'
     ],
     'es' => [
@@ -6523,6 +6555,10 @@ $langData = [
         'clear_failed'            => 'Error al borrar',
         'scanning'                => 'Escaneando...',
         'clearing'                => 'Borrando...',
+        'fit_mode_toggle'      => 'Cambiar modo de visualización',
+        'image_formats'        => 'Formatos de imagen',
+        'drag_to_resize_sidebar' => 'Arrastra para cambiar el tamaño de la barra lateral',
+        'drag_to_resize_player'  => 'Arrastra para cambiar el tamaño del reproductor',
         'validateYaml' => 'Validar sintaxis YAML'
     ],
     'de' => [
@@ -7237,6 +7273,10 @@ $langData = [
         'clear_failed'            => 'Löschen fehlgeschlagen',
         'scanning'                => 'Scannen...',
         'clearing'                => 'Löschen...',
+        'fit_mode_toggle'      => 'Anzeigemodus wechseln',
+        'image_formats'        => 'Bildformate',
+        'drag_to_resize_sidebar' => 'Zum Ändern der Seitenleistenbreite ziehen',
+        'drag_to_resize_player'  => 'Zum Ändern der Playerbreite ziehen',
         'validateYaml' => 'YAML-Syntax validieren'
     ],
 
@@ -7952,6 +7992,10 @@ $langData = [
         'clear_failed'            => 'Échec de la suppression',
         'scanning'                => 'Analyse en cours...',
         'clearing'                => 'Suppression en cours...',
+        'fit_mode_toggle'      => 'Basculer le mode d’affichage',
+        'image_formats'        => 'Formats d’image',
+        'drag_to_resize_sidebar' => 'Faites glisser pour redimensionner la barre latérale',
+        'drag_to_resize_player'  => 'Faites glisser pour redimensionner le lecteur',
         'validateYaml' => 'Valider la syntaxe YAML'
     ],
     'en' => [
@@ -8678,6 +8722,10 @@ $langData = [
         'clear_failed'            => 'Clear failed',
         'scanning'                => 'Scanning...',
         'clearing'                => 'Clearing...',
+        'fit_mode_toggle'      => 'Toggle Display Mode',
+        'image_formats'        => 'Image Formats',
+        'drag_to_resize_sidebar' => 'Drag to resize sidebar',
+        'drag_to_resize_player'  => 'Drag to resize player',
         'validateYaml' => 'Validate YAML Syntax'
     ],
     'bn' => [
@@ -9392,6 +9440,10 @@ $langData = [
         'clear_failed'            => 'মুছতে ব্যর্থ',
         'scanning'                => 'স্ক্যান চলছে...',
         'clearing'                => 'মুছা হচ্ছে...',
+        'fit_mode_toggle'      => 'প্রদর্শন মোড পরিবর্তন',
+        'image_formats'        => 'ছবির ফরম্যাট',
+        'drag_to_resize_sidebar' => 'সাইডবারের আকার পরিবর্তন করতে টানুন',
+        'drag_to_resize_player'  => 'প্লেয়ারের আকার পরিবর্তন করতে টানুন',
         'validateYaml' => 'YAML সিনট্যাক্স যাচাই করুন'
     ]
 ];
@@ -10519,6 +10571,171 @@ function changeLanguage(lang) {
 [data-theme="dark"] table a:hover svg {
     filter: drop-shadow(0 0 6px var(--glow-primary));
 }
+
+body {
+    margin: 0;
+    color: var(--text-primary);
+    background-attachment: fixed;
+}
+
+.log-box {
+    position: fixed;
+    left: 20px;
+    padding: 12px 16px;
+    background: var(--btn-success-bg);
+    color: white;
+    border-radius: 8px;
+    z-index: 10000000;
+    max-width: 420px;
+    font-size: 15px;
+    word-wrap: break-word;
+    line-height: 1.5;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.15);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(2px);
+    transform: translateY(0);
+    opacity: 0;
+    animation: scrollUp 12s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+    display: inline-block;
+    margin-bottom: 10px;
+    transition: transform 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+@keyframes scrollUp {
+    0% {
+        top: 90%;
+        opacity: 0;
+    }
+    20% {
+        opacity: 1;
+    }
+    80% {
+        top: 50%;
+        opacity: 1;
+    }
+    100% {
+        top: 45%;
+        opacity: 0;
+    }
+}
+
+.log-box.exiting {
+    animation: fadeOut 0.3s forwards;
+}
+
+.log-content {
+    padding: 6px 20px 6px 8px;
+    color: white;
+}
+
+.close-btn {
+    position: absolute;
+    top: 6px;
+    right: 10px;
+    background: transparent;
+    border: none;
+    color: inherit;
+    cursor: pointer;
+    font-size: 20px;
+    line-height: 1;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s;
+}
+
+.log-box:hover .close-btn {
+    opacity: 0.7;
+    pointer-events: auto;
+}
+
+.log-box:hover .close-btn:hover {
+    opacity: 1;
+}
+
+@keyframes fadeOut {
+    to { 
+        opacity: 0;
+        transform: translateY(-20px) scale(0.95);
+    }
+}
+
+.log-icon {
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    margin-right: 3px;
+    vertical-align: middle;
+}
+
+.log-box.error { background: linear-gradient(145deg, #ff4444, #cc0000); }
+.log-box.warning { background: linear-gradient(145deg, #ffc107, #ffab00); }
+.log-box.info { background: linear-gradient(145deg, #2196F3, #1976D2); }
+
+@media (max-width: 768px) {
+    .log-box {
+        left: 10px;
+        right: 10px;
+        max-width: none;
+        font-size: 14px;
+    }
+}
+
+.list-group-item {
+    cursor: pointer;
+    color: var(--text-primary);
+    background: var(--bg-container);
+    border: 1px solid var(--border-color);
+    transition: background 0.3s ease;
+}
+
+.list-group-item:hover {
+    background: var(--accent-secondary) !important;
+    color: white !important;
+}
+
+.list-group-item:hover .text-muted,
+.list-group-item:hover .text-truncate {
+    color: white !important;
+}
+
+.list-group-item.active {
+    background: var(--accent-color);
+    color: white;
+    border: 1px solid var(--accent-color);
+}
+
+.list-group-item.active .badge,
+.list-group-item.active .text-truncate,
+.list-group-item.active small,
+.list-group-item.active i {
+    color: white !important;
+}
+
+.list-group-item .delete-item {
+    cursor: pointer;
+}
+
+.modal-xl {
+    max-width: 60% !important;  
+    width: 90% !important;
+}
+
+@media (max-width: 768px) {
+    .modal-xl {
+        max-width: 95% !important;
+        width: 95% !important;
+        margin: 1rem auto !important; 
+    }
+}
+
+@media (max-width: 576px) {
+    .modal-xl {
+        max-width: 100% !important;
+        width: 100% !important;
+        margin: 0.5rem auto !important;
+    }
+}
 </style>
     <link href="/luci-static/spectra/css/bootstrap-icons.css" rel="stylesheet">
     <link href="/luci-static/spectra/css/all.min.css" rel="stylesheet">
@@ -10952,173 +11169,6 @@ if (saved) {
 
 setInterval(checkColorChange, 1000);
 </script>
-
-<style>
-body {
-    margin: 0;
-    color: var(--text-primary);
-    background-attachment: fixed;
-}
-
-.log-box {
-    position: fixed;
-    left: 20px;
-    padding: 12px 16px;
-    background: var(--btn-success-bg);
-    color: white;
-    border-radius: 8px;
-    z-index: 10000000;
-    max-width: 420px;
-    font-size: 15px;
-    word-wrap: break-word;
-    line-height: 1.5;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.15);
-    border: 1px solid rgba(255, 255, 255, 0.15);
-    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
-    backdrop-filter: blur(2px);
-    transform: translateY(0);
-    opacity: 0;
-    animation: scrollUp 12s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
-    display: inline-block;
-    margin-bottom: 10px;
-    transition: transform 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-}
-
-@keyframes scrollUp {
-    0% {
-        top: 90%;
-        opacity: 0;
-    }
-    20% {
-        opacity: 1;
-    }
-    80% {
-        top: 50%;
-        opacity: 1;
-    }
-    100% {
-        top: 45%;
-        opacity: 0;
-    }
-}
-
-.log-box.exiting {
-    animation: fadeOut 0.3s forwards;
-}
-
-.log-content {
-    padding: 6px 20px 6px 8px;
-    color: white;
-}
-
-.close-btn {
-    position: absolute;
-    top: 6px;
-    right: 10px;
-    background: transparent;
-    border: none;
-    color: inherit;
-    cursor: pointer;
-    font-size: 20px;
-    line-height: 1;
-    opacity: 0;
-    pointer-events: none;
-    transition: opacity 0.2s;
-}
-
-.log-box:hover .close-btn {
-    opacity: 0.7;
-    pointer-events: auto;
-}
-
-.log-box:hover .close-btn:hover {
-    opacity: 1;
-}
-
-@keyframes fadeOut {
-    to { 
-        opacity: 0;
-        transform: translateY(-20px) scale(0.95);
-    }
-}
-
-.log-icon {
-    display: inline-block;
-    width: 20px;
-    height: 20px;
-    margin-right: 3px;
-    vertical-align: middle;
-}
-
-.log-box.error { background: linear-gradient(145deg, #ff4444, #cc0000); }
-.log-box.warning { background: linear-gradient(145deg, #ffc107, #ffab00); }
-.log-box.info { background: linear-gradient(145deg, #2196F3, #1976D2); }
-
-@media (max-width: 768px) {
-    .log-box {
-        left: 10px;
-        right: 10px;
-        max-width: none;
-        font-size: 14px;
-    }
-}
-
-.list-group-item {
-    cursor: pointer;
-    color: var(--text-primary);
-    background: var(--bg-container);
-    border: 1px solid var(--border-color);
-    transition: background 0.3s ease;
-}
-
-.list-group-item:hover {
-    background: var(--accent-secondary) !important;
-    color: white !important;
-}
-
-.list-group-item:hover .text-muted,
-.list-group-item:hover .text-truncate {
-    color: white !important;
-}
-
-.list-group-item.active {
-    background: var(--accent-color);
-    color: white;
-    border: 1px solid var(--accent-color);
-}
-
-.list-group-item.active .badge,
-.list-group-item.active .text-truncate,
-.list-group-item.active small,
-.list-group-item.active i {
-    color: white !important;
-}
-
-.list-group-item .delete-item {
-    cursor: pointer;
-}
-
-.modal-xl {
-    max-width: 60% !important;  
-    width: 90% !important;
-}
-
-@media (max-width: 768px) {
-    .modal-xl {
-        max-width: 95% !important;
-        width: 95% !important;
-        margin: 1rem auto !important; 
-    }
-}
-
-@media (max-width: 576px) {
-    .modal-xl {
-        max-width: 100% !important;
-        width: 100% !important;
-        margin: 0.5rem auto !important;
-    }
-}
-</style>
 
 <script>
 window.showLogMessage = (function() {

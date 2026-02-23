@@ -5830,14 +5830,14 @@ div.pure-u-1-4:has(#status_instagram) .img-con img { content: url('/luci-static/
 div.pure-u-1-4:has(#status_dns) .img-con img { content: url('/luci-static/ipip/img/dns.svg') !important; }
 div.pure-u-1-4.check:has(#status_baidu) .img-con img { content: url('/luci-static/ipip/img/baidu.svg') !important; }
 
-#status_instagram,
+#status_youtube,
 #status_haproxy,
 #status_dns,
 #status_udp_node,
 #status_node,
 #status_github,
 #status_google,
-#status_baidu,
+#status_aliyun,
 #status_tcp_node {
     font-family: 'Fredoka One', cursive !important;
     color: inherit !important;
