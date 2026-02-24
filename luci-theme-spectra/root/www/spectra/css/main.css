@@ -1105,12 +1105,16 @@ body {
 
 .file-name {
     font-size: 0.85rem;
-    color: var(--text-primary);
+    color: var(--text-primary) !important;
     word-break: break-word;
     text-align: center;
     width: 100%;
     margin-bottom: 5px;
     line-height: 1.3;
+}
+
+.list-group-item span {
+    color: var(--text-primary) !important;
 }
 
 .file-size {

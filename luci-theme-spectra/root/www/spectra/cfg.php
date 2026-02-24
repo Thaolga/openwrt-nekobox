@@ -1,11 +1,26 @@
 <?php
-ini_set('memory_limit', '512M');
+ini_set('memory_limit', '1024M');
+$timezone = trim(shell_exec("uci get system.@system[0].zonename 2>/dev/null"));
+date_default_timezone_set($timezone ?: 'UTC');
 $RECENT_MAX = 15;
 $ROOT_DIR = '/';
 $MEDIA_CACHE_DIR = './lib/';
 $MUSIC_CACHE_FILE = $MEDIA_CACHE_DIR . 'music_cache.json';
 $VIDEO_CACHE_FILE = $MEDIA_CACHE_DIR . 'video_cache.json';
 $IMAGE_CACHE_FILE = $MEDIA_CACHE_DIR . 'image_cache.json';
+$RECYCLE_BIN_DIR = './recycle_bin/';
+$RECYCLE_BIN_ENABLED = true;
+$RECYCLE_BIN_DAYS = 30;
+
+$settingsFile = './config/recycle_bin.json';
+if (file_exists($settingsFile)) {
+    $settings = json_decode(file_get_contents($settingsFile), true);
+    if ($settings) {
+        $RECYCLE_BIN_ENABLED = $settings['enabled'] ?? true;
+        $RECYCLE_BIN_DAYS = $settings['days'] ?? 30;
+    }
+}
+
 $EXCLUDE_DIRS = [
     '/dev', '/run', '/var/lock', '/var/run', '/overlay/upper'
 ];
@@ -783,6 +798,88 @@ if (isset($_GET['action'])) {
             'files_uploaded' => $uploaded,
             'errors' => $errors
         ]);
+        exit;
+    }
+
+    if ($action === 'upload_chunk') {
+        header('Content-Type: application/json');
+        
+        $path = isset($_POST['path']) ? urldecode($_POST['path']) : '';
+        $filePath = isset($_POST['filePath']) ? $_POST['filePath'] : '';
+        $chunkIndex = isset($_POST['chunkIndex']) ? intval($_POST['chunkIndex']) : 0;
+        $totalChunks = isset($_POST['totalChunks']) ? intval($_POST['totalChunks']) : 0;
+        $fileName = isset($_POST['fileName']) ? $_POST['fileName'] : '';
+        $totalSize = isset($_POST['totalSize']) ? intval($_POST['totalSize']) : 0;
+        
+        $realPath = realpath($path);
+        if (!$realPath || strpos($realPath, $ROOT_DIR) !== 0 || !is_dir($realPath)) {
+            echo json_encode(['success' => false, 'error' => 'Invalid path']);
+            exit;
+        }
+        
+        $tempDir = $realPath . '/.uploads_temp';
+        if (!is_dir($tempDir)) {
+            mkdir($tempDir, 0755, true);
+        }
+        
+        $tempFile = $tempDir . '/' . md5($filePath) . '_' . $chunkIndex . '.tmp';
+        
+        if (isset($_FILES['chunk']) && $_FILES['chunk']['error'] === UPLOAD_ERR_OK) {
+            if (move_uploaded_file($_FILES['chunk']['tmp_name'], $tempFile)) {
+                echo json_encode(['success' => true]);
+            } else {
+                echo json_encode(['success' => false, 'error' => 'Failed to save chunk']);
+            }
+        } else {
+            echo json_encode(['success' => false, 'error' => 'No chunk uploaded']);
+        }
+        exit;
+    }
+
+    if ($action === 'upload_complete') {
+        header('Content-Type: application/json');
+        
+        $path = isset($_POST['path']) ? urldecode($_POST['path']) : '';
+        $filePath = isset($_POST['filePath']) ? $_POST['filePath'] : '';
+        $totalChunks = isset($_POST['totalChunks']) ? intval($_POST['totalChunks']) : 0;
+        $fileName = isset($_POST['fileName']) ? $_POST['fileName'] : '';
+        
+        $realPath = realpath($path);
+        if (!$realPath || strpos($realPath, $ROOT_DIR) !== 0 || !is_dir($realPath)) {
+            echo json_encode(['success' => false, 'error' => 'Invalid path']);
+            exit;
+        }
+        
+        $targetPath = $realPath . '/' . $filePath;
+        $targetDir = dirname($targetPath);
+        if (!is_dir($targetDir)) {
+            mkdir($targetDir, 0755, true);
+        }
+        
+        $tempDir = $realPath . '/.uploads_temp';
+        $baseHash = md5($filePath);
+        
+        $outFile = fopen($targetPath, 'wb');
+        if ($outFile) {
+            for ($i = 0; $i < $totalChunks; $i++) {
+                $chunkFile = $tempDir . '/' . $baseHash . '_' . $i . '.tmp';
+                if (file_exists($chunkFile)) {
+                    $inFile = fopen($chunkFile, 'rb');
+                    stream_copy_to_stream($inFile, $outFile);
+                    fclose($inFile);
+                    unlink($chunkFile);
+                }
+            }
+            fclose($outFile);
+            
+            if (count(glob($tempDir . '/*')) === 0) {
+                rmdir($tempDir);
+            }
+            
+            echo json_encode(['success' => true]);
+        } else {
+            echo json_encode(['success' => false, 'error' => 'Failed to create output file']);
+        }
         exit;
     }
 
@@ -1603,6 +1700,213 @@ if (isset($_GET['action'])) {
             'cleaned' => 'all',
             'message' => 'Thumbnail cache cleared successfully'
         ]);
+        exit;
+    }
+
+    if ($action === 'get_recycle_bin') {
+        header('Content-Type: application/json');
+        
+        $recycleDir = $RECYCLE_BIN_DIR;
+        $items = [];
+        
+        if (is_dir($recycleDir)) {
+            try {
+                $iterator = new DirectoryIterator($recycleDir);
+                
+                foreach ($iterator as $item) {
+                    if ($item->isDot()) continue;
+                    
+                    $itemPath = $item->getPathname();
+                    $metaFile = $itemPath . '.meta.json';
+                    
+                    $originalPath = '';
+                    $deletedTime = $item->getMTime();
+                    
+                    if (file_exists($metaFile)) {
+                        $meta = json_decode(file_get_contents($metaFile), true);
+                        $originalPath = $meta['original_path'] ?? '';
+                        $deletedTime = $meta['deleted_time'] ?? $item->getMTime();
+                    }
+                    
+                    $items[] = [
+                        'name' => $item->getFilename(),
+                        'path' => $itemPath,
+                        'original_path' => $originalPath,
+                        'size' => $item->isDir() ? 0 : $item->getSize(),
+                        'size_formatted' => formatFileSize($item->isDir() ? 0 : $item->getSize()),
+                        'deleted_time' => $deletedTime,
+                        'deleted_formatted' => date('Y-m-d H:i:s', $deletedTime),
+                        'is_dir' => $item->isDir(),
+                        'ext' => $item->isDir() ? '' : strtolower($item->getExtension())
+                    ];
+                }
+                
+                usort($items, function($a, $b) {
+                    return $b['deleted_time'] - $a['deleted_time'];
+                });
+                
+            } catch (Exception $e) {
+                echo json_encode(['success' => false, 'error' => $e->getMessage()]);
+                exit;
+            }
+        }
+        
+        echo json_encode(['success' => true, 'items' => $items]);
+        exit;
+    }
+
+    if ($action === 'move_to_recycle_bin') {
+        header('Content-Type: application/json');
+        
+        $path = isset($_GET['path']) ? urldecode($_GET['path']) : '';
+        $forceDelete = isset($_GET['force']) && $_GET['force'] === 'true';
+        
+        $realPath = realpath($path);
+        if (!$realPath || strpos($realPath, $ROOT_DIR) !== 0) {
+            echo json_encode(['success' => false, 'error' => 'Invalid path']);
+            exit;
+        }
+        
+        if ($forceDelete) {
+            if (is_dir($realPath)) {
+                $success = deleteDirectory($realPath);
+            } else {
+                $success = @unlink($realPath);
+            }
+            
+            echo json_encode([
+                'success' => $success,
+                'message' => $success ? 'File permanently deleted' : 'Delete failed'
+            ]);
+            exit;
+        }
+        
+        if (!is_dir($RECYCLE_BIN_DIR)) {
+            @mkdir($RECYCLE_BIN_DIR, 0755, true);
+        }
+        
+        $uniqueName = uniqid() . '_' . basename($realPath);
+        $recyclePath = $RECYCLE_BIN_DIR . $uniqueName;
+        
+        $metaData = [
+            'original_path' => $realPath,
+            'deleted_time' => time(),
+            'is_dir' => is_dir($realPath)
+        ];
+        file_put_contents($recyclePath . '.meta.json', json_encode($metaData));
+        
+        if (@rename($realPath, $recyclePath)) {
+            echo json_encode(['success' => true, 'message' => 'Moved to recycle bin']);
+        } else {
+            echo json_encode(['success' => false, 'error' => 'Failed to move to recycle bin']);
+        }
+        exit;
+    }
+
+    if ($action === 'restore_from_recycle_bin') {
+        header('Content-Type: application/json');
+        
+        $recyclePath = isset($_GET['path']) ? urldecode($_GET['path']) : '';
+        
+        $realPath = realpath($recyclePath);
+        if (!$realPath || strpos($realPath, realpath($RECYCLE_BIN_DIR)) !== 0) {
+            echo json_encode(['success' => false, 'error' => 'Invalid recycle bin path']);
+            exit;
+        }
+        
+        $metaFile = $realPath . '.meta.json';
+        if (!file_exists($metaFile)) {
+            echo json_encode(['success' => false, 'error' => 'Metadata not found']);
+            exit;
+        }
+        
+        $meta = json_decode(file_get_contents($metaFile), true);
+        $originalPath = $meta['original_path'];
+        
+        if (file_exists($originalPath)) {
+            $dir = dirname($originalPath);
+            $name = basename($originalPath);
+            $pathinfo = pathinfo($name);
+            $counter = 1;
+            
+            while (file_exists($originalPath)) {
+                $newName = $pathinfo['filename'] . '_recover_' . $counter . (isset($pathinfo['extension']) ? '.' . $pathinfo['extension'] : '');
+                $originalPath = $dir . '/' . $newName;
+                $counter++;
+            }
+        }
+        
+        $targetDir = dirname($originalPath);
+        if (!is_dir($targetDir)) {
+            @mkdir($targetDir, 0755, true);
+        }
+        
+        if (@rename($realPath, $originalPath)) {
+            @unlink($metaFile);
+            echo json_encode(['success' => true, 'message' => 'File restored', 'restored_path' => $originalPath]);
+        } else {
+            echo json_encode(['success' => false, 'error' => 'Failed to restore file']);
+        }
+        exit;
+    }
+
+    if ($action === 'empty_recycle_bin') {
+        header('Content-Type: application/json');
+        
+        if (is_dir($RECYCLE_BIN_DIR)) {
+            deleteDirectory($RECYCLE_BIN_DIR);
+            @mkdir($RECYCLE_BIN_DIR, 0755, true);
+            echo json_encode(['success' => true, 'message' => 'Recycle bin emptied']);
+        } else {
+            echo json_encode(['success' => true, 'message' => 'Recycle bin is already empty']);
+        }
+        exit;
+    }
+
+    if ($action === 'recycle_bin_settings') {
+        header('Content-Type: application/json');
+        
+        $enabled = isset($_POST['enabled']) ? $_POST['enabled'] === 'true' : $RECYCLE_BIN_ENABLED;
+        $days = isset($_POST['days']) ? intval($_POST['days']) : $RECYCLE_BIN_DAYS;
+        
+        $settingsFile = './config/recycle_bin.json';
+        if (!is_dir('./config')) {
+            @mkdir('./config', 0755, true);
+        }
+        
+        $settings = [
+            'enabled' => $enabled,
+            'days' => $days,
+            'updated' => time()
+        ];
+        
+        file_put_contents($settingsFile, json_encode($settings));
+        
+        echo json_encode(['success' => true, 'settings' => $settings]);
+        exit;
+    }
+
+    if ($action === 'get_recycle_bin_settings') {
+        header('Content-Type: application/json');
+        
+        $settingsFile = './config/recycle_bin.json';
+        $defaultSettings = [
+            'enabled' => $RECYCLE_BIN_ENABLED,
+            'days' => $RECYCLE_BIN_DAYS
+        ];
+        
+        if (file_exists($settingsFile)) {
+            $settings = json_decode(file_get_contents($settingsFile), true);
+            if ($settings) {
+                $settings = array_merge($defaultSettings, $settings);
+            } else {
+                $settings = $defaultSettings;
+            }
+        } else {
+            $settings = $defaultSettings;
+        }
+        
+        echo json_encode(['success' => true, 'settings' => $settings]);
         exit;
     }
 

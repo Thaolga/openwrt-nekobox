@@ -91,6 +91,10 @@ include './spectra.php';
                         <span class="nav-icon"><i class="fas fa-folder" style="color: oklch(var(--l) var(--c) var(--base-hue-6));"></i></span>
                         <span data-translate="fileAssistant">File Manager</span>
                     </a>
+                    <a href="#" class="nav-item" onclick="showSection('recycle_bin')" data-translate-tooltip="recycle_bin">
+                        <span class="nav-icon"><i class="fas fa-trash-restore" style="color: oklch(var(--l) var(--c) var(--base-hue-1));"></i></span>
+                        <span data-translate="recycle_bin">Recycle Bin</span>
+                    </a>
                 </div>
 
                 <div class="nav-section" id="fileTreeSection" style="display: none;">
@@ -99,37 +103,33 @@ include './spectra.php';
                     </div>
                 </div>
                 
-                <div class="system-status" id="systemStatus">
-                    <div class="nav-section">
-                        <div class="nav-section-title">
-                            <span data-translate="system_status">System Status</span>
-                        </div>
-                        <?php if ($diskInfo): ?>
-                        <div style="padding:15px;color:var(--text-primary);font-size:.9rem;">
-                            <div title="<?= __('used_space') ?> <?= formatFileSize($diskInfo['used']) ?> / <?= __('total') ?> <?= formatFileSize($diskInfo['total']) ?>"
-                                style="cursor:help;margin-bottom:10px;">
-                                <div class="d-flex flex-column gap-3 mb-3">
-                                    <span class="btn btn-primary btn-sm w-100 text-start">
-                                        <i class="fas fa-database me-2"></i>
-                                        <span data-translate="total">Total:</span> <?= formatFileSize($diskInfo['total']) ?>
-                                    </span>
-                                    <span class="btn btn-success btn-sm w-100 text-start">
-                                        <i class="fas fa-hdd me-2"></i>
-                                    <span data-translate="free">Free:</span> <?= formatFileSize($diskInfo['free']) ?>
-                                </span>
-                            </div>
-                        </div>
-                        <div style="height:6px;background:#fff;border-radius:3px;margin:10px 0;overflow:hidden;">
-                            <div style="width:<?= $diskInfo['used_percent'] ?>%;height:100%;background:#4CAF50;"></div>
-                        </div>
-                        <div title="<?= __('used_space') ?> <?= formatFileSize($diskInfo['used']) ?> / <?= __('total') ?> <?= formatFileSize($diskInfo['total']) ?>"
-                            style="cursor:help;">
-                            <span data-translate="used_space">Used Space:</span> <?= formatFileSize($diskInfo['used']) ?>
-                        </div>
-                    </div>
-                    <?php endif; ?>
-                  </div>
-              </div>
+                 <div class="system-status" id="systemStatus">
+                     <div class="nav-section">
+                         <div class="nav-section-title">
+                             <span data-translate="system_status">System Status</span>
+                         </div>
+                         <div style="padding:15px;color:var(--text-primary);font-size:.9rem;">
+                             <div id="diskInfoTitle" title="<?= __('used_space') ?> <?= formatFileSize($diskInfo['used']) ?> / <?= __('total') ?> <?= formatFileSize($diskInfo['total']) ?>" style="cursor:help;margin-bottom:10px;" title="">
+                                 <div class="d-flex flex-column gap-3 mb-3">
+                                     <span class="btn btn-primary btn-sm w-100 text-start">
+                                         <i class="fas fa-database me-1"></i>
+                                         <span data-translate="total">Total:</span><span id="diskTotal">--</span>
+                                     </span>
+                                     <span class="btn btn-success btn-sm w-100 text-start">
+                                         <i class="fas fa-hdd me-1"></i>
+                                         <span data-translate="free">Free:</span><span id="diskFree">--</span>
+                                     </span>
+                                 </div>
+                             </div>
+                             <div style="height:6px;background:#fff;border-radius:3px;margin:10px 0;overflow:hidden;">
+                                 <div id="diskUsageBar" style="width:0%;height:100%;background:#4CAF50;"></div>
+                             </div>
+                             <div id="diskInfoFooter" title="<?= __('used_space') ?> <?= formatFileSize($diskInfo['used']) ?> / <?= __('total') ?> <?= formatFileSize($diskInfo['total']) ?>" style="cursor:help;" title="">
+                                 <span data-translate="used_space">Used Space:</span> <span id="diskUsed">--</span>
+                             </div>
+                         </div>
+                     </div>
+                 </div>
 
                 <div class="lunar-sidebar lunar-collapsible">
                     <div class="nav-section">
@@ -554,6 +554,70 @@ include './spectra.php';
                         <?php endforeach; ?>
                     </div>
                     <?php endif; ?>
+                </div>
+
+                <div id="recycleBinSection" class="grid-section" style="display: none;">
+                    <div class="grid-title" style="color: var(--accent-tertiary); display: flex; align-items: center; justify-content: space-between;">
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <i class="fas fa-trash-restore" style="color: #FF9800;"></i>
+                            <span data-translate="recycle_bin">Recycle Bin</span>
+                            <span class="badge bg-warning ms-2" id="recycleBinCount">0</span>
+                        </div>
+                        
+                        <div>
+                            <button class="btn btn-danger" onclick="emptyRecycleBin()">
+                                <i class="fas fa-trash-alt"></i>
+                                <span data-translate="empty_recycle_bin">Empty Recycle Bin</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="recycle-bin-toolbar mt-3 mb-3" style="display: flex; align-items: center; gap: 10px; padding: 10px 0;">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="recycleSelectAll" onchange="toggleRecycleSelectAll()">
+                            <label class="form-check-label" for="recycleSelectAll" data-translate="select_all">Select All</label>
+                        </div>
+                        
+                        <span id="recycleSelectedInfo" class="text-muted" style="display: none;"></span>
+                        
+                        <button class="btn btn-success btn-sm" onclick="restoreSelectedFromRecycle()" id="recycleRestoreBtn" disabled>
+                            <i class="fas fa-trash-restore"></i> <span data-translate="restore">Restore</span>
+                        </button>
+                        
+                        <button class="btn btn-danger btn-sm" onclick="deleteSelectedFromRecycle()" id="recycleDeleteBtn" disabled>
+                            <i class="fas fa-trash-alt"></i> <span data-translate="delete">Delete</span>
+                        </button>
+
+                        <div class="ms-auto d-flex align-items-center gap-3">
+                            <div class="form-check form-switch mb-0">
+                                <input class="form-check-input" type="checkbox" id="recycleBinToggle" <?php echo $RECYCLE_BIN_ENABLED ? 'checked' : ''; ?>>
+                                <label class="form-check-label" for="recycleBinToggle" data-translate="recycle_bin_enabled">Enable Recycle Bin</label>
+                            </div>
+                            
+                            <div class="dropdown">
+                                <button class="btn btn-outline-secondary btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                                    <i class="fas fa-cog"></i>
+                                </button>
+                                <div class="dropdown-menu p-3" style="min-width: 200px;">
+                                    <div class="mb-2">
+                                        <label class="form-label small" data-translate="auto_clean_days">Auto clean after (days):</label>
+                                        <input type="number" class="form-control form-control-sm" id="recycleBinDays" value="<?php echo $RECYCLE_BIN_DAYS; ?>" min="1" max="365">
+                                    </div>
+                                    <button class="btn btn-sm btn-primary w-100" onclick="saveRecycleBinSettings()">
+                                        <i class="fas fa-save"></i> <span data-translate="save">Save</span>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="file-grid folder-view" id="recycleBinGrid"></div>
+                    <div class="empty-state" id="recycleBinEmpty" style="display: none; margin-top: -200px;">
+                        <div class="empty-icon">
+                            <i class="fas fa-trash-restore"></i>
+                        </div>
+                        <p style="margin-top: 15px;" data-translate="recycle_bin_empty">Recycle bin is empty</p>
+                    </div>
                 </div>
 
                 <div id="filesSection" class="grid-section" style="display: none;">
@@ -1154,6 +1218,20 @@ include './spectra.php';
                         <p class="text-muted" data-translate="or_drag_and_drop">or drag and drop files here</p>
                     </div>
                     <input type="file" id="fileUploadInput" class="d-none" multiple onchange="handleFileSelect(event)">
+                </div>
+                <div id="uploadProgressArea" style="display: none;" class="mb-3">
+                    <div class="d-flex justify-content-between mb-1">
+                        <span data-translate="uploading">Uploading...</span>
+                        <span id="uploadProgressPercent">0%</span>
+                    </div>
+                    <div class="progress" style="height: 25px;">
+                        <div id="uploadProgressBar" 
+                             class="progress-bar progress-bar-striped progress-bar-animated bg-success"
+                             role="progressbar"
+                             style="width: 0%">0%</div>
+                    </div>
+                    <div id="uploadFileInfo" class="small text-muted mt-1"></div>
+                    <div id="chunkProgressDetail" class="small text-info mt-1"></div>
                 </div>
                 <div id="fileList" class="mt-3"></div>
             </div>
@@ -1890,7 +1968,41 @@ include './spectra.php';
         </div>
     </div>
 </div>
+
+<div class="modal fade" id="deleteConfirmModal" tabindex="-1" aria-labelledby="deleteConfirmModalLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="deleteConfirmModalLabel">
+                    <i class="fas fa-exclamation-triangle text-warning me-2"></i>
+                    <span data-translate="confirm_title">Confirm Delete</span>
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p id="deleteConfirmMessage"></p>
+                <div class="form-check form-switch mt-3" id="forceDeleteOption">
+                    <input class="form-check-input" type="checkbox" id="forceDeleteCheck">
+                    <label class="form-check-label" for="forceDeleteCheck" data-translate="force_delete">Skip recycle bin, delete permanently</label>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    <span data-translate="cancel">Cancel</span>
+                </button>
+                <button type="button" class="btn btn-danger" onclick="executeDelete()">
+                    <span data-translate="delete">Delete</span>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
 <script>
+const originalWarn = console.warn;
+console.warn = function(msg) { 
+    if (msg && msg.includes && msg.includes('aria-hidden')) return; 
+    originalWarn.apply(console, arguments); 
+};
 let hoverAudio = null;
 let hoverVideo = null;
 let hoverVideoContainer = null;
@@ -1931,6 +2043,8 @@ let networkHistory = [];
 let systemMonitorInterval = null;
 let lastNetworkRx = 0;
 let lastNetworkTx = 0;
+let recycleBinItems = [];
+let selectedRecycleItems = new Set();
 
 let currentMedia = {
     type: null,
@@ -1952,7 +2066,13 @@ function showSection(sectionId) {
     document.querySelectorAll('.grid-section').forEach(section => {
         section.style.display = 'none';
     });
-    const targetSection = document.getElementById(sectionId + 'Section');
+    
+    let targetId = sectionId + 'Section';
+    if (sectionId === 'recycle_bin') {
+        targetId = 'recycleBinSection';
+    }
+    
+    const targetSection = document.getElementById(targetId);
     if (targetSection) {
         targetSection.style.display = 'block';
     }
@@ -1963,6 +2083,10 @@ function showSection(sectionId) {
         startSystemMonitoring();
     } else {
         stopSystemMonitoring();
+    }
+
+    if (sectionId === 'recycle_bin') {
+        loadRecycleBin();
     }
 
     if (sectionId === 'music' || sectionId === 'video' || sectionId === 'image') {
@@ -3015,6 +3139,20 @@ async function updateSystemInfo() {
             
             if (data.network_rx !== undefined && data.network_tx !== undefined) {
                 updateNetworkSpeed(data.network_rx, data.network_tx);
+            }
+
+            if (data.disk_total !== undefined && data.disk_used !== undefined) {
+                const totalEl = document.getElementById('diskTotal');
+                const freeEl = document.getElementById('diskFree');
+                const usedEl = document.getElementById('diskUsed');
+                const usageBarEl = document.getElementById('diskUsageBar');
+                const usagePercentEl = document.getElementById('diskUsagePercent');
+                
+                if (totalEl) totalEl.textContent = data.disk_total.toFixed(2) + ' GB';
+                if (freeEl) freeEl.textContent = (data.disk_total - data.disk_used).toFixed(2) + ' GB';
+                if (usedEl) usedEl.textContent = data.disk_used.toFixed(2) + ' GB';
+                if (usageBarEl) usageBarEl.style.width = data.disk_usage + '%';
+                if (usagePercentEl) usagePercentEl.textContent = data.disk_usage + '%';
             }
         }
     } catch (error) {
@@ -4075,6 +4213,7 @@ function navigateUp() {
 
 function refreshFiles() {
     loadFiles(currentPath);
+    updateSystemInfo();
     setTimeout(() => {
         initRightClick();
     }, 300);
@@ -5665,65 +5804,47 @@ async function deleteSelected() {
         return;
     }
 
+    const recycleEnabled = document.getElementById('recycleBinToggle')?.checked ?? true;
+    
+    const forceDeleteOption = document.getElementById('forceDeleteOption');
+    if (forceDeleteOption) {
+        forceDeleteOption.style.display = recycleEnabled ? 'block' : 'none';
+    }
+    
     const count = selectedFiles.size;
-    const fileNames = Array.from(selectedFiles)
-        .map(p => p.split('/').pop())
-        .join(', ');
-
-    const message =
-        `${translations['confirm_delete_items'] || 'Are you sure you want to delete'} ` +
-        `${count} ` +
-        `${translations['items'] || 'item(s)'}?\n\n${fileNames}`;
-
-    showConfirmation(encodeURIComponent(message), async () => {
-        let successCount = 0;
-        let errorCount = 0;
-
-        for (const path of selectedFiles) {
-            try {
-                const response = await fetch(
-                    `?action=delete_item&path=${encodeURIComponent(path)}`
-                );
-                const data = await response.json();
-
-                if (data.success) {
-                    successCount++;
-                } else {
-                    errorCount++;
-                    console.error(
-                        translations['delete_failed'] || 'Delete failed:',
-                        data.error
-                    );
-                }
-            } catch (error) {
-                errorCount++;
-                console.error(
-                    translations['delete_error'] || 'Delete error:',
-                    error
-                );
-            }
-        }
-
-        if (successCount > 0) {
-            const successMessage = `${translations['successfully_deleted'] || 'Successfully deleted'} ` +
-                                   `${successCount} ` +
-                                   `${translations['items'] || 'item(s)'}`;
-            logAndSpeak(successMessage, 'success');
-            
-            selectedFiles.clear();
-            updateSelectionInfo();
-            refreshFiles();
-        }
-
-        if (errorCount > 0) {
-             logAndSpeak(
-                `${translations['failed_to_delete'] || 'Failed to delete'} ` +
-                `${errorCount} ` +
-                `${translations['items'] || 'item(s)'}`,
-                'error'
-            );
-        }
+    
+    const items = [];
+    for (const path of selectedFiles) {
+        const fileItem = document.querySelector(`.file-item[data-path="${path}"]`);
+        const isDir = fileItem?.getAttribute('data-is-dir') === 'true';
+        const name = path.split('/').pop();
+        items.push({ name, isDir, path });
+    }
+    
+    let fileListHtml = '<div class="mb-3">' + 
+        (translations['confirm_delete_selected'] || 'Are you sure you want to delete {count} item(s)?').replace('{count}', count) + 
+        '</div>';
+    fileListHtml += '<div class="card bg-dark bg-opacity-25 border-secondary" style="max-height: 250px; overflow-y: auto;">';
+    fileListHtml += '<div class="card-body p-2">';
+    
+    items.forEach(item => {
+        const icon = item.isDir ? 'fa-folder' : 'fa-file';
+        const color = item.isDir ? '#FFA726' : '#2196F3';
+        fileListHtml += `
+            <div class="d-flex align-items-center py-1 border-bottom border-secondary">
+                <i class="fas ${icon} me-2" style="width: 16px; color: ${color};"></i>
+                <span class="small text-truncate" style="max-width: 350px;" title="${item.name}">${item.name}</span>
+            </div>
+        `;
     });
+    
+    fileListHtml += '</div></div>';
+    
+    document.getElementById('deleteConfirmMessage').innerHTML = fileListHtml;
+    
+    window.pendingDeleteFiles = new Set(selectedFiles);
+    const modal = new bootstrap.Modal(document.getElementById('deleteConfirmModal'));
+    modal.show();
 }
 
 async function showFileInfoModal(path) {
@@ -8861,47 +8982,129 @@ async function startUpload() {
         return;
     }
 
-    const formData = new FormData();
-    formData.append('path', currentPath);
-
+    const progressArea = document.getElementById('uploadProgressArea');
+    const progressBar = document.getElementById('uploadProgressBar');
+    const progressPercent = document.getElementById('uploadProgressPercent');
+    const uploadFileInfo = document.getElementById('uploadFileInfo');
+    const chunkProgressDetail = document.getElementById('chunkProgressDetail');
+    
+    progressArea.style.display = 'block';
+    progressBar.style.width = '0%';
+    progressBar.textContent = '0%';
+    progressPercent.textContent = '0%';
+    if (chunkProgressDetail) chunkProgressDetail.textContent = '';
+    
+    const chunkSize = 20 * 1024 * 1024;
+    
+    let totalFiles = 0;
+    let totalSize = 0;
+    let uploadedSize = 0;
+    const files = [];
+    
     uploadFilesList.forEach(file => {
         if (file._isFolderFile) {
-            formData.append('files[]', file);
-            formData.append('paths[]', file._fullPath);
-        } else {
-            formData.append('files[]', file);
-            formData.append('paths[]', file.name);
+            files.push({
+                file: file,
+                path: file._fullPath,
+                size: file.size
+            });
+            totalFiles++;
+            totalSize += file.size;
+        } else if (!file._isFolder) {
+            files.push({
+                file: file,
+                path: file.name,
+                size: file.size
+            });
+            totalFiles++;
+            totalSize += file.size;
         }
     });
 
     try {
-        const response = await fetch('?action=upload_folder', {
-            method: 'POST',
-            body: formData
-        });
-
-        const data = await response.json();
-
-        if (data.success) {
-            const uploadedCount = data.files_uploaded || uploadFilesList.length;
-            const successMessage = `${translations['upload_success'] || 'Successfully uploaded'} ` +
-                                   `${uploadedCount} ` +
-                                   (uploadedCount === 1 
-                                    ? (translations['file'] || 'file') 
-                                    : (translations['files'] || 'files'));
+        for (let i = 0; i < files.length; i++) {
+            const file = files[i];
+            const chunks = Math.ceil(file.size / chunkSize);
             
-            logAndSpeak(successMessage, 'success');
-
+            uploadFileInfo.textContent = `Uploading ${file.path} (${formatFileSize(file.size)})`;
+            
+            for (let chunkIndex = 0; chunkIndex < chunks; chunkIndex++) {
+                const start = chunkIndex * chunkSize;
+                const end = Math.min(start + chunkSize, file.size);
+                const chunk = file.file.slice(start, end);
+                
+                const formData = new FormData();
+                formData.append('path', currentPath);
+                formData.append('filePath', file.path);
+                formData.append('chunk', chunk);
+                formData.append('chunkIndex', chunkIndex);
+                formData.append('totalChunks', chunks);
+                formData.append('fileName', file.file.name);
+                formData.append('totalSize', file.size);
+                
+                if (chunkProgressDetail) {
+                    chunkProgressDetail.textContent = (translations['upload_chunk_progress'] || 'Chunk {current}/{total}')
+                        .replace('{current}', chunkIndex + 1)
+                        .replace('{total}', chunks);
+                }
+                
+                const response = await fetch('?action=upload_chunk', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                const data = await response.json();
+                
+                if (!data.success) {
+                    throw new Error(data.error || `Failed to upload chunk ${chunkIndex + 1}`);
+                }
+                
+                uploadedSize += (end - start);
+                const percent = Math.round((uploadedSize / totalSize) * 100);
+                progressBar.style.width = percent + '%';
+                progressBar.textContent = percent + '%';
+                progressPercent.textContent = percent + '%';
+                
+                const uploadedMB = (uploadedSize / (1024 * 1024)).toFixed(2);
+                const totalMB = (totalSize / (1024 * 1024)).toFixed(2);
+                uploadFileInfo.textContent = `${uploadedMB} MB / ${totalMB} MB - ${file.path}`;
+            }
+            
+            const completeFormData = new FormData();
+            completeFormData.append('path', currentPath);
+            completeFormData.append('filePath', file.path);
+            completeFormData.append('totalChunks', chunks);
+            completeFormData.append('fileName', file.file.name);
+            
+            await fetch('?action=upload_complete', {
+                method: 'POST',
+                body: completeFormData
+            });
+        }
+        
+        const successMessage = `${translations['upload_success'] || 'Successfully uploaded'} ${totalFiles} ${totalFiles === 1 ? (translations['file'] || 'file') : (translations['files'] || 'files')}`;
+        logAndSpeak(successMessage, 'success');
+        
+        progressBar.style.width = '100%';
+        progressBar.textContent = '100%';
+        progressPercent.textContent = '100%';
+        if (chunkProgressDetail) chunkProgressDetail.textContent = translations['upload_complete'] || 'Complete!';
+        
+        setTimeout(() => {
             bootstrap.Modal.getInstance(document.getElementById('uploadModal')).hide();
             uploadFilesList = [];
             refreshFiles();
-        } else {
-            const errorMessage = data.error || (translations['uploadFailed'] || 'Upload failed');
-            logAndSpeak(errorMessage, 'error');
-        }
+            updateSystemInfo();
+            
+            setTimeout(() => {
+                progressArea.style.display = 'none';
+            }, 1000);
+        }, 500);
+        
     } catch (error) {
-        const errorMessage = (translations['uploadFailed'] || 'Upload failed: ') + error.message;
-        logAndSpeak(errorMessage, 'error');
+        console.error('Upload error:', error);
+        logAndSpeak(error.message || translations['uploadFailed'] || 'Upload failed', 'error');
+        progressArea.style.display = 'none';
     }
 }
 
@@ -10190,6 +10393,454 @@ function togglePlayerFitMode() {
 document.addEventListener('loadeddata', applyFitMode, true);
 document.addEventListener('loadedmetadata', applyFitMode, true);
 
+function showRecycleBin() {
+    document.querySelectorAll('.grid-section').forEach(s => s.style.display = 'none');
+    document.getElementById('recycleBinSection').style.display = 'block';
+    loadRecycleBin();
+}
+
+async function loadRecycleBin() {
+    const grid = document.getElementById('recycleBinGrid');
+    const emptyEl = document.getElementById('recycleBinEmpty');
+    const countEl = document.getElementById('recycleBinCount');
+    
+    if (!grid) return;
+    
+    grid.style.minHeight = '200px';
+    
+    grid.innerHTML = '<div style="grid-column: 1/-1; text-align: center; padding: 40px;"><i class="fas fa-spinner fa-spin"></i> ' + (translations['loading'] || 'Loading...') + '</div>';
+    
+    try {
+        const response = await fetch('?action=get_recycle_bin');
+        const data = await response.json();
+        
+        if (data.success) {
+            recycleBinItems = (data.items || []).filter(item => !item.name.endsWith('.meta.json'));
+            
+            if (countEl) {
+                countEl.textContent = recycleBinItems.length;
+            }
+            
+            if (recycleBinItems.length === 0) {
+                grid.innerHTML = '';
+                if (emptyEl) emptyEl.style.display = 'block';
+                updateRecycleSelectionInfo();
+                return;
+            }
+            
+            if (emptyEl) emptyEl.style.display = 'none';
+            
+            let cardsHtml = '';
+            recycleBinItems.forEach((item) => {
+                const isSelected = selectedRecycleItems.has(item.path);
+                let displayName = item.name;
+                displayName = displayName.replace(/^[^_]+_/, '');
+                
+                const ext = displayName.includes('.') ? displayName.split('.').pop().toLowerCase() : '';
+                
+                let deleteTime = '';
+                if (item.deleted_formatted) {
+                    deleteTime = item.deleted_formatted;
+                } else if (item.deleted_time) {
+                    const date = new Date(item.deleted_time * 1000);
+                    deleteTime = date.toLocaleString();
+                }
+                
+                cardsHtml += `
+                <div class="file-item position-relative ${isSelected ? 'selected' : ''}" 
+                     data-path="${item.path.replace(/'/g, "\\'")}"
+                     data-original-path="${item.original_path || ''}"
+                     data-name="${displayName}"
+                     data-is-dir="${item.is_dir ? 'true' : 'false'}"
+                     data-size="${item.size || 0}"
+                     data-ext="${ext}"
+                     title="${displayName}"
+                     onclick="handleRecycleItemClick(event, '${item.path.replace(/'/g, "\\'")}')">
+                    
+                    <div class="form-check position-absolute" style="top: 5px; left: 9px; z-index: 100;">
+                        <input class="form-check-input" type="checkbox" 
+                               ${isSelected ? 'checked' : ''}
+                               onclick="event.stopPropagation(); toggleRecycleSelection('${item.path.replace(/'/g, "\\'")}', this.checked)">
+                    </div>
+                    
+                    <div class="file-icon mb-2">
+                        ${getFileIcon(displayName, ext, item.is_dir)}
+                    </div>
+                    
+                    <div class="file-name text-truncate w-100" title="${displayName}">
+                        ${truncateFileName(displayName, 20)}
+                    </div>
+                    
+                    <div class="file-size text-muted small mt-1">
+                        ${item.is_dir ? (translations['folder'] || 'Folder') : formatFileSize(item.size || 0)}
+                    </div>
+                    
+                    <div class="small text-warning mt-1" style="font-size: 0.7rem;">
+                        <i class="fas fa-clock"></i> ${deleteTime}
+                    </div>
+                </div>`;
+            });
+            
+            grid.innerHTML = cardsHtml;
+            updateRecycleSelectionInfo();
+        }
+    } catch (error) {
+        grid.innerHTML = '<div class="empty-folder" style="grid-column: 1/-1;"><i class="fas fa-exclamation-circle"></i><p>' + (translations['load_error'] || 'Error loading recycle bin') + '</p></div>';
+    }
+}
+
+function handleRecycleItemClick(event, path) {
+    if (event.target.type === 'checkbox' || event.target.closest('.form-check')) {
+        return;
+    }
+    toggleRecycleSelection(path);
+}
+
+function toggleRecycleSelection(path, checked) {
+    if (checked !== undefined) {
+        if (checked) {
+            selectedRecycleItems.add(path);
+        } else {
+            selectedRecycleItems.delete(path);
+        }
+    } else {
+        if (selectedRecycleItems.has(path)) {
+            selectedRecycleItems.delete(path);
+        } else {
+            selectedRecycleItems.add(path);
+        }
+    }
+    
+    document.querySelectorAll(`[data-path="${path}"]`).forEach(el => {
+        if (selectedRecycleItems.has(path)) {
+            el.classList.add('selected');
+            const checkbox = el.querySelector('input[type="checkbox"]');
+            if (checkbox) checkbox.checked = true;
+        } else {
+            el.classList.remove('selected');
+            const checkbox = el.querySelector('input[type="checkbox"]');
+            if (checkbox) checkbox.checked = false;
+        }
+    });
+    
+    updateRecycleSelectionInfo();
+}
+
+function updateRecycleSelectionInfo() {
+    const selectedInfo = document.getElementById('recycleSelectedInfo');
+    const restoreBtn = document.getElementById('recycleRestoreBtn');
+    const deleteBtn = document.getElementById('recycleDeleteBtn');
+    const selectAllCheckbox = document.getElementById('recycleSelectAll');
+    const count = selectedRecycleItems.size;
+    
+    if (count > 0) {
+        if (selectedInfo) {
+            selectedInfo.style.display = 'inline';
+            selectedInfo.textContent = (translations['selected_items_count'] || '{count} selected').replace('{count}', count);
+        }
+        if (restoreBtn) restoreBtn.disabled = false;
+        if (deleteBtn) deleteBtn.disabled = false;
+    } else {
+        if (selectedInfo) selectedInfo.style.display = 'none';
+        if (restoreBtn) restoreBtn.disabled = true;
+        if (deleteBtn) deleteBtn.disabled = true;
+    }
+    
+    if (selectAllCheckbox) {
+        selectAllCheckbox.checked = count === recycleBinItems.length && recycleBinItems.length > 0;
+        selectAllCheckbox.indeterminate = count > 0 && count < recycleBinItems.length;
+    }
+}
+
+function toggleRecycleSelectAll() {
+    const selectAll = document.getElementById('recycleSelectAll').checked;
+    
+    if (selectAll) {
+        recycleBinItems.forEach(item => selectedRecycleItems.add(item.path));
+    } else {
+        selectedRecycleItems.clear();
+    }
+    
+    recycleBinItems.forEach(item => {
+        const el = document.querySelector(`[data-path="${item.path}"]`);
+        if (el) {
+            if (selectAll) {
+                el.classList.add('selected');
+                const checkbox = el.querySelector('input[type="checkbox"]');
+                if (checkbox) checkbox.checked = true;
+            } else {
+                el.classList.remove('selected');
+                const checkbox = el.querySelector('input[type="checkbox"]');
+                if (checkbox) checkbox.checked = false;
+            }
+        }
+    });
+    
+    updateRecycleSelectionInfo();
+}
+
+async function restoreSelectedFromRecycle() {
+    if (selectedRecycleItems.size === 0) return;
+    
+    let successCount = 0;
+    let errorCount = 0;
+    
+    for (const path of selectedRecycleItems) {
+        try {
+            const response = await fetch(`?action=restore_from_recycle_bin&path=${encodeURIComponent(path)}`);
+            const data = await response.json();
+            
+            if (data.success) {
+                successCount++;
+                if (data.restored_path) {
+                    sessionStorage.setItem('highlightFile', data.restored_path);
+                }
+            } else {
+                errorCount++;
+            }
+        } catch (error) {
+            errorCount++;
+        }
+    }
+    
+    if (successCount > 0) {
+        logAndSpeak((translations['restore_success'] || 'Successfully restored {count} item(s)').replace('{count}', successCount), 'success');
+        selectedRecycleItems.clear();
+        await loadRecycleBin();
+        
+        showSection('files');
+        setTimeout(() => {
+            const highlightPath = sessionStorage.getItem('highlightFile');
+            if (highlightPath) {
+                const dir = highlightPath.substring(0, highlightPath.lastIndexOf('/')) || '/';
+                navigateTo(dir);
+            }
+        }, 500);
+    }
+    
+    if (errorCount > 0) {
+        logAndSpeak((translations['restore_failed'] || 'Failed to restore {count} item(s)').replace('{count}', errorCount), 'error');
+    }
+}
+
+async function deleteSelectedFromRecycle() {
+    if (selectedRecycleItems.size === 0) return;
+    
+    const count = selectedRecycleItems.size;
+    const message = (translations['confirm_delete_permanent'] || 'Permanently delete {count} item(s)?')
+        .replace('{count}', count);
+    
+    showConfirmation(encodeURIComponent(message), async () => {
+        let successCount = 0;
+        let errorCount = 0;
+        
+        for (const path of selectedRecycleItems) {
+            try {
+                const response = await fetch(`?action=move_to_recycle_bin&path=${encodeURIComponent(path)}&force=true`);
+                const data = await response.json();
+                
+                if (data.success) {
+                    successCount++;
+                    const metaFile = path + '.meta.json';
+                    await fetch(`?action=move_to_recycle_bin&path=${encodeURIComponent(metaFile)}&force=true`);
+                } else {
+                    errorCount++;
+                }
+            } catch (error) {
+                errorCount++;
+            }
+        }
+        
+        if (successCount > 0) {
+            logAndSpeak((translations['delete_success'] || 'Permanently deleted {count} item(s)').replace('{count}', successCount), 'success');
+            selectedRecycleItems.clear();
+            loadRecycleBin();
+        }
+        
+        if (errorCount > 0) {
+            logAndSpeak((translations['delete_failed'] || 'Failed to delete {count} item(s)').replace('{count}', errorCount), 'error');
+        }
+    });
+}
+
+function emptyRecycleBin() {
+    const message = translations['confirm_empty_recycle'] || 'Are you sure you want to empty the recycle bin? This cannot be undone.';
+    
+    showConfirmation(encodeURIComponent(message), () => {
+        fetch('?action=empty_recycle_bin')
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    logAndSpeak(translations['recycle_bin_cleared'] || 'Recycle bin emptied', 'success');
+                    recycleBinItems = [];
+                    selectedRecycleItems.clear();
+                    loadRecycleBin();
+                }
+            });
+    });
+}
+
+function saveRecycleBinSettings() {
+    const enabled = document.getElementById('recycleBinToggle').checked;
+    const days = document.getElementById('recycleBinDays').value;
+    
+    const formData = new FormData();
+    formData.append('enabled', enabled);
+    formData.append('days', days);
+    
+    fetch('?action=recycle_bin_settings', {
+        method: 'POST',
+        body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            logAndSpeak(translations['settings_saved'] || 'Settings saved', 'success');
+        }
+    })
+    .catch(error => {
+        logAndSpeak(translations['settings_save_error'] || 'Error saving settings', 'error');
+    });
+}
+
+function initRecycleBinToggle() {
+    const toggle = document.getElementById('recycleBinToggle');
+    if (!toggle) return;
+    
+    fetch('?action=get_recycle_bin_settings')
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                toggle.checked = data.settings.enabled;
+                const daysInput = document.getElementById('recycleBinDays');
+                if (daysInput) {
+                    daysInput.value = data.settings.days;
+                }
+            }
+        })
+        .catch(error => console.error('Error loading recycle bin settings:', error));
+    
+    toggle.addEventListener('change', function() {
+        saveRecycleBinSettings();
+        
+        if (this.checked) {
+            logAndSpeak(translations['recycle_bin_enabled'] || 'Recycle bin enabled', 'info');
+        } else {
+            logAndSpeak(translations['recycle_bin_disabled'] || 'Recycle bin disabled', 'info');
+        }
+    });
+}
+
+function showDeleteConfirmModal() {
+    const count = selectedFiles.size;
+    const fileNames = Array.from(selectedFiles).map(p => p.split('/').pop()).join(', ');
+    
+    document.getElementById('deleteConfirmMessage').innerHTML = 
+        (translations['confirm_delete'] || 'Are you sure you want to delete {count} item(s)?').replace('{count}', count) + 
+        '<br><small class="text-muted">' + fileNames + '</small>';
+    
+    const forceDeleteOption = document.getElementById('forceDeleteOption');
+    if (forceDeleteOption) {
+        forceDeleteOption.style.display = 'block';
+        const forceCheck = document.getElementById('forceDeleteCheck');
+        if (forceCheck) {
+            forceCheck.checked = false;
+            forceCheck.disabled = false;
+        }
+    }
+    
+    window.pendingDeleteFiles = new Set(selectedFiles);
+    const modal = new bootstrap.Modal(document.getElementById('deleteConfirmModal'));
+    modal.show();
+}
+
+window.executeDelete = async function() {
+    const filesToDelete = window.pendingDeleteFiles;
+    if (!filesToDelete || filesToDelete.size === 0) return;
+    
+    const recycleEnabled = document.getElementById('recycleBinToggle')?.checked ?? true;
+    
+    let forceDelete;
+    if (!recycleEnabled) {
+        forceDelete = true;
+    } else {
+        forceDelete = document.getElementById('forceDeleteCheck')?.checked ?? false;
+    }
+    
+    bootstrap.Modal.getInstance(document.getElementById('deleteConfirmModal')).hide();
+    
+    let successCount = 0;
+    let errorCount = 0;
+    
+    for (const path of filesToDelete) {
+        try {
+            const response = await fetch(`?action=move_to_recycle_bin&path=${encodeURIComponent(path)}&force=${forceDelete}`);
+            const data = await response.json();
+            
+            if (data.success) {
+                successCount++;
+            } else {
+                errorCount++;
+            }
+        } catch (error) {
+            errorCount++;
+        }
+    }
+    
+    if (successCount > 0) {
+        const message = forceDelete ? 
+            (translations['permanently_deleted'] || 'Permanently deleted {count} item(s)') : 
+            (translations['moved_to_recycle'] || 'Moved {count} item(s) to recycle bin');
+        logAndSpeak(message.replace('{count}', successCount), 'success');
+        
+        selectedFiles.clear();
+        window.pendingDeleteFiles = null;
+        refreshFiles();
+        updateSystemInfo(); 
+        
+        if (document.getElementById('recycleBinCount')) {
+            loadRecycleBin();
+        }
+    }
+    
+    if (errorCount > 0) {
+        logAndSpeak((translations['delete_failed'] || 'Failed to delete {count} item(s)').replace('{count}', errorCount), 'error');
+    }
+}
+
+async function executePermanentDelete() {
+    const filesToDelete = selectedFiles;
+    if (!filesToDelete || filesToDelete.size === 0) return;
+    
+    let successCount = 0;
+    let errorCount = 0;
+    
+    for (const path of filesToDelete) {
+        try {
+            const response = await fetch(`?action=move_to_recycle_bin&path=${encodeURIComponent(path)}&force=true`);
+            const data = await response.json();
+            
+            if (data.success) {
+                successCount++;
+            } else {
+                errorCount++;
+            }
+        } catch (error) {
+            errorCount++;
+        }
+    }
+    
+    if (successCount > 0) {
+        logAndSpeak((translations['permanently_deleted'] || 'Permanently deleted {count} item(s)').replace('{count}', successCount), 'success');
+        selectedFiles.clear();
+        refreshFiles();
+    }
+    
+    if (errorCount > 0) {
+        logAndSpeak((translations['delete_failed'] || 'Failed to delete {count} item(s)').replace('{count}', errorCount), 'error');
+    }
+}
+
 window.addEventListener('beforeunload', function(e) {
     const unsavedTabs = editorTabs.filter(tab => tab.modified);
     
@@ -10216,6 +10867,7 @@ document.addEventListener('DOMContentLoaded', function() {
     startSystemMonitoring();
     initAutoPlayToggle();
     initDragAndDrop();
+    initRecycleBinToggle();
     
     if (typeof Chart !== 'undefined') {
         startSystemMonitoring();
@@ -10701,7 +11353,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (audioPlayer) {
         audioPlayer.addEventListener('ended', function() {
-            if (autoNextEnabled && currentMediaList.length > 0 && currentMedia && currentMedia.path) {
+            if (autoNextEnabled && currentPlaylist && currentPlaylist.length > 0 && currentMedia && currentMedia.path) {
                 const currentIndex = currentMediaList.indexOf(currentMedia.path);
                 if (currentIndex !== -1 && currentIndex < currentMediaList.length - 1) {
                     playMedia(currentMediaList[currentIndex + 1]);
@@ -10712,7 +11364,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (videoPlayer) {
         videoPlayer.addEventListener('ended', function() {
-            if (autoNextEnabled && currentMediaList.length > 0 && currentMedia && currentMedia.path) {
+            if (autoNextEnabled && currentPlaylist && currentPlaylist.length > 0 && currentMedia && currentMedia.path) {
                 const currentIndex = currentMediaList.indexOf(currentMedia.path);
                 if (currentIndex !== -1 && currentIndex < currentMediaList.length - 1) {
                     playMedia(currentMediaList[currentIndex + 1]);
