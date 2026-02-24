@@ -4096,6 +4096,11 @@ function handleRightClick(event) {
             document.getElementById('archiveExtractHereItem').style.display = 'flex';
             document.getElementById('archiveExtractToItem').style.display = 'flex';
         }
+
+        const globalPasteItem = document.getElementById('globalPasteItem');
+        if (globalPasteItem) {
+            globalPasteItem.style.display = 'none';
+        }
         
     } else {
         selectedFiles.clear();
@@ -4108,9 +4113,8 @@ function handleRightClick(event) {
         showMenuItem('emptyRefreshItem');
         showMenuItem('emptySelectAllItem');
         document.getElementById('fileBatchRenameItem').style.display = 'none';
+        updatePasteMenuState();
     }
-    
-    updatePasteMenuState();
     
     positionContextMenu(menu, event);
     menu.style.display = 'block';
