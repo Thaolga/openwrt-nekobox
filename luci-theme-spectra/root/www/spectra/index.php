@@ -904,7 +904,6 @@ include './spectra.php';
         <div class="menu-item" id="fileCopyPathItem" onclick="copyFilePath()">
             <i class="fas fa-link me-2" style="color: var(--rose-bg);"></i>
             <span data-translate="copy_file_path">Copy File Path</span>
-            <span style="margin-left: auto; font-size: 0.8rem; opacity: 0.7;">Ctrl+Shift+C</span>
         </div>
         <div class="menu-item" id="filePasteItem" style="display: none;" onclick="pasteFromClipboard()">
             <i class="fas fa-paste me-2" style="color:var(--accent-secondary);"></i>
@@ -914,12 +913,10 @@ include './spectra.php';
         <div class="menu-item" id="fileBatchRenameItem" onclick="showBatchRenameDialog()">
             <i class="fas fa-i-cursor me-2" style="color:oklch(var(--l) var(--c) var(--base-hue-1))"></i>
             <span data-translate="batch_rename">Batch Rename</span>
-            <span style="margin-left: auto; font-size: 0.8rem; opacity: 0.7;">Ctrl+B</span>
         </div>
         <div class="menu-item" id="fileConvertItem" style="display: none;" onclick="showConvertDialog()">
             <i class="fas fa-exchange-alt me-2" style="color: oklch(var(--l) var(--c) var(--base-hue-2));"></i>
             <span data-translate="batch_convert">Batch Format Conversion</span>
-            <span style="margin-left: auto; font-size: 0.8rem; opacity: 0.7;">FFmpeg</span>
         </div>       
 
         <div class="menu-item archive-menu" id="archiveMenuItem" onclick="toggleArchiveSubmenu(event)">
@@ -949,7 +946,7 @@ include './spectra.php';
         <div class="menu-item" id="fileInstallItem" style="display: none;" onclick="showInstallDialog()">
             <i class="fas fa-box-open me-2" style="color: oklch(var(--l) var(--c) var(--base-hue-4));"></i>
             <span data-translate="install_package">Install Package</span>
-            <span style="margin-left: auto; font-size: 0.8rem; opacity: 0.7;">IPK/APK</span>
+            <span style="margin-left: auto; font-size: 0.8rem; opacity: 0.7;">IPK/APK/RUN</span>
         </div>
         <div class="menu-item" id="fileHashItem" style="display: none;" onclick="showFileHashDialog()">
             <i class="fas fa-fingerprint me-2" style="color:oklch(var(--l) var(--c) var(--base-hue-6));"></i>
@@ -959,7 +956,6 @@ include './spectra.php';
         <div class="menu-item" id="filePropertiesItem" onclick="showFileProperties()">
             <i class="fas fa-info-circle me-2" style="color:oklch(var(--l) var(--c) var(--base-hue-5));"></i>
             <span data-translate="properties">Properties</span>
-            <span style="margin-left: auto; font-size: 0.8rem; opacity: 0.7;">Alt+Enter</span>
         </div>
         <div class="menu-item" id="fileQrcodeItem" data-bs-toggle="modal" data-bs-target="#qrcodeModal" onclick="prepareQrCode()">
             <i class="fas fa-qrcode me-2" style="color: var(--ocean-bg);"></i>
