@@ -768,6 +768,13 @@ $langData = [
         'moved_to_recycle' => '已将 {count} 个项目移到回收站',
         'selected_items_count' => '已选中 {count} 个项目',
         'confirm_delete_selected' => '确定要删除 {count} 个项目吗？',
+        'confirm_set_wallpaper'  => '将 "{filename}" 设为壁纸？',
+        'wallpaper_set_success'  => '壁纸设置成功',
+        'wallpaper_set_error'    => '壁纸设置失败',
+        'confirm_clear_wallpaper'=> '恢复默认主题？',
+        'theme_restored'         => '已恢复默认主题',
+        'set_as_wallpaper'       => '设为壁纸',
+        'restore_default_theme'  => '恢复默认主题',
         'file_summary' => '已选择 %d 个文件，合计 %s MB'
     ],
 
@@ -1537,6 +1544,12 @@ $langData = [
         'moved_to_recycle'       => '已將 {count} 個項目移到回收桶',
         'selected_items_count' => '已选中 {count} 个项目',
         'confirm_delete_selected'    => '確定要刪除 {count} 個項目嗎？',
+        'confirm_set_wallpaper'  => '將 "{filename}" 設為桌布？',
+        'wallpaper_set_success'  => '桌布設置成功',
+        'wallpaper_set_error'    => '桌布設置失敗',
+        'theme_restored'         => '已恢復預設主題',
+        'set_as_wallpaper'       => '設為桌布',
+        'restore_default_theme'  => '恢復預設主題',
         'validateYaml' => '驗證 YAML 語法'
     ],
 
@@ -2305,6 +2318,12 @@ $langData = [
         'moved_to_recycle' => '{count}개 항목이 휴지통으로 이동되었습니다',
         'selected_items_count' => '{count}개 항목 선택됨',
         'confirm_delete_selected' => '{count}개 항목을 삭제하시겠습니까?',
+        'confirm_set_wallpaper'  => '"{filename}"을(를) 배경화면으로 설정하시겠습니까?',
+        'wallpaper_set_success'  => '배경화면 설정 성공',
+        'wallpaper_set_error'    => '배경화면 설정 실패',
+        'theme_restored'         => '기본 테마로 복원되었습니다',
+        'set_as_wallpaper'       => '배경화면으로 설정',
+        'restore_default_theme'  => '기본 테마 복원',
         'validateYaml' => 'YAML 구문 검증'
     ],
 
@@ -3072,6 +3091,12 @@ $langData = [
         'moved_to_recycle' => '{count} 個の項目をゴミ箱に移動しました',
         'selected_items_count' => '{count} 個の項目を選択中',
         'confirm_delete_selected' => '{count} 個の項目を削除してもよろしいですか？',
+        'confirm_set_wallpaper'  => '"{filename}" を壁紙に設定しますか？',
+        'wallpaper_set_success'  => '壁紙の設定に成功しました',
+        'wallpaper_set_error'    => '壁紙の設定に失敗しました',
+        'theme_restored'         => 'デフォルトテーマに復元しました',
+        'set_as_wallpaper'       => '壁紙に設定',
+        'restore_default_theme'  => 'デフォルトテーマを復元',
         'validateYaml' => 'YAML構文を検証'
     ],
 
@@ -3837,6 +3862,12 @@ $langData = [
         'moved_to_recycle' => 'Đã di chuyển {count} mục vào thùng rác',
         'selected_items_count' => 'Đã chọn {count} mục',
         'confirm_delete_selected' => 'Bạn có chắc chắn muốn xóa {count} mục?',
+        'confirm_set_wallpaper'  => 'Đặt "{filename}" làm hình nền?',
+        'wallpaper_set_success'  => 'Đặt hình nền thành công',
+        'wallpaper_set_error'    => 'Đặt hình nền thất bại',
+        'theme_restored'         => 'Đã khôi phục chủ đề mặc định',
+        'set_as_wallpaper'       => 'Đặt làm hình nền',
+        'restore_default_theme'  => 'Khôi phục chủ đề mặc định',
         'validateYaml' => 'Kiểm tra Cú pháp YAML'
     ],
 
@@ -4586,6 +4617,12 @@ $langData = [
         'moved_to_recycle' => 'ย้าย {count} รายการไปยังถังรีไซเคิลแล้ว',
         'selected_items_count' => 'เลือก {count} รายการแล้ว',
         'confirm_delete_selected' => 'แน่ใจหรือไม่ที่จะลบ {count} รายการ?',
+        'confirm_set_wallpaper'  => 'ตั้ง "{filename}" เป็นภาพพื้นหลังหรือไม่?',
+        'wallpaper_set_success'  => 'ตั้งค่าภาพพื้นหลังสำเร็จ',
+        'wallpaper_set_error'    => 'ตั้งค่าภาพพื้นหลังล้มเหลว',
+        'theme_restored'         => 'กู้คืนธีมเริ่มต้นแล้ว',
+        'set_as_wallpaper'       => 'ตั้งเป็นภาพพื้นหลัง',
+        'restore_default_theme'  => 'กู้คืนธีมเริ่มต้น',
         'validateYaml' => 'ตรวจสอบไวยากรณ์ YAML'
     ],
     'ru' => [
@@ -5336,6 +5373,12 @@ $langData = [
         'moved_to_recycle' => '{count} элементов перемещено в корзину',
         'selected_items_count' => 'Выбрано элементов: {count}',
         'confirm_delete_selected' => 'Вы уверены, что хотите удалить {count} элементов?',
+        'confirm_set_wallpaper'  => 'Установить "{filename}" в качестве обоев?',
+        'wallpaper_set_success'  => 'Обои успешно установлены',
+        'wallpaper_set_error'    => 'Не удалось установить обои',
+        'theme_restored'         => 'Тема по умолчанию восстановлена',
+        'set_as_wallpaper'       => 'Установить как обои',
+        'restore_default_theme'  => 'Восстановить тему по умолчанию',
         'validateYaml' => 'Проверить синтаксис YAML'
     ],
     'ar' => [
@@ -6091,6 +6134,12 @@ $langData = [
         'moved_to_recycle' => 'تم نقل {count} عناصر إلى سلة المحذوفات',
         'selected_items_count' => 'تم تحديد {count} عناصر',
         'confirm_delete_selected' => 'هل أنت متأكد من حذف {count} عناصر؟',
+        'confirm_set_wallpaper'  => 'تعيين "{filename}" كخلفية؟',
+        'wallpaper_set_success'  => 'تم تعيين الخلفية بنجاح',
+        'wallpaper_set_error'    => 'فشل في تعيين الخلفية',
+        'theme_restored'         => 'تمت استعادة السمة الافتراضية',
+        'set_as_wallpaper'       => 'تعيين كخلفية',
+        'restore_default_theme'  => 'استعادة السمة الافتراضية',
         'validateYaml' => 'التحقق من صحة بناء جملة YAML'
     ],
     'es' => [
@@ -6838,6 +6887,12 @@ $langData = [
         'moved_to_recycle' => 'Se movieron {count} elementos a la papelera',
         'selected_items_count' => '{count} elementos seleccionados',
         'confirm_delete_selected' => '¿Está seguro de eliminar {count} elementos?',
+        'confirm_set_wallpaper'  => '¿Establecer "{filename}" como fondo de pantalla?',
+        'wallpaper_set_success'  => 'Fondo de pantalla establecido correctamente',
+        'wallpaper_set_error'    => 'Error al establecer el fondo de pantalla',
+        'theme_restored'         => 'Tema predeterminado restaurado',
+        'set_as_wallpaper'       => 'Establecer como fondo',
+        'restore_default_theme'  => 'Restaurar tema predeterminado',
         'validateYaml' => 'Validar sintaxis YAML'
     ],
     'de' => [
@@ -7587,6 +7642,12 @@ $langData = [
         'moved_to_recycle' => '{count} Elemente in den Papierkorb verschoben',
         'selected_items_count' => '{count} Elemente ausgewählt',
         'confirm_delete_selected' => 'Sind Sie sicher, dass Sie {count} Elemente löschen möchten?',
+        'confirm_set_wallpaper'  => '"{filename}" als Hintergrund festlegen?',
+        'wallpaper_set_success'  => 'Hintergrund erfolgreich festgelegt',
+        'wallpaper_set_error'    => 'Fehler beim Festlegen des Hintergrunds',
+        'theme_restored'         => 'Standarddesign wiederhergestellt',
+        'set_as_wallpaper'       => 'Als Hintergrund festlegen',
+        'restore_default_theme'  => 'Standarddesign wiederherstellen',
         'validateYaml' => 'YAML-Syntax validieren'
     ],
 
@@ -8337,6 +8398,12 @@ $langData = [
         'moved_to_recycle' => '{count} éléments déplacés vers la corbeille',
         'selected_items_count' => '{count} éléments sélectionnés',
         'confirm_delete_selected' => 'Êtes-vous sûr de vouloir supprimer {count} éléments ?',
+        'confirm_set_wallpaper'  => 'Définir "{filename}" comme fond d’écran ?',
+        'wallpaper_set_success'  => 'Fond d’écran défini avec succès',
+        'wallpaper_set_error'    => 'Échec de la définition du fond d’écran',
+        'theme_restored'         => 'Thème par défaut restauré',
+        'set_as_wallpaper'       => 'Définir comme fond d’écran',
+        'restore_default_theme'  => 'Restaurer le thème par défaut',
         'validateYaml' => 'Valider la syntaxe YAML'
     ],
     'en' => [
@@ -9098,6 +9165,12 @@ $langData = [
         'moved_to_recycle' => 'Moved {count} items to recycle bin',
         'selected_items_count' => '{count} items selected',
         'confirm_delete_selected' => 'Are you sure you want to delete {count} items?',
+        'confirm_set_wallpaper'  => 'Set "{filename}" as wallpaper?',
+        'wallpaper_set_success'  => 'Wallpaper set successfully',
+        'wallpaper_set_error'    => 'Failed to set wallpaper',
+        'theme_restored'         => 'Default theme restored',
+        'set_as_wallpaper'       => 'Set as Wallpaper',
+        'restore_default_theme'  => 'Restore Default Theme',
         'validateYaml' => 'Validate YAML Syntax'
     ],
     'bn' => [
@@ -9847,6 +9920,12 @@ $langData = [
         'moved_to_recycle' => '{count}টি আইটেম রিসাইকেল বিনে সরানো হয়েছে',
         'selected_items_count' => '{count}টি আইটেম নির্বাচিত',
         'confirm_delete_selected' => 'আপনি কি {count}টি আইটেম মুছতে নিশ্চিত?',
+        'confirm_set_wallpaper'  => '"{filename}" কি ওয়ালপেপার হিসেবে সেট করবেন?',
+        'wallpaper_set_success'  => 'ওয়ালপেপার সফলভাবে সেট হয়েছে',
+        'wallpaper_set_error'    => 'ওয়ালপেপার সেট করতে ব্যর্থ',
+        'theme_restored'         => 'ডিফল্ট থিম পুনরুদ্ধার হয়েছে',
+        'set_as_wallpaper'       => 'ওয়ালপেপার হিসেবে সেট করুন',
+        'restore_default_theme'  => 'ডিফল্ট থিম পুনরুদ্ধার করুন',
         'validateYaml' => 'YAML সিনট্যাক্স যাচাই করুন'
     ]
 ];

@@ -76,7 +76,7 @@ body {
 
 .side-nav {
     width: 240px;
-    background: var(--bg-container) !important;
+    background: var(--bg-container);
     box-shadow: 1px 0 3px -2px color-mix(in oklch, var(--bg-container), black 30%);
     padding: 20px 15px;
     overflow-y: auto;
@@ -2043,3 +2043,19 @@ list-group:hover {
 #memChartCanvas {
     min-height: 238px !important;
 }
+
+.fw-medium  {
+    color: var(--text-primary) !important;
+}
+
+.fw-medium .bg-warning.text-dark {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 3px;
+    font-size: 0.65rem;
+    padding: 0 6px;
+    height: 16px;
+    font-weight: 600;
+}
+

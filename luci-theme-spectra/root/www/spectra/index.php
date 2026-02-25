@@ -7,7 +7,7 @@ include './spectra.php';
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title data-translate="openwrt_media_center">OpenWrt Media Center</title>
-    <link rel="stylesheet" href="./css/main.css">
+    <link rel="stylesheet" href="/spectra/css/main.css?v=1.0.0">
 </head>
 
 <div class="main-container">
@@ -873,6 +873,10 @@ include './spectra.php';
             <i class="fas fa-sync-alt me-2" style="color:oklch(var(--l) var(--c) var(--base-hue-4));"></i>
             <span data-translate="refresh">Refresh</span>
         </div>
+        <div class="menu-item" id="emptyRestoreThemeItem" style="display: none;" onclick="clearWallpaper()">
+            <i class="fas fa-undo-alt me-2" style="color: oklch(var(--l) var(--c) var(--base-hue-5));"></i>
+            <span data-translate="restore_default_theme">Restore default theme</span>
+        </div>
         <div class="menu-item" id="emptySelectAllItem" style="display: none;" onclick="toggleEmptySelectAll()">
             <i class="fas fa-check-square me-2" id="emptySelectAllIcon" style="color:oklch(var(--l) var(--c) var(--base-hue-5));"></i>
             <span id="emptySelectAllText">Select All</span>
@@ -942,6 +946,10 @@ include './spectra.php';
         <div class="menu-item" id="fileChmodItem" onclick="showChmodDialog()">
             <i class="fas fa-key me-2" style="color:oklch(var(--l) var(--c) var(--base-hue-3));"></i>
             <span data-translate="permissions">Permissions</span>
+        </div>
+        <div class="menu-item" id="fileSetAsWallpaperItem" style="display: none;" onclick="setAsWallpaper()">
+             <i class="fas fa-image me-2" style="color: oklch(var(--l) var(--c) var(--base-hue-7));"></i>
+            <span data-translate="set_as_wallpaper">Set as wallpaper</span>
         </div>
         <div class="menu-item" id="fileInstallItem" style="display: none;" onclick="showInstallDialog()">
             <i class="fas fa-box-open me-2" style="color: oklch(var(--l) var(--c) var(--base-hue-4));"></i>
@@ -4080,6 +4088,7 @@ function handleRightClick(event) {
         if (!isDir && mediaExts.includes(ext)) {
             showMenuItem('filePlayItem');
             showMenuItem('fileConvertItem');
+            showMenuItem('fileSetAsWallpaperItem'); 
         }
         
         const textExts = ['txt', 'log', 'conf', 'ini', 'json', 'xml', 'html', 
@@ -4112,6 +4121,11 @@ function handleRightClick(event) {
         showMenuItem('emptyUploadItem');
         showMenuItem('emptyRefreshItem');
         showMenuItem('emptySelectAllItem');
+
+        if (localStorage.getItem('currentWallpaper')) {
+            showMenuItem('emptyRestoreThemeItem');
+        }
+
         document.getElementById('fileBatchRenameItem').style.display = 'none';
         updatePasteMenuState();
     }
@@ -4817,7 +4831,9 @@ function hideAllContextMenuItems() {
         'emptyRefreshItem', 'emptySelectAllItem', 'fileCopyPathItem',
         'globalPasteItem', 'fileBatchRenameItem',
         'archiveMenuItem', 'fileConvertItem',
-        'fileInstallItem', 'fileHashItem', 'fileQrcodeItem'
+        'fileInstallItem', 'fileHashItem', 'fileQrcodeItem',
+        'fileSetAsWallpaperItem',
+        'emptyRestoreThemeItem' 
     ];
     
     allMenuItems.forEach(id => {
@@ -10841,6 +10857,86 @@ async function executePermanentDelete() {
     }
 }
 
+function setAsWallpaper() {
+    if (selectedFiles.size === 0) {
+        return;
+    }
+    
+    const path = Array.from(selectedFiles)[0];
+    const fileName = path.split('/').pop();
+    
+    hideFileContextMenu();
+    
+    showConfirmation(
+        (translations['confirm_set_wallpaper'] || 'Set "{filename}" as wallpaper?').replace('{filename}', fileName),
+        async () => {
+            try {
+                const wallpaperData = {
+                    path: path,
+                    timestamp: Date.now()
+                };
+                localStorage.setItem('currentWallpaper', JSON.stringify(wallpaperData));
+                
+                applyWallpaper(path);
+                logAndSpeak(translations['wallpaper_set_success'] || 'Wallpaper set successfully', 'success');
+                
+            } catch (error) {
+                logAndSpeak(translations['wallpaper_set_error'] || 'Failed to set wallpaper: ' + error.message, 'error');
+            }
+        }
+    );
+}
+
+function clearWallpaper() {
+    hideFileContextMenu();
+    localStorage.removeItem('currentWallpaper');
+    
+    const styleEl = document.getElementById('wallpaper-style');
+    if (styleEl) {
+        styleEl.remove();
+    }
+    
+    logAndSpeak(translations['theme_restored'] || 'Default theme restored', 'success');
+    hideFileContextMenu();
+}
+
+function applyWallpaper(path) {
+    let styleEl = document.getElementById('wallpaper-style');
+    if (!styleEl) {
+        styleEl = document.createElement('style');
+        styleEl.id = 'wallpaper-style';
+        document.head.appendChild(styleEl);
+    }
+    
+    const wallpaperUrl = `?preview=1&path=${encodeURIComponent(path)}&t=${Date.now()}`;
+    
+    styleEl.textContent = `
+        #gridContainer {
+            background-image: url('${wallpaperUrl}') !important;
+            background-size: cover !important;
+            background-position: center !important;
+            background-repeat: no-repeat !important;
+            background-attachment: fixed !important;
+        }
+        
+        #gridContainer::before {
+            background: transparent !important;
+        }
+    `;
+}
+
+function loadSavedWallpaper() {
+    const saved = localStorage.getItem('currentWallpaper');
+    if (saved) {
+        try {
+            const data = JSON.parse(saved);
+            if (data.path) {
+                applyWallpaper(data.path);
+            }
+        } catch (e) {}
+    }
+}
+
 window.addEventListener('beforeunload', function(e) {
     const unsavedTabs = editorTabs.filter(tab => tab.modified);
     
@@ -10868,6 +10964,7 @@ document.addEventListener('DOMContentLoaded', function() {
     initAutoPlayToggle();
     initDragAndDrop();
     initRecycleBinToggle();
+    loadSavedWallpaper();
     
     if (typeof Chart !== 'undefined') {
         startSystemMonitoring();

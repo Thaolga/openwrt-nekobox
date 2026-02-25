@@ -712,36 +712,46 @@ if (isset($_GET['action'])) {
             if (!is_array($_FILES['file']['name'])) {
                 $file = $_FILES['file'];
                 if ($file['error'] === UPLOAD_ERR_OK) {
-                    $fileName = preg_replace('/[\/:*?"<>|]/', '_', basename($file['name']));
-
-                    if (file_exists($realPath . '/' . $fileName)) {
-                        $fileName = generateUniqueFilename($realPath, $fileName);
-                    }
-
-                    $targetFile = $realPath . '/' . $fileName;
+                    $originalName = basename($file['name']);
+                    $safeName = sanitizeFilename($originalName);
                     
-                    if (!file_exists($targetFile) && move_uploaded_file($file['tmp_name'], $targetFile)) {
-                        $uploadedFiles[] = $fileName;
+                    if ($safeName !== $originalName) {
+                        error_log("Filename sanitized: '$originalName' -> '$safeName'");
+                    }
+                    
+                    if (file_exists($realPath . '/' . $safeName)) {
+                        $safeName = generateUniqueFilename($realPath, $safeName);
+                    }
+                    
+                    $targetFile = $realPath . '/' . $safeName;
+                    
+                    if (move_uploaded_file($file['tmp_name'], $targetFile)) {
+                        $uploadedFiles[] = $safeName;
                     } else {
-                        $errors[] = $fileName;
+                        $errors[] = $originalName;
                     }
                 }
             } else {
                 $fileCount = count($_FILES['file']['name']);
                 for ($i = 0; $i < $fileCount; $i++) {
                     if ($_FILES['file']['error'][$i] === UPLOAD_ERR_OK) {
-                        $fileName = preg_replace('/[\/:*?"<>|]/', '_', basename($_FILES['file']['name'][$i]));
-
-                        if (file_exists($realPath . '/' . $fileName)) {
-                            $fileName = generateUniqueFilename($realPath, $fileName);
-                        }
-                    
-                        $targetFile = $realPath . '/' . $fileName;
+                        $originalName = basename($_FILES['file']['name'][$i]);
+                        $safeName = sanitizeFilename($originalName);
                         
-                        if (!file_exists($targetFile) && move_uploaded_file($_FILES['file']['tmp_name'][$i], $targetFile)) {
-                            $uploadedFiles[] = $fileName;
+                        if ($safeName !== $originalName) {
+                            error_log("Filename sanitized: '$originalName' -> '$safeName'");
+                        }
+                        
+                        if (file_exists($realPath . '/' . $safeName)) {
+                            $safeName = generateUniqueFilename($realPath, $safeName);
+                        }
+                        
+                        $targetFile = $realPath . '/' . $safeName;
+                        
+                        if (move_uploaded_file($_FILES['file']['tmp_name'][$i], $targetFile)) {
+                            $uploadedFiles[] = $safeName;
                         } else {
-                            $errors[] = $fileName;
+                            $errors[] = $originalName;
                         }
                     }
                 }
@@ -753,7 +763,8 @@ if (isset($_GET['action'])) {
                 'success' => true, 
                 'message' => 'Files uploaded successfully',
                 'files' => $uploadedFiles,
-                'error_files' => $errors
+                'error_files' => $errors,
+                'sanitized' => true
             ]);
         } else {
             echo json_encode(['success' => false, 'error' => 'No files were uploaded']);
@@ -817,12 +828,14 @@ if (isset($_GET['action'])) {
             exit;
         }
         
+        $safeFileName = sanitizeFilename($fileName);
+        
         $tempDir = $realPath . '/.uploads_temp';
         if (!is_dir($tempDir)) {
             mkdir($tempDir, 0755, true);
         }
         
-        $tempFile = $tempDir . '/' . md5($filePath) . '_' . $chunkIndex . '.tmp';
+        $tempFile = $tempDir . '/' . md5($safeFileName . $path) . '_' . $chunkIndex . '.tmp';
         
         if (isset($_FILES['chunk']) && $_FILES['chunk']['error'] === UPLOAD_ERR_OK) {
             if (move_uploaded_file($_FILES['chunk']['tmp_name'], $tempFile)) {
@@ -850,14 +863,16 @@ if (isset($_GET['action'])) {
             exit;
         }
         
-        $targetPath = $realPath . '/' . $filePath;
+        $safeFileName = sanitizeFilename($fileName);
+        
+        $targetPath = $realPath . '/' . $safeFileName;
         $targetDir = dirname($targetPath);
         if (!is_dir($targetDir)) {
             mkdir($targetDir, 0755, true);
         }
         
         $tempDir = $realPath . '/.uploads_temp';
-        $baseHash = md5($filePath);
+        $baseHash = md5($safeFileName . $path);
         
         $outFile = fopen($targetPath, 'wb');
         if ($outFile) {
@@ -876,7 +891,7 @@ if (isset($_GET['action'])) {
                 rmdir($tempDir);
             }
             
-            echo json_encode(['success' => true]);
+            echo json_encode(['success' => true, 'filename' => $safeFileName]);
         } else {
             echo json_encode(['success' => false, 'error' => 'Failed to create output file']);
         }
@@ -2015,6 +2030,27 @@ if (isset($_GET['action'])) {
     }
 }
 
+function sanitizeFilename($filename) {
+    $filename = basename($filename);
+    $dangerous = ['/', '\\', '?', '%', '*', ':', '|', '"', '<', '>', "'", "\0", "\n", "\r", "\t"];
+    $filename = str_replace($dangerous, '_', $filename);
+    $filename = preg_replace('/[\x00-\x1f\x7f]/', '', $filename);
+    $filename = preg_replace('/[\p{Cf}]/u', '', $filename);
+    $filename = preg_replace('/_+/', '_', $filename);
+    $filename = trim($filename, '._-');
+    if (empty($filename)) {
+        $filename = 'file_' . date('YmdHis');
+    }
+    
+    if (strlen($filename) > 200) {
+        $ext = pathinfo($filename, PATHINFO_EXTENSION);
+        $name = pathinfo($filename, PATHINFO_FILENAME);
+        $filename = mb_substr($name, 0, 190) . '.' . $ext;
+    }
+    
+    return $filename;
+}
+
 function getDetailedMediaInfo($filePath, $extension) {
     $info = [];
     
@@ -2697,7 +2733,7 @@ if (isset($_GET['preview']) && $_GET['preview'] == '1' && isset($_GET['path'])) 
             $fp = fopen($realPath, 'rb');
             fseek($fp, $start);
             $bytesToSend = $end - $start + 1;
-            $buffer = 8192;
+            $buffer = 65536;
             
             while ($bytesToSend > 0 && !feof($fp)) {
                 $readSize = min($buffer, $bytesToSend);
