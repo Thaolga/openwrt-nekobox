@@ -2237,7 +2237,12 @@ function playMedia(filePath) {
     videoPlayer.pause();
     
     const displayName = fileName.length > 30 ? fileName.substring(0, 27) + '...' : fileName;
-    playerTitle.innerHTML = `<i class="fas fa-play me-2"></i><span class="text-truncate" title="${fileName}">${displayName}</span>`; 
+    const titleSpan = playerTitle.querySelector('span');
+    if (titleSpan) {
+        titleSpan.textContent = displayName;
+        titleSpan.setAttribute('title', fileName);
+        titleSpan.classList.add('text-truncate');
+    }
     
     audioPlayer.src = '';
     videoPlayer.src = '';
@@ -2281,12 +2286,6 @@ function playMedia(filePath) {
             clearAllHighlights();
         });
         currentMedia = { type: 'audio', src: previewUrl, path: filePath, ext: fileExt, wasPlaying: false };
-        
-        if (needsTranscoding) {
-            audioPlayer.onloadeddata = function() {
-                playerTitle.innerHTML = `<i class="fas fa-play"></i>${fileName}`;
-            };
-        }
     } 
     else if (isVideo) {
         videoPlayer.onerror = handleMediaError(videoPlayer, translations['video'] || 'Video');
@@ -2310,12 +2309,6 @@ function playMedia(filePath) {
             clearAllHighlights();
         });
         currentMedia = { type: 'video', src: previewUrl, path: filePath, ext: fileExt, wasPlaying: false };
-        
-        if (needsTranscoding) {
-            videoPlayer.onloadeddata = function() {
-                playerTitle.innerHTML = `<i class="fas fa-play"></i>${fileName}`;
-            };
-        }
     } 
     else if (isImage) {
         imageViewer.onerror = handleMediaError(imageViewer, translations['image'] || 'Image');
