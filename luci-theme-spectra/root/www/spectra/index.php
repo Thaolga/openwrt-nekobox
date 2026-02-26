@@ -7,7 +7,7 @@ include './spectra.php';
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title data-translate="openwrt_media_center">OpenWrt Media Center</title>
-    <link rel="stylesheet" href="/spectra/css/main.css?v=1.0.0">
+    <link rel="stylesheet" href="/spectra/css/main.css?v=1.0.1">
 </head>
 
 <div class="main-container">
@@ -2050,6 +2050,8 @@ let selectedRecycleItems = new Set();
 let isMiniMode = false;
 let isDragging = false;
 let dragOffsetX, dragOffsetY;
+let resizeStartX, resizeStartY, resizeStartWidth, resizeStartHeight;
+let resizeDirection = '';
 
 let currentMedia = {
     type: null,
@@ -10953,16 +10955,21 @@ function toggleMiniPlayer() {
         playerArea.classList.add('mini-mode');
         addMiniControls();
         initDrag();
+        initResize();
         icon.className = 'fas fa-window-maximize';
         isMiniMode = true;
     } else {
         playerArea.classList.remove('mini-mode');
         removeMiniControls();
         removeDrag();
+        removeResize();
+        playerArea.style.width = '';
+        playerArea.style.height = '';
         playerArea.style.top = '';
         playerArea.style.left = '';
-        playerArea.style.bottom = '50px';
-        playerArea.style.right = '20px';
+        playerArea.style.bottom = '';
+        playerArea.style.right = '';
+        playerArea.style.position = '';
         icon.className = 'fas fa-window-restore';
         isMiniMode = false;
     }
@@ -11030,6 +11037,109 @@ function stopDrag() {
     playerArea.style.transition = 'all 0.3s cubic-bezier(0.2, 0.9, 0.3, 1.1)';
     document.removeEventListener('mousemove', onDrag);
     document.removeEventListener('mouseup', stopDrag);
+}
+
+function initResize() {
+    const playerArea = document.getElementById('playerArea');
+    const resizeHandles = ['nw', 'ne', 'sw', 'se'];
+    resizeHandles.forEach(dir => {
+        const handle = document.createElement('div');
+        handle.className = `resize-handle ${dir}`;
+        handle.addEventListener('mousedown', (e) => startResize(e, dir));
+        playerArea.appendChild(handle);
+    });
+}
+
+function removeResize() {
+    const handles = document.querySelectorAll('.resize-handle');
+    handles.forEach(handle => handle.remove());
+    document.removeEventListener('mousemove', onResize);
+    document.removeEventListener('mouseup', stopResize);
+}
+
+function startResize(e, direction) {
+    const playerArea = document.getElementById('playerArea');
+    
+    e.preventDefault();
+    e.stopPropagation();
+    
+    isResizing = true;
+    resizeDirection = direction;
+    
+    const rect = playerArea.getBoundingClientRect();
+    resizeStartX = e.clientX;
+    resizeStartY = e.clientY;
+    resizeStartWidth = rect.width;
+    resizeStartHeight = rect.height;
+    
+    playerArea.style.transition = 'none';
+    playerArea.style.opacity = '0.9';
+    
+    document.addEventListener('mousemove', onResize);
+    document.addEventListener('mouseup', stopResize);
+}
+
+function onResize(e) {
+    if (!isResizing) return;
+    
+    e.preventDefault();
+    
+    const playerArea = document.getElementById('playerArea');
+    const rect = playerArea.getBoundingClientRect();
+    
+    let newWidth = resizeStartWidth;
+    let newHeight = resizeStartHeight;
+    let newLeft = rect.left;
+    let newTop = rect.top;
+    
+    const deltaX = e.clientX - resizeStartX;
+    const deltaY = e.clientY - resizeStartY;
+    
+    switch(resizeDirection) {
+        case 'se':
+            newWidth = Math.max(300, resizeStartWidth + deltaX);
+            newHeight = Math.max(300, resizeStartHeight + deltaY);
+            break;
+        case 'sw':
+            newWidth = Math.max(300, resizeStartWidth - deltaX);
+            newHeight = Math.max(300, resizeStartHeight + deltaY);
+            newLeft = rect.left + (resizeStartWidth - newWidth);
+            break;
+        case 'ne':
+            newWidth = Math.max(300, resizeStartWidth + deltaX);
+            newHeight = Math.max(300, resizeStartHeight - deltaY);
+            newTop = rect.top + (resizeStartHeight - newHeight);
+            break;
+        case 'nw':
+            newWidth = Math.max(300, resizeStartWidth - deltaX);
+            newHeight = Math.max(300, resizeStartHeight - deltaY);
+            newLeft = rect.left + (resizeStartWidth - newWidth);
+            newTop = rect.top + (resizeStartHeight - newHeight);
+            break;
+    }
+    
+    newLeft = Math.max(0, Math.min(newLeft, window.innerWidth - newWidth));
+    newTop = Math.max(0, Math.min(newTop, window.innerHeight - newHeight));
+    
+    playerArea.style.width = newWidth + 'px';
+    playerArea.style.height = newHeight + 'px';
+    playerArea.style.left = newLeft + 'px';
+    playerArea.style.top = newTop + 'px';
+    playerArea.style.bottom = 'auto';
+    playerArea.style.right = 'auto';
+}
+
+function stopResize() {
+    if (!isResizing) return;
+    
+    isResizing = false;
+    
+    const playerArea = document.getElementById('playerArea');
+    playerArea.style.transition = '';
+    playerArea.style.opacity = '';
+    
+    document.removeEventListener('mousemove', onResize);
+    document.removeEventListener('mouseup', stopResize);
 }
 
 function addMiniControls() {
