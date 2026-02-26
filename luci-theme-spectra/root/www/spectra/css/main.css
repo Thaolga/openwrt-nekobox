@@ -2069,8 +2069,8 @@ list-group:hover {
     position: fixed !important;
     bottom: 50px !important;
     right: 20px !important;
-    width: 580px !important;
-    height: 480px !important;
+    width: 580px;
+    height: 480px;
     z-index: 1000000 !important;
     border-radius: 16px !important;
     box-shadow:var(--shadow-inset) !important;
@@ -2271,4 +2271,46 @@ list-group:hover {
     .mini-volume-row {
         max-width: 100px !important;
     }
+}
+
+.resize-handle {
+    position: absolute;
+    width: 15px;
+    height: 15px;
+    z-index: 10001;
+    background: transparent;
+}
+
+.resize-handle.nw {
+    top: -5px;
+    left: -5px;
+    cursor: nw-resize;
+}
+
+.resize-handle.ne {
+    top: -5px;
+    right: -5px;
+    cursor: ne-resize;
+}
+
+.resize-handle.sw {
+    bottom: -5px;
+    left: -5px;
+    cursor: sw-resize;
+}
+
+.resize-handle.se {
+    bottom: -5px;
+    right: -5px;
+    cursor: se-resize;
+}
+
+.player-area.mini-mode.resizing {
+    opacity: 0.9;
+    transition: none;
+}
+
+.resize-handle:hover {
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 50%;
 }
