@@ -785,6 +785,9 @@ include './spectra.php';
                         <span data-translate="media_player">Media Player</span>
                     </div>
                     <div class="player-actions">
+                        <button class="player-btn mini-toggle-btn" onclick="toggleMiniPlayer()" data-translate-tooltip="mini_player" id="miniPlayerToggle">
+                            <i class="fas fa-window-restore"></i>
+                        </button>
                         <button class="player-btn" onclick="togglePlayerFitMode()" data-translate-tooltip="fit_mode_toggle" id="fitModeBtn">
                             <i class="fas fa-arrows-alt"></i>
                         </button>
@@ -976,11 +979,11 @@ include './spectra.php';
     </div>
 </div>
 
-<div class="modal fade" id="searchModal" tabindex="-1" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+<div class="modal fade" id="searchModal" tabindex="-1" aria-labelledby="searchModalLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
     <div class="modal-dialog modal-xl">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title">
+                <h5 class="modal-title" id="searchModalLabel">
                     <i class="fas fa-search me-2"></i>
                     <span data-translate="searchFiles">Search Files</span>
                 </h5>
@@ -1091,11 +1094,11 @@ include './spectra.php';
   </div>
 </div>
 
-<div class="modal fade" id="createTypeModal" tabindex="-1" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+<div class="modal fade" id="createTypeModal" tabindex="-1" aria-labelledby="createTypeModalLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title">
+                <h5 class="modal-title" id="createTypeModalLabel">
                     <i class="fas fa-plus me-2"></i>
                     <span data-translate="create_new">Create New</span>
                 </h5>
@@ -1144,11 +1147,11 @@ include './spectra.php';
     </div>
 </div>
 
-<div class="modal fade" id="createFolderModal" tabindex="-1" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+<div class="modal fade" id="createFolderModal" tabindex="-1" aria-labelledby="createFolderModalLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title">
+                <h5 class="modal-title" id="createFolderModalLabel">
                     <i class="fas fa-folder-plus me-2"></i>
                     <span data-translate="newFolder">Create_new_folder</span>
                 </h5>
@@ -1174,11 +1177,11 @@ include './spectra.php';
     </div>
 </div>
 
-<div class="modal fade" id="createFileModal" tabindex="-1" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+<div class="modal fade" id="createFileModal" tabindex="-1" aria-labelledby="createFileModalLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title">
+                <h5 class="modal-title" id="createFileModalLabel">
                     <i class="fas fa-file-circle-plus me-2"></i>
                     <span data-translate="newFile" =">Create File</span>
                 </h5>
@@ -1254,11 +1257,11 @@ include './spectra.php';
     </div>
 </div>
 
-<div class="modal fade" id="renameModal" tabindex="-1" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+<div class="modal fade" id="renameModal" tabindex="-1" aria-labelledby="renameModalLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title">
+                <h5 class="modal-title" id="renameModalLabel">
                     <i class="fas fa-edit me-2"></i>
                     <span data-translate="rename">Rename</span>
                 </h5>
@@ -1292,11 +1295,11 @@ include './spectra.php';
     </div>
 </div>
 
-<div class="modal fade" id="moveModal" tabindex="-1" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+<div class="modal fade" id="moveModal" tabindex="-1" aria-labelledby="moveModalLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title">
+                <h5 class="modal-title" id="moveModalLabel">
                     <i class="fas fa-cut me-2"></i>
                     <span data-translate="move">Move</span>
                 </h5>
@@ -1339,11 +1342,11 @@ include './spectra.php';
     </div>
 </div>
 
-<div class="modal fade" id="copyModal" tabindex="-1" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+<div class="modal fade" id="copyModal" tabindex="-1" aria-labelledby="copyModalLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title">
+                <h5 class="modal-title" id="copyModalLabel">
                     <i class="fas fa-copy me-2"></i>
                     <span data-translate="copy">Copy</span>
                 </h5>
@@ -1386,11 +1389,11 @@ include './spectra.php';
     </div>
 </div>
 
-<div class="modal fade" id="terminalModal" tabindex="-1" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+<div class="modal fade" id="terminalModal" tabindex="-1" aria-labelledby="terminalModalLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
     <div class="modal-dialog modal-xl">
         <div class="modal-content" style="height: 80vh;">
             <div class="modal-header">
-                <h5 class="modal-title">
+                <h5 class="modal-title" id="terminalModalLabel">
                     <i class="fas fa-terminal me-2"></i>
                     <span data-translate="terminal">Terminal</span>
                 </h5>
@@ -1477,11 +1480,11 @@ include './spectra.php';
     </div>
 </div>
 
-<div class="modal fade" id="fileHashModal" tabindex="-1" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+<div class="modal fade" id="fileHashModal" tabindex="-1" aria-labelledby="fileHashModalLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
     <div class="modal-dialog modal-lg modal-dialog-centered">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title">
+                <h5 class="modal-title" id="fileHashModalLabel">
                     <i class="fas fa-fingerprint text-primary me-2"></i>
                     <span data-translate="file_hash">File Hash</span>
                     <small class="text-muted ms-2" id="hashFileName"></small>
@@ -1627,11 +1630,11 @@ include './spectra.php';
     </div>
 </div>
 
-<div class="modal fade" id="batchRenameModal" tabindex="-1" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+<div class="modal fade" id="batchRenameModal" tabindex="-1" aria-labelledby="batchRenameModalLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
     <div class="modal-dialog modal-xl">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title"><i class="fas fa-i-cursor me-2"></i><span data-translate="batch_rename">Batch Rename</span></h5>
+                <h5 class="modal-title" id="batchRenameModalLabel"><i class="fas fa-i-cursor me-2"></i><span data-translate="batch_rename">Batch Rename</span></h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
@@ -1699,11 +1702,11 @@ include './spectra.php';
     </div>
 </div>
 
-<div class="modal fade" id="convertModal" tabindex="-1" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+<div class="modal fade" id="convertModal" tabindex="-1" aria-labelledby="convertModalLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
     <div class="modal-dialog modal-xl">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title">
+                <h5 class="modal-title" id="convertModalLabel">
                     <i class="fas fa-exchange-alt me-2 text-purple"></i>
                     <span data-translate="batch_convert">'Batch Format Conversion</span>
                 </h5>
@@ -1798,11 +1801,11 @@ include './spectra.php';
     </div>
 </div>
 
-<div class="modal fade" id="playlistModal" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false">
+<div class="modal fade" id="playlistModal" tabindex="-1" aria-labelledby="playlistModalLabel"  aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
     <div class="modal-dialog modal-xl">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title">
+                <h5 class="modal-title" id="playlistModalLabel">
                     <i class="fas fa-list me-2 text-success"></i>
                     <span data-translate="playlist">Playlist</span>
                 </h5>
@@ -1949,11 +1952,11 @@ include './spectra.php';
     </div>
 </div>
 
-<div class="modal fade" id="qrcodeModal" tabindex="-1" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+<div class="modal fade" id="qrcodeModal" tabindex="-1" aria-labelledby="qrcodeModalLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title">
+                <h5 class="modal-title" id="qrcodeModalLabel">
                     <i class="fas fa-qrcode text-purple me-2"></i>
                     <span data-translate="file_qrcode">File QR Code</span>
                 </h5>
@@ -2002,11 +2005,6 @@ include './spectra.php';
     </div>
 </div>
 <script>
-const originalWarn = console.warn;
-console.warn = function(msg) { 
-    if (msg && msg.includes && msg.includes('aria-hidden')) return; 
-    originalWarn.apply(console, arguments); 
-};
 let hoverAudio = null;
 let hoverVideo = null;
 let hoverVideoContainer = null;
@@ -2049,6 +2047,9 @@ let lastNetworkRx = 0;
 let lastNetworkTx = 0;
 let recycleBinItems = [];
 let selectedRecycleItems = new Set();
+let isMiniMode = false;
+let isDragging = false;
+let dragOffsetX, dragOffsetY;
 
 let currentMedia = {
     type: null,
@@ -2335,7 +2336,8 @@ function playMedia(filePath) {
         clearAllHighlights();
     }
     
-    playerArea.classList.add('active'); 
+    playerArea.classList.add('active');
+    playerArea.style.display = 'flex';  
     saveToRecent(filePath);
     setTimeout(adjustNavButtons, 200);
     setTimeout(adjustNavButtons, 800);
@@ -2588,6 +2590,16 @@ function closePlayer() {
     const audioPlayer = document.getElementById('audioPlayer');
     const videoPlayer = document.getElementById('videoPlayer');
     const imageViewer = document.getElementById('imageViewer');
+    const toggleBtn = document.getElementById('miniPlayerToggle');
+    
+    if (isMiniMode) {
+        removeMiniControls();
+        isMiniMode = false;
+        if (toggleBtn) {
+            const icon = toggleBtn.querySelector('i');
+            icon.className = 'fas fa-window-restore';
+        }
+    }
     
     if (document.fullscreenElement) {
         if (document.exitFullscreen) {
@@ -2605,7 +2617,7 @@ function closePlayer() {
     audioPlayer.pause();
     videoPlayer.pause();
     
-    playerArea.classList.remove('active');
+    playerArea.classList.remove('active', 'mini-mode');
     playerArea.style.display = 'none'; 
     
     audioPlayer.style.display = 'none';
@@ -5494,13 +5506,14 @@ function showExtractDialog() {
     dialog.id = 'extractModal';
     dialog.setAttribute('tabindex', '-1');
     dialog.setAttribute('aria-hidden', 'true');
+    dialog.setAttribute('aria-labelledby', 'extractModalLabel');
     dialog.setAttribute('data-bs-backdrop', 'static');
     dialog.setAttribute('data-bs-keyboard', 'false');
     dialog.innerHTML = `
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title">
+                    <h5 class="modal-title" id="extractModalLabel">
                         <i class="fas fa-expand me-2"></i>
                         ${translations['extract_archive'] || 'Extract Archive'}
                     </h5>
@@ -9147,13 +9160,14 @@ function createDiffEditorDialog(filename, content, tabId) {
     dialog.id = 'diffEditorModal';
     dialog.setAttribute('tabindex', '-1');
     dialog.setAttribute('aria-hidden', 'true');
+    dialog.setAttribute('aria-labelledby', 'diffEditorModalLabel');
     dialog.setAttribute('data-bs-backdrop', 'static');
     dialog.setAttribute('data-bs-keyboard', 'false');
     dialog.innerHTML = `
         <div class="modal-dialog modal-xl modal-dialog-centered modal-fullscreen-lg-down">
             <div class="modal-content" style="height: 80vh;">
                 <div class="modal-header">
-                    <h5 class="modal-title">
+                    <h5 class="modal-title" id="diffEditorModalLabel">
                         <i class="fas fa-code-compare me-2"></i>
                         <span data-translate="diff_editor_title">Diff Editor</span> - ${escapeHtml(filename)}
                     </h5>
@@ -10934,6 +10948,281 @@ function loadSavedWallpaper() {
                 applyWallpaper(data.path);
             }
         } catch (e) {}
+    }
+}
+
+function toggleMiniPlayer() {
+    const playerArea = document.getElementById('playerArea');
+    const toggleBtn = document.getElementById('miniPlayerToggle');
+    const icon = toggleBtn.querySelector('i');
+    
+    if (!isMiniMode) {
+        playerArea.classList.add('mini-mode');
+        addMiniControls();
+        initDrag();
+        icon.className = 'fas fa-window-maximize';
+        isMiniMode = true;
+    } else {
+        playerArea.classList.remove('mini-mode');
+        removeMiniControls();
+        removeDrag();
+        playerArea.style.top = '';
+        playerArea.style.left = '';
+        playerArea.style.bottom = '50px';
+        playerArea.style.right = '20px';
+        icon.className = 'fas fa-window-restore';
+        isMiniMode = false;
+    }
+    
+    setTimeout(() => {
+        updateMiniPlayerState();
+    }, 100);
+}
+
+function initDrag() {
+    const playerArea = document.getElementById('playerArea');
+    const header = playerArea.querySelector('.player-header');
+    header.style.cursor = 'grab';
+    header.addEventListener('mousedown', startDrag);
+}
+
+function removeDrag() {
+    const playerArea = document.getElementById('playerArea');
+    const header = playerArea.querySelector('.player-header');
+    header.removeEventListener('mousedown', startDrag);
+    document.removeEventListener('mousemove', onDrag);
+    document.removeEventListener('mouseup', stopDrag);
+}
+
+function startDrag(e) {
+    const playerArea = document.getElementById('playerArea');
+    if (!playerArea.classList.contains('mini-mode')) return;
+    if (e.target.tagName === 'BUTTON' || e.target.closest('button')) return;
+    e.preventDefault();
+    isDragging = true;
+    playerArea.style.cursor = 'grabbing';
+    playerArea.style.opacity = '0.95';
+    playerArea.style.transform = 'scale(1.02)';
+    playerArea.style.boxShadow = '0 15px 50px rgba(0, 0, 0, 0.7)';
+    playerArea.style.transition = 'none';
+    const rect = playerArea.getBoundingClientRect();
+    dragOffsetX = e.clientX - rect.left;
+    dragOffsetY = e.clientY - rect.top;
+    document.addEventListener('mousemove', onDrag);
+    document.addEventListener('mouseup', stopDrag);
+}
+
+function onDrag(e) {
+    if (!isDragging) return;
+    e.preventDefault();
+    const playerArea = document.getElementById('playerArea');
+    let left = e.clientX - dragOffsetX;
+    let top = e.clientY - dragOffsetY;
+    left = Math.max(0, Math.min(left, window.innerWidth - playerArea.offsetWidth));
+    top = Math.max(0, Math.min(top, window.innerHeight - playerArea.offsetHeight));
+    playerArea.style.left = left + 'px';
+    playerArea.style.top = top + 'px';
+    playerArea.style.bottom = 'auto';
+    playerArea.style.right = 'auto';
+}
+
+function stopDrag() {
+    if (!isDragging) return;
+    isDragging = false;
+    const playerArea = document.getElementById('playerArea');
+    playerArea.style.cursor = '';
+    playerArea.style.opacity = '';
+    playerArea.style.transform = '';
+    playerArea.style.boxShadow = '';
+    playerArea.style.transition = 'all 0.3s cubic-bezier(0.2, 0.9, 0.3, 1.1)';
+    document.removeEventListener('mousemove', onDrag);
+    document.removeEventListener('mouseup', stopDrag);
+}
+
+function addMiniControls() {
+    const playerArea = document.getElementById('playerArea');
+    if (!playerArea) return;
+    if (document.querySelector('.mini-controls-panel')) return;
+    const controlsPanel = document.createElement('div');
+    controlsPanel.className = 'mini-controls-panel';
+    controlsPanel.innerHTML = `
+        <div class="d-flex align-items-center justify-content-between w-100 mb-2">
+            <div class="d-flex align-items-center gap-3">
+                <button class="mini-control-btn" onclick="playPreviousMedia()" data-translate-tooltip="previous_track">
+                    <i class="fas fa-step-backward"></i>
+                </button>
+                <button class="mini-control-btn mini-play-btn" onclick="togglePlayPause()" id="miniPlayPauseBtn" data-translate-tooltip="play_pause'">
+                    <i class="fas fa-play"></i>
+                </button>
+                <button class="mini-control-btn" onclick="playNextMedia()" data-translate-tooltip="next_track">
+                    <i class="fas fa-step-forward"></i>
+                </button>
+            </div>
+            
+            <div class="d-flex align-items-center gap-2" style="flex: 0 1 180px;">
+                <i class="fas fa-volume-up mini-volume-icon" id="miniVolumeIcon"></i>
+                <div class="mini-volume-slider" onclick="setMiniVolume(event)">
+                    <div class="mini-volume-fill" id="miniVolumeFill"></div>
+                </div>
+                <span class="mini-volume-percent" id="miniVolumePercent">100%</span>
+            </div>
+        </div>
+        
+        <div class="d-flex align-items-center justify-content-between mt-2 pt-2" style="border-top: 1px solid rgba(255,255,255,0.1);">
+            <button class="mini-extra-btn" onclick="togglePictureInPicture()" data-translate-tooltip="picture_in_picture">
+                <i class="fas fa-closed-captioning"></i>
+                <span data-translate="picture_in_picture">Picture-in-Picture</span>
+            </button>
+            <button class="mini-extra-btn" onclick="togglePlayerFitMode()" data-translate-tooltip="aspect_ratio_tooltip">
+                <i class="fas fa-arrows-alt"></i>
+                <span data-translate="aspect_ratio">Aspect Ratio</span>
+            </button>
+            <button class="mini-extra-btn" onclick="closePlayer()" data-translate-tooltip="close">
+                <i class="fas fa-times"></i>
+                <span data-translate="close">Close</span>
+            </button>
+        </div>
+    `;
+    
+    playerArea.appendChild(controlsPanel);
+
+    setTimeout(() => {
+        const activeMedia = getActiveMedia();
+        if (activeMedia) {
+            const fill = document.getElementById('miniVolumeFill');
+            const percent = document.getElementById('miniVolumePercent');
+            if (fill) {
+                const volume = activeMedia.volume || 1;
+                fill.style.width = (volume * 100) + '%';
+                if (percent) percent.textContent = Math.round(volume * 100) + '%';
+            }
+        }
+    }, 50);
+    
+    initMiniPlayerEvents();
+    updateLanguage(currentLang);
+}
+
+function removeMiniControls() {
+    const controls = document.querySelector('.mini-controls-panel');
+    if (controls) {
+        controls.remove();
+    }
+}
+
+function initMiniPlayerEvents() {
+    const activeMedia = getActiveMedia();
+    if (!activeMedia) return;
+    
+    const updatePlayPause = () => {
+        const btn = document.getElementById('miniPlayPauseBtn');
+        if (!btn) return;
+        const icon = btn.querySelector('i');
+        icon.className = activeMedia.paused ? 'fas fa-play' : 'fas fa-pause';
+        const playPauseText = activeMedia.paused ? 
+            (translations['play'] || 'Play') : 
+            (translations['pause'] || 'Pause');
+        btn.setAttribute('title', playPauseText);
+    };
+    
+    const updateVolume = () => {
+        const icon = document.getElementById('miniVolumeIcon');
+        const fill = document.getElementById('miniVolumeFill');
+        const percent = document.getElementById('miniVolumePercent');
+        if (!icon || !fill) return;
+        const volume = activeMedia.volume || 0;
+        const percentValue = Math.round(volume * 100);
+        fill.style.width = (volume * 100) + '%';
+        if (percent) percent.textContent = percentValue + '%';
+        if (volume === 0) {
+            icon.className = 'fas fa-volume-mute mini-volume-icon';
+        } else if (volume < 0.5) {
+            icon.className = 'fas fa-volume-down mini-volume-icon';
+        } else {
+            icon.className = 'fas fa-volume-up mini-volume-icon';
+        }
+    };
+    
+    activeMedia.removeEventListener('play', updatePlayPause);
+    activeMedia.removeEventListener('pause', updatePlayPause);
+    activeMedia.removeEventListener('volumechange', updateVolume);
+    activeMedia.removeEventListener('loadedmetadata', updateVolume);
+    activeMedia.addEventListener('play', updatePlayPause);
+    activeMedia.addEventListener('pause', updatePlayPause);
+    activeMedia.addEventListener('volumechange', updateVolume);
+    activeMedia.addEventListener('loadedmetadata', updateVolume);
+    setTimeout(() => {
+        updatePlayPause();
+        updateVolume();
+    }, 100);
+}
+
+function getActiveMedia() {
+    const video = document.getElementById('videoPlayer');
+    const audio = document.getElementById('audioPlayer');
+    const image = document.getElementById('imageViewer');
+    if (video.style.display === 'block') return video;
+    if (audio.style.display === 'block') return audio;
+    if (image.style.display === 'block') return image;
+    return null;
+}
+
+function setMiniVolume(event) {
+    const activeMedia = getActiveMedia();
+    if (!activeMedia) return;
+    const volumeSlider = document.querySelector('.mini-volume-slider');
+    const rect = volumeSlider.getBoundingClientRect();
+    const pos = Math.max(0, Math.min(1, (event.clientX - rect.left) / rect.width));
+    activeMedia.volume = pos;
+    const fill = document.getElementById('miniVolumeFill');
+    const percent = document.getElementById('miniVolumePercent');
+    if (fill) {
+        const percentValue = Math.round(pos * 100);
+        fill.style.width = (pos * 100) + '%';
+        if (percent) percent.textContent = percentValue + '%';
+    }
+}
+
+function togglePlayPause() {
+    const activeMedia = getActiveMedia();
+    if (!activeMedia) return;
+    
+    if (activeMedia.paused) {
+        activeMedia.play();
+    } else {
+        activeMedia.pause();
+    }
+}
+
+function togglePictureInPicture() {
+    const videoPlayer = document.getElementById('videoPlayer');
+    if (videoPlayer.style.display !== 'block') {
+        return;
+    }
+    
+    if (!document.pictureInPictureEnabled) {
+        return;
+    }
+    
+    if (document.pictureInPictureElement) {
+        document.exitPictureInPicture();
+    } else {
+        videoPlayer.requestPictureInPicture().catch(e => {
+        });
+    }
+}
+
+function updateMiniPlayerState() {
+    if (!isMiniMode) return;
+    const activeMedia = getActiveMedia();
+    if (!activeMedia) return;
+    const fileName = currentMedia && currentMedia.path ? 
+        currentMedia.path.split('/').pop() : 'Media Player';
+    const titleSpan = document.querySelector('#playerTitle span');
+    if (titleSpan) {
+        titleSpan.textContent = fileName;
+        titleSpan.setAttribute('title', fileName);
+        titleSpan.classList.add('text-truncate');
     }
 }
 

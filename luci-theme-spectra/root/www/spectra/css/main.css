@@ -2026,6 +2026,12 @@ list-group:hover {
     display: none;
 }
 
+[data-theme="dark"] .player-btn:hover,
+[data-theme="dark"] .view-toggle-btn:hover,
+[data-theme="dark"] .btn:hover,
+[data-theme="dark"] .mini-extra-btn:hover,
+[data-theme="dark"] .mini-control-btn:hover, 
+[data-theme="dark"] .player-area.mini-mode .player-header .player-btn:hover,
 [data-theme="dark"] .context-menu {
     animation: var(--breathing-animation);
 }
@@ -2059,3 +2065,210 @@ list-group:hover {
     font-weight: 600;
 }
 
+.player-area.mini-mode {
+    position: fixed !important;
+    bottom: 50px !important;
+    right: 20px !important;
+    width: 580px !important;
+    height: 480px !important;
+    z-index: 1000000 !important;
+    border-radius: 16px !important;
+    box-shadow:var(--shadow-inset) !important;
+    background: var(--bg-container) !important;
+    display: flex !important;
+    flex-direction: column !important;
+    overflow: hidden !important;
+    animation: mini-slide-in 0.3s ease !important;
+}
+
+.player-area.mini-mode .player-header {
+    position: relative !important;
+    background: var(--bg-container) !important;
+    border-bottom: var(--border-strong) !important;
+    padding: 12px 16px !important;
+    opacity: 1 !important;
+    flex-shrink: 0 !important;
+}
+
+.player-area.mini-mode .player-header .player-title {
+    font-size: 0.9rem !important;
+    max-width: 400px !important;
+}
+
+.player-area.mini-mode .player-header .player-btn {
+    width: 28px !important;
+    height: 28px !important;
+    color: var(--text-primary);
+    background: color-mix(in oklch, var(--card-bg), transparent 20%) !important;
+    transition: all 0.2s !important;
+}
+
+.player-area.mini-mode .player-header .player-btn:hover {
+    background: color-mix(in oklch, var(--header-bg), transparent 20%) !important;
+    transform: scale(1.1) !important;
+}
+
+.player-area.mini-mode .player-content {
+    flex: 1;
+    padding: 0;
+    background: #000;
+    position: relative;
+    min-height: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden; 
+}
+
+.player-area.mini-mode #videoPlayer,
+.player-area.mini-mode #imageViewer {
+    width: 100%;
+    height: 100%;
+    max-height: none;
+    object-fit: contain;
+}
+
+.player-area.mini-mode #audioPlayer {
+    width: 100%;
+    height: 40px;
+}
+
+.player-area.mini-mode .player-nav-overlay {
+    display: none !important;
+}
+
+.player-area.mini-mode .mini-controls-panel {
+    background: var(--bg-container) !important;
+    padding: 16px !important;
+    border-top: var(--border-strong) !important;
+    flex-shrink: 0 !important;
+}
+
+.mini-control-btn {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: transparent;
+    border: none;
+    color: var(--text-primary);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1rem;
+    transition: all 0.2s;
+}
+
+.mini-control-btn:hover {
+    background: color-mix(in oklch, var(--header-bg), transparent 20%);
+    transform: scale(1.1);
+}
+
+.mini-play-btn {
+    background: var(--accent-color);
+    color: white;
+    width: 44px;
+    height: 44px;
+    font-size: 1.1rem;
+}
+
+.mini-play-btn:hover {
+    background: var(--accent-secondary);
+}
+
+.mini-volume-slider {
+    height: 4px;
+    background: rgba(255, 255, 255, 0.3);
+    border-radius: 2px;
+    cursor: pointer;
+    position: relative;
+    flex: 1;
+    overflow: hidden;
+}
+
+.mini-volume-fill {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    background: var(--accent-color);
+    border-radius: 2px;
+    width: 0%;
+    transition: width 0.1s linear;
+}
+
+.mini-volume-slider:hover {
+    height: 6px;
+}
+
+.mini-volume-icon {
+    width: 20px;
+    color: var(--text-primary);
+    font-size: 1rem;
+}
+
+.mini-volume-percent {
+    color: var(--text-primary);
+    font-size: 0.75rem;
+    min-width: 35px;
+    text-align: right;
+    font-family: monospace;
+}
+
+.mini-extra-btn {
+    background: transparent;
+    border: none;
+    color: var(--text-secondary);
+    cursor: pointer;
+    padding: 6px 12px;
+    border-radius: 16px;
+    font-size: 0.8rem;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    transition: all 0.2s;
+}
+
+.mini-extra-btn:hover {
+    background: color-mix(in oklch, var(--header-bg), transparent 20%);
+    color: var(--text-primary);
+    transform: scale(1.1);
+}
+
+.mini-extra-btn i {
+    font-size: 0.9rem;
+}
+
+@keyframes mini-slide-in {
+    from {
+        transform: translateY(20px);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+@media (max-width: 768px) {
+    .player-area.mini-mode {
+        width: 320px !important;
+        height: 450px !important;
+        bottom: 10px !important;
+        right: 10px !important;
+    }
+    
+    .mini-control-btn {
+        width: 32px !important;
+        height: 32px !important;
+    }
+    
+    .mini-play-btn {
+        width: 40px !important;
+        height: 40px !important;
+    }
+    
+    .mini-volume-row {
+        max-width: 100px !important;
+    }
+}

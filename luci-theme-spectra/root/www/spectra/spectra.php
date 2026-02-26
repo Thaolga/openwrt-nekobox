@@ -775,6 +775,13 @@ $langData = [
         'theme_restored'         => '已恢复默认主题',
         'set_as_wallpaper'       => '设为壁纸',
         'restore_default_theme'  => '恢复默认主题',
+        'pause'                => '暂停',
+        'previous_track'       => '上一首',
+        'next_track'           => '下一首',
+        'play_pause'           => '播放/暂停',
+        'aspect_ratio_tooltip' => '画面比例',
+        'aspect_ratio'         => '比例',
+        'mini_player'          => '小窗播放',
         'file_summary' => '已选择 %d 个文件，合计 %s MB'
     ],
 
@@ -1550,6 +1557,13 @@ $langData = [
         'theme_restored'         => '已恢復預設主題',
         'set_as_wallpaper'       => '設為桌布',
         'restore_default_theme'  => '恢復預設主題',
+        'pause' => '暫停',
+        'previous_track'         => '上一首',
+        'next_track'             => '下一首',
+        'play_pause'             => '播放/暫停',
+        'aspect_ratio_tooltip'   => '畫面比例',
+        'aspect_ratio'           => '比例',
+        'mini_player'            => '小窗播放',
         'validateYaml' => '驗證 YAML 語法'
     ],
 
@@ -2324,6 +2338,13 @@ $langData = [
         'theme_restored'         => '기본 테마로 복원되었습니다',
         'set_as_wallpaper'       => '배경화면으로 설정',
         'restore_default_theme'  => '기본 테마 복원',
+        'pause'                => '일시 정지',
+        'previous_track'       => '이전 곡',
+        'next_track'           => '다음 곡',
+        'play_pause'           => '재생/일시 정지',
+        'aspect_ratio_tooltip' => '화면 비율',
+        'aspect_ratio'         => '비율',
+        'mini_player'          => '미니 플레이어',
         'validateYaml' => 'YAML 구문 검증'
     ],
 
@@ -3097,6 +3118,13 @@ $langData = [
         'theme_restored'         => 'デフォルトテーマに復元しました',
         'set_as_wallpaper'       => '壁紙に設定',
         'restore_default_theme'  => 'デフォルトテーマを復元',
+        'pause'                => '一時停止',
+        'previous_track'       => '前の曲',
+        'next_track'           => '次の曲',
+        'play_pause'           => '再生/一時停止',
+        'aspect_ratio_tooltip' => '画面比率',
+        'aspect_ratio'         => '比率',
+        'mini_player'          => 'ミニプレーヤー',
         'validateYaml' => 'YAML構文を検証'
     ],
 
@@ -3868,6 +3896,13 @@ $langData = [
         'theme_restored'         => 'Đã khôi phục chủ đề mặc định',
         'set_as_wallpaper'       => 'Đặt làm hình nền',
         'restore_default_theme'  => 'Khôi phục chủ đề mặc định',
+        'pause'                => 'Tạm dừng',
+        'previous_track'       => 'Bài trước',
+        'next_track'           => 'Bài tiếp theo',
+        'play_pause'           => 'Phát/Tạm dừng',
+        'aspect_ratio_tooltip' => 'Tỷ lệ khung hình',
+        'aspect_ratio'         => 'Tỷ lệ',
+        'mini_player'          => 'Trình phát mini',
         'validateYaml' => 'Kiểm tra Cú pháp YAML'
     ],
 
@@ -4623,6 +4658,13 @@ $langData = [
         'theme_restored'         => 'กู้คืนธีมเริ่มต้นแล้ว',
         'set_as_wallpaper'       => 'ตั้งเป็นภาพพื้นหลัง',
         'restore_default_theme'  => 'กู้คืนธีมเริ่มต้น',
+        'pause'                => 'หยุดชั่วคราว',
+        'previous_track'       => 'เพลงก่อนหน้า',
+        'next_track'           => 'เพลงถัดไป',
+        'play_pause'           => 'เล่น/หยุดชั่วคราว',
+        'aspect_ratio_tooltip' => 'อัตราส่วนภาพ',
+        'aspect_ratio'         => 'อัตราส่วน',
+        'mini_player'          => 'มินิเพลเยอร์',
         'validateYaml' => 'ตรวจสอบไวยากรณ์ YAML'
     ],
     'ru' => [
@@ -5379,6 +5421,13 @@ $langData = [
         'theme_restored'         => 'Тема по умолчанию восстановлена',
         'set_as_wallpaper'       => 'Установить как обои',
         'restore_default_theme'  => 'Восстановить тему по умолчанию',
+        'pause'                => 'Пауза',
+        'previous_track'       => 'Предыдущий трек',
+        'next_track'           => 'Следующий трек',
+        'play_pause'           => 'Воспроизвести/Пауза',
+        'aspect_ratio_tooltip' => 'Соотношение сторон',
+        'aspect_ratio'         => 'Соотношение',
+        'mini_player'          => 'Мини-плеер',
         'validateYaml' => 'Проверить синтаксис YAML'
     ],
     'ar' => [
@@ -6140,6 +6189,13 @@ $langData = [
         'theme_restored'         => 'تمت استعادة السمة الافتراضية',
         'set_as_wallpaper'       => 'تعيين كخلفية',
         'restore_default_theme'  => 'استعادة السمة الافتراضية',
+        'pause'                => 'إيقاف مؤقت',
+        'previous_track'       => 'المسار السابق',
+        'next_track'           => 'المسار التالي',
+        'play_pause'           => 'تشغيل/إيقاف مؤقت',
+        'aspect_ratio_tooltip' => 'نسبة العرض',
+        'aspect_ratio'         => 'النسبة',
+        'mini_player'          => 'مشغل صغير',
         'validateYaml' => 'التحقق من صحة بناء جملة YAML'
     ],
     'es' => [
@@ -6893,6 +6949,13 @@ $langData = [
         'theme_restored'         => 'Tema predeterminado restaurado',
         'set_as_wallpaper'       => 'Establecer como fondo',
         'restore_default_theme'  => 'Restaurar tema predeterminado',
+        'pause'                => 'Pausa',
+        'previous_track'       => 'Pista anterior',
+        'next_track'           => 'Siguiente pista',
+        'play_pause'           => 'Reproducir/Pausa',
+        'aspect_ratio_tooltip' => 'Relación de aspecto',
+        'aspect_ratio'         => 'Relación',
+        'mini_player'          => 'Mini reproductor',
         'validateYaml' => 'Validar sintaxis YAML'
     ],
     'de' => [
@@ -7648,6 +7711,13 @@ $langData = [
         'theme_restored'         => 'Standarddesign wiederhergestellt',
         'set_as_wallpaper'       => 'Als Hintergrund festlegen',
         'restore_default_theme'  => 'Standarddesign wiederherstellen',
+        'pause'                => 'Pause',
+        'previous_track'       => 'Vorheriger Titel',
+        'next_track'           => 'Nächster Titel',
+        'play_pause'           => 'Wiedergabe/Pause',
+        'aspect_ratio_tooltip' => 'Seitenverhältnis',
+        'aspect_ratio'         => 'Verhältnis',
+        'mini_player'          => 'Mini-Player',
         'validateYaml' => 'YAML-Syntax validieren'
     ],
 
@@ -8404,6 +8474,13 @@ $langData = [
         'theme_restored'         => 'Thème par défaut restauré',
         'set_as_wallpaper'       => 'Définir comme fond d’écran',
         'restore_default_theme'  => 'Restaurer le thème par défaut',
+        'pause'                => 'Pause',
+        'previous_track'       => 'Piste précédente',
+        'next_track'           => 'Piste suivante',
+        'play_pause'           => 'Lecture/Pause',
+        'aspect_ratio_tooltip' => 'Format d’image',
+        'aspect_ratio'         => 'Format',
+        'mini_player'          => 'Mini lecteur',
         'validateYaml' => 'Valider la syntaxe YAML'
     ],
     'en' => [
@@ -9170,6 +9247,13 @@ $langData = [
         'wallpaper_set_error'    => 'Failed to set wallpaper',
         'theme_restored'         => 'Default theme restored',
         'set_as_wallpaper'       => 'Set as Wallpaper',
+        'pause'                => 'Pause',
+        'previous_track'       => 'Previous Track',
+        'next_track'           => 'Next Track',
+        'play_pause'           => 'Play/Pause',
+        'aspect_ratio_tooltip' => 'Aspect Ratio',
+        'aspect_ratio'         => 'Ratio',
+        'mini_player'          => 'Mini Player',
         'restore_default_theme'  => 'Restore Default Theme',
         'validateYaml' => 'Validate YAML Syntax'
     ],
@@ -9926,6 +10010,13 @@ $langData = [
         'theme_restored'         => 'ডিফল্ট থিম পুনরুদ্ধার হয়েছে',
         'set_as_wallpaper'       => 'ওয়ালপেপার হিসেবে সেট করুন',
         'restore_default_theme'  => 'ডিফল্ট থিম পুনরুদ্ধার করুন',
+        'pause'                => 'বিরতি',
+        'previous_track'       => 'আগের ট্র্যাক',
+        'next_track'           => 'পরবর্তী ট্র্যাক',
+        'play_pause'           => 'চালু/বিরতি',
+        'aspect_ratio_tooltip' => 'দৃশ্য অনুপাত',
+        'aspect_ratio'         => 'অনুপাত',
+        'mini_player'          => 'মিনি প্লেয়ার',
         'validateYaml' => 'YAML সিনট্যাক্স যাচাই করুন'
     ]
 ];
