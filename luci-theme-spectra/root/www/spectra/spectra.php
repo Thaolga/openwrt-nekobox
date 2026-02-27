@@ -782,6 +782,7 @@ $langData = [
         'aspect_ratio_tooltip' => '画面比例',
         'aspect_ratio'         => '比例',
         'mini_player'          => '小窗播放',
+        'playback_speed' => '播放速度',
         'file_summary' => '已选择 %d 个文件，合计 %s MB'
     ],
 
@@ -1564,6 +1565,7 @@ $langData = [
         'aspect_ratio_tooltip'   => '畫面比例',
         'aspect_ratio'           => '比例',
         'mini_player'            => '小窗播放',
+        'playback_speed' => '播放速度',
         'validateYaml' => '驗證 YAML 語法'
     ],
 
@@ -2345,6 +2347,7 @@ $langData = [
         'aspect_ratio_tooltip' => '화면 비율',
         'aspect_ratio'         => '비율',
         'mini_player'          => '미니 플레이어',
+        'playback_speed' => '재생 속도',
         'validateYaml' => 'YAML 구문 검증'
     ],
 
@@ -3125,6 +3128,7 @@ $langData = [
         'aspect_ratio_tooltip' => '画面比率',
         'aspect_ratio'         => '比率',
         'mini_player'          => 'ミニプレーヤー',
+        'playback_speed' => '再生速度',
         'validateYaml' => 'YAML構文を検証'
     ],
 
@@ -3903,6 +3907,7 @@ $langData = [
         'aspect_ratio_tooltip' => 'Tỷ lệ khung hình',
         'aspect_ratio'         => 'Tỷ lệ',
         'mini_player'          => 'Trình phát mini',
+        'playback_speed' => 'Tốc độ phát lại',
         'validateYaml' => 'Kiểm tra Cú pháp YAML'
     ],
 
@@ -4665,6 +4670,7 @@ $langData = [
         'aspect_ratio_tooltip' => 'อัตราส่วนภาพ',
         'aspect_ratio'         => 'อัตราส่วน',
         'mini_player'          => 'มินิเพลเยอร์',
+        'playback_speed' => 'ความเร็วในการเล่น',
         'validateYaml' => 'ตรวจสอบไวยากรณ์ YAML'
     ],
     'ru' => [
@@ -5428,6 +5434,7 @@ $langData = [
         'aspect_ratio_tooltip' => 'Соотношение сторон',
         'aspect_ratio'         => 'Соотношение',
         'mini_player'          => 'Мини-плеер',
+        'playback_speed' => 'Скорость воспроизведения',
         'validateYaml' => 'Проверить синтаксис YAML'
     ],
     'ar' => [
@@ -6196,6 +6203,7 @@ $langData = [
         'aspect_ratio_tooltip' => 'نسبة العرض',
         'aspect_ratio'         => 'النسبة',
         'mini_player'          => 'مشغل صغير',
+        'playback_speed' => 'سرعة التشغيل',
         'validateYaml' => 'التحقق من صحة بناء جملة YAML'
     ],
     'es' => [
@@ -6955,6 +6963,7 @@ $langData = [
         'play_pause'           => 'Reproducir/Pausa',
         'aspect_ratio_tooltip' => 'Relación de aspecto',
         'aspect_ratio'         => 'Relación',
+        'playback_speed' => 'Velocidad de reproducción',
         'mini_player'          => 'Mini reproductor',
         'validateYaml' => 'Validar sintaxis YAML'
     ],
@@ -7718,6 +7727,7 @@ $langData = [
         'aspect_ratio_tooltip' => 'Seitenverhältnis',
         'aspect_ratio'         => 'Verhältnis',
         'mini_player'          => 'Mini-Player',
+        'playback_speed' => 'Wiedergabegeschwindigkeit',
         'validateYaml' => 'YAML-Syntax validieren'
     ],
 
@@ -8481,6 +8491,7 @@ $langData = [
         'aspect_ratio_tooltip' => 'Format d’image',
         'aspect_ratio'         => 'Format',
         'mini_player'          => 'Mini lecteur',
+        'playback_speed' => 'Vitesse de lecture',
         'validateYaml' => 'Valider la syntaxe YAML'
     ],
     'en' => [
@@ -9255,6 +9266,7 @@ $langData = [
         'aspect_ratio'         => 'Ratio',
         'mini_player'          => 'Mini Player',
         'restore_default_theme'  => 'Restore Default Theme',
+        'playback_speed' => 'Playback Speed',
         'validateYaml' => 'Validate YAML Syntax'
     ],
     'bn' => [
@@ -10017,6 +10029,7 @@ $langData = [
         'aspect_ratio_tooltip' => 'দৃশ্য অনুপাত',
         'aspect_ratio'         => 'অনুপাত',
         'mini_player'          => 'মিনি প্লেয়ার',
+        'playback_speed' => 'প্লেব্যাক গতি',
         'validateYaml' => 'YAML সিনট্যাক্স যাচাই করুন'
     ]
 ];

@@ -2029,7 +2029,6 @@ list-group:hover {
 [data-theme="dark"] .player-btn:hover,
 [data-theme="dark"] .view-toggle-btn:hover,
 [data-theme="dark"] .btn:hover,
-[data-theme="dark"] .mini-extra-btn:hover,
 [data-theme="dark"] .mini-control-btn:hover, 
 [data-theme="dark"] .player-area.mini-mode .player-header .player-btn:hover,
 [data-theme="dark"] .context-menu {
@@ -2067,10 +2066,6 @@ list-group:hover {
 
 .player-area.mini-mode {
     position: fixed !important;
-    bottom: 50px !important;
-    right: 20px !important;
-    width: 580px;
-    height: 480px;
     z-index: 1000000 !important;
     border-radius: 16px !important;
     box-shadow:var(--shadow-inset) !important;
@@ -2148,8 +2143,8 @@ list-group:hover {
     width: 36px;
     height: 36px;
     border-radius: 50%;
-    background: transparent;
-    border: none;
+    background-color: var(--bg-body);
+    border: var(--border-strong) !important;
     color: var(--text-primary);
     cursor: pointer;
     display: flex;
@@ -2177,7 +2172,7 @@ list-group:hover {
 }
 
 .mini-volume-slider {
-    height: 4px;
+    height: 6px;
     background: rgba(255, 255, 255, 0.3);
     border-radius: 2px;
     cursor: pointer;
@@ -2198,7 +2193,7 @@ list-group:hover {
 }
 
 .mini-volume-slider:hover {
-    height: 6px;
+    height: 8px;
 }
 
 .mini-volume-icon {
@@ -2213,30 +2208,6 @@ list-group:hover {
     min-width: 35px;
     text-align: right;
     font-family: monospace;
-}
-
-.mini-extra-btn {
-    background: transparent;
-    border: none;
-    color: var(--text-secondary);
-    cursor: pointer;
-    padding: 6px 12px;
-    border-radius: 16px;
-    font-size: 0.8rem;
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    transition: all 0.2s;
-}
-
-.mini-extra-btn:hover {
-    background: color-mix(in oklch, var(--header-bg), transparent 20%);
-    color: var(--text-primary);
-    transform: scale(1.1);
-}
-
-.mini-extra-btn i {
-    font-size: 0.9rem;
 }
 
 @keyframes mini-slide-in {
@@ -2275,8 +2246,8 @@ list-group:hover {
 
 .resize-handle {
     position: absolute;
-    width: 15px;
-    height: 15px;
+    width: 12px;
+    height: 12px;
     z-index: 10001;
     background: transparent;
 }
@@ -2305,12 +2276,123 @@ list-group:hover {
     cursor: se-resize;
 }
 
-.player-area.mini-mode.resizing {
-    opacity: 0.9;
-    transition: none;
+.resize-handle.n {
+    top: -5px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 20px;
+    cursor: n-resize;
+}
+
+.resize-handle.s {
+    bottom: -5px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 20px;
+    cursor: s-resize;
+}
+
+.resize-handle.w {
+    left: -5px;
+    top: 50%;
+    transform: translateY(-50%);
+    height: 20px;
+    cursor: w-resize;
+}
+
+.resize-handle.e {
+    right: -5px;
+    top: 50%;
+    transform: translateY(-50%);
+    height: 20px;
+    cursor: e-resize;
 }
 
 .resize-handle:hover {
     background: rgba(255, 255, 255, 0.2);
-    border-radius: 50%;
+    border-radius: 4px;
+}
+
+.mini-time {
+    color: var(--text-primary);
+    font-size: 0.8rem;
+    font-family: monospace;
+    min-width: 45px;
+    text-align: center;
+    opacity: 0.9;
+}
+
+.mini-progress-bar {
+    height: 6px;
+    background: rgba(255, 255, 255, 0.15);
+    border-radius: 10px;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+    transition: all 0.2s ease;
+    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.2);
+}
+
+.mini-progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--accent-color), var(--accent-secondary));
+    border-radius: 10px;
+    width: 0%;
+    transition: width 0.1s linear;
+    box-shadow: 0 0 5px rgba(76, 175, 80, 0.5);
+}
+
+.mini-progress-bar:hover {
+    height: 8px;
+    background: rgba(255, 255, 255, 0.25);
+}
+
+.mini-progress-bar:hover .mini-progress-fill {
+    background: linear-gradient(90deg, var(--accent-secondary), var(--accent-color));
+}
+
+.mini-speed-btn {
+    background-color: var(--bg-body);
+    border: var(--border-strong) !important;
+    color: var(--text-primary);
+    padding: 4px 10px;
+    border-radius: 16px;
+    font-size: 0.75rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+    min-width: 50px;
+    backdrop-filter: blur(5px);
+}
+
+.mini-speed-btn:hover {
+    background: var(--accent-color);
+    border-color: var(--accent-color);
+    color: white;
+    transform: scale(1.05);
+    box-shadow: 0 2px 8px rgba(76, 175, 80, 0.3);
+}
+
+.mini-speed-btn span {
+    font-weight: 500;
+    letter-spacing: 0.3px;
+}
+
+@media (max-width: 480px) {
+    .mini-time {
+        font-size: 0.7rem;
+        min-width: 35px;
+    }
+    
+    .mini-progress-bar {
+        max-width: 150px !important;
+    }
+    
+    .mini-speed-btn {
+        padding: 3px 8px;
+        font-size: 0.7rem;
+        min-width: 45px;
+    }
 }

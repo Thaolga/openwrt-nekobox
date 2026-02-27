@@ -7,7 +7,7 @@ include './spectra.php';
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title data-translate="openwrt_media_center">OpenWrt Media Center</title>
-    <link rel="stylesheet" href="/spectra/css/main.css?v=1.0.1">
+    <link rel="stylesheet" href="/spectra/css/main.css?v=1.0.2">
 </head>
 
 <div class="main-container">
@@ -788,7 +788,10 @@ include './spectra.php';
                         <button class="player-btn mini-toggle-btn" onclick="toggleMiniPlayer()" data-translate-tooltip="mini_player" id="miniPlayerToggle">
                             <i class="fas fa-window-restore"></i>
                         </button>
-                        <button class="player-btn" onclick="togglePlayerFitMode()" data-translate-tooltip="fit_mode_toggle" id="fitModeBtn">
+                        <button class="player-btn" onclick="togglePictureInPicture()" data-translate-tooltip="picture_in_picture">
+                            <i class="fas fa-closed-captioning"></i>
+                        </button>
+                        <button class="player-btn" onclick="togglePlayerFitMode()" data-translate-tooltip="aspect_ratio_tooltip" id="fitModeBtn">
                             <i class="fas fa-arrows-alt"></i>
                         </button>
                         <button class="player-btn" onclick="toggleFullscreenPlayer()" data-translate-tooltip="toggle_fullscreen">
@@ -2052,6 +2055,8 @@ let isDragging = false;
 let dragOffsetX, dragOffsetY;
 let resizeStartX, resizeStartY, resizeStartWidth, resizeStartHeight;
 let resizeDirection = '';
+let isMuted = false;
+let previousVolume = 1;
 
 let currentMedia = {
     type: null,
@@ -2332,7 +2337,26 @@ function playMedia(filePath) {
     }
     
     playerArea.classList.add('active');
-    playerArea.style.display = 'flex';  
+    playerArea.style.display = 'flex';
+    const miniModeEnabled = localStorage.getItem('miniModeEnabled');
+    if (miniModeEnabled === 'true' && !isMiniMode) {
+        setTimeout(() => {
+            toggleMiniPlayer();
+        }, 100);
+    } else if (miniModeEnabled === 'false' && isMiniMode) {
+        setTimeout(() => {
+            toggleMiniPlayer();
+        }, 100);
+    }
+    setTimeout(() => {
+        const activeMedia = getActiveMedia();
+        if (activeMedia) {
+            const savedSpeed = localStorage.getItem('playbackSpeed');
+            if (savedSpeed) {
+                activeMedia.playbackRate = parseFloat(savedSpeed);
+            }
+        }
+    }, 200);  
     saveToRecent(filePath);
     setTimeout(adjustNavButtons, 200);
     setTimeout(adjustNavButtons, 800);
@@ -10946,6 +10970,34 @@ function loadSavedWallpaper() {
     }
 }
 
+function saveMiniPlayerState() {
+    if (!isMiniMode) return;
+    
+    const playerArea = document.getElementById('playerArea');
+    const state = {
+        width: playerArea.style.width,
+        height: playerArea.style.height,
+        top: playerArea.style.top,
+        left: playerArea.style.left,
+        bottom: playerArea.style.bottom,
+        right: playerArea.style.right,
+        position: playerArea.style.position
+    };
+    localStorage.setItem('miniPlayerState', JSON.stringify(state));
+}
+
+function loadMiniPlayerState() {
+    const saved = localStorage.getItem('miniPlayerState');
+    if (saved) {
+        try {
+            return JSON.parse(saved);
+        } catch (e) {
+            return null;
+        }
+    }
+    return null;
+}
+
 function toggleMiniPlayer() {
     const playerArea = document.getElementById('playerArea');
     const toggleBtn = document.getElementById('miniPlayerToggle');
@@ -10953,12 +11005,32 @@ function toggleMiniPlayer() {
     
     if (!isMiniMode) {
         playerArea.classList.add('mini-mode');
+        
+        const savedState = loadMiniPlayerState();
+        if (savedState) {
+            playerArea.style.width = savedState.width || '854px';
+            playerArea.style.height = savedState.height || '620px';
+            playerArea.style.top = savedState.top || '';
+            playerArea.style.left = savedState.left || '';
+            playerArea.style.bottom = savedState.bottom || '50px';
+            playerArea.style.right = savedState.right || '20px';
+        } else {
+            playerArea.style.width = '854px';
+            playerArea.style.height = '620px';
+            playerArea.style.bottom = '50px';
+            playerArea.style.right = '20px';
+        }
+        
         addMiniControls();
         initDrag();
         initResize();
         icon.className = 'fas fa-window-maximize';
         isMiniMode = true;
+        
+        localStorage.setItem('miniModeEnabled', 'true');
     } else {
+        saveMiniPlayerState();
+        
         playerArea.classList.remove('mini-mode');
         removeMiniControls();
         removeDrag();
@@ -10972,6 +11044,8 @@ function toggleMiniPlayer() {
         playerArea.style.position = '';
         icon.className = 'fas fa-window-restore';
         isMiniMode = false;
+        
+        localStorage.setItem('miniModeEnabled', 'false');
     }
     
     setTimeout(() => {
@@ -11039,13 +11113,16 @@ function stopDrag() {
     document.removeEventListener('mouseup', stopDrag);
 }
 
+let resizeStartLeft = 0;
+let resizeStartTop = 0;
 function initResize() {
     const playerArea = document.getElementById('playerArea');
-    const resizeHandles = ['nw', 'ne', 'sw', 'se'];
-    resizeHandles.forEach(dir => {
+    const handlePositions = ['nw', 'n', 'ne', 'w', 'e', 'sw', 's', 'se'];
+    
+    handlePositions.forEach(pos => {
         const handle = document.createElement('div');
-        handle.className = `resize-handle ${dir}`;
-        handle.addEventListener('mousedown', (e) => startResize(e, dir));
+        handle.className = `resize-handle ${pos}`;
+        handle.addEventListener('mousedown', (e) => startResize(e, pos));
         playerArea.appendChild(handle);
     });
 }
@@ -11071,6 +11148,8 @@ function startResize(e, direction) {
     resizeStartY = e.clientY;
     resizeStartWidth = rect.width;
     resizeStartHeight = rect.height;
+    resizeStartLeft = rect.left;
+    resizeStartTop = rect.top;
     
     playerArea.style.transition = 'none';
     playerArea.style.opacity = '0.9';
@@ -11085,36 +11164,56 @@ function onResize(e) {
     e.preventDefault();
     
     const playerArea = document.getElementById('playerArea');
-    const rect = playerArea.getBoundingClientRect();
-    
-    let newWidth = resizeStartWidth;
-    let newHeight = resizeStartHeight;
-    let newLeft = rect.left;
-    let newTop = rect.top;
     
     const deltaX = e.clientX - resizeStartX;
     const deltaY = e.clientY - resizeStartY;
     
+    let newWidth = resizeStartWidth;
+    let newHeight = resizeStartHeight;
+    let newLeft = resizeStartLeft;
+    let newTop = resizeStartTop;
+    
     switch(resizeDirection) {
+        case 'ne':
+            newWidth = Math.max(300, resizeStartWidth + deltaX);
+            newHeight = Math.max(300, resizeStartHeight - deltaY);
+            newTop = resizeStartTop + (resizeStartHeight - newHeight);
+            break;
+            
+        case 'nw':
+            newWidth = Math.max(300, resizeStartWidth - deltaX);
+            newHeight = Math.max(300, resizeStartHeight - deltaY);
+            newLeft = resizeStartLeft + (resizeStartWidth - newWidth);
+            newTop = resizeStartTop + (resizeStartHeight - newHeight);
+            break;
+            
+        case 'sw':
+            newWidth = Math.max(300, resizeStartWidth - deltaX);
+            newHeight = Math.max(300, resizeStartHeight + deltaY);
+            newLeft = resizeStartLeft + (resizeStartWidth - newWidth);
+            break;
+            
         case 'se':
             newWidth = Math.max(300, resizeStartWidth + deltaX);
             newHeight = Math.max(300, resizeStartHeight + deltaY);
             break;
-        case 'sw':
-            newWidth = Math.max(300, resizeStartWidth - deltaX);
+            
+        case 'n':
+            newHeight = Math.max(300, resizeStartHeight - deltaY);
+            newTop = resizeStartTop + (resizeStartHeight - newHeight);
+            break;
+            
+        case 's':
             newHeight = Math.max(300, resizeStartHeight + deltaY);
-            newLeft = rect.left + (resizeStartWidth - newWidth);
             break;
-        case 'ne':
-            newWidth = Math.max(300, resizeStartWidth + deltaX);
-            newHeight = Math.max(300, resizeStartHeight - deltaY);
-            newTop = rect.top + (resizeStartHeight - newHeight);
-            break;
-        case 'nw':
+            
+        case 'w':
             newWidth = Math.max(300, resizeStartWidth - deltaX);
-            newHeight = Math.max(300, resizeStartHeight - deltaY);
-            newLeft = rect.left + (resizeStartWidth - newWidth);
-            newTop = rect.top + (resizeStartHeight - newHeight);
+            newLeft = resizeStartLeft + (resizeStartWidth - newWidth);
+            break;
+            
+        case 'e':
+            newWidth = Math.max(300, resizeStartWidth + deltaX);
             break;
     }
     
@@ -11131,13 +11230,11 @@ function onResize(e) {
 
 function stopResize() {
     if (!isResizing) return;
-    
     isResizing = false;
-    
     const playerArea = document.getElementById('playerArea');
     playerArea.style.transition = '';
     playerArea.style.opacity = '';
-    
+    saveMiniPlayerState();
     document.removeEventListener('mousemove', onResize);
     document.removeEventListener('mouseup', stopResize);
 }
@@ -11150,40 +11247,41 @@ function addMiniControls() {
     controlsPanel.className = 'mini-controls-panel';
     controlsPanel.innerHTML = `
         <div class="d-flex align-items-center justify-content-between w-100 mb-2">
-            <div class="d-flex align-items-center gap-3">
+            <div class="d-flex align-items-center gap-3 me-3">
                 <button class="mini-control-btn" onclick="playPreviousMedia()" data-translate-tooltip="previous_track">
                     <i class="fas fa-step-backward"></i>
                 </button>
-                <button class="mini-control-btn mini-play-btn" onclick="togglePlayPause()" id="miniPlayPauseBtn" data-translate-tooltip="play_pause'">
+                <button class="mini-control-btn mini-play-btn" onclick="togglePlayPause()" id="miniPlayPauseBtn">
                     <i class="fas fa-play"></i>
                 </button>
                 <button class="mini-control-btn" onclick="playNextMedia()" data-translate-tooltip="next_track">
                     <i class="fas fa-step-forward"></i>
                 </button>
             </div>
+
+            <div class="mini-thumb-badge" id="miniThumbBadge">
+                <img id="miniThumbImage" src="" alt="thumb" class="mini-thumb-image" style="display: none;">
+                <i id="miniThumbIcon" class="fas fa-image" style="font-size: 1.4rem; color: var(--accent-color); display: flex;"></i>
+            </div>
+
+            <div class="d-flex align-items-center gap-2 flex-grow-1 mx-3">
+                <span class="mini-time text-nowrap" id="miniCurrentTime">00:00</span>
+                <div class="mini-progress-bar flex-grow-1" onclick="seekMiniPlayer(event)">
+                    <div class="mini-progress-fill" id="miniProgressFill" style="width: 0%"></div>
+                </div>
+                <span class="mini-time text-nowrap" id="miniDuration">00:00</span>
+                <button class="mini-speed-btn ms-2" onclick="cyclePlaybackSpeed()" id="miniSpeedBtn" data-translate-tooltip="playback_speed">
+                    <span id="miniSpeedText">1.0x</span>
+                </button>
+            </div>
             
-            <div class="d-flex align-items-center gap-2" style="flex: 0 1 180px;">
-                <i class="fas fa-volume-up mini-volume-icon" id="miniVolumeIcon"></i>
-                <div class="mini-volume-slider" onclick="setMiniVolume(event)">
+            <div class="d-flex align-items-center gap-2" style="flex: 0 1 150px;">
+                <i class="fas fa-volume-up mini-volume-icon" id="miniVolumeIcon" onclick="toggleMute()" style="cursor: pointer;"></i>
+                <div class="mini-volume-slider flex-grow-1" onclick="setMiniVolume(event)">
                     <div class="mini-volume-fill" id="miniVolumeFill"></div>
                 </div>
                 <span class="mini-volume-percent" id="miniVolumePercent">100%</span>
             </div>
-        </div>
-        
-        <div class="d-flex align-items-center justify-content-between mt-2 pt-2" style="border-top: 1px solid rgba(255,255,255,0.1);">
-            <button class="mini-extra-btn" onclick="togglePictureInPicture()" data-translate-tooltip="picture_in_picture">
-                <i class="fas fa-closed-captioning"></i>
-                <span data-translate="picture_in_picture">Picture-in-Picture</span>
-            </button>
-            <button class="mini-extra-btn" onclick="togglePlayerFitMode()" data-translate-tooltip="aspect_ratio_tooltip">
-                <i class="fas fa-arrows-alt"></i>
-                <span data-translate="aspect_ratio">Aspect Ratio</span>
-            </button>
-            <button class="mini-extra-btn" onclick="closePlayer()" data-translate-tooltip="close">
-                <i class="fas fa-times"></i>
-                <span data-translate="close">Close</span>
-            </button>
         </div>
     `;
     
@@ -11199,11 +11297,43 @@ function addMiniControls() {
                 fill.style.width = (volume * 100) + '%';
                 if (percent) percent.textContent = Math.round(volume * 100) + '%';
             }
+            updateThumbnail();
         }
     }, 50);
     
     initMiniPlayerEvents();
     updateLanguage(currentLang);
+}
+
+function updateThumbnail() {
+    const thumbImg = document.getElementById('miniThumbImage');
+    const thumbIcon = document.getElementById('miniThumbIcon');
+    if (!thumbImg || !thumbIcon) return;
+    
+    const filePath = currentMedia && currentMedia.path ? currentMedia.path : '';
+    
+    if (!filePath) {
+        thumbImg.style.display = 'none';
+        thumbIcon.style.display = 'flex';
+        return;
+    }
+    
+    thumbImg.style.display = 'none';
+    thumbIcon.style.display = 'flex';
+    
+    const thumbnailUrl = `?action=video_thumbnail&path=${encodeURIComponent(filePath)}`;
+    
+    thumbImg.src = thumbnailUrl;
+    
+    thumbImg.onload = () => {
+        thumbImg.style.display = 'block';
+        thumbIcon.style.display = 'none';
+    };
+    
+    thumbImg.onerror = () => {
+        thumbImg.style.display = 'none';
+        thumbIcon.style.display = 'flex';
+    };
 }
 
 function removeMiniControls() {
@@ -11216,6 +11346,7 @@ function removeMiniControls() {
 function initMiniPlayerEvents() {
     const activeMedia = getActiveMedia();
     if (!activeMedia) return;
+    initPlaybackSpeed();
     
     const updatePlayPause = () => {
         const btn = document.getElementById('miniPlayPauseBtn');
@@ -11237,26 +11368,41 @@ function initMiniPlayerEvents() {
         const percentValue = Math.round(volume * 100);
         fill.style.width = (volume * 100) + '%';
         if (percent) percent.textContent = percentValue + '%';
+
         if (volume === 0) {
             icon.className = 'fas fa-volume-mute mini-volume-icon';
-        } else if (volume < 0.5) {
-            icon.className = 'fas fa-volume-down mini-volume-icon';
+            if (!isMuted) isMuted = true;
         } else {
-            icon.className = 'fas fa-volume-up mini-volume-icon';
+            if (volume < 0.5) {
+                icon.className = 'fas fa-volume-down mini-volume-icon';
+            } else {
+                icon.className = 'fas fa-volume-up mini-volume-icon';
+            }
+            if (isMuted) isMuted = false;
         }
     };
     
+    activeMedia.removeEventListener('timeupdate', updateMiniTime);
     activeMedia.removeEventListener('play', updatePlayPause);
     activeMedia.removeEventListener('pause', updatePlayPause);
     activeMedia.removeEventListener('volumechange', updateVolume);
-    activeMedia.removeEventListener('loadedmetadata', updateVolume);
+    activeMedia.removeEventListener('loadedmetadata', updateMiniTime);
+    activeMedia.removeEventListener('loadedmetadata', updateThumbnail);
+    
+    activeMedia.addEventListener('timeupdate', updateMiniTime);
     activeMedia.addEventListener('play', updatePlayPause);
     activeMedia.addEventListener('pause', updatePlayPause);
     activeMedia.addEventListener('volumechange', updateVolume);
-    activeMedia.addEventListener('loadedmetadata', updateVolume);
+    activeMedia.addEventListener('loadedmetadata', () => {
+        updateMiniTime();
+        updateThumbnail();
+    });
+    
     setTimeout(() => {
         updatePlayPause();
         updateVolume();
+        updateMiniTime();
+        updateThumbnail();
     }, 100);
 }
 
@@ -11270,6 +11416,20 @@ function getActiveMedia() {
     return null;
 }
 
+function toggleMute() {
+    const activeMedia = getActiveMedia();
+    if (!activeMedia) return;
+    
+    if (isMuted) {
+        activeMedia.volume = previousVolume;
+        isMuted = false;
+    } else {
+        previousVolume = activeMedia.volume;
+        activeMedia.volume = 0;
+        isMuted = true;
+    }
+}
+
 function setMiniVolume(event) {
     const activeMedia = getActiveMedia();
     if (!activeMedia) return;
@@ -11277,6 +11437,15 @@ function setMiniVolume(event) {
     const rect = volumeSlider.getBoundingClientRect();
     const pos = Math.max(0, Math.min(1, (event.clientX - rect.left) / rect.width));
     activeMedia.volume = pos;
+    
+    if (isMuted && pos > 0) {
+        isMuted = false;
+    }
+    
+    if (!isMuted) {
+        previousVolume = pos;
+    }
+    
     const fill = document.getElementById('miniVolumeFill');
     const percent = document.getElementById('miniVolumePercent');
     if (fill) {
@@ -11329,6 +11498,111 @@ function updateMiniPlayerState() {
     }
 }
 
+const speedPresets = [0.5, 0.75, 1.0, 1.25, 1.5, 2.0];
+let currentSpeedIndex = 2;
+
+function initSpeedFromStorage() {
+    const savedSpeed = localStorage.getItem('playbackSpeed');
+    if (savedSpeed) {
+        const speed = parseFloat(savedSpeed);
+        const index = speedPresets.indexOf(speed);
+        if (index !== -1) {
+            currentSpeedIndex = index;
+        }
+    }
+    return speedPresets[currentSpeedIndex];
+}
+
+function cyclePlaybackSpeed() {
+    const activeMedia = getActiveMedia();
+    if (!activeMedia) return;
+    
+    currentSpeedIndex = (currentSpeedIndex + 1) % speedPresets.length;
+    const newSpeed = speedPresets[currentSpeedIndex];
+    
+    activeMedia.playbackRate = newSpeed;
+    
+    localStorage.setItem('playbackSpeed', newSpeed);
+    
+    const speedText = document.getElementById('miniSpeedText');
+    if (speedText) {
+        speedText.textContent = newSpeed.toFixed(2) + 'x';
+    }
+    
+    const speedMessage = (translations && translations['playback_speed']) || 'Playback speed';
+    const message = `${speedMessage}: ${newSpeed.toFixed(2)}x`;
+    logAndSpeak(message, 'info');
+}
+
+function initPlaybackSpeed() {
+    const activeMedia = getActiveMedia();
+    if (!activeMedia) return;
+    
+    const savedSpeed = localStorage.getItem('playbackSpeed');
+    if (savedSpeed) {
+        const speed = parseFloat(savedSpeed);
+        activeMedia.playbackRate = speed;
+        
+        const index = speedPresets.indexOf(speed);
+        if (index !== -1) {
+            currentSpeedIndex = index;
+        }
+    } else {
+        activeMedia.playbackRate = 1.0;
+        currentSpeedIndex = 2;
+    }
+    
+    const speedText = document.getElementById('miniSpeedText');
+    if (speedText) {
+        const currentSpeed = activeMedia.playbackRate || 1.0;
+        speedText.textContent = currentSpeed.toFixed(2) + 'x';
+    }
+}
+
+function updateMiniTime() {
+    const activeMedia = getActiveMedia();
+    if (!activeMedia) return;
+    
+    const currentTimeEl = document.getElementById('miniCurrentTime');
+    const durationEl = document.getElementById('miniDuration');
+    const progressFill = document.getElementById('miniProgressFill');
+    
+    if (currentTimeEl) {
+        currentTimeEl.textContent = formatTime(activeMedia.currentTime);
+    }
+    if (durationEl) {
+        durationEl.textContent = formatTime(activeMedia.duration);
+    }
+    if (progressFill) {
+        const progress = (activeMedia.currentTime / activeMedia.duration) * 100 || 0;
+        progressFill.style.width = progress + '%';
+    }
+}
+
+function seekMiniPlayer(event) {
+    const activeMedia = getActiveMedia();
+    if (!activeMedia) return;
+    
+    const progressBar = event.currentTarget;
+    const rect = progressBar.getBoundingClientRect();
+    const pos = Math.max(0, Math.min(1, (event.clientX - rect.left) / rect.width));
+    activeMedia.currentTime = pos * activeMedia.duration;
+}
+
+function formatTime(seconds) {
+    if (isNaN(seconds) || !seconds || seconds === Infinity) return '00:00';
+    
+    const h = Math.floor(seconds / 3600);
+    const m = Math.floor((seconds % 3600) / 60);
+    const s = Math.floor(seconds % 60);
+    
+    if (h > 0) {
+        return `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+    } else {
+        return `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+    }
+}
+
 window.addEventListener('beforeunload', function(e) {
     const unsavedTabs = editorTabs.filter(tab => tab.modified);
     
@@ -11357,6 +11631,7 @@ document.addEventListener('DOMContentLoaded', function() {
     initDragAndDrop();
     initRecycleBinToggle();
     loadSavedWallpaper();
+    initSpeedFromStorage();
     
     if (typeof Chart !== 'undefined') {
         startSystemMonitoring();
@@ -11412,6 +11687,10 @@ document.addEventListener('DOMContentLoaded', function() {
                 fileInput.value = '';
             }
         });
+    }
+
+    const miniModeEnabled = localStorage.getItem('miniModeEnabled');
+    if (miniModeEnabled === 'true') {
     }
     
     setTimeout(() => {
